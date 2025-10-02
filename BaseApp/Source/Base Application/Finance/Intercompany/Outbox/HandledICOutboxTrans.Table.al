@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Intercompany.Outbox;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Intercompany.Outbox;
 
 using Microsoft.Intercompany.Comment;
 using Microsoft.Intercompany;
@@ -23,9 +27,24 @@ table 416 "Handled IC Outbox Trans."
             Editable = false;
             TableRelation = "IC Partner";
         }
+#if not CLEANSCHEMA29
         field(3; "Source Type"; Enum "IC Transaction Source Type")
         {
             Caption = 'Source Type';
+            Editable = false;
+            ObsoleteReason = 'Replaced by IC Source Type for Enum typing';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '29.0';
+#endif
+        }
+#endif
+        field(4; "IC Source Type"; Enum "IC Transaction Source Type")
+        {
+            Caption = 'IC Source Type';
             Editable = false;
         }
         field(5; "Document Type"; Enum "IC Transaction Document Type")
@@ -103,18 +122,18 @@ table 416 "Handled IC Outbox Trans."
         ICOutboxSalesHdr: Record "Handled IC Outbox Sales Header";
         ICOutboxPurchHdr: Record "Handled IC Outbox Purch. Hdr";
     begin
-        case "Source Type" of
-            "Source Type"::Journal:
+        case "IC Source Type" of
+            "IC Source Type"::Journal:
                 begin
                     ICOutboxJnlLine.SetRange("Transaction No.", "Transaction No.");
                     ICOutboxJnlLine.SetRange("IC Partner Code", "IC Partner Code");
                     ICOutboxJnlLine.SetRange("Transaction Source", "Transaction Source");
                     ICOutboxJnlLine.DeleteAll(true);
                 end;
-            "Source Type"::"Sales Document":
+            "IC Source Type"::"Sales Document":
                 if ICOutboxSalesHdr.Get("Transaction No.", "IC Partner Code", "Transaction Source") then
                     ICOutboxSalesHdr.Delete(true);
-            "Source Type"::"Purchase Document":
+            "IC Source Type"::"Purchase Document":
                 if ICOutboxPurchHdr.Get("Transaction No.", "IC Partner Code", "Transaction Source") then
                     ICOutboxPurchHdr.Delete(true);
             else
@@ -133,8 +152,8 @@ table 416 "Handled IC Outbox Trans."
         HandledICOutboxSalesDoc: Page "Handled IC Outbox Sales Doc.";
         HandledICOutboxPurchDoc: Page "Handled IC Outbox Purch. Doc.";
     begin
-        case "Source Type" of
-            "Source Type"::Journal:
+        case "IC Source Type" of
+            "IC Source Type"::Journal:
                 begin
                     HandledICOutboxJnlLine.SetRange("Transaction No.", "Transaction No.");
                     HandledICOutboxJnlLine.SetRange("IC Partner Code", "IC Partner Code");
@@ -143,7 +162,7 @@ table 416 "Handled IC Outbox Trans."
                     HandledICOutboxJnlLines.SetTableView(HandledICOutboxJnlLine);
                     HandledICOutboxJnlLines.RunModal();
                 end;
-            "Source Type"::"Sales Document":
+            "IC Source Type"::"Sales Document":
                 begin
                     HandledICOutboxSalesHeader.SetRange("IC Transaction No.", "Transaction No.");
                     HandledICOutboxSalesHeader.SetRange("IC Partner Code", "IC Partner Code");
@@ -152,7 +171,7 @@ table 416 "Handled IC Outbox Trans."
                     HandledICOutboxSalesDoc.SetTableView(HandledICOutboxSalesHeader);
                     HandledICOutboxSalesDoc.RunModal();
                 end;
-            "Source Type"::"Purchase Document":
+            "IC Source Type"::"Purchase Document":
                 begin
                     HandledICOutboxPurchHdr.SetRange("IC Partner Code", "IC Partner Code");
                     HandledICOutboxPurchHdr.SetRange("IC Transaction No.", "Transaction No.");

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -22,7 +22,6 @@ using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Sales.Customer;
-using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Setup;
 using Microsoft.Service.Comment;
 using Microsoft.Service.Contract;
@@ -511,8 +510,7 @@ codeunit 5988 "Serv-Documents Mgt."
                     ServPostingJnlsMgt.PostBalancingEntry(ServHeader, InvoicePostingInterface);
                 end;
 
-            MakeInvtAdjustment();
-            ServPostingJnlsMgt.CreateBills(TotalServiceLine, Window, GenJnlLineDocNo, GenJnlLineExtDocNo);
+            OnPostDocumentLinesOnAfterPostSalesAndVAT(ServHeader, TotalServiceLine, Window, GenJnlLineDocNo, GenJnlLineExtDocNo, Invoice);
         end;
 
         MakeInvtAdjustment();
@@ -1220,10 +1218,8 @@ codeunit 5988 "Serv-Documents Mgt."
             if ServInvHeader.FindFirst() then begin
                 ServiceInvoiceHeader2.Init();
                 ServiceInvoiceHeader2.Copy(ServInvHeader);
-			    PassedServHeader.CalcFields("Work Description");
-		        ServiceInvoiceHeader2."Work Description" := PassedServHeader."Work Description";
-                ServiceInvoiceHeader2.SetSIIFirstSummaryDocNo(PassedServHeader.GetSIIFirstSummaryDocNo());
-                ServiceInvoiceHeader2.SetSIILastSummaryDocNo(PassedServHeader.GetSIILastSummaryDocNo());
+                PassedServHeader.CalcFields("Work Description");
+                ServiceInvoiceHeader2."Work Description" := PassedServHeader."Work Description";
                 OnFinalizeInvoiceDocumentOnBeforeServiceInvoiceHeaderInsert(ServiceInvoiceHeader2, ServInvHeader, ServHeader);
                 ServiceInvoiceHeader2.Insert();
             end;
@@ -1284,10 +1280,8 @@ codeunit 5988 "Serv-Documents Mgt."
             if ServCrMemoHeader.FindFirst() then begin
                 PServCrMemoHeader.Init();
                 PServCrMemoHeader.Copy(ServCrMemoHeader);
-			    PassedServHeader.CalcFields("Work Description");
-		        PServCrMemoHeader."Work Description" := PassedServHeader."Work Description";
-                PServCrMemoHeader.SetSIIFirstSummaryDocNo(PassedServHeader.GetSIIFirstSummaryDocNo());
-                PServCrMemoHeader.SetSIILastSummaryDocNo(PassedServHeader.GetSIILastSummaryDocNo());
+                PassedServHeader.CalcFields("Work Description");
+                PServCrMemoHeader."Work Description" := PassedServHeader."Work Description";
                 OnFinalizeCrMemoDocumentOnBeforeServiceCreditMemoHeaderInsert(PServCrMemoHeader, ServCrMemoHeader, ServHeader);
                 PServCrMemoHeader.Insert();
             end;
@@ -1310,9 +1304,6 @@ codeunit 5988 "Serv-Documents Mgt."
     var
         Cust: Record Customer;
         IsHandled: Boolean;
-        Text1100000: Label 'The Credit Memo doesn''t have a Corrected Invoice No. Do you want to continue?';
-        Text1100001: Label 'The posting process has been cancelled by the user.';
-        Text1100002: Label 'Corrective Invoice';
     begin
         IsHandled := false;
         OnBeforeGetAndCheckCustomer(ServHeader, IsHandled);
@@ -1334,17 +1325,7 @@ codeunit 5988 "Serv-Documents Mgt."
         end else
             Cust.CheckBlockedCustOnDocs(Cust, ServHeader."Document Type", false, true);
 
-        if ServHeader."Document Type" = ServHeader."Document Type"::"Credit Memo" then begin
-            SalesSetup.Get();
-            if SalesSetup."Correct. Doc. No. Mandatory" then
-                ServHeader.TestField(ServHeader."Corrected Invoice No.")
-            else
-                if ServHeader."Corrected Invoice No." = '' then
-                    if not Confirm(Text1100000, false) then
-                        Error(Text1100001);
-            if (ServHeader."Corrected Invoice No." <> '') and (ServHeader."Posting Description" = '') then
-                ServHeader."Posting Description" := Format(Text1100002) + ' ' + ServHeader."No."
-        end;
+        OnGetAndCheckCustomerOnAfterCheckBlocked(ServHeader);
 
         if ServHeader."Bill-to Customer No." <> ServHeader."Customer No." then begin
             Cust.Get(ServHeader."Bill-to Customer No.");
@@ -1361,8 +1342,7 @@ codeunit 5988 "Serv-Documents Mgt."
                 Cust.CheckBlockedCustOnDocs(Cust, ServHeader."Document Type", false, true);
         end;
 
-        if Cust."Application Method" = Cust."Application Method"::"Apply to Oldest" then
-            TestSalesEfects(ServHeader, Cust);
+        OnAfterGetAndCheckCustomer(ServHeader);
 
         ServLine.Reset();
     end;
@@ -2211,14 +2191,16 @@ codeunit 5988 "Serv-Documents Mgt."
         ServiceOrderAllocationRec.DeleteAll();
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit ServicePostingSubscrES', '27.0')]
     [Scope('OnPrem')]
     procedure TestSalesEfects(ServiceHeader: Record "Service Header"; Cust: Record Customer)
     var
-        CustLedgEntry: Record "Cust. Ledger Entry";
+        CustLedgEntry: Record Microsoft.Sales.Receivables."Cust. Ledger Entry";
+        ShowError: Boolean;
         Text1100000: Label 'At least one document of %1 No. %2 is closed or in a Bill Group.';
         Text1100001: Label 'This will avoid the document to be settled.\';
         Text1100002: Label 'The posting process of %3 No. %4 will not settle any document.\';
-        ShowError: Boolean;
         Text1100003: Label 'Due this customer is using Apply to Oldest Application Method, please remove the lines for the Bill Group before posting.';
     begin
         ShowError := false;
@@ -2252,6 +2234,7 @@ codeunit 5988 "Serv-Documents Mgt."
                   Format(ServiceHeader."No."));
         end;
     end;
+#endif
 
     local procedure FinalizeWarrantyLedgerEntries(var ServiceHeader: Record "Service Header"; CloseCondition: Boolean)
     var
@@ -2762,13 +2745,6 @@ codeunit 5988 "Serv-Documents Mgt."
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnPostDocumentLinesOnBeforePostInvoicePostBuffer(ServiceHeader: Record "Service Header"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnPostDocumentLinesOnBeforePostRemQtyToBeConsumed(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")
@@ -3032,6 +3008,21 @@ codeunit 5988 "Serv-Documents Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckServiceShipmentLineValues(var ServiceShipmentLine: Record "Service Shipment Line"; var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDocumentLinesOnAfterPostSalesAndVAT(var ServiceHeader: Record "Service Header"; var TotalServiceLine: Record "Service Line"; var Window: Dialog; GenJnlLineDocNo: Code[20]; GenJnlLineExtDocNo: Text[35]; Invoice: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAndCheckCustomer(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetAndCheckCustomerOnAfterCheckBlocked(var ServiceHeader: Record "Service Header")
     begin
     end;
 }

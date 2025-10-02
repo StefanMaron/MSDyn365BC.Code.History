@@ -3140,7 +3140,7 @@ codeunit 147520 SIIDocumentTests
         CountryRegion: Record "Country/Region";
         XMLDoc: DotNet XmlDocument;
     begin
-        // [SCENARIO 494864] Posted Purchase Invoice XML file is exported without CodigoPais element for XI Country Region Vendor having blank ISO Code. 
+        // [SCENARIO 494864] Posted Purchase Invoice XML file is exported without CodigoPais element for XI Country Region Vendor having blank ISO Code.
         Initialize();
 
         // [GIVEN] Create Vendor with ES Country Region and Vat Registration No.
@@ -3243,7 +3243,7 @@ codeunit 147520 SIIDocumentTests
         // [SCENARIO: 536255] The Special Scheme Code used in the Request XML submitted via SII History is wrong in case you use Unrealized VAT without VAT Cash in the Spanish version.
         Initialize();
 
-        // [GIVEN] Update G/L Setup, Create Customer with VAT Posting Setup 
+        // [GIVEN] Update G/L Setup, Create Customer with VAT Posting Setup
         UpdateVATCashRegimeOnGLSetup(true);
         LibrarySales.CreateCustomer(Customer);
         CreateVATPostingSetupVATCashRegime(VATPostingSetup, Customer."VAT Bus. Posting Group", 21);
@@ -3273,7 +3273,7 @@ codeunit 147520 SIIDocumentTests
         PostedSalesInvoiceNo: Code[20];
         XMLDoc: DotNet XmlDocument;
     begin
-        // [SCENARIO 536602] "Si la ClaveRegimenEspecialOTrascendencia o alguna ClaveRegimenEspecialOTrascendenciaAdicional tienen un valor 
+        // [SCENARIO 536602] "Si la ClaveRegimenEspecialOTrascendencia o alguna ClaveRegimenEspecialOTrascendenciaAdicional tienen un valor
         // 03, 05 o 09 el campo ImporteTotal debe estar informado" error if we submit so SII a document with Special Scheme Code 09
         Initialize();
 
@@ -3675,15 +3675,6 @@ codeunit 147520 SIIDocumentTests
         SIISetup.Modify(true);
     end;
 
-    local procedure SetTaxPeriod(TaxPeriod: Enum "SII Tax Period")
-    var
-        SIISetup: Record "SII Setup";
-    begin
-        SIISetup.Get();
-        SIISetup.Validate("Tax Period", TaxPeriod);
-        SIISetup.Modify(true);
-    end;
-
     local procedure PostPurchDocWithMultiplesLinesDiffVAT(var VendLedgEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type"; CorrectionType: Option)
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
@@ -3943,4 +3934,3 @@ codeunit 147520 SIIDocumentTests
         Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
-

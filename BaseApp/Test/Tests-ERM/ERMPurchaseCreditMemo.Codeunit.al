@@ -1403,7 +1403,7 @@
         ActualAmount: array[4] of Decimal;
         CostAmountActual: array[2] of Decimal;
     begin
-        // [SCENARIO 540329] When Stans Posts Purchase Credit Memo using Non-Deductible VAT 
+        // [SCENARIO 540329] When Stans Posts Purchase Credit Memo using Non-Deductible VAT
         // Then Non-Deductible Amount is added in item costs in G/L Entry and Value Entry.
         Initialize();
 
@@ -1426,7 +1426,7 @@
         CreateItemWithPostingSetup(Item, GeneralPostingSetup."Gen. Prod. Posting Group",
             VATPostingSetup."VAT Prod. Posting Group", InventoryPostingGroup.Code);
 
-        // [GIVEN] Create a Purchase Header Document Type of Invoice and Validate Location Code.        
+        // [GIVEN] Create a Purchase Header Document Type of Invoice and Validate Location Code.
         CreatePurchaseDocument(PurchaseHeader[1], PurchaseDocumentType::Invoice, Vendor."No.", Location.Code);
 
         // [GIVEN] Create a Purchase Line and Validate "Direct Unit Cost".
@@ -1435,7 +1435,7 @@
         PurchaseLine[1].Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10000, 10000));
         PurchaseLine[1].Modify(true);
 
-        // [WHEN] Posts a Purchase Invoice. 
+        // [WHEN] Posts a Purchase Invoice.
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader[1], true, true));
 
         // [THEN] Retrieve VAT Entry.
@@ -1464,7 +1464,7 @@
         Assert.AreEqual(CostAmountActual[1], ActualAmount[2],
             StrSubstNo(FieldErrDetLbl, GLEntry.FieldCaption(Amount), CostAmountActual[1], GLEntry.TableCaption()));
 
-        // [GIVEN] Create a Purchase Header for Document Type Credit Memo. 
+        // [GIVEN] Create a Purchase Header for Document Type Credit Memo.
         CreatePurchaseDocument(PurchaseHeader[2], PurchaseDocumentType::"Credit Memo", Vendor."No.", Location.Code);
 
         // [GIVEN] Run Get Document Lines to Reverse and copy from Posted Purchase Invoices.
@@ -1833,7 +1833,7 @@
           -Amount, CostAmount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(FieldErr, ValueEntry.FieldCaption("Cost Amount (Actual)"), ValueEntry.TableCaption()));
     end;
-
+#if not CLEAN25
     local procedure VerifyLineDiscountAmount(PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]; LineDiscountAmount: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -1852,7 +1852,7 @@
           LineDiscountAmount, PurchaseLine."Line Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(FieldErr, PurchaseLine.FieldCaption("Line Discount Amount"), PurchaseLine.TableCaption()));
     end;
-
+#endif
     local procedure VerifyInvoiceDiscountAmount(PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]; InvoiceDiscountAmount: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -2038,4 +2038,3 @@
         PostedPurchaseDocumentLines.OK().Invoke();
     end;
 }
-

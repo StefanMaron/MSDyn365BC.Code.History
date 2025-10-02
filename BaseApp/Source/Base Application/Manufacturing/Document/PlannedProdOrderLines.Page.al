@@ -317,12 +317,17 @@ page 99000814 "Planned Prod. Order Lines"
                         Rec.ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
                 }
+#if not CLEAN27
                 field("Standard Task Code"; Rec."Standard Task Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a standard task.';
                     Visible = false;
+                    ObsoleteReason = 'Discontinued functionality';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif
             }
         }
     }

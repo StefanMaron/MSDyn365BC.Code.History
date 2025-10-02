@@ -1,9 +1,17 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Deferral;
 
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 
+/// <summary>
+/// Worksheet page for creating and editing deferral schedules.
+/// Allows users to define how deferred amounts are distributed across accounting periods.
+/// </summary>
 page 1702 "Deferral Schedule"
 {
     Caption = 'Deferral Schedule';
@@ -198,6 +206,15 @@ page 1702 "Deferral Schedule"
         PostingDate: Date;
         StartDateCalcMethod: Text;
 
+    /// <summary>
+    /// Sets the parameters that identify the source document line for which the deferral schedule is being created.
+    /// </summary>
+    /// <param name="DeferralDocType">Type of source document (Purchase, Sales, or G/L)</param>
+    /// <param name="GenJnlTemplateName">General Journal Template name for G/L deferrals</param>
+    /// <param name="GenJnlBatchName">General Journal Batch name for G/L deferrals</param>
+    /// <param name="DocumentType">Document type ID from the source document</param>
+    /// <param name="DocumentNo">Document number from the source document</param>
+    /// <param name="LineNo">Line number within the source document</param>
     procedure SetParameter(DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer)
     begin
         DisplayDeferralDocType := Enum::"Deferral Document Type".FromInteger(DeferralDocType);
@@ -208,12 +225,20 @@ page 1702 "Deferral Schedule"
         DisplayLineNo := LineNo;
     end;
 
+    /// <summary>
+    /// Returns whether the deferral schedule has been modified by the user.
+    /// </summary>
+    /// <returns>True if the schedule or subform has been changed, false otherwise</returns>
     [Scope('OnPrem')]
     procedure GetParameter(): Boolean
     begin
         exit(Changed or CurrPage.DeferralSheduleSubform.PAGE.GetChanged())
     end;
 
+    /// <summary>
+    /// Initializes the form by loading the deferral header record and setting up display fields.
+    /// Retrieves posting date from the appropriate source document based on deferral type.
+    /// </summary>
     procedure InitForm()
     var
         DeferralTemplate: Record "Deferral Template";
@@ -275,16 +300,52 @@ page 1702 "Deferral Schedule"
         end;
     end;
 
+    /// <summary>
+    /// Integration event raised before initializing the deferral schedule form.
+    /// Enables custom form initialization logic or parameter modification.
+    /// </summary>
+    /// <param name="DeferralHeader">Deferral header record for the schedule</param>
+    /// <param name="DisplayDeferralDocType">Document type for display purposes</param>
+    /// <param name="DisplayGenJnlTemplateName">General journal template name for display</param>
+    /// <param name="DisplayGenJnlBatchName">General journal batch name for display</param>
+    /// <param name="DisplayDocumentType">Document type integer value for display</param>
+    /// <param name="DisplayDocumentNo">Document number for display</param>
+    /// <param name="DisplayLineNo">Line number for display</param>
+    /// <param name="PostingDate">Posting date for the deferral</param>
+    /// <param name="StartDateCalcMethod">Calculation method for start date</param>
+    /// <param name="IsHandled">Set to true to skip standard form initialization</param>
+    /// <remarks>
+    /// Raised from InitForm procedure before standard deferral schedule form setup.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitForm(var DeferralHeader: Record "Deferral Header"; DisplayDeferralDocType: Enum "Deferral Document Type"; DisplayGenJnlTemplateName: Code[10]; DisplayGenJnlBatchName: Code[10]; DisplayDocumentType: Integer; DisplayDocumentNo: Code[20]; DisplayLineNo: Integer; var PostingDate: Date; var StartDateCalcMethod: Text; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after calculating whether to show number of periods error.
+    /// Enables custom logic for determining period validation error display.
+    /// </summary>
+    /// <param name="DeferralHeader">Deferral header being validated</param>
+    /// <param name="DeferralLine">Deferral line being validated</param>
+    /// <param name="ShowNoofPeriodsError">Whether to show periods error (can be modified by subscribers)</param>
+    /// <remarks>
+    /// Raised from OnQueryClosePage trigger after calculating period validation errors.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnOnQueryClosePageOnAfterCalcShowNoofPeriodsError(DeferralHeader: Record "Deferral Header"; DeferralLine: Record "Deferral Line"; var ShowNoofPeriodsError: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after setting filters on deferral lines during page close validation.
+    /// Enables custom filter modification or additional processing on deferral lines.
+    /// </summary>
+    /// <param name="DeferralHeader">Deferral header context for filtering</param>
+    /// <param name="DeferralLine">Deferral line record with filters applied</param>
+    /// <remarks>
+    /// Raised from OnQueryClosePage trigger after applying standard filters to deferral lines.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnOnQueryClosePageOnAfterDeferralLineSetFilters(DeferralHeader: Record "Deferral Header"; var DeferralLine: Record "Deferral Line")
     begin

@@ -38,6 +38,7 @@ table 144050 "Test 340 Declaration Line Buf."
         field(8; "Tax %"; Decimal)
         {
             DataClassification = SystemMetadata;
+            AutoFormatType = 0;
         }
         field(9; "No. of Registers"; Integer)
         {
@@ -54,6 +55,8 @@ table 144050 "Test 340 Declaration Line Buf."
         field(17; "Collection Amount"; Decimal)
         {
             DataClassification = SystemMetadata;
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(18; "Collection Payment Method"; Code[20])
         {
@@ -219,4 +222,3 @@ table 144050 "Test 340 Declaration Line Buf."
         Assert.AreEqual(ExpectedFieldValue, ActualFieldValue, StrSubstNo(ValueNotFoundForFieldMsg, FieldID, GetFieldPos(FieldID)));
     end;
 }
-

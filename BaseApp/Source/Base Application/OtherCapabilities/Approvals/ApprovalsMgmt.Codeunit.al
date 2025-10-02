@@ -13,6 +13,7 @@ using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Posting;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Document;
+using System.Telemetry;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Posting;
 using Microsoft.Utilities;
@@ -82,6 +83,9 @@ codeunit 1535 "Approvals Mgmt."
         PreventDeleteRecordWithOpenApprovalEntryMsg: Label 'You can''t delete a record that has open approval entries. Do you want to cancel the approval request first?';
         PreventDeleteRecordWithOpenApprovalEntryForCurrUserMsg: Label 'You can''t delete a record that has open approval entries. To delete a record, you can Reject approval and document requested changes in approval comment lines.';
         PreventDeleteRecordWithOpenApprovalEntryForSenderMsg: Label 'You can''t delete a record that has open approval entries. To delete a record, you need to Cancel approval request first.';
+        JobQueueDelegatedAdminCategoryTxt: Label 'AL JobQueueEntries Delegated Admin', Locked = true;
+        JobQueueWorkflowSetupErr: Label 'The Job Queue approval workflow has not been setup.';
+        DelegatedAdminSendingApprovalLbl: Label 'Delegated admin sending approval', Locked = true;
         ImposedRestrictionLbl: Label 'Imposed restriction';
         PendingApprovalLbl: Label 'Pending Approval';
         RestrictBatchUsageDetailsLbl: Label 'The restriction was imposed because the journal batch requires approval.';
@@ -543,7 +547,7 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetRange("Record ID to Approve", RecRef.RecordId);
         ApprovalEntry.SetFilter(Status, '%1|%2', ApprovalEntry.Status::Created, ApprovalEntry.Status::Open);
         ApprovalEntry.SetRange("Workflow Step Instance ID", WorkflowStepInstance.ID);
-        OnApproveApprovalRequestsForRecordOnAfterApprovalEntrySetFilters(ApprovalEntry);
+        OnApproveApprovalRequestsForRecordOnAfterApprovalEntrySetFilters(ApprovalEntry, WorkflowStepInstance, RecRef);
         if ApprovalEntry.FindSet() then
             repeat
                 ApprovalEntryToUpdate := ApprovalEntry;
@@ -595,7 +599,7 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetRange("Record ID to Approve", RecRef.RecordId);
         ApprovalEntry.SetFilter(Status, '<>%1&<>%2', ApprovalEntry.Status::Rejected, ApprovalEntry.Status::Canceled);
         ApprovalEntry.SetRange("Workflow Step Instance ID", WorkflowStepInstance.ID);
-        OnRejectApprovalRequestsForRecordOnAfterSetApprovalEntryFilters(ApprovalEntry, RecRef);
+        OnRejectApprovalRequestsForRecordOnAfterSetApprovalEntryFilters(ApprovalEntry, WorkflowStepInstance, RecRef);
         if ApprovalEntry.FindSet() then
             repeat
                 OldStatus := ApprovalEntry.Status;
@@ -2367,6 +2371,9 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry2.SetFilter("Record ID to Approve", '%1|%2', WorkflowStepInstanceRecID, ApprovalEntry."Record ID to Approve");
         ApprovalEntry2.SetRange(Status, ApprovalEntry2.Status::Open);
         ApprovalEntry2.SetRange("Workflow Step Instance ID", ApprovalEntry."Workflow Step Instance ID");
+
+        OnFindOpenApprovalEntriesForWorkflowStepInstanceOnAfterSetApprovalEntry2Filters(ApprovalEntry2, ApprovalEntry, WorkflowStepInstanceRecID);
+
         exit(not ApprovalEntry2.IsEmpty);
     end;
 
@@ -2399,6 +2406,8 @@ codeunit 1535 "Approvals Mgmt."
                         Error('');
                 Database::"Gen. Journal Line":
                     Error(PreventDeleteRecordWithOpenApprovalEntryForSenderMsg);
+                else
+                    OnPreventDeletingRecordWithOpenApprovalEntryElseCase(RecRef, Variant);
             end;
     end;
 
@@ -2424,6 +2433,8 @@ codeunit 1535 "Approvals Mgmt."
                         end else
                             Error('');
                 end;
+            else
+                OnPreventInsertRecIfOpenApprovalEntryExistElseCase(RecRef, Variant);
         end;
     end;
 
@@ -2522,6 +2533,22 @@ codeunit 1535 "Approvals Mgmt."
         else
             if FindApprovalEntryByRecordId(ApprovalEntry, GenJournalLine.RecordId) then
                 GenJnlLineApprovalStatus := GetApprovalStatusFromApprovalEntry(ApprovalEntry, GenJournalLine);
+    end;
+
+    internal procedure SendForApproval(var JobQueueEntry: Record "Job Queue Entry")
+    var
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+    begin
+        if ApprovalsMgmt.CheckJobQueueEntryApprovalEnabled() then begin
+            JobQueueEntry.SetStatus(JobQueueEntry.Status::"On Hold");
+            Commit();
+            ApprovalsMgmt.OnSendJobQueueEntryForApproval(JobQueueEntry);
+            FeatureTelemetry.LogUsage('0000JQE', JobQueueDelegatedAdminCategoryTxt, DelegatedAdminSendingApprovalLbl);
+        end else begin
+            FeatureTelemetry.LogError('0000JQD', JobQueueDelegatedAdminCategoryTxt, DelegatedAdminSendingApprovalLbl, JobQueueWorkflowSetupErr);
+            Error(JobQueueWorkflowSetupErr);
+        end;
     end;
 
     local procedure GetApprovalStatusFromApprovalEntry(var ApprovalEntry: Record "Approval Entry"; GenJournalBatch: Record "Gen. Journal Batch"): Text[20]
@@ -2642,7 +2669,7 @@ codeunit 1535 "Approvals Mgmt."
 
 
     [IntegrationEvent(false, false)]
-    local procedure OnApproveApprovalRequestsForRecordOnAfterApprovalEntrySetFilters(var ApprovalEntry: Record "Approval Entry")
+    local procedure OnApproveApprovalRequestsForRecordOnAfterApprovalEntrySetFilters(var ApprovalEntry: Record "Approval Entry"; WorkflowStepInstance: Record "Workflow Step Instance"; RecRef: RecordRef)
     begin
     end;
 
@@ -2977,7 +3004,7 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRejectApprovalRequestsForRecordOnAfterSetApprovalEntryFilters(var ApprovalEntry: Record "Approval Entry"; RecRef: RecordRef)
+    local procedure OnRejectApprovalRequestsForRecordOnAfterSetApprovalEntryFilters(var ApprovalEntry: Record "Approval Entry"; WorkflowStepInstance: Record "Workflow Step Instance"; RecRef: RecordRef)
     begin
     end;
 
@@ -3151,5 +3178,18 @@ codeunit 1535 "Approvals Mgmt."
     begin
     end;
 
-}
+    [IntegrationEvent(false, false)]
+    local procedure OnPreventDeletingRecordWithOpenApprovalEntryElseCase(RecRef: RecordRef; Variant: Variant)
+    begin
+    end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnPreventInsertRecIfOpenApprovalEntryExistElseCase(RecRef: RecordRef; Variant: Variant)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindOpenApprovalEntriesForWorkflowStepInstanceOnAfterSetApprovalEntry2Filters(var ApprovalEntry2: Record "Approval Entry"; ApprovalEntry: Record "Approval Entry"; WorkflowStepInstanceRecID: RecordId)
+    begin
+    end;
+}

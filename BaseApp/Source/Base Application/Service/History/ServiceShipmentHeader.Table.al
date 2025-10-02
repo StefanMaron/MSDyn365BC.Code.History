@@ -75,6 +75,7 @@ table 5990 "Service Shipment Header"
         field(6; "Bill-to Name 2"; Text[50])
         {
             Caption = 'Bill-to Name 2';
+            ToolTip = 'Specifies an additional part of the name of the customer that you send or sent the invoice or credit memo to.';
         }
         field(7; "Bill-to Address"; Text[100])
         {
@@ -266,7 +267,7 @@ table 5990 "Service Shipment Header"
                 CustLedgEntry.SetCurrentKey("Document No.");
                 CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                 CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-                CustLedgEntry.SetRange("Bill No.", "Applies-to Bill No.");
+                OnLookupAppliestoDocNoOnAfterSetFilters(Rec, CustLedgEntry);
                 PAGE.Run(0, CustLedgEntry);
             end;
         }
@@ -317,6 +318,7 @@ table 5990 "Service Shipment Header"
         field(80; "Name 2"; Text[50])
         {
             Caption = 'Name 2';
+            ToolTip = 'Specifies an additional part of the name of the customer on the posted service shipment.';
         }
         field(81; Address; Text[100])
         {
@@ -770,25 +772,6 @@ table 5990 "Service Shipment Header"
         {
             Caption = 'Quote No.';
         }
-        field(7000000; "Applies-to Bill No."; Code[20])
-        {
-            Caption = 'Applies-to Bill No.';
-        }
-        field(7000001; "Cust. Bank Acc. Code"; Code[20])
-        {
-            Caption = 'Cust. Bank Acc. Code';
-            TableRelation = "Customer Bank Account".Code where("Customer No." = field("Bill-to Customer No."));
-        }
-#if not CLEANSCHEMA25
-        field(7000003; "Pay-at Code"; Code[10])
-        {
-            Caption = 'Pay-at Code';
-            TableRelation = "Customer Pmt. Address".Code where("Customer No." = field("Bill-to Customer No."));
-            ObsoleteReason = 'Address is taken from the fields Bill-to Address, Bill-to City, etc.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '25.0';
-        }
-#endif
     }
 
     keys
@@ -1004,6 +987,11 @@ table 5990 "Service Shipment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var ServiceShipmentHeader: Record "Service Shipment Header"; ShowRequestForm: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliestoDocNoOnAfterSetFilters(ServiceShipmentHeader: Record "Service Shipment Header"; var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 

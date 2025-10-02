@@ -1619,34 +1619,34 @@ codeunit 147330 "Edit Posted Documents ES"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure PostedServiceInvoiceUpdateOKModalPageHandler(var PostedServInvoiceUpdate: TestPage "Posted Serv. Invoice - Update")
+    procedure PostedServiceInvoiceUpdateOKModalPageHandler(var PostedServiceInvUpdate: TestPage "Posted Service Inv. - Update")
     begin
-        PostedServInvoiceUpdate."Country/Region Code".SetValue(LibraryVariableStorage.DequeueText());
-        PostedServInvoiceUpdate."Bill-to Country/Region Code".SetValue(LibraryVariableStorage.DequeueText());
-        PostedServInvoiceUpdate."Ship-to Country/Region Code".SetValue(LibraryVariableStorage.DequeueText());
+        PostedServiceInvUpdate."Country/Region Code".SetValue(LibraryVariableStorage.DequeueText());
+        PostedServiceInvUpdate."Bill-to Country/Region Code".SetValue(LibraryVariableStorage.DequeueText());
+        PostedServiceInvUpdate."Ship-to Country/Region Code".SetValue(LibraryVariableStorage.DequeueText());
 
-        PostedServInvoiceUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
-        PostedServInvoiceUpdate."Invoice Type".SetValue(LibraryVariableStorage.DequeueText());
-        PostedServInvoiceUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText());
-        PostedServInvoiceUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText());
-        PostedServInvoiceUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText());
-        PostedServInvoiceUpdate.OK().Invoke();
+        PostedServiceInvUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
+        PostedServiceInvUpdate."Invoice Type".SetValue(LibraryVariableStorage.DequeueText());
+        PostedServiceInvUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText());
+        PostedServiceInvUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText());
+        PostedServiceInvUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText());
+        PostedServiceInvUpdate.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure PostedServiceInvoiceUpdateCancelModalPageHandler(var PostedServInvoiceUpdate: TestPage "Posted Serv. Invoice - Update")
+    procedure PostedServiceInvoiceUpdateCancelModalPageHandler(var PostedServiceInvUpdate: TestPage "Posted Service Inv. - Update")
     begin
-        PostedServInvoiceUpdate."Country/Region Code".SetValue(LibraryVariableStorage.DequeueText());
-        PostedServInvoiceUpdate."Bill-to Country/Region Code".SetValue(LibraryVariableStorage.DequeueText());
-        PostedServInvoiceUpdate."Ship-to Country/Region Code".SetValue(LibraryVariableStorage.DequeueText());
+        PostedServiceInvUpdate."Country/Region Code".SetValue(LibraryVariableStorage.DequeueText());
+        PostedServiceInvUpdate."Bill-to Country/Region Code".SetValue(LibraryVariableStorage.DequeueText());
+        PostedServiceInvUpdate."Ship-to Country/Region Code".SetValue(LibraryVariableStorage.DequeueText());
 
-        PostedServInvoiceUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
-        PostedServInvoiceUpdate."Invoice Type".SetValue(LibraryVariableStorage.DequeueText());
-        PostedServInvoiceUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText());
-        PostedServInvoiceUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText());
-        PostedServInvoiceUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText());
-        PostedServInvoiceUpdate.Cancel().Invoke();
+        PostedServiceInvUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
+        PostedServiceInvUpdate."Invoice Type".SetValue(LibraryVariableStorage.DequeueText());
+        PostedServiceInvUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText());
+        PostedServiceInvUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText());
+        PostedServiceInvUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText());
+        PostedServiceInvUpdate.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1751,18 +1751,18 @@ codeunit 147330 "Edit Posted Documents ES"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure PostedServiceInvoiceUpdateOperationDescrOKModalPageHandler(var PostedServInvoiceUpdate: TestPage "Posted Serv. Invoice - Update")
+    procedure PostedServiceInvoiceUpdateOperationDescrOKModalPageHandler(var PostedServiceInvUpdate: TestPage "Posted Service Inv. - Update")
     begin
-        PostedServInvoiceUpdate.OperationDescription.SetValue(LibraryVariableStorage.DequeueText());
-        PostedServInvoiceUpdate.OK().Invoke();
+        PostedServiceInvUpdate.OperationDescription.SetValue(LibraryVariableStorage.DequeueText());
+        PostedServiceInvUpdate.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure PostedServiceInvoiceUpdateOperationDescrCancelModalPageHandler(var PostedServInvoiceUpdate: TestPage "Posted Serv. Invoice - Update")
+    procedure PostedServiceInvoiceUpdateOperationDescrCancelModalPageHandler(var PostedServiceInvUpdate: TestPage "Posted Service Inv. - Update")
     begin
-        PostedServInvoiceUpdate.OperationDescription.SetValue(LibraryVariableStorage.DequeueText());
-        PostedServInvoiceUpdate.Cancel().Invoke();
+        PostedServiceInvUpdate.OperationDescription.SetValue(LibraryVariableStorage.DequeueText());
+        PostedServiceInvUpdate.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1837,10 +1837,10 @@ codeunit 147330 "Edit Posted Documents ES"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure PostedServInvoiceUpdateSpecSchemeCodeOKModalPageHandler(var PostedServInvoiceUpdate: TestPage "Posted Serv. Invoice - Update")
+    procedure PostedServInvoiceUpdateSpecSchemeCodeOKModalPageHandler(var PostedServiceInvUpdate: TestPage "Posted Service Inv. - Update")
     begin
-        PostedServInvoiceUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
-        PostedServInvoiceUpdate.OK().Invoke();
+        PostedServiceInvUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
+        PostedServiceInvUpdate.OK().Invoke();
     end;
 
     [ModalPageHandler]

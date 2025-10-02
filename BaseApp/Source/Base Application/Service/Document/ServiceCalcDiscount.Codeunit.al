@@ -5,8 +5,6 @@
 namespace Microsoft.Service.Document;
 
 using Microsoft.Finance.Currency;
-using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Pricing;
@@ -41,8 +39,6 @@ codeunit 5950 "Service-Calc. Discount"
         CurrencyDate: Date;
         TemporaryHeader: Boolean;
         CustInvDiscFound: Boolean;
-        GLSetup: Record "General Ledger Setup";
-        InvAllow: Boolean;
 
 #pragma warning disable AA0074
         Text000: Label 'Service Charge';
@@ -52,9 +48,6 @@ codeunit 5950 "Service-Calc. Discount"
     var
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         SalesSetup: Record "Sales & Receivables Setup";
-        ServLineServChrg: Record "Service Line";
-        GLAcc: Record "G/L Account";
-        TempServiceLine: Record "Service Line" temporary;
         DiscountNotificationMgt: Codeunit "Discount Notification Mgt.";
         ServiceChargeLineNo: Integer;
         ApplyServiceCharge, IsHandled : Boolean;
@@ -109,10 +102,7 @@ codeunit 5950 "Service-Calc. Discount"
             else
                 CurrencyDate := ServHeader."Posting Date";
 
-            CustInvDiscFound := false;
-
-            CustInvDisc.GetRec(
-              ServHeader."Invoice Disc. Code", ServHeader."Currency Code", CurrencyDate, ChargeBase, CustInvDiscFound);
+            CustInvDiscFound := CustInvDisc.GetRecord(ServHeader."Invoice Disc. Code", ServHeader."Currency Code", CurrencyDate, ChargeBase);
 
             OnCalculateInvoiceDiscountOnBeforeApplyServiceCharge(CustInvDisc, ServHeader, CurrencyDate, ChargeBase, ApplyServiceCharge);
 
@@ -157,9 +147,6 @@ codeunit 5950 "Service-Calc. Discount"
                         ServiceLine2."System-Created Entry" := true;
                         OnCalculateInvoiceDiscountOnBeforeServiceLineInsert(ServiceLine2, ServHeader);
                         ServiceLine2.Insert();
-                        ServLineServChrg := ServiceLine2;
-                        if not ServLineServChrg.Find() then
-                            ServLineServChrg.Insert();
                     end;
                     ServiceLine2.CalcVATAmountLines(0, ServHeader, ServiceLine2, TempVATAmountLine, false);
                 end else
@@ -171,82 +158,11 @@ codeunit 5950 "Service-Calc. Discount"
                             ServiceLine2.Delete(true);
                     end;
 
-            GLSetup.Get();
-            if GLSetup."Payment Discount Type" <> GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines" then
-                ServiceLine2.SetRange("Allow Invoice Disc.", true);
-            if ServiceLine2.Find('-') then begin
-                if TemporaryHeader then
-                    ServiceLine2.SetServHeader(ServHeader);
-                repeat
-                    InvAllow := false;
-                    if ServiceLine2.Type = ServiceLine2.Type::"G/L Account" then
-                        InvAllow := GLAcc.InvoiceDiscountAllowed(ServiceLine2."No.");
-                    if (ServiceLine2.Quantity <> 0) and not InvAllow then begin
-                        ServiceLine2."Pmt. Discount Amount" := 0;
-                        ServiceLine2.Validate("Inv. Discount Amount");
-                        if ServiceLine2."Allow Invoice Disc." then begin
-                            case GLSetup."Discount Calculation" of
-                                GLSetup."Discount Calculation"::" ",
-                                GLSetup."Discount Calculation"::"Line Disc. * Inv. Disc. + Payment Disc.",
-                                GLSetup."Discount Calculation"::"Line Disc. * Inv. Disc. * Payment Disc.":
-                                    begin
-                                        TempServiceLine."Inv. Discount Amount" :=
-                                          TempServiceLine."Inv. Discount Amount" +
-                                          ServiceLine2."Line Amount" * CustInvDisc."Discount %" / 100;
-                                        ServiceLine2."Inv. Discount Amount" :=
-                                              Round(TempServiceLine."Inv. Discount Amount", 0.00001);
-                                    end;
-                                GLSetup."Discount Calculation"::"Line Disc. + Inv. Disc. + Payment Disc.",
-                                GLSetup."Discount Calculation"::"Line Disc. + Inv. Disc. * Payment Disc.":
-                                    begin
-                                        TempServiceLine."Inv. Discount Amount" :=
-                                          TempServiceLine."Inv. Discount Amount" +
-                                          (ServiceLine2."Line Amount" + ServiceLine2."Line Discount Amount") *
-                                          CustInvDisc."Discount %" / 100;
-                                        ServiceLine2."Inv. Discount Amount" := Round(TempServiceLine."Inv. Discount Amount", 0.00001);
-                                    end;
-                            end;
-                            TempServiceLine."Inv. Discount Amount" :=
-                              TempServiceLine."Inv. Discount Amount" - ServiceLine2."Inv. Discount Amount";
-                        end;
-                        if GLSetup."Payment Discount Type" =
-                            GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines"
-                        then begin
-                            GLSetup.TestField("Discount Calculation");
-                            case GLSetup."Discount Calculation" of
-                                GLSetup."Discount Calculation"::"Line Disc. + Inv. Disc. + Payment Disc.",
-                                GLSetup."Discount Calculation"::"Line Disc. * Inv. Disc. + Payment Disc.":
-                                    if ServiceLine2."Line Amount" <> 0 then begin
-                                        TempServiceLine."Pmt. Discount Amount" :=
-                                            TempServiceLine."Pmt. Discount Amount" +
-                                            (ServiceLine2."Line Amount" + ServiceLine2."Line Discount Amount") *
-                                            ServHeader."Payment Discount %" / 100;
-                                        ServiceLine2."Pmt. Discount Amount" := Round(TempServiceLine."Pmt. Discount Amount", 0.01);
-                                    end;
-                                GLSetup."Discount Calculation"::"Line Disc. + Inv. Disc. * Payment Disc.",
-                                GLSetup."Discount Calculation"::"Line Disc. * Inv. Disc. * Payment Disc.":
-                                    if ServiceLine2."Line Amount" <> 0 then begin
-                                        TempServiceLine."Pmt. Discount Amount" :=
-                                            TempServiceLine."Pmt. Discount Amount" +
-                                            (ServiceLine2."Line Amount" - ServiceLine2."Inv. Discount Amount") *
-                                            ServHeader."Payment Discount %" / 100;
-                                        ServiceLine2."Pmt. Discount Amount" := Round(TempServiceLine."Pmt. Discount Amount", 0.01);
-                                    end;
-                            end;
-                            TempServiceLine."Pmt. Discount Amount" :=
-                              TempServiceLine."Pmt. Discount Amount" - ServiceLine2."Pmt. Discount Amount";
-                        end;
-
-                        ServiceLine2.Validate("Inv. Discount Amount");
-                        ServiceLine2.Modify();
-                    end;
-                until ServiceLine2.Next() = 0;
-            end;
+            OnCalculateInvoiceDiscountOnAfterApplyServiceCharge(CustInvDisc, ServHeader, ServiceLine2, CurrencyDate, TemporaryHeader);
 
             if CustInvDiscRecExists(ServHeader."Invoice Disc. Code") then begin
                 if InvDiscBase <> ChargeBase then
-                    CustInvDisc.GetRec(
-                      ServHeader."Invoice Disc. Code", ServHeader."Currency Code", CurrencyDate, InvDiscBase, CustInvDiscFound);
+                    CustInvDisc.GetRecord(ServHeader."Invoice Disc. Code", ServHeader."Currency Code", CurrencyDate, InvDiscBase);
 
                 DiscountNotificationMgt.NotifyAboutMissingSetup(
                   SalesSetup.RecordId, ServHeader."Gen. Bus. Posting Group", ServiceLine2."Gen. Prod. Posting Group",
@@ -365,6 +281,11 @@ codeunit 5950 "Service-Calc. Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateInvoiceDiscountOnBeforeApplyServiceCharge(var CustInvoiceDisc: Record "Cust. Invoice Disc."; var ServiceHeader: Record "Service Header"; CurrencyDate: Date; ChargeBase: Decimal; var ApplyServiceCharge: Boolean)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnCalculateInvoiceDiscountOnAfterApplyServiceCharge(var CustInvoiceDisc: Record "Cust. Invoice Disc."; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; CurrencyDate: Date; TemporaryHeader: Boolean)
     begin
     end;
 

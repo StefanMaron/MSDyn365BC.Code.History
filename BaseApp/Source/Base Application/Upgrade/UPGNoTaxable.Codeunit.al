@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 104102 "Upg No Taxable"
 {
     Subtype = Upgrade;

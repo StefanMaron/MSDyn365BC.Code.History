@@ -1047,7 +1047,7 @@ codeunit 147552 "SII Update Doc. Info"
         ServiceInvoiceHeader."Succeeded VAT Registration No." := VATRegistrationNo;
 
         // [WHEN] Run codeunit "Service Invoice Header - Edit" against posted document.
-        Codeunit.Run(Codeunit::"Service Invoice Header - Edit", ServiceInvoiceHeader);
+        Codeunit.Run(Codeunit::"Service Inv. Header - Edit", ServiceInvoiceHeader);
 
         // [THEN] SII Document Upload State of the posted document has updated values.
         SIIDocUploadState.GetSIIDocUploadStateByCustLedgEntry(CustLedgerEntry);

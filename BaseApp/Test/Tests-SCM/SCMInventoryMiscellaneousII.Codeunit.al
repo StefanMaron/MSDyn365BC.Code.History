@@ -285,7 +285,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         CreateSalesOrderUsingItemInventory(SalesHeader, ItemNo);
         AutoReserveSalesLine(SalesHeader);
         CreateSalesOrderUsingItemInventory(SalesHeader, ItemNo);
-        LibraryPlanning.CreateProdOrderUsingPlanning(ProductionOrder, ProductionOrder.Status::"Firm Planned", SalesHeader."No.", ItemNo);
+        LibraryManufacturing.CreateProdOrderUsingPlanning(ProductionOrder, ProductionOrder.Status::"Firm Planned", SalesHeader."No.", ItemNo);
 
         // Exercise: Change Status to Released from Firm Planned using Update Unit Cost as TRUE.
         ProdOrderNo :=
@@ -1559,7 +1559,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
             LibraryInventory.CreateItem(Item[i]);
             CreateProdOrderLine(ProdOrderLine[i], ProductionOrder, Item[i]."No.");
         end;
-        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+        LibraryManufacturing.CreateInboundWhseReqFromProdOrder(ProductionOrder);
 
         WarehouseSourceFilter.SetFilter("Item No. Filter", '%1..%2', Item[1]."No.", Item[2]."No.");
         WarehouseSourceFilter.SetRange("Receipt Date Filter", ProdOrderLine[2]."Due Date");
@@ -1606,7 +1606,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
             ReceiptDate[i] := WorkDate() + 30 * i;
             CreateProdOrderComponent(ProdOrderComponent, ProdOrderLine, Item[i]."No.", -LibraryRandom.RandInt(10), ReceiptDate[i]);
         end;
-        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+        LibraryManufacturing.CreateInboundWhseReqFromProdOrder(ProductionOrder);
 
         WarehouseSourceFilter.SetFilter("Item No. Filter", '%1..%2', Item[1]."No.", Item[2]."No.");
         WarehouseSourceFilter.SetRange("Receipt Date Filter", ReceiptDate[2]);
@@ -1876,7 +1876,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
             ShipmentDate[i] := WorkDate() + 30 * i;
             CreateProdOrderComponent(ProdOrderComponent, ProdOrderLine, Item[i]."No.", LibraryRandom.RandInt(10), ShipmentDate[i]);
         end;
-        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+        LibraryManufacturing.CreateInboundWhseReqFromProdOrder(ProductionOrder);
 
         WarehouseSourceFilter.SetFilter("Item No. Filter", '%1..%2', Item[1]."No.", Item[2]."No.");
         WarehouseSourceFilter.SetRange("Shipment Date Filter", ShipmentDate[2]);

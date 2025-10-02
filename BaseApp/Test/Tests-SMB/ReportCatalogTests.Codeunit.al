@@ -1,7 +1,11 @@
+#if not CLEAN27
 codeunit 139125 ReportCatalogTests
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Codeunit it is testing is obsolete.';
+    ObsoleteTag = '27.0';
 
     trigger OnRun()
     begin
@@ -148,4 +152,4 @@ codeunit 139125 ReportCatalogTests
         LibraryUtility.CheckFileNotEmpty(SavedPDFFile);
     end;
 }
-
+#endif

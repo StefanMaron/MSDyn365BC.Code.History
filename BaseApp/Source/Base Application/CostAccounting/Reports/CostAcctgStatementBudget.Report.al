@@ -115,6 +115,8 @@ report 1133 "Cost Acctg. Statement/Budget"
 
     requestpage
     {
+        AboutTitle = 'About Cost Acctg. Statement/Budget';
+        AboutText = 'The **Cost Accounting Statement/Budget** report compares actual costs against budgeted amounts by cost center, highlighting variances in both value and percentage. Use it for evaluating budget performance during planning cycles, helping identify gaps between projected and actual costs to improve budgeting accuracy.';
 
         layout
         {

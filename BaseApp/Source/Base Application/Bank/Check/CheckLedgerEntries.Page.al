@@ -6,6 +6,14 @@ namespace Microsoft.Bank.Check;
 
 using Microsoft.Foundation.Navigate;
 
+/// <summary>
+/// Displays comprehensive list of check ledger entries with filtering and navigation capabilities.
+/// Provides read-only view of check transactions for analysis and lookup purposes.
+/// </summary>
+/// <remarks>
+/// Source Table: Check Ledger Entry (272). Supports drill-down navigation and document lookup.
+/// Sorted by bank account and check date in descending order for optimal user experience.
+/// </remarks>
 page 374 "Check Ledger Entries"
 {
     ApplicationArea = Basic, Suite;
@@ -208,6 +216,13 @@ page 374 "Check Ledger Entries"
     var
         Navigate: Page Navigate;
 
+    /// <summary>
+    /// Integration event raised before opening the Check Ledger Entries page.
+    /// Enables custom initialization or setup before page display.
+    /// </summary>
+    /// <remarks>
+    /// Raised during page OnOpenPage trigger before standard page initialization.
+    /// </remarks>
     [IntegrationEvent(true, false)]
     local procedure OnBeforeOnOpenPage()
     begin

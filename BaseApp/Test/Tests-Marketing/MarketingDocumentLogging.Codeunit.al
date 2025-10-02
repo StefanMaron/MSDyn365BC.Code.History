@@ -1133,13 +1133,6 @@ codeunit 136202 "Marketing Document Logging"
         ArchSalesReturnOrder.Run();
     end;
 
-    local procedure VerifyArchivedVersions(SalesHeader: Record "Sales Header")
-    begin
-        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
-        SalesHeader.CalcFields("No. of Archived Versions");
-        SalesHeader.TestField("No. of Archived Versions", 1); // 1 For First Archive Versions.
-    end;
-
     local procedure VerifyPurchaseComments(PurchCommentLine: Record "Purch. Comment Line")
     var
         PurchaseHeaderArchive: Record "Purchase Header Archive";
@@ -1326,4 +1319,3 @@ codeunit 136202 "Marketing Document Logging"
         StandardSalesQuote.SaveAsExcel(LibraryReportDataset.GetFileName());
     end;
 }
-

@@ -1012,7 +1012,7 @@ codeunit 147515 "No Taxable Documents"
         // [GIVEN] Generate and save External Document No. 2 in a Variable.
         ExternalDocumentNo2 := Format(LibraryRandom.RandText(5));
 
-        // [GIVEN] Create Purchase Invoice 3 without No Taxable VAT and Validate Vendor Invoice No.  
+        // [GIVEN] Create Purchase Invoice 3 without No Taxable VAT and Validate Vendor Invoice No.
         CreatePurchaseDocumentWithoutNoTaxableVAT(PurchaseHeader3, PurchaseHeader3."Document Type"::Invoice);
         PurchaseHeader3.Validate("Vendor Invoice No.", ExternalDocumentNo2);
         PurchaseHeader3.Modify(true);
@@ -1199,16 +1199,6 @@ codeunit 147515 "No Taxable Documents"
         NoTaxableEntry.TestField("Amount (LCY)", -ExpectedAmountLCY);
     end;
 
-    local procedure VerifyNoTaxableTypeVATEntries(VATPostingSetup: Record "VAT Posting Setup")
-    var
-        VATEntry: Record "VAT Entry";
-    begin
-        VATEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        VATEntry.FindFirst();
-        VATEntry.TestField("No Taxable Type", VATPostingSetup."No Taxable Type");
-    end;
-
     local procedure VerifyNoTaxableEntriesNotCreated(VATPostingSetup: Record "VAT Posting Setup")
     var
         NoTaxableEntry: Record "No Taxable Entry";
@@ -1247,4 +1237,3 @@ codeunit 147515 "No Taxable Documents"
     begin
     end;
 }
-

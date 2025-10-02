@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Assembly.Test;
 
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.BOM;
@@ -28,12 +27,9 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
     TestPermissions = Disabled;
 
     trigger OnRun()
-    var
-        MfgSetup: Record "Manufacturing Setup";
     begin
         // [FEATURE] [Assembly] [Warehouse] [SCM]
-        MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
+        WorkDate2 := LibraryPlanning.SetSafetyWorkDate(); // to avoid Due Date Before Work Date message.
     end;
 
     var
@@ -68,6 +64,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPatterns: Codeunit "Library - Patterns";
         LibraryResource: Codeunit "Library - Resource";
+        LibraryPlanning: Codeunit "Library - Planning";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         WorkDate2: Date;

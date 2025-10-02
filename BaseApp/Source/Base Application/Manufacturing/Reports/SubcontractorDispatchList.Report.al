@@ -260,7 +260,7 @@ report 99000789 "Subcontractor - Dispatch List"
             Type = Excel;
             LayoutFile = './Manufacturing/Reports/SubcontractorDispatchList.xlsx';
         }
-#if not CLEAN26
+#if not CLEAN27
         layout(RDLCLayout)
         {
             Type = RDLC;
@@ -308,7 +308,6 @@ report 99000789 "Subcontractor - Dispatch List"
         RunOnLabel = 'Run on';
         ReportNameLabel = 'Report name';
         DocumentationLabel = 'Documentation';
-        TimezoneLabel = 'UTC';
     }
 
     var

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -77,6 +77,12 @@ page 5933 "Service Invoice"
                         ApplicationArea = Service;
                         ToolTip = 'Specifies the name of the customer to whom the items on the document will be shipped.';
                     }
+                    field("Name 2"; Rec."Name 2")
+                    {
+                        ApplicationArea = Service;
+                        QuickEntry = false;
+                        Visible = false;
+                    }
                     field(Address; Rec.Address)
                     {
                         ApplicationArea = Service;
@@ -88,6 +94,12 @@ page 5933 "Service Invoice"
                         ApplicationArea = Service;
                         QuickEntry = false;
                         ToolTip = 'Specifies additional address information.';
+                    }
+                    field(City; Rec.City)
+                    {
+                        ApplicationArea = Service;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the city of the address.';
                     }
                     group(Control13)
                     {
@@ -104,12 +116,6 @@ page 5933 "Service Invoice"
                     {
                         ApplicationArea = Service;
                         ToolTip = 'Specifies the postal code.';
-                    }
-                    field(City; Rec.City)
-                    {
-                        ApplicationArea = Service;
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the city of the address.';
                     }
                     field("Country/Region Code"; Rec."Country/Region Code")
                     {
@@ -239,6 +245,14 @@ page 5933 "Service Invoice"
                         Caption = 'Name';
                         ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
                     }
+                    field("Bill-to Name 2"; Rec."Bill-to Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        Visible = false;
+                    }
                     field("Bill-to Address"; Rec."Bill-to Address")
                     {
                         ApplicationArea = Service;
@@ -252,6 +266,13 @@ page 5933 "Service Invoice"
                         Caption = 'Address 2';
                         QuickEntry = false;
                         ToolTip = 'Specifies an additional line of the address.';
+                    }
+                    field("Bill-to City"; Rec."Bill-to City")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'City';
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the city of the address.';
                     }
                     group(Control21)
                     {
@@ -271,13 +292,6 @@ page 5933 "Service Invoice"
                         Caption = 'Post Code';
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code of the customer''s billing address.';
-                    }
-                    field("Bill-to City"; Rec."Bill-to City")
-                    {
-                        ApplicationArea = Service;
-                        Caption = 'City';
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the city of the address.';
                     }
                     field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
                     {
@@ -425,11 +439,6 @@ page 5933 "Service Invoice"
                         PricesIncludingVATOnAfterValid();
                     end;
                 }
-                field("VAT Registration No."; Rec."VAT Registration No.")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the customer''s VAT registration number.';
-                }
                 field("Tax Liable"; Rec."Tax Liable")
                 {
                     ApplicationArea = SalesTax;
@@ -439,104 +448,6 @@ page 5933 "Service Invoice"
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
-                }
-                group("SII Information")
-                {
-                    Caption = 'SII Information';
-                    field(OperationDescription; OperationDescription)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Operation Description';
-                        MultiLine = true;
-                        ToolTip = 'Specifies the Operation Description.';
-
-                        trigger OnValidate()
-                        var
-                            SIIManagement: Codeunit "SII Management";
-                        begin
-                            SIIManagement.SplitOperationDescription(OperationDescription, Rec."Operation Description", Rec."Operation Description 2");
-                            Rec.Validate("Operation Description");
-                            Rec.Validate("Operation Description 2");
-                            Rec.Modify(true);
-                        end;
-                    }
-                    group(Control1100014)
-                    {
-                        ShowCaption = false;
-                        Visible = DocHasMultipleRegimeCode;
-                        field(MultipleSchemeCodesControl; MultipleSchemeCodesLbl)
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Editable = false;
-                            ShowCaption = false;
-                            Style = StandardAccent;
-                            StyleExpr = true;
-
-                            trigger OnDrillDown()
-                            var
-                                SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
-                            begin
-                                SIISchemeCodeMgt.SalesDrillDownRegimeCodes(Rec);
-                            end;
-                        }
-                    }
-                    field("Special Scheme Code"; Rec."Special Scheme Code")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Editable = not DocHasMultipleRegimeCode;
-                        ToolTip = 'Specifies the Special Scheme Code.';
-                    }
-                    field("Invoice Type"; Rec."Invoice Type")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the Special Scheme Code.';
-
-                        trigger OnValidate()
-                        begin
-                            SIIFirstSummaryDocNo := Copystr(Rec.GetSIIFirstSummaryDocNo(), 1, 35);
-                            SIILastSummaryDocNo := Copystr(Rec.GetSIILastSummaryDocNo(), 1, 35);
-                        end;
-                    }
-                    field("ID Type"; Rec."ID Type")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the ID Type.';
-                    }
-                    field("Succeeded Company Name"; Rec."Succeeded Company Name")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the name of the company sucessor in connection with corporate restructuring.';
-                    }
-                    field("Succeeded VAT Registration No."; Rec."Succeeded VAT Registration No.")
-                    {
-                        ApplicationArea = VAT;
-                        ToolTip = 'Specifies the VAT registration number of the company sucessor in connection with corporate restructuring.';
-                    }
-                    field("SII First Summary Doc. No."; SIIFirstSummaryDocNo)
-                    {
-                        Caption = 'First Summary Doc. No.';
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the first number in the series of the summary entry. This field applies to F4-type invoices only.';
-                        trigger OnValidate()
-                        begin
-                            Rec.SetSIIFirstSummaryDocNo(SIIFirstSummaryDocNo);
-                        end;
-                    }
-                    field("SII Last Summary Doc. No."; SIILastSummaryDocNo)
-                    {
-                        Caption = 'Last Summary Doc. No.';
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the last number in the series of the summary entry. This field applies to F4-type invoices only.';
-                        trigger OnValidate()
-                        begin
-                            Rec.SetSIILastSummaryDocNo(SIILastSummaryDocNo);
-                        end;
-                    }
-                    field("Do Not Send To SII"; Rec."Do Not Send To SII")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies if the document must not be sent to SII.';
-                    }
                 }
             }
             group(Shipping)
@@ -583,6 +494,13 @@ page 5933 "Service Invoice"
                         QuickEntry = false;
                         ToolTip = 'Specifies an additional part of the ship-to address, in case it is a long address.';
                     }
+                    field("Ship-to City"; Rec."Ship-to City")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'City';
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the city of the address that the items are shipped to.';
+                    }
                     group(Control29)
                     {
                         ShowCaption = false;
@@ -601,13 +519,6 @@ page 5933 "Service Invoice"
                         Caption = 'Post Code';
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
-                    }
-                    field("Ship-to City"; Rec."Ship-to City")
-                    {
-                        ApplicationArea = Service;
-                        Caption = 'City';
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the city of the address that the items are shipped to.';
                     }
                     field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                     {
@@ -639,16 +550,6 @@ page 5933 "Service Invoice"
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location (for example, warehouse or distribution center) of the items specified on the service item lines.';
                 }
-                field("Applies-to Doc. Type"; Rec."Applies-to Doc. Type")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the type of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
-                }
-                field("Applies-to Doc. No."; Rec."Applies-to Doc. No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
-                }
             }
             group("Foreign Trade")
             {
@@ -677,15 +578,6 @@ page 5933 "Service Invoice"
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
-                }
-            }
-            group(Payment)
-            {
-                Caption = 'Payment';
-                field("Cust. Bank Acc. Code"; Rec."Cust. Bank Acc. Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the customer''s bank code that was on the sales credit memo.';
                 }
             }
         }
@@ -896,21 +788,6 @@ page 5933 "Service Invoice"
                         PAGE.Run(0, TempServDocLog);
                     end;
                 }
-                action(SpecialSchemeCodes)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Special Scheme Codes';
-                    Image = Allocations;
-                    ToolTip = 'View or edit the list of special scheme codes that related to the current document for VAT reporting.';
-
-                    trigger OnAction()
-                    var
-                        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
-                    begin
-                        SIISchemeCodeMgt.SalesDrillDownRegimeCodes(Rec);
-                        CurrPage.Update(false);
-                    end;
-                }
             }
         }
         area(processing)
@@ -921,10 +798,10 @@ page 5933 "Service Invoice"
                 Image = "Action";
                 action("Calculate Invoice Discount")
                 {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Calculate &Inv. and Pmt. Discounts';
-                    Image = CalculateDiscount;
-                    ToolTip = 'Update the lines with any payment discount that is specified in the related payment terms.';
+                    ApplicationArea = Service;
+                    Caption = 'Calculate &Invoice Discount';
+                    Image = CalculateInvoiceDiscount;
+                    ToolTip = 'Calculate the invoice discount that applies to the service order.';
 
                     trigger OnAction()
                     begin
@@ -1113,9 +990,6 @@ page 5933 "Service Invoice"
                 actionref(DocAttach_Promoted; DocAttach)
                 {
                 }
-                actionref(SpecialSchemeCodes_Promoted; SpecialSchemeCodes)
-                {
-                }
             }
             group(Category_Report)
             {
@@ -1125,13 +999,9 @@ page 5933 "Service Invoice"
     }
 
     trigger OnAfterGetCurrRecord()
-    var
-        SIIManagement: Codeunit "SII Management";
     begin
         SetControlAppearance();
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
-        SIIManagement.CombineOperationDescription(Rec."Operation Description", Rec."Operation Description 2", OperationDescription);
-        UpdateDocHasRegimeCode();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1164,15 +1034,12 @@ page 5933 "Service Invoice"
 
     trigger OnOpenPage()
     var
-        SIIManagement: Codeunit "SII Management";
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
         Rec.SetSecurityFilterOnRespCenter();
         if (Rec."No." <> '') and (Rec."Customer No." = '') then
             DocumentIsPosted := (not Rec.Get(Rec."Document Type", Rec."No."));
 
-        SIIManagement.CombineOperationDescription(Rec."Operation Description", Rec."Operation Description 2", OperationDescription);
-        UpdateDocHasRegimeCode();
         ActivateFields();
         SetDocNoVisible();
         CheckShowBackgrValidationNotification();
@@ -1184,10 +1051,7 @@ page 5933 "Service Invoice"
         SellToContact.GetOrClear(Rec."Contact No.");
         BillToContact.GetOrClear(Rec."Bill-to Contact No.");
         CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(Rec.RecordId);
-        UpdateDocHasRegimeCode();
 
-        SIIFirstSummaryDocNo := Copystr(Rec.GetSIIFirstSummaryDocNo(), 1, 35);
-        SIILastSummaryDocNo := Copystr(Rec.GetSIILastSummaryDocNo(), 1, 35);
         OnAfterOnAfterGetRecord(Rec);
     end;
 
@@ -1209,17 +1073,14 @@ page 5933 "Service Invoice"
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
-        IsPostingGroupEditable: Boolean;
-        DocHasMultipleRegimeCode: Boolean;
-        OperationDescription: Text[500];
-        MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
         ServiceDocCheckFactboxVisible: Boolean;
-        SIIFirstSummaryDocNo: Text[35];
-        SIILastSummaryDocNo: Text[35];
         IsServiceLinesEditable: Boolean;
         ExternalDocNoMandatory: Boolean;
         VATDateEnabled: Boolean;
         DocNoVisible: Boolean;
+
+    protected var
+        IsPostingGroupEditable: Boolean;
 
     local procedure ActivateFields()
     begin
@@ -1335,13 +1196,6 @@ page 5933 "Service Invoice"
                  InstructionMgt.ShowPostedConfirmationMessageCode())
             then
                 InstructionMgt.ShowPostedDocument(ServiceInvoiceHeader, Page::"Service Invoice");
-    end;
-
-    local procedure UpdateDocHasRegimeCode()
-    var
-        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
-    begin
-        DocHasMultipleRegimeCode := SIISchemeCodeMgt.SalesDocHasRegimeCodes(Rec);
     end;
 
     [IntegrationEvent(true, false)]

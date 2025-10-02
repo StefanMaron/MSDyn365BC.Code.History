@@ -1555,7 +1555,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         Amounts: array[2] of Decimal;
     begin
         // [FEATURE] [UI] [Payment Reconciliation Journal]
-        // [SCENARIO 419580] System considers reconsilation lines with Account Type = "Bank Account" when it calculates ending balance after posting. 
+        // [SCENARIO 419580] System considers reconsilation lines with Account Type = "Bank Account" when it calculates ending balance after posting.
         Initialize();
 
         // [GIVEN] Payment Reconciliation Journal for the Bank Acount "B1" with two lines
@@ -1890,27 +1890,6 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         LibraryPurch.CreateVendor(Vend);
         Vend.Validate(Name, LibraryUtility.GenerateRandomText(10));
         Vend.Modify(true);
-    end;
-
-    local procedure CreateVendPaymentGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; BankAcc: Record "Bank Account"; StmtAmt: Decimal)
-    var
-        GenJnlTemplate: Record "Gen. Journal Template";
-        GenJnlBatch: Record "Gen. Journal Batch";
-        Vend: Record Vendor;
-    begin
-        CreateVendor(Vend);
-        LibraryERM.CreateGenJournalTemplate(GenJnlTemplate);
-        LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
-        LibraryERM.CreateGeneralJnlLineWithBalAcc(
-          GenJnlLine,
-          GenJnlTemplate.Name,
-          GenJnlBatch.Name,
-          GenJnlLine."Document Type"::Payment,
-          GenJnlLine."Account Type"::Vendor,
-          Vend."No.",
-          GenJnlLine."Bal. Account Type"::"Bank Account",
-          BankAcc."No.",
-          StmtAmt);
     end;
 
     [Scope('OnPrem')]
@@ -2924,30 +2903,6 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
     end;
 
-    local procedure OpenPmtReconJrnlTwoPayments(var PmtReconJnl: TestPage "Payment Reconciliation Journal"; var VendLedgEntry: Record "Vendor Ledger Entry"; var VendLedgEntry2: Record "Vendor Ledger Entry"; var BankAccRecon: Record "Bank Acc. Reconciliation"; var VendLedgerAmount: Decimal; var VendLedgerAmount2: Decimal)
-    var
-        GenJnlLine: Record "Gen. Journal Line";
-        GenJnlLine2: Record "Gen. Journal Line";
-        TempBlobUTF8: Codeunit "Temp Blob";
-        OutStream: OutStream;
-    begin
-        // Two purchases and two payments are created and put into xml import bank statment
-        CreateTwoPurchTwoPmtOutstream(VendLedgEntry, VendLedgEntry2, OutStream, TempBlobUTF8);
-
-        VendLedgerAmount := VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible";
-        VendLedgerAmount2 := VendLedgEntry2."Remaining Amount" - VendLedgEntry2."Remaining Pmt. Disc. Possible";
-
-        // Statement is imported
-        CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
-
-        // Two GL Journals are created as a manual check
-        CreateManualCheckAndPostGenJnlLine(GenJnlLine, VendLedgEntry, BankAccRecon."Bank Account No.", -VendLedgerAmount);
-        CreateManualCheckAndPostGenJnlLine(GenJnlLine2, VendLedgEntry2, BankAccRecon."Bank Account No.", -VendLedgerAmount2);
-
-        // Payment Reconciliation Journal is opened
-        OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
-    end;
-
     local procedure GetLinesAndUpdateBankAccRecStmEndingBalance(var BankAccRecon: Record "Bank Acc. Reconciliation")
     var
         BankAccRecLine: Record "Bank Acc. Reconciliation Line";
@@ -3028,4 +2983,3 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
 }
-

@@ -17,7 +17,6 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
-using Microsoft.Service.History;
 
 table 7000002 "Cartera Doc."
 {
@@ -379,7 +378,6 @@ table 7000002 "Cartera Doc."
     var
         PaymentTerms: Record "Payment Terms";
         SalesInvoiceHeader: Record "Sales Invoice Header";
-        ServiceInvoiceHeader: Record "Service Invoice Header";
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         case Type of
@@ -388,10 +386,7 @@ table 7000002 "Cartera Doc."
                     PaymentTerms.Get(SalesInvoiceHeader."Payment Terms Code");
                     DocumentDate := SalesInvoiceHeader."Document Date";
                 end else
-                    if ServiceInvoiceHeader.Get("Document No.") then begin
-                        PaymentTerms.Get(ServiceInvoiceHeader."Payment Terms Code");
-                        DocumentDate := ServiceInvoiceHeader."Document Date";
-                    end;
+                    OnGetDocumentDateFromServiceInvoice(Rec."Document No.", DocumentDate);
             Type::Payable:
                 if PurchInvHeader.Get("Document No.") then begin
                     PaymentTerms.Get(PurchInvHeader."Payment Terms Code");
@@ -440,6 +435,11 @@ table 7000002 "Cartera Doc."
             exit;
         if SEPADirectDebitMandate.Get(Rec."Direct Debit Mandate ID") then
             Rec.Validate("Cust./Vendor Bank Acc. Code", SEPADirectDebitMandate."Customer Bank Account Code");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDocumentDateFromServiceInvoice(DocumentNo: Code[20]; var DocumentDate: Date)
+    begin
     end;
 }
 

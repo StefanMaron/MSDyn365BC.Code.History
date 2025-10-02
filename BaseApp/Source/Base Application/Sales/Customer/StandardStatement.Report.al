@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.Customer;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Customer;
 
 using Microsoft.CRM.Interaction;
 using Microsoft.CRM.Segment;
@@ -44,43 +48,43 @@ report 1316 "Standard Statement"
                 column(CompanyInfo3Picture; CompanyInfo3.Picture)
                 {
                 }
-                column(CustAddr1; CustAddr[1])
+                column(CustAddr1; CustomerAddress[1])
                 {
                 }
-                column(CompanyAddr1; CompanyAddr[1])
+                column(CompanyAddr1; CompanyAddress[1])
                 {
                 }
-                column(CustAddr2; CustAddr[2])
+                column(CustAddr2; CustomerAddress[2])
                 {
                 }
-                column(CompanyAddr2; CompanyAddr[2])
+                column(CompanyAddr2; CompanyAddress[2])
                 {
                 }
-                column(CustAddr3; CustAddr[3])
+                column(CustAddr3; CustomerAddress[3])
                 {
                 }
-                column(CompanyAddr3; CompanyAddr[3])
+                column(CompanyAddr3; CompanyAddress[3])
                 {
                 }
-                column(CustAddr4; CustAddr[4])
+                column(CustAddr4; CustomerAddress[4])
                 {
                 }
-                column(CompanyAddr4; CompanyAddr[4])
+                column(CompanyAddr4; CompanyAddress[4])
                 {
                 }
-                column(CustAddr5; CustAddr[5])
+                column(CustAddr5; CustomerAddress[5])
                 {
                 }
-                column(CompanyAddr5; CompanyAddr[5])
+                column(CompanyAddr5; CompanyAddress[5])
                 {
                 }
                 column(PhoneNo_CompanyInfo; CompanyInfo."Phone No.")
                 {
                 }
-                column(CustAddr6; CustAddr[6])
+                column(CustAddr6; CustomerAddress[6])
                 {
                 }
-                column(CompanyAddr6; CompanyAddr[6])
+                column(CompanyAddr6; CompanyAddress[6])
                 {
                 }
                 column(CompanyInfoEmail; CompanyInfo."E-Mail")
@@ -116,16 +120,16 @@ report 1316 "Standard Statement"
                 column(LastStatmntNo_Cust; Format(Customer."Last Statement No." + 1))
                 {
                 }
-                column(CustAddr7; CustAddr[7])
+                column(CustAddr7; CustomerAddress[7])
                 {
                 }
-                column(CustAddr8; CustAddr[8])
+                column(CustAddr8; CustomerAddress[8])
                 {
                 }
-                column(CompanyAddr7; CompanyAddr[7])
+                column(CompanyAddr7; CompanyAddress[7])
                 {
                 }
-                column(CompanyAddr8; CompanyAddr[8])
+                column(CompanyAddr8; CompanyAddress[8])
                 {
                 }
                 column(StatementCaption; StatementCaptionLbl)
@@ -716,7 +720,7 @@ report 1316 "Standard Statement"
                 TempAgingBandBuf.DeleteAll();
                 CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
                 CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
-                FormatAddr.SetLanguageCode("Language Code");
+                FormatAddress.SetLanguageCode("Language Code");
                 PrintLine := false;
                 if PrintAllHavingBal and (not PrintAllHavingEntry) then
                     PrintLine := true;
@@ -744,7 +748,7 @@ report 1316 "Standard Statement"
                 if not PrintLine then
                     CurrReport.Skip();
 
-                FormatAddr.Customer(CustAddr, Customer);
+                FormatAddress.Customer(CustomerAddress, Customer);
                 PrintedCustomersList.Add("No.");
                 UpdatePictures();
                 FirstRecordPrinted := false;
@@ -758,7 +762,7 @@ report 1316 "Standard Statement"
                 CalcAgingBandDates();
 
                 CompanyInfo.Get();
-                FormatAddr.Company(CompanyAddr, CompanyInfo);
+                FormatAddress.Company(CompanyAddress, CompanyInfo);
                 CompanyInfo.CalcFields(Picture);
 
                 PopulateTempCurrencies();
@@ -774,6 +778,8 @@ report 1316 "Standard Statement"
 
     requestpage
     {
+        AboutTitle = 'About Customer Statement';
+        AboutText = 'Send customers an overview of outstanding amounts, and also use as a payment reminder about overdue amounts.';
         SaveValues = true;
 
         layout
@@ -1055,17 +1061,14 @@ report 1316 "Standard Statement"
         DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
         TempAgingBandBuf: Record "Aging Band Buffer" temporary;
         LanguageMgt: Codeunit Language;
-        FormatAddr: Codeunit "Format Address";
+        FormatAddress: Codeunit "Format Address";
         SegManagement: Codeunit SegManagement;
-        PeriodLength: DateFormula;
         PeriodLength2: DateFormula;
         PrintedCustomersList: List of [Code[20]];
         PrintLine: Boolean;
         LogInteraction: Boolean;
         EntriesExists: Boolean;
         DueDate: Date;
-        CustAddr: array[8] of Text[100];
-        CompanyAddr: array[8] of Text[100];
         StartBalance: Decimal;
         CurrencyCode3: Code[10];
         AgingDate: array[5] of Date;
@@ -1138,7 +1141,10 @@ report 1316 "Standard Statement"
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
         CompanyInfo3: Record "Company Information";
+        PeriodLength: DateFormula;
         Description: Text[100];
+        CustomerAddress: array[8] of Text[100];
+        CompanyAddress: array[8] of Text[100];
         CustBalance: Decimal;
         RemainingAmount: Decimal;
         IncludeAgingBand: Boolean;

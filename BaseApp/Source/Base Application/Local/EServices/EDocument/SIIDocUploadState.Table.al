@@ -10,8 +10,6 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
 using System.Security.AccessControl;
 
 table 10752 "SII Doc. Upload State"
@@ -482,10 +480,8 @@ table 10752 "SII Doc. Upload State"
 
     procedure ValidateDocInfo(var TempSIIDocUploadState: Record "SII Doc. Upload State" temporary; EntryNo: Integer; DocumentSource: Enum "SII Doc. Upload State Document Source"; DocumentType: Enum "SII Doc. Upload State Document Type"; DocumentNo: Code[35])
     var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
         SalesInvoiceHeader: Record "Sales Invoice Header";
-        ServiceHeader: Record "Service Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
@@ -499,45 +495,18 @@ table 10752 "SII Doc. Upload State"
             "Document Source"::"Customer Ledger":
                 case DocumentType of
                     "Document Type"::Invoice:
-                        begin
-                            if SalesInvoiceHeader.Get(DocumentNo) then
-                                if not SIIManagement.IsAllowedSalesInvType(SalesInvoiceHeader."Invoice Type".AsInteger()) then
-                                    SalesInvoiceHeader.FieldError("Invoice Type");
-                            if SalesInvoiceHeader."No." = '' then begin
-                                // Get Service Header instead of Service Invoice Header because it's not inserted yet
-                                ServiceHeader.SetRange("Posting No.", DocumentNo);
-                                if ServiceHeader.FindFirst() then begin
-                                    if not SIIManagement.IsAllowedServInvType(ServiceHeader."Invoice Type".AsInteger()) then
-                                        ServiceHeader.FieldError("Invoice Type");
-                                    // Increase Invoice Type and Special Scheme Code because in SII Doc. Upload state there is blank option in the beginning
-                                    TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
-                                      ServiceHeader."Bill-to Customer No.", ServiceHeader."Invoice Type".AsInteger() + 1, 0,
-                                      ServiceHeader."Special Scheme Code".AsInteger() + 1,
-                                      ServiceHeader."Succeeded Company Name", ServiceHeader."Succeeded VAT Registration No.", ServiceHeader."ID Type");
-                                    TempSIIDocUploadState."Issued By Third Party" := ServiceHeader."Issued By Third Party";
-                                    TempSIIDocUploadState."First Summary Doc. No." := CopyStr(ServiceHeader.GetSIIFirstSummaryDocNo(), 1, 35);
-                                    TempSIIDocUploadState."Last Summary Doc. No." := CopyStr(ServiceHeader.GetSIILastSummaryDocNo(), 1, 35);
-                                end else begin
-                                    CustLedgerEntry.Get(EntryNo);
-                                    TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
-                                      CustLedgerEntry."Customer No.", CustLedgerEntry."Invoice Type".AsInteger() + 1, 0,
-                                      CustLedgerEntry."Special Scheme Code".AsInteger() + 1,
-                                      CustLedgerEntry."Succeeded Company Name", CustLedgerEntry."Succeeded VAT Registration No.",
-                                      CustLedgerEntry."ID Type".AsInteger());
-                                    TempSIIDocUploadState."Issued By Third Party" := CustLedgerEntry."Issued By Third Party";
-                                    TempSIIDocUploadState."First Summary Doc. No." := CopyStr(CustLedgerEntry.GetSIIFirstSummaryDocNo(), 1, 35);
-                                    TempSIIDocUploadState."Last Summary Doc. No." := CopyStr(CustLedgerEntry.GetSIILastSummaryDocNo(), 1, 35);
-                                end;
-                            end else begin
-                                TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
-                                  SalesInvoiceHeader."Bill-to Customer No.", SalesInvoiceHeader."Invoice Type".AsInteger() + 1, 0,
-                                  SalesInvoiceHeader."Special Scheme Code".AsInteger() + 1, SalesInvoiceHeader."Succeeded Company Name",
-                                  SalesInvoiceHeader."Succeeded VAT Registration No.", SalesInvoiceHeader."ID Type".AsInteger());
-                                TempSIIDocUploadState."Issued By Third Party" := SalesInvoiceHeader."Issued By Third Party";
-                                TempSIIDocUploadState."First Summary Doc. No." := CopyStr(SalesInvoiceHeader.GetSIIFirstSummaryDocNo(), 1, 35);
-                                TempSIIDocUploadState."Last Summary Doc. No." := CopyStr(SalesInvoiceHeader.GetSIILastSummaryDocNo(), 1, 35);
-                            end;
-                        end;
+                        if SalesInvoiceHeader.Get(DocumentNo) then begin
+                            if not SIIManagement.IsAllowedSalesInvType(SalesInvoiceHeader."Invoice Type".AsInteger()) then
+                                SalesInvoiceHeader.FieldError("Invoice Type");
+                            TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
+                                SalesInvoiceHeader."Bill-to Customer No.", SalesInvoiceHeader."Invoice Type".AsInteger() + 1, 0,
+                                SalesInvoiceHeader."Special Scheme Code".AsInteger() + 1, SalesInvoiceHeader."Succeeded Company Name",
+                                SalesInvoiceHeader."Succeeded VAT Registration No.", SalesInvoiceHeader."ID Type".AsInteger());
+                            TempSIIDocUploadState."Issued By Third Party" := SalesInvoiceHeader."Issued By Third Party";
+                            TempSIIDocUploadState."First Summary Doc. No." := CopyStr(SalesInvoiceHeader.GetSIIFirstSummaryDocNo(), 1, 35);
+                            TempSIIDocUploadState."Last Summary Doc. No." := CopyStr(SalesInvoiceHeader.GetSIILastSummaryDocNo(), 1, 35);
+                        end else
+                            UpdateFieldsForInvoice(DocumentNo, EntryNo, TempSIIDocUploadState);
                     "Document Type"::"Credit Memo":
                         if SalesCrMemoHeader.Get(DocumentNo) then begin
                             TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
@@ -547,28 +516,8 @@ table 10752 "SII Doc. Upload State"
                             TempSIIDocUploadState."Issued By Third Party" := SalesCrMemoHeader."Issued By Third Party";
                             TempSIIDocUploadState."First Summary Doc. No." := CopyStr(SalesCrMemoHeader.GetSIIFirstSummaryDocNo(), 1, 35);
                             TempSIIDocUploadState."Last Summary Doc. No." := CopyStr(SalesCrMemoHeader.GetSIILastSummaryDocNo(), 1, 35);
-                        end else begin
-                            ServiceHeader.SetRange("Posting No.", DocumentNo);
-                            if ServiceHeader.FindFirst() then begin
-                                TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
-                                  ServiceHeader."Bill-to Customer No.", 0, ServiceHeader."Cr. Memo Type".AsInteger() + 1,
-                                  ServiceHeader."Special Scheme Code".AsInteger() + 1,
-                                  ServiceHeader."Succeeded Company Name", ServiceHeader."Succeeded VAT Registration No.", ServiceHeader."ID Type");
-                                TempSIIDocUploadState."Issued By Third Party" := ServiceHeader."Issued By Third Party";
-                                TempSIIDocUploadState."First Summary Doc. No." := CopyStr(ServiceHeader.GetSIIFirstSummaryDocNo(), 1, 35);
-                                TempSIIDocUploadState."Last Summary Doc. No." := CopyStr(ServiceHeader.GetSIILastSummaryDocNo(), 1, 35);
-                            end else begin
-                                CustLedgerEntry.Get(EntryNo);
-                                TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
-                                  CustLedgerEntry."Customer No.", 0, CustLedgerEntry."Cr. Memo Type".AsInteger() + 1,
-                                  CustLedgerEntry."Special Scheme Code".AsInteger() + 1,
-                                  CustLedgerEntry."Succeeded Company Name", CustLedgerEntry."Succeeded VAT Registration No.",
-                                  CustLedgerEntry."ID Type".AsInteger());
-                                TempSIIDocUploadState."Issued By Third Party" := CustLedgerEntry."Issued By Third Party";
-                                TempSIIDocUploadState."First Summary Doc. No." := CopyStr(CustLedgerEntry.GetSIIFirstSummaryDocNo(), 1, 35);
-                                TempSIIDocUploadState."Last Summary Doc. No." := CopyStr(CustLedgerEntry.GetSIILastSummaryDocNo(), 1, 35);
-                            end;
-                        end;
+                        end else
+                            UpdateFieldsForCreditMemo(DocumentNo, EntryNo, TempSIIDocUploadState);
                 end;
             "Document Source"::"Vendor Ledger":
                 case DocumentType of
@@ -607,20 +556,69 @@ table 10752 "SII Doc. Upload State"
         OnAfterValidateDocInfo(TempSIIDocUploadState, EntryNo, DocumentSource, DocumentType, DocumentNo);
     end;
 
+    local procedure UpdateFieldsForInvoice(DocumentNo: Code[35]; EntryNo: Integer; var TempSIIDocUploadState: Record "SII Doc. Upload State" temporary)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        if not UpdateFieldsForServiceInvoice(DocumentNo, TempSIIDocUploadState) then begin
+            CustLedgerEntry.Get(EntryNo);
+            TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
+                CustLedgerEntry."Customer No.", CustLedgerEntry."Invoice Type".AsInteger() + 1, 0,
+                CustLedgerEntry."Special Scheme Code".AsInteger() + 1,
+                CustLedgerEntry."Succeeded Company Name", CustLedgerEntry."Succeeded VAT Registration No.",
+                CustLedgerEntry."ID Type".AsInteger());
+            TempSIIDocUploadState."Issued By Third Party" := CustLedgerEntry."Issued By Third Party";
+            TempSIIDocUploadState."First Summary Doc. No." := CopyStr(CustLedgerEntry.GetSIIFirstSummaryDocNo(), 1, 35);
+            TempSIIDocUploadState."Last Summary Doc. No." := CopyStr(CustLedgerEntry.GetSIILastSummaryDocNo(), 1, 35);
+        end;
+    end;
+
+    local procedure UpdateFieldsForServiceInvoice(DocumentNo: Code[35]; var TempSIIDocUploadState: Record "SII Doc. Upload State" temporary) Result: Boolean
+    begin
+        OnUpdateFieldsForServiceInvoice(DocumentNo, TempSIIDocUploadState, Result);
+    end;
+
+    local procedure UpdateFieldsForCreditMemo(DocumentNo: Code[35]; EntryNo: Integer; var TempSIIDocUploadState: Record "SII Doc. Upload State" temporary)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        if not UpdateFieldsForServiceCreditMemo(DocumentNo, TempSIIDocUploadState) then begin
+            CustLedgerEntry.Get(EntryNo);
+            TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
+                CustLedgerEntry."Customer No.", 0, CustLedgerEntry."Cr. Memo Type".AsInteger() + 1,
+                CustLedgerEntry."Special Scheme Code".AsInteger() + 1,
+                CustLedgerEntry."Succeeded Company Name", CustLedgerEntry."Succeeded VAT Registration No.",
+                CustLedgerEntry."ID Type".AsInteger());
+            TempSIIDocUploadState."Issued By Third Party" := CustLedgerEntry."Issued By Third Party";
+            TempSIIDocUploadState."First Summary Doc. No." := CopyStr(CustLedgerEntry.GetSIIFirstSummaryDocNo(), 1, 35);
+            TempSIIDocUploadState."Last Summary Doc. No." := CopyStr(CustLedgerEntry.GetSIILastSummaryDocNo(), 1, 35);
+        end;
+    end;
+
+    local procedure UpdateFieldsForServiceCreditMemo(DocumentNo: Code[35]; var TempSIIDocUploadState: Record "SII Doc. Upload State" temporary) Result: Boolean
+    begin
+        OnUpdateFieldsForServiceCreditMemo(DocumentNo, TempSIIDocUploadState, Result);
+    end;
+
     procedure IsCreditMemoRemoval(): Boolean
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        Result: Boolean;
+        ShouldExit: Boolean;
     begin
         if ("Document Source" = "Document Source"::"Customer Ledger") and ("Document Type" = "Document Type"::"Credit Memo") then
             if CustLedgerEntry.Get("Entry No") then begin
                 if SalesCrMemoHeader.Get(CustLedgerEntry."Document No.") then
                     exit(SalesCrMemoHeader."Correction Type" = SalesCrMemoHeader."Correction Type"::Removal);
-                if ServiceCrMemoHeader.Get(CustLedgerEntry."Document No.") then
-                    exit(ServiceCrMemoHeader."Correction Type" = ServiceCrMemoHeader."Correction Type"::Removal);
+
+                Result := false;
+                ShouldExit := false;
+                OnAfterIsCreditmemoRemovalOnGetCorrectionType(CustLedgerEntry, Result, ShouldExit);
+                if ShouldExit then
+                    exit(Result);
             end;
 
         if ("Document Source" = "Document Source"::"Vendor Ledger") and ("Document Type" = "Document Type"::"Credit Memo") then
@@ -819,6 +817,21 @@ table 10752 "SII Doc. Upload State"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateNewRequestInternalOnBeforeSIIDocUploadStateInsert(var SIIDocUploadState: Record "SII Doc. Upload State"; EntryNo: Integer; InvEntryNo: Integer; DocumentSource: Enum "SII Doc. Upload State Document Source"; DocumentType: Enum "SII Doc. Upload State Document Type"; DocumentNo: Code[35]; ExternalDocumentNo: Code[35]; PostingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsCreditmemoRemovalOnGetCorrectionType(CustLedgerEntry: Record "Cust. Ledger Entry"; var Result: Boolean; var ShouldExit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateFieldsForServiceInvoice(DocumentNo: Code[35]; var TempSIIDocUploadState: Record "SII Doc. Upload State" temporary; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateFieldsForServiceCreditMemo(DocumentNo: Code[35]; var TempSIIDocUploadState: Record "SII Doc. Upload State" temporary; var Result: Boolean)
     begin
     end;
 }

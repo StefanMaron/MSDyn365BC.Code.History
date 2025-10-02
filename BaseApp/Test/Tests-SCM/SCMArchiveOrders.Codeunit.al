@@ -10,7 +10,6 @@ codeunit 137207 "SCM Archive Orders"
     end;
 
     var
-        LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
@@ -922,26 +921,6 @@ codeunit 137207 "SCM Archive Orders"
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
     end;
 
-    local procedure MockSalesHeaderArchive(var SalesHeaderArchive: Record "Sales Header Archive")
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        SalesHeaderArchive.Init();
-        SalesHeaderArchive."Document Type" := SalesHeaderArchive."Document Type"::Order;
-        SalesHeaderArchive."No." := LibraryUtility.GenerateRandomCode(SalesHeader.FieldNo("No."), DATABASE::"Sales Header");
-        SalesHeaderArchive.Insert(true);
-    end;
-
-    local procedure MockPurchaseHeaderArchive(var PurchaseHeaderArchive: Record "Purchase Header Archive")
-    var
-        PurchaseHeader: Record "Purchase Header";
-    begin
-        PurchaseHeaderArchive.Init();
-        PurchaseHeaderArchive."Document Type" := PurchaseHeaderArchive."Document Type"::Order;
-        PurchaseHeaderArchive."No." := LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("No."), DATABASE::"Purchase Header");
-        PurchaseHeaderArchive.Insert(true);
-    end;
-
     local procedure GetSalesHeaderArchivedVersion(var SalesHeaderArchive: Record "Sales Header Archive"; SalesHeader: Record "Sales Header")
     begin
         SalesHeader.CalcFields("No. of Archived Versions");
@@ -1237,4 +1216,3 @@ codeunit 137207 "SCM Archive Orders"
         GetShipmentLines.OK().Invoke();
     end;
 }
-

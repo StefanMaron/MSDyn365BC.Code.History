@@ -3029,15 +3029,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales VAT EC Calculate - NamedType AmountMustBeEqualMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 607156453 - NamedType 1904081921" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[BilltoCustNo_SalesHeader]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales VAT EC Calculate - NamedType BillToCustomerNoCap)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 607156453 - NamedType 156853089" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2]]></Val>
@@ -3056,15 +3047,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales VAT EC Calculate - NamedType DiscAccountGLEntryCreatedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 607156453 - NamedType 834340234" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No_SalesHeader]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales VAT EC Calculate - NamedType SalesHeaderNumberCap)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 607156453 - NamedType 1071529361" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Total amount from several prepayments must be equal to original document amount]]></Val>
@@ -3072,24 +3054,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales VAT EC Calculate - NamedType TotalFromSevPrepmtAmtErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 607156453 - NamedType 4132954660" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VATBaseAmount]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales VAT EC Calculate - NamedType VATBaseAmountCap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 607156453 - NamedType 3412141936" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VATIdentifier_SalesLine]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales VAT EC Calculate - NamedType VATIdentifierSalesLineCap)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4141591900 - NamedType 2253439948" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

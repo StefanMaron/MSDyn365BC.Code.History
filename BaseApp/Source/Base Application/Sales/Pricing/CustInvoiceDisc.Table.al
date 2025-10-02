@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Pricing;
 
 using Microsoft.Finance.Currency;
@@ -55,7 +59,15 @@ table 19 "Cust. Invoice Disc."
     {
     }
 
+#if not CLEAN27
+    [Obsolete('Replaced by W1 procedure GetRecord()', '27.0')]
     procedure GetRec(NewCode: Code[20]; CurrencyCode: Code[10]; CurrencyDate: Date; BaseAmount: Decimal; var CustInvDiscFound: Boolean)
+    begin
+        CustInvDiscFound := GetRecord(NewCode, CurrencyCode, CurrencyDate, BaseAmount);
+    end;
+#endif
+
+    procedure GetRecord(NewCode: Code[20]; CurrencyCode: Code[10]; CurrencyDate: Date; BaseAmount: Decimal) CustInvDiscFound: Boolean
     var
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -468,6 +468,7 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
     procedure CreatePostedDeferralSchedule(ServiceLineVar: Variant; NewDocumentType: Integer; NewDocumentNo: Code[20]; NewLineNo: Integer; PostingDate: Date)
     begin
     end;
+
 
 #if not CLEAN26
     [Obsolete('Use same event from codeunit Service Post Invoice Events','26.0')]

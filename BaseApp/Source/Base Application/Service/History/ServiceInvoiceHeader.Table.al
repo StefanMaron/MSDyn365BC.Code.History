@@ -42,7 +42,6 @@ using System.Globalization;
 using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.User;
-using Microsoft.EServices.EDocument;
 
 table 5992 "Service Invoice Header"
 {
@@ -78,6 +77,7 @@ table 5992 "Service Invoice Header"
         field(6; "Bill-to Name 2"; Text[50])
         {
             Caption = 'Bill-to Name 2';
+            ToolTip = 'Specifies an additional part of the name of the customer that you send or sent the invoice to.';
         }
         field(7; "Bill-to Address"; Text[100])
         {
@@ -269,7 +269,7 @@ table 5992 "Service Invoice Header"
                 CustLedgEntry.SetCurrentKey("Document Type");
                 CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                 CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-                CustLedgEntry.SetRange("Bill No.", "Applies-to Bill No.");
+                OnLookupAppliestoDocNoOnAfterSetFilters(Rec, CustLedgEntry);
                 PAGE.Run(0, CustLedgEntry);
             end;
         }
@@ -358,6 +358,7 @@ table 5992 "Service Invoice Header"
         field(80; "Name 2"; Text[50])
         {
             Caption = 'Name 2';
+            ToolTip = 'Specifies an additional part of the name of the customer on the service credit memo.';
         }
         field(81; Address; Text[100])
         {
@@ -848,109 +849,7 @@ table 5992 "Service Invoice Header"
         field(9001; "Quote No."; Code[20])
         {
             Caption = 'Quote No.';
-        }	
-        field(10706; "SII Status"; Enum "SII Document Status")
-        {
-            CalcFormula = lookup("SII Doc. Upload State".Status where("Document Source" = const("Customer Ledger"),
-                                                                       "Document Type" = const(Invoice),
-                                                                       "Document No." = field("No.")));
-            Caption = 'SII Status';
-            FieldClass = FlowField;
-
-            trigger OnLookup()
-            var
-                SIIDocUploadState: Record "SII Doc. Upload State";
-                SIIHistory: Record "SII History";
-            begin
-                SIIDocUploadState.SetRange("Document Source", SIIDocUploadState."Document Source"::"Customer Ledger");
-                SIIDocUploadState.SetRange("Document Type", SIIDocUploadState."Document Type"::Invoice);
-                SIIDocUploadState.SetRange("Document No.", "No.");
-                if SIIDocUploadState.FindFirst() then begin
-                    SIIHistory.SetRange("Document State Id", SIIDocUploadState.Id);
-                    PAGE.Run(PAGE::"SII History", SIIHistory);
-                end;
-            end;
         }
-        field(10707; "Invoice Type"; Enum "SII Sales Invoice Type")
-        {
-            Caption = 'Invoice Type';
-            trigger OnValidate()
-            begin
-                SetSIIFirstSummaryDocNo('');
-                SetSIILastSummaryDocNo('');
-            end;
-        }
-        field(10708; "Cr. Memo Type"; Enum "SII Sales Credit Memo Type")
-        {
-            Caption = 'Cr. Memo Type';
-        }
-        field(10709; "Special Scheme Code"; Enum "SII Sales Special Scheme Code")
-        {
-            Caption = 'Special Scheme Code';
-        }
-        field(10710; "Operation Description"; Text[250])
-        {
-            Caption = 'Operation Description';
-        }
-        field(10712; "Operation Description 2"; Text[250])
-        {
-            Caption = 'Operation Description 2';
-        }
-        field(10720; "Succeeded Company Name"; Text[250])
-        {
-            Caption = 'Succeeded Company Name';
-        }
-        field(10721; "Succeeded VAT Registration No."; Text[20])
-        {
-            Caption = 'Succeeded VAT Registration No.';
-        }
-        field(10722; "ID Type"; Enum "SII ID Type")
-        {
-            Caption = 'ID Type';
-        }
-        field(10723; "Sent to SII"; Boolean)
-        {
-            CalcFormula = exist("SII Doc. Upload State" where("Document Source" = const("Customer Ledger"),
-                                                               "Document Type" = const(Invoice),
-                                                               "Document No." = field("No.")));
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(10724; "Do Not Send To SII"; Boolean)
-        {
-            Caption = 'Do Not Send To SII';
-        }
-        field(10725; "Issued By Third Party"; Boolean)
-        {
-            Caption = 'Issued By Third Party';
-        }
-        field(10726; "SII First Summary Doc. No."; Blob)
-        {
-            Caption = 'First Summary Doc. No.';
-        }
-        field(10727; "SII Last Summary Doc. No."; Blob)
-        {
-            Caption = 'Last Summary Doc. No.';
-        }
-        field(7000000; "Applies-to Bill No."; Code[20])
-        {
-            Caption = 'Applies-to Bill No.';
-        }
-        field(7000001; "Cust. Bank Acc. Code"; Code[20])
-        {
-            Caption = 'Cust. Bank Acc. Code';
-            TableRelation = "Customer Bank Account".Code where("Customer No." = field("Bill-to Customer No."));
-        }
-#if not CLEANSCHEMA25
-        field(7000003; "Pay-at Code"; Code[10])
-        {
-            Caption = 'Pay-at Code';
-            TableRelation = "Customer Pmt. Address".Code where("Customer No." = field("Bill-to Customer No."));
-            ObsoleteReason = 'Address is taken from the fields Bill-to Address, Bill-to City, etc.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '25.0';
-        }
-#endif
     }
 
     keys
@@ -1017,52 +916,6 @@ table 5992 "Service Invoice Header"
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
         NavigatePage.Run();
-    end;
-
-    procedure GetSIIFirstSummaryDocNo(): Text
-    var
-        InStreamObj: InStream;
-        SIISummaryDocNoText: Text;
-    begin
-        CalcFields("SII First Summary Doc. No.");
-        "SII First Summary Doc. No.".CreateInStream(InStreamObj, TextEncoding::UTF8);
-        InStreamObj.ReadText(SIISummaryDocNoText);
-        exit(SIISummaryDocNoText);
-    end;
-
-    procedure GetSIILastSummaryDocNo(): Text
-    var
-        InStreamObj: InStream;
-        SIISummaryDocNoText: Text;
-    begin
-        CalcFields("SII Last Summary Doc. No.");
-        "SII Last Summary Doc. No.".CreateInStream(InStreamObj, TextEncoding::UTF8);
-        InStreamObj.ReadText(SIISummaryDocNoText);
-        exit(SIISummaryDocNoText);
-    end;
-
-    procedure SetSIIFirstSummaryDocNo(SIISummaryDocNoText: Text)
-    var
-        OutStreamObj: OutStream;
-    begin
-        if SIISummaryDocNoText <> '' then
-            TestField("Invoice Type", "Invoice Type"::"F4 Invoice summary entry");
-
-        Clear("SII First Summary Doc. No.");
-        "SII First Summary Doc. No.".CreateOutStream(OutStreamObj, TextEncoding::UTF8);
-        OutStreamObj.WriteText(SIISummaryDocNoText);
-    end;
-
-    procedure SetSIILastSummaryDocNo(SIISummaryDocNoText: Text)
-    var
-        OutStreamObj: OutStream;
-    begin
-        if SIISummaryDocNoText <> '' then
-            TestField("Invoice Type", "Invoice Type"::"F4 Invoice summary entry");
-
-        Clear("SII Last Summary Doc. No.");
-        "SII Last Summary Doc. No.".CreateOutStream(OutStreamObj, TextEncoding::UTF8);
-        OutStreamObj.WriteText(SIISummaryDocNoText);
     end;
 
     procedure SendRecords()
@@ -1239,6 +1092,12 @@ table 5992 "Service Invoice Header"
     begin
     end;
 #endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliestoDocNoOnAfterSetFilters(ServiceInvoiceHeader: Record "Service Invoice Header"; var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnDelete(var ServiceInvoiceHeader: Record "Service Invoice Header")
     begin

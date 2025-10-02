@@ -15,7 +15,6 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
-using Microsoft.Service.Document;
 
 table 10740 "No Taxable Entry"
 {
@@ -293,28 +292,16 @@ table 10740 "No Taxable Entry"
         OnAfterInitFromGenJnlLine(Rec, GenJournalLine);
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit Serv. No Taxable Management', '27.0')]
     [Scope('OnPrem')]
-    procedure InitFromServiceDocument(ServiceHeader: Record "Service Header"; PostedDocumentNo: Code[20])
+    procedure InitFromServiceDocument(ServiceHeader: Record Microsoft.Service.Document."Service Header"; PostedDocumentNo: Code[20])
+    var
+        ServNoTaxableManagement: Codeunit "Serv. No Taxable Mgt.";
     begin
-        "Document No." := PostedDocumentNo;
-        if ServiceHeader."Document Type" = ServiceHeader."Document Type"::"Credit Memo" then
-            "Document Type" := "Document Type"::"Credit Memo"
-        else
-            "Document Type" := "Document Type"::Invoice;
-        "Document Date" := ServiceHeader."Document Date";
-        "Posting Date" := ServiceHeader."Posting Date";
-        "Currency Code" := ServiceHeader."Currency Code";
-        "Country/Region Code" := ServiceHeader."Country/Region Code";
-        "Source No." := ServiceHeader."Customer No.";
-        "External Document No." := ServiceHeader."No.";
-        "Currency Factor" := ServiceHeader."Currency Factor";
-        "No. Series" := ServiceHeader."Posting No. Series";
-        "EU 3-Party Trade" := ServiceHeader."EU 3-Party Trade";
-        "VAT Registration No." := ServiceHeader."VAT Registration No.";
-        "VAT Reporting Date" := ServiceHeader."VAT Reporting Date";
-
-        OnAfterInitFromServiceDocument(Rec, ServiceHeader);
+        ServNoTaxableManagement.InitFromServiceDocument(Rec, ServiceHeader, PostedDocumentNo);
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure InitFromVendorEntry(VendorLedgerEntry: Record "Vendor Ledger Entry"; CountryRegionCode: Code[10]; EU3PartyTrade: Boolean; VATRegistrationNo: Text[20])
@@ -441,10 +428,18 @@ table 10740 "No Taxable Entry"
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnAfterInitFromServiceDocument(var NoTaxableEntry: Record "No Taxable Entry"; ServiceHeader: Record Microsoft.Service.Document."Service Header")
+    begin
+        OnAfterInitFromServiceDocument(NoTaxableEntry, ServiceHeader);
+    end;
+
+    [Obsolete('Moved to codeunit Serv. No Taxable Management', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromServiceDocument(var NoTaxableEntry: Record "No Taxable Entry"; ServiceHeader: Record "Service Header")
+    local procedure OnAfterInitFromServiceDocument(var NoTaxableEntry: Record "No Taxable Entry"; ServiceHeader: Record Microsoft.Service.Document."Service Header")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromVendorEntry(var NoTaxableEntry: Record "No Taxable Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry")

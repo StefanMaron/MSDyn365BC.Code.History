@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.Archive;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Archive;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CRM.Team;

@@ -35,6 +35,7 @@ tableextension 10710 "Service Header Archive ES" extends "Service Header Archive
         {
             Caption = 'Operation Description';
             DataClassification = CustomerContent;
+            OptimizeForTextSearch = true;
         }
         field(10711; "Correction Type"; Option)
         {
@@ -47,16 +48,19 @@ tableextension 10710 "Service Header Archive ES" extends "Service Header Archive
         {
             Caption = 'Operation Description 2';
             DataClassification = CustomerContent;
+            OptimizeForTextSearch = true;
         }
         field(10720; "Succeeded Company Name"; Text[250])
         {
             Caption = 'Succeeded Company Name';
             DataClassification = CustomerContent;
+            OptimizeForTextSearch = true;
         }
         field(10721; "Succeeded VAT Registration No."; Text[20])
         {
             Caption = 'Succeeded VAT Registration No.';
             DataClassification = CustomerContent;
+            OptimizeForTextSearch = true;
         }
         field(10722; "ID Type"; Option)
         {

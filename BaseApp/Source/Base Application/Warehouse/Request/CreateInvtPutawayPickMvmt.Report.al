@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Warehouse.Request;
 
 using Microsoft.Inventory.Location;
@@ -150,7 +154,7 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
         dataitem("Warehouse Source Filter"; "Warehouse Source Filter")
         {
             DataItemTableView = sorting(Type, Code);
-            RequestFilterFields = "Item No. Filter", "Variant Code Filter", "Shipment Date Filter", "Receipt Date Filter", "Job No.", "Job Task No. Filter", "Prod. Order No.", "Prod. Order Line No. Filter";
+            RequestFilterFields = "Item No. Filter", "Variant Code Filter", "Shipment Date Filter", "Receipt Date Filter", "Job No.", "Job Task No. Filter";
             RequestFilterHeading = 'Document details';
             UseTemporary = true;
         }

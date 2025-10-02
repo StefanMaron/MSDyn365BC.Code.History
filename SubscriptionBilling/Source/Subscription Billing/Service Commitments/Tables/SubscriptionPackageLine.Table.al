@@ -100,6 +100,7 @@ table 8056 "Subscription Package Line"
             Caption = 'Calculation Base %';
             MinValue = 0;
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(10; "Billing Base Period"; DateFormula)
         {
@@ -107,6 +108,7 @@ table 8056 "Subscription Package Line"
             trigger OnValidate()
             begin
                 DateFormulaManagement.ErrorIfDateFormulaNegative("Billing Base Period");
+                CheckRatioBetweenBillingBasePeriodAndRhythm();
             end;
         }
         field(11; "Billing Rhythm"; DateFormula)
@@ -116,6 +118,7 @@ table 8056 "Subscription Package Line"
             begin
                 DateFormulaManagement.ErrorIfDateFormulaEmpty("Billing Rhythm", FieldCaption("Billing Rhythm"));
                 DateFormulaManagement.ErrorIfDateFormulaNegative("Billing Rhythm");
+                CheckRatioBetweenBillingBasePeriodAndRhythm();
             end;
         }
         field(12; "Sub. Line Start Formula"; DateFormula)
@@ -210,6 +213,7 @@ table 8056 "Subscription Package Line"
         {
             Caption = 'Pricing Unit Cost Surcharge %';
             DataClassification = CustomerContent;
+            AutoFormatType = 0;
         }
     }
     keys
@@ -219,12 +223,6 @@ table 8056 "Subscription Package Line"
             Clustered = true;
         }
     }
-    trigger OnModify()
-    begin
-        xRec.Get(xRec."Subscription Package Code", xRec."Line No.");
-        if ((xRec."Billing Base Period" <> Rec."Billing Base Period") or (xRec."Billing Rhythm" <> Rec."Billing Rhythm")) then
-            DateFormulaManagement.CheckIntegerRatioForDateFormulas("Billing Base Period", FieldCaption("Billing Base Period"), "Billing Rhythm", FieldCaption("Billing Rhythm"));
-    end;
 
     var
         DateFormulaManagement: Codeunit "Date Formula Management";
@@ -300,5 +298,12 @@ table 8056 "Subscription Package Line"
     internal procedure IsPartnerVendor(): Boolean
     begin
         exit(Rec.Partner = Rec.Partner::Vendor);
+    end;
+
+    local procedure CheckRatioBetweenBillingBasePeriodAndRhythm()
+    var
+    begin
+        if (Format("Billing Base Period") <> '') and (Format("Billing Rhythm") <> '') then
+            DateFormulaManagement.CheckIntegerRatioForDateFormulas("Billing Base Period", FieldCaption("Billing Base Period"), "Billing Rhythm", FieldCaption("Billing Rhythm"));
     end;
 }

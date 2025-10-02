@@ -1,5 +1,3 @@
-#pragma warning disable AS0018
-#pragma warning disable AS0066
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -34,5 +32,3 @@ interface IStructuredFormatReader
     procedure View(EDocument: Record "E-Document"; TempBlob: Codeunit "Temp Blob");
 
 }
-#pragma warning restore AS0066
-#pragma warning restore AS0018

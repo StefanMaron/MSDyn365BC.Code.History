@@ -9,9 +9,13 @@ table 143000 "Test 347 Declaration Parameter"
         }
         field(3; MinAmount; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(4; MinAmountCash; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(5; ContactName; Text[20])
         {
@@ -42,4 +46,3 @@ table 143000 "Test 347 Declaration Parameter"
     {
     }
 }
-

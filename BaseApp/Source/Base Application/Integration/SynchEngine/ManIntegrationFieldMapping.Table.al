@@ -10,13 +10,8 @@ table 5381 "Man. Integration Field Mapping"
 {
     DataClassification = SystemMetadata;
     ObsoleteReason = 'This table is obsolete. Start using the temporary table Man. Integration Field Mapping.';
-#if CLEAN24
     ObsoleteState = Removed;
     ObsoleteTag = '27.0';
-#else
-    ObsoleteState = Pending;
-    ObsoleteTag = '24.0';
-#endif
     fields
     {
         field(10; "Mapping Name"; Code[20])

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -271,13 +271,7 @@ page 7000002 "Payables Cartera Docs"
                 separator(Action37)
                 {
                 }
-#if not CLEAN24
-#pragma warning disable AL0486
-#endif
                 action(Reject)
-#if not CLEAN24
-#pragma warning restore AL0486
-#endif
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Reject';
@@ -448,15 +442,6 @@ page 7000002 "Payables Cartera Docs"
         end;
     end;
 
-#if not CLEAN24
-#pragma warning disable AL0486
-    [Obsolete('Please use the method RejectDocs instead.', '24.0')]
-    procedure Reject()
-    begin
-        RejectDocs()
-    end;
-#pragma warning restore AL0486
-#endif
 
     procedure RejectDocs()
     begin
@@ -492,4 +477,3 @@ page 7000002 "Payables Cartera Docs"
         UpdateStatistics();
     end;
 }
-

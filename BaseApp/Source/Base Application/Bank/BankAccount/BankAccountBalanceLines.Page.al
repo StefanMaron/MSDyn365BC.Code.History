@@ -9,6 +9,14 @@ using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.Period;
 using System.Utilities;
 
+/// <summary>
+/// List part for displaying bank account balance data organized by time periods.
+/// Shows detailed balance information for period-based analysis and reporting.
+/// </summary>
+/// <remarks>
+/// Source Table: Bank Account Balance Buffer (929). Used as part of Bank Account Balance page.
+/// Displays calculated balance data with drill-down capabilities to ledger entries.
+/// </remarks>
 page 378 "Bank Account Balance Lines"
 {
     Caption = 'Lines';
@@ -112,6 +120,12 @@ page 378 "Bank Account Balance Lines"
     protected var
         BankAcc: Record "Bank Account";
 
+    /// <summary>
+    /// Initializes the balance lines with bank account data and analysis parameters.
+    /// </summary>
+    /// <param name="NewBankAcc">Bank account record to analyze</param>
+    /// <param name="NewPeriodType">Period type for analysis grouping</param>
+    /// <param name="NewAmountType">Amount type for analysis calculations</param>
     procedure SetLines(var NewBankAcc: Record "Bank Account"; NewPeriodType: Enum "Analysis Period Type"; NewAmountType: Enum "Analysis Amount Type")
     begin
         BankAcc.Copy(NewBankAcc);
@@ -137,6 +151,9 @@ page 378 "Bank Account Balance Lines"
         PAGE.Run(0, BankAccLedgEntry);
     end;
 
+    /// <summary>
+    /// Sets date filter on bank account based on current period and amount type.
+    /// </summary>
     procedure SetDateFilter()
     begin
         if AmountType = AmountType::"Net Change" then
@@ -155,6 +172,15 @@ page 378 "Bank Account Balance Lines"
         OnAfterCalcLine(BankAcc, Rec);
     end;
 
+    /// <summary>
+    /// Integration event raised after calculating balance line data for bank account balance display.
+    /// Enables custom field updates or additional calculations for balance buffer records.
+    /// </summary>
+    /// <param name="BankAccount">Source bank account record</param>
+    /// <param name="BankAccountBalanceBuffer">Balance buffer record being populated</param>
+    /// <remarks>
+    /// Raised from CalcLine procedure after populating standard balance fields.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcLine(var BankAccount: Record "Bank Account"; var BankAccountBalanceBuffer: Record "Bank Account Balance Buffer")
     begin

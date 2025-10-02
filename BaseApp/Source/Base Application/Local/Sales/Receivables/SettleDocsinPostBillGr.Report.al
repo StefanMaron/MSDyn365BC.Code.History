@@ -367,7 +367,6 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
         Window: Dialog;
-        PostingDate: Date;
         DueOnly: Boolean;
         Delay: Decimal;
         SourceCode: Code[10];
@@ -384,6 +383,9 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
         TempCurrCode: Code[10];
         ExistsNoRealVAT: Boolean;
         HidePrintDialog: Boolean;
+
+    protected var
+        PostingDate: Date;
 
     [Scope('OnPrem')]
     procedure DiscFactLiabs(PostedDoc2: Record "Posted Cartera Doc.")

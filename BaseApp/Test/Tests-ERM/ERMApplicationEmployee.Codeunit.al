@@ -22,7 +22,6 @@
         EmployeeAmount: Decimal;
         WrongBalancePerTransNoErr: Label 'Wrong total amount of detailed entries per transaction.';
 
-
     [Test]
     [Scope('OnPrem')]
     procedure EmployeeCorrection()
@@ -209,40 +208,6 @@
         CurrencyExchangeRate."Relational Exch. Rate Amount" *= CurrencyAdjustFactor;
         CurrencyExchangeRate."Relational Adjmt Exch Rate Amt" *= CurrencyAdjustFactor;
         CurrencyExchangeRate.Modify(true);
-
-        EmployeeApplyUnapply(Desc, Stepwise);
-
-        LibraryERMEmployeeWatch.AssertEmployee();
-    end;
-
-    local procedure EmployeeUnrealizedAdjust(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean; CurrencyAdjustFactor: Decimal; DtldLedgerType: Enum "Detailed CV Ledger Entry Type")
-    var
-        Currency: Record Currency;
-        GenJournalBatch: Record "Gen. Journal Batch";
-        Employee: Record Employee;
-        Desc: Text[30];
-        InvAmount: Decimal;
-        PmtAmount: Decimal;
-    begin
-        // Test without payment discount
-        GetGLBalancedBatch(GenJournalBatch);
-        CreateEmployee(Employee);
-
-        Currency.Get(SetExchRateForCurrency(CurrencyAdjustFactor));
-
-        // Watch for Realized gain/loss dtld. ledger entries
-        LibraryERMEmployeeWatch.Init();
-        LibraryERMEmployeeWatch.DtldEntriesEqual(Employee."No.", DtldLedgerType, 0);
-
-        // Generate a document that triggers application dtld. ledger entries.
-        InvAmount := Amount;
-        PmtAmount := LibraryERM.ConvertCurrency(InvAmount, Currency.Code, '', WorkDate()) * CurrencyAdjustFactor;
-
-        Desc := GenerateDocument(GenJournalBatch, Employee, PmtType, InvType, PmtAmount, InvAmount, '<1D>', '', Currency.Code);
-
-        // Run the Adjust Exchange Rates Batch job.
-        LibraryERM.RunExchRateAdjustmentSimple(
-            Currency.Code, CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
 
         EmployeeApplyUnapply(Desc, Stepwise);
 
@@ -586,4 +551,3 @@
             end;
     end;
 }
-

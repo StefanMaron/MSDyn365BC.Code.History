@@ -12,7 +12,6 @@ using Microsoft.Purchases.Posting;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Posting;
 using Microsoft.Sales.Receivables;
-using Microsoft.Service.Document;
 using System.Reflection;
 
 codeunit 10753 "SII Job Upload Pending Docs."
@@ -119,25 +118,16 @@ codeunit 10753 "SII Job Upload Pending Docs."
         SIIJobManagement.RenewJobQueueEntry(JobType::HandlePending);
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit Serv. SII Management', '27.0')]
     [Scope('OnPrem')]
-    procedure OnAfterPostServiceDoc(var ServiceHeader: Record "Service Header")
+    procedure OnAfterPostServiceDoc(var ServiceHeader: Record Microsoft.Service.Document."Service Header")
     var
-        SIISetup: Record "SII Setup";
-        IsHandled: Boolean;
+        ServSIIManagement: Codeunit Microsoft.EServices.EDocument."Serv. SII Management";
     begin
-        IsHandled := false;
-        OnBeforeOnAfterPostServiceDoc(ServiceHeader, IsHandled);
-        if not IsHandled then
-            exit;
-
-        if not SIISetup.IsEnabled() then
-            exit;
-
-        if ServiceHeader.IsTemporary or ServiceHeader."Do Not Send To SII" then
-            exit;
-
-        SIIJobManagement.RenewJobQueueEntry(JobType::HandlePending);
+        ServSIIManagement.OnAfterPostServiceDoc(ServiceHeader);
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure OnAfterGLLinePost(GenJnlLine: Record "Gen. Journal Line")
@@ -370,10 +360,18 @@ codeunit 10753 "SII Job Upload Pending Docs."
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnBeforeOnAfterPostServiceDoc(var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var IsHandled: Boolean)
+    begin
+        OnBeforeOnAfterPostServiceDoc(ServiceHeader, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit Serv. SII Management', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnAfterPostServiceDoc(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    local procedure OnBeforeOnAfterPostServiceDoc(var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnAfterGLLinesPost(var GenJnlLine: Record "Gen. Journal Line")

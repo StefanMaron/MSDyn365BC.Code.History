@@ -533,26 +533,12 @@ table 9657 "Custom Report Selection"
     begin
     end;
 
-#if not CLEAN24
-    [IntegrationEvent(false, false)]
-    [Obsolete('Not used with platform layout selection', '24.0')]
-    local procedure OnBeforeCheckEmailBodyUsage(var CustomReportSelection: Record "Custom Report Selection"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeGetSendToEmail(Update: Boolean; var Result: Text[250]; var IsHandled: Boolean)
     begin
     end;
 
-#if not CLEAN24
-    [IntegrationEvent(false, false)]
-    [Obsolete('Not used with platform layout selection', '24.0')]
-    local procedure OnCheckEmailBodyUsageOnAfterCalcShowEmailBodyDefinedError(var Rec: Record "Custom Report Selection"; var CustomReportSelection: Record "Custom Report Selection"; var ShowEmailBodyDefinedError: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyFromReportSelections(var CustomReportSelection: Record "Custom Report Selection"; var ReportSelections: Record "Report Selections")

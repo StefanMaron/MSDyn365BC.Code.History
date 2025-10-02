@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Reminder;
 
 using Microsoft.CRM.Contact;
@@ -115,6 +119,12 @@ page 434 Reminder
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the email address of the customer contact person the reminder is for.';
+                }
+                field("Your Reference"; Rec."Your Reference")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s reference. The content will be printed on the related document.';
                 }
                 field("Posting Date"; Rec."Posting Date")
                 {

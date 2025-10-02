@@ -60,6 +60,12 @@ page 5978 "Posted Service Invoice"
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer on the service invoice.';
                     }
+                    field("Name 2"; Rec."Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Editable = false;
+                        Visible = false;
+                    }
                     field(Address; Rec.Address)
                     {
                         ApplicationArea = Service;
@@ -262,6 +268,13 @@ page 5978 "Posted Service Invoice"
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
                     }
+                    field("Bill-to Name 2"; Rec."Bill-to Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Name 2';
+                        Editable = false;
+                        Visible = false;
+                    }
                     field("Bill-to Address"; Rec."Bill-to Address")
                     {
                         ApplicationArea = Service;
@@ -387,102 +400,6 @@ page 5978 "Posted Service Invoice"
                     ApplicationArea = SalesTax;
                     Editable = false;
                     ToolTip = 'Specifies the code of the tax area where the customer is located.';
-                }
-                group("SII Information")
-                {
-                    Caption = 'SII Information';
-                    field(OperationDescription; OperationDescription)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Operation Description';
-                        Editable = false;
-                        MultiLine = true;
-                        ToolTip = 'Specifies the Operation Description.';
-
-                        trigger OnValidate()
-                        var
-                            SIIManagement: Codeunit "SII Management";
-                        begin
-                            SIIManagement.SplitOperationDescription(OperationDescription, Rec."Operation Description", Rec."Operation Description 2");
-                            Rec.Validate("Operation Description");
-                            Rec.Validate("Operation Description 2");
-                            Rec.Modify(true);
-                        end;
-                    }
-                    group(Control1100013)
-                    {
-                        ShowCaption = false;
-                        Visible = DocHasMultipleRegimeCode;
-                        field(MultipleSchemeCodesControl; MultipleSchemeCodesLbl)
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Editable = false;
-                            ShowCaption = false;
-                            Style = StandardAccent;
-                            StyleExpr = true;
-
-                            trigger OnDrillDown()
-                            var
-                                SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
-                            begin
-                                SIISchemeCodeMgt.SalesDrillDownRegimeCodes(Rec);
-                            end;
-                        }
-                    }
-                    field("Special Scheme Code"; Rec."Special Scheme Code")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Editable = false;
-                        ToolTip = 'Specifies the Special Scheme Code.';
-                    }
-                    field("Invoice Type"; Rec."Invoice Type")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Editable = false;
-                        ToolTip = 'Specifies the Invoice Type.';
-                    }
-                    field("ID Type"; Rec."ID Type")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Editable = false;
-                        ToolTip = 'Specifies the ID Type.';
-                    }
-                    field("Succeeded Company Name"; Rec."Succeeded Company Name")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Editable = false;
-                        ToolTip = 'Specifies the name of the company sucessor in connection with corporate restructuring.';
-                    }
-                    field("Succeeded VAT Registration No."; Rec."Succeeded VAT Registration No.")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Editable = false;
-                        ToolTip = 'Specifies the VAT registration number of the company sucessor in connection with corporate restructuring.';
-                    }
-                    field("Issued By Third Party"; Rec."Issued By Third Party")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies that the credit memo was issued by a third party.';
-                    }
-                    field("SII First Summary Doc. No."; Rec.GetSIIFirstSummaryDocNo())
-                    {
-                        Caption = 'First Summary Doc. No.';
-                        ApplicationArea = Basic, Suite;
-                        Editable = false;
-                        ToolTip = 'Specifies the first number in the series of the summary entry. This field applies to F4-type invoices only.';
-                    }
-                    field("SII Last Summary Doc. No."; Rec.GetSIILastSummaryDocNo())
-                    {
-                        Caption = 'Last Summary Doc. No.';
-                        ApplicationArea = Basic, Suite;
-                        Editable = false;
-                        ToolTip = 'Specifies the last number in the series of the summary entry. This field applies to F4-type invoices only.';
-                    }
-                    field("Do Not Send To SII"; Rec."Do Not Send To SII")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies if the document must not be sent to SII.';
-                    }
                 }
             }
             group(Shipping)
@@ -796,21 +713,6 @@ page 5978 "Posted Service Invoice"
                         PAGE.Run(0, TempServDocLog);
                     end;
                 }
-                action(SpecialSchemeCodes)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Special Scheme Codes';
-                    Image = Allocations;
-                    ToolTip = 'View or edit the list of special scheme codes that related to the current document for VAT reporting.';
-
-                    trigger OnAction()
-                    var
-                        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
-                    begin
-                        SIISchemeCodeMgt.SalesDrillDownRegimeCodes(Rec);
-                        CurrPage.Update(false);
-                    end;
-                }
             }
         }
         area(processing)
@@ -840,6 +742,7 @@ page 5978 "Posted Service Invoice"
 
                 trigger OnAction()
                 begin
+                    ServiceInvHeader := Rec;
                     CurrPage.SetSelectionFilter(ServiceInvHeader);
                     ServiceInvHeader.PrintRecords(true);
                 end;
@@ -873,20 +776,6 @@ page 5978 "Posted Service Invoice"
                     Rec.Navigate();
                 end;
             }
-            group("F&unctions")
-            {
-                Caption = 'F&unctions';
-                Image = "Action";
-                action(FindCorrectiveInvoices)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = '&Find Corrective Invoices';
-                    Image = FindCreditMemo;
-                    RunObject = Page "Posted Service Credit Memos";
-                    RunPageLink = "Corrected Invoice No." = field("No.");
-                    ToolTip = 'View related corrective invoices. You can send a corrective invoice when there is an error or dispute that affects a VAT amount or fiscal data. This invoice includes all legally required data and refers to the original invoice or invoices.';
-                }
-            }
             action(ActivityLog)
             {
                 ApplicationArea = Service;
@@ -904,15 +793,15 @@ page 5978 "Posted Service Invoice"
                 ApplicationArea = Service;
                 Caption = 'Update Document';
                 Image = Edit;
-                ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
+                ToolTip = 'Add new information that is relevant to the document, such as a payment reference. You can only edit a few fields because the document has already been posted.';
 
                 trigger OnAction()
                 var
-                    PostedServInvoiceUpdate: Page "Posted Serv. Invoice - Update";
+                    PostedServiceInvUpdate: Page "Posted Service Inv. - Update";
                 begin
-                    PostedServInvoiceUpdate.LookupMode := true;
-                    PostedServInvoiceUpdate.SetRec(Rec);
-                    PostedServInvoiceUpdate.RunModal();
+                    PostedServiceInvUpdate.LookupMode := true;
+                    PostedServiceInvUpdate.SetRec(Rec);
+                    PostedServiceInvUpdate.RunModal();
                 end;
             }
         }
@@ -920,7 +809,7 @@ page 5978 "Posted Service Invoice"
         {
             group(Category_Process)
             {
-                Caption = 'Process';
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
 
                 actionref("Update Document_Promoted"; "Update Document")
                 {
@@ -945,7 +834,7 @@ page 5978 "Posted Service Invoice"
             }
             group(Category_Category4)
             {
-                Caption = 'Invoice';
+                Caption = 'Invoice', Comment = 'Generated from the PromotedActionCategories property index 3.';
 
                 actionref(Dimensions_Promoted; Dimensions)
                 {
@@ -969,9 +858,6 @@ page 5978 "Posted Service Invoice"
                 actionref(DocAttach_Promoted; DocAttach)
                 {
                 }
-                actionref(SpecialSchemeCodes_Promoted; SpecialSchemeCodes)
-                {
-                }
                 actionref("Service Document Lo&g_Promoted"; "Service Document Lo&g")
                 {
                 }
@@ -987,14 +873,10 @@ page 5978 "Posted Service Invoice"
     }
 
     trigger OnAfterGetCurrRecord()
-    var
-        SIIManagement: Codeunit "SII Management";
     begin
         DocExchStatusStyle := Rec.GetDocExchStatusStyle();
         DocExchStatusVisible := Rec."Document Exchange Status" <> Rec."Document Exchange Status"::"Not Sent";
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
-        SIIManagement.CombineOperationDescription(Rec."Operation Description", Rec."Operation Description 2", OperationDescription);
-        UpdateDocHasRegimeCode();
     end;
 
     trigger OnAfterGetRecord()
@@ -1002,7 +884,6 @@ page 5978 "Posted Service Invoice"
         DocExchStatusStyle := Rec.GetDocExchStatusStyle();
         SellToContact.GetOrClear(Rec."Contact No.");
         BillToContact.GetOrClear(Rec."Bill-to Contact No.");
-        UpdateDocHasRegimeCode();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -1014,13 +895,9 @@ page 5978 "Posted Service Invoice"
     end;
 
     trigger OnOpenPage()
-    var
-        SIIManagement: Codeunit "SII Management";
     begin
         Rec.SetSecurityFilterOnRespCenter();
 
-        SIIManagement.CombineOperationDescription(Rec."Operation Description", Rec."Operation Description 2", OperationDescription);
-        UpdateDocHasRegimeCode();
         ActivateFields();
     end;
 
@@ -1035,9 +912,6 @@ page 5978 "Posted Service Invoice"
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
         IsBillToCountyVisible: Boolean;
-        DocHasMultipleRegimeCode: Boolean;
-        OperationDescription: Text[500];
-        MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
         VATDateEnabled: Boolean;
 
     local procedure ActivateFields()
@@ -1048,12 +922,5 @@ page 5978 "Posted Service Invoice"
         IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
         IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
         VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
-    end;
-
-    local procedure UpdateDocHasRegimeCode()
-    var
-        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
-    begin
-        DocHasMultipleRegimeCode := SIISchemeCodeMgt.SalesDocHasRegimeCodes(Rec);
     end;
 }

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 #if not CLEAN26
 codeunit 104103 "UPG SII Certificate"
 {

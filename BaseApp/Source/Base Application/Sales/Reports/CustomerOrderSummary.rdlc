@@ -7,6 +7,7 @@
         <DataProvider>SQL</DataProvider>
         <ConnectString />
       </ConnectionProperties>
+      <rd:SecurityType>None</rd:SecurityType>
       <rd:DataSourceID>072b5b75-7ace-40c1-a906-830f85c7474c</rd:DataSourceID>
     </DataSource>
   </DataSources>
@@ -58,7 +59,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!AllamountsareinLCYCaption.Value</Value>
+                                  <Value>=Fields!AllamountsareinLCYCaption.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI Semibold</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -98,7 +99,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!CustFilter.Value</Value>
+                                  <Value>=Fields!CustFilter.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI Semibold</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -138,7 +139,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI Semibold</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -177,7 +178,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!CustomerNoCaption.Value</Value>
+                                  <Value>=Fields!CustomerNoCaption.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI Semibold</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -205,7 +206,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!CustomerNameCaption.Value</Value>
+                                  <Value>=Fields!CustomerNameCaption.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI Semibold</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -234,7 +235,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI Semibold</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -264,7 +265,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!BeforeCaption.Value</Value>
+                                  <Value>=Fields!BeforeCaption.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI Semibold</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -278,7 +279,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI Semibold</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -309,7 +310,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!PeriodStartDate1.Value</Value>
+                                  <Value>=Fields!PeriodStartDate1.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI Semibold</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -324,7 +325,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!PeriodStartDate21.Value</Value>
+                                  <Value>=Fields!PeriodStartDate21.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI Semibold</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -356,7 +357,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!PeriodStartDate2.Value</Value>
+                                  <Value>=Fields!PeriodStartDate2.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI Semibold</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -371,7 +372,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!PeriodStartDate31.Value</Value>
+                                  <Value>=Fields!PeriodStartDate31.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI Semibold</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -403,7 +404,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!PeriodStartDate3.Value</Value>
+                                  <Value>=Fields!PeriodStartDate3.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI Semibold</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -418,7 +419,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!PeriodStartDate41.Value</Value>
+                                  <Value>=Fields!PeriodStartDate41.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI Semibold</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -450,7 +451,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!AfterCaption.Value</Value>
+                                  <Value>=Fields!AfterCaption.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI Semibold</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -481,7 +482,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!TotalCaption.Value</Value>
+                                  <Value>=Fields!TotalCaption.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI Semibold</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -518,7 +519,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -553,7 +554,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -588,7 +589,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -622,7 +623,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -659,7 +660,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -696,7 +697,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -733,7 +734,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -770,7 +771,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -807,7 +808,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -849,7 +850,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -882,7 +883,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -913,7 +914,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -944,7 +945,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -975,7 +976,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                   </Style>
@@ -1002,7 +1003,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                   </Style>
@@ -1033,7 +1034,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!SalesLineBilltoNo_Customer.Value</Value>
+                                  <Value>=Fields!SalesLineBilltoNo_Customer.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -1065,7 +1066,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!Name_Cust.Value</Value>
+                                  <Value>=Fields!Name_Cust.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -1095,7 +1096,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -1126,7 +1127,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Sum(Fields!SalesAmtOnOrderLCY1.Value)</Value>
+                                  <Value>=Sum(Fields!SalesAmtOnOrderLCY1.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -1160,7 +1161,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Sum(Fields!SalesAmtOnOrderLCY2.Value)</Value>
+                                  <Value>=Sum(Fields!SalesAmtOnOrderLCY2.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -1194,7 +1195,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Sum(Fields!SalesAmtOnOrderLCY3.Value)</Value>
+                                  <Value>=Sum(Fields!SalesAmtOnOrderLCY3.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -1228,7 +1229,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Sum(Fields!SalesAmtOnOrderLCY4.Value)</Value>
+                                  <Value>=Sum(Fields!SalesAmtOnOrderLCY4.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -1262,7 +1263,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Sum(Fields!SalesAmtOnOrderLCY5.Value)</Value>
+                                  <Value>=Sum(Fields!SalesAmtOnOrderLCY5.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -1296,7 +1297,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Sum(Fields!SalesOrderAmountLCY.Value)</Value>
+                                  <Value>=Sum(Fields!SalesOrderAmountLCY.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -1336,7 +1337,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!SalesLineBilltoNo_Customer.Value</Value>
+                                  <Value>=Fields!SalesLineBilltoNo_Customer.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -1369,7 +1370,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!Name_Cust.Value</Value>
+                                  <Value>=Fields!Name_Cust.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -1400,7 +1401,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!CurrencyCode_SalesLine.Value</Value>
+                                  <Value>=Fields!CurrencyCode_SalesLine.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -1431,7 +1432,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Sum(Fields!SalesAmtOnOrder1.Value)</Value>
+                                  <Value>=Sum(Fields!SalesAmtOnOrder1.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -1466,7 +1467,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Sum(Fields!SalesAmtOnOrder2.Value)</Value>
+                                  <Value>=Sum(Fields!SalesAmtOnOrder2.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -1501,7 +1502,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Sum(Fields!SalesAmtOnOrder3.Value)</Value>
+                                  <Value>=Sum(Fields!SalesAmtOnOrder3.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -1536,7 +1537,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Sum(Fields!SalesAmtOnOrder4.Value)</Value>
+                                  <Value>=Sum(Fields!SalesAmtOnOrder4.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -1571,7 +1572,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Sum(Fields!SalesAmtOnOrder5.Value)</Value>
+                                  <Value>=Sum(Fields!SalesAmtOnOrder5.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -1606,7 +1607,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Sum(Fields!SalesOrderAmount.Value)</Value>
+                                  <Value>=Sum(Fields!SalesOrderAmount.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -1644,7 +1645,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -1682,7 +1683,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -1717,7 +1718,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -1752,7 +1753,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -1787,7 +1788,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -1826,7 +1827,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -1864,7 +1865,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -1903,7 +1904,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -1942,7 +1943,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -1982,7 +1983,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -2012,7 +2013,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -2039,7 +2040,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -2066,7 +2067,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -2093,7 +2094,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -2123,7 +2124,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -2152,7 +2153,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -2182,7 +2183,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -2212,7 +2213,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -2244,7 +2245,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!TotalLCYCaption.Value</Value>
+                                  <Value>=Fields!TotalLCYCaption.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -2275,7 +2276,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -2304,7 +2305,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -2334,7 +2335,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Sum(Fields!SalesAmtOnOrderLCY1.Value)</Value>
+                                  <Value>=Sum(Fields!SalesAmtOnOrderLCY1.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -2367,7 +2368,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Sum(Fields!SalesAmtOnOrderLCY2.Value)</Value>
+                                  <Value>=Sum(Fields!SalesAmtOnOrderLCY2.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -2400,7 +2401,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Sum(Fields!SalesAmtOnOrderLCY3.Value)</Value>
+                                  <Value>=Sum(Fields!SalesAmtOnOrderLCY3.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -2433,7 +2434,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Sum(Fields!SalesAmtOnOrderLCY4.Value)</Value>
+                                  <Value>=Sum(Fields!SalesAmtOnOrderLCY4.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -2466,7 +2467,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Sum(Fields!SalesAmtOnOrderLCY5.Value)</Value>
+                                  <Value>=Sum(Fields!SalesAmtOnOrderLCY5.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -2499,7 +2500,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Sum(Fields!SalesOrderAmountLCY.Value)</Value>
+                                  <Value>=Sum(Fields!SalesOrderAmountLCY.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -2537,7 +2538,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -2573,7 +2574,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -2606,7 +2607,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -2639,7 +2640,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -2675,7 +2676,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -2711,7 +2712,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -2746,7 +2747,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -2782,7 +2783,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -2818,7 +2819,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -2859,7 +2860,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -2889,7 +2890,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -2916,7 +2917,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -2943,7 +2944,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -2973,7 +2974,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -3003,7 +3004,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -3032,7 +3033,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -3062,7 +3063,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -3092,7 +3093,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
@@ -3170,7 +3171,7 @@
                   <TablixMembers>
                     <TablixMember>
                       <Visibility>
-                        <Hidden>=NOT Fields!PrintAmountsInLCY.Value</Hidden>
+                        <Hidden>=IIF(Fields!PrintAmountsInLCY.Value,FALSE,TRUE)</Hidden>
                       </Visibility>
                     </TablixMember>
                     <TablixMember>
@@ -3226,7 +3227,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto" />
+                      <Value />
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>2pt</FontSize>
@@ -3256,7 +3257,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Fields!CustomerOrderSummaryCaption.Value</Value>
+                      <Value>=Fields!CustomerOrderSummaryCaption.Value</Value>
                       <Style>
                         <FontFamily>Segoe UI Semibold</FontFamily>
                         <FontSize>14pt</FontSize>
@@ -3280,7 +3281,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Fields!CompanyName.Value</Value>
+                      <Value>=Fields!CompanyName.Value</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -3304,7 +3305,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Globals!ExecutionTime</Value>
+                      <Value>=Globals!ExecutionTime</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -3340,7 +3341,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=User!UserID</Value>
+                      <Value>=User!UserID</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -3374,7 +3375,7 @@
                   <TextRuns>
                     <TextRun>
                       <Label>PageNumber</Label>
-                      <Value EvaluationMode="Auto">=Fields!PageNoCaption.Value &amp; " " &amp; Globals!PageNumber &amp; " / " &amp; Globals!TotalPages</Value>
+                      <Value>=Fields!PageNoCaption.Value &amp; " " &amp; Globals!PageNumber &amp; " / " &amp; Globals!TotalPages</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -3408,7 +3409,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto" />
+                      <Value />
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -3436,7 +3437,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto" />
+                      <Value />
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -3463,7 +3464,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Fields!OutstandingOrdersCaption.Value</Value>
+                      <Value>=Fields!OutstandingOrdersCaption.Value</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -3497,6 +3498,294 @@
     </ReportSection>
   </ReportSections>
   <ReportParameters>
+    <ReportParameter Name="DataRetrieved">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DataRetrieved</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DataRetrieved</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CustomerOrderSummary">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CustomerOrderSummary</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CustomerOrderSummary</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CustomerOrderSummaryPrint">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CustomerOrderSummaryPrint</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CustomerOrderSummaryPrint</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CustomerOrderSummaryAnalysis">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CustomerOrderSummaryAnalysis</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CustomerOrderSummaryAnalysis</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="PostingDateFilterLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>PostingDateFilterLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>PostingDateFilterLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="AboutTheReportLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>AboutTheReportLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>AboutTheReportLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="EnvironmentLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>EnvironmentLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>EnvironmentLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CompanyLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CompanyLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CompanyLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="UserLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>UserLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>UserLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RunOnLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>RunOnLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>RunOnLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ReportNameLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ReportNameLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ReportNameLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DocumentationLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DocumentationLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DocumentationLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="StartingDateLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>StartingDateLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>StartingDateLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="BeforeLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>BeforeLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>BeforeLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Before1Lbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Before1Lbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Before1Lbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="AfterLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>AfterLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>AfterLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="After1Lbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>After1Lbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>After1Lbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Period2StartDateLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Period2StartDateLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Period2StartDateLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Period2EndDateLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Period2EndDateLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Period2EndDateLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Period3StartDateLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Period3StartDateLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Period3StartDateLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Period3EndDateLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Period3EndDateLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Period3EndDateLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Period4StartDateLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Period4StartDateLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Period4StartDateLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Period4EndDateLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Period4EndDateLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Period4EndDateLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SalesAmtOnOrderLCY2Lbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>SalesAmtOnOrderLCY2Lbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>SalesAmtOnOrderLCY2Lbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SalesAmtOnOrder2Lbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>SalesAmtOnOrder2Lbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>SalesAmtOnOrder2Lbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SalesAmtOnOrderLCY3Lbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>SalesAmtOnOrderLCY3Lbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>SalesAmtOnOrderLCY3Lbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SalesAmtOnOrder3Lbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>SalesAmtOnOrder3Lbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>SalesAmtOnOrder3Lbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SalesAmtOnOrderLCY4Lbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>SalesAmtOnOrderLCY4Lbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>SalesAmtOnOrderLCY4Lbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SalesAmtOnOrder4Lbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>SalesAmtOnOrder4Lbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>SalesAmtOnOrder4Lbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="TotalCaptionLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>TotalCaptionLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>TotalCaptionLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="TotalLCYCaptionLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>TotalLCYCaptionLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>TotalLCYCaptionLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CurrencyCode_SalesLineCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CurrencyCode_SalesLineCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CurrencyCode_SalesLineCaption</Prompt>
+    </ReportParameter>
     <ReportParameter Name="Name_CustCaption">
       <DataType>String</DataType>
       <DefaultValue>
@@ -3506,16 +3795,190 @@
       </DefaultValue>
       <Prompt>Name_CustCaption</Prompt>
     </ReportParameter>
+    <ReportParameter Name="SalesLineBilltoNo_CustomerCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>SalesLineBilltoNo_CustomerCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>SalesLineBilltoNo_CustomerCaption</Prompt>
+    </ReportParameter>
   </ReportParameters>
   <ReportParametersLayout>
     <GridLayoutDefinition>
       <NumberOfColumns>1</NumberOfColumns>
-      <NumberOfRows>1</NumberOfRows>
+      <NumberOfRows>34</NumberOfRows>
       <CellDefinitions>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>0</RowIndex>
+          <ParameterName>DataRetrieved</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>1</RowIndex>
+          <ParameterName>CustomerOrderSummary</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>2</RowIndex>
+          <ParameterName>CustomerOrderSummaryPrint</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>3</RowIndex>
+          <ParameterName>CustomerOrderSummaryAnalysis</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>4</RowIndex>
+          <ParameterName>PostingDateFilterLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>5</RowIndex>
+          <ParameterName>AboutTheReportLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>6</RowIndex>
+          <ParameterName>EnvironmentLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>7</RowIndex>
+          <ParameterName>CompanyLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>8</RowIndex>
+          <ParameterName>UserLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>9</RowIndex>
+          <ParameterName>RunOnLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>10</RowIndex>
+          <ParameterName>ReportNameLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>11</RowIndex>
+          <ParameterName>DocumentationLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>12</RowIndex>
+          <ParameterName>StartingDateLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>13</RowIndex>
+          <ParameterName>BeforeLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>14</RowIndex>
+          <ParameterName>Before1Lbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>15</RowIndex>
+          <ParameterName>AfterLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>16</RowIndex>
+          <ParameterName>After1Lbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>17</RowIndex>
+          <ParameterName>Period2StartDateLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>18</RowIndex>
+          <ParameterName>Period2EndDateLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>19</RowIndex>
+          <ParameterName>Period3StartDateLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>20</RowIndex>
+          <ParameterName>Period3EndDateLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>21</RowIndex>
+          <ParameterName>Period4StartDateLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>22</RowIndex>
+          <ParameterName>Period4EndDateLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>23</RowIndex>
+          <ParameterName>SalesAmtOnOrderLCY2Lbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>24</RowIndex>
+          <ParameterName>SalesAmtOnOrder2Lbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>25</RowIndex>
+          <ParameterName>SalesAmtOnOrderLCY3Lbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>26</RowIndex>
+          <ParameterName>SalesAmtOnOrder3Lbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>27</RowIndex>
+          <ParameterName>SalesAmtOnOrderLCY4Lbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>28</RowIndex>
+          <ParameterName>SalesAmtOnOrder4Lbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>29</RowIndex>
+          <ParameterName>TotalCaptionLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>30</RowIndex>
+          <ParameterName>TotalLCYCaptionLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>31</RowIndex>
+          <ParameterName>CurrencyCode_SalesLineCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>32</RowIndex>
           <ParameterName>Name_CustCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>33</RowIndex>
+          <ParameterName>SalesLineBilltoNo_CustomerCaption</ParameterName>
         </CellDefinition>
       </CellDefinitions>
     </GridLayoutDefinition>
@@ -3592,6 +4055,15 @@ End Function
         <Field Name="PeriodStartDate41">
           <DataField>PeriodStartDate41</DataField>
         </Field>
+        <Field Name="PeriodRange1">
+          <DataField>PeriodRange1</DataField>
+        </Field>
+        <Field Name="PeriodRange2">
+          <DataField>PeriodRange2</DataField>
+        </Field>
+        <Field Name="PeriodRange3">
+          <DataField>PeriodRange3</DataField>
+        </Field>
         <Field Name="SalesAmtOnOrderLCY1">
           <DataField>SalesAmtOnOrderLCY1</DataField>
         </Field>
@@ -3630,6 +4102,9 @@ End Function
         </Field>
         <Field Name="No_Cust">
           <DataField>No_Cust</DataField>
+        </Field>
+        <Field Name="AllamountsareinLCYTxt">
+          <DataField>AllamountsareinLCYTxt</DataField>
         </Field>
         <Field Name="CustomerOrderSummaryCaption">
           <DataField>CustomerOrderSummaryCaption</DataField>
@@ -3708,6 +4183,90 @@ End Function
         </Field>
         <Field Name="GroupNumber">
           <DataField>GroupNumber</DataField>
+        </Field>
+        <Field Name="Number">
+          <DataField>Number</DataField>
+        </Field>
+        <Field Name="SalesLineBuffer_BilltoCustomerNo">
+          <DataField>SalesLineBuffer_BilltoCustomerNo</DataField>
+        </Field>
+        <Field Name="SalesLineBuffer_CustomerName">
+          <DataField>SalesLineBuffer_CustomerName</DataField>
+        </Field>
+        <Field Name="SalesLineBuffer_CurrencyCode">
+          <DataField>SalesLineBuffer_CurrencyCode</DataField>
+        </Field>
+        <Field Name="SalesLineBuffer_SalesOrderAmount">
+          <DataField>SalesLineBuffer_SalesOrderAmount</DataField>
+        </Field>
+        <Field Name="SalesLineBuffer_SalesOrderAmountFormat">
+          <DataField>SalesLineBuffer_SalesOrderAmountFormat</DataField>
+        </Field>
+        <Field Name="SalesLineBuffer_SalesAmtOnOrder1">
+          <DataField>SalesLineBuffer_SalesAmtOnOrder1</DataField>
+        </Field>
+        <Field Name="SalesLineBuffer_SalesAmtOnOrder1Format">
+          <DataField>SalesLineBuffer_SalesAmtOnOrder1Format</DataField>
+        </Field>
+        <Field Name="SalesLineBuffer_SalesAmtOnOrder2">
+          <DataField>SalesLineBuffer_SalesAmtOnOrder2</DataField>
+        </Field>
+        <Field Name="SalesLineBuffer_SalesAmtOnOrder2Format">
+          <DataField>SalesLineBuffer_SalesAmtOnOrder2Format</DataField>
+        </Field>
+        <Field Name="SalesLineBuffer_SalesAmtOnOrder3">
+          <DataField>SalesLineBuffer_SalesAmtOnOrder3</DataField>
+        </Field>
+        <Field Name="SalesLineBuffer_SalesAmtOnOrder3Format">
+          <DataField>SalesLineBuffer_SalesAmtOnOrder3Format</DataField>
+        </Field>
+        <Field Name="SalesLineBuffer_SalesAmtOnOrder4">
+          <DataField>SalesLineBuffer_SalesAmtOnOrder4</DataField>
+        </Field>
+        <Field Name="SalesLineBuffer_SalesAmtOnOrder4Format">
+          <DataField>SalesLineBuffer_SalesAmtOnOrder4Format</DataField>
+        </Field>
+        <Field Name="SalesLineBuffer_SalesAmtOnOrder5">
+          <DataField>SalesLineBuffer_SalesAmtOnOrder5</DataField>
+        </Field>
+        <Field Name="SalesLineBuffer_SalesAmtOnOrder5Format">
+          <DataField>SalesLineBuffer_SalesAmtOnOrder5Format</DataField>
+        </Field>
+        <Field Name="TotalSalesOrderAmount">
+          <DataField>TotalSalesOrderAmount</DataField>
+        </Field>
+        <Field Name="TotalSalesOrderAmountFormat">
+          <DataField>TotalSalesOrderAmountFormat</DataField>
+        </Field>
+        <Field Name="TotalSalesAmtOnOrder1">
+          <DataField>TotalSalesAmtOnOrder1</DataField>
+        </Field>
+        <Field Name="TotalSalesAmtOnOrder1Format">
+          <DataField>TotalSalesAmtOnOrder1Format</DataField>
+        </Field>
+        <Field Name="TotalSalesAmtOnOrder2">
+          <DataField>TotalSalesAmtOnOrder2</DataField>
+        </Field>
+        <Field Name="TotalSalesAmtOnOrder2Format">
+          <DataField>TotalSalesAmtOnOrder2Format</DataField>
+        </Field>
+        <Field Name="TotalSalesAmtOnOrder3">
+          <DataField>TotalSalesAmtOnOrder3</DataField>
+        </Field>
+        <Field Name="TotalSalesAmtOnOrder3Format">
+          <DataField>TotalSalesAmtOnOrder3Format</DataField>
+        </Field>
+        <Field Name="TotalSalesAmtOnOrder4">
+          <DataField>TotalSalesAmtOnOrder4</DataField>
+        </Field>
+        <Field Name="TotalSalesAmtOnOrder4Format">
+          <DataField>TotalSalesAmtOnOrder4Format</DataField>
+        </Field>
+        <Field Name="TotalSalesAmtOnOrder5">
+          <DataField>TotalSalesAmtOnOrder5</DataField>
+        </Field>
+        <Field Name="TotalSalesAmtOnOrder5Format">
+          <DataField>TotalSalesAmtOnOrder5Format</DataField>
         </Field>
       </Fields>
       <Query>

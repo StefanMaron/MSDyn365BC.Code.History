@@ -11,10 +11,9 @@ using System.Utilities;
 
 report 713 "Inventory - Customer Sales"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Inventory/Reports/InventoryCustomerSales.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Inventory Customer Sales';
+    DefaultRenderingLayout = Word;
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -22,9 +21,14 @@ report 713 "Inventory - Customer Sales"
         dataitem(ReportHeader; "Integer")
         {
             DataItemTableView = sorting(Number) where(Number = const(0));
+#if not CLEAN27
             column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'RDLC Only layout column. To be removed along with the RDLC layout.';
+                ObsoleteTag = '27.0';
             }
+#endif
             column(PeriodText; PeriodText)
             {
             }
@@ -34,6 +38,12 @@ report 713 "Inventory - Customer Sales"
             column(ItemLedgEntryFilter; ItemLedgEntryFilter)
             {
             }
+
+            trigger OnPreDataItem()
+            begin
+                if not ReportHasData then
+                    CurrReport.Break();
+            end;
         }
         dataitem(Item; Item)
         {
@@ -42,9 +52,11 @@ report 713 "Inventory - Customer Sales"
             RequestFilterFields = "No.", "No. 2", "Search Description", "Assembly BOM", "Inventory Posting Group";
             column(No_Item; "No.")
             {
+                IncludeCaption = true;
             }
             column(Description_Item; Description)
             {
+                IncludeCaption = true;
             }
             column(BaseUnitofMeasure_Item; "Base Unit of Measure")
             {
@@ -57,9 +69,9 @@ report 713 "Inventory - Customer Sales"
                 RequestFilterFields = "Posting Date", "Source No.";
                 dataitem("Integer"; "Integer")
                 {
-                    DataItemTableView = sorting(Number) where(Number = filter(1 ..));
                     column(SourceNo_ItemLedgEntry; TempValueEntryBuf."Source No.")
                     {
+                        IncludeCaption = true;
                     }
                     column(CustName; GetCustName(TempValueEntryBuf."Source No."))
                     {
@@ -70,25 +82,33 @@ report 713 "Inventory - Customer Sales"
                     }
                     column(SalesAmtActual_ItemLedgEntry; TempValueEntryBuf."Sales Amount (Actual)")
                     {
+                        IncludeCaption = true;
                         AutoFormatType = 1;
                     }
                     column(Profit_ItemLedgEntry; TempValueEntryBuf."Sales Amount (Expected)")
                     {
+                        IncludeCaption = true;
                         AutoFormatType = 1;
                     }
                     column(DiscountAmount; -TempValueEntryBuf."Purchase Amount (Expected)")
                     {
                         AutoFormatType = 1;
                     }
-
+                    column(ProfitPct_ItemLedgEntry; ProfitPct)
+                    {
+                        DecimalPlaces = 1 : 1;
+                    }
                     trigger OnAfterGetRecord()
                     begin
-                        if Number = 1 then begin
-                            if not TempValueEntryBuf.FindSet() then
-                                CurrReport.Break();
-                        end else
-                            if TempValueEntryBuf.Next() = 0 then
-                                CurrReport.Break();
+                        if Number = 1 then
+                            TempValueEntryBuf.FindFirst()
+
+                        else
+                            TempValueEntryBuf.Next();
+
+                        ProfitPct := 0;
+                        if TempValueEntryBuf."Sales Amount (Actual)" <> 0 then
+                            ProfitPct := TempValueEntryBuf."Sales Amount (Expected)" / TempValueEntryBuf."Sales Amount (Actual)" * 100;
                     end;
 
                     trigger OnPostDataItem()
@@ -99,6 +119,7 @@ report 713 "Inventory - Customer Sales"
                     trigger OnPreDataItem()
                     begin
                         TempValueEntryBuf.Reset();
+                        SetRange(Number, 1, TempValueEntryBuf.Count());
                     end;
                 }
 
@@ -111,6 +132,9 @@ report 713 "Inventory - Customer Sales"
 
                     if IsLastEntry() then
                         AddReportLine(ValueEntryBuf);
+
+                    if not ReportHasData then
+                        ReportHasData := true;
                 end;
 
                 trigger OnPreDataItem()
@@ -120,6 +144,96 @@ report 713 "Inventory - Customer Sales"
                     ReportLineNo := 0;
                 end;
             }
+            dataitem(SubTotals; Integer)
+            {
+                DataItemTableView = sorting(Number) where(Number = const(1));
+                column(SubTotals_InvQty; SubtotalsInvQty)
+                {
+                    DecimalPlaces = 0 : 5;
+                }
+                column(SubTotals_SalesAmtActual; SubtotalsSalesAmtActual)
+                {
+                    DecimalPlaces = 2 : 2;
+                }
+                column(SubTotals_DiscountAmount; SubtotalsDiscountAmount)
+                {
+                    DecimalPlaces = 2 : 2;
+                }
+                column(SubTotals_Profit; SubtotalsItemProfit)
+                {
+                    DecimalPlaces = 2 : 2;
+                }
+                column(SubTotals_ProfitPct; SubtotalsItemProfitPct)
+                {
+                    DecimalPlaces = 1 : 1;
+                }
+                column(SubTotals_Description; Item.Description)
+                {
+                }
+                trigger OnPreDataItem()
+                begin
+                    if TempValueEntryBuf2.IsEmpty() then
+                        CurrReport.Break();
+
+                    SubtotalsInvQty := 0;
+                    SubtotalsSalesAmtActual := 0;
+                    SubtotalsDiscountAmount := 0;
+                    SubtotalsItemProfit := 0;
+                    SubtotalsItemProfitPct := 0;
+
+                    TempValueEntryBuf2.Reset();
+                    if TempValueEntryBuf2.FindSet() then
+                        repeat
+                            SubtotalsInvQty += (-TempValueEntryBuf2."Invoiced Quantity");
+                            SubtotalsSalesAmtActual += TempValueEntryBuf2."Sales Amount (Actual)";
+                            SubtotalsDiscountAmount += (-TempValueEntryBuf2."Purchase Amount (Expected)");
+                            SubtotalsItemProfit += TempValueEntryBuf2."Sales Amount (Expected)";
+                        until TempValueEntryBuf2.Next() = 0;
+                    if SubtotalsSalesAmtActual <> 0 then
+                        SubtotalsItemProfitPct := SubtotalsItemProfit / SubtotalsSalesAmtActual * 100;
+                end;
+
+                trigger OnAfterGetRecord()
+                begin
+                    TotalsSalesAmtActual += SubtotalsSalesAmtActual;
+                    TotalsDiscountAmount += SubtotalsDiscountAmount;
+                    TotalsProfit += SubtotalsItemProfit;
+                end;
+
+                trigger OnPostDataItem()
+                begin
+                    TempValueEntryBuf2.DeleteAll();
+                end;
+            }
+        }
+        dataitem(Totals; Integer)
+        {
+            DataItemTableView = sorting(Number) where(Number = const(1));
+            column(Totals_SalesAmtActual; TotalsSalesAmtActual)
+            {
+                DecimalPlaces = 2 : 2;
+            }
+            column(Totals_DiscountAmount; TotalsDiscountAmount)
+            {
+                DecimalPlaces = 2 : 2;
+            }
+            column(Totals_Profit; TotalsProfit)
+            {
+                DecimalPlaces = 2 : 2;
+            }
+            column(Totals_ProfitPct; TotalsProfitPct)
+            {
+                DecimalPlaces = 1 : 1;
+            }
+
+            trigger OnPreDataItem()
+            begin
+                if not ReportHasData then
+                    CurrReport.Break();
+
+                if TotalsSalesAmtActual <> 0 then
+                    TotalsProfitPct := TotalsProfit / TotalsSalesAmtActual * 100;
+            end;
         }
     }
 
@@ -130,15 +244,80 @@ report 713 "Inventory - Customer Sales"
 
         layout
         {
+            area(content)
+            {
+                group(Options)
+                {
+                    Visible = false;
+                    Caption = 'Options';
+                    field(PostingDateFilter; PostingDateFilter)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Posting Date Filter';
+                    }
+                }
+            }
         }
 
         actions
         {
         }
+        trigger OnQueryClosePage(CloseAction: Action): Boolean
+        begin
+            PostingDateFilter := "Item Ledger Entry".GetFilter("Posting Date");
+        end;
+    }
+
+    rendering
+    {
+        layout(Excel)
+        {
+            Caption = 'Inventory Customer Sales Excel';
+            LayoutFile = '.\Inventory\Reports\InventoryCustomerSales.xlsx';
+            Type = Excel;
+        }
+        layout(Word)
+        {
+            Caption = 'Inventory Customer Sales Word';
+            LayoutFile = '.\Inventory\Reports\InventoryCustomerSales.docx';
+            Type = Word;
+        }
+#if not CLEAN27
+        layout(RDLC)
+        {
+            Caption = 'Inventory Customer Sales RDLC';
+            Type = RDLC;
+            LayoutFile = '.\Inventory\Reports\InventoryCustomerSales.rdlc';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The RDLC layout has been replaced by the Excel and Word layouts and will be removed in a future release.';
+            ObsoleteTag = '27.0';
+        }
+#endif
     }
 
     labels
     {
+        DataRetrieved = 'Data retrieved:';
+        InventoryCustomerSales = 'Inventory - Customer Sales';
+        InventoryCustomerSalesPrint = 'Inventory - Cust. Sales (Print)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        InvCustomerSalesAnalysis = 'Inv. - Cust. Sales (Analysis)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        PostingDateFilterLabel = 'Posting Date Filter:';
+        // About the report labels
+        AboutTheReportLabel = 'About the report', MaxLength = 31, Comment = 'Excel worksheet name.';
+        EnvironmentLabel = 'Environment';
+        CompanyLabel = 'Company';
+        UserLabel = 'User';
+        RunOnLabel = 'Run on';
+        ReportNameLabel = 'Report name';
+        DocumentationLabel = 'Documentation';
+        CustomerNoLabel = 'Customer No.';
+        CustNameLabel = 'Name';
+        InvQtyLabel = 'Invoiced Quantity';
+        AmountLabel = 'Amount';
+        DiscountAmtLabel = 'Discount Amount';
+        ProfitLabel = 'Profit';
+        ProfitPctLabel = 'Profit %';
+#if not CLEAN27
         ReportTitle = 'Inventory - Customer Sales';
         Page = 'Page';
         CustomerNo = 'Customer No.';
@@ -149,6 +328,7 @@ report 713 "Inventory - Customer Sales"
         Profit = 'Profit';
         ProfitPct = 'Profit %';
         Total = 'Total';
+#endif
     }
 
     trigger OnPreReport()
@@ -161,12 +341,24 @@ report 713 "Inventory - Customer Sales"
     var
         ValueEntryBuf: Record "Value Entry";
         TempValueEntryBuf: Record "Value Entry" temporary;
+        TempValueEntryBuf2: Record "Value Entry" temporary;
         PeriodText: Text;
         ItemFilter: Text;
         ItemLedgEntryFilter: Text;
+        PostingDateFilter: Text;
         LastItemLedgEntryNo: Integer;
         ReportLineNo: Integer;
-
+        ProfitPct: Decimal;
+        SubtotalsInvQty: Decimal;
+        SubtotalsSalesAmtActual: Decimal;
+        SubtotalsDiscountAmount: Decimal;
+        SubtotalsItemProfit: Decimal;
+        SubtotalsItemProfitPct: Decimal;
+        TotalsSalesAmtActual: Decimal;
+        TotalsDiscountAmount: Decimal;
+        TotalsProfit: Decimal;
+        TotalsProfitPct: Decimal;
+        ReportHasData: Boolean;
         PeriodInfoTxt: Label 'Period: %1', Comment = '%1 - period name';
         TableFiltersTxt: Label '%1: %2', Locked = true;
 
@@ -216,6 +408,9 @@ report 713 "Inventory - Customer Sales"
         ReportLineNo += 1;
         TempValueEntryBuf."Entry No." := ReportLineNo;
         TempValueEntryBuf.Insert();
+        TempValueEntryBuf2.Init();
+        TempValueEntryBuf2.TransferFields(TempValueEntryBuf);
+        TempValueEntryBuf2.Insert();
         Clear(ValueEntryBuf2);
     end;
 

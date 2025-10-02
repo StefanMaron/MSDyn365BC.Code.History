@@ -1242,7 +1242,11 @@ codeunit 144076 "ERM Payment Discount"
     begin
         ServiceCreditMemo.OpenEdit();
         ServiceCreditMemo.FILTER.SetFilter("No.", No);
+#if not CLEAN27
         ServiceCreditMemo."Calculate Inv. and Pmt. Disc.".Invoke();
+#else
+        ServiceCreditMemo."Calculate Invoice Discount".Invoke();
+#endif
         ServiceCreditMemo.ServiceStatistics.Invoke();  // Opens ServiceStatisticsModalPageHandler.
         ServiceCreditMemo.Close();
     end;

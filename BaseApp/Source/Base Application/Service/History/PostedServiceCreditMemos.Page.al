@@ -53,6 +53,14 @@ page 5971 "Posted Service Credit Memos"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the currency code for the amounts on the credit memo.';
                 }
+                field(Amount; Rec.Amount)
+                {
+                    ToolTip = 'Specifies the total credit memo amount excluding VAT.';
+                }
+                field("Amount Including VAT"; Rec."Amount Including VAT")
+                {
+                    ToolTip = 'Specifies the total credit memo amount including VAT.';
+                }
                 field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Service;
@@ -136,35 +144,6 @@ page 5971 "Posted Service Credit Memos"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the credit memo was posted.';
                     Visible = false;
-                }
-                field("SII Status"; Rec."SII Status")
-                {
-                    ApplicationArea = Basic, Suite;
-                    StyleExpr = StyleText;
-                    ToolTip = 'Specifies the document''s status with regard to tax declaration, the Immediate Information Supply requirement. ';
-                    Visible = SIIStateVisible;
-
-                    trigger OnDrillDown()
-                    var
-                        SIIDocUploadState: Record "SII Doc. Upload State";
-                        SIIManagement: Codeunit "SII Management";
-                    begin
-                        SIIDocUploadState.SetRange("Document Source", SIIDocUploadState."Document Source"::"Customer Ledger");
-                        SIIDocUploadState.SetRange("Document Type", SIIDocUploadState."Document Type"::Invoice);
-                        SIIDocUploadState.SetRange("Document No.", Rec."No.");
-                        SIIManagement.SIIStateDrilldown(SIIDocUploadState);
-                    end;
-                }
-                field("Do Not Send To SII"; Rec."Do Not Send To SII")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the document must not be sent to SII.';
-                }
-                field("Sent to SII"; Rec."Sent to SII")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies that the document has been sent to the Immediate Information Supply system.';
-                    Visible = SIIStateVisible;
                 }
                 field("Salesperson Code"; Rec."Salesperson Code")
                 {
@@ -323,6 +302,7 @@ page 5971 "Posted Service Credit Memos"
 
                 trigger OnAction()
                 begin
+                    ServCrMemoHeader := Rec;
                     CurrPage.SetSelectionFilter(ServCrMemoHeader);
                     ServCrMemoHeader.PrintRecords(true);
                 end;
@@ -370,22 +350,6 @@ page 5971 "Posted Service Credit Memos"
                     ActivityLog.ShowEntries(Rec.RecordId);
                 end;
             }
-            action("Update Document")
-            {
-                ApplicationArea = Service;
-                Caption = 'Update Document';
-                Image = Edit;
-                ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
-
-                trigger OnAction()
-                var
-                    PostedServCrMemoUpdate: Page "Posted Serv. Cr. Memo - Update";
-                begin
-                    PostedServCrMemoUpdate.LookupMode := true;
-                    PostedServCrMemoUpdate.SetRec(Rec);
-                    PostedServCrMemoUpdate.RunModal();
-                end;
-            }
         }
         area(Promoted)
         {
@@ -393,9 +357,6 @@ page 5971 "Posted Service Credit Memos"
             {
                 Caption = 'Process';
 
-                actionref("Update Document_Promoted"; "Update Document")
-                {
-                }
                 group(Category_CategoryPrint)
                 {
                     ShowAs = SplitButton;
@@ -445,32 +406,23 @@ page 5971 "Posted Service Credit Memos"
     end;
 
     trigger OnAfterGetRecord()
-    var
-        SIIManagement: Codeunit "SII Management";
     begin
         DocExchStatusStyle := Rec.GetDocExchStatusStyle();
-
-        StyleText := SIIManagement.GetSIIStyle(Rec."SII Status".AsInteger());
     end;
 
     trigger OnOpenPage()
     var
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
-        SIISetup: Record "SII Setup";
     begin
         Rec.SetSecurityFilterOnRespCenter();
 
         ServiceCrMemoHeader.CopyFilters(Rec);
         ServiceCrMemoHeader.SetFilter("Document Exchange Status", '<>%1', Rec."Document Exchange Status"::"Not Sent");
         DocExchStatusVisible := not ServiceCrMemoHeader.IsEmpty();
-
-        SIIStateVisible := SIISetup.IsEnabled();
     end;
 
     var
         ServCrMemoHeader: Record "Service Cr.Memo Header";
         DocExchStatusStyle: Text;
         DocExchStatusVisible: Boolean;
-        StyleText: Text;
-        SIIStateVisible: Boolean;
 }

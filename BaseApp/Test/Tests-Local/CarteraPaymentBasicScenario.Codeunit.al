@@ -1286,7 +1286,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         // [GIVEN] Posted purchase invoice with Cartera Doc created
         PrepareVendorRelatedRecords(Vendor, '');
         DocumentNo := LibraryCarteraPayables.CreateCarteraPayableDocument(Vendor);
-        // [GIVEN] A Gen. Journal Line 
+        // [GIVEN] A Gen. Journal Line
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, Vendor."No.", 0);
@@ -1573,6 +1573,59 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     end;
 
     [Test]
+    [HandlerFunctions('CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
+    procedure CheckBalancedEntriesWhenSettlingInvoicesToCarteraViaPaymentOrderWithMultiplePostingGroups()
+    var
+        PaymentOrder: Record "Payment Order";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+        VendorPostingGroup2: Record "Vendor Posting Group";
+        InvoiceNo: Code[20];
+    begin
+        // [SCENARIO 566709] Check balanced entries when settling invoices to Cartera via payment order with multiple posting groups.
+        Initialize();
+
+        // [GIVEN] Allowed multiple vendor posting groups
+        SetPurchAllowMultiplePostingGroups(true);
+
+        // [GIVEN] Created Multiple Vendor Posting Groups.
+        VendorPostingGroup2 := CreateMultipleVendorPostingGroups(VendorPostingGroup);
+
+        // [GIVEN] Created Vendor for Allow Multiple Posting Groups
+        CreateVendorWithAllowMultiplePostingGroups(Vendor, VendorPostingGroup.Code);
+
+        // [GIVEN] Create Purchase invoices for a vendor with multiple posting groups
+        LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, "Purchase Document Type"::Invoice, Vendor."No.", '', 1, '', 0D);
+
+        // [GIVEN] Modify Vendor Posting Group on Purchase Invoice
+        PurchaseHeader.Validate("Vendor Posting Group", VendorPostingGroup2.Code);
+        PurchaseHeader.Modify(true);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Exercise: Posting purchase Document.
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create Payment Order.
+        CreatePaymentOrder(PaymentOrder);
+
+        // [GIVEN] Add the Posted invoice to Cartera & Post the Payment Order.
+        AddCarteraDocumentToPaymentOrder(PaymentOrder."No.", InvoiceNo);
+        LibraryCarteraPayables.PostCarteraPaymentOrder(PaymentOrder);
+        Commit();
+
+        // [WHEN] Total settlement was invoke from from Posted Payment Order.
+        TotalSettlementOnItemInPostedPaymentOrder(PaymentOrder."No.", InvoiceNo);
+        LibraryVariableStorage.DequeueText();
+
+        // [THEN] Verify "Invoices in  Pmt. Ord. Acc." GL was settled.
+        VerifyGLAccInvoicesInPmtOrdAcc(VendorPostingGroup2.Code, PaymentOrder."No.");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandler,MessageHandler,CarteraDocumentsActionModalPageHandler,SettleDocsInPostedPOModalPageHandler2')]
     procedure CheckSettleMoreThanOneBillViaPaymentOrderWithMultiplePostingGroups()
     var
@@ -1583,7 +1636,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         VendorPostingGroup: array[2] of Record "Vendor Posting Group";
         InvoiceNo: array[3] of Code[20];
     begin
-        // [SCENARIO 575303] Verify that in the GL entry, the 'Bills in Payment Order Acc' account is taken from the alternative vendor posting group 
+        // [SCENARIO 575303] Verify that in the GL entry, the 'Bills in Payment Order Acc' account is taken from the alternative vendor posting group
         // When settlement more than one bill via a payment order involving multiple posting groups.
         Initialize();
 
@@ -1607,7 +1660,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         // [GIVEN] Create Purchase invoices for a vendor and post.
         InvoiceNo[1] := CreateAndPostPurchaseInvoice(Vendor, '', Vendor."Payment Method Code");
 
-        // [GIVEN] Create Purchase invoices for a vendor and post with alternative posting groups 
+        // [GIVEN] Create Purchase invoices for a vendor and post with alternative posting groups
         InvoiceNo[2] := CreateAndPostPurchaseInvoice(
             Vendor, VendorPostingGroup[2].Code, Vendor."Payment Method Code");
         InvoiceNo[3] := CreateAndPostPurchaseInvoice(Vendor, VendorPostingGroup[2].Code, '');
@@ -2219,30 +2272,6 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PostedPaymentOrders.Docs.TotalSettlement.Invoke();
     end;
 
-    local procedure CreateCarteraPaymentMethod(var PaymentMethod: Record "Payment Method")
-    begin
-        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
-        PaymentMethod.Validate("Invoices to Cartera", true);
-        PaymentMethod.Validate("Collection Agent", PaymentMethod."Collection Agent"::Bank);
-        PaymentMethod.Validate("Submit for Acceptance", true);
-        PaymentMethod.Modify(true);
-    end;
-
-    local procedure SetupCurrencyWithExchRates(): Code[10]
-    var
-        Currency: Record Currency;
-        CurrExchRateAmount: Decimal;
-        CurrencyCode: Code[10];
-    begin
-        CurrencyCode := LibraryERM.CreateCurrencyWithGLAccountSetup();
-        Currency.Get(CurrencyCode);
-        CurrExchRateAmount := LibraryRandom.RandDec(100, 2);
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), 1 / CurrExchRateAmount, 1 / CurrExchRateAmount);
-        LibraryERM.CreateExchangeRate(Currency.Code, CalcDate('<+1M>', WorkDate()), 1 / (CurrExchRateAmount + 20), 1 / (CurrExchRateAmount + 20));
-        LibraryERM.CreateExchangeRate(Currency.Code, CalcDate('<+2M>', WorkDate()), 1 / (CurrExchRateAmount + 40), 1 / (CurrExchRateAmount + 40));
-        exit(Currency.Code);
-    end;
-
     local procedure SetDateAndCurrencyExchangefactor(var ExchRate: array[2] of Decimal; var PostDate: array[2] of Date)
     begin
         ExchRate[1] := 1.0943;
@@ -2284,6 +2313,33 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PurchasesPayablesSetup.Modify(true);
     end;
 
+    local procedure CreateMultipleVendorPostingGroups(var VendorPostingGroup: Record "Vendor Posting Group"): Record "Vendor Posting Group"
+    var
+        VendorPostingGroup2: Record "Vendor Posting Group";
+    begin
+        // Crete First Vendor Posting Group
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
+        VendorPostingGroup.Validate("Invoices in  Pmt. Ord. Acc.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        VendorPostingGroup.Validate("Bills in Payment Order Acc.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        VendorPostingGroup.Modify(true);
+
+        // Crete Second Vendor Posting Group
+        VendorPostingGroup2.Init();
+        VendorPostingGroup2.TransferFields(VendorPostingGroup, false);
+        VendorPostingGroup2.Validate(
+            Code, LibraryUtility.GenerateRandomCode(VendorPostingGroup2.FieldNo(Code),
+            Database::"Vendor Posting Group"));
+        VendorPostingGroup2.Validate("Payables Account", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        VendorPostingGroup2.Validate("Invoices in  Pmt. Ord. Acc.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        VendorPostingGroup2.Insert(true);
+
+        // Set Alternative vendor posting group to each other.
+        LibraryPurchase.CreateAltVendorPostingGroup(VendorPostingGroup.Code, VendorPostingGroup2.Code);
+        LibraryPurchase.CreateAltVendorPostingGroup(VendorPostingGroup2.Code, VendorPostingGroup.Code);
+
+        exit(VendorPostingGroup2);
+    end;
+
     local procedure CreateVendorWithAllowMultiplePostingGroups(var Vendor: Record Vendor; VendorPostingGroup: Code[20])
     var
         PaymentMethod: Record "Payment Method";
@@ -2313,20 +2369,6 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PaymentMethod.FindFirst();
     end;
 
-    local procedure CreateVendorPostingGroupWithBillsPaymentOrderAcc(var VendorPostingGroup: Record "Vendor Posting Group")
-    begin
-        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
-        VendorPostingGroup.Validate("Bills in Payment Order Acc.", LibraryERM.CreateGLAccountNoWithDirectPosting());
-        VendorPostingGroup.Modify(true);
-    end;
-
-    local procedure SetCarteraPaymentMethodInVendor(var Vendor: Record Vendor; var PaymentMethod: Record "Payment Method")
-    begin
-        LibraryCarteraReceivables.CreateBillToCarteraPaymentMethod(PaymentMethod);
-        Vendor.Validate("Payment Method Code", PaymentMethod.Code);
-        Vendor.Modify(true);
-    end;
-
     local procedure CreatePaymentOrder(var PaymentOrder: Record "Payment Order")
     begin
         PaymentOrder."No." := LibraryUtility.GenerateGUID();
@@ -2341,6 +2383,33 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         LibraryERM.FindBankAccount(BankAccount);
 
         exit(BankAccount."No.");
+    end;
+
+    local procedure VerifyGLAccInvoicesInPmtOrdAcc(VendorPostingGroupCode: Code[20]; DocumentNoFilter: Text[100])
+    var
+        GLEntry: Record "G/L Entry";
+        VendorPostingGroup: Record "Vendor Posting Group";
+    begin
+        VendorPostingGroup.Get(VendorPostingGroupCode);
+        GLEntry.SetRange("Document No.", DocumentNoFilter);
+        GLEntry.SetRange("G/L Account No.", VendorPostingGroup."Invoices in  Pmt. Ord. Acc.");
+        GLEntry.CalcSums(Amount);
+
+        Assert.AreEqual(0, GLEntry.Amount, StrSubstNo(UnbalancedGLAccountErr, GLEntry."G/L Account No."));
+    end;
+
+    local procedure CreateVendorPostingGroupWithBillsPaymentOrderAcc(var VendorPostingGroup: Record "Vendor Posting Group")
+    begin
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
+        VendorPostingGroup.Validate("Bills in Payment Order Acc.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        VendorPostingGroup.Modify(true);
+    end;
+
+    local procedure SetCarteraPaymentMethodInVendor(var Vendor: Record Vendor; var PaymentMethod: Record "Payment Method")
+    begin
+        LibraryCarteraReceivables.CreateBillToCarteraPaymentMethod(PaymentMethod);
+        Vendor.Validate("Payment Method Code", PaymentMethod.Code);
+        Vendor.Modify(true);
     end;
 
     local procedure TotalSettlementOnPaymentOrderFromPostedPaymentOrdersSelect(PostedPaymentOrderNo: Code[20])
@@ -2506,4 +2575,3 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         BatchSettlPostedPOs.OK().Invoke();
     end;
 }
-

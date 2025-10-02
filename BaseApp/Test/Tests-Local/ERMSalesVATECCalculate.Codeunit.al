@@ -14,7 +14,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
     //  11.Test to verify G/L entry and VAT entry after posting Sales Credit Memo without Currency and Reverse Charge VAT.
     //  12.Test to verify G/L entry and VAT entry after posting Sales Credit Memo without Currency and Normal VAT.
     //  13.Test to verify Report ID - 205 Order Confirmation is displaying the correct output without generating any error message.
-    // 
+    //
     //    Covers Test Cases for WI - 352253.
     //   ----------------------------------------------------------------------------------
     //   Test Function Name                                                          TFS ID
@@ -26,7 +26,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
     //   LineAmountAndVATAmountOnSalesCreditMemoStatistics                           219961
     //   LineAmountAndVATAmountOnSalesInvoiceStatistics                              219962
     //   VATEntryGLEntryValueOnPostedGeneralJournalWithCurrency               158894,158896
-    // 
+    //
     //   Covers Test Cases for WI - 352250
     //   ----------------------------------------------------------------------------------
     //   Test Function Name                                                          TFS ID
@@ -36,7 +36,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
     //   PostedSalesCreditMemoReverseChargeVATWithCurrency                           282941
     //   PostedSalesCreditMemoReverseChargeVATWithoutCurr                            282940
     //   PostedSalesCreditMemoNormalVATWithoutCurrency                               282938
-    // 
+    //
     //   Covers Test Cases for WI - 352352.
     //   ----------------------------------------------------------------------------------
     //   Test Function Name                                                          TFS ID
@@ -59,10 +59,6 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         AmountMustBeEqualMsg: Label 'Amount Must Be Equal';
-        BillToCustomerNoCap: Label 'BilltoCustNo_SalesHeader';
-        SalesHeaderNumberCap: Label 'No_SalesHeader';
-        VATBaseAmountCap: Label 'VATBaseAmount';
-        VATIdentifierSalesLineCap: Label 'VATIdentifier_SalesLine';
         DiscAccountGLEntryCreatedErr: Label 'G/L Entry with Sales Line Disc. Account should not be created.';
         TotalFromSevPrepmtAmtErr: Label 'Total amount from several prepayments must be equal to original document amount';
         CountryCodeLbl: Label '%1 must be %2', Comment = '%1 Field ,%2 = Expected Value';
@@ -1371,15 +1367,6 @@ SalesLine, SalesHeader, LineType, LineNo, LibraryRandom.RandDec(10, 2));
         Assert.IsTrue(GLEntry.IsEmpty, DiscAccountGLEntryCreatedErr);
     end;
 
-    local procedure VerifySalesLineDetail(SalesLine: Record "Sales Line")
-    begin
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists(SalesHeaderNumberCap, SalesLine."Document No.");
-        LibraryReportDataset.AssertElementWithValueExists(VATBaseAmountCap, SalesLine."VAT Base Amount");
-        LibraryReportDataset.AssertElementWithValueExists(VATIdentifierSalesLineCap, SalesLine."VAT Identifier");
-        LibraryReportDataset.AssertElementWithValueExists(BillToCustomerNoCap, SalesLine."Sell-to Customer No.");
-    end;
-
     local procedure VerifyVATEntry(DocumentNo: Code[20]; Base: Decimal; AdditionalCurrencyBase: Decimal; Amount: Decimal)
     var
         VATEntry: Record "VAT Entry";
@@ -1527,4 +1514,3 @@ SalesLine, SalesHeader, LineType, LineNo, LibraryRandom.RandDec(10, 2));
     begin
     end;
 }
-

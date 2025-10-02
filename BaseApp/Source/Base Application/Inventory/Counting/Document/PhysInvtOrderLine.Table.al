@@ -112,8 +112,12 @@ table 5876 "Phys. Invt. Order Line"
                     GetShelfNo();
                 end;
 
-                if Rec."Variant Code" = '' then
+                if Rec."Variant Code" = '' then begin
+                    GetItem();
+                    Validate(Description, Item.Description);
+                    Validate("Description 2", Item."Description 2");
                     exit;
+                end;
 
                 TestField("Item No.");
 
@@ -197,20 +201,6 @@ table 5876 "Phys. Invt. Order Line"
             Caption = 'Qty. Exp. Calculated';
             Editable = false;
         }
-#if not CLEAN24
-        field(52; "Qty. Exp. Item Tracking (Base)"; Decimal)
-        {
-            CalcFormula = sum("Exp. Phys. Invt. Tracking"."Quantity (Base)" where("Order No" = field("Document No."),
-                                                                                   "Order Line No." = field("Line No.")));
-            Caption = 'Qty. Exp. Item Tracking (Base)';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-            ObsoleteReason = 'Replaced by field "Qty. Exp. Tracking (Base)".';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-        }
-#endif
         field(53; "Use Item Tracking"; Boolean)
         {
             Caption = 'Use Item Tracking';
@@ -435,11 +425,6 @@ table 5876 "Phys. Invt. Order Line"
         TestStatusOpen();
         TestField("On Recording Lines", false);
 
-#if not CLEAN24
-        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then
-            ExpPhysInvtTracking.DeleteLine("Document No.", "Line No.", true)
-        else
-#endif
         ExpInvtOrderTracking.DeleteLine("Document No.", "Line No.", true);
 
         ReservEntry.Reset();
@@ -463,9 +448,6 @@ table 5876 "Phys. Invt. Order Line"
         Item: Record Item;
         ItemVariant: Record "Item Variant";
         UnitOfMeasure: Record "Unit of Measure";
-#if not CLEAN24
-        ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking";
-#endif
         ExpInvtOrderTracking: Record "Exp. Invt. Order Tracking";
         ReservEntry: Record "Reservation Entry";
         SKU: Record "Stockkeeping Unit";
@@ -550,21 +532,10 @@ table 5876 "Phys. Invt. Order Line"
 
         // Create Expected Phys. Invt. Tracking Lines:
         if "Use Item Tracking" then begin
-#if not CLEAN24
-            if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-                ExpPhysInvtTracking.Reset();
-                ExpPhysInvtTracking.SetRange("Order No", "Document No.");
-                ExpPhysInvtTracking.SetRange("Order Line No.", "Line No.");
-                ExpPhysInvtTracking.DeleteAll();
-            end else begin
-#endif
-                ExpInvtOrderTracking.Reset();
-                ExpInvtOrderTracking.SetRange("Order No", "Document No.");
-                ExpInvtOrderTracking.SetRange("Order Line No.", "Line No.");
-                ExpInvtOrderTracking.DeleteAll();
-#if not CLEAN24
-            end;
-#endif
+            ExpInvtOrderTracking.Reset();
+            ExpInvtOrderTracking.SetRange("Order No", "Document No.");
+            ExpInvtOrderTracking.SetRange("Order Line No.", "Line No.");
+            ExpInvtOrderTracking.DeleteAll();
             if not PhysInvtTrackingMgt.LocationIsBinMandatory("Location Code") then
                 ProcessItemLedgerEntry()
             else
@@ -592,45 +563,19 @@ table 5876 "Phys. Invt. Order Line"
         OnCalcQtyAndTrackLinesExpectedSetItemLedgEntryFilters(ItemLedgEntry, Rec);
         if ItemLedgEntry.FindSet() then
             repeat
-#if not CLEAN24
-                if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-                    if not ExpPhysInvtTracking.Get("Document No.", "Line No.", ItemLedgEntry."Serial No.", ItemLedgEntry."Lot No.") then begin
-                        ExpPhysInvtTracking.InsertLine(
-                        "Document No.", "Line No.", ItemLedgEntry."Serial No.", ItemLedgEntry."Lot No.", ItemLedgEntry.Quantity);
-                        OnCalcQtyAndTrackLinesExpectedOnAfterExpPhysInvtTrackingInsertLine(ExpPhysInvtTracking, ItemLedgEntry);
-                    end else begin
-                        ExpPhysInvtTracking."Quantity (Base)" += ItemLedgEntry.Quantity;
-                        OnCalcQtyAndTrackLinesExpectedOnBeforeModifyFromItemLedgEntry(ExpPhysInvtTracking, ItemLedgEntry);
-                        ExpPhysInvtTracking.Modify();
-                    end;
-                    OnCalcQtyAndTrackLinesExpectedOnAfterHandleItemLedgerEntryTracking(ExpPhysInvtTracking, ItemLedgEntry);
+                if not ExpInvtOrderTracking.Get("Document No.", "Line No.", ItemLedgEntry."Serial No.", ItemLedgEntry."Lot No.", ItemLedgEntry."Package No.") then begin
+                    ItemTrackingSetup.CopyTrackingFromItemLedgerEntry(ItemLedgEntry);
+                    ExpInvtOrderTracking.InsertLine("Document No.", "Line No.", ItemTrackingSetup, ItemLedgEntry.Quantity);
+                    OnCalcQtyAndTrackLinesExpectedOnAfterExpPhysInvtTrackingInsertLine2(ExpInvtOrderTracking, ItemLedgEntry);
                 end else begin
-#endif
-                    if not ExpInvtOrderTracking.Get("Document No.", "Line No.", ItemLedgEntry."Serial No.", ItemLedgEntry."Lot No.", ItemLedgEntry."Package No.") then begin
-                        ItemTrackingSetup.CopyTrackingFromItemLedgerEntry(ItemLedgEntry);
-                        ExpInvtOrderTracking.InsertLine("Document No.", "Line No.", ItemTrackingSetup, ItemLedgEntry.Quantity);
-                        OnCalcQtyAndTrackLinesExpectedOnAfterExpPhysInvtTrackingInsertLine2(ExpInvtOrderTracking, ItemLedgEntry);
-                    end else begin
-                        ExpInvtOrderTracking."Quantity (Base)" += ItemLedgEntry.Quantity;
-                        OnCalcQtyAndTrackLinesExpectedOnBeforeModifyFromItemLedgEntry2(ExpInvtOrderTracking, ItemLedgEntry);
-                        ExpInvtOrderTracking.Modify();
-                    end;
-                    OnCalcQtyAndTrackLinesExpectedOnAfterHandleItemLedgerEntryTracking2(ExpInvtOrderTracking, ItemLedgEntry);
-#if not CLEAN24
+                    ExpInvtOrderTracking."Quantity (Base)" += ItemLedgEntry.Quantity;
+                    OnCalcQtyAndTrackLinesExpectedOnBeforeModifyFromItemLedgEntry2(ExpInvtOrderTracking, ItemLedgEntry);
+                    ExpInvtOrderTracking.Modify();
                 end;
-#endif
+                OnCalcQtyAndTrackLinesExpectedOnAfterHandleItemLedgerEntryTracking2(ExpInvtOrderTracking, ItemLedgEntry);
             until ItemLedgEntry.Next() = 0;
-#if not CLEAN24
-        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-            ExpPhysInvtTracking.DeleteLine("Document No.", "Line No.", false);
-            OnCalcQtyAndTrackLinesExpectedOnAfterDeleteLineItemLedgEntry(ExpPhysInvtTracking, Rec);
-        end else begin
-#endif
-            ExpInvtOrderTracking.DeleteLine("Document No.", "Line No.", false);
-            OnCalcQtyAndTrackLinesExpectedOnAfterDeleteLineItemLedgEntry2(ExpInvtOrderTracking, Rec);
-#if not CLEAN24
-        end;
-#endif
+        ExpInvtOrderTracking.DeleteLine("Document No.", "Line No.", false);
+        OnCalcQtyAndTrackLinesExpectedOnAfterDeleteLineItemLedgEntry2(ExpInvtOrderTracking, Rec);
         TestQtyExpected();
     end;
 
@@ -649,45 +594,19 @@ table 5876 "Phys. Invt. Order Line"
         OnCalcQtyAndTrackLinesExpectedOnAfterSetWhseEntryFilters(WhseEntry, Rec);
         if WhseEntry.FindSet() then
             repeat
-#if not CLEAN24
-                if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-                    if not ExpPhysInvtTracking.Get("Document No.", "Line No.", WhseEntry."Serial No.", WhseEntry."Lot No.") then begin
-                        ExpPhysInvtTracking.InsertLine(
-                        "Document No.", "Line No.", WhseEntry."Serial No.", WhseEntry."Lot No.", WhseEntry."Qty. (Base)");
-                        OnCalcQtyAndTrackLinesExpectedOnAfterExpPhysInvtTrackingInsertLineFromWhseEntry(ExpPhysInvtTracking, WhseEntry);
-                    end else begin
-                        ExpPhysInvtTracking."Quantity (Base)" += WhseEntry."Qty. (Base)";
-                        OnCalcQtyAndTrackLinesExpectedOnBeforeInsertFromWhseEntry(ExpPhysInvtTracking, WhseEntry);
-                        ExpPhysInvtTracking.Modify();
-                    end;
-                    OnCalcQtyAndTrackLinesExpectedOnAfterHandleWarehouseEntryTracking(ExpPhysInvtTracking, WhseEntry);
+                if not ExpInvtOrderTracking.Get("Document No.", "Line No.", WhseEntry."Serial No.", WhseEntry."Lot No.", WhseEntry."Package No.") then begin
+                    ItemTrackingSetup.CopyTrackingFromWhseEntry(WhseEntry);
+                    ExpInvtOrderTracking.InsertLine("Document No.", "Line No.", ItemTrackingSetup, WhseEntry."Qty. (Base)");
+                    OnCalcQtyAndTrackLinesExpectedOnAfterExpPhysInvtTrackingInsertLineFromWhseEntry2(ExpInvtOrderTracking, WhseEntry);
                 end else begin
-#endif
-                    if not ExpInvtOrderTracking.Get("Document No.", "Line No.", WhseEntry."Serial No.", WhseEntry."Lot No.", WhseEntry."Package No.") then begin
-                        ItemTrackingSetup.CopyTrackingFromWhseEntry(WhseEntry);
-                        ExpInvtOrderTracking.InsertLine("Document No.", "Line No.", ItemTrackingSetup, WhseEntry."Qty. (Base)");
-                        OnCalcQtyAndTrackLinesExpectedOnAfterExpPhysInvtTrackingInsertLineFromWhseEntry2(ExpInvtOrderTracking, WhseEntry);
-                    end else begin
-                        ExpInvtOrderTracking."Quantity (Base)" += WhseEntry."Qty. (Base)";
-                        OnCalcQtyAndTrackLinesExpectedOnBeforeInsertFromWhseEntry2(ExpInvtOrderTracking, WhseEntry);
-                        ExpInvtOrderTracking.Modify();
-                    end;
-                    OnCalcQtyAndTrackLinesExpectedOnAfterHandleWarehouseEntryTracking2(ExpInvtOrderTracking, WhseEntry);
-#if not CLEAN24
+                    ExpInvtOrderTracking."Quantity (Base)" += WhseEntry."Qty. (Base)";
+                    OnCalcQtyAndTrackLinesExpectedOnBeforeInsertFromWhseEntry2(ExpInvtOrderTracking, WhseEntry);
+                    ExpInvtOrderTracking.Modify();
                 end;
-#endif
+                OnCalcQtyAndTrackLinesExpectedOnAfterHandleWarehouseEntryTracking2(ExpInvtOrderTracking, WhseEntry);
             until WhseEntry.Next() = 0;
-#if not CLEAN24
-        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-            ExpPhysInvtTracking.DeleteLine("Document No.", "Line No.", false);
-            OnCalcQtyAndTrackLinesExpectedOnAfterDeleteLineWhseEntry(ExpPhysInvtTracking, Rec);
-        end else begin
-#endif
-            ExpInvtOrderTracking.DeleteLine("Document No.", "Line No.", false);
-            OnCalcQtyAndTrackLinesExpectedOnAfterDeleteLineWhseEntry2(ExpInvtOrderTracking, Rec);
-#if not CLEAN24
-        end;
-#endif
+        ExpInvtOrderTracking.DeleteLine("Document No.", "Line No.", false);
+        OnCalcQtyAndTrackLinesExpectedOnAfterDeleteLineWhseEntry2(ExpInvtOrderTracking, Rec);
         TestQtyExpected();
     end;
 
@@ -742,17 +661,8 @@ table 5876 "Phys. Invt. Order Line"
     begin
         "Qty. Expected (Base)" := 0;
 
-#if not CLEAN24
-        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-            ExpPhysInvtTracking.DeleteLine("Document No.", "Line No.", true);
-            CalcFields("Qty. Exp. Item Tracking (Base)");
-        end else begin
-#endif
-            ExpInvtOrderTracking.DeleteLine("Document No.", "Line No.", true);
-            CalcFields("Qty. Exp. Tracking (Base)");
-#if not CLEAN24
-        end;
-#endif
+        ExpInvtOrderTracking.DeleteLine("Document No.", "Line No.", true);
+        CalcFields("Qty. Exp. Tracking (Base)");
 
         "Qty. Exp. Calculated" := false;
 
@@ -769,23 +679,11 @@ table 5876 "Phys. Invt. Order Line"
         then
             exit;
 
-#if not CLEAN24
-        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-            CalcFields("Qty. Exp. Item Tracking (Base)");
-            if "Qty. Expected (Base)" <> "Qty. Exp. Item Tracking (Base)" then
-                Error(
-                    CannotSetErr, "Qty. Expected (Base)", "Qty. Exp. Item Tracking (Base)",
-                    StrSubstNo(IndenitiedValuesMsg, "Item No.", "Variant Code", "Location Code", "Bin Code"));
-        end else begin
-#endif
-            CalcFields("Qty. Exp. Tracking (Base)");
-            if "Qty. Expected (Base)" <> "Qty. Exp. Tracking (Base)" then
-                Error(
-                    CannotSetErr, "Qty. Expected (Base)", "Qty. Exp. Tracking (Base)",
-                    StrSubstNo(IndenitiedValuesMsg, "Item No.", "Variant Code", "Location Code", "Bin Code"));
-#if not CLEAN24
-        end;
-#endif
+        CalcFields("Qty. Exp. Tracking (Base)");
+        if "Qty. Expected (Base)" <> "Qty. Exp. Tracking (Base)" then
+            Error(
+                CannotSetErr, "Qty. Expected (Base)", "Qty. Exp. Tracking (Base)",
+                StrSubstNo(IndenitiedValuesMsg, "Item No.", "Variant Code", "Location Code", "Bin Code"));
     end;
 
     procedure TestQtyRecorded()
@@ -1008,21 +906,10 @@ table 5876 "Phys. Invt. Order Line"
         TestField("Item No.");
         TestField("Qty. Exp. Calculated", true);
 
-#if not CLEAN24
-        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-            ExpPhysInvtTracking.Reset();
-            ExpPhysInvtTracking.SetRange("Order No", "Document No.");
-            ExpPhysInvtTracking.SetRange("Order Line No.", "Line No.");
-            PAGE.RunModal(0, ExpPhysInvtTracking);
-        end else begin
-#endif
-            ExpInvtOrderTracking.Reset();
-            ExpInvtOrderTracking.SetRange("Order No", "Document No.");
-            ExpInvtOrderTracking.SetRange("Order Line No.", "Line No.");
-            PAGE.RunModal(0, ExpInvtOrderTracking);
-#if not CLEAN24
-        end;
-#endif
+        ExpInvtOrderTracking.Reset();
+        ExpInvtOrderTracking.SetRange("Order No", "Document No.");
+        ExpInvtOrderTracking.SetRange("Order Line No.", "Line No.");
+        PAGE.RunModal(0, ExpInvtOrderTracking);
     end;
 
     procedure ShowItemTrackingLines(Which: Option All,Positive,Negative)
@@ -1246,26 +1133,10 @@ table 5876 "Phys. Invt. Order Line"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by event OnCalcQtyAndTrackLinesExpectedOnAfterExpPhysInvtTrackingInsertLine2', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCalcQtyAndTrackLinesExpectedOnAfterExpPhysInvtTrackingInsertLine(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; var ItemLedgerEntry: Record "Item Ledger Entry")
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnCalcQtyAndTrackLinesExpectedOnAfterExpPhysInvtTrackingInsertLine2(var ExpInvtOrderTracking: Record "Exp. Invt. Order Tracking"; var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
-
-#if not CLEAN24
-    [Obsolete('Replaced by event OnCalcQtyAndTrackLinesExpectedOnAfterExpPhysInvtTrackingInsertLineFromWhseEntry2', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCalcQtyAndTrackLinesExpectedOnAfterExpPhysInvtTrackingInsertLineFromWhseEntry(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; WarehouseEntry: Record "Warehouse Entry")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcQtyAndTrackLinesExpectedOnAfterExpPhysInvtTrackingInsertLineFromWhseEntry2(var ExpInvtOrderTracking: Record "Exp. Invt. Order Tracking"; WarehouseEntry: Record "Warehouse Entry")
@@ -1277,52 +1148,20 @@ table 5876 "Phys. Invt. Order Line"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('replaced by event OnCalcQtyAndTrackLinesExpectedOnAfterHandleItemLedgerEntryTracking2', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCalcQtyAndTrackLinesExpectedOnAfterHandleItemLedgerEntryTracking(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; ItemLedgerEntry: Record "Item Ledger Entry")
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnCalcQtyAndTrackLinesExpectedOnAfterHandleItemLedgerEntryTracking2(var ExpInvtOrderTracking: Record "Exp. Invt. Order Tracking"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
-
-#if not CLEAN24
-    [Obsolete('Replaced by event OnCalcQtyAndTrackLinesExpectedOnAfterHandleWarehouseEntryTracking2', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCalcQtyAndTrackLinesExpectedOnAfterHandleWarehouseEntryTracking(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; WarehouseEntry: Record "Warehouse Entry")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcQtyAndTrackLinesExpectedOnAfterHandleWarehouseEntryTracking2(var ExpInvtOrderTracking: Record "Exp. Invt. Order Tracking"; WarehouseEntry: Record "Warehouse Entry")
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by event OnCalcQtyAndTrackLinesExpectedOnBeforeModifyFromItemLedgEntry2', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCalcQtyAndTrackLinesExpectedOnBeforeModifyFromItemLedgEntry(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; var ItemLedgerEntry: Record "Item Ledger Entry")
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnCalcQtyAndTrackLinesExpectedOnBeforeModifyFromItemLedgEntry2(var ExpInvtOrderTracking: Record "Exp. Invt. Order Tracking"; var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
-
-#if not CLEAN24
-    [Obsolete('Replaced by event OnCalcQtyAndTrackLinesExpectedOnBeforeInsertFromWhseEntry2', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCalcQtyAndTrackLinesExpectedOnBeforeInsertFromWhseEntry(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; var WarehouseEntry: Record "Warehouse Entry")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcQtyAndTrackLinesExpectedOnBeforeInsertFromWhseEntry2(var ExpInvtOrderTracking: Record "Exp. Invt. Order Tracking"; var WarehouseEntry: Record "Warehouse Entry")
@@ -1379,26 +1218,10 @@ table 5876 "Phys. Invt. Order Line"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by event OnCalcQtyAndTrackLinesExpectedOnAfterDeleteLineWhseEntry2', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCalcQtyAndTrackLinesExpectedOnAfterDeleteLineWhseEntry(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnCalcQtyAndTrackLinesExpectedOnAfterDeleteLineWhseEntry2(var ExpInvtOrderTracking: Record "Exp. Invt. Order Tracking"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
     end;
-
-#if not CLEAN24
-    [Obsolete('Replaced by event OnCalcQtyAndTrackLinesExpectedOnAfterDeleteLineItemLedgEntry2', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCalcQtyAndTrackLinesExpectedOnAfterDeleteLineItemLedgEntry(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcQtyAndTrackLinesExpectedOnAfterDeleteLineItemLedgEntry2(var ExpPhysInvtTracking: Record "Exp. Invt. Order Tracking"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")

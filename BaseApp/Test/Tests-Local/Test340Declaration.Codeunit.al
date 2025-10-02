@@ -1814,17 +1814,6 @@ codeunit 147315 "Test 340 Declaration"
         FindVATEntry(VATEntry, DocumentNo, VATEntry."Document Type"::Refund);
     end;
 
-    local procedure CreateVATSalesHeader(var SalesHeader: Record "Sales Header"; UseVATCashRegime: Boolean; UseUnrealizedVAT: Boolean)
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-        Customer: Record Customer;
-    begin
-        Library340347Declaration.CreateVATPostingSetup(VATPostingSetup, UseUnrealizedVAT, UseVATCashRegime);
-        Library340347Declaration.CreateCustomer(Customer, VATPostingSetup."VAT Bus. Posting Group");
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
-        Library340347Declaration.CreateSalesLine(SalesHeader, VATPostingSetup."VAT Prod. Posting Group", 0);
-    end;
-
     local procedure CreateVATServiceHeader(var ServiceHeader: Record "Service Header"; UseVATCashRegime: Boolean; UseUnrealizedVAT: Boolean)
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -2062,4 +2051,3 @@ codeunit 147315 "Test 340 Declaration"
         LibraryReportValidation.DeleteObjectOptions(CurrentSaveValuesId);
     end;
 }
-

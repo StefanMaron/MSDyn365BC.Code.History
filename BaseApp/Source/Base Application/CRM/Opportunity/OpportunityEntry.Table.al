@@ -106,6 +106,7 @@ table 5093 "Opportunity Entry"
         }
         field(12; "Days Open"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Days Open';
             DecimalPlaces = 0 : 0;
             MinValue = 0;
@@ -124,27 +125,32 @@ table 5093 "Opportunity Entry"
         }
         field(14; "Estimated Value (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Estimated Value (LCY)';
         }
         field(15; "Calcd. Current Value (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Calcd. Current Value (LCY)';
         }
         field(16; "Completed %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Completed %';
             DecimalPlaces = 0 : 0;
         }
         field(17; "Chances of Success %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Chances of Success %';
             DecimalPlaces = 0 : 0;
             MaxValue = 100;
         }
         field(18; "Probability %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Probability %';
             DecimalPlaces = 0 : 0;
         }
@@ -1133,4 +1139,3 @@ table 5093 "Opportunity Entry"
     begin
     end;
 }
-

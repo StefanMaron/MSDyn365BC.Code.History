@@ -21,9 +21,10 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
-using Microsoft.Service.Posting;
+using Microsoft.Purchases.Document;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.Posting;
+using Microsoft.Purchases.Posting;
 
 codeunit 10740 "No Taxable Mgt."
 {
@@ -163,50 +164,6 @@ codeunit 10740 "No Taxable Mgt."
         exit(true);
     end;
 
-    local procedure CreateNoTaxableEntriesServiceInvoice(ServiceHeader: Record "Service Header"; ServInvoiceNo: Code[20]): Boolean
-    var
-        ServiceInvoiceHeader: Record "Service Invoice Header";
-        ServiceInvoiceLine: Record "Service Invoice Line";
-        NoTaxableEntry: Record "No Taxable Entry";
-        PostedLineRecordRef: RecordRef;
-    begin
-        if not (ServiceHeader."Document Type" in [ServiceHeader."Document Type"::Order, ServiceHeader."Document Type"::Invoice]) then
-            exit(false);
-        if not ServiceInvoiceHeader.Get(ServInvoiceNo) then
-            exit(false);
-        if not FindNoTaxableLinesServiceInvoice(
-             ServiceInvoiceLine, ServiceHeader."Customer No.", ServInvoiceNo, ServiceHeader."Posting Date")
-        then
-            exit(true);
-
-        NoTaxableEntry.InitFromServiceDocument(ServiceHeader, ServInvoiceNo);
-        PostedLineRecordRef.GetTable(ServiceInvoiceLine);
-        InsertNoTaxableEntriesFromSalesLines(PostedLineRecordRef, NoTaxableEntry, -1);
-        exit(true);
-    end;
-
-    local procedure CreateNoTaxableEntriesServiceCreditMemo(ServiceHeader: Record "Service Header"; ServCrMemoNo: Code[20]): Boolean
-    var
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
-        ServiceCrMemoLine: Record "Service Cr.Memo Line";
-        NoTaxableEntry: Record "No Taxable Entry";
-        PostedLineRecordRef: RecordRef;
-    begin
-        if ServiceHeader."Document Type" <> ServiceHeader."Document Type"::"Credit Memo" then
-            exit(false);
-        if not ServiceCrMemoHeader.Get(ServCrMemoNo) then
-            exit(false);
-        if not FindNoTaxableLinesServiceCrMemo(
-             ServiceCrMemoLine, ServiceHeader."Customer No.", ServCrMemoNo, ServiceHeader."Posting Date")
-        then
-            exit(true);
-
-        NoTaxableEntry.InitFromServiceDocument(ServiceHeader, ServCrMemoNo);
-        PostedLineRecordRef.GetTable(ServiceCrMemoLine);
-        InsertNoTaxableEntriesFromSalesLines(PostedLineRecordRef, NoTaxableEntry, 1);
-        exit(true);
-    end;
-
     local procedure CreateNoTaxableEntriesPurchInvoiceFromVendEntry(VendorLedgerEntry: Record "Vendor Ledger Entry"): Boolean
     var
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -301,54 +258,6 @@ codeunit 10740 "No Taxable Mgt."
         exit(true);
     end;
 
-    local procedure CreateNoTaxableEntriesServiceInvoiceFromCustEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"): Boolean
-    var
-        ServiceInvoiceHeader: Record "Service Invoice Header";
-        ServiceInvoiceLine: Record "Service Invoice Line";
-        NoTaxableEntry: Record "No Taxable Entry";
-        PostedLineRecordRef: RecordRef;
-    begin
-        if CustLedgerEntry."Document Type" <> CustLedgerEntry."Document Type"::Invoice then
-            exit(false);
-        if not ServiceInvoiceHeader.Get(CustLedgerEntry."Document No.") then
-            exit(false);
-        if not FindNoTaxableLinesServiceInvoice(
-             ServiceInvoiceLine, CustLedgerEntry."Customer No.", CustLedgerEntry."Document No.", CustLedgerEntry."Posting Date")
-        then
-            exit(true);
-
-        NoTaxableEntry.InitFromCustomerEntry(
-          CustLedgerEntry, ServiceInvoiceHeader."Bill-to Country/Region Code",
-          ServiceInvoiceHeader."EU 3-Party Trade", ServiceInvoiceHeader."VAT Registration No.");
-        PostedLineRecordRef.GetTable(ServiceInvoiceLine);
-        InsertNoTaxableEntriesFromSalesLines(PostedLineRecordRef, NoTaxableEntry, -1);
-        exit(true);
-    end;
-
-    local procedure CreateNoTaxableEntriesServiceCreditMemoFromCustEntry(CustLedgerEntry: Record "Cust. Ledger Entry"): Boolean
-    var
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
-        ServiceCrMemoLine: Record "Service Cr.Memo Line";
-        NoTaxableEntry: Record "No Taxable Entry";
-        PostedLineRecordRef: RecordRef;
-    begin
-        if CustLedgerEntry."Document Type" <> CustLedgerEntry."Document Type"::"Credit Memo" then
-            exit(false);
-        if not ServiceCrMemoHeader.Get(CustLedgerEntry."Document No.") then
-            exit(false);
-        if not FindNoTaxableLinesServiceCrMemo(
-             ServiceCrMemoLine, CustLedgerEntry."Customer No.", CustLedgerEntry."Document No.", CustLedgerEntry."Posting Date")
-        then
-            exit(true);
-
-        NoTaxableEntry.InitFromCustomerEntry(
-          CustLedgerEntry, ServiceCrMemoHeader."Bill-to Country/Region Code",
-          ServiceCrMemoHeader."EU 3-Party Trade", ServiceCrMemoHeader."VAT Registration No.");
-        PostedLineRecordRef.GetTable(ServiceCrMemoLine);
-        InsertNoTaxableEntriesFromSalesLines(PostedLineRecordRef, NoTaxableEntry, 1);
-        exit(true);
-    end;
-
     [Scope('OnPrem')]
     procedure FindNoTaxableLinesPurchaseInvoice(var PurchInvLine: Record "Purch. Inv. Line"; VendorNo: Code[20]; DocumentNo: Code[20]; PostingDate: Date): Boolean
     begin
@@ -393,27 +302,27 @@ codeunit 10740 "No Taxable Mgt."
         exit(SalesCrMemoLine.FindSet());
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit Serv. No Taxable Mgt.', '27.0')]
     [Scope('OnPrem')]
-    procedure FindNoTaxableLinesServiceInvoice(var ServiceInvoiceLine: Record "Service Invoice Line"; CustomerNo: Code[20]; DocumentNo: Code[20]; PostingDate: Date): Boolean
+    procedure FindNoTaxableLinesServiceInvoice(var ServiceInvoiceLine: Record Microsoft.Service.History."Service Invoice Line"; CustomerNo: Code[20]; DocumentNo: Code[20]; PostingDate: Date): Boolean
+    var
+        ServNoTaxableMgt: Codeunit "Serv. No Taxable Mgt.";
     begin
-        ServiceInvoiceLine.SetRange("Bill-to Customer No.", CustomerNo);
-        ServiceInvoiceLine.SetRange("Document No.", DocumentNo);
-        ServiceInvoiceLine.SetRange("Posting Date", PostingDate);
-        ServiceInvoiceLine.SetRange("VAT Calculation Type", ServiceInvoiceLine."VAT Calculation Type"::"No Taxable VAT");
-        ServiceInvoiceLine.SetRange("VAT %", 0);
-        exit(ServiceInvoiceLine.FindSet());
+        exit(ServNoTaxableMgt.FindNoTaxableLinesServiceInvoice(ServiceInvoiceLine, CustomerNo, DocumentNo, PostingDate));
     end;
+#endif
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit Serv. No Taxable Mgt.', '27.0')]
     [Scope('OnPrem')]
-    procedure FindNoTaxableLinesServiceCrMemo(var ServiceCrMemoLine: Record "Service Cr.Memo Line"; CustomerNo: Code[20]; DocumentNo: Code[20]; PostingDate: Date): Boolean
+    procedure FindNoTaxableLinesServiceCrMemo(var ServiceCrMemoLine: Record Microsoft.Service.History."Service Cr.Memo Line"; CustomerNo: Code[20]; DocumentNo: Code[20]; PostingDate: Date): Boolean
+    var
+        ServNoTaxableMgt: Codeunit "Serv. No Taxable Mgt.";
     begin
-        ServiceCrMemoLine.SetRange("Bill-to Customer No.", CustomerNo);
-        ServiceCrMemoLine.SetRange("Document No.", DocumentNo);
-        ServiceCrMemoLine.SetRange("Posting Date", PostingDate);
-        ServiceCrMemoLine.SetRange("VAT Calculation Type", ServiceCrMemoLine."VAT Calculation Type"::"No Taxable VAT");
-        ServiceCrMemoLine.SetRange("VAT %", 0);
-        exit(ServiceCrMemoLine.FindSet());
+        exit(ServNoTaxableMgt.FindNoTaxableLinesServiceCrMemo(ServiceCrMemoLine, CustomerNo, DocumentNo, PostingDate));
     end;
+#endif
 
     local procedure FindCustNoFromLedgEntryInSameTransNo(GenJournalLine: Record "Gen. Journal Line"; TransNo: Integer): Code[20]
     var
@@ -487,10 +396,10 @@ codeunit 10740 "No Taxable Mgt."
                       GenBusPostGroup, GenProdPostGroup, VATPostingSetup."Ignore In SII");
                     UpdateAmountsInCurrency(NoTaxableEntry);
                 end;
-            until PostedLineRecRef.Next() = 0;
+        until PostedLineRecRef.Next() = 0;
     end;
 
-    local procedure InsertNoTaxableEntriesFromSalesLines(var PostedLineRecRef: RecordRef; NoTaxableEntry: Record "No Taxable Entry"; Sign: Integer)
+    procedure InsertNoTaxableEntriesFromSalesLines(var PostedLineRecRef: RecordRef; NoTaxableEntry: Record "No Taxable Entry"; Sign: Integer)
     var
         DummySalesInvoiceLine: Record "Sales Invoice Line";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -543,7 +452,7 @@ codeunit 10740 "No Taxable Mgt."
                       GenBusPostGroup, GenProdPostGroup, VATPostingSetup."Ignore In SII");
                     UpdateAmountsInCurrency(NoTaxableEntry);
                 end;
-            until PostedLineRecRef.Next() = 0;
+        until PostedLineRecRef.Next() = 0;
     end;
 
     local procedure InsertNoTaxableEntriesFromGenLedgEntry(NoTaxableEntry: Record "No Taxable Entry"; EntryAmount: Decimal; Sign: Integer)
@@ -643,7 +552,7 @@ codeunit 10740 "No Taxable Mgt."
           FromDate, ToDate, FilterString);
         if NoTaxableEntry.IsEmpty() then
             exit;
-       
+
         AmountInACY := ReportAmountInACY();
 
         NoTaxableEntry.SetRange("EU Service", true);
@@ -966,6 +875,7 @@ codeunit 10740 "No Taxable Mgt."
     var
         NoTaxableEntry: Record "No Taxable Entry";
         Customer: Record Customer;
+        ShouldExit: Boolean;
     begin
         if not Customer.Get(CustLedgerEntry."Customer No.") then
             exit;
@@ -973,9 +883,10 @@ codeunit 10740 "No Taxable Mgt."
             exit;
         if CreateNoTaxableEntriesSalesCreditMemoFromCustEntry(CustLedgerEntry) then
             exit;
-        if CreateNoTaxableEntriesServiceInvoiceFromCustEntry(CustLedgerEntry) then
-            exit;
-        if CreateNoTaxableEntriesServiceCreditMemoFromCustEntry(CustLedgerEntry) then
+
+        ShouldExit := false;
+        OnUpdateNoTaxableEntryFromCustomerLedgerEntryOnBeforeCalcAmount(CustLedgerEntry, ShouldExit);
+        if ShouldExit then
             exit;
 
         CustLedgerEntry.CalcFields(Amount);
@@ -1026,13 +937,6 @@ codeunit 10740 "No Taxable Mgt."
             exit;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Service-Post", 'OnAfterPostServiceDoc', '', false, false)]
-    local procedure InsertNoTaxableEntryOnAfterPostServiceDoc(var ServiceHeader: Record "Service Header"; ServShipmentNo: Code[20]; ServInvoiceNo: Code[20]; ServCrMemoNo: Code[20])
-    begin
-        if not CreateNoTaxableEntriesServiceInvoice(ServiceHeader, ServInvoiceNo) then
-            CreateNoTaxableEntriesServiceCreditMemo(ServiceHeader, ServCrMemoNo);
-    end;
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Reverse", 'OnReverseVendLedgEntryOnBeforeInsertVendLedgEntry', '', false, false)]
     local procedure ReverseNoTaxableEntryVend(var NewVendLedgEntry: Record "Vendor Ledger Entry"; VendLedgEntry: Record "Vendor Ledger Entry")
     var
@@ -1051,6 +955,41 @@ codeunit 10740 "No Taxable Mgt."
         DummyNoTaxableEntry.Reverse(
           "General Posting Type"::Sale.AsInteger(), CustLedgerEntry."Customer No.",
           CustLedgerEntry."Document Type".AsInteger(), CustLedgerEntry."Document No.", CustLedgerEntry."Posting Date");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterTestPurchLine', '', false, false)]
+    local procedure TestPurchLineOnPurchPost(PurchLine: Record "Purchase Line")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        if VATPostingSetup.Get(PurchLine."VAT Bus. Posting Group", PurchLine."VAT Prod. Posting Group") and
+            (VATPostingSetup."No Taxable Type" <> VATPostingSetup."No Taxable Type"::" ") then
+            VATPostingSetup.TestField("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"No Taxable VAT");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterTestSalesLine', '', false, false)]
+    local procedure TestSalesLineOnSalesPost(SalesLine: Record "Sales Line")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        if VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group") and
+            (VATPostingSetup."No Taxable Type" <> VATPostingSetup."No Taxable Type"::" ") then
+            VATPostingSetup.TestField("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"No Taxable VAT");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Check Line", 'OnAfterCheckGenJnlLine', '', false, false)]
+    local procedure TestGenJnlLineOnGenJnlPost(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        if VATPostingSetup.Get(GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group") and
+            (VATPostingSetup."No Taxable Type" <> VATPostingSetup."No Taxable Type"::" ") then
+            VATPostingSetup.TestField("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"No Taxable VAT");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateNoTaxableEntryFromCustomerLedgerEntryOnBeforeCalcAmount(CustLedgerEntry: Record "Cust. Ledger Entry"; var ShouldExit: Boolean)
+    begin
     end;
 }
 

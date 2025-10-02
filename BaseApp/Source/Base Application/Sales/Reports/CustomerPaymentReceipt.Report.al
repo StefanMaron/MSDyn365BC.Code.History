@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Reports;
 
 using Microsoft.Finance.Currency;
@@ -342,6 +346,8 @@ report 211 "Customer - Payment Receipt"
 
     requestpage
     {
+        AboutTitle = 'About Customer - Payment Receipt';
+        AboutText = 'Send a report to customers who want documentation for receipt of payment.';
 
         layout
         {

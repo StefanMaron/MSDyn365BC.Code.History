@@ -76,136 +76,6 @@ codeunit 137457 "PostedPhyInvtOrderDiff UT REP"
             DimensionSetEntry2."Dimension Code", DimensionSetEntry2."Dimension Value Code"));
     end;
 
-#if not CLEAN24
-    [Test]
-    [HandlerFunctions('PostedPhysInvtOrderDiffReportHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordWithRecordedTrackingAndPositiveAdjmt()
-    var
-        PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr";
-        PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line";
-        PstdExpPhysInvtTrack: Record "Pstd. Exp. Phys. Invt. Track";
-        PstdPhysInvtRecordLine: Record "Pstd. Phys. Invt. Record Line";
-    begin
-        // [SCENARIO] validate the Posted Phys. Inventory Order Line OnAfterGetRecord of the Posted Phys. Inventory Order Diff. Report with Recording and Positive Adjmt.
-
-        // [GIVEN] Create Posted Phys. Inventory Order. Update Posted Phys. Inventory Order Line. Update Tracking on Posted Phys. Inventory Order Line. Create Phys. Inventory Recording.
-        CreatePostedPhysInventoryOrder(PstdPhysInvtOrderHdr, PstdPhysInvtOrderLine, CreateItem());
-        UpdatePostedPhysInventoryOrderLine(PstdPhysInvtOrderLine, PstdPhysInvtOrderLine."Entry Type"::"Positive Adjmt.");
-        UpdateTrackingOnPostedPhysInventoryOrderLine(PstdExpPhysInvtTrack, PstdPhysInvtOrderHdr."No.");
-        CreatePostedPhysInventoryRecording(PstdPhysInvtRecordLine, PstdPhysInvtOrderHdr."No.");
-
-        // [WHEN] Run Posted Phys. Inventory Order Diff. Report.
-        RunPostedPhysInvtOrderDiffReport(PstdPhysInvtOrderHdr);
-
-        // [THEN] Verify the Recorded Tracking, Recorded Quantity and Location Code on Posted Phys. Inventory Order Diff. Report.
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists(
-          'TempPhysInvtCountBuffer__Rec__Serial_No__', PstdPhysInvtRecordLine."Serial No.");
-        LibraryReportDataset.AssertElementWithValueExists(
-          'TempPhysInvtCountBuffer__Rec__Lot_No__', PstdPhysInvtRecordLine."Lot No.");
-        LibraryReportDataset.AssertElementWithValueExists(
-          'TempPhysInvtCountBuffer__Rec__Qty___Base__', PstdPhysInvtOrderLine."Pos. Qty. (Base)");
-        LibraryReportDataset.AssertElementWithValueExists(
-          'Posted_Phys__Invt__Order_Line__Location_Code_', PstdPhysInvtOrderLine."Location Code");
-    end;
-
-    [Test]
-    [HandlerFunctions('PostedPhysInvtOrderDiffReportHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordWithRecordedTrackingAndNegativeAdjmt()
-    var
-        PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr";
-        PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line";
-        PstdExpPhysInvtTrack: Record "Pstd. Exp. Phys. Invt. Track";
-        PstdPhysInvtRecordLine: Record "Pstd. Phys. Invt. Record Line";
-    begin
-        // [SCENARIO] validate the Posted Phys. Inventory Order Line OnAfterGetRecord of the Posted Phys. Inventory Order Diff. Report with Recording and Negative Adjmt.
-
-        // [GIVEN] Create Posted Phys. Inventory Order. Update Posted Phys. Inventory Order Line. Update Tracking on Posted Phys. Inventory Order Line. Create Phys. Inventory Recording.
-        CreatePostedPhysInventoryOrder(PstdPhysInvtOrderHdr, PstdPhysInvtOrderLine, CreateItem());
-        UpdatePostedPhysInventoryOrderLine(PstdPhysInvtOrderLine, PstdPhysInvtOrderLine."Entry Type"::"Negative Adjmt.");
-        UpdateTrackingOnPostedPhysInventoryOrderLine(PstdExpPhysInvtTrack, PstdPhysInvtOrderHdr."No.");
-        CreatePostedPhysInventoryRecording(PstdPhysInvtRecordLine, PstdPhysInvtOrderHdr."No.");
-
-        // [WHEN] Run Posted Phys. Inventory Order Diff. Report.
-        RunPostedPhysInvtOrderDiffReport(PstdPhysInvtOrderHdr);
-
-        // [THEN] Verify the Recorded Tracking, Recorded Quantity and Location Code on Posted Phys. Inventory Order Diff. Report.
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists(
-          'TempPhysInvtCountBuffer__Rec__Serial_No__', PstdPhysInvtRecordLine."Serial No.");
-        LibraryReportDataset.AssertElementWithValueExists(
-          'TempPhysInvtCountBuffer__Rec__Lot_No__', PstdPhysInvtRecordLine."Lot No.");
-        LibraryReportDataset.AssertElementWithValueExists(
-          'TempPhysInvtCountBuffer__Rec__Qty___Base__', PstdPhysInvtOrderLine."Neg. Qty. (Base)");
-        LibraryReportDataset.AssertElementWithValueExists(
-          'Posted_Phys__Invt__Order_Line__Location_Code_', PstdPhysInvtOrderLine."Location Code");
-    end;
-
-    [Test]
-    [HandlerFunctions('PostedPhysInvtOrderDiffReportHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordWithExpectedTrackingAndPositiveAdjmt()
-    var
-        PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr";
-        PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line";
-        PstdExpPhysInvtTrack: Record "Pstd. Exp. Phys. Invt. Track";
-    begin
-        // [SCENARIO] validate the Posted Phys. Inventory Order Line OnAfterGetRecord of the Posted Phys. Inventory Order Diff. Report with Expected Tracking and Positive Adjmt.
-
-        // [GIVEN] Create Posted Phys. Inventory Order. Update Posted Phys. Inventory Order Line. Update Tracking on Posted Phys. Inventory Order Line.
-        CreatePostedPhysInventoryOrder(PstdPhysInvtOrderHdr, PstdPhysInvtOrderLine, CreateItem());
-        UpdatePostedPhysInventoryOrderLine(PstdPhysInvtOrderLine, PstdPhysInvtOrderLine."Entry Type"::"Positive Adjmt.");
-        UpdateTrackingOnPostedPhysInventoryOrderLine(PstdExpPhysInvtTrack, PstdPhysInvtOrderHdr."No.");
-
-        // [WHEN] Run Posted Phys. Inventory Order Diff. Report.
-        RunPostedPhysInvtOrderDiffReport(PstdPhysInvtOrderHdr);
-
-        // [THEN] Verify the Expected Tracking, Expected Quantity and Location Code on Posted Phys. Inventory Order Diff. Report.
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists(
-          'TempPhysInvtCountBuffer__Exp__Serial_No__', PstdExpPhysInvtTrack."Serial No.");
-        LibraryReportDataset.AssertElementWithValueExists(
-          'TempPhysInvtCountBuffer__Exp__Qty___Base__', PstdPhysInvtOrderLine."Pos. Qty. (Base)");
-        LibraryReportDataset.AssertElementWithValueExists(
-          'Posted_Phys__Invt__Order_Line__Location_Code_', PstdPhysInvtOrderLine."Location Code");
-    end;
-
-    [Test]
-    [HandlerFunctions('PostedPhysInvtOrderDiffReportHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordWithExpectedTrackingAndNegativeAdjmt()
-    var
-        PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr";
-        PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line";
-        PstdExpPhysInvtTrack: Record "Pstd. Exp. Phys. Invt. Track";
-    begin
-        // [SCENARIO] validate the Posted Phys. Inventory Order Line OnAfterGetRecord of the Posted Phys. Inventory Order Diff. Report with Expected Tracking and Negative Adjmt.
-
-        // [GIVEN] Create Posted Phys. Inventory Order. Update Posted Phys. Inventory Order Line. Update Tracking on Posted Phys. Inventory Order Line.
-        CreatePostedPhysInventoryOrder(PstdPhysInvtOrderHdr, PstdPhysInvtOrderLine, CreateItem());
-        UpdatePostedPhysInventoryOrderLine(PstdPhysInvtOrderLine, PstdPhysInvtOrderLine."Entry Type"::"Negative Adjmt.");
-        UpdateTrackingOnPostedPhysInventoryOrderLine(PstdExpPhysInvtTrack, PstdPhysInvtOrderHdr."No.");
-
-        // [WHEN] Run Posted Phys. Inventory Order Diff. Report.
-        RunPostedPhysInvtOrderDiffReport(PstdPhysInvtOrderHdr);
-
-        // [THEN] Verify the Expected Tracking, Expected Quantity and Location Code on Posted Phys. Inventory Order Diff. Report.
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists(
-          'TempPhysInvtCountBuffer__Exp__Serial_No__', PstdExpPhysInvtTrack."Serial No.");
-        LibraryReportDataset.AssertElementWithValueExists(
-          'TempPhysInvtCountBuffer__Exp__Qty___Base__', PstdPhysInvtOrderLine."Neg. Qty. (Base)");
-        LibraryReportDataset.AssertElementWithValueExists(
-          'Posted_Phys__Invt__Order_Line__Location_Code_', PstdPhysInvtOrderLine."Location Code");
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('PostedPhysInvtOrderDiffReportHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -277,24 +147,6 @@ codeunit 137457 "PostedPhyInvtOrderDiff UT REP"
         PstdPhysInvtOrderLine.Insert();
     end;
 
-    local procedure CreatePostedPhysInventoryRecording(var PstdPhysInvtRecordLine: Record "Pstd. Phys. Invt. Record Line"; OrderNo: Code[20])
-    var
-        PstdPhysInvtRecordHdr: Record "Pstd. Phys. Invt. Record Hdr";
-    begin
-        PstdPhysInvtRecordHdr."Order No." := OrderNo;
-        PstdPhysInvtRecordHdr."Recording No." := 1;
-        PstdPhysInvtRecordHdr.Insert();
-
-        PstdPhysInvtRecordLine."Order No." := OrderNo;
-        PstdPhysInvtRecordLine."Order Line No." := 1;
-        PstdPhysInvtRecordLine.Quantity := 1;
-        PstdPhysInvtRecordLine."Quantity (Base)" := 1;
-        PstdPhysInvtRecordLine.Recorded := true;
-        PstdPhysInvtRecordLine."Serial No." := LibraryUTUtility.GetNewCode();
-        PstdPhysInvtRecordLine."Lot No." := LibraryUTUtility.GetNewCode();
-        PstdPhysInvtRecordLine.Insert();
-    end;
-
     local procedure CreateDimension(var DimensionSetEntry: Record "Dimension Set Entry")
     var
         DimensionValue: Record "Dimension Value";
@@ -334,17 +186,6 @@ codeunit 137457 "PostedPhyInvtOrderDiff UT REP"
         PstdPhysInvtOrderHdr.Modify();
     end;
 
-#if not CLEAN24
-    local procedure UpdateTrackingOnPostedPhysInventoryOrderLine(var PstdExpPhysInvtTrack: Record "Pstd. Exp. Phys. Invt. Track"; OrderNo: Code[20])
-    begin
-        PstdExpPhysInvtTrack."Order No" := OrderNo;
-        PstdExpPhysInvtTrack."Order Line No." := 1;
-        PstdExpPhysInvtTrack."Serial No." := LibraryUTUtility.GetNewCode();
-        PstdExpPhysInvtTrack."Quantity (Base)" := 1;
-        PstdExpPhysInvtTrack.Insert();
-    end;
-#endif
-
     local procedure RunPostedPhysInvtOrderDiffReport(var PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr")
     var
         PostedPhysInvtOrderDiff: Report "Posted Phys. Invt. Order Diff.";
@@ -363,4 +204,3 @@ codeunit 137457 "PostedPhyInvtOrderDiff UT REP"
         PostedPhysInvtOrderDiff.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-

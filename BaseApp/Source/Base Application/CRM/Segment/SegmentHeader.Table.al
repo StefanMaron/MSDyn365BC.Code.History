@@ -111,7 +111,8 @@ table 5076 "Segment Header"
         }
         field(7; "Unit Cost (LCY)"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatExpression = '';
+            AutoFormatType = 2;
             Caption = 'Unit Cost (LCY)';
             MinValue = 0;
 
@@ -122,6 +123,7 @@ table 5076 "Segment Header"
         }
         field(8; "Unit Duration (Min.)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Unit Duration (Min.)';
             DecimalPlaces = 0 : 0;
             MinValue = 0;
@@ -211,6 +213,7 @@ table 5076 "Segment Header"
         }
         field(17; "Cost (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Segment Line"."Cost (LCY)" where("Segment No." = field("No.")));
             Caption = 'Cost (LCY)';
@@ -219,6 +222,7 @@ table 5076 "Segment Header"
         }
         field(18; "Duration (Min.)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Segment Line"."Duration (Min.)" where("Segment No." = field("No.")));
             Caption = 'Duration (Min.)';
             DecimalPlaces = 0 : 0;
@@ -403,32 +407,15 @@ table 5076 "Segment Header"
     end;
 
     trigger OnInsert()
-#if not CLEAN24
-    var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         if "No." = '' then begin
             RMSetup.Get();
             RMSetup.TestField("Segment Nos.");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(RMSetup."Segment Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-                if NoSeries.AreRelated(RMSetup."Segment Nos.", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series"
-                else
-                    "No. Series" := RMSetup."Segment Nos.";
-                "No." := NoSeries.GetNextNo("No. Series");
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", RMSetup."Segment Nos.", 0D, "No.");
-            end;
-#else
-			if NoSeries.AreRelated(RMSetup."Segment Nos.", xRec."No. Series") then
-				"No. Series" := xRec."No. Series"
-			else
-				"No. Series" := RMSetup."Segment Nos.";
+            if NoSeries.AreRelated(RMSetup."Segment Nos.", xRec."No. Series") then
+                "No. Series" := xRec."No. Series"
+            else
+                "No. Series" := RMSetup."Segment Nos.";
             "No." := NoSeries.GetNextNo("No. Series");
-#endif
         end;
 
         if "Salesperson Code" = '' then
@@ -1144,4 +1131,3 @@ table 5076 "Segment Header"
     begin
     end;
 }
-

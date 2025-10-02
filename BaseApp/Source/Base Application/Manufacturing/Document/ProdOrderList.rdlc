@@ -2101,6 +2101,9 @@
                 </TablixMember>
                 <TablixMember>
                   <Group Name="Table1_Details_Group">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!Production_Order__No__.Value</GroupExpression>
+                    </GroupExpressions>
                     <DataElementName>Detail</DataElementName>
                   </Group>
                   <TablixMembers>
@@ -2114,6 +2117,15 @@
               </TablixMembers>
             </TablixRowHierarchy>
             <DataSetName>DataSet_Result</DataSetName>
+            <Filters>
+              <Filter>
+                <FilterExpression>=Cstr(Fields!Production_Order__No__.Value)</FilterExpression>
+                <Operator>GreaterThan</Operator>
+                <FilterValues>
+                  <FilterValue>""</FilterValue>
+                </FilterValues>
+              </Filter>
+            </Filters>
             <Height>2.665cm</Height>
             <Width>18.15cm</Width>
             <Style />
@@ -2293,6 +2305,377 @@
       </Page>
     </ReportSection>
   </ReportSections>
+  <ReportParameters>
+    <ReportParameter Name="ProdOrderList">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderList</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderList</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderListPrint">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderListPrint</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderListPrint</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderListAnalysis">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderListAnalysis</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderListAnalysis</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderLineList">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderLineList</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderLineList</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderLineListPrint">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderLineListPrint</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderLineListPrint</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderLineListAnalysis">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderLineListAnalysis</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderLineListAnalysis</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DataRetrieved">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DataRetrieved</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DataRetrieved</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="AboutTheReportLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>AboutTheReportLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>AboutTheReportLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="EnvironmentLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>EnvironmentLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>EnvironmentLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CompanyLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CompanyLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CompanyLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="UserLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>UserLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>UserLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RunOnLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>RunOnLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>RunOnLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ReportNameLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ReportNameLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ReportNameLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DocumentationLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DocumentationLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DocumentationLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Production_Order__No__Caption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Production_Order__No__Caption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Production_Order__No__Caption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Production_Order_DescriptionCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Production_Order_DescriptionCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Production_Order_DescriptionCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Production_Order__Source_No__Caption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Production_Order__Source_No__Caption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Production_Order__Source_No__Caption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Production_Order__Routing_No__Caption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Production_Order__Routing_No__Caption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Production_Order__Routing_No__Caption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Production_Order__Starting_Date_Caption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Production_Order__Starting_Date_Caption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Production_Order__Starting_Date_Caption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Production_Order__Ending_Date_Caption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Production_Order__Ending_Date_Caption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Production_Order__Ending_Date_Caption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Production_Order__Due_Date_Caption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Production_Order__Due_Date_Caption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Production_Order__Due_Date_Caption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Production_Order_StatusCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Production_Order_StatusCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Production_Order_StatusCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Production_Order_QuantityCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Production_Order_QuantityCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Production_Order_QuantityCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Production_Order__Location_CodeCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Production_Order__Location_CodeCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Production_Order__Location_CodeCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderLineStatusCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderLineStatusCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderLineStatusCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderLineProdOrderNoCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderLineProdOrderNoCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderLineProdOrderNoCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderLineLineNoCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderLineLineNoCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderLineLineNoCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderLineItemNoCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderLineItemNoCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderLineItemNoCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderLineDescriptionCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderLineDescriptionCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderLineDescriptionCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderLineProdBOMNoCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderLineProdBOMNoCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderLineProdBOMNoCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderLineRoutingNoCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderLineRoutingNoCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderLineRoutingNoCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderLineStartingDateCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderLineStartingDateCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderLineStartingDateCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderLineEndingDateCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderLineEndingDateCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderLineEndingDateCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderLineDueDateCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderLineDueDateCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderLineDueDateCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderLineQuantityCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderLineQuantityCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderLineQuantityCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderLineUOMCodeCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderLineUOMCodeCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderLineUOMCodeCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderLineUnitCostCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderLineUnitCostCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderLineUnitCostCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderLineCostAmountCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderLineCostAmountCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderLineCostAmountCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderLineLocationCodeCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderLineLocationCodeCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderLineLocationCodeCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderLineFinishedQuantityCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderLineFinishedQuantityCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderLineFinishedQuantityCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderLineRemainingQuantityCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderLineRemainingQuantityCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderLineRemainingQuantityCaption</Prompt>
+    </ReportParameter>
+  </ReportParameters>
   <Code>Public Function BlankZero(ByVal Value As Decimal)
     if Value = 0 then
         Return ""
@@ -2412,6 +2795,81 @@ End Function
         </Field>
         <Field Name="Production_Order_QuantityCaption">
           <DataField>Production_Order_QuantityCaption</DataField>
+        </Field>
+        <Field Name="Production_Order__Location_Code">
+          <DataField>Production_Order__Location_Code</DataField>
+        </Field>
+        <Field Name="ProdOrderLineTableCaptFilter">
+          <DataField>ProdOrderLineTableCaptFilter</DataField>
+        </Field>
+        <Field Name="ProdOrderLineFilter">
+          <DataField>ProdOrderLineFilter</DataField>
+        </Field>
+        <Field Name="ProdOrderLineStatus">
+          <DataField>ProdOrderLineStatus</DataField>
+        </Field>
+        <Field Name="ProdOrderLineProdOrderNo">
+          <DataField>ProdOrderLineProdOrderNo</DataField>
+        </Field>
+        <Field Name="ProdOrderLineLineNo">
+          <DataField>ProdOrderLineLineNo</DataField>
+        </Field>
+        <Field Name="ProdOrderLineItemNo">
+          <DataField>ProdOrderLineItemNo</DataField>
+        </Field>
+        <Field Name="ProdOrderLineDescription">
+          <DataField>ProdOrderLineDescription</DataField>
+        </Field>
+        <Field Name="ProdOrderLineProdBOMNo">
+          <DataField>ProdOrderLineProdBOMNo</DataField>
+        </Field>
+        <Field Name="ProdOrderLineRoutingNo">
+          <DataField>ProdOrderLineRoutingNo</DataField>
+        </Field>
+        <Field Name="ProdOrderLineStartingDate">
+          <DataField>ProdOrderLineStartingDate</DataField>
+        </Field>
+        <Field Name="ProdOrderLineEndingDate">
+          <DataField>ProdOrderLineEndingDate</DataField>
+        </Field>
+        <Field Name="ProdOrderLineDueDate">
+          <DataField>ProdOrderLineDueDate</DataField>
+        </Field>
+        <Field Name="ProdOrderLineQuantity">
+          <DataField>ProdOrderLineQuantity</DataField>
+        </Field>
+        <Field Name="ProdOrderLineQuantityFormat">
+          <DataField>ProdOrderLineQuantityFormat</DataField>
+        </Field>
+        <Field Name="ProdOrderLineUOMCode">
+          <DataField>ProdOrderLineUOMCode</DataField>
+        </Field>
+        <Field Name="ProdOrderLineUnitCost">
+          <DataField>ProdOrderLineUnitCost</DataField>
+        </Field>
+        <Field Name="ProdOrderLineUnitCostFormat">
+          <DataField>ProdOrderLineUnitCostFormat</DataField>
+        </Field>
+        <Field Name="ProdOrderLineCostAmount">
+          <DataField>ProdOrderLineCostAmount</DataField>
+        </Field>
+        <Field Name="ProdOrderLineCostAmountFormat">
+          <DataField>ProdOrderLineCostAmountFormat</DataField>
+        </Field>
+        <Field Name="ProdOrderLineLocationCode">
+          <DataField>ProdOrderLineLocationCode</DataField>
+        </Field>
+        <Field Name="ProdOrderLineFinishedQuantity">
+          <DataField>ProdOrderLineFinishedQuantity</DataField>
+        </Field>
+        <Field Name="ProdOrderLineFinishedQuantityFormat">
+          <DataField>ProdOrderLineFinishedQuantityFormat</DataField>
+        </Field>
+        <Field Name="ProdOrderLineRemainingQuantity">
+          <DataField>ProdOrderLineRemainingQuantity</DataField>
+        </Field>
+        <Field Name="ProdOrderLineRemainingQuantityFormat">
+          <DataField>ProdOrderLineRemainingQuantityFormat</DataField>
         </Field>
       </Fields>
       <Query>

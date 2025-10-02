@@ -1726,25 +1726,31 @@ codeunit 134391 "ERM Sales Batch Posting"
     begin
         // [SCENARIO 582107] Verify Batch Posting of Credit Memo using "Calc. Pmt. Disc. on Lines" Payment Discount type and "Calc. Pmt. Disc. on Cr. Memos" disabled on the Payment Terms.
         Initialize();
+
         // [GIVEN] Validate Payment Discount Type and Discount Calculation in General Ledger Setup
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Payment Discount Type", GeneralLedgerSetup."Payment Discount Type"::"Calc. Pmt. Disc. On Lines");
         GeneralLedgerSetup.Validate("Discount Calculation", GeneralLedgerSetup."Discount Calculation"::"Line Disc. * Inv. Disc. * Payment Disc.");
         GeneralLedgerSetup.Modify(true);
+
         // [GIVEN] Create Payment Terms with "Calc. Pmt. Disc. on Cr. Memos" disabled
         LibraryERM.CreatePaymentTerms(PaymentTerms);
         Evaluate(PaymentTerms."Due Date Calculation", '<' + Format(LibraryRandom.RandInt(14)) + 'D>');
         PaymentTerms.Validate("Due Date Calculation", PaymentTerms."Due Date Calculation");
         PaymentTerms.Validate("Calc. Pmt. Disc. on Cr. Memos", false);
         PaymentTerms.Modify(true);
+
         // [GIVEN] Create Customer with Payment Terms
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Payment Terms Code", PaymentTerms.Code);
         Customer.Modify(true);
+
         // [GIVEN] Create Credit Memo
         LibrarySales.CreateSalesCreditMemoForCustomerNo(SalesHeader, Customer."No.");
+
         // [WHEN] Run Batch Post Sales Credity Memo with Replace Posting Date, Replace Document Date, Calc. Inv. Discount options
         RunBatchPostSales(SalesHeader."Document Type", SalesHeader."No.", SalesHeader."Posting Date" + 1, true);
+
         // [THEN] Verify Sales Credit Memo should be posted successfully.
         SalesCrMemoHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
         SalesCrMemoHeader.SetRange("Posting Date", SalesHeader."Posting Date" + 1);

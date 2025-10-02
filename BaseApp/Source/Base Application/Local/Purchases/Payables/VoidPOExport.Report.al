@@ -19,7 +19,6 @@ report 7000061 "Void PO - Export"
     {
         dataitem("Payment Order"; "Payment Order")
         {
-            DataItemLinkReference = "Payment Order";
             DataItemTableView = sorting("No.") where("Elect. Pmts Exported" = const(true));
             dataitem("Cartera Doc."; "Cartera Doc.")
             {
@@ -123,4 +122,3 @@ report 7000061 "Void PO - Export"
         Text1100001: Label 'The exported Electronic Payment File %1 has been voided. To post the Payment Order you must first export the Electronic Payment File again.';
         Text1100002: Label 'There is nothing to Void.';
 }
-

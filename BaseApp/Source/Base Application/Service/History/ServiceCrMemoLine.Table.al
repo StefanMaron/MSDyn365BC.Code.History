@@ -34,7 +34,6 @@ using Microsoft.Utilities;
 using Microsoft.Warehouse.Structure;
 using System.Reflection;
 using System.Security.User;
-using Microsoft.EServices.EDocument;
 
 table 5995 "Service Cr.Memo Line"
 {
@@ -583,27 +582,6 @@ table 5995 "Service Cr.Memo Line"
             Caption = 'Customer Disc. Group';
             TableRelation = "Customer Discount Group";
         }
-        field(10700; "Pmt. Disc. Given Amount (Old)"; Decimal)
-        {
-            AutoFormatExpression = GetCurrencyCode();
-            AutoFormatType = 1;
-            Caption = 'Pmt. Disc. Given Amount (Old)';
-            Editable = false;
-        }
-        field(10701; "EC %"; Decimal)
-        {
-            Caption = 'EC %';
-        }
-        field(10702; "EC Difference"; Decimal)
-        {
-            AutoFormatExpression = GetCurrencyCode();
-            AutoFormatType = 1;
-            Caption = 'EC Difference';
-        }
-        field(10709; "Special Scheme Code"; Enum "SII Sales Special Scheme Code")
-        {
-            Caption = 'Special Scheme Code';
-        }
     }
 
     keys
@@ -673,8 +651,6 @@ table 5995 "Service Cr.Memo Line"
             repeat
                 TempVATAmountLine.Init();
                 Rec.CopyToVATAmountLine(TempVATAmountLine);
-                if ServCrMemoHeader."Prices Including VAT" then
-                    TempVATAmountLine."Prices Including VAT" := true;
                 OnCalcVATAmountLinesOnBeforeInsertLine(ServCrMemoHeader, TempVATAmountLine);
                 TempVATAmountLine.InsertLine();
             until Next() = 0;
@@ -698,8 +674,6 @@ table 5995 "Service Cr.Memo Line"
         VATAmountLine."Calculated VAT Amount" :=
           Rec."Amount Including VAT" - Rec.Amount - Rec."VAT Difference";
         VATAmountLine."VAT Difference" := Rec."VAT Difference";
-        VATAmountLine."EC %" := Rec."EC %";
-        VATAmountLine."EC Difference" := Rec."EC Difference";
 
         OnAfterCopyToVATAmountLine(Rec, VATAmountLine);
 #if not CLEAN25
@@ -784,7 +758,7 @@ table 5995 "Service Cr.Memo Line"
 
     internal procedure GetVATPct() VATPct: Decimal
     begin
-        VATPct := "VAT %" + "EC %";
+        VATPct := "VAT %";
         OnAfterGetVATPct(Rec, VATPct);
     end;
 

@@ -38,12 +38,7 @@ using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Worksheet;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Finance.Analysis;
-
-using Microsoft.Service.Contract;
-using Microsoft.Service.Item;
-using Microsoft.Service.Ledger;
 
 permissionset 9921 "D365 VENDOR, EDIT"
 {
@@ -57,7 +52,7 @@ permissionset 9921 "D365 VENDOR, EDIT"
                   tabledata "Cont. Duplicate Search String" = RIMD,
                   tabledata Contact = RIM,
                   tabledata "Contact Business Relation" = RImD,
-                  tabledata "Contact Duplicate" = R,
+                  tabledata "Contact Duplicate" = Rd,
                   tabledata "Company Size" = rimd,
                   tabledata Currency = RM,
                   tabledata "Cust. Ledger Entry" = r,
@@ -127,12 +122,5 @@ permissionset 9921 "D365 VENDOR, EDIT"
                   tabledata "Warehouse Reason Code" = r,
                   tabledata "Warehouse Request" = rm,
                   tabledata "Warehouse Shipment Line" = rm,
-                  tabledata "Whse. Worksheet Line" = r,
-                  tabledata "Work Center" = r,
-
-                  // Service
-                  tabledata "Contract Gain/Loss Entry" = rm,
-                  tabledata "Filed Contract Line" = rm,
-                  tabledata "Service Item" = r,
-                  tabledata "Warranty Ledger Entry" = rm;
+                  tabledata "Whse. Worksheet Line" = r;
 }

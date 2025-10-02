@@ -4,6 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Payroll;
 
+/// <summary>
+/// Imports payroll transaction data from tab-delimited text files into Payroll Import Buffer.
+/// Supports variable text format with TAB field separators for flexible payroll file processing.
+/// </summary>
+/// <remarks>
+/// Format: TAB-delimited with fields PostingDate, Account, Amount, Description.
+/// Uses WINDOWS text encoding. Auto-increments entry numbers during import.
+/// </remarks>
 xmlport 1660 "Import Payroll"
 {
     Caption = 'Import Payroll';

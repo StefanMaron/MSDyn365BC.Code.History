@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Document;
 
 using Microsoft.CRM.Contact;
 using Microsoft.Finance.Currency;
@@ -61,17 +65,34 @@ page 509 "Blanket Purchase Order"
                     Importance = Promoted;
                     ToolTip = 'Specifies the name of the vendor who delivers the products.';
 
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        Vendor: Record Vendor;
+                    begin
+                        Selected.SetTable(Vendor);
+                        if Rec."Buy-from Vendor No." <> Vendor."No." then begin
+                            Rec.Validate("Buy-from Vendor No.", Vendor."No.");
+                            if Rec."Buy-from Vendor No." <> Vendor."No." then
+                                error('');
+                            IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
+                            CurrPage.Update();
+                        end;
+                    end;
+
                     trigger OnValidate()
                     begin
+                        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
                         Rec.OnAfterValidateBuyFromVendorNo(Rec, xRec);
-
                         CurrPage.Update();
                     end;
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        exit(Rec.LookupBuyFromVendorName(Text));
-                    end;
+                }
+                field("Buy-from Vendor Name 2"; Rec."Buy-from Vendor Name 2")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Vendor Name 2';
+                    Importance = Additional;
+                    QuickEntry = false;
+                    Visible = false;
                 }
                 group("Buy-from")
                 {
@@ -92,14 +113,6 @@ page 509 "Blanket Purchase Order"
                         QuickEntry = false;
                         ToolTip = 'Specifies additional address information.';
                     }
-                    field("Buy-from Post Code"; Rec."Buy-from Post Code")
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'Post Code';
-                        Importance = Additional;
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the postal code.';
-                    }
                     field("Buy-from City"; Rec."Buy-from City")
                     {
                         ApplicationArea = Suite;
@@ -113,6 +126,14 @@ page 509 "Blanket Purchase Order"
                         ApplicationArea = Basic, Suite;
                         CaptionClass = '5,1,' + Rec."Buy-from Country/Region Code";
                         ToolTip = 'Specifies the county of the address.';
+                    }
+                    field("Buy-from Post Code"; Rec."Buy-from Post Code")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Post Code';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the postal code.';
                     }
                     field("Buy-from Country/Region Code"; Rec."Buy-from Country/Region Code")
                     {
@@ -448,14 +469,6 @@ page 509 "Blanket Purchase Order"
                         QuickEntry = false;
                         ToolTip = 'Specifies additional address information.';
                     }
-                    field("Ship-to Post Code"; Rec."Ship-to Post Code")
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'Post Code';
-                        Importance = Additional;
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the postal code.';
-                    }
                     field("Ship-to City"; Rec."Ship-to City")
                     {
                         ApplicationArea = Suite;
@@ -465,6 +478,20 @@ page 509 "Blanket Purchase Order"
                         ToolTip = 'Specifies the city the items in the purchase order will be shipped to.';
                     }
                     field("Ship-to County"; Rec."Ship-to County")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
+                        ToolTip = 'Specifies the county of the address.';
+                    }
+                    field("Ship-to Post Code"; Rec."Ship-to Post Code")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Post Code';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the postal code.';
+                    }
+                    field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                     {
                         ApplicationArea = Basic, Suite;
                         CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
@@ -505,6 +532,14 @@ page 509 "Blanket Purchase Order"
                             CurrPage.Update();
                         end;
                     }
+                    field("Pay-to Name 2"; Rec."Pay-to Name 2")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        Visible = false;
+                    }
                     field("Pay-to Address"; Rec."Pay-to Address")
                     {
                         ApplicationArea = Suite;
@@ -525,16 +560,6 @@ page 509 "Blanket Purchase Order"
                         QuickEntry = false;
                         ToolTip = 'Specifies additional address information.';
                     }
-                    field("Pay-to Post Code"; Rec."Pay-to Post Code")
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'Post Code';
-                        Editable = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
-                        Enabled = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
-                        Importance = Additional;
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the postal code.';
-                    }
                     field("Pay-to City"; Rec."Pay-to City")
                     {
                         ApplicationArea = Suite;
@@ -550,6 +575,16 @@ page 509 "Blanket Purchase Order"
                         ApplicationArea = Basic, Suite;
                         CaptionClass = '5,1,' + Rec."Pay-to Country/Region Code";
                         ToolTip = 'Specifies the county of the address.';
+                    }
+                    field("Pay-to Post Code"; Rec."Pay-to Post Code")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Post Code';
+                        Editable = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
+                        Enabled = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
+                        Importance = Additional;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the postal code.';
                     }
                     field("Pay-to Country/Region Code"; Rec."Pay-to Country/Region Code")
                     {

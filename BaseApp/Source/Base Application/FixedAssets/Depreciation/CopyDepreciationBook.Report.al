@@ -32,6 +32,12 @@ report 5687 "Copy Depreciation Book"
                 if not FADeprBook2.Get("No.", DeprBookCode2) then begin
                     FADeprBook2 := FADeprBook;
                     FADeprBook2."Depreciation Book Code" := DeprBookCode2;
+                    if FADeprBook2."Depreciation Method" <> FADeprBook2."Depreciation Method"::"Straight-Line" then begin
+                        DeprBook.Get(FADeprBook2."Depreciation Book Code");
+                        if DeprBook."Use Accounting Period" then
+                            Error(MustBeStraightLineTxt, FADeprBook2.FieldCaption("Depreciation Method"), DeprBook.FieldCaption("Use Accounting Period"), true,
+                              DeprBook.TableCaption(), DeprBook.Code);
+                    end;
                     FADeprBook2.Insert(true);
                 end;
                 FALedgEntry.SetRange("FA No.", "No.");
@@ -238,6 +244,7 @@ report 5687 "Copy Depreciation Book"
         FirstFAJnl: Boolean;
         FAJnlNextLineNo: Integer;
         GenJnlNextLineNo: Integer;
+        MustBeStraightLineTxt: Label '%1 must be Straight-Line if %2 is %3 in %4: %5.', Comment = '%1="Depreciation Method" Field Caption %2="Use Accounting Period" Field Caption %3="Use Accounting Period" Field Value %4="Depreciation Book" Table Caption %5="Depreciation Book" Value of field Code';
 
 #pragma warning disable AA0074
         Text000: Label 'The Starting Date is later than the Ending Date.';

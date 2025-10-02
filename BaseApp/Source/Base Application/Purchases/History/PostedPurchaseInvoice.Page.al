@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.History;
 
 using Microsoft.CRM.Contact;
@@ -50,6 +54,14 @@ page 138 "Posted Purchase Invoice"
                     Editable = false;
                     TableRelation = Vendor.Name;
                     ToolTip = 'Specifies the name of the vendor who shipped the items.';
+                }
+                field("Buy-from Vendor Name 2"; Rec."Buy-from Vendor Name 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Vendor Name 2';
+                    Editable = false;
+                    Importance = Additional;
+                    Visible = false;
                 }
                 group("Buy-from")
                 {
@@ -582,6 +594,14 @@ page 138 "Posted Purchase Invoice"
                         Editable = false;
                         Importance = Promoted;
                         ToolTip = 'Specifies the name of the vendor who you received the invoice from.';
+                    }
+                    field("Pay-to Name 2"; Rec."Pay-to Name 2")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Name 2';
+                        Editable = false;
+                        Importance = Additional;
+                        Visible = false;
                     }
                     field("Pay-to Address"; Rec."Pay-to Address")
                     {

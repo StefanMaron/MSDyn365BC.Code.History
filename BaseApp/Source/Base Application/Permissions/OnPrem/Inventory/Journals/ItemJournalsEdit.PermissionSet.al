@@ -12,7 +12,6 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Counting.Journal;
 using Microsoft.Inventory.Planning;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Purchases.Document;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Sales.Document;
@@ -58,8 +57,6 @@ permissionset 3627 "Item Journals - Edit"
                   tabledata "Phys. Invt. Counting Period" = RIMD,
                   tabledata "Phys. Invt. Item Selection" = RIMD,
                   tabledata "Planning Component" = Rm,
-                  tabledata "Prod. Order Component" = Rm,
-                  tabledata "Prod. Order Line" = Rm,
                   tabledata "Purchase Line" = Rm,
                   tabledata "Reason Code" = R,
                   tabledata "Requisition Line" = Rim,

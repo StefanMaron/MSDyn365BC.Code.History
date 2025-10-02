@@ -56,9 +56,7 @@ codeunit 6490 "B2Brouter Api Management"
         HttpContentHeader: HttpHeaders;
     begin
         TempBlob.CreateInStream(InStream);
-        HttpRequest.Content.WriteFrom(
-            'data:text/xml;name=' + EDocument."Document No." + '.XML;base64,' + Base64Convert.ToBase64(InStream));
-
+        HttpRequest.Content.WriteFrom(StrSubstNo(HttpConcentLbl, EDocument."Document No.", Base64Convert.ToBase64(InStream)));
         HttpRequest.Content.GetHeaders(HttpContentHeader);
 
         if HttpContentHeader.Contains('content-type') then
@@ -425,6 +423,7 @@ codeunit 6490 "B2Brouter Api Management"
         ReceiveInvoicesEndpointLbl: Label '/projects/%1/received.json', Comment = '%1 => Project.', Locked = true;
         SendInvoicesEndpointLbl: Label '/invoices/send_invoice/%1.json', Comment = '%1 => File Id', Locked = true;
         AcknowledgeInvoiceEndpointLbl: Label '/invoices/%1/ack.json', Comment = '%1 => File Id', Locked = true;
+        HttpConcentLbl: Label 'data:text/xml;name=%1.XML;base64,%2', Comment = '%1 => file name, %2 => Base64 encoded data', Locked = true;
         FailedToConsumeApiErr: Label 'Failed to consume API.';
         ProdBaseUrlLbl: Label 'https://app.b2brouter.net', Locked = true;
         SandboxBaseUrlLbl: Label 'https://app-staging.b2brouter.net', Locked = true;

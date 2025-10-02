@@ -1664,7 +1664,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntryInvoice, VendorLedgerEntryInvoice."Document Type"::Invoice, InvoiceDocumentNo);
         VendorLedgerEntryInvoice.CalcFields("Original Amount");
 
-        // [WHEN]  Save Report "Vendor Balance to Date". for Show Entrie with Zero Balancce = true 
+        // [WHEN]  Save Report "Vendor Balance to Date". for Show Entrie with Zero Balancce = true
         SaveVendorBalanceToDate(PurchaseHeaderInvoice, false, false, true);
 
         // [THEN] Report was created
@@ -1887,7 +1887,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Item.Modify(true);
         exit(Item."No.");
     end;
-
+#if not CLEAN25
     local procedure CreateItemVendor(var ItemVendor: Record "Item Vendor"; ItemNo: Code[20]; VendorNo: Code[20])
     begin
         // Using Random value for Lead Time Calculation.
@@ -1897,12 +1897,11 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Evaluate(ItemVendor."Lead Time Calculation", '<' + Format(LibraryRandom.RandInt(5)) + 'D>');
         ItemVendor.Modify(true);
     end;
-
+#endif
     local procedure CreateItemWithDimension(var DefaultDimension: Record "Default Dimension")
     var
         Dimension: Record Dimension;
         DimensionValue: Record "Dimension Value";
-        LibraryDimension: Codeunit "Library - Dimension";
     begin
         LibraryDimension.FindDimension(Dimension);
         LibraryDimension.FindDimensionValue(DimensionValue, Dimension.Code);
@@ -1930,14 +1929,6 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, VendorNo, -LibraryRandom.RandDec(100, 2));
         GenJournalLine.Validate("Currency Code", CurrencyCode);
         GenJournalLine.Validate("Posting Date", CalcDate(PeriodDifference, GenJournalLine."Posting Date"));
-        GenJournalLine.Modify(true);
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-    end;
-
-    local procedure CreatePostGeneralJournalLineCustomDocTypeAndAmount(var GenJournalLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
-    begin
-        CreateGeneralJournalLine(GenJournalLine, DocType, VendorNo, Amount);
-        GenJournalLine.Validate("Currency Code", CurrencyCode);
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -2067,23 +2058,6 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
         GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalLine.Modify(true);
-    end;
-
-    local procedure CreateCurrencyWithFixedExchRates(RelExchRateAmount: Decimal): Code[10]
-    var
-        Currency: Record Currency;
-        CurrencyExchangeRate: Record "Currency Exchange Rate";
-    begin
-        LibraryERM.CreateCurrency(Currency);
-        LibraryERM.SetCurrencyGainLossAccounts(Currency);
-
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
-        CurrencyExchangeRate.Validate("Exchange Rate Amount", 1);
-        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", 1);
-        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelExchRateAmount);
-        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", RelExchRateAmount);
-        CurrencyExchangeRate.Modify(true);
-        exit(Currency.Code);
     end;
 
     local procedure AddPurchLine(var PurchaseLine: Record "Purchase Line")
@@ -2331,7 +2305,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorDetailTrialBalance.InitializeRequest(PrintAmountsInLCY, false, ExcludeBalanceOnly);  // Set FALSE for Print Only Per Page.
         VendorDetailTrialBalance.Run();
     end;
-
+#if not CLEAN25
     local procedure SaveVendorItemCatalog(VendorNo: Code[20])
     var
         Vendor: Record Vendor;
@@ -2343,7 +2317,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorItemCatalog.SetTableView(Vendor);
         VendorItemCatalog.Run();
     end;
-
+#endif
     local procedure SaveVendorOrderSummary(No: Code[20]; PostingDate: Date; AmountLCY: Boolean)
     var
         Vendor: Record Vendor;
@@ -2451,22 +2425,6 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         REPORT.SaveAsExcel(REPORT::"Arch.Purch. Return Order", LibraryReportValidation.GetFileName(), PurchaseHeaderArchive);
     end;
 
-    local procedure RunDtldVendTrialBalanceReportWithDateFilter(VendNo: Code[20])
-    var
-        Vendor: Record Vendor;
-    begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        LibraryVariableStorage.Enqueue(false);
-        LibraryVariableStorage.Enqueue(false);
-        LibraryVariableStorage.Enqueue(false);
-        LibraryVariableStorage.Enqueue(VendNo);
-        Commit();
-        Vendor.Get(VendNo);
-        Vendor.SetRecFilter();
-        Vendor.SetFilter("Date Filter", '%1..', WorkDate());
-        REPORT.Run(REPORT::"Vendor - Detail Trial Balance", true, false, Vendor);
-    end;
-
     local procedure SetupAndPostVendorPmtTolerance(var GenJournalLine: Record "Gen. Journal Line"; CurrencyCode: Code[10]) DocumentNo: Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
@@ -2568,23 +2526,6 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('AmtPurchLCY', -VendorLedgerEntry."Purchase (LCY)");
         LibraryReportDataset.AssertElementWithValueExists('VendNo', Vendor."No.")
-    end;
-
-    local procedure ApplyPaymentToAllOpenInvoices(PmtNo: Code[20]; VendNo: Code[20])
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        ApplyingVendLedgerEntry: Record "Vendor Ledger Entry";
-        VendLedgerEntry: Record "Vendor Ledger Entry";
-    begin
-        LibraryERM.FindVendorLedgerEntry(
-          ApplyingVendLedgerEntry, GenJournalLine."Document Type"::Payment, PmtNo);
-        ApplyingVendLedgerEntry.CalcFields("Remaining Amount");
-        LibraryERM.SetApplyVendorEntry(ApplyingVendLedgerEntry, ApplyingVendLedgerEntry."Remaining Amount");
-        VendLedgerEntry.SetRange("Vendor No.", VendNo);
-        VendLedgerEntry.SetRange("Document Type", VendLedgerEntry."Document Type"::Invoice);
-        VendLedgerEntry.SetRange(Open, true);
-        LibraryERM.SetAppliestoIdVendor(VendLedgerEntry);
-        LibraryERM.PostVendLedgerApplication(ApplyingVendLedgerEntry);
     end;
 
     local procedure VerifyInteractionLogEntry(DocumentType: Enum "Interaction Log Entry Document Type"; DocumentNo: Code[20])
@@ -2949,4 +2890,3 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorDetailTrialBalance.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 }
-

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 104100 "UPG SII"
 {
     Subtype = Upgrade;

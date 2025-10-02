@@ -17,7 +17,6 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
-using Microsoft.Service.History;
 using System;
 using System.Reflection;
 using System.Utilities;
@@ -2082,18 +2081,19 @@ codeunit 10750 "SII XML Creator"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
-        ServiceInvoiceHeader: Record "Service Invoice Header";
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        OperationDescription: Text;
+        ShouldExit: Boolean;
     begin
         if IsSales then begin
             if SalesInvoiceHeader.Get(DocumentNo) then
                 exit(SalesInvoiceHeader."Operation Description" + SalesInvoiceHeader."Operation Description 2");
             if SalesCrMemoHeader.Get(DocumentNo) then
                 exit(SalesCrMemoHeader."Operation Description" + SalesCrMemoHeader."Operation Description 2");
-            if ServiceInvoiceHeader.Get(DocumentNo) then
-                exit(ServiceInvoiceHeader."Operation Description" + ServiceInvoiceHeader."Operation Description 2");
-            if ServiceCrMemoHeader.Get(DocumentNo) then
-                exit(ServiceCrMemoHeader."Operation Description" + ServiceCrMemoHeader."Operation Description 2");
+            OperationDescription := '';
+            ShouldExit := false;
+            OnGetOperationDescriptionFromDocument(DocumentNo, OperationDescription, ShouldExit);
+            if ShouldExit then
+                exit(OperationDescription);
         end else begin
             if PurchInvHeader.Get(DocumentNo) then
                 exit(PurchInvHeader."Operation Description" + PurchInvHeader."Operation Description 2");
@@ -2106,7 +2106,7 @@ codeunit 10750 "SII XML Creator"
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        IsHandled: Boolean;
     begin
         if IsSales then begin
             case true of
@@ -2115,14 +2115,13 @@ codeunit 10750 "SII XML Creator"
                         CorrectedInvoiceNo := SalesCrMemoHeader."Corrected Invoice No.";
                         CorrectionType := SalesCrMemoHeader."Correction Type";
                     end;
-                ServiceCrMemoHeader.Get(DocumentNo):
-                    begin
-                        CorrectedInvoiceNo := ServiceCrMemoHeader."Corrected Invoice No.";
-                        CorrectionType := ServiceCrMemoHeader."Correction Type";
-                    end
                 else begin
-                    CorrectedInvoiceNo := EntryCorrInvNo;
-                    CorrectionType := EntryCorrType;
+                    IsHandled := false;
+                    OnGetCorrectionInfoFromDocument(DocumentNo, CorrectedInvoiceNo, CorrectionType, IsHandled);
+                    if not IsHandled then begin
+                        CorrectedInvoiceNo := EntryCorrInvNo;
+                        CorrectionType := EntryCorrType;
+                    end;
                 end;
             end;
             exit;
@@ -3143,6 +3142,16 @@ codeunit 10750 "SII XML Creator"
 
     [IntegrationEvent(false, false)]
     local procedure OnPopulateXMLWithSalesInvoiceOnBeforeInitializeSalesXmlBody(var CustLedgerEntry: Record "Cust. Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCorrectionInfoFromDocument(DocumentNo: Code[20]; var CorrectedInvoiceNo: Code[20]; var CorrectionType: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetOperationDescriptionFromDocument(DocumentNo: Code[35]; var OperationDescription: Text; var ShouldExit: Boolean)
     begin
     end;
 

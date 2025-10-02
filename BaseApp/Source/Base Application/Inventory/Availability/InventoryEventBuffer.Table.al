@@ -310,23 +310,41 @@ table 5530 "Inventory Event Buffer"
     end;
 #endif
 
-#if not CLEAN25
-    [Obsolete('Moved to codeunit ProdOrderAvailabilityMgt', '25.0')]
     procedure TransferFromForecast(ProdForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry"; UnconsumedQtyBase: Decimal; ForecastOnLocation: Boolean)
     begin
         TransferFromForecast(ProdForecastEntry, UnconsumedQtyBase, ForecastOnLocation, false);
     end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Moved to codeunit ProdOrderAvailabilityMgt', '25.0')]
     procedure TransferFromForecast(ProdForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry"; UnconsumedQtyBase: Decimal; ForecastOnLocation: Boolean; ForecastOnVariant: Boolean)
     var
-        ProdOrderAvailabilityMgt: Codeunit Microsoft.Manufacturing.Document."Prod. Order Availability Mgt.";
+        RecRef: RecordRef;
     begin
-        ProdOrderAvailabilityMgt.TransferFromForecast(Rec, ProdForecastEntry, UnconsumedQtyBase, ForecastOnLocation, ForecastOnVariant);
+        Init();
+        RecRef.GetTable(ProdForecastEntry);
+        "Source Line ID" := RecRef.RecordId;
+        "Item No." := ProdForecastEntry."Item No.";
+        "Variant Code" := '';
+        if ForecastOnLocation then
+            "Location Code" := ProdForecastEntry."Location Code"
+        else
+            "Location Code" := '';
+        if ForecastOnVariant then
+            "Variant Code" := ProdForecastEntry."Variant Code"
+        else
+            "Variant Code" := '';
+        "Availability Date" := ProdForecastEntry."Forecast Date";
+        Type := Type::Forecast;
+        if ProdForecastEntry."Component Forecast" then
+            "Forecast Type" := "Forecast Type"::Component
+        else
+            "Forecast Type" := "Forecast Type"::Sales;
+        "Remaining Quantity (Base)" := -UnconsumedQtyBase;
+        "Reserved Quantity (Base)" := 0;
+        "Orig. Quantity (Base)" := -ProdForecastEntry."Forecast Quantity (Base)";
+        Positive := not ("Remaining Quantity (Base)" < 0);
+
+        OnAfterTransferFromForecast(Rec, ProdForecastEntry);
     end;
-#endif
 
 #if not CLEAN25
     [Obsolete('Moved to codeunit SalesAvailabilityMgt', '25.0')]
@@ -558,18 +576,10 @@ table 5530 "Inventory Event Buffer"
     end;
 #endif
 
-#if not CLEAN25
-    internal procedure RunOnAfterTransferFromForecast(var InventoryEventBuffer: Record "Inventory Event Buffer"; ProdForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry")
-    begin
-        OnAfterTransferFromForecast(InventoryEventBuffer, ProdForecastEntry);
-    end;
-
-    [Obsolete('Replaced by event in codeunit ProdOrderAvailabilityMgt', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferFromForecast(var InventoryEventBuffer: Record "Inventory Event Buffer"; ProdForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry")
     begin
     end;
-#endif
 
 #if not CLEAN25
     internal procedure RunOnAfterTransferFromSalesBlanketOrder(var InventoryEventBuffer: Record "Inventory Event Buffer"; SalesLine: Record Microsoft.Sales.Document."Sales Line")

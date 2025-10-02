@@ -11,7 +11,6 @@ codeunit 147532 "Cartera Recv. Exported Formats"
         Assert: Codeunit Assert;
         LibraryBillGroupExportN19: Codeunit "Library Bill Group Export N19";
         LibraryBillGroupExportN32: Codeunit "Library Bill Group Export N32";
-        LibraryBillGroupExportN58: Codeunit "Library Bill Group Export N58";
         LibraryCarteraReceivables: Codeunit "Library - Cartera Receivables";
         LibrarySales: Codeunit "Library - Sales";
         LibraryTextFileValidation: Codeunit "Library - Text File Validation";
@@ -432,135 +431,6 @@ codeunit 147532 "Cartera Recv. Exported Formats"
         Assert.AreEqual(AmountAsText, LibraryBillGroupExportN32.ReadTotalAmount(Line), StrSubstNo('Amount is wrong'));
     end;
 
-    local procedure ValidateN58ExportHeader(Line: Text[1024]; ExpectedBankSuffix: Code[3]; CompanyBankAccount: Record "Bank Account")
-    var
-        CompanyInformation: Record "Company Information";
-        Suffix: Record Suffix;
-        VatRegNo: Text[9];
-    begin
-        CompanyInformation.Get();
-        VatRegNo := CopyStr(DelChr(CompanyInformation."VAT Registration No.", '=', ' .-/'), 1, 9);
-
-        // Validate N58 Header
-        Assert.AreEqual('5170', LibraryBillGroupExportN58.ReadLineTag(Line), IncorrectLineTagErr);
-
-        Assert.AreEqual(VatRegNo, LibraryBillGroupExportN58.ReadCompanyVATRegNo(Line),
-          StrSubstNo('%1 is wrong.', CompanyInformation.FieldCaption("VAT Registration No.")));
-
-        Assert.AreEqual(ExpectedBankSuffix, LibraryBillGroupExportN58.ReadBankSuffix(Line),
-          StrSubstNo('%1 is wrong.', Suffix.FieldCaption(Suffix)));
-
-        Assert.AreEqual(Format(WorkDate(), 6, 5), LibraryBillGroupExportN58.ReadHeaderPostingDate(Line), IncorrectPostingDateErr);
-
-        Assert.AreEqual(PadStr(CompanyInformation.Name, 40, ' '), LibraryBillGroupExportN58.ReadHeaderCompanyName(Line),
-          StrSubstNo('%1 is wrong.', CompanyInformation.FieldCaption(Name)));
-
-        Assert.AreEqual(CompanyBankAccount."CCC Bank No.", LibraryBillGroupExportN58.ReadHeaderBankNo(Line),
-          StrSubstNo('%1 is wrong.', CompanyBankAccount.FieldCaption("CCC Bank No.")));
-
-        Assert.AreEqual(CompanyBankAccount."CCC Bank Branch No.", LibraryBillGroupExportN58.ReadHeaderBankBranchNo(Line),
-          StrSubstNo('%1 is wrong.', CompanyBankAccount.FieldCaption("CCC Bank Branch No.")));
-    end;
-
-    local procedure ValidateN58ExportBillGroup(Line: Text[1024]; SuffixValue: Code[3]; CompanyBankAccount: Record "Bank Account")
-    var
-        CompanyInformation: Record "Company Information";
-        Suffix: Record Suffix;
-    begin
-        CompanyInformation.Get();
-
-        // Validate N58 Bill Group
-        Assert.AreEqual('5370', LibraryBillGroupExportN58.ReadLineTag(Line), IncorrectLineTagErr);
-
-        Assert.AreEqual(CompanyInformation."VAT Registration No.", LibraryBillGroupExportN58.ReadCompanyVATRegNo(Line),
-          StrSubstNo('%1 is wrong.', CompanyInformation.FieldCaption("VAT Registration No.")));
-
-        Assert.AreEqual(SuffixValue, LibraryBillGroupExportN58.ReadBankSuffix(Line),
-          StrSubstNo('%1 is wrong.', Suffix.FieldCaption(Suffix)));
-
-        Assert.AreEqual(Format(WorkDate(), 6, 5), LibraryBillGroupExportN58.ReadBillGroupPostingDate(Line), IncorrectPostingDateErr);
-
-        Assert.AreEqual(CompanyBankAccount."CCC Bank No.", LibraryBillGroupExportN58.ReadBillGroupBankNo(Line),
-          StrSubstNo('%1 is wrong.', CompanyBankAccount.FieldCaption("CCC Bank No.")));
-
-        Assert.AreEqual(CompanyBankAccount."CCC Bank Branch No.", LibraryBillGroupExportN58.ReadBillGroupBankBranchNo(Line),
-          StrSubstNo('%1 is wrong.', CompanyBankAccount.FieldCaption("CCC Bank Branch No.")));
-
-        Assert.AreEqual(CompanyBankAccount."CCC Control Digits", LibraryBillGroupExportN58.ReadBillGroupBankControlDigits(Line),
-          StrSubstNo('%1 is wrong.', CompanyBankAccount.FieldCaption("CCC Control Digits")));
-
-        Assert.AreEqual(CompanyBankAccount."CCC Bank Account No.", LibraryBillGroupExportN58.ReadBillGroupBankAccountNo(Line),
-          StrSubstNo('%1 is wrong.', CompanyBankAccount.FieldCaption("CCC Bank Account No.")));
-    end;
-
-    local procedure ValidateN58ExportTransaction(Line: Text[1024]; SuffixValue: Code[3]; DocNumber: Code[20]; DocAmount: Decimal; Customer: Record Customer)
-    var
-        CompanyInformation: Record "Company Information";
-        Suffix: Record Suffix;
-        AmountAsText: Text[10];
-    begin
-        CompanyInformation.Get();
-        AmountAsText := LibraryBillGroupExportN58.EuroAmount(DocAmount);
-
-        // Validate Cartera Doc
-        Assert.AreEqual('5670', LibraryBillGroupExportN58.ReadLineTag(Line), IncorrectLineTagErr);
-
-        Assert.AreEqual(CompanyInformation."VAT Registration No.", LibraryBillGroupExportN58.ReadCompanyVATRegNo(Line),
-          StrSubstNo('%1 is wrong.', CompanyInformation.FieldCaption("VAT Registration No.")));
-
-        Assert.AreEqual(SuffixValue, LibraryBillGroupExportN58.ReadBankSuffix(Line),
-          StrSubstNo('%1 is wrong.', Suffix.FieldCaption(Suffix)));
-
-        Assert.AreEqual(PadStr(Customer.Name, 40, ' '), LibraryBillGroupExportN58.ReadCarteraDocCustomerName(Line),
-          StrSubstNo('%1 is wrong.', Customer.FieldCaption(Name)));
-
-        Assert.AreEqual(PadStr('', 20, '0'), LibraryBillGroupExportN58.ReadCarteraDocCustomerBankNo(Line) +
-          LibraryBillGroupExportN58.ReadCarteraDocCustomerBankBranchNo(Line) +
-          LibraryBillGroupExportN58.ReadCarteraDocCustomerBankControlDigits(Line) +
-          LibraryBillGroupExportN58.ReadCarteraDocCustomerBankAccountNo(Line),
-          StrSubstNo('Document part related to CustomerBankAccount information is incorrect.'));
-
-        Assert.AreEqual(PadStr(DocNumber + '/1', 10, ' '),
-          LibraryBillGroupExportN58.ReadCarteraDocNumber(Line), IncorrectDocNoErr);
-        Assert.AreEqual(AmountAsText, LibraryBillGroupExportN58.ReadCarteraDocAmount(Line), IncorrectAmountErr);
-    end;
-
-    local procedure ValidateN58ExportTotal(Line: Text[1024]; SuffixValue: Code[3]; TotalAmount: Decimal)
-    var
-        CompanyInformation: Record "Company Information";
-        Suffix: Record Suffix;
-        AmountAsText: Text[10];
-    begin
-        CompanyInformation.Get();
-        AmountAsText := LibraryBillGroupExportN58.EuroAmount(TotalAmount);
-
-        // Validate Cartera Doc Total
-        Assert.AreEqual('5870', LibraryBillGroupExportN58.ReadLineTag(Line), IncorrectLineTagErr);
-        Assert.AreEqual(CompanyInformation."VAT Registration No.", LibraryBillGroupExportN58.ReadCompanyVATRegNo(Line),
-          StrSubstNo('%1 is wrong.', CompanyInformation.FieldCaption("VAT Registration No.")));
-        Assert.AreEqual(SuffixValue, LibraryBillGroupExportN58.ReadBankSuffix(Line),
-          StrSubstNo('%1 is wrong.', Suffix.FieldCaption(Suffix)));
-        Assert.AreEqual(AmountAsText, LibraryBillGroupExportN58.ReadCarteraDocAmount(Line), IncorrectTotalAmountErr);
-    end;
-
-    local procedure ValidateN58ExportFooter(Line: Text[1024]; SuffixValue: Code[3]; GrandTotalAmount: Decimal)
-    var
-        CompanyInformation: Record "Company Information";
-        Suffix: Record Suffix;
-        AmountAsText: Text[10];
-    begin
-        CompanyInformation.Get();
-        AmountAsText := LibraryBillGroupExportN58.EuroAmount(GrandTotalAmount);
-
-        // Validate Total Amount
-        Assert.AreEqual('5970', LibraryBillGroupExportN58.ReadLineTag(Line), IncorrectLineTagErr);
-        Assert.AreEqual(CompanyInformation."VAT Registration No.", LibraryBillGroupExportN58.ReadCompanyVATRegNo(Line),
-          StrSubstNo('%1 is wrong.', CompanyInformation.FieldCaption("VAT Registration No.")));
-        Assert.AreEqual(SuffixValue, LibraryBillGroupExportN58.ReadBankSuffix(Line),
-          StrSubstNo('%1 is wrong.', Suffix.FieldCaption(Suffix)));
-        Assert.AreEqual(AmountAsText, LibraryBillGroupExportN58.ReadCarteraDocAmount(Line), 'GrandIncorrectTotalAmountErr');
-    end;
-
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
@@ -568,4 +438,3 @@ codeunit 147532 "Cartera Recv. Exported Formats"
         Reply := true;
     end;
 }
-

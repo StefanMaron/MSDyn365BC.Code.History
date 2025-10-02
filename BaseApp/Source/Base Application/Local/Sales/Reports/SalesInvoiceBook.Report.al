@@ -14,7 +14,6 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.History;
-using Microsoft.Service.History;
 using System.Utilities;
 
 report 10704 "Sales Invoice Book"
@@ -589,6 +588,8 @@ report 10704 "Sales Invoice Book"
                     end;
 
                     trigger OnPreDataItem()
+                    var
+                        ShouldExit: Boolean;
                     begin
                         if SortVATDate then
                             SetCurrentKey(Type, "VAT Reporting Date", "Document Type", "Document No.", "Bill-to/Pay-to No.")
@@ -608,31 +609,29 @@ report 10704 "Sales Invoice Book"
                         end;
 
                         case VATEntry."Document Type" of
-                            "Document Type"::"Credit Memo":
+                            VATEntry."Document Type"::"Credit Memo":
                                 begin
                                     if SalesCrMemoHeader.Get(VATEntry."Document No.") then begin
                                         Customer.Name := SalesCrMemoHeader."Bill-to Name";
                                         Customer."VAT Registration No." := SalesCrMemoHeader."VAT Registration No.";
                                         exit;
                                     end;
-                                    if ServiceCrMemoHeader.Get(VATEntry."Document No.") then begin
-                                        Customer.Name := ServiceCrMemoHeader."Bill-to Name";
-                                        Customer."VAT Registration No." := ServiceCrMemoHeader."VAT Registration No.";
+                                    ShouldExit := false;
+                                    OnAfterUpdateCustomerData(VATEntry, Customer, ShouldExit);
+                                    if ShouldExit then
                                         exit;
-                                    end;
                                 end;
-                            "Document Type"::Invoice:
+                            VATEntry."Document Type"::Invoice:
                                 begin
                                     if SalesInvHeader.Get(VATEntry."Document No.") then begin
                                         Customer.Name := SalesInvHeader."Bill-to Name";
                                         Customer."VAT Registration No." := SalesInvHeader."VAT Registration No.";
                                         exit;
                                     end;
-                                    if ServiceInvHeader.Get(VATEntry."Document No.") then begin
-                                        Customer.Name := ServiceInvHeader."Bill-to Name";
-                                        Customer."VAT Registration No." := ServiceInvHeader."VAT Registration No.";
+                                    ShouldExit := false;
+                                    OnAfterUpdateCustomerData(VATEntry, Customer, ShouldExit);
+                                    if ShouldExit then
                                         exit;
-                                    end;
                                 end;
                         end;
 
@@ -1248,8 +1247,6 @@ report 10704 "Sales Invoice Book"
         VarNotAmountReverse: Decimal;
         DocType: Text[30];
         Text1100005: Label 'Corrective Invoice';
-        ServiceInvHeader: Record "Service Invoice Header";
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Sales_Invoice_BookCaptionLbl: Label 'Sales Invoice Book';
         Document_No_CaptionLbl: Label 'Document No.';
@@ -1288,5 +1285,10 @@ report 10704 "Sales Invoice Book"
         NoTaxableText: Text;
         NoTaxablePrinted: Boolean;
         OnlyIncludeSIIDocuments: Boolean;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateCustomerData(VATEntry: Record "VAT Entry"; var Customer: Record Customer; var ShouldExit: Boolean)
+    begin
+    end;
 }
 

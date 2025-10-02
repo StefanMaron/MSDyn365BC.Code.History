@@ -17,8 +17,6 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
 using System.Environment.Configuration;
 
 codeunit 10756 "SII Management"
@@ -846,15 +844,15 @@ codeunit 10756 "SII Management"
                          SalesInvoiceHeader."Invoice Type"::"R5 Corrected Invoice in Simplified Invoices".AsInteger()]);
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit Serv. SII Management', '27.0')]
     procedure IsAllowedServInvType(InvType: Option): Boolean
     var
-        ServiceInvoiceHeader: Record "Service Invoice Header";
+        ServSIIManagement: Codeunit Microsoft.EServices.EDocument."Serv. SII Management";
     begin
-        exit(InvType in [ServiceInvoiceHeader."Invoice Type"::"F1 Invoice".AsInteger(),
-                         ServiceInvoiceHeader."Invoice Type"::"F2 Simplified Invoice".AsInteger(),
-                         ServiceInvoiceHeader."Invoice Type"::"F3 Invoice issued to replace simplified invoices".AsInteger(),
-                         ServiceInvoiceHeader."Invoice Type"::"F4 Invoice summary entry".AsInteger()]);
+        exit(ServSIIManagement.IsAllowedServInvType(InvType));
     end;
+#endif
 
     procedure Run347DeclarationToGenerateCollectionsInCash()
     var
@@ -870,13 +868,17 @@ codeunit 10756 "SII Management"
           GetSalesSpecialSchemeCode(SalesHeader."Bill-to Customer No.", SalesHeader."VAT Country/Region Code");
     end;
 
-    procedure UpdateSIIInfoInServiceDoc(var ServiceHeader: Record "Service Header")
+#if not CLEAN27
+    [Obsolete('Moved to codeunit Serv. SII Management', '27.0')]
+    procedure UpdateSIIInfoInServiceDoc(var ServiceHeader: Record Microsoft.Service.Document."Service Header")
+    var
+        ServSIIManagement: Codeunit Microsoft.EServices.EDocument."Serv. SII Management";
     begin
-        ServiceHeader."Special Scheme Code" :=
-          GetSalesSpecialSchemeCode(ServiceHeader."Bill-to Customer No.", ServiceHeader."VAT Country/Region Code");
+        ServSIIManagement.UpdateSIIInfoInServiceDoc(ServiceHeader);
     end;
+#endif
 
-    local procedure GetSalesSpecialSchemeCode(BillToCustomerNo: Code[20]; VATCountryRegionCode: Code[10]): Enum "SII Sales Special Scheme Code"
+    procedure GetSalesSpecialSchemeCode(BillToCustomerNo: Code[20]; VATCountryRegionCode: Code[10]): Enum "SII Sales Special Scheme Code"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         Customer: Record Customer;

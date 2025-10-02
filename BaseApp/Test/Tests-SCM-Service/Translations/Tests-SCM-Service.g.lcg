@@ -23,6 +23,33 @@
       <Cmt Name="Dev"><![CDATA[%1 is a document number]D;]A;(Namespace=Microsoft.Service.Archive)(LookupHint=Codeunit Reten. Pol. Service Doc. Arch. - NamedType ArchiveServiceDocQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4132516129 - NamedType 1596641409" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 %2 must not be blocked with type %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Job Consumption Service - NamedType JobBlockedError)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4132516129 - NamedType 270244598" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot undo consumption on the line because it has been already posted to Projects.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Job Consumption Service - NamedType UndoConsumptionJobError)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4132516129 - NamedType 3098962420" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unknown error.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Job Consumption Service - NamedType UnknownError)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 250188722 - NamedType 3420941840" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 and %2 must match.]]></Val>

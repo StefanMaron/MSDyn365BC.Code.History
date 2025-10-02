@@ -1,15 +1,11 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Posting;
 
-using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
-#if not CLEAN24
-using Microsoft.Finance.GeneralLedger.Journal;
-#endif
 using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.VAT.Calculation;
@@ -26,7 +22,6 @@ using Microsoft.Projects.Project.Posting;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.TimeSheet;
 using Microsoft.Sales.Customer;
-using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Setup;
 using Microsoft.Service.Document;
 using Microsoft.Service.History;
@@ -63,7 +58,6 @@ codeunit 5987 "Serv-Posting Journals Mgt."
 #if not CLEAN26
         ServiceLinePostingDate: Date;
 #endif
-        CannotCreateCarteraDocErr: Label 'You do not have permissions to create Documents in Cartera.\Please, change the Payment Method.';
 
     procedure Initialize(var TempServHeader: Record "Service Header"; TmpConsume: Boolean; TmpInvoice: Boolean)
     var
@@ -655,13 +649,16 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     end;
 #endif
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit ServicePostingSubscrES', '27.0')]
     [Scope('OnPrem')]
     procedure CreateBills(var TotalServiceLine: Record "Service Line"; var Window: Dialog; GenJnlLineDocNo: Code[20]; GenJnlLineExtDocNo: Code[35])
     var
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        PaymentMethod: Record "Payment Method";
+        CustLedgEntry: Record Microsoft.Sales.Receivables."Cust. Ledger Entry";
+        PaymentMethod: Record Microsoft.Bank.BankAccount."Payment Method";
         CarteraSetup: Record "Cartera Setup";
         SplitPayment: Codeunit "Invoice-Split Payment";
+        CannotCreateCarteraDocErr: Label 'You do not have permissions to create Documents in Cartera.\Please, change the Payment Method.';
     begin
         CustLedgEntry.Find('+');
         if PaymentMethod.Get(ServiceHeader."Payment Method Code") then
@@ -675,25 +672,6 @@ codeunit 5987 "Serv-Posting Journals Mgt."
               ServiceHeader, CustLedgEntry, Window, SrcCode, GenJnlLineExtDocNo, GenJnlLineDocNo,
               -(TotalServiceLine."Amount Including VAT" - TotalServiceLine.Amount));
     end;
-
-#if not CLEAN24
-    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterPostCustomerEntry(var GenJournalLine: Record "Gen. Journal Line"; var ServiceHeader: Record "Service Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
-    begin
-    end;
-
-    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterPostBalancingEntry(var GenJournalLine: Record "Gen. Journal Line"; var ServiceHeader: Record "Service Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
-    begin
-    end;
-
-    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterPostInvoicePostBuffer(var GenJournalLine: Record "Gen. Journal Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; ServiceHeader: Record "Service Header"; GLEntryNo: Integer; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
-    begin
-    end;
 #endif
 
     [IntegrationEvent(false, false)]
@@ -701,25 +679,6 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforePostCustomerEntry(var GenJournalLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header"; var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; GenJnlLineDocNo: Code[20])
-    begin
-    end;
-
-    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforePostBalancingEntry(var GenJournalLine: Record "Gen. Journal Line"; var ServiceHeader: Record "Service Header"; var TotalServiceLine: Record "Service Line")
-    begin
-    end;
-
-    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforePostInvoicePostBuffer(var GenJournalLine: Record "Gen. Journal Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; ServiceHeader: Record "Service Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ServiceShipmentHeader: Record "Service Shipment Header"; ServiceLine: Record "Service Line"; GenJnlLineDocNo: Code[20]; QtyToBeShipped: Decimal; QtyToBeShippedBase: Decimal; QtyToBeInvoiced: Decimal; QtyToBeInvoicedBase: Decimal)
@@ -736,10 +695,18 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnCreateBillsOnBeforeSplitServiceInv(ServiceHeader: Record "Service Header"; var CustLedgerEntry: Record Microsoft.Sales.Receivables."Cust. Ledger Entry"; var TotalServiceLine: Record "Service Line")
+    begin
+        OnCreateBillsOnBeforeSplitServiceInv(ServiceHeader, CustLedgerEntry, TotalServiceLine);
+    end;
+
+    [Obsolete('Moved to codeunit ServicePostingSubscrES', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnCreateBillsOnBeforeSplitServiceInv(ServiceHeader: Record "Service Header"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var TotalServiceLine: Record "Service Line")
+    local procedure OnCreateBillsOnBeforeSplitServiceInv(ServiceHeader: Record "Service Header"; var CustLedgerEntry: Record Microsoft.Sales.Receivables."Cust. Ledger Entry"; var TotalServiceLine: Record "Service Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemJnlLineOnBeforeCreateWhseJnlLine(var ItemJournalLine: Record "Item Journal Line"; ServiceHeader: Record "Service Header"; var ShouldCreateWhseJnlLine: Boolean; ServiceShipmentHeader: Record "Service Shipment Header"; var ServiceLine: Record "Service Line"; var TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary; var WhsePosting: Boolean; var CheckApplFromItemEntry: Boolean);
@@ -761,13 +728,6 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     begin
     end;
 
-#if not CLEAN24
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '23.0')]
-    local procedure OnPostBalancingEntryOnBeforeFindCustLedgerEntry(var ServiceHeader: Record "Service Header"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostItemJnlLine(ServiceHeader: Record "Service Header"; var ItemJournalLine: Record "Item Journal Line"; var TempHandlingTrackingSpecification: Record "Tracking Specification")
@@ -789,4 +749,3 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     begin
     end;
 }
-

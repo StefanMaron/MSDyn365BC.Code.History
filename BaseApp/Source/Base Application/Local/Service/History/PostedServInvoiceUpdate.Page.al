@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN27
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -17,6 +18,9 @@ page 10768 "Posted Serv. Invoice - Update"
     ShowFilter = false;
     SourceTable = "Service Invoice Header";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Replaced by W1 page Posted Service Inv. Update';
+    ObsoleteState = Pending;
+    ObsoleteTag = '27.0';
 
     layout
     {
@@ -215,4 +219,4 @@ page 10768 "Posted Serv. Invoice - Update"
     begin
     end;
 }
-
+#endif

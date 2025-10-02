@@ -1133,7 +1133,7 @@ codeunit 134386 "ERM Sales Documents II"
     end;
 
     [Test]
-    [HandlerFunctions('GetShipmentLinesHandler,SendNotificationHandler,NotificationDetailsHandler,RecallNotificationHandler')]
+    [HandlerFunctions('GetShipmentLinesHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure CheckCreditLimitCustomerTotalAmount()
     var
@@ -2731,7 +2731,7 @@ codeunit 134386 "ERM Sales Documents II"
         // [GIVEN] Customer "C" where Bill-to Customer "B" has Name "N"
         CreateCustomerWithBillToCustomer(Customer, CustomerBillTo);
 
-        // [GIVEN] Create Ship-to Address for Customer "C" and assigne as default "Ship-to Address"        
+        // [GIVEN] Create Ship-to Address for Customer "C" and assigne as default "Ship-to Address"
         LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
         if ShipToAddress."Shipment Method Code" = '' then begin
             ShipToAddress.Validate("Shipment Method Code", CreateShipmentMethod());
@@ -4012,7 +4012,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesOrder: TestPage "Sales Order";
     begin
         // [FEATURE] [UI]
-        // [SCENARIO 414694] When user change Sell-to Contact No. in Sales Order card then contact info must be updated 
+        // [SCENARIO 414694] When user change Sell-to Contact No. in Sales Order card then contact info must be updated
         Initialize();
 
         // [GIVEN] Customer with two contacts
@@ -4464,7 +4464,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesLine: Record "Sales Line";
         SalesOrder: TestPage "Sales Order";
     begin
-        // [SCENARIO 468735] Verify Invoice Discount Value on Sales Header after updating Posting Date on Sales Order with Line Discount 
+        // [SCENARIO 468735] Verify Invoice Discount Value on Sales Header after updating Posting Date on Sales Order with Line Discount
         Initialize();
 
         // [GIVEN] Create Sales Header
@@ -4482,7 +4482,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesOrder.SalesLines."Invoice Discount Amount".SetValue(100);
         SalesOrder.Close();
 
-        // [GIVEN] Set Line Discount on first Sales Line        
+        // [GIVEN] Set Line Discount on first Sales Line
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
         SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", 10000);
         SalesLine.SetSalesHeader(SalesHeader);
@@ -4498,37 +4498,6 @@ codeunit 134386 "ERM Sales Documents II"
         SalesOrder.OpenEdit();
         SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
         SalesOrder.SalesLines."Invoice Discount Amount".AssertEquals(SalesHeader."Invoice Discount Value");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure UpdateExtendedTextTypeNotAllowed()
-    var
-        Item: Record Item;
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-    begin
-        // [SCENARIO 564049] Error message when adding a sales line with type Item that have extended text previously
-        Initialize();
-
-        // [GIVEN] Item "X" with Extended Text
-        CreateItemAndExtendedText(Item);
-
-        // [GIVEN] Create Sales Header
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
-
-        // [GIVEN] Sales Line with Item, second Sales Line with Extended Text
-        CreateSalesLineWithExtendedText(SalesHeader, Item."No.");
-
-        // [WHEN] Get extended text Sales Line 
-        SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindLast();
-
-        // [THEN] Error come when try to change type of extended text Sales line
-        asserterror SalesLine.Validate(Type, SalesLine.Type::Item);
-
-        // [THEN] Verify the error of extended text
-        Assert.ExpectedError(StrSubstNo(ChangeExtendedTextErr, SalesLine.FieldCaption(Type)));
     end;
 
     [HandlerFunctions('CustomerLookupHandler,ConfirmHandlerYes')]
@@ -4575,7 +4544,7 @@ codeunit 134386 "ERM Sales Documents II"
         // [THEN] Verify Sales Invoice "Email" = "contact2@mail.com"
         SalesInvoice.BillToContactEmail.AssertEquals(Contact[2]."E-Mail");
     end;
-    
+
     [Test]
     [HandlerFunctions('ContactListPageHandler,ConfirmHandlerYes')]
     procedure ShipToContactUpdateFromAlternateShippingAddressContact()
@@ -4612,6 +4581,36 @@ codeunit 134386 "ERM Sales Documents II"
         Assert.AreEqual(ShipToAddress.Contact, SalesHeader."Ship-to Contact", ' ');
     end;
 
+    [Scope('OnPrem')]
+    procedure UpdateExtendedTextTypeNotAllowed()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 564049] Error message when adding a sales line with type Item that have extended text previously
+        Initialize();
+
+        // [GIVEN] Item "X" with Extended Text
+        CreateItemAndExtendedText(Item);
+
+        // [GIVEN] Create Sales Header
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Sales Line with Item, second Sales Line with Extended Text
+        CreateSalesLineWithExtendedText(SalesHeader, Item."No.");
+
+        // [WHEN] Get extended text Sales Line
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindLast();
+
+        // [THEN] Error come when try to change type of extended text Sales line
+        asserterror SalesLine.Validate(Type, SalesLine.Type::Item);
+
+        // [THEN] Verify the error of extended text
+        Assert.ExpectedError(StrSubstNo(ChangeExtendedTextErr, SalesLine.FieldCaption(Type)));
+    end;
+
     [Test]
     [HandlerFunctions('ConfirmHandlerYes')]
     procedure UpdateEmailAndPhoneNoAfterChangeSelltoContactfieldinSalesQuote()
@@ -4622,7 +4621,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesHeader: Record "Sales Header";
         SalesQuote: TestPage "Sales Quote";
     begin
-        // [SCENARIO 564179] Email and Phone No. must be updated when change sell-to contact on sales Quote. 
+        // [SCENARIO 564179] Email and Phone No. must be updated when change sell-to contact on sales Quote.
         Initialize();
 
         // [GIVEN] Create Two Contacts with Customer
@@ -5882,7 +5881,7 @@ codeunit 134386 "ERM Sales Documents II"
         Customer.Validate("Credit Limit (LCY)", CreditLimit);
         Customer.Modify(true);
     end;
-
+#if not CLEAN25
     local procedure OpenAndUpdateSalesInvoicePage(var SalesInvoice: TestPage "Sales Invoice"; SalesInvoiceNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     var
         SalesLine: Record "Sales Line";
@@ -5893,7 +5892,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesInvoice.SalesLines."No.".SetValue(ItemNo);
         SalesInvoice.SalesLines.Quantity.SetValue(Quantity);
     end;
-
+#endif
     local procedure OpenSalesOrderPageWithNewOrder(CustomerNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
@@ -5990,14 +5989,6 @@ codeunit 134386 "ERM Sales Documents II"
         REPORT.SaveAsExcel(REPORT::"Archived Sales Quote", LibraryReportValidation.GetFileName(), SalesHeaderArchive);
     end;
 
-    local procedure RunArchivedSalesOrderReport(SalesHeader: Record "Sales Header")
-    var
-        SalesHeaderArchive: Record "Sales Header Archive";
-    begin
-        FindSalesHeaderArchive(SalesHeaderArchive, SalesHeader);
-        REPORT.SaveAsExcel(REPORT::"Archived Sales Order", LibraryReportValidation.GetFileName(), SalesHeaderArchive);
-    end;
-
     local procedure RunArchivedSalesOrderReportAsXml(SalesHeader: Record "Sales Header")
     var
         SalesHeaderArchive: Record "Sales Header Archive";
@@ -6020,13 +6011,13 @@ codeunit 134386 "ERM Sales Documents II"
         Customer.Validate(City, PostCode.City);
         Customer.Modify(true);
     end;
-
+#if not CLEAN25
     local procedure UpdateCreditLimitInCustomer(var Customer: Record Customer; CreditLimitAmount: Decimal)
     begin
         Customer.Validate("Credit Limit (LCY)", CreditLimitAmount);
         Customer.Modify(true);
     end;
-
+#endif
     local procedure UpdateSalesReceivablesSetup(NewStockOutWarning: Boolean; CreditWarning: Option)
     var
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
@@ -6321,7 +6312,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesLine.TestField(Quantity, SalesInvoiceLine.Quantity);
         SalesLine.TestField("Unit Price", SalesInvoiceLine."Unit Price");
     end;
-
+#if not CLEAN25
     local procedure VerifyUnitPriceAndLineDiscountOnSalesLine(SalesLine: Record "Sales Line"; Quantity: Decimal; UnitPrice: Decimal; LineDiscountPercentage: Decimal)
     var
         SalesLine2: Record "Sales Line";
@@ -6334,7 +6325,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesLine2.TestField("Unit Price", UnitPrice);
         SalesLine2.TestField("Line Discount %", LineDiscountPercentage);
     end;
-
+#endif
     local procedure VerifyVATEntry(DocumentNo: Code[20]; Amount: Decimal)
     var
         VATEntry: Record "VAT Entry";
@@ -6830,4 +6821,3 @@ codeunit 134386 "ERM Sales Documents II"
         ContactList.New();
     end;
 }
-

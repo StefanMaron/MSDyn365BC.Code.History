@@ -877,52 +877,6 @@ page 5939 "Serv. Apply Customer Entries"
         OnAfterSetApplyingCustLedgEntryServiceHeader(TempApplyingCustLedgEntry, ServHeader);
     end;
 
-    local procedure SetApplyingCustLedgEntryGenJnlLine()
-    var
-        Customer: Record Customer;
-    begin
-        TempApplyingCustLedgEntry."Entry No." := 1;
-        TempApplyingCustLedgEntry."Posting Date" := GenJnlLine."Posting Date";
-        TempApplyingCustLedgEntry."Document Type" := GenJnlLine."Document Type";
-        TempApplyingCustLedgEntry."Document No." := GenJnlLine."Document No.";
-        if GenJnlLine."Bal. Account Type" = GenJnlLine."Account Type"::Customer then begin
-            TempApplyingCustLedgEntry."Customer No." := GenJnlLine."Bal. Account No.";
-            Customer.Get(TempApplyingCustLedgEntry."Customer No.");
-            TempApplyingCustLedgEntry.Description := Customer.Name;
-        end else begin
-            TempApplyingCustLedgEntry."Customer No." := GenJnlLine."Account No.";
-            TempApplyingCustLedgEntry.Description := GenJnlLine.Description;
-        end;
-        TempApplyingCustLedgEntry."Currency Code" := GenJnlLine."Currency Code";
-        TempApplyingCustLedgEntry.Amount := GenJnlLine.Amount;
-        TempApplyingCustLedgEntry."Remaining Amount" := GenJnlLine.Amount;
-
-        OnAfterSetApplyingCustLedgEntryGenJnlLine(TempApplyingCustLedgEntry, GenJnlLine);
-    end;
-
-    local procedure SetApplyingCustledgEntryDirect()
-    begin
-        if Rec."Applying Entry" then begin
-            if TempApplyingCustLedgEntry."Entry No." <> 0 then
-                CustLedgEntry := TempApplyingCustLedgEntry;
-            CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", Rec);
-            if Rec."Applies-to ID" = '' then
-                SetCustApplId(false);
-            Rec.CalcFields(Amount);
-            TempApplyingCustLedgEntry := Rec;
-            if CustLedgEntry."Entry No." <> 0 then begin
-                Rec := CustLedgEntry;
-                Rec."Applying Entry" := false;
-                SetCustApplId(false);
-            end;
-            Rec.SetFilter("Entry No.", '<> %1', TempApplyingCustLedgEntry."Entry No.");
-            ApplyingAmount := TempApplyingCustLedgEntry."Remaining Amount";
-            ApplnDate := TempApplyingCustLedgEntry."Posting Date";
-            ApplnCurrencyCode := TempApplyingCustLedgEntry."Currency Code";
-        end;
-        OnSetApplyingCustLedgEntryOnBeforeCalcTypeDirectCalcApplnAmount(Rec, ApplyingAmount, TempApplyingCustLedgEntry);
-    end;
-
     procedure SetCustApplId(CurrentRec: Boolean)
     begin
         CurrPage.SetSelectionFilter(CustLedgEntry);
@@ -1644,11 +1598,13 @@ page 5939 "Serv. Apply Customer Entries"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('This event is never raised.', '27.0')]
     [IntegrationEvent(true, false)]
     local procedure OnSetApplyingCustLedgEntryOnBeforeCalcTypeDirectCalcApplnAmount(var CustLedgerEntry: Record "Cust. Ledger Entry"; var ApplyingAmount: Decimal; var TempApplyingCustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
-
+#endif
     [IntegrationEvent(true, false)]
     local procedure OnOnQueryClosePageOnBeforeRunCustEntryEdit(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
@@ -1669,11 +1625,13 @@ page 5939 "Serv. Apply Customer Entries"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('This event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetApplyingCustLedgEntryGenJnlLine(var TempApplyingCustLedgEntry: Record "Cust. Ledger Entry" temporary; var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnExchangeLedgerEntryAmountsOnBeforeCalculateAmounts(var CalcCustLedgerEntry: Record "Cust. Ledger Entry"; CustLedgerEntry: Record "Cust. Ledger Entry"; CurrencyCode: Code[10]; CalculateCurrency: Boolean; var IsHandled: Boolean)
     begin

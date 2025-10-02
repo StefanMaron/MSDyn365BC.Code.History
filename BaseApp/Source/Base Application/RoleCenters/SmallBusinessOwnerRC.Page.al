@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -98,30 +98,10 @@ page 9020 "Small Business Owner RC"
                 {
                     ApplicationArea = Basic, Suite;
                 }
-#if not CLEAN24                
-                part(Control66; "Finance Performance")
-                {
-                    ApplicationArea = Advanced;
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-                    ObsoleteReason = 'Duplicate - see control 69';
-                }
-#endif
                 part(Control70; "Sales Performance")
                 {
                     ApplicationArea = Basic, Suite;
                 }
-#if not CLEAN24                
-                part(Control68; "Sales Performance")
-                {
-                    ApplicationArea = Advanced;
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-                    ObsoleteReason = 'Duplicate - see control 70';
-                }
-#endif
                 part(Control2; "Trailing Sales Orders Chart")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1338,4 +1318,3 @@ page 9020 "Small Business Owner RC"
         }
     }
 }
-

@@ -29,6 +29,7 @@ codeunit 139799 "E-Doc. Helper Test"
         Assert.AreEqual(TempPurchaseLine."Line Discount Amount", 0.55, 'Line Discount Amount does not equal');
     end;
 
+
     [Test]
     procedure ValidateDonotFindVendor()
     var
@@ -38,5 +39,4 @@ codeunit 139799 "E-Doc. Helper Test"
         VendorNo := EDocumentImportHelper.FindVendor('', '', '');
         Assert.IsTrue(VendorNo = '', 'Vendor No. should be empty');
     end;
-
 }

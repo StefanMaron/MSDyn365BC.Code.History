@@ -216,7 +216,7 @@ codeunit 137005 "SCM WMS regressions"
         ChangeUOMOnProdLine(ProductionOrder, KGConst);
 
         // Step 5 - Create the inbound whse req for the PO
-        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+        LibraryManufacturing.CreateInboundWhseReqFromProdOrder(ProductionOrder);
 
         // Step 6 - create the inventory put-away
         WarehouseRequest.SetFilter("Source Document", '%1|%2',
@@ -530,7 +530,7 @@ codeunit 137005 "SCM WMS regressions"
     var
         WarehouseRequest: Record "Warehouse Request";
     begin
-        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+        LibraryManufacturing.CreateInboundWhseReqFromProdOrder(ProductionOrder);
         LibraryWarehouse.CreateInvtPutPickMovement(
           WarehouseRequest."Source Document"::"Prod. Output", ProductionOrder."No.", true, false, false);
     end;

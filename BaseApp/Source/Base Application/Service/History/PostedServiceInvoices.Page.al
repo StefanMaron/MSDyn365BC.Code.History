@@ -182,35 +182,6 @@ page 5977 "Posted Service Invoices"
                     ToolTip = 'Specifies the location, such as warehouse or distribution center, from which the service was shipped.';
                     Visible = true;
                 }
-                field("SII Status"; Rec."SII Status")
-                {
-                    ApplicationArea = Basic, Suite;
-                    StyleExpr = StyleText;
-                    ToolTip = 'Specifies the document''s status with regard to tax declaration, the Immediate Information Supply requirement. ';
-                    Visible = SIIStateVisible;
-
-                    trigger OnDrillDown()
-                    var
-                        SIIDocUploadState: Record "SII Doc. Upload State";
-                        SIIManagement: Codeunit "SII Management";
-                    begin
-                        SIIDocUploadState.SetRange("Document Source", SIIDocUploadState."Document Source"::"Customer Ledger");
-                        SIIDocUploadState.SetRange("Document Type", SIIDocUploadState."Document Type"::Invoice);
-                        SIIDocUploadState.SetRange("Document No.", Rec."No.");
-                        SIIManagement.SIIStateDrilldown(SIIDocUploadState);
-                    end;
-                }
-                field("Do Not Send To SII"; Rec."Do Not Send To SII")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the document must not be sent to SII.';
-                }
-                field("Sent to SII"; Rec."Sent to SII")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies that the document has been sent to the Immediate Information Supply system.';
-                    Visible = SIIStateVisible;
-                }
                 field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Service;
@@ -371,6 +342,7 @@ page 5977 "Posted Service Invoices"
 
                 trigger OnAction()
                 begin
+                    ServiceInvHeader := Rec;
                     CurrPage.SetSelectionFilter(ServiceInvHeader);
                     ServiceInvHeader.PrintRecords(true);
                 end;
@@ -421,15 +393,15 @@ page 5977 "Posted Service Invoices"
                 ApplicationArea = Service;
                 Caption = 'Update Document';
                 Image = Edit;
-                ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
+                ToolTip = 'Add new information that is relevant to the document, such as a payment reference. You can only edit a few fields because the document has already been posted.';
 
                 trigger OnAction()
                 var
-                    PostedServInvoiceUpdate: Page "Posted Serv. Invoice - Update";
+                    PostedServiceInvUpdate: Page "Posted Service Inv. - Update";
                 begin
-                    PostedServInvoiceUpdate.LookupMode := true;
-                    PostedServInvoiceUpdate.SetRec(Rec);
-                    PostedServInvoiceUpdate.RunModal();
+                    PostedServiceInvUpdate.LookupMode := true;
+                    PostedServiceInvUpdate.SetRec(Rec);
+                    PostedServiceInvUpdate.RunModal();
                 end;
             }
         }
@@ -481,32 +453,23 @@ page 5977 "Posted Service Invoices"
     end;
 
     trigger OnAfterGetRecord()
-    var
-        SIIManagement: Codeunit "SII Management";
     begin
         DocExchStatusStyle := Rec.GetDocExchStatusStyle();
-
-        StyleText := SIIManagement.GetSIIStyle(Rec."SII Status".AsInteger());
     end;
 
     trigger OnOpenPage()
     var
         ServiceInvoiceHeader: Record "Service Invoice Header";
-        SIISetup: Record "SII Setup";
     begin
         Rec.SetSecurityFilterOnRespCenter();
 
         ServiceInvoiceHeader.CopyFilters(Rec);
         ServiceInvoiceHeader.SetFilter("Document Exchange Status", '<>%1', Rec."Document Exchange Status"::"Not Sent");
         DocExchStatusVisible := not ServiceInvoiceHeader.IsEmpty();
-
-        SIIStateVisible := SIISetup.IsEnabled();
     end;
 
     var
         ServiceInvHeader: Record "Service Invoice Header";
         DocExchStatusStyle: Text;
         DocExchStatusVisible: Boolean;
-        StyleText: Text;
-        SIIStateVisible: Boolean;
 }

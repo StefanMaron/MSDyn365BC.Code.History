@@ -1418,6 +1418,7 @@ codeunit 136200 "Marketing Campaign Segments"
         InteractionTemplateCode := InteractionTemplate.Code;  // Set global variable for form handler.
     end;
 
+#if not CLEAN25
     local procedure CreateSalesLine(SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Quantity: Decimal)
     var
         SalesLine: Record "Sales Line";
@@ -1426,7 +1427,6 @@ codeunit 136200 "Marketing Campaign Segments"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
     end;
 
-#if not CLEAN25
     local procedure CreateSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; SalesPrice: Record "Sales Price")
     begin
         LibraryMarketing.CreateSalesLineDiscount(SalesLineDiscount, SalesPrice."Sales Code", SalesPrice."Item No.");
@@ -1470,7 +1470,6 @@ codeunit 136200 "Marketing Campaign Segments"
         SalesPrice.Validate("Unit Price", 10000 + LibraryRandom.RandDec(1000, 2));  // To generate large decimal value.
         SalesPrice.Modify(true);
     end;
-#endif
 
     local procedure ActivatePagePriceLineDiscount(No: Code[20])
     var
@@ -1508,7 +1507,7 @@ codeunit 136200 "Marketing Campaign Segments"
         SalesOrder.FILTER.SetFilter("Document Type", Format(SalesHeader."Document Type"::Order));
         SalesOrder.FILTER.SetFilter("No.", No);
     end;
-
+#endif
     local procedure CreateSegmentHeaderInteraction(var SegmentHeader: Record "Segment Header")
     var
         InteractionTemplate: Record "Interaction Template";
@@ -1533,7 +1532,7 @@ codeunit 136200 "Marketing Campaign Segments"
         SegmentLine.Validate("Contact No.", Contact."No.");
         SegmentLine.Modify(true);
     end;
-
+#if not CLEAN25
     local procedure CreateSegmentWithCampaign(CampaignNo: Code[20]; LinkToTable: Enum "Contact Business Relation Link To Table"; AccountNo: Code[20])
     var
         SegmentHeader: Record "Segment Header";
@@ -1548,7 +1547,7 @@ codeunit 136200 "Marketing Campaign Segments"
 
         ModifyCampaignTargetLines(SegmentHeader."No.");
     end;
-
+#endif
     local procedure CreateSegmentWithContact(var SegmentHeader: Record "Segment Header"; var Contact: Record Contact) SecondContactSalespersonCode: Code[20]
     begin
         LibraryMarketing.CreateSegmentHeader(SegmentHeader);
@@ -1588,13 +1587,14 @@ codeunit 136200 "Marketing Campaign Segments"
         exit(Campaign."No.");
     end;
 
+#if not CLEAN25
     local procedure FindSalesOrderLines(var SalesLine: Record "Sales Line"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.FindSet();
     end;
-
+#endif
     local procedure FindSalespersonPurchaser(): Code[20]
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
@@ -1609,7 +1609,7 @@ codeunit 136200 "Marketing Campaign Segments"
         TempSegmentLine.CheckPhoneCallStatus();
         TempSegmentLine.LogSegLinePhoneCall()
     end;
-
+#if not CLEAN25
     local procedure ModifyCampaignTargetLines(SegmentHeaderNo: Code[20])
     var
         SegmentLine: Record "Segment Line";
@@ -1621,7 +1621,7 @@ codeunit 136200 "Marketing Campaign Segments"
             SegmentLine.Modify(true);
         until SegmentLine.Next() = 0;
     end;
-
+#endif
     local procedure NextStepMakePhoneCallWizard(var TempSegmentLine: Record "Segment Line" temporary)
     begin
         TempSegmentLine.Modify();
@@ -1649,7 +1649,7 @@ codeunit 136200 "Marketing Campaign Segments"
         RemoveContactsReduce.UseRequestPage(false);
         RemoveContactsReduce.RunModal();
     end;
-
+#if not CLEAN25
     local procedure GetContactBusinessRelation(LinkToTable: Enum "Contact Business Relation Link To Table"; AccountNo: Code[20]): Code[20]
     var
         ContBusRelation: Record "Contact Business Relation";
@@ -1659,7 +1659,7 @@ codeunit 136200 "Marketing Campaign Segments"
         ContBusRelation.FindFirst();
         exit(ContBusRelation."Contact No.");
     end;
-
+#endif
     local procedure RunAddContactsWithMailingGroup(SegmentHeader: Record "Segment Header"; ContactMailingGroup: Record "Contact Mailing Group")
     var
         LibraryVariableStorageVariant: Codeunit "Library - Variable Storage";
@@ -1674,6 +1674,7 @@ codeunit 136200 "Marketing Campaign Segments"
         LibraryMarketing.RunAddContactsReport(LibraryVariableStorageVariant, true);
     end;
 
+#if not CLEAN25
     local procedure UpdateCampaign(Campaign: Record Campaign)
     begin
         Campaign.Validate("Starting Date", WorkDate());
@@ -1681,7 +1682,6 @@ codeunit 136200 "Marketing Campaign Segments"
         Campaign.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure UpdateSalesOrderForCampaign(SalesPrice: Record "Sales Price"; No: Code[20]; CustomerName: Text; Quantity: Decimal)
     var
         SalesLine: Record "Sales Line";
@@ -1696,7 +1696,6 @@ codeunit 136200 "Marketing Campaign Segments"
         SalesOrder.SalesLines.Quantity.SetValue(Quantity);
         SalesOrder.OK().Invoke();
     end;
-#endif
 
     local procedure MockInteractionLogEntry(DocType: Enum "Interaction Log Entry Document Type"; DocNo: Code[20]; ContactNo: Code[20])
     var
@@ -1715,7 +1714,7 @@ codeunit 136200 "Marketing Campaign Segments"
         InteractionLogEntry."Interaction Group Code" := InteractionTemplate."Interaction Group Code";
         InteractionLogEntry.Insert();
     end;
-
+#endif
     local procedure VerifyCampaignEntry(InteractionTemplate: Record "Interaction Template"; CampaignNo: Code[20])
     var
         CampaignEntry: Record "Campaign Entry";
@@ -1830,7 +1829,6 @@ codeunit 136200 "Marketing Campaign Segments"
             end;
         until SalesLine.Next() = 0;
     end;
-#endif
 
     local procedure VerifyPriceDiscountDeactivated(SalesHeaderNo: Code[20])
     var
@@ -1844,7 +1842,7 @@ codeunit 136200 "Marketing Campaign Segments"
             SalesLine.TestField("Line Discount %", 0);
         until SalesLine.Next() = 0;
     end;
-
+#endif
     local procedure VerifySalespersonCampaignLines(SegmentHeader: Record "Segment Header")
     var
         SegmentLine: Record "Segment Line";
@@ -1870,7 +1868,7 @@ codeunit 136200 "Marketing Campaign Segments"
             SegmentLine2.TestField("Contact No.", SegmentLine."Contact No.");
         until SegmentLine.Next() = 0;
     end;
-
+#if not CLEAN25
     local procedure VerifyPriceDiscountActivation(SalesOrderNo: Code[20]; UnitPrice: Decimal; LineDiscountPct: Decimal)
     var
         SalesOrder: TestPage "Sales Order";
@@ -1906,7 +1904,7 @@ codeunit 136200 "Marketing Campaign Segments"
         CampaignEntry.SetRange("Campaign No.", CampaignNo);
         Assert.RecordIsEmpty(CampaignEntry);
     end;
-
+#endif
     local procedure VerifySegmentLinesPerContact(SegmentHeader: Record "Segment Header"; var Contact: array[3] of Record Contact; ExpectedCount: Integer; StartIndex: Integer)
     var
         SegmentLine: Record "Segment Line";
@@ -2129,4 +2127,3 @@ codeunit 136200 "Marketing Campaign Segments"
         AddContacts.OK().Invoke();
     end;
 }
-

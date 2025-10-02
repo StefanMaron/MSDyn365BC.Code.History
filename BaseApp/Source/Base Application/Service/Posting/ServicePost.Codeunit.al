@@ -4,17 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Posting;
 
-using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Preview;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.AuditCodes;
-using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Inventory.Analysis;
-using Microsoft.Inventory.Intrastat;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Service.Archive;
@@ -77,13 +74,12 @@ codeunit 5980 "Service-Post"
         Text002: Label 'Posting lines              #2######\';
         Text003: Label 'Posting serv. and VAT      #3######\';
         Text004: Label 'Posting to customers       #4######\';
+        Text005: Label 'Posting to bal. account    #5######';
         Text006: Label 'Posting lines              #2######';
 #pragma warning restore AA0470
         Text007: Label 'is not within your range of allowed posting dates';
 #pragma warning restore AA0074
         WhseShip: Boolean;
-        Text1100000: Label 'Posting to bal. account    #5######\';
-        Text1100001: Label 'Creating documents         #6######';
         PreviewMode: Boolean;
         SuppressCommit: Boolean;
         NotSupportedDocumentTypeErr: Label 'Document type %1 is not supported.', Comment = '%1=Document Type e.g. Invoice';
@@ -105,7 +101,6 @@ codeunit 5980 "Service-Post"
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
         WhseServiceRelease: Codeunit "Whse.-Service Release";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
-        SIIJobUploadPendingDocs: Codeunit "SII Job Upload Pending Docs.";
         ServiceDocumentArchiveMgmt: Codeunit "Service Document Archive Mgmt.";
         ServDocNo: Code[20];
         ServDocType: Integer;
@@ -128,7 +123,7 @@ codeunit 5980 "Service-Post"
 
             if GuiAllowed() then begin
                 if Invoice then
-                    Window.Open('#1#################################\\' + Text002 + Text003 + Text004 + Text1100000 + Text1100001)
+                    Window.Open('#1#################################\\' + Text002 + Text003 + Text004 + Text005)
                 else
                     Window.Open('#1#################################\\' + Text006);
                 Window.Update(1, StrSubstNo('%1 %2', ServiceHeader."Document Type", ServiceHeader."No."));
@@ -223,8 +218,6 @@ codeunit 5980 "Service-Post"
             PassedServHeader := ServiceHeader;
         end;
 
-        SIIJobUploadPendingDocs.OnAfterPostServiceDoc(ServiceHeader);
-
         OnAfterPostWithLines(PassedServHeader, IsHandled);
     end;
 
@@ -280,8 +273,6 @@ codeunit 5980 "Service-Post"
 
     local procedure CheckAndSetPostingConstants(var ServiceHeader: Record "Service Header"; var PassedShip: Boolean; var PassedConsume: Boolean; var PassedInvoice: Boolean)
     var
-        TransportMethod: Record "Transport Method";
-        PaymentTerms: Record "Payment Terms";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -307,19 +298,9 @@ codeunit 5980 "Service-Post"
         if not (PassedShip or PassedInvoice or PassedConsume) then
             Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
-        if Invoice and (ServiceHeader."Document Type" <> ServiceHeader."Document Type"::"Credit Memo") then begin
+        if Invoice and (ServiceHeader."Document Type" <> ServiceHeader."Document Type"::"Credit Memo") then
             ServiceHeader.TestField(ServiceHeader."Due Date");
-            PaymentTerms.Get(ServiceHeader."Payment Terms Code");
-            PaymentTerms.VerifyMaxNoDaysTillDueDate(ServiceHeader."Due Date", ServiceHeader."Document Date", ServiceHeader.FieldCaption(ServiceHeader."Due Date"));
-        end;
-
-        if TransportMethod.Get(ServiceHeader."Transport Method") and TransportMethod."Port/Airport" then
-            ServiceHeader.TestField(ServiceHeader."Exit Point");
-
-        if (Ship or Invoice) and (ServiceHeader."Document Type" <> ServiceHeader."Document Type"::"Credit Memo") then begin
-            ServiceHeader.TestField(ServiceHeader."Payment Method Code");
-            ServiceHeader.TestField(ServiceHeader."Payment Terms Code");
-        end;
+        OnCheckAndSetConstantsOnBeforeSetPostingOptions(ServiceHeader, Invoice, Ship);
         SetPostingOptions(PassedShip, PassedConsume, PassedInvoice);
     end;
 
@@ -332,7 +313,7 @@ codeunit 5980 "Service-Post"
         end;
         if PostingDateExists and (ReplaceDocumentDate or (ServiceHeader."Document Date" = 0D)) then begin
             ServiceHeader.Validate("Document Date", PostingDate);
-            ServiceHeader.ValidatePaymentTerms();
+            OnValidatePostingAndDocumentDateOnAfterValidateDocumentDate(ServiceHeader);
         end;
 
         OnAfterValidatePostingAndDocumentDate(ServiceHeader, PreviewMode);
@@ -385,13 +366,20 @@ codeunit 5980 "Service-Post"
     procedure SetPostingDate(NewReplacePostingDate: Boolean; NewReplaceDocumentDate: Boolean; NewPostingDate: Date)
     var
         IsHandled: Boolean;
+        SavedSuppressCommit: Boolean;
+        SavedHideValidationDialog: Boolean;
     begin
         IsHandled := false;
         OnBeforeSetPostingDate(PostingDateExists, ReplacePostingDate, ReplaceDocumentDate, PostingDate, IsHandled);
         if IsHandled then
             exit;
 
+        SavedSuppressCommit := SuppressCommit;
+        SavedHideValidationDialog := HideValidationDialog;
         ClearAll();
+        SuppressCommit := SavedSuppressCommit;
+        HideValidationDialog := SavedHideValidationDialog;
+
         PostingDateExists := true;
         ReplacePostingDate := NewReplacePostingDate;
         ReplaceDocumentDate := NewReplaceDocumentDate;
@@ -685,6 +673,11 @@ codeunit 5980 "Service-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidatePostingAndDocumentDateOnAfterValidateDocumentDate(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckAndSetPostingConstants(var ServiceHeader: Record "Service Header"; var ServDocumentsMgt: Codeunit "Serv-Documents Mgt."; var PassedShip: Boolean; var PassedConsume: Boolean; var PassedInvoice: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -791,6 +784,11 @@ codeunit 5980 "Service-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDateNotAllowedForServiceLine(var PassedServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckAndSetConstantsOnBeforeSetPostingOptions(var ServiceHeader: Record "Service Header"; Invoice: Boolean; Ship: Boolean)
     begin
     end;
 }

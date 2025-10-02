@@ -349,6 +349,36 @@ table 5062 Attachment
         exit(false);
     end;
 
+    /// <summary>
+    /// Export the Attachment to the TempBlob Codeunit.
+    /// </summary>
+    /// <param name="TempBlob"></param>
+    /// <returns>true if a value attachment is return in the TempBlob parameter; otherwise false</returns>
+    procedure ExportAttachmentToTempBlob(var TempBlob: Codeunit "Temp Blob") Result: Boolean
+    begin
+        RMSetup.Get();
+        if RMSetup."Attachment Storage Type" = RMSetup."Attachment Storage Type"::"Disk File" then
+            RMSetup.TestField("Attachment Storage Location");
+
+        case "Storage Type" of
+            "Storage Type"::Embedded:
+                begin
+                    if "Attachment File".HasValue() then begin
+                        TempBlob.FromRecord(Rec, FieldNo("Attachment File"));
+                        exit(true);
+                    end;
+                    exit(false);
+                end;
+            "Storage Type"::"Disk File":
+                begin
+                    FileManagement.BLOBImportFromServerFile(TempBlob, GetServerFileName(ConstDiskFileName()));
+                    exit(true);
+                end;
+        end;
+
+        exit(false);
+    end;
+
     [Scope('OnPrem')]
     procedure ImportAttachmentFromServerFile(ImportFromFile: Text; IsTemporary: Boolean; Overwrite: Boolean) Result: Boolean
     var
@@ -559,15 +589,6 @@ table 5062 Attachment
         "Email Message ID".CreateOutStream(OutStream);
         OutStream.WriteText(MessageID);
         "Email Message Checksum" := Checksum(MessageID);
-    end;
-
-    local procedure GetEntryID() Return: Text
-    var
-        InStream: InStream;
-    begin
-        CalcFields("Email Entry ID");
-        "Email Entry ID".CreateInStream(InStream);
-        InStream.ReadText(Return);
     end;
 
     procedure SetEntryID(EntryID: Text)
@@ -840,4 +861,3 @@ table 5062 Attachment
     begin
     end;
 }
-

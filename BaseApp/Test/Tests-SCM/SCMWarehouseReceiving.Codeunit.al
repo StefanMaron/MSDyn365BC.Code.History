@@ -830,7 +830,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         CreateAndRefreshProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDec(10, 2), LocationBrown.Code);
         UpdateUnitOfMeasureOnProductionOrderLine(ProductionOrder, ItemUnitOfMeasure.Code);
         LibraryVariableStorage.Enqueue(WarehouseRequestCreatedMessage);  // Enqueue for MessageHandler.
-        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+        LibraryManufacturing.CreateInboundWhseReqFromProdOrder(ProductionOrder);
         LibraryVariableStorage.Enqueue(InvPutAwayMessage);  // Enqueue for MessageHandler.
         CreateInventoryActivity(WarehouseRequest."Source Document"::"Prod. Output", ProductionOrder."No.", LocationBrown.Code, true, false);
         LotNo := LibraryUtility.GenerateGUID();
@@ -3921,7 +3921,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         UpdateItemTrackingInProductionOrder(ProductionOrder);
 
         // [GIVEN] Create an inbound warehouse request from the production order.
-        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+        LibraryManufacturing.CreateInboundWhseReqFromProdOrder(ProductionOrder);
 
         // [GIVEN] Get the serial number from reservation entry.
         GetSerialNoFromReservationEntry(SerialNo, ProductionOrder);
@@ -4011,7 +4011,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         ProdOrderLine.OpenItemTrackingLines();
 
         // [GIVEN] Create an inbound warehouse request from the production order.
-        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+        LibraryManufacturing.CreateInboundWhseReqFromProdOrder(ProductionOrder);
 
         // [GIVEN] Create an inventory activity document.
         CreateInventoryActivity(

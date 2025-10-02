@@ -502,42 +502,33 @@ codeunit 131332 "Library - Cash Flow Helper"
         OnAfterCreatePurchaseLine(PurchaseHeader, GLAccount);
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit Library Service', '27.0')]
     procedure CreateSpecificServiceOrder(var ServiceHeader: Record "Service Header"; PaymentTermsCode: Code[10]; CFPaymentTermsCode: Code[10])
     var
-        Customer: Record Customer;
         LibraryService: Codeunit "Library - Service";
     begin
-        LibrarySales.CreateCustomer(Customer);
-        AssignCFPaymentTermToCustomer(Customer, PaymentTermsCode);
-        AssignCFPaymentTermToCustomer(Customer, CFPaymentTermsCode);
-
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
-
-        CreateServiceLines(ServiceHeader);
-        CreateServiceLines(ServiceHeader);
-        CreateServiceLines(ServiceHeader);
+        LibraryService.CreateSpecificServiceOrder(ServiceHeader, PaymentTermsCode, CFPaymentTermsCode);
     end;
+#endif
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit Library Service', '27.0')]
     procedure CreateDefaultServiceOrder(var ServiceHeader: Record "Service Header")
     begin
         CreateSpecificServiceOrder(ServiceHeader, '', '');
     end;
+#endif
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit Library Service', '27.0')]
     procedure CreateServiceLines(ServiceHeader: Record "Service Header")
     var
-        ServiceLine: Record "Service Line";
-        ServiceItemLine: Record "Service Item Line";
-        Item: Record Item;
         LibraryService: Codeunit "Library - Service";
     begin
-        // simple wrapper for LibraryPurchase.CreateServiceLine
-        LibrarySales.FindItem(Item);
-        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
-        ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
-        ServiceLine.Validate(Quantity, LibraryRandom.RandInt(50));
-        ServiceLine.Modify(true);
+        LibraryService.CreateServiceLines(ServiceHeader);
     end;
+#endif
 
     procedure CreatePrepaymentAccount(GeneralPostingSetup: Record "General Posting Setup"; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]): Code[20]
     var

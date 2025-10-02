@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Warehouse.Journal;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Warehouse.Journal;
 
 using Microsoft.Foundation.Reporting;
 using Microsoft.Inventory.Counting.Journal;
@@ -514,9 +518,6 @@ page 7326 "Whse. Phys. Invt. Journal"
         if not JnlSelected then
             Error('');
         Rec.OpenJnl(CurrentJnlBatchName, CurrentLocationCode, Rec);
-#if not CLEAN24
-        SetPackageTrackingVisibility();
-#endif
     end;
 
     var
@@ -532,10 +533,6 @@ page 7326 "Whse. Phys. Invt. Journal"
         SerialNoEditable: Boolean;
         LotNoEditable: Boolean;
         PackageNoEditable: Boolean;
-#if not CLEAN24
-        [Obsolete('Package Tracking enabled by default.', '24.0')]
-        PackageNoVisible: Boolean;
-#endif
         QtyPhysInventoryBaseIsEditable: Boolean;
         ExpirationDateEditable: Boolean;
 
@@ -560,11 +557,4 @@ page 7326 "Whse. Phys. Invt. Journal"
         Rec.GetItem(Rec."Item No.", ItemDescription);
     end;
 
-#if not CLEAN24
-    local procedure SetPackageTrackingVisibility()
-    begin
-        PackageNoVisible := true;
-    end;
-#endif
 }
-

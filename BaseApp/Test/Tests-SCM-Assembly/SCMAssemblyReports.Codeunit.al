@@ -59,7 +59,6 @@ codeunit 137307 "SCM Assembly Reports"
         AssemblyItemNo: array[6] of Code[20];
         UsedVariantCode: array[4] of Code[10];
         SalesShipmentNo: Code[20];
-        SalesInvoiceNo: Code[20];
         IsInitialized: Boolean;
 
     local procedure Initialize()
@@ -107,25 +106,6 @@ codeunit 137307 "SCM Assembly Reports"
         CleanSetupData();
     end;
 
-    local procedure VerifyOrderConfirmationLines(Blanks: Text[10])
-    begin
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.SetRange('No2_SalesLine', AssemblyItemNo[1]);
-        LibraryReportDataset.GetNextRow();
-        LibraryReportDataset.AssertCurrentRowValueEquals('Desc_SalesLine', UsedVariantCode[1]);
-        LibraryReportDataset.AssertCurrentRowValueEquals('Qty_SalesLine', 1);
-
-        LibraryReportDataset.Reset();
-        LibraryReportDataset.SetRange('AsmLineNo', Blanks + AssemblyItemNo[5]);
-        LibraryReportDataset.GetNextRow();
-        LibraryReportDataset.AssertCurrentRowValueEquals('AsmLineQuantity', 2);
-
-        LibraryReportDataset.Reset();
-        LibraryReportDataset.SetRange('AsmLineNo', Blanks + AssemblyItemNo[6]);
-        LibraryReportDataset.GetNextRow();
-        LibraryReportDataset.AssertCurrentRowValueEquals('AsmLineQuantity', 8);
-    end;
-
     local procedure VerifySalesShipmentLines(Blanks: Text[10])
     begin
         LibraryReportDataset.LoadDataSetFile();
@@ -143,25 +123,6 @@ codeunit 137307 "SCM Assembly Reports"
         LibraryReportDataset.SetRange('PostedAsmLineItemNo', Blanks + AssemblyItemNo[6]);
         LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('PostedAsmLineQuantity', 8);
-    end;
-
-    local procedure VerifySalesInvoiceLines(Blanks: Text[10])
-    begin
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.SetRange('No_SalesInvoiceLine', AssemblyItemNo[1]);
-        LibraryReportDataset.GetNextRow();
-        LibraryReportDataset.AssertCurrentRowValueEquals('Description_SalesInvLine', UsedVariantCode[1]);
-        LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_SalesInvoiceLine', 1);
-
-        LibraryReportDataset.Reset();
-        LibraryReportDataset.SetRange('TempPostedAsmLineNo', Blanks + AssemblyItemNo[5]);
-        LibraryReportDataset.GetNextRow();
-        LibraryReportDataset.AssertCurrentRowValueEquals('TempPostedAsmLineQuantity', 2);
-
-        LibraryReportDataset.Reset();
-        LibraryReportDataset.SetRange('TempPostedAsmLineNo', Blanks + AssemblyItemNo[6]);
-        LibraryReportDataset.GetNextRow();
-        LibraryReportDataset.AssertCurrentRowValueEquals('TempPostedAsmLineQuantity', 8);
     end;
 
     local procedure InsertReservationEntry(ItemJournalLine: Record "Item Journal Line"; SerialNo: Code[10]; LotNo: Code[10])
@@ -605,27 +566,6 @@ codeunit 137307 "SCM Assembly Reports"
         exit(SalesShipmentNo);
     end;
 
-    local procedure PostOrderAsInvoice(NonEmptySalesOrderNo: Code[20]): Code[20]
-    var
-        SalesHeader: Record "Sales Header";
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        ValueEntry: Record "Value Entry";
-        LibrarySales: Codeunit "Library - Sales";
-    begin
-        SalesHeader.Get(SalesHeader."Document Type"::Order, NonEmptySalesOrderNo);
-        LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        ItemLedgerEntry.SetCurrentKey("Document No.", "Document Type", "Document Line No.");
-        ItemLedgerEntry.SetRange("Document No.", SalesShipmentNo);
-        ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Sales Shipment");
-        ItemLedgerEntry.FindFirst();
-        ValueEntry.SetCurrentKey("Item Ledger Entry No.");
-        ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
-        ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Sales Invoice");
-        ValueEntry.FindFirst();
-        SalesInvoiceNo := ValueEntry."Document No.";
-        exit(SalesInvoiceNo);
-    end;
-
     local procedure GetSKU()
     var
         SKU: Record "Stockkeeping Unit";
@@ -667,4 +607,3 @@ codeunit 137307 "SCM Assembly Reports"
     begin
     end;
 }
-

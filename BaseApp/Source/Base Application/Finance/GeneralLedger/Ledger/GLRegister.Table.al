@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.GeneralLedger.Ledger;
 
 using Microsoft.Finance.VAT.Ledger;
@@ -111,15 +115,9 @@ table 45 "G/L Register"
 
     fieldgroups
     {
-#if not CLEAN24
-        fieldgroup(DropDown; "No.", "From Entry No.", "To Entry No.", "Creation Date", "Source Code")
-        {
-        }
-#else
         fieldgroup(DropDown; "No.", "From Entry No.", "To Entry No.", SystemCreatedAt, "Source Code")
         {
         }
-#endif
 
     }
 
@@ -136,10 +134,6 @@ table 45 "G/L Register"
         Init();
         OnInitializeOnAfterGLRegisterInit(Rec, TemplateName);
         "No." := NextRegNo;
-#if not CLEAN24            
-        "Creation Date" := Today;
-        "Creation Time" := Time;
-#endif
         "Source Code" := SourceCode;
         "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
         "From Entry No." := FromEntryNo;

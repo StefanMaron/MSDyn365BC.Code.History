@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Analysis;
 
 using Microsoft.Finance.Consolidation;
@@ -634,6 +638,7 @@ page 9203 "Budget Matrix"
         TheDimCodeBuf.Totaling := TheGLAcc.Totaling;
         TheDimCodeBuf.Indentation := TheGLAcc.Indentation;
         TheDimCodeBuf."Show in Bold" := TheGLAcc."Account Type" <> TheGLAcc."Account Type"::Posting;
+        OnAfterCopyGLAccToBuf(TheGLAcc, TheDimCodeBuf);
     end;
 
     local procedure CopyPeriodToBuf(var ThePeriod: Record Date; var TheDimCodeBuf: Record "Dimension Code Buffer")
@@ -671,6 +676,7 @@ page 9203 "Budget Matrix"
         TheDimCodeBuf.Indentation := TheDimVal.Indentation;
         TheDimCodeBuf."Show in Bold" :=
           TheDimVal."Dimension Value Type" <> TheDimVal."Dimension Value Type"::Standard;
+        OnAfterCopyDimValueToBuf(TheDimVal, TheDimCodeBuf);
     end;
 
     local procedure LookUpCode(DimType: Enum "G/L Budget Matrix Dimensions"; DimCode: Text[30]; "Code": Text[30])
@@ -1099,6 +1105,16 @@ page 9203 "Budget Matrix"
 
     [IntegrationEvent(false, false)]
     local procedure OnBudgetDrillDownOnBeforePageRun(var GLAccBudgetBuffer: Record "G/L Acc. Budget Buffer"; var GLBudgetEntry: Record "G/L Budget Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyGLAccToBuf(GLAcc: Record "G/L Account"; var DimCodeBuf: Record "Dimension Code Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyDimValueToBuf(DimVal: Record "Dimension Value"; var DimCodeBuf: Record "Dimension Code Buffer")
     begin
     end;
 }

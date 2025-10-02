@@ -11,29 +11,25 @@ codeunit 136214 "Marketing Campaign Pricing"
     var
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        LibraryERM: Codeunit "Library - ERM";
-        LibraryInventory: Codeunit "Library - Inventory";
         LibraryMarketing: Codeunit "Library - Marketing";
-#if not CLEAN25
-        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
-#endif
-        LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
 #if not CLEAN25
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
+        LibrarySales: Codeunit "Library - Sales";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
 #endif
         LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
-#if not CLEAN25
-        PriceDateChangeError: Label 'If Sales Type = Campaign, then you can only change Starting Date and Ending Date from the Campaign Card.';
-        DiscountDateChangeError: Label 'You can only change the Starting Date and Ending Date from the Campaign Card when Sales Type = Campaign';
-#endif
-        CustomerCreationMessage: Label 'The %1 record has been created.', Comment = 'The Customer record has been created.';
         SalesPriceConfirmMessage: Label 'There are no Sales Prices or Sales Line Discounts currently linked to this %1. Do you still want to activate?';
         SalesPriceError: Label 'To activate the sales prices and/or line discounts, you must apply the relevant Segment Line(s) to the Campaign and place a check mark in the Campaign Target field on the Segment Line.';
         CampaignActivatedMessage: Label 'Campaign %1 is now activated.';
 #if not CLEAN25
+        PriceDateChangeError: Label 'If Sales Type = Campaign, then you can only change Starting Date and Ending Date from the Campaign Card.';
+        DiscountDateChangeError: Label 'You can only change the Starting Date and Ending Date from the Campaign Card when Sales Type = Campaign';
+        CustomerCreationMessage: Label 'The %1 record has been created.', Comment = 'The Customer record has been created.';
         ValueMustNotMatch: Label 'Value must not match.';
         ValueMustMatch: Label 'Value must match.';
         FeatureIsOnErr: Label 'This page is no longer available. It was used by a feature that has been replaced or removed.';
@@ -570,6 +566,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         CampaignCard.ActivateSalesPricesLineDisc.Invoke();
     end;
 
+#if not CLEAN25
     local procedure AddContactsToSegment(ContactNo: Code[20]; SegmentNo: Code[20])
     var
         Contact: Record Contact;
@@ -585,7 +582,6 @@ codeunit 136214 "Marketing Campaign Pricing"
         LibraryMarketing.RunAddContactsReport(LibraryVariableStorageVariant, false);
     end;
 
-#if not CLEAN25
     local procedure ChangeDateOnSalesPricePage(CampaignNo: Code[20])
     var
         SalesPrices: TestPage "Sales Prices";
@@ -605,7 +601,6 @@ codeunit 136214 "Marketing Campaign Pricing"
         SalesLineDiscounts.FILTER.SetFilter("Sales Code", CampaignNo);
         SalesLineDiscounts."Starting Date".SetValue(CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Use RandInt to change Date.
     end;
-#endif
 
     local procedure ChangeDateOnCampaignCard(var CampaignCard: TestPage "Campaign Card"; CampaignNo: Code[20])
     begin
@@ -613,7 +608,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         CampaignCard.FILTER.SetFilter("No.", CampaignNo);
         CampaignCard."Starting Date".SetValue(CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Use RandInt to change Date.
     end;
-
+#endif
     local procedure CreateAndUpdateCampaign(var Campaign: Record Campaign)
     begin
         LibraryMarketing.CreateCampaign(Campaign);
@@ -621,7 +616,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         Campaign.Validate("Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Use RandInt to validate Date.
         Campaign.Modify(true);
     end;
-
+#if not CLEAN25
     local procedure CreateCustomerForContact(var Contact: Record Contact)
     var
         Customer: Record Customer;
@@ -650,7 +645,6 @@ codeunit 136214 "Marketing Campaign Pricing"
         LogSegment.UseRequestPage(false);
         LogSegment.Run();
     end;
-
     local procedure CreateLoggedSegment(CampaignNo: Code[20]; ContactNo: Code[20]; CampaignTarget: Boolean; FollowUp: Boolean)
     var
         SegmentNo: Code[20];
@@ -670,7 +664,6 @@ codeunit 136214 "Marketing Campaign Pricing"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
     end;
 
-#if not CLEAN25
     local procedure CreateSalesPriceForCampaign(var SalesPrice: Record "Sales Price")
     var
         Campaign: Record Campaign;
@@ -720,6 +713,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         exit(SegmentHeader."No.");
     end;
 
+#if not CLEAN25
     local procedure GetCustomerTemplateCode(): Code[20]
     var
         CustomerTemplate: Record "Customer Templ.";
@@ -803,7 +797,6 @@ codeunit 136214 "Marketing Campaign Pricing"
         SegmentHeader.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure VerifySalesPriceWksht(SalesPrice: Record "Sales Price")
     var
         SalesPriceWorksheet: Record "Sales Price Worksheet";
@@ -860,4 +853,3 @@ codeunit 136214 "Marketing Campaign Pricing"
     end;
 #endif
 }
-

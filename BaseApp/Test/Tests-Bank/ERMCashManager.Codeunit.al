@@ -851,32 +851,6 @@ codeunit 134500 "ERM Cash Manager"
         exit(CheckLedgerEntry."Entry No.");
     end;
 
-    local procedure SetupBankAccRecForApplication(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
-    var
-        BankAccount: Record "Bank Account";
-        Vendor: Record Vendor;
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        // Setup.
-        Initialize();
-        CreateBankAccountLastCheckNo(BankAccount);
-        BankAccount.Validate("Last Statement No.",
-          CopyStr(
-            LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("Last Statement No."), DATABASE::"Bank Account"),
-            1, LibraryUtility.GetFieldLength(DATABASE::"Bank Account", BankAccount.FieldNo("Last Statement No."))));
-        BankAccount.Modify(true);
-
-        LibraryPurchase.CreateVendor(Vendor);
-        CreateGenJnlLineWithBankPaymentType(
-          GenJournalLine, BankAccount."No.", Vendor."No.", GenJournalLine."Bank Payment Type"::"Manual Check");
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.");
-
-        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
-        BankAccReconciliationLine.Validate("Statement Amount", -GenJournalLine.Amount);
-        BankAccReconciliationLine.Modify(true);
-    end;
-
     local procedure AmountInBankAccountLedgerEntry(BankAccountNo: Code[20]; StatementNo: Code[20]): Decimal
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";

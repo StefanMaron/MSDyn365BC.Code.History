@@ -412,14 +412,6 @@ codeunit 147546 "SII New Sending Experience"
         JobQueueEntry.FindFirst();
     end;
 
-    local procedure VerifySIIJobQueueEntryCount(ExpectedCount: Integer)
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-    begin
-        FilterJobQueueEntry(JobQueueEntry);
-        Assert.RecordCount(JobQueueEntry, ExpectedCount);
-    end;
-
     [ConfirmHandler]
     procedure ConfirmHandlerVerifyMessage(Question: Text; var Reply: Boolean)
     begin

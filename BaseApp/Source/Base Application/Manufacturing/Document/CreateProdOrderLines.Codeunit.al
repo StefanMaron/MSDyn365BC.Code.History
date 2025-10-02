@@ -408,7 +408,7 @@ codeunit 99000787 "Create Prod. Order Lines"
         if StockkeepingUnit.Get(ProdOrderComp."Location Code", ProdOrderComp."Item No.", ProdOrderComp."Variant Code") then
             IncreasePlanningLevel :=
               (StockkeepingUnit."Manufacturing Policy" = StockkeepingUnit."Manufacturing Policy"::"Make-to-Order") and
-              (StockkeepingUnit."Replenishment System" = StockkeepingUnit."Replenishment System"::"Prod. Order")
+              (StockkeepingUnit.IsMfgSKU())
         else begin
             Item.Get(ProdOrderComp."Item No.");
             IncreasePlanningLevel :=
@@ -444,12 +444,10 @@ codeunit 99000787 "Create Prod. Order Lines"
 
         if SKU.Get(ProdOrderComp."Location Code", ProdOrderComp."Item No.", ProdOrderComp."Variant Code") then
             MakeProdOrder :=
-              (SKU."Replenishment System" = SKU."Replenishment System"::"Prod. Order") and
-              (SKU."Manufacturing Policy" = SKU."Manufacturing Policy"::"Make-to-Order")
+              SKU.IsMfgSKU() and (SKU."Manufacturing Policy" = SKU."Manufacturing Policy"::"Make-to-Order")
         else
             MakeProdOrder :=
-              (Item."Replenishment System" = Item."Replenishment System"::"Prod. Order") and
-              (Item."Manufacturing Policy" = Item."Manufacturing Policy"::"Make-to-Order");
+              Item.IsMfgItem() and (Item."Manufacturing Policy" = Item."Manufacturing Policy"::"Make-to-Order");
 
         OnCheckMakeOrderLineBeforeIf(ProdOrder, ProdOrderLine2, ProdOrderComp, MakeProdOrder);
 

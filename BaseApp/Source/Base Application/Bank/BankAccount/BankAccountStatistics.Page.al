@@ -6,6 +6,14 @@ namespace Microsoft.Bank.BankAccount;
 
 using Microsoft.Foundation.Period;
 
+/// <summary>
+/// Displays comprehensive statistical information and key performance indicators for bank accounts.
+/// Provides summary view of balances, transaction volumes, and period-based analysis.
+/// </summary>
+/// <remarks>
+/// Source Table: Bank Account (270). Read-only statistical view with calculated fields.
+/// Features balance summaries, transaction counts, and period-based comparative analysis.
+/// </remarks>
 page 375 "Bank Account Statistics"
 {
     Caption = 'Bank Account Statistics';
@@ -87,7 +95,7 @@ page 375 "Bank Account Statistics"
                     group("This Year")
                     {
                         Caption = 'This Year';
-                        field(Text000; Text000)
+                        field(Text000; PlaceholderLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Visible = false;
@@ -111,7 +119,7 @@ page 375 "Bank Account Statistics"
                     group("Last Year")
                     {
                         Caption = 'Last Year';
-                        field("Placeholder 2"; Text000)
+                        field("Placeholder 2"; PlaceholderLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Visible = false;
@@ -135,7 +143,7 @@ page 375 "Bank Account Statistics"
                     group("To Date")
                     {
                         Caption = 'To Date';
-                        field("Placeholder 3"; Text000)
+                        field("Placeholder 3"; PlaceholderLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Visible = false;
@@ -233,12 +241,12 @@ page 375 "Bank Account Statistics"
                     group(Control1902148501)
                     {
                         Caption = 'This Year';
-                        field(Control1100031; Text000)
+                        field(Control1100031; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
                         }
-                        field(Control1100032; Text000)
+                        field(Control1100032; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
@@ -283,12 +291,12 @@ page 375 "Bank Account Statistics"
                     group(Control1906484001)
                     {
                         Caption = 'Last Year';
-                        field(Control1100033; Text000)
+                        field(Control1100033; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
                         }
-                        field(Control1100034; Text000)
+                        field(Control1100034; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
@@ -333,12 +341,12 @@ page 375 "Bank Account Statistics"
                     group(Control1906936701)
                     {
                         Caption = 'To Date';
-                        field(Control1100035; Text000)
+                        field(Control1100035; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
                         }
-                        field(Control1100036; Text000)
+                        field(Control1100036; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
@@ -453,7 +461,7 @@ page 375 "Bank Account Statistics"
                     group(Control1905520001)
                     {
                         Caption = 'This Year';
-                        field(Control1100048; Text000)
+                        field(Control1100048; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
@@ -488,12 +496,12 @@ page 375 "Bank Account Statistics"
                             AutoFormatExpression = Rec."Currency Code";
                             AutoFormatType = 1;
                         }
-                        field(Control1100038; Text000)
+                        field(Control1100038; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
                         }
-                        field(Control1100039; Text000)
+                        field(Control1100039; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
@@ -502,7 +510,7 @@ page 375 "Bank Account Statistics"
                     group(Control1903594901)
                     {
                         Caption = 'Last Year';
-                        field(Control1100049; Text000)
+                        field(Control1100049; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
@@ -537,12 +545,12 @@ page 375 "Bank Account Statistics"
                             AutoFormatExpression = Rec."Currency Code";
                             AutoFormatType = 1;
                         }
-                        field(Control1100044; Text000)
+                        field(Control1100044; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
                         }
-                        field(Control1100045; Text000)
+                        field(Control1100045; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
@@ -551,7 +559,7 @@ page 375 "Bank Account Statistics"
                     group(Control1907930401)
                     {
                         Caption = 'To Date';
-                        field(Control1100050; Text000)
+                        field(Control1100050; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
@@ -586,12 +594,12 @@ page 375 "Bank Account Statistics"
                             AutoFormatExpression = Rec."Currency Code";
                             AutoFormatType = 1;
                         }
-                        field(Control1100046; Text000)
+                        field(Control1100046; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
                         }
-                        field(Control1100047; Text000)
+                        field(Control1100047; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
@@ -648,7 +656,7 @@ page 375 "Bank Account Statistics"
                     group(Control1907591201)
                     {
                         Caption = 'This Year';
-                        field(Control1100053; Text000)
+                        field(Control1100053; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
@@ -665,12 +673,12 @@ page 375 "Bank Account Statistics"
                             AutoFormatExpression = Rec."Currency Code";
                             AutoFormatType = 1;
                         }
-                        field(Control1100056; Text000)
+                        field(Control1100056; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
                         }
-                        field(Control1100059; Text000)
+                        field(Control1100059; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
@@ -679,7 +687,7 @@ page 375 "Bank Account Statistics"
                     group(Control1904043901)
                     {
                         Caption = 'Last Year';
-                        field(Control1100054; Text000)
+                        field(Control1100054; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
@@ -696,12 +704,12 @@ page 375 "Bank Account Statistics"
                             AutoFormatExpression = Rec."Currency Code";
                             AutoFormatType = 1;
                         }
-                        field(Control1100057; Text000)
+                        field(Control1100057; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
                         }
-                        field(Control1100060; Text000)
+                        field(Control1100060; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
@@ -710,7 +718,7 @@ page 375 "Bank Account Statistics"
                     group(Control1907649801)
                     {
                         Caption = 'To Date';
-                        field(Control1100055; Text000)
+                        field(Control1100055; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
@@ -727,12 +735,12 @@ page 375 "Bank Account Statistics"
                             AutoFormatExpression = Rec."Currency Code";
                             AutoFormatType = 1;
                         }
-                        field(Control1100058; Text000)
+                        field(Control1100058; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
                         }
-                        field(Control1100061; Text000)
+                        field(Control1100061; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
@@ -743,12 +751,12 @@ page 375 "Bank Account Statistics"
             group("Bill Groups")
             {
                 Caption = 'Bill Groups';
-                field(Control1100062; Text000)
+                field(Control1100062; PlaceholderLbl)
                 {
                     ApplicationArea = Advanced;
                     Visible = false;
                 }
-                field(Control1100063; Text000)
+                field(Control1100063; PlaceholderLbl)
                 {
                     ApplicationArea = Advanced;
                     Visible = false;
@@ -796,17 +804,17 @@ page 375 "Bank Account Statistics"
                     group(Control1905435401)
                     {
                         ShowCaption = false;
-                        field(Control1100064; Text000)
+                        field(Control1100064; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
                         }
-                        field(Control1100065; Text000)
+                        field(Control1100065; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
                         }
-                        field(Control1100066; Text000)
+                        field(Control1100066; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
@@ -818,7 +826,7 @@ page 375 "Bank Account Statistics"
                             MaxValue = 100;
                             MinValue = 0;
                         }
-                        field(Control1100067; Text000)
+                        field(Control1100067; PlaceholderLbl)
                         {
                             ApplicationArea = Advanced;
                             Visible = false;
@@ -924,9 +932,7 @@ page 375 "Bank Account Statistics"
         BankAccNetChange: array[4] of Decimal;
         BankAccNetChangeLCY: array[4] of Decimal;
         i: Integer;
-#pragma warning disable AA0074
-        Text000: Label 'Placeholder';
-#pragma warning restore AA0074
+        PlaceholderLbl: Label 'Placeholder';
         DocsForDiscRmgAmt: Decimal;
         DocsForCollRmgAmt: Decimal;
         PayableDocsRmgAmt: Decimal;

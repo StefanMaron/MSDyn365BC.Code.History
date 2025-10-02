@@ -8,6 +8,15 @@ using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.GeneralLedger.Journal;
 using System.IO;
 
+/// <summary>
+/// Manages electronic payment transmission and voiding operations for exported payment files.
+/// Processes electronic payments through bank-specific transmission protocols and void procedures.
+/// </summary>
+/// <remarks>
+/// Data source: Gen. Journal Line filtered for electronic payments exported but not transmitted.
+/// Integrates with CheckManagement codeunit for electronic payment processing.
+/// Supports both void operations for untransmitted payments and transmission for ready payments.
+/// </remarks>
 report 9200 "Void/Transmit Elec. Pmnts"
 {
     Caption = 'Void/Transmit Electronic Payments';
@@ -140,11 +149,19 @@ report 9200 "Void/Transmit Elec. Pmnts"
         TransmittedQst: Label 'Has export file been successfully transmitted?';
         VoidedOrNoDocNoErr: Label 'The export file cannot be transmitted if the payment has been voided or is missing a Document No.';
 
+    /// <summary>
+    /// Sets the usage type for the electronic payment operation.
+    /// </summary>
+    /// <param name="NewUsageType">Usage type to set (Void or Transmit)</param>
     procedure SetUsageType(NewUsageType: Option ,Void,Transmit)
     begin
         UsageType := NewUsageType;
     end;
 
+    /// <summary>
+    /// Displays confirmation dialog for electronic payment transmission.
+    /// </summary>
+    /// <returns>True if user confirms transmission, false otherwise</returns>
     procedure RTCConfirmTransmit(): Boolean
     begin
         if not Confirm(TransmittedQst, false) then
@@ -153,6 +170,10 @@ report 9200 "Void/Transmit Elec. Pmnts"
         exit(true);
     end;
 
+    /// <summary>
+    /// Sets the bank account number for electronic payment processing.
+    /// </summary>
+    /// <param name="AccountNumber">Bank account number to set</param>
     procedure SetBankAccountNo(AccountNumber: Code[20])
     begin
         BankAccount.Get(AccountNumber);

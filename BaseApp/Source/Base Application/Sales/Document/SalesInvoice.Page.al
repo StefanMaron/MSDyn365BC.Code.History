@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Document;
 
 using Microsoft.Bank.Setup;
 using Microsoft.CRM.Contact;
@@ -33,6 +37,7 @@ using System.Environment;
 using System.Environment.Configuration;
 using System.Privacy;
 using System.Security.User;
+using System.Threading;
 
 page 43 "Sales Invoice"
 {
@@ -92,16 +97,32 @@ page 43 "Sales Invoice"
                     AboutText = 'This can be an existing customer, or you can register a new from here. Customers can have special prices and discounts that are automatically used when you enter the sales lines.';
                     ToolTip = 'Specifies the name of the customer who will receive the products and be billed by default.';
 
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        Customer: Record Customer;
+                    begin
+                        Selected.SetTable(Customer);
+                        if Rec."Sell-to Customer No." <> Customer."No." then begin
+                            Rec.Validate("Sell-to Customer No.", Customer."No.");
+                            if Rec."Sell-to Customer No." <> Customer."No." then
+                                error('');
+                            IsSalesLinesEditable := Rec.SalesLinesEditable();
+                            CurrPage.Update();
+                        end;
+                    end;
+
                     trigger OnValidate()
                     begin
                         Rec.SelltoCustomerNoOnAfterValidate(Rec, xRec);
                         CurrPage.Update();
                     end;
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        exit(Rec.LookupSellToCustomerName(Text));
-                    end;
+                }
+                field("Sell-to Customer Name 2"; Rec."Sell-to Customer Name 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Customer Name 2';
+                    QuickEntry = false;
+                    Visible = false;
                 }
                 field("Registration Number"; Rec."Registration Number")
                 {
@@ -345,6 +366,15 @@ page 43 "Sales Invoice"
                     Importance = Additional;
                     ToolTip = 'Specifies the status of a job queue entry or task that handles the posting of sales invoices.';
                     Visible = JobQueuesUsed;
+
+                    trigger OnDrillDown()
+                    var
+                        JobQueueEntry: Record "Job Queue Entry";
+                    begin
+                        if Rec."Job Queue Status" = Rec."Job Queue Status"::" " then
+                            exit;
+                        JobQueueEntry.ShowStatusMsg(Rec."Job Queue Entry ID");
+                    end;
                 }
                 group("Work Description")
                 {
@@ -953,6 +983,16 @@ page 43 "Sales Invoice"
                                     CurrPage.Update();
                                 end;
                             end;
+                        }
+                        field("Bill-to Name 2"; Rec."Bill-to Name 2")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Name 2';
+                            Editable = (BillToOptions = BillToOptions::"Another Customer");
+                            Enabled = (BillToOptions = BillToOptions::"Another Customer");
+                            Importance = Additional;
+                            QuickEntry = false;
+                            Visible = false;
                         }
                         field("Bill-to Address"; Rec."Bill-to Address")
                         {
@@ -2089,7 +2129,7 @@ page 43 "Sales Invoice"
     begin
         JobQueuesUsed := SalesSetup.JobQueueActive();
         SetExtDocNoMandatoryCondition();
-        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(FlowServiceManagement.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -2175,7 +2215,7 @@ page 43 "Sales Invoice"
         CustomerMgt: Codeunit "Customer Mgt.";
         FormatAddress: Codeunit "Format Address";
         PrivacyNotice: Codeunit "Privacy Notice";
-        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
+        FlowServiceManagement: Codeunit "Flow Service Management";
         ChangeExchangeRate: Page "Change Exchange Rate";
         WorkDescription: Text;
         StatusStyleTxt: Text;
@@ -2188,7 +2228,6 @@ page 43 "Sales Invoice"
         ShowWorkflowStatus: Boolean;
         PaymentServiceVisible: Boolean;
         PaymentServiceEnabled: Boolean;
-        IsPostingGroupEditable: Boolean;
         SureToRejectMsg: Label 'Rejecting this order will remove it from your company and send it back to the partner company.\\Do you want to continue?';
         OpenPostedSalesInvQst: Label 'The invoice is posted as number %1 and moved to the Posted Sales Invoices window.\\Do you want to open the posted invoice?', Comment = '%1 = posted document number';
         IsCustomerOrContactNotEmpty: Boolean;
@@ -2220,6 +2259,7 @@ page 43 "Sales Invoice"
         BillToOptions: Enum "Sales Bill-to Options";
         DocumentIsPosted: Boolean;
         SkipConfirmationDialogOnClosing: Boolean;
+        IsPostingGroupEditable: Boolean;
 
     local procedure ActivateFields()
     begin
@@ -2297,6 +2337,7 @@ page 43 "Sales Invoice"
 
     local procedure ApproveCalcInvDisc()
     begin
+        Rec.TestStatusOpen();
         CurrPage.SalesLines.PAGE.ApproveCalcInvDisc();
     end;
 

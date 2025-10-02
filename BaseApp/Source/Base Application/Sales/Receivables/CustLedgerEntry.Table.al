@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Receivables;
 
 using Microsoft.Bank.BankAccount;
@@ -1235,6 +1239,8 @@ table 21 "Cust. Ledger Entry"
         exit('');
     end;
 
+#if not CLEAN27
+    [Obsolete('Replaced by W1 version of procedure', '27.0')]
     procedure SetApplyToFilters(CustomerNo: Code[20]; ApplyDocType: Option; ApplyDocNo: Code[20]; ApplyBillNo: Code[20]; ApplyAmount: Decimal)
     begin
         SetCurrentKey("Customer No.", Open, Positive, "Due Date");
@@ -1262,8 +1268,44 @@ table 21 "Cust. Ledger Entry"
                     SetRange(Positive);
                 end;
     end;
+#endif
 
+    procedure SetApplyToFilters(CustomerNo: Code[20]; ApplyDocType: Option; ApplyDocNo: Code[20]; ApplyAmount: Decimal)
+    begin
+        SetCurrentKey("Customer No.", Open, Positive, "Due Date");
+        SetRange("Customer No.", CustomerNo);
+        SetRange(Open, true);
+        SetFilter("Document Situation", '<>%1', "Document Situation"::"Posted BG/PO");
+        if ApplyDocNo <> '' then begin
+            SetRange("Document Type", ApplyDocType);
+            SetRange("Document No.", ApplyDocNo);
+            if FindFirst() then;
+            SetRange("Document Type");
+            SetRange("Document No.");
+            SetRange("Bill No.");
+        end else
+            if ApplyDocType <> 0 then begin
+                SetRange("Document Type", ApplyDocType);
+                if FindFirst() then;
+                SetRange("Document Type");
+            end else
+                if ApplyAmount <> 0 then begin
+                    SetRange(Positive, ApplyAmount < 0);
+                    if FindFirst() then;
+                    SetRange(Positive);
+                end;
+    end;
+
+#if not CLEAN27
+    [Obsolete('Replaced by W1 version of procedure', '27.0')]
     procedure SetAmountToApply(AppliesToDocNo: Code[20]; CustomerNo: Code[20]; var AppliesToBillNo: Code[20])
+    begin
+        SetAmountToApply(AppliesToDocNo, CustomerNo);
+        AppliesToBillNo := "Bill No.";
+    end;
+#endif
+
+    procedure SetAmountToApply(AppliesToDocNo: Code[20]; CustomerNo: Code[20])
     begin
         OnBeforeSetAmountToApply(Rec, AppliesToDocNo, CustomerNo);
 
@@ -1272,7 +1314,6 @@ table 21 "Cust. Ledger Entry"
         SetRange("Customer No.", CustomerNo);
         SetRange(Open, true);
         if FindFirst() then begin
-            AppliesToBillNo := "Bill No.";
             if "Amount to Apply" = 0 then begin
                 CalcFields("Remaining Amount");
                 OnSetAmountToApplyOnAfterCalcRemainingAmount(Rec);

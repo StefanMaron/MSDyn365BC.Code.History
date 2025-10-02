@@ -703,7 +703,7 @@ codeunit 132903 UserCardTest
         AzureADPlanTestLibrary.AssignUserToPlan(User."User Security ID", PlanIds.GetEssentialPlanId());
         AzureADPlanTestLibrary.AssignUserToPlan(User."User Security ID", PlanIds.GetExternalAccountantPlanId());
 
-        // [THEN] The Plans are visible 
+        // [THEN] The Plans are visible
         UserCard.OpenView();
         UserCard.GoToRecord(User);
 
@@ -892,19 +892,6 @@ codeunit 132903 UserCardTest
         UserCardPage.Close();
     end;
 
-    local procedure CreateSuperUser(): Guid
-    var
-        User: Record User;
-    begin
-        User.Init();
-        User.Validate("User Name", UserId());
-        User.Validate("License Type", User."License Type"::"Full User");
-        User.Validate("User Security ID", CreateGuid());
-        User.Insert();
-
-        exit(User."User Security ID");
-    end;
-
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerAnsYes(Question: Text[1024]; var Reply: Boolean)
@@ -935,4 +922,3 @@ codeunit 132903 UserCardTest
         UserLookup.OK().Invoke();
     end;
 }
-

@@ -5,10 +5,6 @@
 namespace Microsoft.Inventory.BOM;
 
 using Microsoft.Inventory.Item;
-using Microsoft.Manufacturing.MachineCenter;
-using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.WorkCenter;
 using System.Reflection;
 
 table 5874 "BOM Warning Log"
@@ -62,12 +58,6 @@ table 5874 "BOM Warning Log"
     procedure ShowWarning()
     var
         Item: Record Item;
-        ProdBOMHeader: Record "Production BOM Header";
-        ProdBOMVersion: Record "Production BOM Version";
-        RtngHeader: Record "Routing Header";
-        RtngVersion: Record "Routing Version";
-        WorkCtr: Record "Work Center";
-        MachineCtr: Record "Machine Center";
         RecRef: RecordRef;
     begin
         if "Table ID" = 0 then
@@ -83,43 +73,14 @@ table 5874 "BOM Warning Log"
                     Item.SetRecFilter();
                     PAGE.RunModal(PAGE::"Item Card", Item);
                 end;
-            DATABASE::"Production BOM Header":
-                begin
-                    RecRef.SetTable(ProdBOMHeader);
-                    ProdBOMHeader.SetRecFilter();
-                    PAGE.RunModal(PAGE::"Production BOM", ProdBOMHeader);
-                end;
-            DATABASE::"Routing Header":
-                begin
-                    RecRef.SetTable(RtngHeader);
-                    RtngHeader.SetRecFilter();
-                    PAGE.RunModal(PAGE::Routing, RtngHeader);
-                end;
-            DATABASE::"Production BOM Version":
-                begin
-                    RecRef.SetTable(ProdBOMVersion);
-                    ProdBOMVersion.SetRecFilter();
-                    PAGE.RunModal(PAGE::"Production BOM Version", ProdBOMVersion);
-                end;
-            DATABASE::"Routing Version":
-                begin
-                    RecRef.SetTable(RtngVersion);
-                    RtngVersion.SetRecFilter();
-                    PAGE.RunModal(PAGE::"Routing Version", RtngVersion);
-                end;
-            DATABASE::"Machine Center":
-                begin
-                    RecRef.SetTable(MachineCtr);
-                    MachineCtr.SetRecFilter();
-                    PAGE.RunModal(PAGE::"Machine Center Card", MachineCtr);
-                end;
-            DATABASE::"Work Center":
-                begin
-                    RecRef.SetTable(WorkCtr);
-                    WorkCtr.SetRecFilter();
-                    PAGE.RunModal(PAGE::"Work Center Card", WorkCtr);
-                end;
         end;
+
+        OnAfterShowWarning(Rec, RecRef);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowWarning(var BOMWarningLog: Record "BOM Warning Log"; RecRef: RecordRef)
+    begin
     end;
 }
 

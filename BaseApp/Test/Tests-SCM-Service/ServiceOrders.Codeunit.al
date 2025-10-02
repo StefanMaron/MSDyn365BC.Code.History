@@ -4148,14 +4148,14 @@ codeunit 136101 "Service Orders"
         // [FEATURE] [Line Discount] [Sales Price] [Warranty]
         // [SCENARIO 348944] Change "Exclude Warranty" to True in Service Line
         Initialize();
-        // [GIVEN] Customer and Item 
+        // [GIVEN] Customer and Item
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Service Header for Customer
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
 
-        // [GIVEN] Sales Price with Item for Customer 
+        // [GIVEN] Sales Price with Item for Customer
         LibrarySales.CreateSalesPrice(
           SalesPrice, Item."No.", "Sales Price Type"::Customer, Customer."No.", WorkDate(), '', '', '', 0, LibraryRandom.RandInt(20));
         SalesPrice.Validate("Allow Line Disc.", false);
@@ -4375,7 +4375,7 @@ codeunit 136101 "Service Orders"
         NonBaseUOM: Record "Unit of Measure";
         BaseUOM: Record "Unit of Measure";
     begin
-        // [SCENARIO] A rounding to 0 error should be thrown if the entered non-base quantity converted to the 
+        // [SCENARIO] A rounding to 0 error should be thrown if the entered non-base quantity converted to the
         // base quantity is rounded to zero.
 
         // [GIVEN] A service line using non-base UoM with rounding precision of 0.01.
@@ -4461,7 +4461,7 @@ codeunit 136101 "Service Orders"
         NonBaseUOM: Record "Unit of Measure";
         BaseUOM: Record "Unit of Measure";
     begin
-        // [SCENARIO] A rounding to 0 error should be thrown if the entered non-base quantity converted to the 
+        // [SCENARIO] A rounding to 0 error should be thrown if the entered non-base quantity converted to the
         // base quantity is rounded to zero.
 
         // [GIVEN] A service line using non-base UoM with rounding precision of 0.01.
@@ -4549,7 +4549,7 @@ codeunit 136101 "Service Orders"
         NonBaseUOM: Record "Unit of Measure";
         BaseUOM: Record "Unit of Measure";
     begin
-        // [SCENARIO] A rounding to 0 error should be thrown if the entered non-base quantity converted to the 
+        // [SCENARIO] A rounding to 0 error should be thrown if the entered non-base quantity converted to the
         // base quantity is rounded to zero.
 
         // [GIVEN] A service line using non-base UoM with rounding precision of 0.01.
@@ -4637,7 +4637,7 @@ codeunit 136101 "Service Orders"
         NonBaseUOM: Record "Unit of Measure";
         BaseUOM: Record "Unit of Measure";
     begin
-        // [SCENARIO] A rounding to 0 error should be thrown if the entered non-base quantity converted to the 
+        // [SCENARIO] A rounding to 0 error should be thrown if the entered non-base quantity converted to the
         // base quantity is rounded to zero.
 
         // [GIVEN] A service line using non-base UoM with rounding precision of 0.01.
@@ -4696,7 +4696,7 @@ codeunit 136101 "Service Orders"
         BaseUOM: Record "Unit of Measure";
         TempServiceLine: Record "Service Line" temporary;
     begin
-        // [SCENARIO] It should be possible to split up the service line quantity between invoice and consume 
+        // [SCENARIO] It should be possible to split up the service line quantity between invoice and consume
         // without any imbalance.
 
         // [GIVEN] A service line using non-base UoM with rounding precision of 0.01.
@@ -4973,7 +4973,7 @@ codeunit 136101 "Service Orders"
         // [GIVEN] New customer
         LibrarySales.CreateCustomer(Customer);
 
-        // [GIVEN] New Service Quote with Service Item Line 
+        // [GIVEN] New Service Quote with Service Item Line
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, Customer."No.");
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -4990,7 +4990,7 @@ codeunit 136101 "Service Orders"
         ServiceHeader.FindFirst();
         ServiceHeader.TestField("Quote No.");
 
-        //IT layer issue    
+        //IT layer issue
         ServiceHeader.TestField("Posting No. Series");
         NoSeries.Get(ServiceHeader."Posting No. Series");
         if not NoSeries."Date Order" then begin
@@ -5311,7 +5311,7 @@ codeunit 136101 "Service Orders"
         AltCustPostGrp.Validate("Alt. Customer Posting Group", CustPostGroup.Code);
         AltCustPostGrp.Insert();
 
-        // [GIVEN] Create and Post Service Invoice with Customer Posting Group 
+        // [GIVEN] Create and Post Service Invoice with Customer Posting Group
         InvoiceNo := CreateAndPostServiceInvoiceWithCustomerPostingGroup(Customer."No.", CustPostGroup.Code, WorkDate());
 
         // [THEN] Check GL Entry Created With Service Header Customer Posting Group
@@ -5359,6 +5359,199 @@ codeunit 136101 "Service Orders"
 
         ServiceHeader.TestField("Document Date", NewDate);
         ServiceHeader.TestField("Posting Date", NewDate);
+    end;
+
+    [Test]
+    procedure ServiceOrderShippingFieldsBlankWhenNoDefaults()
+    var
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+    begin
+        // [SCENARIO 540299] Service Order shipping fields are left blank when neither Customer nor Ship-to Address have defaults
+        Initialize();
+
+        // [GIVEN] Create Customer without shipping defaults
+        LibrarySales.CreateCustomer(Customer);
+
+        // [WHEN] Create Service Order without Ship-to Code and no Customer defaults
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+
+        // [THEN] Verify shipping fields are blank
+        ServiceHeader.TestField("Shipment Method Code", '');
+        ServiceHeader.TestField("Shipping Agent Code", '');
+        ServiceHeader.TestField("Shipping Agent Service Code", '');
+    end;
+
+    [Test]
+    procedure ServiceOrderShippingFieldsFromCustomerDefaults()
+    var
+        Customer: Record Customer;
+        ShipmentMethod: Record "Shipment Method";
+        ShippingAgent: Record "Shipping Agent";
+        ShippingAgentServices: Record "Shipping Agent Services";
+        ServiceHeader: Record "Service Header";
+        ShippingTime: DateFormula;
+    begin
+        // [SCENARIO 540299] Service Order shipping fields are assigned from Customer defaults when Ship-to Address has no defaults
+        Initialize();
+
+        // [GIVEN] Create Shipment Method and Shipping Agent with Service
+        CreateShipmentMethod(ShipmentMethod);
+        LibraryInventory.CreateShippingAgent(ShippingAgent);
+        Evaluate(ShippingTime, '<1W>');
+        LibraryInventory.CreateShippingAgentService(ShippingAgentServices, ShippingAgent.Code, ShippingTime);
+
+        // [GIVEN] Create Customer with shipping defaults
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Shipment Method Code", ShipmentMethod.Code);
+        Customer.Validate("Shipping Agent Code", ShippingAgent.Code);
+        Customer.Validate("Shipping Agent Service Code", ShippingAgentServices.Code);
+        Customer.Modify(true);
+
+        // [WHEN] Create Service Order without Ship-to Code (uses Customer defaults)
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+
+        // [THEN] Verify shipping fields are assigned from Customer defaults
+        ServiceHeader.TestField("Shipment Method Code", Customer."Shipment Method Code");
+        ServiceHeader.TestField("Shipping Agent Code", Customer."Shipping Agent Code");
+        ServiceHeader.TestField("Shipping Agent Service Code", Customer."Shipping Agent Service Code");
+    end;
+
+    [Test]
+    procedure ServiceOrderShippingFieldsFromShipToAddressDefaults()
+    var
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        ShipmentMethod: Record "Shipment Method";
+        ShippingAgent: Record "Shipping Agent";
+        ShippingAgentServices: Record "Shipping Agent Services";
+        ServiceHeader: Record "Service Header";
+        ShippingTime: DateFormula;
+    begin
+        // [SCENARIO 540299] Service Order shipping fields are assigned from Ship-to Address defaults when defined
+        Initialize();
+
+        // [GIVEN] Create Shipment Method and Shipping Agent with Service
+        CreateShipmentMethod(ShipmentMethod);
+        LibraryInventory.CreateShippingAgent(ShippingAgent);
+        Evaluate(ShippingTime, '<1W>');
+        LibraryInventory.CreateShippingAgentService(ShippingAgentServices, ShippingAgent.Code, ShippingTime);
+
+        // [GIVEN] Create Customer without shipping defaults
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Ship-to Address with shipping defaults
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        ShipToAddress.Validate("Shipment Method Code", ShipmentMethod.Code);
+        ShipToAddress.Validate("Shipping Agent Code", ShippingAgent.Code);
+        ShipToAddress.Validate("Shipping Agent Service Code", ShippingAgentServices.Code);
+        ShipToAddress.Modify(true);
+
+        // [WHEN] Create Service Order with Ship-to Code
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+        ServiceHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        ServiceHeader.Modify(true);
+
+        // [THEN] Verify shipping fields are assigned from Ship-to Address
+        ServiceHeader.TestField("Shipment Method Code", ShipToAddress."Shipment Method Code");
+        ServiceHeader.TestField("Shipping Agent Code", ShipToAddress."Shipping Agent Code");
+        ServiceHeader.TestField("Shipping Agent Service Code", ShipToAddress."Shipping Agent Service Code");
+    end;
+
+    [Test]
+    procedure ServiceOrderShippingFieldsShipToAddressOverridesCustomer()
+    var
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        ShipmentMethod: array[2] of Record "Shipment Method";
+        ShippingAgent: array[2] of Record "Shipping Agent";
+        ShippingAgentServices: array[2] of Record "Shipping Agent Services";
+        ServiceHeader: Record "Service Header";
+        ShippingTime: DateFormula;
+    begin
+        // [SCENARIO 540299] Service Order shipping fields from Ship-to Address override Customer defaults when both are defined
+        Initialize();
+
+        // [GIVEN] Create two sets of Shipment Methods and Shipping Agents with Services
+        CreateShipmentMethod(ShipmentMethod[1]);
+        CreateShipmentMethod(ShipmentMethod[2]);
+        LibraryInventory.CreateShippingAgent(ShippingAgent[1]);
+        LibraryInventory.CreateShippingAgent(ShippingAgent[2]);
+        Evaluate(ShippingTime, '<1W>');
+        LibraryInventory.CreateShippingAgentService(ShippingAgentServices[1], ShippingAgent[1].Code, ShippingTime);
+        LibraryInventory.CreateShippingAgentService(ShippingAgentServices[2], ShippingAgent[2].Code, ShippingTime);
+
+        // [GIVEN] Create Customer with shipping defaults (set 1)
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Shipment Method Code", ShipmentMethod[1].Code);
+        Customer.Validate("Shipping Agent Code", ShippingAgent[1].Code);
+        Customer.Validate("Shipping Agent Service Code", ShippingAgentServices[1].Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Create Ship-to Address with different shipping defaults (set 2)
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        ShipToAddress.Validate("Shipment Method Code", ShipmentMethod[2].Code);
+        ShipToAddress.Validate("Shipping Agent Code", ShippingAgent[2].Code);
+        ShipToAddress.Validate("Shipping Agent Service Code", ShippingAgentServices[2].Code);
+        ShipToAddress.Modify(true);
+
+        // [WHEN] Create Service Order with Ship-to Code
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+        ServiceHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        ServiceHeader.Modify(true);
+
+        // [THEN] Verify shipping fields are assigned from Ship-to Address (set 2), not Customer (set 1)
+        ServiceHeader.TestField("Shipment Method Code", ShipToAddress."Shipment Method Code");
+        ServiceHeader.TestField("Shipping Agent Code", ShipToAddress."Shipping Agent Code");
+        ServiceHeader.TestField("Shipping Agent Service Code", ShipToAddress."Shipping Agent Service Code");
+
+        // [THEN] Verify they are NOT the Customer defaults
+        Assert.AreNotEqual(Customer."Shipment Method Code", ServiceHeader."Shipment Method Code", 'Ship-to should override Customer Shipment Method');
+        Assert.AreNotEqual(Customer."Shipping Agent Code", ServiceHeader."Shipping Agent Code", 'Ship-to should override Customer Shipping Agent');
+        Assert.AreNotEqual(Customer."Shipping Agent Service Code", ServiceHeader."Shipping Agent Service Code", 'Ship-to should override Customer Shipping Agent Service');
+    end;
+
+    [Test]
+    procedure ServiceOrderShippingFieldsPartialShipToAddressDefaults()
+    var
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        ShipmentMethod: Record "Shipment Method";
+        ShippingAgent: Record "Shipping Agent";
+        ShippingAgentServices: Record "Shipping Agent Services";
+        ServiceHeader: Record "Service Header";
+        ShippingTime: DateFormula;
+    begin
+        // [SCENARIO 540299] Service Order shipping fields use Ship-to defaults where defined, Customer defaults for others
+        Initialize();
+
+        // [GIVEN] Create Shipment Methods and Shipping Agent with Service
+        CreateShipmentMethod(ShipmentMethod);
+        LibraryInventory.CreateShippingAgent(ShippingAgent);
+        Evaluate(ShippingTime, '<1W>');
+        LibraryInventory.CreateShippingAgentService(ShippingAgentServices, ShippingAgent.Code, ShippingTime);
+
+        // [GIVEN] Create Customer with Shipment Method but no Shipping Agent
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Shipment Method Code", ShipmentMethod.Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Create Ship-to Address with only Shipping Agent and Service
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        ShipToAddress.Validate("Shipping Agent Code", ShippingAgent.Code);
+        ShipToAddress.Validate("Shipping Agent Service Code", ShippingAgentServices.Code);
+        ShipToAddress.Modify(true);
+
+        // [WHEN] Create Service Order with Ship-to Code
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+        ServiceHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        ServiceHeader.Modify(true);
+
+        // [THEN] Verify Shipment Method comes from Customer
+        ServiceHeader.TestField("Shipment Method Code", Customer."Shipment Method Code");
+        // [THEN] Verify Shipping Agent fields come from Ship-to Address
+        ServiceHeader.TestField("Shipping Agent Code", ShipToAddress."Shipping Agent Code");
+        ServiceHeader.TestField("Shipping Agent Service Code", ShipToAddress."Shipping Agent Service Code");
     end;
 
     local procedure Initialize()
@@ -5423,7 +5616,7 @@ codeunit 136101 "Service Orders"
         // [SCENARIO 480943] Shipping and invoicing service order with "Prohibited" and "Mandatory" settings of invoice posting policy.
         Initialize();
 
-        // [GIVEN] new Customer 
+        // [GIVEN] new Customer
         LibrarySales.CreateCustomer(Customer);
         // [GIVEN] new Service Item
         LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
@@ -5437,7 +5630,7 @@ codeunit 136101 "Service Orders"
         // [GIVEN] user allowed just to ship
         CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Prohibited);
 
-        // [GIVEN] posting shipment 
+        // [GIVEN] posting shipment
         InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.ShowPostedConfirmationMessageCode());
         LibraryVariableStorage.Enqueue(1); //ship
         OpenServiceOrderPageAndPost(ServiceHeader, true);
@@ -5474,7 +5667,7 @@ codeunit 136101 "Service Orders"
         // [SCENARIO 480943] Shipping and invoicing service order with "Prohibited" and "Mandatory" settings of invoice posting policy.
         Initialize();
 
-        // [GIVEN] new Customer 
+        // [GIVEN] new Customer
         LibrarySales.CreateCustomer(Customer);
         // [GIVEN] new Service Item
         LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
@@ -5510,7 +5703,7 @@ codeunit 136101 "Service Orders"
         ServiceItem: Record "Service Item";
         ServiceLine: Record "Service Line";
     begin
-        // [SCENARIO 522444] When run Release action from a Service Order having a Service Line without 
+        // [SCENARIO 522444] When run Release action from a Service Order having a Service Line without
         // Unit of Measure Code, then it gives error and the document is not released.
         Initialize();
 
@@ -5700,7 +5893,7 @@ codeunit 136101 "Service Orders"
         ServiceLine.Validate("Line Discount %", 100);
         ServiceLine.Modify(true);
     end;
-
+    
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerTRUE(Question: Text[1024]; var Reply: Boolean)
@@ -6664,30 +6857,6 @@ codeunit 136101 "Service Orders"
         ServiceItemWorksheet.ServInvLines.Description.SetValue(
           LibraryUtility.GenerateRandomCode(ServiceLine.FieldNo(Description), DATABASE::"Service Line"));
         ServiceItemWorksheet.ServInvLines.New();
-    end;
-
-    local procedure CreateServiceDocumentWithInvoiceDiscount(var ServiceLine: Record "Service Line") ServiceCharge: Decimal
-    var
-        Customer: Record Customer;
-        Item: Record Item;
-        ServiceHeader: Record "Service Header";
-        ServiceItem: Record "Service Item";
-        ServiceItemLine: Record "Service Item Line";
-    begin
-        // Create Customer, Item, Customer Invoice Discount, Service Order.
-        LibrarySales.CreateCustomer(Customer);
-        LibraryInventory.CreateItem(Item);
-        ServiceCharge := LibraryRandom.RandDec(10, 2);  // Generate Random Value for Service Charge.
-        CreateCustomerInvoiceDiscount(Customer."No.", LibraryRandom.RandDec(10, 2), ServiceCharge);  // Generate Random Value for Discount Percent.
-        CreateServiceItem(ServiceItem, Customer."No.", Item."No.");
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
-        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
-        CreateAndUpdateServiceLine(
-          ServiceHeader, ServiceLine.Type::Item, Item."No.", LibraryRandom.RandDec(100, 2),
-          ServiceItemLine."Line No.", 0);  // Take RANDOM Value for Quantity and zero for Line Discount.
-        GetServiceLine(ServiceLine, ServiceHeader);
-        ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity / 2);  // For Partial Shipping.
-        ServiceLine.Modify(true);
     end;
 
     local procedure CreateServiceDoumentLine(var ServiceItemLine: Record "Service Item Line"; DocumentType: Enum "Service Document Type")
@@ -8021,6 +8190,13 @@ codeunit 136101 "Service Orders"
         CustomReportSelection.Insert(true);
     end;
 
+    local procedure CreateShipmentMethod(var ShipmentMethod: Record "Shipment Method")
+    begin
+        ShipmentMethod.Init();
+        ShipmentMethod.Code := LibraryUtility.GenerateRandomCode(ShipmentMethod.FieldNo(Code), Database::"Shipment Method");
+        ShipmentMethod.Insert();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmMessageHandler(Question: Text[1024]; var Reply: Boolean)
@@ -8361,4 +8537,3 @@ codeunit 136101 "Service Orders"
         ServiceOrder.Cancel().Invoke();
     end;
 }
-

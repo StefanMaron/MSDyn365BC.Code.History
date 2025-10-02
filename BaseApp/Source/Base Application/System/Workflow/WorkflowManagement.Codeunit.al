@@ -34,10 +34,10 @@ codeunit 1501 "Workflow Management"
         WorkflowUpgradeTxt: Label 'Skip executing workflow during upgrade.', Locked = true;
         WorkflowEventEndTelemetryTxt: Label 'Workflow event: End Scope', Locked = true;
         WorkflowStepFoundTelemetryTxt: Label 'Active workflow step instance was found for the provided function and the conditions were met', Locked = true;
-        WorkflowStepCondionsNotMetTelemetryTxt: Label 'Active workflow step instances were found for the provided function, but the conditions were not met', Locked = true;
+        WorkflowStepConditionsNotMetTelemetryTxt: Label 'Active workflow step instances were found for the provided function, but the conditions were not met', Locked = true;
         WorkflowMatchingStepFoundTelemetryTxt: Label 'Matching workflow step instance found for the provided function', Locked = true;
         WorkflowInstanceCreatedTelemetryTxt: Label 'Workflow instance created', Locked = true;
-        WorkflowNotFoundTelementryTxt: Label 'No active workflow was found for the provided function', Locked = true;
+        WorkflowNotFoundTelemetryTxt: Label 'No active workflow or step instance found', Locked = true;
         WorkflowStepNotFoundTelemetryTxt: Label 'No actionable workflow step was found for the provided function or the conditions were not met', Locked = true;
         WorkflowArchiveTelemetryTxt: Label 'Workflow is being archived', Locked = true;
 
@@ -78,13 +78,17 @@ codeunit 1501 "Workflow Management"
     begin
         RecRef.GetTable(Variant);
         xRecRef.GetTable(xVariant);
-        WorkflowStepInstanceLoop.ReadIsolation := WorkflowStepInstanceLoop.ReadIsolation::ReadUncommitted;
-        WorkflowStepInstance2.ReadIsolation := WorkflowStepInstance2.ReadIsolation::ReadUncommitted;
-        WorkflowStepInstance.ReadIsolation := WorkflowStepInstance.ReadIsolation::ReadUncommitted;
 
         if not StartWorkflow then begin
             Workflow.SetRange(Enabled, true);
             if Workflow.IsEmpty() then begin
+                // Example Scenario:
+                //  1. Approval Workflow is enabled for Sales Order
+                //  2. An Approval is sent for a Sales Order -> Step Instance is created
+                //  3. The Workflow from (step 1) is disabled before the Approval (from step 2) is processed
+                //
+                // Disabled workflow can still have active workflow step instances (from before it was disabled, e.g. step 2)
+                WorkflowStepInstanceLoop.ReadIsolation := WorkflowStepInstanceLoop.ReadIsolation::ReadUncommitted;
                 WorkflowStepInstanceLoop.SetRange(Type, WorkflowStepInstanceLoop.Type::"Event");
                 WorkflowStepInstanceLoop.SetRange(Status, WorkflowStepInstanceLoop.Status::Active);
                 WorkflowStepInstanceLoop.SetRange("Function Name", FunctionName);
@@ -94,47 +98,75 @@ codeunit 1501 "Workflow Management"
             end;
         end;
 
-        WorkflowStepInstanceLoop.SetLoadFields("Sequence No.", "Previous Workflow Step ID");
-        WorkflowStepInstanceLoop.Reset();
+        WorkflowStepInstanceLoop.Reset(); // Reset will clear ReadIsolation and SetLoadFields
+        WorkflowStepInstanceLoop.ReadIsolation := WorkflowStepInstanceLoop.ReadIsolation::ReadUncommitted;
+        WorkflowStepInstanceLoop.SetLoadFields("Sequence No.", "Previous Workflow Step ID", Argument);
         WorkflowStepInstanceLoop.SetRange(Type, WorkflowStepInstanceLoop.Type::"Event");
         WorkflowStepInstanceLoop.SetRange(Status, WorkflowStepInstanceLoop.Status::Active);
         WorkflowStepInstanceLoop.SetRange("Function Name", FunctionName);
-        // "Previous Workflow Step ID" is used as primary key in WorkflowStepInstance2.Get inside the loop below. Assumtion is that no entry in WorkflowStepInstance can have ID = 0.
-        WorkflowStepInstanceLoop.SetFilter("Previous Workflow Step ID", '<>%1', 0);
+        WorkflowStepInstanceLoop.SetFilter("Previous Workflow Step ID", '<>%1', 0); // "Previous Workflow Step ID" is used as primary key in `WorkflowStepInstance2.Get` inside the loop below
         OnFindWorkflowStepInstanceWithOptionalWorkflowStartOnAfterSetWorkflowStepInstanceLoopFi1ters(RecRef, WorkflowStepInstanceLoop, FunctionName, StartWorkflow);
         WorkflowStepInstanceLoop.SetCurrentKey("Sequence No.");
 
+        WorkflowStepInstance2.SetLoadFields(Status, "Record ID");
+        WorkflowStepInstance2.ReadIsolation := WorkflowStepInstance2.ReadIsolation::ReadUncommitted;
+
+        WorkflowStepInstance.ReadIsolation := WorkflowStepInstance.ReadIsolation::ReadUncommitted;
+
+        // Example Scenario: There exists a sequence of workflow step instances like below
+        // Step1 -> Step2.1 -> Step3
+        //       \
+        //        -> Step2.2
+        //
+        // Each of the step instances have properties:
+        // Step1   - "Previous Workflow Step ID" = 0       - Status = Complete|Processing
+        // Step2.1 - "Previous Workflow Step ID" = Step1   - Status = Active                - Condition = Met
+        // Step2.2 - "Previous Workflow Step ID" = Step1   - Status = Active                - Condition = Not Met
+        // Step3   - "Previous Workflow Step ID" = Step2.1
+        //
+        // Below Loop will find Step2.1 and return true
         if WorkflowStepInstanceLoop.FindSet() then
             repeat
-                WorkflowStepInstance2.SetLoadFields(Status, "Record ID");
+                // below IF statements separated for performance reasons, no short-circuit evaluation in AL
                 if WorkflowStepInstance2.Get(WorkflowStepInstanceLoop.ID, WorkflowStepInstanceLoop."Workflow Code", WorkflowStepInstanceLoop."Previous Workflow Step ID") then
-                    if (Format(WorkflowStepInstance2."Record ID") = Format(RecRef.RecordId)) and
-                       (WorkflowStepInstance2.Status in [WorkflowStepInstance2.Status::Completed, WorkflowStepInstance2.Status::Processing])
-                    then begin
-                        ActiveStepInstanceFound := true;
-                        if WorkflowStepInstance.Get(WorkflowStepInstanceLoop.ID, WorkflowStepInstanceLoop."Workflow Code", WorkflowStepInstanceLoop."Workflow Step ID") then begin
-                            WorkflowStepInstance.FindWorkflowRules(WorkflowRule);
-                            if EvaluateCondition(RecRef, xRecRef, WorkflowStepInstance.Argument, WorkflowRule) then begin
+                    if WorkflowStepInstance2.Status in [WorkflowStepInstance2.Status::Completed, WorkflowStepInstance2.Status::Processing] then
+                        if Format(WorkflowStepInstance2."Record ID") = Format(RecRef.RecordId) then begin
+                            ActiveStepInstanceFound := true;
+                            WorkflowStepInstanceLoop.FindWorkflowRules(WorkflowRule);
+                            if EvaluateCondition(RecRef, xRecRef, WorkflowStepInstanceLoop.Argument, WorkflowRule) then begin // Step2.1 in above example
+                                WorkflowStepInstance.Get(WorkflowStepInstanceLoop.ID, WorkflowStepInstanceLoop."Workflow Code", WorkflowStepInstanceLoop."Workflow Step ID");
                                 GetTelemetryDimensions(FunctionName, WorkflowStepInstance.ToString(), TelemetryDimensions);
                                 Session.LogMessage('0000DZB', WorkflowStepFoundTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
 
                                 exit(true);
                             end;
                         end;
-                    end;
             until WorkflowStepInstanceLoop.Next() = 0;
 
-        // If the execution reaches inside this IF, it means that
-        // active steps were found but the conditions were not met.
+        // This occurs when there are active steps found, but the conditions were not met
+        // e.g. If Step2.1 from above scenario doesn't exist, we will find Step2.2 and return false instead
         if ActiveStepInstanceFound then begin
             GetTelemetryDimensions(FunctionName, '', TelemetryDimensions);
-            Session.LogMessage('0000DZC', WorkflowStepCondionsNotMetTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
+            Session.LogMessage('0000DZC', WorkflowStepConditionsNotMetTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
 
             exit(false);
         end;
 
         WorkflowStepInstance.Reset();
         WorkflowStepInstance.ReadIsolation := WorkflowStepInstance.ReadIsolation::ReadUncommitted;
+        // Example Scenario:
+        // 1. Post Purchase Invoice (No. = 10804)
+        // 2. Workflow is set up to automatically create a General Journal Line for posted Purchase Invoice
+        // 3. RecRef is (about to be inserted) General Journal Line (table = 81, field 36 "Applies-to Doc. No." = 10804)
+        // 4. "Workflow Table Relation Value" has one entry matching
+        //     - Table ID = 122 (Purchase Invoice Header)
+        //     - Field ID = 3   (No.)
+        //     - Related Table ID = 81 (General Journal Line)
+        //     - Related Field ID = 36 (Applies-to Doc. No.)
+        //     - Value = 10804
+        //
+        // This scenario is not caught in the previous loop, because we can't know RecRef.RecordId in advance.
+        // The corresponding Workflow Step Instance's "Record ID" field is, in fact, empty.
         if FindMatchingWorkflowStepInstance(RecRef, xRecRef, WorkflowStepInstance, FunctionName) then begin
             GetTelemetryDimensions(FunctionName, WorkflowStepInstance.ToString(), TelemetryDimensions);
             Session.LogMessage('0000DZD', WorkflowMatchingStepFoundTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
@@ -144,6 +176,7 @@ codeunit 1501 "Workflow Management"
 
         WorkflowStepInstance.Reset();
         WorkflowStepInstance.ReadIsolation := WorkflowStepInstance.ReadIsolation::ReadUncommitted;
+        // When no workflow step instance is found, we check if a workflow is enabled for the provided function name and ready to start
         if FindWorkflow(RecRef, xRecRef, FunctionName, Workflow) then begin
             if StartWorkflow then begin
                 InstantiateWorkflow(Workflow, FunctionName, WorkflowStepInstance);
@@ -153,9 +186,6 @@ codeunit 1501 "Workflow Management"
             end;
             exit(true);
         end;
-
-        GetTelemetryDimensions(FunctionName, '', TelemetryDimensions);
-        Session.LogMessage('0000DZE', WorkflowNotFoundTelementryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
 
         exit(false);
     end;
@@ -262,6 +292,7 @@ codeunit 1501 "Workflow Management"
     var
         WorkflowRule: Record "Workflow Rule";
     begin
+        WorkflowStepInstance.ReadIsolation := WorkflowStepInstance.ReadIsolation::ReadUncommitted;
         WorkflowStepInstance.SetLoadFields(Argument, "Original Workflow Code", "Original Workflow Step ID");
         WorkflowStepInstance.SetRange("Function Name", FunctionName);
         WorkflowStepInstance.SetRange(Type, WorkflowStepInstance.Type::"Event");
@@ -438,11 +469,15 @@ codeunit 1501 "Workflow Management"
     var
         Workflow: Record Workflow;
         WorkflowEvent: Record "Workflow Event";
+        TelemetryDimensions: Dictionary of [Text, Text];
     begin
         Workflow.SetRange(Enabled, true);
         WorkflowStepInstance.ReadIsolation(WorkflowStepInstance.ReadIsolation::ReadUncommitted);
-        if WorkflowStepInstance.IsEmpty() and Workflow.IsEmpty() then
+        if WorkflowStepInstance.IsEmpty() and Workflow.IsEmpty() then begin
+            GetTelemetryDimensions(FunctionName, '', TelemetryDimensions);
+            Session.LogMessage('0000DZE', WorkflowNotFoundTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
             exit(false);
+        end;
 
         WorkflowEvent.Get(FunctionName);
 

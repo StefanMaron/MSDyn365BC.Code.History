@@ -25,7 +25,6 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
-using Microsoft.Service.History;
 using System.IO;
 using System.Telemetry;
 using System.Utilities;
@@ -133,6 +132,7 @@ report 10743 "Make 340 Declaration"
                     var
                         SourceCodeSetup: Record "Source Code Setup";
                         UnrealizedVATEntry: Record "VAT Entry";
+                        ShouldExit: Boolean;
                     begin
                         SalesCrMemoHeader.Reset();
                         SalesInvHeader.Reset();
@@ -161,12 +161,12 @@ report 10743 "Make 340 Declaration"
                                                         Customer."VAT Registration No." := SalesInvHeader."VAT Registration No.";
                                                         exit;
                                                     end
-                                                end else
-                                                    if ServiceInvHeader.Get(VATEntry."Document No.") then begin
-                                                        Customer.Name := ServiceInvHeader."Bill-to Name";
-                                                        Customer."VAT Registration No." := ServiceInvHeader."VAT Registration No.";
+                                                end else begin
+                                                    ShouldExit := false;
+                                                    OnGetCustomerDataFromServiceInvoice(VATEntry, Customer, ShouldExit);
+                                                    if ShouldExit then
                                                         exit;
-                                                    end;
+                                                end;
                                             end;
                                         VATEntry."Document Type"::"Credit Memo":
                                             begin
@@ -177,12 +177,12 @@ report 10743 "Make 340 Declaration"
                                                         Customer."VAT Registration No." := SalesCrMemoHeader."VAT Registration No.";
                                                         exit;
                                                     end
-                                                end else
-                                                    if ServiceCrMemoHeader.Get(VATEntry."Document No.") then begin
-                                                        Customer.Name := ServiceCrMemoHeader."Bill-to Name";
-                                                        Customer."VAT Registration No." := ServiceCrMemoHeader."VAT Registration No.";
+                                                end else begin;
+                                                    ShouldExit := false;
+                                                    OnGetCustomerDataFromServiceCrMemo(VATEntry, Customer, ShouldExit);
+                                                    if ShouldExit then
                                                         exit;
-                                                    end;
+                                                end;
                                             end;
                                     end;
                                 end;
@@ -625,8 +625,6 @@ report 10743 "Make 340 Declaration"
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
         PurchInvHeader: Record "Purch. Inv. Header";
         Vendor: Record Vendor;
-        ServiceInvHeader: Record "Service Invoice Header";
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         VATEntryTemporary: Record "VAT Entry" temporary;
         TempDeclarationLines: Record "340 Declaration Line" temporary;
         TempVATEntry: Record "VAT Entry" temporary;
@@ -646,7 +644,7 @@ report 10743 "Make 340 Declaration"
         TotalNoofRecords: Text[9];
         GPPGFilterString: Text[1024];
         PrevDeclareNumText: Text[13];
-        CorreInvoiceText: Text[40];
+        CorrInvoiceText: Text[40];
         TotalBaseAmtText: Text[18];
         TotalVATAmtText: Text[18];
         TotalInvAmtText: Text[18];
@@ -920,7 +918,7 @@ report 10743 "Make 340 Declaration"
         OperationDateText := '';
         CountryCode := '';
         ResidentIDText := '';
-        CorreInvoiceText := '';
+        CorrInvoiceText := '';
         DocumentDate := VATEntry."Document Date";
 
         NoofRegistersText := GetNoOfRegsText();
@@ -928,40 +926,38 @@ report 10743 "Make 340 Declaration"
         CountryCode := Customer."Country/Region Code";
         CustVATNumber := GetVATNumber(Customer."Country/Region Code", Customer."VAT Registration No.");
         InitCountryResidentInfo(Customer."Country/Region Code", Customer."VAT Registration No.");
-        if VATEntry."Document Type" = VATEntry."Document Type"::"Credit Memo" then begin
-            OperationDateText := FormatDate(VATEntry."Posting Date");
-            if SalesCrMemoHeader.Get(VATEntry."Document No.") then begin
-                if SalesCrMemoHeader."Corrected Invoice No." <> '' then begin
-                    if SalesInvHeader.Get(SalesCrMemoHeader."Corrected Invoice No.") then begin
-                        OperationDateText := FormatDate(SalesInvHeader."Posting Date");
-                        CorreInvoiceText := Format(SalesCrMemoHeader."Corrected Invoice No.");
-                    end;
-                end else begin
-                    OperationDate := GetSalesReturnReciptDate(VATEntry."Document No.");
+        case VATEntry."Document Type" of 
+            VATEntry."Document Type"::"Credit Memo":
+                begin
+                    OperationDateText := FormatDate(VATEntry."Posting Date");
+                    if SalesCrMemoHeader.Get(VATEntry."Document No.") then begin
+                        if SalesCrMemoHeader."Corrected Invoice No." <> '' then begin
+                            if SalesInvHeader.Get(SalesCrMemoHeader."Corrected Invoice No.") then begin
+                                OperationDateText := FormatDate(SalesInvHeader."Posting Date");
+                                CorrInvoiceText := Format(SalesCrMemoHeader."Corrected Invoice No.");
+                            end;
+                        end else begin
+                            OperationDate := GetSalesReturnReciptDate(VATEntry."Document No.");
+                            if OperationDate <> 0D then
+                                OperationDateText := FormatDate(OperationDate)
+                            else
+                                OperationDateText := FormatDate(VATEntry."Posting Date");
+                            CorrInvoiceText := '';
+                        end;
+                    end else
+                        OnRecordTypeSaleOnGetOperationDate(VATEntry, OperationDateText, CorrInvoiceText);
+                end;
+            VATEntry."Document Type"::Invoice:
+                begin
+                    OperationDate := GetSalesShipmentDate(VATEntry."Document No.");
                     if OperationDate <> 0D then
                         OperationDateText := FormatDate(OperationDate)
                     else
                         OperationDateText := FormatDate(VATEntry."Posting Date");
-                    CorreInvoiceText := '';
-                end;
-            end else
-                if ServiceCrMemoHeader.Get(VATEntry."Document No.") then
-                    if ServiceCrMemoHeader."Corrected Invoice No." <> '' then begin
-                        if ServiceInvHeader.Get(ServiceCrMemoHeader."Corrected Invoice No.") then begin
-                            OperationDateText := FormatDate(ServiceInvHeader."Posting Date");
-                            CorreInvoiceText := Format(ServiceCrMemoHeader."Corrected Invoice No.");
-                        end;
-                    end else
-                        OperationDateText := FormatDate(ServiceCrMemoHeader."Posting Date");
-        end else
-            if VATEntry."Document Type" = VATEntry."Document Type"::Invoice then begin
-                OperationDate := GetSalesShipmentDate(VATEntry."Document No.");
-                if OperationDate <> 0D then
-                    OperationDateText := FormatDate(OperationDate)
-                else
-                    OperationDateText := FormatDate(VATEntry."Posting Date");
-            end else
+                end
+            else
                 OperationDateText := FormatDate(VATEntry."Posting Date");
+        end;
 
         AppliedToDocumentNo := VATEntry."Document No.";
         UnrealizedVATEntryNo := 0;
@@ -980,7 +976,7 @@ report 10743 "Make 340 Declaration"
 
         CreateTempDeclarationLines(PadStr(CustVATNumber, 9, ' '), Customer."No.", Customer.Name, DocumentDate,
           AppliedToDocumentNo, Format(VATEntry."Document Type"),
-          '00000001', PadStr(CorreInvoiceText, 40, ' '),
+          '00000001', PadStr(CorrInvoiceText, 40, ' '),
           UnrealizedVATEntryNo, VATEntry."Transaction No.", VATEntry."Posting Date", VATEntry."VAT Cash Regime");
     end;
 
@@ -996,7 +992,7 @@ report 10743 "Make 340 Declaration"
         OperationDateText := '';
         CountryCode := '';
         ResidentIDText := '';
-        CorreInvoiceText := '';
+        CorrInvoiceText := '';
         VATNoPermanentResidentCountry := '';
         DocumentDate := VATEntryRec."Document Date";
 
@@ -1006,23 +1002,23 @@ report 10743 "Make 340 Declaration"
 
         CountryCode := PadStr(Vendor."Country/Region Code", 2, ' ');
         InitCountryResidentInfo(Vendor."Country/Region Code", Vendor."VAT Registration No.");
-        if VATEntryRec."Document Type" = VATEntryRec."Document Type"::"Credit Memo" then
-            if PurchCrMemoHeader."Corrected Invoice No." <> '' then begin
-                if PurchInvHeader.Get(PurchCrMemoHeader."Corrected Invoice No.") then begin
-                    OperationDateText := FormatDate(PurchInvHeader."Posting Date");
-                    CorreInvoiceText := Format(PurchCrMemoHeader."Corrected Invoice No.");
-                end else
-                    OperationDateText := FormatDate(VATEntryRec."Posting Date");
-            end else begin
-                OperationDate := GetPurchReturnShipmentDate(VATEntryRec."Document No.");
-                if OperationDate <> 0D then
-                    OperationDateText := FormatDate(OperationDate)
-                else
-                    OperationDateText := FormatDate(VATEntryRec."Posting Date");
-                CorreInvoiceText := '';
-            end
-        else
-            if VATEntryRec."Document Type" = VATEntryRec."Document Type"::Invoice then begin
+        case VATEntryRec."Document Type" of
+            VATEntryRec."Document Type"::"Credit Memo":
+                if PurchCrMemoHeader."Corrected Invoice No." <> '' then begin
+                    if PurchInvHeader.Get(PurchCrMemoHeader."Corrected Invoice No.") then begin
+                        OperationDateText := FormatDate(PurchInvHeader."Posting Date");
+                        CorrInvoiceText := Format(PurchCrMemoHeader."Corrected Invoice No.");
+                    end else
+                        OperationDateText := FormatDate(VATEntryRec."Posting Date");
+                end else begin
+                    OperationDate := GetPurchReturnShipmentDate(VATEntryRec."Document No.");
+                    if OperationDate <> 0D then
+                        OperationDateText := FormatDate(OperationDate)
+                    else
+                        OperationDateText := FormatDate(VATEntryRec."Posting Date");
+                    CorrInvoiceText := '';
+                end;
+            VATEntryRec."Document Type"::Invoice:
                 if not PurchSetup."Receipt on Invoice" then begin
                     OperationDate := GetShipmentDate(VATEntryRec."Document No.");
                     if OperationDate <> 0D then
@@ -1031,8 +1027,9 @@ report 10743 "Make 340 Declaration"
                         OperationDateText := FormatDate(VATEntryRec."Posting Date")
                 end else
                     OperationDateText := FormatDate(VATEntryRec."Posting Date");
-            end else
+            else
                 OperationDateText := FormatDate(VATEntryRec."Posting Date");
+        end;
 
         VATBuffer2.Base := VATBuffer.Base;
         VATBuffer2.Amount := VATBuffer.Amount;
@@ -1058,7 +1055,7 @@ report 10743 "Make 340 Declaration"
             VATBuffer2."EC %" := 0;
             CreateTempDeclarationLines(PadStr(VendVATNumber, 9, ' '), Vendor."No.", Vendor.Name, DocumentDate,
               VendorDocumentNo, Format(VATEntryRec."Document Type"),
-              '00000001', PadStr(CorreInvoiceText, 40, ' '),
+              '00000001', PadStr(CorrInvoiceText, 40, ' '),
               UnrealizedVATEntryNo, VATEntryRec."Transaction No.", VATEntryRec."Posting Date", VATEntryRec."VAT Cash Regime");
         end else
             CreateTempDeclarationLines(PadStr(VendVATNumber, 9, ' '), Vendor."No.", Vendor.Name, DocumentDate,
@@ -2384,6 +2381,21 @@ report 10743 "Make 340 Declaration"
         GetResidentIDText(CountryRegionCode);
         GetVATNoPermnentResidntCntry(CountryRegionCode, VATRegistrationNo);
         CountryCode := PadStr(CountryRegionCode, 2, ' ')
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCustomerDataFromServiceInvoice(VATEntry: Record "VAT Entry"; var Customer: Record Customer; var ShouldExit: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCustomerDataFromServiceCrMemo(VATEntry: Record "VAT Entry"; var Customer: Record Customer; var ShouldExit: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecordTypeSaleOnGetOperationDate(VATEntry: Record "VAT Entry"; var OperationDateText: Text; var CorrInvoiceText: Text)
+    begin
     end;
 }
 

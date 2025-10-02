@@ -46,7 +46,6 @@ page 6033 "Service Invoice Statistics"
                     AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     Caption = 'Pmt. Discount Amount';
-                    Editable = true;
                     ToolTip = 'Specifies the payment discount amount that you have granted to customers. ';
                 }
                 field(CustAmount; CustAmount)
@@ -300,8 +299,8 @@ page 6033 "Service Invoice Statistics"
         end;
 
         ServInvLine.CalcVATAmountLines(Rec, TempVATAmountLine);
-        CurrPage.Subform.PAGE.SetTempVATAmountLine(TempVATAmountLine);
-        CurrPage.Subform.PAGE.InitGlobals(Rec."Currency Code", false, false, false, false, Rec."VAT Base Discount %");
+        CurrPage.Subform.Page.SetTempVATAmountLine(TempVATAmountLine);
+        CurrPage.Subform.Page.InitGlobals(Rec."Currency Code", false, false, false, false, Rec."VAT Base Discount %");
     end;
 
     var
