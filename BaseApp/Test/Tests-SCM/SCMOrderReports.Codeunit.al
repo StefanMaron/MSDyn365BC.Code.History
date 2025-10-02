@@ -204,9 +204,9 @@ codeunit 137303 "SCM Order Reports"
     end;
 
     [Test]
-    [HandlerFunctions('CompareListRequestPageHandler')]
+    [HandlerFunctions('CompareProductionCostSharesRequestPageHandler')]
     [Scope('OnPrem')]
-    procedure ProductionBOMCompareListReport()
+    procedure ProductionBOMCompareProductionCostSharesReport()
     var
         Item: array[4] of Record Item;
         "Count": Integer;
@@ -221,26 +221,25 @@ codeunit 137303 "SCM Order Reports"
             Item[Count].Modify(true);
         end;
 
-        // Exercise : Create Two Production BOM with Item array. Generate Compare List Report.
+        // Exercise : Create Two Production BOM with Item array. Generate Compare Production Cost Shares Report.
         CreateProductionBOMAndLine(Item, 1);
         CreateProductionBOMAndLine(Item, 2);
         Commit();
         LibraryVariableStorage.Enqueue(Item[1]."No.");
         LibraryVariableStorage.Enqueue(Item[2]."No.");
-        LibraryVariableStorage.Enqueue(WorkDate());
-        REPORT.Run(REPORT::"Compare List", true, false);
+        Report.Run(Report::"Compare Production Cost Shares", true, false);
 
-        // Verify: Check that the value of Unit Cost in Compare List is equal to the value of Unit Cost in corresponding Production
+        // Verify: Check that the value of Unit Cost in Compare Production Cost Shares is equal to the value of Unit Cost in corresponding Production
         // BOM Item. Check that Exploded Quantity.
         LibraryReportDataset.LoadDataSetFile();
-        VerifyCompareListReport(Item[3]);
-        VerifyCompareListReport(Item[4]);
+        VerifyCompareProductionCostSharesReport(Item[3]);
+        VerifyCompareProductionCostSharesReport(Item[4]);
     end;
 
     [Test]
-    [HandlerFunctions('CompareListRequestPageHandler')]
+    [HandlerFunctions('CompareProductionCostSharesRequestPageHandler')]
     [Scope('OnPrem')]
-    procedure ProductionBOMWithVersionCompareListReport()
+    procedure ProductionBOMWithVersionCompareProductionCostSharesReport()
     var
         Item1: Record Item;
         Item2: Record Item;
@@ -272,8 +271,7 @@ codeunit 137303 "SCM Order Reports"
         Commit();
         LibraryVariableStorage.Enqueue(Item1."No.");
         LibraryVariableStorage.Enqueue(Item2."No.");
-        LibraryVariableStorage.Enqueue(WorkDate());
-        Report.Run(Report::"Compare List", true, false);
+        Report.Run(Report::"Compare Production Cost Shares", true, false);
     end;
 
     local procedure Initialize()
@@ -382,6 +380,7 @@ codeunit 137303 "SCM Order Reports"
     begin
         // Create Production BOM Header and two Production BOM Line.
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item[Count]."Base Unit of Measure");
+        Item[Count].Validate("Replenishment System", Item[Count]."Replenishment System"::"Prod. Order");
         Item[Count].Validate("Production BOM No.", ProductionBOMHeader."No.");
         Item[Count].Modify(true);
 
@@ -467,11 +466,13 @@ codeunit 137303 "SCM Order Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_PurchLine', PurchaseLine.Quantity);
     end;
 
-    local procedure VerifyCompareListReport(var Item: Record Item)
+    local procedure VerifyCompareProductionCostSharesReport(var Item: Record Item)
     begin
-        LibraryReportDataset.SetRange('BOMMatrixListItemNo', Item."No.");
+        LibraryReportDataset.SetRange('No', Item."No.");
         LibraryReportDataset.GetNextRow();
-        LibraryReportDataset.AssertCurrentRowValueEquals('CompItemUnitCost', Item."Unit Cost");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Item2UnitCost', Item."Unit Cost");
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals('Item1UnitCost', Item."Unit Cost");
     end;
 
     [RequestPageHandler]
@@ -505,21 +506,18 @@ codeunit 137303 "SCM Order Reports"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure CompareListRequestPageHandler(var CompareList: TestRequestPage "Compare List")
+    procedure CompareProductionCostSharesRequestPageHandler(var CompareProductionCostShares: TestRequestPage "Compare Production Cost Shares")
     var
         ItemNo1: Variant;
         ItemNo2: Variant;
-        CalcDate: Variant;
     begin
         LibraryVariableStorage.Dequeue(ItemNo1);
         LibraryVariableStorage.Dequeue(ItemNo2);
-        LibraryVariableStorage.Dequeue(CalcDate);
 
-        CompareList.ItemNo1.SetValue(ItemNo1);
-        CompareList.ItemNo2.SetValue(ItemNo2);
-        CompareList.CalculationDt.SetValue(CalcDate);
+        CompareProductionCostShares.ItemNo1.SetValue(ItemNo1);
+        CompareProductionCostShares.ItemNo2.SetValue(ItemNo2);
 
-        CompareList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+        CompareProductionCostShares.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

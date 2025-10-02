@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Ledger;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.GeneralLedger.Ledger;
 
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Dimension;
@@ -451,7 +455,7 @@ report 98 "Date Compress General Ledger"
     begin
         NewGLEntry.Amount := NewGLEntry.Amount + GLEntry.Amount;
         NewGLEntry."Source Currency Amount" := NewGLEntry."Source Currency Amount" + GLEntry."Source Currency Amount";
-#if not CLEAN24
+#if not CLEAN25
         NewGLEntry."Amount (FCY)" := NewGLEntry."Amount (FCY)" + GLEntry."Amount (FCY)";
 #endif
         NewGLEntry."VAT Amount" := NewGLEntry."VAT Amount" + GLEntry."VAT Amount";
@@ -647,4 +651,3 @@ report 98 "Date Compress General Ledger"
     begin
     end;
 }
-

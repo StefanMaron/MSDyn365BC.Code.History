@@ -1,4 +1,5 @@
-﻿codeunit 14060 "UPG Data Out Of Geo. Apps"
+#pragma warning disable AA0247
+codeunit 14060 "UPG Data Out Of Geo. Apps"
 {
     Subtype = Upgrade;
 

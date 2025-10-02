@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Warehouse.Structure;
 
 table 7303 "Bin Type"
@@ -164,25 +168,6 @@ table 7303 "Bin Type"
         end;
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by procedure CreateBinTypeFilter(var BinTypeFilter: Text; BinTypeFieldNo: Integer)', '24.0')]
-    procedure CreateBinTypeFilter(var BinTypeFilter: Text[250]; Type: Option Receive,Ship,"Put-away",Pick)
-    var
-        BinTypeFilter2: Text;
-    begin
-        case Type of
-            Type::Receive:
-                MakeBinTypeFilter(BinTypeFilter2, FieldNo(Receive));
-            Type::Ship:
-                MakeBinTypeFilter(BinTypeFilter2, FieldNo(Ship));
-            Type::"Put-away":
-                MakeBinTypeFilter(BinTypeFilter2, FieldNo("Put Away"));
-            Type::Pick:
-                MakeBinTypeFilter(BinTypeFilter2, FieldNo(Pick));
-        end;
-        BinTypeFilter := CopyStr(BinTypeFilter2, 1, MaxStrLen(BinTypeFilter));
-    end;
-#endif
 
 #if not CLEAN26
     [Obsolete('Replaced by procedure MakeBinTypeFilter(var BinTypeFilter: Text; BinTypeFieldNo: Integer)', '26.0')]
@@ -286,4 +271,3 @@ table 7303 "Bin Type"
     begin
     end;
 }
-

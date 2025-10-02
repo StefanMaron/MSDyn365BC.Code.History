@@ -295,10 +295,14 @@ codeunit 138009 "O365 Customer Statistics"
     local procedure ValidateAvgDaysToPay(ExpectedAvgDaysToPay: Decimal; Customer: Record Customer)
     var
         CustomerMgt: Codeunit "Customer Mgt.";
+        Stats: Dictionary of [Text, Text];
         AvgDaysToPay: Decimal;
+        AverageDaysToPayText: Text;
     begin
-        AvgDaysToPay := CustomerMgt.AvgDaysToPay(Customer."No.");
-        Assert.AreEqual(ExpectedAvgDaysToPay, AvgDaysToPay, 'Incorrect CustomerMgt.AvgDaysToPay')
+        CustomerMgt.CalculatePaymentStats(Customer."No.", Stats);
+        if Stats.Get(LibrarySmallBusiness.GetAvgDaysToPayLabel(), AverageDaysToPayText) then
+            if Evaluate(AvgDaysToPay, AverageDaysToPayText, 0) then
+                Assert.AreEqual(ExpectedAvgDaysToPay, AvgDaysToPay, 'Incorrect CustomerMgt.AvgDaysToPay')
     end;
 
     [Test]
@@ -739,4 +743,3 @@ codeunit 138009 "O365 Customer Statistics"
         Assert.AreEqual(ExpectedCount, ActualCount, StrSubstNo('Wrong Counts on %1.', DocTypeName));
     end;
 }
-

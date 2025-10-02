@@ -47,13 +47,11 @@ using Microsoft.Purchases.Document;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Item.Substitution;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Inventory.Costing;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Warehouse.Activity.History;
 using Microsoft.Service.Maintenance;
 using Microsoft.Projects.Resources.Ledger;
@@ -152,7 +150,6 @@ permissionset 8322 "Service Documents - Post"
                   tabledata "Job Register" = Rim,
                   tabledata Location = R,
                   tabledata "Lot No. Information" = R,
-                  tabledata "Manufacturing Setup" = R,
                   tabledata "Package No. Information" = R,
                   tabledata "Payment Terms" = R,
                   tabledata "Post Value Entry to G/L" = I,
@@ -164,8 +161,6 @@ permissionset 8322 "Service Documents - Post"
                   tabledata "Price List Line" = R,
                   tabledata "Price Source" = R,
                   tabledata "Price Worksheet Line" = R,
-                  tabledata "Prod. Order Component" = R,
-                  tabledata "Prod. Order Line" = R,
                   tabledata "Purchase Line" = R,
                   tabledata "Registered Whse. Activity Line" = R,
                   tabledata "Repair Status" = R,

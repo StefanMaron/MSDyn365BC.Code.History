@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.HumanResources.Employee;
 
 using Microsoft.CostAccounting.Account;
@@ -159,6 +163,12 @@ table 1384 "Employee Templ."
         field(80; "Application Method"; Enum "Application Method")
         {
             Caption = 'Application Method';
+        }
+        field(175; "Allow Multiple Posting Groups"; Boolean)
+        {
+            Caption = 'Allow Multiple Posting Groups';
+            DataClassification = SystemMetadata;
+            ToolTip = 'Specifies if multiple posting groups can be used for posting business transactions for this employee.';
         }
         field(1100; "Cost Center Code"; Code[20])
         {

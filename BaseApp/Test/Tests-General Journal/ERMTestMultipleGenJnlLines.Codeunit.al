@@ -1494,7 +1494,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // [GIVEN] "Suggest balancing amount" is True on Journal Template
         CreateGeneralJournalBatchSuggestBalAmount(GenJournalBatch, true);
 
-        // [GIVEN] Create Gen. Jnl. Line 1 
+        // [GIVEN] Create Gen. Jnl. Line 1
         CreateSimpleGenJnlLine(
           GenJournalLine, GenJournalBatch, LibraryRandom.RandDec(100, 2),
           LibraryUtility.GenerateGUID());
@@ -1505,7 +1505,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         LastGenJournalLine := GenJournalLine;
         LastGenJournalLine."Account No." := LibraryUtility.GenerateGUID();
 
-        // [WHEN] 3rd Gen. Jnl. Line is created 
+        // [WHEN] 3rd Gen. Jnl. Line is created
         InitializeGenJournalLine(GenJournalLine, LastGenJournalLine, GenJournalBatch);
 
         // [WHEN] It should have new document no.
@@ -1935,15 +1935,6 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalLineWithDocNo(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentNo: Code[20])
-    begin
-        LibraryERM.CreateGeneralJnlLine(
-          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDec(10, 2));
-        GenJournalLine.Validate("Document No.", DocumentNo);
-        GenJournalLine.Modify(true);
-    end;
-
     local procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")
     var
         ItemJournalTemplate: Record "Item Journal Template";
@@ -2212,16 +2203,6 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
     end;
 
-    local procedure UpdateManualNosOnNoSeries(NoSeriesCode: Code[20]; ManualNos: Boolean) OldManualNos: Boolean
-    var
-        NoSeries: Record "No. Series";
-    begin
-        NoSeries.Get(NoSeriesCode);
-        OldManualNos := NoSeries."Manual Nos.";
-        NoSeries."Manual Nos." := ManualNos;
-        NoSeries.Modify();
-    end;
-
     local procedure UpdateJnlTemplateSourceCode(TemplateName: Code[10]; SourceCode: Record "Source Code")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -2385,14 +2366,6 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         Relpy := false;
     end;
 
-    local procedure VerifyGenJnlBatchNames(var GeneralJournalBatches: TestPage "General Journal Batches"; BatchNameFirst: Code[10]; BatchNameLast: Code[10])
-    begin
-        GeneralJournalBatches.First();
-        GeneralJournalBatches.Description.AssertEquals(BatchNameFirst);
-        GeneralJournalBatches.Last();
-        GeneralJournalBatches.Description.AssertEquals(BatchNameLast);
-    end;
-
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GeneralJournalTemplateHandler(var GeneralJournalTemplateHandler: TestPage "General Journal Template List")
@@ -2490,4 +2463,3 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
     end;
 }
-

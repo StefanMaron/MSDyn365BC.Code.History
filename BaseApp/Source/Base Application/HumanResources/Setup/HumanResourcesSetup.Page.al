@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.HumanResources.Setup;
 
 using Microsoft.HumanResources.Absence;
@@ -34,6 +38,16 @@ page 5233 "Human Resources Setup"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if a resource card is automatically created for an employee that is added to a project, service, or assembly activity.';
+                }
+                field("Allow Multiple Posting Groups"; Rec."Allow Multiple Posting Groups")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                }
+                field("Check Multiple Posting Groups"; Rec."Check Multiple Posting Groups")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                 }
             }
         }

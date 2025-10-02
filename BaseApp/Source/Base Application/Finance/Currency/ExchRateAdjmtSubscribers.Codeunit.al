@@ -374,10 +374,6 @@ codeunit 597 "Exch. Rate Adjmt. Subscribers"
                 GLRegister.FindLast();
                 GLRegister.Init();
                 GLRegister."No." := GLRegister."No." + 1;
-#if not CLEAN24
-                GLRegister."Creation Date" := Today();
-                GLRegister."Creation Time" := Time();
-#endif
 
                 SourceCodeSetup.Get();
                 GLRegister."Source Code" := SourceCodeSetup."Exchange Rate Adjmt.";

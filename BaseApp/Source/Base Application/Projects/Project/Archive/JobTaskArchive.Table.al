@@ -345,6 +345,7 @@ table 5136 "Job Task Archive"
         {
             Caption = 'Bill-to Name 2';
             DataClassification = CustomerContent;
+            ToolTip = 'Specifies an additional part of the name of the customer who pays for the project.';
         }
         field(79; "Bill-to Contact No."; Code[20])
         {
@@ -374,6 +375,7 @@ table 5136 "Job Task Archive"
         {
             Caption = 'Sell-to Customer Name 2';
             DataClassification = CustomerContent;
+            ToolTip = 'Specifies an additional part of the name of the customer who will receive the products and be billed by default.';
         }
         field(93; "Sell-to Address"; Text[100])
         {

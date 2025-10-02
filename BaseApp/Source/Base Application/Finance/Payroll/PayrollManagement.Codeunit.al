@@ -10,6 +10,14 @@ using System.Environment;
 using System.Environment.Configuration;
 using System.Security.AccessControl;
 
+/// <summary>
+/// Manages payroll service registration, selection, and import orchestration.
+/// Provides centralized payroll service management with guided setup support.
+/// </summary>
+/// <remarks>
+/// Integrates with Service Connections for payroll service discovery and management.
+/// Extensibility: OnRegisterPayrollService, OnImportPayroll events for custom payroll providers.
+/// </remarks>
 codeunit 1660 "Payroll Management"
 {
     Permissions = TableData User = rimd;
@@ -25,6 +33,10 @@ codeunit 1660 "Payroll Management"
         SelectPayrollServiceToEnableTxt: Label 'Select a payroll service you want to enable and use.';
         EnablePayrollServicesQst: Label 'All payroll services are disabled. Do you want to enable a payroll service?';
 
+    /// <summary>
+    /// Determines payroll visibility based on environment type for testing purposes.
+    /// </summary>
+    /// <returns>True if payroll should be visible in current environment</returns>
     procedure ShowPayrollForTestInNonSaas(): Boolean
     var
         EnvironmentInfo: Codeunit "Environment Information";
@@ -34,6 +46,11 @@ codeunit 1660 "Payroll Management"
         exit(false);
     end;
 
+    /// <summary>
+    /// Initiates payroll import process with service discovery and selection.
+    /// Handles service registration, enablement, and import orchestration.
+    /// </summary>
+    /// <param name="GenJournalLine">Target journal line for payroll data import</param>
     procedure ImportPayroll(var GenJournalLine: Record "Gen. Journal Line")
     var
         TempServiceConnection: Record "Service Connection" temporary;
@@ -130,11 +147,20 @@ codeunit 1660 "Payroll Management"
         end;
     end;
 
+    /// <summary>
+    /// Allows payroll service providers to register their services for discovery.
+    /// </summary>
+    /// <param name="TempServiceConnection">Service connection record for registration</param>
     [IntegrationEvent(false, false)]
     procedure OnRegisterPayrollService(var TempServiceConnection: Record "Service Connection" temporary)
     begin
     end;
 
+    /// <summary>
+    /// Enables payroll service providers to implement custom import logic.
+    /// </summary>
+    /// <param name="TempServiceConnection">Selected service connection for import</param>
+    /// <param name="GenJournalLine">Target journal line for imported data</param>
     [IntegrationEvent(false, false)]
     procedure OnImportPayroll(var TempServiceConnection: Record "Service Connection" temporary; GenJournalLine: Record "Gen. Journal Line")
     begin

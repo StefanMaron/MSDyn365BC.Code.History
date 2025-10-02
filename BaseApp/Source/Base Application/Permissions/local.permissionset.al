@@ -6,9 +6,6 @@ using Microsoft.Foundation.Reporting;
 #endif
 using Microsoft.Finance.AuditFileExport;
 using Microsoft.Purchases.Document;
-#if not CLEAN24
-using Microsoft.Inventory.Counting;
-#endif
 using Microsoft.Finance.GeneralLedger.Reports;
 using Microsoft.Inventory.Intrastat;
 using Microsoft.Finance.VAT.Reporting;
@@ -42,9 +39,6 @@ permissionset 1001 "LOCAL"
 #if not CLEAN25
                   tabledata "DACH Report Selections" = RIMD,
 #endif
-#if not CLEAN24
-                  tabledata "Expect. Phys. Inv. Track. Line" = RIMD,
-#endif
                   tabledata "Issued Deliv. Reminder Header" = RIMD,
                   tabledata "Issued Deliv. Reminder Line" = RIMD,
                   tabledata "Key Buffer" = RIMD,
@@ -52,25 +46,8 @@ permissionset 1001 "LOCAL"
                   tabledata "LSV Journal Line" = RIMD,
                   tabledata "LSV Setup" = RIMD,
                   tabledata "Number Series Buffer" = RIMD,
-#if not CLEAN24
-                  tabledata "Phys. Inventory Comment Line" = RIMD,
-                  tabledata "Phys. Inventory Order Header" = RIMD,
-                  tabledata "Phys. Inventory Order Line" = RIMD,
-                  tabledata "Phys. Invt. Diff. List Buffer" = RIMD,
-                  tabledata "Phys. Invt. Recording Header" = RIMD,
-                  tabledata "Phys. Invt. Recording Line" = RIMD,
-                  tabledata "Phys. Invt. Tracking Buffer" = RIMD,
-#endif
                   tabledata "Place of Dispatcher" = RIMD,
                   tabledata "Place of Receiver" = RIMD,
-#if not CLEAN24
-                  tabledata "Post. Exp. Ph. In. Track. Line" = RIMD,
-                  tabledata "Post. Phys. Invt. Order Header" = RIMD,
-                  tabledata "Posted Phys. Invt. Order Line" = RIMD,
-                  tabledata "Posted Phys. Invt. Rec. Header" = RIMD,
-                  tabledata "Posted Phys. Invt. Rec. Line" = RIMD,
-                  tabledata "Posted Phys. Invt. Track. Line" = RIMD,
-#endif
                   tabledata "VAT Cipher Code" = RIMD,
                   tabledata "VAT Cipher Setup" = RIMD,
                   tabledata "VAT Currency Adjustment Buffer" = RIMD;

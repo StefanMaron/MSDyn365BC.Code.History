@@ -343,7 +343,7 @@ codeunit 144014 "G/L Acc. Provisional Balance"
     begin
         LibraryERM.FindCurrency(Currency);
         GLAccount.SetFilter("No.", '%1|%2', GenJournalLine."Account No.", GenJournalLine."Bal. Account No.");
-#if not CLEAN24
+#if not CLEAN25
         GLAccount.ModifyAll("Currency Code", Currency.Code);
 #else
         GLAccount.ModifyAll("Source Currency Code", Currency.Code);
@@ -359,7 +359,7 @@ codeunit 144014 "G/L Acc. Provisional Balance"
         Customer: Record Customer;
         BankAccount: Record "Bank Account";
         Vendor: Record Vendor;
-#if CLEAN24
+#if CLEAN25
         GLAccountSourceCurrency: Record "G/L Account Source Currency";
 #endif
     begin
@@ -367,7 +367,7 @@ codeunit 144014 "G/L Acc. Provisional Balance"
             GenJournalLine."Account Type"::"G/L Account":
                 begin
                     GLAccount.Get(AccountNo);
-#if not CLEAN24
+#if not CLEAN25
                     GLAccount.CalcFields(Balance, "Balance (FCY)");
 #else
                     GLAccount.CalcFields(Balance);
@@ -377,7 +377,7 @@ codeunit 144014 "G/L Acc. Provisional Balance"
 #endif
                     AccountName := GLAccount.Name;
                     BalanceLCY := GLAccount.Balance;
-#if not CLEAN24
+#if not CLEAN25
                     CurrencyCode := GLAccount."Currency Code";
                     BalanceFCY := GLAccount."Balance (FCY)";
 #else

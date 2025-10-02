@@ -10,20 +10,20 @@ codeunit 132203 "Library - Planning"
     end;
 
     var
+        InventorySetup: Record "Inventory Setup";
         LibraryUtility: Codeunit "Library - Utility";
 
+#if not CLEAN27
+#pragma warning disable AL0801
+    [Obsolete('Moved to codeunit LibraryManufacturing', '27.0')]
     procedure CreateProdOrderUsingPlanning(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; DocumentNo: Code[20]; SourceNo: Code[20])
     var
-        SalesOrderPlanning: Page "Sales Order Planning";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
     begin
-        SalesOrderPlanning.SetSalesOrder(DocumentNo);
-        SalesOrderPlanning.BuildForm();
-        SalesOrderPlanning.CreateProdOrder();
-        Clear(ProductionOrder);
-        ProductionOrder.SetRange(Status, Status);
-        ProductionOrder.SetRange("Source No.", SourceNo);
-        ProductionOrder.FindLast();
+        LibraryManufacturing.CreateProdOrderUsingPlanning(ProductionOrder, Status, DocumentNo, SourceNo);
     end;
+#pragma warning restore AL0801
+#endif
 
     [Normal]
     procedure CreateRequisitionWkshName(var RequisitionWkshName: Record "Requisition Wksh. Name"; WorksheetTemplateName: Code[10])
@@ -251,15 +251,17 @@ codeunit 132203 "Library - Planning"
         PlanningComponent.Insert(true);
     end;
 
+#if not CLEAN27
+#pragma warning disable AL0801
+    [Obsolete('Moved to codeunit LibraryManufacturing', '27.0')]
     procedure CreatePlanningRoutingLine(var PlanningRoutingLine: Record "Planning Routing Line"; var RequisitionLine: Record "Requisition Line"; OperationNo: Code[10])
+    var
+        LibraryManfacturing: Codeunit "Library - Manufacturing";
     begin
-        PlanningRoutingLine.Init();
-        PlanningRoutingLine.Validate("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
-        PlanningRoutingLine.Validate("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
-        PlanningRoutingLine.Validate("Worksheet Line No.", RequisitionLine."Line No.");
-        PlanningRoutingLine.Validate("Operation No.", OperationNo);
-        PlanningRoutingLine.Insert(true);
+        LibraryManfacturing.CreatePlanningRoutingLine(PlanningRoutingLine, RequisitionLine, OperationNo);
     end;
+#pragma warning restore AL0801
+#endif
 
     local procedure FindRequisitionLine(var RequisitionLine: Record "Requisition Line"; RequisitionWkshName: Record "Requisition Wksh. Name"; ItemNo: Code[20])
     begin
@@ -368,5 +370,86 @@ codeunit 132203 "Library - Planning"
         if not RequisitionWkshName.FindFirst() then
             CreateRequisitionWkshName(RequisitionWkshName, SelectRequisitionTemplateName());
     end;
+
+    procedure SetDemandForecast(CurrentDemandForecast: Code[10])
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Current Demand Forecast", CurrentDemandForecast);
+        InventorySetup.Modify();
+    end;
+
+    procedure SetUseForecastOnVariants(UseForecastOnVariants: Boolean)
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Use Forecast on Variants", UseForecastOnVariants);
+        InventorySetup.Modify();
+    end;
+
+    procedure SetUseForecastOnLocations(UseForecastOnLocations: Boolean)
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Use Forecast on Locations", UseForecastOnLocations);
+        InventorySetup.Modify();
+    end;
+
+    procedure SetDefaultDampenerPercent(DampenerPercent: Decimal)
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Default Dampener %", DampenerPercent);
+        InventorySetup.Modify();
+    end;
+
+    procedure SetDefaultDampenerPeriod(DampenerPeriod: Text)
+    begin
+        InventorySetup.Get();
+        Evaluate(InventorySetup."Default Dampener Period", DampenerPeriod);
+        InventorySetup.Modify();
+    end;
+
+    procedure SetDefaultSafetyLeadTime(SafetyLeadTime: DateFormula)
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Default Safety Lead Time", SafetyLeadTime);
+        InventorySetup.Modify();
+    end;
+
+    procedure SetDefaultSafetyLeadTime(SafetyLeadTime: Text)
+    begin
+        InventorySetup.Get();
+        Evaluate(InventorySetup."Default Safety Lead Time", SafetyLeadTime);
+        InventorySetup.Modify();
+    end;
+
+    procedure SetSafetyWorkDate(): Date
+    begin
+        InventorySetup.Get();
+        exit(CalcDate(InventorySetup."Default Safety Lead Time", WorkDate()));
+    end;
+
+    procedure SetBlankOverflowLevel(BlankOverflowLevel: Option)
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Blank Overflow Level", BlankOverflowLevel);
+        InventorySetup.Modify();
+    end;
+
+    procedure SetCombinedMPSMRPCalculation(CombinedMPSMRPCalculation: Boolean)
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Combined MPS/MRP Calculation", CombinedMPSMRPCalculation);
+        InventorySetup.Modify();
+    end;
+
+#if not CLEAN27
+#pragma warning disable AL0801
+    [Obsolete('Moved to codeunit LibraryManufacturing', '27.0')]
+    procedure SetComponentsAtLocation(LocationCode: Code[10])
+    var
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
+    begin
+        LibraryManufacturing.SetComponentsAtLocation(LocationCode);
+    end;
+#pragma warning restore AL0801
+#endif
 }
 

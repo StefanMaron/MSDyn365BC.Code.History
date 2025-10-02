@@ -196,13 +196,9 @@ page 926 "Available - Assembly Lines"
     end;
 
     var
-        ReservEntry: Record "Reservation Entry";
         ReservEntry2: Record "Reservation Entry";
         ReservMgt: Codeunit "Reservation Management";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
-        SourceRecRef: RecordRef;
-        QtyReserved: Decimal;
-        QtyReservedBase: Decimal;
         NewQtyReserved: Decimal;
         NewQtyReservedBase: Decimal;
         CaptionText: Text;
@@ -217,8 +213,12 @@ page 926 "Available - Assembly Lines"
 #pragma warning restore AA0074
 
     protected var
+        ReservEntry: Record "Reservation Entry";
+        SourceRecRef: RecordRef;
         QtyToReserve: Decimal;
         QtyToReserveBase: Decimal;
+        QtyReserved: Decimal;
+        QtyReservedBase: Decimal;
 
     procedure SetSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry")
     var

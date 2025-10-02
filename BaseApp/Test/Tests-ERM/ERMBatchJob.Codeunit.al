@@ -3622,15 +3622,6 @@ codeunit 134900 "ERM Batch Job"
         REPORT.Run(REPORT::"Batch Post Sales Orders", true, false, SalesHeader);
     end;
 
-    local procedure RunPostBatchPurchaseOrder(PurchaseHeaderNo: Code[20])
-    var
-        PurchaseHeader: Record "Purchase Header";
-    begin
-        Commit();  // Commit is used to avoid Test failure.
-        PurchaseHeader.SetRange("No.", PurchaseHeaderNo);
-        REPORT.Run(REPORT::"Batch Post Purchase Orders", true, false, PurchaseHeader);
-    end;
-
     local procedure SetCheckPrepmtWhenPostingPurchase(CheckPrepmtwhenPosting: Boolean)
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -4495,5 +4486,3 @@ codeunit 134900 "ERM Batch Job"
         ErrorMessageMgt.ShowErrors(Notification); // simulate a click on notification's action
     end;
 }
-
-

@@ -29,6 +29,7 @@
         CloseFiscalYearQst: Label 'Do you want to close the fiscal year?';
         ApplErr: Label 'If the item carries serial, lot or package numbers, then you must use the Applies-from Entry field in the Item Tracking Lines window.';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
+        TaxLiableErr: Label 'You cannot combine shipments from orders which have different values of Tax Liable.';
 
     local procedure Initialize()
     var
@@ -268,6 +269,7 @@
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
         SalesShptLine.Get(TempItemLedgerEntry."Document No.", TempItemLedgerEntry."Document Line No.");
+        SalesShptLine.SetRange("Tax Liable", SalesHeader."Tax Liable");
 
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
         Customer.Get(SalesHeader."Sell-to Customer No.");
@@ -817,6 +819,65 @@
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Setup: Post purchase credit
+    end;
+
+    [Test]
+    procedure BlockCombineShipmentsInvoicesOnDifferentTaxLiableOption()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        SalesGetShipment: Codeunit "Sales-Get Shipment";
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO 563076] Block combine shipments if invoices have different "Tax Liable" option.
+        Initialize();
+
+        // [GIVEN] Create Sales Order and Post with Tax Liable set to true.
+        CustomerNo := CreateSalesOrderAndPost(true, '');
+
+        // [GIVEN] Create Sales Order and Post with Tax Liable set to false.
+        CreateSalesOrderAndPost(false, CustomerNo);
+
+        // [GIVEN] Create Sales Header with Document Type "Invoice".
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+
+        // [GIVEN] Set Sales Header and filter "Customer No.".
+        SalesGetShipment.SetSalesHeader(SalesHeader);
+        SalesShipmentLine.SetRange("Sell-to Customer No.", CustomerNo);
+
+        // [WHEN] Run Get Sales Shipment line.
+        asserterror SalesGetShipment.CreateInvLines(SalesShipmentLine);
+
+        // [THEN] Error should be raised on different Tax Liable.
+        Assert.ExpectedError(TaxLiableErr);
+    end;
+
+    local procedure CreateSalesOrderAndPost(TaxLiable: Boolean; CustomerNo: Code[20]): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        CreateSalesDocument(SalesLine, CustomerNo, TaxLiable);
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        exit(SalesHeader."Sell-to Customer No.");
+    end;
+
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; TaxLiable: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        SalesHeader.Validate("Tax Liable", TaxLiable);
+        SalesHeader.Modify(true);
+
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, '', 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 1000, 2));
+        SalesLine.Validate("Line Discount %", LibraryRandom.RandIntInRange(10, 50));
+        SalesLine.Validate("Unit Cost (LCY)", LibraryRandom.RandDec(10, 2));
+        SalesLine.Modify(true);
     end;
 
     [ConfirmHandler]

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Tracking;
 
 using Microsoft.Projects.Project.Planning;
@@ -208,8 +212,11 @@ codeunit 99000847 "Job Planning Line Get Demand"
         until TempJobPlanningLine.Next() = 0;
     end;
 
+#if not CLEAN27
+    [Obsolete('This event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnGetDemandOnBeforeSetTempJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
     begin
     end;
+#endif
 }

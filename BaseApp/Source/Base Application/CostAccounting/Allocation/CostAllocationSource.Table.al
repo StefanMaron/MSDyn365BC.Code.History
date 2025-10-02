@@ -92,6 +92,7 @@ table 1106 "Cost Allocation Source"
         }
         field(22; "Total Share"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Cost Allocation Target".Share where(ID = field(ID)));
             Caption = 'Total Share';
             Editable = false;
@@ -191,4 +192,3 @@ table 1106 "Cost Allocation Source"
     begin
     end;
 }
-

@@ -63,11 +63,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // 2. Exercise: Run Report Create G/L Acc. Journal Lines with Direct Posting and Account Type as Posting of G/L Account.
         GLAccount.SetRange("Direct Posting", true);
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
-#if not CLEAN24
-        GLAccount.SetRange("Currency Code", '');
-#else
         GLAccount.SetRange("Source Currency Code", '');
-#endif
         RunCreateGLAccountJournalLines(
           GLAccount,
           GenJournalBatch,
@@ -1939,4 +1935,3 @@ codeunit 136602 "ERM RS Create Journal Lines"
         StandardItemJournal.StdItemJnlLines.Quantity.SetValue(LibraryRandom.RandDec(100, 2));
     end;
 }
-

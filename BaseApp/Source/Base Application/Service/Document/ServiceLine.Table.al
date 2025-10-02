@@ -581,6 +581,7 @@ table 5902 "Service Line"
                     "Line Discount %" / 100, Currency."Amount Rounding Precision");
                 "Inv. Discount Amount" := 0;
                 "Inv. Disc. Amount to Invoice" := 0;
+                "Pmt. Discount Amount" := 0;
 
                 UpdateAmounts();
                 NotifyOnMissingSetup(FieldNo("Line Discount Amount"));
@@ -601,6 +602,7 @@ table 5902 "Service Line"
                     UpdateLineDiscPct();
                 "Inv. Discount Amount" := 0;
                 "Inv. Disc. Amount to Invoice" := 0;
+                "Pmt. Discount Amount" := 0;
                 Validate("Line Discount %");
             end;
         }
@@ -646,6 +648,7 @@ table 5902 "Service Line"
                         end;
                 end;
 
+                "Pmt. Discount Amount" := 0;
                 InitOutstandingAmount();
             end;
         }
@@ -692,6 +695,7 @@ table 5902 "Service Line"
                         end;
                 end;
 
+                "Pmt. Discount Amount" := 0;
                 InitOutstandingAmount();
             end;
         }
@@ -708,6 +712,7 @@ table 5902 "Service Line"
                 then begin
                     "Inv. Discount Amount" := 0;
                     "Inv. Disc. Amount to Invoice" := 0;
+                    "Pmt. Discount Amount" := 0;
                     UpdateAmounts();
                 end;
             end;
@@ -4872,7 +4877,10 @@ table 5902 "Service Line"
                             if ServiceLine."Allow Invoice Disc." then
                                 VATAmountLine."Inv. Disc. Base Amount" += Round(ServiceLine."Line Amount" * QtyFactor, Currency."Amount Rounding Precision");
                             VATAmountLine."Invoice Discount Amount" += ServiceLine."Inv. Disc. Amount to Invoice";
+                            VATAmountLine."Pmt. Discount Amount" +=
+                              Round(ServiceLine."Pmt. Discount Amount" * QtyFactor, Currency."Amount Rounding Precision");
                             VATAmountLine."VAT Difference" += ServiceLine."VAT Difference";
+                            OnCalcVATAmountLinesOnBeforeVATAmountLineModifyInvoicing(ServiceLine, VATAmountLine);
                             VATAmountLine.Modify();
                         end;
                     QtyType::Shipping:
@@ -4891,6 +4899,7 @@ table 5902 "Service Line"
                                 VATAmountLine."Inv. Disc. Base Amount" += Round(ServiceLine."Line Amount" * QtyFactor, Currency."Amount Rounding Precision");
                             VATAmountLine."Invoice Discount Amount" +=
                               Round(ServiceLine."Inv. Discount Amount" * QtyFactor, Currency."Amount Rounding Precision");
+                            VATAmountLine."Pmt. Discount Amount" += ServiceLine."Pmt. Discount Amount";
                             VATAmountLine."VAT Difference" += ServiceLine."VAT Difference";
                             OnCalcVATAmountLinesOnBeforeVATAmountLineModifyShipping(ServiceLine, VATAmountLine);
                             VATAmountLine.Modify();
@@ -4913,6 +4922,7 @@ table 5902 "Service Line"
                         if ServiceLine."Allow Invoice Disc." then
                             VATAmountLine."Inv. Disc. Base Amount" += ServiceLine."Line Amount";
                         VATAmountLine."Invoice Discount Amount" += ServiceLine."Inv. Discount Amount";
+                        VATAmountLine."Pmt. Discount Amount" += ServiceLine."Pmt. Discount Amount";
                         VATAmountLine."VAT Difference" += ServiceLine."VAT Difference";
                         OnCalcVATAmountLinesOnBeforeVATAmountLineModifyElseCase(ServiceLine, VATAmountLine);
                         VATAmountLine.Modify();
@@ -5060,9 +5070,7 @@ table 5902 "Service Line"
                                 VATAmount := 0;
                                 NewAmountIncludingVAT := 0;
                             end else begin
-                                VATAmount :=
-                                  TempVATAmountLineRemainder."VAT Amount" +
-                                  VATAmountLine."VAT Amount" * ServiceLine.CalcLineAmount() / VATAmountLine.CalcLineAmount();
+                                VATAmount := CalcVATAmount(TempVATAmountLineRemainder, VATAmountLine, ServiceLine.CalcLineAmount(), VATAmountLine.CalcLineAmount());
                                 NewAmountIncludingVAT :=
                                   TempVATAmountLineRemainder."Amount Including VAT" +
                                   VATAmountLine."Amount Including VAT" * ServiceLine.CalcLineAmount() / VATAmountLine.CalcLineAmount();
@@ -5077,11 +5085,11 @@ table 5902 "Service Line"
                             OnUpdateVATOnLinesOnAfterSetNewVATBaseAmountPriceInclVAT(ServiceLine, ServHeader, VATAmountLine, TempVATAmountLineRemainder, NewAmount, NewVATBaseAmount);
                         end else begin
                             if ServiceLine."VAT Calculation Type" = ServiceLine."VAT Calculation Type"::"Full VAT" then begin
-                                VATAmount := ServiceLine.CalcLineAmount();
+                                VATAmount := ServiceLine.CalcLineAmount() - ServiceLine."Pmt. Discount Amount";
                                 NewAmount := 0;
                                 NewVATBaseAmount := 0;
                             end else begin
-                                NewAmount := ServiceLine.CalcLineAmount();
+                                NewAmount := ServiceLine.CalcLineAmount() - ServiceLine."Pmt. Discount Amount";
                                 NewVATBaseAmount :=
                                   Round(
                                     NewAmount * (1 - GetVatBaseDiscountPct(ServHeader) / 100),
@@ -5090,9 +5098,7 @@ table 5902 "Service Line"
                                 if VATAmountLine."VAT Base" = 0 then
                                     VATAmount := 0
                                 else
-                                    VATAmount :=
-                                      TempVATAmountLineRemainder."VAT Amount" +
-                                      VATAmountLine."VAT Amount" * NewAmount / VATAmountLine."VAT Base";
+                                    VATAmount := CalcVATAmount(TempVATAmountLineRemainder, VATAmountLine, NewAmount, VATAmountLine."VAT Base");
                             end;
                             NewAmountIncludingVAT := NewAmount + Round(VATAmount, Currency."Amount Rounding Precision");
                         end
@@ -5100,13 +5106,11 @@ table 5902 "Service Line"
                         if VATAmountLine.CalcLineAmount() = 0 then
                             ClearVATDifference()
                         else
-                            VATDifference :=
-                              TempVATAmountLineRemainder."VAT Difference" +
-                              VATAmountLine."VAT Difference" * (LineAmountToInvoice - InvDiscAmount) / VATAmountLine.CalcLineAmount();
+                            CalcVATDifference(TempVATAmountLineRemainder, VATAmountLine, LineAmountToInvoice - InvDiscAmount, VATDifference);
                         if LineAmountToInvoice = 0 then
                             ServiceLine.ClearVATDifference()
                         else
-                            ServiceLine."VAT Difference" := Round(VATDifference, Currency."Amount Rounding Precision");
+                            ServiceLine.RoundVATDifference(VATDifference, Currency);
                     end;
 
                     if QtyType = QtyType::General then begin
@@ -5133,6 +5137,14 @@ table 5902 "Service Line"
         ServiceLine.SetRange("Qty. to Ship");
 
         OnAfterUpdateVATOnLines(ServHeader, ServiceLine, VATAmountLine, QtyType);
+    end;
+
+    local procedure CalcVATAmount(var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary; VATAmountLine: Record "VAT Amount Line"; NewAmount: Decimal; NewBase: Decimal) VATAmount: Decimal
+    begin
+        VATAmount :=
+            TempVATAmountLineRemainder."VAT Amount" + VATAmountLine."VAT Amount" * NewAmount / NewBase;
+
+        OnAfterCalcVATAmount(VATAmountLine, NewAmount, NewBase, VATAmount);
     end;
 
     local procedure CalcUnitCost(ItemLedgEntry: Record "Item Ledger Entry"): Decimal
@@ -6465,6 +6477,20 @@ table 5902 "Service Line"
         OnAfterClearVATDifference(Rec);
     end;
 
+    internal procedure CalcVATDifference(var TempVATAmountLineRemainder: record "VAT Amount Line" temporary; var VATAmountLine: Record "VAT Amount Line"; LineAmount: Decimal; var VATDifference: Decimal)
+    begin
+        VATDifference :=
+            TempVATAmountLineRemainder."VAT Difference" +
+            VATAmountLine."VAT Difference" * LineAmount / VATAmountLine.CalcLineAmount();
+        OnAfterCalcVATDifference(TempVATAmountLineRemainder, VATAmountLine, LineAmount);
+    end;
+
+    internal procedure RoundVATDifference(VATDifference: Decimal; Currency: Record Currency)
+    begin
+        "VAT Difference" := Round(VATDifference, Currency."Amount Rounding Precision");
+        OnAfterRoundVATDifference(Rec, Currency);
+    end;
+
     internal procedure GetVATPct() VATPct: Decimal
     begin
         VATPct := "VAT %";
@@ -6636,6 +6662,11 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateVATOnLines(var ServHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var VATAmountLine: Record "VAT Amount Line"; QtyType: Option General,Invoicing,Shipping)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcVATAmount(VATAmountLine: Record "VAT Amount Line"; NewAmount: Decimal; NewBase: Decimal; var VATAmount: Decimal)
     begin
     end;
 
@@ -7104,6 +7135,13 @@ table 5902 "Service Line"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('The event is never raised', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateVATOnLinesOnAfterCalcVATAmount(var ServiceLine: Record "Service Line"; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary; VATAmountLine: Record "VAT Amount Line"; var VATAmount: Decimal)
+    begin
+    end;
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer; var IsHandled: Boolean; var ServiceLine: Record "Service Line")
     begin
@@ -7130,12 +7168,12 @@ table 5902 "Service Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateJobNo(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; var IsHandled: Boolean);
+    local procedure OnBeforeValidateJobNo(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateJobTaskNo(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; var IsHandled: Boolean);
+    local procedure OnBeforeValidateJobTaskNo(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7340,6 +7378,11 @@ table 5902 "Service Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesOnBeforeVATAmountLineModifyInvoicing(var ServiceLine: Record "Service Line"; var VATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCalcVATAmountLinesOnBeforeVATAmountLineModifyShipping(var ServiceLine: Record "Service Line"; var VATAmountLine: Record "VAT Amount Line")
     begin
     end;
@@ -7390,6 +7433,16 @@ table 5902 "Service Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcVATDifference(var TempVATAmountLineRemainder: record "VAT Amount Line" temporary; var VATAmountLine: Record "VAT Amount Line"; LineAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRoundVATDifference(var ServiceLine: Record "Service Line"; Currency: Record Currency)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetVATPct(var ServiceLine: Record "Service Line"; var VATPct: Decimal)
     begin
     end;
@@ -7399,11 +7452,13 @@ table 5902 "Service Line"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('This event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyPrepaymentFromVATPostingSetup(var ServiceLine: Record "Service Line"; var VATPostingSetupFrom: Record "VAT Posting Setup")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateLineAmount(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; Currency: Record Currency; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin

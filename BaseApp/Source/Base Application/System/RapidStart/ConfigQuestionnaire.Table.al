@@ -46,12 +46,10 @@ table 8610 "Config. Questionnaire"
 
     trigger OnRename()
     begin
-        Error(Text001);
+        Error(CannotRenameQuestionnaireErr);
     end;
 
     var
-#pragma warning disable AA0074
-        Text001: Label 'You cannot rename a configuration questionnaire.';
-#pragma warning restore AA0074
+        CannotRenameQuestionnaireErr: Label 'You cannot rename a configuration questionnaire.';
 }
 

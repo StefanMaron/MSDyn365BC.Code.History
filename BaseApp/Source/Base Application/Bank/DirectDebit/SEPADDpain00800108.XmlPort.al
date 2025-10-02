@@ -8,6 +8,11 @@ using Microsoft.Bank.Payment;
 using Microsoft.Foundation.Company;
 using System.Telemetry;
 
+/// <summary>
+/// XMLPort for exporting SEPA direct debit collections in pain.008.001.08 format.
+/// Generates XML files compliant with SEPA Customer Direct Debit Initiation standard
+/// for submission to banks for automated collection processing.
+/// </summary>
 xmlport 1011 "SEPA DD pain.008.001.08"
 {
     Caption = 'SEPA DD pain.008.001.08';

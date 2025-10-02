@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -163,7 +163,7 @@ report 11529 "SR Account Interest"
 
                 trigger OnAfterGetRecord()
                 begin
-#if not CLEAN24
+#if not CLEAN25
                     CalcInterest("Posting Date", Amount, "Amount (FCY)");
 #else
                     CalcInterest("Posting Date", Amount, "Source Currency Amount");

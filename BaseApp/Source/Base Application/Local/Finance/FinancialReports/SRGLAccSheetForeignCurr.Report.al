@@ -43,7 +43,7 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
             column(Name_GLAccount; "G/L Account".Name)
             {
             }
-#if not CLEAN24
+#if not CLEAN25
             column(CurrencyCode_GLAccount; "G/L Account"."Currency Code")
             {
             }
@@ -60,7 +60,7 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
             }
             column(FcyAcyBalance; FcyAcyBalance)
             {
-#if not CLEAN24
+#if not CLEAN25
                 AutoFormatExpression = "G/L Account"."Currency Code";
 #else
                 AutoFormatExpression = "G/L Account"."Source Currency Code";
@@ -123,7 +123,7 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
                 column(CreditAmount_GLEntry; "Credit Amount")
                 {
                 }
-#if not CLEAN24
+#if not CLEAN25
                 column(GLAccountCurrencyCode; "G/L Account"."Currency Code")
                 {
                 }
@@ -138,7 +138,7 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
                 }
                 column(FcyAcyBalanceFcyAcyAmt; FcyAcyBalance - FcyAcyAmt)
                 {
-#if not CLEAN24
+#if not CLEAN25
                     AutoFormatExpression = "G/L Account"."Currency Code";
 #else
                     AutoFormatExpression = "G/L Account"."Source Currency Code";
@@ -160,7 +160,7 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
                 }
                 column(FcyAcyAmt; FcyAcyAmt)
                 {
-#if not CLEAN24
+#if not CLEAN25
                     AutoFormatExpression = "G/L Account"."Currency Code";
 #else
                     AutoFormatExpression = "G/L Account"."Source Currency Code";
@@ -173,7 +173,7 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
                 }
                 column(GLEntryFcyAcyBalance; FcyAcyBalance)
                 {
-#if not CLEAN24
+#if not CLEAN25
                     AutoFormatExpression = "G/L Account"."Currency Code";
 #else
                     AutoFormatExpression = "G/L Account"."Source Currency Code";
@@ -212,7 +212,7 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
                     else
                         BalAccType := '';
 
-#if not CLEAN24
+#if not CLEAN25
                     "Amount (FCY)" := "Source Currency Amount";
                     "G/L Account"."Currency Code" := "Source Currency Code";
                     FcyAcyAmt := "Amount (FCY)";
@@ -251,7 +251,7 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
 
                 trigger OnAfterGetRecord()
                 begin
-#if not CLEAN24
+#if not CLEAN25
                     Exrate := CalcExrate(FcyAcyBalance, GlBalance, "G/L Account"."Currency Code");
 #else
                     Exrate := CalcExrate(FcyAcyBalance, GlBalance, "G/L Account"."Source Currency Code");
@@ -367,7 +367,7 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
                     else
                         BalAccType := '';
 
-#if not CLEAN24
+#if not CLEAN25
                     if ("Currency Code" <> '') and ("Currency Code" = "G/L Account"."Currency Code") then begin
 #else
                     if ("Currency Code" <> '') and ("Currency Code" = "G/L Account"."Source Currency Code") then begin
@@ -392,7 +392,7 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
             }
 
             trigger OnAfterGetRecord()
-#if CLEAN24
+#if CLEAN25
             var
                 GLAccountSourceCurrency: Record "G/L Account Source Currency";
 #endif
@@ -404,7 +404,7 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
 
                 if StartDate > 0D then begin
                     SetRange("Date Filter", 0D, ClosingDate(StartDate - 1));
-#if not CLEAN24
+#if not CLEAN25
                     CalcFields("Net Change", "Movement (FCY)", "Additional-Currency Net Change");
                     GlBalance := "Net Change";
                     FcyAcyBalance := "Movement (FCY)";
@@ -428,7 +428,7 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
                 if GlJourDateFilter <> '' then
                     GlEntry2.SetFilter("Posting Date", GlJourDateFilter);
                 CalcFields("Balance at Date");
-#if not CLEAN24
+#if not CLEAN25
                 CalcFields("Balance at Date (FCY)");
 #else
                 GLAccountSourceCurrency."G/L Account No." := "No.";
@@ -439,7 +439,7 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
                 CheckProvEntry();
 
                 if ("Balance at Date" = 0) and
-#if not CLEAN24
+#if not CLEAN25
                    ("Balance at Date (FCY)" = 0) and
 #else
                    (GLAccountSourceCurrency."Source Curr. Balance at Date" = 0) and

@@ -427,6 +427,8 @@ report 30 "Check Value Posting"
 
     requestpage
     {
+        AboutTitle = 'About Check Value Posting';
+        AboutText = 'The **Check Value Posting** report verifies whether value entries, such as inventory or cost postings, are correctly posted to the general ledger. Use it for validating document posting behavior during implementation or troubleshooting to ensure financial values flow accurately into the general ledger.';
 
         layout
         {

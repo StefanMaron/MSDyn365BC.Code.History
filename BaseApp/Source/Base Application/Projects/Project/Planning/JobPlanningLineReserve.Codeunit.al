@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Projects.Project.Planning;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.Project.Planning;
 
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
@@ -929,11 +933,13 @@ codeunit 1032 "Job Planning Line-Reserve"
             StopReservation := CalcReservEntry."Source Subtype" <> 2;
     end;
 
+#if not CLEAN27
+    [Obsolete('This event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnSetSourceForReservationOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; JobPlanningLine: Record "Job Planning Line")
     begin
     end;
-
+#endif
     // codeunit Create Reserv. Entry
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Create Reserv. Entry", 'OnCheckSourceTypeSubtype', '', false, false)]
@@ -1093,4 +1099,3 @@ codeunit 1032 "Job Planning Line-Reserve"
         end;
     end;
 }
-

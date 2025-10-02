@@ -2026,7 +2026,7 @@ codeunit 134329 "ERM Purchase Return Order"
           -CostAmount, TotalCostAmount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(FieldError, ValueEntry.FieldCaption("Cost Amount (Actual)"), TotalCostAmount, ValueEntry.TableCaption()));
     end;
-
+#if not CLEAN25
     local procedure VerifyLineDiscountAmount(ReturnOrderNo: Code[20]; LineDiscountAmount: Decimal)
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
@@ -2041,7 +2041,7 @@ codeunit 134329 "ERM Purchase Return Order"
         Assert.AreNearlyEqual(LineDiscountAmount, PurchCrMemoLine."Line Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(FieldError, PurchCrMemoLine.FieldCaption("Line Discount Amount"), LineDiscountAmount, PurchCrMemoLine.TableCaption()));
     end;
-
+#endif
     local procedure VerifyInvoiceDiscountAmount(ReturnOrderNo: Code[20]; InvoiceDiscountAmount: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -2351,4 +2351,3 @@ codeunit 134329 "ERM Purchase Return Order"
         end;
     end;
 }
-

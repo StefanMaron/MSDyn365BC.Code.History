@@ -1,6 +1,7 @@
 namespace Microsoft.eServices.EDocument.IO.Peppol;
 
 using Microsoft.eServices.EDocument;
+using Microsoft.EServices.EDocument.Service.Participant;
 using System.Utilities;
 using Microsoft.Purchases.Document;
 using System.IO;
@@ -110,11 +111,12 @@ codeunit 6166 "EDoc Import PEPPOL BIS 3.0"
     local procedure ParseAccountingSupplierParty(var EDocument: Record "E-Document"; var TempXMLBuffer: Record "XML Buffer" temporary; DocumentType: Text)
     var
         Vendor: Record Vendor;
+        ServiceParticipant: Record "Service Participant";
         EDocumentService: Record "E-Document Service";
         EDocumentHelper: Codeunit "E-Document Helper";
         VendorName, VendorAddress : Text;
         VATRegistrationNo: Text[20];
-        VendorID: Text;
+        VendorId: Text;
         VendorNo: Code[20];
         GLN: Code[13];
     begin
@@ -127,11 +129,19 @@ codeunit 6166 "EDoc Import PEPPOL BIS 3.0"
 
         // If vendor not found, try to find by Service Participant.
         if VendorNo = '' then begin
-            VendorID := GetNodeAttributeByPath(TempXMLBuffer, '/' + DocumentType + '/cac:AccountingSupplierParty/cac:Party/cbc:EndpointID/@schemeID') + ':';
-            VendorID += this.GetNodeByPath(TempXMLBuffer, '/' + DocumentType + '/cac:AccountingSupplierParty/cac:Party/cbc:EndpointID');
+            VendorId := GetNodeAttributeByPath(TempXMLBuffer, '/' + DocumentType + '/cac:AccountingSupplierParty/cac:Party/cbc:EndpointID/@schemeID') + ':';
+            VendorId += this.GetNodeByPath(TempXMLBuffer, '/' + DocumentType + '/cac:AccountingSupplierParty/cac:Party/cbc:EndpointID');
 
             EDocumentHelper.GetEdocumentService(EDocument, EDocumentService);
-            VendorNo := EDocumentImportHelper.FindVendorByServiceParticipant(VendorID, EDocumentService.Code);
+            ServiceParticipant.SetRange("Participant Type", ServiceParticipant."Participant Type"::Vendor);
+            ServiceParticipant.SetRange("Participant Identifier", VendorId);
+            ServiceParticipant.SetRange(Service, EDocumentService.Code);
+            if not ServiceParticipant.FindFirst() then begin
+                ServiceParticipant.SetRange(Service);
+                if ServiceParticipant.FindFirst() then;
+            end;
+
+            VendorNo := ServiceParticipant.Participant;
         end;
 
         // If vendor not found, try to find by name and address.

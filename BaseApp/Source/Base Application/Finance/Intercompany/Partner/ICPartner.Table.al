@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Intercompany.Partner;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Intercompany.Partner;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -186,13 +190,8 @@ table 413 "IC Partner"
             Caption = 'Authority URL Key';
             ExtendedDatatype = Masked;
             DataClassification = SystemMetadata;
-#if not CLEAN24
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '27.0';
-#endif
             ObsoleteReason = 'Usage of authority url is moved to token endpoint.';
         }
 #endif
@@ -466,4 +465,3 @@ table 413 "IC Partner"
         exit(ClientSecretText);
     end;
 }
-

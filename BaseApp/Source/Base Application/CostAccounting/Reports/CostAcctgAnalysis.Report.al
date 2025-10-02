@@ -132,6 +132,8 @@ report 1127 "Cost Acctg. Analysis"
 
     requestpage
     {
+        AboutTitle = 'About Cost Acctg. Analysis';
+        AboutText = 'The **Cost Acctg. Analysis** report compares actual costs to budgeted or expected values to identify variances. Use it for analyzing cost performance by highlighting where actual spending deviates from budgeted figures, helping improve forecasting and financial control.';
         SaveValues = true;
 
         layout

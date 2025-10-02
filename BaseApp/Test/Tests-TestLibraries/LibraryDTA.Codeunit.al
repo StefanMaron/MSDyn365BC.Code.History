@@ -37,11 +37,7 @@ codeunit 143002 "Library - DTA"
 
         DTASetup.Validate("Bal. Account Type", DTASetup."Bal. Account Type"::"G/L Account");
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
-#if not CLEAN24
-        GLAccount.SetRange("Currency Code", CurrencyCode);
-#else
         GLAccount.SetRange("Source Currency Code", CurrencyCode);
-#endif
         GLAccount.FindFirst();
         DTASetup.Validate("Bal. Account No.", GLAccount."No.");
 
@@ -88,11 +84,7 @@ codeunit 143002 "Library - DTA"
 
         DTASetup.Validate("Bal. Account Type", DTASetup."Bal. Account Type"::"G/L Account");
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
-#if not CLEAN24
-        GLAccount.SetRange("Currency Code", CurrencyCode);
-#else
         GLAccount.SetRange("Source Currency Code", CurrencyCode);
-#endif
         GLAccount.FindFirst();
 
         DTASetup.Validate("Bal. Account No.", GLAccount."No.");
@@ -428,4 +420,3 @@ codeunit 143002 "Library - DTA"
         exit(Checksum);
     end;
 }
-

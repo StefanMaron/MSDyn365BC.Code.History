@@ -1,10 +1,15 @@
-﻿namespace System.Environment.Configuration;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace System.Environment.Configuration;
 
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.Reporting;
 using System.Environment;
 using System.Threading;
 using System.Upgrade;
+using System.Telemetry;
 
 report 357 "Copy Company"
 {
@@ -90,6 +95,7 @@ report 357 "Copy Company"
 
             trigger OnPostDataItem()
             var
+                AuditLog: Codeunit "Audit Log";
                 JobQueueManagement: Codeunit "Job Queue Management";
                 CopiedCompanyLbl: Label 'Copied company with the new name %1 by UserSecurityId %2.', Locked = true;
             begin
@@ -99,7 +105,7 @@ report 357 "Copy Company"
                 OnAfterCreatedNewCompanyByCopyCompany(NewCompanyName, Company);
                 RegisterUpgradeTags(NewCompanyName);
                 Message(CopySuccessMsg, Name);
-                Session.LogAuditMessage(StrSubstNo(CopiedCompanyLbl, NewCompanyName, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
+                AuditLog.LogAuditMessage(StrSubstNo(CopiedCompanyLbl, NewCompanyName, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
             end;
         }
     }

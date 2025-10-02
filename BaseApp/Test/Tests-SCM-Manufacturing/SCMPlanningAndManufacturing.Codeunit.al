@@ -1320,7 +1320,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         Item: Record Item;
     begin
         // [FEATURE] [Production Forecast] [Assembly] [Components At Location]
-        // [SCENARIO 201871] For Assembly Item blank location in Sales Production Forecast must stay blank after Regeneration Plan Calculating, Location for Components in Manufacturing Setup can't be used for non-component forecast.
+        // [SCENARIO 201871] For Assembly Item blank location in Sales Production Forecast must stay blank after Regeneration Plan Calculating, Location for Components can't be used for non-component forecast.
 
         // [GIVEN] Item "I" with "Replenishment System" = Assembly, Current Production Forecast "F", Forecast Entry with type Sales for "I" with blank location and Quantity "Q"
         // [GIVEN] Location "L" is the Location for Components
@@ -1337,7 +1337,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         Item: Record Item;
     begin
         // [FEATURE] [Production Forecast] [Manufacturing] [Components At Location]
-        // [SCENARIO 201871]  For Prod. Order Item blank location in Sales Production Forecast must stay blank after Regeneration Plan Calculating, Location for Components in Manufacturing Setup can't be used for non-component forecast.
+        // [SCENARIO 201871]  For Prod. Order Item blank location in Sales Production Forecast must stay blank after Regeneration Plan Calculating, Location for Components can't be used for non-component forecast.
 
         // [GIVEN] Item "I" with "Replenishment System" = "Prod. Order", Current Production Forecast "F", Forecast Entry with type Sales for "I" with blank location and Quantity "Q"
         // [GIVEN] Location "L" is the Location for Components
@@ -1354,7 +1354,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         Item: Record Item;
     begin
         // [FEATURE] [Production Forecast] [Assembly] [Components At Location]
-        // [SCENARIO 201871] For Assembly Item blank location in Component Production Forecast must stay blank after Regeneration Plan Calculating, Location for Components in Manufacturing Setup can't be used for non-component forecast.
+        // [SCENARIO 201871] For Assembly Item blank location in Component Production Forecast must stay blank after Regeneration Plan Calculating, Location for Components in can't be used for non-component forecast.
 
         // [GIVEN] Item "I" with "Replenishment System" = Assembly, Current Production Forecast "F", Forecast Entry with type Component for "I" with blank location and Quantity "Q"
         // [GIVEN] Location "L" is the Location for Components
@@ -1371,7 +1371,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         Item: Record Item;
     begin
         // [FEATURE] [Production Forecast] [Manufacturing] [Components At Location]
-        // [SCENARIO 201871] For Prod. Order Item blank location in Component Production Forecast must stay blank after Regeneration Plan Calculating, Location for Components in Manufacturing Setup can't be used for non-component forecast.
+        // [SCENARIO 201871] For Prod. Order Item blank location in Component Production Forecast must stay blank after Regeneration Plan Calculating, Location for Components in can't be used for non-component forecast.
 
         // [GIVEN] Item "I" with "Replenishment System" = "Prod. Order", Current Production Forecast "F", Forecast Entry with type Component for "I" with blank location and Quantity "Q"
         // [GIVEN] Location "L" is the Location for Components
@@ -1545,7 +1545,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [GIVEN] Create firm planned production order out of the sales order using "Planning" functionality to cover the demand.
         // [GIVEN] The new production order has quantity = 100 pcs.
         // [GIVEN] The production is reserved to the sales with order-to-order link.
-        LibraryPlanning.CreateProdOrderUsingPlanning(
+        LibraryManufacturing.CreateProdOrderUsingPlanning(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", SalesHeader."No.", Item."No.");
 
         // [GIVEN] Reduce the quantity on the sales line to 60.
@@ -1595,7 +1595,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [GIVEN] Create firm planned production order out of the sales order using "Planning" functionality to cover the demand.
         // [GIVEN] The new production order has quantity = 100 pcs.
         // [GIVEN] The production is reserved to the sales with order-to-order link.
-        LibraryPlanning.CreateProdOrderUsingPlanning(
+        LibraryManufacturing.CreateProdOrderUsingPlanning(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", SalesHeader."No.", Item."No.");
 
         // [GIVEN] Reduce the quantity on the sales line to 60.
@@ -1730,7 +1730,6 @@ codeunit 137080 "SCM Planning And Manufacturing"
     [Scope('OnPrem')]
     procedure DueDateOnProdOrderLineMatchesOneOnProdOrderHeaderAfterReschedule()
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
         WorkCenter: Record "Work Center";
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -1742,10 +1741,8 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [SCENARIO 343277] Due Date on prod. order line matches Due Date on production order header after the order is rescheduled by planning.
         Initialize();
 
-        // [GIVEN] Set "Default Safety Lead Time" blank on Manufacturing Setup.
-        ManufacturingSetup.Get();
-        Clear(ManufacturingSetup."Default Safety Lead Time");
-        ManufacturingSetup.Modify(true);
+        // [GIVEN] Set "Default Safety Lead Time" blank
+        LibraryPlanning.SetDefaultSafetyLeadTime('');
 
         // [GIVEN] Create lot-for-lot item with "Prod. Order" manufacturing policy.
         // [GIVEN] Set rescheduling period on the item so that the planning will reschedule existing supply instead of suggesting "Cancel + New".
@@ -2118,8 +2115,8 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ProductionForecastEntry.Validate("Location Code", Location.Code);
         ProductionForecastEntry.Modify(true);
 
-        // [GIVEN] Clear "Components at Location" in Manufacturing Setup.
-        UpdateCurrentProductionForecastAndComponentsAtLocationOnManufacturingSetup(ProductionForecastName.Name, '');
+        // [GIVEN] Clear "Components at Location"
+        UpdateCurrentDemandForecastAndComponentsAtLocation(ProductionForecastName.Name, '');
         UpdateUseForecastOnLocationsInManufacturingSetup(true);
 
         // [GIVEN] Sales order for 100 pcs of item "P". This is the demand for planning.
@@ -2213,7 +2210,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         Initialize();
         Qty := LibraryRandom.RandIntInRange(100, 200);
 
-        // [GIVEN] Set "Use Forecast on Variants" = TRUE and "Use Forecast on Locations" = FALSE in Manufacturing Setup.
+        // [GIVEN] Set "Use Forecast on Variants" = TRUE and "Use Forecast on Locations" = FALSE
         UpdateUseForecastOnVariantsInManufacturingSetup(true);
         UpdateUseForecastOnLocationsInManufacturingSetup(false);
 
@@ -2238,8 +2235,8 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CreateProductionForecastEntry(ProductionForecastName.Name, Item, Location[2].Code, ItemVariant[1].Code, WorkDate() + 60, Qty);
         CreateProductionForecastEntry(ProductionForecastName.Name, Item, Location[2].Code, ItemVariant[2].Code, WorkDate() + 30, Qty);
 
-        // [GIVEN] Select this forecast in manufacturing setup.
-        UpdateCurrentProductionForecastAndComponentsAtLocationOnManufacturingSetup(ProductionForecastName.Name, '');
+        // [GIVEN] Select this forecast
+        UpdateCurrentDemandForecastAndComponentsAtLocation(ProductionForecastName.Name, '');
 
         // [WHEN] Calculate regenerative plan for the item.
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
@@ -2264,7 +2261,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         Initialize();
         Qty := LibraryRandom.RandIntInRange(100, 200);
 
-        // [GIVEN] Set "Use Forecast on Variants" = TRUE and "Use Forecast on Locations" = TRUE in Manufacturing Setup.
+        // [GIVEN] Set "Use Forecast on Variants" = TRUE and "Use Forecast on Locations" = TRUE
         UpdateUseForecastOnVariantsInManufacturingSetup(true);
         UpdateUseForecastOnLocationsInManufacturingSetup(true);
 
@@ -2289,8 +2286,8 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CreateProductionForecastEntry(ProductionForecastName.Name, Item, Location[2].Code, ItemVariant[1].Code, WorkDate() + 60, Qty);
         CreateProductionForecastEntry(ProductionForecastName.Name, Item, Location[2].Code, ItemVariant[2].Code, WorkDate() + 30, Qty);
 
-        // [GIVEN] Select this forecast in manufacturing setup.
-        UpdateCurrentProductionForecastAndComponentsAtLocationOnManufacturingSetup(ProductionForecastName.Name, '');
+        // [GIVEN] Select this forecast
+        UpdateCurrentDemandForecastAndComponentsAtLocation(ProductionForecastName.Name, '');
 
         // [WHEN] Calculate regenerative plan for the item.
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
@@ -2320,8 +2317,8 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [GIVEN] Create Bins on Location
         CreateBinsOnLocation(Bins, LocationSilver);
 
-        // [GIVEN] Add Silver Location on Manufacturing Setup
-        AddLocationOnManufacturingSetup(LocationSilver.Code);
+        // [GIVEN] Add Silver Location
+        LibraryManufacturing.SetComponentsAtLocation(LocationSilver.Code);
 
         // [GIVEN] Work center with Location
         CreateWorkCenterWithLocation(WorkCenter, LocationSilver.Code);
@@ -2471,7 +2468,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [GIVEN] Generate a Quantity and save it in a Variable.
         Qty := LibraryRandom.RandIntInRange(100, 200);
 
-        // [GIVEN] Set "Use Forecast on Locations" = TRUE in Manufacturing Setup.
+        // [GIVEN] Set "Use Forecast on Locations" = TRUE
         UpdateUseForecastOnLocationsInManufacturingSetup(true);
 
         // [GIVEN] Set Location Mandatory = TRUE in Inventory Setup.
@@ -2496,8 +2493,8 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [GIVEN] Create a Forecast Entry.
         CreateProductionForecastEntryWithComponent(ProductionForecastName.Name, Item, Location[1].Code, '', WorkDate(), Qty);
 
-        // [GIVEN] Update Manufacturing Setup with Current Production Forecast Name
-        UpdateCurrentProductionForecastAndComponentsAtLocationOnManufacturingSetup(ProductionForecastName.Name, '');
+        // [GIVEN] Update with Current Production Forecast Name
+        UpdateCurrentDemandForecastAndComponentsAtLocation(ProductionForecastName.Name, '');
 
         // [WHEN] Calculate Plan for Requisition WorkSheet.
         CalcRequisitionPlanForReqWkshWithMfg(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
@@ -2600,7 +2597,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         CreateItemWithReplenishmentSystem(Item, ReplenishmentSystem);
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
-        UpdateCurrentProductionForecastAndComponentsAtLocationOnManufacturingSetup(ProductionForecastName.Name, Location.Code);
+        UpdateCurrentDemandForecastAndComponentsAtLocation(ProductionForecastName.Name, Location.Code);
 
         CreateProductionForecastEntryWithBlankLocation(ProductionForecastEntry, Item, ProductionForecastName.Name, false);
 
@@ -2628,7 +2625,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         CreateItemWithReplenishmentSystem(Item, ReplenishmentSystem);
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
-        UpdateCurrentProductionForecastAndComponentsAtLocationOnManufacturingSetup(ProductionForecastName.Name, Location.Code);
+        UpdateCurrentDemandForecastAndComponentsAtLocation(ProductionForecastName.Name, Location.Code);
 
         CreateProductionForecastEntryWithBlankLocation(ProductionForecastEntry, Item, ProductionForecastName.Name, true);
 
@@ -3421,10 +3418,10 @@ codeunit 137080 "SCM Planning And Manufacturing"
 
     local procedure GetDefaultSafetyLeadTime(): Code[10]
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
-        ManufacturingSetup.Get();
-        exit(Format(ManufacturingSetup."Default Safety Lead Time"));
+        InventorySetup.Get();
+        exit(Format(InventorySetup."Default Safety Lead Time"));
     end;
 
     local procedure PostOutputJournalAfterDeleteOutputJournalLine(ProductionOrder: Record "Production Order"; RoutingLine: Record "Routing Line"; RoutingLine2: Record "Routing Line"; Finished: Boolean)
@@ -3500,32 +3497,21 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ManufacturingSetup.Modify(true);
     end;
 
-    local procedure UpdateCurrentProductionForecastAndComponentsAtLocationOnManufacturingSetup(CurrentProductionForecast: Code[10]; ComponentsAtLocation: Code[10])
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
+    local procedure UpdateCurrentDemandForecastAndComponentsAtLocation(CurrentProductionForecast: Code[10]; ComponentsAtLocation: Code[10])
     begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
-        ManufacturingSetup.Validate("Components at Location", ComponentsAtLocation);
-        ManufacturingSetup.Modify(true);
+        LibraryPlanning.SetDemandForecast(CurrentProductionForecast);
+        LibraryManufacturing.SetComponentsAtLocation(ComponentsAtLocation);
     end;
 
     local procedure UpdateUseForecastOnLocationsInManufacturingSetup(UseForecastOnLocations: Boolean)
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Use Forecast on Locations", UseForecastOnLocations);
-        ManufacturingSetup.Modify(true);
+        LibraryPlanning.SetUseForecastOnLocations(UseForecastOnLocations);
     end;
 
     local procedure UpdateUseForecastOnVariantsInManufacturingSetup(UseForecastOnVariants: Boolean)
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Use Forecast on Variants", UseForecastOnVariants);
-        ManufacturingSetup.Modify(true);
+        LibraryPlanning.SetUseForecastOnVariants(UseForecastOnVariants);
+        
     end;
 
     local procedure UpdateQuantityOnSalesLine(var SalesLine: Record "Sales Line")
@@ -3843,15 +3829,6 @@ codeunit 137080 "SCM Planning And Manufacturing"
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
     end;
 
-    local procedure AddLocationOnManufacturingSetup(LocationCode: Code[10])
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-    begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup."Components at Location" := LocationCode;
-        ManufacturingSetup.Modify(true);
-    end;
-
     local procedure VefiryTimeBetweenOperations(ProdOrderNo: Code[20])
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
@@ -3917,7 +3894,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     begin
         CalculatePlanReqWksh.SetTemplAndWorksheet(TemplateName, WorksheetName);
         CalculatePlanReqWksh.InitializeRequest(StartDate, EndDate);
-        CalculatePlanReqWksh.InitializeFromMfgSetup();
+        CalculatePlanReqWksh.InitializeFromSetup();
         if Item.HasFilter then
             TmpItem.CopyFilters(Item)
         else begin

@@ -504,11 +504,6 @@ codeunit 134314 "WF Notification Schedule Tests"
         Rec.Modify(false);
     end;
 
-    local procedure CreateInstantScheduleForApproval(var NotificationSchedule: Record "Notification Schedule")
-    begin
-        CreateScheduleForApproval("Notification Schedule Type"::Instantly, NotificationSchedule);
-    end;
-
     local procedure CreateMonthlyScheduleForApproval(var NotificationSchedule: Record "Notification Schedule")
     begin
         CreateScheduleForApproval("Notification Schedule Type"::Monthly, NotificationSchedule);
@@ -552,4 +547,3 @@ codeunit 134314 "WF Notification Schedule Tests"
         end;
     end;
 }
-

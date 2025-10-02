@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Warehouse.Request;
 
 using Microsoft.Inventory.Item;
@@ -90,7 +94,6 @@ codeunit 5752 "Get Source Doc. Outbound"
         WarehouseRequest.FilterGroup(2);
         WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Outbound);
         WarehouseRequest.SetRange("Location Code", WhseShptHeader."Location Code");
-        WarehouseRequest.SetFilter("Source Document", '<>%1', WarehouseRequest."Source Document"::"Prod. Consumption");
         OnGetSingleOutboundDocOnSetFilterGroupFilters(WarehouseRequest, WhseShptHeader);
         WarehouseRequest.FilterGroup(0);
         WarehouseRequest.SetRange("Document Status", WarehouseRequest."Document Status"::Released);

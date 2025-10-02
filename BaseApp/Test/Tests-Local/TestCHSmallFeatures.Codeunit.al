@@ -30,29 +30,6 @@ codeunit 144058 "Test CH Small Features"
         ShipingDateTxt: Label 'Shipping Date';
         CompressPrepaymentCannotBeUsedWithApplyInvRoundAmtToVATErr: Label 'You cannot use %1 for %2 %3 when %4 is enabled in %5.', Comment = '%1 - Compress Prepayment field caption, %2 - Document Type field value, %3 - No. field value, %4 - Apply Inv. Round. Amt. To VAT field caption, %5 - Sales & Receivables Setup table caption.';
 
-    [Normal]
-    local procedure ShipmentOnShipAndInvoice(ShipmentOnShipAndInvoice: Boolean)
-    var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-    begin
-        Initialize();
-
-        SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Shipment on Ship and Invoice", ShipmentOnShipAndInvoice);
-        SalesReceivablesSetup.Modify(true);
-
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
-
-        // Exercise.
-        CODEUNIT.Run(CODEUNIT::"Sales-Post + Print", SalesHeader);
-
-        // Verify: The handlers are triggered.
-    end;
-
     [Test]
     [Scope('OnPrem')]
     procedure VATForFixedAssets()

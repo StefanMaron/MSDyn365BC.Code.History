@@ -399,10 +399,6 @@ report 5696 "Date Compress FA Ledger"
     begin
         FAReg.Init();
         FAReg."No." := FAReg.GetLastEntryNo() + 1;
-#if not CLEAN24        
-        FAReg."Creation Date" := Today;
-        FAReg."Creation Time" := Time;
-#endif        
         FAReg."Journal Type" := FAReg."Journal Type"::"Fixed Asset";
         FAReg."Source Code" := SourceCodeSetup."Compress FA Ledger";
         FAReg."User ID" := CopyStr(UserId(), 1, MaxStrLen(FAReg."User ID"));
@@ -586,4 +582,3 @@ report 5696 "Date Compress FA Ledger"
         InsertField("FA Ledger Entry".FieldNo("Index Entry"), "FA Ledger Entry".FieldCaption("Index Entry"));
     end;
 }
-

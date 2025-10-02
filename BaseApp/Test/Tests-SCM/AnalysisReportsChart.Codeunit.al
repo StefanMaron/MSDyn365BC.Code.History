@@ -1745,4 +1745,3 @@ codeunit 137409 "Analysis Reports Chart"
         end;
     end;
 }
-

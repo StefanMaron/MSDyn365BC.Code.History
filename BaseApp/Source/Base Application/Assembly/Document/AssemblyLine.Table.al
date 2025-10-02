@@ -87,6 +87,7 @@ table 901 "Assembly Line"
             trigger OnValidate()
             begin
                 "Location Code" := '';
+                "Bin Code" := '';
                 TestField("Consumed Quantity", 0);
                 CalcFields("Reserved Quantity");
                 AssemblyWarehouseMgt.AssemblyLineVerifyChange(Rec, xRec);
@@ -573,6 +574,7 @@ table 901 "Assembly Line"
         field(65; "Unit Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost';
             MinValue = 0;
 
@@ -597,6 +599,7 @@ table 901 "Assembly Line"
         field(67; "Cost Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Cost Amount';
             Editable = false;
         }
@@ -633,6 +636,7 @@ table 901 "Assembly Line"
             MinValue = 0;
             MaxValue = 1;
             Editable = false;
+            AutoFormatType = 0;
         }
         field(83; "Qty. Rounding Precision (Base)"; Decimal)
         {
@@ -642,6 +646,7 @@ table 901 "Assembly Line"
             MinValue = 0;
             MaxValue = 1;
             Editable = false;
+            AutoFormatType = 0;
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -1824,11 +1829,11 @@ table 901 "Assembly Line"
 
     procedure VerifyReservationDateConflict(NewAsmLine: Record "Assembly Line")
     var
-        ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
+        AsmReservCheckDateConfl: Codeunit "Asm. ReservCheckDateConfl";
     begin
         if SkipVerificationsThatChangeDatabase then
             exit;
-        ReservationCheckDateConfl.AssemblyLineCheck(NewAsmLine, (CurrFieldNo <> 0) or TestReservationDateConflict);
+        AsmReservCheckDateConfl.AssemblyLineCheck(NewAsmLine, (CurrFieldNo <> 0) or TestReservationDateConflict);
     end;
 
     procedure SetSkipVerificationsThatChangeDatabase(State: Boolean)
@@ -2322,4 +2327,3 @@ table 901 "Assembly Line"
     begin
     end;
 }
-

@@ -76,12 +76,14 @@ table 5065 "Interaction Log Entry"
         }
         field(9; "Cost (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Cost (LCY)';
             Editable = false;
         }
         field(10; "Duration (Min.)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Duration (Min.)';
             DecimalPlaces = 0 : 0;
             Editable = false;
@@ -215,8 +217,7 @@ table 5065 "Interaction Log Entry"
         }
         field(40; "Contact Company Name"; Text[100])
         {
-            CalcFormula = lookup(Contact.Name where("No." = field("Contact Company No."),
-                                                     Type = const(Company)));
+            CalcFormula = lookup(Contact.Name where("No." = field("Contact Company No."), Type = const(Company)));
             Caption = 'Contact Company Name';
             Editable = false;
             FieldClass = FlowField;
@@ -339,24 +340,22 @@ table 5065 "Interaction Log Entry"
     end;
 
     var
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text000: Label '%1 %2 is marked %3.\';
+        MarkedAsFormatTxt: Label '%1 %2 is marked %3.\';
 #pragma warning restore AA0470
-        Text001: Label 'Do you wish to remove the checkmark?';
+        RemoveCheckmarkQst: Label 'Do you wish to remove the checkmark?';
 #pragma warning disable AA0470
-        Text002: Label 'Do you wish to mark %1 %2 as %3?';
+        MarkAsQst: Label 'Do you wish to mark %1 %2 as %3?';
 #pragma warning restore AA0470
-        Text003: Label 'It is not possible to view sales statements after they have been printed.';
-        Text004: Label 'It is not possible to show cover sheets after they have been printed.';
+        CantViewStatementsErr: Label 'It is not possible to view sales statements after they have been printed.';
+        CantShowCoverSheetsErr: Label 'It is not possible to show cover sheets after they have been printed.';
 #pragma warning disable AA0470
-        Text005: Label 'Do you wish to remove the checkmark from the selected %1 lines?';
-        Text006: Label 'Do you wish to mark the selected %1 lines as %2?';
+        RemoveCheckmarkLinesQst: Label 'Do you wish to remove the checkmark from the selected %1 lines?';
+        MarkLinesAsQst: Label 'Do you wish to mark the selected %1 lines as %2?';
 #pragma warning restore AA0470
-        Text009: Label 'Do you want to remove Attachment?';
-        Text010: Label 'Do you want to remove unique Attachments for the selected lines?';
-        Text011: Label 'Very Positive,Positive,Neutral,Negative,Very Negative';
-#pragma warning restore AA0074
+        RemoveAttachmentQst: Label 'Do you want to remove Attachment?';
+        RemoveUniqueAttachmentsQst: Label 'Do you want to remove unique Attachments for the selected lines?';
+        EvaluationOptionsTxt: Label 'Very Positive,Positive,Neutral,Negative,Very Negative';
         TitleFromLbl: Label '%1 - from %2', Comment = '%1 - document description, %2 - name';
         TitleByLbl: Label '%1 - by %2', Comment = '%1 - document description, %2 - name';
         OpenMessageQst: Label 'You are about to open an email message in Outlook Online. Email messages might contain harmful content. Use caution when interacting with the message. Do you want to continue?';
@@ -570,22 +569,22 @@ table 5065 "Interaction Log Entry"
     local procedure ConfirmToggleCanceledCheckmark(NumberOfSelectedLines: Integer; var ErrorTxt: Text[80]): Boolean
     begin
         if NumberOfSelectedLines = 1 then begin
-            ErrorTxt := Text009;
+            ErrorTxt := RemoveAttachmentQst;
             if Canceled then
                 exit(Confirm(
-                    Text000 +
-                    Text001, true, TableCaption(), "Entry No.", FieldCaption(Canceled)));
+                    MarkedAsFormatTxt +
+                    RemoveCheckmarkQst, true, TableCaption(), "Entry No.", FieldCaption(Canceled)));
 
             exit(Confirm(
-                Text002, true, TableCaption(), "Entry No.", FieldCaption(Canceled)));
+                MarkAsQst, true, TableCaption(), "Entry No.", FieldCaption(Canceled)));
         end;
-        ErrorTxt := Text010;
+        ErrorTxt := RemoveUniqueAttachmentsQst;
         if Canceled then
             exit(Confirm(
-                Text005, true, TableCaption));
+                RemoveCheckmarkLinesQst, true, TableCaption));
 
         exit(Confirm(
-            Text006, true, TableCaption(), FieldCaption(Canceled)));
+            MarkLinesAsQst, true, TableCaption(), FieldCaption(Canceled)));
     end;
 
     procedure UniqueAttachment() IsUnique: Boolean
@@ -692,7 +691,7 @@ table 5065 "Interaction Log Entry"
                     Page.Run(Page::"Posted Sales Credit Memo", SalesCrMemoHeader);
                 end;
             "Document Type"::"Sales Stmnt.":
-                Error(Text003);
+                Error(CantViewStatementsErr);
             "Document Type"::"Sales Rmdr.":
                 begin
                     IssuedReminderHeader.Get("Document No.");
@@ -753,7 +752,7 @@ table 5065 "Interaction Log Entry"
                     Page.Run(Page::"Posted Purchase Credit Memo", PurchCrMemoHeader);
                 end;
             "Document Type"::"Cover Sheet":
-                Error(Text004);
+                Error(CantShowCoverSheetsErr);
             "Document Type"::"Sales Return Order":
                 if SalesHeader.Get(SalesHeader."Document Type"::"Return Order", "Document No.") then
                     Page.Run(Page::"Sales Return Order", SalesHeader)
@@ -793,7 +792,7 @@ table 5065 "Interaction Log Entry"
         Selected: Integer;
     begin
         if Find('-') then begin
-            Selected := Dialog.StrMenu(Text011);
+            Selected := Dialog.StrMenu(EvaluationOptionsTxt);
             if Selected <> 0 then
                 repeat
                     Evaluation := Enum::"Interaction Evaluation".FromInteger(Selected);
@@ -911,4 +910,3 @@ table 5065 "Interaction Log Entry"
     begin
     end;
 }
-

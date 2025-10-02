@@ -325,4 +325,3 @@ page 9082 "Customer Statistics FactBox"
         CustLedgerEntry.SetRange(Reversed, false);
     end;
 }
-

@@ -8,6 +8,14 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using System.IO;
 using System.Utilities;
 
+/// <summary>
+/// Handles payroll data file import and conversion to General Journal entries.
+/// Integrates with Data Exchange Framework for flexible file format support.
+/// </summary>
+/// <remarks>
+/// Supports CSV and TXT file formats. Uses Data Exchange Definitions for parsing and mapping.
+/// Extensibility: OnBeforeGetFileName event for custom file selection logic.
+/// </remarks>
 codeunit 1202 "Import Payroll Transaction"
 {
     Permissions = TableData "Data Exch." = rimd;
@@ -25,6 +33,11 @@ codeunit 1202 "Import Payroll Transaction"
         FileFilterExtensionTxt: Label 'txt,csv', Locked = true;
         ProcessingSetupErr: Label 'You must specify either a reading/writing XMLport or a reading/writing codeunit.';
 
+    /// <summary>
+    /// Prompts user to select a payroll file and imports it to General Journal lines.
+    /// </summary>
+    /// <param name="GenJournalLine">Target journal line for importing payroll data</param>
+    /// <param name="DataExchDefCode">Data exchange definition code for file parsing</param>
     procedure SelectAndImportPayrollDataToGL(var GenJournalLine: Record "Gen. Journal Line"; DataExchDefCode: Code[20])
     var
         TempBlob: Codeunit "Temp Blob";
@@ -43,6 +56,13 @@ codeunit 1202 "Import Payroll Transaction"
             FileName := FileMgt.BLOBImportWithFilter(TempBlob, ImportPayrollTransCap, '', FileFilterTxt, FileFilterExtensionTxt);
     end;
 
+    /// <summary>
+    /// Imports payroll data from file and creates General Journal entries using Data Exchange Framework.
+    /// </summary>
+    /// <param name="GenJournalLine">Template journal line for new entries</param>
+    /// <param name="FileName">Name of the payroll file being imported</param>
+    /// <param name="TempBlob">BLOB containing the file data</param>
+    /// <param name="DataExchDefCode">Data exchange definition for parsing</param>
     procedure ImportPayrollDataToGL(GenJournalLine: Record "Gen. Journal Line"; FileName: Text; TempBlob: Codeunit "Temp Blob"; DataExchDefCode: Code[20])
     var
         GenJournalLineTemplate: Record "Gen. Journal Line";
@@ -107,6 +127,13 @@ codeunit 1202 "Import Payroll Transaction"
             GenJournalLineTemplate."Document No." := GenJournalLine."Document No.";
     end;
 
+    /// <summary>
+    /// Allows customization of file selection process for payroll imports.
+    /// </summary>
+    /// <param name="GenJournalLine">Target journal line context</param>
+    /// <param name="TempBlob">BLOB to store selected file data</param>
+    /// <param name="DataExchDefCode">Data exchange definition code</param>
+    /// <param name="FileName">File name that can be set by subscribers</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetFileName(var GenJournalLine: Record "Gen. Journal Line"; var TempBlob: Codeunit "Temp Blob"; DataExchDefCode: Code[20]; var FileName: Text)
     begin

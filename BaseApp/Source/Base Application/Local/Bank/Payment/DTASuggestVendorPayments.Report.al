@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -12,7 +12,7 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
-#if not CLEAN24
+#if not CLEAN25
 using System.Environment.Configuration;
 #endif
 using System.Telemetry;
@@ -345,7 +345,7 @@ report 3010546 "DTA Suggest Vendor Payments"
         ReqFormDebitBank: Record "DTA Setup";
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
         VendorLedgEntryTemp: Record "Vendor Ledger Entry" temporary;
-#if not CLEAN24
+#if not CLEAN25
         FeatureKeyManagement: Codeunit "Feature Key Management";
 #endif
         Window: Dialog;
@@ -531,7 +531,7 @@ report 3010546 "DTA Suggest Vendor Payments"
                 if BalAccDtaBank."Bal. Account Type" = BalAccDtaBank."Bal. Account Type"::"G/L Account" then begin
                     if not GlAcc.Get(BalAccDtaBank."Bal. Account No.") then
                         Error(Text025, BalAccDtaBank."Bank Code");
-#if not CLEAN24
+#if not CLEAN25
                     if FeatureKeyManagement.IsGLCurrencyRevaluationEnabled() then
                         AccountCurrency := GlAcc."Source Currency Code"
                     else
@@ -602,4 +602,3 @@ report 3010546 "DTA Suggest Vendor Payments"
             until PmtLine.Next() = 0;
     end;
 }
-

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -247,7 +247,7 @@ page 11500 "G/L Acc. Provisional Balance"
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlLine2: Record "Gen. Journal Line";
         GlAcc: Record "G/L Account";
-#if CLEAN24
+#if CLEAN25
         GLAccountSourceCurrency: Record "G/L Account Source Currency";
 #endif
         Customer: Record Customer;
@@ -279,7 +279,7 @@ page 11500 "G/L Acc. Provisional Balance"
         case Rec."Account Type" of
             Rec."Account Type"::"G/L Account":
                 if GlAcc.Get(Rec."Account No.") then begin
-#if not CLEAN24
+#if not CLEAN25
                     GlAcc.CalcFields(Balance, "Balance (FCY)");
                     AddNotPosted(Rec."Account No.", GlAcc."Currency Code", Rec."Account Type");
 #else
@@ -292,7 +292,7 @@ page 11500 "G/L Acc. Provisional Balance"
                     AccNumber := GlAcc."No.";
                     AccName := GlAcc.Name;
                     AccBalance := GlAcc.Balance;
-#if not CLEAN24
+#if not CLEAN25
                     AccCurrency := GlAcc."Currency Code";
                     AccBalanceFC := GlAcc."Balance (FCY)";
 #else
@@ -338,7 +338,7 @@ page 11500 "G/L Acc. Provisional Balance"
         case Rec."Bal. Account Type" of
             Rec."Bal. Account Type"::"G/L Account":
                 if GlAcc.Get(Rec."Bal. Account No.") then begin
-#if not CLEAN24
+#if not CLEAN25
                     GlAcc.CalcFields(Balance, "Balance (FCY)");
                     AddNotPosted(Rec."Bal. Account No.", GlAcc."Currency Code", Rec."Bal. Account Type");
 #else
@@ -351,7 +351,7 @@ page 11500 "G/L Acc. Provisional Balance"
                     BalAccNo := GlAcc."No.";
                     BalAccName := GlAcc.Name;
                     BalAccBalance := GlAcc.Balance;
-#if not CLEAN24
+#if not CLEAN25
                     BalAccCurrency := GlAcc."Currency Code";
                     BalAccBalanceFC := GlAcc."Balance (FCY)";
 #else

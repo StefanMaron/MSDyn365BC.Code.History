@@ -3770,33 +3770,6 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         end;
     end;
 
-    local procedure CreateJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; PostingDate: Date; AccountNo: Code[20]; Amount: Decimal)
-    begin
-        // Create General Journal Line.
-        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account", AccountNo, Amount);
-
-        // Update journal line to avoid Posting errors
-        GenJournalLine.Validate("Gen. Posting Type", GenJournalLine."Gen. Posting Type"::" ");
-        GenJournalLine.Validate("Gen. Bus. Posting Group", '');
-        GenJournalLine.Validate("Gen. Prod. Posting Group", '');
-        GenJournalLine.Validate("Posting Date", PostingDate);
-        GenJournalLine.Validate("Allow Zero-Amount Posting", true);
-        GenJournalLine.Modify(true);
-    end;
-
-    local procedure SetupGeneralJnlBatch(var GenJournalBatch: Record "Gen. Journal Batch")
-    var
-        GLAccount: Record "G/L Account";
-    begin
-        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
-        LibraryCostAccounting.CreateBalanceSheetGLAccount(GLAccount);
-        GenJournalBatch.Validate("Bal. Account No.", GLAccount."No.");
-        GenJournalBatch.Modify(true);
-
-        LibraryERM.ClearGenJournalLines(GenJournalBatch);
-    end;
-
     local procedure CreateAllocSourceAndTargets(var CostAllocationSource: Record "Cost Allocation Source"; Level: Integer; Base: Enum "Cost Allocation Target Base")
     var
         CostAllocationTarget: Record "Cost Allocation Target";
@@ -3885,4 +3858,3 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CostAllocation.OK().Invoke();
     end;
 }
-

@@ -477,7 +477,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
           CurrencyCode, CurrencyCode, CalcDate('<-1D>', ComputeDueDateForGracePeriod()));
 
         // Apply Refund Under from Credit Memo value and Verify Payment Discount Tolerance Amount
-        // and Additional-Currency Amount in GL Entry.       
+        // and Additional-Currency Amount in GL Entry.
         // Exercise: Apply Payment/Refund Amount on Invoice/Credit Memo.
         ApplyAndPostCustomerEntry(GenJournalLine."Document Type"::Refund, GenJournalLine."Document No.");
 
@@ -789,16 +789,6 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Verify: Verify Payment Tolerance Amount and Additional-Currency Amount in GL Entry.
         VerifyPaymentDiscountTolAmount(DocumentNo, Amount, CurrencyCode, EntryType);
         VerifyGLEntry(Amount2, DocumentNo);
-    end;
-
-    local procedure ToleranceDiscountEntryCustLedg(DocumentType: Enum "Gen. Journal Document Type"; EntryType: Enum "Detailed CV Ledger Entry Type"; DocumentNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; Amount2: Decimal)
-    begin
-        // Exercise: Apply Payment/Refund Amount on Invoice/Credit Memo.
-        ApplyAndPostCustomerEntry(DocumentType, DocumentNo);
-
-        // Verify: Verify Payment Tolerance Amount and Additional-Currency Amount in GL Entry.
-        VerifyPaymentDiscountTolAmountCustLedg(DocumentNo, Amount, CurrencyCode, EntryType);
-        VerifyCustomerLedgerEntryDisc(Amount2, DocumentNo);
     end;
 
     local procedure VerifyPaymentDiscountTolAmountCustLedg(DocumentNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10]; EntryType: Enum "Detailed CV Ledger Entry Type")
@@ -1159,4 +1149,3 @@ codeunit 134005 "ERM Payment Tolerance Customer"
           CustLedgerEntry."Original Pmt. Disc. Possible" - DiscountAmount);
     end;
 }
-

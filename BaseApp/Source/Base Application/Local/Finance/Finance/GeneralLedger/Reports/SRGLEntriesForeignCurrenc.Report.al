@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -69,7 +69,7 @@ report 11521 "SR G/L Entries Foreign Currenc"
             column(AdditionalCurrencyAmount_GLEntry; "Additional-Currency Amount")
             {
             }
-#if not CLEAN24
+#if not CLEAN25
             column(Amount_GLEntryFCY; "Amount (FCY)")
             {
             }
@@ -82,7 +82,7 @@ report 11521 "SR G/L Entries Foreign Currenc"
             {
                 DecimalPlaces = 2 : 3;
             }
-#if not CLEAN24
+#if not CLEAN25
             column(GlAccCurrencyCode; GlAcc."Currency Code")
             {
             }
@@ -145,7 +145,7 @@ report 11521 "SR G/L Entries Foreign Currenc"
 
             trigger OnAfterGetRecord()
             begin
-#if not CLEAN24
+#if not CLEAN25
                 CalcExrate("Amount (FCY)", Amount);
 #else
                 CalcExrate("Source Currency Amount", Amount);

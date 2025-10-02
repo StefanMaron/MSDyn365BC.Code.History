@@ -251,8 +251,48 @@ table 82 "Item Journal Template"
 #pragma warning restore AA0470
 #pragma warning restore AA0074
 
+    procedure GetCapacityTemplateType() Type: Enum "Item Journal Template Type"
+    begin
+        OnGetCapacityTemplateType(Type);
+    end;
+
+    procedure GetConsumptionTemplateType() Type: Enum "Item Journal Template Type"
+    begin
+        OnGetConsumptionTemplateType(Type);
+    end;
+
+    procedure GetOutputTemplateType() Type: Enum "Item Journal Template Type"
+    begin
+        OnGetOutputTemplateType(Type);
+    end;
+
+    procedure GetProdOrderTemplateType() Type: Enum "Item Journal Template Type"
+    begin
+        OnGetProdOrderTemplateType(Type);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateType(var ItemJournalTemplate: Record "Item Journal Template"; SourceCodeSetup: Record "Source Code Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetConsumptionTemplateType(var Type: Enum "Item Journal Template Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetOutputTemplateType(var Type: Enum "Item Journal Template Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCapacityTemplateType(var Type: Enum "Item Journal Template Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetProdOrderTemplateType(var Type: Enum "Item Journal Template Type")
     begin
     end;
 }

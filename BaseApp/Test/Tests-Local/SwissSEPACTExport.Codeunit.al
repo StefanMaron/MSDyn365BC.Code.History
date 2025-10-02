@@ -36,7 +36,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         QRRefErr: Label 'The payment reference is a QR reference. This type requires that the recipient bank account has a SEPA CT export payment type that is type 3.';
         IBANErr: Label 'Vendor Bank Account %1 must have a value in IBAN.', Comment = '%1 Vendor Bank Account Code.';
         NoIBANErr: Label 'IBAN must have value in Vendor Bank Account.';
-        
+
     [Test]
     [Scope('OnPrem')]
     procedure SwissDemodataIncludesSwissSEPACTExpImpSetup()
@@ -2900,7 +2900,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         GenJournalLine: Record "Gen. Journal Line";
         VendorNo: Code[20];
     begin
-        // [SCENARIO 532901] The Giro account number must not be entered but IBAN must be 
+        // [SCENARIO 532901] The Giro account number must not be entered but IBAN must be
         Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "Post Payment Domestic" and IBAN is blank
@@ -3979,20 +3979,6 @@ codeunit 144352 "Swiss SEPA CT Export"
             Assert.AreEqual(PaymentJnlExportErrorText."Error Text", ExpectedText, NoIBANErr);
     end;
 
-    local procedure VerifyPaymentJnlExportErrorForBlankedVendorBankFieldIBAN(GenJournalLine: Record "Gen. Journal Line"; VendorBankAccountFieldCaption: Text)
-    var
-        VendorBankAccount: Record "Vendor Bank Account";
-    begin
-        Assert.ExpectedErrorCode('Dialog');
-        Assert.ExpectedError(ExportHasErrorsErr);
-
-        VerifyPaymentJnlExportErrorTextIBAN(
-          GenJournalLine,
-          StrSubstNo(
-            FieldKeyBlankErr,
-            VendorBankAccount.TableCaption(), GenJournalLine."Recipient Bank Account", VendorBankAccountFieldCaption));
-    end;
-
     local procedure VerifyVendorBankAccountFieldIBAN(GenJournalLine: Record "Gen. Journal Line")
     var
     begin
@@ -4053,4 +4039,3 @@ codeunit 144352 "Swiss SEPA CT Export"
         PostedPurchInvoiceUpdate.OK().Invoke();
     end;
 }
-

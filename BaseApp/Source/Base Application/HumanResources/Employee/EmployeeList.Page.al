@@ -1,4 +1,8 @@
-﻿namespace Microsoft.HumanResources.Employee;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.HumanResources.Employee;
 
 using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Contact;
@@ -9,6 +13,7 @@ using Microsoft.HumanResources.Analysis;
 using Microsoft.HumanResources.Comment;
 using Microsoft.HumanResources.Payables;
 using System.Email;
+using System.Text;
 
 page 5201 "Employee List"
 {
@@ -132,7 +137,6 @@ page 5201 "Employee List"
                 field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the value of the the employee''s balance.';
                 }
                 field(Comment; Rec.Comment)
                 {
@@ -489,4 +493,12 @@ page 5201 "Employee List"
     var
         CanSendEmail: Boolean;
 
+    procedure GetSelectionFilter(): Text
+    var
+        Employee: Record Employee;
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+    begin
+        CurrPage.SetSelectionFilter(Employee);
+        exit(SelectionFilterManagement.GetSelectionFilterForEmployee(Employee));
+    end;
 }

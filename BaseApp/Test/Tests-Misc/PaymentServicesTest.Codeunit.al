@@ -23,7 +23,6 @@ codeunit 134425 "Payment Services Test"
         PaymentServiceExtensionMock: Codeunit "Payment Service Extension Mock";
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
-        DatasetFileName: Text;
         Initialized: Boolean;
         TestServiceNameTxt: Label 'Test App for Payment Service';
         TestServiceDescriptionTxt: Label 'Test App used to test Payment Service objects';
@@ -1806,53 +1805,6 @@ codeunit 134425 "Payment Services Test"
               'Status was not set correctly on Service Connections page');
     end;
 
-    local procedure VerifyPaymentServiceIsInReportDataset(var PaymentReportingArgument: Record "Payment Reporting Argument")
-    var
-        XMLBuffer: Record "XML Buffer";
-    begin
-        XMLBuffer.Load(DatasetFileName);
-        XMLBuffer.SetRange(Name, 'PaymentServiceURL');
-
-        XMLBuffer.SetRange(Value, CopyStr(PaymentReportingArgument.GetTargetURL(), 1, 250));
-        Assert.IsTrue(XMLBuffer.FindFirst(), 'Cound not find the Target URL in Report Dataset');
-
-        XMLBuffer.SetRange(Value);
-        XMLBuffer.SetRange("Parent Entry No.", XMLBuffer."Parent Entry No.");
-        XMLBuffer.SetRange(Name, 'PaymentServiceURLText');
-        XMLBuffer.FindFirst();
-        Assert.AreEqual(PaymentReportingArgument."URL Caption", XMLBuffer.Value, '');
-    end;
-
-    local procedure VerifyPaymentServiceIsNotInReportDataset()
-    var
-        XMLBuffer: Record "XML Buffer";
-    begin
-        XMLBuffer.Load(DatasetFileName);
-        XMLBuffer.SetRange(Name, 'PaymentServiceURL');
-        Assert.IsFalse(XMLBuffer.FindFirst(), 'URL should not be in Dataset');
-
-        XMLBuffer.SetRange("Parent Entry No.", XMLBuffer."Parent Entry No.");
-        XMLBuffer.SetRange(Name, 'PaymentServiceURLText');
-        Assert.IsFalse(XMLBuffer.FindFirst(), 'URL Text should not be in Dataset');
-    end;
-
-    local procedure VerifyTargetURLIsCorrect(SalesInvoiceHeader: Record "Sales Invoice Header"; var TempPaymentReportingArgument: Record "Payment Reporting Argument" temporary)
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        TargetURL: Text;
-    begin
-        Assert.IsFalse(TempPaymentReportingArgument.IsEmpty, 'Temp Payment Reporting Argument was not generated');
-        TargetURL := TempPaymentReportingArgument.GetTargetURL();
-        GeneralLedgerSetup.Get();
-        Assert.AreNotEqual('', TargetURL, 'Wrong setup data');
-        SalesInvoiceHeader.CalcFields("Amount Including VAT");
-        Assert.IsTrue(
-          StrPos(TargetURL, Format(SalesInvoiceHeader."Amount Including VAT", 0, 9)) > 0, 'Invoice amount was not found in the URL');
-        Assert.IsTrue(
-          StrPos(TargetURL, GeneralLedgerSetup.GetCurrencyCode(SalesInvoiceHeader."Currency Code")) > 0,
-          'Currency Code was not set correctly in the URL');
-    end;
-
     local procedure VerifyBodyText(var TempPaymentReportingArgument: Record "Payment Reporting Argument" temporary; SalesInvoiceHeader: Record "Sales Invoice Header")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -2003,4 +1955,3 @@ codeunit 134425 "Payment Services Test"
         ActiveDirectoryMockEvents.Enable();
     end;
 }
-

@@ -23,7 +23,6 @@ using Microsoft.Foundation.Company;
 using Microsoft.Inventory.Analysis;
 using Microsoft.Inventory.Counting.Journal;
 using Microsoft.Inventory.Ledger;
-using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Projects.Resources.Ledger;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Payables;
@@ -289,15 +288,6 @@ page 9035 "Data Administration"
                         ToolTip = 'Delete Phys. Inventory Ledger';
 
                         RunObject = report "Delete Phys. Inventory Ledger";
-                        Ellipsis = true;
-                    }
-                    action(DeleteExpiredComponents)
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Delete Expired Components';
-                        ToolTip = 'Delete Expired Components';
-
-                        RunObject = report "Delete Expired Components";
                         Ellipsis = true;
                     }
                     action(DeleteDetachedMedia)

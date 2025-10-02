@@ -61,6 +61,7 @@ table 15 "G/L Account"
         field(3; "Search Name"; Code[100])
         {
             Caption = 'Search Name';
+            OptimizeForTextSearch = true;
         }
         field(4; "Account Type"; Enum "G/L Account Type")
         {
@@ -785,13 +786,13 @@ table 15 "G/L Account"
             Editable = false;
             FieldClass = FlowField;
         }
-#if not CLEANSCHEMA27
+#if not CLEANSCHEMA28
         field(3010536; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
             ObsoleteReason = 'Replaced by W1 field Source Currency Code';
-#if CLEAN24
+#if CLEAN25
             ObsoleteState = Removed;
             ObsoleteTag = '27.0';
 #else
@@ -818,7 +819,7 @@ table 15 "G/L Account"
             Editable = false;
             FieldClass = FlowField;
             ObsoleteReason = 'Replaced by W1 field Source Currency Balance';
-#if not CLEAN24
+#if not CLEAN25
             ObsoleteState = Pending;
             ObsoleteTag = '24.0';
 #else
@@ -839,7 +840,7 @@ table 15 "G/L Account"
             Editable = false;
             FieldClass = FlowField;
             ObsoleteReason = 'Replaced by W1 field Source Curr. Balance at Date';
-#if not CLEAN24
+#if not CLEAN25
             ObsoleteState = Pending;
             ObsoleteTag = '24.0';
 #else
@@ -860,7 +861,7 @@ table 15 "G/L Account"
             Editable = false;
             FieldClass = FlowField;
             ObsoleteReason = 'Replaced by W1 field Source Currency Net Change';
-#if not CLEAN24
+#if not CLEAN25
             ObsoleteState = Pending;
             ObsoleteTag = '24.0';
 #else

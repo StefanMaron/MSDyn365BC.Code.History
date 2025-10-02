@@ -46,7 +46,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Setup;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Project.Setup;
 using Microsoft.Projects.Project.WIP;
@@ -170,7 +169,6 @@ permissionset 6946 "Foundation UI"
                   tabledata "Job WIP Buffer" = RIMD,
                   tabledata "Jobs Setup" = Rim,
                   tabledata "License Agreement" = RIM,
-                  tabledata "Manufacturing Setup" = Rim,
                   tabledata "Marketing Setup" = Rim,
                   tabledata "No. Series" = Rm,
                   tabledata "No. Series Line" = Rm,

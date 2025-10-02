@@ -420,11 +420,9 @@ codeunit 5830 "Calc. Availability Overview"
         Item.SetRange("Date Filter", 0D, NewDate);
         Item.CalcFields(
           Item."Reserved Qty. on Purch. Orders",
-          Item."Reserved Qty. on Prod. Order",
           Item."Res. Qty. on Inbound Transfer",
           Item."Reserved Qty. on Sales Orders",
           Item."Res. Qty. on Job Order",
-          Item."Res. Qty. on Prod. Order Comp.",
           Item."Res. Qty. on Outbound Transfer",
           Item."Reserved Qty. on Inventory",
           Item."Res. Qty. on Assembly Order",
@@ -433,12 +431,9 @@ codeunit 5830 "Calc. Availability Overview"
           Item."Res. Qty. on Purch. Returns");
         Item.CalcFields(
           Item."Qty. on Purch. Order",
-          Item."Scheduled Receipt (Qty.)",
-          Item."Planned Order Receipt (Qty.)",
           Item."Trans. Ord. Receipt (Qty.)",
           Item."Qty. on Sales Order",
           Item."Qty. on Job Order",
-          Item."Qty. on Component Lines",
           Item."Trans. Ord. Shipment (Qty.)",
           Item.Inventory,
           Item."Qty. on Assembly Order",
@@ -449,14 +444,14 @@ codeunit 5830 "Calc. Availability Overview"
         SupplyRunningTotal :=
           Item."Qty. on Purch. Order" - Item."Reserved Qty. on Purch. Orders" +
           Item."Qty. on Sales Return" - Item."Res. Qty. on Sales Returns" +
-          Item."Scheduled Receipt (Qty.)" + Item."Planned Order Receipt (Qty.)" - Item."Reserved Qty. on Prod. Order" +
+          Item.CalcScheduledReceiptQty() + Item.CalcPlannedOrderReceiptQty() - Item.CalcReservedQtyOnProdOrder() +
           Item."Trans. Ord. Receipt (Qty.)" - Item."Res. Qty. on Inbound Transfer" +
           Item."Qty. on Assembly Order" - Item."Res. Qty. on Assembly Order";
 
         DemandRunningTotal :=
           -Item."Qty. on Sales Order" + Item."Reserved Qty. on Sales Orders" -
           Item."Qty. on Purch. Return" + Item."Res. Qty. on Purch. Returns" -
-          Item."Qty. on Component Lines" + Item."Res. Qty. on Prod. Order Comp." -
+          Item.CalcQtyOnComponentLines() + Item.CalcResQtyonProdOrderComp() -
           Item."Qty. on Job Order" + Item."Res. Qty. on Job Order" -
           Item."Trans. Ord. Shipment (Qty.)" + Item."Res. Qty. on Outbound Transfer" -
           Item."Qty. on Asm. Component" + Item."Res. Qty. on  Asm. Comp.";

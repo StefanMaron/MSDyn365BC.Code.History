@@ -6,6 +6,7 @@ namespace Microsoft.CashFlow.Setup;
 
 using System.AI;
 using System.Privacy;
+using System.Telemetry;
 
 page 846 "Cash Flow Setup"
 {
@@ -169,13 +170,14 @@ page 846 "Cash Flow Setup"
                     ToolTip = 'Specifies status of Azure AI forecast.';
                     trigger OnValidate();
                     var
+                        AuditLog: Codeunit "Audit Log";
                         CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
                         CashFlowForecastConsentProvidedLbl: Label 'Cash Flow Forecast feature, Azure AI - consent provided by UserSecurityId %1.', Locked = true;
                     begin
                         if not xRec."Azure AI Enabled" and Rec."Azure AI Enabled" then
                             Rec."Azure AI Enabled" := CustomerConsentMgt.ConsentToMicrosoftServiceWithAI();
                         if Rec."Azure AI Enabled" then
-                            Session.LogAuditMessage(StrSubstNo(CashFlowForecastConsentProvidedLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
+                            AuditLog.LogAuditMessage(StrSubstNo(CashFlowForecastConsentProvidedLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
 
                     end;
                 }

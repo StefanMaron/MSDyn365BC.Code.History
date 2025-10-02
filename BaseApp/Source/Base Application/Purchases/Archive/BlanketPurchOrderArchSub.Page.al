@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Archive;
 
 using Microsoft.Finance.Dimension;
@@ -228,35 +232,6 @@ page 6624 "Blanket Purch. Order Arch.Sub."
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies whether the supply represented by this line is considered by the planning system when calculating action messages.';
-                    Visible = false;
-                }
-                field("Prod. Order Line No."; Rec."Prod. Order Line No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the related production order line.';
-                    Visible = false;
-                }
-                field("Prod. Order No."; Rec."Prod. Order No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the related production order.';
-                    Visible = false;
-                }
-                field("Operation No."; Rec."Operation No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the related production operation.';
-                    Visible = false;
-                }
-                field("Work Center No."; Rec."Work Center No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of a related work center, for example for subcontracted production.';
-                    Visible = false;
-                }
-                field(Finished; Rec.Finished)
-                {
-                    ApplicationArea = Manufacturing;
                     Visible = false;
                 }
                 field("Inbound Whse. Handling Time"; Rec."Inbound Whse. Handling Time")

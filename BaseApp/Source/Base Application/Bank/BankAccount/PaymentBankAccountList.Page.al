@@ -4,6 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.BankAccount;
 
+/// <summary>
+/// Specialized bank account list focused on payment processing and electronic banking.
+/// Displays bank accounts suitable for payment export and electronic fund transfers.
+/// </summary>
+/// <remarks>
+/// Source Table: Bank Account (270). Used for payment-specific bank account selection.
+/// Optimized for payment processing workflows and electronic banking operations.
+/// </remarks>
 page 1282 "Payment Bank Account List"
 {
     Caption = 'Payment Bank Account List';

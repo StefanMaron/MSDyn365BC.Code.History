@@ -335,18 +335,6 @@ page 5522 "Order Planning"
                     ToolTip = 'View or edit the production order components of the parent item on the line.';
                     ShortCutKey = 'Ctrl+Alt+C';
                 }
-                action("Ro&uting")
-                {
-                    ApplicationArea = Planning;
-                    Caption = 'Ro&uting';
-                    Image = Route;
-                    RunObject = Page Microsoft.Manufacturing.Routing."Planning Routing";
-                    RunPageLink = "Worksheet Template Name" = field("Worksheet Template Name"),
-                                  "Worksheet Batch Name" = field("Journal Batch Name"),
-                                  "Worksheet Line No." = field("Line No.");
-                    ToolTip = 'View or edit the operations list of the parent item on the line.';
-                    ShortCutKey = 'Ctrl+Alt+R';
-                }
                 action(Dimensions)
                 {
                     AccessByPermission = TableData Dimension = R;
@@ -669,9 +657,6 @@ page 5522 "Order Planning"
                 actionref(Components_Promoted; Components)
                 {
                 }
-                actionref("Ro&uting_Promoted"; "Ro&uting")
-                {
-                }
             }
             group(Category_Category5)
             {
@@ -909,7 +894,7 @@ page 5522 "Order Planning"
         if DemandOrderNo = '' then
             exit;
 
-        if (ActualReqLine."Demand Type" = Database::Microsoft.Manufacturing.Document."Prod. Order Component") and
+        if (ActualReqLine."Demand Type" = 5407) and // Database::"Prod. Order Component"
            (ActualReqLine."Demand Subtype" = DemandSubtype) and
            (ActualReqLine."Demand Order No." = DemandOrderNo)
         then

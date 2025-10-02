@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Reversal;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.GeneralLedger.Reversal;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -211,12 +215,12 @@ table 179 "Reversal Entry"
             Caption = 'Source Currency VAT Amount';
             DataClassification = CustomerContent;
         }
-#if not CLEANSCHEMA27
+#if not CLEANSCHEMA28
         field(3010536; "Amount (FCY)"; Decimal)
         {
             Caption = 'Amount (FCY)';
             ObsoleteReason = 'Replaced by W1 field Source Currency Amount';
-#if CLEAN24
+#if CLEAN25
             ObsoleteState = Removed;
             ObsoleteTag = '27.0';
 #else
@@ -297,9 +301,6 @@ table 179 "Reversal Entry"
 #pragma warning restore AA0470
 #pragma warning restore AA0074
         PostedAndAppliedSameTransactionErr: Label 'You cannot reverse register number %1 because it contains customer or vendor or employee ledger entries that have been posted and applied in the same transaction.\\You must reverse each transaction in register number %1 separately.', Comment = '%1="G/L Register No."';
-#pragma warning disable AA0470
-        UnrealizedVATReverseErr: Label 'You cannot reverse %1 No. %2 because the entry has an associated Unrealized VAT Entry.';
-#pragma warning restore AA0470
         CaptionTxt: Label '%1 %2 %3', Locked = true;
         ReversalWithACYErr: Label 'Due to how Business Central posts and updates amounts in an additional reporting currency (ACY), you can''t use this feature if you use ACY. Business Central converts amounts in local currency to the alternate currency, but doesn''t net transactions. If you use ACY, you must manually reverse the amounts.';
 
@@ -1048,11 +1049,6 @@ table 179 "Reversal Entry"
         BankAccountStatement.Get(BankAccountNo, StatementNo);
     end;
 
-    local procedure UnrealizedVATReverseError(TableCaption: Text; EntryNo: Integer): Text
-    begin
-        exit(StrSubstNo(UnrealizedVATReverseErr, TableCaption, EntryNo));
-    end;
-
     protected procedure InsertFromCustLedgEntry(var TempTransactionInteger: Record "Integer" temporary; Number: Integer; RevType: Option Transaction,Register; var NextLineNo: Integer)
     var
         Customer: Record Customer;
@@ -1401,7 +1397,7 @@ table 179 "Reversal Entry"
         Description := GLEntry.Description;
         "Amount (LCY)" := GLEntry.Amount;
         "Source Currency Amount" := GLEntry."Source Currency Amount";
-#if not CLEAN24
+#if not CLEAN25
         "Amount (FCY)" := GLEntry."Amount (FCY)";
 #endif
         "Debit Amount (LCY)" := GLEntry."Debit Amount";
@@ -1446,7 +1442,7 @@ table 179 "Reversal Entry"
         Amount := VATEntry.Amount;
         "Amount (LCY)" := VATEntry.Amount;
         "Source Currency Amount" := VATEntry."Source Currency VAT Amount";
-#if not CLEAN24
+#if not CLEAN25
         "Amount (FCY)" := VATEntry."Amount (FCY)";
 #endif
         "Document Type" := VATEntry."Document Type";
@@ -1900,4 +1896,3 @@ table 179 "Reversal Entry"
     begin
     end;
 }
-

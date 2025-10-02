@@ -22,7 +22,7 @@ codeunit 5847 "Get Average Cost Calc Overview"
 
         Rec.Reset();
         Rec.DeleteAll();
-        if AvgCostAdjmtEntryPoint.Find('-') then
+        if AvgCostAdjmtEntryPoint.FindSet() then
             repeat
                 Rec.Init();
                 Rec.Type := Rec.Type::"Closing Entry";
@@ -176,6 +176,8 @@ codeunit 5847 "Get Average Cost Calc Overview"
         Item.Get(AvgCostCalcOverview."Item No.");
         OnEntriesExistOnAfterGetItem(Item, AvgCostCalcOverview);
 
+        ValueEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
+        ValueEntry.SetLoadFields("Item No.", "Item Ledger Entry No.", "Partial Revaluation", "Valuation Date", "Item Ledger Entry Quantity", "Cost Amount (Actual)", "Cost Amount (Expected)");
         ValueEntry.Reset();
         ValueEntry.SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code", "Entry No.");
         ValueEntry.SetRange("Item No.", AvgCostCalcOverview."Item No.");
@@ -195,7 +197,7 @@ codeunit 5847 "Get Average Cost Calc Overview"
             ValueEntry.SetRange("Variant Code", AvgCostCalcOverview."Variant Code");
         end;
         OnEntriesExistOnBeforeFind(ValueEntry, Item, AvgCostCalcOverview);
-        exit(ValueEntry.Find('-'));
+        exit(ValueEntry.FindSet());
     end;
 
     [IntegrationEvent(false, false)]

@@ -118,6 +118,8 @@ report 5058 "Salesperson - Opportunities"
 
     requestpage
     {
+        AboutTitle = 'About Salesperson Opportunities';
+        AboutText = 'Review which salespeople handle which opportunities.';
 
         layout
         {

@@ -71,7 +71,7 @@ codeunit 139460 "User Access in SaaS Tests"
 
         // [GIVEN] Running in SaaS
         // [WHEN] The current user opens another user's card
-        // [THEN] The current user cannot see another user's web service key 
+        // [THEN] The current user cannot see another user's web service key
         // [THEN] The action to change the web service access key is enabled
         TestWebServiceKeyAccessibility(UserEuropeDcst1FullTok, true, true);
     end;
@@ -107,7 +107,7 @@ codeunit 139460 "User Access in SaaS Tests"
 
         // [GIVEN] Running on-premise or in PaaS
         // [WHEN] The current user opens another user's card
-        // [THEN] The current user cannot see another user's web service key 
+        // [THEN] The current user cannot see another user's web service key
         // [THEN] The action to change the web service access key is enabled
         TestWebServiceKeyAccessibility(UserEuropeDcst1FullTok, false, true);
     end;
@@ -278,23 +278,6 @@ codeunit 139460 "User Access in SaaS Tests"
         exit(User."User Security ID");
     end;
 
-    local procedure CreateUserWithPersonalization(var UserPersonalization: Record "User Personalization"; UserName: Code[50]; LicenseType: Option)
-    var
-        User: Record User;
-    begin
-        CreateUserWithLicenseType(UserName, LicenseType);
-
-        UserPersonalization.SetRange("User SID", User."User Security ID");
-        if UserPersonalization.FindFirst() then
-            UserPersonalization.Delete(true);
-        User.SetRange("User Name", UserName);
-        User.FindFirst();
-        UserPersonalization.Init();
-        UserPersonalization.Validate("User SID", User."User Security ID");
-        UserPersonalization.Validate(Company, CompanyName);
-        UserPersonalization.Insert(true);
-    end;
-
     local procedure CreateUserFromUI(UserName: Code[50])
     var
         UserCardPage: TestPage "User Card";
@@ -394,4 +377,3 @@ codeunit 139460 "User Access in SaaS Tests"
         User.DeleteAll(true);
     end;
 }
-

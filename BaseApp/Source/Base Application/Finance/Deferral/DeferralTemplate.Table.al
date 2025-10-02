@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Deferral;
 
 using Microsoft.Finance.GeneralLedger.Account;
@@ -5,6 +9,10 @@ using Microsoft.Inventory.Item;
 using Microsoft.Projects.Resources.Resource;
 using System.Telemetry;
 
+/// <summary>
+/// Master data table that defines deferral templates for deferred revenue and expense recognition.
+/// Templates specify calculation methods, periods, and G/L accounts used to create deferral schedules.
+/// </summary>
 table 1700 "Deferral Template"
 {
     Caption = 'Deferral Template';
@@ -14,15 +22,25 @@ table 1700 "Deferral Template"
 
     fields
     {
+        /// <summary>
+        /// Unique identifier for the deferral template.
+        /// </summary>
         field(1; "Deferral Code"; Code[10])
         {
             Caption = 'Deferral Code';
             NotBlank = true;
         }
+        /// <summary>
+        /// Descriptive text explaining the purpose and use of this deferral template.
+        /// </summary>
         field(2; Description; Text[100])
         {
             Caption = 'Description';
         }
+        /// <summary>
+        /// G/L Account number where deferred amounts will be temporarily stored before recognition.
+        /// Must be a posting account that is not blocked.
+        /// </summary>
         field(3; "Deferral Account"; Code[20])
         {
             Caption = 'Deferral Account';
@@ -30,6 +48,10 @@ table 1700 "Deferral Template"
             TableRelation = "G/L Account" where("Account Type" = const(Posting),
                                                  Blocked = const(false));
         }
+        /// <summary>
+        /// Percentage of the source amount to defer (0-100%).
+        /// Default is 100% which defers the entire amount.
+        /// </summary>
         field(4; "Deferral %"; Decimal)
         {
             Caption = 'Deferral %';
@@ -44,14 +66,24 @@ table 1700 "Deferral Template"
                     Error(DeferralPercentageErr);
             end;
         }
+        /// <summary>
+        /// Method used to calculate deferral amounts across periods (Straight-Line, Equal per Period, etc.).
+        /// </summary>
         field(5; "Calc. Method"; Enum "Deferral Calculation Method")
         {
             Caption = 'Calc. Method';
         }
+        /// <summary>
+        /// Determines when the deferral schedule starts (Posting Date, Beginning of Period, etc.).
+        /// </summary>
         field(6; "Start Date"; Enum "Deferral Calculation Start Date")
         {
             Caption = 'Start Date';
         }
+        /// <summary>
+        /// Number of accounting periods over which the deferral will be recognized.
+        /// Must be at least 1 period.
+        /// </summary>
         field(7; "No. of Periods"; Integer)
         {
             BlankZero = true;
@@ -64,6 +96,10 @@ table 1700 "Deferral Template"
                     Error(NumberofPeriodsErr);
             end;
         }
+        /// <summary>
+        /// Default description template for individual deferral schedule lines.
+        /// Can include placeholders that are replaced when creating schedules.
+        /// </summary>
         field(8; "Period Description"; Text[100])
         {
             Caption = 'Period Description';

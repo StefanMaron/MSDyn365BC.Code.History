@@ -159,6 +159,8 @@ report 99000768 "Prod. Order - Detailed Calc."
 
     requestpage
     {
+        AboutTitle = 'About Prod. Order - Detailed Calc.';
+        AboutText = 'Get a comprehensive analysis of the costs associated with production orders broken down to costs by material, capacity, overhead, and other cost components.';
 
         layout
         {

@@ -3807,7 +3807,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         Quantity: Decimal;
     begin
-        // Setup: Create Item. Create and release Sales Order with 'Shipping Agent Code' and 'Shipping Agent Service Code' 
+        // Setup: Create Item. Create and release Sales Order with 'Shipping Agent Code' and 'Shipping Agent Service Code'
         Initialize();
         LibraryInventory.CreateItem(Item);
         Quantity := LibraryRandom.RandDec(10, 2);  // Taking Random Quantity.
@@ -4427,31 +4427,6 @@ codeunit 137151 "SCM Warehouse - Shipping"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         CreatePurchaseOrder(PurchaseHeader, Location.Code, ItemNo, Quantity);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false));
-    end;
-
-    local procedure CreateAndPostPurchaseOrderAndRegisterPutAwayWithTracking(ItemNo: Code[20]; LocationCode: Code[10]; LotNos: array[2] of Code[20]; LotQty: Decimal)
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        WarehouseActivityLine: Record "Warehouse Activity Line";
-        i: Integer;
-    begin
-        LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo(),
-          ItemNo, LotQty * ArrayLen(LotNos), LocationCode, WorkDate());
-
-        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Assign Multiple Lines");
-        LibraryVariableStorage.Enqueue(ArrayLen(LotNos));
-        LibraryVariableStorage.Enqueue(LotQty);
-        for i := 1 to ArrayLen(LotNos) do
-            LibraryVariableStorage.Enqueue(LotNos[i]);
-        PurchaseLine.OpenItemTrackingLines();
-
-        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
-        CreateAndPostWarehouseReceipt(PurchaseHeader);
-        RegisterWarehouseActivity(
-          WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.",
-          WarehouseActivityLine."Activity Type"::"Put-away");
     end;
 
     local procedure CreateAndPostSalesOrder(LocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal): Code[20]
@@ -6641,4 +6616,3 @@ codeunit 137151 "SCM Warehouse - Shipping"
         Reply := true;
     end;
 }
-

@@ -1,6 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.FinancialReports;
 
 using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Foundation.Period;
 using System.Environment.Configuration;
 using System.Environment;
 using System.IO;
@@ -23,10 +28,12 @@ codeunit 18 "Financial Report Mgt."
         DontShowAgainMsg: Label 'Don''t show again';
         TelemetryEventTxt: Label 'Financial Report Definition %1: %2', Comment = '%1 = event type, %2 = report', Locked = true;
         OpenFinancialReportsLbl: Label 'Open Financial Reports';
+        OpenRowDefinitionsLbl: Label 'Open Row Definitions';
         NotifyUpdateFinancialReportNameTxt: Label 'Notify about updating financial reports.';
-        NotifyUpdateFinancialReportDescTxt: Label 'Notify that financial reports should be updated after someone creates a new G/L account.';
+        NotifyUpdateFinancialReportDescTxt: Label 'Notify that financial reports should be updated after someone creates or changes a G/L account.';
         UpdateFinancialReportMsg: Label 'You have created one or more G/L accounts and might need to update your financial reports. We recommend that you review your financial reports by choosing the Open Financial Reports action.';
         UpdateFinancialReportNotificationIdTok: Label 'cc02b894-bef8-4945-8042-f177422f8906', Locked = true;
+        UpdateRowDefinitionMsg: Label 'You have changed one or more G/L accounts and might need to update your financial report row definitions. We recommend that you review your row definitions by choosing the Open Row Definitions action.';
 
     internal procedure LaunchEditRowsWarningNotification()
     var
@@ -392,6 +399,33 @@ codeunit 18 "Financial Report Mgt."
         Page.Run(Page::"Financial Reports");
     end;
 
+    internal procedure NotifyUpdateRowDefinition(var GLAccount: Record "G/L Account")
+    var
+        MyNotification: Record "My Notifications";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        UpdateRowDefinitionNotification: Notification;
+    begin
+        if not GuiAllowed() then
+            exit;
+        if GLAccount.IsTemporary() then
+            exit;
+        if not MyNotification.IsEnabled(GetUpdateFinancialReportNotificationId()) then
+            exit;
+
+        UpdateRowDefinitionNotification.Id := GetUpdateFinancialReportNotificationId();
+        UpdateRowDefinitionNotification.Message := UpdateRowDefinitionMsg;
+        UpdateRowDefinitionNotification.AddAction(
+            OpenRowDefinitionsLbl, Codeunit::"Financial Report Mgt.", 'OpenRowDefinitions');
+        UpdateRowDefinitionNotification.AddAction(
+            DontShowAgainMsg, Codeunit::"Financial Report Mgt.", 'HideUpdateFinancialReportNotification');
+        NotificationLifecycleMgt.SendNotification(UpdateRowDefinitionNotification, GLAccount.RecordId);
+    end;
+
+    procedure OpenRowDefinitions(UpdateFinancialReportNotification: Notification)
+    begin
+        Page.Run(Page::"Account Schedule Names");
+    end;
+
     procedure HideUpdateFinancialReportNotification(UpdateFinancialReportNotification: Notification)
     var
         MyNotifications: Record "My Notifications";
@@ -411,12 +445,86 @@ codeunit 18 "Financial Report Mgt."
             exit;
 
         TelemetryDimensions.Add('ReportDefinitionCode', Name);
-        FeatureTelemetry.LogUsage('0000ONR', 'Financial Report', StrSubstNo(TelemetryEventTxt, Name, Action), TelemetryDimensions);
+        FeatureTelemetry.LogUsage('0000ONR', 'Financial Report', StrSubstNo(TelemetryEventTxt, Action, Name), TelemetryDimensions);
     end;
 
     procedure GetUpdateFinancialReportNotificationId(): Guid
     begin
         exit(UpdateFinancialReportNotificationIdTok);
+    end;
+
+    procedure CalcAccScheduleLineDateFilter(FinancialReport: Record "Financial Report"; var AccScheduleLine: Record "Acc. Schedule Line")
+    var
+        AccSchedManagement: Codeunit AccSchedManagement;
+        PeriodFormulaParser: Codeunit "Period Formula Parser";
+        PeriodError: Boolean;
+        EndDate: Date;
+        StartDate: Date;
+    begin
+        if (Format(FinancialReport.StartDateFilterFormula) <> '') or
+            (Format(FinancialReport.EndDateFilterFormula) <> '')
+        then begin
+            StartDate := CalcDate(FinancialReport.StartDateFilterFormula, WorkDate());
+            EndDate := CalcDate(FinancialReport.EndDateFilterFormula, WorkDate());
+            AccScheduleLine.SetRange("Date Filter", StartDate, EndDate);
+            exit;
+        end;
+
+        if FinancialReport.DateFilterPeriodFormula <> '' then
+            if PeriodFormulaParser.TryCalculatePeriodStartEnd(
+                FinancialReport.DateFilterPeriodFormula, FinancialReport.DateFilterPeriodFormulaLID,
+                WorkDate(), StartDate, EndDate, PeriodError)
+            then
+                if not PeriodError then begin
+                    AccScheduleLine.SetRange("Date Filter", StartDate, EndDate);
+                    exit;
+                end;
+
+        if FinancialReport.DateFilter <> '' then
+            if TrySetAccScheduleLineDateFilter(FinancialReport.DateFilter, AccScheduleLine) then
+                exit;
+
+        AccSchedManagement.FindPeriod(AccScheduleLine, '', FinancialReport.PeriodType);
+    end;
+
+    [TryFunction]
+    local procedure TrySetAccScheduleLineDateFilter(DateFilter: Text; var AccScheduleLine: Record "Acc. Schedule Line")
+    begin
+        AccScheduleLine.SetFilter("Date Filter", DateFilter);
+    end;
+
+    procedure SetAccScheduleLineStartEndDateFormula(var AccScheduleLine: Record "Acc. Schedule Line"; StartDateFormula: DateFormula; EndDateFormula: DateFormula): Boolean
+    var
+        EndDate: Date;
+        StartDate: Date;
+    begin
+        if (Format(StartDateFormula) = '') and (Format(EndDateFormula) = '')
+        then
+            exit(false);
+        StartDate := CalcDate(StartDateFormula, WorkDate());
+        EndDate := CalcDate(EndDateFormula, WorkDate());
+        AccScheduleLine.SetRange("Date Filter", StartDate, EndDate);
+        exit(true);
+    end;
+
+    procedure SetAccScheduleLinePeriodFormula(var AccScheduleLine: Record "Acc. Schedule Line"; PeriodFormula: Code[20]; LanguageId: Integer): Boolean
+    var
+        PeriodFormulaParser: Codeunit "Period Formula Parser";
+        PeriodError: Boolean;
+        EndDate: Date;
+        StartDate: Date;
+    begin
+        if PeriodFormula = '' then
+            exit(false);
+        if PeriodFormulaParser.TryCalculatePeriodStartEnd(
+            PeriodFormula, LanguageId,
+            WorkDate(), StartDate, EndDate, PeriodError)
+        then begin
+            if PeriodError then
+                exit(false);
+            AccScheduleLine.SetRange("Date Filter", StartDate, EndDate);
+            exit(true);
+        end;
     end;
 
     [IntegrationEvent(false, false)]

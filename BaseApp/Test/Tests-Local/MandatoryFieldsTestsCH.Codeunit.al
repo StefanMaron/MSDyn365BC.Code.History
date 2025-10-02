@@ -135,38 +135,6 @@ codeunit 144082 "Mandatory Fields Tests CH"
         SalesInvoice.Close();
     end;
 
-    local procedure VerifyMandatoryFieldsOnSalesOrder(CustomerNo: Code[20]; LineType: Enum "Sales Line Type"; ExpectedMandatory: Boolean)
-    var
-        InventorySetup: Record "Inventory Setup";
-        SalesOrder: TestPage "Sales Order";
-    begin
-        SetExternalDocNoMandatory(true);
-        SalesOrder.OpenNew();
-        Assert.IsTrue(SalesOrder."Sell-to Customer Name".ShowMandatory(), UnexpectedShowMandatoryValueErr);
-        Assert.IsTrue(SalesOrder."External Document No.".ShowMandatory(), UnexpectedShowMandatoryValueErr);
-        SalesOrder."Sell-to Customer Name".SetValue(CustomerNo);
-        SalesOrder.SalesLines.New();
-        Assert.IsFalse(SalesOrder.SalesLines.Quantity.ShowMandatory(), UnexpectedShowMandatoryValueErr);
-        Assert.IsFalse(SalesOrder.SalesLines."Unit Price".ShowMandatory(), UnexpectedShowMandatoryValueErr);
-        Assert.IsFalse(SalesOrder.SalesLines."Location Code".ShowMandatory(), UnexpectedShowMandatoryValueErr);
-        InventorySetup.Get();
-        InventorySetup."Location Mandatory" := true;
-        InventorySetup.Modify();
-        SalesOrder.SalesLines.Type.SetValue(LineType);
-        if LineType = SalesLine.Type::Item then
-            SalesOrder.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo());
-        Assert.AreEqual(ExpectedMandatory, SalesOrder.SalesLines.Quantity.ShowMandatory(), UnexpectedShowMandatoryValueErr);
-        Assert.AreEqual(ExpectedMandatory, SalesOrder.SalesLines."Unit Price".ShowMandatory(), UnexpectedShowMandatoryValueErr);
-        Assert.AreEqual(ExpectedMandatory, SalesOrder.SalesLines."Location Code".ShowMandatory(), UnexpectedShowMandatoryValueErr);
-        SalesOrder.Close();
-
-        // verify that external document number is not mandatory if you specify so in the setup
-        SetExternalDocNoMandatory(false);
-        SalesOrder.OpenNew();
-        Assert.IsFalse(SalesOrder."External Document No.".ShowMandatory(), UnexpectedShowMandatoryValueErr);
-        SalesOrder.Close();
-    end;
-
     local procedure VerifyMandatoryFieldsOnSalesReturnOrder(CustomerNo: Code[20]; LineType: Enum "Sales Line Type"; ExpectedMandatory: Boolean)
     var
         SalesReturnOrder: TestPage "Sales Return Order";
@@ -247,4 +215,3 @@ codeunit 144082 "Mandatory Fields Tests CH"
         SalesReceivablesSetup.Modify();
     end;
 }
-

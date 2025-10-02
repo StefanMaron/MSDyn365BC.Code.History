@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -2137,13 +2137,6 @@ page 8901 "Finance Manager Role Center"
                         RunObject = report "Inventory Valuation";
                         Tooltip = 'Run the Inventory Valuation report.';
                     }
-                    action("Inventory Valuation - WIP")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Production Order - WIP';
-                        RunObject = report "Inventory Valuation - WIP";
-                        Tooltip = 'Run the Production Order - WIP report.';
-                    }
                     action("Inventory - List")
                     {
                         ApplicationArea = Basic, Suite;
@@ -2697,17 +2690,17 @@ page 8901 "Finance Manager Role Center"
                         RunObject = report "Swiss VAT Statement";
                     }
 #if not CLEAN25
+#pragma warning disable AA0194
                     action("Adjust Exchange Rates G/L")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Adjust Exchange Rates G/L';
-#if not CLEAN24
-                        RunObject = report "Adjust Exchange Rates G/L";
-#endif
                         ObsoleteReason = 'Replaced by new report G/L Currency Revaluation in Chart of Accounts page.';
                         ObsoleteState = Pending;
                         ObsoleteTag = '25.0';
+                        Visible = false;
                     }
+#pragma warning restore AA0194
 #endif
                     action("Account Interest")
                     {

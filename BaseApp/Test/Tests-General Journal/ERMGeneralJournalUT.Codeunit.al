@@ -488,6 +488,7 @@ codeunit 134920 "ERM General Journal UT"
     procedure NoRenumberDocNoWithoutNoSeries()
     var
         GLAccount: Record "G/L Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
         NewDocNo: Code[20];
     begin
@@ -501,11 +502,8 @@ codeunit 134920 "ERM General Journal UT"
         NewDocNo := SetNewDocNo(GenJournalLine);
 
         // Exercise
-        GenJournalLine.RenumberDocumentNo();
-
-        // Verify
-        VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
-          GenJournalLine."Line No.", NewDocNo);
+        asserterror GenJournalLine.RenumberDocumentNo();
+        Assert.ExpectedTestFieldError(GenJournalBatch.FieldCaption("No. Series"), Format(0));
     end;
 
     [Test]

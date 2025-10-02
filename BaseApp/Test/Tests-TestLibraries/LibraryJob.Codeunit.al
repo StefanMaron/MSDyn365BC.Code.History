@@ -13,12 +13,12 @@ codeunit 131920 "Library - Job"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         LibraryResource: Codeunit "Library - Resource";
-        LibraryService: Codeunit "Library - Service";
         LibraryInventory: Codeunit "Library - Inventory";
         ConsumptionSource: Option Job,Service,GenJournal,Purchase;
-        Prefix: Label 'ZZZ';
-        TemplateName: Label 'T';
-        NoSeriesCode: Label 'JOBTEST';
+        PrefixTxt: Label 'ZZZ';
+        TemplateNameTxt: Label 'T';
+        NoSeriesCodeTxt: Label 'JOBTEST';
+        JobNosTok: Label 'JOB NOS', Locked = true;
         ErrorMsg: Label 'Unsupported type.';
         JobNoErr: Label 'GLEntry."Job No."';
 
@@ -34,7 +34,7 @@ codeunit 131920 "Library - Job"
         // create a (LCY) job for a random customer
 
         // Find the next available job no.
-        JobNo := Prefix + 'J000';
+        JobNo := PrefixTxt + 'J000';
         repeat
             JobNo := IncStr(JobNo);
         until not Job.Get(JobNo);
@@ -54,7 +54,7 @@ codeunit 131920 "Library - Job"
     begin
         // Create a (posting) task for a job
 
-        JobTaskNo := Prefix + 'JT001';
+        JobTaskNo := PrefixTxt + 'JT001';
 
         // Find the last task no. (as an integer)
         JobTaskLocal.SetRange("Job No.", Job."No.");
@@ -232,35 +232,15 @@ codeunit 131920 "Library - Job"
         PurchaseLine.Modify(true)
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit Library Service', '27.0')]
     procedure CreateServiceLineForPlan(JobPlanningLine: Record "Job Planning Line"; UsageLineType: Enum "Job Line Type"; Fraction: Decimal; var ServiceLine: Record "Service Line")
     var
-        Job: Record Job;
-        JobTask: Record "Job Task";
-        ServiceHeader: Record "Service Header";
-        ServiceItemLine: Record "Service Item Line";
+        LibraryService: Codeunit "Library - Service";
     begin
-        Assert.IsTrue(JobPlanningLine."Usage Link", 'Usage link should be enabled');
-
-        JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
-        Job.Get(JobPlanningLine."Job No.");
-
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Job."Bill-to Customer No.");
-        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
-        LibraryService.CreateServiceLine(
-          ServiceLine, ServiceHeader, Job2ServiceConsumableType(JobPlanningLine.Type), JobPlanningLine."No.");
-
-        ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
-        ServiceLine.Validate(Description, LibraryUtility.GenerateGUID());
-        ServiceLine.Validate("Location Code", FindLocationForPostingGroup(ServiceLine));
-        ServiceLine.Validate(Quantity, Round(Fraction * JobPlanningLine."Remaining Qty."));
-        ServiceLine.Validate("Unit of Measure Code", JobPlanningLine."Unit of Measure Code");
-        ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity);
-        ServiceLine.Validate("Job No.", JobPlanningLine."Job No.");
-        ServiceLine.Validate("Job Task No.", JobPlanningLine."Job Task No.");
-        ServiceLine.Validate("Job Line Type", UsageLineType);
-        ServiceLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
-        ServiceLine.Modify(true)
+        LibraryService.CreateServiceLineForPlan(JobPlanningLine, UsageLineType, Fraction, ServiceLine);
     end;
+#endif
 
 #if not CLEAN25
     procedure CreateJobGLAccountPrice(var JobGLAccountPrice: Record "Job G/L Account Price"; JobNo: Code[20]; JobTaskNo: Code[20]; GLAccountNo: Code[20]; CurrencyCode: Code[10])
@@ -303,7 +283,7 @@ codeunit 131920 "Library - Job"
         Clear(JobJournalBatch);
 
         // Find a unique batch name (wrt existing and previously posted batches)
-        BatchName := Prefix + 'B000';
+        BatchName := PrefixTxt + 'B000';
         repeat
             BatchName := IncStr(BatchName);
         until not JobJournalBatch.Get(JobJournalTemplateName, BatchName);
@@ -347,8 +327,8 @@ codeunit 131920 "Library - Job"
     procedure GetJobJournalTemplate(var JobJournalTemplate: Record "Job Journal Template"): Code[10]
     begin
         Clear(JobJournalTemplate);
-        if not JobJournalTemplate.Get(Prefix + TemplateName) then begin
-            JobJournalTemplate.Validate(Name, Prefix + TemplateName);
+        if not JobJournalTemplate.Get(PrefixTxt + TemplateNameTxt) then begin
+            JobJournalTemplate.Validate(Name, PrefixTxt + TemplateNameTxt);
             JobJournalTemplate.Insert(true)
         end;
 
@@ -361,7 +341,7 @@ codeunit 131920 "Library - Job"
     var
         JobJournalTemplate: Record "Job Journal Template";
     begin
-        if JobJournalTemplate.Get(Prefix + TemplateName) then
+        if JobJournalTemplate.Get(PrefixTxt + TemplateNameTxt) then
             JobJournalTemplate.Delete(true);
     end;
 
@@ -418,7 +398,7 @@ codeunit 131920 "Library - Job"
         Clear(GenJournalBatch);
 
         // Find a unique name (wrt existing and previously posted batches)
-        BatchName := Prefix + 'B000';
+        BatchName := PrefixTxt + 'B000';
         repeat
             BatchName := IncStr(BatchName);
             GLEntry.SetRange("Journal Batch Name", BatchName);
@@ -436,8 +416,8 @@ codeunit 131920 "Library - Job"
         // In this test codeunit we always use the same gen. journal template
 
         Clear(GenJournalTemplate);
-        if not GenJournalTemplate.Get(Prefix + TemplateName) then begin
-            GenJournalTemplate.Validate(Name, Prefix + TemplateName);
+        if not GenJournalTemplate.Get(PrefixTxt + TemplateNameTxt) then begin
+            GenJournalTemplate.Validate(Name, PrefixTxt + TemplateNameTxt);
             GenJournalTemplate.Insert(true)
         end;
 
@@ -452,13 +432,26 @@ codeunit 131920 "Library - Job"
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
     begin
-        if not NoSeries.Get(NoSeriesCode) then begin
-            LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
-            NoSeries.Rename(NoSeriesCode);
-            LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '')
+        if not NoSeries.Get(NoSeriesCodeTxt) then begin
+            LibraryUtility.CreateNoSeries(NoSeriesCodeTxt, true, false, false);
+            LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeriesCodeTxt, '', '')
         end;
 
-        exit(NoSeries.Code)
+        exit(NoSeriesCodeTxt)
+    end;
+
+    procedure SetJobNoSeriesCode()
+    var
+        JobsSetup: Record "Jobs Setup";
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        JobsSetup.Get();
+        if JobsSetup."Job Nos." = '' then begin
+            LibraryUtility.CreateNoSeries(JobNosTok, true, true, false);
+            LibraryUtility.CreateNoSeriesLine(NoSeriesLine, JobNosTok, 'J0000001', 'J9999991');
+            JobsSetup.Validate("Job Nos.", JobNosTok);
+            JobsSetup.Modify(true);
+        end;
     end;
 
     procedure CreateConsumable(Type: Enum "Job Planning Line Type"): Code[20]
@@ -582,16 +575,9 @@ codeunit 131920 "Library - Job"
 
     procedure UseJobPlanningLineExplicit(JobPlanningLine: Record "Job Planning Line"; UsageLineType: Enum "Job Line Type"; Fraction: Decimal; Source: Option; var JobJournalLine: Record "Job Journal Line")
     var
-        ServiceHeader: Record "Service Header";
-        ServiceLine: Record "Service Line";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         GenJournalLine: Record "Gen. Journal Line";
-        TempServiceLine: Record "Service Line" temporary;
-        ServicePost: Codeunit "Service-Post";
-        Ship: Boolean;
-        Consume: Boolean;
-        Invoice: Boolean;
     begin
         case Source of
             JobConsumption():
@@ -600,22 +586,6 @@ codeunit 131920 "Library - Job"
                     JobJournalLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
                     JobJournalLine.Modify(true);
                     PostJobJournal(JobJournalLine)
-                end;
-            ServiceConsumption():
-                begin
-                    Ship := true;
-                    Consume := true;
-                    Invoice := false;
-                    CreateServiceLineForPlan(JobPlanningLine, UsageLineType, Fraction, ServiceLine);
-                    ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
-                    ServicePost.PostWithLines(ServiceHeader, TempServiceLine, Ship, Consume, Invoice);
-                    JobJournalLine."Line Type" := ServiceLine."Job Line Type";
-                    JobJournalLine."Remaining Qty." := ServiceLine."Job Remaining Qty.";
-                    JobJournalLine.Quantity := ServiceLine."Qty. to Consume";
-                    JobJournalLine.Description := ServiceLine.Description;
-                    JobJournalLine."Total Cost" := Round(ServiceLine."Qty. to Consume" * ServiceLine."Unit Cost");
-                    JobJournalLine."Total Cost (LCY)" := Round(ServiceLine."Qty. to Consume" * ServiceLine."Unit Cost (LCY)");
-                    JobJournalLine."Line Amount" := ServiceLine."Qty. to Consume" * ServiceLine."Unit Price"
                 end;
             GenJournalConsumption():
                 begin
@@ -645,7 +615,7 @@ codeunit 131920 "Library - Job"
                     JobJournalLine."Line Amount" := PurchaseLine."Job Line Amount";
                 end;
             else
-                Assert.Fail('Consumption method not supported')
+                Assert.Fail('Consumption method not supported');
         end
     end;
 
@@ -747,9 +717,7 @@ codeunit 131920 "Library - Job"
 
         Assert.AreEqual(
           1, JobLedgerEntry.Count(),
-          StrSubstNo(
-            'Invalid Job Ledger Entry for Batch %1 Document %2', JobJournalLine."Journal Batch Name",
-            JobJournalLine."Document No."));
+          StrSubstNo('Invalid Job Ledger Entry for Batch %1 Document %2', JobJournalLine."Journal Batch Name", JobJournalLine."Document No."));
 
         JobLedgerEntry.FindFirst();
         Precision := max(GetAmountRoundingPrecision(''), GetAmountRoundingPrecision(JobJournalLine."Currency Code"));
@@ -1072,21 +1040,15 @@ codeunit 131920 "Library - Job"
         end
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit Library Service', '27.0')]
     procedure Job2ServiceConsumableType(Type: Enum "Job Planning Line Type"): Enum "Service Line Type"
     var
-        ServiceLine: Record "Service Line";
+        LibraryService: Codeunit "Library - Service";
     begin
-        case Type of
-            "Job Planning Line Type"::Resource:
-                exit(ServiceLine.Type::Resource);
-            "Job Planning Line Type"::Item:
-                exit(ServiceLine.Type::Item);
-            "Job Planning Line Type"::"G/L Account":
-                exit(ServiceLine.Type::"G/L Account");
-            else
-                Assert.Fail('Unsupported consumable type');
-        end
+        exit(LibraryService.Job2ServiceConsumableType(Type));
     end;
+#endif
 
     procedure GetUnitAmountRoundingPrecision(CurrencyCode: Code[10]): Decimal
     var
@@ -1240,10 +1202,13 @@ codeunit 131920 "Library - Job"
         exit(Right)
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit Library Service', '27.0')]
     procedure ServiceConsumption(): Integer
     begin
         exit(ConsumptionSource::Service)
     end;
+#endif
 
     procedure JobConsumption(): Integer
     begin
@@ -1266,25 +1231,6 @@ codeunit 131920 "Library - Job"
         Location.SetRange("Bin Mandatory", false);
         Location.Next(LibraryRandom.RandInt(Location.Count));
         exit(Location.Code);
-    end;
-
-    local procedure FindLocationForPostingGroup(ServiceLine: Record "Service Line"): Code[10]
-    var
-        InventoryPostingSetup: Record "Inventory Posting Setup";
-        Location: Record Location;
-    begin
-        if ServiceLine.Type <> ServiceLine.Type::Item then
-            exit(ServiceLine."Location Code");
-
-        InventoryPostingSetup.SetRange("Invt. Posting Group Code", ServiceLine."Posting Group");
-        InventoryPostingSetup.SetFilter("Location Code", '<>%1', '');
-        InventoryPostingSetup.FindSet();
-        repeat
-            Location.Get(InventoryPostingSetup."Location Code");
-            if not Location."Use As In-Transit" and not Location."Bin Mandatory" and not Location."Require Shipment" then
-                exit(Location.Code)
-        until InventoryPostingSetup.Next() = 0;
-        exit('');
     end;
 
     [Normal]
@@ -1332,4 +1278,3 @@ codeunit 131920 "Library - Job"
         UpdateJobItemCost.Run();
     end;
 }
-

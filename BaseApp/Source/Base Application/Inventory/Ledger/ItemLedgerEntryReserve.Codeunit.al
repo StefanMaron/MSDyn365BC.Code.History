@@ -190,11 +190,13 @@ codeunit 99000841 "Item Ledger Entry-Reserve"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('This event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnSetItemLedgEntryOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
-
+#endif
     // codeunit Reservation Engine Mgt. subscribers
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Engine Mgt.", 'OnRevertDateToSourceDate', '', false, false)]
@@ -219,4 +221,3 @@ codeunit 99000841 "Item Ledger Entry-Reserve"
                 StrSubstNo(SourceDoc2Txt, ItemLedgerEntry.TableCaption(), ReservationEntry."Source Ref. No.");
     end;
 }
-

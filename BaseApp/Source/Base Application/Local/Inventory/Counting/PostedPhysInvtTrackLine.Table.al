@@ -14,13 +14,8 @@ table 5005359 "Posted Phys. Invt. Track. Line"
 {
     Caption = 'Posted Phys. Invt. Track. Line';
     ObsoleteReason = 'Merged to W1';
-#if not CLEAN24
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '27.0';
-#endif
     DataClassification = CustomerContent;
 
     fields

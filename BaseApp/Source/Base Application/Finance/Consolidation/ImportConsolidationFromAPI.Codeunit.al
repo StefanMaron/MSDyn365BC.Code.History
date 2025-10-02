@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Consolidation;
 
 using Microsoft.Finance.Currency;
@@ -37,6 +41,7 @@ codeunit 102 "Import Consolidation from API" implements "Import Consolidation Da
         BusinessUnitConsentErr: Label 'The business unit %1 needs to consent for their data to be transferred to the consolidation company. Open the page Consolidation Setup in that company and enable the company as subsidiary.', Comment = '%1 - Business unit code';
         ExchangeRateNotDefinedInBusinessUnitErr: Label 'Exchange rate for %1 is not defined in Business Unit.', Comment = '%1 - Currency Code';
         PostingDateFilterTok: Label 'postingDate ge %1 and postingDate le %2', Locked = true, Comment = '%1 - Starting date, %2 - Ending date';
+        PostingClosingDateFilterTok: Label 'postingDate gt %1 and postingDate lt %2', Locked = true, Comment = '%1 - Starting date, %2 - Ending date';
         CurrencyCodeFilterTok: Label 'currencyCode eq ''%1''', Locked = true, Comment = '%1 - Currency code';
         DimensionCodeFilterTok: Label 'code eq ''%1''', Locked = true, Comment = '%1 - Dimension code';
         DimensionConsolidationCodeFilterTok: Label 'consolidationCode eq ''%1''', Locked = true, Comment = '%1 - Dimension code';
@@ -50,7 +55,6 @@ codeunit 102 "Import Consolidation from API" implements "Import Consolidation Da
         PPEFinancialsScopeTok: Label 'https://api.businesscentral.dynamics-tie.com/.default', Locked = true;
         RedirectURLTok: Label 'https://businesscentral.dynamics.com/OAuthLanding.htm', Locked = true;
         PPERedirectUrlTok: Label 'https://businesscentral.dynamics-tie.com/OAuthLanding.htm', Locked = true;
-        TelemetryCategoryTok: Label 'financial-consolidations', Locked = true;
         GetTokenCalledFromOnPremMsg: Label 'Get token called from OnPrem', Locked = true;
         RefreshingTokenMsg: Label 'Refreshing token for Financial Consolidations', Locked = true;
         AKVSecretNotFoundMsg: Label 'AKV key not found', Locked = true;
@@ -186,7 +190,7 @@ codeunit 102 "Import Consolidation from API" implements "Import Consolidation Da
         if not VerifySubsidiaryConsent() then
             Error(BusinessUnitConsentErr, BusinessUnit.Code);
         FeatureTelemetry.LogUptake('0000KOL', GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
-        Session.LogMessage('0000KTR', 'Configured new external BC company:' + UserSecurityId() + ', ' + BusinessUnit.Code, Verbosity::Normal, DataClassification::EndUserPseudonymousIdentifiers, TelemetryScope::All, '', '');
+        Session.LogMessage('0000KTR', 'Configured new external BC company:' + UserSecurityId() + ', ' + BusinessUnit.Code, Verbosity::Normal, DataClassification::EndUserPseudonymousIdentifiers, TelemetryScope::All, 'Category', ConsolidationSetup.GetTelemetryCategory());
     end;
 
     local procedure SetBusinessUnitAPIBaseUrl(var BusinessUnit: Record "Business Unit")
@@ -269,13 +273,13 @@ codeunit 102 "Import Consolidation from API" implements "Import Consolidation Da
         IsEnvPPE: Boolean;
     begin
         IsEnvPPE := IsPPE();
-        Session.LogMessage('0000KTS', RefreshingTokenMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+        Session.LogMessage('0000KTS', RefreshingTokenMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ConsolidationSetup.GetTelemetryCategory());
         if not EnvironmentInformation.IsSaaS() then begin
-            Session.LogMessage('0000KOB', GetTokenCalledFromOnPremMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Session.LogMessage('0000KOB', GetTokenCalledFromOnPremMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ConsolidationSetup.GetTelemetryCategory());
             exit(AccessToken);
         end;
         if not AzureKeyVault.GetAzureKeyVaultSecret(ClientIdAKVKeyTok, ClientId) then begin
-            Session.LogMessage('0000KOE', AKVSecretNotFoundMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Session.LogMessage('0000KOE', AKVSecretNotFoundMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ConsolidationSetup.GetTelemetryCategory());
             exit(AccessToken);
         end;
         FinancialsScope := FinancialsScopeTok;
@@ -284,16 +288,16 @@ codeunit 102 "Import Consolidation from API" implements "Import Consolidation Da
             FinancialsScope := PPEFinancialsScopeTok;
             RedirectURL := PPERedirectUrlTok;
             if not AzureKeyVault.GetAzureKeyVaultSecret(ClientSecretAKVKeyTok, ClientSecret) then begin
-                Session.LogMessage('0000KOI', AKVSecretNotFoundMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+                Session.LogMessage('0000KOI', AKVSecretNotFoundMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ConsolidationSetup.GetTelemetryCategory());
                 exit(AccessToken);
             end
         end else begin
             if not AzureKeyVault.GetAzureKeyVaultSecret(ClientCertificateAKVKeyTok, CertificateName) then begin
-                Session.LogMessage('0000KOC', AKVSecretNotFoundMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+                Session.LogMessage('0000KOC', AKVSecretNotFoundMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ConsolidationSetup.GetTelemetryCategory());
                 exit(AccessToken);
             end;
             if not AzureKeyVault.GetAzureKeyVaultCertificate(CertificateName, Certificate) then begin
-                Session.LogMessage('0000KOD', AKVSecretNotFoundMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+                Session.LogMessage('0000KOD', AKVSecretNotFoundMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ConsolidationSetup.GetTelemetryCategory());
                 exit(AccessToken);
             end;
         end;
@@ -324,9 +328,12 @@ codeunit 102 "Import Consolidation from API" implements "Import Consolidation Da
             IsolatedStorage.Get(StorageKey, DataScope::Company, Token);
         Response := HttpGetText(Uri, Token, StatusCode, StatusReasonPhrase);
         if StatusCode = 401 then begin
+            Session.LogMessage('0000OUO', 'Token expired, refreshing', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', ConsolidationSetup.GetTelemetryCategory());
             AcquireTokenAndStoreInIsolatedStorage(BusinessUnitBeingImported);
             IsolatedStorage.Get(StorageKey, DataScope::Company, Token);
             Response := HttpGetText(Uri, Token, StatusCode, StatusReasonPhrase);
+            if StatusCode <> 200 then
+                Session.LogMessage('0000OUP', 'Request failed after refreshing token', Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', ConsolidationSetup.GetTelemetryCategory());
         end;
         exit(Response);
     end;
@@ -412,6 +419,7 @@ codeunit 102 "Import Consolidation from API" implements "Import Consolidation Da
         if (BusinessUnit."BC API URL" = '') or IsNullGuid(BusinessUnit."External Company Id") then
             Error(BusinessUnitNotConfiguredForAPIErr, BusinessUnit.Code);
 
+        Session.LogMessage('0000OUQ', 'Starting data import for business unit', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', ConsolidationSetup.GetTelemetryCategory());
         SetAPIParameters(BusinessUnit."AAD Tenant ID", BusinessUnit."Log Requests");
         SetBusinessUnitAPIBaseUrl(BusinessUnit);
         BusinessUnitBeingImported.Get(BusinessUnit.Code);
@@ -524,7 +532,12 @@ codeunit 102 "Import Consolidation from API" implements "Import Consolidation Da
         // GLEntries are obtained from the GL Accounts of interest. Each request to GLEntries filters by a maximum of GLAccountBatchLimit GL Accounts
         GLAccountBatchLimit := 60;
 
-        DateFilter := StrSubstNo(PostingDateFilterTok, FormatDateForAPICall(StartingDate), FormatDateForAPICall(EndingDate));
+        // If the starting date is a closing date then the ending date will be the same closing date
+        if StartingDate = ClosingDate(StartingDate) then
+            DateFilter := StrSubstNo(PostingClosingDateFilterTok, FormatDateForAPICall(StartingDate), FormatDateForAPICall(CalcDate('<+1D>',EndingDate)))
+        else
+            DateFilter := StrSubstNo(PostingDateFilterTok, FormatDateForAPICall(StartingDate), FormatDateForAPICall(EndingDate));
+
         Consolidate.GetGLAccounts(TempGLAccount);
         First := true;
         if not TempGLAccount.FindSet() then

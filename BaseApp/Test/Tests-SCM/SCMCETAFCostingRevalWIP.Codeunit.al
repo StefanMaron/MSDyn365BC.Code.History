@@ -1036,7 +1036,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         // Verify
         VerifyVariance := ProducedItemCostingMethod = ProducedItem."Costing Method"::Standard;
         LibraryCosting.CheckAdjustment(ComponentItem);
-        LibraryCosting.CheckProductionOrderCost(ProductionOrder, VerifyVariance);
+        LibraryManufacturing.CheckProductionOrderCost(ProductionOrder, VerifyVariance);
     end;
 
     local procedure TestProdOrderAvgCompwithReval(ProducedItemCostingMethod: Enum "Costing Method"; StartDate: Date)
@@ -1100,7 +1100,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         // Verify adjustment.
         LibraryCosting.CheckAdjustment(ParentItem);
         LibraryCosting.CheckAdjustment(CompItem);
-        LibraryCosting.CheckProductionOrderCost(ProductionOrder, true);
+        LibraryManufacturing.CheckProductionOrderCost(ProductionOrder, true);
     end;
 
     [Test]
@@ -1559,9 +1559,9 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         if Item3."No." <> '' then
             LibraryCosting.CheckAdjustment(Item3);
         if ProdOrder1."No." <> '' then
-            LibraryCosting.CheckProductionOrderCost(ProdOrder1, VerifyVariance);
+            LibraryManufacturing.CheckProductionOrderCost(ProdOrder1, VerifyVariance);
         if ProdOrder2."No." <> '' then
-            LibraryCosting.CheckProductionOrderCost(ProdOrder2, VerifyVariance);
+            LibraryManufacturing.CheckProductionOrderCost(ProdOrder2, VerifyVariance);
     end;
 
     [MessageHandler]

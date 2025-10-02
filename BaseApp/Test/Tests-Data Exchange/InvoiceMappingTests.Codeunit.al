@@ -27,7 +27,6 @@ codeunit 139158 "Invoice Mapping Tests"
         TableNotEmptiedErr: Label 'Records in table %1 for Data Exch. Entry No. %2 are not deleted.', Comment = '%1=Table Caption,%2=Data Exch. Entry No.';
         TotalsMismatchErr: Label 'The total amount %1 on the created document is different than the total amount %2 in the incoming document.', Comment = '%1 total amount, %2 expected total amount';
         InvoiceChargeHasNoReasonErr: Label 'Invoice charge on the incoming document has no reason code.';
-        UnableToFindAppropriateAccountErr: Label 'Cannot find an appropriate G/L account for the line with description ''%1''. Choose the Map Text to Account button, and then map the core part of ''%1'' to the relevant G/L account.', Comment = '%1 - arbitrary text';
         UnableToApplyDiscountErr: Label 'The invoice discount of %1 cannot be applied. Invoice discount must be allowed on at least one invoice line and invoice total must not be 0.', Comment = '%1 - a decimal number';
         CannotPostErr: Label 'The invoice cannot be posted because the total is different from the total on the related incoming document.';
         DialogCodeErr: Label 'Dialog';
@@ -462,7 +461,6 @@ codeunit 139158 "Invoice Mapping Tests"
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
         ItemCharge: Record "Item Charge";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-        ErrorMessage: Record "Error Message";
         ChargeAmount: Decimal;
         ChargeReason: Text;
     begin
@@ -482,11 +480,10 @@ codeunit 139158 "Invoice Mapping Tests"
           , ItemCharge.FieldNo(Description), CopyStr(ChargeReason, 1, MaxStrLen(ItemCharge.Description)), 1, 0, true);
 
         // Excercise
-        CODEUNIT.Run(CODEUNIT::"Map Incoming Doc to Purch Doc", DataExch);
+        asserterror CODEUNIT.Run(CODEUNIT::"Map Incoming Doc to Purch Doc", DataExch);
 
         // Verify
-        AssertExpectedError(DataExch, ErrorMessage."Message Type"::Error,
-          StrSubstNo(UnableToFindAppropriateAccountErr, ChargeReason));
+        Assert.IsTrue(StrPos(GetLastErrorText(), 'Cannot find G/L Account') > 0, 'Unexpected error');
     end;
 
     [Test]
@@ -1056,7 +1053,7 @@ codeunit 139158 "Invoice Mapping Tests"
         ErrorMessage.SetRange("Context Record ID", IncomingDocument.RecordId);
         ErrorMessage.SetFilter("Message", StrSubstNo('*%1*', Message));
         ErrorMessage.SetRange("Message Type", MessageType);
-        Assert.IsTrue(ErrorMessage.FindFirst(), StrSubstNo('Expected message ''%1'' not found', Message));
+        Assert.IsTrue(not ErrorMessage.IsEmpty(), StrSubstNo('Expected message ''%1'' not found', Message));
     end;
 
     local procedure AssertWarning(DataExch: Record "Data Exch."; WarningMessage: Text)

@@ -19,13 +19,8 @@ table 5005350 "Phys. Inventory Order Header"
     Caption = 'Phys. Inventory Order Header';
     DataCaptionFields = "No.", Description;
     ObsoleteReason = 'Merged to W1';
-#if not CLEAN24
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '27.0';
-#endif
     DataClassification = CustomerContent;
 
     fields
