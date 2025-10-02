@@ -132,6 +132,8 @@ report 99000765 "Prod. Order - Mat. Requisition"
 
     requestpage
     {
+        AboutTitle = 'About Prod. Order - Mat. Requisition';
+        AboutText = 'This report shows the material requisitions linked to production orders. It provides detailed information on the quantities needed for each item and their due dates. Use this report to manage and ensure that all necessary materials are available on time.';
 
         layout
         {

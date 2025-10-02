@@ -328,7 +328,7 @@ codeunit 137402 "SCM Costing Batch"
         CreateMachineCenter(MachineCenter);
         StandardCostWorksheetName := CreateStandardCostWorksheetName();
         LibraryCosting.SuggestItemStandardCost(Item, StandardCostWorksheetName, LibraryRandom.RandInt(5), '');  // Use random value for Standard Cost Adjustment Factor.
-        LibraryCosting.SuggestCapacityStandardCost(
+        LibraryManufacturing.SuggestCapacityStandardCost(
           WorkCenter, MachineCenter, StandardCostWorksheetName, LibraryRandom.RandInt(5), '');  // Use random value for Standard Cost Adjustment Factor.
 
         // Exercise: Run Implement Standard Cost Change.
@@ -428,7 +428,7 @@ codeunit 137402 "SCM Costing Batch"
 
         // Exercise: Run Implement Standard Cost Change.
         StandardCostAdjustmentFactor := LibraryRandom.RandInt(5);  // Use random value for Standard Cost Adjustment Factor.
-        LibraryCosting.SuggestCapacityStandardCost(
+        LibraryManufacturing.SuggestCapacityStandardCost(
           WorkCenter, MachineCenter, StandardCostWorksheetName, StandardCostAdjustmentFactor, StandardCostRoundingMethod);
 
         // Verify: Verify New Standard Cost for Work Center and Machine Center on Standard Cost Worksheet.
@@ -678,7 +678,7 @@ codeunit 137402 "SCM Costing Batch"
         // Exercise: Run Update Unit Cost report.
         RemainingQuantity := ProductionBOMLine."Quantity per" * ProductionOrder.Quantity;
         ExpectedUnitCost := (RemainingQuantity * Item."Unit Cost") / ProductionOrder.Quantity;
-        LibraryCosting.UpdateUnitCost(ProductionOrder, CalcMethod, UpdateReservations);
+        LibraryManufacturing.UpdateUnitCost(ProductionOrder, CalcMethod, UpdateReservations);
 
         // Verify: Unit Cost gets updated based on the Unit Cost of Component Item.
         VerifyUnitCostInProductionOrderLine(ProductionOrder, ExpectedUnitCost);
@@ -744,7 +744,7 @@ codeunit 137402 "SCM Costing Batch"
         CreateWorkCenter(WorkCenter);
         CreateMachineCenter(MachineCenter);
         StandardCostWorksheetName := CreateStandardCostWorksheetName();
-        LibraryCosting.SuggestCapacityStandardCost(
+        LibraryManufacturing.SuggestCapacityStandardCost(
           WorkCenter, MachineCenter, StandardCostWorksheetName, LibraryRandom.RandInt(5), StandardCostRoundingMethod);  // Use random value for Standard Cost Adjustment Factor.
         StandardCostWorksheetName2 := CreateStandardCostWorksheetName();  // Create new Worksheet Name.
 
@@ -1045,8 +1045,8 @@ codeunit 137402 "SCM Costing Batch"
         // [SCENARIO 295780] Standard Cost of Stockkeeping Unit is equal to Amount of GL Entry
         // which is created when Production Order is Finished and Stan runs Adjust Cost Item Entries.
 
-        // [GIVEN] Update Automatic Cost Posting, Expected Cost posting to G/L 
-        // and Average Cost Calc. Type in Inventory Setup. 
+        // [GIVEN] Update Automatic Cost Posting, Expected Cost posting to G/L
+        // and Average Cost Calc. Type in Inventory Setup.
         LibraryInventory.SetAutomaticCostPosting(true);
         LibraryInventory.SetExpectedCostPosting(true);
         LibraryInventory.SetAverageCostSetup("Average Cost Calculation Type"::"Item & Location & Variant", "Average Cost Period Type"::Day);
@@ -1132,7 +1132,7 @@ codeunit 137402 "SCM Costing Batch"
         WorkCenter: Record "Work Center";
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
     begin
-        // [SCENARIO 295780] Standard Cost of Stockkeeping Unit is calculated based on Routing and 
+        // [SCENARIO 295780] Standard Cost of Stockkeeping Unit is calculated based on Routing and
         // Production BOM of Item if both are blank on it when Calculate Standard Cost.
 
         // [GIVEN] Create a Work Center with Calendar.
@@ -1189,7 +1189,7 @@ codeunit 137402 "SCM Costing Batch"
         WorkCenter: array[2] of Record "Work Center";
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
     begin
-        // [SCENARIO 295780] Standard Cost of Stockkeeping Unit is calculated based on its Routing and 
+        // [SCENARIO 295780] Standard Cost of Stockkeeping Unit is calculated based on its Routing and
         // Production BOM of Item if Production BOM No. is blank on it when Calculate Standard Cost.
 
         // [GIVEN] Create two Work Centers with Calendar.
@@ -1268,7 +1268,7 @@ codeunit 137402 "SCM Costing Batch"
         WorkCenter: Record "Work Center";
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
     begin
-        // [SCENARIO 295780] Standard Cost of Stockkeeping Unit is calculated based on its Production BOM and 
+        // [SCENARIO 295780] Standard Cost of Stockkeeping Unit is calculated based on its Production BOM and
         // Routing of Item if Routing No. is blank on it when Calculate Standard Cost.
 
         // [GIVEN] Create a Work Center with Calendar.
@@ -1341,7 +1341,7 @@ codeunit 137402 "SCM Costing Batch"
         WorkCenter: array[2] of Record "Work Center";
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
     begin
-        // [SCENARIO 295780] Standard Cost of Stockkeeping Unit is calculated based on its Production BOM and 
+        // [SCENARIO 295780] Standard Cost of Stockkeeping Unit is calculated based on its Production BOM and
         // Routing if both are not blank on it when Calculate Standard Cost.
 
         // [GIVEN] Create two Work Centers with Calendar.
@@ -1420,8 +1420,8 @@ codeunit 137402 "SCM Costing Batch"
         WorkCenter: array[2] of Record "Work Center";
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
     begin
-        // [SCENARIO 563958] Standard Cost of Stockkeeping Unit is calculated even 
-        // if the Item No. is up to 20 characters in length. 
+        // [SCENARIO 563958] Standard Cost of Stockkeeping Unit is calculated even
+        // if the Item No. is up to 20 characters in length.
 
         // [GIVEN] Create two Work Centers with Calendar.
         LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter[1]);
@@ -1505,7 +1505,7 @@ codeunit 137402 "SCM Costing Batch"
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
         CostAmount: Decimal;
     begin
-        // [SCENARIO 563931] Cost Amount in Prod. Order line is calculated by Unit Cost of 
+        // [SCENARIO 563931] Cost Amount in Prod. Order line is calculated by Unit Cost of
         // Stockkeeping Unit when Validate Location Code of Stockkeeping Unit.
 
         // [GIVEN] Create a Work Center with Calendar.
@@ -1596,7 +1596,7 @@ codeunit 137402 "SCM Costing Batch"
         WorkCenter: Record "Work Center";
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
     begin
-        // [SCENARIO 563931] Cost Amount in Prod. Order line is calculated by Unit Cost of 
+        // [SCENARIO 563931] Cost Amount in Prod. Order line is calculated by Unit Cost of
         // Item when Validate Location Code to blank.
 
         // [GIVEN] Create a Work Center with Calendar.
@@ -1732,6 +1732,7 @@ codeunit 137402 "SCM Costing Batch"
         Clear(DecreaseQuantity);
     end;
 
+#if not CLEAN25
     local procedure CreateCampaign(): Code[20]
     var
         Campaign: Record Campaign;
@@ -1740,7 +1741,7 @@ codeunit 137402 "SCM Costing Batch"
         LibraryMarketing.CreateCampaign(Campaign);
         exit(Campaign."No.");
     end;
-
+#endif
     local procedure CreateAndModifyItem(var Item: Record Item; CostingMethod: Enum "Costing Method"; StandardCost: Decimal; UnitCost: Decimal)
     begin
         CreateItem(Item);
@@ -1817,6 +1818,7 @@ codeunit 137402 "SCM Costing Batch"
         ItemNo := Item."No.";
     end;
 
+#if not CLEAN25
     local procedure CreateCurrency(): Code[10]
     var
         Currency: Record Currency;
@@ -1825,7 +1827,7 @@ codeunit 137402 "SCM Costing Batch"
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
         exit(Currency.Code);
     end;
-
+#endif
     local procedure CreateCustomer(): Code[20]
     var
         Customer: Record Customer;
@@ -1834,6 +1836,7 @@ codeunit 137402 "SCM Costing Batch"
         exit(Customer."No.");
     end;
 
+#if not CLEAN25
     local procedure CreateCustomerPriceGroup(): Code[10]
     var
         CustomerPriceGroup: Record "Customer Price Group";
@@ -1841,7 +1844,7 @@ codeunit 137402 "SCM Costing Batch"
         LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
         exit(CustomerPriceGroup.Code);
     end;
-
+#endif
     local procedure CreateItem(var Item: Record Item)
     begin
         LibraryInventory.CreateItem(Item);
@@ -2617,4 +2620,3 @@ codeunit 137402 "SCM Costing Batch"
         LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingSetup.Code);
     end;
 }
-

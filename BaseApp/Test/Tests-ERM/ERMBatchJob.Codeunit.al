@@ -3078,35 +3078,6 @@ codeunit 134900 "ERM Batch Job"
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
     end;
 
-    local procedure CreateAndPostSalesOrderWithPrepayment(LineGLAccount: Record "G/L Account"): Code[20]
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-    begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerWithPrepayment(LineGLAccount));
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LineGLAccount."No.", LibraryRandom.RandInt(100));
-        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
-        SalesLine.Modify(true);
-        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
-        exit(SalesHeader."No.");
-    end;
-
-    local procedure CreateAndPostPurchaseOrderWithPrepayment(LineGLAccount: Record "G/L Account"): Code[20]
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        LibraryPurchase.CreatePurchHeader(
-          PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendorWithPrepayment(LineGLAccount));
-        LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LineGLAccount."No.", LibraryRandom.RandInt(100));
-        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
-        PurchaseLine.Modify(true);
-        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
-        exit(PurchaseHeader."No.");
-    end;
-
     local procedure CreateCustomerWithPrepayment(LineGLAccount: Record "G/L Account"): Code[20]
     var
         Customer: Record Customer;
@@ -3137,18 +3108,6 @@ codeunit 134900 "ERM Batch Job"
         GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         GLAccount.Modify(true);
         exit(GLAccount."No.");
-    end;
-
-    local procedure CreateVendorWithPrepayment(LineGLAccount: Record "G/L Account"): Code[20]
-    var
-        Vendor: Record Vendor;
-    begin
-        LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Gen. Bus. Posting Group", LineGLAccount."Gen. Bus. Posting Group");
-        Vendor.Validate("VAT Bus. Posting Group", LineGLAccount."VAT Bus. Posting Group");
-        Vendor.Validate("Prepayment %", LibraryRandom.RandInt(50));
-        Vendor.Modify(true);
-        exit(Vendor."No.");
     end;
 
     local procedure CreateReqWkshTemplateName(var RequisitionWkshName: Record "Requisition Wksh. Name"; var ReqWkshTemplate: Record "Req. Wksh. Template")
@@ -3462,15 +3421,6 @@ codeunit 134900 "ERM Batch Job"
         Commit();  // Commit is used to avoid Test failure.
         SalesHeader.SetRange("No.", SalesHeaderNo);
         REPORT.Run(REPORT::"Batch Post Sales Orders", true, false, SalesHeader);
-    end;
-
-    local procedure SetCheckPrepmtWhenPostingPurchase(CheckPrepmtwhenPosting: Boolean)
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-    begin
-        PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Check Prepmt. when Posting", CheckPrepmtwhenPosting);
-        PurchasesPayablesSetup.Modify(true);
     end;
 
     local procedure SetCheckPrepmtWhenPostingSales(CheckPrepmtwhenPosting: Boolean)
@@ -4312,4 +4262,3 @@ codeunit 134900 "ERM Batch Job"
         ErrorMessageMgt.ShowErrors(Notification); // simulate a click on notification's action
     end;
 }
-

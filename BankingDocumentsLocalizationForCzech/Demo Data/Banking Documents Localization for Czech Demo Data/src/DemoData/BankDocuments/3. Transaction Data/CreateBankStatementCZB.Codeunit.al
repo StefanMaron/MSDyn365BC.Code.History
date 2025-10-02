@@ -1,4 +1,14 @@
-#pragma warning disable AA0247
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
+namespace Microsoft.DemoData.BankDocuments;
+
+using Microsoft.Bank.Documents;
+using Microsoft.DemoData.Bank;
+using Microsoft.DemoData.Localization;
+
 codeunit 31480 "Create Bank Statement CZB"
 {
     InherentEntitlements = X;

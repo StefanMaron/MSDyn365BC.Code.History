@@ -50,6 +50,15 @@ page 6030 "Service Statistics"
                         UpdateInvDiscAmount();
                     end;
                 }
+                field(PmtDiscGivenAmount; TotalServLine[1]."Pmt. Discount Amount")
+                {
+                    ApplicationArea = Service;
+                    AutoFormatExpression = Rec."Currency Code";
+                    AutoFormatType = 1;
+                    Caption = 'Pmt. Discount Amount';
+                    Editable = false;
+                    ToolTip = 'Specifies the payment discount amount that you have granted to customers. ';
+                }
                 field("TotalAmount1[1]"; TotalAmount1[1])
                 {
                     ApplicationArea = Service;
@@ -674,7 +683,8 @@ page 6030 "Service Statistics"
                     if Rec."Prices Including VAT" then begin
                         TotalAmount2[i] := TotalServLine[i].Amount;
                         TotalAmount1[i] := TotalAmount2[i] + VATAmount[i];
-                        TotalServLine[i]."Line Amount" := TotalAmount1[i] + TotalServLine[i]."Inv. Discount Amount";
+                        TotalServLine[i]."Line Amount" :=
+                            TotalAmount1[i] + TotalServLine[i]."Inv. Discount Amount" + TotalServLine[i]."Pmt. Discount Amount";
                     end else begin
                         TotalAmount1[i] := TotalServLine[i].Amount;
                         TotalAmount2[i] := TotalServLine[i]."Amount Including VAT";
@@ -775,13 +785,15 @@ page 6030 "Service Statistics"
     begin
         TotalServLine[IndexNo]."Inv. Discount Amount" := VATAmountLine.GetTotalInvDiscAmount();
         TotalAmount1[IndexNo] :=
-          TotalServLine[IndexNo]."Line Amount" - TotalServLine[IndexNo]."Inv. Discount Amount";
+          TotalServLine[IndexNo]."Line Amount" - TotalServLine[IndexNo]."Inv. Discount Amount" -
+          TotalServLine[IndexNo]."Pmt. Discount Amount";
         VATAmount[IndexNo] := VATAmountLine.GetTotalVATAmount();
         if Rec."Prices Including VAT" then begin
             TotalAmount1[IndexNo] := VATAmountLine.GetTotalAmountInclVAT();
             TotalAmount2[IndexNo] := TotalAmount1[IndexNo] - VATAmount[IndexNo];
             TotalServLine[IndexNo]."Line Amount" :=
-              TotalAmount1[IndexNo] + TotalServLine[IndexNo]."Inv. Discount Amount";
+              TotalAmount1[IndexNo] + TotalServLine[IndexNo]."Inv. Discount Amount" +
+              TotalServLine[IndexNo]."Pmt. Discount Amount";
         end else
             TotalAmount2[IndexNo] := TotalAmount1[IndexNo] + VATAmount[IndexNo];
 

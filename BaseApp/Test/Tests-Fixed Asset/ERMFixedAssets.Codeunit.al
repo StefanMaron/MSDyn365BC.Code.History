@@ -50,6 +50,7 @@ codeunit 134451 "ERM Fixed Assets"
         FirstMustBeAcquisitionCostErr: Label 'The first entry must be an Acquisition Cost';
         OnlyOneDefaultDeprBookErr: Label 'Only one fixed asset depreciation book can be marked as the default book';
         DepreciationBookCodeMustMatchErr: Label 'Depreciation Book Code must match.';
+        FixedAssetCountError: Label 'New fixed assets were not created.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2292,7 +2293,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryErrorMessage.TrapErrorMessages();
         asserterror RunCalculateDepreciation(FixedAsset."No.", DepreciationBook.Code, true);
 
-        // [THEN] Error messages page opened with error "Depreciation Expense Acc. is missing in FA Posting Setup." 
+        // [THEN] Error messages page opened with error "Depreciation Expense Acc. is missing in FA Posting Setup."
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
         TempErrorMessage.FindFirst();
         TempErrorMessage.TestField(
@@ -3250,6 +3251,67 @@ codeunit 134451 "ERM Fixed Assets"
         Assert.AreEqual(FASetup."Default Depr. Book", FAReclassJournalLine3."Depreciation Book Code", DepreciationBookCodeMustMatchErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateMultipleFACards()
+    var
+        PurchaseLine: Record "Purchase Line";
+        FixedAssetCount: Integer;
+    begin
+        // [SCENARIO] Test Posting Purchase Invoice when No. of Fixed Asset Cards is greater than 1.
+
+        // [GIVEN] Count number of existing Fixed Assets.
+        Initialize();
+        FixedAssetCount := GetFACount();
+
+        // [WHEN] Create Fixed Asset
+        CreatePostPurchInvoice(PurchaseLine, LibraryRandom.RandInt(5) + 1); // Quantity should be greater than 1.
+
+        // [THEN] Verify that Multiple Fixed Assets were created
+        Assert.AreEqual(FixedAssetCount + PurchaseLine."No. of Fixed Asset Cards", GetFACount(), FixedAssetCountError);
+        VerifyNewFixedAssets(PurchaseLine."No.", PurchaseLine."No. of Fixed Asset Cards");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateSingleFACard()
+    var
+        PurchaseLine: Record "Purchase Line";
+        FixedAssetCount: Integer;
+    begin
+        // [SCENARIO] Test Posting Purchase Invoice when No. of Fixed Asset Cards is 1.
+
+        // [GIVEN] Count number of existing Fixed Assets.
+        Initialize();
+        FixedAssetCount := GetFACount();
+
+        // [WHEN] Create Purchase Invoice with "No. of Fixed Asset Cards" is 1
+        CreatePostPurchInvoice(PurchaseLine, 1);
+
+        // [THEN] Verify that Additonal Fixed Assets were not created.
+        Assert.AreEqual(FixedAssetCount + PurchaseLine."No. of Fixed Asset Cards", GetFACount(), FixedAssetCountError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateZeroFACard()
+    var
+        PurchaseLine: Record "Purchase Line";
+        FixedAssetCount: Integer;
+    begin
+        // [SCENARIO] Posting Purchase Invoice when No. of Fixed Asset Cards is 0.
+
+        // [GIVEN] Count number of existing Fixed Assets.
+        Initialize();
+        FixedAssetCount := GetFACount();
+
+        // [WHEN] Create Purchase Invoice with "No. of Fixed Asset Cards" is 0
+        CreatePostPurchInvoice(PurchaseLine, 0);
+
+        // [THEN] Verify that Additonal Fixed Assets were not created.
+        Assert.AreEqual(FixedAssetCount + PurchaseLine.Quantity, GetFACount(), FixedAssetCountError);
+    end;
+
     local procedure Initialize()
     var
         DimValue: Record "Dimension Value";
@@ -4069,21 +4131,6 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryFixedAsset.CreateFASubclassDetailed(FASubclass2, FAClass2.Code, '');
     end;
 
-    local procedure CancelFALedgerEntry(DepreciationBookCode: Code[10]; FAPostingType: Enum "FA Ledger Entry FA Posting Type"; FANo: Code[20])
-    var
-        FALedgerEntry: Record "FA Ledger Entry";
-        FALedgerEntries: TestPage "FA Ledger Entries";
-    begin
-        FALedgerEntries.OpenEdit();
-        FALedgerEntry.SetFilter("Depreciation Book Code", DepreciationBookCode);
-        FALedgerEntry.SetFilter("FA Posting Type", Format(FAPostingType));
-        FALedgerEntry.SetFilter("FA No.", FANo);
-        FALedgerEntry.FindLast();
-        FALedgerEntries.FILTER.SetFilter("Entry No.", Format(FALedgerEntry."Entry No."));
-        FALedgerEntries.CancelEntries.Invoke();  // Open handler - CancelFAEntriesRequestPageHandler.
-        FALedgerEntries.OK().Invoke();
-    end;
-
     local procedure CreateFixedAssetWithFAClassFASubclassFAPostingGroup(var FixedAsset: Record "Fixed Asset"; FAClass: Code[10]; FASubclass: Code[10]; FAPostingGroup: Code[20])
     begin
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
@@ -4179,6 +4226,135 @@ codeunit 134451 "ERM Fixed Assets"
         FAJournalLine.Modify(true);
     end;
 
+    local procedure GetFACount(): Integer
+    var
+        FixedAsset: Record "Fixed Asset";
+    begin
+        exit(FixedAsset.Count);
+    end;
+
+    local procedure CreatePostPurchInvoice(var PurchaseLine: Record "Purchase Line"; NoOfFACards: Integer)
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor());
+        CreatePurchLine(PurchaseLine, PurchaseHeader, GetDefaultDepreciationBook(), CreateFAPostingGroup(), NoOfFACards);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+    end;
+
+    local procedure GetDefaultDepreciationBook(): Code[10]
+    var
+        FASetup: Record "FA Setup";
+        DepreciationBook: Record "Depreciation Book";
+    begin
+        FASetup.Get();
+        DepreciationBook.Get(FASetup."Default Depr. Book");
+        DepreciationBook.Validate("G/L Integration - Acq. Cost", true);
+        DepreciationBook.Modify(true);
+        exit(FASetup."Default Depr. Book");
+    end;
+
+    local procedure CreateFAPostingGroup(): Code[20]
+    var
+        FAPostingGroup: Record "FA Posting Group";
+        FAPostingGroup2: Record "FA Posting Group";
+    begin
+        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
+        GetFAPostingGroup(FAPostingGroup2);
+        FAPostingGroup.Validate("Acquisition Cost Account", FAPostingGroup2."Acquisition Cost Account");
+        FAPostingGroup.Validate("Accum. Depreciation Account", FAPostingGroup2."Accum. Depreciation Account");
+        FAPostingGroup.Validate("Depreciation Expense Acc.", FAPostingGroup2."Depreciation Expense Acc.");
+        FAPostingGroup.Validate("Custom 1 Account", CreateGLAccount());
+        FAPostingGroup.Validate("Custom 1 Expense Acc.", CreateGLAccount());
+        FAPostingGroup.Validate("Custom 2 Account", CreateGLAccount());
+        FAPostingGroup.Validate("Custom 2 Expense Acc.", CreateGLAccount());
+        FAPostingGroup.Modify(true);
+        exit(FAPostingGroup.Code);
+    end;
+
+    local procedure GetFAPostingGroup(var FAPostingGroup: Record "FA Posting Group"): Boolean
+    begin
+        FAPostingGroup.SetFilter("Acquisition Cost Account", '<>''''');
+        FAPostingGroup.SetFilter("Accum. Depreciation Account", '<>''''');
+        FAPostingGroup.SetFilter("Depreciation Expense Acc.", '<>''''');
+        exit(FAPostingGroup.FindFirst())
+    end;
+
+    local procedure CreateGLAccount(): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        exit(GLAccount."No.");
+    end;
+
+    local procedure CreatePurchLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; DepreciationBook: Code[10]; FAPostingGroup: Code[20]; NoOfFACards: Integer): Code[20]
+    var
+        FixedAsset: Record "Fixed Asset";
+    begin
+        CreateFA(FixedAsset, DepreciationBook, FAPostingGroup);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Fixed Asset", FixedAsset."No.", 1);
+        UpdatePurchaseLine(PurchaseLine, DepreciationBook, NoOfFACards);
+        exit(FixedAsset."No.");
+    end;
+
+    local procedure CreateFA(var FixedAsset: Record "Fixed Asset"; DepreciationBook: Code[10]; FAPostingGroup: Code[20])
+    begin
+        Clear(FixedAsset);
+        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
+        CreateFADepreciationBook(FixedAsset."No.", DepreciationBook, FAPostingGroup);
+    end;
+
+    local procedure UpdatePurchaseLine(var PurchaseLine: Record "Purchase Line"; DepreciationBook: Code[10]; NoOfFixedAssetCards: Integer)
+    begin
+        PurchaseLine.Validate("Depreciation Book Code", DepreciationBook);
+        PurchaseLine.Validate("No. of Fixed Asset Cards", NoOfFixedAssetCards);
+        if NoOfFixedAssetCards > PurchaseLine.Quantity then
+            PurchaseLine.Validate("Direct Unit Cost", NoOfFixedAssetCards * LibraryRandom.RandInt(10) * 10000) // Cost is not important.
+        else
+            PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(10) * 10000); // Cost is not important.
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreateVendor(): Code[20]
+    var
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        exit(Vendor."No.");
+    end;
+
+    local procedure VerifyNewFixedAssets(FixedAssetNo: Code[20]; Quantity: Integer)
+    var
+        FixedAsset: Record "Fixed Asset";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FADepreciationBook2: Record "FA Depreciation Book";
+    begin
+        // Find Initial Fixed Asset.
+        FixedAsset.Get(FixedAssetNo);
+        FixedAsset.SetFilter(Description, FixedAsset.Description);
+
+        // Verify that Description field was copied for new Fixed Assets.
+        Assert.AreEqual(Quantity, FixedAsset.Count, FixedAssetCountError);
+        FixedAsset.FindSet();
+
+        // Find FA Deprecition Book for the initial Fixed Asset.
+        FADepreciationBook2.SetFilter("FA No.", FixedAssetNo);
+        FADepreciationBook2.FindFirst();
+        FADepreciationBook2.CalcFields("Acquisition Cost");
+
+        // Verify Depreciation Method, FA Posting Group, Acquisition Cost.
+        repeat
+            FADepreciationBook.Get(FixedAsset."No.", FADepreciationBook2."Depreciation Book Code");
+            FADepreciationBook.CalcFields("Acquisition Cost");
+            FADepreciationBook.TestField("FA Posting Group", FADepreciationBook2."FA Posting Group");
+            FADepreciationBook.TestField("Depreciation Method", FADepreciationBook2."Depreciation Method");
+            FADepreciationBook.TestField("Depreciation Starting Date", FADepreciationBook2."Depreciation Starting Date");
+            FADepreciationBook.TestField("Depreciation Ending Date", FADepreciationBook2."Depreciation Ending Date");
+            FADepreciationBook.TestField("Acquisition Cost", FADepreciationBook2."Acquisition Cost");
+        until FixedAsset.Next() = 0;
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure FADepreciationBooksHandler(var CreateFADepreciationBooks: TestRequestPage "Create FA Depreciation Books")
@@ -4253,19 +4429,4 @@ codeunit 134451 "ERM Fixed Assets"
         Assert.ExpectedMessage(CompletionStatsMsg, Message);
     end;
 
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure MessageHandler(Message: Text)
-    begin
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure CancelFALedgerEntryRequestPageHandler(var CancelFAEntries: TestRequestPage "Cancel FA Entries")
-    begin
-        CancelFAEntries.OK().Invoke();
-    end;
 }
-
-
-

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Archive;
 
 using Microsoft.Finance.Dimension;
@@ -257,12 +261,6 @@ page 5165 "Purchase Quote Archive Subform"
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the line discount amount of the project ledger entry that is related to the purchase line.';
-                    Visible = false;
-                }
-                field("Prod. Order No."; Rec."Prod. Order No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the related production order.';
                     Visible = false;
                 }
                 field("Blanket Order No."; Rec."Blanket Order No.")

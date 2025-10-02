@@ -5,7 +5,7 @@ codeunit 135963 "PowerBI Upgrade Tests"
 
     trigger OnRun()
     begin
-        // [FEATURE] [PowerBI] 
+        // [FEATURE] [PowerBI]
     end;
 
     [Test]
@@ -38,12 +38,4 @@ codeunit 135963 "PowerBI Upgrade Tests"
         RecordVariant := MediaRepository;
         Assert.RecordIsNotEmpty(RecordVariant);
     end;
-
-    local procedure ValidateUploadStatus(PowerBIReportUploads: Record "Power BI Report Uploads"; ExpectedUploadStatus: Enum "Power BI Upload Status")
-    var
-        Assert: Codeunit "Library Assert";
-    begin
-        Assert.AreEqual(PowerBIReportUploads."Report Upload Status", ExpectedUploadStatus, StrSubstNo('Unexpected upload status for upload %1. Found: %2. Expected: %3.', PowerBIReportUploads."PBIX BLOB ID", PowerBIReportUploads."Report Upload Status", ExpectedUploadStatus));
-    end;
-
 }

@@ -8,6 +8,7 @@ using Microsoft.CRM.BusinessRelation;
 using Microsoft.Finance.Registration;
 using Microsoft.Inventory.Intrastat;
 using Microsoft.Purchases.Payables;
+using System.Utilities;
 
 #pragma warning disable AA0232
 tableextension 11702 "Vendor CZL" extends Vendor
@@ -36,7 +37,8 @@ tableextension 11702 "Vendor CZL" extends Vendor
                     if RegNoServiceConfigCZL.RegNoSrvIsEnabled() then begin
                         LogNotVerified := false;
                         RegistrationLogMgtCZL.ValidateRegNoWithARES(ResultRecordRef, Rec, "No.", RegistrationLogCZL."Account Type"::Vendor);
-                        ResultRecordRef.SetTable(Rec);
+                        if ResultRecordRef.Number <> 0 then
+                            ResultRecordRef.SetTable(Rec);
                     end;
 
                 if LogNotVerified then
@@ -129,10 +131,23 @@ tableextension 11702 "Vendor CZL" extends Vendor
         RegistrationLogMgtCZL: Codeunit "Registration Log Mgt. CZL";
         RegistrationNoMgtCZL: Codeunit "Registration No. Mgt. CZL";
         RegistrationNo: Text[20];
+        ImportSuccessfulQst: Label 'Import was successful. Do you want to open unreliable payer entries page?';
 
     procedure ImportUnrPayerStatusCZL()
+    var
+        UnreliablePayerEntry: Record "Unreliable Payer Entry CZL";
+        ConfirmManagement: Codeunit "Confirm Management";
     begin
-        UnreliablePayerMgtCZL.ImportUnrPayerStatusForVendor(Rec);
+        if not UnreliablePayerMgtCZL.ImportUnrPayerStatusForVendor(Rec) then
+            exit;
+
+        if not ConfirmManagement.GetResponse(ImportSuccessfulQst, true) then
+            exit;
+
+        Commit();
+        UnreliablePayerEntry.SetRange("Vendor No.", "No.");
+        UnreliablePayerEntry."Vendor No." := "No.";
+        Page.RunModal(Page::"Unreliable Payer Entries CZL", UnreliablePayerEntry);
     end;
 
     procedure IsUnreliablePayerCheckPossibleCZL(): Boolean

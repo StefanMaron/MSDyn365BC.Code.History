@@ -95,6 +95,8 @@ table 841 "Cash Flow Account"
         }
         field(13; Amount; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("Cash Flow Forecast Entry"."Amount (LCY)" where("Cash Flow Account No." = field("No."),
                                                                                "Cash Flow Account No." = field(filter(Totaling)),
                                                                                "Cash Flow Forecast No." = field("Cash Flow Forecast Filter"),
@@ -225,4 +227,3 @@ table 841 "Cash Flow Account"
     begin
     end;
 }
-

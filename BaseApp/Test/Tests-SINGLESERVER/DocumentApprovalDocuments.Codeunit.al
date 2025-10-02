@@ -1154,18 +1154,6 @@ codeunit 134203 "Document Approval - Documents"
         exit(Item."No.");
     end;
 
-    local procedure DeleteSalesVATSetup(DocumentNo: Code[20])
-    var
-        SalesLine: Record "Sales Line";
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst();
-        VATPostingSetup.SetRange("VAT Bus. Posting Group", SalesLine."VAT Bus. Posting Group");
-        VATPostingSetup.SetRange("VAT Prod. Posting Group", SalesLine."VAT Prod. Posting Group");
-        VATPostingSetup.DeleteAll();
-    end;
-
     local procedure CreateUser(var User: Record User; WindowsUserName: Text[208])
     var
         UserName: Code[50];
@@ -1438,4 +1426,3 @@ codeunit 134203 "Document Approval - Documents"
         exit(ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(RecID));
     end;
 }
-

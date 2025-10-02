@@ -1,4 +1,19 @@
-#pragma warning disable AA0247
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
+namespace Microsoft.DemoData.Compensations;
+
+using Microsoft.DemoTool.Helpers;
+using Microsoft.DemoData.Localization;
+using Microsoft.DemoData.Purchases;
+using Microsoft.DemoData.Sales;
+using Microsoft.Finance.Compensations;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Sales.Receivables;
+using Microsoft.Purchases.Payables;
+
 codeunit 31482 "Create Compensation Doc. CZC"
 {
     InherentEntitlements = X;

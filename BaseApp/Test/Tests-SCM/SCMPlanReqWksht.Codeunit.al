@@ -1672,14 +1672,13 @@
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         PlanningWorksheet: TestPage "Planning Worksheet";
-        OldCombinedMPSMRPCalculation: Boolean;
         Quantity: Integer;
         ForecastDate: Date;
         ShipmentDate: Date;
     begin
         // Setup: Create Order Item. Create Production Forecast.
         Initialize();
-        OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation of Manufacturing Setup -FALSE.
+        LibraryPlanning.SetCombinedMPSMRPCalculation(false);
         CreateOrderItem(Item, '', Item."Replenishment System"::Purchase);
         ForecastDate := GetRequiredDate(10, 0, WorkDate(), 1);  // Forecast Date Relative to Workdate.
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", ForecastDate, false);
@@ -1700,9 +1699,6 @@
         VerifyRequisitionLineQuantity(
           RequisitionLine, ProductionForecastEntry[1]."Forecast Quantity" - SalesLine.Quantity, 0,
           RequisitionLine."Ref. Order Type"::Purchase);
-
-        // Teardown.
-        UpdateManufacturingSetup(OldCombinedMPSMRPCalculation);
     end;
 
     [Test]
@@ -1716,11 +1712,10 @@
         RequisitionLine: Record "Requisition Line";
         PlanningWorksheet: TestPage "Planning Worksheet";
         ForecastDate: Date;
-        OldCombinedMPSMRPCalculation: Boolean;
     begin
         // Setup: Create Order Item. Create Production Forecast.
         Initialize();
-        OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation of Manufacturing Setup -FALSE.
+        LibraryPlanning.SetCombinedMPSMRPCalculation(false);
         CreateOrderItem(Item, '', Item."Replenishment System"::Purchase);
         ForecastDate := GetRequiredDate(10, 0, WorkDate(), 1);  // Forecast Date Relative to Workdate.
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", ForecastDate, false);
@@ -1733,9 +1728,6 @@
         SelectRequisitionLine(RequisitionLine, Item."No.");
         VerifyRequisitionLineQuantity(
           RequisitionLine, ProductionForecastEntry[1]."Forecast Quantity", 0, RequisitionLine."Ref. Order Type"::Purchase);
-
-        // Teardown.
-        UpdateManufacturingSetup(OldCombinedMPSMRPCalculation);
     end;
 
     [Test]
@@ -1746,13 +1738,12 @@
         RequisitionLine: Record "Requisition Line";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        OldCombinedMPSMRPCalculation: Boolean;
         EndDate: Date;
         Quantity: Integer;
     begin
         // Setup: Create Order Item.
         Initialize();
-        OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation of Manufacturing Setup -FALSE.
+        LibraryPlanning.SetCombinedMPSMRPCalculation(false);
         CreateOrderItem(Item, '', Item."Replenishment System"::Purchase);
 
         // Create Sales Order. Update Shipment Date.
@@ -1766,9 +1757,6 @@
         // Verify: Verify Planning Worksheet for Quantities and Reference Order Type.
         SelectRequisitionLine(RequisitionLine, Item."No.");
         VerifyRequisitionLineQuantity(RequisitionLine, SalesLine.Quantity, 0, RequisitionLine."Ref. Order Type"::Purchase);
-
-        // Teardown.
-        UpdateManufacturingSetup(OldCombinedMPSMRPCalculation);
     end;
 
     [Test]
@@ -1785,13 +1773,12 @@
         ItemJournalLine: Record "Item Journal Line";
         RequisitionLine: Record "Requisition Line";
         PlanningWorksheet: TestPage "Planning Worksheet";
-        OldCombinedMPSMRPCalculation: Boolean;
         ForecastDate: Date;
         Quantity: Integer;
     begin
         // Setup: Create Lot for Lot Parent and Child Item. Create And Certify Production BOM.
         Initialize();
-        OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation of Manufacturing Setup -FALSE.
+        LibraryPlanning.SetCombinedMPSMRPCalculation(false);
         CreateLotForLotItem(ChildItem, 0, '<0D>');  // Safety Stock - 0. Child Item.
         CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
 
@@ -1816,9 +1803,6 @@
         SelectRequisitionLine(RequisitionLine, ChildItem."No.");
         VerifyRequisitionLineQuantity(
           RequisitionLine, ProductionForecastEntry[1]."Forecast Quantity", 0, RequisitionLine."Ref. Order Type"::Purchase);
-
-        // Teardown.
-        UpdateManufacturingSetup(OldCombinedMPSMRPCalculation);
     end;
 
     [Test]
@@ -1931,12 +1915,11 @@
         RequisitionWkshName: Record "Requisition Wksh. Name";
         RequisitionLine: Record "Requisition Line";
         PlanningWorksheet: TestPage "Planning Worksheet";
-        OldCombinedMPSMRPCalculation: Boolean;
         ForecastDate: Date;
     begin
         // Setup: Create Lot for Lot  Item. Create Production Forecast with multiple Entries.
         Initialize();
-        OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation of Manufacturing Setup -FALSE.
+        LibraryPlanning.SetCombinedMPSMRPCalculation(false);
         CreateLotForLotItem(Item, 0, '<0D>');  // Safety Stock - 0, Lot Accumulation Period - 0D.
         ForecastDate := GetRequiredDate(10, 0, WorkDate(), 1);  // Forecast Date Relative to Workdate.
         CreateAndUpdateProductionForecastSetup(ProductionForecastEntry, Item."No.", ForecastDate, 0, true); // Boolean - TRUE, for multiple Forecast Entries. Update Production Forecast Quantity to - 0.
@@ -1955,9 +1938,6 @@
           RequisitionLine."Ref. Order Type"::Purchase);
         VerifyRequisitionLineQuantity(
           RequisitionLine, ProductionForecastEntry[3]."Forecast Quantity", 0, RequisitionLine."Ref. Order Type"::Purchase);
-
-        // Teardown.
-        UpdateManufacturingSetup(OldCombinedMPSMRPCalculation);
     end;
 
     [Test]
@@ -1972,12 +1952,11 @@
         RequisitionWkshName: Record "Requisition Wksh. Name";
         RequisitionLine: Record "Requisition Line";
         PlanningWorksheet: TestPage "Planning Worksheet";
-        OldCombinedMPSMRPCalculation: Boolean;
         ForecastDate: Date;
     begin
         // Setup: Create Lot for Lot  Item.
         Initialize();
-        OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation of Manufacturing Setup -FALSE.
+        LibraryPlanning.SetCombinedMPSMRPCalculation(false);
         CreateLotForLotItem(Item, 0, '<0D>');  // Safety Stock - 0, Lot Accumulation Period - 0D.
 
         // Create Production Forecast with multiple Entries. Update Production Forecast Quantity to - 0.
@@ -2003,9 +1982,6 @@
           RequisitionLine, ProductionForecastEntry[2]."Forecast Quantity", 0, RequisitionLine."Ref. Order Type"::Purchase);
         VerifyRequisitionLineQuantity(
           RequisitionLine, ProductionForecastEntry[3]."Forecast Quantity", 0, RequisitionLine."Ref. Order Type"::Purchase);
-
-        // Teardown.
-        UpdateManufacturingSetup(OldCombinedMPSMRPCalculation);
     end;
 
     [Test]
@@ -2196,7 +2172,7 @@
         SalesLine: Record "Sales Line";
         PurchaseLine: Record "Purchase Line";
         TempOrderPromisingLine: Record "Order Promising Line" temporary;
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
         PromisedReceiptDate: Date;
     begin
         // Setup: Create Sales Order. Calculate Plan for Requisition Worksheet and Carry out Action Message.
@@ -2211,8 +2187,8 @@
         UpdatePromisedReceiptDateOnPurchaseHeader(PurchaseLine."Document No.", PromisedReceiptDate);
 
         // Verify: Reservation Entry existed.
-        ManufacturingSetup.Get();
-        VerifyReservationEntry(Item."No.", CalcDate(ManufacturingSetup."Default Safety Lead Time", PromisedReceiptDate));
+        InventorySetup.Get();
+        VerifyReservationEntry(Item."No.", CalcDate(InventorySetup."Default Safety Lead Time", PromisedReceiptDate));
 
         // Exercise: Run Available to Promise in Sales Order.
         AvailabilityMgt.SetSourceRecord(TempOrderPromisingLine, SalesHeader);
@@ -3767,23 +3743,18 @@
     [Test]
     procedure RequestedReceiptDateInPurchaseEqualToPlanDeliveryDateOnSalesForDropShipment()
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
         Item: Record Item;
         Purchasing: Record Purchasing;
         SalesLine: Record "Sales Line";
         PurchaseLine: Record "Purchase Line";
         RequisitionLine: Record "Requisition Line";
-        DefaultLeadTimeDateFormula: DateFormula;
     begin
         // [FEATURE] [Drop Shipment] [Get Sales Orders]
         // [SCENARIO 404883] Lead time settings are not applied when planning drop shipment.
         Initialize();
-        Evaluate(DefaultLeadTimeDateFormula, '<1D>');
 
         // [GIVEN] Ensure "Default Safety Lead Time" is not blank in Manufacturing Setup.
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Default Safety Lead Time", DefaultLeadTimeDateFormula);
-        ManufacturingSetup.Modify(true);
+        LibraryPlanning.SetDefaultSafetyLeadTime('<1D>');
 
         // [GIVEN] Item with vendor.
         LibraryInventory.CreateItem(Item);
@@ -3945,8 +3916,8 @@
         // [GIVEN] Create Location
         LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, false);
 
-        // [GIVEN] Set Location at "Component At Location" on Manufacturing Setup
-        UpdateManufacturingSetupComponentsAtLocation(Location.Code);
+        // [GIVEN] Set Location at "Component At Location"
+        LibraryManufacturing.SetComponentsAtLocation(Location.Code);
 
         // [GIVEN] Create two Manufacturing Items
         CreateManufacturingItems(ParentItem, ChildItem, '<1W>', 13);
@@ -3983,8 +3954,8 @@
         // [GIVEN] Create Location
         LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, false);
 
-        // [GIVEN] Set Location at "Component At Location" on Manufacturing Setup
-        UpdateManufacturingSetupComponentsAtLocation(Location.Code);
+        // [GIVEN] Set Location at "Component At Location"
+        LibraryManufacturing.SetComponentsAtLocation(Location.Code);
 
         // [GIVEN] Create three Manufacturing Items
         CreateManufacturingItems(ParentItem, ChildItem, '<1W>');
@@ -4025,8 +3996,8 @@
         // [GIVEN] Create Location
         LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, false);
 
-        // [GIVEN] Set Location at "Component At Location" on Manufacturing Setup
-        UpdateManufacturingSetupComponentsAtLocation(Location.Code);
+        // [GIVEN] Set Location at "Component At Location"
+        LibraryManufacturing.SetComponentsAtLocation(Location.Code);
 
         // [GIVEN] Create two Manufacturing Items
         CreateManufacturingItems(ParentItem, ChildItem, 5, 50);
@@ -4069,18 +4040,15 @@
         ObjectOptions.DeleteAll();
 
         // [GIVEN] Set "Default Safety Lead Time" to blank and other settings to default values.
+        LibraryPlanning.SetDefaultSafetyLeadTime('');
+        LibraryPlanning.SetUseForecastOnLocations(false);
+        LibraryPlanning.SetDemandForecast('');
+
         ManufacturingSetup.Get();
-        Evaluate(BlankDateFormula, '');
-        if ManufacturingSetup."Default Safety Lead Time" <> BlankDateFormula then
-            ManufacturingSetup.Validate("Default Safety Lead Time", BlankDateFormula);
         if ManufacturingSetup."Normal Starting Time" = 0T then
             ManufacturingSetup.Validate("Normal Starting Time", 080000T);
         if ManufacturingSetup."Normal Ending Time" = 0T then
             ManufacturingSetup.Validate("Normal Ending Time", 170000T);
-        if ManufacturingSetup."Use Forecast on Locations" then
-            ManufacturingSetup.Validate("Use Forecast on Locations", false);
-        if ManufacturingSetup."Current Production Forecast" <> '' then
-            ManufacturingSetup.Validate("Current Production Forecast", '');
         ManufacturingSetup.Modify(true);
 
         // [GIVEN] Create Item "I" with "Reordering Policy" = "Lot-for-Lot", "Replenishment System" = "Prod. Order".
@@ -4242,8 +4210,9 @@
         // [GIVEN] Validate Dynamic Low-Level Code and Combined MPS/MRP Calculation in Manufacturing Setup.
         ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Dynamic Low-Level Code", true);
-        ManufacturingSetup.Validate("Combined MPS/MRP Calculation", true);
         ManufacturingSetup.Modify(true);
+
+        LibraryPlanning.SetCombinedMPSMRPCalculation(true);
 
         // [GIVEN] Create Unit of Measure Code.
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
@@ -4617,7 +4586,6 @@
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
         SafetyStockQty: Decimal;
-        OldCombinedMPSMRPCalculation: Boolean;
         StartDate: Date;
         EndDate: Date;
     begin
@@ -4625,8 +4593,8 @@
         // with MPS as soon as a second demand is available from a sales order.
         Initialize();
 
-        // [GIVEN] Set "Combined MPS/MRP Calculation" as false in Manufacturing Setup
-        OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);
+        // [GIVEN] Set "Combined MPS/MRP Calculation" as false
+        LibraryPlanning.SetCombinedMPSMRPCalculation(false);
 
         // [GIVEN] Generate and save Safety Stock Quantity in a Variable.
         SafetyStockQty := LibraryRandom.RandIntInRange(5, 5);
@@ -4654,9 +4622,6 @@
         Assert.IsTrue(
             RequisitionLine."MPS Order",
             StrSubstNo(MPSOrderErr, RequisitionLine.FieldCaption("MPS Order")));
-
-        // Teardown
-        UpdateManufacturingSetup(OldCombinedMPSMRPCalculation);
     end;
 
     [Test]
@@ -4727,7 +4692,6 @@
         Item: array[6] of Record Item;
         Customer: Record Customer;
         Location: Record Location;
-        ManufacturingSetup: Record "Manufacturing Setup";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         BOMComponent: Record "BOM Component";
@@ -4743,10 +4707,8 @@
         // [GIVEN] Create a Location with Inventory Posting Setup.
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
 
-        // [GIVEN] Validate Components at Location in Manufacturing Setup.
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Components at Location", Location.Code);
-        ManufacturingSetup.Modify(true);
+        // [GIVEN] Validate Components at Location
+        LibraryManufacturing.SetComponentsAtLocation(Location.Code);
 
         // [GIVEN] Create Lot for Lot Item[1] with Replenishment System and Assembly Policy.
         CreateLotForLotItemWithReplenishmentSystemAndAssemblyPolicy(
@@ -5360,8 +5322,9 @@
         CreateLocationSetup();
         ConsumptionJournalSetup();
 
-        LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
-        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        LibrarySetupStorage.SaveManufacturingSetup();
+        LibrarySetupStorage.SaveSalesSetup();
+        LibrarySetupStorage.SaveInventorySetup();
 
         isInitialized := true;
         Commit();
@@ -5411,11 +5374,9 @@
 
     local procedure SetBlankOverflowLevelAsUseItemValues()
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Blank Overflow Level", ManufacturingSetup."Blank Overflow Level"::"Use Item/SKU Values Only");
-        ManufacturingSetup.Modify(true);
+        LibraryPlanning.SetBlankOverflowLevel(InventorySetup."Blank Overflow Level"::"Use Item/SKU Values Only");
     end;
 
     local procedure AutoReserveForSalesLine(SalesLine: Record "Sales Line")
@@ -5655,7 +5616,7 @@
     begin
         // Using Random Value and Dates based on WORKDATE.
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
-        UpdateForecastOnManufacturingSetup(ProductionForecastName.Name);
+        LibraryPlanning.SetDemandForecast(ProductionForecastName.Name);
         CreateAndUpdateProductionForecast(
           ProductionForecastEntry[1], ProductionForecastName.Name, ForecastDate, ItemNo, LibraryRandom.RandDec(10, 2) + 100);  // Large Random Quantity Required.
         if MultipleLine then begin
@@ -5675,15 +5636,6 @@
     begin
         LibraryManufacturing.CreateProductionBOM(ProdBOMHeader, ProdItem, CompItem, 1, '');
         LibraryManufacturing.CreateProductionOrder(ProdOrder, ProdOrder.Status::Released, ProdItem, '', '', Qty, WorkDate());
-    end;
-
-    local procedure UpdateForecastOnManufacturingSetup(CurrentProductionForecast: Code[10])
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-    begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
-        ManufacturingSetup.Modify(true);
     end;
 
     local procedure CreateAndUpdateProductionForecast(var ProductionForecastEntry: Record "Production Forecast Entry"; Name: Code[10]; Date: Date; ItemNo: Code[20]; Quantity: Decimal)
@@ -6363,16 +6315,6 @@
         ProductionForecastEntry[1].Modify(true);
     end;
 
-    local procedure UpdateManufacturingSetup(NewCombinedMPSMRPCalculation: Boolean) OldCombinedMPSMRPCalculation: Boolean
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-    begin
-        ManufacturingSetup.Get();
-        OldCombinedMPSMRPCalculation := ManufacturingSetup."Combined MPS/MRP Calculation";
-        ManufacturingSetup.Validate("Combined MPS/MRP Calculation", NewCombinedMPSMRPCalculation);
-        ManufacturingSetup.Modify(true);
-    end;
-
     local procedure CreateAndPostConsumptionJournal(ProductionOrderNo: Code[20])
     begin
         LibraryInventory.ClearItemJournal(ConsumptionItemJournalTemplate, ConsumptionItemJournalBatch);
@@ -6683,15 +6625,6 @@ ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name
         ItemJournalLine.Validate("Location Code", LocationCode);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-    end;
-
-    local procedure UpdateManufacturingSetupComponentsAtLocation(NewComponentsAtLocation: Code[10])
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-    begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Components at Location", NewComponentsAtLocation);
-        ManufacturingSetup.Modify(true);
     end;
 
     local procedure CreateManufacturingItems(var ParentItem: Record Item; var ChildItem: Record Item; ReorderPoint: Decimal; MaxQty: Decimal)

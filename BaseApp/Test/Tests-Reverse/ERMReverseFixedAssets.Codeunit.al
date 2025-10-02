@@ -722,21 +722,6 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         ReversalEntry.ReverseTransaction(MaintenanceLedgerEntry."Transaction No.");
     end;
 
-    local procedure VerifyFALedgerEntry(DocumentNo: Code[20]; DebitAmount: Decimal; CreditAmount: Decimal; ExpectedDescription: Text)
-    var
-        FALedgerEntry: Record "FA Ledger Entry";
-        GeneralLedgerSetup: Record "General Ledger Setup";
-    begin
-        GeneralLedgerSetup.Get();
-        FALedgerEntry.SetRange("Document No.", DocumentNo);
-        FALedgerEntry.FindLast();
-        Assert.AreNearlyEqual(
-          DebitAmount, FALedgerEntry."Debit Amount", GeneralLedgerSetup."Appln. Rounding Precision",
-          StrSubstNo(AmountErr, FALedgerEntry.FieldCaption("Debit Amount"), DebitAmount));
-        FALedgerEntry.TestField("Credit Amount", CreditAmount);
-        FALedgerEntry.TestField(Description, ExpectedDescription);
-    end;
-
     local procedure VerifyMaintenanceLedgerEntry(DocumentNo: Code[20]; DebitAmount: Decimal; CreditAmount: Decimal; ExpectedDescription: Text)
     var
         MaintenanceLedgerEntry: Record "Maintenance Ledger Entry";
@@ -750,14 +735,6 @@ codeunit 134135 "ERM Reverse Fixed Assets"
           StrSubstNo(AmountErr, MaintenanceLedgerEntry.FieldCaption("Debit Amount"), DebitAmount));
         MaintenanceLedgerEntry.TestField("Credit Amount", CreditAmount);
         MaintenanceLedgerEntry.TestField(Description, ExpectedDescription);
-    end;
-
-    local procedure VerifyGLRegister()
-    var
-        GLRegister: Record "G/L Register";
-    begin
-        GLRegister.FindLast();
-        GLRegister.TestField(Reversed, true);
     end;
 
     local procedure VerifyLastGLTransactionNo(ExpectedTransactionNo: Integer)
@@ -821,4 +798,3 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         FAPostingTypeSetup.ModifyAll("Include in Gain/Loss Calc.", true);
     end;
 }
-

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 pageextension 31351 "Purchase Return Order CZ" extends "Purchase Return Order"
 {
     layout

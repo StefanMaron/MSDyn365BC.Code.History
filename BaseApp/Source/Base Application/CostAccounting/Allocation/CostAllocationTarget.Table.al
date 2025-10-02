@@ -66,6 +66,7 @@ table 1107 "Cost Allocation Target"
         }
         field(8; "Static Base"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Static Base';
             DecimalPlaces = 0 : 2;
@@ -78,6 +79,7 @@ table 1107 "Cost Allocation Target"
         }
         field(9; "Static Weighting"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Static Weighting';
             DecimalPlaces = 0 : 5;
@@ -98,6 +100,7 @@ table 1107 "Cost Allocation Target"
         }
         field(10; Share; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Share';
             DecimalPlaces = 2 : 5;
             MinValue = 0;
@@ -109,6 +112,7 @@ table 1107 "Cost Allocation Target"
         }
         field(11; Percent; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Percent';
             DecimalPlaces = 2 : 5;
             Editable = false;
@@ -216,6 +220,7 @@ table 1107 "Cost Allocation Target"
         }
         field(40; "Percent per Share"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Percent per Share';
             MinValue = 0;
@@ -231,6 +236,8 @@ table 1107 "Cost Allocation Target"
         }
         field(41; "Amount per Share"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Amount per Share';
             MinValue = 0;
@@ -467,4 +474,3 @@ table 1107 "Cost Allocation Target"
     begin
     end;
 }
-

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -6,9 +6,6 @@ namespace Microsoft.Sales.Receivables;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Setup;
-#if not CLEAN24
-using Microsoft.Finance.GeneralLedger.Journal;
-#endif
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Sales.Customer;
 
@@ -19,18 +16,21 @@ tableextension 11720 "Cust. Ledger Entry CZL" extends "Cust. Ledger Entry"
         field(11717; "Specific Symbol CZL"; Code[10])
         {
             Caption = 'Specific Symbol';
+            OptimizeForTextSearch = true;
             CharAllowed = '09';
             DataClassification = CustomerContent;
         }
         field(11718; "Variable Symbol CZL"; Code[10])
         {
             Caption = 'Variable Symbol';
+            OptimizeForTextSearch = true;
             CharAllowed = '09';
             DataClassification = CustomerContent;
         }
         field(11719; "Constant Symbol CZL"; Code[10])
         {
             Caption = 'Constant Symbol';
+            OptimizeForTextSearch = true;
             CharAllowed = '09';
             TableRelation = "Constant Symbol CZL";
             DataClassification = CustomerContent;
@@ -162,11 +162,7 @@ tableextension 11720 "Cust. Ledger Entry CZL" extends "Cust. Ledger Entry"
 
     procedure GetReceivablesAccNoCZL(): Code[20]
     var
-#if not CLEAN24
-        GenJournalLineHandler: Codeunit "Gen. Journal Line Handler CZL";
-#else
         CustomerPostingGroup: Record "Customer Posting Group";
-#endif
         GLAccountNo: Code[20];
         IsHandled: Boolean;
     begin
@@ -175,16 +171,10 @@ tableextension 11720 "Cust. Ledger Entry CZL" extends "Cust. Ledger Entry"
         if IsHandled then
             exit(GLAccountNo);
 
-#if not CLEAN24
-#pragma warning disable AL0432
-        exit(GenJournalLineHandler.GetReceivablesAccNo(Rec));
-#pragma warning restore AL0432
-#else
         TestField("Customer Posting Group");
         CustomerPostingGroup.Get("Customer Posting Group");
         CustomerPostingGroup.TestField("Receivables Account");
         exit(CustomerPostingGroup.GetReceivablesAccount());
-#endif
     end;
 
     [IntegrationEvent(false, false)]

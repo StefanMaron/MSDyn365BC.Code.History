@@ -28,7 +28,7 @@ tableextension 11703 "Sales Header CZL" extends "Sales Header"
             var
                 NeedUpdateAddCurrencyFactor: Boolean;
             begin
-                NeedUpdateAddCurrencyFactor := GeneralLedgerSetup.IsAdditionalCurrencyEnabled();
+                NeedUpdateAddCurrencyFactor := GeneralLedgerSetup.IsAdditionalCurrencyEnabledCZL();
                 OnValidatePostingDateOnBeforeCheckNeedUpdateAddCurrencyFactor(Rec, xRec, IsConfirmedCZL, NeedUpdateAddCurrencyFactor);
                 if NeedUpdateAddCurrencyFactor then begin
                     UpdateAddCurrencyFactorCZL();
@@ -66,6 +66,7 @@ tableextension 11703 "Sales Header CZL" extends "Sales Header"
         field(11717; "Specific Symbol CZL"; Code[10])
         {
             Caption = 'Specific Symbol';
+            OptimizeForTextSearch = true;
             CharAllowed = '09';
             DataClassification = CustomerContent;
 
@@ -77,6 +78,7 @@ tableextension 11703 "Sales Header CZL" extends "Sales Header"
         field(11718; "Variable Symbol CZL"; Code[10])
         {
             Caption = 'Variable Symbol';
+            OptimizeForTextSearch = true;
             CharAllowed = '09';
             DataClassification = CustomerContent;
 
@@ -88,6 +90,7 @@ tableextension 11703 "Sales Header CZL" extends "Sales Header"
         field(11719; "Constant Symbol CZL"; Code[10])
         {
             Caption = 'Constant Symbol';
+            OptimizeForTextSearch = true;
             CharAllowed = '09';
             TableRelation = "Constant Symbol CZL";
             DataClassification = CustomerContent;
@@ -224,11 +227,21 @@ tableextension 11703 "Sales Header CZL" extends "Sales Header"
             ObsoleteReason = 'Replaced by VAT Reporting Date.';
         }
 #endif
+#if not CLEANSCHEMA30
         field(11781; "Registration No. CZL"; Text[20])
         {
-            Caption = 'Registration No.';
+            Caption = 'Registration No. (Obsolete)';
             DataClassification = CustomerContent;
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
+            ObsoleteReason = 'Replaced by standard "Registration Number" field.';
         }
+#endif
         field(11782; "Tax Registration No. CZL"; Text[20])
         {
             Caption = 'Tax Registration No.';
@@ -338,13 +351,13 @@ tableextension 11703 "Sales Header CZL" extends "Sales Header"
         if IsUpdated then
             exit;
 
-        if GeneralLedgerSetup.IsAdditionalCurrencyEnabled() then begin
+        if GeneralLedgerSetup.IsAdditionalCurrencyEnabledCZL() then begin
             if "Posting Date" <> 0D then
                 CurrencyDate := "Posting Date"
             else
                 CurrencyDate := WorkDate();
 
-            "Additional Currency Factor CZL" := CurrencyExchangeRate.ExchangeRate(CurrencyDate, GeneralLedgerSetup.GetAdditionalCurrencyCode());
+            "Additional Currency Factor CZL" := CurrencyExchangeRate.ExchangeRate(CurrencyDate, GeneralLedgerSetup.GetAdditionalCurrencyCodeCZL());
         end else
             "Additional Currency Factor CZL" := 0;
 
@@ -549,6 +562,11 @@ tableextension 11703 "Sales Header CZL" extends "Sales Header"
     begin
         IsAllowed := GuiAllowed();
         OnIsConfirmDialogAllowedCZL(IsAllowed);
+    end;
+
+    procedure GetRegistrationNoTrimmedCZL(): Text[20]
+    begin
+        exit(CopyStr("Registration Number", 1, 20));
     end;
 
     [IntegrationEvent(false, false)]

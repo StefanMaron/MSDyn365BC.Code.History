@@ -22,8 +22,8 @@
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
         ReportSelections: Record "Report Selections";
+        TempBlob: Codeunit "Temp Blob";
         SendToEmail: Text[250];
-        TempPath: Text[250];
     begin
         // [GIVEN] A newly setup Customer with No email
         Initialize();
@@ -34,7 +34,7 @@
         // [WHEN] An Order is created
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         ReportSelections.GetEmailBodyTextForCust(
-            TempPath, "Report Selection Usage".FromInteger(GetOrderConfirmationId()), SalesHeader, Customer."No.", SendToEmail, '');
+            TempBlob, "Report Selection Usage".FromInteger(GetOrderConfirmationId()), SalesHeader, Customer."No.", SendToEmail, '');
         // [THEN] No email should be found for this document
         Assert.IsTrue(SendToEmail = '', 'Send to ' + SendToEmail + 'Expected no email');
     end;
@@ -46,8 +46,8 @@
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
         ReportSelections: Record "Report Selections";
+        TempBlob: Codeunit "Temp Blob";
         SendToEmail: Text[250];
-        TempPath: Text[250];
     begin
         // [GIVEN] A newly setup Customer with email
         Initialize();
@@ -60,7 +60,7 @@
 
         // [THEN] The document should be send to the email from the contact
         ReportSelections.GetEmailBodyTextForCust(
-            TempPath, "Report Selection Usage".FromInteger(GetOrderConfirmationId()), SalesHeader, Customer."No.", SendToEmail, '');
+            TempBlob, "Report Selection Usage".FromInteger(GetOrderConfirmationId()), SalesHeader, Customer."No.", SendToEmail, '');
         Assert.IsTrue(SendToEmail = CustomerEmailTok, 'Send to ' + SendToEmail + 'Expected ' + CustomerEmailTok);
     end;
 
@@ -71,8 +71,8 @@
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
         ReportSelections: Record "Report Selections";
+        TempBlob: Codeunit "Temp Blob";
         SendToEmail: Text[250];
-        TempPath: Text[250];
     begin
         // [GIVEN] A newly setup Customer with email and sales header specific email address
         Initialize();
@@ -83,7 +83,7 @@
         SalesHeader."Sell-to E-Mail" := SalesHeaderEmailTok;
         SalesHeader.Modify();
         ReportSelections.GetEmailBodyTextForCust(
-            TempPath, "REport Selection Usage".FromInteger(GetOrderConfirmationId()), SalesHeader, Customer."No.", SendToEmail, '');
+            TempBlob, "REport Selection Usage".FromInteger(GetOrderConfirmationId()), SalesHeader, Customer."No.", SendToEmail, '');
         SalesHeader."Sell-to E-Mail" := SalesHeaderEmailTok;
         // [THEN] Status of assisted setup remains Not Completed
         Assert.IsTrue(SendToEmail = SalesHeaderEmailTok, 'Send to ' + SendToEmail + ' Expected ' + SalesHeaderEmailTok);

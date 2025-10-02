@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -16,6 +16,7 @@ tableextension 11731 "Purch. Cr. Memo Hdr. CZL" extends "Purch. Cr. Memo Hdr."
         field(11717; "Specific Symbol CZL"; Code[10])
         {
             Caption = 'Specific Symbol';
+            OptimizeForTextSearch = true;
             CharAllowed = '09';
             Editable = false;
             DataClassification = CustomerContent;
@@ -23,6 +24,7 @@ tableextension 11731 "Purch. Cr. Memo Hdr. CZL" extends "Purch. Cr. Memo Hdr."
         field(11718; "Variable Symbol CZL"; Code[10])
         {
             Caption = 'Variable Symbol';
+            OptimizeForTextSearch = true;
             CharAllowed = '09';
             Editable = false;
             DataClassification = CustomerContent;
@@ -30,6 +32,7 @@ tableextension 11731 "Purch. Cr. Memo Hdr. CZL" extends "Purch. Cr. Memo Hdr."
         field(11719; "Constant Symbol CZL"; Code[10])
         {
             Caption = 'Constant Symbol';
+            OptimizeForTextSearch = true;
             CharAllowed = '09';
             TableRelation = "Constant Symbol CZL";
             Editable = false;
@@ -149,13 +152,8 @@ tableextension 11731 "Purch. Cr. Memo Hdr. CZL" extends "Purch. Cr. Memo Hdr."
         {
             Caption = 'EU 3-Party Trade';
             DataClassification = CustomerContent;
-#if not CLEAN24
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '27.0';
-#endif
             ObsoleteReason = 'Replaced by "EU 3 Party Trade" field in "EU 3-Party Trade Purchase" app.';
         }
 #endif
@@ -194,4 +192,3 @@ tableextension 11731 "Purch. Cr. Memo Hdr. CZL" extends "Purch. Cr. Memo Hdr."
         exit((Rec."Currency Code" <> '') and ((Rec."Amount Including VAT" - Rec."Amount") <> 0));
     end;
 }
-

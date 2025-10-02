@@ -1083,27 +1083,6 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         end;
     end;
 
-    local procedure CheckVariantAllocCostEntries(Level: Integer; Variant: Code[10])
-    var
-        CostAllocationSource: Record "Cost Allocation Source";
-        CostEntry: Record "Cost Entry";
-        CostRegister: Record "Cost Register";
-    begin
-        CostAllocationSource.SetFilter(Level, '%1', Level);
-        CostAllocationSource.SetFilter(Variant, '%1', Variant);
-        if not CostAllocationSource.FindFirst() then
-            Error(NoRecordsInFilterErr, CostAllocationSource.TableCaption(), CostAllocationSource.GetFilters);
-
-        if not CostRegister.FindLast() then
-            Error(NoRecordsInFilterErr, CostRegister.TableCaption(), CostRegister.GetFilters);
-
-        CostEntry.SetRange("Entry No.", CostRegister."From Cost Entry No.", CostRegister."To Cost Entry No.");
-        CostEntry.SetFilter("Cost Center Code", '%1', CostAllocationSource."Cost Center Code");
-        CostEntry.SetFilter("Allocation ID", '%1', CostAllocationSource.ID);
-        if CostEntry.IsEmpty() then
-            Error(NoRecordsInFilterErr, CostEntry.TableCaption(), CostEntry.GetFilters);
-    end;
-
     local procedure ClearAllocSourceLevel(Level: Integer)
     var
         CostAllocationSource: Record "Cost Allocation Source";
@@ -1616,4 +1595,3 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         exit(false);
     end;
 }
-

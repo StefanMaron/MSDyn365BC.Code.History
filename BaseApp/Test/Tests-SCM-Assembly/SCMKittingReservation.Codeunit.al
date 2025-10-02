@@ -20,13 +20,13 @@ using Microsoft.Assembly.History;
 using Microsoft.Warehouse.Tracking;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Assembly.Setup;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Inventory.BOM;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Worksheet;
 using Microsoft.Sales.History;
 using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Setup;
 
 codeunit 137099 "SCM Kitting Reservation"
 {
@@ -1444,10 +1444,10 @@ codeunit 137099 "SCM Kitting Reservation"
 
     local procedure CalculateDateUsingDefaultSafetyLeadTime(): Date
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
-        ManufacturingSetup.Get();
-        exit(CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()));
+        InventorySetup.Get();
+        exit(CalcDate(InventorySetup."Default Safety Lead Time", WorkDate()));
     end;
 
     local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; Quantity: Decimal; UseTracking: Boolean) LotNo: Code[50]

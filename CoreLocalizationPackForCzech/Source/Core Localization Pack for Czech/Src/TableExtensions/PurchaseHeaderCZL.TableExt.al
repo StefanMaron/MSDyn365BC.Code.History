@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -29,7 +29,7 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
             var
                 NeedUpdateAddCurrencyFactor: Boolean;
             begin
-                NeedUpdateAddCurrencyFactor := GeneralLedgerSetup.IsAdditionalCurrencyEnabled();
+                NeedUpdateAddCurrencyFactor := GeneralLedgerSetup.IsAdditionalCurrencyEnabledCZL();
                 OnValidatePostingDateOnBeforeCheckNeedUpdateAddCurrencyFactor(Rec, xRec, IsConfirmedCZL, NeedUpdateAddCurrencyFactor);
                 if NeedUpdateAddCurrencyFactor then begin
                     UpdateAddCurrencyFactorCZL();
@@ -79,6 +79,7 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
         field(11717; "Specific Symbol CZL"; Code[10])
         {
             Caption = 'Specific Symbol';
+            OptimizeForTextSearch = true;
             CharAllowed = '09';
             DataClassification = CustomerContent;
 
@@ -90,6 +91,7 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
         field(11718; "Variable Symbol CZL"; Code[10])
         {
             Caption = 'Variable Symbol';
+            OptimizeForTextSearch = true;
             CharAllowed = '09';
             DataClassification = CustomerContent;
 
@@ -101,6 +103,7 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
         field(11719; "Constant Symbol CZL"; Code[10])
         {
             Caption = 'Constant Symbol';
+            OptimizeForTextSearch = true;
             CharAllowed = '09';
             TableRelation = "Constant Symbol CZL";
             DataClassification = CustomerContent;
@@ -300,14 +303,7 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
             trigger OnValidate()
             begin
                 if "EU 3-Party Intermed. Role CZL" then
-#if not CLEAN24
-#pragma warning disable AL0432
-                    if not IsEU3PartyTradeFeatureEnabled() then
-                        "EU 3-Party Trade CZL" := true
-                    else
-#pragma warning restore AL0432
-#endif
-                        "EU 3 Party Trade" := true;
+                    "EU 3 Party Trade" := true;
             end;
         }
 #if not CLEANSCHEMA27
@@ -315,22 +311,9 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
         {
             Caption = 'EU 3-Party Trade';
             DataClassification = CustomerContent;
-#if not CLEAN24
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '27.0';
-#endif
             ObsoleteReason = 'Replaced by "EU 3 Party Trade" field in "EU 3-Party Trade Purchase" app.';
-#if not CLEAN24
-
-            trigger OnValidate()
-            begin
-                if not "EU 3-Party Trade CZL" then
-                    "EU 3-Party Intermed. Role CZL" := false;
-            end;
-#endif
         }
 #endif
         field(31112; "Original Doc. VAT Date CZL"; Date)
@@ -435,13 +418,13 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
         if IsHandled then
             exit;
 
-        if GeneralLedgerSetup.IsAdditionalCurrencyEnabled() then begin
+        if GeneralLedgerSetup.IsAdditionalCurrencyEnabledCZL() then begin
             if "Posting Date" <> 0D then
                 CurrencyDate := "Posting Date"
             else
                 CurrencyDate := WorkDate();
 
-            "Additional Currency Factor CZL" := CurrencyExchangeRate.ExchangeRate(CurrencyDate, GeneralLedgerSetup.GetAdditionalCurrencyCode());
+            "Additional Currency Factor CZL" := CurrencyExchangeRate.ExchangeRate(CurrencyDate, GeneralLedgerSetup.GetAdditionalCurrencyCodeCZL());
         end else
             "Additional Currency Factor CZL" := 0;
 
@@ -599,15 +582,6 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
             exit(BankAccountNo);
         exit(BankAccount.GetDefaultBankAccountNoCZL("Responsibility Center", "Currency Code"));
     end;
-#if not CLEAN24
-
-    internal procedure IsEU3PartyTradeFeatureEnabled(): Boolean
-    var
-        EU3PartyTradeFeatMgt: Codeunit Microsoft.Finance.EU3PartyTrade."EU3 Party Trade Feat Mgt. CZL";
-    begin
-        exit(EU3PartyTradeFeatMgt.IsEnabled());
-    end;
-#endif
 
     local procedure UpdateNonDeductVATAmountsByFieldNo(ChangedFieldNo: Integer; AskQuestion: Boolean)
     var
@@ -619,7 +593,7 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
         if not NonDeductibleVATCZL.IsNonDeductibleVATEnabled() then
             exit;
 
-        if not PurchLinesExist() then
+        if not PurchLinesWithNonDeductVATExist() then
             exit;
 
         Field.Get(Database::"Purchase Header", ChangedFieldNo);
@@ -639,6 +613,25 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
                 PurchaseLine.UpdateVATAmounts();
                 PurchaseLine.Modify(false);
             until PurchaseLine.Next() = 0;
+    end;
+
+    local procedure PurchLinesWithNonDeductVATExist(): Boolean
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        VATPostingSetup.SetFilter("Allow Non-Deductible VAT", '%1|%2',
+            VATPostingSetup."Allow Non-Deductible VAT"::Allow, VATPostingSetup."Allow Non-Deductible VAT"::"Do Not Apply CZL");
+        if VATPostingSetup.FindSet() then
+            repeat
+                PurchLine.Reset();
+                PurchLine.ReadIsolation := IsolationLevel::ReadUncommitted;
+                PurchLine.SetRange("Document Type", "Document Type");
+                PurchLine.SetRange("Document No.", "No.");
+                PurchLine.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+                PurchLine.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+                if not PurchLine.IsEmpty() then
+                    exit(true);
+            until VATPostingSetup.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

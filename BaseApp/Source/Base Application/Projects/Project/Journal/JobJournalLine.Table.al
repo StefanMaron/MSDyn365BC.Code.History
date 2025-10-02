@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Projects.Project.Journal;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.Project.Journal;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -2316,8 +2320,8 @@ table 210 "Job Journal Line"
             exit;
 
         JobJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-        if JobJnlBatch."No. Series" = '' then
-            exit;
+        JobJnlBatch.TestField("No. Series");
+
         if GetFilter("Document No.") <> '' then
             Error(DocNoFilterErr);
         FirstDocNo := NoSeries.PeekNextNo(JobJnlBatch."No. Series", "Posting Date");

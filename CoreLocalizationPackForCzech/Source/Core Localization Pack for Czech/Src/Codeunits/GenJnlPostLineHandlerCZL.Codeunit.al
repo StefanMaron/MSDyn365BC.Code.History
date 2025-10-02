@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -13,6 +13,7 @@ using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.HumanResources.Employee;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using System.Utilities;
@@ -324,18 +325,12 @@ codeunit 31315 "Gen.Jnl. Post Line Handler CZL"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnAfterInitVAT', '', false, false)]
     local procedure UpdateVATAmountOnAfterInitVAT(var GenJournalLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry")
     var
-#if not CLEAN24
-        GenJournalLineHandler: Codeunit "Gen. Journal Line Handler CZL";
-#endif
         IsHandled: Boolean;
     begin
         OnBeforeUpdateVATAmountOnAfterInitVAT(GenJournalLine, GLEntry, IsHandled);
         if IsHandled then
             exit;
 
-#if not CLEAN24
-        GenJournalLineHandler.UpdateVATAmountOnAfterInitVAT(GenJournalLine, GLEntry);
-#else
         if (GenJournalLine."Gen. Posting Type" = GenJournalLine."Gen. Posting Type"::" ") or
            (GenJournalLine."VAT Posting" <> GenJournalLine."VAT Posting"::"Automatic VAT Entry") or
            (GenJournalLine."VAT Calculation Type" <> GenJournalLine."VAT Calculation Type"::"Normal VAT") or
@@ -345,7 +340,6 @@ codeunit 31315 "Gen.Jnl. Post Line Handler CZL"
 
         GLEntry.Amount := GenJournalLine."VAT Base Amount (LCY)";
         GLEntry."VAT Amount" := GenJournalLine."VAT Amount (LCY)";
-#endif
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnBeforeCheckPurchExtDocNoProcedure', '', false, false)]
@@ -363,6 +357,7 @@ codeunit 31315 "Gen.Jnl. Post Line Handler CZL"
     local procedure OnBeforePostDtldCVLedgEntry(sender: Codeunit "Gen. Jnl.-Post Line"; var GenJournalLine: Record "Gen. Journal Line"; var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var AccNo: Code[20]; var IsHandled: Boolean; AddCurrencyCode: Code[10]; MultiplePostingGroups: Boolean)
     var
         CustomerPostingGroup: Record "Customer Posting Group";
+        EmployeePostingGroup: Record "Employee Posting Group";
         VendorPostingGroup: Record "Vendor Posting Group";
         PostingGroupAccountNo: Code[20];
         OldCorrection: Boolean;
@@ -383,6 +378,11 @@ codeunit 31315 "Gen.Jnl. Post Line Handler CZL"
                     begin
                         VendorPostingGroup.Get(GenJournalLine."Posting Group");
                         PostingGroupAccountNo := VendorPostingGroup.GetPayablesAccount();
+                    end;
+                GenJournalLine."Account Type"::Employee:
+                    begin
+                        EmployeePostingGroup.Get(GenJournalLine."Posting Group");
+                        PostingGroupAccountNo := EmployeePostingGroup.GetPayablesAccount();
                     end;
                 else
                     exit;

@@ -175,7 +175,7 @@ table 7000 "Price List Header"
                 PriceSource.Validate("Starting Date", "Starting Date");
                 CopyFrom(PriceSource);
 
-                UpdateDatesInLines(FieldCaption("Starting Date"));
+                UpdateDatesInLines(Rec.FieldNo("Starting Date"), Rec.FieldCaption("Starting Date"));
             end;
         }
         field(12; "Ending Date"; Date)
@@ -192,7 +192,7 @@ table 7000 "Price List Header"
                 PriceSource.Validate("Ending Date", "Ending Date");
                 CopyFrom(PriceSource);
 
-                UpdateDatesInLines(FieldCaption("Ending Date"));
+                UpdateDatesInLines(Rec.FieldNo("Ending Date"), Rec.FieldCaption("Ending Date"));
             end;
         }
         field(13; "Price Includes VAT"; Boolean)
@@ -348,26 +348,14 @@ table 7000 "Price List Header"
     trigger OnInsert()
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         if "Source Group" = "Source Group"::All then
             TestField(Code);
         if Code = '' then begin
             "No. Series" := GetNoSeries();
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries("No. Series", xRec."No. Series", 0D, Code, "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
-                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series";
-                Code := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GetNoSeries(), 0D, Code);
-            end;
-#endif
+            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                "No. Series" := xRec."No. Series";
+            Code := NoSeries.GetNextNo("No. Series");
         end;
         if "Amount Type" = "Amount Type"::Any then begin
             CopyTo(PriceSource);
@@ -597,7 +585,7 @@ table 7000 "Price List Header"
         exit("Amount Type"::Any);
     end;
 
-    local procedure UpdateDatesInLines(Caption: Text)
+    local procedure UpdateDatesInLines(FieldId: Integer; Caption: Text)
     var
         PriceListLine: Record "Price List Line";
         ConfirmManagement: Codeunit "Confirm Management";
@@ -612,14 +600,27 @@ table 7000 "Price List Header"
             if not ConfirmManagement.GetResponse(StrSubstNo(ConfirmUpdateQst, Caption), true) then
                 exit;
 
-        PriceListLine.SetFilter("Starting Date", '<>%1', "Starting Date");
-        SetStatusToDraft(PriceListLine);
-        PriceListLine.ModifyAll("Starting Date", "Starting Date");
-        PriceListLine.SetRange("Starting Date");
-        PriceListLine.SetFilter("Ending Date", '<>%1', "Ending Date");
-        SetStatusToDraft(PriceListLine);
-        OnUpdateDatesInLinesOnBeforePriceListLineModifyAllEndingDate(PriceListLine, Rec);
-        PriceListLine.ModifyAll("Ending Date", "Ending Date");
+        case FieldId of
+            Rec.FieldNo("Starting Date"):
+                begin
+                    PriceListLine.SetFilter("Starting Date", '<>%1', Rec."Starting Date");
+                    SetStatusToDraft(PriceListLine);
+                    PriceListLine.ModifyAll("Starting Date", Rec."Starting Date");
+                    PriceListLine.SetRange("Starting Date", Rec."Starting Date");
+                    PriceListLine.SetFilter("Ending Date", '<%1', Rec."Starting Date");
+                    PriceListLine.ModifyAll("Ending Date", Rec."Ending Date");
+                end;
+            Rec.FieldNo("Ending Date"):
+                begin
+                    PriceListLine.SetFilter("Ending Date", '<>%1', Rec."Ending Date");
+                    SetStatusToDraft(PriceListLine);
+                    OnUpdateDatesInLinesOnBeforePriceListLineModifyAllEndingDate(PriceListLine, Rec);
+                    PriceListLine.ModifyAll("Ending Date", Rec."Ending Date");
+                    PriceListLine.SetRange("Ending Date", Rec."Ending Date");
+                    PriceListLine.SetFilter("Starting Date", '>%1', Rec."Ending Date");
+                    PriceListLine.ModifyAll("Starting Date", Rec."Starting Date");
+                end;
+        end;
     end;
 
     local procedure SetSourceNo(ParentSourceNo: Code[20]; SourceNo: Code[20])

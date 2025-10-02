@@ -86,15 +86,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM CA Budget - NamedType DateFilter)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4033487431 - NamedType 1397027066" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Dimension value code %1 is not copied correctly to the G/L Budget Entry.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM CA Budget - NamedType GLBudgetDimensionError)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4033487431 - NamedType 2485788863" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The multiplication factor must not be 0.]]></Val>

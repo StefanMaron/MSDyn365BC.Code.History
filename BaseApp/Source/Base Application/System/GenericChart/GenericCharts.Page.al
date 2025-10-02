@@ -91,7 +91,7 @@ page 9182 "Generic Charts"
                             exit;
 
                         if ChartExists then
-                            if not Confirm(Text001, false, Rec.TableCaption(), Rec.ID) then
+                            if not Confirm(ReplaceChartDefinitionQst, false, Rec.TableCaption(), Rec.ID) then
                                 exit;
 
                         RecordRef.GetTable(Rec);
@@ -148,7 +148,7 @@ page 9182 "Generic Charts"
                     trigger OnAction()
                     begin
                         if Rec.BLOB.HasValue() then
-                            if Confirm(Text002, false, Rec.TableCaption(), Rec.ID) then begin
+                            if Confirm(DeleteChartDefinitionQst, false, Rec.TableCaption(), Rec.ID) then begin
                                 Rec.CalcFields(BLOB);
                                 Clear(Rec.BLOB);
                                 CurrPage.SaveRecord();
@@ -162,11 +162,9 @@ page 9182 "Generic Charts"
     var
         GenericChartMgt: Codeunit "Generic Chart Mgt";
 
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text001: Label 'Do you want to replace the existing definition for %1 %2?', Comment = 'Do you want to replace the existing definition for Chart 36-06?';
-        Text002: Label 'Are you sure that you want to delete the definition for %1 %2?', Comment = 'Are you sure that you want to delete the definition for Chart 36-06?';
+        ReplaceChartDefinitionQst: Label 'Do you want to replace the existing definition for %1 %2?', Comment = 'Do you want to replace the existing definition for Chart 36-06?';
+        DeleteChartDefinitionQst: Label 'Are you sure that you want to delete the definition for %1 %2?', Comment = 'Are you sure that you want to delete the definition for Chart 36-06?';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
 }
 

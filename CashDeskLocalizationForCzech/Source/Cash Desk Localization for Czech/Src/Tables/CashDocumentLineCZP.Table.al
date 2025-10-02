@@ -254,7 +254,8 @@ table 11733 "Cash Document Line CZP"
             TableRelation = if ("Account Type" = const("Fixed Asset")) "FA Posting Group" else
             if ("Account Type" = const("Bank Account")) "Bank Account Posting Group" else
             if ("Account Type" = const(Customer)) "Customer Posting Group" else
-            if ("Account Type" = const(Vendor)) "Vendor Posting Group";
+            if ("Account Type" = const(Vendor)) "Vendor Posting Group" else
+            if ("Account Type" = const(Employee)) "Employee Posting Group";
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -1839,7 +1840,8 @@ table 11733 "Cash Document Line CZP"
         Validate("VAT Bus. Posting Group", PostedGLAccount."VAT Bus. Posting Group");
         Validate("VAT Prod. Posting Group", PostedGLAccount."VAT Prod. Posting Group");
     end;
-
+#if not CLEAN27
+    [Obsolete('The statistics action will be replaced with the CashDocumentStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '27.0')]
     procedure ExtStatistics()
     var
         CashDocumentLineCZP: Record "Cash Document Line CZP";
@@ -1858,6 +1860,7 @@ table 11733 "Cash Document Line CZP"
         CashDocumentLineCZP.SetRange("Line No.", "Line No.");
         Page.RunModal(Page::"Cash Document Statistics CZP", CashDocumentLineCZP);
     end;
+#endif
 
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
     begin
@@ -2149,6 +2152,26 @@ table 11733 "Cash Document Line CZP"
     procedure IsExtendedText(): Boolean
     begin
         exit(("Account Type" = "Account Type"::" ") and ("Attached to Line No." <> 0) and (Amount = 0));
+    end;
+
+    procedure AccountTypeToNetChangeAccountType(): Enum "Net Change Account Type CZL"
+    begin
+        case "Account Type" of
+            "Account Type"::"G/L Account":
+                exit("Net Change Account Type CZL"::"G/L Account");
+            "Account Type"::Customer:
+                exit("Net Change Account Type CZL"::Customer);
+            "Account Type"::Vendor:
+                exit("Net Change Account Type CZL"::Vendor);
+            "Account Type"::Employee:
+                exit("Net Change Account Type CZL"::Employee);
+            "Account Type"::"Bank Account":
+                exit("Net Change Account Type CZL"::"Bank Account");
+            "Account Type"::"Fixed Asset":
+                exit("Net Change Account Type CZL"::"Fixed Asset");
+            "Account Type"::"Allocation Account":
+                exit("Net Change Account Type CZL"::"Allocation Account");
+        end;
     end;
 
     [IntegrationEvent(false, false)]

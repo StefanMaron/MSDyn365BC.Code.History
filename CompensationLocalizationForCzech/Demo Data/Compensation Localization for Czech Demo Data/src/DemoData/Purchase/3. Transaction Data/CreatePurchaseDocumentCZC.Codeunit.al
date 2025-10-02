@@ -1,4 +1,19 @@
-#pragma warning disable AA0247
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
+namespace Microsoft.DemoData.Purchase;
+
+using Microsoft.DemoData.Bank;
+using Microsoft.DemoData.Foundation;
+using Microsoft.DemoData.Inventory;
+using Microsoft.DemoData.Localization;
+using Microsoft.DemoData.Purchases;
+using Microsoft.DemoTool.Helpers;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Posting;
+
 codeunit 31484 "Create Purchase Document CZC"
 {
     InherentEntitlements = X;

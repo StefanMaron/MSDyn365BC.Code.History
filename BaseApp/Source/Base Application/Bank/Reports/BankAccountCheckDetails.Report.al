@@ -27,7 +27,7 @@ report 1406 "Bank Account - Check Details"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(STRSUBSTNO_Text000_BankAccDateFilter_; StrSubstNo(Text000, BankAccDateFilter))
+            column(STRSUBSTNO_Text000_BankAccDateFilter_; StrSubstNo(PeriodLbl, BankAccDateFilter))
             {
             }
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
@@ -242,11 +242,9 @@ report 1406 "Bank Account - Check Details"
     end;
 
     var
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text000: Label 'Period: %1';
+        PeriodLbl: Label 'Period: %1';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
         PrintOnlyOnePerPage: Boolean;
         BankAccFilter: Text;
         BankAccDateFilter: Text;

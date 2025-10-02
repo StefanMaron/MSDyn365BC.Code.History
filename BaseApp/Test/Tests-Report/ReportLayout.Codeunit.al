@@ -86,12 +86,12 @@ codeunit 132600 "Report Layout"
     end;
 
     [Test]
-    [HandlerFunctions('RHCompareList')]
+    [HandlerFunctions('RHCompareProductionCostShares')]
     [Scope('OnPrem')]
-    procedure TestCompareList()
+    procedure TestCompareProductionCostShares()
     begin
         Initialize();
-        REPORT.Run(REPORT::"Compare List");
+        REPORT.Run(REPORT::"Compare Production Cost Shares");
     end;
 
     [Test]
@@ -656,15 +656,15 @@ codeunit 132600 "Report Layout"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure RHCompareList(var CompareList: TestRequestPage "Compare List")
+    procedure RHCompareProductionCostShares(var CompareProductionCostShares: TestRequestPage "Compare Production Cost Shares")
     var
         Item: Record Item;
     begin
         FindItem(Item);
-        CompareList.ItemNo1.SetValue(Item."No.");
+        CompareProductionCostShares.ItemNo1.SetValue(Item."No.");
         Item.Next(1);
-        CompareList.ItemNo2.SetValue(Item."No.");
-        CompareList.SaveAsPdf(FormatFileName(CompareList.Caption));
+        CompareProductionCostShares.ItemNo2.SetValue(Item."No.");
+        CompareProductionCostShares.SaveAsExcel(FormatFileName(CompareProductionCostShares.Caption));
     end;
 
     [RequestPageHandler]

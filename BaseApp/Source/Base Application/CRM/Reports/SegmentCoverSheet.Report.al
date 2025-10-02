@@ -207,6 +207,8 @@ report 5064 "Segment - Cover Sheet"
 
     requestpage
     {
+        AboutTitle = 'About Segment - Cover Sheet';
+        AboutText = 'Get or print cover sheets for your segments.';
         SaveValues = false;
 
         layout

@@ -31,7 +31,6 @@ table 9650 "Custom Report Layout"
             Caption = 'Report ID';
             TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Report));
         }
-#pragma warning disable AS0086
         field(3; "Report Name"; Text[250])
         {
             CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
@@ -40,7 +39,6 @@ table 9650 "Custom Report Layout"
             Editable = false;
             FieldClass = FlowField;
         }
-#pragma warning restore AS0086
         field(4; "Company Name"; Text[30])
         {
             Caption = 'Company Name';
@@ -195,7 +193,7 @@ table 9650 "Custom Report Layout"
                 end;
             CustomReportLayout.Type::RDLC.AsInteger():
                 if LoadInternalRdlcLayout(ReportID, TempBlob) then
-                        CustomReportLayout.SetLayoutBlob(TempBlob);                    
+                        CustomReportLayout.SetLayoutBlob(TempBlob);
             else
                 OnInitBuiltInLayout(CustomReportLayout, ReportID, LayoutType);
         end;
@@ -1086,4 +1084,3 @@ table 9650 "Custom Report Layout"
     begin
     end;
 }
-

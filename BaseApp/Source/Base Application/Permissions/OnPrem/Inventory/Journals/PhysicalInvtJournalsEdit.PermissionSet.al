@@ -37,9 +37,6 @@ permissionset 4736 "Physical Invt Journals - Edit"
                   tabledata "Country/Region" = R,
                   tabledata "Default Dimension" = R,
                   tabledata "Default Dimension Priority" = R,
-#if not CLEAN24
-                  tabledata "Exp. Phys. Invt. Tracking" = RIMD,
-#endif
                   tabledata "Exp. Invt. Order Tracking" = RIMD,
                   tabledata "Gen. Business Posting Group" = R,
                   tabledata "Gen. Product Posting Group" = R,
@@ -63,10 +60,6 @@ permissionset 4736 "Physical Invt Journals - Edit"
                   tabledata "Phys. Invt. Order Line" = RIMD,
                   tabledata "Phys. Invt. Record Header" = RIMD,
                   tabledata "Phys. Invt. Record Line" = RIMD,
-#if not CLEAN24
-                  tabledata "Phys. Invt. Tracking" = RIMD,
-                  tabledata "Pstd. Exp. Phys. Invt. Track" = RIMD,
-#endif
                   tabledata "Invt. Order Tracking" = RIMD,
                   tabledata "Pstd.Exp.Invt.Order.Tracking" = RIMD,
                   tabledata "Pstd. Phys. Invt. Order Hdr" = RIMD,

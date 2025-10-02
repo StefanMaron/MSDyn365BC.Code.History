@@ -20,6 +20,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         LibraryCashFlowHelper: Codeunit "Library - Cash Flow Helper";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryService: Codeunit "Library - Service";
         isInitialized: Boolean;
         DimensionValueCode: Code[20];
         SourceDocumentNo: Code[20];
@@ -322,7 +323,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         // Setup
         Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastDefault(CashFlowForecast);
-        LibraryCashFlowHelper.CreateDefaultServiceOrder(ServiceHeader);
+        LibraryService.CreateDefaultServiceOrder(ServiceHeader);
         ConsiderSource["Cash Flow Source Type"::"Service Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
         LibraryCashFlowHelper.FilterSingleJournalLine(
@@ -459,7 +460,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         GeneralLedgerSetup.Get();
         LibraryDimension.RunChangeGlobalDimensions(CreateDimension(), CreateDimension());
         LibraryCashFlowHelper.CreateCashFlowForecastDefault(CashFlowForecast);
-        LibraryCashFlowHelper.CreateDefaultServiceOrder(ServiceHeader);
+        LibraryService.CreateDefaultServiceOrder(ServiceHeader);
         // make sure you get the first dimension available, required for verification
         // The dimension columns on page CFLEDimOverview cannot be accessed right now via code
         Dimension.SetRange(Blocked, false);
@@ -504,7 +505,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         // Setup
         Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastDefault(CashFlowForecast);
-        LibraryCashFlowHelper.CreateDefaultServiceOrder(ServiceHeader);
+        LibraryService.CreateDefaultServiceOrder(ServiceHeader);
         ExpectedAmount := LibraryCashFlowHelper.GetTotalServiceAmount(ServiceHeader, false);
         FillAndPostCFJnlServiceOrderOnly(ServiceHeader, CashFlowForecast);
 
@@ -622,7 +623,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         CashFlowSetup.SetChartRoleCenterCFNo('');
         LibraryCashFlowHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CashFlowForecast.ValidateShowInChart(true);
-        LibraryCashFlowHelper.CreateDefaultServiceOrder(ServiceHeader); // HACK - investigate in generic solution
+        LibraryService.CreateDefaultServiceOrder(ServiceHeader); // HACK - investigate in generic solution
         ExpectedAmount := LibraryCashFlowHelper.GetTotalServiceAmount(ServiceHeader, false);
         FillAndPostCFJnlServiceOrderOnly(ServiceHeader, CashFlowForecast);
         InitializeCashFlowChartSetup(

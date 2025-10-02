@@ -1,3 +1,12 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
+namespace Microsoft.DemoTool;
+
+using Microsoft.DemoData.FixedAsset;
+
 codeunit 31217 "Contoso CZ Localization CZF"
 {
     InherentEntitlements = X;
@@ -27,6 +36,8 @@ codeunit 31217 "Contoso CZ Localization CZF"
         case ContosoDemoDataLevel of
             Enum::"Contoso Demo Data Level"::"Setup Data":
                 begin
+                    Codeunit.Run(Codeunit::"Create Depreciation Book CZF");
+                    Codeunit.Run(Codeunit::"Create No. Series CZF");
                     Codeunit.Run(Codeunit::"Create FA Setup CZF");
                     Codeunit.Run(Codeunit::"Create Tax Depr. Grp. CZF");
                 end;

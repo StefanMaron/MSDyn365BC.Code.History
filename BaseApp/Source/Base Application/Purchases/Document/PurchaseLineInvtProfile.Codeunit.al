@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Document;
 
 using Microsoft.Inventory.Item;
@@ -122,7 +126,7 @@ codeunit 99000864 "Purchase Line Invt. Profile"
             exit;
 
         if PurchLine."Expected Receipt Date" <> 0D then
-            if PurchLine."Prod. Order No." = '' then
+            if not PurchLine.IsProdOrder() then
                 InsertPurchLineToProfile(InventoryProfile, PurchLine, ToDate, ReservationEntry, NextLineNo);
     end;
 

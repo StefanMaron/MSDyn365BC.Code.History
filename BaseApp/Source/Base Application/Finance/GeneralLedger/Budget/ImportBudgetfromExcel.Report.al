@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Budget;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.GeneralLedger.Budget;
 
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Consolidation;

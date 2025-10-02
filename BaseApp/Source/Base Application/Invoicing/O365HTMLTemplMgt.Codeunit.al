@@ -1,3 +1,8 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+#pragma warning disable AA0247
 codeunit 2114 "O365 HTML Templ. Mgt."
 {
     Permissions = TableData "Payment Reporting Argument" = rimd;
@@ -22,6 +27,8 @@ codeunit 2114 "O365 HTML Templ. Mgt."
         InvoiceFromTitleTxt: Label 'Invoice from %1', Comment = 'This is a mail title. %1 - company name';
         EstimateFromTitleTxt: Label 'Estimate from %1', Comment = 'This is a mail title. %1 - company name';
 
+#if not CLEAN27
+    [Obsolete('Replaced with CreateEmailBodyFromReportSelections that accepts a TempBlob as additional parameter.', '27.0')]
     procedure CreateEmailBodyFromReportSelections(ReportSelections: Record "Report Selections"; RecordVariant: Variant; MailTo: Text; MailText: Text) OutputFileName: Text[250]
     var
         FileMgt: Codeunit "File Management";
@@ -32,6 +39,27 @@ codeunit 2114 "O365 HTML Templ. Mgt."
         HTMLText := CreateHTMLTextFromReportSelections(ReportSelections, RecordVariant, MailTo, MailText);
 
         SaveHTML(OutputFileName, HTMLText);
+    end;
+#endif
+
+    /// <summary>
+    /// Creates an email body from the report selections into TempBlob.
+    /// </summary>
+    /// <param name="ReportSelections">Report Selections used to create email body</param>
+    /// <param name="RecordVariant">Related record variant</param>
+    /// <param name="MailTo">Recipient email address</param>
+    /// <param name="MailText">Additional mail text</param>
+    /// <param name="TempBlob">Return value: TempBlob containing the body</param>
+    procedure CreateEmailBodyFromReportSelections(ReportSelections: Record "Report Selections"; RecordVariant: Variant; MailTo: Text; MailText: Text; var TempBlob: Codeunit "Temp Blob")
+    var
+        HTMLText: Text;
+        EmailBodyOutStream: OutStream;
+    begin
+        Clear(TempBlob);
+        HTMLText := CreateHTMLTextFromReportSelections(ReportSelections, RecordVariant, MailTo, MailText);
+
+        TempBlob.CreateOutStream(EmailBodyOutStream, TextEncoding::UTF8);
+        EmailBodyOutStream.WriteText(HTMLText);
     end;
 
     local procedure CreateHTMLTextFromReportSelections(ReportSelections: Record "Report Selections"; RecordVariant: Variant; MailTo: Text; MailText: Text) HTMLText: Text

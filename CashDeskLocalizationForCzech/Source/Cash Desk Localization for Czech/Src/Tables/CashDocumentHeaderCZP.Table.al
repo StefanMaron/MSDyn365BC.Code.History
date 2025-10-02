@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -633,9 +633,6 @@ table 11732 "Cash Document Header CZP"
     var
         CashDeskUserCZP: Record "Cash Desk User CZP";
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        IsHandled: Boolean;
-#endif
     begin
         TestField("Cash Desk No.");
         TestField("Document Type");
@@ -657,34 +654,18 @@ table 11732 "Cash Document Header CZP"
                 "Document Type"::Receipt:
                     begin
                         CashDeskCZP.TestField("Cash Document Receipt Nos.");
-#if not CLEAN24
-                        NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(CashDeskCZP."Cash Document Receipt Nos.", xRec."No. Series", WorkDate(), "No.", "No. Series", IsHandled);
-                        if not IsHandled then begin
-#endif
                             "No. Series" := CashDeskCZP."Cash Document Receipt Nos.";
                             if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                                 "No. Series" := xRec."No. Series";
                             "No." := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                            NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", CashDeskCZP."Cash Document Receipt Nos.", WorkDate(), "No.");
-                        end;
-#endif
                     end;
                 "Document Type"::Withdrawal:
                     begin
                         CashDeskCZP.TestField("Cash Document Withdrawal Nos.");
-#if not CLEAN24
-                        NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(CashDeskCZP."Cash Document Withdrawal Nos.", xRec."No. Series", WorkDate(), "No.", "No. Series", IsHandled);
-                        if not IsHandled then begin
-#endif
                             "No. Series" := CashDeskCZP."Cash Document Withdrawal Nos.";
                             if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                                 "No. Series" := xRec."No. Series";
                             "No." := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                            NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", CashDeskCZP."Cash Document Withdrawal Nos.", WorkDate(), "No.");
-                        end;
-#endif
                     end;
             end;
 
@@ -728,9 +709,6 @@ table 11732 "Cash Document Header CZP"
         Contact: Record Contact;
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         Employee: Record Employee;
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-#endif
         DimensionManagement: Codeunit DimensionManagement;
         ConfirmManagement: Codeunit "Confirm Management";
         CashDeskManagementCZP: Codeunit "Cash Desk Management CZP";

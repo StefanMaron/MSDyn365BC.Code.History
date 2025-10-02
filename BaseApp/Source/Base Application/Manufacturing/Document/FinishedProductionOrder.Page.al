@@ -412,9 +412,9 @@ page 99000867 "Finished Production Order"
 
                 trigger OnAction()
                 var
-                    CreatePutAway: Codeunit "Create Put-away";
+                    MfgCreatePutAway: Codeunit "Mfg. Create Put-away";
                 begin
-                    CreatePutAway.CreateWhsePutAwayForProdOrder(Rec);
+                    MfgCreatePutAway.CreateWhsePutAwayForProdOrder(Rec);
                 end;
             }
         }

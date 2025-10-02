@@ -22,7 +22,6 @@ codeunit 134814 "ERM CA Budget"
         AllocatedCostEntriesCountError: Label 'Incorrect number of allocated Cost Entries.';
         CopiedBudgetEntryDescription: Label 'Copy of cost budget %1';
         DateFilter: Label '''<%1>''';
-        GLBudgetDimensionError: Label 'Dimension value code %1 is not copied correctly to the G/L Budget Entry.';
         AllocatedBudgetEntriesCountErr: Label 'The number of Allocated Cost Budget Entries should be 0.';
         isInitialized: Boolean;
         SourceBudgetEmptyError: Label 'Define name of source budget.';
@@ -1184,14 +1183,6 @@ codeunit 134814 "ERM CA Budget"
         CostBudgetPerPeriodPage.MatrixForm.Column1.DrillDown();
     end;
 
-    local procedure DimensionValueExists(DimensionValueCode: Code[20]): Boolean
-    var
-        DimensionValue: Record "Dimension Value";
-    begin
-        DimensionValue.SetRange(Code, DimensionValueCode);
-        exit(DimensionValue.Count > 0);
-    end;
-
     local procedure FindCostJnlBatchAndTemplate(var CostJournalBatch: Record "Cost Journal Batch")
     var
         CostJournalTemplate: Record "Cost Journal Template";
@@ -1221,18 +1212,6 @@ codeunit 134814 "ERM CA Budget"
         exit('');
     end;
 
-    local procedure FindGLAccount(CostTypeNo: Code[20]): Code[10]
-    var
-        CostType: Record "Cost Type";
-        GLAccount: Record "G/L Account";
-    begin
-        CostType.Get(CostTypeNo);
-        GLAccount.SetFilter("No.", CostType."G/L Account Range");
-        GLAccount.FindFirst();
-
-        exit(GLAccount."No.");
-    end;
-
     local procedure GetSkippedGLBudgetEntriesCount(GLBudgetName: Record "G/L Budget Name"): Integer
     var
         GLBudgetEntry: Record "G/L Budget Entry";
@@ -1256,34 +1235,6 @@ codeunit 134814 "ERM CA Budget"
         until GLBudgetEntry.Next() = 0;
 
         exit(NoSkipped);
-    end;
-
-    local procedure GetGLBudgetEntryFieldNo(GLBudgetName: Record "G/L Budget Name"; DimensionCode: Code[20]): Integer
-    var
-        GLBudgetEntry: Record "G/L Budget Entry";
-        FieldNo: Integer;
-    begin
-        // Check Global Dimension 1 or 2 fields
-        if DimensionCode = LibraryERM.GetGlobalDimensionCode(1) then
-            FieldNo := GLBudgetEntry.FieldNo("Global Dimension 1 Code")
-        else
-            if DimensionCode = LibraryERM.GetGlobalDimensionCode(2) then
-                FieldNo := GLBudgetEntry.FieldNo("Global Dimension 2 Code")
-            else
-                case DimensionCode of  // Check budget dimension fields
-                    GLBudgetName."Budget Dimension 1 Code":
-                        FieldNo := GLBudgetEntry.FieldNo("Budget Dimension 1 Code");
-                    GLBudgetName."Budget Dimension 2 Code":
-                        FieldNo := GLBudgetEntry.FieldNo("Budget Dimension 2 Code");
-                    GLBudgetName."Budget Dimension 3 Code":
-                        FieldNo := GLBudgetEntry.FieldNo("Budget Dimension 3 Code");
-                    GLBudgetName."Budget Dimension 4 Code":
-                        FieldNo := GLBudgetEntry.FieldNo("Budget Dimension 4 Code");
-                    else
-                        FieldNo := -1;
-                end;
-
-        exit(FieldNo);
     end;
 
     local procedure GLBudgetHasCADimension(GLBudgetName: Record "G/L Budget Name"; DimensionCode: Code[20]): Boolean
@@ -1535,57 +1486,6 @@ codeunit 134814 "ERM CA Budget"
         CostBudgetEntry.TestField(Allocated, false);
     end;
 
-    local procedure ValidateCopyCAToGL(SourceBudget: Code[10]; TargetBudget: Code[10]; ExpectedAmount: Decimal; ExpectedDate: Date)
-    var
-        CostBudgetEntry: Record "Cost Budget Entry";
-        GLBudgetEntry: Record "G/L Budget Entry";
-    begin
-        CostBudgetEntry.SetRange("Budget Name", SourceBudget);
-        CostBudgetEntry.FindFirst();
-
-        // Validate G/L Budget Entry
-        GLBudgetEntry.SetRange("Budget Name", TargetBudget);
-        GLBudgetEntry.FindFirst();
-        GLBudgetEntry.TestField(Amount, ExpectedAmount);
-        GLBudgetEntry.TestField(Date, ExpectedDate);
-        GLBudgetEntry.TestField(Description, StrSubstNo(CopiedBudgetEntryDescription, SourceBudget));
-        GLBudgetEntry.TestField("G/L Account No.", FindGLAccount(CostBudgetEntry."Cost Type No."));
-
-        if not VerifyGLBudgetEntryDimension(GLBudgetEntry, CostCenterDimension(), CostBudgetEntry."Cost Center Code") then
-            Error(GLBudgetDimensionError, CostBudgetEntry."Cost Center Code");
-
-        if not VerifyGLBudgetEntryDimension(GLBudgetEntry, CostObjectDimension(), CostBudgetEntry."Cost Object Code") then
-            Error(GLBudgetDimensionError, CostBudgetEntry."Cost Object Code");
-    end;
-
-    local procedure VerifyGLBudgetEntryDimension(GLBudgetEntry: Record "G/L Budget Entry"; DimensionCode: Code[20]; DimensionValueCode: Code[20]): Boolean
-    var
-        GLBudgetName: Record "G/L Budget Name";
-        DimensionSetEntry: Record "Dimension Set Entry";
-        RecordRef: RecordRef;
-        FieldNo: Integer;
-    begin
-        // Check if the dimension value was copied correctly
-        if not DimensionValueExists(DimensionValueCode) then // Check that the dimension value was not copied
-            exit(not DimensionSetEntry.Get(GLBudgetEntry."Dimension Set ID", DimensionCode));
-
-        GLBudgetName.Get(GLBudgetEntry."Budget Name");
-        GLBudgetEntry.SetRange("Budget Name", GLBudgetName.Name);
-        FieldNo := GetGLBudgetEntryFieldNo(GLBudgetName, DimensionCode);
-        if FieldNo <> -1 then begin
-            RecordRef.GetTable(GLBudgetEntry);
-            RecordRef.SetView(GLBudgetEntry.GetView());
-            RecordRef.FindSet();
-            if Format(RecordRef.Field(FieldNo)) = DimensionValueCode then
-                exit(true);
-        end;
-
-        // Look in Dimension Set Entry
-        DimensionSetEntry.SetRange("Dimension Set ID", GLBudgetEntry."Dimension Set ID");
-        DimensionSetEntry.SetRange("Dimension Value Code", DimensionValueCode);
-        exit(DimensionSetEntry.FindFirst())
-    end;
-
     local procedure VerifyCompressedEntries(BudgetName: Code[10]; ExpectedEntries: Integer; ExpectedAmount: Decimal)
     var
         CostBudgetEntry: Record "Cost Budget Entry";
@@ -1796,4 +1696,3 @@ codeunit 134814 "ERM CA Budget"
         // dummy message handler
     end;
 }
-

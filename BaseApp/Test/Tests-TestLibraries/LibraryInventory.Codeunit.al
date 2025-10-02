@@ -1582,18 +1582,6 @@ codeunit 132201 "Library - Inventory"
         InventorySetup.Modify();
     end;
 
-#if not CLEAN24
-    [Obsolete('Temporary setup to enable/disable package tracking in Phys. Inventory Orders', '24.0')]
-    procedure SetInvtOrdersPackageTracking(PackageTracking: Boolean)
-    begin
-        InventorySetup.Get();
-        if InventorySetup."Invt. Orders Package Tracking" <> PackageTracking then begin
-            InventorySetup."Invt. Orders Package Tracking" := PackageTracking;
-            InventorySetup.Modify();
-        end;
-    end;
-#endif
-
     procedure UpdateAverageCostSettings(AverageCostCalcType: Enum "Average Cost Calculation Type"; AverageCostPeriod: Enum "Average Cost Period Type")
     begin
         InventorySetup.Get();

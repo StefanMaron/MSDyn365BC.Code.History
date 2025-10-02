@@ -8,6 +8,16 @@ using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Inventory.Requisition;
 
+/// <summary>
+/// Codeunit 1209 "Export Payment File (Yes/No)" provides user confirmation for payment file export.
+/// Validates journal line requirements, checks bank account setup, and prompts user confirmation
+/// before proceeding with payment file export operations.
+/// </summary>
+/// <remarks>
+/// Table No: Gen. Journal Line. Validates batch balancing account setup and document numbers.
+/// Integrates with bank account payment export codeunits. Provides extensibility through
+/// OnBeforeOnRun and OnAfterOnRun events for custom export logic.
+/// </remarks>
 codeunit 1209 "Export Payment File (Yes/No)"
 {
     TableNo = "Gen. Journal Line";
@@ -46,11 +56,24 @@ codeunit 1209 "Export Payment File (Yes/No)"
         ExportAgainQst: Label 'One or more of the selected lines have already been exported. Do you want to export again?';
         NothingToExportErr: Label 'There is nothing to export.';
 
+    /// <summary>
+    /// Integration event raised after completing the payment file export process.
+    /// Enables custom logic to execute after successful export operations.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal lines that were exported</param>
+    /// <param name="GenJnlBatch">General journal batch used for export</param>
+    /// <param name="BankAccount">Bank account used for payment export</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnRun(var GenJournalLine: Record "Gen. Journal Line"; GenJnlBatch: Record "Gen. Journal Batch"; BankAccount: Record "Bank Account")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before starting the payment file export process.
+    /// Enables custom validation or alternative export handling.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal lines to be exported</param>
+    /// <param name="IsHandled">Set to true to skip standard export processing</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnRun(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean);
     begin

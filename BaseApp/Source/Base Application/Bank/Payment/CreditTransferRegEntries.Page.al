@@ -4,6 +4,15 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Payment;
 
+/// <summary>
+/// Page 1206 "Credit Transfer Reg. Entries" displays credit transfer entries in a list format.
+/// Provides a read-only view of individual payment entries within credit transfer registers,
+/// showing recipient details, amounts, applied entries, and related information.
+/// </summary>
+/// <remarks>
+/// Source table: Credit Transfer Entry. Used for viewing and analyzing exported payment details
+/// including SEPA credit transfers and bank-specific payment formats.
+/// </remarks>
 page 1206 "Credit Transfer Reg. Entries"
 {
     Caption = 'Credit Transfer Reg. Entries';

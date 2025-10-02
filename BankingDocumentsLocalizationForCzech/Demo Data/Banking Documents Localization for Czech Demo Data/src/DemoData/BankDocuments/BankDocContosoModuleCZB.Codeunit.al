@@ -1,4 +1,13 @@
-#pragma warning disable AA0247
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
+namespace Microsoft.DemoData.BankDocuments;
+
+using Microsoft.DemoData.Bank;
+using Microsoft.DemoTool;
+
 codeunit 31428 "Bank. Doc. Contoso Module CZB" implements "Contoso Demo Data Module"
 {
     InherentEntitlements = X;

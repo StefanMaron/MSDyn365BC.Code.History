@@ -23,6 +23,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Position, %2 = Expected Name]D;]A;(Namespace=System.IO)(LookupHint=Codeunit PDF Document Test - Method MultipleAttachmentNames - NamedType ExpectedNameLbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1918779269 - NamedType 3667589479" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Usage of AI resources not authorized with chosen billing type, Capability: %1, Billing Type: %2. Please contact your system administrator.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 is the capability name, %2 is the billing type]D;]A;(Namespace=System.Test.AI)(LookupHint=Codeunit Azure OpenAI Test - NamedType BillingTypeAuthorizationErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1047311188 - NamedType 3372307219" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 object does not contain %2 property.]]></Val>
@@ -39,6 +48,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.AI)(LookupHint=Codeunit Copilot Test - NamedType AlreadyRegisteredErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3718743568 - NamedType 2827260417" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Invalid billing type for Copilot capability '%1']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 is the name of the Copilot Capability]D;]A;(Namespace=System.Test.AI)(LookupHint=Codeunit Copilot Test - NamedType InvalidBillingTypeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3718743568 - NamedType 180896732" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1119,6 +1137,33 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.Email)(LookupHint=Codeunit Email Message Unit Test - NamedType RecipientLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4212090257 - Method 1636522771 - NamedType 1197044481" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[{00000000-0000-0000-0000-000000000001}]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.Email)(LookupHint=Codeunit Email Message Unit Test - Method TestDeleteOrphanEmailRecipients - NamedType MessageId1Txt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4212090257 - Method 1636522771 - NamedType 1139105600" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[{00000000-0000-0000-0000-000000000011}]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.Email)(LookupHint=Codeunit Email Message Unit Test - Method TestDeleteOrphanEmailRecipients - NamedType MessageId2Txt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4212090257 - Method 1636522771 - NamedType 2165013951" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[{00000000-0000-0000-0000-000000000111}]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.Email)(LookupHint=Codeunit Email Message Unit Test - Method TestDeleteOrphanEmailRecipients - NamedType MessageId3Txt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3629858310 - NamedType 943932356" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

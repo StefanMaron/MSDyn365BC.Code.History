@@ -45,33 +45,6 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     end;
 
 
-#if not CLEAN24
-    [Test]
-    [HandlerFunctions('ExpectPhysInvTrackListPageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure ShowExpectPhysInvtTrackLinesPhysInventoryOrderSubform()
-    var
-        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
-        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
-        ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking";
-    begin
-        // [SCENARIO] validate the ShowExpectPhysInvtTrackLines function of Page - 5005352, Phys. Inventory Order Subform.
-        // Setup.
-        Initialize();
-        CreatePhysInventoryOrder(PhysInvtOrderHeader, PhysInvtOrderLine);
-        UpdatePhysInventoryOrderLine(PhysInvtOrderLine);
-        UpdateExpPhysInvtTrackingOnPhysInventoryOrderLine(ExpPhysInvtTracking, PhysInvtOrderLine."Document No.");
-
-        // Enqueue value for use in ExpectPhysInvTrackListPageHandler.
-        LibraryVariableStorage.Enqueue(PhysInvtOrderLine."Document No.");
-        LibraryVariableStorage.Enqueue(ExpPhysInvtTracking."Lot No.");
-
-        // Exercise & Verify: Invoke ShowExpectPhysInvtTrackLines function and verify correct values in ExpectPhysInvTrackListPageHandler.
-        PhysInvtOrderLine.ShowExpectPhysInvtTrackLines();  // Invokes ExpectPhysInvTrackListPageHandler.
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('ExpInvtOrderTrackingPageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -85,9 +58,6 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         // [SCENARIO] validate the ShowExpectPhysInvtTrackLines function of Page - 5005352, Phys. Inventory Order Subform.
         // Setup.
         Initialize();
-#if not CLEAN24
-        LibraryInventory.SetInvtOrdersPackageTracking(true);
-#endif
         CreatePhysInventoryOrder(PhysInvtOrderHeader, PhysInvtOrderLine);
         UpdatePhysInventoryOrderLine(PhysInvtOrderLine);
         UpdateExpInvtOrderTrackingOnPhysInventoryOrderLine(ExpInvtOrderTracking, PhysInvtOrderLine."Document No.");
@@ -99,9 +69,6 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
 
         // Exercise & Verify: Invoke ShowExpectPhysInvtTrackLines function and verify correct values in ExpectPhysInvTrackListPageHandler.
         PhysInvtOrderLine.ShowExpectPhysInvtTrackLines();  // Invokes ExpectPhysInvTrackListPageHandler.
-#if not CLEAN24
-        LibraryInventory.SetInvtOrdersPackageTracking(false);
-#endif
     end;
 
     [Test]
@@ -941,18 +908,6 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         PhysInvtOrderHeader.Modify();
     end;
 
-#if not CLEAN24
-    local procedure UpdateExpPhysInvtTrackingOnPhysInventoryOrderLine(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; OrderNo: Code[20])
-    begin
-        ExpPhysInvtTracking."Order No" := OrderNo;
-        ExpPhysInvtTracking."Order Line No." := 1;
-        ExpPhysInvtTracking."Serial No." := LibraryUTUtility.GetNewCode();
-        ExpPhysInvtTracking."Lot No." := LibraryUTUtility.GetNewCode();
-        ExpPhysInvtTracking."Quantity (Base)" := 1;
-        ExpPhysInvtTracking.Insert();
-    end;
-#endif
-
     local procedure UpdateExpInvtOrderTrackingOnPhysInventoryOrderLine(var ExpInvtOrderTracking: Record "Exp. Invt. Order Tracking"; OrderNo: Code[20])
     begin
         ExpInvtOrderTracking."Order No" := OrderNo;
@@ -993,22 +948,6 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         EditDimensionSetEntries.DimensionValueCode.AssertEquals(DimensionValueCode);
         EditDimensionSetEntries.OK().Invoke();
     end;
-
-#if not CLEAN24
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure ExpectPhysInvTrackListPageHandler(var ExpectPhysInvTrackList: TestPage "Exp. Phys. Invt. Tracking")
-    var
-        OrderNo: Variant;
-        LotNo: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(OrderNo);
-        LibraryVariableStorage.Dequeue(LotNo);
-        ExpectPhysInvTrackList."Order No".AssertEquals(OrderNo);
-        ExpectPhysInvTrackList."Lot No.".AssertEquals(LotNo);
-        ExpectPhysInvTrackList.OK().Invoke();
-    end;
-#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]

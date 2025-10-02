@@ -2151,7 +2151,7 @@
         ServiceContractTemplate: Record "Service Contract Template";
         SignServContractDoc: Codeunit SignServContractDoc;
     begin
-        // [SCENARIO 555819] Expected Invoice Amount in Create Service Contracts Invoice Report 
+        // [SCENARIO 555819] Expected Invoice Amount in Create Service Contracts Invoice Report
         // Opened with Print Only is equal to the total of Line Value in non prepaid Service Contract.
         Initialize();
 
@@ -2184,7 +2184,7 @@
         // [GIVEN] Create a Service Contract Account Group.
         LibraryService.CreateServiceContractAcctGrp(ServiceContractAccountGroup);
 
-        // [GIVEN] Validate Annual Amount, Serv. Contract Acc. Gr. Code, 
+        // [GIVEN] Validate Annual Amount, Serv. Contract Acc. Gr. Code,
         // Invoice Period and Prepaid in Service Contract Header.
         ServiceContractHeader.Validate("Annual Amount", LibraryRandom.RandIntInRange(100, 100));
         ServiceContractHeader.Validate("Serv. Contract Acc. Gr. Code", ServiceContractAccountGroup.Code);
@@ -2205,7 +2205,7 @@
         // [WHEN] Run Create Service Contract Invoices Report.
         RunCreateContractInvoices(ServiceContractHeader);
 
-        // [THEN] Expected Invoice Amount in Create Service Contract Invoices Report 
+        // [THEN] Expected Invoice Amount in Create Service Contract Invoices Report
         // Is equal to Line Value of Service Contract Line.
         VerifyContractInvoicingExpectedInvAmount(ServiceContractHeader, ServiceContractLine);
     end;
@@ -2449,13 +2449,6 @@
     begin
         LibraryERM.CreateReasonCode(ReasonCode);
         exit(ReasonCode.Code);
-    end;
-
-    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
-    begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, '', LibraryRandom.RandDecInRange(5, 10, 2));
     end;
 
     local procedure CreateServiceOrderWithDiscount(var ServiceHeader: Record "Service Header"; var ServiceItemLineNo: Integer; var DiscountPct: Decimal)
@@ -3559,4 +3552,3 @@
         ServiceOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-

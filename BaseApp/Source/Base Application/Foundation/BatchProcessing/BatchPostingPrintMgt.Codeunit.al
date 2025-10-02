@@ -41,7 +41,6 @@ codeunit 1373 "Batch Posting Print Mgt."
         PrintPurchaseDocument(RecRef);
     end;
 
-    [Scope('OnPrem')]
     procedure PrintSalesDocument(RecRef: RecordRef)
     var
         SalesHeader: Record "Sales Header";
@@ -108,7 +107,6 @@ codeunit 1373 "Batch Posting Print Mgt."
         OnAfterPrintSalesDocument(RecRef);
     end;
 
-    [Scope('OnPrem')]
     procedure PrintPurchaseDocument(RecRef: RecordRef)
     var
         PurchaseHeader: Record "Purchase Header";
@@ -251,7 +249,7 @@ codeunit 1373 "Batch Posting Print Mgt."
             REPORT.Run(GenJnlTemplate."Posting Report ID", false, false, GLReg);
     end;
 
-    local procedure PrintDocument(ReportUsage: Enum "Report Selection Usage"; RecVariant: Variant; PrintViaJobQueue: Boolean; ReportOutputType: Enum "Job Queue Report Output Type")
+    procedure PrintDocument(ReportUsage: Enum "Report Selection Usage"; RecVariant: Variant; PrintViaJobQueue: Boolean; ReportOutputType: Enum "Job Queue Report Output Type")
     var
         ReportSelections: Record "Report Selections";
         IsHandled: Boolean;

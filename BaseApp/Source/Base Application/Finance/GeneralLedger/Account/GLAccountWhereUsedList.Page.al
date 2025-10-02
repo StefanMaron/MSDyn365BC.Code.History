@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.GeneralLedger.Account;
 
 page 99 "G/L Account Where-Used List"
@@ -7,6 +11,9 @@ page 99 "G/L Account Where-Used List"
     Editable = false;
     PageType = List;
     SourceTable = "G/L Account Where-Used";
+    AboutTitle = 'About G/L Account Where-Used';
+    AboutText = 'The G/L Account Where-Used page shows the setup tables that use the given G/L account. Each line refers to one line in a setup table. The page can list several lines from the same setup table if, for example, more than one posting group in a posting setup table uses the account. You can explore details for a line by choosing the Show Details action.';
+    ApplicationArea = Basic, Suite;
 
     layout
     {

@@ -1,7 +1,12 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.HumanResources.Employee;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Address;
+using Microsoft.HumanResources.Setup;
 
 page 1388 "Employee Templ. Card"
 {
@@ -97,6 +102,12 @@ page 1388 "Employee Templ. Card"
                     LookupPageID = "Employee Posting Groups";
                     ToolTip = 'Specifies the employee''s type to link business transactions made for the employee with the appropriate account in the general ledger.';
                 }
+                field("Allow Multiple Posting Groups"; Rec."Allow Multiple Posting Groups")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    Visible = IsAllowMultiplePostingGroupsVisible;
+                }
                 field("Application Method"; Rec."Application Method")
                 {
                     ApplicationArea = BasicHR;
@@ -162,9 +173,13 @@ page 1388 "Employee Templ. Card"
     trigger OnOpenPage()
     begin
         IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+        HumanResourcesSetup.Get();
+        IsAllowMultiplePostingGroupsVisible := HumanResourcesSetup."Allow Multiple Posting Groups";
     end;
 
     var
+        HumanResourcesSetup: Record "Human Resources Setup";
         FormatAddress: Codeunit "Format Address";
         IsCountyVisible: Boolean;
+        IsAllowMultiplePostingGroupsVisible: Boolean;
 }

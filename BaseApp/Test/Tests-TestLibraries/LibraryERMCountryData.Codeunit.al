@@ -121,6 +121,7 @@ codeunit 131305 "Library - ERM Country Data"
         PurchasesPayablesSetup."Allow Document Deletion Before" := CalcDate('<CY>', WorkDate());
         PurchasesPayablesSetup.Modify();
         // NAVCZ
+	    UpdatePostingDateCheckonPostingPurchase();
     end;
 
     procedure SetDiscountPostingInPurchasePayablesSetup()
@@ -140,6 +141,7 @@ codeunit 131305 "Library - ERM Country Data"
         SalesReceivablesSetup."Allow Document Deletion Before" := CalcDate('<CY>', WorkDate());
         SalesReceivablesSetup.Modify();
         // NAVCZ
+	    UpdatePostingDateCheckonPostingSales();
     end;
 
     procedure SetDiscountPostingInSalesReceivablesSetup()
@@ -318,6 +320,24 @@ codeunit 131305 "Library - ERM Country Data"
         end;
         UserSetup."Time Sheet Admin." := true;
         UserSetup.Modify(true);
+    end;
+    
+    local procedure UpdatePostingDateCheckonPostingSales()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Posting Date Check on Posting", false);
+        SalesReceivablesSetup.Modify(true);
+    end;
+
+    local procedure UpdatePostingDateCheckonPostingPurchase()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Posting Date Check on Posting", false);
+        PurchasesPayablesSetup.Modify(true);
     end;
 }
 

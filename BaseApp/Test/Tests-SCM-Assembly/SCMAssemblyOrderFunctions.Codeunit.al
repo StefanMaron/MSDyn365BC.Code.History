@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Assembly.Test;
 
-using Microsoft.Manufacturing.Setup;
 using System.Environment.Configuration;
 using System.TestLibraries.Utilities;
 using Microsoft.Assembly.Document;
@@ -26,12 +25,9 @@ codeunit 137907 "SCM Assembly Order Functions"
     TestPermissions = Disabled;
 
     trigger OnRun()
-    var
-        MfgSetup: Record "Manufacturing Setup";
     begin
         // [FEATURE] [Assembly] [SCM]
-        MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
+        WorkDate2 := LibraryPlanning.SetSafetyWorkDate(); // to avoid Due Date Before Work Date message.
     end;
 
     var

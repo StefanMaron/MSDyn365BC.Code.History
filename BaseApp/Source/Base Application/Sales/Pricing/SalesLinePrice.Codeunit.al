@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.Pricing;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Pricing;
 
 using Microsoft.CRM.Campaign;
 using Microsoft.CRM.Contact;

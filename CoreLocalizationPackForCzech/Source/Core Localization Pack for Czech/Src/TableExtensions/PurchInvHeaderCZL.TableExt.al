@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -16,6 +16,7 @@ tableextension 11730 "Purch. Inv. Header CZL" extends "Purch. Inv. Header"
         field(11717; "Specific Symbol CZL"; Code[10])
         {
             Caption = 'Specific Symbol';
+            OptimizeForTextSearch = true;
             CharAllowed = '09';
             Editable = false;
             DataClassification = CustomerContent;
@@ -23,6 +24,7 @@ tableextension 11730 "Purch. Inv. Header CZL" extends "Purch. Inv. Header"
         field(11718; "Variable Symbol CZL"; Code[10])
         {
             Caption = 'Variable Symbol';
+            OptimizeForTextSearch = true;
             CharAllowed = '09';
             Editable = false;
             DataClassification = CustomerContent;
@@ -30,6 +32,7 @@ tableextension 11730 "Purch. Inv. Header CZL" extends "Purch. Inv. Header"
         field(11719; "Constant Symbol CZL"; Code[10])
         {
             Caption = 'Constant Symbol';
+            OptimizeForTextSearch = true;
             CharAllowed = '09';
             TableRelation = "Constant Symbol CZL";
             Editable = false;
@@ -41,6 +44,26 @@ tableextension 11730 "Purch. Inv. Header CZL" extends "Purch. Inv. Header"
             TableRelation = "Vendor Bank Account".Code where("Vendor No." = field("Pay-to Vendor No."));
             Editable = false;
             DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            var
+                VendorBankAccount: Record "Vendor Bank Account";
+            begin
+                if "Bank Account Code CZL" = '' then begin
+                    UpdateBankInfoCZL('', '', '', '', '', '', '');
+                    exit;
+                end;
+                TestField("Pay-to Vendor No.");
+                VendorBankAccount.Get("Pay-to Vendor No.", "Bank Account Code CZL");
+                UpdateBankInfoCZL(
+                  VendorBankAccount.Code,
+                  VendorBankAccount."Bank Account No.",
+                  VendorBankAccount."Bank Branch No.",
+                  VendorBankAccount.Name,
+                  VendorBankAccount."Transit No.",
+                  VendorBankAccount.IBAN,
+                  VendorBankAccount."SWIFT Code");
+            end;
         }
         field(11721; "Bank Account No. CZL"; Text[30])
         {
@@ -148,13 +171,8 @@ tableextension 11730 "Purch. Inv. Header CZL" extends "Purch. Inv. Header"
         {
             Caption = 'EU 3-Party Trade';
             DataClassification = CustomerContent;
-#if not CLEAN24
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '27.0';
-#endif
             ObsoleteReason = 'Replaced by "EU 3 Party Trade" field in "EU 3-Party Trade Purchase" app.';
         }
 #endif
@@ -191,5 +209,22 @@ tableextension 11730 "Purch. Inv. Header CZL" extends "Purch. Inv. Header"
     begin
         Rec.CalcFields("Amount Including VAT", "Amount");
         exit((Rec."Currency Code" <> '') and ((Rec."Amount Including VAT" - Rec."Amount") <> 0));
+    end;
+
+    procedure UpdateBankInfoCZL(BankAccountCode: Code[20]; BankAccountNo: Text[30]; BankBranchNo: Text[20]; BankName: Text[100]; TransitNo: Text[20]; IBANCode: Code[50]; SWIFTCode: Code[20])
+    begin
+        "Bank Account Code CZL" := BankAccountCode;
+        "Bank Account No. CZL" := BankAccountNo;
+        "Bank Branch No. CZL" := BankBranchNo;
+        "Bank Name CZL" := BankName;
+        "Transit No. CZL" := TransitNo;
+        "IBAN CZL" := IBANCode;
+        "SWIFT Code CZL" := SWIFTCode;
+        OnAfterUpdateBankInfoCZL(Rec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateBankInfoCZL(var PurchInvHeader: Record "Purch. Inv. Header")
+    begin
     end;
 }

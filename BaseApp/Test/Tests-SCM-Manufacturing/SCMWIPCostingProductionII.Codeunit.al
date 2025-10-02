@@ -726,7 +726,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdateGeneralLedgerSetup(); // NAVCZ
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         LibrarySetupStorage.SaveGeneralLedgerSetup();
         isInitialized := true;

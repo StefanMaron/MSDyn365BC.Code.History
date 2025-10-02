@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.Dimension;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Dimension;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Bank.BankAccount;
@@ -49,7 +53,7 @@ codeunit 408 DimensionManagement
 #pragma warning disable AA0470
         Text000: Label 'Dimensions %1 and %2 can''t be used concurrently.';
         Text001: Label 'Dimension combinations %1 - %2 and %3 - %4 can''t be used concurrently.';
-        Text002: Label 'This Shortcut Dimension is not defined in the %1.';
+        ShortcutDimensionNotDefinedErr: Label 'Shortcut Dimension %2 is not defined in the %1.', Comment = '%1 - Table Caption, %2 - Shortcut Dimension No.';
         Text003: Label '%1 is not an available %2 for that dimension.';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
@@ -1049,7 +1053,7 @@ codeunit 408 DimensionManagement
 
         GetGLSetup(GLSetupShortcutDimCode);
         if GLSetupShortcutDimCode[FieldNumber] = '' then
-            Error(Text002, GLSetup.TableCaption());
+            Error(ShortcutDimensionNotDefinedErr, GLSetup.TableCaption(), FieldNumber);
         DimVal.SetRange("Dimension Code", GLSetupShortcutDimCode[FieldNumber]);
         DimVal."Dimension Code" := GLSetupShortcutDimCode[FieldNumber];
         DimVal.Code := ShortcutDimCode;
@@ -1072,7 +1076,7 @@ codeunit 408 DimensionManagement
         if not IsHandled then begin
             GetGLSetup(GLSetupShortcutDimCode);
             if (GLSetupShortcutDimCode[FieldNumber] = '') and (ShortcutDimCode <> '') then
-                Error(Text002, GLSetup.TableCaption());
+                Error(ShortcutDimensionNotDefinedErr, GLSetup.TableCaption(), FieldNumber);
             DimVal.SetRange("Dimension Code", GLSetupShortcutDimCode[FieldNumber]);
             if ShortcutDimCode <> '' then begin
                 DimVal.SetRange(Code, ShortcutDimCode);
@@ -1553,7 +1557,7 @@ codeunit 408 DimensionManagement
 
         GetGLSetup(GLSetupShortcutDimCode);
         if GLSetupShortcutDimCode[FieldNumber] = '' then
-            Error(Text002, GLSetup.TableCaption());
+            Error(ShortcutDimensionNotDefinedErr, GLSetup.TableCaption(), FieldNumber);
         DimVal.SetRange("Dimension Code", GLSetupShortcutDimCode[FieldNumber]);
         if PAGE.RunModal(0, DimVal) = ACTION::LookupOK then;
     end;
@@ -2918,7 +2922,7 @@ codeunit 408 DimensionManagement
     /// <param name="DimensionName">Specifies the name of the dimension, if the the dimension doesn't exist yet.</param>
     /// <param name="DimensionValueName">Specifies the name of the dimension value, if the dimension value doesn't exist yet.</param>
     /// <returns>Returns the new dimension set ID.</returns>
-    procedure SetDimensionValue(DimSetID: Integer; DimensionCode: Code[20]; DimensionValueCode: Code[20]; DimensionName: Text[30]; DimensionValueName: Text[30]): Integer
+    procedure SetDimensionValue(DimSetID: Integer; DimensionCode: Code[20]; DimensionValueCode: Code[20]; DimensionName: Text[30]; DimensionValueName: Text[50]): Integer
     begin
         exit(SetDimensionValue(DimSetID, DimensionCode, DimensionName, DimensionValueCode, DimensionValueName, true, true));
     end;
@@ -2934,7 +2938,7 @@ codeunit 408 DimensionManagement
     /// <param name="AutoCreateMissingDimension">Specifies whether the dimension will be create if it doesn't exist.</param>
     /// <param name="AutoCreateMissingDimensionValue">Specifies whether the dimension value will be create if doesn't exist.</param>
     /// <returns>Returns the new dimension set ID.</returns>
-    procedure SetDimensionValue(DimSetID: Integer; DimensionCode: Code[20]; DimensionName: Text[30]; DimensionValueCode: Code[20]; DimensionValueName: Text[30]; AutoCreateMissingDimension: Boolean; AutoCreateMissingDimensionValue: Boolean): Integer
+    procedure SetDimensionValue(DimSetID: Integer; DimensionCode: Code[20]; DimensionName: Text[30]; DimensionValueCode: Code[20]; DimensionValueName: Text[50]; AutoCreateMissingDimension: Boolean; AutoCreateMissingDimensionValue: Boolean): Integer
     var
         TempDimensionSetEntry: Record "Dimension Set Entry" temporary;
         Dimension: Record Dimension;
@@ -2974,7 +2978,7 @@ codeunit 408 DimensionManagement
         Dimension.Insert(true);
     end;
 
-    local procedure CreateDimensionValue(var DimensionValue: Record "Dimension Value"; DimensionCode: Code[20]; DimensionValueCode: Code[20]; DimensionValueName: Text[30])
+    local procedure CreateDimensionValue(var DimensionValue: Record "Dimension Value"; DimensionCode: Code[20]; DimensionValueCode: Code[20]; DimensionValueName: Text[50])
     begin
         DimensionValue.Init();
         DimensionValue.Validate("Code", DimensionValueCode);
@@ -3308,11 +3312,13 @@ codeunit 408 DimensionManagement
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('This event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterTypeToTableID5(Type: Integer; var TableId: Integer)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDimensionSetID(var TempDimSetEntry: Record "Dimension Set Entry" temporary)
     begin
@@ -3413,4 +3419,3 @@ codeunit 408 DimensionManagement
     begin
     end;
 }
-

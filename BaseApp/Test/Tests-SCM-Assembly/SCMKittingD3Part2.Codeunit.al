@@ -12,7 +12,6 @@ using Microsoft.Assembly.Setup;
 using Microsoft.Inventory.Setup;
 using Microsoft.Assembly.Document;
 using System.Environment.Configuration;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Assembly.History;
 using Microsoft.Inventory.Location;
 
@@ -36,6 +35,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
         LibraryCosting: Codeunit "Library - Costing";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPlanning: Codeunit "Library - Planning";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         LibraryRandom: Codeunit "Library - Random";
@@ -48,7 +48,6 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     [Normal]
     local procedure Initialize()
     var
-        MfgSetup: Record "Manufacturing Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Kitting - D3 - Part 2");
@@ -66,10 +65,10 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdateGeneralLedgerSetup(); // NAVCZ
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
-        MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
+        WorkDate2 := LibraryPlanning.SetSafetyWorkDate(); // to avoid Due Date Before Work Date message.
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Item/Resource Card",
           LibraryUtility.GetGlobalNoSeriesCode());
 

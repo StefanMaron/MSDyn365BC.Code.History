@@ -1,4 +1,17 @@
-#pragma warning disable AA0247
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
+namespace Microsoft.DemoData.Localization;
+
+using Microsoft.Finance.Compensations;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.DemoData.Purchase;
+using Microsoft.DemoData.Sales;
+using Microsoft.DemoTool;
+using Microsoft.Purchases.Document;
+
 codeunit 31465 "Contoso Compensations CZC"
 {
     InherentEntitlements = X;
@@ -109,7 +122,7 @@ codeunit 31465 "Contoso Compensations CZC"
         case Module of
             Enum::"Contoso Demo Data Module"::Sales:
                 SalesModule(ContosoDemoDataLevel);
-            Enum::"Contoso Demo Data Module"::Finance:
+            Enum::"Contoso Demo Data Module"::Purchase:
                 PurchaseModule(ContosoDemoDataLevel);
         end;
     end;

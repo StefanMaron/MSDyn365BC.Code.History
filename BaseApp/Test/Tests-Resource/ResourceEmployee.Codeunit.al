@@ -235,8 +235,7 @@ codeunit 136400 "Resource Employee"
         LibraryLowerPermissions.SetO365HREdit();
         Employee.Init();
         Employee.Validate("No.", FirstEmployeeNo);
-        Employee.Insert(true);
-        asserterror Commit();
+        asserterror InsertEmployee(Employee);
 
         // 3. Verify: Verify that application generates an error message.
         Assert.AssertRecordAlreadyExists();
@@ -787,6 +786,12 @@ codeunit 136400 "Resource Employee"
         Employee.Validate(Status, Employee.Status::Active);
         Employee.Validate("Resource No.", ResourceNo);
         Employee.Modify(true);
+    end;
+
+    local procedure InsertEmployee(var Employee: Record Employee)
+    begin
+        Employee.Insert(true);
+        Commit();
     end;
 
     [ModalPageHandler]

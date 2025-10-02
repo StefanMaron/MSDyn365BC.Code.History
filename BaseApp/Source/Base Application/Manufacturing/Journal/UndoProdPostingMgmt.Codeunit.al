@@ -457,6 +457,7 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         ReservationEntry."Expiration Date" := ItemLedgerEntry."Expiration Date";
         ReservationEntry."Package No." := ItemLedgerEntry."Package No.";
         ReservationEntry."Appl.-from Item Entry" := ItemLedgerEntry."Entry No.";
+        OnCreateConsumptionReservationEntryOnBeforeInsert(ReservationEntry, ItemLedgerEntry);
         ReservationEntry.Insert();
     end;
 
@@ -507,6 +508,11 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateProdOrder(ItemLedgerEntry: Record "Item Ledger Entry"; ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateConsumptionReservationEntryOnBeforeInsert(var ReservationEntry: Record "Reservation Entry"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 }

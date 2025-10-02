@@ -125,7 +125,8 @@ report 5983 "Contract Gain/Loss Entries"
 
     requestpage
     {
-
+        AboutTitle = 'About Contract Gain/Loss Entries';
+        AboutText = 'Get an overview of service contract entries for gains and losses.';
         layout
         {
         }

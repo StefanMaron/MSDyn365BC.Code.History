@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.Dimension;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Dimension;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CashFlow.Setup;
@@ -57,8 +61,8 @@ table 352 "Default Dimension"
 
                 CalcFields("Table Caption");
                 DimensionManagement.DefaultDimObjectNoList(TempAllObjWithCaption);
-                TempAllObjWithCaption."Object Type" := TempAllObjWithCaption."Object Type"::Table;
-                TempAllObjWithCaption."Object ID" := "Table ID";
+                TempAllObjWithCaption.SetRange("Object Type", TempAllObjWithCaption."Object Type"::Table);
+                TempAllObjWithCaption.SetRange("Object ID", "Table ID");
                 if TempAllObjWithCaption.IsEmpty() then
                     FieldError("Table ID");
             end;

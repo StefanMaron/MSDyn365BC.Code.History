@@ -143,6 +143,16 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownMaterialVariance(Rec);
                     end;
                 }
+                field("Mat. Non-Inventory Variance"; Rec."Mat. Non-Inventory Variance")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies a value that depends on the type of the inventory period entry.';
+
+                    trigger OnDrillDown()
+                    begin
+                        GetInvtReport.DrillDownMaterialNonInventoryVariance(Rec);
+                    end;
+                }
                 field("Capacity Variance"; Rec."Capacity Variance")
                 {
                     ApplicationArea = Manufacturing;

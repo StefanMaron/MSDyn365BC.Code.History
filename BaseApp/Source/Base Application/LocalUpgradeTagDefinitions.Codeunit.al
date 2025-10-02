@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 11790 "Local Upgrade Tag Definitions"
 {
     Access = internal;

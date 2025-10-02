@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Consolidation;
 
 using Microsoft.Finance.GeneralLedger.Account;
@@ -227,6 +231,8 @@ report 16 "G/L Consolidation Eliminations"
 
     requestpage
     {
+        AboutTitle = 'About G/L Consolidation Eliminations';
+        AboutText = 'The **G/L Consolidation Eliminations** report identifies and removes internal transactions between companies to prevent duplication in consolidated financial statements. Use it for intercompany financial consolidation to eliminate duplicate revenues and expenses, ensuring accurate and compliant group reporting.';
         SaveValues = true;
 
         layout

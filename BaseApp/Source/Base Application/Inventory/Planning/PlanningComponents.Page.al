@@ -54,12 +54,6 @@ page 99000862 "Planning Components"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the description of the component.';
                 }
-                field("Scrap %"; Rec."Scrap %")
-                {
-                    ApplicationArea = Planning;
-                    ToolTip = 'Specifies the percentage of the item that you expect to be scrapped in the production process.';
-                    Visible = false;
-                }
                 field("Calculation Formula"; Rec."Calculation Formula")
                 {
                     ApplicationArea = Planning;
@@ -126,12 +120,6 @@ page 99000862 "Planning Components"
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
-                    Visible = false;
-                }
-                field("Routing Link Code"; Rec."Routing Link Code")
-                {
-                    ApplicationArea = Planning;
-                    ToolTip = 'Specifies a routing link code to link a planning component with a specific operation.';
                     Visible = false;
                 }
                 field("Location Code"; Rec."Location Code")

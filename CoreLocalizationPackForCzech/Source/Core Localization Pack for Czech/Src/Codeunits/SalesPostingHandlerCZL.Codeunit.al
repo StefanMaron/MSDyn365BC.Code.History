@@ -170,7 +170,7 @@ codeunit 31038 "Sales Posting Handler CZL"
         GenJournalLine."Posting No. Series" := SalesHeader."Posting No. Series";
         GenJournalLine."Country/Region Code" := SalesHeader."VAT Country/Region Code";
         GenJournalLine."VAT Registration No." := SalesHeader."VAT Registration No.";
-        GenJournalLine."Registration No. CZL" := SalesHeader."Registration No. CZL";
+        GenJournalLine."Registration No. CZL" := SalesHeader.GetRegistrationNoTrimmedCZL();
         GenJournalLine.Quantity := TempInvoicePostingBuffer.Quantity;
         GenJournalLine."VAT Delay CZL" := true;
     end;

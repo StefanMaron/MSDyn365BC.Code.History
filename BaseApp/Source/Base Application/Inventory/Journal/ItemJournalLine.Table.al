@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -140,7 +140,7 @@ table 83 "Item Journal Line"
                 OnValidateItemNoOnAfterCalcUnitCost(Rec, Item);
 
                 if ("Item No." <> xRec."Item No.") and
-                   ((("Entry Type" = "Entry Type"::Output) and ("No." = '')) or ("Entry Type" <> "Entry Type"::Output)) or
+                   ((IsEntryTypeOutput() and ("No." = '')) or (not IsEntryTypeOutput())) or
                    ("Value Entry Type" = "Value Entry Type"::Revaluation)
                 then
                     "Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
@@ -252,7 +252,7 @@ table 83 "Item Journal Line"
                     "New Bin Code" := '';
                 end;
 
-                if "Entry Type" <> "Entry Type"::Output then
+                if not IsEntryTypeOutput() then
                     Type := Type::" ";
 
                 SetDefaultPriceCalculationMethod();
@@ -375,9 +375,7 @@ table 83 "Item Journal Line"
                 end;
 
                 "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
-                if ("Entry Type" = "Entry Type"::Output) and
-                   ("Value Entry Type" <> "Value Entry Type"::Revaluation)
-                then
+                if IsEntryTypeOutput() and ("Value Entry Type" <> "Value Entry Type"::Revaluation) then
                     "Invoiced Quantity" := 0
                 else
                     "Invoiced Quantity" := Quantity;
@@ -551,7 +549,7 @@ table 83 "Item Journal Line"
 
             trigger OnValidate()
             begin
-                if ("Order Type" <> "Order Type"::Production) or ("Order No." = '') then
+                if ("Order Type" <> GetOrderTypeProduction()) or ("Order No." = '') then
                     CreateDimFromDefaultDim(rec.FieldNo("Salespers./Purch. Code"));
             end;
         }
@@ -612,10 +610,10 @@ table 83 "Item Journal Line"
                         if not ItemLedgEntry.Open then
                             Message(Text032, "Applies-to Entry");
 
-                        ShouldCheckItemLedgEntryFieldsForOutput := "Entry Type" = "Entry Type"::Output;
+                        ShouldCheckItemLedgEntryFieldsForOutput := IsEntryTypeOutput();
                         OnValidateAppliestoEntryOnAfterCalcShouldCheckItemLedgEntryFieldsForOutput(Rec, ItemLedgEntry, ShouldCheckItemLedgEntryFieldsForOutput);
                         if ShouldCheckItemLedgEntryFieldsForOutput then begin
-                            ItemLedgEntry.TestField("Order Type", "Order Type"::Production);
+                            ItemLedgEntry.TestField("Order Type", GetOrderTypeProduction());
                             ItemLedgEntry.TestField("Order No.", "Order No.");
                             ItemLedgEntry.TestField("Order Line No.", "Order Line No.");
                             ItemLedgEntry.TestField("Entry Type", "Entry Type");
@@ -917,7 +915,8 @@ table 83 "Item Journal Line"
         }
         field(72; "Unit Cost (ACY)"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
+            AutoFormatType = 2;
             Caption = 'Unit Cost (ACY)';
             Editable = false;
         }
@@ -960,7 +959,7 @@ table 83 "Item Journal Line"
             trigger OnValidate()
             begin
                 case "Order Type" of
-                    "Order Type"::Transfer, "Order Type"::Service, "Order Type"::" ":
+                    "Order Type"::Transfer, GetOrderTypeService(), "Order Type"::" ":
                         Error(Text002, FieldCaption("Order No."), FieldCaption("Order Type"), "Order Type");
                     else
                         OnValidateOrderNoOnCaseOrderTypeElse(Rec, xRec);
@@ -1048,7 +1047,7 @@ table 83 "Item Journal Line"
                     WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
 
                 if "Variant Code" <> xRec."Variant Code" then begin
-                    if "Entry Type" <> "Entry Type"::Output then
+                    if not IsEntryTypeOutput() then
                         "Bin Code" := '';
                     if (CurrFieldNo <> 0) and Item.IsInventoriableType() then
                         WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Variant Code"));
@@ -1293,6 +1292,11 @@ table 83 "Item Journal Line"
             Caption = 'Level';
             Editable = false;
         }
+        field(5561; "Flushing Method"; Enum Microsoft.Manufacturing.Setup."Flushing Method")
+        {
+            Caption = 'Flushing Method';
+            Editable = false;
+        }
         field(5562; "Changed by User"; Boolean)
         {
             Caption = 'Changed by User';
@@ -1516,6 +1520,7 @@ table 83 "Item Journal Line"
         }
         field(5813; "Amount (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Amount (ACY)';
         }
@@ -1609,6 +1614,11 @@ table 83 "Item Journal Line"
         field(5887; "Unit Cost Calculation"; Enum "Unit Cost Calculation Type")
         {
             Caption = 'Unit Cost Calculation';
+        }
+        field(5888; Subcontracting; Boolean)
+        {
+            Caption = 'Subcontracting';
+            DataClassification = CustomerContent;
         }
         field(6500; "Serial No."; Code[50])
         {
@@ -1899,12 +1909,23 @@ table 83 "Item Journal Line"
 
     protected var
         ItemJnlLine: Record "Item Journal Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GeneralLedgerSetupRead: Boolean;
         DimMgt: Codeunit DimensionManagement;
         PhysInvtEntered: Boolean;
         UnitCost: Decimal;
 
+    local procedure GetAdditionalReportingCurrencyCode(): Code[10]
+    begin
+        if not GeneralLedgerSetupRead then begin
+            GeneralLedgerSetup.Get();
+            GeneralLedgerSetupRead := true;
+        end;
+        exit(GeneralLedgerSetup."Additional Reporting Currency")
+    end;
+
     /// <summary>
-    /// Determines if the current item journal line is considered empty based on its quantity, time, item number, 
+    /// Determines if the current item journal line is considered empty based on its quantity, time, item number,
     /// and value entry type.
     /// </summary>
     /// <returns>True if the item journal line is considered empty, otherwise false.</returns>
@@ -1918,14 +1939,14 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Determines if the current item journal line is for a deleted item based on its entry type, value entry type, 
+    /// Determines if the current item journal line is for a deleted item based on its entry type, value entry type,
     /// item number, item charge number, and invoiced quantity.
     /// </summary>
     /// <returns>True if the item journal line is for a deleted item, otherwise false.</returns>
     procedure IsValueEntryForDeletedItem(): Boolean
     begin
         exit(
-          (("Entry Type" = "Entry Type"::Output) or ("Value Entry Type" = "Value Entry Type"::Rounding)) and
+          (IsEntryTypeOutput() or ("Value Entry Type" = "Value Entry Type"::Rounding)) and
           ("Item No." = '') and ("Item Charge No." = '') and ("Invoiced Qty. (Base)" <> 0));
     end;
 
@@ -2007,7 +2028,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Checks if the item is available based on the current item journal line. 
+    /// Checks if the item is available based on the current item journal line.
     /// </summary>
     /// <remarks>
     /// An error or a notification is raised if the item is out of stock.
@@ -2084,7 +2105,7 @@ table 83 "Item Journal Line"
             "Posting Date" := LastItemJnlLine."Posting Date";
             "Document Date" := LastItemJnlLine."Posting Date";
             if (ItemJnlTemplate.Type in
-                [ItemJnlTemplate.Type::Consumption, ItemJnlTemplate.Type::Output])
+                [ItemJnlTemplate.GetConsumptionTemplateType(), ItemJnlTemplate.GetOutputTemplateType()])
             then begin
                 if not IsDocNoProdOrderNo() then
                     "Document No." := LastItemJnlLine."Document No."
@@ -2096,7 +2117,7 @@ table 83 "Item Journal Line"
             if ItemJnlBatch."No. Series" <> '' then
                 "Document No." := NoSeries.PeekNextNo(ItemJnlBatch."No. Series", "Posting Date");
             if (ItemJnlTemplate.Type in
-                [ItemJnlTemplate.Type::Consumption, ItemJnlTemplate.Type::Output]) and
+                [ItemJnlTemplate.GetConsumptionTemplateType(), ItemJnlTemplate.GetOutputTemplateType()]) and
                not IsDocNoProdOrderNo()
             then
                 if ItemJnlBatch."No. Series" <> '' then
@@ -2120,9 +2141,10 @@ table 83 "Item Journal Line"
                 "Location Code" := UserMgt.GetLocation(1, '', UserMgt.GetPurchasesFilter());
             "Entry Type"::Sale:
                 "Location Code" := UserMgt.GetLocation(0, '', UserMgt.GetSalesFilter());
-            "Entry Type"::Output:
-                Clear(DimMgt);
         end;
+
+        if IsEntryTypeOutput() then
+            Clear(DimMgt);
 
         if Location.Get("Location Code") then
             if Location."Directed Put-away and Pick" then
@@ -2312,18 +2334,18 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Creates dimensions for the item journal line based on the provided default dimension sources, 
+    /// Creates dimensions for the item journal line based on the provided default dimension sources,
     /// an inherited dimension set ID and an inherited table number.
     /// </summary>
     /// <remarks>
-    /// Also updates the shortcut dimension codes and sets the new dimension set ID and new shortcut dimension codes 
+    /// Also updates the shortcut dimension codes and sets the new dimension set ID and new shortcut dimension codes
     /// if the entry type is transfer.
     /// </remarks>
     /// <param name="DefaultDimSource">The list of default dimension sources.</param>
     /// <param name="InheritFromDimSetID">Dimension set ID to inherit.</param>
     /// <param name="InheritFromTableNo">
-    /// Table number to inherit from. This parameter is used to specify the table number for the new temporary 
-    /// dimension buffer that are created based on the dimension set entries associated with InheritFromDimSetID. 
+    /// Table number to inherit from. This parameter is used to specify the table number for the new temporary
+    /// dimension buffer that are created based on the dimension set entries associated with InheritFromDimSetID.
     /// These temporary records are used later in the procedure to determine the default dimension set ID.
     /// </param>
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer)
@@ -2424,8 +2446,8 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Opens a page for selecting a dimension code, then assigns the selected value to the provided number 
-    /// of the shortcut dimension. 
+    /// Opens a page for selecting a dimension code, then assigns the selected value to the provided number
+    /// of the shortcut dimension.
     /// </summary>
     /// <param name="FieldNumber">Number of the shortcut dimension.</param>
     /// <param name="ShortcutDimCode">Return value: Value of the selected shortcut dimension.</param>
@@ -2455,8 +2477,8 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Opens a page for selecting a dimension code, then assigns the selected value to the presented number of 
-    /// the new shortcut dimension. 
+    /// Opens a page for selecting a dimension code, then assigns the selected value to the presented number of
+    /// the new shortcut dimension.
     /// </summary>
     /// <param name="FieldNumber">Number of the shortcut dimension.</param>
     /// <param name="NewShortcutDimCode">Return value: Value of the selected new shortcut dimension.</param>
@@ -2659,11 +2681,6 @@ table 83 "Item Journal Line"
         "Transaction Specification" := PurchLine."Transaction Specification";
         "Drop Shipment" := PurchLine."Drop Shipment";
         "Entry Type" := "Entry Type"::Purchase;
-        if PurchLine."Prod. Order No." <> '' then begin
-            "Order Type" := "Order Type"::Production;
-            "Order No." := PurchLine."Prod. Order No.";
-            "Order Line No." := PurchLine."Prod. Order Line No.";
-        end;
         "Unit of Measure Code" := PurchLine."Unit of Measure Code";
         "Qty. per Unit of Measure" := PurchLine."Qty. per Unit of Measure";
         "Qty. Rounding Precision" := PurchLine."Qty. Rounding Precision";
@@ -2867,21 +2884,21 @@ table 83 "Item Journal Line"
     local procedure CalcUnitCost(ItemLedgEntry: Record "Item Ledger Entry"): Decimal
     var
         ValueEntry: Record "Value Entry";
-        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
-        UnitCost: Decimal;
+        CostCalcMgt: Codeunit "Cost Calculation Management";
+        UnitCost2: Decimal;
     begin
         ValueEntry.Reset();
         ValueEntry.SetCurrentKey("Item Ledger Entry No.");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
-        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then begin
+        if CostCalcMgt.CanIncNonInvCostIntoProductionItem() then begin
             ValueEntry.CalcSums("Cost Amount (Expected)", "Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)");
-            UnitCost := (ValueEntry."Cost Amount (Expected)" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Non-Invtbl.)") / ItemLedgEntry.Quantity
+            UnitCost2 := (ValueEntry."Cost Amount (Expected)" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Non-Invtbl.)") / ItemLedgEntry.Quantity
         end else begin
             ValueEntry.CalcSums("Cost Amount (Expected)", "Cost Amount (Actual)");
-            UnitCost := (ValueEntry."Cost Amount (Expected)" + ValueEntry."Cost Amount (Actual)") / ItemLedgEntry.Quantity;
+            UnitCost2 := (ValueEntry."Cost Amount (Expected)" + ValueEntry."Cost Amount (Actual)") / ItemLedgEntry.Quantity;
         end;
 
-        exit(Abs(UnitCost * "Qty. per Unit of Measure"));
+        exit(Abs(UnitCost2 * "Qty. per Unit of Measure"));
     end;
 
     local procedure ClearSingleAndRolledUpCosts()
@@ -2910,6 +2927,29 @@ table 83 "Item Journal Line"
     procedure TimeIsEmpty() Result: Boolean
     begin
         OnTimeIsEmpty(Rec, Result);
+    end;
+
+    /// <summary>
+    /// Determines if only the stop time field of the current item journal line record is set.
+    /// </summary>
+    /// <remarks>
+    /// In order to return true, setup time and run time fields must not be set.
+    /// </remarks>
+    /// <returns>True if only the stop time is set, otherwise false.</returns>
+    procedure OnlyStopTime() Result: Boolean
+    begin
+        OnOnlyStopTime(Rec, Result);
+    end;
+
+    local procedure GetOrderTypeProduction() OrderType: Enum "Inventory Order Type"
+    begin
+        OnGetOrderTypeProduction(OrderType);
+
+    end;
+
+    local procedure GetOrderTypeService() OrderType: Enum "Inventory Order Type"
+    begin
+        OnGetOrderTypeService(OrderType);
     end;
 
     /// <summary>
@@ -2983,7 +3023,7 @@ table 83 "Item Journal Line"
         OnAfterSetReservationFilters(ReservEntry, Rec);
     end;
 
-    internal procedure SetReservEntrySourceFilters(var ReservEntry: Record "Reservation Entry"; SourceKey: Boolean)
+    procedure SetReservEntrySourceFilters(var ReservEntry: Record "Reservation Entry"; SourceKey: Boolean)
     begin
         if IsSourceSales() then
             ReservEntry.SetSourceFilter(Database::"Item Journal Line", "Entry Type".AsInteger(), "Document No.", "Document Line No.", SourceKey)
@@ -3054,7 +3094,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Updates the unit amount for an item journal line record based on various factors such as the item's 
+    /// Updates the unit amount for an item journal line record based on various factors such as the item's
     /// indirect cost percentage, overhead rate, quantity per unit of measure, and entry type.
     /// </summary>
     procedure RecalculateUnitAmount()
@@ -3123,30 +3163,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Checks warehouse settings for a provided location and adjusts the output quantity 
-    /// for an item journal line record based on these settings and the entry type of the record.
-    /// </summary>
-    /// <param name="LocationCode">Location to check warehouse settings for.</param>
-    /// <param name="QtyToPost">Return value: Output quantity to use.</param>
-    procedure CheckWhse(LocationCode: Code[20]; var QtyToPost: Decimal)
-    var
-        Location: Record Location;
-    begin
-        Location.Get(LocationCode);
-
-        if "Entry Type" = "Entry Type"::Output then begin
-            if Location."Prod. Output Whse. Handling" = Enum::Microsoft.Manufacturing.Setup."Prod. Output Whse. Handling"::"Inventory Put-away" then
-                QtyToPost := 0;
-        end else
-            if Location."Require Put-away" and
-               (not Location."Directed Put-away and Pick") and
-               (not Location."Require Receive")
-            then
-                QtyToPost := 0;
-    end;
-
-    /// <summary>
-    /// Opens a page for editing dimensions for the item journal line. 
+    /// Opens a page for editing dimensions for the item journal line.
     /// </summary>
     procedure ShowDimensions()
     begin
@@ -3169,10 +3186,10 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Toggles the visibility of item journal lines based on whether they have associated error messages. 
+    /// Toggles the visibility of item journal lines based on whether they have associated error messages.
     /// </summary>
     /// <remarks>
-    /// When the ShowAllLinesEnabled flag is true, all item journal lines are shown. 
+    /// When the ShowAllLinesEnabled flag is true, all item journal lines are shown.
     /// When the flag is false, only item journal lines with associated error messages are shown.
     /// </remarks>
     /// <param name="ShowAllLinesEnabled">Return value: Flag to enable or disable item journal lines with errors.</param>
@@ -3392,7 +3409,7 @@ table 83 "Item Journal Line"
                     Error(PurchasingBlockedErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Purchasing Blocked"));
             "Entry Type"::Sale:
                 case "Order Type" of
-                    "Order Type"::Service:
+                    GetOrderTypeService():
                         if Item."Service Blocked" and
                            not ("Document Type" in ["Document Type"::"Service Credit Memo"])
                         then
@@ -3430,7 +3447,7 @@ table 83 "Item Journal Line"
                     Error(PurchasingBlockedErr, ItemVariant.TableCaption(), StrSubstNo(ItemVariantPrimaryKeyLbl, ItemVariant."Item No.", ItemVariant.Code), ItemVariant.FieldCaption("Purchasing Blocked"));
             "Entry Type"::Sale:
                 case "Order Type" of
-                    "Order Type"::Service:
+                    GetOrderTypeService():
                         if ItemVariant."Service Blocked" and not (Rec."Document Type" in [Rec."Document Type"::"Service Credit Memo"]) then
                             Error(ServiceSalesBlockedErr, ItemVariant.TableCaption(), StrSubstNo(ItemVariantPrimaryKeyLbl, ItemVariant."Item No.", ItemVariant.Code), ItemVariant.FieldCaption("Service Blocked"));
                     else
@@ -3457,7 +3474,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Determines whether the current item journal line record was opened from a batch. 
+    /// Determines whether the current item journal line record was opened from a batch.
     /// </summary>
     /// <remarks>
     /// It checks the filters applied to the journal batch name and journal template name fields.
@@ -3482,7 +3499,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Triggers the OnCheckItemJournalLinePostRestrictions event to check any additional restrictions 
+    /// Triggers the OnCheckItemJournalLinePostRestrictions event to check any additional restrictions
     /// before posting item journal line.
     /// </summary>
     procedure CheckItemJournalLineRestriction()
@@ -3518,7 +3535,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Tests if the tracking information (serial, lot and package number) in the item journal line is equal to the 
+    /// Tests if the tracking information (serial, lot and package number) in the item journal line is equal to the
     /// tracking information in the provided item ledger entry.
     /// </summary>
     /// <param name="ItemLedgerEntry">Item ledger entry to test the tracking information from.</param>
@@ -3531,7 +3548,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Tests if the tracking information (serial, lot and package number) in the item journal line is equal to the 
+    /// Tests if the tracking information (serial, lot and package number) in the item journal line is equal to the
     /// tracking information in the provided tracking specifiation.
     /// </summary>
     /// <param name="TrackingSpecification">Tracking specification to test the tracking information from.</param>
@@ -3544,7 +3561,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Tests if the tracking information (serial, lot and package number) of the item journal line are filled if 
+    /// Tests if the tracking information (serial, lot and package number) of the item journal line are filled if
     /// required by the item tracking setup.
     /// </summary>
     /// <param name="ItemTrackingSetup">Item tracking setup to use.</param>
@@ -3559,7 +3576,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Tests if the new tracking information (new serial number and new lot number) of the item journal line are filled 
+    /// Tests if the new tracking information (new serial number and new lot number) of the item journal line are filled
     /// if required by the item tracking setup.
     /// </summary>
     /// <param name="ItemTrackingSetup">Item tracking setup to use.</param>
@@ -3574,7 +3591,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Tests if the new tracking information (new serial number and new lot number) of the item journal line 
+    /// Tests if the new tracking information (new serial number and new lot number) of the item journal line
     /// is required and not empty. If the tracking information is required and empty, an error message is raised.
     /// </summary>
     /// <param name="ItemTrackingSetup">Item tracking setup to use.</param>
@@ -3619,6 +3636,11 @@ table 83 "Item Journal Line"
         OnAfterIsEntryTypeConsumption(Rec, Result);
     end;
 
+    procedure IsEntryTypeOutput() Result: Boolean
+    begin
+        OnAfterIsEntryTypeOutput(Rec, Result);
+    end;
+
     local procedure IsEntryTypeProduction() Result: Boolean
     begin
         OnAfterIsEntryTypeProduction(Rec, Result);
@@ -3649,8 +3671,8 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Runs the inventory movement report for the item journal lines that have the same journal template name and 
-    /// journal batch name as the current item journal line. 
+    /// Runs the inventory movement report for the item journal lines that have the same journal template name and
+    /// journal batch name as the current item journal line.
     /// </summary>
     procedure PrintInventoryMovement()
     begin
@@ -3737,7 +3759,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Renumbers the document number of the current item journal line based on the number series specified in the 
+    /// Renumbers the document number of the current item journal line based on the number series specified in the
     /// associated item journal batch.
     /// </summary>
     /// <remarks>
@@ -3757,8 +3779,8 @@ table 83 "Item Journal Line"
             exit;
 
         ItemJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-        if ItemJnlBatch."No. Series" = '' then
-            exit;
+        ItemJnlBatch.TestField("No. Series");
+
         if GetFilter("Document No.") <> '' then
             Error(DocNoFilterErr);
         FirstDocNo := NoSeries.PeekNextNo(ItemJnlBatch."No. Series", "Posting Date");
@@ -3966,7 +3988,7 @@ table 83 "Item Journal Line"
     end;
 
     /// <summary>
-    /// Opens the item tracking summary page to update the tracking information for an item journal line 
+    /// Opens the item tracking summary page to update the tracking information for an item journal line
     /// based on the specified tracking type.
     /// </summary>
     /// <param name="TrackingType">Item tracking type on which tracking information should be assigned.</param>
@@ -4372,7 +4394,7 @@ table 83 "Item Journal Line"
 
     /// <summary>
     /// Event triggered after updating the "Amount" field in the current item journal line record.
-    /// This event allows developers to add custom logic after the "Amount" field has been updated. 
+    /// This event allows developers to add custom logic after the "Amount" field has been updated.
     /// For example, additional calculations or validations can be performed at this stage
     /// </summary>
     /// <param name="ItemJournalLine">The record containing the updated "Amount" field.</param>
@@ -4482,7 +4504,7 @@ table 83 "Item Journal Line"
 
     /// <summary>
     /// Event triggered before initializing the selection of an "Item Ledger Entry" in the "SelectItemEntry" procedure.
-    /// This event allows developers to add custom logic or modify the behavior before the selection process begins. 
+    /// This event allows developers to add custom logic or modify the behavior before the selection process begins.
     /// For example, additional filters or setup logic can be applied to the record or process.
     /// </summary>
     /// <param name="ItemJournalLine">The current record being processed in the "SelectItemEntry" procedure.</param>
@@ -4531,7 +4553,7 @@ table 83 "Item Journal Line"
 
     /// <summary>
     /// Event triggered before validating the direct cost "Unit Amount" for the current item journal line record.
-    /// This event allows developers to implement custom logic or override the default validation process. 
+    /// This event allows developers to implement custom logic or override the default validation process.
     /// </summary>
     /// <param name="ItemJournalLine">The current item journal line record for which the direct cost "Unit Amount" is being validated.</param>
     /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default validation logic should be skipped.</param>
@@ -4596,7 +4618,7 @@ table 83 "Item Journal Line"
 
     /// <summary>
     /// Event triggered before opening the "Item Ledger Entries" page in the "SelectItemEntry" procedure.
-    /// This event allows developers to customize or apply additional logic to the "Item Ledger Entry" record 
+    /// This event allows developers to customize or apply additional logic to the "Item Ledger Entry" record
     /// before it is displayed on the "Item Ledger Entries" page.
     /// </summary>
     /// <param name="ItemLedgerEntry">The "Item Ledger Entry" record being prepared for display.</param>
@@ -4761,7 +4783,7 @@ table 83 "Item Journal Line"
 
     /// <summary>
     /// Event triggered before updating the "Amount" field incurrent item journal line.
-    /// This event allows developers to add custom logic or override the standard "Amount" calculation logic. 
+    /// This event allows developers to add custom logic or override the standard "Amount" calculation logic.
     /// </summary>
     /// <param name="ItemJournalLine">The current item journal line record being processed.</param>
     /// <param name="IsHandled">A boolean parameter that, if set to true, indicates that the default logic should be skipped.</param>
@@ -5076,7 +5098,7 @@ table 83 "Item Journal Line"
 
     /// <summary>
     /// Event triggered after evaluating whether a current line is considered empty based on values of Quantity, 'Item No.' and 'Value Entry Type'.
-    /// This event allows developers to add custom logic or modify the result of the empty line evaluation. 
+    /// This event allows developers to add custom logic or modify the result of the empty line evaluation.
     /// For example, additional conditions can be checked or the result can be overridden based on specific business requirements.
     /// </summary>
     /// <param name="ItemJournalLine">The record being evaluated to determine if it qualifies as an empty line.</param>
@@ -5126,6 +5148,11 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsEntryTypeConsumption(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsEntryTypeOutput(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean)
     begin
     end;
 
@@ -5181,6 +5208,21 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnTimeIsEmpty(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnlyStopTime(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetOrderTypeProduction(var OrderType: Enum "Inventory Order Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetOrderTypeService(var OrderType: Enum "Inventory Order Type")
     begin
     end;
 

@@ -642,7 +642,7 @@ codeunit 134500 "ERM Cash Manager"
         BankAccount: Record "Bank Account";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        // [SCENARIO 478188 Setting on Bank Acount should enfore the check for Test Transmitted] 
+        // [SCENARIO 478188 Setting on Bank Acount should enfore the check for Test Transmitted]
 
         // [GIVEN] General Journal Line with "Bal. Account Type" = Bank Account, And bank account with Test Transmitted set
         LibraryERM.CreateBankAccount(BankAccount);
@@ -655,7 +655,7 @@ codeunit 134500 "ERM Cash Manager"
         // [WHEN] Post General Journal Line. should giv an error
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
-        // [SCENARIO 478188 Setting on Bank Acount should enfore the check for Test Transmitted] 
+        // [SCENARIO 478188 Setting on Bank Acount should enfore the check for Test Transmitted]
 
         // [GIVEN] General Journal Line with "Bal. Account Type" = Bank Account, And bank account with Test Transmitted set
         LibraryERM.CreateBankAccount(BankAccount);
@@ -886,32 +886,6 @@ codeunit 134500 "ERM Cash Manager"
         exit(CheckLedgerEntry."Entry No.");
     end;
 
-    local procedure SetupBankAccRecForApplication(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
-    var
-        BankAccount: Record "Bank Account";
-        Vendor: Record Vendor;
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        // Setup.
-        Initialize();
-        CreateBankAccountLastCheckNo(BankAccount);
-        BankAccount.Validate("Last Statement No.",
-          CopyStr(
-            LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("Last Statement No."), DATABASE::"Bank Account"),
-            1, LibraryUtility.GetFieldLength(DATABASE::"Bank Account", BankAccount.FieldNo("Last Statement No."))));
-        BankAccount.Modify(true);
-
-        LibraryPurchase.CreateVendor(Vendor);
-        CreateGenJnlLineWithBankPaymentType(
-          GenJournalLine, BankAccount."No.", Vendor."No.", GenJournalLine."Bank Payment Type"::"Manual Check");
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.");
-
-        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
-        BankAccReconciliationLine.Validate("Statement Amount", -GenJournalLine.Amount);
-        BankAccReconciliationLine.Modify(true);
-    end;
-
     local procedure AmountInBankAccountLedgerEntry(BankAccountNo: Code[20]; StatementNo: Code[20]): Decimal
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
@@ -1042,14 +1016,6 @@ codeunit 134500 "ERM Cash Manager"
           GenJournalLine."Account Type"::Vendor,
           AccountNo, -LibraryRandom.RandDec(2000, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
-    end;
-
-    local procedure CreateGLAccount(var GLAccount: Record "G/L Account")
-    begin
-        LibraryERM.CreateGLAccount(GLAccount);
-        GLAccount.Validate("Direct Posting", true);
-        GLAccount.Validate("Reconciliation Account", true);
-        GLAccount.Modify(true);
     end;
 
     local procedure CreateGenJnlBatchForBank(var GenJournalBatch: Record "Gen. Journal Batch"; BalAccountNo: Code[20])
@@ -1442,4 +1408,3 @@ codeunit 134500 "ERM Cash Manager"
         Assert.IsTrue(HasSecondEntry, 'Entry for account not found in the check drilldown');
     end;
 }
-

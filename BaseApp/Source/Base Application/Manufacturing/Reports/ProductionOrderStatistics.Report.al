@@ -7,15 +7,15 @@ namespace Microsoft.Manufacturing.Reports;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Inventory.Costing;
 using Microsoft.Manufacturing.Document;
+using System.Utilities;
 
 report 99000791 "Production Order Statistics"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Manufacturing/Reports/ProductionOrderStatistics.rdlc';
     AdditionalSearchTerms = 'material cost,capacity cost,material overhead';
     ApplicationArea = Manufacturing;
     Caption = 'Production Order Statistics';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = ProdOrderStatisticsWord;
 
     dataset
     {
@@ -38,6 +38,11 @@ report 99000791 "Production Order Statistics"
             }
             column(Desc_ProdOrder; Description)
             {
+                IncludeCaption = true;
+            }
+            column(Quantity_ProdOrder; Quantity)
+            {
+                DecimalPlaces = 0 : 5;
                 IncludeCaption = true;
             }
             column(ExpCost2; ExpCost[2])
@@ -116,39 +121,51 @@ report 99000791 "Production Order Statistics"
             {
                 IncludeCaption = true;
             }
+            // RDLC Only
             column(ProdOrderStatisticsCapt; ProdOrderStatisticsCaptLbl)
             {
             }
+            // RDLC Only
             column(CurrReportPageNoCaption; CurrReportPageNoCaptionLbl)
             {
             }
+            // RDLC Only
             column(CapacityCostCaption; CapacityCostCaptionLbl)
             {
             }
+            // RDLC Only
             column(MaterialCostCaption; MaterialCostCaptionLbl)
             {
             }
+            // RDLC Only
             column(TotalCostCaption; TotalCostCaptionLbl)
             {
             }
+            // RDLC Only
             column(SubcontractedCostCaption; SubcontractedCostCaptionLbl)
             {
             }
+            // RDLC Only
             column(CapOverheadCostCaption; CapOverheadCostCaptionLbl)
             {
             }
+            // RDLC Only
             column(MatOverheadCostCaption; MatOverheadCostCaptionLbl)
             {
             }
+            // RDLC Only
             column(ExpectedCaption; ExpectedCaptionLbl)
             {
             }
+            // RDLC Only
             column(ActualCaption; ActualCaptionLbl)
             {
             }
+            // RDLC Only
             column(DeviationCaption; DeviationCaptionLbl)
             {
             }
+            // RDLC Only
             column(TotalCaption; TotalCaptionLbl)
             {
             }
@@ -186,13 +203,96 @@ report 99000791 "Production Order Statistics"
                 CalcTotal(ExpCost, ExpCost[6]);
                 CalcTotal(ActCost, ActCost[6]);
                 CalcVariance();
+
+                CalcCostTotal(ExpCost, ExpCostTotal);
+                CalcCostTotal(ActCost, ActCostTotal);
+                CalcVarianceTotal();
             end;
 
             trigger OnPreDataItem()
             begin
                 Clear(ExpCost);
                 Clear(ActCost);
+
+                Clear(ExpCostTotal);
+                Clear(ActCostTotal);
             end;
+        }
+        dataitem(Totals; Integer)
+        {
+            DataItemTableView = sorting(Number) where(Number = const(1));
+            column(ExpCostTotal1; ExpCostTotal[1])
+            {
+                AutoFormatType = 1;
+            }
+            column(ExpCostTotal2; ExpCostTotal[2])
+            {
+                AutoFormatType = 1;
+            }
+            column(ExpCostTotal3; ExpCostTotal[3])
+            {
+                AutoFormatType = 1;
+            }
+            column(ExpCostTotal4; ExpCostTotal[4])
+            {
+                AutoFormatType = 1;
+            }
+            column(ExpCostTotal5; ExpCostTotal[5])
+            {
+                AutoFormatType = 1;
+            }
+            column(ExpCostTotal6; ExpCostTotal[6])
+            {
+                AutoFormatType = 1;
+            }
+            column(ActCostTotal1; ActCostTotal[1])
+            {
+                AutoFormatType = 1;
+            }
+            column(ActCostTotal2; ActCostTotal[2])
+            {
+                AutoFormatType = 1;
+            }
+            column(ActCostTotal3; ActCostTotal[3])
+            {
+                AutoFormatType = 1;
+            }
+            column(ActCostTotal4; ActCostTotal[4])
+            {
+                AutoFormatType = 1;
+            }
+            column(ActCostTotal5; ActCostTotal[5])
+            {
+                AutoFormatType = 1;
+            }
+            column(ActCostTotal6; ActCostTotal[6])
+            {
+                AutoFormatType = 1;
+            }
+            column(VarPctTotal1; VarPctTotal[1])
+            {
+                DecimalPlaces = 0 : 5;
+            }
+            column(VarPctTotal2; VarPctTotal[2])
+            {
+                DecimalPlaces = 0 : 5;
+            }
+            column(VarPctTotal3; VarPctTotal[3])
+            {
+                DecimalPlaces = 0 : 5;
+            }
+            column(VarPctTotal4; VarPctTotal[4])
+            {
+                DecimalPlaces = 0 : 5;
+            }
+            column(VarPctTotal5; VarPctTotal[5])
+            {
+                DecimalPlaces = 0 : 5;
+            }
+            column(VarPctTotal6; VarPctTotal[6])
+            {
+                DecimalPlaces = 0 : 5;
+            }
         }
     }
 
@@ -209,9 +309,67 @@ report 99000791 "Production Order Statistics"
         {
         }
     }
-
+    rendering
+    {
+        layout(ProdOrderStatisticsExcel)
+        {
+            Caption = 'Production Order Statistics Excel';
+            LayoutFile = '.\Manufacturing\Reports\ProdOrderStatisticsExcel.xlsx';
+            Type = Excel;
+            Summary = 'Built in layout for the Production Order Statistics excel report.';
+        }
+        layout(ProdOrderStatisticsWord)
+        {
+            Caption = 'Production Order Statistics Word';
+            LayoutFile = '.\Manufacturing\Reports\ProdOrderStatisticsWord.docx';
+            Type = Word;
+        }
+#if not CLEAN27
+        layout(ProdOrderStatisticsRDLC)
+        {
+            Caption = 'Production Order Statistics RDLC';
+            LayoutFile = '.\Manufacturing\Reports\ProductionOrderStatistics.rdlc';
+            Type = RDLC;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The RDLC layout has been replaced by the Excel layout and will be removed in a future release.';
+            ObsoleteTag = '27.0';
+        }
+#endif
+    }
     labels
     {
+        DataRetrieved = 'Data retrieved:';
+        ProdOrderStatistics = 'Production Order Statistics';
+        ProdOrderStatsPrint = 'Prod. Order Stats (Print)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        ProdOrderStatsAnalysis = 'Prod. Order Stats (Analysis)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        PostingDateFilterLabel = 'Posting Date Filter:';
+        // About the report labels
+        AboutTheReportLabel = 'About the report', MaxLength = 31, Comment = 'Excel worksheet name.';
+        EnvironmentLabel = 'Environment';
+        CompanyLabel = 'Company';
+        UserLabel = 'User';
+        RunOnLabel = 'Run on';
+        ReportNameLabel = 'Report name';
+        DocumentationLabel = 'Documentation';
+        // End of About the report labels
+        ExpCost1Label = 'Material Cost (Expected)';
+        ExpCost2Label = 'Capacity Cost (Expected)';
+        ExpCost3Label = 'Subcontracted Cost (Expected)';
+        ExpCost4Label = 'Capacity Overhead Cost (Expected)';
+        ExpCost5Label = 'Material Overhead Cost (Expected)';
+        ExpCost6Label = 'Total Cost (Expected)';
+        ActCost1Label = 'Material Cost (Actual)';
+        ActCost2Label = 'Capacity Cost (Actual)';
+        ActCost3Label = 'Subcontracted Cost (Actual)';
+        ActCost4Label = 'Capacity Overhead Cost (Actual)';
+        ActCost5Label = 'Material Overhead Cost (Actual)';
+        ActCost6Label = 'Total Cost (Actual)';
+        VarPct1Label = 'Material Cost (Deviation %)';
+        VarPct2Label = 'Capacity Cost (Deviation %)';
+        VarPct3Label = 'Subcontracted Cost (Deviation %)';
+        VarPct4Label = 'Capacity Overhead Cost (Deviation %)';
+        VarPct5Label = 'Material Overhead Cost (Deviation %)';
+        VarPct6Label = 'Total Cost (Deviation %)';
     }
 
     trigger OnPreReport()
@@ -228,7 +386,11 @@ report 99000791 "Production Order Statistics"
         ActCost: array[6] of Decimal;
         StdCost: array[6] of Decimal;
         VarPct: array[6] of Decimal;
+        ExpCostTotal: array[6] of Decimal;
+        ActCostTotal: array[6] of Decimal;
+        VarPctTotal: array[6] of Decimal;
         DummyVar: Decimal;
+        // RDLC Only layout field captions. To be removed in a future release along with the RDLC layout.
         ProdOrderStatisticsCaptLbl: Label 'Production Order Statistics';
         CurrReportPageNoCaptionLbl: Label 'Page';
         CapacityCostCaptionLbl: Label 'Capacity Cost';
@@ -239,7 +401,7 @@ report 99000791 "Production Order Statistics"
         MatOverheadCostCaptionLbl: Label 'Material Overhead Cost';
         ExpectedCaptionLbl: Label 'Expected';
         ActualCaptionLbl: Label 'Actual';
-        DeviationCaptionLbl: Label 'Deviation';
+        DeviationCaptionLbl: Label 'Deviation %';
         TotalCaptionLbl: Label 'Total';
 
     local procedure CalcTotal(Operand: array[6] of Decimal; var Total: Decimal)
@@ -266,6 +428,22 @@ report 99000791 "Production Order Statistics"
             exit(0);
 
         exit(Round((Sum - Value) / Value * 100, 1));
+    end;
+
+    local procedure CalcCostTotal(Operand: array[6] of Decimal; var TotalOperand: array[6] of Decimal)
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(Operand) do
+            TotalOperand[i] += Operand[i];
+    end;
+
+    local procedure CalcVarianceTotal()
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(VarPctTotal) do
+            VarPctTotal[i] := CalcIndicatorPct(ExpCostTotal[i], ActCostTotal[i]);
     end;
 }
 

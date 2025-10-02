@@ -82,6 +82,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
         DummyJobsSetup.Modify();
+        LibraryJob.SetJobNoSeriesCode();
 
         IsInitialized := true;
         Commit();
@@ -245,20 +246,24 @@ codeunit 137021 "SCM Planning - NTF tests"
         LibraryWarehouse.CreateTransferRoute(TransferRoute, Location2.Code, Location1.Code);
     end;
 
-    local procedure ManufacturingSetup()
+    local procedure UpdatePlanningSetup()
     var
-        ManufacturingSetupRec: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetupRec.Get();
-        ManufacturingSetupRec.Validate("Components at Location", '');
-        ManufacturingSetupRec.Validate("Current Production Forecast", '');
-        ManufacturingSetupRec.Validate("Use Forecast on Locations", true);
-        ManufacturingSetupRec.Validate("Combined MPS/MRP Calculation", true);
-        Evaluate(ManufacturingSetupRec."Default Safety Lead Time", '<1D>');
-        Evaluate(ManufacturingSetupRec."Default Dampener Period", '');
-        ManufacturingSetupRec.Validate("Default Dampener %", 0);
-        ManufacturingSetupRec.Validate("Blank Overflow Level", ManufacturingSetupRec."Blank Overflow Level"::"Allow Default Calculation");
-        ManufacturingSetupRec.Modify(true);
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Components at Location", '');
+        ManufacturingSetup.Modify(true);
+
+        InventorySetup.Get();
+        InventorySetup.Validate("Current Demand Forecast", '');
+        InventorySetup.Validate("Use Forecast on Locations", true);
+        InventorySetup.Validate("Combined MPS/MRP Calculation", true);
+        Evaluate(InventorySetup."Default Safety Lead Time", '<1D>');
+        Evaluate(InventorySetup."Default Dampener Period", '');
+        InventorySetup.Validate("Default Dampener %", 0);
+        InventorySetup.Validate("Blank Overflow Level", InventorySetup."Blank Overflow Level"::"Allow Default Calculation");
+        InventorySetup.Modify(true);
     end;
 
     local procedure DisableWarnings()
@@ -644,7 +649,7 @@ codeunit 137021 "SCM Planning - NTF tests"
     local procedure TestSetup()
     begin
         ErrorMessageCounter := 0;
-        ManufacturingSetup();
+        UpdatePlanningSetup();
         ClearDefaultLocation();
     end;
 
@@ -2862,7 +2867,7 @@ codeunit 137021 "SCM Planning - NTF tests"
           SalesHeader, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code);
         CreateRelProdOrderAndRefresh(
           ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code, '');
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code, LocationWhite.Code);
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
@@ -3001,7 +3006,7 @@ codeunit 137021 "SCM Planning - NTF tests"
           SalesHeader, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code);
         CreateRelProdOrderAndRefresh(
           ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code, '');
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         RegisterWarehousePick(LocationWhite, 1);
         SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code, LocationWhite.Code);
 
@@ -3081,7 +3086,7 @@ codeunit 137021 "SCM Planning - NTF tests"
           TransferHeader, Item."No.", LocationOne.Code, LocationWhite.Code, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1);
         CreateRelProdOrderAndRefresh(
           ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code, '');
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         RegisterWarehousePick(LocationWhite, 1);
         SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code, LocationWhite.Code);
 
@@ -3490,7 +3495,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         InventoryPostingSetup."Inventory Account" := AccNo;
         InventoryPostingSetup."WIP Account" := AccNo;
         InventoryPostingSetup.Modify();
-        LibraryInventory.UpdateInventoryPostingSetup(Location); // NAVCZ
+        LibraryInventory.UpdateInventoryPostingSetup(Location);
         LibraryItemTracking.AddSerialNoTrackingInfo(Item);
         ManufacturingSetup.Get();
         ManufacturingSetup."Preset Output Quantity" := ManufacturingSetup."Preset Output Quantity"::"Zero on All Operations";
@@ -3666,4 +3671,3 @@ codeunit 137021 "SCM Planning - NTF tests"
         Reply := true;
     end;
 }
-

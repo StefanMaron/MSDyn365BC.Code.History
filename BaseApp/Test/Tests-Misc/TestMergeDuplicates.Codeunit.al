@@ -2149,7 +2149,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         // [THEN] Contact 'CA' does not exist,
         Assert.IsFalse(Contact[1].GetBySystemId(Contact[1].SystemId), 'Contact A must not exist');
 
-        // [THEN] Contact 'CB' does exist, where Name = 'B', SystemID = 'BBB' 
+        // [THEN] Contact 'CB' does exist, where Name = 'B', SystemID = 'BBB'
         Assert.IsTrue(Contact[2].GetBySystemId(Contact[2].SystemId), 'Contact B must exist');
         Contact[2].TestField(Name, Contact[2].Name);
 
@@ -2206,7 +2206,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         ContDuplPage: TestPage "Contact Duplicates";
         MergePage: TestPage "Merge Duplicate";
     begin
-        // [FEATURE] [Merge Duplicates] [Contact] [UI] 
+        // [FEATURE] [Merge Duplicates] [Contact] [UI]
         // [SCENARIO] Run action 'Merge Duplicate' from Duplicate Contacts Page
 
         // [Given] Two identical contacts and a Contact Duplicate record for them
@@ -2235,7 +2235,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
         ContactNo: Code[20];
     begin
-        // [SCENARIO 441147] To ensure that after "Contact Business Relation" is updated after MergeContact function 
+        // [SCENARIO 441147] To ensure that after "Contact Business Relation" is updated after MergeContact function
         Initialize();
 
         // [GIVEN] Customer 'A' with Contact 'CA' ("Integration ID" = 'AAA')
@@ -2496,15 +2496,6 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         MergeDuplicatePage.Fields.Override.SetValue(Value);
     end;
 
-    local procedure InsertODataEdmTypeEntry()
-    var
-        ODataEdmType: Record "OData Edm Type";
-    begin
-        ODataEdmType.Init();
-        ODataEdmType.Key := LibraryUtility.GenerateGUID();
-        ODataEdmType.Insert();
-    end;
-
     local procedure VerifyFieldDuplicateValueEditable(var MergeDuplicatePage: TestPage "Merge Duplicate"; FieldNo: Integer; IsEditable: Boolean)
     begin
         MergeDuplicatePage.Fields.FindFirstField(ID, FieldNo);
@@ -2606,4 +2597,3 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         end;
     end;
 }
-

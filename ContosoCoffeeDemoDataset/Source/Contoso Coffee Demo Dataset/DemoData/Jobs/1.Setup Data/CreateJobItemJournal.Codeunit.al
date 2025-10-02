@@ -6,6 +6,7 @@
 namespace Microsoft.DemoData.Jobs;
 
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.DemoTool.Helpers;
 using Microsoft.Inventory.Journal;
 
 codeunit 5198 "Create Job Item Journal"

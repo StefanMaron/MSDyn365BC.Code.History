@@ -352,30 +352,6 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
     end;
 
     [Normal]
-    local procedure AdjustAndRevalueParentAppliesTo(ParentItem: Record Item; ChildItem: Record Item; RevalDate: Date; CalculatePer: Enum "Inventory Value Calc. Per"; AppliesToEntry: Integer)
-    var
-        ItemJournalBatch: Record "Item Journal Batch";
-    begin
-        LibraryCosting.AdjustCostItemEntries(ParentItem."No." + '|' + ChildItem."No.", '');
-        LibraryPatterns.CalculateInventoryValueRun(
-          ItemJournalBatch, ParentItem, RevalDate, CalculatePer, false, false, false, "Inventory Value Calc. Base"::" ", false, '', '');
-        LibraryPatterns.ModifyAppliesToPostRevaluation(ItemJournalBatch, LibraryRandom.RandIntInRange(3, 10), AppliesToEntry);
-        LibraryCosting.AdjustCostItemEntries(ParentItem."No." + '|' + ChildItem."No.", '');
-    end;
-
-    [Normal]
-    local procedure AdjustAndRevalueChild(ParentItem: Record Item; ChildItem: Record Item; RevalDate: Date; CalculatePer: Enum "Inventory Value Calc. Per")
-    var
-        ItemJournalBatch: Record "Item Journal Batch";
-    begin
-        LibraryCosting.AdjustCostItemEntries(ParentItem."No." + '|' + ChildItem."No.", '');
-        LibraryPatterns.CalculateInventoryValueRun(
-          ItemJournalBatch, ChildItem, RevalDate, CalculatePer, false, false, false, "Inventory Value Calc. Base"::" ", false, '', '');
-        LibraryPatterns.ModifyPostRevaluation(ItemJournalBatch, LibraryRandom.RandIntInRange(3, 10));
-        LibraryCosting.AdjustCostItemEntries(ParentItem."No." + '|' + ChildItem."No.", '');
-    end;
-
-    [Normal]
     local procedure InvoiceDiffPurchaseCost(PurchaseHeader: Record "Purchase Header"; InvoiceDate: Date)
     var
         PurchaseLine: Record "Purchase Line";
@@ -622,13 +598,6 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         LibraryReportDataset.AssertCurrentRowValueEquals('LastWIP', ExpectedOpenningBalance);
     end;
 
-    local procedure ExecuteUIHandlers()
-    begin
-        // Generate Dummy message. Required for executing the test case successfully.
-        Message('');
-        if Confirm('') then;
-    end;
-
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure InventoryValuationWIPRequestPageHandler(var InventoryValuationWIP: TestRequestPage "Inventory Valuation - WIP")
@@ -665,4 +634,3 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
     begin
     end;
 }
-

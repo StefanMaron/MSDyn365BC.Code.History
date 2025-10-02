@@ -175,23 +175,6 @@ codeunit 134343 "UI Ledger Entries Page"
         LibraryVariableStorage.Clear();
     end;
 
-    local procedure CreateUpdateGLEntryDescription(var GLEntryNo: Integer; var ChangeLogEntryNo: Integer)
-    var
-        DummyGLEntry: Record "G/L Entry";
-        ChangeLogEntry: Record "Change Log Entry";
-        GeneralLedgerEntries: TestPage "General Ledger Entries";
-    begin
-        GLEntryNo := MockGLEntryWithDescription(LibraryUtility.GenerateRandomText(MaxStrLen(DummyGLEntry.Description)));
-        GeneralLedgerEntries.OpenEdit();
-        GeneralLedgerEntries.FILTER.SetFilter("Entry No.", Format(GLEntryNo));
-        GeneralLedgerEntries.Description.SetValue(
-          LibraryUtility.GenerateRandomText(MaxStrLen(DummyGLEntry.Description)));
-        GeneralLedgerEntries.Close();
-
-        FindChangeLogEntry(ChangeLogEntry, GLEntryNo, DummyGLEntry.FieldNo(Description));
-        ChangeLogEntryNo := ChangeLogEntry."Entry No.";
-    end;
-
     [Test]
     [Scope('OnPrem')]
     procedure CorrectShowDocumentForFinanceChargeMemoInCustomerLE()
@@ -394,28 +377,6 @@ codeunit 134343 "UI Ledger Entries Page"
         ChangeLogEntry.FindFirst();
     end;
 
-    local procedure MockChangeLogEntries(var ChangeLogEntry: Record "Change Log Entry"; TableNo: Integer; NumberOfEntries: Integer)
-    var
-        i: Integer;
-        EntryNo: Integer;
-        FirstEntryNo: Integer;
-        LastEntryNo: Integer;
-    begin
-        if ChangeLogEntry.FindLast() then;
-        EntryNo := ChangeLogEntry."Entry No.";
-        FirstEntryNo := EntryNo + 1;
-        for i := 1 to NumberOfEntries do begin
-            EntryNo := EntryNo + 1;
-            ChangeLogEntry.Init();
-            ChangeLogEntry."Entry No." := EntryNo;
-            ChangeLogEntry."Table No." := TableNo;
-            ChangeLogEntry."Date and Time" := CurrentDateTime;
-            ChangeLogEntry.Insert();
-        end;
-        LastEntryNo := EntryNo;
-        ChangeLogEntry.SetRange("Entry No.", FirstEntryNo, LastEntryNo);
-    end;
-
     local procedure MockCustLedgEntry(): Integer
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -522,4 +483,3 @@ codeunit 134343 "UI Ledger Entries Page"
         ChangeLogEntries.OK().Invoke();
     end;
 }
-

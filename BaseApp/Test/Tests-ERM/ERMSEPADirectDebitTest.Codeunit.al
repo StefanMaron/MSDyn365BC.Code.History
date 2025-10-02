@@ -798,6 +798,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
 
         // [THEN] Verify IBAN No.
         LibraryXMLRead.Initialize(ServerFileName);
+        LibraryXMLRead.VerifyNodeValueInSubtree('CdtrAcct', 'IBAN', BankAccount.IBAN);
         LibraryXMLRead.VerifyNodeValueInSubtree('DbtrAcct', 'IBAN', CustomerBankAccount.IBAN);
     end;
 

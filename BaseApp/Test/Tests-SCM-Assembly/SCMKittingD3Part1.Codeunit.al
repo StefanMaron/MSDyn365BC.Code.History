@@ -10,7 +10,6 @@ using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Item;
 using Microsoft.Utilities;
 using System.Environment.Configuration;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Finance.Dimension;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.BOM;
@@ -43,6 +42,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryDimension: Codeunit "Library - Dimension";
+        LibraryPlanning: Codeunit "Library - Planning";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
@@ -75,7 +75,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     [Normal]
     local procedure Initialize()
     var
-        MfgSetup: Record "Manufacturing Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Kitting - D3 - Part 1");
@@ -92,10 +91,10 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         isInitialized := true;
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdateGeneralLedgerSetup(); // NAVCZ
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
-        MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
+        WorkDate2 := LibraryPlanning.SetSafetyWorkDate(); // to avoid Due Date Before Work Date message.
         LibraryCosting.AdjustCostItemEntries('', '');
         LibraryCosting.PostInvtCostToGL(false, WorkDate2, '');
         Commit();
@@ -1413,6 +1412,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
 
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, ItemNo, '', 1, '');
         LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate2, 0);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure InitRefPostAsmStatisticsData()
