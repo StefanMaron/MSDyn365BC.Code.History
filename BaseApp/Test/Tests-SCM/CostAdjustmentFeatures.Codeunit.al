@@ -32,7 +32,7 @@ codeunit 137085 "Cost Adjustment Features"
 
         SetManualCostAdjustmentParameters();
 
-        LibrarySetupStorage.Save(Database::"Inventory Setup");
+        LibrarySetupStorage.SaveInventorySetup();
 
         Initialized := true;
         Commit();

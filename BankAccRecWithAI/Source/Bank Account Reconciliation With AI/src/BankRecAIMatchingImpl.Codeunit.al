@@ -252,13 +252,13 @@ codeunit 7250 "Bank Rec. AI Matching Impl."
     begin
         // this is because we are using GPT4 which has a 100K token limit
         // on top of that, we are setting aside a number of tokens for the response in MaxTokens())
-        exit(18000);
+        exit(48000);
     end;
 
     procedure LedgerEntryInputThreshold(): Integer
     begin
         // this is the max size of the part of the prompt that carries information about ledger entries
-        exit(10000);
+        exit(32000);
     end;
 
     procedure MaxTokens(): Integer
@@ -680,7 +680,7 @@ codeunit 7250 "Bank Rec. AI Matching Impl."
 
         if not CopilotCapability.IsCapabilityRegistered(Enum::"Copilot Capability"::"Bank Account Reconciliation") then begin
             Session.LogMessage('0000OZO', TelemetryAttemptingToRegisterCapabilityTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', FeatureName());
-            CopilotCapability.RegisterCapability(Enum::"Copilot Capability"::"Bank Account Reconciliation", Enum::"Copilot Availability"::"Generally Available", LearnMoreUrlTxt);
+            CopilotCapability.RegisterCapability(Enum::"Copilot Capability"::"Bank Account Reconciliation", Enum::"Copilot Availability"::"Generally Available", Enum::"Copilot Billing Type"::"Not Billed", LearnMoreUrlTxt);
             if not UpgradeTag.HasUpgradeTag(GetRegisterBankAccRecCopilotGACapabilityUpgradeTag()) then
                 UpgradeTag.SetUpgradeTag(GetRegisterBankAccRecCopilotGACapabilityUpgradeTag());
             Commit();
@@ -690,7 +690,7 @@ codeunit 7250 "Bank Rec. AI Matching Impl."
 
         if UpgradeTag.HasUpgradeTag(GetRegisterBankAccRecCopilotGACapabilityUpgradeTag()) then
             exit;
-        CopilotCapability.ModifyCapability(Enum::"Copilot Capability"::"Bank Account Reconciliation", Enum::"Copilot Availability"::"Generally Available", LearnMoreUrlTxt);
+        CopilotCapability.ModifyCapability(Enum::"Copilot Capability"::"Bank Account Reconciliation", Enum::"Copilot Availability"::"Generally Available", Enum::"Copilot Billing Type"::"Not Billed", LearnMoreUrlTxt);
         UpgradeTag.SetUpgradeTag(GetRegisterBankAccRecCopilotGACapabilityUpgradeTag());
     end;
 

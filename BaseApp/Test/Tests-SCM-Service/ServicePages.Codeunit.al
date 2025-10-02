@@ -878,21 +878,21 @@ codeunit 136150 "Service Pages"
         ExpectedItemNo: Code[20];
     begin
         // [FEATURE] [Insert Multiple Items at once]
-        // [SCENARIO 426270] Action "Select items" on Invoice subpage adds selected items 
+        // [SCENARIO 426270] Action "Select items" on Invoice subpage adds selected items
         Initialize();
         LibraryVariableStorage.Clear();
 
         // [GIVEN] Created Customer
         LibrarySales.CreateCustomer(Customer);
 
-        // [GIVEN] Create Service Invoice and set Customer for it. 
+        // [GIVEN] Create Service Invoice and set Customer for it.
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
 
         // [GIVEN] Open Service Invoice page
         ServiceInvoice.OpenEdit();
         ServiceInvoice.GoToRecord(ServiceHeader);
 
-        // [WHEN] Call action Select Multi Items and select 
+        // [WHEN] Call action Select Multi Items and select
         ServiceInvoice.ServLines.SelectMultiItems.Invoke();
         ServiceInvoice.Close();
 
@@ -921,7 +921,7 @@ codeunit 136150 "Service Pages"
         CreatedServiceContractTemplate: Boolean;
     begin
         // [FEATURE] [Insert Multiple Service Items at once]
-        // [SCENARIO 426270] Action "Select service items" on Service Contract subpage adds selected items 
+        // [SCENARIO 426270] Action "Select service items" on Service Contract subpage adds selected items
         Initialize();
         LibraryVariableStorage.Clear();
 
@@ -934,14 +934,14 @@ codeunit 136150 "Service Pages"
             CreatedServiceContractTemplate := true;
         end;
 
-        // [GIVEN] Create Service Invoice and set Customer for it. 
+        // [GIVEN] Create Service Invoice and set Customer for it.
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
 
         // [GIVEN] Open Service Contract page
         ServiceContract.OpenEdit();
         ServiceContract.GoToRecord(ServiceContractHeader);
 
-        // [WHEN] Call action Select Multi Items and select 
+        // [WHEN] Call action Select Multi Items and select
         ServiceContract.ServContractLines.SelectMultiItems.Invoke();
         ServiceContract.Close();
 
@@ -1110,21 +1110,6 @@ codeunit 136150 "Service Pages"
         exit(PaymentMethod.Code);
     end;
 
-    local procedure UpdateServiceLineWithRandomQtyAndPrice(var ServiceLine: Record "Service Line"; ServiceItemLineNo: Integer)
-    begin
-        UpdateServiceLine(
-          ServiceLine, ServiceItemLineNo,
-          LibraryRandom.RandIntInRange(10, 20), LibraryRandom.RandDecInRange(1000, 2000, 2));
-    end;
-
-    local procedure UpdateServiceLine(var ServiceLine: Record "Service Line"; ServiceItemLineNo: Integer; Quantity: Decimal; UnitPrice: Decimal)
-    begin
-        ServiceLine.Validate("Service Item Line No.", ServiceItemLineNo);
-        ServiceLine.Validate(Quantity, Quantity);
-        ServiceLine.Validate("Unit Price", UnitPrice);
-        ServiceLine.Modify(true);
-    end;
-
     local procedure UpdateLocationOnCustomer(var Customer: Record Customer; LocationCode: Code[10])
     begin
         Customer.Validate("Location Code", LocationCode);
@@ -1224,4 +1209,3 @@ codeunit 136150 "Service Pages"
         PostandSendConfirmation.Yes().Invoke();
     end;
 }
-

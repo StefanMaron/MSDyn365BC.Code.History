@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Journal;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.GeneralLedger.Journal;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CostAccounting.Setup;
@@ -22,9 +26,6 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
-#if not CLEAN24
-using System.Environment.Configuration;
-#endif
 using System.Security.User;
 using System.Utilities;
 
@@ -49,8 +50,8 @@ codeunit 11 "Gen. Jnl.-Check Line"
         DimMgt: Codeunit DimensionManagement;
         CostAccMgt: Codeunit "Cost Account Mgt";
         ErrorMessageMgt: Codeunit "Error Message Management";
-#if not CLEAN24
-        FeatureKeyManagement: Codeunit "Feature Key Management";
+#if not CLEAN25
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
 #endif
         SkipFiscalYearCheck: Boolean;
         GenJnlTemplateFound: Boolean;
@@ -198,7 +199,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
         if not OverrideDimErr then
             CheckDimensions(GenJnlLine);
 
-#if not CLEAN24
+#if not CLEAN25
         if FeatureKeyManagement.IsGLCurrencyRevaluationEnabled() then
 #endif
         CheckCurrencyCode(GenJnlLine);
@@ -1321,3 +1322,4 @@ codeunit 11 "Gen. Jnl.-Check Line"
     begin
     end;
 }
+

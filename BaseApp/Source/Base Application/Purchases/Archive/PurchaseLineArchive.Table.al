@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Archive;
 
 using Microsoft.Finance.Currency;
@@ -625,21 +629,25 @@ table 5110 "Purchase Line Archive"
         {
             AccessByPermission = TableData Job = R;
             Caption = 'Project Unit Price (LCY)';
+            AutoFormatType = 2;
         }
         field(1009; "Job Total Price (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             Caption = 'Project Total Price (LCY)';
+            AutoFormatType = 1;
         }
         field(1010; "Job Line Amount (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             Caption = 'Project Line Amount (LCY)';
+            AutoFormatType = 1;
         }
         field(1011; "Job Line Disc. Amount (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             Caption = 'Project Line Disc. Amount (LCY)';
+            AutoFormatType = 1;
         }
         field(1012; "Job Currency Factor"; Decimal)
         {
@@ -964,6 +972,13 @@ table 5110 "Purchase Line Archive"
         field(10022; "IRS 1099 Liable"; Boolean)
         {
             Caption = 'IRS 1099 Liable';
+        }
+        field(12100; "No. of Fixed Asset Cards"; Integer)
+        {
+            BlankZero = true;
+            Caption = 'No. of Fixed Asset Cards';
+            ToolTip = 'Specifies the number of fixed assets that is being purchased.';
+            MinValue = 0;
         }
         field(99000755; "Overhead Rate"; Decimal)
         {

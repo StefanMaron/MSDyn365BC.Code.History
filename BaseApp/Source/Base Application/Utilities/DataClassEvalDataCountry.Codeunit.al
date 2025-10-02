@@ -40,6 +40,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         ClassifyEmployeeQualification();
         ClassifyVATReportHeader();
         ClassifyDIOT();
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Alt. Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cause of Absence");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"PAC Web Service");

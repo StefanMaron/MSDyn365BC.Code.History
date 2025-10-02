@@ -1,4 +1,5 @@
-﻿codeunit 104151 "UPG. MX CFDI"
+#pragma warning disable AA0247
+codeunit 104151 "UPG. MX CFDI"
 {
     Subtype = Upgrade;
 

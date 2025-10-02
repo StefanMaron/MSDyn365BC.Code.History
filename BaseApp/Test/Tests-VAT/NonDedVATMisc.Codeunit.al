@@ -810,7 +810,7 @@ codeunit 134284 "Non Ded. VAT Misc."
         PostedInvoiceNo: Code[20];
     begin
         // [FEATURE] [Purchase] [Non-deductible VAT] [Deferral] [Rounding]
-        // [SCENARIO 427120] Purchase invoice non-deductible Reverse Charge VAT rounding in case of deferrals with several periods 
+        // [SCENARIO 427120] Purchase invoice non-deductible Reverse Charge VAT rounding in case of deferrals with several periods
         Initialize();
         // [GIVEN] VAT posting setup with VAT = 22% and Deductible VAT = 40%, "VAT Calculation Type" = "Reverse Charge VAAT"
         CreateVATPostingSetupWithPct(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", 22, 60);
@@ -1001,7 +1001,7 @@ codeunit 134284 "Non Ded. VAT Misc."
         // [GIVEN] Create Purchase Invoice and Post it.
         PurchInvHeader.Get(CreatePurchaseInvoiceWithProject(VATPostingSetup, GLAccount."No.", Cost, Quantity, JobTask));
 
-        // [GIVEN] Find Purchase Invoice Line.    
+        // [GIVEN] Find Purchase Invoice Line.
         FindPurchaseInvoiceLine(PurchInvLine, PurchInvHeader."No.");
 
         // [WHEN] Find Job Ledger Entry.
@@ -1098,7 +1098,7 @@ codeunit 134284 "Non Ded. VAT Misc."
         // [GIVEN] Enable "Use For Item Cost" on VAT Setup
         LibraryNonDeductibleVAT.SetUseForFixedAssetCost();
 
-        // [GIVEN] Create VAT Posting Setup as VAT % 20 and Non-Deductible VAT % as 100. 
+        // [GIVEN] Create VAT Posting Setup as VAT % 20 and Non-Deductible VAT % as 100.
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType::"Normal VAT", 20);
         VATPostingSetup."Allow Non-Deductible VAT" := VATPostingSetup."Allow Non-Deductible VAT"::Allow;
         VATPostingSetup.Validate("Non-Deductible VAT %", 100);
@@ -1699,11 +1699,6 @@ codeunit 134284 "Non Ded. VAT Misc."
         exit(100 - VATPostingSetup."Non-Deductible VAT %");
     end;
 
-    local procedure AssignDeductiblePctToVATAmountLine(var VATAmountLine: Record "VAT Amount Line"; DeductiblePct: Decimal)
-    begin
-        VATAmountLine."Non-Deductible VAT %" := 100 - DeductiblePct;
-    end;
-
     local procedure AssignDeductibleVATPct(var VATPostingSetup: Record "VAT Posting Setup"; DedVATPct: Decimal)
     begin
         LibraryNonDeductibleVAT.SetAllowNonDeductibleVATForVATPostingSetup(VATPostingSetup);
@@ -1713,11 +1708,6 @@ codeunit 134284 "Non Ded. VAT Misc."
     local procedure AssignNonDeductibleVATAccount(var VATPostingSetup: Record "VAT Posting Setup"; GLAccNo: Code[20])
     begin
         VATPostingSetup.Validate("Non-Ded. Purchase VAT Account", GLAccNo);
-    end;
-
-    local procedure GetDeductibleVATPctFromVATAmountLine(VATAmountLine: Record "VAT Amount Line"): Decimal
-    begin
-        exit(100 - VATAmountLine."Non-Deductible VAT %");
     end;
 
     local procedure FindPurchaseInvoiceLine(var PurchInvLine: Record "Purch. Inv. Line"; PurchaseInvoiceNo: Code[20])
@@ -1894,4 +1884,3 @@ codeunit 134284 "Non Ded. VAT Misc."
         Reply := true;
     end;
 }
-

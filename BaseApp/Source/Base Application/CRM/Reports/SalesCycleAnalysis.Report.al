@@ -124,6 +124,8 @@ report 5062 "Sales Cycle - Analysis"
 
     requestpage
     {
+        AboutTitle = 'About Sales Cycle - Analysis';
+        AboutText = 'Get an overview of your sales cycles, including the number of opportunities currently at that stage and the estimated and calculated current values of opportunities.';
 
         layout
         {

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Utilities;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Utilities;
 
 using Microsoft.CRM.Setup;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -580,48 +584,6 @@ codeunit 1400 DocumentNoVisibility
         exit(NoSeriesBatch.GetNextNo(NoSeriesCode, SeriesDate, true) = '');
     end;
 
-#if not CLEAN24
-    /// <summary>
-    /// Increases the number series until the next number is free in the table for the specified field.
-    /// </summary>
-    /// <param name="RecVariant">Record or table id which the number series is used for.</param>
-    /// <param name="NoSeriesCode">No. Series used.</param>
-    /// <param name="FieldNo">Field the number series is used for.</param>
-    [Obsolete('This method is no longer used. Add specific logic for your table in the OnInsert trigger.', '24.0')]
-    procedure CheckNumberSeries(RecVariant: Variant; NoSeriesCode: Code[20]; FieldNo: Integer)
-    var
-        NoSeries: Record "No. Series";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        RecRef: RecordRef;
-        FieldRef: FieldRef;
-        NewNo: Code[20];
-        RecAlreadyExists: Boolean;
-    begin
-        OnBeforeCheckNumberSeries(RecVariant, NoSeriesCode, FieldNo, NoSeries);
-        if (RecVariant.IsRecord or RecVariant.IsInteger) and (NoSeriesCode <> '') and NoSeries.Get(NoSeriesCode) then begin
-            NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
-            if RecVariant.IsRecord then
-                RecRef.GetTable(RecVariant)
-            else
-                RecRef.Open(RecVariant);
-            FieldRef := RecRef.Field(FieldNo);
-            FieldRef.SetRange(NewNo);
-            RecAlreadyExists := not RecRef.IsEmpty();
-            while RecAlreadyExists do begin
-                NoSeriesMgt.SaveNoSeries();
-                NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
-                FieldRef.SetRange(NewNo);
-                RecAlreadyExists := not RecRef.IsEmpty();
-            end;
-        end;
-    end;
-
-    [Obsolete('This event is no longer used. Add specific logic for your table in the OnInsert trigger.', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckNumberSeries(var RecVariant: Variant; var NoSeriesCode: Code[20]; FieldNo: Integer; var NoSeries: Record "No. Series")
-    begin
-    end;
-#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesDocumentNoIsVisible(DocType: Option; DocNo: Code[20]; var IsVisible: Boolean; var IsHandled: Boolean)
     begin
@@ -713,4 +675,3 @@ codeunit 1400 DocumentNoVisibility
     begin
     end;
 }
-

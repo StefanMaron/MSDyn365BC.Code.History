@@ -117,8 +117,31 @@ pageextension 99000802 "Mfg. Capacity Ledger Entries" extends "Capacity Ledger E
             }
         }
     }
+    actions
+    {
+        addafter("&Navigate")
+        {
+            action("Reverse")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Reverse Production Entry';
+                Image = ReverseLines;
+                ToolTip = 'Reverse a production capacity ledger entry for the selected lines.';
+                Ellipsis = true;
 
-    local procedure GetCaption(): Text[250]
+                trigger OnAction()
+                var
+                    CapacityLedgEntry: Record "Capacity Ledger Entry";
+                    UndoProdPostingMgmt: Codeunit Microsoft.Manufacturing.Journal."Undo Prod. Posting Mgmt.";
+                begin
+                    CurrPage.SetSelectionFilter(CapacityLedgEntry);
+                    UndoProdPostingMgmt.ReverseCapacityLedgerEntry(CapacityLedgEntry);
+                end;
+            }
+        }
+    }
+
+    local procedure GetCaption(): Text
     var
         ObjTransl: Record System.Globalization."Object Translation";
         WorkCenter: Record "Work Center";

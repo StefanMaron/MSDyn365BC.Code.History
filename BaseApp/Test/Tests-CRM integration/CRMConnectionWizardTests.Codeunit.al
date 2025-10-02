@@ -12,7 +12,6 @@ codeunit 139314 "CRM Connection Wizard Tests"
         LibraryCRMIntegration: Codeunit "Library - CRM Integration";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        LibraryPermissions: Codeunit "Library - Permissions";
         Assert: Codeunit Assert;
         InitialCRMUrlTxt: Label 'https://test.crm.dynamics.com', Locked = true;
         CorrectConnectionStringTxt: Label 'https://test.api.crm.dynamics.com/XRMServices/2011/Organization.svc';
@@ -713,16 +712,6 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetup.Insert();
     end;
 
-    local procedure CreateUser(var User: Record User; GenerateNewKey: Boolean)
-    var
-        IdentityManagement: Codeunit "Identity Management";
-    begin
-        LibraryPermissions.CreateWindowsUser(User, UserId);
-        IdentityManagement.ClearWebServicesKey(User."User Security ID");
-        if GenerateNewKey then
-            IdentityManagement.CreateWebServicesKeyNoExpiry(User."User Security ID");
-    end;
-
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmYesHandler(Question: Text[1024]; var Reply: Boolean)
@@ -827,4 +816,3 @@ codeunit 139314 "CRM Connection Wizard Tests"
     begin
     end;
 }
-

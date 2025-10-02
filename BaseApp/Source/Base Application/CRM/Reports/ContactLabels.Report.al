@@ -146,6 +146,8 @@ report 5056 "Contact - Labels"
 
     requestpage
     {
+        AboutTitle = 'About Contact Labels';
+        AboutText = 'Print mailing labels with the names and addresses of your contacts.';
         SaveValues = true;
 
         layout

@@ -5,6 +5,60 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 3778703352 - NamedType 500532366" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to open the bank account statement?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Bank Recon. with Matching - NamedType OpenBankStatementPageQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3778703352 - NamedType 1909587369" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 was not refreshed.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=PageName]D;]A;(LookupHint=Codeunit Bank Recon. with Matching - NamedType PageNotRefreshedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3778703352 - NamedType 3674415759" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 was not created.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=TableCaption]D;]A;(LookupHint=Codeunit Bank Recon. with Matching - NamedType RecordNotCreatedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3778703352 - NamedType 1396408276" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 was not deleted.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=TableCaption]D;]A;(LookupHint=Codeunit Bank Recon. with Matching - NamedType RecordNotDeletedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3778703352 - NamedType 2100988429" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 was not found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=TableCaption]D;]A;(LookupHint=Codeunit Bank Recon. with Matching - NamedType RecordNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3778703352 - NamedType 3192598306" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The filter on %1 is wrong.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=FieldCaption]D;]A;(LookupHint=Codeunit Bank Recon. with Matching - NamedType WrongFilterErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3378684604 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in %3.]]></Val>
@@ -1733,42 +1787,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report II - NamedType VendorNoCap)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2223412225 - NamedType 2150002171" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[BalanceDue___1_]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report III - NamedType BalanceDue1Cap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2223412225 - NamedType 3521709422" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[BalanceDue___2_]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report III - NamedType BalanceDue2Cap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2223412225 - NamedType 3433921149" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[BalanceDue___3_]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report III - NamedType BalanceDue3Cap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2223412225 - NamedType 631294376" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[BalanceDue___4_]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report III - NamedType BalanceDue4Cap)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2223412225 - NamedType 1245248361" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Balances]]></Val>
@@ -1859,15 +1877,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report III - NamedType Filter2)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2223412225 - NamedType 1634217986" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<Precision,2:3><Standard Format,2>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report III - NamedType FormatString)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2223412225 - NamedType 2803448317" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Gen__Journal_Line__Document_No__]]></Val>
@@ -1902,51 +1911,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report III - NamedType GLAccNetChangeNetChangeinJnlCap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2223412225 - NamedType 1302311305" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[GrandBalanceDue_1_]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report III - NamedType GrandBalanceDue1Cap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2223412225 - NamedType 1495345528" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[GrandBalanceDue_2_]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report III - NamedType GrandBalanceDue2Cap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2223412225 - NamedType 2871045127" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[GrandBalanceDue_3_]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report III - NamedType GrandBalanceDue3Cap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2223412225 - NamedType 132369982" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[GrandBalanceDue_4_]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report III - NamedType GrandBalanceDue4Cap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2223412225 - NamedType 1428951656" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[GrandTotalBalanceDue_]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report III - NamedType GrandTotalBalanceDueCap)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2223412225 - NamedType 1162886362" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2001,42 +1965,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report III - NamedType OrderedQty)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2223412225 - NamedType 2806217103" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[PercentString_1_]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report III - NamedType PercentString1Cap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2223412225 - NamedType 2367048994" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[PercentString_2_]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report III - NamedType PercentString2Cap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2223412225 - NamedType 4090136081" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[PercentString_3_]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report III - NamedType PercentString3Cap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2223412225 - NamedType 567731044" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[PercentString_4_]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report III - NamedType PercentString4Cap)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2223412225 - NamedType 809737861" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3648,33 +3576,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT PAG Vendor 1099 - NamedType CodeDIV01B)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1629905518 - NamedType 1350740897" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[DIV-08]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT PAG Vendor 1099 - NamedType IRS1099CodeDiv)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1629905518 - NamedType 2156237713" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[INT-05]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT PAG Vendor 1099 - NamedType IRS1099CodeInt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1629905518 - NamedType 1441483700" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[MISC-02]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT PAG Vendor 1099 - NamedType IRS1099CodeMisc)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 72376396 - NamedType 3215752075" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5331,6 +5232,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = document number;%2 = vendor number;%3 = IRS 1099 code.]D;]A;(LookupHint=Codeunit UT REP Vendor 1099 - NamedType UnkownCodeErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3749231957 - NamedType 1445403785" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Use the new IRS Forms feature]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Vendor 1099 - NamedType UseNewIRSFormsFeatureMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3014219630 - NamedType 1379643284" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

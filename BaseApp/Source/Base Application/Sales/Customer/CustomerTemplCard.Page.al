@@ -1,7 +1,13 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Customer;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Address;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Sales.Setup;
 
 page 1382 "Customer Templ. Card"
 {
@@ -76,6 +82,11 @@ page 1382 "Customer Templ. Card"
                     Visible = false;
                 }
                 field("Credit Limit (LCY)"; Rec."Credit Limit (LCY)")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
+                field("Statistics Group"; Rec."Statistics Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Visible = false;
@@ -261,7 +272,12 @@ page 1382 "Customer Templ. Card"
                         Importance = Promoted;
                         ShowMandatory = true;
                     }
-
+                    field("Allow Multiple Posting Groups"; Rec."Allow Multiple Posting Groups")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Importance = Additional;
+                        Visible = IsAllowMultiplePostingGroupsVisible;
+                    }
                 }
                 group(PricesandDiscounts)
                 {
@@ -270,6 +286,12 @@ page 1382 "Customer Templ. Card"
                     {
                         ApplicationArea = Suite;
                         Importance = Additional;
+                    }
+                    field("Price Calculation Method"; Rec."Price Calculation Method")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Importance = Promoted;
+                        Visible = ExtendedPriceEnabled;
                     }
                     field("Customer Price Group"; Rec."Customer Price Group")
                     {
@@ -492,11 +514,19 @@ page 1382 "Customer Templ. Card"
     }
 
     trigger OnOpenPage()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
         IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+        SalesReceivablesSetup.Get();
+        IsAllowMultiplePostingGroupsVisible := SalesReceivablesSetup."Allow Multiple Posting Groups";
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
     end;
 
     var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         FormatAddress: Codeunit "Format Address";
+        ExtendedPriceEnabled: Boolean;
+        IsAllowMultiplePostingGroupsVisible: Boolean;
         IsCountyVisible: Boolean;
 }

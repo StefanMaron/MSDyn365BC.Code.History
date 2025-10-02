@@ -9,6 +9,7 @@ using Microsoft.CostAccounting.Ledger;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Foundation.Period;
 using System.Security.AccessControl;
+using Microsoft.Finance.GeneralLedger.Setup;
 
 table 1103 "Cost Type"
 {
@@ -145,6 +146,8 @@ table 1103 "Cost Type"
         }
         field(31; "Balance at Date"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             BlankZero = true;
             CalcFormula = sum("Cost Entry".Amount where("Cost Type No." = field("No."),
                                                          "Cost Type No." = field(filter(Totaling)),
@@ -157,6 +160,8 @@ table 1103 "Cost Type"
         }
         field(32; "Net Change"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             BlankZero = true;
             CalcFormula = sum("Cost Entry".Amount where("Cost Type No." = field("No."),
                                                          "Cost Type No." = field(filter(Totaling)),
@@ -169,6 +174,8 @@ table 1103 "Cost Type"
         }
         field(33; "Budget Amount"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             BlankZero = true;
             CalcFormula = sum("Cost Budget Entry".Amount where("Cost Type No." = field("No."),
                                                                 "Cost Type No." = field(filter(Totaling)),
@@ -209,6 +216,8 @@ table 1103 "Cost Type"
         }
         field(36; Balance; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             BlankZero = true;
             CalcFormula = sum("Cost Entry".Amount where("Cost Type No." = field("No."),
                                                          "Cost Type No." = field(filter(Totaling)),
@@ -220,6 +229,8 @@ table 1103 "Cost Type"
         }
         field(37; "Budget at Date"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             Caption = 'Budget at Date';
             Editable = false;
         }
@@ -239,6 +250,8 @@ table 1103 "Cost Type"
         }
         field(47; "Debit Amount"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             CalcFormula = sum("Cost Entry"."Debit Amount" where("Cost Type No." = field("No."),
                                                                  "Cost Type No." = field(filter(Totaling)),
                                                                  "Cost Center Code" = field("Cost Center Filter"),
@@ -249,6 +262,8 @@ table 1103 "Cost Type"
         }
         field(48; "Credit Amount"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             CalcFormula = sum("Cost Entry"."Credit Amount" where("Cost Type No." = field("No."),
                                                                   "Cost Type No." = field(filter(Totaling)),
                                                                   "Cost Center Code" = field("Cost Center Filter"),
@@ -259,6 +274,8 @@ table 1103 "Cost Type"
         }
         field(51; "Balance to Allocate"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             BlankZero = true;
             CalcFormula = sum("Cost Entry".Amount where("Cost Type No." = field("No."),
                                                          "Cost Center Code" = field("Cost Center Filter"),
@@ -271,6 +288,8 @@ table 1103 "Cost Type"
         }
         field(60; "Budget Debit Amount"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             BlankNumbers = BlankNegAndZero;
             CalcFormula = sum("Cost Budget Entry".Amount where("Cost Type No." = field("No."),
                                                                 "Cost Type No." = field(filter(Totaling)),
@@ -283,6 +302,8 @@ table 1103 "Cost Type"
         }
         field(72; "Budget Credit Amount"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             BlankNumbers = BlankNegAndZero;
             CalcFormula = - sum("Cost Budget Entry".Amount where("Cost Type No." = field("No."),
                                                                  "Cost Type No." = field(filter(Totaling)),
@@ -295,6 +316,8 @@ table 1103 "Cost Type"
         }
         field(73; "Add. Currency Net Change"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
+            AutoFormatType = 1;
             BlankZero = true;
             CalcFormula = sum("Cost Entry"."Additional-Currency Amount" where("Cost Type No." = field("No."),
                                                                                "Cost Type No." = field(filter(Totaling)),
@@ -307,6 +330,8 @@ table 1103 "Cost Type"
         }
         field(74; "Add. Currency Balance at Date"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
+            AutoFormatType = 1;
             CalcFormula = sum("Cost Entry"."Additional-Currency Amount" where("Cost Type No." = field("No."),
                                                                                "Cost Type No." = field(filter(Totaling)),
                                                                                "Cost Center Code" = field("Cost Center Filter"),
@@ -436,9 +461,16 @@ table 1103 "Cost Type"
         exit(false)
     end;
 
+    local procedure GetAdditionalReportingCurrencyCode(): Code[10]
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        exit(GeneralLedgerSetup."Additional Reporting Currency");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBalance(var CostType: Record "Cost Type"; var IsHandled: Boolean)
     begin
     end;
 }
-

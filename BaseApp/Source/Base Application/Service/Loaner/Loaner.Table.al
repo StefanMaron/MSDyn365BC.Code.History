@@ -165,27 +165,14 @@ table 5913 Loaner
     end;
 
     trigger OnInsert()
-#if not CLEAN24
-    var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         if "No." = '' then begin
             ServMgtSetup.Get();
             ServMgtSetup.TestField("Loaner Nos.");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(ServMgtSetup."Loaner Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 "No. Series" := ServMgtSetup."Loaner Nos.";
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
                 "No." := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", ServMgtSetup."Loaner Nos.", 0D, "No.");
-            end;
-#endif
         end;
     end;
 
@@ -219,4 +206,3 @@ table 5913 Loaner
         end;
     end;
 }
-

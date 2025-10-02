@@ -6,6 +6,10 @@ namespace Microsoft.Bank.Ledger;
 
 using Microsoft.Finance.GeneralLedger.Ledger;
 
+/// <summary>
+/// Opens the Bank Account Ledger Entries page filtered to show entries from a specific G/L register.
+/// Links general ledger register records to their corresponding bank account ledger entries for audit trails.
+/// </summary>
 codeunit 377 "G/L Reg.-Bank Account Ledger"
 {
     TableNo = "G/L Register";

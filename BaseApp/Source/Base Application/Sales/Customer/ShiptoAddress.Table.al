@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Customer;
 
 using Microsoft.EServices.OnlineMap;
@@ -223,26 +227,18 @@ table 222 "Ship-to Address"
                 ValidateEmail()
             end;
         }
-#if not CLEAN24
-        field(103; "Home Page"; Text[80])
-        {
-            Caption = 'Home Page';
-            ExtendedDatatype = URL;
-            ObsoleteReason = 'Field length will be increased to 255.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-            ToolTip = 'Specifies the recipient''s web site.';
-        }
-#else
+#if not CLEAN27
 #pragma warning disable AS0086
+#endif
         field(103; "Home Page"; Text[255])
-        {
-            Caption = 'Home Page';
-            ExtendedDatatype = URL;
-            ToolTip = 'Specifies the recipient''s web site.';
-        }
+#if not CLEAN27
 #pragma warning restore AS0086
 #endif
+        {
+            Caption = 'Home Page';
+            ExtendedDatatype = URL;
+            ToolTip = 'Specifies the recipient''s web site.';
+        }
         field(108; "Tax Area Code"; Code[20])
         {
             Caption = 'Tax Area Code';
@@ -421,4 +417,3 @@ table 222 "Ship-to Address"
     begin
     end;
 }
-

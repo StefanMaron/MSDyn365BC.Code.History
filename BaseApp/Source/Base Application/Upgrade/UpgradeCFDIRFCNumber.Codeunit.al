@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 104155 "Upgrade CFDI RFC Number"
 {
     Subtype = Upgrade;

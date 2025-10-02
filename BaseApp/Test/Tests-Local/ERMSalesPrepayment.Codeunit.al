@@ -125,28 +125,12 @@ codeunit 141000 "ERM Sales Prepayment"
             TaxGroup.Code),
           PrepmtIncludeTax);
 
-        // ----------------------------------------------------
-        // *** Important notice!!! ***
-        // Next function should be removed after fixing 327084.
-        // ----------------------------------------------------
-        // UpdateSalesLineToAvoidBug327084(SalesHeader);
-
         // 2. Exercise: Post the Prepayment Sales Invoice and Sales Shipment & Invoice.
         SalesPostPrepayments.Invoice(SalesHeader);
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // 3. Verify: Verify that, the Sales Invoice has been posted successfully.
         SalesInvHeader.Get(DocNo);
-    end;
-
-    local procedure UpdateSalesLineToAvoidBug327084(SalesHeader: Record "Sales Header")
-    var
-        SalesLine: Record "Sales Line";
-    begin
-        // See coments for RoundingIssueAfterPrepayment
-        SalesLine.Get(SalesLine."Document Type"::Order, SalesHeader."No.", 10000);
-        SalesLine.Validate(Quantity, 1000000);
-        SalesLine.Modify(true);
     end;
 
     local procedure CreateGLAccount(GenProdPostingGroup: Code[20]; Description: Code[50]): Code[20]
@@ -335,4 +319,3 @@ codeunit 141000 "ERM Sales Prepayment"
         Commit();
     end;
 }
-

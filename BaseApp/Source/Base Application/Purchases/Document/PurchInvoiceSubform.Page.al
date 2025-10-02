@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Document;
 
 using Microsoft.Finance.AllocationAccount;
 using Microsoft.Finance.AllocationAccount.Purchase;
@@ -596,12 +600,6 @@ page 55 "Purch. Invoice Subform"
                     ToolTip = 'Specifies the line discount amount of the project ledger entry that is related to the purchase line.';
                     Visible = false;
                 }
-                field("Prod. Order No."; Rec."Prod. Order No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the related production order.';
-                    Visible = false;
-                }
                 field("Blanket Order No."; Rec."Blanket Order No.")
                 {
                     ApplicationArea = Suite;
@@ -666,6 +664,11 @@ page 55 "Purch. Invoice Subform"
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies, if the type is Fixed Asset, that information on the line is to be posted to all the assets defined depreciation books. ';
+                    Visible = false;
+                }
+                field("No. of Fixed Asset Cards"; Rec."No. of Fixed Asset Cards")
+                {
+                    ApplicationArea = FixedAssets;
                     Visible = false;
                 }
                 field("Appl.-to Item Entry"; Rec."Appl.-to Item Entry")

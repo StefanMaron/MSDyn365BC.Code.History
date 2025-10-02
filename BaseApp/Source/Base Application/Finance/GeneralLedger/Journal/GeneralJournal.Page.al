@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Journal;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.GeneralLedger.Journal;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Reconciliation;
@@ -15,6 +19,7 @@ using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.Reporting;
+using Microsoft.HumanResources.Setup;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Customer;
@@ -1460,20 +1465,6 @@ page 39 "General Journal"
                         end;
                     }
                 }
-#if not CLEAN24
-                customaction(CreateFlowFromTemplate)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Create approval flow';
-                    ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
-                    Visible = false;
-                    CustomActionType = FlowTemplateGallery;
-                    FlowTemplateCategoryName = 'd365bc_approval_generalJournal';
-                    ObsoleteReason = 'Replaced by field "CreateApprovalFlowFromTemplate" in the group Flow.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-                }
-#endif
                 group(Flow)
                 {
                     Caption = 'Power Automate';
@@ -2007,7 +1998,7 @@ page 39 "General Journal"
 
         GeneralLedgerSetup.Get();
 
-        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(FlowServiceManagement.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
 
         SetJobQueueVisibility();
     end;
@@ -2080,6 +2071,7 @@ page 39 "General Journal"
         GeneralLedgerSetup: Record "General Ledger Setup";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        HumanResourcesSetup: Record "Human Resources Setup";
         GenJnlManagement: Codeunit GenJnlManagement;
         ReportPrint: Codeunit "Test Report-Print";
         PayrollManagement: Codeunit "Payroll Management";
@@ -2087,7 +2079,7 @@ page 39 "General Journal"
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         PrivacyNotice: Codeunit "Privacy Notice";
-        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
+        FlowServiceManagement: Codeunit "Flow Service Management";
         ApprovalMgmt: Codeunit "Approvals Mgmt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
@@ -2387,6 +2379,7 @@ page 39 "General Journal"
         GLSetup.Get();
         PurchasesPayablesSetup.GetRecordOnce();
         SalesReceivablesSetup.GetRecordOnce();
+        HumanResourcesSetup.Get();
         if IsSimplePage then begin
             AmountVisible := false;
             DebitCreditVisible := true;
@@ -2394,7 +2387,10 @@ page 39 "General Journal"
             AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
             DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
         end;
-        IsPostingGroupEditable := (PurchasesPayablesSetup."Allow Multiple Posting Groups") or (SalesReceivablesSetup."Allow Multiple Posting Groups");
+        IsPostingGroupEditable :=
+            PurchasesPayablesSetup."Allow Multiple Posting Groups" or
+            SalesReceivablesSetup."Allow Multiple Posting Groups" or
+            HumanResourcesSetup."Allow Multiple Posting Groups";
     end;
 
     local procedure SetDocumentNumberFilter(DocNoToSet: Code[20])

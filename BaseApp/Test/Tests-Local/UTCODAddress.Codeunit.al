@@ -238,17 +238,6 @@ codeunit 144008 "UT COD Address"
         LibraryVariableStorage.Clear();
     end;
 
-    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header")
-    begin
-        ServiceHeader."Document Type" := ServiceHeader."Document Type";  // Using default Document Type - Quote.
-        ServiceHeader."No." := LibraryUTUtility.GetNewCode();
-        ServiceHeader.Name := LibraryUTUtility.GetNewCode();
-        ServiceHeader.Address := LibraryUTUtility.GetNewCode();
-        ServiceHeader.City := LibraryUTUtility.GetNewCode();
-        ServiceHeader.County := LibraryUTUtility.GetNewCode();
-        ServiceHeader.Insert();
-    end;
-
     local procedure CreateCustomer(var Customer: Record Customer; CountryRegionCode: Code[10])
     begin
         Customer."No." := LibraryUTUtility.GetNewCode();
@@ -259,15 +248,6 @@ codeunit 144008 "UT COD Address"
         Customer.County := LibraryUTUtility.GetNewCode10();
         Customer."Country/Region Code" := CountryRegionCode;
         Customer.Insert();
-    end;
-
-    local procedure CreateCustomerPostingGroup(): Code[20]
-    var
-        CustomerPostingGroup: Record "Customer Posting Group";
-    begin
-        CustomerPostingGroup.Code := LibraryUTUtility.GetNewCode10();
-        CustomerPostingGroup.Insert();
-        exit(CustomerPostingGroup.Code);
     end;
 
     local procedure CreateCountryRegion(AddressFormat: Enum "Country/Region Address Format"): Code[10]
@@ -310,14 +290,6 @@ codeunit 144008 "UT COD Address"
         TransferHeader.Insert();
     end;
 
-    local procedure VerifyCustomerCounty(No: Code[20]; County: Text[30])
-    var
-        Customer: Record Customer;
-    begin
-        Customer.Get(No);
-        Customer.TestField(County, County);
-    end;
-
     local procedure VerifyCustomerPostalAddress(Customer: Record Customer; AddressArray: array[8] of Text[90]; PostalAddress: Text[90])
     begin
         Customer.TestField(Name, AddressArray[1]);
@@ -325,4 +297,3 @@ codeunit 144008 "UT COD Address"
         Assert.AreEqual(PostalAddress, AddressArray[3], 'Value must be Equal.');
     end;
 }
-

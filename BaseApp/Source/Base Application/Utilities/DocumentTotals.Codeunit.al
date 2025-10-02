@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Utilities;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Utilities;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -40,6 +44,7 @@ codeunit 57 "Document Totals"
         InvoiceDiscountAmountLbl: Label 'Invoice Discount Amount';
         RefreshMsgTxt: Label 'Totals or discounts may not be up-to-date. Choose the link to update.';
         TotalLineAmountLbl: Label 'Subtotal';
+        InvoiceDiscountPerRoundingMsgTxt: Label 'The system has recalculated the discount percentage to align with the rounded discount amount.';
 
     procedure CalculateSalesPageTotals(var TotalSalesLine: Record "Sales Line"; var VATAmount: Decimal; var SalesLine: Record "Sales Line")
     var
@@ -67,6 +72,8 @@ codeunit 57 "Document Totals"
         SalesLine2: Record "Sales Line";
         TotalSalesLine2: Record "Sales Line";
         IsHandled: Boolean;
+        OldInvoiceDiscountPct: Decimal;
+        RoundingDiffDiscountPer: Decimal;
     begin
         IsHandled := false;
         OnBeforeCalculateSalesSubPageTotals(TotalSalesHeader, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct, IsHandled);
@@ -114,12 +121,16 @@ codeunit 57 "Document Totals"
                 TotalSalesHeader."Invoice Discount Calculation"::None,
                 TotalSalesHeader."Invoice Discount Calculation"::Amount:
                     begin
+                        OldInvoiceDiscountPct := InvoiceDiscountPct;
                         SalesLine2.CopyFilters(TotalSalesLine2);
                         SalesLine2.SetRange("Allow Invoice Disc.", true);
                         SalesLine2.CalcSums("Line Amount");
                         if SalesLine2."Line Amount" <> 0 then
                             InvoiceDiscountPct := Round(InvoiceDiscountAmount / SalesLine2."Line Amount" * 100, 0.00001);
                         TotalSalesHeader."Invoice Discount Value" := InvoiceDiscountAmount;
+                        RoundingDiffDiscountPer := Abs(OldInvoiceDiscountPct - InvoiceDiscountPct);
+                        if (RoundingDiffDiscountPer > 0) and (RoundingDiffDiscountPer <= 0.01) and (OldInvoiceDiscountPct <> 0) then
+                            Message(InvoiceDiscountPerRoundingMsgTxt);
                     end;
             end;
 

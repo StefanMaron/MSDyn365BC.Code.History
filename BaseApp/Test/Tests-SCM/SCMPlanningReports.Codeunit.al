@@ -15,27 +15,33 @@ codeunit 137308 "SCM Planning Reports"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryPlanning: Codeunit "Library - Planning";
+#if not CLEAN27
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+#endif
         LibraryUtility: Codeunit "Library - Utility";
+#if not CLEAN27
         LibrarySales: Codeunit "Library - Sales";
+#endif
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         ReservationEngineMgt: Codeunit "Reservation Engine Mgt.";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         isInitialized: Boolean;
+#if not CLEAN27
         PlannedReceiptsErr: Label 'Wrong planned receipts qty.';
         ScheduledReceiptsErr: Label 'Wrong scheduled receipts qty.';
         ErrMsgRequisition: Label 'Requisition Line must not exist.';
         ErrMsgDocument: Label 'Document must not exist.';
-        OutputMissingConfirmMessage: Label 'Some output is still missing. Do you still want to finish the order?';
+        OutputConfirmMessage: Label '\\  * Some output is still missing.\  * Some consumption is still missing.\\ Do you still want to finish the order?';
+#endif        
         RecordShould: Option Exist,"Not Exist";
-        ConsumptionMissingConfirmQst: Label 'Some consumption is still missing. Do you still want to finish the order?';
         RecordExistenceErr: Label '%1 record should %2.';
-
+#if not CLEAN27
     [Test]
     [HandlerFunctions('PlanningAvailabilityRequestPageHandler')]
     [Scope('OnPrem')]
@@ -933,14 +939,10 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
         ProductionForecastEntry: Record "Production Forecast Entry";
         ProductionForecastName: Record "Production Forecast Name";
-        ManufacturingSetup: Record "Manufacturing Setup";
         EventDate: Date;
-        CurrentProductionForecast: Code[10];
     begin
         // 1) Setup: Create a production forecast entry for an item with a Production BOM
         Initialize();
-        ManufacturingSetup.Get();
-        CurrentProductionForecast := ManufacturingSetup."Current Production Forecast";
         CreateItemWithProductionBOM(Item);
         CreateForecastEntry(ProductionForecastEntry, ProductionForecastName, Item, EventDate);
 
@@ -949,11 +951,6 @@ codeunit 137308 "SCM Planning Reports"
 
         // 3) Verify
         VerifyProductionForecastGrossRequirement(ProductionForecastEntry);
-
-        // 4) Cleanup
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
-        ManufacturingSetup.Modify(true);
     end;
 
     [Test]
@@ -1232,8 +1229,7 @@ codeunit 137308 "SCM Planning Reports"
             NewReleasedProdOrderNo :=
               LibraryManufacturing.ChangeStatusFirmPlanToReleased(ProductionOrder."No.")
         else begin
-            LibraryVariableStorage.Enqueue(OutputMissingConfirmMessage);
-            LibraryVariableStorage.Enqueue(ConsumptionMissingConfirmQst);
+            LibraryVariableStorage.Enqueue(OutputConfirmMessage);
             LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
         end;
 
@@ -1260,6 +1256,7 @@ codeunit 137308 "SCM Planning Reports"
             Assert.AreEqual(SalesLine.Quantity, SelectPlannedReceipts(), PlannedReceiptsErr);
         end;
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1297,9 +1294,8 @@ codeunit 137308 "SCM Planning Reports"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Planning Reports");
         RequisitionWkshName.DeleteAll();
-
         LibraryVariableStorage.Clear();
-
+        LibrarySetupStorage.Restore();
         LibraryApplicationArea.EnableEssentialSetup();
 
         if isInitialized then
@@ -1310,6 +1306,7 @@ codeunit 137308 "SCM Planning Reports"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         NoSeriesSetup();
         ItemJournalSetup();
+        LibrarySetupStorage.SaveInventorySetup();
 
         isInitialized := true;
         Commit();
@@ -1359,7 +1356,7 @@ codeunit 137308 "SCM Planning Reports"
         Item.SetRange("No.", Item."No.");
         Item.SetRange("Location Filter", Location.Code);
     end;
-
+#if not CLEAN27
     [Normal]
     local procedure CreateItemWithProductionBOM(var Item: Record Item)
     var
@@ -1400,6 +1397,7 @@ codeunit 137308 "SCM Planning Reports"
         SalesHeader.Get(SalesHeader."Document Type"::Order, SalesLine."Document No.");
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
+#endif
 
     local procedure CreateProductionOrderWithComponent(ItemNo: Code[20]; LocationCode: Code[10])
     var
@@ -1411,7 +1409,7 @@ codeunit 137308 "SCM Planning Reports"
         CreateItem(Item, '', ProductionBOMHeader."No.", Item."Reordering Policy"::"Lot-for-Lot", Item."Replenishment System"::"Prod. Order");
         CreateAndRefreshProdOrderWithLocation(ProductionOrder, ProductionOrder.Status::Released, Item."No.", LocationCode);
     end;
-
+#if not CLEAN27
     local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20])
     begin
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -1577,6 +1575,7 @@ codeunit 137308 "SCM Planning Reports"
           ProductionOrder, ProductionOrderStatus, ProductionOrder."Source Type"::Item, ItemNo, LibraryRandom.RandDec(5, 2));
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
+#endif
 
     local procedure CreateAndRefreshProdOrderWithLocation(var ProductionOrder: Record "Production Order"; ProductionOrderStatus: Enum "Production Order Status"; ItemNo: Code[20]; LocationCode: Code[10])
     begin
@@ -1586,7 +1585,7 @@ codeunit 137308 "SCM Planning Reports"
         ProductionOrder.Modify(true);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
-
+#if not CLEAN27
     local procedure UpdateProductionPlanningFlexibility(ProductionOrderNo: Code[20])
     var
         ProdOrderLine: Record "Prod. Order Line";
@@ -1596,6 +1595,7 @@ codeunit 137308 "SCM Planning Reports"
         ProdOrderLine.Validate("Planning Flexibility", ProdOrderLine."Planning Flexibility"::None);
         ProdOrderLine.Modify(true);
     end;
+#endif
 
     local procedure CarryOutActionMessageForRegenPlan(ItemNo: Code[20])
     var
@@ -1631,7 +1631,7 @@ codeunit 137308 "SCM Planning Reports"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.FindSet();
     end;
-
+#if not CLEAN27
     local procedure SelectProductionOrder(var ProductionOrder: Record "Production Order"; ItemNo: Code[20])
     begin
         ProductionOrder.SetRange("Source No.", ItemNo);
@@ -1748,13 +1748,14 @@ codeunit 137308 "SCM Planning Reports"
         RequisitionLine.SetRange("Journal Batch Name", JournalBatchName);
         RequisitionLine.FindSet();
     end;
+#endif
 
     local procedure UpdateActionMessageRequisitionLine(var RequisitionLine: Record "Requisition Line")
     begin
         RequisitionLine.Validate("Accept Action Message", true);
         RequisitionLine.Modify(true);
     end;
-
+#if not CLEAN27
     local procedure CalcPlanForRequisitionWorksheet(var RequisitionWkshName: Record "Requisition Wksh. Name"; Item: Record Item)
     var
         ReqWkshTemplate: Record "Req. Wksh. Template";
@@ -1786,6 +1787,7 @@ codeunit 137308 "SCM Planning Reports"
 
         exit(PlannedReceipts);
     end;
+#endif
 
     local procedure PurchReceiptAndCancelReservation(ItemNo: Code[20])
     var
@@ -1809,7 +1811,7 @@ codeunit 137308 "SCM Planning Reports"
         PurchaseLine.SetReservationFilters(ReservationEntry);
         ReservationEntry.FindFirst();
     end;
-
+#if not CLEAN27
     local procedure VerifySalesGrossRequirement(SalesLine: Record "Sales Line")
     begin
         LibraryReportDataset.SetRange('PlanningBuffDocNo', SalesLine."Document No.");
@@ -1922,6 +1924,7 @@ codeunit 137308 "SCM Planning Reports"
             Assert.AreEqual(SalesLine.Quantity + ItemReorderQuantity, SelectPlannedReceipts(), PlannedReceiptsErr);
         end;
     end;
+#endif
 
     local procedure VerifyActionLinesExists(ItemNo: Code[20]; RecordShould: Option Exist,"Not Exist")
     var
@@ -1940,17 +1943,11 @@ codeunit 137308 "SCM Planning Reports"
         Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), ConfirmMessage);
         Reply := true;
     end;
-
+#if not CLEAN27
     local procedure CreateForecastEntry(var ProductionForecastEntry: Record "Production Forecast Entry"; var ProductionForecastName: Record "Production Forecast Name"; Item: Record Item; var EventDate: Date)
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
     begin
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
-
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Current Production Forecast", ProductionForecastName.Name);
-        ManufacturingSetup.Modify(true);
-
+        LibraryPlanning.SetDemandForecast(ProductionForecastName.Name);
         EventDate := GenerateRandomDateNextYear();
         LibraryManufacturing.CreateProductionForecastEntry(
           ProductionForecastEntry, ProductionForecastName.Name, Item."No.", '', EventDate, false);
@@ -1978,5 +1975,6 @@ codeunit 137308 "SCM Planning Reports"
     begin
         PlanningAvailability.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
+#endif
 }
 

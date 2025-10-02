@@ -42,5 +42,12 @@ page 10018 "IRS 1099 Adjustments"
     actions
     {
     }
+
+    trigger OnOpenPage()
+    var
+        IRS1099Management: Codeunit "IRS 1099 Management";
+    begin
+        IRS1099Management.ThrowUseNewIRSFormsFeatureError();
+    end;
 }
 #endif

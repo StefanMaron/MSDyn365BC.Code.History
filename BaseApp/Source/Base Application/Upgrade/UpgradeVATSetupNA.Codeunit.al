@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 104156 "Upgrade VAT Setup NA"
 {
     SubType = Upgrade;

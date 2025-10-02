@@ -246,6 +246,8 @@ report 10007 "Consolidated Trial Balance"
 
     requestpage
     {
+        AboutTitle = 'About Consolidated Trial Balance';
+        AboutText = 'Combines financial data across companies, allowing finance teams to analyze consolidated performance and ensure alignment across entities. Use this report when reviewing financial results across multiple companies within an organization.';
         SaveValues = true;
 
         layout

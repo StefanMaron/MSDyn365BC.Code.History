@@ -5410,6 +5410,199 @@ codeunit 136101 "Service Orders"
         ServiceHeader.TestField("Posting Date", NewDate);
     end;
 
+    [Test]
+    procedure ServiceOrderShippingFieldsBlankWhenNoDefaults()
+    var
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+    begin
+        // [SCENARIO 540299] Service Order shipping fields are left blank when neither Customer nor Ship-to Address have defaults
+        Initialize();
+
+        // [GIVEN] Create Customer without shipping defaults
+        LibrarySales.CreateCustomer(Customer);
+
+        // [WHEN] Create Service Order without Ship-to Code and no Customer defaults
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+
+        // [THEN] Verify shipping fields are blank
+        ServiceHeader.TestField("Shipment Method Code", '');
+        ServiceHeader.TestField("Shipping Agent Code", '');
+        ServiceHeader.TestField("Shipping Agent Service Code", '');
+    end;
+
+    [Test]
+    procedure ServiceOrderShippingFieldsFromCustomerDefaults()
+    var
+        Customer: Record Customer;
+        ShipmentMethod: Record "Shipment Method";
+        ShippingAgent: Record "Shipping Agent";
+        ShippingAgentServices: Record "Shipping Agent Services";
+        ServiceHeader: Record "Service Header";
+        ShippingTime: DateFormula;
+    begin
+        // [SCENARIO 540299] Service Order shipping fields are assigned from Customer defaults when Ship-to Address has no defaults
+        Initialize();
+
+        // [GIVEN] Create Shipment Method and Shipping Agent with Service
+        CreateShipmentMethod(ShipmentMethod);
+        LibraryInventory.CreateShippingAgent(ShippingAgent);
+        Evaluate(ShippingTime, '<1W>');
+        LibraryInventory.CreateShippingAgentService(ShippingAgentServices, ShippingAgent.Code, ShippingTime);
+
+        // [GIVEN] Create Customer with shipping defaults
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Shipment Method Code", ShipmentMethod.Code);
+        Customer.Validate("Shipping Agent Code", ShippingAgent.Code);
+        Customer.Validate("Shipping Agent Service Code", ShippingAgentServices.Code);
+        Customer.Modify(true);
+
+        // [WHEN] Create Service Order without Ship-to Code (uses Customer defaults)
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+
+        // [THEN] Verify shipping fields are assigned from Customer defaults
+        ServiceHeader.TestField("Shipment Method Code", Customer."Shipment Method Code");
+        ServiceHeader.TestField("Shipping Agent Code", Customer."Shipping Agent Code");
+        ServiceHeader.TestField("Shipping Agent Service Code", Customer."Shipping Agent Service Code");
+    end;
+
+    [Test]
+    procedure ServiceOrderShippingFieldsFromShipToAddressDefaults()
+    var
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        ShipmentMethod: Record "Shipment Method";
+        ShippingAgent: Record "Shipping Agent";
+        ShippingAgentServices: Record "Shipping Agent Services";
+        ServiceHeader: Record "Service Header";
+        ShippingTime: DateFormula;
+    begin
+        // [SCENARIO 540299] Service Order shipping fields are assigned from Ship-to Address defaults when defined
+        Initialize();
+
+        // [GIVEN] Create Shipment Method and Shipping Agent with Service
+        CreateShipmentMethod(ShipmentMethod);
+        LibraryInventory.CreateShippingAgent(ShippingAgent);
+        Evaluate(ShippingTime, '<1W>');
+        LibraryInventory.CreateShippingAgentService(ShippingAgentServices, ShippingAgent.Code, ShippingTime);
+
+        // [GIVEN] Create Customer without shipping defaults
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Ship-to Address with shipping defaults
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        ShipToAddress.Validate("Shipment Method Code", ShipmentMethod.Code);
+        ShipToAddress.Validate("Shipping Agent Code", ShippingAgent.Code);
+        ShipToAddress.Validate("Shipping Agent Service Code", ShippingAgentServices.Code);
+        ShipToAddress.Modify(true);
+
+        // [WHEN] Create Service Order with Ship-to Code
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+        ServiceHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        ServiceHeader.Modify(true);
+
+        // [THEN] Verify shipping fields are assigned from Ship-to Address
+        ServiceHeader.TestField("Shipment Method Code", ShipToAddress."Shipment Method Code");
+        ServiceHeader.TestField("Shipping Agent Code", ShipToAddress."Shipping Agent Code");
+        ServiceHeader.TestField("Shipping Agent Service Code", ShipToAddress."Shipping Agent Service Code");
+    end;
+
+    [Test]
+    procedure ServiceOrderShippingFieldsShipToAddressOverridesCustomer()
+    var
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        ShipmentMethod: array[2] of Record "Shipment Method";
+        ShippingAgent: array[2] of Record "Shipping Agent";
+        ShippingAgentServices: array[2] of Record "Shipping Agent Services";
+        ServiceHeader: Record "Service Header";
+        ShippingTime: DateFormula;
+    begin
+        // [SCENARIO 540299] Service Order shipping fields from Ship-to Address override Customer defaults when both are defined
+        Initialize();
+
+        // [GIVEN] Create two sets of Shipment Methods and Shipping Agents with Services
+        CreateShipmentMethod(ShipmentMethod[1]);
+        CreateShipmentMethod(ShipmentMethod[2]);
+        LibraryInventory.CreateShippingAgent(ShippingAgent[1]);
+        LibraryInventory.CreateShippingAgent(ShippingAgent[2]);
+        Evaluate(ShippingTime, '<1W>');
+        LibraryInventory.CreateShippingAgentService(ShippingAgentServices[1], ShippingAgent[1].Code, ShippingTime);
+        LibraryInventory.CreateShippingAgentService(ShippingAgentServices[2], ShippingAgent[2].Code, ShippingTime);
+
+        // [GIVEN] Create Customer with shipping defaults (set 1)
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Shipment Method Code", ShipmentMethod[1].Code);
+        Customer.Validate("Shipping Agent Code", ShippingAgent[1].Code);
+        Customer.Validate("Shipping Agent Service Code", ShippingAgentServices[1].Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Create Ship-to Address with different shipping defaults (set 2)
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        ShipToAddress.Validate("Shipment Method Code", ShipmentMethod[2].Code);
+        ShipToAddress.Validate("Shipping Agent Code", ShippingAgent[2].Code);
+        ShipToAddress.Validate("Shipping Agent Service Code", ShippingAgentServices[2].Code);
+        ShipToAddress.Modify(true);
+
+        // [WHEN] Create Service Order with Ship-to Code
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+        ServiceHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        ServiceHeader.Modify(true);
+
+        // [THEN] Verify shipping fields are assigned from Ship-to Address (set 2), not Customer (set 1)
+        ServiceHeader.TestField("Shipment Method Code", ShipToAddress."Shipment Method Code");
+        ServiceHeader.TestField("Shipping Agent Code", ShipToAddress."Shipping Agent Code");
+        ServiceHeader.TestField("Shipping Agent Service Code", ShipToAddress."Shipping Agent Service Code");
+
+        // [THEN] Verify they are NOT the Customer defaults
+        Assert.AreNotEqual(Customer."Shipment Method Code", ServiceHeader."Shipment Method Code", 'Ship-to should override Customer Shipment Method');
+        Assert.AreNotEqual(Customer."Shipping Agent Code", ServiceHeader."Shipping Agent Code", 'Ship-to should override Customer Shipping Agent');
+        Assert.AreNotEqual(Customer."Shipping Agent Service Code", ServiceHeader."Shipping Agent Service Code", 'Ship-to should override Customer Shipping Agent Service');
+    end;
+
+    [Test]
+    procedure ServiceOrderShippingFieldsPartialShipToAddressDefaults()
+    var
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        ShipmentMethod: Record "Shipment Method";
+        ShippingAgent: Record "Shipping Agent";
+        ShippingAgentServices: Record "Shipping Agent Services";
+        ServiceHeader: Record "Service Header";
+        ShippingTime: DateFormula;
+    begin
+        // [SCENARIO 540299] Service Order shipping fields use Ship-to defaults where defined, Customer defaults for others
+        Initialize();
+
+        // [GIVEN] Create Shipment Methods and Shipping Agent with Service
+        CreateShipmentMethod(ShipmentMethod);
+        LibraryInventory.CreateShippingAgent(ShippingAgent);
+        Evaluate(ShippingTime, '<1W>');
+        LibraryInventory.CreateShippingAgentService(ShippingAgentServices, ShippingAgent.Code, ShippingTime);
+
+        // [GIVEN] Create Customer with Shipment Method but no Shipping Agent
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Shipment Method Code", ShipmentMethod.Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Create Ship-to Address with only Shipping Agent and Service
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        ShipToAddress.Validate("Shipping Agent Code", ShippingAgent.Code);
+        ShipToAddress.Validate("Shipping Agent Service Code", ShippingAgentServices.Code);
+        ShipToAddress.Modify(true);
+
+        // [WHEN] Create Service Order with Ship-to Code
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+        ServiceHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        ServiceHeader.Modify(true);
+
+        // [THEN] Verify Shipment Method comes from Customer
+        ServiceHeader.TestField("Shipment Method Code", Customer."Shipment Method Code");
+        // [THEN] Verify Shipping Agent fields come from Ship-to Address
+        ServiceHeader.TestField("Shipping Agent Code", ShipToAddress."Shipping Agent Code");
+        ServiceHeader.TestField("Shipping Agent Service Code", ShipToAddress."Shipping Agent Service Code");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -8067,6 +8260,13 @@ codeunit 136101 "Service Orders"
         CustomReportSelection.Validate(
             "Email Body Layout Code", CustomReportLayout.InitBuiltInLayout(CustomReportSelection."Report ID", CustomReportLayout.Type::Word.AsInteger()));
         CustomReportSelection.Insert(true);
+    end;
+
+    local procedure CreateShipmentMethod(var ShipmentMethod: Record "Shipment Method")
+    begin
+        ShipmentMethod.Init();
+        ShipmentMethod.Code := LibraryUtility.GenerateRandomCode(ShipmentMethod.FieldNo(Code), Database::"Shipment Method");
+        ShipmentMethod.Insert();
     end;
 
     [ConfirmHandler]

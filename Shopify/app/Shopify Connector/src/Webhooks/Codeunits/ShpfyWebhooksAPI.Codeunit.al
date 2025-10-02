@@ -1,3 +1,8 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
 namespace Microsoft.Integration.Shopify;
 
 using System.Integration;
@@ -21,7 +26,7 @@ codeunit 30251 "Shpfy Webhooks API"
         GraphQLType := GraphQLType::CreateWebhookSubscription;
         Parameters.Add('WebhookTopic', WebhookTopic);
         Parameters.Add('NotificationUrl', GetNotificationUrl());
-        JResponse := CommunicationMgt.ExecuteGraphQL(GraphQLType, Parameters);
+        JResponse := CommunicationMgt.ExecuteGraphQL(GraphQLType, Parameters, false);
         ExtractWebhookSubscriptionId(JResponse.AsObject(), SubscriptionId);
         exit(SubscriptionId);
     end;
@@ -60,7 +65,7 @@ codeunit 30251 "Shpfy Webhooks API"
         CommunicationMgt.SetShop(Shop);
         GraphQLType := GraphQLType::DeleteWebhookSubscription;
         Parameters.Add('SubscriptionId', SubscriptionId);
-        CommunicationMgt.ExecuteGraphQL(GraphQLType, Parameters);
+        CommunicationMgt.ExecuteGraphQL(GraphQLType, Parameters, false);
     end;
 
     local procedure ExtractWebhookSubscriptionId(JResponse: JsonObject; var SubscriptionId: Text)

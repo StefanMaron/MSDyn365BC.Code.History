@@ -7,6 +7,14 @@ namespace Microsoft.Finance.Payroll;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.GeneralLedger.Journal;
 
+/// <summary>
+/// Configuration table for payroll import functionality and default journal assignments.
+/// Stores user preferences and journal template settings for payroll processing.
+/// </summary>
+/// <remarks>
+/// Single-record setup table with validation for journal template types and batch relationships.
+/// Integrates with General Journal for payroll transaction posting.
+/// </remarks>
 table 1660 "Payroll Setup"
 {
     Caption = 'Payroll Setup';
@@ -21,6 +29,10 @@ table 1660 "Payroll Setup"
             AutoIncrement = true;
             Caption = 'Primary Key';
         }
+        /// <summary>
+        /// Default journal template for payroll imports.
+        /// Restricted to specific journal types with validation for non-recurring templates.
+        /// </summary>
         field(2; "General Journal Template Name"; Code[10])
         {
             Caption = 'General Journal Template Name';
@@ -51,6 +63,10 @@ table 1660 "Payroll Setup"
                     "General Journal Batch Name" := '';
             end;
         }
+        /// <summary>
+        /// Default journal batch for payroll imports within the selected template.
+        /// Validates against non-recurring batches only.
+        /// </summary>
         field(3; "General Journal Batch Name"; Code[10])
         {
             Caption = 'General Journal Batch Name';
@@ -66,6 +82,9 @@ table 1660 "Payroll Setup"
                 GenJournalBatch.TestField(Recurring, false);
             end;
         }
+        /// <summary>
+        /// User account associated with payroll processing.
+        /// </summary>
         field(10; "User Name"; Code[50])
         {
             Caption = 'User Name';
@@ -91,6 +110,9 @@ table 1660 "Payroll Setup"
         TemplateTypeErr: Label 'Only General Journal Templates of type %1, %2, %3, %4, or %5 are allowed.', Comment = '%1..5 lists Type=General,Purchases,Payments,Sales,Cash Receipts';
 #pragma warning restore AA0470
 
+    /// <summary>
+    /// Retrieves setup record, creating default values if no record exists.
+    /// </summary>
     procedure Fetch()
     begin
         if Fetched then

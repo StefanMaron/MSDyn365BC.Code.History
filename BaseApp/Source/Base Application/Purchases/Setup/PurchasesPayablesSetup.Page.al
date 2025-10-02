@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.Setup;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Setup;
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -50,11 +54,17 @@ page 460 "Purchases & Payables Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that Quantity is set to 1 on lines of type G/L Account.';
                 }
+#if not CLEAN27                
                 field("Create Item from Item No."; Rec."Create Item from Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the system will suggest to create a new item when no item matches the number that you enter in the No. Field on purchase lines.';
+                    Visible = false;
+                    ObsoleteReason = 'Discontinued functionality';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif                
                 field("Copy Vendor Name to Entries"; Rec."Copy Vendor Name to Entries")
                 {
                     ApplicationArea = Basic, Suite;
@@ -140,17 +150,23 @@ page 460 "Purchases & Payables Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the default value for the Qty. to Receive field on purchase order lines and the Return Qty. to Ship field on purchase return order lines. If you choose Blank, the quantity to invoice is not automatically calculated.';
+                }
+                field("Posting Date Check on Posting"; Rec."Posting Date Check on Posting")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if you want to see a warning when you post a purchase document with a posting date that is different from the Work Date.';
                 }
                 field("Combine Special Orders Default"; Rec."Combine Special Orders Default")
                 {
                     ToolTip = 'Specifies if special orders for purchases and payables should be combined.';
                 }
+
                 field("Use Vendor's Tax Area Code"; Rec."Use Vendor's Tax Area Code")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies where the tax area code for purchase sales tax calculations will come from. The tax area code combines with the tax group to determine how sales taxes are calculated and posted.';
                 }
+
                 field("Auto Post Non-Invt. via Whse."; Rec."Auto Post Non-Invt. via Whse.")
                 {
                     ApplicationArea = Warehouse;

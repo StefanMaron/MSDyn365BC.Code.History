@@ -277,7 +277,7 @@ report 10181 "Vendor 1099 Div 2022"
 
     trigger OnInitReport()
     begin
-        IRS1099Management.ThrowErrorfUpgrade2022Needed();
+        IRS1099Management.ThrowUseNewIRSFormsFeatureMessage();
     end;
 
     var

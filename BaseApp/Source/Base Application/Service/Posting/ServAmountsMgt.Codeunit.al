@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -7,9 +7,6 @@ namespace Microsoft.Service.Posting;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
-#if not CLEAN24
-using Microsoft.Finance.ReceivablesPayables;
-#endif
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Costing;
@@ -79,6 +76,7 @@ codeunit 5986 "Serv-Amounts Mgt."
             ServiceLine."Line Amount" := 0;
             ServiceLine."Line Discount Amount" := 0;
             ServiceLine."Inv. Discount Amount" := 0;
+            ServiceLine."Pmt. Discount Amount" := 0;
             ServiceLine."VAT Base Amount" := 0;
             ServiceLine.Amount := 0;
             ServiceLine."Amount Including VAT" := 0;
@@ -145,6 +143,8 @@ codeunit 5986 "Serv-Amounts Mgt."
                     LineDiscountAmountExpected := Round(ServiceLine."Line Amount" * ServiceLine."Line Discount %" / 100, Currency."Amount Rounding Precision");
                     if AmountsDifferByMoreThanRoundingPrecision(LineDiscountAmountExpected, ServiceLine."Line Discount Amount", Currency."Amount Rounding Precision") then
                         ServiceLine."Line Discount Amount" := LineDiscountAmountExpected;
+                    ServiceLine."Pmt. Discount Amount" :=
+                        Round(ServiceLine."Pmt. Discount Amount" * ServLineQty / ServiceLine.Quantity, Currency."Amount Rounding Precision");
                 end;
 
                 if ServiceLine."Line Discount %" = 100 then
@@ -175,9 +175,12 @@ codeunit 5986 "Serv-Amounts Mgt."
                         TempVATAmountLineRemainder."Amount Including VAT" := 0;
                     end else begin
                         TempVATAmountLineRemainder."VAT Amount" +=
-                          TempVATAmountLine."VAT Amount" * ServiceLine.CalcLineAmount() / TempVATAmountLine.CalcLineAmount();
+                          TempVATAmountLine."VAT Amount" *
+                          (ServiceLine.CalcLineAmount() - ServiceLine."Pmt. Discount Amount") /
+                          (TempVATAmountLine.CalcLineAmount() - TempVATAmountLine."Pmt. Discount Amount");
                         TempVATAmountLineRemainder."Amount Including VAT" +=
-                          TempVATAmountLine."Amount Including VAT" * ServiceLine.CalcLineAmount() / TempVATAmountLine.CalcLineAmount();
+                          TempVATAmountLine."Amount Including VAT" * (ServiceLine.CalcLineAmount() - ServiceLine."Pmt. Discount Amount") /
+                          (TempVATAmountLine.CalcLineAmount() - TempVATAmountLine."Pmt. Discount Amount");
                     end;
                     if ServiceLine."Line Discount %" <> 100 then
                         ServiceLine."Amount Including VAT" :=
@@ -203,7 +206,7 @@ codeunit 5986 "Serv-Amounts Mgt."
                         ServiceLine.Amount := 0;
                         ServiceLine."VAT Base Amount" := 0;
                     end else begin
-                        ServiceLine.Amount := ServiceLine.CalcLineAmount();
+                        ServiceLine.Amount := ServiceLine.CalcLineAmount() - ServiceLine."Pmt. Discount Amount";
                         ServiceLine."VAT Base Amount" :=
                           Round(
                             ServiceLine.Amount * (1 - ServiceHeader."VAT Base Discount %" / 100), Currency."Amount Rounding Precision");
@@ -211,7 +214,9 @@ codeunit 5986 "Serv-Amounts Mgt."
                             TempVATAmountLineRemainder."VAT Amount" := 0
                         else
                             TempVATAmountLineRemainder."VAT Amount" +=
-                              TempVATAmountLine."VAT Amount" * ServiceLine.CalcLineAmount() / TempVATAmountLine.CalcLineAmount();
+                              TempVATAmountLine."VAT Amount" *
+                              (ServiceLine.CalcLineAmount() - ServiceLine."Pmt. Discount Amount") /
+                              (TempVATAmountLine.CalcLineAmount() - TempVATAmountLine."Pmt. Discount Amount");
                         if ServiceLine."Line Discount %" <> 100 then
                             ServiceLine."Amount Including VAT" :=
                               ServiceLine.Amount + Round(TempVATAmountLineRemainder."VAT Amount", Currency."Amount Rounding Precision")
@@ -672,21 +677,7 @@ codeunit 5986 "Serv-Amounts Mgt."
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by new implementation event in codeunit ServicePostInvoice', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterFillInvoicePostBuffer(var InvoicePostBuffer: Record "Invoice Post. Buffer"; ServiceLine: Record "Service Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; SuppressCommit: Boolean; ServiceLineACY: Record "Service Line")
-    begin
-    end;
-#endif
 
-#if not CLEAN24
-    [Obsolete('Replaced by new implementation event in codeunit ServicePostInvoice', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterFillInvoicePostBufferProcedure(var InvoicePostBuffer: Record "Invoice Post. Buffer"; ServiceLine: Record "Service Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; SuppressCommit: Boolean; ServiceLineACY: Record "Service Line")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIncrAmount(var TotalServiceLine: Record "Service Line"; ServiceLine: Record "Service Line")
@@ -698,29 +689,8 @@ codeunit 5986 "Serv-Amounts Mgt."
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by new implementation event in codeunit ServicePostInvoice', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateInvPostBuffer(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary)
-    begin
-    end;
-#endif
 
-#if not CLEAN24
-    [Obsolete('Replaced by event OnBeforeFillInvoicePostBuffer().', '19.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeFillInvPostingBuffer(var InvPostingBuffer: array[2] of Record "Invoice Post. Buffer"; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
-#if not CLEAN24
-    [Obsolete('Replaced by new implementation event in codeunit ServicePostInvoice', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeFillInvoicePostBuffer(var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDivideAmount(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; QtyType: Option General,Invoicing,Shipping; ServLineQty: Decimal; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary)
@@ -732,34 +702,13 @@ codeunit 5986 "Serv-Amounts Mgt."
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by new implementation event in codeunit ServicePostInvoice', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeInvPostingBufferCalcInvoiceDiscountAmount(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
-#if not CLEAN24
-    [Obsolete('Replaced by new implementation event in codeunit ServicePostInvoice', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeInvPostingBufferCalcLineDiscountAmount(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRoundAmount(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; ServLineQty: Decimal)
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by new implementation event in codeunit ServicePostInvoice', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateInvPostBuffer(var InvoicePostBuffer: Record "Invoice Post. Buffer")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnDivideAmountOnAfterCalcLineAmountExpected(var ServiceLine: Record "Service Line"; var ChargeableQty: Decimal; var LineAmountExpected: Decimal)
@@ -801,4 +750,3 @@ codeunit 5986 "Serv-Amounts Mgt."
     begin
     end;
 }
-

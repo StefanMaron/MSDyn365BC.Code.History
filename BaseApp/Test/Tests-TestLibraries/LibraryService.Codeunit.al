@@ -19,6 +19,11 @@ using Microsoft.Service.Posting;
 using Microsoft.Service.Pricing;
 using Microsoft.Service.Setup;
 using Microsoft.Warehouse.Setup;
+using Microsoft.Projects.Project.Planning;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Inventory.Item;
+using Microsoft.Projects.TimeSheet;
+using Microsoft.Projects.Resources.Resource;
 
 codeunit 131902 "Library - Service"
 {
@@ -35,10 +40,14 @@ codeunit 131902 "Library - Service"
         LibraryRandom: Codeunit "Library - Random";
         LibraryResource: Codeunit "Library - Resource";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryTimesheet: Codeunit "Library - Time Sheet";
+        LibraryCashFlowHelper: Codeunit "Library - Cash Flow Helper";
         LibraryUtility: Codeunit "Library - Utility";
+        Assert: Codeunit Assert;
         ServicePeriodOneMonthTxt: Label '<1M>', Locked = true;
         PaymentChannelTxt: Label 'Payment Channel';
         NonWorkDayWorkDaySequenceNotFoundErr: Label 'No non-working day followed by a working day found within an interval of %1 days.', Locked = true;
+        TimeSheetFieldValueErr: Label 'Time Sheet field %1 value is incorrect.', Locked = true;
 
     procedure CreateBaseCalendar(var BaseCalendar: Record "Base Calendar")
     begin
@@ -333,6 +342,20 @@ codeunit 131902 "Library - Service"
         ServiceHeader.Modify(true);
     end;
 
+    procedure CreateServiceOrder(var ServiceHeader: Record "Service Header"; PostingDate: Date)
+    var
+        Customer: Record Customer;
+        ServiceItemLine: Record "Service Item Line";
+        ServiceItem: Record "Service Item";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+        ServiceHeader.Validate("Posting Date", PostingDate);
+        ServiceHeader.Modify();
+        CreateServiceItem(ServiceItem, Customer."No.");
+        CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+    end;
+
     procedure CreateServiceOrderHeaderUsingPage() ServiceOrderNo: Code[20]
     var
         ServiceOrder: TestPage "Service Order";
@@ -500,6 +523,36 @@ codeunit 131902 "Library - Service"
         ServiceLine.Modify(true);
     end;
 
+    procedure CreateServiceLineForPlan(JobPlanningLine: Record "Job Planning Line"; UsageLineType: Enum "Job Line Type"; Fraction: Decimal; var ServiceLine: Record "Service Line")
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+    begin
+        Assert.IsTrue(JobPlanningLine."Usage Link", 'Usage link should be enabled');
+
+        JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
+        Job.Get(JobPlanningLine."Job No.");
+
+        CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Job."Bill-to Customer No.");
+        CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
+        CreateServiceLine(
+          ServiceLine, ServiceHeader, Job2ServiceConsumableType(JobPlanningLine.Type), JobPlanningLine."No.");
+
+        ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
+        ServiceLine.Validate(Description, LibraryUtility.GenerateGUID());
+        ServiceLine.Validate("Location Code", FindLocationForPostingGroup(ServiceLine));
+        ServiceLine.Validate(Quantity, Round(Fraction * JobPlanningLine."Remaining Qty."));
+        ServiceLine.Validate("Unit of Measure Code", JobPlanningLine."Unit of Measure Code");
+        ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity);
+        ServiceLine.Validate("Job No.", JobPlanningLine."Job No.");
+        ServiceLine.Validate("Job Task No.", JobPlanningLine."Job Task No.");
+        ServiceLine.Validate("Job Line Type", UsageLineType);
+        ServiceLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
+        ServiceLine.Modify(true)
+    end;
+
     procedure CreateServiceOrderFromReport(ServiceContractHeader: Record "Service Contract Header"; StartDate: Date; EndDate: Date; UseRequestPage: Boolean)
     var
         CreateContractServiceOrders: Report "Create Contract Service Orders";
@@ -643,6 +696,25 @@ codeunit 131902 "Library - Service"
         ServContractManagement.ChangeCustNoOnServContract(NewCustomerNo, '', ServiceContractHeader)
     end;
 
+    procedure CheckServiceTimeSheetLine(TimeSheetHeader: Record "Time Sheet Header"; ServiceHeaderNo: Code[20]; ServiceLineNo: Integer; ServiceLineQuantity: Decimal; Chargeable: Boolean)
+    var
+        TimeSheetLine: Record "Time Sheet Line";
+    begin
+        TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
+        TimeSheetLine.SetRange("Service Order No.", ServiceHeaderNo);
+        TimeSheetLine.SetRange("Service Order Line No.", ServiceLineNo);
+        TimeSheetLine.FindLast();
+        TimeSheetLine.CalcFields("Total Quantity");
+
+        Assert.AreEqual(ServiceLineQuantity, TimeSheetLine."Total Quantity",
+          StrSubstNo(TimeSheetFieldValueErr, TimeSheetLine.FieldCaption("Total Quantity")));
+        Assert.AreEqual(Chargeable, TimeSheetLine.Chargeable,
+          StrSubstNo(TimeSheetFieldValueErr, TimeSheetLine.FieldCaption(Chargeable)));
+        Assert.AreEqual(TimeSheetLine.Status::Approved, TimeSheetLine.Status,
+          StrSubstNo(TimeSheetFieldValueErr, TimeSheetLine.FieldCaption(Status)));
+        Assert.IsTrue(TimeSheetLine.Posted, StrSubstNo(TimeSheetFieldValueErr, TimeSheetLine.FieldCaption(Posted)));
+    end;
+
     procedure FindContractAccountGroup(var ServiceContractAccountGroup: Record "Service Contract Account Group")
     begin
         // Filter Service Contract Account Group so that errors are not generated due to mandatory fields.
@@ -650,6 +722,25 @@ codeunit 131902 "Library - Service"
         ServiceContractAccountGroup.SetFilter("Prepaid Contract Acc.", '<>''''');
 
         ServiceContractAccountGroup.FindSet();
+    end;
+
+    local procedure FindLocationForPostingGroup(ServiceLine: Record "Service Line"): Code[10]
+    var
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+        Location: Record Location;
+    begin
+        if ServiceLine.Type <> ServiceLine.Type::Item then
+            exit(ServiceLine."Location Code");
+
+        InventoryPostingSetup.SetRange("Invt. Posting Group Code", ServiceLine."Posting Group");
+        InventoryPostingSetup.SetFilter("Location Code", '<>%1', '');
+        InventoryPostingSetup.FindSet();
+        repeat
+            Location.Get(InventoryPostingSetup."Location Code");
+            if not Location."Use As In-Transit" and not Location."Bin Mandatory" and not Location."Require Shipment" then
+                exit(Location.Code)
+        until InventoryPostingSetup.Next() = 0;
+        exit('');
     end;
 
     procedure FindServiceCost(var ServiceCost: Record "Service Cost")
@@ -1034,6 +1125,109 @@ codeunit 131902 "Library - Service"
         CombineShipmentsReport.SetTableView(TmpServiceShipmentHeader);
         CombineShipmentsReport.UseRequestPage(false);
         CombineShipmentsReport.RunModal();
+    end;
+
+    procedure Job2ServiceConsumableType(Type: Enum "Job Planning Line Type"): Enum "Service Line Type"
+    var
+        ServiceLine: Record "Service Line";
+    begin
+        case Type of
+            "Job Planning Line Type"::Resource:
+                exit(ServiceLine.Type::Resource);
+            "Job Planning Line Type"::Item:
+                exit(ServiceLine.Type::Item);
+            "Job Planning Line Type"::"G/L Account":
+                exit(ServiceLine.Type::"G/L Account");
+            else
+                Assert.Fail('Unsupported consumable type');
+        end
+    end;
+
+    procedure InitScenarioWTForServiceOrder(var TimeSheetHeader: Record "Time Sheet Header"; var ServiceHeader: Record "Service Header")
+    var
+        TimeSheetLine: Record "Time Sheet Line";
+        Resource: Record Resource;
+    begin
+        // create time sheet
+        LibraryTimesheet.CreateTimeSheet(TimeSheetHeader, false);
+
+        // create work type
+        Resource.Get(TimeSheetHeader."Resource No.");
+
+        CreateServiceOrder(ServiceHeader, CalcDate('<+3D>', TimeSheetHeader."Starting Date"));
+
+        // create time sheets' lines with type Resource, some kind of Work Type and different chargeables
+        LibraryTimesheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Service, '', '', ServiceHeader."No.", '');
+        TimeSheetLine.Validate("Service Order No.", ServiceHeader."No.");
+        TimeSheetLine.Modify();
+        // set quantities for lines
+        LibraryTimesheet.CreateTimeSheetDetail(TimeSheetLine, TimeSheetHeader."Starting Date", LibraryTimesheet.GetRandomDecimal());
+        LibraryTimesheet.SubmitTimeSheetLine(TimeSheetLine);
+    end;
+
+    procedure InitServiceScenario(var TimeSheetHeader: Record "Time Sheet Header"; var TimeSheetLine: Record "Time Sheet Line"; var ServiceHeader: Record "Service Header")
+    begin
+        // create time sheet
+        LibraryTimesheet.CreateTimeSheet(TimeSheetHeader, false);
+
+        // create service order
+        if ServiceHeader."No." = '' then
+            CreateServiceOrder(ServiceHeader, CalcDate('<+3D>', TimeSheetHeader."Starting Date"));
+
+        // create time sheet line with type Service
+        LibraryTimesheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Service, '', '', ServiceHeader."No.", '');
+        TimeSheetLine.Validate("Service Order No.", ServiceHeader."No.");
+        LibraryTimesheet.CreateTimeSheetDetail(TimeSheetLine, TimeSheetHeader."Starting Date", LibraryTimesheet.GetRandomDecimal());
+        LibraryTimesheet.SubmitAndApproveTimeSheetLine(TimeSheetLine);
+    end;
+
+    procedure InitBackwayScenario(var TimeSheetHeader: Record "Time Sheet Header"; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")
+    begin
+        // create time sheet
+        LibraryTimesheet.CreateTimeSheet(TimeSheetHeader, false);
+
+        // create service order
+        CreateServiceOrder(ServiceHeader, CalcDate('<+3D>', TimeSheetHeader."Starting Date"));
+        // create service line
+        CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, TimeSheetHeader."Resource No.");
+        ServiceLine.Validate("Service Item Line No.", 10000);
+        ServiceLine.Validate(Quantity, LibraryRandom.RandInt(9999) / 100);
+        ServiceLine.Modify();
+    end;
+
+    procedure CreateSpecificServiceOrder(var ServiceHeader: Record "Service Header"; PaymentTermsCode: Code[10]; CFPaymentTermsCode: Code[10])
+    var
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibraryCashFlowHelper.AssignCFPaymentTermToCustomer(Customer, PaymentTermsCode);
+        LibraryCashFlowHelper.AssignCFPaymentTermToCustomer(Customer, CFPaymentTermsCode);
+
+        CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+
+        CreateServiceLines(ServiceHeader);
+        CreateServiceLines(ServiceHeader);
+        CreateServiceLines(ServiceHeader);
+    end;
+
+    procedure CreateDefaultServiceOrder(var ServiceHeader: Record "Service Header")
+    begin
+        CreateSpecificServiceOrder(ServiceHeader, '', '');
+    end;
+
+    procedure CreateServiceLines(ServiceHeader: Record "Service Header")
+    var
+        ServiceLine: Record "Service Line";
+        ServiceItemLine: Record "Service Item Line";
+        Item: Record Item;
+    begin
+        // simple wrapper for LibraryPurchase.CreateServiceLine
+        LibrarySales.FindItem(Item);
+        CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
+        CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
+        ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
+        ServiceLine.Validate(Quantity, LibraryRandom.RandInt(50));
+        ServiceLine.Modify(true);
     end;
 
     [IntegrationEvent(false, false)]

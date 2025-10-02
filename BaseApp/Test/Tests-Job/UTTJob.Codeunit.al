@@ -2193,36 +2193,6 @@ codeunit 136350 "UT T Job"
     end;
 
     [Test]
-    [HandlerFunctions('CheckPurchOrderFromJobModalPageHandlerHaveLines')]
-    procedure CheckUnavailableItemQtyWhenAddProjectPlanningLinesBeforeThePreviousOne()
-    var
-        Item, Item2 : Record Item;
-        JobPlanningLines: TestPage "Job Planning Lines";
-    begin
-        // [SCENARIO 574938] Create Purchase Order from Project not working as expected if we add Project Planning Lines before the previous ones.
-        Initialize();
-
-        // [GIVEN] Create 2 New Item.
-        LibraryInventory.CreateItem(Item);
-        LibraryInventory.CreateItem(Item2);
-
-        // [GIVEN] Create Job X with Job Task and 2 Job Planning Lines.
-        CreateJobAndJobTask();
-        CreateJobPlanningLineWithItem(JobPlanningLine."Line Type"::"Both Budget and Billable", Item."No.", LibraryRandom.RandInt(100));
-        CreateJobPlanningLineBeforePreviousLine(JobPlanningLine."Line Type"::"Both Budget and Billable", Item2."No.", LibraryRandom.RandInt(100));
-
-        // [WHEN] Open Job Planning Lines.
-        JobPlanningLines.OpenEdit();
-        JobPlanningLines.GoToRecord(JobPlanningLine);
-        LibraryVariableStorage.Clear();
-        LibraryVariableStorage.Enqueue(Item."No.");
-
-        // [WHEN] Create Purchase Order from Job Planning Lines.
-        JobPlanningLines.CreatePurchaseOrder.Invoke();//assert check
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
     [HandlerFunctions('PurchOrderFromJobModalPageHandlerSetVendorsOnLines')]
     procedure CreatePurchaseOrderWithoutErrorWhenJobPlanningLineHasNumberFieldBlank()
     var
@@ -2276,6 +2246,36 @@ codeunit 136350 "UT T Job"
         PurchaseLine.SetRange("Job Task No.", JobTask."Job Task No.");
         PurchaseLine.SetRange("Job Planning Line No.", JobPlanningLine."Line No.");
         Assert.IsFalse(PurchaseLine.IsEmpty, 'Purchase Line not created for Job Task' + JobTask."Job Task No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('CheckPurchOrderFromJobModalPageHandlerHaveLines')]
+    procedure CheckUnavailableItemQtyWhenAddProjectPlanningLinesBeforeThePreviousOne()
+    var
+        Item, Item2 : Record Item;
+        JobPlanningLines: TestPage "Job Planning Lines";
+    begin
+        // [SCENARIO 574938] Create Purchase Order from Project not working as expected if we add Project Planning Lines before the previous ones.
+        Initialize();
+
+        // [GIVEN] Create 2 New Item.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItem(Item2);
+
+        // [GIVEN] Create Job X with Job Task and 2 Job Planning Lines.
+        CreateJobAndJobTask();
+        CreateJobPlanningLineWithItem(JobPlanningLine."Line Type"::"Both Budget and Billable", Item."No.", LibraryRandom.RandInt(100));
+        CreateJobPlanningLineBeforePreviousLine(JobPlanningLine."Line Type"::"Both Budget and Billable", Item2."No.", LibraryRandom.RandInt(100));
+
+        // [WHEN] Open Job Planning Lines.
+        JobPlanningLines.OpenEdit();
+        JobPlanningLines.GoToRecord(JobPlanningLine);
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(Item."No.");
+
+        // [WHEN] Create Purchase Order from Job Planning Lines.
+        JobPlanningLines.CreatePurchaseOrder.Invoke();//assert check
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -2776,19 +2776,19 @@ codeunit 136350 "UT T Job"
     end;
 
     [ModalPageHandler]
-    procedure CheckPurchOrderFromJobModalPageHandlerHaveLines(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
-    begin
-        //[THEN] Check Purch. Order From Sales Order Page have Record.
-        PurchOrderFromSalesOrder."No.".AssertEquals(LibraryVariableStorage.DequeueText());
-    end;
-
-    [ModalPageHandler]
     procedure PurchOrderFromJobModalPageHandlerSetVendorsOnLines(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
     begin
         PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
         PurchOrderFromSalesOrder.Next();
         PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
         PurchOrderFromSalesOrder.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure CheckPurchOrderFromJobModalPageHandlerHaveLines(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
+    begin
+        //[THEN] Check Purch. Order From Sales Order Page have Record.
+        PurchOrderFromSalesOrder."No.".AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 
     [MessageHandler]

@@ -7,6 +7,16 @@ namespace Microsoft.Bank.PositivePay;
 using Microsoft.Bank.Check;
 using System.IO;
 
+/// <summary>
+/// Maps positive pay detail records to data exchange fields for export file generation.
+/// This codeunit handles the transformation of positive pay detail data into the structured format required for bank files.
+/// </summary>
+/// <remarks>
+/// The Export Mapping Detail Positive Pay codeunit processes positive pay detail records and maps their fields
+/// to the corresponding data exchange field structure. It ensures that check information is properly formatted
+/// according to the export definition requirements. The mapping process includes progress tracking for large datasets
+/// and integrates with the data exchange framework for consistent file generation.
+/// </remarks>
 codeunit 1705 "Exp. Mapping Det Pos. Pay"
 {
     TableNo = "Data Exch.";

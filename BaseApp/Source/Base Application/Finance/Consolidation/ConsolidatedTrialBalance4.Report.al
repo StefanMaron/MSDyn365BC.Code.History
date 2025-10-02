@@ -288,6 +288,8 @@ report 10008 "Consolidated Trial Balance (4)"
 
     requestpage
     {
+        AboutTitle = 'About Consolidated Trial Balance (4)';
+        AboutText = 'Offers enhanced visibility into financial performance across companies with breakdowns by company, adjustments, and totals in one report. Use this report when you need a detailed breakdown of consolidation components.';
         SaveValues = true;
 
         layout

@@ -582,9 +582,15 @@ codeunit 132213 "Library - Small Business"
         GenPostingSetup.Modify(true);
     end;
 
+    procedure GetAvgDaysToPayLabel(): Text
+    var
+        CustomerCardCalculations: Codeunit "Customer Card Calculations";
+    begin
+        exit(CustomerCardCalculations.GetAvgDaysToPayLabel())
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateItemAsServiceItemGet(var Item: Record Item)
     begin
     end;
 }
-

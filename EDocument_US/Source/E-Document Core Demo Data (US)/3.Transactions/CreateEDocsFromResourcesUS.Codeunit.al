@@ -5,8 +5,11 @@
 namespace Microsoft.DemoData.Localization;
 
 using Microsoft.Purchases.Document;
+using Microsoft.DemoData.Finance;
 using Microsoft.eServices.EDocument.Format;
+using Microsoft.DemoData.Jobs;
 using Microsoft.Inventory.Item;
+using Microsoft.DemoData.Foundation;
 
 codeunit 11502 "Create EDocs From Resources US"
 {

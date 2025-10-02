@@ -516,51 +516,28 @@ report 5876 "Posted Phys. Invt. Order Diff."
 
     procedure CreateDiffListBuffer(PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line"; var NoOfBufferLines: Integer)
     var
-#if not CLEAN24
-        PstdExpPhysInvtTrack: Record "Pstd. Exp. Phys. Invt. Track";
-#endif
         PstdExpInvtOrderTracking: Record "Pstd.Exp.Invt.Order.Tracking";
         PstdPhysInvtRecordLine: Record "Pstd. Phys. Invt. Record Line";
         PhysInvtCountBuffer: Record "Phys. Invt. Count Buffer";
-#if not CLEAN24
-        PhysInvtTrackingMgt: Codeunit "Phys. Invt. Tracking Mgt.";
-#endif
         NextLineNo: Integer;
         LastLineNo: Integer;
     begin
         NoOfBufferLines := 0;
 
         NextLineNo := 1;
-#if not CLEAN24
-        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-            PstdExpPhysInvtTrack.Reset();
-            PstdExpPhysInvtTrack.SetRange("Order No", PstdPhysInvtOrderLine."Document No.");
-            PstdExpPhysInvtTrack.SetRange("Order Line No.", PstdPhysInvtOrderLine."Line No.");
-            if PstdExpPhysInvtTrack.Find('-') then
-                repeat
-                    FindOrCreateDiffListBuffer(NoOfBufferLines, NextLineNo);
-                    TempPhysInvtCountBuffer."Exp. Serial No." := PstdExpPhysInvtTrack."Serial No.";
-                    TempPhysInvtCountBuffer."Exp. Lot No." := PstdExpPhysInvtTrack."Lot No.";
-                    TempPhysInvtCountBuffer."Exp. Qty. (Base)" := PstdExpPhysInvtTrack."Quantity (Base)";
-                    TempPhysInvtCountBuffer.Modify();
-                until PstdExpPhysInvtTrack.Next() = 0;
-        end else begin
-#endif
-            PstdExpInvtOrderTracking.Reset();
-            PstdExpInvtOrderTracking.SetRange("Order No", PstdPhysInvtOrderLine."Document No.");
-            PstdExpInvtOrderTracking.SetRange("Order Line No.", PstdPhysInvtOrderLine."Line No.");
-            if PstdExpInvtOrderTracking.Find('-') then
-                repeat
-                    FindOrCreateDiffListBuffer(NoOfBufferLines, NextLineNo);
-                    TempPhysInvtCountBuffer."Exp. Serial No." := PstdExpInvtOrderTracking."Serial No.";
-                    TempPhysInvtCountBuffer."Exp. Lot No." := PstdExpInvtOrderTracking."Lot No.";
-                    TempPhysInvtCountBuffer."Exp. Package No." := PstdExpInvtOrderTracking."Package No.";
-                    TempPhysInvtCountBuffer."Exp. Qty. (Base)" := PstdExpInvtOrderTracking."Quantity (Base)";
-                    TempPhysInvtCountBuffer.Modify();
-                until PstdExpInvtOrderTracking.Next() = 0;
-#if not CLEAN24
-        end;
-#endif
+        PstdExpInvtOrderTracking.Reset();
+        PstdExpInvtOrderTracking.SetRange("Order No", PstdPhysInvtOrderLine."Document No.");
+        PstdExpInvtOrderTracking.SetRange("Order Line No.", PstdPhysInvtOrderLine."Line No.");
+        if PstdExpInvtOrderTracking.Find('-') then
+            repeat
+                FindOrCreateDiffListBuffer(NoOfBufferLines, NextLineNo);
+                TempPhysInvtCountBuffer."Exp. Serial No." := PstdExpInvtOrderTracking."Serial No.";
+                TempPhysInvtCountBuffer."Exp. Lot No." := PstdExpInvtOrderTracking."Lot No.";
+                TempPhysInvtCountBuffer."Exp. Package No." := PstdExpInvtOrderTracking."Package No.";
+                TempPhysInvtCountBuffer."Exp. Qty. (Base)" := PstdExpInvtOrderTracking."Quantity (Base)";
+                TempPhysInvtCountBuffer.Modify();
+            until PstdExpInvtOrderTracking.Next() = 0;
+
         NextLineNo := 1;
         PstdPhysInvtRecordLine.Reset();
         PstdPhysInvtRecordLine.SetCurrentKey("Order No.", "Order Line No.");

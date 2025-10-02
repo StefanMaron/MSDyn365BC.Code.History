@@ -193,7 +193,7 @@ page 10015 "IRS 1099 Form-Box"
     var
         IRS1099Management: Codeunit "IRS 1099 Management";
     begin
-        IRS1099Management.ShowUpgradeFormBoxesNotificationIfUpgradeNeeded();
+        IRS1099Management.ThrowUseNewIRSFormsFeatureError();
     end;
 }
 #endif

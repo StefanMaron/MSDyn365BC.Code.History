@@ -76,10 +76,10 @@ report 510 "Change Log - Delete"
                 if not ChangeLogEntry.FindLast() then
                     Error(NothingToDeleteErr);
                 if DT2Date(ChangeLogEntry."Date and Time") > CalcDate('<-1Y>', Today) then
-                    if not ConfirmManagement.GetResponse(Text002, false) then
+                    if not ConfirmManagement.GetResponse(RecentEntriesDeleteQst, false) then
                         exit(false);
             end else
-                if not ConfirmManagement.GetResponse(Text001, false) then
+                if not ConfirmManagement.GetResponse(NoDateFilterQst, false) then
                     exit(false);
             exit(true);
         end;
@@ -112,10 +112,8 @@ report 510 "Change Log - Delete"
         DialogMsg: Label 'Entries are being deleted...\\@1@@@@@@@@@@@@';
         CounterTotal: Integer;
         Counter: Integer;
-#pragma warning disable AA0074
-        Text001: Label 'You have not defined a date filter. Do you want to continue?';
-        Text002: Label 'Your date filter allows deletion of entries that are less than one year old. Do you want to continue?';
-#pragma warning restore AA0074
+        NoDateFilterQst: Label 'You have not defined a date filter. Do you want to continue?';
+        RecentEntriesDeleteQst: Label 'Your date filter allows deletion of entries that are less than one year old. Do you want to continue?';
         NothingToDeleteErr: Label 'There are no entries within the filter.';
         DeletedMsg: Label 'The selected entries were deleted.';
         SomeEntriesNotDeletedQst: Label 'One or more entries cannot be deleted.\\Do you want to open the list of errors?';

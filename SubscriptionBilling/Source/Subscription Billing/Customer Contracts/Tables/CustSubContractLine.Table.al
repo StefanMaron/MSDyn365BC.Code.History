@@ -115,6 +115,7 @@ table 8062 "Cust. Sub. Contract Line"
             FieldClass = FlowField;
             CalcFormula = lookup("Subscription Header".Quantity where("No." = field("Subscription Header No.")));
             Editable = false;
+            AutoFormatType = 0;
         }
 
         field(200; "Planned Sub. Line exists"; Boolean)
@@ -309,8 +310,10 @@ table 8062 "Cust. Sub. Contract Line"
         if not ServiceCommitment.Get(Rec."Subscription Line Entry No.") then
             exit;
 
+#pragma warning disable AA0214
         ServiceCommitment.SetDefaultDimensions(true);
         ServiceCommitment.Modify(false);
+#pragma warning restore AA0214
         DeleteRelatedVendorServiceCommDimensions(ServiceCommitment);
     end;
 
@@ -517,9 +520,11 @@ table 8062 "Cust. Sub. Contract Line"
             repeat
                 CustomerContractLine.GetServiceCommitment(ServiceCommitment);
                 UpdateServiceCommitmentAndCloseCustomerContractLine(ServiceCommitment, CustomerContractLine);
+#pragma warning disable AA0214
                 ServiceObject.Get(CustomerContractLine."Subscription Header No.");
                 ServiceObject.UpdateServicesDates();
                 ServiceObject.Modify(false);
+#pragma warning restore AA0214
             until CustomerContractLine.Next() = 0;
     end;
 

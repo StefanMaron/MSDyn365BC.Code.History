@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.Customer;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Customer;
 
 using Microsoft.Bank.Setup;
 using Microsoft.Finance.Currency;
@@ -188,26 +192,18 @@ table 287 "Customer Bank Account"
                 MailManagement.ValidateEmailAddressField("E-Mail");
             end;
         }
-#if not CLEAN24
-        field(23; "Home Page"; Text[80])
-        {
-            Caption = 'Home Page';
-            ExtendedDatatype = URL;
-            ObsoleteReason = 'Field length will be increased to 255.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-            ToolTip = 'Specifies the bank web site.';
-        }
-#else
+#if not CLEAN27
 #pragma warning disable AS0086
+#endif
         field(23; "Home Page"; Text[255])
-        {
-            Caption = 'Home Page';
-            ExtendedDatatype = URL;
-            ToolTip = 'Specifies the bank web site.';
-        }
+#if not CLEAN27
 #pragma warning restore AS0086
 #endif
+        {
+            Caption = 'Home Page';
+            ExtendedDatatype = URL;
+            ToolTip = 'Specifies the bank web site.';
+        }
         field(24; IBAN; Code[50])
         {
             Caption = 'IBAN';
@@ -362,4 +358,3 @@ table 287 "Customer Bank Account"
     begin
     end;
 }
-

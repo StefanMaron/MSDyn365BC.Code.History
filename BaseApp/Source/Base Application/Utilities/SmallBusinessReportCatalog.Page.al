@@ -1,3 +1,4 @@
+#if not CLEAN27
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -8,6 +9,9 @@ page 9025 "Small Business Report Catalog"
 {
     Caption = 'Report Catalog';
     PageType = CardPart;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This page is no longer used.';
+    ObsoleteTag = '27.0';
 
     layout
     {
@@ -62,4 +66,4 @@ page 9025 "Small Business Report Catalog"
     var
         SmallBusinessReportCatalogCU: Codeunit "Small Business Report Catalog";
 }
-
+#endif

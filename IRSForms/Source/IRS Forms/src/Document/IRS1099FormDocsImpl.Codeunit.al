@@ -25,6 +25,7 @@ codeunit 10036 "IRS 1099 Form Docs Impl." implements "IRS 1099 Create Form Docs"
         DocID: Integer;
     begin
         TempVendFormBoxBuffer.Reset();
+        TempVendFormBoxBuffer.SetCurrentKey("Vendor No.", "Form No.", "Form Box No.");
         TempVendFormBoxBuffer.SetRange("Buffer Type", TempVendFormBoxBuffer."Buffer Type"::Amount);
         if not TempVendFormBoxBuffer.FindSet() then
             error(NoVendorFormBoxAmountsFoundErr);
@@ -105,6 +106,7 @@ codeunit 10036 "IRS 1099 Form Docs Impl." implements "IRS 1099 Create Form Docs"
         TempIRS1099FormDocLine."Form No." := IRS1099FormDocHeader."Form No.";
         TempIRS1099FormDocLine."Form Box No." := VendFormBoxBuffer."Form Box No.";
         TempIRS1099FormDocLine."Line No." := LineNo;
+        TempIRS1099FormDocLine."Currency Code" := VendFormBoxBuffer."Currency Code";
         VendFormBoxBuffer.CalcFields("Minimum Reportable Amount", "Adjustment Amount");
         TempIRS1099FormDocLine."Minimum Reportable Amount" := VendFormBoxBuffer."Minimum Reportable Amount";
         TempIRS1099FormDocLine."Adjustment Amount" := VendFormBoxBuffer."Adjustment Amount";

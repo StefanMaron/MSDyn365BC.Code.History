@@ -10,8 +10,6 @@ using Microsoft.Foundation.Shipping;
 using Microsoft.Inventory.Intrastat;
 using Microsoft.Finance.VAT.Registration;
 
-using Microsoft.Service.Setup;
-
 permissionset 865 "D365 CUSTOMER, VIEW"
 {
     Assignable = true;
@@ -27,8 +25,5 @@ permissionset 865 "D365 CUSTOMER, VIEW"
                   tabledata "Shipping Agent Services" = R,
                   tabledata "Transaction Type" = R,
                   tabledata "Transport Method" = R,
-                  tabledata "VAT Registration No. Format" = R,
-
-                  // Service
-                  tabledata "Service Zone" = R;
+                  tabledata "VAT Registration No. Format" = R;
 }

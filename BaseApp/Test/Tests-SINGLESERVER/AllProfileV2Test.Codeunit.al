@@ -874,7 +874,7 @@ codeunit 138698 "AllProfile V2 Test"
         AllProfile.FindFirst();
         ProfileCard.GoToRecord(AllProfile);
 
-        // [THEN] Everything is NOT editable 
+        // [THEN] Everything is NOT editable
         Assert.IsFalse(ProfileCard.RoleCenterIdField.Editable(), 'The profile should NOT be editable!');
         Assert.IsFalse(ProfileCard.CustomizeRoleAction.Enabled(), 'The profile should NOT be customizable!');
         ProfileCard.Close();
@@ -988,7 +988,7 @@ codeunit 138698 "AllProfile V2 Test"
         ZipFile: File;
         ProfilesZipArchiveInstream: instream;
     begin
-        // [THEN] 
+        // [THEN]
         ZipFile.Open(ZipFileName);
         ZipFile.CreateInStream(ProfilesZipArchiveInstream);
         DataCompression.OpenZipArchive(ProfilesZipArchiveInstream, false);
@@ -1017,7 +1017,7 @@ codeunit 138698 "AllProfile V2 Test"
         AllProfile: Record "All Profile";
         UserPersonalization: Record "User Personalization";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
-        PermissionManager: Codeunit "Permission Manager";
+        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
         EmptyGuid: Guid;
     begin
         LibraryVariableStorage.AssertEmpty();
@@ -1048,7 +1048,7 @@ codeunit 138698 "AllProfile V2 Test"
         Clear(AllProfile);
         if UserPersonalization.FindSet(true, false) then
             repeat
-                PermissionManager.GetDefaultProfileID(UserPersonalization."User SID", AllProfile);
+                ConfPersonalizationMgt.GetDefaultProfileID(UserPersonalization."User SID", AllProfile);
                 UserPersonalization.Validate("Profile ID", AllProfile."Profile ID");
                 UserPersonalization.Validate(Scope, AllProfile.Scope);
                 UserPersonalization.Validate("App ID", AllProfile."App ID");
@@ -1128,34 +1128,6 @@ codeunit 138698 "AllProfile V2 Test"
         DestinationRecordRef.GetTable(DestinationAllProfile);
 
         Assert.RecordsAreEqualExceptCertainFields(SourceRecordRef, DestinationRecordRef, FieldTable, 'Copy profile populated the wrong fields');
-    end;
-
-    local procedure ComparePermissions(Permission1: Record Permission; Permission2: Record Permission)
-    begin
-        Assert.AreEqual(Permission1."Read Permission", Permission2."Read Permission",
-            StrSubstNo('Read permissions do not match: %1 has %2 for %3 but %4 has %5 for %6',
-                Permission1."Role ID", Permission1."Read Permission", Permission1."Object ID",
-                Permission2."Role ID", Permission2."Read Permission", Permission2."Object ID"));
-
-        Assert.AreEqual(Permission1."Modify Permission", Permission2."Modify Permission",
-            StrSubstNo('Modify permissions do not match: %1 has %2 for %3 but %4 has %5 for %6',
-                Permission1."Role ID", Permission1."Modify Permission", Permission1."Object ID",
-                Permission2."Role ID", Permission2."Modify Permission", Permission2."Object ID"));
-
-        Assert.AreEqual(Permission1."Insert Permission", Permission2."Insert Permission",
-            StrSubstNo('Insert permissions do not match: %1 has %2 for %3 but %4 has %5 for %6',
-                Permission1."Role ID", Permission1."Insert Permission", Permission1."Object ID",
-                Permission2."Role ID", Permission2."Insert Permission", Permission2."Object ID"));
-
-        Assert.AreEqual(Permission1."Delete Permission", Permission2."Delete Permission",
-            StrSubstNo('Delete permissions do not match: %1 has %2 for %3 but %4 has %5 for %6',
-                Permission1."Role ID", Permission1."Delete Permission", Permission1."Object ID",
-                Permission2."Role ID", Permission2."Delete Permission", Permission2."Object ID"));
-
-        Assert.AreEqual(Permission1."Execute Permission", Permission2."Execute Permission",
-            StrSubstNo('Execute permissions do not match: %1 has %2 for %3 but %4 has %5 for %6',
-                Permission1."Role ID", Permission1."Execute Permission", Permission1."Object ID",
-                Permission2."Role ID", Permission2."Execute Permission", Permission2."Object ID"));
     end;
 
     local procedure ExportUserCreatedProfilesAndCustomizationsToZipInServer(var ProfileZipFileName: Text)

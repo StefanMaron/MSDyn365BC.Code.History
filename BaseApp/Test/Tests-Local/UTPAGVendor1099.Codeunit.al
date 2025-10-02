@@ -12,39 +12,11 @@ codeunit 142081 "UT PAG Vendor 1099"
     end;
 
     var
-        LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
-        IRS1099CodeDiv: Label 'DIV-08';
-        IRS1099CodeInt: Label 'INT-05';
-        IRS1099CodeMisc: Label 'MISC-02';
         Assert: Codeunit Assert;
         CodeDIV01B: Label 'DIV-01-B';
         AmtCodesErr: Label 'Wrong AmtCodes value';
-
-    [Test]
-    [HandlerFunctions('Vendor1099StatisticsPageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordVendor1099()
-    var
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
-        VendorCard: TestPage "Vendor Card";
-    begin
-        // [FEATURE] [Vendor 1099 Statistics]
-        // Purpose is to test OnAfterGetRecord trigger of Page 10016 - Vendor 1099 Statistics.
-
-        // Setup: Create Vendor and Detailed Leger Entry.
-        Initialize();
-        CreateMultipleVendorLedgerEntry(VendorLedgerEntry);
-        VendorCard.OpenEdit();
-        VendorCard.FILTER.SetFilter("No.", VendorLedgerEntry."Vendor No.");
-
-        // [WHEN] Open "Vendor 1099 Statistics" page
-        VendorCard."1099 Statistics".Invoke();
-
-        // Verify: Amount verifying in Handler.
-    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -97,93 +69,6 @@ codeunit 142081 "UT PAG Vendor 1099"
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
-    end;
-
-    local procedure CreateDetailedVendorLedgerEntry(VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliedVendLedgerEntryNo: Integer; EntryType: Enum "Detailed CV Ledger Entry Type"; Amount: Decimal)
-    var
-        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
-        DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry";
-    begin
-        DetailedVendorLedgEntry2.FindLast();
-        DetailedVendorLedgEntry."Entry No." := DetailedVendorLedgEntry2."Entry No." + 1;  // Adding 1 to take next Entry No.
-        DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
-        DetailedVendorLedgEntry."Applied Vend. Ledger Entry No." := AppliedVendLedgerEntryNo;
-        DetailedVendorLedgEntry."Entry Type" := EntryType;
-        DetailedVendorLedgEntry."Vendor No." := VendorLedgerEntry."Vendor No.";
-        DetailedVendorLedgEntry.Amount := Amount;
-        DetailedVendorLedgEntry."Amount (LCY)" := Amount;
-        DetailedVendorLedgEntry.Insert(true);
-    end;
-
-    local procedure CreateVendor(): Code[20]
-    var
-        Vendor: Record Vendor;
-    begin
-        Vendor."No." := LibraryUTUtility.GetNewCode();
-        Vendor.Insert(true);
-        exit(Vendor."No.");
-    end;
-
-    local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; IRS1099Code: Code[10]; IRSAmount: Decimal)
-    var
-        VendorLedgerEntry2: Record "Vendor Ledger Entry";
-    begin
-        VendorLedgerEntry2.FindLast();
-        VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;  // Adding 1 to take next Entry No.
-        VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
-        VendorLedgerEntry."Document Type" := DocumentType;
-        VendorLedgerEntry."Vendor No." := VendorNo;
-        VendorLedgerEntry."Posting Date" := WorkDate();
-        VendorLedgerEntry.Open := true;
-        VendorLedgerEntry."IRS 1099 Code" := IRS1099Code;
-        VendorLedgerEntry."IRS 1099 Amount" := -IRSAmount;
-        VendorLedgerEntry.Insert();
-    end;
-
-    local procedure CreateMultipleVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
-    var
-        VendorLedgerEntry2: Record "Vendor Ledger Entry";
-        Amount: Decimal;
-    begin
-        Amount := 100 * LibraryRandom.RandInt(10);  // Using Random value for Amount.
-        CreateVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, CreateVendor(), IRS1099CodeDiv, Amount);
-        CreateVendorLedgerEntry(
-          VendorLedgerEntry2, VendorLedgerEntry."Document Type"::Payment, VendorLedgerEntry."Vendor No.", IRS1099CodeDiv, Amount);
-        CreateMultipleDetailedVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry2, Amount);
-        CreateVendorLedgerEntry(
-          VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, VendorLedgerEntry."Vendor No.", IRS1099CodeInt, Amount);
-        CreateVendorLedgerEntry(
-          VendorLedgerEntry2, VendorLedgerEntry."Document Type"::Payment, VendorLedgerEntry."Vendor No.", IRS1099CodeInt, Amount);
-        CreateMultipleDetailedVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry2, Amount);
-        CreateVendorLedgerEntry(
-          VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, VendorLedgerEntry."Vendor No.", IRS1099CodeMisc, Amount);
-        CreateVendorLedgerEntry(
-          VendorLedgerEntry2, VendorLedgerEntry."Document Type"::Payment, VendorLedgerEntry."Vendor No.", IRS1099CodeMisc, Amount);
-        CreateMultipleDetailedVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry2, Amount);
-        LibraryVariableStorage.Enqueue(3 * Amount);  // Enqueue Vendor1099StatisticsPageHandler
-    end;
-
-    local procedure CreateMultipleDetailedVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorLedgerEntry2: Record "Vendor Ledger Entry"; Amount: Decimal)
-    var
-        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
-    begin
-        CreateDetailedVendorLedgerEntry(VendorLedgerEntry, 0, DetailedVendorLedgEntry."Entry Type"::"Initial Entry", -Amount);
-        CreateDetailedVendorLedgerEntry(VendorLedgerEntry2, 0, DetailedVendorLedgEntry."Entry Type"::"Initial Entry", Amount);
-        CreateDetailedVendorLedgerEntry(
-          VendorLedgerEntry, VendorLedgerEntry."Entry No.", DetailedVendorLedgEntry."Entry Type"::Application, Amount);
-        CreateDetailedVendorLedgerEntry(
-          VendorLedgerEntry2, VendorLedgerEntry."Entry No.", DetailedVendorLedgEntry."Entry Type"::Application, -Amount);
-    end;
-
-    [PageHandler]
-    [Scope('OnPrem')]
-    procedure Vendor1099StatisticsPageHandler(var Vendor1099Statistics: TestPage "Vendor 1099 Statistics")
-    var
-        Amounts: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(Amounts);
-        Vendor1099Statistics."Amounts[1]".AssertEquals(Amounts);
-        Vendor1099Statistics.OK().Invoke();
     end;
 }
 #endif

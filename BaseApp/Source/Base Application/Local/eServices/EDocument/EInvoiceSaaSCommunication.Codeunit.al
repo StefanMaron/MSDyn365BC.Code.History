@@ -10,13 +10,7 @@ using System.Azure.KeyVault;
 using System.Environment;
 using System.Utilities;
 
-#if not CLEAN24
-#pragma warning disable AL0432
-codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication", "EInvoice Communication V2"
-#pragma warning restore AL0432
-#else
 codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication V2"
-#endif
 {
     Access = Internal;
 
@@ -35,51 +29,6 @@ codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication 
         ElectronicInvoicingCertificateNameLbl: Label 'ElectronicInvoicingCertificateName', Locked = true;
         MissingCertificateErr: Label 'The certificate can not be retrieved.', Locked = true;
 
-#if not CLEAN24
-    [NonDebuggable]
-    [Obsolete('Replaced by InvokeMethodWithCertificate with SecretText datatype for CertPassword parameter.', '24.0')]
-    procedure InvokeMethodWithCertificate(Uri: Text; MethodName: Text; CertBase64: Text; CertPassword: Text): Text
-    var
-        JsonObj: JsonObject;
-        JValue: JsonValue;
-        SerializedText, Token : Text;
-    begin
-        JsonObj.Add('url', Uri);
-        JsonObj.Add('methodName', MethodName);
-        JsonObj.Add('parameters', Parameters);
-        CheckToDownloadSaaSRequest(JsonObj);
-
-        JsonObj.Add('certificateString', CertBase64);
-        JsonObj.Add('certificatePassword', CertPassword);
-        JsonObj.WriteTo(SerializedText);
-
-        Token := CommunicateWithAzureFunction('api/InvokeMethodWithCertificate', SerializedText);
-        JValue.ReadFrom(Token);
-        exit(JValue.AsText());
-    end;
-
-    [NonDebuggable]
-    [Obsolete('Replaced by SignDataWithCertificate with SecretText datatype for CertPassword parameter.', '24.0')]
-    procedure SignDataWithCertificate(OriginalString: Text; Cert: Text; CertPassword: Text): Text
-    var
-        SerializedText, Token : Text;
-        JValue: JsonValue;
-        JsonObj: JsonObject;
-    begin
-        ExportCertAsPFX(Cert, CertPassword);
-
-        JsonObj.Add('data', OriginalString);
-        JsonObj.Add('certificateString', Cert);
-        JsonObj.Add('certificatePassword', CertPassword);
-        JsonObj.WriteTo(SerializedText);
-
-        Token := CommunicateWithAzureFunction('api/SignDataWithCertificate', SerializedText);
-        if JValue.ReadFrom(Token) then
-            exit(JValue.AsText())
-        else
-            exit(Token);
-    end;
-#endif
 
     [NonDebuggable]
     procedure InvokeMethodWithCertificate(Uri: Text; MethodName: Text; CertBase64: Text; CertPassword: SecretText): Text

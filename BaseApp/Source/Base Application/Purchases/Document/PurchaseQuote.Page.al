@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Document;
 
 using Microsoft.CRM.Contact;
 using Microsoft.EServices.EDocument;
@@ -71,16 +75,34 @@ page 49 "Purchase Quote"
                     ShowMandatory = true;
                     ToolTip = 'Specifies the name of the vendor who delivers the products.';
 
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        Vendor: Record Vendor;
+                    begin
+                        Selected.SetTable(Vendor);
+                        if Rec."Buy-from Vendor No." <> Vendor."No." then begin
+                            Rec.Validate("Buy-from Vendor No.", Vendor."No.");
+                            if Rec."Buy-from Vendor No." <> Vendor."No." then
+                                error('');
+                            IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
+                            CurrPage.Update();
+                        end;
+                    end;
+
                     trigger OnValidate()
                     begin
+                        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
                         Rec.OnAfterValidateBuyFromVendorNo(Rec, xRec);
                         CurrPage.Update();
                     end;
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        exit(Rec.LookupBuyFromVendorName(Text));
-                    end;
+                }
+                field("Buy-from Vendor Name 2"; Rec."Buy-from Vendor Name 2")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Vendor Name 2';
+                    Importance = Additional;
+                    QuickEntry = false;
+                    Visible = false;
                 }
                 group("Buy-from")
                 {
@@ -100,6 +122,14 @@ page 49 "Purchase Quote"
                         Importance = Additional;
                         QuickEntry = false;
                         ToolTip = 'Specifies an additional part of the address of the vendor who delivered the items.';
+                    }
+                    field("Buy-from City"; Rec."Buy-from City")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'City';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the city of the vendor who delivered the items.';
                     }
                     group(Control79)
                     {
@@ -121,14 +151,6 @@ page 49 "Purchase Quote"
                         Importance = Additional;
                         QuickEntry = false;
                         ToolTip = 'Specifies the post code of the vendor who delivered the items.';
-                    }
-                    field("Buy-from City"; Rec."Buy-from City")
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'City';
-                        Importance = Additional;
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the city of the vendor who delivered the items.';
                     }
                     field("Buy-from Country/Region Code"; Rec."Buy-from Country/Region Code")
                     {
@@ -526,6 +548,15 @@ page 49 "Purchase Quote"
                                 QuickEntry = false;
                                 ToolTip = 'Specifies an additional part of the address that items on the purchase order were shipped to, as a drop shipment.';
                             }
+                            field("Ship-to City"; Rec."Ship-to City")
+                            {
+                                ApplicationArea = Basic, Suite;
+                                Caption = 'City';
+                                Editable = ShipToOptions = ShipToOptions::"Custom Address";
+                                Importance = Additional;
+                                QuickEntry = false;
+                                ToolTip = 'Specifies the city that items on the purchase order were shipped to, as a drop shipment.';
+                            }
                             group(Control90)
                             {
                                 ShowCaption = false;
@@ -548,15 +579,6 @@ page 49 "Purchase Quote"
                                 Importance = Additional;
                                 QuickEntry = false;
                                 ToolTip = 'Specifies the post code that items on the purchase order were shipped to, as a drop shipment.';
-                            }
-                            field("Ship-to City"; Rec."Ship-to City")
-                            {
-                                ApplicationArea = Basic, Suite;
-                                Caption = 'City';
-                                Editable = ShipToOptions = ShipToOptions::"Custom Address";
-                                Importance = Additional;
-                                QuickEntry = false;
-                                ToolTip = 'Specifies the city that items on the purchase order were shipped to, as a drop shipment.';
                             }
                             field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                             {
@@ -629,6 +651,16 @@ page 49 "Purchase Quote"
                                 CurrPage.Update();
                             end;
                         }
+                        field("Pay-to Name 2"; Rec."Pay-to Name 2")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Name 2';
+                            Editable = PayToOptions = PayToOptions::"Another Vendor";
+                            Enabled = PayToOptions = PayToOptions::"Another Vendor";
+                            Importance = Additional;
+                            QuickEntry = false;
+                            Visible = false;
+                        }
                         field("Pay-to Address"; Rec."Pay-to Address")
                         {
                             ApplicationArea = Basic, Suite;
@@ -648,6 +680,16 @@ page 49 "Purchase Quote"
                             Importance = Additional;
                             QuickEntry = false;
                             ToolTip = 'Specifies an additional part of the address of the vendor that the invoice was received from.';
+                        }
+                        field("Pay-to City"; Rec."Pay-to City")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'City';
+                            Editable = (PayToOptions = PayToOptions::"Custom Address") or (Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.");
+                            Enabled = (PayToOptions = PayToOptions::"Custom Address") or (Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.");
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the city of the vendor that you received the invoice from.';
                         }
                         group(Control84)
                         {
@@ -673,16 +715,6 @@ page 49 "Purchase Quote"
                             Importance = Additional;
                             QuickEntry = false;
                             ToolTip = 'Specifies the post code of the vendor that you received the invoice from.';
-                        }
-                        field("Pay-to City"; Rec."Pay-to City")
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'City';
-                            Editable = (PayToOptions = PayToOptions::"Custom Address") or (Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.");
-                            Enabled = (PayToOptions = PayToOptions::"Custom Address") or (Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.");
-                            Importance = Additional;
-                            QuickEntry = false;
-                            ToolTip = 'Specifies the city of the vendor that you received the invoice from.';
                         }
                         field("Pay-to Country/Region Code"; Rec."Pay-to Country/Region Code")
                         {
@@ -1604,7 +1636,7 @@ page 49 "Purchase Quote"
     begin
         ShowShippingOptionsWithLocation := ApplicationAreaMgmtFacade.IsLocationEnabled() or ApplicationAreaMgmtFacade.IsAllDisabled();
         IsSaaS := EnvironmentInformation.IsSaaS();
-        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(FlowServiceManagement.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1652,7 +1684,7 @@ page 49 "Purchase Quote"
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         FormatAddress: Codeunit "Format Address";
         PrivacyNotice: Codeunit "Privacy Notice";
-        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
+        FlowServiceManagement: Codeunit "Flow Service Management";
         ChangeExchangeRate: Page "Change Exchange Rate";
         StatusStyleTxt: Text;
         HasIncomingDocument: Boolean;

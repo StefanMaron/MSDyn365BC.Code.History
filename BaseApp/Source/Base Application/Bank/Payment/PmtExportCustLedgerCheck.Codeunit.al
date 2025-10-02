@@ -7,6 +7,10 @@ namespace Microsoft.Bank.Payment;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Sales.Receivables;
 
+/// <summary>
+/// Validates customer ledger entries before they are exported for payment processing.
+/// This codeunit performs comprehensive checks to ensure customer refund data integrity and compliance.
+/// </summary>
 codeunit 1213 "Pmt. Export Cust. Ledger Check"
 {
     TableNo = "Cust. Ledger Entry";
@@ -97,6 +101,11 @@ codeunit 1213 "Pmt. Export Cust. Ledger Check"
         BankAccount.TestField("Payment Export Format");
     end;
 
+    /// <summary>
+    /// Integration event that allows customization of customer ledger entry validation logic for payment export.
+    /// This event is raised during customer ledger entry validation to allow external extensions to add custom validation rules.
+    /// </summary>
+    /// <param name="CustLedgerEntry">The customer ledger entry being validated for payment export.</param>
     [IntegrationEvent(false, false)]
     local procedure OnPmtExportCustLedgerCheck(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin

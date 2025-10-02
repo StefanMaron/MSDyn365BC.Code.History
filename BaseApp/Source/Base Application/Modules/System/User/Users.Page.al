@@ -112,6 +112,7 @@ page 9800 Users
                     Caption = 'Telemetry ID';
                     ToolTip = 'Specifies a telemetry ID which can be used for troubleshooting purposes.';
                     Editable = false;
+                    Visible = false;
                 }
             }
         }

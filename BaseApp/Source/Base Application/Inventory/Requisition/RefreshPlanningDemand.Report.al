@@ -110,9 +110,11 @@ report 99001021 "Refresh Planning Demand"
 #pragma warning restore AA0074
         PlngLnMgt: Codeunit "Planning Line Management";
         Window: Dialog;
-        Direction: Option Forward,Backward;
         CalcRoutings: Boolean;
         CalcComponents: Boolean;
+
+    protected var
+        Direction: Option Forward,Backward;
 
     procedure InitializeRequest(SchDirection: Option; CalcRouting: Boolean; CalcCompNeed: Boolean)
     begin

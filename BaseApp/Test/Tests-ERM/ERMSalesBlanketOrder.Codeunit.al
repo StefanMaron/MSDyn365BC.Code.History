@@ -34,7 +34,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         UnitPriceIsChangedErr: Label 'Unit Price is changed on Quantity update.';
         ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
         TotalRecordCountErr: Label 'Total record count must be equal to %1', Comment = '%1 = Record Count.';
-        SalesOrderLineMustBeFoundErr: Label 'Sales Order Line must be found.';
+        SalesOrderLineDoesNotExistErr: Label 'Sales Order Line does not exist.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1477,7 +1477,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         SalesOrderLine[1].SetRange(Description, SalesLine[3].Description);
 
         // [THEN] Sales Order Line [1] is found.
-        Assert.IsFalse(SalesOrderLine[1].IsEmpty(), SalesOrderLineMustBeFoundErr);
+        Assert.IsFalse(SalesOrderLine[1].IsEmpty(), SalesOrderLineDoesNotExistErr);
 
         // [GIVEN] Find Sales Line [4].
         SalesLine[4].SetRange("Document Type", SalesLine[4]."Document Type"::"Blanket Order");
@@ -1491,7 +1491,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         SalesOrderLine[2].SetRange(Description, SalesLine[4].Description);
 
         // [THEN] Sales Order Line [2] is found.
-        Assert.IsFalse(SalesOrderLine[2].IsEmpty(), SalesOrderLineMustBeFoundErr);
+        Assert.IsFalse(SalesOrderLine[2].IsEmpty(), SalesOrderLineDoesNotExistErr);
 
         // [GIVEN] Validate "Qty. to Ship" in Sales Line [2].
         SalesLine[2].Validate("Qty. to Ship", LibraryRandom.RandIntInRange(4, 4));
@@ -1512,7 +1512,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         SalesOrderLine[3].SetRange(Description, SalesLine[5].Description);
 
         // [THEN] Sales Order Line [3] is found.
-        Assert.IsFalse(SalesOrderLine[3].IsEmpty(), SalesOrderLineMustBeFoundErr);
+        Assert.IsFalse(SalesOrderLine[3].IsEmpty(), SalesOrderLineDoesNotExistErr);
 
         // [GIVEN] Find Sales Line [6].
         SalesLine[6].SetRange("Document Type", SalesLine[6]."Document Type"::"Blanket Order");
@@ -1526,7 +1526,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         SalesOrderLine[4].SetRange(Description, SalesLine[6].Description);
 
         // [THEN] Sales Order Line [4] is found.
-        Assert.IsFalse(SalesOrderLine[4].IsEmpty(), SalesOrderLineMustBeFoundErr);
+        Assert.IsFalse(SalesOrderLine[4].IsEmpty(), SalesOrderLineDoesNotExistErr);
 
         // [GIVEN] Generate and save No of Records in a Variable.
         NoOfRecords := LibraryRandom.RandIntInRange(3, 3);

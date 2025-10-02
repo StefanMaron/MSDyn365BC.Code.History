@@ -11,11 +11,11 @@
     var
 #if not CLEAN25
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
+        Assert: Codeunit Assert;
 #endif
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySales: Codeunit "Library - Sales";
-        Assert: Codeunit Assert;
         isInitialized: Boolean;
 
 #if not CLEAN25
@@ -294,7 +294,7 @@
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"RC Page Dispatcher Test");
     end;
-
+#if not CLEAN25
     local procedure RunRoleCenterPageDispatcher(ObjType: Option; ObjID: Integer)
     var
         AllObjWithCaption: Record AllObjWithCaption;
@@ -309,7 +309,7 @@
         // Page "Role Center Page Dispatcher" is closed with an empty error
         Assert.ExpectedError('');
     end;
-
+#endif
     local procedure FormatFileName(ReportCaption: Text) ReportFileName: Text
     begin
         ReportFileName := DelChr(ReportCaption, '=', '/') + '.pdf'

@@ -1337,6 +1337,224 @@
       </Page>
     </ReportSection>
   </ReportSections>
+  <ReportParameters>
+    <ReportParameter Name="QuantityExplosionOfBOM">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>QuantityExplosionOfBOM</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>QuantityExplosionOfBOM</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="QtyExplosionOfBOMPrint">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>QtyExplosionOfBOMPrint</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>QtyExplosionOfBOMPrint</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="BOMTopLvlPrint">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>BOMTopLvlPrint</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>BOMTopLvlPrint</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="QtyExplosionOfBOMAnalysis">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>QtyExplosionOfBOMAnalysis</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>QtyExplosionOfBOMAnalysis</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="QtyExplosionOfBOMAnalysisL1">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>QtyExplosionOfBOMAnalysisL1</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>QtyExplosionOfBOMAnalysisL1</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ItemNo">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ItemNo</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ItemNo</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ItemDesc">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ItemDesc</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ItemDesc</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Level">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Level</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Level</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="BOMQtyCapt">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>BOMQtyCapt</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>BOMQtyCapt</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CalculationDateLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CalculationDateLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CalculationDateLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DataRetrieved">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DataRetrieved</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DataRetrieved</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="AboutTheReportLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>AboutTheReportLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>AboutTheReportLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="EnvironmentLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>EnvironmentLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>EnvironmentLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CompanyLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CompanyLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CompanyLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="UserLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>UserLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>UserLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RunOnLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>RunOnLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>RunOnLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ReportNameLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ReportNameLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ReportNameLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DocumentationLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DocumentationLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DocumentationLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="No_ItemCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>No_ItemCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>No_ItemCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Desc_ItemCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Desc_ItemCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Desc_ItemCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="BomCompLevelNoCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>BomCompLevelNoCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>BomCompLevelNoCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="BomCompLevelDescCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>BomCompLevelDescCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>BomCompLevelDescCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="BomCompLevelQtyCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>BomCompLevelQtyCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>BomCompLevelQtyCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="BomCompLevelUOMCodeCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>BomCompLevelUOMCodeCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>BomCompLevelUOMCodeCaption</Prompt>
+    </ReportParameter>
+  </ReportParameters>
   <Code>Public Function BlankZero(ByVal Value As Decimal)
     if Value = 0 then
         Return ""
@@ -1438,6 +1656,9 @@ End Function
         </Field>
         <Field Name="FormatLevel">
           <DataField>FormatLevel</DataField>
+        </Field>
+        <Field Name="IndentLevel">
+          <DataField>IndentLevel</DataField>
         </Field>
         <Field Name="BomCompLevelQty">
           <DataField>BomCompLevelQty</DataField>

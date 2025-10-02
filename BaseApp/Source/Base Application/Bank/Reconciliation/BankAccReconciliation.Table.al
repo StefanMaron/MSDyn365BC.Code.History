@@ -236,6 +236,7 @@ table 273 "Bank Acc. Reconciliation"
         field(28; "Bank Account Balance (LCY)"; Decimal)
         {
             CalcFormula = sum("Bank Account Ledger Entry"."Amount (LCY)" where("Bank Account No." = field("Bank Account No.")));
+            AutoFormatType = 1;
             Caption = 'Bank Account Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;

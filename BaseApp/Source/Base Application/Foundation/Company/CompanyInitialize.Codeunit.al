@@ -34,7 +34,6 @@ using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Reporting;
 using Microsoft.HumanResources.Setup;
 using Microsoft.Intercompany.Setup;
-using Microsoft.Inventory;
 using Microsoft.Inventory.Analysis;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Counting.Document;
@@ -98,7 +97,6 @@ codeunit 2 "Company-Initialize"
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         TransformationRule: Record "Transformation Rule";
-        AddOnIntegrMgt: Codeunit AddOnIntegrManagement;
         WorkflowSetup: Codeunit "Workflow Setup";
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
         SatisfactionSurveyMgt: Codeunit "Satisfaction Survey Mgt.";
@@ -110,7 +108,6 @@ codeunit 2 "Company-Initialize"
         OnBeforeOnRun();
 
         InitSetupTables();
-        AddOnIntegrMgt.InitMfgSetup();
         InitSourceCodeSetup();
         InitStandardTexts();
         InitReportSelection();
@@ -596,6 +593,8 @@ codeunit 2 "Company-Initialize"
               CODEUNIT::"SEPA CT-Export File", XMLPORT::"SEPA CT pain.001.001.09", CODEUNIT::"SEPA CT-Check Line");
             InsertBankExportImportSetup(SEPADDCode08Txt, SEPADDName08Txt, BankExportImportSetup.Direction::Export,
               CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.08", CODEUNIT::"SEPA DD-Check Line");
+
+            OnAfterInitBankExportImportSetup();
         end;
     end;
 
@@ -803,6 +802,11 @@ codeunit 2 "Company-Initialize"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitBankExportImportSetup()
+    begin
+    end;
+    
     [IntegrationEvent(true, false)]
     local procedure OnBeforeSourceCodeSetupInsert(var SourceCodeSetup: Record "Source Code Setup")
     begin

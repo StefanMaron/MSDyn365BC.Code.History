@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.RoleCenters;
 
 using Microsoft.Inventory.Ledger;
@@ -308,7 +312,6 @@ table 9053 "Sales Cue"
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
         ReservationEntry: Record "Reservation Entry";
         SalesReservFromItemLedger: Query "Sales Reserv. From Item Ledger";
         IsHandled: Boolean;
@@ -333,15 +336,9 @@ table 9053 "Sales Cue"
         while SalesReservFromItemLedger.Read() do
             if SalesReservFromItemLedger.Reserved_Quantity__Base_ <> 0 then begin
                 SalesHeader.SetLoadFields("Document Type", "No.");
-                if SalesHeader.Get(SalesHeader."Document Type"::Order, SalesReservFromItemLedger.SalesHeaderNo) then begin
-                    SalesLine.SetLoadFields("Document Type", "Document No.", Type, "Outstanding Qty. (Base)");
-                    SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Order);
-                    SalesLine.SetRange("Document No.", SalesHeader."No.");
-                    SalesLine.SetRange(Type, SalesLine.Type::Item);
-                    SalesLine.CalcSums("Outstanding Qty. (Base)");
-                    if SalesReservFromItemLedger.Reserved_Quantity__Base_ = SalesLine."Outstanding Qty. (Base)" then
+                if SalesHeader.Get(SalesHeader."Document Type"::Order, SalesReservFromItemLedger.SalesHeaderNo) then
+                    if SalesReservFromItemLedger.Reserved_Quantity__Base_ = SalesHeader.CalculateReservableOutstandingQuantityBase() then
                         Number += 1;
-                end;
             end;
     end;
 

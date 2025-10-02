@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Projects.Project.Planning;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.Project.Planning;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Assembly.History;
@@ -116,7 +120,7 @@ table 1003 "Job Planning Line"
             Caption = 'No.';
             TableRelation = if (Type = const(Resource)) Resource
             else
-            if (Type = const(Item)) Item where(Blocked = const(false))
+            if (Type = const(Item)) Item
             else
             if (Type = const("G/L Account")) "G/L Account"
             else
@@ -795,6 +799,7 @@ table 1003 "Job Planning Line"
             Caption = 'Invoiced Amount (LCY)';
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 1;
         }
         field(1036; "Invoiced Cost Amount (LCY)"; Decimal)
         {
@@ -804,18 +809,25 @@ table 1003 "Job Planning Line"
             Caption = 'Invoiced Cost Amount (LCY)';
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 1;
         }
         field(1037; "VAT Unit Price"; Decimal)
         {
             Caption = 'VAT Unit Price';
+            AutoFormatType = 2;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(1038; "VAT Line Discount Amount"; Decimal)
         {
             Caption = 'VAT Line Discount Amount';
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(1039; "VAT Line Amount"; Decimal)
         {
             Caption = 'VAT Line Amount';
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(1041; "VAT %"; Decimal)
         {
@@ -2320,7 +2332,7 @@ table 1003 "Job Planning Line"
         IsHandled := false;
         OnBeforeUpdateAmountsAndDiscounts(Rec, xRec, IsHandled);
         if not IsHandled then begin
-            // Patch for fixing Edit-in-Excel issues due to dependency on xRec. 
+            // Patch for fixing Edit-in-Excel issues due to dependency on xRec.
             if not GuiAllowed() then
                 if xRec.Get(xRec.RecordId()) then;
 
@@ -3358,27 +3370,37 @@ table 1003 "Job Planning Line"
     var
         Item2: Record Item;
         FindRecordManagement: Codeunit "Find Record Management";
-        FoundNo: Text;
+        IsHandled: Boolean;
     begin
-        if Type = Type::Item then begin
-            if Item2.TryGetItemNoOpenCardWithView(FoundNo, SourceNo, false, true, false, '') then
-                exit(CopyStr(FoundNo, 1, MaxStrLen("No.")))
-        end else
+        IsHandled := false;
+        OnBeforeFindOrCreateRecordByNo(Rec, xRec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit("No.");
+
+        if (SourceNo = '') then
+            exit('');
+        if Type = Type::Item then
+            exit(Item2.GetFirstItemNoFromLookup(SourceNo))
+        else
             exit(FindRecordManagement.FindNoFromTypedValue(GetType(Type), "No.", false));
 
         exit(SourceNo);
     end;
 
-    local procedure GetType(JobPlanningLineType: Enum "Job Planning Line Type"): Integer
+    local procedure GetType(JobPlanningLineType: Enum "Job Planning Line Type") Result: Integer
     begin
-        if JobPlanningLineType = JobPlanningLineType::Text then
-            exit(0);
-        if JobPlanningLineType = JobPlanningLineType::"G/L Account" then
-            exit(1);
-        if JobPlanningLineType = JobPlanningLineType::Item then
-            exit(2);
-        if JobPlanningLineType = JobPlanningLineType::Resource then
-            exit(3);
+        case JobPlanningLineType of
+            JobPlanningLineType::Text:
+                exit(0);
+            JobPlanningLineType::"G/L Account":
+                exit(1);
+            JobPlanningLineType::Item:
+                exit(2);
+            JobPlanningLineType::Resource:
+                exit(3);
+            else
+                OnGetType(JobPlanningLineType, Result);
+        end;
     end;
 
     [IntegrationEvent(false, false)]
@@ -3778,5 +3800,14 @@ table 1003 "Job Planning Line"
     local procedure OnBeforeValidateQuantity(JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var SkipValidateQuantity: Boolean)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindOrCreateRecordByNo(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetType(JobPlanningLineType: Enum "Job Planning Line Type"; var Result: Integer)
+    begin
+    end;
+}

@@ -61,9 +61,6 @@ codeunit 5940 ServContractManagement
         ServiceRegister: Record "Service Register";
         GenJournalTemplate: Record "Gen. Journal Template";
         Salesperson: Record "Salesperson/Purchaser";
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#endif
         DimMgt: Codeunit DimensionManagement;
         NextLine: Integer;
         PostingDate: Date;
@@ -470,16 +467,8 @@ codeunit 5940 ServContractManagement
         IsHandled := false;
         OnCreateServHeaderOnBeforeInitSeries(ServHeader2, ServMgtSetup, ServContract2, IsHandled);
         if not IsHandled then begin
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(ServMgtSetup."Contract Invoice Nos.", '', PostDate, ServHeader2."No.", ServHeader2."No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
-                ServHeader2."No. Series" := ServMgtSetup."Contract Invoice Nos.";
-                ServHeader2."No." := NoSeries.GetNextNo(ServHeader2."No. Series", PostDate);
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries(ServHeader2."No. Series", ServMgtSetup."Contract Invoice Nos.", PostDate, ServHeader2."No.");
-            end;
-#endif
+            ServHeader2."No. Series" := ServMgtSetup."Contract Invoice Nos.";
+            ServHeader2."No." := NoSeries.GetNextNo(ServHeader2."No. Series", PostDate);
         end;
         InsertServiceHeader(ServHeader2, ServContract2);
         ServInvNo := ServHeader2."No.";
@@ -843,16 +832,8 @@ codeunit 5940 ServContractManagement
         IsHandled := false;
         OnCreateOrGetCreditHeaderOnBeforeInitSeries(ServHeader2, ServMgtSetup, IsHandled, ServContract);
         if not IsHandled then begin
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(ServMgtSetup."Contract Credit Memo Nos.", '', 0D, ServHeader2."No.", ServHeader2."No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
-                ServHeader2."No. Series" := ServMgtSetup."Contract Credit Memo Nos.";
-                ServHeader2."No." := NoSeries.GetNextNo(ServHeader2."No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries(ServHeader2."No. Series", ServMgtSetup."Contract Credit Memo Nos.", 0D, ServHeader2."No.");
-            end;
-#endif
+            ServHeader2."No. Series" := ServMgtSetup."Contract Credit Memo Nos.";
+            ServHeader2."No." := NoSeries.GetNextNo(ServHeader2."No. Series");
         end;
         InsertServiceHeader(ServHeader2, ServContract);
         ServInvoiceNo := ServHeader2."No.";

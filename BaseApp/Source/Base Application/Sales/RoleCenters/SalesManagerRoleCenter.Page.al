@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.RoleCenters;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.RoleCenters;
 
 using Microsoft.CRM.Campaign;
 using Microsoft.CRM.Contact;
@@ -34,61 +38,6 @@ page 9005 "Sales Manager Role Center"
     {
         area(rolecenter)
         {
-#if not CLEAN24
-            group(Control1900724808)
-            {
-                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-                ShowCaption = false;
-                part(Control1907692008; "My Customers")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                }
-            }
-            group(Control1900724708)
-            {
-                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-                ShowCaption = false;
-                part(Control11; "Sales Performance")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                }
-                part(Control4; "Trailing Sales Orders Chart")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                }
-                part(Control1; "My Job Queue")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Visible = false;
-                }
-                part(Control1902476008; "My Vendors")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Visible = false;
-                }
-                part(Control6; "Report Inbox Part")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                }
-                systempart(Control31; MyNotes)
-                {
-                    ApplicationArea = RelationshipMgmt;
-                }
-                group("My User Tasks")
-                {
-                    Caption = 'My User Tasks';
-                    part("User Tasks"; "User Tasks Activities")
-                    {
-                        ApplicationArea = RelationshipMgmt;
-                        Caption = 'User Tasks';
-                    }
-                }
-            }
-#else
             part(Control1907692008; "My Customers")
             {
                 ApplicationArea = RelationshipMgmt;
@@ -133,7 +82,6 @@ page 9005 "Sales Manager Role Center"
                     Caption = 'Job Queue Tasks';
                 }
             }
-#endif
         }
     }
 
@@ -211,6 +159,14 @@ page 9005 "Sales Manager Role Center"
                 Caption = 'Sales Analysis by Dimensions';
                 RunObject = Page "Analysis View List Sales";
                 ToolTip = 'View sales amounts in G/L accounts by their dimension values and other filters that you define in an analysis view and then show in a matrix window.';
+            }
+            action("Sales Order Analysis")
+            {
+                ApplicationArea = Suite;
+                Caption = 'Analyze Sales Orders';
+                Image = Sales;
+                RunObject = Query "Sales Order Analysis";
+                ToolTip = 'Analyze (group, summarize, pivot) your Sales Order performance against customers and goods/services sold, including outstanding vs. posted quantities and amounts.';
             }
             action("Sales Budgets")
             {
@@ -448,4 +404,3 @@ page 9005 "Sales Manager Role Center"
         }
     }
 }
-

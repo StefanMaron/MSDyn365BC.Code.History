@@ -15,6 +15,11 @@ using Microsoft.Foundation.Navigate;
 using System.Security.User;
 using Microsoft.Bank.Deposit;
 
+/// <summary>
+/// Displays bank account ledger entries in a list view with filtering and navigation capabilities.
+/// Provides read-only access to posted bank transactions with drill-down to related documents,
+/// dimensions, check entries, and reversal functionality for authorized users.
+/// </summary>
 page 372 "Bank Account Ledger Entries"
 {
     ApplicationArea = Basic, Suite;

@@ -398,7 +398,11 @@ report 10070 "Sales Invoice (Pre-Printed)"
 
                 trigger OnPreDataItem()
                 begin
+#if not CLEAN27
                     NoLoops := 1 + Abs(NoCopies) + Customer."Invoice Copies";
+#else
+                    NoLoops := 1 + Abs(NoCopies);
+#endif
                     if NoLoops <= 0 then
                         NoLoops := 1;
                     CopyNo := 0;

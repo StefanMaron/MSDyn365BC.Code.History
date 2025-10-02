@@ -14,8 +14,6 @@ codeunit 131904 "Library - Time Sheet"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryERM: Codeunit "Library - ERM";
         LibraryResource: Codeunit "Library - Resource";
-        LibrarySales: Codeunit "Library - Sales";
-        LibraryService: Codeunit "Library - Service";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryAssembly: Codeunit "Library - Assembly";
@@ -65,24 +63,15 @@ codeunit 131904 "Library - Time Sheet"
         Assert.IsTrue(TimeSheetLine.Posted, StrSubstNo(TimeSheetFieldValueErr, TimeSheetLine.FieldCaption(Posted)));
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit Library Service', '27.0')]
     procedure CheckServiceTimeSheetLine(TimeSheetHeader: Record "Time Sheet Header"; ServiceHeaderNo: Code[20]; ServiceLineNo: Integer; ServiceLineQuantity: Decimal; Chargeable: Boolean)
     var
-        TimeSheetLine: Record "Time Sheet Line";
+        LibraryService: Codeunit "Library - Service";
     begin
-        TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
-        TimeSheetLine.SetRange("Service Order No.", ServiceHeaderNo);
-        TimeSheetLine.SetRange("Service Order Line No.", ServiceLineNo);
-        TimeSheetLine.FindLast();
-        TimeSheetLine.CalcFields("Total Quantity");
-
-        Assert.AreEqual(ServiceLineQuantity, TimeSheetLine."Total Quantity",
-          StrSubstNo(TimeSheetFieldValueErr, TimeSheetLine.FieldCaption("Total Quantity")));
-        Assert.AreEqual(Chargeable, TimeSheetLine.Chargeable,
-          StrSubstNo(TimeSheetFieldValueErr, TimeSheetLine.FieldCaption(Chargeable)));
-        Assert.AreEqual(TimeSheetLine.Status::Approved, TimeSheetLine.Status,
-          StrSubstNo(TimeSheetFieldValueErr, TimeSheetLine.FieldCaption(Status)));
-        Assert.IsTrue(TimeSheetLine.Posted, StrSubstNo(TimeSheetFieldValueErr, TimeSheetLine.FieldCaption(Posted)));
+        LibraryService.CheckServiceTimeSheetLine(TimeSheetHeader, ServiceHeaderNo, ServiceLineNo, ServiceLineQuantity, Chargeable);
     end;
+#endif
 
     procedure CreateJobJournalLine(var JobJournalLine: Record "Job Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10])
     var
@@ -210,19 +199,15 @@ codeunit 131904 "Library - Time Sheet"
         Resource.Modify();
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit Library Service', '27.0')]
     procedure CreateServiceOrder(var ServiceHeader: Record "Service Header"; PostingDate: Date)
     var
-        Customer: Record Customer;
-        ServiceItemLine: Record "Service Item Line";
-        ServiceItem: Record "Service Item";
+        LibraryService: Codeunit "Library - Service";
     begin
-        LibrarySales.CreateCustomer(Customer);
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
-        ServiceHeader.Validate("Posting Date", PostingDate);
-        ServiceHeader.Modify();
-        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
-        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+        LibraryService.CreateServiceOrder(ServiceHeader, PostingDate);
     end;
+#endif
 
     procedure CreateUserSetup(var UserSetup: Record "User Setup"; CurrUserID: Boolean)
     begin
@@ -421,19 +406,15 @@ codeunit 131904 "Library - Time Sheet"
           AssemblyHeader, AssemblyLine, "BOM Component Type"::Resource, Resource."No.", Resource."Base Unit of Measure", 8, 8, 'Working resource');
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit Library Service', '27.0')]
     procedure InitBackwayScenario(var TimeSheetHeader: Record "Time Sheet Header"; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")
+    var
+        LibraryService: Codeunit "Library - Service";
     begin
-        // create time sheet
-        CreateTimeSheet(TimeSheetHeader, false);
-
-        // create service order
-        CreateServiceOrder(ServiceHeader, CalcDate('<+3D>', TimeSheetHeader."Starting Date"));
-        // create service line
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, TimeSheetHeader."Resource No.");
-        ServiceLine.Validate("Service Item Line No.", 10000);
-        ServiceLine.Validate(Quantity, GetRandomDecimal());
-        ServiceLine.Modify();
+        LibraryService.InitBackwayScenario(TimeSheetHeader, ServiceHeader, ServiceLine);
     end;
+#endif
 
     procedure InitJobScenario(var TimeSheetHeader: Record "Time Sheet Header"; var TimeSheetLine: Record "Time Sheet Line")
     var
@@ -517,46 +498,32 @@ codeunit 131904 "Library - Time Sheet"
         end;
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit Library Service', '27.0')]
     procedure InitScenarioWTForServiceOrder(var TimeSheetHeader: Record "Time Sheet Header"; var ServiceHeader: Record "Service Header")
     var
-        TimeSheetLine: Record "Time Sheet Line";
-        Resource: Record Resource;
+        LibraryService: Codeunit "Library - Service";
     begin
-        // create time sheet
-        CreateTimeSheet(TimeSheetHeader, false);
-
-        // create work type
-        Resource.Get(TimeSheetHeader."Resource No.");
-
-        CreateServiceOrder(ServiceHeader, CalcDate('<+3D>', TimeSheetHeader."Starting Date"));
-
-        // create time sheets' lines with type Resource, some kind of Work Type and different chargeables
-        CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Service, '', '', ServiceHeader."No.", '');
-        TimeSheetLine.Validate("Service Order No.", ServiceHeader."No.");
-        TimeSheetLine.Modify();
-        // set quantities for lines
-        CreateTimeSheetDetail(TimeSheetLine, TimeSheetHeader."Starting Date", GetRandomDecimal());
-        TimeSheetApprovalMgt.Submit(TimeSheetLine);
+        LibraryService.InitScenarioWTForServiceOrder(TimeSheetHeader, ServiceHeader);
     end;
+#endif
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit Library Service', '27.0')]
     procedure InitServiceScenario(var TimeSheetHeader: Record "Time Sheet Header"; var TimeSheetLine: Record "Time Sheet Line"; var ServiceHeader: Record "Service Header")
+    var
+        LibraryService: Codeunit "Library - Service";
     begin
-        // create time sheet
-        CreateTimeSheet(TimeSheetHeader, false);
+        LibraryService.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
+    end;
+#endif
 
-        // create service order
-        if ServiceHeader."No." = '' then
-            CreateServiceOrder(ServiceHeader, CalcDate('<+3D>', TimeSheetHeader."Starting Date"));
-
-        // create time sheet line with type Service
-        CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Service, '', '', ServiceHeader."No.", '');
-        TimeSheetLine.Validate("Service Order No.", ServiceHeader."No.");
-        CreateTimeSheetDetail(TimeSheetLine, TimeSheetHeader."Starting Date", GetRandomDecimal());
+    procedure SubmitTimeSheetLine(var TimeSheetLine: Record "Time Sheet Line")
+    begin
         TimeSheetApprovalMgt.Submit(TimeSheetLine);
-        TimeSheetApprovalMgt.Approve(TimeSheetLine);
     end;
 
-    procedure SubmitAndApproveTimeSheetLine(TimeSheetLine: Record "Time Sheet Line")
+    procedure SubmitAndApproveTimeSheetLine(var TimeSheetLine: Record "Time Sheet Line")
     begin
         TimeSheetApprovalMgt.Submit(TimeSheetLine);
         TimeSheetApprovalMgt.Approve(TimeSheetLine);

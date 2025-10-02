@@ -12,13 +12,13 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Company;
+using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
-using Microsoft.Service.History;
 using System.IO;
 using System.Utilities;
 
@@ -844,17 +844,15 @@ codeunit 27000 "Export Accounts"
             until LedgerEntryRecordRef.Next() = 0;
     end;
 
-    local procedure FindUUIDCFDI(CustVendLedgerEntry: Variant): Text
+    local procedure FindUUIDCFDI(CustVendLedgerEntry: Variant) UUID: Text
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        ServiceInvoiceHeader: Record "Service Invoice Header";
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         SourceCodeSetup: Record "Source Code Setup";
         RecordRef: RecordRef;
-        DocumentType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
+        DocumentType: Enum "Gen. Journal Document Type";
         DocumentNo: Code[20];
         SourceCode: Code[10];
     begin
@@ -873,15 +871,6 @@ codeunit 27000 "Export Accounts"
                         if SalesCrMemoHeader.Get(DocumentNo) then
                             exit(SalesCrMemoHeader."Fiscal Invoice Number PAC");
                 end;
-            SourceCodeSetup."Service Management":
-                case DocumentType of
-                    DocumentType::Invoice:
-                        if ServiceInvoiceHeader.Get(DocumentNo) then
-                            exit(ServiceInvoiceHeader."Fiscal Invoice Number PAC");
-                    DocumentType::"Credit Memo":
-                        if ServiceCrMemoHeader.Get(DocumentNo) then
-                            exit(ServiceCrMemoHeader."Fiscal Invoice Number PAC");
-                end;
             SourceCodeSetup.Purchases:
                 case DocumentType of
                     DocumentType::Invoice:
@@ -891,6 +880,8 @@ codeunit 27000 "Export Accounts"
                         if PurchCrMemoHdr.Get(DocumentNo) then
                             exit(PurchCrMemoHdr."Fiscal Invoice Number PAC");
                 end;
+            else
+                OnFindUUIDCFDI(SourceCode, SourceCodeSetup, DocumentType, DocumentNo, UUID);
         end;
     end;
 
@@ -1030,6 +1021,11 @@ codeunit 27000 "Export Accounts"
     procedure InitializeRequest(FileName: Text)
     begin
         TestFileName := FileName;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindUUIDCFDI(SourceCode: Code[10]; SourceCodeSetup: Record "Source Code Setup"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; var UUID: Text)
+    begin
     end;
 }
 

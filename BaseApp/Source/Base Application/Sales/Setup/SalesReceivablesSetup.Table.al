@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.Setup;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Setup;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -258,7 +262,7 @@ table 311 "Sales & Receivables Setup"
             Caption = 'Default Quantity to Ship';
             OptionCaption = 'Remainder,Blank';
             OptionMembers = Remainder,Blank;
-            ToolTip = 'Specifies the default value for the Qty. to Ship field on sales order lines and the Return Qty. to Receive field on sales return order lines. If you choose Blank, the quantity to invoice is not automatically calculated.';
+            ToolTip = 'Specifies the default value for the Qty. to Ship field on sales order lines and the Return Qty. to Receive field on sales return order lines. If you choose Blank, the quantity to ship is not automatically calculated.';
         }
         field(38; "Post with Job Queue"; Boolean)
         {
@@ -399,11 +403,21 @@ table 311 "Sales & Receivables Setup"
             Caption = 'Default G/L Account Quantity';
             ToolTip = 'Specifies that Quantity is set to 1 on lines of type G/L Account.';
         }
+#if not CLEANSCHEMA29        
         field(57; "Create Item from Item No."; Boolean)
         {
             Caption = 'Create Item from Item No.';
             ToolTip = 'Specifies if the system will suggest to create a new item when no item matches the number that you enter in the No. Field on sales lines.';
+            ObsoleteReason = 'Discontinued function';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '29.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
         }
+#endif        
         field(58; "Copy Customer Name to Entries"; Boolean)
         {
             Caption = 'Copy Customer Name to Entries';
@@ -706,6 +720,10 @@ table 311 "Sales & Receivables Setup"
             DataClassification = SystemMetadata;
             InitValue = true;
             ToolTip = 'Specifies whether the document date changes when the posting date is modified.';
+        }
+        field(10500; "Posting Date Check on Posting"; Boolean)
+        {
+            Caption = 'Posting Date Check on Posting';
         }
     }
 

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Document;
 
 using Microsoft.CRM.Contact;
 using Microsoft.Finance.Currency;
@@ -61,17 +65,34 @@ page 509 "Blanket Purchase Order"
                     Importance = Promoted;
                     ToolTip = 'Specifies the name of the vendor who delivers the products.';
 
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        Vendor: Record Vendor;
+                    begin
+                        Selected.SetTable(Vendor);
+                        if Rec."Buy-from Vendor No." <> Vendor."No." then begin
+                            Rec.Validate("Buy-from Vendor No.", Vendor."No.");
+                            if Rec."Buy-from Vendor No." <> Vendor."No." then
+                                error('');
+                            IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
+                            CurrPage.Update();
+                        end;
+                    end;
+
                     trigger OnValidate()
                     begin
+                        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
                         Rec.OnAfterValidateBuyFromVendorNo(Rec, xRec);
-
                         CurrPage.Update();
                     end;
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        exit(Rec.LookupBuyFromVendorName(Text));
-                    end;
+                }
+                field("Buy-from Vendor Name 2"; Rec."Buy-from Vendor Name 2")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Vendor Name 2';
+                    Importance = Additional;
+                    QuickEntry = false;
+                    Visible = false;
                 }
                 group("Buy-from")
                 {
@@ -480,6 +501,14 @@ page 509 "Blanket Purchase Order"
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code.';
                     }
+                    field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Country/Region';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the country or region of the address.';
+                    }
                     field("Ship-to Phone No."; Rec."Ship-to Phone No.")
                     {
                         ApplicationArea = Basic, Suite;
@@ -514,6 +543,14 @@ page 509 "Blanket Purchase Order"
 
                             CurrPage.Update();
                         end;
+                    }
+                    field("Pay-to Name 2"; Rec."Pay-to Name 2")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        Visible = false;
                     }
                     field("Pay-to Address"; Rec."Pay-to Address")
                     {

@@ -123,16 +123,6 @@ page 31 "Item List"
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies if the item is an assembly BOM.';
                 }
-                field("Production BOM No."; Rec."Production BOM No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the production BOM that is used to manufacture this item.';
-                }
-                field("Routing No."; Rec."Routing No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the production route that contains the operations needed to manufacture this item.';
-                }
                 field("Base Unit of Measure"; Rec."Base Unit of Measure")
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
@@ -1057,48 +1047,6 @@ page 31 "Item List"
                     ItemGTINLabel.RunModal();
                 end;
             }
-            group(AssemblyProduction)
-            {
-                Caption = 'Assembly/Production';
-                action("Where-Used (Top Level)")
-                {
-                    ApplicationArea = Assembly;
-                    Caption = 'Where-Used (Top Level)';
-                    Image = "Report";
-                    RunObject = Report Microsoft.Manufacturing.Reports."Where-Used (Top Level)";
-                    ToolTip = 'View where and in what quantities the item is used in the product structure. The report only shows information for the top-level item. For example, if item "A" is used to produce item "B", and item "B" is used to produce item "C", the report will show item B if you run this report for item A. If you run this report for item B, then item C will be shown as where-used.';
-                }
-                action("Quantity Explosion of BOM")
-                {
-                    ApplicationArea = Assembly;
-                    Caption = 'Quantity Explosion of BOM';
-                    Image = "Report";
-                    RunObject = Report Microsoft.Manufacturing.Reports."Quantity Explosion of BOM";
-                    ToolTip = 'View an indented BOM listing for the item or items that you specify in the filters. The production BOM is completely exploded for all levels.';
-                }
-                action("Issue History")
-                {
-                    Caption = 'Issue History';
-                    Image = "Report";
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = "Report";
-                    RunObject = Report "Issue History";
-                    ToolTip = 'View figures for items removed from inventory to be used in the production of bills of material during specific periods.';
-                }
-                group(Costing)
-                {
-                    Caption = 'Costing';
-                    Image = ItemCosts;
-                    action("Inventory Valuation - WIP")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Inventory Valuation - WIP';
-                        Image = "Report";
-                        RunObject = Report "Inventory Valuation - WIP";
-                        ToolTip = 'View inventory valuation for selected production orders in your WIP inventory. The report also shows information about the value of consumption, capacity usage and output in WIP. The printed report only shows invoiced amounts, that is, the cost of entries that have been posted as invoiced.';
-                    }
-                }
-            }
             group(Inventory)
             {
                 Caption = 'Inventory';
@@ -1213,6 +1161,15 @@ page 31 "Item List"
                         Image = "Report";
                         RunObject = Report "Item Register - Value";
                         ToolTip = 'View one or more selected item registers showing value. The report can be used to document the contents of a register for internal or external audits.';
+                    }
+                    action("Issue History")
+                    {
+                        Caption = 'Issue History';
+                        Image = "Report";
+                        //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
+                        //PromotedCategory = "Report";
+                        RunObject = Report "Issue History";
+                        ToolTip = 'View figures for items removed from inventory to be used in the production of bills of material during specific periods.';
                     }
                 }
                 group(Action130)

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.Archive;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Archive;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Navigate;
@@ -345,36 +349,6 @@ page 5168 "Purchase Order Archive Subform"
                     ToolTip = 'Specifies whether the supply represented by this line is considered by the planning system when calculating action messages.';
                     Visible = false;
                 }
-                field("Prod. Order Line No."; Rec."Prod. Order Line No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the related production order line.';
-                    Visible = false;
-                }
-                field("Prod. Order No."; Rec."Prod. Order No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the related production order.';
-                    Visible = false;
-                }
-                field("Operation No."; Rec."Operation No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the related production operation.';
-                    Visible = false;
-                }
-                field("Work Center No."; Rec."Work Center No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the work center number of the journal line.';
-                    Visible = false;
-                }
-                field(Finished; Rec.Finished)
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies that any related service or operation is finished.';
-                    Visible = false;
-                }
                 field("Inbound Whse. Handling Time"; Rec."Inbound Whse. Handling Time")
                 {
                     ApplicationArea = Warehouse;
@@ -403,6 +377,11 @@ page 5168 "Purchase Order Archive Subform"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the deferral template that governs how expenses paid with this purchase document are deferred to the different accounting periods when the expenses were incurred.';
+                }
+                field("No. of Fixed Asset Cards"; Rec."No. of Fixed Asset Cards")
+                {
+                    ApplicationArea = FixedAssets;
+                    Visible = false;
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {

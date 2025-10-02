@@ -7,8 +7,6 @@ namespace Microsoft.eServices.EDocument;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
 
 table 27006 "CFDI Relation Document"
 {
@@ -84,9 +82,9 @@ table 27006 "CFDI Relation Document"
         case "Document Table ID" of
             DATABASE::"Sales Header", DATABASE::"Sales Invoice Header":
                 InsertRelatedSalesCreditMemos();
-            DATABASE::"Service Header", DATABASE::"Service Invoice Header":
-                InsertRelatedServiceCreditMemos();
         end;
+
+        OnAfterInsertRelatedCreditMemos(Rec);
     end;
 
     local procedure InsertRelatedSalesCreditMemos()
@@ -112,29 +110,6 @@ table 27006 "CFDI Relation Document"
         until SalesCrMemoHeader.Next() = 0;
     end;
 
-    local procedure InsertRelatedServiceCreditMemos()
-    var
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
-        CFDIRelationDocument: Record "CFDI Relation Document";
-    begin
-        if "Related Doc. Type" <> "Related Doc. Type"::Invoice then
-            exit;
-
-        ServiceCrMemoHeader.SetRange("Bill-to Customer No.", "Customer No.");
-        ServiceCrMemoHeader.SetRange("Applies-to Doc. Type", ServiceCrMemoHeader."Applies-to Doc. Type"::Invoice);
-        ServiceCrMemoHeader.SetRange("Applies-to Doc. No.", "Related Doc. No.");
-        if not ServiceCrMemoHeader.FindSet() then
-            exit;
-
-        repeat
-            CFDIRelationDocument := Rec;
-            CFDIRelationDocument."Related Doc. Type" := CFDIRelationDocument."Related Doc. Type"::"Credit Memo";
-            CFDIRelationDocument."Related Doc. No." := ServiceCrMemoHeader."No.";
-            CFDIRelationDocument."Fiscal Invoice Number PAC" := ServiceCrMemoHeader."Fiscal Invoice Number PAC";
-            if CFDIRelationDocument.Insert() then;
-        until ServiceCrMemoHeader.Next() = 0;
-    end;
-
     local procedure CheckRelatedDocumentNo()
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -149,8 +124,6 @@ table 27006 "CFDI Relation Document"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        ServiceInvoiceHeader: Record "Service Invoice Header";
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         if "Related Doc. No." = '' then
             exit;
@@ -164,15 +137,19 @@ table 27006 "CFDI Relation Document"
                     SalesCrMemoHeader.Get("Related Doc. No.");
                     "Fiscal Invoice Number PAC" := SalesCrMemoHeader."Fiscal Invoice Number PAC";
                 end;
-            DATABASE::"Service Header", DATABASE::"Service Invoice Header", DATABASE::"Service Cr.Memo Header":
-                if "Related Doc. Type" = "Related Doc. Type"::Invoice then begin
-                    ServiceInvoiceHeader.Get("Related Doc. No.");
-                    "Fiscal Invoice Number PAC" := ServiceInvoiceHeader."Fiscal Invoice Number PAC";
-                end else begin
-                    ServiceCrMemoHeader.Get("Related Doc. No.");
-                    "Fiscal Invoice Number PAC" := ServiceCrMemoHeader."Fiscal Invoice Number PAC";
-                end;
         end;
+
+        OnAfterUpdateFiscalInvoiceNumber(Rec);
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnAfterInsertRelatedCreditMemos(var Rec: Record "CFDI Relation Document")
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnAfterUpdateFiscalInvoiceNumber(var Rec: Record "CFDI Relation Document")
+    begin
     end;
 }
 

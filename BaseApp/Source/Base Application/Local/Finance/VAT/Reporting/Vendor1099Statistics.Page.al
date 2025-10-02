@@ -171,6 +171,13 @@ page 10016 "Vendor 1099 Statistics"
     {
     }
 
+    trigger OnOpenPage()
+    var
+        IRS1099Management: Codeunit "IRS 1099 Management";
+    begin
+        IRS1099Management.ThrowUseNewIRSFormsFeatureError();
+    end;
+
     trigger OnAfterGetRecord()
     begin
         ClearAll();

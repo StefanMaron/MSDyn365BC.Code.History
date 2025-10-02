@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Archive;
 
 using Microsoft.CRM.Contact;
@@ -49,6 +53,12 @@ page 5162 "Sales Quote Archive"
                     {
                         ApplicationArea = Suite;
                         Caption = 'Name';
+                    }
+                    field("Sell-to Customer Name 2"; Rec."Sell-to Customer Name 2")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Name 2';
+                        Visible = false;
                     }
                     field("Sell-to Address"; Rec."Sell-to Address")
                     {
@@ -193,6 +203,12 @@ page 5162 "Sales Quote Archive"
                         ApplicationArea = Suite;
                         Caption = 'Name';
                     }
+                    field("Bill-to Name 2"; Rec."Bill-to Name 2")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Name 2';
+                        Visible = false;
+                    }
                     field("Bill-to Address"; Rec."Bill-to Address")
                     {
                         ApplicationArea = Suite;
@@ -334,6 +350,11 @@ page 5162 "Sales Quote Archive"
                         ApplicationArea = Suite;
                         Caption = 'Address 2';
                     }
+                    field("Ship-to City"; Rec."Ship-to City")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'City';
+                    }
                     group(Control27)
                     {
                         ShowCaption = false;
@@ -348,11 +369,6 @@ page 5162 "Sales Quote Archive"
                     {
                         ApplicationArea = Suite;
                         Caption = 'Post Code';
-                    }
-                    field("Ship-to City"; Rec."Ship-to City")
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'City';
                     }
                     field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                     {

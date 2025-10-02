@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -25,9 +25,6 @@ using Microsoft.Projects.Project.Posting;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.TimeSheet;
 using Microsoft.Sales.Customer;
-#if not CLEAN24
-using Microsoft.Sales.Receivables;
-#endif
 using Microsoft.Sales.Setup;
 using Microsoft.Service.Document;
 using Microsoft.Service.History;
@@ -777,50 +774,12 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             until TempSalesTaxAmtLine.Next() = 0;
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterPostCustomerEntry(var GenJournalLine: Record "Gen. Journal Line"; var ServiceHeader: Record "Service Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
-    begin
-    end;
-
-    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterPostBalancingEntry(var GenJournalLine: Record "Gen. Journal Line"; var ServiceHeader: Record "Service Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
-    begin
-    end;
-
-    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterPostInvoicePostBuffer(var GenJournalLine: Record "Gen. Journal Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; ServiceHeader: Record "Service Header"; GLEntryNo: Integer; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferValuesToJobJnlLine(var JobJournalLine: Record "Job Journal Line"; ServiceLine: Record "Service Line")
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforePostCustomerEntry(var GenJournalLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header"; var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; GenJnlLineDocNo: Code[20])
-    begin
-    end;
-
-    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforePostBalancingEntry(var GenJournalLine: Record "Gen. Journal Line"; var ServiceHeader: Record "Service Header"; var TotalServiceLine: Record "Service Line")
-    begin
-    end;
-
-    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforePostInvoicePostBuffer(var GenJournalLine: Record "Gen. Journal Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; ServiceHeader: Record "Service Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ServiceShipmentHeader: Record "Service Shipment Header"; ServiceLine: Record "Service Line"; GenJnlLineDocNo: Code[20]; QtyToBeShipped: Decimal; QtyToBeShippedBase: Decimal; QtyToBeInvoiced: Decimal; QtyToBeInvoicedBase: Decimal)
@@ -857,13 +816,6 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     begin
     end;
 
-#if not CLEAN24
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '23.0')]
-    local procedure OnPostBalancingEntryOnBeforeFindCustLedgerEntry(var ServiceHeader: Record "Service Header"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnPostSalesTaxToGLOnBeforeGenJnlPostLineRunWithCheck(var GenJnlLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header"; var TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary)
@@ -890,4 +842,3 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     begin
     end;
 }
-

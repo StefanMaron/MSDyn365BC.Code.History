@@ -15,14 +15,17 @@ codeunit 134195 "ERM Multiple Posting Groups"
         LibraryService: Codeunit "Library - Service";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryJournals: Codeunit "Library - Journals";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryHumanResource: Codeunit "Library - Human Resource";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
         PostingGroupNonEditableErr: Label 'Posting Group is not editable in General Journal page';
         VendorPostingGroupErr: Label 'Vendor Posting Group must be %1 in %2.', Comment = '%1= Value ,%2=Table Name';
+        AltPostingGroupNotFilledInErr: Label 'You cannot change the value %1 to %2 because Alternative Employee Posting Group has not been filled in.', Comment = '%1 = posting group, %2 = alt. posting group';
 
     [Test]
     [Scope('OnPrem')]
@@ -628,6 +631,49 @@ codeunit 134195 "ERM Multiple Posting Groups"
     end;
 
     [Test]
+    procedure PostSalesPrepaymentInvoiceWithAlternativeCustomerPostingGroup()
+    var
+        LineGLAccount: Record "G/L Account";
+        Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        // Create Sales Invoice, Post Prepayment and Verify Sales Invoice Header
+
+        // Setup: Create Sales Invoice.
+        Initialize();
+        SetSalesAllowMultiplePostingGroups(true);
+        LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
+
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Allow Multiple Posting Groups", true);
+        Customer.Validate("Gen. Bus. Posting Group", LineGLAccount."Gen. Bus. Posting Group");
+        Customer.Validate("VAT Bus. Posting Group", LineGLAccount."VAT Bus. Posting Group");
+        Customer.Modify(true);
+
+        CreateSalesDocument(SalesHeader, SalesLine, Customer."No.", LineGLAccount);
+
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
+        LibrarySales.CreateAltCustomerPostingGroup(Customer."Customer Posting Group", CustomerPostingGroup.Code);
+        SalesHeader.Validate("Customer Posting Group", CustomerPostingGroup.Code);
+        SalesHeader.Validate("Prepayment %", LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesHeader.Modify();
+
+        GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        LibraryERM.SetGeneralPostingSetupPrepAccounts(GeneralPostingSetup);
+        GeneralPostingSetup.Modify();
+
+        // Exercise: Post Sales Prepayment Invoice.
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+        SetSalesAllowMultiplePostingGroups(false);
+
+        // Verify customer posting group in posted document and ledger entries
+        VerifySalesPrepaymentInvoiceCustPostingGroup(SalesHeader."Last Prepayment No.", CustomerPostingGroup);
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure CheckPurchaseInvoiceAnotherVendorPostingGroupCannotBeUsed()
     var
@@ -819,6 +865,34 @@ codeunit 134195 "ERM Multiple Posting Groups"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure CheckGeneralJournalPostingGroupIsEditableIfAllowedForEmployee()
+    var
+        Employee: Record Employee;
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalPage: TestPage "General Journal";
+    begin
+        // [SCENARIO 590692] Allow Multiple Posting Groups not usable in General Journal because Posting Group field cannot be made Editable for Employee
+        Initialize();
+
+        // [GIVEN] Enable Allow Multiple Posting Group on Human Resources Setup
+        SetHRAllowMultiplePostingGroups(true);
+
+        // [GIVEN] Create new employee with Allow Multiple Posting Groups
+        LibraryHumanResource.CreateEmployee(Employee);
+        Employee.Validate("Allow Multiple Posting Groups", true);
+        Employee.Modify();
+
+        // [WHEN] Create General Journal line
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Employee, Employee."No.");
+
+        // [THEN] Open General Journal page and verify field "Posting Group" is editable
+        GenJournalPage.OpenEdit();
+        GenJournalPage.GoToRecord(GenJournalLine);
+        Assert.IsTrue(GenJournalPage."Posting Group".Editable(), PostingGroupNonEditableErr);
+    end;
+
+    [Test]
     [HandlerFunctions('VoidCheckPageHandler')]
     procedure CheckVoidCheckVendLdgerEntryWithMultiplePostingGroups()
     var
@@ -861,13 +935,136 @@ codeunit 134195 "ERM Multiple Posting Groups"
         LibraryVariableStorage.Enqueue(VoidType::"Void check only");
         VoidCheck(CheckLedgerEntry."Document No.");
 
-        // Verify Vendor Posting Group on Vendor Ledger Entry. 
+        // Verify Vendor Posting Group on Vendor Ledger Entry.
         VerifyPostingGroupOnVendorLedgerEntry(GenJournalLine."Document No.", VendorPostingGroup2.Code);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckChangePostingGroupInGeneralJournalToNonAltPostingGroup()
+    var
+        Employee: Record Employee;
+        EmployeePostingGroup: Record "Employee Posting Group";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 590692] Check the change of posting group in general journal to an posting group that is not set as alternative
+        Initialize();
+
+        // [GIVEN] Enable Allow Multiple Posting Group on Human Resources Setup
+        SetHRAllowMultiplePostingGroups(true);
+
+        // [GIVEN] Create new Employee with Allow Multiple Posting Groups
+        LibraryHumanResource.CreateEmployee(Employee);
+        Employee.Validate("Allow Multiple Posting Groups", true);
+        Employee.Modify();
+
+        // [GIVEN] Create new Employee Posting Group
+        LibraryHumanResource.CreateEmployeePostingGroup(EmployeePostingGroup);
+
+        // [GIVEN] Create General Journal Line with Employee
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Employee, Employee."No.");
+
+        // [WHEN] Change the Posting Group to created Employee Posting Group
+        asserterror GenJournalLine.Validate("Posting Group", EmployeePostingGroup.Code);
+
+        // [THEN] The error occur
+        Assert.ExpectedError(StrSubstNo(AltPostingGroupNotFilledInErr, GenJournalLine."Posting Group", EmployeePostingGroup.Code));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckChangePostingGroupInGeneralJournalToAltPostingGroup()
+    var
+        Employee: Record Employee;
+        EmployeePostingGroup: Record "Employee Posting Group";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 590692] Check the change of posting group in general journal to an alternative posting group
+        Initialize();
+
+        // [GIVEN] Enable Allow Multiple Posting Group on Human Resources Setup
+        SetHRAllowMultiplePostingGroups(true);
+
+        // [GIVEN] Create new Employee with Allow Multiple Posting Groups
+        LibraryHumanResource.CreateEmployee(Employee);
+        Employee.Validate("Allow Multiple Posting Groups", true);
+        Employee.Modify();
+
+        // [GIVEN] Create new Employee Posting Group
+        LibraryHumanResource.CreateEmployeePostingGroup(EmployeePostingGroup);
+
+        // [GIVEN] Create Alternative Employee Posting Group
+        LibraryHumanResource.CreateAltEmployeePostingGroup(Employee."Employee Posting Group", EmployeePostingGroup.Code);
+
+        // [GIVEN] Create General Journal Line with Employee
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Employee, Employee."No.");
+
+        // [WHEN] Change the Posting Group to created Employee Posting Group
+        GenJournalLine.Validate("Posting Group", EmployeePostingGroup.Code);
+
+        // [THEN] The posting group will be changed without any error
+        Assert.AreEqual(EmployeePostingGroup.Code, GenJournalLine."Posting Group", 'The posting group was not changed as expected.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckPostGenJournalLineWithAnotherEmployeePostingGroup()
+    var
+        Employee: Record Employee;
+        EmployeePostingGroup: Record "Employee Posting Group";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLEntry: Record "G/L Entry";
+        GLRegister: Record "G/L Register";
+    begin
+        // [SCENARIO 590692] Check Post General Journal Line with another Employee Posting Group
+        Initialize();
+
+        // [GIVEN] Enable Allow Multiple Posting Group on Human Resources Setup
+        SetHRAllowMultiplePostingGroups(true);
+
+        // [GIVEN] Create new Employee with Allow Multiple Posting Groups
+        LibraryHumanResource.CreateEmployee(Employee);
+        Employee.Validate("Allow Multiple Posting Groups", true);
+        Employee.Modify();
+
+        // [GIVEN] Create new Employee Posting Group
+        LibraryHumanResource.CreateEmployeePostingGroup(EmployeePostingGroup);
+
+        // [GIVEN] Create Alternative Employee Posting Group
+        LibraryHumanResource.CreateAltEmployeePostingGroup(Employee."Employee Posting Group", EmployeePostingGroup.Code);
+
+        // [GIVEN] Create General Journal Line with Employee
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.DeleteAll();
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Employee, Employee."No.", LibraryRandom.RandDecInRange(100, 200, 2));
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+
+        // [GIVEN] Change the Posting Group to created Employee Posting Group
+        GenJournalLine.Validate("Posting Group", EmployeePostingGroup.Code);
+        GenJournalLine.Modify();
+
+        // [WHEN] Post General Journal Line
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] The G/L Entry will posted on payables account of alternative posting group
+        GLRegister.FindLast();
+        GLEntry.Reset();
+        GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
+        VerifyGLEntryForGLAccount(GLEntry, EmployeePostingGroup."Payables Account", GenJournalLine.Amount);
+    end;
+
     local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Multiple Posting Groups");
+
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
 
         // Lazy Setup.
         LibrarySetupStorage.Restore();
@@ -876,9 +1073,13 @@ codeunit 134195 "ERM Multiple Posting Groups"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Multiple Posting Groups");
 
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        UpdateSalesPrepmtInvNos();
+
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
+        LibrarySetupStorage.Save(DATABASE::"Human Resources Setup");
         LibrarySetupStorage.Save(DATABASE::"Service Mgt. Setup");
         isInitialized := true;
         Commit();
@@ -914,6 +1115,16 @@ codeunit 134195 "ERM Multiple Posting Groups"
         PurchasesPayablesSetup."Allow Multiple Posting Groups" := AllowMultiplePostingGroups;
         PurchasesPayablesSetup."Check Multiple Posting Groups" := "Posting Group Change Method"::"Alternative Groups";
         PurchasesPayablesSetup.Modify();
+    end;
+
+    local procedure SetHRAllowMultiplePostingGroups(AllowMultiplePostingGroups: Boolean)
+    var
+        HumanResourcesSetup: Record "Human Resources Setup";
+    begin
+        HumanResourcesSetup.Get();
+        HumanResourcesSetup."Allow Multiple Posting Groups" := AllowMultiplePostingGroups;
+        HumanResourcesSetup."Check Multiple Posting Groups" := "Posting Group Change Method"::"Alternative Groups";
+        HumanResourcesSetup.Modify();
     end;
 
     local procedure UpdateServiceLineWithRandomQtyAndPrice(var ServiceLine: Record "Service Line"; ServiceItemLineNo: Integer)
@@ -954,6 +1165,21 @@ codeunit 134195 "ERM Multiple Posting Groups"
         GLEntry.TestField(Amount, SalesInvoiceHeader."Amount Including VAT");
     end;
 
+    local procedure VerifySalesPrepaymentInvoiceCustPostingGroup(DocumentNo: Code[20]; CustomerPostingGroup: Record "Customer Posting Group")
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        SalesInvoiceHeader.Get(DocumentNo);
+        SalesInvoiceHeader.TestField("Customer Posting Group", CustomerPostingGroup.Code);
+
+        CustLedgerEntry.SetRange("Customer No.", SalesInvoiceHeader."Bill-to Customer No.");
+        CustLedgerEntry.SetRange("Document No.", DocumentNo);
+        CustLedgerEntry.SetRange("Posting Date", SalesInvoiceHeader."Posting Date");
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.TestField("Customer Posting Group", CustomerPostingGroup.Code);
+    end;
+
     local procedure GetSalesInvoiceHeaderNo(DocumentNo: Code[20]): Code[20]
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -980,25 +1206,6 @@ codeunit 134195 "ERM Multiple Posting Groups"
 
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
-    end;
-
-    local procedure ApplyAndPostVendorEntry(DocumentNo: Code[20]; DocumentNo2: Code[20]; AmountToApply: Decimal; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
-    var
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
-        VendorLedgerEntry2: Record "Vendor Ledger Entry";
-    begin
-        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, DocumentNo);
-        LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, AmountToApply);
-        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry2, DocumentType2, DocumentNo2);
-        VendorLedgerEntry2.FindSet();
-        repeat
-            VendorLedgerEntry2.CalcFields("Remaining Amount");
-            VendorLedgerEntry2.Validate("Amount to Apply", VendorLedgerEntry2."Remaining Amount");
-            VendorLedgerEntry2.Modify(true);
-        until VendorLedgerEntry2.Next() = 0;
-
-        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry2);
-        LibraryERM.PostVendLedgerApplication(VendorLedgerEntry);
     end;
 
     local procedure VerifyGLEntryForGLAccount(var GLEntry: Record "G/L Entry"; AccountNo: Code[20]; Amount: Decimal)
@@ -1046,6 +1253,52 @@ codeunit 134195 "ERM Multiple Posting Groups"
                     ServiceMgtSetup.Modify();
                 end;
         end;
+    end;
+
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomeNo: Code[20]; LineGLAccount: Record "G/L Account") PrepmtGLAccountNo: Code[20]
+    begin
+        LibrarySales.CreateSalesHeader(
+          SalesHeader, SalesHeader."Document Type"::Order, CustomeNo);
+
+        LibrarySales.CreateSalesLine(
+          SalesLine,
+          SalesHeader,
+          SalesLine.Type::Item,
+          CreateItemWithPostingSetup(LineGLAccount), LibraryRandom.RandInt(10));
+        exit(PrepmtGLAccountNo);
+    end;
+
+    local procedure CreateItemWithPostingSetup(LineGLAccount: Record "G/L Account"): Code[20]
+    var
+        Item: Record Item;
+    begin
+        CreateItem(Item);
+        GenProdPostingGroupInItem(Item, LineGLAccount);
+        Item.Modify(true);
+        exit(Item."No.");
+    end;
+
+    local procedure CreateItem(var Item: Record Item)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Price", 10 * LibraryRandom.RandDec(99, 5)); // Using RANDOM value for Unit Price.
+        Item.Modify(true);
+    end;
+
+    local procedure GenProdPostingGroupInItem(var Item: Record Item; LineGLAccount: Record "G/L Account")
+    begin
+        Item.Validate("Gen. Prod. Posting Group", LineGLAccount."Gen. Prod. Posting Group");
+        Item.Validate("VAT Prod. Posting Group", LineGLAccount."VAT Prod. Posting Group");
+        Item.Modify(true);
+    end;
+
+    local procedure UpdateSalesPrepmtInvNos()
+    var
+        SalesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesSetup.Get();
+        SalesSetup."Posted Prepmt. Inv. Nos." := LibraryERM.CreateNoSeriesCode();
+        SalesSetup.Modify();
     end;
 
     local procedure CreateGeneralJournalLine(

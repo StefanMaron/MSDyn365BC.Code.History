@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.FinancialReports;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.FinancialReports;
 
 using Microsoft.CashFlow.Account;
 using Microsoft.CashFlow.Forecast;
@@ -94,6 +98,9 @@ codeunit 8 AccSchedManagement
         RowFormulaMsg: Label 'Row formula: %1.';
         ColumnFormulaErrorMsg: Label 'Column formula: %1. \Error: %2.';
 #pragma warning restore AA0470
+        ColumnHeaderTxt: Label '%1 (%2)', Comment = '%1 = Column Header, %2 = Date';
+        QuarterTxt: Label 'Q%1', Comment = '%1 = Quarter number';
+        WeekTxt: Label 'W%1', Comment = '%1 = Week number';
         Recalculate: Boolean;
         SystemGeneratedAccSchedQst: Label 'This account schedule may be automatically updated by the system, so any changes you make may be lost. Do you want to make a copy?';
 
@@ -347,18 +354,19 @@ codeunit 8 AccSchedManagement
 
     procedure AccPeriodStartEnd(ColumnLayout: Record "Column Layout"; Date: Date; var StartDate: Date; var EndDate: Date)
     var
+        PeriodFormulaParser: Codeunit "Period Formula Parser";
         Steps: Integer;
-        Type: Option " ",Period,"Fiscal Year";
-        RangeFromType: Option Int,CP,LP;
-        RangeToType: Option Int,CP,LP;
+        Type: Enum "Period Type";
+        RangeFromType: Enum "Period Formula Range";
+        RangeToType: Enum "Period Formula Range";
         RangeFromInt: Integer;
         RangeToInt: Integer;
     begin
         if ColumnLayout."Comparison Period Formula" = '' then
             exit;
 
-        ColumnLayout.ParsePeriodFormula(
-          ColumnLayout."Comparison Period Formula", Steps, Type, RangeFromType, RangeToType, RangeFromInt, RangeToInt);
+        PeriodFormulaParser.ParsePeriodFormula(
+          ColumnLayout."Comparison Period Formula", Steps, Type, RangeFromType, RangeToType, RangeFromInt, RangeToInt, ColumnLayout."Comparison Period Formula LCID");
 
         AccountingPeriodMgt.AccPeriodStartEnd(
           Date, StartDate, EndDate, PeriodError, Steps, Type, RangeFromType, RangeToType, RangeFromInt, RangeToInt);
@@ -420,6 +428,11 @@ codeunit 8 AccSchedManagement
         GLSetupRead := true;
     end;
 
+    /// <summary>
+    /// Calculates the cell for the specified Acc. Schedule Line and Column Layout combination. 
+    ///
+    /// An additional currency can be calculated using the CalcAddCurr parameter, but this parameter may be ignored if the Column Layout's Show in ACY field is set to true.
+    /// </summary>
     procedure CalcCell(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean) Result: Decimal
     var
         IsHandled: Boolean;
@@ -427,6 +440,9 @@ codeunit 8 AccSchedManagement
         IsHandled := false;
         OnBeforeCalcCell(AccSchedLine, ColumnLayout, CalcAddCurr, Result, IsHandled);
         if not IsHandled then begin
+            if ColumnLayout."Show in ACY" then
+                CalcAddCurr := true;
+
             AccountScheduleLine."Dimension 1 Totaling" := AccSchedLine."Dimension 1 Totaling";
             AccountScheduleLine."Dimension 2 Totaling" := AccSchedLine."Dimension 2 Totaling";
             AccountScheduleLine.CopyFilters(AccSchedLine);
@@ -1027,6 +1043,7 @@ codeunit 8 AccSchedManagement
         GLEntry.SetFilter("Global Dimension 1 Code", GetDimTotalingFilter(1, ColumnLayout."Dimension 1 Totaling"));
         GLEntry.SetFilter("Global Dimension 2 Code", GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"));
         GLEntry.SetFilter("Business Unit Code", ColumnLayout."Business Unit Totaling");
+        GLEntry.SetFilter("G/L Account No.", ColumnLayout."G/L Account Totaling");
         GLEntry.FilterGroup(0);
 
         OnAfterSetGLAccGLEntryFilters(GLAcc, GLEntry, AccSchedLine, ColumnLayout, UseBusUnitFilter, UseDimFilter);
@@ -1069,6 +1086,7 @@ codeunit 8 AccSchedManagement
         GLBudgetEntry.SetFilter("Global Dimension 1 Code", GetDimTotalingFilter(1, ColumnLayout."Dimension 1 Totaling"));
         GLBudgetEntry.SetFilter("Global Dimension 2 Code", GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"));
         GLBudgetEntry.SetFilter("Business Unit Code", ColumnLayout."Business Unit Totaling");
+        GLBudgetEntry.SetFilter("G/L Account No.", ColumnLayout."G/L Account Totaling");
         GLBudgetEntry.FilterGroup(0);
 
         OnAfterSetGLAccGLBudgetEntryFilters(GLAcc, GLBudgetEntry, AccSchedLine, ColumnLayout, UseBusUnitFilter, UseDimFilter);
@@ -1101,6 +1119,7 @@ codeunit 8 AccSchedManagement
           GetDimTotalingFilter(3, ColumnLayout."Dimension 3 Totaling"),
           GetDimTotalingFilter(4, ColumnLayout."Dimension 4 Totaling"));
         AnalysisViewBudgetEntry.SetFilter("Business Unit Code", ColumnLayout."Business Unit Totaling");
+        AnalysisViewBudgetEntry.SetFilter("G/L Account No.", ColumnLayout."G/L Account Totaling");
         AnalysisViewBudgetEntry.FilterGroup(0);
 
         OnAfterSetGLAccAnalysisViewBudgetEntries(GLAcc, AnalysisViewBudgetEntry, AccSchedLine, ColumnLayout);
@@ -1131,6 +1150,7 @@ codeunit 8 AccSchedManagement
           GetDimTotalingFilter(3, ColumnLayout."Dimension 3 Totaling"),
           GetDimTotalingFilter(4, ColumnLayout."Dimension 4 Totaling"));
         AnalysisViewEntry.SetFilter("Business Unit Code", ColumnLayout."Business Unit Totaling");
+        AnalysisViewEntry.SetFilter("Account No.", ColumnLayout."G/L Account Totaling");
         AnalysisViewEntry.FilterGroup(0);
 
         OnAfterSetGLAccAnalysisViewEntryFilters(GLAcc, AnalysisViewEntry, AccSchedLine, ColumnLayout);
@@ -1365,6 +1385,7 @@ codeunit 8 AccSchedManagement
           GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"),
           GetDimTotalingFilter(3, ColumnLayout."Dimension 3 Totaling"),
           GetDimTotalingFilter(4, ColumnLayout."Dimension 4 Totaling"));
+        AnalysisViewEntry.SetFilter("Account No.", ColumnLayout."G/L Account Totaling");
         AnalysisViewEntry.FilterGroup(0);
 
         OnAfterSetCFAnalysisViewEntryFilters(AnalysisViewEntry, AccSchedLine, ColumnLayout);
@@ -2463,6 +2484,7 @@ codeunit 8 AccSchedManagement
                 GLAcc.SetFilter("Business Unit Filter", TempColumnLayout."Business Unit Totaling");
                 GLAcc.SetFilter("Global Dimension 1 Filter", GetDimTotalingFilter(1, TempColumnLayout."Dimension 1 Totaling"));
                 GLAcc.SetFilter("Global Dimension 2 Filter", GetDimTotalingFilter(2, TempColumnLayout."Dimension 2 Totaling"));
+                GLAcc.SetFilter("No.", TempColumnLayout."G/L Account Totaling");
                 if SubcategoryEntryFilter <> '' then begin
                     GlAcc.SetRange("Account Type", GlAcc."Account Type"::Posting);
                     GLAcc.SetFilter("Account Subcategory Entry No.", SubcategoryEntryFilter);
@@ -2487,6 +2509,7 @@ codeunit 8 AccSchedManagement
                   GetDimTotalingFilter(3, TempColumnLayout."Dimension 3 Totaling"),
                   GetDimTotalingFilter(4, TempColumnLayout."Dimension 4 Totaling"));
                 GLAccAnalysisView.SetFilter("Business Unit Filter", TempColumnLayout."Business Unit Totaling");
+                GLAcc.SetFilter("No.", TempColumnLayout."G/L Account Totaling");
                 if SubcategoryEntryFilter <> '' then begin
                     GlAcc.SetRange("Account Type", GlAcc."Account Type"::Posting);
                     GLAcc.SetFilter("Account Subcategory Entry No.", SubcategoryEntryFilter);
@@ -2637,6 +2660,66 @@ codeunit 8 AccSchedManagement
         CFForecastEntry.SetFilter("Global Dimension 1 Code", GetDimTotalingFilter(1, ColumnLayout."Dimension 1 Totaling"));
         CFForecastEntry.SetFilter("Global Dimension 2 Code", GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"));
         CFForecastEntry.FilterGroup(0);
+    end;
+
+    procedure CalcColumnHeader(var AccSchedLine: Record "Acc. Schedule Line"; ColumnLayout: Record "Column Layout") NewColumnHeader: Text
+    var
+        DateText: Text;
+        FiscalStartDate2: Date;
+        FromDate: Date;
+        ToDate: Date;
+        IsHandled: Boolean;
+    begin
+        OnBeforeCalcColumnHeader(AccSchedLine, ColumnLayout, NewColumnHeader, IsHandled);
+        if IsHandled then
+            exit(NewColumnHeader);
+        NewColumnHeader := ColumnLayout."Column Header";
+        if ColumnLayout."Include Date In Header" = ColumnLayout."Include Date In Header"::Blank then
+            exit;
+        StartDate := AccSchedLine.GetRangeMin("Date Filter");
+        if EndDate <> AccSchedLine.GetRangeMax("Date Filter") then begin
+            EndDate := AccSchedLine.GetRangeMax("Date Filter");
+            FiscalStartDate := AccountingPeriodMgt.FindFiscalYear(EndDate);
+        end;
+        CalcColumnDates(ColumnLayout, FromDate, ToDate, FiscalStartDate2);
+        if ToDate = 0D then
+            exit;
+        case ColumnLayout."Include Date In Header" of
+            ColumnLayout."Include Date In Header"::Weekday:
+                DateText := Format(ToDate, 0, '<Weekday Text>');
+            ColumnLayout."Include Date In Header"::Week:
+                DateText := StrSubstNo(WeekTxt, Format(ToDate, 0, '<Week Year>'));
+            ColumnLayout."Include Date In Header"::Month:
+                DateText := Format(ToDate, 0, '<Month Text>');
+            ColumnLayout."Include Date In Header"::MonthAndYear:
+                DateText := Format(ToDate, 0, '<Month Text> <Year4>');
+            ColumnLayout."Include Date In Header"::Quarter:
+                DateText := StrSubstNo(QuarterTxt, Format(ToDate, 0, '<Quarter>'));
+            ColumnLayout."Include Date In Header"::QuarterAndYear:
+                DateText := StrSubstNo(QuarterTxt, Format(ToDate, 0, '<Quarter> <Year4>'));
+            ColumnLayout."Include Date In Header"::Year:
+                DateText := Format(ToDate, 0, '<Year4>');
+            ColumnLayout."Include Date In Header"::FullDate:
+                DateText := Format(ToDate);
+            else begin
+                IsHandled := false;
+                OnCalcColumnHeaderElseCase(AccSchedLine, ColumnLayout, FromDate, ToDate, DateText, IsHandled)
+            end;
+        end;
+        if ColumnLayout."Column Header" = '' then
+            NewColumnHeader := DateText
+        else
+            NewColumnHeader := StrSubstNo(ColumnHeaderTxt, ColumnLayout."Column Header", DateText);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcColumnHeader(var AccSchedLine: Record "Acc. Schedule Line"; ColumnLayout: Record "Column Layout"; var NewColumnHeader: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcColumnHeaderElseCase(var AccSchedLine: Record "Acc. Schedule Line"; ColumnLayout: Record "Column Layout"; FromDate: Date; ToDate: Date; var DateText: Text; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

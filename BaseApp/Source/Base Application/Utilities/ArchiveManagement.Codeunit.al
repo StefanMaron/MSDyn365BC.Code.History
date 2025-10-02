@@ -555,7 +555,7 @@ codeunit 5063 ArchiveManagement
             until SalesCommentLine.Next() = 0;
     end;
 
-    local procedure StorePurchDocumentComments(DocType: Option; DocNo: Code[20]; DocNoOccurrence: Integer; VersionNo: Integer)
+    procedure StorePurchDocumentComments(DocType: Option; DocNo: Code[20]; DocNoOccurrence: Integer; VersionNo: Integer)
     var
         PurchCommentLine: Record "Purch. Comment Line";
         PurchCommentLineArch: Record "Purch. Comment Line Archive";

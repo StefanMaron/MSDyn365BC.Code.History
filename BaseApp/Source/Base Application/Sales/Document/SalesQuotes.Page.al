@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Document;
 
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Outlook;
@@ -153,6 +157,22 @@ page 9300 "Sales Quotes"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of amounts on all the lines in the document. This will include invoice discounts.';
+                }
+                field("Amount Including VAT"; Rec."Amount Including VAT")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
+                field("Quote Accepted"; Rec."Quote Accepted")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that the quote was accepted by the customer.';
+                }
+                field("Quote Accepted Date"; Rec."Quote Accepted Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies when the quote was accepted by the customer.';
+                    Visible = false;
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {

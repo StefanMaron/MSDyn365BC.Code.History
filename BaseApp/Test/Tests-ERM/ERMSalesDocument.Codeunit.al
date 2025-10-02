@@ -54,6 +54,7 @@
         DateFilterErr: Label 'Date Filter does not match expected value';
         AmountNotMatchedErr: Label 'Amount not matched.';
         ShipToCodeMathcedErr: Label 'Ship-to Code not matched.';
+        PrePaymentPerErr: Label 'Prepayment% are not equal on Sales Header and Sales Line';
         AmountMustSameErr: Label 'Amount must be same';
         QtyHandleMustSameErr: Label 'Qty to handle must equal';
         CannotRenameItemErr: Label 'You cannot rename %1 in a %2 because it is used in Sales Document lines.';
@@ -3536,7 +3537,6 @@
         // [GIVEN] Sales Invoice card is opened
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibraryVariableStorage.Enqueue(Customer2."No.");
-        LibraryVariableStorage.Enqueue(StrSubstNo('''''..%1', WorkDate()));
         LibraryVariableStorage.Enqueue(true); // yes to change "Sell-to Customer No."
         LibraryVariableStorage.Enqueue(true); // yes to change "Bill-to Customer No."
         SalesInvoice.OpenEdit();
@@ -3574,7 +3574,6 @@
         // [GIVEN] Sales Invoice card is opened
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibraryVariableStorage.Enqueue(Customer2."No.");
-        LibraryVariableStorage.Enqueue('');
         LibraryVariableStorage.Enqueue(true); // yes to change "Bill-to Customer No."
         SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
@@ -3791,7 +3790,6 @@
         SalesHeader.TestField("No.");
 
         LibraryVariableStorage.Enqueue(Customer1."No.");
-        LibraryVariableStorage.Enqueue(StrSubstNo('''''..%1', WorkDate()));
 
         SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
@@ -3836,7 +3834,6 @@
         SalesHeader.TestField("No.");
 
         LibraryVariableStorage.Enqueue(Customer2."No.");
-        LibraryVariableStorage.Enqueue('');
         LibraryVariableStorage.Enqueue(true);
 
         SalesInvoice.OpenEdit();
@@ -4413,7 +4410,7 @@
         // [GIVEN] Customer C exists
         LibrarySales.CreateCustomer(Customer);
 
-        // [GIVEN] Sales Header is created with posting date 
+        // [GIVEN] Sales Header is created with posting date
         PostingDate := 30000101D;
         SalesHeader.Init();
         SalesHeader.Validate("Posting Date", PostingDate);
@@ -4630,7 +4627,7 @@
         LibrarySales.CreateCustomerWithVATRegNo(Customer);
         UpdateCustomerRegistrationNumber(Customer);
 
-        // [WHEN]: Create sales cr. memo for that customer.        
+        // [WHEN]: Create sales cr. memo for that customer.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
 
         // [THEN]: Verify Registration number on sales cr. memo.
@@ -4673,7 +4670,7 @@
         // [GIVEN]: Create Customer with Registration number and create sales credit memo.
         Initialize();
 
-        // [WHEN]: Create sales invoice for that customer.        
+        // [WHEN]: Create sales invoice for that customer.
         // [WHEN] Post the sales credit memo.
         CreateSalesDocWithRegistrationNo(SalesHeader, Customer, SalesHeader."Document Type"::"Credit Memo");
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -4788,6 +4785,43 @@
         GLEntry.SetRange("Dimension Set ID", DimSetID[2]);
         GLEntry.FindFirst();
         Assert.AreEqual(-Amount[2], GLEntry.Amount, AmountNotMatchedErr);
+    end;
+
+    [Test]
+    procedure VerifyGLSalesLineInsertedWhenPreaymentOnCustomer()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Customer: Record Customer;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLAccount: Record "G/L Account";
+    begin
+        // [SCENARIO 568020] Gen. Prod. Posting Group Validation does not raise error when G/L Account is inserted using prepayments in Sales Orders.
+        Initialize();
+
+        // [GIVEN] Create Customer and Validate Prepayment %.
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Prepayment %", LibraryRandom.RandDecInRange(1, 100, 2));
+        Customer.Modify();
+
+        // [GIVEN] Get General Ledger Setup and Validate Vat In Use to false.
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("VAT in Use", false);
+        GeneralLedgerSetup.Modify();
+
+        // [GIVEN] Create GL Account and blank Gen. Prod. Posting Group.
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+        GLAccount."Gen. Prod. Posting Group" := '';
+        GLAccount.Modify();
+
+        // [WHEN] Create Sales Order with GL Account in Sales Line.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
+            GLAccount."No.", LibraryRandom.RandInt(5));
+
+        // [THEN] Without any error Prepayment % update on Sales Line.
+        Assert.AreEqual(SalesHeader."Prepayment %", SalesLine."Prepayment %", PrePaymentPerErr);
     end;
 
     [Test]
@@ -4909,7 +4943,7 @@
         LibrarySales.CreateSalesInvoice(SalesHeader, SalesLine, Item, '', ItemVariant.Code, LibraryRandom.RandDecInRange(5, 10, 2), WorkDate(), LibraryRandom.RandDecInRange(100, 200, 2));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        // [WHEN] Rename Item No. on Item. 
+        // [WHEN] Rename Item No. on Item.
         NewItemCode := LibraryUtility.GenerateRandomCode(Item.FieldNo("No."), Database::Item);
         Item2.Get(Item."No.");
         Item2.Rename(NewItemCode);
@@ -5657,6 +5691,7 @@
         AnalysisReportSale.EditAnalysisReport.Invoke();
     end;
 
+#if not CLEAN25
     local procedure SumLineDiscountAmount(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]) LineDiscountAmount: Decimal
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -5665,7 +5700,7 @@
             LineDiscountAmount += SalesLine."Line Discount Amount";
         until SalesLine.Next() = 0;
     end;
-
+#endif
     local procedure SumInvoiceDiscountAmount(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]) InvoiceDiscountAmount: Decimal
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -5699,7 +5734,7 @@
         SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(99, 2));
         SalesLineDiscount.Modify(true);
     end;
-#endif
+
     local procedure TotalLineDiscountInGLEntry(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]): Decimal
     var
         GLEntry: Record "G/L Entry";
@@ -5711,7 +5746,7 @@
         GLEntry.SetRange("G/L Account No.", GeneralPostingSetup."Sales Line Disc. Account");
         exit(TotalAmountInGLEntry(GLEntry));
     end;
-
+#endif
     local procedure TotalInvoiceDiscountInGLEntry(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]): Decimal
     var
         GLEntry: Record "G/L Entry";
@@ -6404,6 +6439,7 @@
           StrSubstNo(FieldError, CustLedgerEntry.FieldCaption("Amount (LCY)"), Amount, CustLedgerEntry.TableCaption()));
     end;
 
+#if not CLEAN25
     local procedure VerifyLineDiscountOnCreditMemo(SalesLine: Record "Sales Line")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -6418,7 +6454,7 @@
               StrSubstNo(FieldError, SalesLine.FieldCaption("Line Discount Amount"), LineDiscountAmount, SalesLine.TableCaption()));
         until SalesLine.Next() = 0;
     end;
-
+#endif
     local procedure VerifyInvoiceDiscount(SalesLine: Record "Sales Line"; CustInvoiceDisc: Record "Cust. Invoice Disc.")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -6976,8 +7012,6 @@
     procedure CustomerLookupHandler(var CustomerLookup: TestPage "Customer Lookup")
     begin
         CustomerLookup.GotoKey(LibraryVariableStorage.DequeueText());
-        Assert.AreEqual(LibraryVariableStorage.DequeueText(),
-            CustomerLookup.Filter.GetFilter("Date Filter"), 'Wrong Date Filter.');
         CustomerLookup.OK().Invoke();
     end;
 

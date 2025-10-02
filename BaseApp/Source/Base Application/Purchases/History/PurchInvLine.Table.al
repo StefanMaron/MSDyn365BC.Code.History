@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.History;
 
 using Microsoft.Finance.Deferral;
@@ -453,11 +457,13 @@ table 123 "Purch. Inv. Line"
         {
             BlankZero = true;
             Caption = 'Project Unit Price (LCY)';
+            AutoFormatType = 2;
         }
         field(1009; "Job Total Price (LCY)"; Decimal)
         {
             BlankZero = true;
             Caption = 'Project Total Price (LCY)';
+            AutoFormatType = 1;
         }
         field(1010; "Job Line Amount (LCY)"; Decimal)
         {
@@ -495,6 +501,11 @@ table 123 "Purch. Inv. Line"
         {
             Caption = 'Allocation Account No.';
             DataClassification = CustomerContent;
+        }
+        field(2679; "Alloc. Purch. Line SystemId"; Guid)
+        {
+            Caption = 'Allocation Purchase Line SystemId';
+            DataClassification = SystemMetadata;
         }
         field(5402; "Variant Code"; Code[10])
         {
@@ -655,6 +666,13 @@ table 123 "Purch. Inv. Line"
         field(10022; "IRS 1099 Liable"; Boolean)
         {
             Caption = 'IRS 1099 Liable';
+        }
+        field(12100; "No. of Fixed Asset Cards"; Integer)
+        {
+            BlankZero = true;
+            Caption = 'No. of Fixed Asset Cards';
+            ToolTip = 'Specifies the number of fixed assets that is being purchased.';
+            MinValue = 0;
         }
         field(99000755; "Overhead Rate"; Decimal)
         {
@@ -997,6 +1015,11 @@ table 123 "Purch. Inv. Line"
         OnAfterGetVATPct(Rec, VATPct);
     end;
 
+    procedure IsProdOrder() Result: Boolean
+    begin
+        OnIsProdOrder(Rec, Result);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcQty(var PurchInvLine: Record "Purch. Inv. Line"; QtyBase: Decimal; var Result: Decimal)
     begin
@@ -1034,6 +1057,11 @@ table 123 "Purch. Inv. Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcReceivedPurchNotReturned(var PurchInvLine: Record "Purch. Inv. Line"; var RemainingQty: Decimal; var RevUnitCostLCY: Decimal; ExactCostReverse: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsProdOrder(var PurchInvLine: Record "Purch. Inv. Line"; var Result: Boolean)
     begin
     end;
 }

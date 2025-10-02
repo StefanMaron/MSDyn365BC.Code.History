@@ -9,7 +9,6 @@ codeunit 138012 "O365 Templates Test"
     end;
 
     var
-        LibraryDimension: Codeunit "Library - Dimension";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
@@ -26,7 +25,6 @@ codeunit 138012 "O365 Templates Test"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryTemplates: Codeunit "Library - Templates";
-        LibraryUTUtility: Codeunit "Library UT Utility";
         isInitialized: Boolean;
         NewActionTok: Label 'New';
         CancelActionTok: Label 'Cancel';
@@ -1502,7 +1500,7 @@ codeunit 138012 "O365 Templates Test"
         // [SCENARIO 446206] No Series Lines are no longer automatically closing when the last number is reached.
         Initialize();
 
-        // [GIVEN] Create No. Series and No. Series Line 
+        // [GIVEN] Create No. Series and No. Series Line
         CreateNewNumberSeries(NoSeries);
         CreateNumberSeriesLine(NoSeries, StartingNumberTxt, StartingNumberTxt, 1, 10000, Enum::"No. Series Implementation"::Normal);
         CreateNumberSeriesLine(NoSeries, EndingNumberTxt, EndingNumberTxt, 1, 20000, Enum::"No. Series Implementation"::Normal);
@@ -1519,7 +1517,7 @@ codeunit 138012 "O365 Templates Test"
         ItemNo := ItemCard."No.".Value();
         ItemCard.Close();
 
-        // [VERIFY] Item is created with No. = "ABC00010D" 
+        // [VERIFY] Item is created with No. = "ABC00010D"
         VerifyItemNoWithSeries(ItemNo, StartingNumberTxt, NoSeries.Code);
 
         // [WHEN] Create new Item
@@ -1646,37 +1644,6 @@ codeunit 138012 "O365 Templates Test"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Templates Test");
     end;
 
-    local procedure FindCustomerByCompanyName(var Customer: Record Customer; CompanyName: Text[100])
-    begin
-        Customer.SetRange(Name, CompanyName);
-        Customer.FindFirst();
-    end;
-
-    local procedure CreateTaxAreaWithCountry(Country: Option): Code[20]
-    var
-        TaxArea: Record "Tax Area";
-    begin
-        TaxArea.Code := LibraryUTUtility.GetNewCode();
-        TaxArea."Country/Region" := Country;
-        TaxArea.Insert();
-        exit(TaxArea.Code);
-    end;
-
-    local procedure ChangeDefaultDimensionsValues(TableID: Integer; No: Code[20])
-    var
-        DefaultDimension: Record "Default Dimension";
-        NewDimValCode: Code[20];
-    begin
-        DefaultDimension.SetRange("Table ID", TableID);
-        DefaultDimension.SetRange("No.", No);
-        if DefaultDimension.FindSet() then
-            repeat
-                NewDimValCode := LibraryDimension.FindDifferentDimensionValue(DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code");
-                DefaultDimension.Validate("Dimension Value Code", NewDimValCode);
-                DefaultDimension.Modify(true);
-            until DefaultDimension.Next() = 0;
-    end;
-
     local procedure ClearTable(TableID: Integer)
     var
         Job: Record Job;
@@ -1710,19 +1677,6 @@ codeunit 138012 "O365 Templates Test"
         LibraryLowerPermissions.SetO365Full();
     end;
 
-    local procedure TemplateFieldDefinitionsMatchTableFields(RecRef: RecordRef; FieldRefArray: array[100] of FieldRef)
-    var
-        FieldRefTemplate: FieldRef;
-        FieldRefTable: FieldRef;
-        I: Integer;
-    begin
-        for I := 1 to ArrayLen(FieldRefArray) do begin
-            FieldRefTemplate := FieldRefArray[I];
-            FieldRefTable := RecRef.Field(FieldRefTemplate.Number);
-            ValidateFieldDefinitionsMatch(FieldRefTable, FieldRefTemplate);
-        end;
-    end;
-
     local procedure CreateBlankCustomer(var Customer: Record Customer)
     begin
         Customer.Init();
@@ -1739,36 +1693,6 @@ codeunit 138012 "O365 Templates Test"
     begin
         Vendor.Init();
         Vendor.Insert(true);
-    end;
-
-    local procedure CreateConfigTemplateFromItemWithEnabledOption(): Code[20]
-    var
-        Item: Record Item;
-        ConfigTemplHeaderCode: Code[20];
-    begin
-        CreateItemWithTemplateFieldsSet(Item);
-        CreateTemplateFromItem(Item, ConfigTemplHeaderCode);
-        exit(ConfigTemplHeaderCode);
-    end;
-
-    local procedure CreateConfigTemplateFromCustomerWithEnabledOption(): Code[20]
-    var
-        Customer: Record Customer;
-        ConfigTemplHeaderCode: Code[20];
-    begin
-        CreateCustomerWithTemplateFieldsSet(Customer);
-        CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCode);
-        exit(ConfigTemplHeaderCode);
-    end;
-
-    local procedure CreateConfigTemplateFromVendorWithEnabledOption(): Code[20]
-    var
-        Vendor: Record Vendor;
-        ConfigTemplHeaderCode: Code[20];
-    begin
-        CreateVendorWithTemplateFieldsSet(Vendor);
-        CreateTemplateFromVendor(Vendor, ConfigTemplHeaderCode);
-        exit(ConfigTemplHeaderCode);
     end;
 
     local procedure CreateCustomerWithTemplateFieldsSet(var Customer: Record Customer)
@@ -1880,18 +1804,6 @@ codeunit 138012 "O365 Templates Test"
         Vendor.Insert(true);
     end;
 
-    local procedure CreateDefaultDimension(var DefaultDimension: Record "Default Dimension")
-    var
-        Dimension: Record Dimension;
-    begin
-        DefaultDimension.Init();
-        DefaultDimension."Table ID" := DATABASE::Vendor;
-        DefaultDimension."No." := 'Dimension';
-        Dimension.FindFirst();
-        DefaultDimension."Dimension Code" := Dimension.Code;
-        DefaultDimension.Insert();
-    end;
-
     local procedure CreateTemplateFromCustomer(Customer: Record Customer; var ConfigTemplHeaderCode: Code[20])
     var
         CustomerTempl: Record "Customer Templ.";
@@ -1931,17 +1843,6 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplHeaderCode := VendorTempl.Code;
     end;
 
-    local procedure CreateTemplateFromDimension(DefaultDimension: Record "Default Dimension")
-    var
-        ConfigTemplateHeader: TestPage "Config. Template Header";
-    begin
-        ConfigTemplateHeader.OpenNew();
-        ConfigTemplateHeader.Code.SetValue(DefaultDimension."No.");
-        ConfigTemplateHeader."Table ID".SetValue(DATABASE::"Default Dimension");
-        ConfigTemplateHeader.Description.SetValue(DefaultDimension."No.");
-        ConfigTemplateHeader.OK().Invoke();
-    end;
-
     local procedure CreateBlankCustomerTemplateFromCustomer(var CustomerTemplateCode: Code[20]; var BlankCustomerTemplateCode: Code[20])
     var
         CustomerWithTemplateFieldsSet: Record Customer;
@@ -1952,66 +1853,6 @@ codeunit 138012 "O365 Templates Test"
 
         CreateBlankCustomer(BlankCustomer);
         CreateTemplateFromCustomer(BlankCustomer, BlankCustomerTemplateCode);
-    end;
-
-    local procedure CreateCustTemplateWithDimFromCustomer(): Code[20]
-    var
-        Customer: Record Customer;
-        CustomerTemplateCode: Code[20];
-    begin
-        CreateCustomerWithDimensions(Customer);
-        CreateTemplateFromCustomer(Customer, CustomerTemplateCode);
-        exit(CustomerTemplateCode);
-    end;
-
-    local procedure CreateVendTemplateWithDimFromVendor(): Code[10]
-    var
-        Vendor: Record Vendor;
-        VendorTemplateCode: Code[10];
-    begin
-        CreateVendorWithDimensions(Vendor);
-        CreateTemplateFromVendor(Vendor, VendorTemplateCode);
-        exit(VendorTemplateCode);
-    end;
-
-    local procedure CreateItemTemplateWithDimFromItem(): Code[10]
-    var
-        Item: Record Item;
-        ItemTemplateCode: Code[10];
-    begin
-        CreateItemWithDimensions(Item);
-        CreateTemplateFromItem(Item, ItemTemplateCode);
-        exit(ItemTemplateCode);
-    end;
-
-    local procedure CreateCustTemplateWithGlobDimFromCustomer(var GlobalDim1ValCode: Code[20]; var GlobalDim2ValCode: Code[20]): Code[10]
-    var
-        Customer: Record Customer;
-        CustomerTemplateCode: Code[20];
-    begin
-        CreateCustomerWithGlobalDimensions(Customer, GlobalDim1ValCode, GlobalDim2ValCode);
-        CreateTemplateFromCustomer(Customer, CustomerTemplateCode);
-        exit(CustomerTemplateCode);
-    end;
-
-    local procedure CreateVendTemplateWithGlobDimFromVendor(var GlobalDim1ValCode: Code[20]; var GlobalDim2ValCode: Code[20]): Code[10]
-    var
-        Vendor: Record Vendor;
-        VendorTemplateCode: Code[10];
-    begin
-        CreateVendorWithGlobalDimensions(Vendor, GlobalDim1ValCode, GlobalDim2ValCode);
-        CreateTemplateFromVendor(Vendor, VendorTemplateCode);
-        exit(VendorTemplateCode);
-    end;
-
-    local procedure CreateItemTemplateWithGlobDimFromItem(var GlobalDim1ValCode: Code[20]; var GlobalDim2ValCode: Code[20]): Code[10]
-    var
-        Item: Record Item;
-        ItemTemplateCode: Code[10];
-    begin
-        CreateItemWithGlobalDimensions(Item, GlobalDim1ValCode, GlobalDim2ValCode);
-        CreateTemplateFromItem(Item, ItemTemplateCode);
-        exit(ItemTemplateCode);
     end;
 
     local procedure GetDefaultItemNoWithSeries(var ItemNo: Code[20]; var NoSeries: Code[20])
@@ -2041,16 +1882,6 @@ codeunit 138012 "O365 Templates Test"
         VendorNo := LibraryUtility.GetNextNoFromNoSeries(NoSeries, WorkDate());
     end;
 
-    local procedure ValidateCustomerVsBlankTemplate(Customer: Record Customer)
-    var
-        BlankCustomer: Record Customer;
-        ConfigTemplateCode: Code[10];
-    begin
-        CreateBlankCustomer(BlankCustomer);
-        CreateTemplateFromCustomer(BlankCustomer, ConfigTemplateCode);
-        ValidateCustomerVsConfigTemplateWithEmptyDim(Customer, ConfigTemplateCode);
-    end;
-
     local procedure ValidateCustomerVsConfigTemplate(Customer: Record Customer; ConfigTemplHeaderCode: Code[20])
     var
         CustomerTempl: Record "Customer Templ.";
@@ -2077,16 +1908,6 @@ codeunit 138012 "O365 Templates Test"
         VerifyEmptyDefaultDimension(DATABASE::Customer, Customer."No.");
     end;
 
-    local procedure ValidateItemVsBlankTemplate(Item: Record Item)
-    var
-        BlankItem: Record Item;
-        ConfigTemplateCode: Code[10];
-    begin
-        CreateBlankItem(BlankItem);
-        CreateTemplateFromItem(BlankItem, ConfigTemplateCode);
-        ValidateItemVsConfigTemplateWithEmptyDim(Item, ConfigTemplateCode);
-    end;
-
     local procedure ValidateItemVsConfigTemplate(Item: Record Item; ConfigTemplHeaderCode: Code[20])
     var
         ItemTempl: Record "Item Templ.";
@@ -2111,18 +1932,6 @@ codeunit 138012 "O365 Templates Test"
         RecRef.GetTable(Item);
         ValidateRecRefVsConfigTemplate(RecRef, TemplateRecRef);
         VerifyEmptyDefaultDimension(DATABASE::Item, Item."No.");
-    end;
-
-    local procedure ValidateVendorVsBlankTemplate(Vendor: Record Vendor)
-    var
-        BlankVendor: Record Vendor;
-        ConfigTemplateCode: Code[10];
-    begin
-        CreateBlankVendor(BlankVendor);
-        // Invoice discount code is updated if it is blank in the template. So two "blank" vendors will actually have different discount codes.
-        BlankVendor."Invoice Disc. Code" := Vendor."Invoice Disc. Code";
-        CreateTemplateFromVendor(BlankVendor, ConfigTemplateCode);
-        ValidateVendorVsConfigTemplateWithEmptyDim(Vendor, ConfigTemplateCode);
     end;
 
     local procedure ValidateVendorVsConfigTemplate(Vendor: Record Vendor; ConfigTemplHeaderCode: Code[20])
@@ -2183,29 +1992,6 @@ codeunit 138012 "O365 Templates Test"
                 Assert.AreEqual(Format(InstanceFieldRef), Format(TemplateFieldRef), StrSubstNo('<%1> field was different than in the template.', InstanceFieldRef.Caption));
             end;
         until TemplateField.Next() = 0;
-    end;
-
-    local procedure ValidateFieldDefinitionsMatch(FieldRef1: FieldRef; FieldRef2: FieldRef)
-    begin
-        Assert.AreEqual(FieldRef1.Name, FieldRef2.Name, ErrorMessageForFieldComparison(FieldRef1, FieldRef2, 'names'));
-        Assert.AreEqual(FieldRef1.Caption, FieldRef2.Caption, ErrorMessageForFieldComparison(FieldRef1, FieldRef2, 'captions'));
-        Assert.IsTrue(FieldRef1.Type = FieldRef2.Type, ErrorMessageForFieldComparison(FieldRef1, FieldRef2, 'types'));
-        Assert.AreEqual(FieldRef1.Length, FieldRef2.Length, ErrorMessageForFieldComparison(FieldRef1, FieldRef2, 'lengths'));
-        Assert.AreEqual(
-          FieldRef1.OptionMembers, FieldRef2.OptionMembers, ErrorMessageForFieldComparison(FieldRef1, FieldRef2, 'option string'));
-        Assert.AreEqual(
-          FieldRef1.OptionCaption, FieldRef2.OptionCaption, ErrorMessageForFieldComparison(FieldRef1, FieldRef2, 'option caption'));
-        Assert.AreEqual(FieldRef1.Relation, FieldRef2.Relation, ErrorMessageForFieldComparison(FieldRef1, FieldRef2, 'table relation'));
-    end;
-
-    local procedure ErrorMessageForFieldComparison(FieldRef1: FieldRef; FieldRef2: FieldRef; MismatchType: Text): Text
-    begin
-        exit(
-          Format(
-            'Field ' +
-            MismatchType +
-            ' on fields ' +
-            FieldRef1.Record().Name() + '.' + FieldRef1.Name + ' and ' + FieldRef2.Record().Name() + '.' + FieldRef2.Name + ' do not match.'));
     end;
 
     local procedure ValidateCustCity(CityName: Code[10]; ExpectedPostCode: Code[10]; ExpectedCountryRegionCode: Code[10])
@@ -2299,28 +2085,6 @@ codeunit 138012 "O365 Templates Test"
         end;
     end;
 
-    local procedure VerifyDefaultDimensionsTemplateRelatedToParentTemplate(ConfigTemplateHeaderCode: Code[10]; DimensionsTemplateHeaderCode: Code[10])
-    var
-        ConfigTemplateLine: Record "Config. Template Line";
-    begin
-        ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeaderCode);
-        ConfigTemplateLine.SetRange(Type, ConfigTemplateLine.Type::"Related Template");
-        ConfigTemplateLine.SetRange("Template Code", DimensionsTemplateHeaderCode);
-        Assert.AreEqual(1, ConfigTemplateLine.Count, 'There should be only one Child Dimensions line found with specified code');
-    end;
-
-    local procedure VerifyNumberOfDimensionsTemplateRelatedToMasterTemplate(ConfigTemplateHeaderCode: Code[10]; ExpectedNumberOfTemplates: Integer)
-    var
-        ConfigTemplateLine: Record "Config. Template Line";
-    begin
-        ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeaderCode);
-        ConfigTemplateLine.SetRange(Type, ConfigTemplateLine.Type::"Related Template");
-
-        if ExpectedNumberOfTemplates > 0 then
-            Assert.AreEqual(ExpectedNumberOfTemplates, ConfigTemplateLine.Count, 'Wrong number of related templates found')
-        else
-            Assert.IsFalse(ConfigTemplateLine.FindFirst(), 'There shoudl be no templates in the system');
-    end;
 
     local procedure AddDefaultDimensionsToRecord(RecordNo: Code[20]; TableID: Integer; NumberOfDimensions: Integer)
     var
@@ -2344,24 +2108,6 @@ codeunit 138012 "O365 Templates Test"
 
         DimensionValue.SetRange("Dimension Code", Dimension.Code);
         DimensionValue.FindLast();
-        DefaultDimension."Dimension Value Code" := DimensionValue.Code;
-        DefaultDimension.Insert();
-    end;
-
-    local procedure AddGlobalDimension(RecordNo: Code[20]; TableID: Integer; DimNo: Integer) GlobalDimensionValueCode: Code[20]
-    var
-        DefaultDimension: Record "Default Dimension";
-        DimensionValue: Record "Dimension Value";
-        DimensionCode: Code[20];
-    begin
-        DimensionCode := LibraryERM.GetGlobalDimensionCode(DimNo);
-        DefaultDimension.Init();
-        DefaultDimension."Table ID" := TableID;
-        DefaultDimension."No." := RecordNo;
-        DefaultDimension."Dimension Code" := DimensionCode;
-
-        LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode);
-        GlobalDimensionValueCode := DimensionValue.Code;
         DefaultDimension."Dimension Value Code" := DimensionValue.Code;
         DefaultDimension.Insert();
     end;
@@ -2403,17 +2149,6 @@ codeunit 138012 "O365 Templates Test"
         PostCodeRec.Insert(true);
     end;
 
-    local procedure IsValueInArray(Haystack: array[2] of Text; Needle: Text): Boolean
-    var
-        I: Integer;
-    begin
-        for I := 1 to ArrayLen(Haystack) do
-            if Needle = Haystack[I] then
-                exit(true);
-
-        exit(false);
-    end;
-
     local procedure UpdateMarketingSetup()
     var
         MarketingSetup: Record "Marketing Setup";
@@ -2425,39 +2160,6 @@ codeunit 138012 "O365 Templates Test"
         LibraryMarketing.CreateBusinessRelation(BusinessRelation);
         MarketingSetup.Validate("Bus. Rel. Code for Vendors", BusinessRelation.Code);
         MarketingSetup.Modify(true);
-    end;
-
-    local procedure UpdateSalesReceivablesSetupCustNoSeries()
-    var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        NoSeries: Record "No. Series";
-    begin
-        SalesReceivablesSetup.Get();
-        LibraryUtility.CreateNoSeries(NoSeries, false, true, false);
-        SalesReceivablesSetup."Customer Nos." := NoSeries.Code;
-        SalesReceivablesSetup.Modify();
-    end;
-
-    local procedure UpdatePurchasesPayablesSetupVendNoSeries()
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-        NoSeries: Record "No. Series";
-    begin
-        PurchasesPayablesSetup.Get();
-        LibraryUtility.CreateNoSeries(NoSeries, false, true, false);
-        PurchasesPayablesSetup."Vendor Nos." := NoSeries.Code;
-        PurchasesPayablesSetup.Modify();
-    end;
-
-    local procedure UpdateInventorySetupItemNoSeries()
-    var
-        InventorySetup: Record "Inventory Setup";
-        NoSeries: Record "No. Series";
-    begin
-        InventorySetup.Get();
-        LibraryUtility.CreateNoSeries(NoSeries, false, true, false);
-        InventorySetup."Item Nos." := NoSeries.Code;
-        InventorySetup.Modify();
     end;
 
     local procedure VerifyItemDimensionsVsTemplate(Item: Record Item; ConfigTemplateHeaderCode: Code[20])
@@ -2553,18 +2255,6 @@ codeunit 138012 "O365 Templates Test"
         Assert.RecordCount(ContactBusinessRelation, 1);
     end;
 
-    local procedure VerifyConfigTemplateLine(DataTemplateCode: Code[10]; TableID: Integer; FieldNumber: Integer; DefaultValue: Text)
-    var
-        ConfigTemplateLine: Record "Config. Template Line";
-    begin
-        ConfigTemplateLine.SetRange("Data Template Code", DataTemplateCode);
-        ConfigTemplateLine.SetRange(Type, ConfigTemplateLine.Type::Field);
-        ConfigTemplateLine.SetRange("Table ID", TableID);
-        ConfigTemplateLine.SetRange("Field ID", FieldNumber);
-        ConfigTemplateLine.FindFirst();
-        ConfigTemplateLine.TestField("Default Value", DefaultValue);
-    end;
-
     local procedure VerifyItemNoWithSeries(ItemNo: Code[20]; ExpectedNo: Code[20]; ExpectedNoSeries: Code[20])
     var
         Item: Record Item;
@@ -2617,95 +2307,6 @@ codeunit 138012 "O365 Templates Test"
         CreateItemWithTemplateFieldsSet(Item);
         NumberOfDimensions := LibraryRandom.RandIntInRange(2, 10);
         AddDefaultDimensionsToRecord(Item."No.", DATABASE::Item, NumberOfDimensions);
-    end;
-
-    local procedure CreateCustomerWithGlobalDimensions(var Customer: Record Customer; var GlobalDim1ValCode: Code[20]; var GlobalDim2ValCode: Code[20])
-    begin
-        CreateCustomerWithTemplateFieldsSet(Customer);
-        GlobalDim1ValCode := AddGlobalDimension(Customer."No.", DATABASE::Customer, 1);
-        GlobalDim2ValCode := AddGlobalDimension(Customer."No.", DATABASE::Customer, 2);
-    end;
-
-    local procedure CreateVendorWithGlobalDimensions(var Vendor: Record Vendor; var GlobalDim1ValCode: Code[20]; var GlobalDim2ValCode: Code[20])
-    begin
-        CreateVendorWithTemplateFieldsSet(Vendor);
-        GlobalDim1ValCode := AddGlobalDimension(Vendor."No.", DATABASE::Vendor, 1);
-        GlobalDim2ValCode := AddGlobalDimension(Vendor."No.", DATABASE::Vendor, 2);
-    end;
-
-    local procedure CreateItemWithGlobalDimensions(var Item: Record Item; var GlobalDim1ValCode: Code[20]; var GlobalDim2ValCode: Code[20])
-    begin
-        CreateItemWithTemplateFieldsSet(Item);
-        GlobalDim1ValCode := AddGlobalDimension(Item."No.", DATABASE::Item, 1);
-        GlobalDim2ValCode := AddGlobalDimension(Item."No.", DATABASE::Item, 2);
-    end;
-
-    local procedure CreateTemplateInLanguage(var TemplateName: Code[10]; var Item: Record Item; LanguageID: Integer)
-    var
-        CurrentLanguageID: Integer;
-    begin
-        CurrentLanguageID := GlobalLanguage;
-        GlobalLanguage(LanguageID);
-        CreateItemWithTemplateFieldsSet(Item);
-        CreateTemplateFromItem(Item, TemplateName);
-        GlobalLanguage(CurrentLanguageID);
-    end;
-
-    local procedure VerifyRecordRefsMatch(RecordRef1: RecordRef; RecordRef2: RecordRef)
-    var
-        Item: Record Item;
-        FieldRef1: FieldRef;
-        FieldRef2: FieldRef;
-        I: Integer;
-    begin
-        for I := 2 to RecordRef1.FieldCount do begin
-            FieldRef1 := RecordRef1.FieldIndex(I);
-            FieldRef2 := RecordRef2.FieldIndex(I);
-            if not ((RecordRef1.Number = DATABASE::Item) and (FieldRef1.Number = Item.FieldNo(SystemId))) then
-                if Assert.IsDataTypeSupported(FieldRef1.Value) then
-                    Assert.AreEqual(FieldRef1.Value, FieldRef2.Value, StrSubstNo('Field values for field %1 do not match', FieldRef1.Caption));
-        end;
-    end;
-
-    local procedure GetDifferentLanguageID(): Integer
-    var
-        DanishLanguageID: Integer;
-        EnglishLanguageID: Integer;
-    begin
-        DanishLanguageID := 1030;
-        EnglishLanguageID := 1033;
-
-        if GlobalLanguage <> DanishLanguageID then
-            exit(DanishLanguageID);
-
-        exit(EnglishLanguageID);
-    end;
-
-    local procedure CreateItemFromTemplateAndCompareWithOriginal(Item: Record Item)
-    var
-        NewItem: Record Item;
-        ItemCard: TestPage "Item Card";
-        RecordRef1: RecordRef;
-        RecordRef2: RecordRef;
-        ItemNo: Code[20];
-    begin
-        ItemCard.OpenNew();
-
-        ItemCard.Description.SetValue('Test');
-        ItemNo := ItemCard."No.".Value();
-        ItemCard.Close();
-
-        NewItem.Get(ItemNo);
-        Item.Description := 'Test';
-        Item."Search Description" := 'TEST';
-        Item."Last Time Modified" := NewItem."Last Time Modified";
-        Item."Last Date Modified" := NewItem."Last Date Modified";
-        Item."Last DateTime Modified" := NewItem."Last DateTime Modified";
-        Item.Modify();
-        RecordRef1.GetTable(Item);
-        RecordRef2.GetTable(NewItem);
-
-        VerifyRecordRefsMatch(RecordRef1, RecordRef2);
     end;
 
     local procedure CreateNewNumberSeries(var NoSeries: Record "No. Series")
@@ -2888,4 +2489,3 @@ codeunit 138012 "O365 Templates Test"
         Reply := true;
     end;
 }
-

@@ -230,6 +230,7 @@ report 10023 "Trial Balance, per Global Dim."
                     Clear(DescriptionLine2);
                     Clear(DescriptionLine1);
                     Clear(WorkAmount);
+                    Clear(PrintAmount);
                     if "Dimension Value"."Global Dimension No." = 1 then
                         SetRange("Global Dimension 1 Filter", "Dimension Value".Code)
                     else

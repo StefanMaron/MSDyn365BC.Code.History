@@ -31,14 +31,12 @@ codeunit 5700 "User Setup Management"
         HasGotPurchUserSetup: Boolean;
         HasGotServUserSetup: Boolean;
 
-#pragma warning disable AA0074
-        Text000: Label 'customer';
-        Text001: Label 'vendor';
+        CustomerTxt: Label 'customer';
+        VendorTxt: Label 'vendor';
 #pragma warning disable AA0470
-        Text002: Label 'This %1 is related to %2 %3. Your identification is setup to process from %2 %4.';
-        Text003: Label 'This document will be processed in your %2.';
+        RespCenterRelationMsg: Label 'This %1 is related to %2 %3. Your identification is setup to process from %2 %4.';
+        ProcessedInRespCenterMsg: Label 'This document will be processed in your %2.';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
         AllowedDateErr: Label 'The date in the %1 field must not be after the date in the %2 field.', Comment = '%1 - caption Allow Posting From, %2 - caption Allow Posting To';
         AllowedPostingDateMsg: Label 'The setup of allowed posting dates is incorrect. The date in the %1 field must not be after the date in the %2 field.', Comment = '%1 - caption Allow Posting From, %2 - caption Allow Posting To';
         AllowedVATDateMsg: Label 'The setup of allowed VAT dates is incorrect. The date in the %1 field must not be after the date in the %2 field.', Comment = '%1 - caption Allow VAT Date From, %2 - caption Allow VAT Date To';
@@ -128,17 +126,17 @@ codeunit 5700 "User Setup Management"
         case DocType of
             DocType::Sales:
                 begin
-                    AccType := Text000;
+                    AccType := CustomerTxt;
                     UserRespCenter := GetSalesFilter();
                 end;
             DocType::Purchase:
                 begin
-                    AccType := Text001;
+                    AccType := VendorTxt;
                     UserRespCenter := GetPurchasesFilter();
                 end;
             DocType::Service:
                 begin
-                    AccType := Text000;
+                    AccType := CustomerTxt;
                     UserRespCenter := GetServiceFilter();
                 end;
         end;
@@ -147,8 +145,8 @@ codeunit 5700 "User Setup Management"
            (AccRespCenter <> UserRespCenter)
         then
             Message(
-              Text002 +
-              Text003,
+              RespCenterRelationMsg +
+              ProcessedInRespCenterMsg,
               AccType, RespCenter.TableCaption(), AccRespCenter, UserRespCenter);
         if UserRespCenter = '' then
             exit(AccRespCenter);
