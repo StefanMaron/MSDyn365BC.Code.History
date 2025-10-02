@@ -196,32 +196,27 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="IndicatoCode_Caption">
-                          <CanGrow>true</CanGrow>
+                        <Textbox Name="textbox111">
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=First(Fields!Indicator_Code_Caption.Value)</Value>
+                                  <Value />
                                   <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
-                              <Style>
-                                <TextAlign>Right</TextAlign>
-                              </Style>
+                              <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <ZIndex>106</ZIndex>
+                          <rd:DefaultName>textbox111</rd:DefaultName>
                           <Style>
-                            <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>0.075cm</PaddingLeft>
-                            <PaddingRight>0.075cm</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
                       </CellContents>
@@ -1046,30 +1041,27 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="textbox224">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!IndicatorCode.Value</Value>
+                                  <Value />
                                   <Style>
-                                    <FontSize>7pt</FontSize>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
-                              <Style>
-                                <TextAlign>Right</TextAlign>
-                              </Style>
+                              <Style />
                             </Paragraph>
                           </Paragraphs>
                           <rd:DefaultName>textbox224</rd:DefaultName>
-                          <ZIndex>85</ZIndex>
                           <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
                       </CellContents>
@@ -1265,25 +1257,21 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!IndicatorCode.Value</Value>
+                                  <Value />
                                   <Style>
-                                    <FontSize>7pt</FontSize>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
-                              <Style>
-                                <TextAlign>Right</TextAlign>
-                              </Style>
+                              <Style />
                             </Paragraph>
                           </Paragraphs>
                           <rd:DefaultName>textbox297</rd:DefaultName>
-                          <ZIndex>78</ZIndex>
                           <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
                       </CellContents>
@@ -1480,25 +1468,21 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!IndicatorCode.Value</Value>
+                                  <Value />
                                   <Style>
-                                    <FontSize>7pt</FontSize>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
-                              <Style>
-                                <TextAlign>Right</TextAlign>
-                              </Style>
+                              <Style />
                             </Paragraph>
                           </Paragraphs>
                           <rd:DefaultName>textbox200</rd:DefaultName>
-                          <ZIndex>71</ZIndex>
                           <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
                       </CellContents>
@@ -5456,9 +5440,6 @@ End Function</Code>
         <Field Name="TotalValueofServiceSuppliesCaption">
           <DataField>TotalValueofServiceSuppliesCaption</DataField>
         </Field>
-        <Field Name="Indicator_Code_Caption">
-          <DataField>Indicator_Code_Caption</DataField>
-        </Field>
         <Field Name="EU3PartyItemTradeAmtCaption">
           <DataField>EU3PartyItemTradeAmtCaption</DataField>
         </Field>
@@ -5494,9 +5475,6 @@ End Function</Code>
         </Field>
         <Field Name="Grouping">
           <DataField>Grouping</DataField>
-        </Field>
-        <Field Name="IndicatorCode">
-          <DataField>IndicatorCode</DataField>
         </Field>
         <Field Name="NotEUTrdPartyAmtService">
           <DataField>NotEUTrdPartyAmtService</DataField>

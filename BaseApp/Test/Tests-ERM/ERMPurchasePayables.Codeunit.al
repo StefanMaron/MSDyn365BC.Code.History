@@ -1901,6 +1901,8 @@
         VendorLedgerEntry.TestField(Amount, -PurchaseLine."Amount Including VAT");
         VendorLedgerEntry.TestField("Purchase (LCY)", -AmountToPost);
         VendorLedgerEntry.TestField("Inv. Discount (LCY)", -InvDiscAmount);
+
+        LibraryVariableStorage.Clear();
     end;
 #endif
 
@@ -1969,6 +1971,7 @@
         VendorLedgerEntry.TestField(Amount, -PurchaseLine."Amount Including VAT");
         VendorLedgerEntry.TestField("Purchase (LCY)", -AmountToPost);
         VendorLedgerEntry.TestField("Inv. Discount (LCY)", -InvDiscAmount);
+        LibraryVariableStorage.Clear();
     end;
 
 #if not CLEAN25
@@ -2893,7 +2896,7 @@
         // [GIVEN] G/L account "B" has "Account Type" = "Posting" and "Direct Posting" = false
         GLAccountNo[2] := CreateGLAccount("G/L Account Type"::Posting, false);
 
-        //[WHEN] Validate "Destination Account Number" on the "Alloc. Account Distribution" with created Bank account 
+        //[WHEN] Validate "Destination Account Number" on the "Alloc. Account Distribution" with created Bank account
         AllocAccountDistribution.Validate("Destination Account Type", AllocAccountDistribution."Destination Account Type"::"Bank Account");
         AllocAccountDistribution.Validate("Destination Account Number", BankAccountNo);
 
@@ -2904,7 +2907,7 @@
         AllocAccountDistribution.Validate("Destination Account Type", AllocAccountDistribution."Destination Account Type"::"Bank Account");
         asserterror AllocAccountDistribution.Validate("Destination Account Number", LibraryRandom.RandText(20));
 
-        //[WHEN] Validate "Destination Account Number" on the "Alloc. Account Distribution" with G/L accounts 
+        //[WHEN] Validate "Destination Account Number" on the "Alloc. Account Distribution" with G/L accounts
         for i := 1 to ArrayLen(GLAccountNo) do begin
             AllocAccountDistribution.Validate("Destination Account Type", AllocAccountDistribution."Destination Account Type"::"G/L Account");
             asserterror AllocAccountDistribution.Validate("Destination Account Number", GLAccountNo[i]);
@@ -2977,8 +2980,11 @@
         PaymentDocNo: Code[20];
         VATCalculationType: Enum "Tax Calculation Type";
     begin
-        // [SCENARIO 549246] Unrealized Gain / Loss is cleared during applicaiton when using multiple vendor posting groups. 
+        // [SCENARIO 549246] Unrealized Gain / Loss is cleared during applicaiton when using multiple vendor posting groups.
         Initialize();
+
+        // [GIVEN] Set Journal Templ Name mandatory to false.
+        SetJournalTemplNameMandatoryFalse();
 
         // [GIVEN] Generate Posting Date.
         GeneratePostingDate(PostingDate);
@@ -3003,7 +3009,7 @@
         // [GIVEN] Create Vendor Posting Group Two.
         CreateVendorPostingGroupWithCopy(VendorPostingGroup);
 
-        // [GIVEN] Create Alternative Vendor Posting Group. 
+        // [GIVEN] Create Alternative Vendor Posting Group.
         LibraryPurchase.CreateAltVendorPostingGroup(VendorPostingGroup[1].Code, VendorPostingGroup[2].Code);
 
         // [GIVEN] Create Item.
@@ -3198,9 +3204,12 @@
         GenPostingType: Enum "General Posting Type";
         VATCalculationType: Enum "Tax Calculation Type";
     begin
-        // [SCENARIO 561134] G/L Accounts are balanced after applying full Payment and Invoice with currency using Multiple Posting Groups. 
+        // [SCENARIO 561134] G/L Accounts are balanced after applying full Payment and Invoice with currency using Multiple Posting Groups.
         Initialize();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
+
+        // [GIVEN] Set Journal Templ Name mandatory to false.
+        SetJournalTemplNameMandatoryFalse();
 
         // [GIVEN] Generate Posting Date.
         PostingDate[1] := CalcDate('<1M>', WorkDate());
@@ -3214,7 +3223,7 @@
         Amount[1] := LibraryRandom.RandIntInRange(1000, 1000);
         Amount[2] := LibraryRandom.RandDecInDecimalRange(233.85, 233.85, 2);
 
-        // [GIVEN] Create Currency and Exchange Rates.       
+        // [GIVEN] Create Currency and Exchange Rates.
         Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(PostingDate[1], ExchRate[1], ExchRate[1]));
         LibraryERM.CreateExchangeRate(Currency.Code, PostingDate[2], ExchRate[2], ExchRate[2]);
 
@@ -3235,7 +3244,7 @@
         // [GIVEN] Create Vendor Posting Group Two.
         CreateVendorPostingGroupWithCopy(VendorPostingGroup);
 
-        // [GIVEN] Create Alternative Vendor Posting Group. 
+        // [GIVEN] Create Alternative Vendor Posting Group.
         LibraryPurchase.CreateAltVendorPostingGroup(VendorPostingGroup[1].Code, VendorPostingGroup[2].Code);
         LibraryPurchase.CreateAltVendorPostingGroup(VendorPostingGroup[2].Code, VendorPostingGroup[1].Code);
 
@@ -3452,11 +3461,11 @@
 
     local procedure UpdateDefaultSafetyLeadTimeOnManufacturingSetup(DefaultSafetyLeadTime: DateFormula)
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Default Safety Lead Time", DefaultSafetyLeadTime);
-        ManufacturingSetup.Modify(true);
+        InventorySetup.Get();
+        InventorySetup.Validate("Default Safety Lead Time", DefaultSafetyLeadTime);
+        InventorySetup.Modify(true);
     end;
 
     local procedure ModifyPurchasesPayablesSetup(AllowVATDifference: Boolean) OldAllowVATDifference: Boolean
@@ -4182,7 +4191,7 @@
         PurchaseLine.TestField("No.", ItemNo);
         PurchaseLine.TestField(Quantity, Quantity);
     end;
-
+#if not CLEAN25
     local procedure VerifyPriceAndLineDiscountOnPurchaseLine(PurchaseLine: Record "Purchase Line"; Quantity: Decimal; DirectUnitCost: Decimal; LineDiscountPercentage: Decimal)
     var
         PurchaseLine2: Record "Purchase Line";
@@ -4195,7 +4204,7 @@
         PurchaseLine2.TestField("Direct Unit Cost", DirectUnitCost);
         PurchaseLine2.TestField("Line Discount %", LineDiscountPercentage);
     end;
-
+#endif
     local procedure VerifyVATAmount(DocumentNo: Code[20])
     var
         VATEntry: Record "VAT Entry";
@@ -4319,20 +4328,6 @@
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateAllocationAccountWithFixedDistribution(var AllocationAccountPage: TestPage "Allocation Account"): Code[20]
-    var
-        DummyAllocationAccount: Record "Allocation Account";
-        AllocationAccountNo: Code[20];
-    begin
-        AllocationAccountPage.OpenNew();
-        AllocationAccountNo := Format(LibraryRandom.RandText(5));
-        AllocationAccountPage."No.".SetValue(AllocationAccountNo);
-        AllocationAccountPage."Account Type".SetValue(DummyAllocationAccount."Account Type"::Fixed);
-        AllocationAccountPage.Name.SetValue(LibraryRandom.RandText(5));
-
-        exit(AllocationAccountNo);
-    end;
-
     local procedure CreateInheritFromParentAllocationDistrubWithDimension(AllocationAccountNo: Code[20]; Share: Decimal; DimensionValue: Record "Dimension Value") DimSetID: Integer
     var
         AllocAccountDistribution: Record "Alloc. Account Distribution";
@@ -4361,12 +4356,10 @@
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := PadStr(
-            '1' + LibraryUtility.GenerateRandomCode(GLAccount.FieldNo("No."),
-            DATABASE::"G/L Account"), MaxStrLen(GLAccount."No."), '0');
+        LibraryERM.CreateGLAccount(GLAccount);
         GLAccount."Account Type" := GLAccountType;
         GLAccount."Direct Posting" := DirectPosting;
-        GLAccount.Insert();
+        GLAccount.Modify();
         exit(GLAccount."No.");
     end;
 
@@ -4396,6 +4389,15 @@
         AllocAccountDistribution."Destination Account Number" := GLAccount."No.";
         AllocAccountDistribution.Validate(Share, Shape);
         AllocAccountDistribution.Insert();
+    end;
+
+    local procedure SetJournalTemplNameMandatoryFalse()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Journal Templ. Name Mandatory" := false;
+        GeneralLedgerSetup.Modify();
     end;
 
     local procedure GeneratePostingDate(var PostingDate: array[3] of Date)

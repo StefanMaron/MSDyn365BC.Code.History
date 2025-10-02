@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN27
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -12,6 +13,9 @@ page 10523 "GovTalk Setup"
     Caption = 'GovTalk Setup';
     PageType = StandardDialog;
     SourceTable = "GovTalk Setup";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to GovTalk app';
+    ObsoleteTag = '27.0';
 
     layout
     {
@@ -119,4 +123,5 @@ page 10523 "GovTalk Setup"
         CrownCopyright2008Lbl: Label 'Contains public sector information licensed under the Open Government Licence v3.0.';
         CrownCopyright2008UrlTok: Label 'https://go.microsoft.com/fwlink/?linkid=851743', Locked = true;
 }
+#endif
 

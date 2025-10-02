@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Setup;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.GeneralLedger.Setup;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Setup;
@@ -153,27 +157,6 @@ page 118 "General Ledger Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to automatically mark a new credit memo as a corrective entry. Correction flag does not affect how inventory reconciled with general ledger.';
                 }
-                field("EMU Currency"; Rec."EMU Currency")
-                {
-                    ApplicationArea = BasicEU;
-                    Importance = Additional;
-                    ToolTip = 'Specifies if LCY is an EMU (Economic and Monetary Union) currency.';
-                }
-                field("LCY Code"; Rec."LCY Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the currency code for the local currency.';
-                }
-                field("Local Currency Symbol"; Rec."Local Currency Symbol")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the symbol for the local currency that you want to appear on checks and charts, such as $ for USD.';
-                }
-                field("Local Currency Description"; Rec."Local Currency Description")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the description of the local currency.';
-                }
                 field("Pmt. Disc. Excl. VAT"; Rec."Pmt. Disc. Excl. VAT")
                 {
                     ApplicationArea = Basic, Suite;
@@ -297,6 +280,12 @@ page 118 "General Ledger Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies whether Business Central validates the data you enter in documents and journals while you type. For documents, you can turn on the check and messages will be shown in the Document Check FactBox. For journals, messages are always shown in the Journal Check FactBox.';
                 }
+                field(CheckSourceCurrencyConsistency; Rec."Check Source Curr. Consistency")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies whether Business Central validates the total of general ledger entries source currency amount during posting.';
+                }
             }
             group(Control1900309501)
             {
@@ -358,6 +347,31 @@ page 118 "General Ledger Setup"
                     ApplicationArea = Dimensions;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for Shortcut Dimension 8, whose dimension values you can then enter directly on journals and sales or purchase lines.';
+                }
+            }
+            group(Currency)
+            {
+                Caption = 'Currency';
+
+                field("LCY Code"; Rec."LCY Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                }
+                field("Local Currency Symbol"; Rec."Local Currency Symbol")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the symbol for the local currency that you want to appear on checks and charts, such as $ for USD.';
+                }
+                field("Local Currency Description"; Rec."Local Currency Description")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the description of the local currency.';
+                }
+                field("EMU Currency"; Rec."EMU Currency")
+                {
+                    ApplicationArea = BasicEU;
+                    Importance = Additional;
+                    ToolTip = 'Specifies if LCY is an EMU (Economic and Monetary Union) currency.';
                 }
             }
             group("Background Posting")
@@ -505,12 +519,20 @@ page 118 "General Ledger Setup"
                     ToolTip = 'Specifies dimension source for Realized Gain/Loss application entries.';
                 }
             }
+#if not CLEAN27
             group("Reverse Charge")
             {
                 Caption = 'Reverse Charge';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Reverse Charge VAT GB app';
+                ObsoleteTag = '27.0';
+
                 field("Threshold applies"; Rec."Threshold applies")
                 {
                     ApplicationArea = Basic, Suite;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Reverse Charge VAT GB app';
+                    ObsoleteTag = '27.0';
                     ToolTip = 'Specifies whether or not the program is setup to process Reverse Charge invoices.';
 
                     trigger OnValidate()
@@ -526,9 +548,13 @@ page 118 "General Ledger Setup"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Threshold Amount';
                     Enabled = ThresholdAmountEnable;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Reverse Charge VAT GB app';
+                    ObsoleteTag = '27.0';
                     ToolTip = 'Specifies the de minimis rule amount determined by the tax authorities.';
                 }
             }
+#endif
             group("Gen. Journal Templates")
             {
                 Caption = 'Journal Templates';
@@ -882,7 +908,9 @@ page 118 "General Ledger Setup"
         FinancialReportMgt: Codeunit "Financial Report Mgt.";
     begin
         FinancialReportMgt.Initialize();
+#if not CLEAN27
         ThresholdAmountEnable := true;
+#endif
     end;
 
     trigger OnOpenPage()
@@ -895,13 +923,17 @@ page 118 "General Ledger Setup"
         xGeneralLedgerSetup := Rec;
 
         IsJournalTemplatesVisible := Rec."Journal Templ. Name Mandatory";
+#if not CLEAN27
         ThresholdAmountEnable := Rec."Threshold applies";
+#endif
     end;
 
     var
         xGeneralLedgerSetup: Record "General Ledger Setup";
         IsJournalTemplatesVisible: Boolean;
+#if not CLEAN27
         ThresholdAmountEnable: Boolean;
+#endif
 
 #pragma warning disable AA0074
         Text001: Label 'Do you want to change all open entries for every customer and vendor that are not blocked?';
@@ -922,4 +954,3 @@ page 118 "General Ledger Setup"
           (Rec."Shortcut Dimension 8 Code" <> xGeneralLedgerSetup."Shortcut Dimension 8 Code"));
     end;
 }
-

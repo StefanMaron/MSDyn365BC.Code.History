@@ -1,6 +1,6 @@
 codeunit 139026 "Test Job Queue"
 {
-    // 
+    //
     // NOTE: Test Execution
     //   In NAV7, TestIsolation does not support Background Sessions. These tests therefore
     //   fail fast when TestIsolation is enabled. Note that TestIsolation is enabled in SNAP so these
@@ -549,7 +549,7 @@ codeunit 139026 "Test Job Queue"
         ErrorMessageRegister.DeleteAll();
         CreateJobQueueEntry(JobQueueEntry, JobQueueEntry."Object Type to Run"::Codeunit, Codeunit::"Sales Post via Job Queue", JobQueueEntry.Status::Ready);
 
-        // [When] Run the JQE and delete the JQLE 
+        // [When] Run the JQE and delete the JQLE
         asserterror Codeunit.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
         CODEUNIT.Run(CODEUNIT::"Job Queue Error Handler", JobQueueEntry);
         JobQueueLogEntry.SetRange(ID, JobQueueEntry.ID);
@@ -878,7 +878,7 @@ codeunit 139026 "Test Job Queue"
         LibraryVariableStorage.Enqueue(IssuedFinanceChargeMemoHdr."No.");
         CreateAndRunJobQueueEntryWithReport(JobQueueEntry, Report::"Finance Charge Memo");
 
-        // [THEN] Verify that Interaction Log entry does not created for the Contact (Personal and Company contact of Customer or Vendor).        
+        // [THEN] Verify that Interaction Log entry does not created for the Contact (Personal and Company contact of Customer or Vendor).
         VerifyLogInteractionDoesNotCreated(JobQueueEntry, Customer."No.");
     end;
 
@@ -911,7 +911,7 @@ codeunit 139026 "Test Job Queue"
         // [GIVEN] Create overdue entries for Customer.
         CreateCustomerWithOverdueEntries(Customer, ReminderTerms, LibraryRandom.RandInt(10));
 
-        // [GIVEN] Create and issue reminder for customer. 
+        // [GIVEN] Create and issue reminder for customer.
         CreateAndIssueReminder(ReminderHeader, Customer."No.");
 
         // [WHEN] Create and execute Job Queue Entry with "Interaction Log" disabled for the Reminder report.
@@ -1168,7 +1168,7 @@ codeunit 139026 "Test Job Queue"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         // [SCENARIO 547254] Interaction Log Entry should not be created while running the Job Queue Entry with interaction log disabled
-        // for the Purchase Receipt and Purchase Invoice report.  
+        // for the Purchase Receipt and Purchase Invoice report.
         Initialize();
 
         // [GIVEN] Create Contact and Vendor.
@@ -1224,8 +1224,10 @@ codeunit 139026 "Test Job Queue"
 
     local procedure Initialize()
     begin
+        OnBeforeInitialize();
         LibraryVariableStorage.Clear();
         DeleteAllJobQueueEntries();
+        OnAfterInitialize();
     end;
 
     local procedure CreateJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; ObjectType: Integer; ObjectID: Integer; JQEntryStatus: Option)
@@ -1315,16 +1317,6 @@ codeunit 139026 "Test Job Queue"
         JobQueueEntry.DeleteAll(true);
         JobQueueLogEntry.DeleteAll(true);
         Commit();
-    end;
-
-    local procedure VerifyJobQueueEntry(ExpectedRecID: RecordID)
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-    begin
-        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
-        JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Document-Mailing");
-        JobQueueEntry.FindFirst();
-        JobQueueEntry.TestField("Record ID to Process", ExpectedRecID);
     end;
 
     local procedure VerifyJobQueueEntryWithTearDown(CodeunitID: Integer; Recurring: Boolean; NoOfMinutes: Integer)
@@ -1730,5 +1722,14 @@ codeunit 139026 "Test Job Queue"
     begin
         Result := false;
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    procedure OnBeforeInitialize()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnAfterInitialize()
+    begin
+    end;
+}

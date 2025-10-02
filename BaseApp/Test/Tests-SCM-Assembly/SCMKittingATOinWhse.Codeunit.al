@@ -10,7 +10,6 @@ using Microsoft.Assembly.Setup;
 using Microsoft.Sales.Setup;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Inventory.Item;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Inventory.BOM;
@@ -42,6 +41,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryPlanning: Codeunit "Library - Planning";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
@@ -94,7 +94,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
     begin
         SetupAssembly();
         LibraryInventory.ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch);
-        SetupManufacturingSetup();
+        SetupInventorySetup();
         SetupSalesAndReceivablesSetup();
         LibraryAssembly.SetupPostingToGL(GenProdPostingGr, AsmInvtPostingGr, CompInvtPostingGr, '');
         SetupLocation(Location);
@@ -183,16 +183,10 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         ItemJournalLine.DeleteAll();
     end;
 
-    local procedure SetupManufacturingSetup()
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
+    local procedure SetupInventorySetup()
     begin
-        Clear(ManufacturingSetup);
-        ManufacturingSetup.Get();
-        Evaluate(ManufacturingSetup."Default Safety Lead Time", '<1D>');
-        ManufacturingSetup.Modify(true);
-
-        WorkDate2 := CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
+        LibraryPlanning.SetDefaultSafetyLeadTime('<1D>');
+        WorkDate2 := LibraryPlanning.SetSafetyWorkDate();
     end;
 
     local procedure SetupSalesAndReceivablesSetup()

@@ -4,9 +4,6 @@ codeunit 144038 "ERM Sales Purch Documents"
     // 
     //  1. Test to verify the Country/Region, VAT Registration No after changing the Buy from Vendor No field on Purchase Order.
     //  2. Test to verify the Country/Region, VAT Registration No after changing the Bill-to Customer No field on Purchase Order.
-    //  3. Purpose of this test is to validate Reverse Charge on Posted Purchase Invoice.
-    //  4. Purpose of this test is to verify Reverse Charge Amount on Posted Sales Invoice Line.
-    //  5. Purpose of this test is to verify Reverse Charge Amount on Posted Sales Invoice Line with partial Prepayment.
     //  6. Verify that column name displayed correctly after pressing the Show Column name on GL budget with G/L Account.
     //  7. Verify that column name displayed correctly after pressing the Show Column name on GL budget with Business Unit.
     //  8. Test to verify it is able to run report Stock Shipped not Invoiced retrospectively and Cost Amount (Expected) and Cost Amount (Actual) are correct.
@@ -18,19 +15,6 @@ codeunit 144038 "ERM Sales Purch Documents"
     //  -----------------------------------------------------------------------
     //  VATEntryPurchaseInvoiceWithBillToSellToVATCalc                  238365
     //  VATEntrySalesInvoiceWithBillToSellToVATCalc                     238364
-    // 
-    //  Covers Test Cases for WI - 341929
-    //  -----------------------------------------------------------------------
-    //  Test Function Name                                              TFS ID
-    //  -----------------------------------------------------------------------
-    //  ReverseChargeOnPurchaseInvoice
-    // 
-    //   Covers Test Cases for WI - 341466
-    //  -----------------------------------------------------------------------
-    //  Test Function Name                                              TFS ID
-    //  -----------------------------------------------------------------------
-    //  ReverseChargeOnPostedSalesInvoice
-    //  ReverseChargeOnPostedSalesInvoiceWithPrepayment
     // 
     //  BUG ID 58719
     //  -----------------------------------------------------------------------
@@ -55,13 +39,17 @@ codeunit 144038 "ERM Sales Purch Documents"
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+#if not CLEAN27
         ReverseChargeErr: Label '%1 must be %2 in %3.';
+#endif
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
         TotalToDeferErr: Label 'The sum of the deferred amounts must be equal to the amount in the Amount to Defer field.';
+#if not CLEAN27
         ReverseErr: Label 'VAT Bus. Posting Group cannot be %1. Item %2 is not subjected to Reverse Charge in Sales Line Document Type=''%3'',Document No.=''%4'',Line No.=''%5''.',
             Comment = '%1=VAT Bus. Posting Group ,%2=Item No. ,%3=Document Type ,%4=Document No. , %5=Line No.';
+#endif
 
     [Test]
     [HandlerFunctions('MessageHandler,ConfirmHandlerTRUE')]
@@ -125,6 +113,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         VerifyVATEntry(DocumentNo, Customer2."Country/Region Code", SalesHeader."VAT Registration No.", Customer2."No.");
     end;
 
+#if not CLEAN27
     [Test]
     [Scope('OnPrem')]
     procedure ReverseChargeOnPurchaseInvoice()
@@ -193,6 +182,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         // Verify: Verify Reverse Charge on Sales Invoice.
         VerifyReverseChargeOnPostedSalesInvoice(SalesLine, false);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('BudgetPageHandlerWithBusinessUnit')]
@@ -228,6 +218,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         // Verify: Verification done in Handler.
     end;
 
+#if not CLEAN27
     [Test]
     [HandlerFunctions('ConfirmHandlerTRUE')]
     [Scope('OnPrem')]
@@ -323,6 +314,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         PurchaseHeader.TestField(Status, PurchaseHeader.Status::Open);
         GLPostingPreview.Close();
     end;
+#endif
 
     [Test]
     procedure SalesInvoiceShouldNotPostWithIncorrectDeferralScheduleValues()
@@ -408,7 +400,9 @@ codeunit 144038 "ERM Sales Purch Documents"
         Assert.ExpectedError(TotalToDeferErr);
     end;
 
+#if not CLEAN27
     [Test]
+    [Obsolete('Moved to Reverse Charge VAT GB app', '27.0')]
     procedure ErrorMessageOnSalesLineReverseChargeVAT()
     var
         Item: Record Item;
@@ -451,6 +445,7 @@ codeunit 144038 "ERM Sales Purch Documents"
                 SalesLine."Document No.",
                 SalesLine."Line No."));
     end;
+#endif
 
     local procedure Initialize()
     var
@@ -480,6 +475,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         BusinessUnit.Insert();
     end;
 
+#if not CLEAN27
     local procedure CreateCustomer(VATBusPostingGroup: Code[20]): Code[20]
     var
         Customer: Record Customer;
@@ -489,6 +485,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         Customer.Modify(true);
         exit(Customer."No.");
     end;
+#endif
 
     local procedure CreateCustomerWithCountryRegion(var Customer: Record Customer)
     var
@@ -503,6 +500,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         Customer.Modify(true);
     end;
 
+#if not CLEAN27
     local procedure CreateItem(VATProdPostingGroup: Code[20]): Code[20]
     var
         Item: Record Item;
@@ -513,6 +511,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         Item.Modify(true);
         exit(Item."No.");
     end;
+#endif
 
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; BuyFromVendorNo: Code[20]; No: Code[20])
     var
@@ -534,6 +533,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         SalesLine.Modify(true);
     end;
 
+#if not CLEAN27
     local procedure CreateVendor(VATBusPostingGroup: Code[20]): Code[20]
     var
         Vendor: Record Vendor;
@@ -543,6 +543,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
+#endif
 
     local procedure CreateVendorWithCountryRegion(var Vendor: Record Vendor)
     var
@@ -557,6 +558,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         Vendor.Modify(true);
     end;
 
+#if not CLEAN27
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
@@ -570,6 +572,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.FindFirst();
     end;
+#endif
 
     local procedure OpenGlBudgetPage(GLBudgetNameValue: Text)
     var
@@ -580,6 +583,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         GLBudgetNamesPage.EditBudget.Invoke();
     end;
 
+#if not CLEAN27
     local procedure SetupForSalesDocumentWithRevCharge(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -590,6 +594,7 @@ codeunit 144038 "ERM Sales Purch Documents"
           SalesHeader, DocumentType, CreateCustomer(VATPostingSetup."VAT Bus. Posting Group"),
           CreateItem(VATPostingSetup."VAT Prod. Posting Group"));
     end;
+#endif
 
     local procedure UpdatePurchaseHeaderPayToVendorNo(var PurchaseHeader: Record "Purchase Header"; PayToVendorNo: Code[20])
     begin
@@ -603,11 +608,13 @@ codeunit 144038 "ERM Sales Purch Documents"
         SalesHeader.Modify(true);
     end;
 
+#if not CLEAN27
     local procedure UpdateSalesHeaderPrepaymentPct(var SalesHeader: Record "Sales Header")
     begin
         SalesHeader.Validate("Prepayment %", LibraryRandom.RandDec(10, 2));  // Taken random for Prepayment Pct.
         SalesHeader.Modify(true);
     end;
+#endif
 
     local procedure UpdateBillToSellToVATCalcOnGLSetup(BillToSellToVATCalc: Enum "G/L Setup VAT Calculation")
     var
@@ -618,6 +625,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         GeneralLedgerSetup.Modify(true);
     end;
 
+#if not CLEAN27
     local procedure UpdatePurchasesPayablesSetup(DomesticVendors: Code[20])
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -637,6 +645,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         SalesReceivablesSetup.Validate("Reverse Charge VAT Posting Gr.", SalesReceivablesSetup."Domestic Customers");
         SalesReceivablesSetup.Modify(true);
     end;
+#endif
 
     local procedure VerifyPostedSalesInvoice(Customer: Record Customer; No: Code[20]; SellToCustomerNo: Code[20])
     var
@@ -660,6 +669,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         PurchInvHeader.TestField("Buy-from Vendor No.", Vendor."No.");
     end;
 
+#if not CLEAN27
     local procedure VerifyReverseChargeOnPostedPurchaseInvoice(PurchaseLine: Record "Purchase Line")
     var
         PurchInvLine: Record "Purch. Inv. Line";
@@ -688,6 +698,7 @@ codeunit 144038 "ERM Sales Purch Documents"
           ReverseCharge, SalesInvoiceLine."Reverse Charge", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ReverseChargeErr, SalesInvoiceLine.FieldCaption("Reverse Charge"), ReverseCharge, SalesInvoiceLine.TableCaption()));
     end;
+#endif
 
     local procedure VerifyVATEntry(DocumentNo: Code[20]; CountryRegionCode: Code[10]; VATRegistrationNo: Code[20]; BillToPayToNo: Code[20])
     var
@@ -769,6 +780,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         DeferralLine.FindFirst();
     end;
 
+#if not CLEAN27
     local procedure CreateVATPostingSetupWithBlankVATBusPostingGroup(var VATPostingSetup: Record "VAT Posting Setup")
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
@@ -793,6 +805,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         Customer.Modify(true);
         exit(Customer."No.");
     end;
+#endif
 
     [MessageHandler]
     [Scope('OnPrem')]

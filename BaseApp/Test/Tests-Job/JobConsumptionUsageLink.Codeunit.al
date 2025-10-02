@@ -15,7 +15,9 @@ codeunit 136303 "Job Consumption - Usage Link"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
+#if not CLEAN25
         LibraryResource: Codeunit "Library - Resource";
+#endif
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryJob: Codeunit "Library - Job";
         LibraryRandom: Codeunit "Library - Random";
@@ -245,42 +247,6 @@ codeunit 136303 "Job Consumption - Usage Link"
 
     [Test]
     [Scope('OnPrem')]
-    procedure LinkScheduledServiceItem()
-    begin
-        // [SCENARIO] Use a planning line (Type = Item, "Line Type" = Budget) with an explicit link, post execution via Service Document, verify that link created and Quantities and Amounts are correct.
-
-        UseLinked(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeSchedule(), false, LibraryJob.ServiceConsumption())
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure LinkBothServiceItem()
-    begin
-        // [SCENARIO] Use a planning line (Type = Item, "Line Type" = Budget & Billable) with an explicit link, post execution via Service Document, verify that link created and Quantities and Amounts are correct.
-
-        UseLinked(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeBoth(), false, LibraryJob.ServiceConsumption())
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure LinkScheduledServiceResource()
-    begin
-        // [SCENARIO] Use a planning line (Type = Resource, "Line Type" = Budget) with an explicit link, post execution via Service Document, verify that link created and Quantities and Amounts are correct.
-
-        UseLinked(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeSchedule(), false, LibraryJob.ServiceConsumption())
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure LinkBothServiceResource()
-    begin
-        // [SCENARIO] Use a planning line (Type = Resource, "Line Type" = Budget & Billable) with an explicit link, post execution via Service Document, verify that link created and Quantities and Amounts are correct.
-
-        UseLinked(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeBoth(), false, LibraryJob.ServiceConsumption())
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure LinkScheduledGenJournal()
     begin
         // [SCENARIO] Use a planning line (Type = G/L Account, "Line Type" = Budget) with an explicit link, post execution via Gen. Journal, verify that link created and Quantities and Amounts are correct.
@@ -346,7 +312,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         LineCount: Integer;
     begin
         // Use a planning line with an explicit link
-        // via job journal, gl journal, purchase, or service (Source).
+        // via job journal, gl journal, or purchase
         // Verify remaining quantity
         // Verify that the usage link is created.
         // Verify that the planning line's amounts and quantities are updated.
@@ -1810,7 +1776,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         CreateJob(true, true, Job);
         LibraryJob.CreateJobTask(Job, JobTask);
 
-        // [GIVEN] Job planning line 
+        // [GIVEN] Job planning line
         LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule(), LibraryJob.GLAccountType(), JobTask, JobPlanningLine);
         JobPlanningLine.Validate(Quantity, 2 * PL_Qty);
         JobPlanningLine.Validate("Usage Link", true);
@@ -1866,6 +1832,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
         DummyJobsSetup.Modify();
+        LibraryJob.SetJobNoSeriesCode();
 
         Initialized := true;
 
@@ -2350,7 +2317,6 @@ codeunit 136303 "Job Consumption - Usage Link"
         JobResourcePrice.Validate("Unit Price", UnitPrice);
         JobResourcePrice.Modify(true);
     end;
-#endif
 
     local procedure CreateJobPlanningLineWithWorkTypeCode(JobTask: Record "Job Task"; ResourceNo: Code[20]; WorkTypeCode: Code[10]): Decimal
     var
@@ -2373,7 +2339,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         JobJournalLine.Modify(true);
         exit(JobJournalLine."Unit Price");
     end;
-
+#endif
     local procedure CreateJob(ApplyUsageLink: Boolean; BothAllowed: Boolean; var Job: Record Job)
     begin
         LibraryJob.CreateJob(Job);
@@ -2391,7 +2357,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         Job.Modify(true);
         LibraryJob.CreateJobTask(Job, JobTask);
     end;
-
+#if not CLEAN25
     local procedure CreateResourceGroup(Resource: Record Resource): Code[10]
     var
         ResourceGroup: Record "Resource Group";
@@ -2409,7 +2375,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         CreateWorkType(WorkTypeCode);
         UpdateWorkTypeForUnitOfMeasureCode(WorkTypeCode, Resource."Base Unit of Measure");
     end;
-
+#endif
     local procedure CreateSimilarJobPlanningLines(JobPlanningLine: Record "Job Planning Line")
     var
         NewJobPlanningLine: Record "Job Planning Line";
@@ -2528,7 +2494,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         JobUsageLink."Entry No." := LibraryRandom.RandInt(10);
         JobUsageLink.Insert();
     end;
-
+#if not CLEAN25
     local procedure ResourcePriceSuggestedSetup(var JobTask: Record "Job Task"; var Resource: Record Resource; var WorkTypeCode: Code[10])
     var
         Job: Record Job;
@@ -2547,6 +2513,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         WorkType.Validate("Unit of Measure Code", BaseUnitOfMeasure);
         WorkType.Modify(true);
     end;
+#endif
 
     local procedure VerifyUsageLink(JobPlanningLine: Record "Job Planning Line"; JobLedgerEntry: Record "Job Ledger Entry")
     var
@@ -2698,4 +2665,3 @@ codeunit 136303 "Job Consumption - Usage Link"
         SalesSetup.Modify(true);
     end;
 }
-

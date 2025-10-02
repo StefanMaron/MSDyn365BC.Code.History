@@ -1,4 +1,5 @@
-﻿namespace Microsoft.Finance.VAT.Reporting;
+﻿#if not CLEAN27
+namespace Microsoft.Finance.VAT.Reporting;
 
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Company;
@@ -7,6 +8,9 @@ using System.Xml;
 
 codeunit 141 "EC Sales List Populate XML"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to GovTalk app';
+    ObsoleteTag = '27.0';
 
     trigger OnRun()
     begin
@@ -163,4 +167,5 @@ codeunit 141 "EC Sales List Populate XML"
         exit(true);
     end;
 }
+#endif
 

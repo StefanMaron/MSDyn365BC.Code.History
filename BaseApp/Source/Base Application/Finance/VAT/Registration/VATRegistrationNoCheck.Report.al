@@ -358,6 +358,8 @@ report 32 "VAT Registration No. Check"
 
     requestpage
     {
+        AboutTitle = 'About VAT Registration No. Check';
+        AboutText = 'The **VAT Registration No. Check** report verifies the validity of VAT numbers for customers and vendors by cross-checking them against the EU VAT Information Exchange System (VIES). Use it for validating VAT registration numbers before submitting EU sales reports to ensure compliance and avoid issues with cross-border transactions.';
         SaveValues = true;
 
         layout

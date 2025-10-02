@@ -311,15 +311,6 @@
       <Cmt Name="Dev"><![CDATA[New permission set, D365 Basic Set, has been created.]D;]A;(LookupHint=Codeunit Test Editing Permissions - NamedType CopySuccessMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1853180782 - NamedType 2230955369" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Security filter %1 does not have the field filter %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[Security filter Customer: Chain Name=<>0 does not have the field filter <>100.]D;]A;(LookupHint=Codeunit Test Editing Permissions - NamedType FieldFilterErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1853180782 - NamedType 845101464" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There is no permission set to copy from.]]></Val>
@@ -347,24 +338,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Editing Permissions - NamedType MultipleSourcesErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1853180782 - NamedType 614454109" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Security filter %1 does not apply to the %2 table.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[Security filter Customer: Chain Name=<>0 does not apply to the Vendor table.]D;]A;(LookupHint=Codeunit Test Editing Permissions - NamedType SecurityFilterErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1853180782 - NamedType 2224881517" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Security filter should not exit.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Editing Permissions - NamedType SecurityFilterExistsErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1853180782 - NamedType 2547689768" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The new permission set already exists.]]></Val>
@@ -381,15 +354,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Editing Permissions - NamedType TargetNameMissingErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1853180782 - NamedType 3350068532" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Cannot define a field filter for field %1 whose type is %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[Cannot define a field filter for field App ID whose type is GUID.]D;]A;(LookupHint=Codeunit Test Editing Permissions - NamedType UnsupportedDataTypeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 363486531 - NamedType 317548624" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

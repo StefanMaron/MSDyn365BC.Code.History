@@ -1,3 +1,4 @@
+#if not CLEAN27
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -18,6 +19,9 @@ report 10529 "Reverse Charge Sales List"
     DefaultLayout = RDLC;
     RDLCLayout = './Local/FinancialMgt/VAT/Reporting/ReverseChargeSalesList.rdlc';
     Caption = 'Reverse Charge Sales List';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Reverse Charge VAT GB app';
+    ObsoleteTag = '27.0';
 
     dataset
     {
@@ -287,7 +291,9 @@ report 10529 "Reverse Charge Sales List"
                 trigger OnPreDataItem()
                 begin
                     SalesSetup.Get();
+#if not CLEAN27
                     "VAT Entry".SetRange("VAT Bus. Posting Group", SalesSetup."Reverse Charge VAT Posting Gr.");
+#endif
                 end;
             }
 
@@ -505,4 +511,5 @@ report 10529 "Reverse Charge Sales List"
         exit(Format(dat, 0, '<Day,2><Month,2><Year4>'));
     end;
 }
+#endif
 

@@ -318,7 +318,7 @@ codeunit 8055 "Sub. Contracts Item Management"
 
     var
         AllowInsertOfInvoicingItem: Boolean;
-        NonInventoryTypeErr: Label 'The value "%1" can only be set if either "%2" or "%3" is selected in the field "%4".';
+        NonInventoryTypeErr: Label 'The value "%1" can only be set if either "%2" or "%3" is selected in the field "%4".', Comment = '%1=Item Type, %2=Sales without Service Commitment, %3=Sales with Service Commitment, %4=Subscription Option';
         InvoicingItemErr: Label 'Items that are marked as Invoicing Item may not be used here. Please choose another item.';
         ServiceCommitmentItemErr: Label 'Items that are marked as Subscription Item may not be used here. Please choose another item.';
 }

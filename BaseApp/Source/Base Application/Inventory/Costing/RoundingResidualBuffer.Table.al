@@ -4,6 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Costing;
 
+using Microsoft.Finance.GeneralLedger.Setup;
+
 table 5810 "Rounding Residual Buffer"
 {
     Caption = 'Rounding Residual Buffer';
@@ -24,6 +26,8 @@ table 5810 "Rounding Residual Buffer"
         }
         field(3; "Adjusted Cost (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
+            AutoFormatType = 1;
             Caption = 'Adjusted Cost (ACY)';
             DataClassification = SystemMetadata;
         }
@@ -50,6 +54,19 @@ table 5810 "Rounding Residual Buffer"
     fieldgroups
     {
     }
+
+    protected var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GeneralLedgerSetupRead: Boolean;
+
+    local procedure GetAdditionalReportingCurrencyCode(): Code[10]
+    begin
+        if not GeneralLedgerSetupRead then begin
+            GeneralLedgerSetup.Get();
+            GeneralLedgerSetupRead := true;
+        end;
+        exit(GeneralLedgerSetup."Additional Reporting Currency")
+    end;
 
     procedure AddAdjustedCost(NewInboundEntryNo: Integer; NewAdjustedCost: Decimal; NewAdjustedCostACY: Decimal; NewCompletelyInvoiced: Boolean)
     begin
@@ -112,4 +129,3 @@ table 5810 "Rounding Residual Buffer"
         exit((NewCost <> 0) or (NewCostACY <> 0));
     end;
 }
-

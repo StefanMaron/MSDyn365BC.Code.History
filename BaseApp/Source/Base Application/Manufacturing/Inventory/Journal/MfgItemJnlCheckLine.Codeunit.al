@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -14,19 +14,20 @@ using Microsoft.Warehouse.Request;
 codeunit 99000760 "Mfg. Item Jnl. Check Line"
 {
     var
-#if not CLEAN26
+#if not CLEAN27
         ItemJnlCheckLine: Codeunit "Item Jnl.-Check Line";
 #endif
+        CannotPostTheseLinesErr: Label 'You cannot post these lines because you have not entered a quantity on one or more of the lines. ';
         WarehouseHandlingRequiredErr: Label 'Warehouse handling is required for %1 = %2, %3 = %4, %5 = %6.', Comment = '%1 %3 %5 - field captions, %2 %4 %6 - field values';
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Check Line", 'OnCheckDimensionsOnAfterSetTableValues', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Check Line", 'OnCheckDimensionsOnAfterSetTableValues', '', false, false)]
     local procedure OnCheckDimensionsOnAfterSetTableValues(ItemJournalLine: Record "Item Journal Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
         TableID[3] := Database::"Work Center";
         No[3] := ItemJournalLine."Work Center No.";
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Check Line", 'OnRunOnCheckWarehouse', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Check Line", 'OnRunOnCheckWarehouse', '', false, false)]
     local procedure OnRunOnCheckWarehouse(var ItemJournalLine: Record "Item Journal Line"; CalledFromAdjustment: Boolean; CalledFromInvtPutawayPick: Boolean)
     var
         ProdOrderLine: Record "Prod. Order Line";
@@ -220,6 +221,37 @@ codeunit 99000760 "Mfg. Item Jnl. Check Line"
         exit(false);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Check Line", 'OnCheckOutputFields', '', false, false)]
+    local procedure OnCheckOutputFields(var ItemJournalLine: Record "Item Journal Line")
+    begin
+        if not ItemJournalLine.IsEntryTypeOutput() then begin
+            ItemJournalLine.TestField("Run Time", 0, ErrorInfo.Create());
+            ItemJournalLine.TestField("Setup Time", 0, ErrorInfo.Create());
+            ItemJournalLine.TestField("Stop Time", 0, ErrorInfo.Create());
+            ItemJournalLine.TestField("Output Quantity", 0, ErrorInfo.Create());
+            ItemJournalLine.TestField("Scrap Quantity", 0, ErrorInfo.Create());
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Check Line", 'OnCheckEmptyQuantity', '', false, false)]
+    local procedure OnCheckEmptyQuantity(ItemJournalLine: Record "Item Journal Line");
+    begin
+        if ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::Output then begin
+            if (ItemJournalLine."Output Quantity (Base)" = 0) and (ItemJournalLine."Scrap Quantity (Base)" = 0) and
+               ItemJournalLine.TimeIsEmpty() and (ItemJournalLine."Invoiced Qty. (Base)" = 0)
+            then
+                Error(ErrorInfo.Create(CannotPostTheseLinesErr, true))
+        end else
+            if (ItemJournalLine."Quantity (Base)" = 0) and (ItemJournalLine."Invoiced Qty. (Base)" = 0) then
+                Error(ErrorInfo.Create(CannotPostTheseLinesErr, true));
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Check Line", 'OnCheckBinsOnCheckForEntryTypeOutput', '', false, false)]
+    local procedure OnCheckBinsOnCheckForEntryTypeOutput(var ItemJournalLine: Record "Item Journal Line"; var ShouldExit: Boolean)
+    begin
+        ShouldExit := ItemJournalLine.IsEntryTypeOutput() and not ItemJournalLine.LastOutputOperation(ItemJournalLine);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnRunCheckOnAfterCalcShouldCheckItemNo(ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line"; CalledFromAdjustment: Boolean; var ShouldCheckItemNo: Boolean)
     begin
@@ -260,3 +292,4 @@ codeunit 99000760 "Mfg. Item Jnl. Check Line"
     begin
     end;
 }
+

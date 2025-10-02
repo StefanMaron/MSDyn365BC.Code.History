@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN27
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -12,7 +13,9 @@ using System.Xml;
 codeunit 10522 "Submit VAT Declaration Request"
 {
     TableNo = "VAT Report Header";
-
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to GovTalk app';
+    ObsoleteTag = '27.0';
     trigger OnRun()
     var
         GovTalkMessage: Record GovTalkMessage;
@@ -83,4 +86,5 @@ codeunit 10522 "Submit VAT Declaration Request"
         IRmarkXMLNode.InnerText := HMRCSubmissionHelpers.CreateIRMark(XmlDoc, GovTalkNameSpaceTxt, VATDeclarationNameSpaceTxt);
     end;
 }
+#endif
 

@@ -1,7 +1,11 @@
+#if not CLEAN27
 codeunit 144502 "Test UK Postcode Pages"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to GetAddress.io UK Postcodes';
+    ObsoleteTag = '27.0';
 
     trigger OnRun()
     begin
@@ -1831,4 +1835,4 @@ codeunit 144502 "Test UK Postcode Pages"
         PostcodeSelectAddress.OK().Invoke();
     end;
 }
-
+#endif

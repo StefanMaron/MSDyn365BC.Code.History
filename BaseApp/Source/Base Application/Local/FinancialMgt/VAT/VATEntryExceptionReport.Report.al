@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN27
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -13,6 +14,9 @@ report 10511 "VAT Entry Exception Report"
     DefaultLayout = RDLC;
     RDLCLayout = './Local/FinancialMgt/VAT/VATEntryExceptionReport.rdlc';
     Caption = 'VAT Entry Exception Report';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to VAT Audit Reports GB app';
+    ObsoleteTag = '27.0';
 
     dataset
     {
@@ -351,4 +355,5 @@ report 10511 "VAT Entry Exception Report"
             NewErrorText := ErrorText;
     end;
 }
+#endif
 

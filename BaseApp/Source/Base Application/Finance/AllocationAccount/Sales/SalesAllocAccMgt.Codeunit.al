@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.AllocationAccount.Sales;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.AllocationAccount.Sales;
 
 using Microsoft.Finance.AllocationAccount;
 using Microsoft.Finance.Dimension;
@@ -369,6 +373,7 @@ codeunit 2678 "Sales Alloc. Acc. Mgt."
         TransferDimensionSetID(SalesLine, AllocationLine, AllocationSalesLine."Alloc. Acc. Modified by User");
         SalesLine."Allocation Account No." := AllocationLine."Allocation Account No.";
         SalesLine."Selected Alloc. Account No." := '';
+        SalesLine."Alloc. Sales Line SystemId" := AllocationSalesLine.SystemId;
         OnBeforeCreateSalesLine(SalesLine, AllocationLine, AllocationSalesLine);
         BindSubscription(AllocAccHandleDocPost);
         SalesLine.Insert(true);

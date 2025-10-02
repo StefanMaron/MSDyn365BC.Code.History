@@ -763,6 +763,7 @@ codeunit 136311 "Job Reports II"
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
         DummyJobsSetup.Modify();
+        LibraryJob.SetJobNoSeriesCode();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Job Reports II");
@@ -1456,4 +1457,3 @@ codeunit 136311 "Job Reports II"
         JobTransferToSalesInvoice.OK().Invoke();
     end;
 }
-

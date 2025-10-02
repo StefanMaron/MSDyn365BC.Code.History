@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.GeneralLedger.Setup;
 
 using Microsoft.Bank.BankAccount;
@@ -25,7 +29,6 @@ using Microsoft.Projects.Resources.Ledger;
 using Microsoft.Purchases.Payables;
 using Microsoft.Sales.Receivables;
 using System.Environment;
-using System.Globalization;
 using System.IO;
 using System.Security.User;
 using System.Telemetry;
@@ -92,10 +95,8 @@ table 98 "General Ledger Setup"
             Caption = 'VAT Date Usage';
 
             trigger OnValidate()
-            var
-                Language: Codeunit Language;
             begin
-                FeatureTelemetry.LogUsage('0000J2U', VATDateFeatureTok, StrSubstNo(VATDateFeatureUsageMsg, Language.ToDefaultLanguage("VAT Reporting Date Usage")));
+                FeatureTelemetry.LogUsage('0000J2U', VATDateFeatureTok, VATDateFeatureUsageMsg);
             end;
         }
         field(28; "Pmt. Disc. Excl. VAT"; Boolean)
@@ -379,6 +380,7 @@ table 98 "General Ledger Setup"
         field(71; "LCY Code"; Code[10])
         {
             Caption = 'LCY Code';
+            ToolTip = 'Specifies the ISO 3 letter currency code for the local currency.';
 
             trigger OnValidate()
             var
@@ -833,10 +835,8 @@ table 98 "General Ledger Setup"
             Caption = 'Control VAT Period';
 
             trigger OnValidate()
-            var
-                Language: Codeunit Language;
             begin
-                FeatureTelemetry.LogUsage('0000JWC', VATDateFeatureTok, StrSubstNo(VATPeriodControlUsageMsg, Language.ToDefaultLanguage("Control VAT Period")));
+                FeatureTelemetry.LogUsage('0000JWC', VATDateFeatureTok, VATPeriodControlUsageMsg);
             end;
         }
         field(189; "Allow Query From Consolid."; Boolean)
@@ -862,7 +862,7 @@ table 98 "General Ledger Setup"
             TableRelation = "G/L Account Category";
             Caption = 'Account Receivables G/L Account Category';
         }
-	    field(191; "App. Dimension Posting"; Enum "Exch. Rate Adjmt. Dimensions")
+        field(191; "App. Dimension Posting"; Enum "Exch. Rate Adjmt. Dimensions")
         {
             Caption = 'Dimension Posting';
             DataClassification = CustomerContent;
@@ -871,15 +871,37 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Hide Company Bank Account';
         }
+        field(193; "Check Source Curr. Consistency"; Boolean)
+        {
+            Caption = 'Check Source Curr. Consistency';
+        }
+#if not CLEANSCHEMA30
         field(10500; "Threshold applies"; Boolean)
         {
             Caption = 'Threshold applies';
+            ObsoleteReason = 'Moved to Reverse Charge VAT GB app';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
         }
         field(10501; "Threshold Amount"; Decimal)
         {
             Caption = 'Threshold Amount';
             MinValue = 0;
+            ObsoleteReason = 'Moved to Reverse Charge VAT GB app';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
         }
+#endif
     }
 
     keys
@@ -938,8 +960,8 @@ table 98 "General Ledger Setup"
 #pragma warning restore AA0470
         AccSchedObsoleteErr: Label 'This field is obsolete and it has been replaced by Table 88 Financial Report';
         VATDateFeatureTok: Label 'VAT Date', Locked = true;
-        VATPeriodControlUsageMsg: Label 'Control VAT Period set to %1', Locked = true;
-        VATDateFeatureUsageMsg: Label 'VAT Reporting Date Usage set to %1', Locked = true;
+        VATPeriodControlUsageMsg: Label 'Control VAT Period is changed', Locked = true;
+        VATDateFeatureUsageMsg: Label 'VAT Reporting Date Usage is changed', Locked = true;
         PrivacyStatementAckErr: Label 'Enabling requires privacy statement acknowledgement.';
 
     procedure CheckDecimalPlacesFormat(var DecimalPlaces: Text[5])

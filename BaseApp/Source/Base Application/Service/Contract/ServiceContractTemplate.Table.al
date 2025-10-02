@@ -170,27 +170,14 @@ table 5968 "Service Contract Template"
     end;
 
     trigger OnInsert()
-#if not CLEAN24
-    var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         ServMgtSetup.Get();
         if "No." = '' then begin
             ServMgtSetup.TestField("Contract Template Nos.");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(ServMgtSetup."Contract Template Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 "No. Series" := ServMgtSetup."Contract Template Nos.";
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
                 "No." := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", ServMgtSetup."Contract Template Nos.", 0D, "No.");
-            end;
-#endif
         end;
     end;
 
@@ -225,4 +212,3 @@ table 5968 "Service Contract Template"
         end;
     end;
 }
-

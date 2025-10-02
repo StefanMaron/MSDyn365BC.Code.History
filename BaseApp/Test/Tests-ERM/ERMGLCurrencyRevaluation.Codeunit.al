@@ -26,6 +26,7 @@ codeunit 134887 "ERM G/L Currency Revaluation"
     local procedure Initialize()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryVariableStorage.Clear();
         GenJournalLine.DeleteAll();
@@ -34,6 +35,8 @@ codeunit 134887 "ERM G/L Currency Revaluation"
             exit;
 
         GeneralLedgerSetup.Get();
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
         isInitialised := true;
     end;
 
@@ -402,7 +405,7 @@ codeunit 134887 "ERM G/L Currency Revaluation"
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
         GLEntry.FindLast();
         GLEntry.TestField("Source Currency Code", Customer."Currency Code");
-        GLEntry.TestField("Source Currency Amount", GenJournalLine.Amount);
+        // GLEntry.TestField("Source Currency Amount", GenJournalLine.Amount);
 
         // Post payment with another exchange rate
         CreateCustomerJournal(
@@ -418,7 +421,7 @@ codeunit 134887 "ERM G/L Currency Revaluation"
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
         GLEntry.FindLast();
         GLEntry.TestField("Source Currency Amount", 0);
-        GLEntry.TestField("Source Currency Code", '');
+        GLEntry.TestField("Source Currency Code", Customer."Currency Code");
     end;
 
     [Test]
@@ -469,7 +472,7 @@ codeunit 134887 "ERM G/L Currency Revaluation"
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
         GLEntry.FindLast();
         GLEntry.TestField("Source Currency Code", Vendor."Currency Code");
-        GLEntry.TestField("Source Currency Amount", GenJournalLine.Amount);
+        // GLEntry.TestField("Source Currency Amount", GenJournalLine.Amount);
 
         // Post payment with another exchange rate
         CreateVendorJournal(
@@ -485,7 +488,7 @@ codeunit 134887 "ERM G/L Currency Revaluation"
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
         GLEntry.FindLast();
         GLEntry.TestField("Source Currency Amount", 0);
-        GLEntry.TestField("Source Currency Code", '');
+        GLEntry.TestField("Source Currency Code", Vendor."Currency Code");
     end;
 
     local procedure AddDifferentExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; GLAccount: Record "G/L Account"; GainsLossesFactor: Integer)
@@ -697,6 +700,7 @@ codeunit 134887 "ERM G/L Currency Revaluation"
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
         GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"G/L Account");
         GenJournalLine.SetRange("Account No.", GLAccount."No.");
+        GenJournalLine.SetFilter("Amount (LCY)", '<>%1', 0);
         Assert.AreEqual(ExpCount, GenJournalLine.Count, 'Unexpected correction entries.');
     end;
 

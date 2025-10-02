@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -2124,13 +2124,6 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Inventory Valuation';
                         RunObject = report "Inventory Valuation";
                         Tooltip = 'Run the Inventory Valuation report.';
-                    }
-                    action("Inventory Valuation - WIP")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Production Order - WIP';
-                        RunObject = report "Inventory Valuation - WIP";
-                        Tooltip = 'Run the Production Order - WIP report.';
                     }
                     action("Inventory - List")
                     {

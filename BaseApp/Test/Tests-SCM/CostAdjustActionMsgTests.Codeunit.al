@@ -136,7 +136,7 @@ codeunit 137124 "Cost Adjust Action Msg. Tests"
         Item: Record Item;
         CostAdjmtActionMessage: Record "Cost Adjmt. Action Message";
     begin
-        // [SCENARIO] Cost adjust logs items excluded from cost adjustment
+        // [SCENARIO] Cost adjust logs suboptimal average cost settings
         Initialize();
 
         // [GIVEN] Enable automatic cost posting

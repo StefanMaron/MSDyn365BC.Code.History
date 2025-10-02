@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN27
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -17,6 +18,9 @@ report 10560 "FA - Projected Value"
     DefaultLayout = RDLC;
     RDLCLayout = './Local/FixedAsset/Depreciation/FAProjectedValue.rdlc';
     Caption = 'FA - Projected Value';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Reports GB app';
+    ObsoleteTag = '27.0';
 
     dataset
     {
@@ -1099,4 +1103,4 @@ report 10560 "FA - Projected Value"
         exit(DMY2Date(31, 12, 9999));
     end;
 }
-
+#endif

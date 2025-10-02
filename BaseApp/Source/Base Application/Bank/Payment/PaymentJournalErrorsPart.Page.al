@@ -4,6 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Payment;
 
+/// <summary>
+/// Page 1228 "Payment Journal Errors Part" displays payment export errors as a list part.
+/// This page shows error messages related to payment journal export operations and allows drill-down into error details.
+/// </summary>
+/// <remarks>
+/// Source table: Payment Jnl. Export Error Text. Used as a part page to display
+/// payment export errors within other pages such as payment journals.
+/// </remarks>
 page 1228 "Payment Journal Errors Part"
 {
     Caption = 'Payment Journal Errors Part';

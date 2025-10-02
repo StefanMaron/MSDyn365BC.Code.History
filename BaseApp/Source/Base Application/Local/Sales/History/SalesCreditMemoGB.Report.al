@@ -1,3 +1,4 @@
+#if not CLEAN27
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -28,6 +29,9 @@ report 10573 "Sales - Credit Memo GB"
     RDLCLayout = './Local/Sales/History/SalesCreditMemoGB.rdlc';
     Caption = 'Sales - Credit Memo';
     Permissions = TableData "Sales Shipment Buffer" = rimd;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Reports GB app';
+    ObsoleteTag = '27.0';
 
     dataset
     {
@@ -1120,4 +1124,5 @@ report 10573 "Sales - Credit Memo GB"
         NextEntryNo := NextEntryNo + 1
     end;
 }
+#endif
 

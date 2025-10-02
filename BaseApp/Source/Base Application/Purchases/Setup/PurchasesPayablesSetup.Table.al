@@ -1,10 +1,16 @@
-﻿namespace Microsoft.Purchases.Setup;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Setup;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.ReceivablesPayables;
+#if not CLEANSCHEMA30
 using Microsoft.Finance.VAT.Setup;
+#endif
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Pricing.Calculation;
@@ -187,6 +193,7 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Default Qty. to Receive';
             OptionCaption = 'Remainder,Blank';
             OptionMembers = Remainder,Blank;
+            ToolTip = 'Specifies the default value for the Qty. to Receive field on purchase order lines and the Return Qty. to Ship field on purchase return order lines. If you choose Blank, the quantity to receive is not automatically calculated.';
         }
         field(38; "Post with Job Queue"; Boolean)
         {
@@ -289,10 +296,20 @@ table 312 "Purchases & Payables Setup"
         {
             Caption = 'Ignore Updated Addresses';
         }
+#if not CLEANSCHEMA29        
         field(57; "Create Item from Item No."; Boolean)
         {
             Caption = 'Create Item from Item No.';
+            ObsoleteReason = 'Discontinued function';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '29.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
         }
+#endif        
         field(58; "Copy Vendor Name to Entries"; Boolean)
         {
             Caption = 'Copy Vendor Name to Entries';
@@ -455,25 +472,45 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Link Doc. Date to Posting Date';
             DataClassification = SystemMetadata;
         }
-        field(11320; "Check Doc. Total Amounts"; Boolean)
-        {
-            Caption = 'Check Doc. Total Amounts';
-            ToolTip = 'Specifies if you want the Doc. Amount Incl. VAT field in Purchase Invoice and Purchase Credit Memo to be compared to the sum of the VAT amounts fields in the purchase lines. If the amounts are not the same, you will be notified when posting the document. The totals will always be checked for invoices received from e-documents.';
-        }
         field(10500; "Posting Date Check on Posting"; Boolean)
         {
             Caption = 'Posting Date Check on Posting';
+#if not CLEAN27
             InitValue = true;
+#endif
         }
+#if not CLEANSCHEMA30
         field(10501; "Reverse Charge VAT Posting Gr."; Code[20])
         {
             Caption = 'Reverse Charge VAT Posting Gr.';
             TableRelation = "VAT Business Posting Group";
+            ObsoleteReason = 'Moved to Reverse Charge VAT GB app';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
         }
         field(10502; "Domestic Vendors"; Code[20])
         {
             Caption = 'Domestic Vendors';
             TableRelation = "VAT Business Posting Group";
+            ObsoleteReason = 'Moved to Reverse Charge VAT GB app';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
+        }
+#endif
+        field(11320; "Check Doc. Total Amounts"; Boolean)
+        {
+            Caption = 'Check Doc. Total Amounts';
+            ToolTip = 'Specifies if you want the Doc. Amount Incl. VAT field in Purchase Invoice and Purchase Credit Memo to be compared to the sum of the VAT amounts fields in the purchase lines. If the amounts are not the same, you will be notified when posting the document. The totals will always be checked for invoices received from e-documents.';
         }
     }
 
@@ -515,7 +552,8 @@ table 312 "Purchases & Payables Setup"
     begin
         // Only invoices and credit memos are checked for document total amounts
         if (PurchaseHeader."Document Type" <> PurchaseHeader."Document Type"::Invoice) and
-           (PurchaseHeader."Document Type" <> PurchaseHeader."Document Type"::"Credit Memo") then
+           (PurchaseHeader."Document Type" <> PurchaseHeader."Document Type"::"Credit Memo") and
+           (PurchaseHeader."No." <> '') then
             exit(false);
         // If the system is setup to check the document totals, we will check it regardless of the extensions
         if Rec."Check Doc. Total Amounts" then

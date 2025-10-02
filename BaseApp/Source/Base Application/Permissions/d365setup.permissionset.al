@@ -1,147 +1,143 @@
 namespace System.Security.AccessControl;
 
-using Microsoft.Inventory.Location;
-using Microsoft.Projects.TimeSheet;
-using Microsoft.Bank.Payment;
-using Microsoft.EServices.EDocument;
-using Microsoft.Foundation.Navigate;
-using Microsoft.Finance.VAT.Reporting;
-using Microsoft.Finance.VAT.Ledger;
-using Microsoft.eServices.OnlineMap;
-using Microsoft.Inventory.Reconciliation;
-using Microsoft.Projects.Project.WIP;
-using Microsoft.Projects.Project.Setup;
-using Microsoft.Foundation.AuditCodes;
-using Microsoft.Foundation.Shipping;
-using Microsoft.Foundation.Task;
-using Microsoft.Finance.VAT.Calculation;
-using Microsoft.Finance.VAT.Setup;
-using Microsoft.Finance.VAT.Clause;
-using Microsoft.Finance.VAT.RateChange;
-using Microsoft.Finance.VAT.Registration;
-using System.Privacy;
-using System.Apps;
-using System.Environment.Configuration;
-using Microsoft.Finance.FinancialReports;
-using Microsoft.Integration.Entity;
-using Microsoft.Finance.AllocationAccount;
-using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Inventory.Tracking;
-using Microsoft.CRM.Task;
-using Microsoft.Sales.Customer;
-using Microsoft.Purchases.Vendor;
-using Microsoft.Inventory.Analysis;
-using Microsoft.Finance.Analysis;
-using Microsoft.Bank.Reconciliation;
-using System.Automation;
 using Microsoft.Assembly.Setup;
-using Microsoft.CRM.Interaction;
-using Microsoft.Inventory.Availability;
-using System.Azure.Identity;
 using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Check;
+using Microsoft.Bank.DirectDebit;
 using Microsoft.Bank.Ledger;
+using Microsoft.Bank.Payment;
+using Microsoft.Bank.PositivePay;
+using Microsoft.Bank.Reconciliation;
 using Microsoft.Bank.Statement;
 using Microsoft.Bank.Setup;
-using Microsoft.Warehouse.Structure;
-using Microsoft.Inventory.BOM;
-using Microsoft.Finance.Consolidation;
+using Microsoft.CashFlow.Setup;
 using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Campaign;
-using Microsoft.CashFlow.Setup;
-using System.Diagnostics;
-using Microsoft.Bank.Check;
-using Microsoft.CRM.Opportunity;
 using Microsoft.CRM.Contact;
-using Microsoft.Foundation.Company;
-using System.IO;
 using Microsoft.CRM.Duplicates;
+using Microsoft.CRM.Interaction;
+using Microsoft.CRM.Opportunity;
+using Microsoft.CRM.Outlook;
 using Microsoft.CRM.Profiling;
-using Microsoft.Integration.Dataverse;
-using Microsoft.Integration.D365Sales;
+using Microsoft.CRM.Segment;
+using Microsoft.CRM.Setup;
+using Microsoft.CRM.Task;
+using Microsoft.CRM.Team;
+using Microsoft.EServices.EDocument;
+using Microsoft.eServices.OnlineMap;
+using Microsoft.Finance.AllocationAccount;
+using Microsoft.Finance.Analysis;
+using Microsoft.Finance.Consolidation;
 using Microsoft.Finance.Currency;
-using Microsoft.Sales.FinanceCharge;
-using Microsoft.Sales.Reminder;
-using Microsoft.Sales.Receivables;
-using System.Integration;
 using Microsoft.Finance.Deferral;
 using Microsoft.Finance.Dimension;
-using Microsoft.Bank.DirectDebit;
-using Microsoft.HumanResources.Payables;
-using Microsoft.HumanResources.Employee;
-using Microsoft.CRM.Outlook;
-using Microsoft.Inventory.Counting.Tracking;
-using Microsoft.FixedAssets.Setup;
-using Microsoft.Inventory.Ledger;
+using Microsoft.Finance.FinancialReports;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Budget;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Journal;
-using Microsoft.HumanResources.Setup;
-using Microsoft.Intercompany.Setup;
-using Microsoft.Integration.SyncEngine;
-using Microsoft.Inventory.Costing;
-using Microsoft.Inventory.Comment;
-using Microsoft.Inventory.Setup;
-using Microsoft.Inventory.Item;
-using Microsoft.Purchases.Document;
-using System.Threading;
-using Microsoft.CRM.Segment;
-using Microsoft.Inventory.Item.Catalog;
-using Microsoft.CRM.Setup;
-using Microsoft.Inventory.BOM.Tree;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.Clause;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Finance.VAT.Registration;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.FixedAssets.Setup;
+using Microsoft.Foundation.Address;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Calendar;
+using Microsoft.Foundation.Company;
+using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.NoSeries;
-using Microsoft.Purchases.Payables;
 using Microsoft.Foundation.PaymentTerms;
-using Microsoft.Inventory.Counting.Journal;
+using Microsoft.Foundation.Period;
+using Microsoft.Foundation.Shipping;
+using Microsoft.Foundation.Task;
+using Microsoft.HumanResources.Payables;
+using Microsoft.HumanResources.Employee;
+using Microsoft.HumanResources.Setup;
+using Microsoft.Integration.Entity;
+using Microsoft.Integration.Dataverse;
+using Microsoft.Integration.D365Sales;
+using Microsoft.Integration.SyncEngine;
+using Microsoft.Intercompany.Setup;
+using Microsoft.Inventory.Analysis;
+using Microsoft.Inventory.Availability;
+using Microsoft.Inventory.BOM;
+using Microsoft.Inventory.BOM.Tree;
+using Microsoft.Inventory.Comment;
+using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Counting.Comment;
 using Microsoft.Inventory.Counting.Document;
-using Microsoft.Inventory.Counting.Recording;
-using Microsoft.Inventory.Planning;
-using Microsoft.Bank.PositivePay;
-using Microsoft.Foundation.Address;
-using Microsoft.Warehouse.History;
-using Microsoft.Pricing.Asset;
-using Microsoft.Pricing.Calculation;
-using Microsoft.Pricing.PriceList;
-using Microsoft.Pricing.Source;
-using Microsoft.Pricing.Worksheet;
 using Microsoft.Inventory.Counting.History;
-using Microsoft.Purchases.History;
-using Microsoft.Purchases.Archive;
-using Microsoft.Purchases.Setup;
-using Microsoft.Warehouse.Activity.History;
+using Microsoft.Inventory.Counting.Journal;
+using Microsoft.Inventory.Counting.Recording;
+using Microsoft.Inventory.Counting.Tracking;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Planning;
+using Microsoft.Inventory.Reconciliation;
 using Microsoft.Inventory.Requisition;
+using Microsoft.Inventory.Setup;
+using Microsoft.Inventory.Tracking;
 using Microsoft.Projects.Resources.Journal;
 #if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.Resources.Setup;
+using Microsoft.Projects.TimeSheet;
+using Microsoft.Projects.Project.WIP;
+using Microsoft.Projects.Project.Setup;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
+using Microsoft.Purchases.Archive;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Payables;
+using Microsoft.Purchases.Setup;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Archive;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Setup;
 using Microsoft.Sales.Document;
-using Microsoft.Sales.Archive;
 using Microsoft.Sales.Pricing;
-using Microsoft.Warehouse.Setup;
-using Microsoft.Finance.SalesTax;
-using Microsoft.CRM.Team;
-using System.Security.User;
+using Microsoft.Sales.Reminder;
+using Microsoft.Sales.Receivables;
 using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.Activity.History;
 using Microsoft.Warehouse.Comment;
+using Microsoft.Warehouse.History;
 using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Document;
+using Microsoft.Warehouse.Setup;
+using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Worksheet;
-using Microsoft.Manufacturing.WorkCenter;
-using Microsoft.Foundation.Period;
-using Microsoft.Inventory.Intrastat;
-using Microsoft.Foundation.Calendar;
 using Microsoft.Utilities;
 using Microsoft;
 
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
-using Microsoft.Service.Ledger;
+using System.Apps;
+using System.Automation;
+using System.Azure.Identity;
+using System.Diagnostics;
+using System.Environment.Configuration;
+using System.IO;
+using System.Integration;
+using System.Privacy;
+using System.Security.User;
+using System.Threading;
 
 permissionset 191 "D365 SETUP"
 {
@@ -179,6 +175,7 @@ permissionset 191 "D365 SETUP"
                   tabledata Activity = D,
                   tabledata "Alt. Customer Posting Group" = RIMD,
                   tabledata "Alt. Vendor Posting Group" = RIMD,
+                  tabledata "Alt. Employee Posting Group" = RIMD,
                   tabledata "Analysis Column" = D,
                   tabledata "Analysis Column Template" = D,
                   tabledata "Analysis Field Value" = D,
@@ -321,9 +318,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Exch. Rate Adjmt. Ledg. Entry" = d,
                   tabledata "Exchange Folder" = D,
                   tabledata "Exchange Service Setup" = RIMD,
-#if not CLEAN24
-                  tabledata "Exp. Phys. Invt. Tracking" = RIMD,
-#endif
                   tabledata "Exp. Invt. Order Tracking" = RIMD,
                   tabledata "FA Setup" = Rimd,
                   tabledata "Fin. Charge Comment Line" = D,
@@ -345,9 +339,11 @@ permissionset 191 "D365 SETUP"
                   tabledata "Gen. Journal Template" = RIMD,
                   tabledata "General Ledger Setup" = RIMD,
                   tabledata "General Posting Setup" = RIMD,
+#if not CLEAN27
                   tabledata "GovTalk Message Parts" = RIMD,
                   tabledata "GovTalk Setup" = RIMD,
                   tabledata GovTalkMessage = RIMD,
+#endif
                   tabledata "Human Resources Setup" = Rimd,
                   tabledata "IC Setup" = RIMD,
                   tabledata "Incoming Document" = RIMD,
@@ -397,9 +393,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Line Fee Note on Report Hist." = imd,
                   tabledata "Logged Segment" = d,
                   tabledata "Lot No. Information" = RIMD,
-#if not CLEAN24
-                  tabledata "Man. Integration Field Mapping" = RIMD,
-#endif
                   tabledata "Man. Integration Table Mapping" = RIMD,
                   tabledata "Man. Int. Field Mapping" = RIMD,
                   tabledata Manufacturer = RIMD,
@@ -438,9 +431,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Phys. Invt. Order Line" = RIMD,
                   tabledata "Phys. Invt. Record Header" = RIMD,
                   tabledata "Phys. Invt. Record Line" = RIMD,
-#if not CLEAN24
-                  tabledata "Phys. Invt. Tracking" = RIMD,
-#endif
                   tabledata "Invt. Order Tracking" = RIMD,
                   tabledata "Planning Assignment" = D,
                   tabledata "Planning Component" = D,
@@ -464,9 +454,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Price Source" = RIMD,
                   tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Profile Questionnaire Line" = D,
-#if not CLEAN24
-                  tabledata "Pstd. Exp. Phys. Invt. Track" = RIMD,
-#endif
                   tabledata "Pstd.Exp.Invt.Order.Tracking" = RIMD,
                   tabledata "Pstd. Phys. Invt. Order Hdr" = RIMD,
                   tabledata "Pstd. Phys. Invt. Order Line" = RIMD,
@@ -641,7 +628,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Whse. Pick Request" = D,
                   tabledata "Whse. Put-away Request" = D,
                   tabledata "Whse. Worksheet Line" = D,
-                  tabledata "Work Center" = D,
                   tabledata "Work Type" = D,
                   tabledata "Workflow - Table Relation" = RIMD,
                   tabledata Workflow = RIMD,
@@ -655,11 +641,5 @@ permissionset 191 "D365 SETUP"
                   tabledata "Workflow Table Relation Value" = RimD,
                   tabledata "Workflow User Group" = RIMD,
                   tabledata "Workflow User Group Member" = RIMD,
-                  tabledata "Report Settings Override" = Rimd,
-
-                  // Service
-                  tabledata "Contract Gain/Loss Entry" = D,
-                  tabledata "Filed Contract Line" = RD,
-                  tabledata "Service Line" = Rm,
-                  tabledata "Warranty Ledger Entry" = d;
+                  tabledata "Report Settings Override" = Rimd;
 }

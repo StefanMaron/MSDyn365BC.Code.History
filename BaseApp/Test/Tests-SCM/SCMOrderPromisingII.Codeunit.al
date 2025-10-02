@@ -2006,10 +2006,10 @@ codeunit 137157 "SCM Order Promising II"
 
     local procedure GetDefaultSafetyLeadTime() DefaultSafetyLeadTime: Code[10]
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
-        ManufacturingSetup.Get();
-        DefaultSafetyLeadTime := Format(ManufacturingSetup."Default Safety Lead Time");
+        InventorySetup.Get();
+        DefaultSafetyLeadTime := Format(InventorySetup."Default Safety Lead Time");
     end;
 
     local procedure GetOffsetTime() OffsetTime: Code[10]

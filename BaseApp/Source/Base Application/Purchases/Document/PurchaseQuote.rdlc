@@ -3649,6 +3649,9 @@ End Function</Code>
         <Field Name="LineDimensionsCaption">
           <DataField>LineDimensionsCaption</DataField>
         </Field>
+        <Field Name="ShipToPhoneNo">
+          <DataField>ShipToPhoneNo</DataField>
+        </Field>
         <Field Name="ShipToAddr1">
           <DataField>ShipToAddr1</DataField>
         </Field>
@@ -3675,9 +3678,6 @@ End Function</Code>
         </Field>
         <Field Name="ShiptoAddressCaption">
           <DataField>ShiptoAddressCaption</DataField>
-        </Field>
-        <Field Name="ShipToPhoneNo">
-          <DataField>ShipToPhoneNo</DataField>
         </Field>
       </Fields>
       <Query>

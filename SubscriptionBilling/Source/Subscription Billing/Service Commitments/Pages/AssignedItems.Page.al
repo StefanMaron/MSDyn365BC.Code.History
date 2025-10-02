@@ -36,6 +36,8 @@ page 8063 "Assigned Items"
                 {
                     ToolTip = 'Specifies the price for one unit of the item, in LCY.';
                     Caption = 'Unit Price';
+                    AutoFormatType = 2;
+                    AutoFormatExpression = '';
                 }
             }
         }

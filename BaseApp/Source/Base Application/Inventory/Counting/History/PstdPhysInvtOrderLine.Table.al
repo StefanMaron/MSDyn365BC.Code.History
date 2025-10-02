@@ -87,20 +87,6 @@ table 5880 "Pstd. Phys. Invt. Order Line"
             Caption = 'Qty. Exp. Calculated';
             Editable = false;
         }
-#if not CLEAN24
-        field(52; "Qty. Exp. Item Tracking (Base)"; Decimal)
-        {
-            CalcFormula = sum("Pstd. Exp. Phys. Invt. Track"."Quantity (Base)" where("Order No" = field("Document No."),
-                                                                                      "Order Line No." = field("Line No.")));
-            Caption = 'Qty. Exp. Item Tracking (Base)';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-            ObsoleteReason = 'replaced by field "Qty. Exp. Tracking (Base)"';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-        }
-#endif
         field(53; "Use Item Tracking"; Boolean)
         {
             Caption = 'Use Item Tracking';
@@ -272,33 +258,16 @@ table 5880 "Pstd. Phys. Invt. Order Line"
 
     trigger OnDelete()
     var
-#if not CLEAN24
-        PstdExpPhysInvtTrack: Record "Pstd. Exp. Phys. Invt. Track";
-#endif
         PstdExpInvtOrderTracking: Record "Pstd.Exp.Invt.Order.Tracking";
     begin
-#if not CLEAN24
-        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-            PstdExpPhysInvtTrack.Reset();
-            PstdExpPhysInvtTrack.SetRange("Order No", "Document No.");
-            PstdExpPhysInvtTrack.SetRange("Order Line No.", "Line No.");
-            PstdExpPhysInvtTrack.DeleteAll();
-        end else begin
-#endif
-            PstdExpInvtOrderTracking.Reset();
-            PstdExpInvtOrderTracking.SetRange("Order No", "Document No.");
-            PstdExpInvtOrderTracking.SetRange("Order Line No.", "Line No.");
-            PstdExpInvtOrderTracking.DeleteAll();
-#if not CLEAN24
-        end;
-#endif
+        PstdExpInvtOrderTracking.Reset();
+        PstdExpInvtOrderTracking.SetRange("Order No", "Document No.");
+        PstdExpInvtOrderTracking.SetRange("Order Line No.", "Line No.");
+        PstdExpInvtOrderTracking.DeleteAll();
     end;
 
     var
         DimManagement: Codeunit DimensionManagement;
-#if not CLEAN24
-        PhysInvtTrackingMgt: Codeunit "Phys. Invt. Tracking Mgt.";
-#endif
 
     procedure EmptyLine(): Boolean
     begin
@@ -345,9 +314,6 @@ table 5880 "Pstd. Phys. Invt. Order Line"
 
     procedure ShowPostExpPhysInvtTrackLines()
     var
-#if not CLEAN24
-        PstdExpPhysInvtTrack: Record "Pstd. Exp. Phys. Invt. Track";
-#endif
         PstdExpInvtOrderTracking: Record "Pstd.Exp.Invt.Order.Tracking";
     begin
         if EmptyLine() then
@@ -355,22 +321,11 @@ table 5880 "Pstd. Phys. Invt. Order Line"
 
         TestField("Item No.");
 
-#if not CLEAN24
-        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-            PstdExpPhysInvtTrack.Reset();
-            PstdExpPhysInvtTrack.SetRange("Order No", "Document No.");
-            PstdExpPhysInvtTrack.SetRange("Order Line No.", "Line No.");
-            Page.RunModal(0, PstdExpPhysInvtTrack);
-        end else begin
-#endif
-            PstdExpInvtOrderTracking.Reset();
-            PstdExpInvtOrderTracking.Reset();
-            PstdExpInvtOrderTracking.SetRange("Order No", "Document No.");
-            PstdExpInvtOrderTracking.SetRange("Order Line No.", "Line No.");
-            Page.RunModal(0, PstdExpInvtOrderTracking);
-#if not CLEAN24
-        end;
-#endif
+        PstdExpInvtOrderTracking.Reset();
+        PstdExpInvtOrderTracking.Reset();
+        PstdExpInvtOrderTracking.SetRange("Order No", "Document No.");
+        PstdExpInvtOrderTracking.SetRange("Order Line No.", "Line No.");
+        Page.RunModal(0, PstdExpInvtOrderTracking);
     end;
 }
 

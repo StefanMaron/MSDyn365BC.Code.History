@@ -1,9 +1,8 @@
+#if not CLEAN27
 codeunit 144005 "UT REP Doclay"
 {
     // 1. Purpose of the test is to validate OnAfterGetRecord Trigger of CopyLoop of Report 10576 - Order GB.
     // 2. Purpose of the test is to validate OnAfterGetRecord Trigger of CopyLoop of Report 10579 - Blanket Purchase Order GB.
-    // 3. Purpose of the test is to validate OnAfterGetRecord Trigger of CopyLoop of Report 10577 Purchase - Invoice GB.
-    // 4. Purpose of the test is to validate OnAfterGetRecord Trigger of CopyLoop of Report 10578 Purchase - Credit Memo GB.
     // 5. Purpose of the test is to validate OnAfterGetRecord Trigger of RoundLoop of Report 10571 Order Confirmation GB.
     // 6. Purpose of the test is to validate OnAfterGetRecord Trigger of RoundLoop of Report 10574 Blanket Sales Order GB
     // 
@@ -13,13 +12,14 @@ codeunit 144005 "UT REP Doclay"
     // -----------------------------------------------------------------------
     // OnAfterGetRecordCopyLoopOrderGB                                 159587
     // OnAfterGetRecordCopyLoopBlanketPurchaseOrderGB                  159538
-    // OnAfterGetCopyLoopPurchaseInvoiceGB                             159573
-    // OnAfterGetRecCopyLoopPurchaseCreditMemoGB                       159578
     // OnAfterGetRoundLoopOrderConfirmationGB                          159558
     // OnAfterGetRoundLoopBlanketSalesOrderGB                          159541
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Reports GB app';
+    ObsoleteTag = '27.0';
 
     trigger OnRun()
     begin
@@ -296,4 +296,4 @@ codeunit 144005 "UT REP Doclay"
         PurchaseInvoiceGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-
+#endif

@@ -4,28 +4,28 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Assembly.Test;
 
-using Microsoft.Manufacturing.Setup;
-using Microsoft.Inventory.Location;
-using Microsoft.Inventory.Item;
-using Microsoft.Sales.Document;
-using Microsoft.Warehouse.Structure;
-using System.TestLibraries.Utilities;
-using System.Environment.Configuration;
-using Microsoft.Inventory.Tracking;
 using Microsoft.Assembly.Document;
+using Microsoft.Assembly.History;
 using Microsoft.Assembly.Setup;
+using Microsoft.Inventory.BOM;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Setup;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Sales.Document;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.History;
-using Microsoft.Inventory.BOM;
-using Microsoft.Warehouse.Worksheet;
-using Microsoft.Warehouse.Tracking;
-using Microsoft.Warehouse.Setup;
-using Microsoft.Inventory.Ledger;
-using Microsoft.Assembly.History;
 using Microsoft.Warehouse.Ledger;
-using Microsoft.Inventory.Journal;
+using Microsoft.Warehouse.Setup;
+using Microsoft.Warehouse.Structure;
+using Microsoft.Warehouse.Tracking;
+using Microsoft.Warehouse.Worksheet;
+using System.TestLibraries.Utilities;
+using System.Environment.Configuration;
 
 codeunit 137914 "SCM Whse.-Asm. To Order"
 {
@@ -40,7 +40,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
 
     var
         FirstNumber: Label '137914-001';
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryAssembly: Codeunit "Library - Assembly";
@@ -94,7 +94,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
 
         Initialized := true;
         LibraryPatterns.SetNoSeries();
-        ManufacturingSetup.Get();
+        InventorySetup.Get();
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Whse.-Asm. To Order");
     end;
@@ -2631,7 +2631,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
     local procedure PostponeShptDateforAssemblyLeadTime(var SalesHeader: Record "Sales Header")
     begin
         SalesHeader.Validate(
-          "Shipment Date", CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()));
+          "Shipment Date", CalcDate(InventorySetup."Default Safety Lead Time", WorkDate()));
         SalesHeader.Modify();
     end;
 

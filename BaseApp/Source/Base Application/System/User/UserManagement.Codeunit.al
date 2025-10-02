@@ -165,7 +165,7 @@ codeunit 418 "User Management"
     end;
 
     var
-        Text003Err: Label 'You do not have permissions for this action on the table %1.', Comment = '%1 table name';
+        MissingActionPermissionForTableErr: Label 'You do not have permissions for this action on the table %1.', Comment = '%1 table name';
 #if not CLEAN26
 #pragma warning disable AA0470
         CurrentUserQst: Label 'You are signed in with the %1 account. Changing the account will refresh your session. Do you want to continue?', Comment = 'USERID';
@@ -406,7 +406,7 @@ codeunit 418 "User Management"
                             if TableInformation.FindFirst() then
                                 if TableInformation."No. of Records" > 0 then
 #pragma warning disable AA0448
-                                    Error(Text003Err, Field.TableName);
+                                    Error(MissingActionPermissionForTableErr, Field.TableName);
 #pragma warning restore AA0448
                         end;
                         RecRef.Close();
@@ -535,7 +535,7 @@ codeunit 418 "User Management"
             if TableInformation.FindFirst() then
                 if TableInformation."No. of Records" > 0 then
 #pragma warning disable AA0448
-                    Error(Text003Err, Field.TableName);
+                    Error(MissingActionPermissionForTableErr, Field.TableName);
 #pragma warning restore AA0448
         end;
     end;

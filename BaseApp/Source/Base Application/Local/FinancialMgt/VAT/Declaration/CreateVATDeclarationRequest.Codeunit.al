@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN27
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -9,7 +10,9 @@ using System.IO;
 codeunit 10524 "Create VAT Declaration Request"
 {
     TableNo = "VAT Report Header";
-
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to GovTalk app';
+    ObsoleteTag = '27.0';
     trigger OnRun()
     begin
         RootXMLBuffer.Validate(Name, VATDeclarationRequestTxt);
@@ -95,4 +98,5 @@ codeunit 10524 "Create VAT Declaration Request"
         exit(Format(Round(Value, 1), 0, '<Sign><Integer>'));
     end;
 }
+#endif
 

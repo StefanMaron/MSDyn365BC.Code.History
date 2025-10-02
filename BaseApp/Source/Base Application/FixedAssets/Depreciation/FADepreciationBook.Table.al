@@ -91,7 +91,7 @@ table 5612 "FA Depreciation Book"
                 if "Depreciation Method" <> "Depreciation Method"::"Straight-Line" then begin
                     DeprBook.Get("Depreciation Book Code");
                     if DeprBook."Use Accounting Period" then
-                        Error(Text10500, FieldCaption("Depreciation Method"), DeprBook.FieldCaption("Use Accounting Period"), true,
+                        Error(MustBeStraightLineTxt, FieldCaption("Depreciation Method"), DeprBook.FieldCaption("Use Accounting Period"), true,
                           DeprBook.TableCaption(), DeprBook.Code);
                 end;
             end;
@@ -830,7 +830,7 @@ table 5612 "FA Depreciation Book"
 #pragma warning restore AA0074
         OnlyOneDefaultDeprBookErr: Label 'Only one fixed asset depreciation book can be marked as the default book';
         FiscalYear365Err: Label 'An ending date for depreciation cannot be calculated automatically when the Fiscal Year 365 Days option is chosen. You must manually enter the ending date.';
-        Text10500: Label '%1 must be Straight-Line if %2 is %3 in %4: %5.';
+        MustBeStraightLineTxt: Label '%1 must be Straight-Line if %2 is %3 in %4: %5.', Comment = '%1="Depreciation Method" Field Caption %2="Use Accounting Period" Field Caption %3="Use Accounting Period" Field Value %4="Depreciation Book" Table Caption %5="Depreciation Book" Value of field Code';
 
     protected var
         FA: Record "Fixed Asset";

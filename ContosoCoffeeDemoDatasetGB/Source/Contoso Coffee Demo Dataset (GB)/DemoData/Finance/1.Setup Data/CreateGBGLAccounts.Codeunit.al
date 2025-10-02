@@ -1,3 +1,21 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
+namespace Microsoft.DemoData.Finance;
+
+using Microsoft.DemoData.Common;
+using Microsoft.DemoData.Service;
+using Microsoft.DemoData.Manufacturing;
+using Microsoft.DemoData.FixedAsset;
+using Microsoft.DemoData.HumanResources;
+using Microsoft.DemoData.Jobs;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Foundation.Enums;
+using Microsoft.Inventory.Setup;
+using Microsoft.DemoTool.Helpers;
+
 codeunit 10506 "Create GB GL Accounts"
 {
     InherentPermissions = X;
@@ -61,6 +79,7 @@ codeunit 10506 "Create GB GL Accounts"
         ContosoGLAccount.AddAccountForLocalization(MfgGLAccount.SubcontractedVarianceName(), '20440');
         ContosoGLAccount.AddAccountForLocalization(MfgGLAccount.CapOverheadVarianceName(), '20450');
         ContosoGLAccount.AddAccountForLocalization(MfgGLAccount.MfgOverheadVarianceName(), '20460');
+        ContosoGLAccount.AddAccountForLocalization(MfgGLAccount.MaterialNonInvVarianceName(), '20425');
 
         ContosoGLAccount.AddAccountForLocalization(MfgGLAccount.FinishedGoodsName(), '64130');
         ContosoGLAccount.AddAccountForLocalization(MfgGLAccount.WIPAccountFinishedGoodsName(), '64210');

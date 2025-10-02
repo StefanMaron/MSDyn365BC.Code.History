@@ -1,3 +1,4 @@
+#if not CLEAN27
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -30,6 +31,9 @@ report 10572 "Sales - Invoice GB"
     DefaultLayout = RDLC;
     RDLCLayout = './Local/Sales/History/SalesInvoiceGB.rdlc';
     Caption = 'Sales - Invoice';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Reports GB app';
+    ObsoleteTag = '27.0';
     Permissions = TableData "Sales Shipment Buffer" = rimd;
 
     dataset
@@ -736,7 +740,11 @@ report 10572 "Sales - Invoice GB"
 
                 trigger OnPreDataItem()
                 begin
+#if not CLEAN27
                     NoOfLoops := Abs(NoOfCopies) + Cust."Invoice Copies" + 1;
+#else
+                    NoOfLoops := Abs(NoOfCopies) + 1;
+#endif
                     if NoOfLoops <= 0 then
                         NoOfLoops := 1;
                     CopyText := '';
@@ -1169,4 +1177,5 @@ report 10572 "Sales - Invoice GB"
         NextEntryNo := NextEntryNo + 1
     end;
 }
+#endif
 

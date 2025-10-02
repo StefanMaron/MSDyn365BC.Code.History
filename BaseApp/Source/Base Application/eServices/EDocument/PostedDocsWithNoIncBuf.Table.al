@@ -50,11 +50,15 @@ table 134 "Posted Docs. With No Inc. Buf."
         }
         field(9; "Debit Amount"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             Caption = 'Debit Amount';
             DataClassification = SystemMetadata;
         }
         field(10; "Credit Amount"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             Caption = 'Credit Amount';
             DataClassification = SystemMetadata;
         }
@@ -181,4 +185,3 @@ table 134 "Posted Docs. With No Inc. Buf."
             Error(AlreadyIncomingDocErr, GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name");
     end;
 }
-

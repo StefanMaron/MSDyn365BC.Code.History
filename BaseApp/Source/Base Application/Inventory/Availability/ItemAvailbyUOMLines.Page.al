@@ -256,42 +256,6 @@ page 5417 "Item Avail. by UOM Lines"
                     ToolTip = 'Specifies the quantity of the item that is currently in inventory and not reserved for other demand.';
                     Visible = false;
                 }
-#pragma warning disable AA0100
-                field("Item.""Scheduled Receipt (Qty.)"""; AdjustQty(Item."Scheduled Receipt (Qty.)"))
-#pragma warning restore AA0100
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Scheduled Receipt (Qty.)';
-                    DecimalPlaces = 0 : 5;
-                    Editable = false;
-                    ToolTip = 'Specifies how many units of the item are scheduled for production orders. The program automatically calculates and updates the contents of the field, using the Remaining Quantity field on production order lines.';
-                    Visible = false;
-
-                    trigger OnDrillDown()
-                    var
-                        ProdOrderAvailabilityMgt: Codeunit Microsoft.Manufacturing.Document."Prod. Order Availability Mgt.";
-                    begin
-                        ProdOrderAvailabilityMgt.ShowSchedReceipt(Item);
-                    end;
-                }
-#pragma warning disable AA0100
-                field("Item.""Scheduled Need (Qty.)"""; AdjustQty(Item."Qty. on Component Lines"))
-#pragma warning restore AA0100
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Qty. on Component Lines';
-                    DecimalPlaces = 0 : 5;
-                    Editable = false;
-                    ToolTip = 'Specifies the sum of items from planned production orders.';
-                    Visible = false;
-
-                    trigger OnDrillDown()
-                    var
-                        ProdOrderAvailabilityMgt: Codeunit Microsoft.Manufacturing.Document."Prod. Order Availability Mgt.";
-                    begin
-                        ProdOrderAvailabilityMgt.ShowSchedNeed(Item);
-                    end;
-                }
                 field(PlannedOrderReleases; AdjustQty(PlannedOrderReleases))
                 {
                     ApplicationArea = Basic, Suite;

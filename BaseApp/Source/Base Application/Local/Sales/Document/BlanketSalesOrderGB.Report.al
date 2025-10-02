@@ -1,3 +1,4 @@
+#if not CLEAN27
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -29,6 +30,9 @@ report 10574 "Blanket Sales Order GB"
     DefaultLayout = RDLC;
     RDLCLayout = './Local/Sales/Document/BlanketSalesOrderGB.rdlc';
     Caption = 'Blanket Sales Order';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Reports GB app';
+    ObsoleteTag = '27.0';
 
     dataset
     {
@@ -914,4 +918,4 @@ report 10574 "Blanket Sales Order GB"
         FeatureNameTok: Label 'Blanket Sales Order GB', Locked = true;
         EventNameTok: Label 'Blanket Sales Order GB report has been used', Locked = true;
 }
-
+#endif

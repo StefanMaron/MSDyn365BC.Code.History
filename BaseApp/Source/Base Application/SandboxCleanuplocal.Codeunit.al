@@ -1,5 +1,10 @@
+#if not CLEAN27
+#pragma warning disable AA0247
 codeunit 1883 "Sandbox Cleanup local"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to GovTalk app';
+    ObsoleteTag = '27.0';
 
     trigger OnRun()
     begin
@@ -17,4 +22,5 @@ codeunit 1883 "Sandbox Cleanup local"
         GovTalkSetup.ModifyAll(Password, nullGUID);
     end;
 }
+#endif
 

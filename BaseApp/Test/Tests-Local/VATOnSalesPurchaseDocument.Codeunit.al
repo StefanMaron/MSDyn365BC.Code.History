@@ -29,7 +29,9 @@ codeunit 144007 "VAT On Sales/Purchase Document"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
+#if not CLEAN27
         LibraryERM: Codeunit "Library - ERM";
+#endif
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
 
@@ -370,6 +372,7 @@ codeunit 144007 "VAT On Sales/Purchase Document"
         PurchaseInvoiceStatistics.OK().Invoke();
     end;
 
+#if not CLEAN27
     [Test]
     [Scope('OnPrem')]
     procedure AddReverseChargeItemToSalesLine()
@@ -505,6 +508,7 @@ codeunit 144007 "VAT On Sales/Purchase Document"
         // [THEN] "Sales Line"."Reverse charge item"=FALSE
         SalesLine.TestField("Reverse Charge Item", false);
     end;
+#endif
 
     local procedure Initialize()
     var
@@ -653,6 +657,7 @@ codeunit 144007 "VAT On Sales/Purchase Document"
         VATAmountLines.OK().Invoke();
     end;
 
+#if not CLEAN27
     local procedure CreateItemReverseChargeApplies(var Item: Record Item)
     begin
         LibraryInventory.CreateItem(Item);
@@ -713,5 +718,6 @@ codeunit 144007 "VAT On Sales/Purchase Document"
         VATEntry.TestField("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         VATEntry.TestField("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
     end;
+#endif
 }
 

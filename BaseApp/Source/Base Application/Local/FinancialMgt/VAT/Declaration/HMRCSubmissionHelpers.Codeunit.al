@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN27
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -8,7 +9,9 @@ using System;
 
 codeunit 10527 HMRCSubmissionHelpers
 {
-
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to GovTalk app';
+    ObsoleteTag = '27.0';
     trigger OnRun()
     begin
     end;
@@ -62,4 +65,5 @@ codeunit 10527 HMRCSubmissionHelpers
         exit(Convert.ToBase64String(HashingAlgorithm.ComputeHash(Encoding.GetEncoding(0).GetBytes(Password))));
     end;
 }
+#endif
 

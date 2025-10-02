@@ -1,34 +1,12 @@
 codeunit 144024 "UT REP VATREP"
 {
-    //  1 - 2. Purpose of this test is to validate Reverse Charge on Purchase Order and Purchase Invoice.
     //  3 - 4. Purpose of this test is to validate Purchase Quote.
-    //  5 - 6. Purpose of this test is to validate Reverse Charge on Sales Order and Sales Invoice.
-    //  7. Purpose of the test is to validate Sales Invoice Line - OnAfterGetRecord Trigger of Report 10572 - Sales - Invoice GB.
-    //  8. Purpose of the test is to validate Sales Cr. Memo Line - OnAfterGetRecord Trigger of Report 10573 - Sales - Credit Memo GB.
-    //  9. Purpose of the test is to validate OnPreReport Trigger of Report 10511 - VAT Entry Exception Report.
-    // 10. Purpose of the test is to validate OnAfterGetRecord Trigger of Report 10511 - VAT Entry Exception Report with Zero Base.
-    // 11. Purpose of the test is to validate OnAfterGetRecord Trigger of Report 10511 - VAT Entry Exception Report with Random Base.
-    // 
+    //
     // Covers Test Cases for WI - 341554
     // -----------------------------------------------------------------------------------------------------------------------------
     // Test Function Name                                                                                                   TFS ID
     // -----------------------------------------------------------------------------------------------------------------------------
-    // OnPreDataItemPurchaseDocumentTestForOrder, OnPreDataItemPurchaseDocumentTestForInvoice
     // OnAfterGetRecordPurchaseQuote
-    // OnPreDataItemSalesDocumentTestForOrder, OnPreDataItemSalesDocumentTestForInvoice
-    // 
-    // Covers Test Cases for WI - 341776
-    // -----------------------------------------------------------------------------------------------------------------------------
-    // Test Function Name                                                                                                   TFS ID
-    // -----------------------------------------------------------------------------------------------------------------------------
-    // OnAfterGetRecSalesInvLineSalesInvoiceGB, OnAfterGetRecSalesCrMemoLineSalesCrMemoGB
-    // 
-    // Covers Test Cases for WI - 341466
-    // -----------------------------------------------------------------------------------------------------------------------------
-    // Test Function Name                                                                                                   TFS ID
-    // -----------------------------------------------------------------------------------------------------------------------------
-    // OnPreReportVATEntryExceptionReportError, OnAfterGetRecordVATEntryWithoutBaseVATEntryExceptionReport
-    // OnAfterGetRecordVATEntryWithBaseVATEntryExceptionReport
 
     Subtype = Test;
     TestPermissions = Disabled;
@@ -39,11 +17,14 @@ codeunit 144024 "UT REP VATREP"
     end;
 
     var
+#if not CLEAN27
         Assert: Codeunit Assert;
+#endif
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+#if not CLEAN27
         ManualVATDifferenceCap: Label 'Manual_VAT_Difference';
         VATEntryAmountCap: Label 'VAT_Entry_Amount';
 
@@ -95,6 +76,7 @@ codeunit 144024 "UT REP VATREP"
         LibraryReportDataset.AssertElementWithValueExists(
           'Purchase_Line___Line_Amount_', Round(PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost"));
     end;
+#endif
 
     [Test]
     [HandlerFunctions('PurchaseQuoteRequestPageHandler')]
@@ -120,6 +102,7 @@ codeunit 144024 "UT REP VATREP"
         LibraryReportDataset.AssertElementWithValueExists('CompanyInfoPhoneNo', ResponsibilityCenter."Phone No.");
     end;
 
+#if not CLEAN27
     [Test]
     [HandlerFunctions('SalesDocumentTestRequestPageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -272,12 +255,14 @@ codeunit 144024 "UT REP VATREP"
         // Verify.
         VerifyValuesOnReport(ManualVATDifferenceCap, VATEntryAmountCap, VATEntry."VAT Difference", VATEntry.Amount)
     end;
+#endif
 
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
     end;
 
+#if not CLEAN27
     local procedure CreateCustomer(): Code[20]
     var
         Customer: Record Customer;
@@ -295,6 +280,7 @@ codeunit 144024 "UT REP VATREP"
         Item.Insert();
         exit(Item."No.");
     end;
+#endif
 
     local procedure CreatePurchaseQuote(ResponsibilityCenter: Code[10]): Code[20]
     var
@@ -314,6 +300,7 @@ codeunit 144024 "UT REP VATREP"
         exit(PurchaseHeader."No.");
     end;
 
+#if not CLEAN27
     local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
@@ -340,6 +327,7 @@ codeunit 144024 "UT REP VATREP"
         PurchaseLine."VAT Identifier" := VATPostingSetup."VAT Identifier";
         PurchaseLine.Insert();
     end;
+#endif
 
     local procedure CreateResponsibilityCenter(var ResponsibilityCenter: Record "Responsibility Center")
     begin
@@ -348,6 +336,7 @@ codeunit 144024 "UT REP VATREP"
         ResponsibilityCenter.Insert();
     end;
 
+#if not CLEAN27
     local procedure CreateSalesCrMemo(var SalesCrMemoLine: Record "Sales Cr.Memo Line")
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
@@ -517,6 +506,7 @@ codeunit 144024 "UT REP VATREP"
         PurchaseDocumentTest."Purchase Header".SetFilter("No.", No);
         PurchaseDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
@@ -530,6 +520,7 @@ codeunit 144024 "UT REP VATREP"
         PurchaseQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
+#if not CLEAN27
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesCreditMemoGBRequestPageHandler(var SalesCreditMemoGB: TestRequestPage "Sales - Credit Memo GB")
@@ -580,5 +571,5 @@ codeunit 144024 "UT REP VATREP"
     begin
         SaveAsXMLVATEntryExceptionReport(VATEntryExceptionReport, false, false, false, false);
     end;
+#endif
 }
-

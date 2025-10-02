@@ -1,3 +1,8 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
 namespace Microsoft.Integration.Shopify;
 
 /// <summary>
@@ -35,6 +40,7 @@ permissionset 30100 "Shpfy - Read"
         tabledata "Shpfy Invoice Header" = R,
         tabledata "Shpfy Language" = R,
         tabledata "Shpfy Log Entry" = R,
+        tabledata "Shpfy Market Catalog Relation" = R,
         tabledata "Shpfy Metafield" = R,
         tabledata "Shpfy Order Attribute" = R,
         tabledata "Shpfy Order Disc.Appl." = R,
@@ -53,10 +59,10 @@ permissionset 30100 "Shpfy - Read"
         tabledata "Shpfy Payment Transaction" = R,
         tabledata "Shpfy Payout" = R,
         tabledata "Shpfy Product" = R,
-        tabledata "Shpfy Registered Store New" = R,
         tabledata "Shpfy Refund Header" = R,
         tabledata "Shpfy Refund Line" = R,
         tabledata "Shpfy Refund Shipping Line" = R,
+        tabledata "Shpfy Registered Store New" = R,
         tabledata "Shpfy Return Header" = R,
         tabledata "Shpfy Return Line" = R,
         tabledata "Shpfy Sales Channel" = R,
@@ -66,6 +72,7 @@ permissionset 30100 "Shpfy - Read"
         tabledata "Shpfy Shop Inventory" = R,
         tabledata "Shpfy Shop Location" = R,
         tabledata "Shpfy Skipped Record" = R,
+        tabledata "Shpfy Staff Member" = R,
         tabledata "Shpfy Synchronization Info" = R,
         tabledata "Shpfy Tag" = R,
         tabledata "Shpfy Tax Area" = R,

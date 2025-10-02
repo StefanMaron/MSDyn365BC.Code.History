@@ -1,3 +1,4 @@
+#if not CLEAN27
 codeunit 144010 "UT PAG APACS"
 {
     // 1. Purpose of the test is to validate Preview Check GB on Payment Journal When Check Printed True Account Type Customer.
@@ -24,6 +25,9 @@ codeunit 144010 "UT PAG APACS"
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Page it is testing is obsolete.';
+    ObsoleteTag = '27.0';
 
     trigger OnRun()
     begin
@@ -221,4 +225,4 @@ codeunit 144010 "UT PAG APACS"
         CheckPreviewGB.Close();
     end;
 }
-
+#endif

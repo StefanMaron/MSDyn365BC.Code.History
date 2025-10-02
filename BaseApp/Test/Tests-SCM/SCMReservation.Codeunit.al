@@ -38,8 +38,7 @@ codeunit 137049 "SCM Reservation"
         CancelReservationTxt: Label 'Do you want to cancel all reservations';
         NegativeAdjQty: Decimal;
         OutputQuantity: Option Partial,Full,Excess;
-        OutputIsMissingTxt: Label 'Some output is still missing. Do you still want to finish the order?';
-        ConsumptionIsMissingQst: Label 'Some consumption is still missing. Do you still want to finish the order?';
+        MissingTxt: Label '\\  * Some output is still missing.\  * Some consumption is still missing.\\ Do you still want to finish the order?';
         AmountsMustMatchErr: Label 'The amounts must match.';
         ApplyToItemEntryErr: Label 'Applies-to Entry must not be filled out when reservations exist in Item Ledger Entry';
         NotTrueDemandErr: Label 'You cannot reserve this entry because it is not a true demand or supply.';
@@ -842,8 +841,7 @@ codeunit 137049 "SCM Reservation"
         LibraryInventory.PostItemJournalLine(OutputItemJournalBatch."Journal Template Name", OutputItemJournalBatch.Name);
 
         // [WHEN] Finish Production Order.
-        LibraryVariableStorage.Enqueue(OutputIsMissingTxt);
-        LibraryVariableStorage.Enqueue(ConsumptionIsMissingQst);
+        LibraryVariableStorage.Enqueue(MissingTxt);
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
 
         // [THEN] Verify Reserved = R - 1, Qty to Reserve = R.

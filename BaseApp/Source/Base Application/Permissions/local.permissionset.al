@@ -3,7 +3,9 @@ namespace System.Security.AccessControl;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Bank.Ledger;
 using Microsoft.Sales.FinanceCharge;
+#if not CLEAN27
 using Microsoft.Finance.VAT.Reporting;
+#endif
 using Microsoft.Foundation.Address;
 
 permissionset 1001 "LOCAL"
@@ -16,9 +18,11 @@ permissionset 1001 "LOCAL"
                   tabledata "BACS Ledger Entry" = RIMD,
                   tabledata "BACS Register" = RIMD,
                   tabledata "Fin. Charge Interest Rate" = RIMD,
+#if not CLEAN27
                   tabledata "GovTalk Message Parts" = RIMD,
                   tabledata "GovTalk Setup" = r,
                   tabledata GovTalkMessage = RIMD,
+#endif
 #if not CLEAN25
                   tabledata "MTD-Liability" = RIMD,
                   tabledata "MTD-Payment" = RIMD,

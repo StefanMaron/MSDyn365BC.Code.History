@@ -10,6 +10,7 @@ table 135300 "Prediction Data"
         }
         field(2; "Feature A"; Decimal)
         {
+            AutoFormatType = 0;
         }
         field(3; "Feature B"; Option)
         {
@@ -28,11 +29,13 @@ table 135300 "Prediction Data"
         {
             CalcFormula = sum("Sales Invoice Line".Quantity);
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(17; "Feature F"; Decimal)
         {
             CalcFormula = sum("Sales Invoice Line"."Unit Price");
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(18; "Feature G"; Boolean)
         {
@@ -84,6 +87,7 @@ table 135300 "Prediction Data"
         }
         field(34; "Feature W"; Decimal)
         {
+            AutoFormatType = 0;
         }
         field(35; "Feature X"; Boolean)
         {
@@ -102,4 +106,3 @@ table 135300 "Prediction Data"
     {
     }
 }
-

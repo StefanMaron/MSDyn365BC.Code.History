@@ -216,7 +216,7 @@ codeunit 10 "Type Helper"
     var
         Language: Codeunit Language;
     begin
-        exit(FormatDate(DateToFormat, 'd', Language.GetCurrentCultureName()));
+        exit(FormatDate(DateToFormat, 'd', Language.GetUserLanguageTag()));
     end;
 
     procedure GetHMSFromTime(var Hour: Integer; var Minute: Integer; var Second: Integer; TimeSource: Time)

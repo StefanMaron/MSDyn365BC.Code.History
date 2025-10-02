@@ -1,3 +1,4 @@
+#if not CLEAN27
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -24,6 +25,9 @@ report 10578 "Purchase - Credit Memo GB"
     DefaultLayout = RDLC;
     RDLCLayout = './Local/Purchases/History/PurchaseCreditMemoGB.rdlc';
     Caption = 'Purchase - Credit Memo';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Reports GB app';
+    ObsoleteTag = '27.0';
 
     dataset
     {
@@ -926,4 +930,5 @@ report 10578 "Purchase - Credit Memo GB"
         LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Purch. Cr. Memo") <> '';
     end;
 }
+#endif
 

@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN27
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -9,6 +10,9 @@ using Microsoft.Utilities;
 
 codeunit 10523 "GovTalk Setup"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to GovTalk app';
+    ObsoleteTag = '27.0';
 
     trigger OnRun()
     begin
@@ -52,4 +56,5 @@ codeunit 10523 "GovTalk Setup"
         exit(GovTalkGatewayTok);
     end;
 }
+#endif
 

@@ -313,6 +313,7 @@ codeunit 134992 "ERM Financial Reports IV"
         VerifyValuesOnCalcAndPostVATSettlementReport(DocumentNo);
     end;
 
+#if not CLEAN27
     [Test]
     [HandlerFunctions('RHCalcAndPostVATSettlement')]
     [Scope('OnPrem')]
@@ -343,6 +344,7 @@ codeunit 134992 "ERM Financial Reports IV"
         // Tear down:Roll back field "Reverse Charge VAT Posting Gr." on Purchase and Payable setup
         UpdateReverseChargeVATPostingGroup(OldReverseChargeVATPostingGroup, OldReverseChargeVATPostingGroup);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('PurchaseReceiptRequestPageHandler')]
@@ -1155,6 +1157,7 @@ codeunit 134992 "ERM Financial Reports IV"
         VATStatement.Run();
     end;
 
+#if not CLEAN27
     local procedure UpdateReverseChargeVATPostingGroup(var OldReverseChargeVATPostingGroup: Code[20]; ReverseChargeVATPostingGroup: Code[20])
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -1164,6 +1167,7 @@ codeunit 134992 "ERM Financial Reports IV"
         PurchasesPayablesSetup.Validate("Reverse Charge VAT Posting Gr.", ReverseChargeVATPostingGroup);
         PurchasesPayablesSetup.Modify(true);
     end;
+#endif
 
     local procedure VATStatementForDifferentEntries(VATPostingSetup: Record "VAT Posting Setup"; EntryType: Enum "Tax Calculation Type"; Selection: Enum "VAT Statement Report Selection"; Closed: Boolean)
     var

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Intercompany.Outbox;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Intercompany.Outbox;
 
 using Microsoft.Intercompany.Comment;
 using Microsoft.Intercompany;
@@ -239,7 +243,7 @@ table 414 "IC Outbox Transaction"
         if IsHandled then
             exit;
 
-        HandledICOutboxTrans.SetRange("Source Type", "IC Source Type");
+        HandledICOutboxTrans.SetRange("IC Source Type", "IC Source Type");
         HandledICOutboxTrans.SetRange("Document Type", "Document Type");
         HandledICOutboxTrans.SetRange("Document No.", "Document No.");
         if HandledICOutboxTrans.FindFirst() then
@@ -288,7 +292,7 @@ table 414 "IC Outbox Transaction"
         HandledICOutboxTrans.SetRange("IC Partner Code", Rec."IC Partner Code");
         HandledICOutboxTrans.SetRange("Transaction Source", Rec."Transaction Source");
         HandledICOutboxTrans.SetRange("Document No.", ICOutboxSalesHeader."Order No.");
-        HandledICOutboxTrans.SetRange("Source Type", Rec."IC Source Type");
+        HandledICOutboxTrans.SetRange("IC Source Type", Rec."IC Source Type");
         HandledICOutboxTrans.SetRange("Document Type", HandledICOutboxTrans."Document Type"::Order);
         exit(not HandledICOutboxTrans.IsEmpty());
     end;

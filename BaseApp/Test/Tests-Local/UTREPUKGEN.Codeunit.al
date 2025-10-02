@@ -1,9 +1,9 @@
+#if not CLEAN27
 codeunit 144028 "UT REP UKGEN"
 {
     // // [FEATURE] [UI] [GB Reports]
     // Includes UKGEN test cases:
     // 
-    //  1 - 2. Test to verify the Dimension Text after running Report, Purchase/Sales - Credit Memo GB.
     //  3 - 6. Test to verify the Dimension Text after running Report Sales - Quote GB, Blanket Sales Order GB and Order Confirmation GB.
     //  7 - 8. Test to verify the Dimension Text after running Report Order GB and Blanket Purchase Order GB.
     //  8 - 9. Test to verify Archive Document field on Order GB when Archive Quotes & Orders is True/False in Purchase & Payables setup.
@@ -13,8 +13,6 @@ codeunit 144028 "UT REP UKGEN"
     //  --------------------------------------------------------------------------------------------------------------------------------------------
     //  Test Function Name                                                                                                                 TFS ID
     //  --------------------------------------------------------------------------------------------------------------------------------------------
-    //  OnAfterGetRecordDimLoopPurchaseCreditMemoGB, OnAfterGetRecordDimLoopSalesCreditMemoGB                                              159501
-    //  OnAfterGetRecordDimLoopSalesInvoiceGB                                                                                              159503
     //  OnAfterGetRecordDimLoopSalesQuoteGB, OnAfterGetRecordDimLoopOrderConfirmationGB, OnAfterGetRecordDimLoopBlanketSalesOrderGB        159506,159505
     //  OnAfterGetRecordDimLoopOrderGB                                                                                                     159502
     //  OnAfterGetRecordDimLoopBlanketPurchaseOrderGB                                                                                      159504
@@ -27,6 +25,9 @@ codeunit 144028 "UT REP UKGEN"
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Reports GB app';
+    ObsoleteTag = '27.0';
 
     trigger OnRun()
     begin
@@ -727,4 +728,5 @@ codeunit 144028 "UT REP UKGEN"
         OrderConfirmationGB.ArchiveDocument.AssertEquals(ArchiveDocument);
     end;
 }
+#endif
 

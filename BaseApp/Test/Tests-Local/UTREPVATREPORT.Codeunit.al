@@ -1,3 +1,4 @@
+#if not CLEAN27
 codeunit 144003 "UT REP VAT REPORT"
 {
     // Unit Test Cases for VATREP feature in various reports.
@@ -13,6 +14,9 @@ codeunit 144003 "UT REP VAT REPORT"
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Reverse Charge VAT GB app';
+    ObsoleteTag = '27.0';
 
     trigger OnRun()
     begin
@@ -141,4 +145,5 @@ codeunit 144003 "UT REP VAT REPORT"
         SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
+#endif
 

@@ -3,9 +3,7 @@ namespace System.Security.AccessControl;
 using Microsoft.AccountantPortal;
 using Microsoft.Booking;
 using Microsoft.Sales.Archive;
-using Microsoft.Manufacturing.Capacity;
 using Microsoft.Projects.TimeSheet;
-using Microsoft.Manufacturing.Reports;
 using Microsoft.Bank.Payment;
 using Microsoft.Foundation.Reporting;
 using Microsoft.EServices.EDocument;
@@ -131,9 +129,6 @@ using Microsoft.API;
 using Microsoft.Intercompany.DataExchange;
 using Microsoft;
 using System.TestTools;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Resources;
-using Microsoft.Service.Item;
 
 permissionset 208 "D365 Basic - Edit"
 {
@@ -256,10 +251,6 @@ permissionset 208 "D365 Basic - Edit"
                   tabledata "Business Chart Buffer" = IMD,
                   tabledata "Business Chart Map" = IMD,
                   tabledata "Business Chart User Setup" = IMD,
-#if not CLEAN24
-                  tabledata "Calendar Event" = imd,
-                  tabledata "Calendar Event User Config." = imd,
-#endif
                   tabledata "Cash Flow Availability Buffer" = IMD,
                   tabledata "Cash Flow Azure AI Buffer" = imd,
                   tabledata "Cash Flow Setup" = i,
@@ -277,7 +268,6 @@ permissionset 208 "D365 Basic - Edit"
                   tabledata "Copy Item Buffer" = IMD,
                   tabledata "Copy Item Parameters" = IMD,
                   tabledata "Cost Element Buffer" = IMD,
-                  tabledata "Cost Share Buffer" = IMD,
                   tabledata "Country/Region" = IMD,
                   tabledata "Country/Region Translation" = IMD,
                   tabledata "CSV Buffer" = IMD,
@@ -436,7 +426,6 @@ permissionset 208 "D365 Basic - Edit"
                   tabledata "Ledger Entry Matching Buffer" = IMD,
                   tabledata "License Agreement" = IM,
                   tabledata "Line Number Buffer" = IMD,
-                  tabledata "Load Buffer" = IMD,
                   tabledata "Media Repository" = IMD,
                   tabledata "My Account" = IMD,
                   tabledata "My Customer" = IMD,
@@ -679,10 +668,5 @@ permissionset 208 "D365 Basic - Edit"
                   tabledata "XML Buffer" = IMD,
                   tabledata "XML Schema" = IMD,
                   tabledata "XML Schema Element" = IMD,
-                  tabledata "XML Schema Restriction" = IMD,
-
-                  // Service
-                  tabledata "Contract Trend Buffer" = IMD,
-                  tabledata "Resource Skill" = im,
-                  tabledata "Service Item Trend Buffer" = IMD;
+                  tabledata "XML Schema Restriction" = IMD;
 }

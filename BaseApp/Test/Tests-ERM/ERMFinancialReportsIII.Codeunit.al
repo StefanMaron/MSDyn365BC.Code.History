@@ -49,7 +49,11 @@ codeunit 134987 "ERM Financial Reports III"
         AmountToApplyDiscTolSalesTxt: Label 'Amount_to_Apply____AmountDiscounted___AmountPmtDiscTolerance___AmountPmtTolerance_';
         AmountToApplyDiscTolPurchTxt: Label 'Amount_to_Apply____AmountDiscounted___AmountPmtDiscTolerance___AmountPmtTolerance__Control3036';
         AmountTotalDiscTolAppliedTxt: Label 'Amount___TotalAmountDiscounted___TotalAmountPmtDiscTolerance___TotalAmountPmtTolerance___AmountApplied';
+#if not CLEAN27
         FormatTok: Label '**<Sign><Integer>-<Decimals,3>**', Locked = true;
+#else
+        FormatTok: Label '<Precision,%1:%2><Standard Format,1>', Locked = true;
+#endif
         TotalAmountDiscountedMustBeAvailableErr: Label 'TotalAmountDiscounted must be available';
         NoOfCheckLinesErr: Label 'No. of check lines printed must be equal to %1.', Comment = '%1 Expected check lines';
 
@@ -1556,7 +1560,6 @@ codeunit 134987 "ERM Financial Reports III"
 
         InvoiceAmount := LibraryRandom.RandDecInDecimalRange(50, 100, Precision) * 2;
         CrMemoAmount := LibraryRandom.RandDecInDecimalRange(10, 50, Precision) * 2;
-
         // credit memo amount should be less then invoice's
         CreateGenJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, VendorNo, -InvoiceAmount, GenJournalLine."Bank Payment Type"::" ");
@@ -2085,15 +2088,35 @@ codeunit 134987 "ERM Financial Reports III"
 
     local procedure VerifyCheckTotalAmount(InvoiceAmount: Decimal; CrMemoAmount: Decimal)
     var
+#if not CLEAN27
         ExpectedResult: Text;
+#else
+        DotNetMath: DotNet Math;
+        FormatString: Text;
+#endif
     begin
         LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('TotalText', 'Total');
         Assert.IsTrue(LibraryReportDataset.GetNextRow(), StrSubstNo(RowNotFoundErr, 'TotalText', 'Total'));
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalLineAmount', InvoiceAmount - CrMemoAmount);
+#if not CLEAN27
         ExpectedResult := Format(InvoiceAmount - CrMemoAmount, 0, FormatTok);
         ExpectedResult := DelChr(ExpectedResult, '=', '.');
         LibraryReportDataset.AssertCurrentRowValueEquals('CheckAmountText', ExpectedResult);
+#else
+        FormatString :=
+          StrSubstNo(
+            FormatTok,
+            DotNetMath.Log10(1 / LibraryERM.GetAmountRoundingPrecision()),
+            DotNetMath.Log10(1 / LibraryERM.GetAmountRoundingPrecision()));
+
+        LibraryReportDataset.AssertCurrentRowValueEquals('CheckAmountText', FormatExpectedResult(Format(InvoiceAmount - CrMemoAmount, 0, FormatString)));
+    end;
+
+    local procedure FormatExpectedResult(ExpectedResult: Text): Text
+    begin
+        exit('**' + ExpectedResult.Replace('.', '-') + '**');
+#endif
     end;
 
     local procedure VerifyInvAndPmtDiscInPreCheckReport(AmountToApplyDiscTolCap: Text; InvAmount: Decimal; PmtDiscAmount: Decimal)

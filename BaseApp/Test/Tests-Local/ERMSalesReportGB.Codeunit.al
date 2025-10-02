@@ -26,7 +26,9 @@ codeunit 144039 "ERM Sales Report GB"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+#if not CLEAN27        
         LibraryUtility: Codeunit "Library - Utility";
+#endif        
 
     [Test]
     [HandlerFunctions('StatementRequestPagePreviewHandler')]
@@ -67,6 +69,7 @@ codeunit 144039 "ERM Sales Report GB"
         FileMgt.ServerFileExists(FileName);
     end;
 
+#if not CLEAN27
     [Test]
     [HandlerFunctions('OrderConfirmationGBRequestPageHandler')]
     [Scope('OnPrem')]
@@ -91,6 +94,7 @@ codeunit 144039 "ERM Sales Report GB"
         // [THEN] Value "XXX" is displayed under Tag <YourRef_SalesHeader> in export XML file
         LibraryReportDataset.AssertElementTagWithValueExists('YourRef_SalesHeader', SalesHeader."External Document No.");
     end;
+#endif    
 
     local procedure Initialize()
     var
@@ -103,6 +107,7 @@ codeunit 144039 "ERM Sales Report GB"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
     end;
 
+#if not CLEAN27
     local procedure RunOrderConfirmationGBReport(SalesHeaderNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
@@ -111,6 +116,7 @@ codeunit 144039 "ERM Sales Report GB"
         SalesHeader.SetRange("No.", SalesHeaderNo);
         REPORT.Run(REPORT::"Order Confirmation GB", true, false, SalesHeader);
     end;
+#endif    
 
     local procedure CreateCustomer(): Code[20]
     var
@@ -163,6 +169,7 @@ codeunit 144039 "ERM Sales Report GB"
         StatementRequestPage.SaveAsPdf(FileNameVar);
     end;
 
+#if not CLEAN27
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure OrderConfirmationGBRequestPageHandler(var OrderConfirmationGB: TestRequestPage "Order Confirmation GB")
@@ -177,5 +184,6 @@ codeunit 144039 "ERM Sales Report GB"
         SalesHeader."External Document No." := LibraryUtility.GenerateGUID();
         SalesHeader.Insert();
     end;
+#endif    
 }
 

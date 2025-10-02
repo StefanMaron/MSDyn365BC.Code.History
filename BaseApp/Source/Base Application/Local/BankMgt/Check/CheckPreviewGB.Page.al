@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN27
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -18,6 +19,9 @@ page 10510 "Check Preview GB"
     Editable = false;
     PageType = Card;
     SourceTable = "Gen. Journal Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This page is deprecated and will be removed in future release';
+    ObsoleteTag = '27.0';
 
     layout
     {
@@ -165,4 +169,4 @@ page 10510 "Check Preview GB"
         CheckAmountText := DelChr(CheckAmountText, '=', '.');
     end;
 }
-
+#endif

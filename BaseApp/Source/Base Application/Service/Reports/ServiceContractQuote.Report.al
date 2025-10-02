@@ -387,7 +387,8 @@ report 5972 "Service Contract Quote"
 
     requestpage
     {
-
+        AboutTitle = 'About Service Contract Quote';
+        AboutText = 'Generate a service contract quote that you can send to your customer.';
         layout
         {
             area(content)

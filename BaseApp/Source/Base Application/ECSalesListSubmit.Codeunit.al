@@ -1,7 +1,11 @@
+#if not CLEAN27
+#pragma warning disable AA0247
 codeunit 142 "EC Sales List Submit"
 {
     TableNo = "VAT Report Header";
-
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to GovTalk app';
+    ObsoleteTag = '27.0';
     trigger OnRun()
     var
         GovTalkMessageParts: Record "GovTalk Message Parts";
@@ -98,4 +102,5 @@ codeunit 142 "EC Sales List Submit"
         GovTalkMessageParts.SetRange("VAT Report Config. Code", VATReportHeader."VAT Report Config. Code"::"EC Sales List");
     end;
 }
+#endif
 

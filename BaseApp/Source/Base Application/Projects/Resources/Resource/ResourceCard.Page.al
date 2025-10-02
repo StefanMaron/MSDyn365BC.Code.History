@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Projects.Resources.Resource;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.Resources.Resource;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Address;
@@ -177,14 +181,21 @@ page 76 "Resource Card"
             group("Personal Data")
             {
                 Caption = 'Personal Data';
+#if not CLEAN27
                 group(Control1040003)
                 {
                     ShowCaption = false;
                     Visible = IsAddressLookupTextEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Functionality has been moved to the GetAddress.io UK Postcodes.';
+                    ObsoleteTag = '27.0';
                     field(LookupAddress; LookupAddressLbl)
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Field has been moved to the GetAddress.io UK Postcodes.';
+                        ObsoleteTag = '27.0';
                         ShowCaption = false;
 
                         trigger OnDrillDown()
@@ -193,6 +204,7 @@ page 76 "Resource Card"
                         end;
                     }
                 }
+#endif
                 field("Job Title"; Rec."Job Title")
                 {
                     ApplicationArea = Jobs;
@@ -202,13 +214,14 @@ page 76 "Resource Card"
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the address or location of the resource, if applicable.';
-
+#if not CLEAN27
                     trigger OnValidate()
                     var
                         PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
                     begin
                         PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
                     end;
+#endif
                 }
                 field("Address 2"; Rec."Address 2")
                 {
@@ -235,7 +248,7 @@ page 76 "Resource Card"
                     ApplicationArea = Jobs;
                     Importance = Promoted;
                     ToolTip = 'Specifies the postal code.';
-
+#if not CLEAN27
                     trigger OnValidate()
                     var
                         PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
@@ -243,6 +256,7 @@ page 76 "Resource Card"
                         PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
                         ShowPostcodeLookup(false);
                     end;
+#endif
                 }
                 field("Country/Region Code"; Rec."Country/Region Code")
                 {
@@ -1044,8 +1058,9 @@ page 76 "Resource Card"
             if Rec."No." <> xRec."No." then
                 CRMIntegrationManagement.SendResultNotification(Rec);
         end;
-
+#if not CLEAN27
         HandleAddressLookupVisibility();
+#endif
     end;
 
     trigger OnOpenPage()
@@ -1068,11 +1083,15 @@ page 76 "Resource Card"
         CRMIsCoupledToRecord: Boolean;
         BlockedFilterApplied: Boolean;
         ExtendedPriceEnabled: Boolean;
+#if not CLEAN27
         LookupAddressLbl: Label 'Lookup address from postcode';
         IsAddressLookupTextEnabled: Boolean;
+#endif        
         NoFieldVisible: Boolean;
         IsCountyVisible: Boolean;
 
+#if not CLEAN27
+    [Obsolete('Functionality has been moved to the GetAddress.io UK Postcodes.', '27.0')]
     local procedure ShowPostcodeLookup(ShowInputFields: Boolean)
     var
         TempEnteredAutocompleteAddress: Record "Autocomplete Address" temporary;
@@ -1114,6 +1133,7 @@ page 76 "Resource Card"
         else
             IsAddressLookupTextEnabled := PostcodeBusinessLogic.SupportedCountryOrRegionCode(Rec."Country/Region Code");
     end;
+#endif
 
     local procedure SetNoFieldVisible()
     var

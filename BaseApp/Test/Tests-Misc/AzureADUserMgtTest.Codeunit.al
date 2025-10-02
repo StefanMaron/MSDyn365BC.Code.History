@@ -510,22 +510,6 @@ codeunit 132907 AzureADUserMgtTest
             MockGraphQueryTestLibrary.AddSubscribedSkuWithServicePlan(CreateGuid(), Plan.Plan_ID, Plan.Plan_Name);
     end;
 
-    local procedure CreateUserWithPlan(var User: Record User; PlanID: Guid)
-    var
-        UsersCreateSuperUser: Codeunit "Users - Create Super User";
-        Plan: Query Plan;
-    begin
-        CODEUNIT.Run(CODEUNIT::"Users - Create Super User");
-        LibraryPermissions.CreateAzureActiveDirectoryUser(User, 'Test User');
-        UsersCreateSuperUser.AddUserAsSuper(User);
-
-        Plan.SetRange(Plan_ID, PlanID);
-        Plan.Open();
-        Plan.Read();
-
-        MockGraphQueryTestLibrary.AddGraphUser(GetUserAuthenticationId(User), User."User Name", '', '', Plan.Plan_ID, Plan.Plan_Name, 'Enabled');
-    end;
-
     local procedure InsertUserProperty(UserSecurityId: Guid)
     var
         UserProperty: Record "User Property";
@@ -585,7 +569,7 @@ codeunit 132907 AzureADUserMgtTest
     var
         IsUserTenantAdmin: Boolean;
     begin
-        // [GIVEN] A user corresponding to the current user exists in the Azure AD Graph, 
+        // [GIVEN] A user corresponding to the current user exists in the Azure AD Graph,
         // but the user does not have any roles
         MockGraphQueryTestLibrary.AddGraphUser(UserSecurityId(), 'username', 'surname', 'email@microsoft.com',
             CreateGuid(), 'Plan Service', 'Status');
@@ -688,7 +672,7 @@ codeunit 132907 AzureADUserMgtTest
     begin
         Initialize();
 
-        // [GIVEN] An Azure AD Graph User without a corresponding User record and that is not 
+        // [GIVEN] An Azure AD Graph User without a corresponding User record and that is not
         // entitled from service plan
         UserId := CreateGuid();
         MockGraphQueryTestLibrary.AddGraphUser(GraphUser, UserId, 'username', 'surname', 'email@microsoft.com',
@@ -703,4 +687,3 @@ codeunit 132907 AzureADUserMgtTest
         TearDown();
     end;
 }
-

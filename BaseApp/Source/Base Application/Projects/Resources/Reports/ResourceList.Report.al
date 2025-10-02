@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Projects.Resources.Resource;
 
 using Microsoft.Finance.Dimension;
@@ -71,7 +75,8 @@ report 1101 "Resource - List"
 
     requestpage
     {
-
+        AboutTitle = 'About Resource - List';
+        AboutText = 'Get an overview of basic information for your resources.';
         layout
         {
         }

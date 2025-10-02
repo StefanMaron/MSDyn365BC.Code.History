@@ -107,7 +107,11 @@ table 233 "Item Journal Batch"
                     exit;
                 ItemJnlTemplate.Get("Journal Template Name");
 
-                if not (ItemJnlTemplate.Type in ["Item Journal Template Type"::Item, "Item Journal Template Type"::Output, "Item Journal Template Type"::Consumption]) then
+                if not (ItemJnlTemplate.Type in [
+                                                "Item Journal Template Type"::Item,
+                                                ItemJnlTemplate.GetOutputTemplateType(),
+                                                ItemJnlTemplate.GetConsumptionTemplateType()])
+                then
                     ItemJnlTemplate.FieldError(Type, ItemJournalTemplateTypeErrorLbl);
 
                 ItemJnlTemplate.TestField(Recurring, false);

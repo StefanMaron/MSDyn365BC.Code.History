@@ -117,6 +117,7 @@ table 1382 "Item Templ."
         field(16; "Statistics Group"; Integer)
         {
             Caption = 'Statistics Group';
+            ToolTip = 'Specifies the statistics group.';
 
             trigger OnValidate()
             begin
@@ -744,6 +745,15 @@ table 1382 "Item Templ."
                 ValidateItemField(FieldNo("Safety Lead Time"));
             end;
         }
+        field(5417; "Flushing Method"; Enum Microsoft.Manufacturing.Setup."Flushing Method")
+        {
+            Caption = 'Flushing Method';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Flushing Method"));
+            end;
+        }
         field(5419; "Replenishment System"; Enum "Replenishment System")
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
@@ -1017,15 +1027,57 @@ table 1382 "Item Templ."
                 ValidateItemField(FieldNo("Overhead Rate"));
             end;
         }
+        field(99000773; "Order Tracking Policy"; Enum "Order Tracking Policy")
+        {
+            Caption = 'Order Tracking Policy';
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Order Tracking Policy"));
+            end;
+        }
+        field(99000875; Critical; Boolean)
+        {
+            Caption = 'Critical';
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo(Critical));
+            end;
+        }
+        field(99008500; "Common Item No."; Code[20])
+        {
+            Caption = 'Common Item No.';
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Common Item No."));
+            end;
+        }
+#if not CLEANSCHEMA30
         field(10500; "Reverse Charge Applies"; Boolean)
         {
             Caption = 'Reverse Charge Applies';
+            ObsoleteReason = 'Moved to Reverse Charge VAT GB app';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
 
+#if not CLEAN27
             trigger OnValidate()
             begin
                 ValidateItemField(FieldNo("Reverse Charge Applies"));
             end;
+#endif
         }
+#endif
     }
 
     keys

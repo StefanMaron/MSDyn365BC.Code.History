@@ -1,8 +1,9 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Consolidation;
 
-#if not CLEAN24
-using Microsoft.Finance.Currency;
-#endif
 using System.Environment;
 using System.Telemetry;
 
@@ -229,85 +230,6 @@ page 241 "Business Unit Card"
                     Rec.Modify();
                 end;
             }
-#if not CLEAN24
-            group("E&xch. Rates")
-            {
-                Caption = 'E&xch. Rates';
-                Image = ManualExchangeRate;
-                Visible = false;
-                ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-                action("Average Rate (Manual)")
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Average Rate (Manual)';
-                    Ellipsis = true;
-                    Image = ManualExchangeRate;
-                    ToolTip = 'Manage exchange rate calculations.';
-                    Visible = false;
-                    ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-
-                    trigger OnAction()
-                    begin
-                        ChangeExchangeRate.SetCaption(Text000);
-                        ChangeExchangeRate.SetParameter(Rec."Currency Code", Rec."Income Currency Factor", WorkDate());
-                        if ChangeExchangeRate.RunModal() = ACTION::OK then begin
-                            Rec."Income Currency Factor" := ChangeExchangeRate.GetParameter();
-                            Rec.Modify();
-                        end;
-                        Clear(ChangeExchangeRate);
-                    end;
-                }
-                action("Closing Rate")
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Closing Rate';
-                    Ellipsis = true;
-                    Image = Close;
-                    ToolTip = 'The currency exchange rate that is valid on the date that the balance sheet or income statement is prepared.';
-                    Visible = false;
-                    ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-
-                    trigger OnAction()
-                    begin
-                        ChangeExchangeRate.SetCaption(Text001);
-                        ChangeExchangeRate.SetParameter(Rec."Currency Code", Rec."Balance Currency Factor", WorkDate());
-                        if ChangeExchangeRate.RunModal() = ACTION::OK then begin
-                            Rec."Balance Currency Factor" := ChangeExchangeRate.GetParameter();
-                            Rec.Modify();
-                        end;
-                        Clear(ChangeExchangeRate);
-                    end;
-                }
-                action("Last Closing Rate")
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Last Closing Rate';
-                    Image = Close;
-                    ToolTip = 'The rate that was used in the last balance sheet closing.';
-                    Visible = false;
-                    ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-
-                    trigger OnAction()
-                    begin
-                        ChangeExchangeRate.SetCaption(Text002);
-                        ChangeExchangeRate.SetParameter(Rec."Currency Code", Rec."Last Balance Currency Factor", WorkDate());
-                        if ChangeExchangeRate.RunModal() = ACTION::OK then begin
-                            Rec."Last Balance Currency Factor" := ChangeExchangeRate.GetParameter();
-                            Rec.Modify();
-                        end;
-                        Clear(ChangeExchangeRate);
-                    end;
-                }
-            }
-#endif
             group("&Reports")
             {
                 Caption = '&Reports';
@@ -416,38 +338,6 @@ page 241 "Business Unit Card"
             actionref(ConfigureExchangeRates_Promoted; ConfigureExchangeRates)
             {
             }
-#if not CLEAN24
-            group(Category_Category4)
-            {
-                Caption = 'Exch. Rates', Comment = 'Generated from the PromotedActionCategories property index 3.';
-                Visible = false;
-                ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-
-                actionref("Average Rate (Manual)_Promoted"; "Average Rate (Manual)")
-                {
-                    Visible = false;
-                    ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-                }
-                actionref("Closing Rate_Promoted"; "Closing Rate")
-                {
-                    Visible = false;
-                    ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-                }
-                actionref("Last Closing Rate_Promoted"; "Last Closing Rate")
-                {
-                    Visible = false;
-                    ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-                }
-            }
-#endif
             group(Category_Report)
             {
                 Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
@@ -456,14 +346,6 @@ page 241 "Business Unit Card"
     }
 
     var
-#if not CLEAN24
-        ChangeExchangeRate: Page "Change Exchange Rate";
-#pragma warning disable AA0074
-        Text000: Label 'Average Rate (Manual)';
-        Text001: Label 'Closing Rate';
-        Text002: Label 'Last Closing Rate';
-#pragma warning restore AA0074
-#endif
         UrlOfBCInstanceInvalidErr: Label 'The URL of the Business Central business unit is invalid. You can get this URL from the page "Consolidation Setup" in the other Business Central environment.';
         ConfirmRunInAPIBusinessUnitMsg: Label 'The current business unit is not set up to import data from another Business Central company in the same environment. Do you want to continue?';
         APISettingsVisible: Boolean;
@@ -486,4 +368,3 @@ page 241 "Business Unit Card"
     end;
 
 }
-

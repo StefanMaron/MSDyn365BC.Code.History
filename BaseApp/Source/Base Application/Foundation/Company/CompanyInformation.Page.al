@@ -26,6 +26,7 @@ using System.Environment.Configuration;
 using System.Globalization;
 using System.Security.AccessControl;
 using System.Security.User;
+using System.Telemetry;
 
 page 1 "Company Information"
 {
@@ -45,14 +46,21 @@ page 1 "Company Information"
             group(General)
             {
                 Caption = 'General';
+#if not CLEAN27
                 group(Control1040003)
                 {
                     ShowCaption = false;
                     Visible = IsAddressLookupTextEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Functionality has been moved to the GetAddress.io UK Postcodes.';
+                    ObsoleteTag = '27.0';
                     field(LookupAddress; LookupAddressLbl)
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Field has been moved to the GetAddress.io UK Postcodes.';
+                        ObsoleteTag = '27.0';
                         ShowCaption = false;
 
                         trigger OnDrillDown()
@@ -61,6 +69,7 @@ page 1 "Company Information"
                         end;
                     }
                 }
+#endif
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
@@ -72,13 +81,14 @@ page 1 "Company Information"
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the company''s address.';
-
+#if not CLEAN27
                     trigger OnValidate()
                     var
                         PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
                     begin
                         PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
                     end;
+#endif
                 }
                 field("Address 2"; Rec."Address 2")
                 {
@@ -107,7 +117,7 @@ page 1 "Company Information"
                     Importance = Promoted;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the postal code.';
-
+#if not CLEAN27
                     trigger OnValidate()
                     var
                         PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
@@ -115,6 +125,7 @@ page 1 "Company Information"
                         PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
                         ShowPostcodeLookup(false, AddressTok);
                     end;
+#endif
                 }
                 field("Country/Region Code"; Rec."Country/Region Code")
                 {
@@ -125,7 +136,9 @@ page 1 "Company Information"
                     trigger OnValidate()
                     begin
                         CountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+#if not CLEAN27
                         HandleAddressLookupVisibility();
+#endif
                     end;
                 }
                 field("Contact Person"; Rec."Contact Person")
@@ -177,6 +190,14 @@ page 1 "Company Information"
                     Importance = Additional;
                     ToolTip = 'Specifies the company''s industrial classification code.';
                 }
+#if CLEAN27
+                field("Registration No."; Rec."Registration No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the company''s registration number. You can enter a maximum of 20 characters, both numbers and letters.';
+                }
+#endif
                 field(Picture; Rec.Picture)
                 {
                     ApplicationArea = Basic, Suite;
@@ -300,15 +321,22 @@ page 1 "Company Information"
             group(Shipping)
             {
                 Caption = 'Shipping';
+#if not CLEAN27                
                 group(Control1040016)
                 {
                     ShowCaption = false;
                     Visible = IsShipToAddressLookupTextEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Functionality has been moved to the GetAddress.io UK Postcodes.';
+                    ObsoleteTag = '27.0';
                     field(ShipToLookupAddress; LookupAddressLbl)
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
                         ShowCaption = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Field has been moved to the GetAddress.io UK Postcodes.';
+                        ObsoleteTag = '27.0';
 
                         trigger OnDrillDown()
                         begin
@@ -316,6 +344,7 @@ page 1 "Company Information"
                         end;
                     }
                 }
+#endif                
                 field("Ship-to Name"; Rec."Ship-to Name")
                 {
                     ApplicationArea = Basic, Suite;
@@ -359,7 +388,9 @@ page 1 "Company Information"
 
                     trigger OnValidate()
                     begin
+#if not CLEAN27
                         HandleAddressLookupVisibility();
+#endif
                         IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
                     end;
                 }
@@ -420,57 +451,89 @@ page 1 "Company Information"
                     ToolTip = 'Specifies how dates based on calendar and calendar-related documents are calculated.';
                 }
             }
+#if not CLEAN27            
             group(Statutory)
             {
                 Caption = 'Statutory';
+                ObsoleteReason = 'Moved to GovTalk app';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
                 field("Registration No."; Rec."Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the company''s registration number. You can enter a maximum of 20 characters, both numbers and letters.';
+                    ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Registered Name"; Rec."Registered Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company''s registered name.';
+                    ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Registered Address"; Rec."Registered Address")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company''s registered address.';
+                    ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Registered Address 2"; Rec."Registered Address 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an additional part of the company''s registered address.';
+                    ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Registered City"; Rec."Registered City")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company''s city.';
+                    ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Registered County"; Rec."Registered County")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the county of the company''s registered address.';
+                    ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Registered Post Code"; Rec."Registered Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company''s registered postal code.';
+                    ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Branch Number"; Rec."Branch Number")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the three-digit numeric branch number.';
+                    ObsoleteReason = 'Moved to GovTalk app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Contact Name"; Rec."Contact Person")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Contact Name';
                     ToolTip = 'Specifies the name of the contact person in your company.';
+                    ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
             }
+#endif            
             group("System Indicator")
             {
                 Caption = 'Company Badge';
@@ -787,11 +850,14 @@ page 1 "Company Information"
     trigger OnAfterGetCurrRecord()
     begin
         UpdateSystemIndicator();
+#if not CLEAN27
         HandleAddressLookupVisibility();
+#endif
     end;
 
     trigger OnClosePage()
     var
+        AuditLog: Codeunit "Audit Log";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         if ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(Experience) then
@@ -799,7 +865,7 @@ page 1 "Company Information"
 
         if SystemIndicatorChanged then begin
             Message(CompanyBadgeRefreshPageTxt);
-            Session.LogAuditMessage(StrSubstNo(CompanyBadgeChangedLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
+            AuditLog.LogAuditMessage(StrSubstNo(CompanyBadgeChangedLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
             RestartSession();
         end;
     end;
@@ -836,14 +902,18 @@ page 1 "Company Information"
         SystemIndicatorTextEditable: Boolean;
         IBANMissing: Boolean;
         BankBranchNoOrAccountNoMissing: Boolean;
+#if not CLEAN27        
         IsAddressLookupTextEnabled: Boolean;
         IsShipToAddressLookupTextEnabled: Boolean;
+#endif 
         BankAcctPostingGroup: Code[20];
         CountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+#if not CLEAN27        
         LookupAddressLbl: Label 'Lookup address from postocde';
         AddressTok: Label 'ADDRESS', Locked = true;
         ShipToTok: Label 'SHIP-TO', Locked = true;
+#endif        
         CompanyBadgeRefreshPageTxt: Label 'The Company Badge settings have changed. Refresh the browser (Ctrl+F5) to update the badge.';
         CompanyBadgeChangedLbl: Label 'The Company badge settings have changed by UserSecurityId %1.', Locked = true;
 
@@ -881,6 +951,8 @@ page 1 "Company Information"
         IBANMissing := Rec.IBAN = ''
     end;
 
+#if not CLEAN27
+    [Obsolete('Functionality has been moved to the GetAddress.io UK Postcodes.', '27.0')]
     local procedure ShowPostcodeLookup(ShowInputFields: Boolean; Group: Text)
     var
         TempEnteredAutocompleteAddress: Record "Autocomplete Address" temporary;
@@ -953,6 +1025,7 @@ page 1 "Company Information"
             IsShipToAddressLookupTextEnabled := PostcodeBusinessLogic.SupportedCountryOrRegionCode(Rec."Ship-to Country/Region Code");
         end;
     end;
+#endif
 
     local procedure RestartSession()
     var

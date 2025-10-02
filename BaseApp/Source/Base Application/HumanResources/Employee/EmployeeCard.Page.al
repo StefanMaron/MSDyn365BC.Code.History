@@ -1,4 +1,8 @@
-﻿namespace Microsoft.HumanResources.Employee;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.HumanResources.Employee;
 
 using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Contact;
@@ -9,6 +13,7 @@ using Microsoft.HumanResources.Absence;
 using Microsoft.HumanResources.Analysis;
 using Microsoft.HumanResources.Comment;
 using Microsoft.HumanResources.Payables;
+using Microsoft.HumanResources.Setup;
 using Microsoft.Utilities;
 using System.Email;
 
@@ -69,7 +74,6 @@ page 5200 "Employee Card"
                 field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the value of the the employee''s balance.';
                 }
                 field("Search Name"; Rec."Search Name")
                 {
@@ -93,6 +97,21 @@ page 5200 "Employee Card"
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the employee''s email address at the company.';
                 }
+                field("Board Member"; Rec."Board Member")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Board Member field.';
+                }
+                field("Manager Role"; Rec."Manager Role")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Manager Role field.';
+                }
+                field(Nationality; Rec.Nationality)
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Nationality field.';
+                }
                 field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = BasicHR;
@@ -112,15 +131,22 @@ page 5200 "Employee Card"
                 group(Control13)
                 {
                     ShowCaption = false;
+#if not CLEAN27
                     group(Control1040007)
                     {
                         ShowCaption = false;
                         Visible = IsAddressLookupTextEnabled;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Functionality has been moved to the GetAddress.io UK Postcodes.';
+                        ObsoleteTag = '27.0';
                         field(LookupAddress; LookupAddressLbl)
                         {
                             ApplicationArea = BasicHR;
                             Editable = false;
                             ShowCaption = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Field has been moved to the GetAddress.io UK Postcodes.';
+                            ObsoleteTag = '27.0';
 
                             trigger OnDrillDown()
                             begin
@@ -128,17 +154,19 @@ page 5200 "Employee Card"
                             end;
                         }
                     }
+#endif
                     field(Address; Rec.Address)
                     {
                         ApplicationArea = BasicHR;
                         ToolTip = 'Specifies the employee''s address.';
-
+#if not CLEAN27
                         trigger OnValidate()
                         var
                             PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
                         begin
                             PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
                         end;
+#endif
                     }
                     field("Address 2"; Rec."Address 2")
                     {
@@ -165,7 +193,7 @@ page 5200 "Employee Card"
                         ApplicationArea = BasicHR;
                         Importance = Promoted;
                         ToolTip = 'Specifies the postal code.';
-
+#if not CLEAN27
                         trigger OnValidate()
                         var
                             PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
@@ -173,6 +201,7 @@ page 5200 "Employee Card"
                             PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
                             ShowPostcodeLookup(false);
                         end;
+#endif
                     }
                     field("Country/Region Code"; Rec."Country/Region Code")
                     {
@@ -182,7 +211,9 @@ page 5200 "Employee Card"
                         trigger OnValidate()
                         begin
                             IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+#if not CLEAN27
                             HandleAddressLookupVisibility();
+#endif
                         end;
                     }
                     field(ShowMap; ShowMapLbl)
@@ -308,6 +339,16 @@ page 5200 "Employee Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a salesperson or purchaser code for the employee.';
                 }
+                field("Engagement Type"; Rec."Engagement Type")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Engagement Type field.';
+                }
+                field("Collective Bargain. Agmt. Info"; Rec."Collective Bargain. Agmt. Info")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Collective Bargaining Agreement Info field.';
+                }
             }
             group(Personal)
             {
@@ -344,6 +385,12 @@ page 5200 "Employee Card"
                     LookupPageID = "Employee Posting Groups";
                     ToolTip = 'Specifies the employee''s type to link business transactions made for the employee with the appropriate account in the general ledger.';
                 }
+                field("Allow Multiple Posting Groups"; Rec."Allow Multiple Posting Groups")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    Visible = IsAllowMultiplePostingGroupsVisible;
+                }
                 field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = BasicHR;
@@ -374,6 +421,35 @@ page 5200 "Employee Card"
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the SWIFT code (international bank identifier code) of the bank where the employee has the account.';
+                }
+            }
+            group("Payroll")
+            {
+                Caption = 'Payroll';
+                field("Emp. Payroll"; Rec.Payroll)
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Payroll field.';
+                }
+                field("Payroll Currency Code"; Rec."Payroll Currency Code")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Payroll Currency Code field.';
+                }
+                field("Payroll (LCY)"; Rec."Payroll (LCY)")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Payroll (LCY) field.';
+                }
+                field("Working Type"; Rec."Working Type")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Working Type field.';
+                }
+                field("Working Hours"; Rec."Working Hours")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Working Hours field.';
                 }
             }
         }
@@ -743,6 +819,8 @@ page 5200 "Employee Card"
     begin
         SetNoFieldVisible();
         IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+        HumanResourcesSetup.Get();
+        IsAllowMultiplePostingGroupsVisible := HumanResourcesSetup."Allow Multiple Posting Groups";
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -760,7 +838,9 @@ page 5200 "Employee Card"
         Employee: Record Employee;
         EmployeeTemplMgt: Codeunit "Employee Templ. Mgt.";
     begin
+#if not CLEAN27
         HandleAddressLookupVisibility();
+#endif
 
         if not NewMode then
             exit;
@@ -775,12 +855,16 @@ page 5200 "Employee Card"
     end;
 
     var
+        HumanResourcesSetup: Record "Human Resources Setup";
         FormatAddress: Codeunit "Format Address";
         NoFieldVisible: Boolean;
         IsCountyVisible: Boolean;
         NewMode: Boolean;
+#if not CLEAN27         
         IsAddressLookupTextEnabled: Boolean;
         LookupAddressLbl: Label 'Lookup address from postcode';
+#endif        
+        IsAllowMultiplePostingGroupsVisible: Boolean;
 
         ShowMapLbl: Label 'Show on Map';
 
@@ -791,6 +875,8 @@ page 5200 "Employee Card"
         NoFieldVisible := DocumentNoVisibility.EmployeeNoIsVisible();
     end;
 
+#if not CLEAN27
+    [Obsolete('Functionality has been moved to the GetAddress.io UK Postcodes.', '27.0')]
     local procedure ShowPostcodeLookup(ShowInputFields: Boolean)
     var
         TempEnteredAutocompleteAddress: Record "Autocomplete Address" temporary;
@@ -832,5 +918,6 @@ page 5200 "Employee Card"
         else
             IsAddressLookupTextEnabled := PostcodeBusinessLogic.SupportedCountryOrRegionCode(Rec."Country/Region Code");
     end;
+#endif
 }
 

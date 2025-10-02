@@ -24,6 +24,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryReportValidation: Codeunit "Library - Report Validation";
+        LibraryService: Codeunit "Library - Service";
         IsInitialized: Boolean;
         DocumentNoFilterText: Text[250];
         EmptyDateFormula: DateFormula;
@@ -286,7 +287,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
 
     local procedure CreateServiceOrder(var ServiceHeader: Record "Service Header"; DocumentDate: Date; PaymentTermsCode: Code[10])
     begin
-        LibraryCFHelper.CreateSpecificServiceOrder(ServiceHeader, '', PaymentTermsCode);
+        LibraryService.CreateSpecificServiceOrder(ServiceHeader, '', PaymentTermsCode);
         ServiceHeader.Validate("Document Date", DocumentDate);
         ServiceHeader.Modify(true);
     end;

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.Customer;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Customer;
 
 using Microsoft.Bank.DirectDebit;
 using Microsoft.Bank.Payment;
@@ -221,6 +225,11 @@ page 21 "Customer Card"
                     Importance = Additional;
                     Visible = false;
                 }
+                field("Statistics Group"; Rec."Statistics Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
             }
             group("Address & Contact")
             {
@@ -228,14 +237,21 @@ page 21 "Customer Card"
                 group(AddressDetails)
                 {
                     Caption = 'Address';
+#if not CLEAN27
                     group(Control1040004)
                     {
                         ShowCaption = false;
                         Visible = IsAddressLookupTextEnabled;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Functionality has been moved to the GetAddress.io UK Postcodes.';
+                        ObsoleteTag = '27.0';
                         field(LookupAddress; LookupAddressLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Editable = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Field has been moved to the GetAddress.io UK Postcodes.';
+                            ObsoleteTag = '27.0';
                             ShowCaption = false;
 
                             trigger OnDrillDown()
@@ -244,16 +260,18 @@ page 21 "Customer Card"
                             end;
                         }
                     }
+#endif
                     field(Address; Rec.Address)
                     {
                         ApplicationArea = Basic, Suite;
-
+#if not CLEAN27
                         trigger OnValidate()
                         var
                             PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
                         begin
                             PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
                         end;
+#endif
                     }
                     field("Address 2"; Rec."Address 2")
                     {
@@ -265,7 +283,9 @@ page 21 "Customer Card"
                         trigger OnValidate()
                         begin
                             IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+#if not CLEAN27
                             HandleAddressLookupVisibility();
+#endif
                         end;
                     }
                     field(City; Rec.City)
@@ -285,7 +305,7 @@ page 21 "Customer Card"
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Promoted;
-
+#if not CLEAN27
                         trigger OnValidate()
                         var
                             PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
@@ -293,6 +313,7 @@ page 21 "Customer Card"
                             PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
                             ShowPostcodeLookup(false);
                         end;
+#endif
                     }
                     field(ShowMap; ShowMapLbl)
                     {
@@ -361,7 +382,7 @@ page 21 "Customer Card"
                         Importance = Promoted;
                         trigger OnValidate()
                         begin
-                            ContactOnAfterValidate();
+                            ActivateFields();
                         end;
                     }
                 }
@@ -642,6 +663,31 @@ page 21 "Customer Card"
                 Caption = 'Statistics';
                 Editable = false;
                 Visible = FoundationOnly;
+                group(GeneralStats)
+                {
+                    Caption = 'General';
+                    field(CustomerSince; Rec."First Transaction Date")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Customer Since';
+                        ToolTip = 'Specifies the date when the first transaction with the customer was recorded.';
+                        Importance = Additional;
+                    }
+                    field(DaysSinceLastSale; DaysSinceLastSale)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Days Since Last Sale';
+                        ToolTip = 'Specifies the number of days since you last had a sale to the customer.';
+                        Importance = Additional;
+                    }
+                    field(DistinctItemsSold; DistinctItemsSold)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Distinct Items Sold';
+                        ToolTip = 'Specifies the number of distinct items that you have sold to the customer in the current fiscal year.';
+                        Importance = Additional;
+                    }
+                }
                 group(Balance)
                 {
                     Caption = 'Balance';
@@ -742,6 +788,63 @@ page 21 "Customer Card"
                         StyleExpr = AttentionToPaidDay;
                         ToolTip = 'Specifies the average number of days the customer is late with payments. The value is calculated asynchronously so there might be a delay in updating this field.';
                     }
+                    field(PaidLateCount; PaidLateCount)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Invoices Paid Late';
+                        ToolTip = 'Specifies the number of invoices that were paid late by the customer in the current fiscal year.';
+                        Importance = Additional;
+                    }
+
+                    field(PaidOnTimeCount; PaidOnTimeCount)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Invoices Paid On Time';
+                        ToolTip = 'Specifies the number of invoices that were paid on time by the customer in the current fiscal year.';
+                        Importance = Additional;
+                    }
+
+                    field(PercentPaidLate; PercentPaidLate)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Percent Paid Late';
+                        ToolTip = 'Specifies the percentage of invoices that were paid late by the customer in the current fiscal year.';
+                        Importance = Additional;
+                        DecimalPlaces = 1 : 2;
+                    }
+
+                    field(OverdueCount; OverdueCount)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Overdue Payments Count';
+                        ToolTip = 'Specifies the number of overdue payments for the customer in the current fiscal year.';
+                        Importance = Additional;
+                    }
+
+                    field(LastPaymentDate; LastPaymentDate)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Last Payment Receipt Date';
+                        ToolTip = 'Specifies the date of the last payment received from the customer.';
+                        Importance = Additional;
+                    }
+
+                    field(LastPaymentAmount; LastPaymentAmount)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Last Payment Amount';
+                        ToolTip = 'Specifies the amount of the last payment received from the customer.';
+                        Importance = Additional;
+                        AutoFormatType = 1;
+                        AutoFormatExpression = '';
+                    }
+                    field(LastPaymentOnTime; LastPaymentOnTime)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Last Payment On Time';
+                        ToolTip = 'Specifies whether the last payment was applied before the due date.';
+                        Importance = Additional;
+                    }
                 }
                 group("Sales This Year")
                 {
@@ -803,6 +906,38 @@ page 21 "Customer Card"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Invoice Discounts';
                         ToolTip = 'Specifies the total of all invoice discounts that you have granted to the customer in the current fiscal year.';
+                    }
+                }
+                group(Interactions)
+                {
+                    Caption = 'Interactions';
+                    field(InteractionCount; InteractionCount)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Interactions';
+                        ToolTip = 'Specifies the number of interactions that you have had with the customer in the current fiscal year.';
+                        Importance = Additional;
+                    }
+                    field(LastInteractionDate; LastInteractionDate)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Last Interaction Date';
+                        ToolTip = 'Specifies the date when you last had an interaction with the customer.';
+                        Importance = Additional;
+                    }
+                    field(LastInteractionType; LastInteractionType)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Last Interaction Type';
+                        ToolTip = 'Specifies the type of the last interaction that you had with the customer.';
+                        Importance = Additional;
+                    }
+                    field(MostFrequentInteractionType; MostFrequentInteractionType)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Most Frequent Interaction Type';
+                        ToolTip = 'Specifies the type of interaction that you have most frequently with the customer in the current fiscal year.';
+                        Importance = Additional;
                     }
                 }
                 part(AgedAccReceivableChart; "Aged Acc. Receivable Chart")
@@ -1185,6 +1320,15 @@ page 21 "Customer Card"
                                   "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                }
+                action(SalesPerPeriod)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Per Period';
+                    Image = Sales;
+                    RunObject = Page "Sales Stats. Per Period";
+                    RunPageLink = "Customer No. Filter" = field("No.");
+                    ToolTip = 'View sales information for the customer by period.';
                 }
                 action("S&ales")
                 {
@@ -2325,7 +2469,9 @@ page 21 "Customer Card"
             if OpenApprovalEntriesExist then
                 OpenApprovalEntriesExistCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(Rec.RecordId);
         end;
+#if not CLEAN27
         HandleAddressLookupVisibility();
+#endif
     end;
 
     trigger OnInit()
@@ -2343,7 +2489,7 @@ page 21 "Customer Card"
         SetCaption(CaptionTxt);
         CurrPage.Caption(CaptionTxt);
 
-        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(FlowServiceManagement.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -2376,6 +2522,7 @@ page 21 "Customer Card"
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         OfficeManagement: Codeunit "Office Management";
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
@@ -2385,7 +2532,8 @@ page 21 "Customer Card"
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
 
         OnBeforeGetSalesPricesAndSalesLineDisc(LoadOnDemand);
-        SetNoFieldVisible();
+
+        NoFieldVisible := DocumentNoVisibility.CustomerNoIsVisible();
 
         SalesReceivablesSetup.GetRecordOnce();
         IsAllowMultiplePostingGroupsVisible := SalesReceivablesSetup."Allow Multiple Posting Groups";
@@ -2445,6 +2593,19 @@ page 21 "Customer Card"
         LinkedVendorNo := '';
         BalanceAsVendor := 0;
         BalanceAsVendorEnabled := false;
+        PaidLateCount := 0;
+        PaidOnTimeCount := 0;
+        PercentPaidLate := 0;
+        OverdueCount := 0;
+        LastPaymentDate := 0D;
+        LastPaymentAmount := 0;
+        InteractionCount := 0;
+        LastInteractionDate := 0D;
+        LastInteractionType := '';
+        MostFrequentInteractionType := '';
+        DaysSinceLastSale := 0;
+        DistinctItemsSold := 0;
+        LastPaymentOnTime := true;
 
         Args.Add(CustomerCardCalculations.GetCustomerNoLabel(), Rec."No.");
         Args.Add(CustomerCardCalculations.GetFiltersLabel(), Rec.GetView());
@@ -2472,6 +2633,45 @@ page 21 "Customer Card"
 
             if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetAvgDaysToPayLabel(), DictionaryValue) then
                 Evaluate(AvgDaysToPay, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetPaidLateCountLabel(), DictionaryValue) then
+                Evaluate(PaidLateCount, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetPaidOnTimeCountLabel(), DictionaryValue) then
+                Evaluate(PaidOnTimeCount, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetPercentPaidLateLabel(), DictionaryValue) then
+                Evaluate(PercentPaidLate, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetOverdueCountLabel(), DictionaryValue) then
+                Evaluate(OverdueCount, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetLastPaymentDateLabel(), DictionaryValue) then
+                Evaluate(LastPaymentDate, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetLastPaymentAmountLabel(), DictionaryValue) then
+                Evaluate(LastPaymentAmount, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetLastPaymentOnTimeLabel(), DictionaryValue) then
+                Evaluate(LastPaymentOnTime, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetDaysSinceLastSaleLabel(), DictionaryValue) then
+                Evaluate(DaysSinceLastSale, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetDistinctItemsSoldLabel(), DictionaryValue) then
+                Evaluate(DistinctItemsSold, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetInteractionCountLabel(), DictionaryValue) then
+                Evaluate(InteractionCount, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetLastInteractionDateLabel(), DictionaryValue) then
+                Evaluate(LastInteractionDate, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetLastInteractionTypeLabel(), DictionaryValue) then
+                Evaluate(LastInteractionType, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetMostFrequentInteractionTypeLabel(), DictionaryValue) then
+                Evaluate(MostFrequentInteractionType, DictionaryValue);
 
             if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetAmountOnPostedInvoicesLabel(), DictionaryValue) then
                 Evaluate(AmountOnPostedInvoices, DictionaryValue);
@@ -2546,7 +2746,7 @@ page 21 "Customer Card"
         CustomerMgt: Codeunit "Customer Mgt.";
         FormatAddress: Codeunit "Format Address";
         PrivacyNotice: Codeunit "Privacy Notice";
-        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
+        FlowServiceManagement: Codeunit "Flow Service Management";
         LinkedVendorNo: Code[20];
         BalanceAsVendor: Decimal;
         StyleTxt: Text;
@@ -2561,7 +2761,9 @@ page 21 "Customer Card"
         ShowWorkflowStatus: Boolean;
         NoFieldVisible: Boolean;
         BalanceExhausted: Boolean;
+#if not CLEAN27        
         IsAddressLookupTextEnabled: Boolean;
+#endif        
         Totals: Decimal;
         AmountOnPostedInvoices: Decimal;
         AmountOnPostedCrMemos: Decimal;
@@ -2576,6 +2778,19 @@ page 21 "Customer Card"
         CustSalesLCY: Decimal;
         OverdueBalance: Decimal;
         OverduePaymentsMsg: Label 'Overdue Payments';
+        PaidLateCount: Integer;
+        PaidOnTimeCount: Integer;
+        PercentPaidLate: Decimal;
+        OverdueCount: Integer;
+        LastPaymentDate: Date;
+        LastPaymentAmount: Decimal;
+        LastPaymentOnTime: Boolean;
+        InteractionCount: Integer;
+        LastInteractionDate: Date;
+        LastInteractionType: Text[100];
+        MostFrequentInteractionType: Text[100];
+        DaysSinceLastSale: Integer;
+        DistinctItemsSold: Integer;
 #pragma warning disable AA0470
         PostedInvoicesMsg: Label 'Posted Invoices (%1)', Comment = 'Invoices (5)';
         CreditMemosMsg: Label 'Posted Credit Memos (%1)', Comment = 'Credit Memos (3)';
@@ -2594,7 +2809,9 @@ page 21 "Customer Card"
         EnabledApprovalWorkflowsExist: Boolean;
         AnyWorkflowExists: Boolean;
         NewMode: Boolean;
+#if not CLEAN27        
         LookupAddressLbl: Label 'Lookup address from postcode';
+#endif        
         WorkFlowEventFilter: Text;
         CaptionTxt: Text;
         CanRequestApprovalForFlow: Boolean;
@@ -2661,18 +2878,6 @@ page 21 "Customer Card"
             exit(CalendarMgmt.CustomizedChangesExist(Rec));
     end;
 
-    local procedure ContactOnAfterValidate()
-    begin
-        ActivateFields();
-    end;
-
-    local procedure SetNoFieldVisible()
-    var
-        DocumentNoVisibility: Codeunit DocumentNoVisibility;
-    begin
-        NoFieldVisible := DocumentNoVisibility.CustomerNoIsVisible();
-    end;
-
     procedure RunReport(ReportNumber: Integer; CustomerNumber: Code[20])
     var
         Customer: Record Customer;
@@ -2719,6 +2924,8 @@ page 21 "Customer Card"
             end;
     end;
 
+#if not CLEAN27
+    [Obsolete('Functionality has been moved to the GetAddress.io UK Postcodes.', '27.0')]
     local procedure ShowPostcodeLookup(ShowInputFields: Boolean)
     var
         TempEnteredAutocompleteAddress: Record "Autocomplete Address" temporary;
@@ -2760,6 +2967,7 @@ page 21 "Customer Card"
         else
             IsAddressLookupTextEnabled := PostcodeBusinessLogic.SupportedCountryOrRegionCode(Rec."Country/Region Code");
     end;
+#endif
 
     local procedure OpenCurrFiscalYearCustLedgerEntries()
     var

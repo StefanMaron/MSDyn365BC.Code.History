@@ -69,6 +69,16 @@ page 9319 "Service Invoices"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a document number that refers to the customer''s numbering system.';
                 }
+                field(Amount; Rec.Amount)
+                {
+                    ApplicationArea = Service;
+                    Visible = false;
+                }
+                field("Amount Including VAT"; Rec."Amount Including VAT")
+                {
+                    ApplicationArea = Service;
+                    Visible = false;
+                }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;

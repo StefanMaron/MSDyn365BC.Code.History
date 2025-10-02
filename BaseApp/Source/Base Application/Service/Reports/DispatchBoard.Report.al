@@ -97,7 +97,8 @@ report 5955 "Dispatch Board"
 
     requestpage
     {
-
+        AboutTitle = 'About Dispatch Board';
+        AboutText = 'Get an overview of your dispatch board.';
         layout
         {
         }

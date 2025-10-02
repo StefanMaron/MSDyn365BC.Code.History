@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN27
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -15,6 +16,9 @@ report 10512 "VAT Audit"
 {
     Caption = 'VAT Audit';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to VAT Audit Reports GB app';
+    ObsoleteTag = '27.0';
 
     dataset
     {
@@ -535,4 +539,5 @@ report 10512 "VAT Audit"
         EightDelimitedValuesTxt: Label '"%1","%2","%3","%4","%5","%6","%7","%8"', Locked = true;
         ElevenDelimitedValuesTxt: Label '"%1","%2","%3","%4","%5","%6","%7","%8","%9","%10","%11"', Locked = true;
 }
+#endif
 

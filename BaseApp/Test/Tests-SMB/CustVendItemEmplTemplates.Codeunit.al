@@ -35,6 +35,8 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         InsertedEmployeeErr: Label 'Employee inserted with wrong data';
         InsertedTemplateErr: Label 'Template inserted with wrong data';
         PaymentMethodErr: Label 'that cannot be found in the related table';
+        ItemTemplateAllowInvoiceDiscErr: Label 'Item template should have value "Allow Invoice Disc." set to %1', Comment = '%1 = value of "Allow Invoice Disc." field which can be either true or false.';
+        ItemAllowInvoiceDiscErr: Label 'Item should have received the value "Allow Invoice Disc." = % from the Item Template', Comment = '%1 = value of "Allow Invoice Disc." field which can be either true or false.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1404,106 +1406,6 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    [HandlerFunctions('CreateItemOptionStrMenuHandler,SelectItemTemplListHandler,ItemCardHandler')]
-    procedure ItemTemplCreateItemFromSalesLine()
-    var
-        Item: Record Item;
-        ItemTempl1: Record "Item Templ.";
-        ItemTempl2: Record "Item Templ.";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
-    begin
-        // [SCENARIO 353440] Create new item using template when validate "No." in the sales line
-        Initialize();
-        BindSubscription(CustVendItemEmplTemplates);
-        CustVendItemEmplTemplates.SetItemTemplateFeatureEnabled(true);
-
-        SalesReceivablesSetup.Get();
-        SalesReceivablesSetup."Create Item from Item No." := true;
-        SalesReceivablesSetup.Modify(true);
-
-        // [GIVEN] Template "T1" with data and dimensions
-        LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl1);
-
-        // [GIVEN] Template "T2" with data and dimensions
-        LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl2);
-        UpdateItemTemplateGenAndVatGroups(ItemTempl2, 1);
-        LibraryVariableStorage.Enqueue(ItemTempl2.Code);
-        LibraryVariableStorage.Enqueue(ItemTempl2.Code);
-
-        // [GIVEN] Sales Invoice with line Type = Item
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
-        SalesLine.Init();
-        SalesLine.Validate("Document Type", SalesHeader."Document Type");
-        SalesLine.Validate("Document No.", SalesHeader."No.");
-        SalesLine.Validate("Line No.", 10000);
-        SalesLine.Insert(true);
-
-        // [WHEN] Validate "No." field in the sales line with non-existing value
-        SalesLine.Validate(Type, SalesLine.Type::Item);
-        SalesLine.Validate("No.", LibraryUtility.GenerateGUID());
-
-        // [THEN] Item inserted with data from "T2" and item card is shown (verified in ItemCardHandler)
-
-        Item.Get(SalesLine."No.");
-        Item.Delete(false);
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [HandlerFunctions('CreateItemOptionStrMenuHandler,SelectItemTemplListHandler,ItemCardHandler')]
-    procedure ItemTemplCreateItemFromPurchaseLine()
-    var
-        Item: Record Item;
-        ItemTempl1: Record "Item Templ.";
-        ItemTempl2: Record "Item Templ.";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
-    begin
-        // [SCENARIO 353440] Create new item using template when validate "No." in the purchase line
-        Initialize();
-        BindSubscription(CustVendItemEmplTemplates);
-        CustVendItemEmplTemplates.SetItemTemplateFeatureEnabled(true);
-
-        PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup."Create Item from Item No." := true;
-        PurchasesPayablesSetup.Modify(true);
-
-        // [GIVEN] Template "T1" with data and dimensions
-        LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl1);
-
-        // [GIVEN] Template "T2" with data and dimensions
-        LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl2);
-        UpdateItemTemplateGenAndVatGroups(ItemTempl2, 2);
-        LibraryVariableStorage.Enqueue(ItemTempl2.Code);
-        LibraryVariableStorage.Enqueue(ItemTempl2.Code);
-
-        // [GIVEN] Purchase Invoice with line Type = Item
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
-        PurchaseLine.Init();
-        PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
-        PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
-        PurchaseLine.Validate("Line No.", 10000);
-        PurchaseLine.Insert(true);
-
-        // [WHEN] Validate "No." field in the purchase line with non-existing value
-        PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
-        PurchaseLine.Validate("No.", LibraryUtility.GenerateGUID());
-
-        // [THEN] Item inserted with data from "T2" and item card is shown (verified in ItemCardHandler)
-
-        Item.Get(PurchaseLine."No.");
-        Item.Delete(false);
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
     [HandlerFunctions('CustomerTemplCardHandler')]
     [Scope('OnPrem')]
     procedure CustomerTemplSaveCustomerAsTemplate()
@@ -2775,6 +2677,39 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
     end;
 
     [Test]
+    procedure ItemTemplateAllowInvoiceDiscount()
+    var
+        Item: Record Item;
+        ItemTempl: Record "Item Templ.";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+    begin
+        // [SCENARIO] Create item from template: first with "Allow Invoice Disc." = true, next with "Allow Invoice Disc." = false
+        Initialize();
+
+        // [GIVEN] Item template "IT" with "Allow Invoice Disc." = true
+        CreateItemTemplateWithDataAndDimensions(ItemTempl);
+        Assert.IsTrue(ItemTempl."Allow Invoice Disc.", StrSubstNo(ItemTemplateAllowInvoiceDiscErr, true));
+
+        // [WHEN] Create item "I"
+        Item.Init();
+        Item.Insert(true);
+        ItemTemplMgt.ApplyItemTemplate(Item, ItemTempl);
+
+        // [THEN] "I"."Allow Invoice Disc." = true
+        Assert.IsTrue(Item."Allow Invoice Disc.", StrSubstNo(ItemAllowInvoiceDiscErr, true));
+
+        // [GIVEN] Item template "IT" with "Allow Invoice Disc." = false
+        ItemTempl."Allow Invoice Disc." := false;
+        ItemTempl.Modify();
+
+        // [WHEN] Update item "I"
+        ItemTemplMgt.ApplyItemTemplate(Item, ItemTempl);
+
+        // [THEN] "I"."Allow Invoice Disc." = false
+        Assert.IsFalse(Item."Allow Invoice Disc.", StrSubstNo(ItemAllowInvoiceDiscErr, false));
+    end;
+
+    [Test]
     [HandlerFunctions('MessageHandler')]
     procedure CreateCustomerFromContactWithNoSeries()
     var
@@ -3413,25 +3348,6 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustomerTempl.Modify(true);
     end;
 
-    local procedure UpdateItemTemplateGenAndVatGroups(var ItemTempl: Record "Item Templ."; SearchGenPostingType: Integer)
-    var
-        GeneralPostingSetup: Record "General Posting Setup";
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        case SearchGenPostingType of
-            1:
-                LibraryERM.SetSearchGenPostingTypeSales();
-            2:
-                LibraryERM.SetSearchGenPostingTypePurch();
-        end;
-        LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
-        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
-
-        ItemTempl."Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";
-        ItemTempl."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
-        ItemTempl.Modify(true);
-    end;
-
     local procedure CreateEmployeeWithData(var Employee: Record Employee)
     var
         EmployeePostingGroup: Record "Employee Posting Group";
@@ -3827,24 +3743,6 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
     procedure SelectItemTemplListInvokeCancelHandler(var SelectItemTemplList: TestPage "Select Item Templ. List")
     begin
         SelectItemTemplList.Cancel().Invoke();
-    end;
-
-    [StrMenuHandler]
-    procedure CreateItemOptionStrMenuHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
-    begin
-        Choice := 1;
-    end;
-
-    [ModalPageHandler]
-    procedure ItemCardHandler(var ItemCard: TestPage "Item Card")
-    var
-        ItemTempl: Record "Item Templ.";
-    begin
-        ItemTempl.Get(LibraryVariableStorage.DequeueText());
-
-        Assert.IsTrue(ItemCard."Inventory Posting Group".Value = ItemTempl."Inventory Posting Group", InsertedItemErr);
-        Assert.IsTrue(ItemCard."Gen. Prod. Posting Group".Value = ItemTempl."Gen. Prod. Posting Group", InsertedItemErr);
-        Assert.IsTrue(ItemCard."VAT Prod. Posting Group".Value = ItemTempl."VAT Prod. Posting Group", InsertedItemErr);
     end;
 
     [ModalPageHandler]

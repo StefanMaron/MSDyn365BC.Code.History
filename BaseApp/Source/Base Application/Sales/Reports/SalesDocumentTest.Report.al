@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.Reports;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Reports;
 
 using Microsoft.CRM.Campaign;
 using Microsoft.CRM.Team;
@@ -32,7 +36,11 @@ using System.Utilities;
 report 202 "Sales Document - Test"
 {
     DefaultLayout = RDLC;
+#if not CLEAN27
+    RDLCLayout = './Sales/Reports/SalesDocumentTestGB.rdlc';
+#else
     RDLCLayout = './Sales/Reports/SalesDocumentTest.rdlc';
+#endif
     Caption = 'Sales Document - Test';
     WordMergeDataItem = "Sales Header";
 
@@ -235,9 +243,11 @@ report 202 "Sales Document - Test"
                 column(Sales_Header___Prices_Including_VAT__Control194; "Sales Header"."Prices Including VAT")
                 {
                 }
+#if not CLEAN27
                 column(SalesHeader__VAT_Base_Discount___; SalesHeader."VAT Base Discount %")
                 {
                 }
+#endif
                 column(Sales_Header___Payment_Terms_Code__Control18; "Sales Header"."Payment Terms Code")
                 {
                 }
@@ -274,6 +284,7 @@ report 202 "Sales Document - Test"
                 column(Sales_Header___Prices_Including_VAT__Control196; "Sales Header"."Prices Including VAT")
                 {
                 }
+#if not CLEAN27
                 column(DisplayPaymentDiscount; DisplayPaymentDiscount)
                 {
                 }
@@ -283,6 +294,7 @@ report 202 "Sales Document - Test"
                 column(SalesHeader__VAT_Base_Discount____Control1040003; SalesHeader."VAT Base Discount %")
                 {
                 }
+#endif
                 column(Sales_Header___Applies_to_Doc__Type_; "Sales Header"."Applies-to Doc. Type")
                 {
                 }
@@ -301,9 +313,11 @@ report 202 "Sales Document - Test"
                 column(Sales_Header___Prices_Including_VAT__Control198; "Sales Header"."Prices Including VAT")
                 {
                 }
+#if not CLEAN27
                 column(SalesHeader__VAT_Base_Discount____Control1040005; SalesHeader."VAT Base Discount %")
                 {
                 }
+#endif
                 column(PageCounter_Number; Number)
                 {
                 }
@@ -391,9 +405,11 @@ report 202 "Sales Document - Test"
                 column(Sales_Header___Prices_Including_VAT__Control194Caption; "Sales Header".FieldCaption("Prices Including VAT"))
                 {
                 }
+#if not CLEAN27
                 column(SalesHeader__VAT_Base_Discount___Caption; SalesHeader__VAT_Base_Discount___CaptionLbl)
                 {
                 }
+#endif
                 column(Sales_Header___Payment_Terms_Code__Control18Caption; "Sales Header".FieldCaption("Payment Terms Code"))
                 {
                 }
@@ -430,9 +446,11 @@ report 202 "Sales Document - Test"
                 column(Sales_Header___Prices_Including_VAT__Control196Caption; "Sales Header".FieldCaption("Prices Including VAT"))
                 {
                 }
+#if not CLEAN27
                 column(SalesHeader__VAT_Base_Discount____Control1040003Caption; SalesHeader__VAT_Base_Discount____Control1040003CaptionLbl)
                 {
                 }
+#endif
                 column(Sales_Header___Applies_to_Doc__Type_Caption; "Sales Header".FieldCaption("Applies-to Doc. Type"))
                 {
                 }
@@ -451,9 +469,11 @@ report 202 "Sales Document - Test"
                 column(Sales_Header___Prices_Including_VAT__Control198Caption; "Sales Header".FieldCaption("Prices Including VAT"))
                 {
                 }
+#if not CLEAN27
                 column(SalesHeader__VAT_Base_Discount____Control1040005Caption; SalesHeader__VAT_Base_Discount____Control1040005CaptionLbl)
                 {
                 }
+#endif
                 dataitem(DimensionLoop1; "Integer")
                 {
                     DataItemTableView = sorting(Number) where(Number = filter(1 ..));
@@ -605,12 +625,14 @@ report 202 "Sales Document - Test"
                         column(Sales_Line___Inv__Discount_Amount_; "Sales Line"."Inv. Discount Amount")
                         {
                         }
+#if not CLEAN27
                         column(SalesLine__Reverse_Charge_; SalesLine."Reverse Charge")
                         {
                         }
                         column(SalesSetup__Invoice_Wording_; SalesSetup."Invoice Wording")
                         {
                         }
+#endif
                         column(TempSalesLine__Inv__Discount_Amount_; -TempSalesLine."Inv. Discount Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
@@ -688,12 +710,14 @@ report 202 "Sales Document - Test"
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
+#if not CLEAN27
                         column(SalesLine__Reverse_Charge__Control10410094; SalesLine."Reverse Charge")
                         {
                         }
                         column(TotalReverseCharge; TotalReverseCharge)
                         {
                         }
+#endif
                         column(Sales_Line___No__Caption; "Sales Line".FieldCaption("No."))
                         {
                         }
@@ -724,9 +748,11 @@ report 202 "Sales Document - Test"
                         column(Sales_Line__QuantityCaption; "Sales Line".FieldCaption(Quantity))
                         {
                         }
+#if not CLEAN27
                         column(Reverse_ChargeCaption; Reverse_ChargeCaptionLbl)
                         {
                         }
+#endif
                         column(TempSalesLine__Inv__Discount_Amount_Caption; TempSalesLine__Inv__Discount_Amount_CaptionLbl)
                         {
                         }
@@ -736,9 +762,11 @@ report 202 "Sales Document - Test"
                         column(VATDiscountAmountCaption; VATDiscountAmountCaptionLbl)
                         {
                         }
+#if not CLEAN27
                         column(Reverse_ChargeCaption_Control1040093; Reverse_ChargeCaption_Control1040093Lbl)
                         {
                         }
+#endif
                         dataitem(DimensionLoop2; "Integer")
                         {
                             DataItemTableView = sorting(Number) where(Number = filter(1 ..));
@@ -1022,7 +1050,9 @@ report 202 "Sales Document - Test"
                                         AddError(DimMgt.GetDimValuePostingErr());
                                 end;
 
+#if not CLEAN27
                             TotalReverseCharge := TotalReverseCharge + SalesLine."Reverse Charge";
+#endif
                             OnAfterCheckSalesDocLine("Sales Line", ErrorText, ErrorCounter);
                         end;
 
@@ -1044,7 +1074,9 @@ report 202 "Sales Document - Test"
 
                             SumLineAmount := 0;
                             SumInvDiscountAmount := 0;
+#if not CLEAN27
                             TotalReverseCharge := 0;
+#endif
                         end;
                     }
                     dataitem(VATCounter; "Integer")
@@ -1421,8 +1453,10 @@ report 202 "Sales Document - Test"
                         TempVATAmountLine.DeleteAll();
                         TempSalesLine.DeleteAll();
                         SalesPost.GetSalesLines("Sales Header", TempSalesLine, 1);
+#if not CLEAN27
                         if ReverseChargeApplies then
                             TempSalesLine.SetReverseChargeApplies();
+#endif
                         OnAfterSalesPostGetSalesLines("Sales Header", TempSalesLine);
                         TempSalesLine.CalcVATAmountLines(0, "Sales Header", TempSalesLine, TempVATAmountLine);
                         TempSalesLine.UpdateVATOnLines(0, "Sales Header", TempSalesLine, TempVATAmountLine);
@@ -1471,7 +1505,7 @@ report 202 "Sales Document - Test"
                 if SalesSetup."Posting Date Check on Posting" then
                     if "Posting Date" <> WorkDate() then
                         AddError(
-                          StrSubstNo(Text1041000, FieldCaption("Posting Date"), "Posting Date", WorkDate()));
+                          StrSubstNo(DifferentPostingDateToWorkDateTxt, FieldCaption("Posting Date"), "Posting Date", WorkDate()));
 
                 if "Document Date" <> 0D then
                     if "Document Date" <> NormalDate("Document Date") then
@@ -1625,10 +1659,12 @@ report 202 "Sales Document - Test"
 
                 OnAfterCheckSalesDoc("Sales Header", ErrorText, ErrorCounter);
 
+#if not CLEAN27
                 if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice] then
                     ReverseChargeApplies := SalesPost.CheckIfReverseChargeApplies("Sales Header");
                 DisplayPaymentDiscount := "Payment Discount %" <> 0;
                 DiscountText := StrSubstNo(DiscountLbl, "Payment Discount %", "Pmt. Discount Date");
+#endif
             end;
 
             trigger OnPreDataItem()
@@ -1880,9 +1916,11 @@ report 202 "Sales Document - Test"
 #pragma warning restore AA0074
         SumLineAmount: Decimal;
         SumInvDiscountAmount: Decimal;
-        Text1041000: Label '%1 %2 is different to Work Date %3.';
+        DifferentPostingDateToWorkDateTxt: Label '%1 %2 is different to Work Date %3.', Comment = '%1 = Posting Date Field Caption %2=Posting Date Field Value %3=WorkDate value';
+#if not CLEAN27
         ReverseChargeApplies: Boolean;
         TotalReverseCharge: Decimal;
+#endif
         Sales_Document___TestCaptionLbl: Label 'Sales Document - Test';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Ship_toCaptionLbl: Label 'Ship-to';
@@ -1896,25 +1934,35 @@ report 202 "Sales Document - Test"
         Sales_Header___Document_Date__Control106CaptionLbl: Label 'Document Date';
         Sales_Header___Order_Date_CaptionLbl: Label 'Order Date';
         Sales_Header___Shipment_Date_CaptionLbl: Label 'Shipment Date';
+#if not CLEAN27
         SalesHeader__VAT_Base_Discount___CaptionLbl: Label 'VAT Base Discount %';
+#endif
         Sales_Header___Due_Date__Control19CaptionLbl: Label 'Due Date';
         Sales_Header___Pmt__Discount_Date__Control22CaptionLbl: Label 'Pmt. Discount Date';
         Sales_Header___Posting_Date__Control131CaptionLbl: Label 'Posting Date';
         Sales_Header___Document_Date__Control132CaptionLbl: Label 'Document Date';
+#if not CLEAN27
         SalesHeader__VAT_Base_Discount____Control1040003CaptionLbl: Label 'VAT Base Discount %';
+#endif
         Sales_Header___Posting_Date__Control137CaptionLbl: Label 'Posting Date';
         Sales_Header___Document_Date__Control138CaptionLbl: Label 'Document Date';
+#if not CLEAN27
         SalesHeader__VAT_Base_Discount____Control1040005CaptionLbl: Label 'VAT Base Discount %';
+#endif
         Header_DimensionsCaptionLbl: Label 'Header Dimensions';
         ErrorText_Number_CaptionLbl: Label 'Warning!';
         Unit_PriceCaptionLbl: Label 'Unit Price';
         Sales_Line___Line_Discount___CaptionLbl: Label 'Line Disc. %';
         AmountCaptionLbl: Label 'Amount';
+#if not CLEAN27
         Reverse_ChargeCaptionLbl: Label 'Reverse Charge';
+#endif
         TempSalesLine__Inv__Discount_Amount_CaptionLbl: Label 'Inv. Discount Amount';
         SubtotalCaptionLbl: Label 'Subtotal';
         VATDiscountAmountCaptionLbl: Label 'Payment Discount on VAT';
+#if not CLEAN27
         Reverse_ChargeCaption_Control1040093Lbl: Label 'Reverse Charge';
+#endif
         Line_DimensionsCaptionLbl: Label 'Line Dimensions';
         ErrorText_Number__Control97CaptionLbl: Label 'Warning!';
         VATAmountLine__VAT_Amount__Control150CaptionLbl: Label 'VAT Amount';
@@ -1941,9 +1989,11 @@ report 202 "Sales Document - Test"
         ContinuedCaption_Control210Lbl: Label 'Continued';
         TotalCaption_Control220Lbl: Label 'Total';
         ContinuedCaption_Control223Lbl: Label 'Continued';
+#if not CLEAN27
         DiscountText: Text[500];
         DisplayPaymentDiscount: Boolean;
         DiscountLbl: Label 'A discount of %1% of the full price applies if payment is made on or before %2. No credit memo will be issued after you have made the payment. Therefore, you must make sure that you only recover the VAT actually paid.';
+#endif
 
     protected var
         ShowDim: Boolean;

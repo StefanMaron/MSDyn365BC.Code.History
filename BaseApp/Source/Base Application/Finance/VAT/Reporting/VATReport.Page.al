@@ -317,9 +317,20 @@ page 740 "VAT Report"
                     trigger OnAction()
                     var
                         VATReportArchive: Record "VAT Report Archive";
+#if not CLEAN27
                         DummyGuid: Guid;
+#endif
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeDownloadSubmissionMessage(IsHandled, Rec);
+                        if IsHandled then
+                            exit;
+#if not CLEAN27
                         VATReportArchive.DownloadSubmissionMessage(Rec."VAT Report Config. Code".AsInteger(), Rec."No.", DummyGuid);
+#else
+                        VATReportArchive.DownloadSubmissionMessage(Rec."VAT Report Config. Code".AsInteger(), Rec."No.");
+#endif
                     end;
                 }
                 action("Download Response Message")
@@ -333,9 +344,20 @@ page 740 "VAT Report"
                     trigger OnAction()
                     var
                         VATReportArchive: Record "VAT Report Archive";
+#if not CLEAN27
                         DummyGuid: Guid;
+#endif
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeDownloadResponseMessage(IsHandled, Rec);
+                        if IsHandled then
+                            exit;
+#if not CLEAN27
                         VATReportArchive.DownloadResponseMessage(Rec."VAT Report Config. Code".AsInteger(), Rec."No.", DummyGuid);
+#else
+                        VATReportArchive.DownloadResponseMessage(Rec."VAT Report Config. Code".AsInteger(), Rec."No.");
+#endif
                     end;
                 }
                 action("Calc. and Post VAT Settlement")
@@ -540,6 +562,16 @@ page 740 "VAT Report"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitPageControllers(VATReportHeader: Record "VAT Report Header"; var SubmitControllerStatus: Boolean; var MarkAsSubmitControllerStatus: Boolean; var CalcAndPostVATStatus: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDownloadSubmissionMessage(var IsHandled: Boolean; var VATReportHeader: Record "VAT Report Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDownloadResponseMessage(var IsHandled: Boolean; var VATReportHeader: Record "VAT Report Header")
     begin
     end;
 }

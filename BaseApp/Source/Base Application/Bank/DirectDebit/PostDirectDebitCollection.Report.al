@@ -10,6 +10,11 @@ using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Sales.Receivables;
 
+/// <summary>
+/// Posts direct debit collection entries by creating general journal lines and processing payments.
+/// Handles the posting of successfully exported direct debit collections, updating mandate counters,
+/// and generating payment journal entries for bank reconciliation.
+/// </summary>
 report 1201 "Post Direct Debit Collection"
 {
     Caption = 'Post Direct Debit Collection';
@@ -234,12 +239,21 @@ report 1201 "Post Direct Debit Collection"
         PostedMsg: Label '%1 payments were posted. %2 lines were skipped.', Comment = '%1 and %2 are both numbers / count.';
         SkippedCount: Integer;
 
+    /// <summary>
+    /// Sets the direct debit collection to process for posting.
+    /// </summary>
+    /// <param name="NewCollectionEntry">Collection number to process</param>
     procedure SetCollectionEntry(NewCollectionEntry: Integer)
     begin
         DirectDebitCollectionNo := NewCollectionEntry;
         DirectDebitCollection.Get(DirectDebitCollectionNo);
     end;
 
+    /// <summary>
+    /// Sets the journal template and batch names for posting operations.
+    /// </summary>
+    /// <param name="NewGenJnlTemplateName">General journal template name to use</param>
+    /// <param name="NewGenJnlBachName">General journal batch name to use</param>
     procedure SetJnlBatch(NewGenJnlTemplateName: Code[10]; NewGenJnlBachName: Code[10])
     begin
         GeneralJournalTemplateName := NewGenJnlTemplateName;
@@ -247,6 +261,10 @@ report 1201 "Post Direct Debit Collection"
         CurrReport.UseRequestPage := false;
     end;
 
+    /// <summary>
+    /// Controls whether the operation only creates journal lines without posting.
+    /// </summary>
+    /// <param name="NewCreateJnlOnly">True to only create journal lines, false to also post them</param>
     procedure SetCreateJnlOnly(NewCreateJnlOnly: Boolean)
     begin
         CreateJnlOnly := NewCreateJnlOnly;
@@ -327,16 +345,45 @@ report 1201 "Post Direct Debit Collection"
         OnAfterSetGenJnlLineDim(GenJnlLine, CustLedgEntry);
     end;
 
+    /// <summary>
+    /// Integration event raised after creating a general journal line from direct debit collection entry.
+    /// Enables custom processing or field updates after journal line creation.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal line that was created</param>
+    /// <param name="DirectDebitCollectionEntry">Source direct debit collection entry</param>
+    /// <remarks>
+    /// Raised from CreateJnlLine procedure after creating and populating journal line.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DirectDebitCollectionEntry: Record "Direct Debit Collection Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after setting dimensions on general journal line during direct debit processing.
+    /// Enables custom dimension handling or validation after standard dimension assignment.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal line with assigned dimensions</param>
+    /// <param name="CustLedgEntry">Customer ledger entry providing dimension context</param>
+    /// <remarks>
+    /// Raised from CreateJnlLine procedure after copying dimensions from customer ledger entry.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetGenJnlLineDim(var GenJournalLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before creating general journal line from direct debit collection entry.
+    /// Enables custom journal line creation or validation before standard processing.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal line to be created</param>
+    /// <param name="DirectDebitCollectionEntry">Source direct debit collection entry</param>
+    /// <param name="IsHandled">Set to true to skip standard journal line creation</param>
+    /// <param name="Result">Set to true if custom processing was successful</param>
+    /// <remarks>
+    /// Raised from CreateJnlLine procedure before creating and populating journal line.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var IsHandled: Boolean; var Result: Boolean)
     begin

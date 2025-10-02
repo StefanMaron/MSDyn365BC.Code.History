@@ -8,17 +8,11 @@ using Microsoft.Inventory.Item;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Setup;
 
 tableextension 99000759 "Mfg. Stockkeeping Unit" extends "Stockkeeping Unit"
 {
     fields
     {
-        field(5417; "Flushing Method"; Enum "Flushing Method")
-        {
-            Caption = 'Flushing Method';
-            DataClassification = CustomerContent;
-        }
         field(5420; "Scheduled Receipt (Qty.)"; Decimal)
         {
             CalcFormula = sum("Prod. Order Line"."Remaining Qty. (Base)" where(Status = filter(Planned .. Released),
@@ -153,85 +147,27 @@ tableextension 99000759 "Mfg. Stockkeeping Unit" extends "Stockkeeping Unit"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(99000752; "Single-Level Material Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Material Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000753; "Single-Level Capacity Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Capacity Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000754; "Single-Level Subcontrd. Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Subcontrd. Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000755; "Single-Level Cap. Ovhd Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Cap. Ovhd Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000756; "Single-Level Mfg. Ovhd Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Mfg. Ovhd Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000758; "Rolled-up Subcontracted Cost"; Decimal)
-        {
-            AccessByPermission = TableData "Production Order" = R;
-            AutoFormatType = 2;
-            Caption = 'Rolled-up Subcontracted Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000759; "Rolled-up Mfg. Ovhd Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Rolled-up Mfg. Ovhd Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000760; "Rolled-up Cap. Overhead Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Rolled-up Cap. Overhead Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000779; "Single-Lvl Mat. Non-Invt. Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Material Non-Inventory Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
     }
 
     var
+#if not CLEAN27
         HideNonInventoryValidateOnStdCost: Boolean;
+#endif
         NoActiveBOMVersionFoundErr: Label 'There is no active Production BOM for the item %1', Comment = '%1 - Item No.';
 
+#if not CLEAN27
+    [Obsolete('procedure that was implemented to bypass the error has now been identified as unnecessary', '27.0')]
     procedure SetHideNonInventoryValidateOnStdCost(NewHideNonInventoryValidateOnStdCost: Boolean)
     begin
         HideNonInventoryValidateOnStdCost := NewHideNonInventoryValidateOnStdCost;
     end;
 
+    [Obsolete('procedure that was implemented to bypass the error has now been identified as unnecessary', '27.0')]
     procedure CanHideNonInventoryValidateOnStdCost(): Boolean
     begin
         exit(HideNonInventoryValidateOnStdCost);
     end;
+#endif
 
     internal procedure OpenProductionBOMForSKUItem(ProductionBOMNo: Code[20]; ItemNo: Code[20])
     var
@@ -279,22 +215,5 @@ tableextension 99000759 "Mfg. Stockkeeping Unit" extends "Stockkeeping Unit"
 
             Page.RunModal(Page::"Production BOM", ProductionBOMHeader);
         end;
-    end;
-
-    procedure TransferManufCostsFromItem(Item: Record Item)
-    begin
-        "Single-Level Material Cost" := Item."Single-Level Material Cost";
-        "Single-Level Capacity Cost" := Item."Single-Level Capacity Cost";
-        "Single-Level Subcontrd. Cost" := Item."Single-Level Subcontrd. Cost";
-        "Single-Level Cap. Ovhd Cost" := Item."Single-Level Cap. Ovhd Cost";
-        "Single-Level Mfg. Ovhd Cost" := Item."Single-Level Mfg. Ovhd Cost";
-        "Single-Lvl Mat. Non-Invt. Cost" := Item."Single-Lvl Mat. Non-Invt. Cost";
-
-        "Rolled-up Material Cost" := Item."Rolled-up Material Cost";
-        "Rolled-up Capacity Cost" := Item."Rolled-up Capacity Cost";
-        "Rolled-up Subcontracted Cost" := Item."Rolled-up Subcontracted Cost";
-        "Rolled-up Mfg. Ovhd Cost" := Item."Rolled-up Mfg. Ovhd Cost";
-        "Rolled-up Cap. Overhead Cost" := Item."Rolled-up Cap. Overhead Cost";
-        "Rolled-up Mat. Non-Invt. Cost" := Item."Rolled-up Mat. Non-Invt. Cost";
     end;
 }

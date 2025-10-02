@@ -610,6 +610,7 @@ codeunit 5631 "FA Jnl.-Check Line"
         AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
         EndingDate: Date;
         StartingDate: Date;
+        IsHandled: Boolean;
     begin
         if (GenJnlLine."FA Posting Type" = GenJnlLine."FA Posting Type"::Depreciation) and
            (GenJnlLine."No. of Depreciation Days" <> 0) and
@@ -626,6 +627,12 @@ codeunit 5631 "FA Jnl.-Check Line"
                 StartingDate := CalcDate(StrSubstNo('<-%1M>', GenJnlLine."No. of Depreciation Days" div 30), EndingDate);
                 StartingDate := CalcDate(StrSubstNo('<-%1D>', GenJnlLine."No. of Depreciation Days" mod 30), StartingDate);
             end;
+
+            IsHandled := false;
+            OnCheckFADepAcrossFiscalYearOnBeforeCheckAccPeriod(StartingDate, GenJnlLine, IsHandled);
+            if IsHandled then
+                exit;
+
             AccPeriod.SetFilter("Starting Date", '>%1&<=%2', AccountingPeriodMgt.FindFiscalYear(StartingDate), GenJnlLine."FA Posting Date");
             AccPeriod.SetRange("New Fiscal Year", true);
             if not AccPeriod.IsEmpty() then
@@ -710,6 +717,11 @@ codeunit 5631 "FA Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetGenJournalLineValuesBeforeConsistencyCheck(var IsHandled: Boolean; GenJnlPosting: Boolean; var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckFADepAcrossFiscalYearOnBeforeCheckAccPeriod(var StartingDate: Date; var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

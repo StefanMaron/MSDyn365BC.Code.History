@@ -391,6 +391,7 @@ report 5607 "Fixed Asset - Projected Value"
                 end;
 
                 TransferValues();
+                OnAfterTransferValues(GroupAmounts, TotalBookValue);
             end;
 
             trigger OnPreDataItem()
@@ -945,6 +946,7 @@ report 5607 "Fixed Asset - Projected Value"
         AccountingPeriod.SetFilter(
           "Starting Date", '>=%1', DepreciationCalculation.ToMorrow(PeriodEndingDate, Year365Days,
           DeprBook."Use Accounting Period") + 1);
+        OnAfterAccountingPeriodSetFilter(PeriodEndingDate, Year365Days, DeprBook."Use Accounting Period", AccountingPeriod);
         if AccountingPeriod.FindFirst() then begin
             if Date2DMY(AccountingPeriod."Starting Date", 1) <> 31 then
                 UntilDate2 := DepreciationCalculation.Yesterday(AccountingPeriod."Starting Date", Year365Days, DeprBook."Use Accounting Period")
@@ -1218,6 +1220,16 @@ report 5607 "Fixed Asset - Projected Value"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCalculateFirstDeprAmount(var FixedAsset: Record "Fixed Asset"; var CalculateDepr: Codeunit "Calculate Depreciation"; var DepreciationCalculation: Codeunit "Depreciation Calculation"; var FirstTime: Boolean; var Done: Boolean; var UntilDate: Date; var StartingDate: Date; var DeprAmount: Decimal; var Custom1Amount: Decimal; var NumberOfDays: Integer; var Custom1NumberOfDays: Integer; var DeprBookCode: Code[10]; var EntryAmounts: array[4] of Decimal; var DaysInFirstPeriod: Integer; var EndingDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAccountingPeriodSetFilter(var PeriodEndingDate: Date; var Year365Days: Boolean; UseAccountingPeriod: Boolean; var AccountingPeriod: Record "Accounting Period")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterTransferValues(GroupAmounts: array[4] of Decimal; TotalBookValue: array[2] of Decimal)
     begin
     end;
 }

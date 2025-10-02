@@ -1167,7 +1167,7 @@ page 8626 "Config. Package Records"
                             ConfigPackageError.SetRange("Record No.", Rec."No.");
                             PAGE.RunModal(PAGE::"Config. Package Errors", ConfigPackageError);
                         end else
-                            Message(Text002);
+                            Message(NoMigrationErrorsMsg);
                     end;
                 }
                 action(ProcessData)
@@ -1284,13 +1284,11 @@ page 8626 "Config. Package Records"
         PackageColumnField: array[1000] of Integer;
         MatrixColumnOrdinal: Integer;
         TableNo: Integer;
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text001: Label '%1 value ''%2'' does not exist.';
+        ValueNotExistErr: Label '%1 value ''%2'' does not exist.';
 #pragma warning restore AA0470
-        Text002: Label 'There are no data migration errors in this record.';
-        ValueIsTooLong: Label 'Max length of %1 with value ''%2'' is %3.', Comment = '%1 - Table caption, %2 - Value, %3 - Max length';
-#pragma warning restore AA0074
+        NoMigrationErrorsMsg: Label 'There are no data migration errors in this record.';
+        ValueIsTooLongErr: Label 'Max length of %1 with value ''%2'' is %3.', Comment = '%1 - Table caption, %2 - Value, %3 - Max length';
         ErrorFieldNo: Integer;
         Field1Visible: Boolean;
         Field2Visible: Boolean;
@@ -1553,9 +1551,9 @@ page 8626 "Config. Package Records"
         if MatrixDimension[ColumnID] then begin
             if MatrixCellData[ColumnID] <> '' then begin
                 if StrLen(MatrixCellData[ColumnID]) > MaxStrLen(DimValue.Code) then
-                    Error(ValueIsTooLong, Dimension.TableCaption(), MatrixCellData[ColumnID], MaxStrLen(DimValue.Code));
+                    Error(ValueIsTooLongErr, Dimension.TableCaption(), MatrixCellData[ColumnID], MaxStrLen(DimValue.Code));
                 if not DimValue.Get(MatrixColumnCaptions[ColumnID], MatrixCellData[ColumnID]) then
-                    Error(Text001, Dimension.TableCaption(), MatrixCellData[ColumnID]);
+                    Error(ValueNotExistErr, Dimension.TableCaption(), MatrixCellData[ColumnID]);
             end;
             ConfigPackageData.Get(Rec."Package Code", Rec."Table ID", Rec."No.", PackageColumnField[ColumnID]);
             ConfigPackageData.Validate(Value, MatrixCellData[ColumnID]);
@@ -1569,7 +1567,7 @@ page 8626 "Config. Package Records"
             IsBlobField := ConfigPackageMgt.IsBLOBField(ConfigPackageData."Table ID", ConfigPackageData."Field ID");
             if not IsBlobField then
                 if StrLen(MatrixCellData[ColumnID]) > MaxStrLen(ConfigPackageData.Value) then
-                    Error(ValueIsTooLong, ConfigPackageField."Field Caption", MatrixCellData[ColumnID], MaxStrLen(ConfigPackageData.Value));
+                    Error(ValueIsTooLongErr, ConfigPackageField."Field Caption", MatrixCellData[ColumnID], MaxStrLen(ConfigPackageData.Value));
 
             ConfigPackageData.Get(Rec."Package Code", Rec."Table ID", Rec."No.", PackageColumnField[ColumnID]);
             ConfigPackageMgt.CleanFieldError(ConfigPackageData);
@@ -1588,7 +1586,7 @@ page 8626 "Config. Package Records"
             end;
 
             if ConfigPackageField."Validate Field" and not ConfigPackageMgt.ValidateSinglePackageDataRelation(ConfigPackageData) then
-                Error(Text001, FieldRef.Caption, FieldRef.Value);
+                Error(ValueNotExistErr, FieldRef.Caption, FieldRef.Value);
 
             ConfigPackageData.Modify();
         end;

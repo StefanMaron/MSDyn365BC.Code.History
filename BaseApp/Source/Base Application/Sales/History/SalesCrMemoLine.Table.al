@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.History;
 
 using Microsoft.Finance.Currency;
@@ -552,15 +556,33 @@ table 115 "Sales Cr.Memo Line"
             Editable = false;
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA30
         field(10500; "Reverse Charge Item"; Boolean)
         {
             Caption = 'Reverse Charge Item';
             Editable = false;
+            ObsoleteReason = 'Moved to Reverse Charge VAT GB app';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
         }
         field(10501; "Reverse Charge"; Decimal)
         {
             Caption = 'Reverse Charge';
+            ObsoleteReason = 'Moved to Reverse Charge VAT GB app';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
         }
+#endif
     }
 
     keys
@@ -674,6 +696,12 @@ table 115 "Sales Cr.Memo Line"
             exit("Line Amount");
 
         exit(Round("Line Amount" * (1 + "VAT %" / 100), Currency."Amount Rounding Precision"));
+    end;
+
+    procedure GetCreditMemoHeader(): Record "Sales Cr.Memo Header"
+    begin
+        GetHeader();
+        exit(SalesCrMemoHeader);
     end;
 
     local procedure GetHeader()

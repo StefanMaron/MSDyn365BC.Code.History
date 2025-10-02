@@ -191,12 +191,18 @@ table 405 "Change Log Entry"
 
     procedure GetFullPrimaryKeyFriendlyName(): Text
     var
+        TableMetadata: Record "Table Metadata";
         RecRef: RecordRef;
         FriendlyName: Text;
         p: Integer;
     begin
         if "Primary Key" = '' then
             exit('');
+
+        // Don't try and get obsoleted table PK name.
+        if TableMetadata.Get("Table No.") then
+            if TableMetadata.ObsoleteState = TableMetadata.ObsoleteState::Removed then
+                exit('');
 
         // Retain existing formatting of old data
         if (StrPos("Primary Key", 'CONST(') = 0) and (StrPos("Primary Key", '0(') = 0) then
@@ -232,14 +238,15 @@ table 405 "Change Log Entry"
         ChangeLogManagement: Codeunit "Change Log Management";
         RecordRef: RecordRef;
         FieldRef: FieldRef;
-        HasCultureNeutralValues: Boolean;
+        EmptyRecordId: RecordId;
     begin
-        // The culture neutral storage format was added simultaneously with the Record ID field
-        HasCultureNeutralValues := Format("Record ID") <> '';
+        if (Value = '') or ("Record ID" = EmptyRecordId) then
+            exit(Value);
+
         AllObj.SetRange("Object Type", AllObj."Object Type"::Table);
         AllObj.SetRange("Object ID", "Table No.");
 
-        if not AllObj.IsEmpty() and (Value <> '') and HasCultureNeutralValues then begin
+        if not AllObj.IsEmpty() then begin
             RecordRef.Open("Table No.");
             if RecordRef.FieldExist("Field No.") then begin
                 FieldRef := RecordRef.Field("Field No.");

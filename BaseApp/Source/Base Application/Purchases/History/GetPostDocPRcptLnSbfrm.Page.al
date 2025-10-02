@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.History;
 
 using Microsoft.Finance.Dimension;
@@ -359,7 +363,7 @@ page 5856 "Get Post.Doc - P.RcptLn Sbfrm"
             exit(PurchRcptLine2."Attached to Line No." = 0);
         if PurchRcptLine2.Type <> PurchRcptLine2.Type::Item then
             exit(true);
-        if (PurchRcptLine2."Job No." <> '') or (PurchRcptLine2."Prod. Order No." <> '') then
+        if (PurchRcptLine2."Job No." <> '') or PurchRcptLine2.IsProdOrder() then
             exit(not RevQtyFilter);
 
         IsHandled := false;

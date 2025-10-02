@@ -42,7 +42,6 @@ codeunit 21 "Item Jnl.-Check Line"
         Text004: Label 'must have the same value as %1';
         Text005: Label 'must be %1 or %2 when %3 is %4';
         Text006: Label 'must equal %1 - %2 when %3 is %4 and %5 is %6';
-        Text007: Label 'You cannot post these lines because you have not entered a quantity on one or more of the lines. ';
         DimCombBlockedErr: Label 'The combination of dimensions used in item journal line %1, %2, %3 is blocked. %4.', Comment = '%1 = Journal Template Name; %2 = Journal Batch Name; %3 = Line No.';
         DimCausedErr: Label 'A dimension used in item journal line %1, %2, %3 has caused an error. %4.', Comment = '%1 = Journal Template Name; %2 = Journal Batch Name; %3 = Line No.';
         Text011: Label '%1 must not be equal to %2';
@@ -197,13 +196,7 @@ codeunit 21 "Item Jnl.-Check Line"
         if IsHandled then
             exit;
 
-        if ItemJournalLine."Entry Type" <> ItemJournalLine."Entry Type"::Output then begin
-            ItemJournalLine.TestField("Run Time", 0, ErrorInfo.Create());
-            ItemJournalLine.TestField("Setup Time", 0, ErrorInfo.Create());
-            ItemJournalLine.TestField("Stop Time", 0, ErrorInfo.Create());
-            ItemJournalLine.TestField("Output Quantity", 0, ErrorInfo.Create());
-            ItemJournalLine.TestField("Scrap Quantity", 0, ErrorInfo.Create());
-        end;
+        OnCheckOutputFields(ItemJournalLine);
     end;
 
     local procedure CheckEmptyQuantity(ItemJnlLine: Record "Item Journal Line")
@@ -215,14 +208,7 @@ codeunit 21 "Item Jnl.-Check Line"
         if IsHandled then
             exit;
 
-        if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Output then begin
-            if (ItemJnlLine."Output Quantity (Base)" = 0) and (ItemJnlLine."Scrap Quantity (Base)" = 0) and
-               ItemJnlLine.TimeIsEmpty() and (ItemJnlLine."Invoiced Qty. (Base)" = 0)
-            then
-                Error(ErrorInfo.Create(Text007, true))
-        end else
-            if (ItemJnlLine."Quantity (Base)" = 0) and (ItemJnlLine."Invoiced Qty. (Base)" = 0) then
-                Error(ErrorInfo.Create(Text007, true));
+        OnCheckEmptyQuantity(ItemJnlLine);
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
@@ -248,6 +234,7 @@ codeunit 21 "Item Jnl.-Check Line"
     var
         WMSManagement: Codeunit "WMS Management";
         IsHandled: Boolean;
+        ShouldExit: Boolean;
     begin
         IsHandled := false;
         OnBeforeCheckBins(ItemJnlLine, IsHandled, CalledFromAdjustment);
@@ -269,7 +256,9 @@ codeunit 21 "Item Jnl.-Check Line"
         if ItemJnlLine."Drop Shipment" or ItemJnlLine.OnlyStopTime() or (ItemJnlLine."Quantity (Base)" = 0) or ItemJnlLine.Adjustment or CalledFromAdjustment then
             exit;
 
-        if (ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Output) and not ItemJnlLine.LastOutputOperation(ItemJnlLine) then
+        ShouldExit := false;
+        OnCheckBinsOnCheckForEntryTypeOutput(ItemJnlLine, ShouldExit);
+        if ShouldExit then
             exit;
 
         IsHandled := false;
@@ -718,6 +707,21 @@ codeunit 21 "Item Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckDimensionsOnAfterSetTableValues(ItemJournalLine: Record "Item Journal Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckEmptyQuantity(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnCheckOutputFields(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnCheckBinsOnCheckForEntryTypeOutput(var ItemJournalLine: Record "Item Journal Line"; var ShouldExit: Boolean)
     begin
     end;
 }

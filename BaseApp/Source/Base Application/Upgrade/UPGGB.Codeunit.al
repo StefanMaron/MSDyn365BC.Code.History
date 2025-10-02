@@ -1,4 +1,5 @@
-﻿codeunit 104150 "UPG GB"
+#pragma warning disable AA0247
+codeunit 104150 "UPG GB"
 {
     Subtype = Upgrade;
 

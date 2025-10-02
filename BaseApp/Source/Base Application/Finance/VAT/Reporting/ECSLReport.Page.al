@@ -135,7 +135,11 @@ page 321 "ECSL Report"
             part(ErrorMessagesPart; "Error Messages Part")
             {
                 ApplicationArea = BasicEU;
+#if not CLEAN27
                 Caption = 'Errors and Warnings';
+#else
+                Caption = 'Messages';
+#endif
                 Visible = ErrorsExist;
             }
         }
@@ -316,6 +320,7 @@ page 321 "ECSL Report"
         }
     }
 
+#if not CLEAN27
     trigger OnAfterGetCurrRecord()
     var
         GovTalkSetup: Record "GovTalk Setup";
@@ -323,11 +328,21 @@ page 321 "ECSL Report"
         DeleteErrors(DummyCompanyInformation.RecordId);
         DeleteErrors(GovTalkSetup.RecordId);
     end;
+#endif
 
     trigger OnAfterGetRecord()
     begin
         InitPageControllers();
         CheckForErrors();
+    end;
+
+    trigger OnClosePage()
+    begin
+#if not CLEAN27
+        DeleteErrors(DummyCompanyInformation.RecordId);
+#else
+        DeleteErrors();
+#endif
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -340,6 +355,11 @@ page 321 "ECSL Report"
         if Rec."No." <> '' then
             InitPageControllers();
         IsEditable := Rec.Status = Rec.Status::Open;
+#if not CLEAN27
+        DeleteErrors(DummyCompanyInformation.RecordId);
+#else
+        DeleteErrors();
+#endif
     end;
 
     var
@@ -380,10 +400,15 @@ page 321 "ECSL Report"
     var
         ErrorMessage: Record "Error Message";
         TempErrorMessage: Record "Error Message" temporary;
+#if not CLEAN27
         GovTalkSetup: Record "GovTalk Setup";
+#endif
     begin
+#if not CLEAN27
         ErrorMessage.SetRange("Context Record ID", GovTalkSetup.RecordId);
         ErrorMessage.CopyToTemp(TempErrorMessage);
+#endif
+        OnBeforeCheckForErrors(ErrorsExist, ErrorMessage, TempErrorMessage);
         ErrorMessage.SetRange("Context Record ID", DummyCompanyInformation.RecordId);
         ErrorMessage.CopyToTemp(TempErrorMessage);
         ErrorMessage.SetRange("Context Record ID", Rec.RecordId);
@@ -397,14 +422,45 @@ page 321 "ECSL Report"
         exit(ErrorsExist);
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to GovTalk app', '27.0')]
     local procedure DeleteErrors(Context: RecordID)
     var
         ErrorMessage: Record "Error Message";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteErrors(IsHandled);
+        if IsHandled then
+            exit;
         ErrorMessage.SetRange("Context Record ID", Context);
         if ErrorMessage.FindFirst() then
             ErrorMessage.DeleteAll(true);
         Commit();
+    end;
+#else
+    local procedure DeleteErrors()
+    var
+        ErrorMessage: Record "Error Message";
+    begin
+        ErrorMessage.SetRange("Context Record ID", DummyCompanyInformation.RecordId);
+        if ErrorMessage.FindFirst() then
+            ErrorMessage.DeleteAll(true);
+        Commit();
+    end;
+#endif
+
+#if not CLEAN27
+    [Obsolete('Event will be removed in a future release.', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteErrors(var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckForErrors(var ErrorsExist: Boolean; ErrorMessage: Record "Error Message"; var TempErrorMessage: Record "Error Message" temporary)
+    begin
     end;
 }
 

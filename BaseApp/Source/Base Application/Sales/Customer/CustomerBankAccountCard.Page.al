@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Customer;
 
 using Microsoft.Bank.DirectDebit;
@@ -24,14 +28,21 @@ page 423 "Customer Bank Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                 }
+#if not CLEAN27
                 group(Control1040004)
                 {
                     ShowCaption = false;
                     Visible = IsAddressLookupTextEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Functionality has been moved to the GetAddress.io UK Postcodes.';
+                    ObsoleteTag = '27.0';
                     field(LookupAddress; LookupAddressLbl)
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Field has been moved to the GetAddress.io UK Postcodes.';
+                        ObsoleteTag = '27.0';
                         ShowCaption = false;
 
                         trigger OnDrillDown()
@@ -40,16 +51,19 @@ page 423 "Customer Bank Account Card"
                         end;
                     }
                 }
+#endif
                 field(Address; Rec.Address)
                 {
                     ApplicationArea = Basic, Suite;
 
+#if not CLEAN27
                     trigger OnValidate()
                     var
                         PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
                     begin
                         PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
                     end;
+#endif
                 }
                 field("Address 2"; Rec."Address 2")
                 {
@@ -75,8 +89,10 @@ page 423 "Customer Bank Account Card"
 
                     trigger OnValidate()
                     begin
+#if not CLEAN27
                         HandleAddressLookupVisibility();
-			IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+#endif
+                        IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
                     end;
                 }
                 field("Phone No."; Rec."Phone No.")
@@ -92,7 +108,7 @@ page 423 "Customer Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the postal code.';
-
+#if not CLEAN27
                     trigger OnValidate()
                     var
                         PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
@@ -100,6 +116,7 @@ page 423 "Customer Bank Account Card"
                         PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
                         ShowPostcodeLookup(false);
                     end;
+#endif
                 }
                 field("Currency Code"; Rec."Currency Code")
                 {
@@ -200,15 +217,21 @@ page 423 "Customer Bank Account Card"
         }
     }
 
+#if not CLEAN27
     trigger OnAfterGetCurrRecord()
     begin
         HandleAddressLookupVisibility();
     end;
+#endif
 
+#if not CLEAN27
     var
         LookupAddressLbl: Label 'Lookup address from postcode';
         IsAddressLookupTextEnabled: Boolean;
+#endif        
 
+#if not CLEAN27
+    [Obsolete('Functionality has been moved to the GetAddress.io UK Postcodes.', '27.0')]
     local procedure ShowPostcodeLookup(ShowInputFields: Boolean)
     var
         TempEnteredAutocompleteAddress: Record "Autocomplete Address" temporary;
@@ -250,6 +273,7 @@ page 423 "Customer Bank Account Card"
         else
             IsAddressLookupTextEnabled := PostcodeBusinessLogic.SupportedCountryOrRegionCode(Rec."Country/Region Code");
     end;
+#endif
 
     trigger OnAfterGetRecord()
     begin

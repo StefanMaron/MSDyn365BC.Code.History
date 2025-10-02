@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEANSCHEMA30
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -8,6 +9,15 @@ table 10520 GovTalkMessage
 {
     Caption = 'GovTalkMessage';
     DataClassification = CustomerContent;
+    ObsoleteReason = 'Moved to GovTalk app';
+#if CLEAN27
+    ObsoleteState = Moved;
+    ObsoleteTag = '30.0';
+    MovedTo = '80672d74-d90a-4eb0-8f90-5b9bcea58dca';
+#else
+    ObsoleteState = Pending;
+    ObsoleteTag = '27.0';
+#endif
 
     fields
     {
@@ -67,4 +77,5 @@ table 10520 GovTalkMessage
     {
     }
 }
+#endif
 

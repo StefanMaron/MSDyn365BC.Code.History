@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Posting;
 
 using Microsoft.EServices.EDocument;
@@ -34,7 +38,7 @@ codeunit 95 "Purch Post Batch via Job Queue"
         SavedLockTimeout: Boolean;
         TotalDocumentsCount: Integer;
         ErrorPostDocumentsCount: Integer;
-        ErrorPrinttDocumentsCount: Integer;
+        ErrorPrintDocumentsCount: Integer;
     begin
         PurchasesPayablesSetup.Get();
         SavedLockTimeout := LockTimeout;
@@ -53,13 +57,13 @@ codeunit 95 "Purch Post Batch via Job Queue"
                     if PurchasesPayablesSetup."Post & Print with Job Queue" then
                         if PurchaseHeader."Print Posted Documents" then
                             if not PrintPurchaseDocument(PurchaseHeader, JobQueueEntry) then
-                                ErrorPrinttDocumentsCount += 1;
+                                ErrorPrintDocumentsCount += 1;
                 end;
             until PurchaseHeader.Next() = 0;
         LockTimeout(SavedLockTimeout);
 
-        if (ErrorPostDocumentsCount <> 0) or (ErrorPrinttDocumentsCount <> 0) then
-            ThrowErrorMessage(TotalDocumentsCount, ErrorPostDocumentsCount, ErrorPrinttDocumentsCount);
+        if (ErrorPostDocumentsCount <> 0) or (ErrorPrintDocumentsCount <> 0) then
+            ThrowErrorMessage(TotalDocumentsCount, ErrorPostDocumentsCount, ErrorPrintDocumentsCount);
     end;
 
     procedure EnqueuePurchaseBatch(var PurchaseHeader: Record "Purchase Header"; var JobQueueEntry: Record "Job Queue Entry")
@@ -230,15 +234,15 @@ codeunit 95 "Purch Post Batch via Job Queue"
         ReportSelections.TestField("Report ID");
     end;
 
-    local procedure ThrowErrorMessage(TotalDocumentsCount: Integer; ErrorPostDocumentsCount: Integer; ErrorPrinttDocumentsCount: Integer)
+    local procedure ThrowErrorMessage(TotalDocumentsCount: Integer; ErrorPostDocumentsCount: Integer; ErrorPrintDocumentsCount: Integer)
     var
         ErrorMessage: Text;
     begin
         Commit();
         if ErrorPostDocumentsCount <> 0 then
             ErrorMessage := StrSubstNo(UnpostedDocumentsErr, ErrorPostDocumentsCount, TotalDocumentsCount) + ' ';
-        if ErrorPrinttDocumentsCount <> 0 then
-            ErrorMessage += StrSubstNo(UnprintedDocumentsErr, ErrorPrinttDocumentsCount, TotalDocumentsCount);
+        if ErrorPrintDocumentsCount <> 0 then
+            ErrorMessage += StrSubstNo(UnprintedDocumentsErr, ErrorPrintDocumentsCount, TotalDocumentsCount);
         ErrorMessage := DelChr(ErrorMessage, '>', ' ');
         Error(ErrorMessage);
     end;

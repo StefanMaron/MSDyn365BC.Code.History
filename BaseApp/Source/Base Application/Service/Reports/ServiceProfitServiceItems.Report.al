@@ -146,7 +146,8 @@ report 5938 "Service Profit (Service Items)"
 
     requestpage
     {
-
+        AboutTitle = 'About Service Profit (Service Items)';
+        AboutText = 'Get an overview of profit for service items.';
         layout
         {
             area(content)

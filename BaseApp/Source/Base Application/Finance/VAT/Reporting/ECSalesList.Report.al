@@ -8,14 +8,20 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
+#if not CLEAN27
 using System;
 using System.IO;
 using System.Utilities;
+#endif
 
 report 130 "EC Sales List"
 {
     DefaultLayout = RDLC;
+#if not CLEAN27
+    RDLCLayout = './Finance/VAT/Reporting/ECSalesListGB.rdlc';
+#else
     RDLCLayout = './Finance/VAT/Reporting/ECSalesList.rdlc';
+#endif
     ApplicationArea = BasicEU;
     Caption = 'EC Sales List';
     UsageCategory = ReportsAndAnalysis;
@@ -112,9 +118,11 @@ report 130 "EC Sales List"
             column(TotalValueofServiceSuppliesCaption; TotalValueofServiceSuppliesCaptionLbl)
             {
             }
+#if not CLEAN27
             column(Indicator_Code_Caption; Indicator_Code_CaptionLbl)
             {
             }
+#endif
             column(EU3PartyItemTradeAmtCaption; EU3PartyItemTradeAmtCaptionLbl)
             {
             }
@@ -134,7 +142,11 @@ report 130 "EC Sales List"
             {
                 DataItemLink = "Country/Region Code" = field(Code);
                 DataItemTableView = sorting(Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date") where(Type = const(Sale), "Country/Region Code" = filter(<> ''));
+#if not CLEAN27
                 RequestFilterFields = "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date", "EU Service";
+#else
+                RequestFilterFields = "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date";
+#endif
                 column(VATRegNo_VATEntry; "VAT Registration No.")
                 {
                 }
@@ -154,9 +166,11 @@ report 130 "EC Sales List"
                 {
                     OptionCaption = 'NotEUTrdPartyAmt,NotEUTrdPartyAmtService,EUTrdPartyAmt,EUTrdPartyAmtService';
                 }
+#if not CLEAN27
                 column(IndicatorCode; IndicatorCode)
                 {
                 }
+#endif
                 column(NotEUTrdPartyAmtService; NotEUTrdPartyAmtService)
                 {
                 }
@@ -171,7 +185,9 @@ report 130 "EC Sales List"
                 begin
                     if ResetVATEntry then begin
                         ResetVATEntry := false;
+#if not CLEAN27
                         NewGroupStarted := false;
+#endif
                         EUTrdPartyAmtService := 0;
                         NotEUTrdPartyAmtService := 0;
                         EUTrdPartyAmt := 0;
@@ -189,7 +205,9 @@ report 130 "EC Sales List"
                         else
                             NotEUTrdPartyAmt += Base;
 
+                    OnBeforeSetGrouping(ReportLayout, NotEUTrdPartyAmt, Grouping, NotEUTrdPartyAmtService, EUTrdPartyAmt, EUTrdPartyAmtService);
                     if ReportLayout = ReportLayout::"Separate &Lines" then begin
+#if not CLEAN27
                         if NotEUTrdPartyAmt <> 0 then begin
                             Grouping := Grouping::NotEUTrdPartyAmt;
                             IndicatorCode := GetIndicatorCode(false, false)
@@ -206,6 +224,16 @@ report 130 "EC Sales List"
                             Grouping := Grouping::EUTrdPartyAmtService;
                             IndicatorCode := GetIndicatorCode(false, true)
                         end;
+#else
+                        if NotEUTrdPartyAmt <> 0 then
+                            Grouping := Grouping::NotEUTrdPartyAmt;
+                        if NotEUTrdPartyAmtService <> 0 then
+                            Grouping := Grouping::NotEUTrdPartyAmtService;
+                        if EUTrdPartyAmt <> 0 then
+                            Grouping := Grouping::EUTrdPartyAmt;
+                        if EUTrdPartyAmtService <> 0 then
+                            Grouping := Grouping::EUTrdPartyAmtService
+#endif
                     end;
 
                     if not (VATEntry.Next() = 0) then begin
@@ -216,9 +244,12 @@ report 130 "EC Sales List"
                             end else
                                 CurrReport.Skip();
                         ResetVATEntry := true;
+                        OnAfterVATEntryNext(ResetVATEntry, "VAT Entry");
+#if not CLEAN27
                         NewGroupStarted := true;
                         PrevVATRegNo := "VAT Registration No.";
                         UpdateXMLFileRTC();
+#endif
                     end;
 
                     TotalEUTrdPartyAmtService += Round(EUTrdPartyAmtService, 1);
@@ -231,10 +262,12 @@ report 130 "EC Sales List"
                     FormatNotEUTrdPartyAmt := FormatAmt(TotalNotEUTrdPartyAmt);
                 end;
 
+#if not CLEAN27
                 trigger OnPostDataItem()
                 begin
                     UpdateXMLFileRTC();
                 end;
+#endif
 
                 trigger OnPreDataItem()
                 begin
@@ -242,12 +275,17 @@ report 130 "EC Sales List"
                     VATEntry.SetCurrentKey(
                       Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date");
                     VATEntry.CopyFilters("VAT Entry");
+#if not CLEAN27
                     if not VATEntry.FindSet() then;
-
+#else
+                    if VATEntry.FindSet() then;
+#endif
+#if not CLEAN27      
                     EUTrdPartyAmtService := 0;
                     NotEUTrdPartyAmtService := 0;
                     EUTrdPartyAmt := 0;
                     NotEUTrdPartyAmt := 0
+#endif
                 end;
             }
 
@@ -262,6 +300,8 @@ report 130 "EC Sales List"
 
     requestpage
     {
+        AboutTitle = 'About EC Sales List';
+        AboutText = 'The **EC Sales List** report summarizes sales of goods and services to VAT-registered customers in other EU countries for tax reporting. Use it for preparing and submitting EC Sales declarations to EU tax authorities, ensuring compliance with intra-EU VAT reporting requirements.';
         SaveValues = true;
 
         layout
@@ -278,6 +318,7 @@ report 130 "EC Sales List"
                         OptionCaption = 'Separate Lines,Column with Amount';
                         ToolTip = 'Specifies if you want the report to show third party trade as a separate line for each customer or as an additional column.';
                     }
+#if not CLEAN27
                     field("Create XML File"; "Create XML File")
                     {
                         ApplicationArea = Basic, Suite;
@@ -289,6 +330,7 @@ report 130 "EC Sales List"
                             CreateXMLFileOnAfterValidate();
                         end;
                     }
+#endif
                 }
             }
         }
@@ -297,35 +339,45 @@ report 130 "EC Sales List"
         {
         }
 
+#if not CLEAN27
         trigger OnInit()
         begin
             XMLFileEnable := true;
         end;
+#endif
 
+#if not CLEAN27
         trigger OnOpenPage()
         begin
             XMLFileEnable := "Create XML File";
         end;
+#endif
     }
 
     labels
     {
     }
 
+#if not CLEAN27
     trigger OnPostReport()
     begin
         if "Create XML File" then
             SaveXMLFile();
     end;
+#endif
 
     trigger OnPreReport()
+#if not CLEAN27
     var
         PeriodEnd: Date;
+        IsHandled: Boolean;
+#endif
     begin
         CompanyInfo.Get();
         FormatAddr.Company(CompanyAddr, CompanyInfo);
 
         VATEntryFilter := "VAT Entry".GetFilters();
+#if not CLEAN27
         PeriodStart := "VAT Entry".GetRangeMin("Posting Date");
         PeriodEnd := "VAT Entry".GetRangeMax("Posting Date");
 
@@ -333,13 +385,17 @@ report 130 "EC Sales List"
         Calendar.SetFilter("Period Type", '%1|%2', Calendar."Period Type"::Month, Calendar."Period Type"::Quarter);
         Calendar.SetRange("Period Start", PeriodStart);
         Calendar.SetRange("Period End", ClosingDate(PeriodEnd));
-        if not Calendar.FindFirst() then
-            Error(Text10500, "VAT Entry".FieldCaption("Posting Date"), "VAT Entry".GetFilter("Posting Date"));
-
+        IsHandled := false;
+        OnBeforePostingDateError(IsHandled);
+        if not IsHandled then
+            if not Calendar.FindFirst() then
+                Error(Text10500, "VAT Entry".FieldCaption("Posting Date"), "VAT Entry".GetFilter("Posting Date"));
+#endif
         GLSetup.Get();
-
+#if not CLEAN27
         if "Create XML File" then
             CreateXMLDocument();
+#endif
     end;
 
     var
@@ -375,6 +431,7 @@ report 130 "EC Sales List"
         FormatEUTrdPartyAmt: Text[30];
         FormatNotEUTrdPartyAmtService: Text[30];
         FormatEUTrdPartyAmtService: Text[30];
+#if not CLEAN27
         Calendar: Record Date;
         XMLOut: DotNet XmlDocument;
         XMLCurrNode: DotNet XmlNode;
@@ -395,6 +452,7 @@ report 130 "EC Sales List"
         XMLFileEnable: Boolean;
         Text10500: Label '%1 filter %2 must be corrected, to run the report monthly or quarterly. ';
         IndicatorCode: Integer;
+#endif
         ECSalesListCaptionLbl: Label 'EC Sales List';
         CompanyInfoPhoneNoCaptionLbl: Label 'Phone No.';
         CompanyInfoHomePageCaptionLbl: Label 'Home Page';
@@ -402,7 +460,9 @@ report 130 "EC Sales List"
         TotalValueofItemSuppliesCaptionLbl: Label 'Total Value of Item Supplies';
         EU3PartyTradeCaptionLbl: Label 'EU 3-Party Trade';
         TotalValueofServiceSuppliesCaptionLbl: Label 'Total Value of Service Supplies';
+#if not CLEAN27
         Indicator_Code_CaptionLbl: Label 'Indicator Code';
+#endif
         EU3PartyItemTradeAmtCaptionLbl: Label 'EU 3-Party Item Trade Amount';
         EUPartySrvcTradeAmtCaptionLbl: Label 'EU 3-Party Service Trade Amount';
         NumberoflinesThispageCaptionLbl: Label 'Number of lines (this page)';
@@ -424,11 +484,18 @@ report 130 "EC Sales List"
         ReportLayout := NewReportLayout;
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to GovTalk app', '27.0')]
     [Scope('OnPrem')]
     procedure CreateXMLDocument()
     var
         RBMgt: Codeunit "File Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := true;
+        OnBeforeCreateXMLDocument(IsHandled);
+        if IsHandled then
+            exit;
         "XML File" := RBMgt.ServerTempFileName('xml');
         XMLOut := XMLOut.XmlDocument();
 
@@ -472,6 +539,7 @@ report 130 "EC Sales List"
         NewChildNode := XMLOut.CreateElement('SubmissionLines');
     end;
 
+    [Obsolete('Moved to GovTalk app', '27.0')]
     [Scope('OnPrem')]
     procedure CreateXMLSubmissionLine(Amount: Decimal; IndicatorCode: Integer)
     begin
@@ -499,9 +567,16 @@ report 130 "EC Sales List"
         XMLCurrNode.AppendChild(NewChildNode);
     end;
 
+    [Obsolete('Moved to GovTalk app', '27.0')]
     [Scope('OnPrem')]
     procedure SaveXMLFile()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSaveXMLFile(IsHandled);
+        if IsHandled then
+            exit;
         XMLOut.Save("XML File");
         ToFile := Text1040003 + '.xml';
         if not Download("XML File", Text1041001, '', Text1041000, ToFile) then
@@ -509,16 +584,23 @@ report 130 "EC Sales List"
         Message(Text1041002);
     end;
 
+    [Obsolete('Moved to GovTalk app', '27.0')]
     local procedure FormatAmtXML(AmountToPrint: Decimal): Text[30]
     begin
         exit(Format(Round(-AmountToPrint, 1), 0, 1));
     end;
 
+    [Obsolete('Moved to GovTalk app', '27.0')]
     [Scope('OnPrem')]
     procedure UpdateXMLFileRTC()
     var
         IndicatorCode2: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateXMLFileRTC(IsHandled);
+        if IsHandled then
+            exit;
         if "Create XML File" and
            (NotEUTrdPartyAmt <> 0)
         then begin
@@ -538,11 +620,13 @@ report 130 "EC Sales List"
         end;
     end;
 
+    [Obsolete('Moved to GovTalk app', '27.0')]
     local procedure CreateXMLFileOnAfterValidate()
     begin
         XMLFileEnable := "Create XML File";
     end;
 
+    [Obsolete('Moved to GovTalk app', '27.0')]
     [Scope('OnPrem')]
     procedure CalcPeriodValue(): Integer
     begin
@@ -552,12 +636,14 @@ report 130 "EC Sales List"
             exit(3)
     end;
 
+    [Obsolete('Moved to GovTalk app', '27.0')]
     [Scope('OnPrem')]
     procedure FormatPeriod(PeriodNo: Integer): Text[30]
     begin
         exit(Format(PeriodNo, 2, '<Integer,2><Filler Character,0>'));
     end;
 
+    [Obsolete('Moved to GovTalk app', '27.0')]
     [Scope('OnPrem')]
     procedure GetIndicatorCode(EU3rdPartyTrade: Boolean; EUService: Boolean): Integer
     begin
@@ -569,5 +655,42 @@ report 130 "EC Sales List"
             else
                 exit(0)
     end;
+#endif
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetGrouping(ReportLayout: Option "Separate &Lines","Column with &Amount"; NotEUTrdPartyAmt: Decimal; Grouping: Option NotEUTrdPartyAmt,NotEUTrdPartyAmtService,EUTrdPartyAmt,EUTrdPartyAmtService; NotEUTrdPartyAmtService: Decimal; EUTrdPartyAmt: Decimal; EUTrdPartyAmtService: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterVATEntryNext(ResetVATEntry: Boolean; "VAT Entry": Record "VAT Entry")
+    begin
+    end;
+
+#if not CLEAN27
+    [Obsolete('Event will be removed in a future release.', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateXMLFileRTC(var IsHandled: Boolean)
+    begin
+    end;
+
+    [Obsolete('Event will be removed in a future release.', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSaveXMLFile(var IsHandled: Boolean)
+    begin
+    end;
+
+    [Obsolete('Event will be removed in a future release.', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostingDateError(var IsHandled: Boolean)
+    begin
+    end;
+
+    [Obsolete('Event will be removed in a future release.', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateXMLDocument(var IsHandled: Boolean)
+    begin
+    end;
+#endif
 }
 

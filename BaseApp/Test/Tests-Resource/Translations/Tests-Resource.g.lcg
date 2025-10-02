@@ -185,24 +185,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType FirstWeekDayCannotBeChangedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4122090376 - NamedType 1652061025" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect Allocation Quantity]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType IncorrectAllocationQuantityErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4122090376 - NamedType 891846216" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect Cost Value]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType IncorrectCostValueErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4122090376 - NamedType 752454007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect Posting Entry No. page opened]]></Val>
@@ -228,15 +210,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType IncorrectTSArchiveNoOpenedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4122090376 - NamedType 2078580476" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Number of %1 entries is wrong]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType LineCountErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4122090376 - NamedType 2683051756" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -291,15 +264,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType ThereIsNoEmployeeLinkedWithResErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4122090376 - NamedType 890773720" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Time Sheet Day Time Allocation incorrect]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType TimesheetDetailValueIncorrectErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4122090376 - NamedType 3279855424" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

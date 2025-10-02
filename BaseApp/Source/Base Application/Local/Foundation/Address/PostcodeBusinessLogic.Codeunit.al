@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN27
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -9,6 +10,9 @@ using Microsoft.Utilities;
 codeunit 10500 "Postcode Business Logic"
 {
     Permissions = TableData "Post Code" = rimd;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Codeunit has been moved to the GetAddress.io UK Postcodes.';
+    ObsoleteTag = '27.0';
 
     trigger OnRun()
     begin
@@ -235,3 +239,4 @@ codeunit 10500 "Postcode Business Logic"
     end;
 }
 
+#endif

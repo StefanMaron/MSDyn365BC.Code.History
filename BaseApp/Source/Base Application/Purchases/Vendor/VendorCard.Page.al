@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.Vendor;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Vendor;
 
 using Microsoft.Bank.Reconciliation;
 using Microsoft.CRM.Contact;
@@ -187,6 +191,11 @@ page 26 "Vendor Card"
                     Importance = Additional;
                     ToolTip = 'Specifies the size of the vendor''s company.';
                 }
+                field("Statistics Group"; Rec."Statistics Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
             }
             group("Address & Contact")
             {
@@ -194,14 +203,21 @@ page 26 "Vendor Card"
                 group(AddressDetails)
                 {
                     Caption = 'Address';
+#if not CLEAN27
                     group(Control1040003)
                     {
                         ShowCaption = false;
                         Visible = IsAddressLookupTextEnabled;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Functionality has been moved to the GetAddress.io UK Postcodes.';
+                        ObsoleteTag = '27.0';
                         field(LookupAddress; LookupAddressLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Editable = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Field has been moved to the GetAddress.io UK Postcodes.';
+                            ObsoleteTag = '27.0';
                             ShowCaption = false;
 
                             trigger OnDrillDown()
@@ -210,17 +226,20 @@ page 26 "Vendor Card"
                             end;
                         }
                     }
+#endif
                     field(Address; Rec.Address)
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the vendor''s address.';
 
+#if not CLEAN27
                         trigger OnValidate()
                         var
                             PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
                         begin
                             PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
                         end;
+#endif
                     }
                     field("Address 2"; Rec."Address 2")
                     {
@@ -235,7 +254,9 @@ page 26 "Vendor Card"
                         trigger OnValidate()
                         begin
                             IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+#if not CLEAN27
                             HandleAddressLookupVisibility();
+#endif
                         end;
                     }
                     field(City; Rec.City)
@@ -258,7 +279,7 @@ page 26 "Vendor Card"
                         ApplicationArea = Basic, Suite;
                         Importance = Promoted;
                         ToolTip = 'Specifies the postal code.';
-
+#if not CLEAN27
                         trigger OnValidate()
                         var
                             PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
@@ -266,6 +287,7 @@ page 26 "Vendor Card"
                             PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
                             ShowPostcodeLookup(false);
                         end;
+#endif
                     }
                     field(ShowMap; ShowMapLbl)
                     {
@@ -1864,7 +1886,9 @@ page 26 "Vendor Card"
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(Rec.RecordId);
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(Rec.RecordId);
         WorkflowWebhookManagement.GetCanRequestAndCanCancel(Rec.RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
+#if not CLEAN27
         HandleAddressLookupVisibility();
+#endif
 
         if Rec."No." <> '' then
             CurrPage.AgedAccPayableChart.PAGE.UpdateChartForVendor(Rec."No.");
@@ -1879,7 +1903,7 @@ page 26 "Vendor Card"
     begin
         ContactEditable := true;
 
-        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(FlowServiceManagement.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1972,7 +1996,7 @@ page 26 "Vendor Card"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         FormatAddress: Codeunit "Format Address";
         PrivacyNotice: Codeunit "Privacy Notice";
-        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
+        FlowServiceManagement: Codeunit "Flow Service Management";
 #pragma warning disable AA0074
         Text001: Label 'Do you want to allow payment tolerance for entries that are currently open?';
         Text002: Label 'Do you want to remove payment tolerance from entries that are currently open?';
@@ -1995,8 +2019,10 @@ page 26 "Vendor Card"
         SendToIncomingDocumentVisible: Boolean;
         NoFieldVisible: Boolean;
         NewMode: Boolean;
+#if not CLEAN27 
         LookupAddressLbl: Label 'Lookup address from postcode';
         IsAddressLookupTextEnabled: Boolean;
+#endif
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
         IsSaaS: Boolean;
@@ -2101,6 +2127,8 @@ page 26 "Vendor Card"
                     CurrPage.Close();
     end;
 
+#if not CLEAN27
+    [Obsolete('Functionality has been moved to the GetAddress.io UK Postcodes.', '27.0')]
     local procedure ShowPostcodeLookup(ShowInputFields: Boolean)
     var
         TempEnteredAutocompleteAddress: Record "Autocomplete Address" temporary;
@@ -2142,6 +2170,7 @@ page 26 "Vendor Card"
         else
             IsAddressLookupTextEnabled := PostcodeBusinessLogic.SupportedCountryOrRegionCode(Rec."Country/Region Code");
     end;
+#endif
 
     local procedure SetNoFieldVisible()
     var

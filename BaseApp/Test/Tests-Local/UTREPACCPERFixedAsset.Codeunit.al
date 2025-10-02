@@ -1,3 +1,4 @@
+#if not CLEAN27
 codeunit 144027 "UT REP ACCPER - Fixed Asset"
 {
     //  1. Purpose of the test is to validate Fixed Asset - OnPreDataItem Trigger of Report 10560 (FA - Projected Value) with Group Totals FA Posting Group.
@@ -32,6 +33,9 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Reports GB app';
+    ObsoleteTag = '27.0';
 
     trigger OnRun()
     begin
@@ -321,7 +325,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         // Verify.
         LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('DoProjectedDisposal', ProjectedDisposal);
-    end;
+    end;    
 
     local procedure Initialize()
     begin
@@ -576,4 +580,4 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         FAProjectedValue.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-
+#endif

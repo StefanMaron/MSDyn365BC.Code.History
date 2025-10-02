@@ -5,7 +5,10 @@
 namespace Microsoft.DemoData.Localization;
 
 using Microsoft.eServices.EDocument.Format;
+using Microsoft.DemoData.Jobs;
+using Microsoft.DemoData.Finance;
 using Microsoft.Inventory.Item;
+using Microsoft.DemoData.Foundation;
 using Microsoft.Purchases.Document;
 
 codeunit 10546 "Create EDocs From Resources GB"

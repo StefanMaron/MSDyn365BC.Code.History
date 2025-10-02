@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Account;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.GeneralLedger.Account;
 
 using Microsoft.Finance.FinancialReports;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -288,12 +292,14 @@ codeunit 570 "G/L Account Category Mgt."
     local procedure AddAccountSchedule(NewName: Code[10]; NewDescription: Text[80])
     var
         AccScheduleName: Record "Acc. Schedule Name";
+        InternalDescriptionLbl: Label 'Generated from the G/L Account Categories page.', MaxLength = 250;
     begin
         if AccScheduleName.Get(NewName) then
             exit;
         AccScheduleName.Init();
         AccScheduleName.Name := NewName;
         AccScheduleName.Description := NewDescription;
+        AccScheduleName."Internal Description" := InternalDescriptionLbl;
         AccScheduleName.Insert();
     end;
 

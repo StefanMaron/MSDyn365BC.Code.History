@@ -43,6 +43,7 @@ report 134301 "Workflow Event Advanced Args"
                         field(Quantity; "Purchase Line".Quantity)
                         {
                             Caption = 'Quantity';
+                            AutoFormatType = 0;
                         }
                     }
                 }
@@ -58,4 +59,3 @@ report 134301 "Workflow Event Advanced Args"
     {
     }
 }
-

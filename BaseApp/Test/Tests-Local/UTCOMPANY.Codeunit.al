@@ -11,7 +11,6 @@ codeunit 144011 "UT COMPANY"
     //  7. Test to verify that Registered Address field exist on the Company Information Page.
     //  8. Test to verify that Registered Address 2 field exist on the Company Information Page.
     //  9. Test to verify that Registered County field exist on the Company Information Page.
-    // 10. Test to verify that Branch Number field exist on the Company Information Page.
     // 11. Test to verify that Registered Post Code field is populated correctly when validate the Registered City on Company Information.
     // 12. Test to verify that Registered City field is populated correctly when validate the Registered Post Code on Company Information.
     // 
@@ -37,6 +36,7 @@ codeunit 144011 "UT COMPANY"
     var
         Assert: Codeunit Assert;
         LibraryUtility: Codeunit "Library - Utility";
+#if not CLEAN27
         LibraryRandom: Codeunit "Library - Random";
 
     [Test]
@@ -49,6 +49,7 @@ codeunit 144011 "UT COMPANY"
         // Purpose of the test is to validate that Registered Post Code field exist on the Company Information Page.
         CheckControlOnCompanyInformationPage(CompanyInformation.FieldNo("Registered Post Code"));
     end;
+#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -61,6 +62,7 @@ codeunit 144011 "UT COMPANY"
         CheckControlOnCompanyInformationPage(CompanyInformation.FieldNo("Post Code"));
     end;
 
+#if not CLEAN27
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -82,6 +84,7 @@ codeunit 144011 "UT COMPANY"
         // Purpose of the test is to validate that Registered Name field exist on the Company Information Page.
         CheckControlOnCompanyInformationPage(CompanyInformation.FieldNo("Registered Name"));
     end;
+#endif    
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -105,6 +108,7 @@ codeunit 144011 "UT COMPANY"
         CheckControlOnCompanyInformationPage(CompanyInformation.FieldNo(County));
     end;
 
+#if not CLEAN27
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -148,6 +152,7 @@ codeunit 144011 "UT COMPANY"
         // Purpose of the test is to validate that Branch Number field exist on the Company Information Page.
         CheckControlOnCompanyInformationPage(CompanyInformation.FieldNo("Branch Number"));
     end;
+#endif
 
     local procedure CheckControlOnCompanyInformationPage(FieldNo: Integer)
     var
@@ -160,6 +165,7 @@ codeunit 144011 "UT COMPANY"
         Assert.AreEqual(true, ControlExist, 'Control must exist');
     end;
 
+#if not CLEAN27 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -222,5 +228,6 @@ codeunit 144011 "UT COMPANY"
         CompanyInformation.Validate("Branch Number", '');
         CompanyInformation.Modify();
     end;
+#endif    
 }
 

@@ -57,6 +57,7 @@ query 141 "EU VAT Entries"
                 column(CountryCode; "Code")
                 {
                 }
+#if not CLEAN27
                 dataitem(ECSL_VAT_Report_Line_Relation; "ECSL VAT Report Line Relation")
                 {
                     DataItemLink = "VAT Entry No." = VAT_Entry."Entry No.";
@@ -88,6 +89,7 @@ query 141 "EU VAT Entries"
                         }
                     }
                 }
+#endif
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN27
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -11,7 +12,9 @@ using System.Xml;
 codeunit 10521 "HMRC GovTalk Message Scheduler"
 {
     TableNo = "Job Queue Entry";
-
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to GovTalk app';
+    ObsoleteTag = '27.0';
     trigger OnRun()
     var
         VATReportHeader: Record "VAT Report Header";
@@ -55,4 +58,5 @@ codeunit 10521 "HMRC GovTalk Message Scheduler"
                 GovTalkMessageManagement.RegisterGovTalkPolling(VATReportHeader, XMLPartID);
     end;
 }
+#endif
 

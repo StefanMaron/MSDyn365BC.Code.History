@@ -21,7 +21,8 @@ using Microsoft.API.Upgrade;
 
 codeunit 5529 "Purch. Inv. Aggregator"
 {
-    Permissions = TableData "Purch. Inv. Header" = rimd;
+    Permissions = tabledata "Purch. Inv. Header" = rimd,
+                  tabledata "Purch. Inv. Entity Aggregate" = rimd;
 
     trigger OnRun()
     begin

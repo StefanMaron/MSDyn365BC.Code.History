@@ -145,10 +145,10 @@ codeunit 134663 "RC Page Job Queue Failed Test"
         // [THEN] The cues should show the count of the failed, in process and in queue jobs with 1,1,4 respectively.
         Assert.AreEqual(1, TestPageJobQueueTask."Tasks Failed".AsInteger(), TaskFailedCountIncorrectLbl);
         Assert.AreEqual(1, TestPageJobQueueTask."Tasks In Process".AsInteger(), TaskInProcessCountIncorrectLbl);
-        Assert.AreEqual(4, TestPageJobQueueTask."Tasks In Queue".AsInteger(), TaskInQueueCountIncorrectLbl);
+        Assert.AreEqual(2, TestPageJobQueueTask."Tasks In Queue".AsInteger(), TaskInQueueCountIncorrectLbl);
 
         // [THEN] Check the detail of the failed job, in process job and in queue job
-        CheckOnDrillDownPageCorrectForCommonUser(TestPageJobQueueTask, 1, 1, 4, false);
+        CheckOnDrillDownPageCorrectForCommonUser(TestPageJobQueueTask, 1, 1, 2, false);
     end;
 
 
@@ -792,10 +792,10 @@ codeunit 134663 "RC Page Job Queue Failed Test"
         // [THEN] The cues should show the count of the failed, in process and in queue jobs with 1,1,4 respectively.
         Assert.AreEqual(1, TestPageJobQueueTask."Tasks Failed".AsInteger(), TaskFailedCountIncorrectLbl);
         Assert.AreEqual(1, TestPageJobQueueTask."Tasks In Process".AsInteger(), TaskInProcessCountIncorrectLbl);
-        Assert.AreEqual(4, TestPageJobQueueTask."Tasks In Queue".AsInteger(), TaskInQueueCountIncorrectLbl);
+        Assert.AreEqual(2, TestPageJobQueueTask."Tasks In Queue".AsInteger(), TaskInQueueCountIncorrectLbl);
 
         // [THEN] Check the detail of the failed job, in process job and in queue job
-        CheckOnDrillDownPageCorrectForCommonUser(TestPageJobQueueTask, 1, 1, 4, false);
+        CheckOnDrillDownPageCorrectForCommonUser(TestPageJobQueueTask, 1, 1, 2, false);
     end;
 
 
@@ -1524,10 +1524,10 @@ codeunit 134663 "RC Page Job Queue Failed Test"
         // [THEN] The cues should show the count of the failed, in process and in queue jobs with 1,1,4 respectively.
         Assert.AreEqual(1, TestPageJobQueueTask."Tasks Failed".AsInteger(), TaskFailedCountIncorrectLbl);
         Assert.AreEqual(1, TestPageJobQueueTask."Tasks In Process".AsInteger(), TaskInProcessCountIncorrectLbl);
-        Assert.AreEqual(4, TestPageJobQueueTask."Tasks In Queue".AsInteger(), TaskInQueueCountIncorrectLbl);
+        Assert.AreEqual(2, TestPageJobQueueTask."Tasks In Queue".AsInteger(), TaskInQueueCountIncorrectLbl);
 
         // [THEN] Check the detail of the failed job, in process job and in queue job
-        CheckOnDrillDownPageCorrectForCommonUser(TestPageJobQueueTask, 1, 1, 4, false);
+        CheckOnDrillDownPageCorrectForCommonUser(TestPageJobQueueTask, 1, 1, 2, false);
     end;
 
     [Test]

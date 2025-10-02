@@ -52,7 +52,9 @@ codeunit 5720 "Item Reference Management"
                 if GlobalItemReference.Description <> '' then begin
                     SalesLine2.Description := GlobalItemReference.Description;
                     SalesLine2."Description 2" := GlobalItemReference."Description 2";
-                end;
+                end else
+                    FillSalesDescription(SalesLine2);
+
                 SalesLine2."Item Reference Type No." := GlobalItemReference."Reference Type No.";
                 OnAfterSalesItemReferenceFound(SalesLine2, GlobalItemReference, SalesLineBeforeChanges);
             end else begin
@@ -76,7 +78,7 @@ codeunit 5720 "Item Reference Management"
         end;
     end;
 
-    local procedure FindItemReferenceForSalesLine(SalesLine: Record "Sales Line")
+    local procedure FindItemReferenceForSalesLine(var SalesLine: Record "Sales Line")
     var
         ToDate: Date;
         IsHandled: Boolean;
@@ -148,7 +150,9 @@ codeunit 5720 "Item Reference Management"
                 if ShouldAssignDescription then begin
                     PurchLine2.Description := GlobalItemReference.Description;
                     PurchLine2."Description 2" := GlobalItemReference."Description 2";
-                end;
+                end else
+                    FillDescription(PurchLine2);
+
                 OnAfterPurchItemReferenceFound(PurchLine2, GlobalItemReference);
             end else begin
                 PurchLine2."Item Reference No." := '';
@@ -209,6 +213,19 @@ codeunit 5720 "Item Reference Management"
             GlobalItem.Get(PurchaseLine."No.");
             PurchaseLine.Description := GlobalItem.Description;
             PurchaseLine."Description 2" := GlobalItem."Description 2";
+        end;
+    end;
+
+    local procedure FillSalesDescription(var SalesLine: Record "Sales Line")
+    begin
+        if SalesLine."Variant Code" <> '' then begin
+            GlobalItemVariant.Get(SalesLine."No.", SalesLine."Variant Code");
+            SalesLine.Description := GlobalItemVariant.Description;
+            SalesLine."Description 2" := GlobalItemVariant."Description 2";
+        end else begin
+            GlobalItem.Get(SalesLine."No.");
+            SalesLine.Description := GlobalItem.Description;
+            SalesLine."Description 2" := GlobalItem."Description 2";
         end;
     end;
 
@@ -625,6 +642,9 @@ codeunit 5720 "Item Reference Management"
         SalesLine."Item Reference Type No." := ReturnedItemReference."Reference Type No.";
         SalesLine."Item Reference No." := ReturnedItemReference."Reference No.";
 
+        if (SalesLine."Item Reference No." = '') and (SalesLine."Variant Code" <> '') then
+            FillSalesDescription(SalesLine);
+
         if (ReturnedItemReference.Description <> '') or (ReturnedItemReference."Description 2" <> '') then begin
             SalesLine.Description := ReturnedItemReference.Description;
             SalesLine."Description 2" := ReturnedItemReference."Description 2";
@@ -708,6 +728,9 @@ codeunit 5720 "Item Reference Management"
             PurchaseLine."Item Reference Type No." := ReturnedItemReference."Reference Type No.";
             PurchaseLine."Item Reference No." := ReturnedItemReference."Reference No.";
 
+            if (PurchaseLine."Item Reference No." = '') and (PurchaseLine."Variant Code" <> '') then
+                FillDescription(PurchaseLine);
+
             if (ReturnedItemReference.Description <> '') or (ReturnedItemReference."Description 2" <> '') then begin
                 PurchaseLine.Description := ReturnedItemReference.Description;
                 PurchaseLine."Description 2" := ReturnedItemReference."Description 2";
@@ -765,11 +788,27 @@ codeunit 5720 "Item Reference Management"
         PhysInvtOrderLine."Item Reference Type No." := ReturnedItemReference."Reference Type No.";
         PhysInvtOrderLine."Item Reference No." := ReturnedItemReference."Reference No.";
 
+        if (PhysInvtOrderLine."Item Reference No." = '') then
+            FillPhysInvOrderLineDescription(PhysInvtOrderLine);
+
         if (ReturnedItemReference.Description <> '') or (ReturnedItemReference."Description 2" <> '') then begin
             PhysInvtOrderLine.Description := ReturnedItemReference.Description;
             PhysInvtOrderLine."Description 2" := ReturnedItemReference."Description 2";
         end;
         OnAfterValidatePhysicalInventoryOrderReferenceNo(PhysInvtOrderLine, ItemReference, ReturnedItemReference);
+    end;
+
+    local procedure FillPhysInvOrderLineDescription(var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    var
+        Item: Record Item;
+    begin
+        if PhysInvtOrderLine."Variant Code" <> '' then
+            PhysInvtOrderLine.Validate("Variant Code")
+        else begin
+            Item.Get(PhysInvtOrderLine."Item No.");
+            PhysInvtOrderLine.Description := Item.Description;
+            PhysInvtOrderLine."Description 2" := Item."Description 2";
+        end;
     end;
 
     procedure ReferenceLookupPhysicalInventoryOrderItem(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var ReturnedItemReference: Record "Item Reference"; ShowDialog: Boolean)
@@ -830,11 +869,27 @@ codeunit 5720 "Item Reference Management"
         PhysInvtRecordLine."Item Reference Type No." := ReturnedItemReference."Reference Type No.";
         PhysInvtRecordLine."Item Reference No." := ReturnedItemReference."Reference No.";
 
+        if (PhysInvtRecordLine."Item Reference No." = '') then
+            FillPhysInvtRecordLineDescription(PhysInvtRecordLine);
+
         if (ReturnedItemReference.Description <> '') or (ReturnedItemReference."Description 2" <> '') then begin
             PhysInvtRecordLine.Description := ReturnedItemReference.Description;
             PhysInvtRecordLine."Description 2" := ReturnedItemReference."Description 2";
         end;
         OnAfterValidatePhysicalInventoryRecordReferenceNo(PhysInvtRecordLine, ItemReference, ReturnedItemReference);
+    end;
+
+    local procedure FillPhysInvtRecordLineDescription(var PhysInvtRecordLine: Record "Phys. Invt. Record Line")
+    var
+        Item: Record Item;
+    begin
+        if PhysInvtRecordLine."Variant Code" <> '' then
+            PhysInvtRecordLine.Validate("Variant Code")
+        else begin
+            Item.Get(PhysInvtRecordLine."Item No.");
+            PhysInvtRecordLine.Description := Item.Description;
+            PhysInvtRecordLine."Description 2" := Item."Description 2";
+        end;
     end;
 
     procedure ReferenceLookupPhysicalInventoryRecordItem(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; var ReturnedItemReference: Record "Item Reference"; ShowDialog: Boolean)
@@ -894,9 +949,24 @@ codeunit 5720 "Item Reference Management"
         ItemJournalLine."Item Reference Type No." := ReturnedItemReference."Reference Type No.";
         ItemJournalLine."Item Reference No." := ReturnedItemReference."Reference No.";
 
+        if (ItemJournalLine."Item Reference No." = '') then
+            FillItemJournalDescription(ItemJournalLine);
+
         if ReturnedItemReference.Description <> '' then
             ItemJournalLine.Description := ReturnedItemReference.Description;
         OnAfterValidateItemJournalReferenceNo(ItemJournalLine, ItemReference, ReturnedItemReference);
+    end;
+
+    local procedure FillItemJournalDescription(var ItemJournalLine: Record "Item Journal Line")
+    var
+        Item: Record Item;
+    begin
+        if ItemJournalLine."Variant Code" <> '' then
+            ItemJournalLine.Validate("Variant Code")
+        else begin
+            Item.Get(ItemJournalLine."Item No.");
+            ItemJournalLine.Description := Item.Description;
+        end;
     end;
 
     procedure ReferenceLookupItemJournalItem(var ItemJournalLine: Record "Item Journal Line"; var ReturnedItemReference: Record "Item Reference"; ShowDialog: Boolean)
@@ -936,10 +1006,25 @@ codeunit 5720 "Item Reference Management"
         InvtDocumentLine."Item Reference Type No." := ReturnedItemReference."Reference Type No.";
         InvtDocumentLine."Item Reference No." := ReturnedItemReference."Reference No.";
 
+        if (InvtDocumentLine."Item Reference No." = '') then
+            FillInvtDocumentLine(InvtDocumentLine);
+
         if ReturnedItemReference.Description <> '' then
             InvtDocumentLine.Description := ReturnedItemReference.Description;
 
         OnAfterValidateInvtDocumentReferenceNo(InvtDocumentLine, ItemReference, ReturnedItemReference);
+    end;
+
+    local procedure FillInvtDocumentLine(var InvtDocumentLine: Record "Invt. Document Line")
+    var
+        Item: Record Item;
+    begin
+        if InvtDocumentLine."Variant Code" <> '' then
+            InvtDocumentLine.Validate("Variant Code")
+        else begin
+            Item.Get(InvtDocumentLine."Item No.");
+            InvtDocumentLine.Description := Item.Description;
+        end;
     end;
 
     procedure ReferenceLookupInvtDocumentItem(var InvtDocumentLine: Record "Invt. Document Line"; var ReturnedItemReference: Record "Item Reference"; ShowDialog: Boolean)
@@ -1021,7 +1106,7 @@ codeunit 5720 "Item Reference Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindItemReferenceForSalesLine(SalesLine: Record "Sales Line"; var ItemReference: Record "Item Reference"; var Found: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeFindItemReferenceForSalesLine(var SalesLine: Record "Sales Line"; var ItemReference: Record "Item Reference"; var Found: Boolean; var IsHandled: Boolean)
     begin
     end;
 

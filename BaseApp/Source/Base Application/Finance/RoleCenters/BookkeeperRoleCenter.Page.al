@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.RoleCenters;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.RoleCenters;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Deposit;
@@ -41,55 +45,6 @@ page 9004 "Bookkeeper Role Center"
     {
         area(rolecenter)
         {
-#if not CLEAN24
-            group(Control1900724808)
-            {
-                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-                ShowCaption = false;
-                part(Control1901197008; "Bookkeeper Activities")
-                {
-                    ApplicationArea = Basic, Suite;
-                }
-                part("User Tasks Activities"; "User Tasks Activities")
-                {
-                    ApplicationArea = Suite;
-                }
-                part(ApprovalsActivities; "Approvals Activities")
-                {
-                    ApplicationArea = Basic, Suite;
-                }
-                part(Control1907692008; "My Customers")
-                {
-                    ApplicationArea = Basic, Suite;
-                }
-            }
-            group(Control1900724708)
-            {
-                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-                ShowCaption = false;
-                part(Control17; "My Job Queue")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Visible = false;
-                }
-                part(Control1902476008; "My Vendors")
-                {
-                    ApplicationArea = Basic, Suite;
-                }
-                part(Control18; "Report Inbox Part")
-                {
-                    ApplicationArea = Basic, Suite;
-                }
-                systempart(Control1901377608; MyNotes)
-                {
-                    ApplicationArea = Basic, Suite;
-                }
-            }
-#else
             part(Control1901197008; "Bookkeeper Activities")
             {
                 ApplicationArea = Basic, Suite;
@@ -127,7 +82,6 @@ page 9004 "Bookkeeper Role Center"
             {
                 ApplicationArea = Basic, Suite;
             }
-#endif
         }
     }
 
@@ -266,12 +220,16 @@ page 9004 "Bookkeeper Role Center"
                 RunObject = Report "G/L - VAT Reconciliation";
                 ToolTip = 'Verify that the VAT amounts on the VAT statements match the amounts from the G/L entries.';
             }
+#if not CLEAN27
             action("VAT Audit")
             {
                 ApplicationArea = VAT;
                 Caption = 'VAT Audit';
                 Image = "Report";
                 RunObject = Report "VAT Audit";
+                ObsoleteReason = 'Moved to VAT Audit Reports GB app';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
                 ToolTip = 'Prepare for the HMC&E VAT audit by exports the relevant data for VAT auditors into comma-separated files.';
             }
             action("VAT Entry Exception List")
@@ -280,8 +238,12 @@ page 9004 "Bookkeeper Role Center"
                 Caption = 'VAT Entry Exception List';
                 Image = "Report";
                 RunObject = Report "VAT Entry Exception Report";
+                ObsoleteReason = 'Moved to VAT Audit Reports GB app';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
                 ToolTip = 'View or print the differences between the calculated VAT and the changes that occur because of rounding, VAT tolerance percentage, and discounts. The report also displays the difference in VAT amounts for the tax authorities.';
             }
+#endif
             group("VAT EU Reporting")
             {
                 Caption = 'VAT EU Reporting';
@@ -781,4 +743,3 @@ page 9004 "Bookkeeper Role Center"
         }
     }
 }
-

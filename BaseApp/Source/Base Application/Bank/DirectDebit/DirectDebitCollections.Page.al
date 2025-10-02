@@ -4,6 +4,11 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.DirectDebit;
 
+/// <summary>
+/// Displays a list of direct debit collections with their status and basic information.
+/// Provides functionality to create, export, close, and manage direct debit collections
+/// for automated customer payment processing.
+/// </summary>
 page 1207 "Direct Debit Collections"
 {
     AdditionalSearchTerms = 'collect customer payment';

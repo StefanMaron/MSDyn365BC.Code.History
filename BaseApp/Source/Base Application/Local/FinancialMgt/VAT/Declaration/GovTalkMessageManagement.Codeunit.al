@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN27
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -13,6 +14,9 @@ using System.Xml;
 
 codeunit 10520 GovTalkMessageManagement
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to GovTalk app';
+    ObsoleteTag = '27.0';
 
     trigger OnRun()
     begin
@@ -189,7 +193,6 @@ codeunit 10520 GovTalkMessageManagement
     [Scope('OnPrem')]
     procedure ReadGatewayErrors(var VATReportHeader: Record "VAT Report Header"; SubmitResponseXMLNode: DotNet XmlNode)
     var
-        GovTalkMessageParts: Record "GovTalk Message Parts";
         ErrorsXMLNode: DotNet XmlNode;
         CorrelationXMLNode: DotNet XmlNode;
         ChildNodes: DotNet XmlNodeList;
@@ -216,7 +219,7 @@ codeunit 10520 GovTalkMessageManagement
                      SubmitResponseXMLNode, '//x:CorrelationID', 'x', GovTalkNameSpaceTxt, CorrelationXMLNode)
                 then
                     Error('');
-                SetPartStatus(CorrelationXMLNode.InnerText, GovTalkMessageParts.Status::Rejected);
+                SetPartStatus(CorrelationXMLNode.InnerText, Enum::"VAT Report Status"::Rejected);
                 UpdateVATReportStatus(VATReportHeader);
             end else begin
                 VATReportHeader.Validate(Status, VATReportHeader.Status::Rejected);
@@ -547,7 +550,7 @@ codeunit 10520 GovTalkMessageManagement
         GovTalkMessageParts.Modify();
     end;
 
-    local procedure SetPartStatus(CorrelationId: Text; NewStatus: Option)
+    local procedure SetPartStatus(CorrelationId: Text; NewStatus: Enum "VAT Report Status")
     var
         GovTalkMessageParts: Record "GovTalk Message Parts";
     begin
@@ -594,7 +597,7 @@ codeunit 10520 GovTalkMessageManagement
         end;
     end;
 
-    local procedure ConditionalUpdateVATRepStatus(var VATReportHeader: Record "VAT Report Header"; ExpectedPartStatus: Option; UpdateToStatus: Option; TotalPartCount: Integer): Boolean
+    local procedure ConditionalUpdateVATRepStatus(var VATReportHeader: Record "VAT Report Header"; ExpectedPartStatus: Option; UpdateToStatus: Enum "VAT Report Status"; TotalPartCount: Integer): Boolean
     var
         GovTalkMessageParts: Record "GovTalk Message Parts";
     begin
@@ -637,4 +640,5 @@ codeunit 10520 GovTalkMessageManagement
         exit(VATReportsConfiguration."Submission Codeunit ID" = CODEUNIT::"Submit VAT Declaration Request")
     end;
 }
+#endif
 

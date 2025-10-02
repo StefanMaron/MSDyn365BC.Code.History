@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN27
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -10,7 +11,9 @@ using System.Utilities;
 codeunit 10528 "GovTalk VAT Report Validate"
 {
     TableNo = "VAT Report Header";
-
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to GovTalk app';
+    ObsoleteTag = '27.0';
     trigger OnRun()
     begin
         CODEUNIT.Run(CODEUNIT::"VAT Report Validate", Rec);
@@ -51,4 +54,5 @@ codeunit 10528 "GovTalk VAT Report Validate"
         exit(not TempErrorMessage.HasErrors(false));
     end;
 }
+#endif
 

@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LCX SchemaVersion="6.0" Name="System Application Partner Test.g" PsrId="63" SrcCul="en-US" TgtCul="en-US" xmlns="http://schemas.microsoft.com/locstudio/2006/6/lcx">
+  <OwnedComments>
+    <Cmt Name="Dev" />
+    <Cmt Name="LcxAdmin" />
+    <Cmt Name="Rccx" />
+  </OwnedComments>
+  <Item ItemId=";Codeunit 2824926183 - NamedType 3667589479" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Usage of AI resources not authorized with chosen billing type, Capability: %1, Billing Type: %2. Please contact your system administrator.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 is the capability name, %2 is the billing type]D;]A;(Namespace=Partner.Test.AI)(LookupHint=Codeunit Azure OpenAI Test Partner - NamedType BillingTypeAuthorizationErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 643279886 - NamedType 2827260417" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Invalid billing type for Copilot capability '%1']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 is the name of the Copilot Capability]D;]A;(Namespace=Partner.Test.AI)(LookupHint=Codeunit Copilot Test Partner - NamedType InvalidBillingTypeErr)]]></Cmt>
+    </Cmts>
+  </Item>
+</LCX>

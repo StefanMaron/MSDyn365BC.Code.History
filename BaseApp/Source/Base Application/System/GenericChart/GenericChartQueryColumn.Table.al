@@ -58,29 +58,27 @@ table 9183 "Generic Chart Query Column"
     }
 
     var
-#pragma warning disable AA0074
-        Text000: Label 'NONE', Comment = 'NONE';
-        Text001: Label 'COUNT', Comment = 'COUNT';
-        Text002: Label 'SUM', Comment = 'SUM';
-        Text003: Label 'MIN', Comment = 'MIN';
-        Text004: Label 'MAX', Comment = 'MAX';
-        Text005: Label 'AVERAGE', Comment = 'AVERAGE';
-#pragma warning restore AA0074
+        NoneAggrTypeTok: Label 'NONE', Comment = 'NONE';
+        CountAggrTypeTok: Label 'COUNT', Comment = 'COUNT';
+        SumAggrTypeTok: Label 'SUM', Comment = 'SUM';
+        MinAggrTypeTok: Label 'MIN', Comment = 'MIN';
+        MaxAggrTypeTok: Label 'MAX', Comment = 'MAX';
+        AverageAggrTypeTok: Label 'AVERAGE', Comment = 'AVERAGE';
 
     procedure SetAggregationType(InputTxt: Text)
     begin
         case UpperCase(InputTxt) of
-            Text000:
+            NoneAggrTypeTok:
                 "Aggregation Type" := "Aggregation Type"::None;
-            Text001:
+            CountAggrTypeTok:
                 "Aggregation Type" := "Aggregation Type"::Count;
-            Text002:
+            SumAggrTypeTok:
                 "Aggregation Type" := "Aggregation Type"::Sum;
-            Text003:
+            MinAggrTypeTok:
                 "Aggregation Type" := "Aggregation Type"::Min;
-            Text004:
+            MaxAggrTypeTok:
                 "Aggregation Type" := "Aggregation Type"::Max;
-            Text005:
+            AverageAggrTypeTok:
                 "Aggregation Type" := "Aggregation Type"::Avg;
         end;
     end;

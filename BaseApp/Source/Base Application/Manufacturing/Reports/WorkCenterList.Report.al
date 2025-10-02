@@ -106,6 +106,8 @@ report 99000759 "Work Center List"
 
     requestpage
     {
+        AboutTitle = 'About Work Center List (obsolete)';
+        AboutText = 'Get a list of your work center setup, which can help you manage and schedule production activities efficiently. ** This report is obsolete and will be removed in a later release.** Please consult the report documentation for alternative ways to get to this data.';
 
         layout
         {
