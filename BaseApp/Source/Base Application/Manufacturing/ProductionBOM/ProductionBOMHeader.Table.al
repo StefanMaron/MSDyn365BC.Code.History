@@ -189,32 +189,16 @@ table 99000771 "Production BOM Header"
     trigger OnInsert()
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
 
     begin
         MfgSetup.Get();
         if "No." = '' then begin
             MfgSetup.TestField("Production BOM Nos.");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(MfgSetup."Production BOM Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-                if NoSeries.AreRelated(MfgSetup."Production BOM Nos.", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series"
-                else
-                    "No. Series" := MfgSetup."Production BOM Nos.";
-                "No." := NoSeries.GetNextNo("No. Series");
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", MfgSetup."Production BOM Nos.", 0D, "No.");
-            end;
-#else
             if NoSeries.AreRelated(MfgSetup."Production BOM Nos.", xRec."No. Series") then
                 "No. Series" := xRec."No. Series"
             else
                 "No. Series" := MfgSetup."Production BOM Nos.";
             "No." := NoSeries.GetNextNo("No. Series");
-#endif
         end;
 
         "Creation Date" := Today;
@@ -310,4 +294,3 @@ table 99000771 "Production BOM Header"
     begin
     end;
 }
-

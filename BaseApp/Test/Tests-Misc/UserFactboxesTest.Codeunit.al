@@ -19,7 +19,7 @@ codeunit 132926 "User Factboxes Test"
         TestSecurityGroupCodeTxt: Label 'TEST_SG';
         TestSecurityGroupIdTxt: Label 'security group test ID';
         TestSecurityGroupNameTxt: Label 'Test AAD group';
-
+    
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [CommitBehavior(CommitBehavior::Ignore)]
@@ -39,6 +39,38 @@ codeunit 132926 "User Factboxes Test"
 
         // [GIVEN] A user exists in Entra and BC
         CreateUser(GraphUser, UserSecId);
+
+        // [WHEN] Users page is opened
+        UsersTestPage.Trap();
+        Page.Run(Page::Users);
+
+        // [THEN] The security groups factboxes are visible 
+        AssertSecurityGroupFactboxesAreVisible(UsersTestPage, true);
+
+        TearDown();
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [CommitBehavior(CommitBehavior::Ignore)]
+    procedure TestNoLoadingWhenUserIsDisabled()
+    var
+        User: Record User;
+        UsersTestPage: TestPage Users;
+        UserSecId: Guid;
+        GraphUser: DotNet UserInfo;
+    begin
+        // [SCENARIO] When user is disabled, the loading text is not shown (as the background task is not scheduled).
+
+        Initialize();
+
+        // [GIVEN] A user exists in Entra and BC
+        CreateUser(GraphUser, UserSecId);
+
+        // [GIVEN] The user is disabled in BC
+        User.Get(UserSecId);
+        User.State := User.State::Disabled;
+        User.Modify();
 
         // [WHEN] Users page is opened
         UsersTestPage.Trap();

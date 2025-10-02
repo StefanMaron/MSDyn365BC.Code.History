@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Projects.Project.Planning;
 
 using Microsoft.Foundation.Enums;
@@ -183,13 +187,9 @@ page 1032 "Available - Job Planning Lines"
     end;
 
     var
-        ReservEntry: Record "Reservation Entry";
         ReservEntry2: Record "Reservation Entry";
         ReservMgt: Codeunit "Reservation Management";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
-        SourceRecRef: RecordRef;
-        QtyReserved: Decimal;
-        QtyReservedBase: Decimal;
         NewQtyReserved: Decimal;
         NewQtyReservedBase: Decimal;
         CaptionText: Text;
@@ -204,8 +204,12 @@ page 1032 "Available - Job Planning Lines"
 #pragma warning restore AA0074
 
     protected var
+        ReservEntry: Record "Reservation Entry";
+        SourceRecRef: RecordRef;
         QtyToReserve: Decimal;
         QtyToReserveBase: Decimal;
+        QtyReserved: Decimal;
+        QtyReservedBase: Decimal;
 
     procedure SetSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry")
     var

@@ -1,12 +1,13 @@
-﻿namespace Microsoft.Purchases.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.History;
 
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Interaction;
 using Microsoft.CRM.Segment;
 using Microsoft.CRM.Team;
-#if not CLEAN24
-using Microsoft.Finance;
-#endif
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -531,12 +532,6 @@ report 407 "Purchase - Credit Memo"
                             TotalAmountVAT += "Amount Including VAT" - Amount;
                             TotalAmountInclVAT += "Amount Including VAT";
                             TotalPaymentDiscountOnVAT += -("Line Amount" - "Inv. Discount Amount" - "Amount Including VAT");
-#if not CLEAN24
-                            if LastVATCode = '' then
-                                LastVATCode := "VAT Identifier";
-                            if LastVATCode <> "VAT Identifier" then
-                                MoreThan1VATCode := true;
-#endif
 
                             if FirstLineHasBeenOutput then
                                 Clear(DummyCompanyInfo.Picture);
@@ -627,10 +622,6 @@ report 407 "Purchase - Credit Memo"
 
                         trigger OnPreDataItem()
                         begin
-#if not CLEAN24
-                            if not MoreThan1VATCode and not AlwShowVATSum then
-                                CurrReport.Break();
-#endif
 
                             SetRange(Number, 1, TempVATAmountLine.Count);
                         end;
@@ -679,10 +670,6 @@ report 407 "Purchase - Credit Memo"
                                ("Purch. Cr. Memo Hdr."."Currency Code" = '')
                             then
                                 CurrReport.Break();
-#if not CLEAN24
-                            if not MoreThan1VATCode and not AlwShowVATSum then
-                                CurrReport.Break();
-#endif
 
                             SetRange(Number, 1, TempVATAmountLine.Count);
                             Clear(VALVATBaseLCY);
@@ -803,10 +790,6 @@ report 407 "Purchase - Credit Memo"
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
 
                 PricesIncludingVAT := Format("Prices Including VAT");
-#if not CLEAN24
-                MoreThan1VATCode := false;
-                LastVATCode := '';
-#endif
             end;
 
             trigger OnPreDataItem()
@@ -847,16 +830,6 @@ report 407 "Purchase - Credit Memo"
                         Enabled = LogInteractionEnable;
                         ToolTip = 'Specifies that interactions with the contact are logged.';
                     }
-#if not CLEAN24
-                    field(AlwShowVATSum; AlwShowVATSum)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Visible = IsISCoreAppEnabled;
-                        Enabled = IsISCoreAppEnabled;
-                        Caption = 'Always Show VAT Summary';
-                        ToolTip = 'Specifies that you want the document to include VAT information.';
-                    }
-#endif
                 }
             }
         }
@@ -873,9 +846,6 @@ report 407 "Purchase - Credit Memo"
         
         trigger OnOpenPage()
         begin
-#if not CLEAN24
-            IsISCoreAppEnabled := ISCoreAppSetup.IsEnabled();
-#endif
         end;
     }
 
@@ -1012,18 +982,6 @@ report 407 "Purchase - Credit Memo"
     protected var
         CompanyInfo: Record "Company Information";
         ShipToAddr: array[8] of Text[100];	
-#if not CLEAN24
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        ISCoreAppSetup: Record "IS Core App Setup";
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        AlwShowVATSum: Boolean;
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        MoreThan1VATCode: Boolean;
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        LastVATCode: Code[20];
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        IsISCoreAppEnabled: Boolean;
-#endif
         FirstLineHasBeenOutput: Boolean;
         CompanyAddr: array[8] of Text[100];
 
@@ -1039,16 +997,6 @@ report 407 "Purchase - Credit Memo"
         exit(Text005);
     end;
 
-#if not CLEAN24
-    [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-    procedure InitializeRequest(NewNoOfCopies: Integer; NewShowInternalInfo: Boolean; NewLogInteraction: Boolean; NewAlwShowVATSum: Boolean)
-    begin
-        NoOfCopies := NewNoOfCopies;
-        ShowInternalInfo := NewShowInternalInfo;
-        LogInteraction := NewLogInteraction;
-        AlwShowVATSum := NewAlwShowVATSum;
-    end;
-#endif
 
     procedure InitializeRequest(NewNoOfCopies: Integer; NewShowInternalInfo: Boolean; NewLogInteraction: Boolean)
     begin
@@ -1094,4 +1042,3 @@ report 407 "Purchase - Credit Memo"
     begin
     end;
 }
-

@@ -10,7 +10,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.BOM;
 using System.Environment.Configuration;
 using System.TestLibraries.Utilities;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Inventory.Item.Substitution;
 using Microsoft.Inventory.Location;
 using Microsoft.Projects.Resources.Resource;
@@ -47,6 +46,7 @@ codeunit 137091 "SCM Kitting - D2"
         LibraryJob: Codeunit "Library - Job";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryPlanning: Codeunit "Library - Planning";
         LibraryDimension: Codeunit "Library - Dimension";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -66,7 +66,6 @@ codeunit 137091 "SCM Kitting - D2"
     [Normal]
     local procedure Initialize()
     var
-        MfgSetup: Record "Manufacturing Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Kitting - D2");
@@ -81,8 +80,7 @@ codeunit 137091 "SCM Kitting - D2"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
 
-        MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
+        WorkDate2 := LibraryPlanning.SetSafetyWorkDate();
         StdCostLevel := 2;
         LibraryAssembly.UpdateAssemblySetup(
           AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Order Header", LibraryUtility.GetGlobalNoSeriesCode());

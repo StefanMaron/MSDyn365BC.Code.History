@@ -26,6 +26,7 @@ using System.Environment.Configuration;
 using System.Globalization;
 using System.Security.AccessControl;
 using System.Security.User;
+using System.Telemetry;
 
 page 1 "Company Information"
 {
@@ -132,9 +133,6 @@ page 1 "Company Information"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Economic Operators Registration and Identification number that is used when you exchange information with the customs authorities due to trade into or out of the European Union.';
-#if not CLEAN24
-                    Visible = false;
-#endif
                 }
                 field("Industrial Classification"; Rec."Industrial Classification")
                 {
@@ -693,6 +691,7 @@ page 1 "Company Information"
 
     trigger OnClosePage()
     var
+        AuditLog: Codeunit "Audit Log";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         if ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(Experience) then
@@ -700,7 +699,7 @@ page 1 "Company Information"
 
         if SystemIndicatorChanged then begin
             Message(CompanyBadgeRefreshPageTxt);
-            Session.LogAuditMessage(StrSubstNo(CompanyBadgeChangedLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
+            AuditLog.LogAuditMessage(StrSubstNo(CompanyBadgeChangedLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
             RestartSession();
         end;
     end;
@@ -785,4 +784,3 @@ page 1 "Company Information"
         SessionSetting.RequestSessionUpdate(false);
     end;
 }
-

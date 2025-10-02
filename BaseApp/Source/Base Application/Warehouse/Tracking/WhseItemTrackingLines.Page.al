@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Warehouse.Tracking;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Warehouse.Tracking;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Item;
@@ -64,7 +68,7 @@ page 6550 "Whse. Item Tracking Lines"
                     group("Item Tracking")
                     {
                         Caption = 'Item Tracking';
-                        field(Text003; Text003)
+                        field(Text003; PlaceholderTxt)
                         {
                             ApplicationArea = ItemTracking;
                             Visible = false;
@@ -92,7 +96,7 @@ page 6550 "Whse. Item Tracking Lines"
                     group(Undefined)
                     {
                         Caption = 'Undefined';
-                        field(Control52; Text003)
+                        field(Control52; PlaceholderTxt)
                         {
                             ApplicationArea = ItemTracking;
                             Visible = false;
@@ -604,7 +608,7 @@ page 6550 "Whse. Item Tracking Lines"
     begin
         if FormUpdated then begin
             if not UpdateUndefinedQty() then
-                exit(Confirm(Text002));
+                exit(Confirm(ExcessQuantityQst));
 
             if CountLinesWithQtyZero() > 0 then
                 exit(ConfirmManagement.GetResponseOrDefault(ConfirmWhenExitingQst, true));
@@ -622,11 +626,9 @@ page 6550 "Whse. Item Tracking Lines"
         FormSourceType: Integer;
         FormUpdated: Boolean;
         Reclass: Boolean;
-#pragma warning disable AA0074
-        Text001: Label 'Line';
-        Text002: Label 'The corrections cannot be saved as excess quantity has been defined.\Close the form anyway?';
-        Text003: Label 'Placeholder';
-#pragma warning restore AA0074
+        LineTxt: Label 'Line';
+        ExcessQuantityQst: Label 'The corrections cannot be saved as excess quantity has been defined.\Close the form anyway?';
+        PlaceholderTxt: Label 'Placeholder';
         ConfirmWhenExitingQst: Label 'One or more lines have tracking specified, but Quantity (Base) is zero. If you continue, data on these lines will be lost. Do you want to close the page?';
 
     protected var
@@ -650,10 +652,6 @@ page 6550 "Whse. Item Tracking Lines"
         NewPackageNoEditable: Boolean;
         NewExpirationDateEditable: Boolean;
         ExpirationDateEditable: Boolean;
-#if not CLEAN24
-        [Obsolete('Package Tracking enabled by default.', '24.0')]
-        PackageTrackingVisible: Boolean;
-#endif
 
     local procedure GetTextCaption(): Text[30]
     var
@@ -666,7 +664,7 @@ page 6550 "Whse. Item Tracking Lines"
             Database::"Warehouse Shipment Line":
                 exit(CopyStr(WhseShipmentLine.TableCaption(), 1, 30));
             else
-                exit(Text001);
+                exit(LineTxt);
         end;
     end;
 
@@ -1007,14 +1005,6 @@ page 6550 "Whse. Item Tracking Lines"
         OnAfterSetSourceSpecification(SourceSpecification, TempSourceWhseItemTrackingLine);
     end;
 
-#if not CLEAN24
-#pragma warning disable AA0228
-    local procedure SetPackageTrackingVisibility()
-    begin
-        PackageTrackingVisible := true;
-    end;
-#pragma warning restore AA0228
-#endif
 
     local procedure CountLinesWithQtyZero(): Integer
     var
@@ -1075,4 +1065,3 @@ page 6550 "Whse. Item Tracking Lines"
     begin
     end;
 }
-

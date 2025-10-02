@@ -19,17 +19,11 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IncorrectNumberOfTablesErr: Label 'Incorrect number of tables in package.';
         CannotUseDimensionsAsColumnsErr: Label 'You cannot use the Dimensions as Columns function for table %1.';
-        DimensionSetIsNotCreatedErr: Label 'Dimension Set is not created.';
-        DimensionValueCodeIsNotFoundErr: Label 'Dimension Value Code %1 for Dimension Set is not found.';
-        DimensionValueIsCreatedForDimSetErr: Label 'Dimension Value with Code %1 and Value Code %2 for Dimension Set is created.';
         DimensionExpectedErr: Label 'The setup of Dimensions as Columns was canceled.';
         IncorrectDimPackageDataErr: Label 'Package Data were not updated when validate Dimension As Columns field.';
-        NonExistingDimValueExistsErr: Label 'Errors for package with non-existing dimension value is not generated.';
         DimensionNotAppliedErr: Label 'Default dimension was not applied.';
-        ConfigPackageMgt: Codeunit "Config. Package Management";
         IsInitialized: Boolean;
         DimValueDoesNotExistsInDimSetErr: Label 'Dimension value %1 %2 does not exist in Dimension Set ID %3.', Comment = '%1 = Dimension Code, %2 = Dimension Value Code';
-        DimValueDoesNotExistsErr: Label 'Dimension Value %1 %2 does not exist.', Comment = '%1 = Dimension Code, %2 = Dimension Value Code';
         FieldIDProcessingOrderMustMatchErr: Label 'Field ID and Processing Order must match.';
         FieldIDProcessingOrderMustNotMatchErr: Label 'Field ID and Processing Order must not match.';
 
@@ -223,7 +217,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ConfigPackageFields."Move Up".Invoke();
         ConfigPackageFields.Close();
 
-        // [GIVEN] Open Config Package Fields page from Config Package Table. 
+        // [GIVEN] Open Config Package Fields page from Config Package Table.
         ConfigPackageTable.ShowPackageFields();
 
         // [WHEN] Find Dimension Config Package Field.
@@ -232,7 +226,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ConfigPackageField2.SetRange("Field ID", ConfigPackageField."Field ID");
         ConfigPackageField2.FindFirst();
 
-        // [VERIFY] Verify Field ID and Processing Order of Dimension Config Package Field are not same. 
+        // [VERIFY] Verify Field ID and Processing Order of Dimension Config Package Field are not same.
         Assert.AreNotEqual(ConfigPackageField2."Field ID", ConfigPackageField2."Processing Order", FieldIDProcessingOrderMustNotMatchErr);
     end;
 
@@ -266,80 +260,10 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
     end;
 
-    local procedure DisableDimensionAsColumns(var ConfigPackageTable: Record "Config. Package Table")
-    begin
-        ConfigPackageTable.Validate("Dimensions as Columns", false);
-        ConfigPackageTable.Modify();
-    end;
-
     local procedure SetDimensionAsColumns(var ConfigPackageTable: Record "Config. Package Table")
     begin
         ConfigPackageTable.Validate("Dimensions as Columns", true);
         ConfigPackageTable.Modify();
-    end;
-
-    local procedure SetDimensionAsColumnsAtConfigLine(var ConfigLine: Record "Config. Line")
-    begin
-        ConfigLine.Validate("Dimensions as Columns", true);
-        ConfigLine.Modify();
-    end;
-
-    local procedure SetPackageFilterByCustomer(var Customer: Record Customer; ConfigPackageCode: Code[20])
-    var
-        ConfigPackageFilter: Record "Config. Package Filter";
-    begin
-        LibrarySales.CreateCustomer(Customer);
-        CreateDefaultDimForCustomer(Customer."No.");
-
-        ConfigPackageMgt.InsertPackageFilter(
-          ConfigPackageFilter, ConfigPackageCode, DATABASE::Customer, 0, Customer.FieldNo("No."), Customer."No.");
-    end;
-
-    local procedure CreateDefaultDimForCustomer(CustomerNo: Code[20])
-    var
-        Dimension: Record Dimension;
-        DimensionValue: Record "Dimension Value";
-        DefaultDimension: Record "Default Dimension";
-    begin
-        LibraryDimension.CreateDimension(Dimension);
-        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
-        LibraryDimension.CreateDefaultDimensionCustomer(DefaultDimension, CustomerNo, Dimension.Code, DimensionValue.Code);
-    end;
-
-    local procedure CreateDefaultDimForGLAccount(GLAccountNo: Code[20]; var DefaultDimension: Record "Default Dimension")
-    var
-        Dimension: Record Dimension;
-        DimensionValue: Record "Dimension Value";
-    begin
-        LibraryDimension.CreateDimension(Dimension);
-        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
-        LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDimension, GLAccountNo, Dimension.Code, DimensionValue.Code);
-    end;
-
-    local procedure CreateDimSet(var DimensionValue: Record "Dimension Value"): Integer
-    var
-        Dimension: Record Dimension;
-    begin
-        LibraryDimension.CreateDimension(Dimension);
-        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
-        exit(LibraryDimension.CreateDimSet(0, Dimension.Code, DimensionValue.Code));
-    end;
-
-    local procedure SetDefaultDimFilter(var DefaultDimension: Record "Default Dimension"; TableID: Integer; MasterNo: Code[20])
-    begin
-        DefaultDimension.SetRange("Table ID", TableID);
-        DefaultDimension.SetRange("No.", MasterNo);
-        DefaultDimension.FindSet();
-    end;
-
-    local procedure SetPackageDataFieldFilterByDefaultDimValueCode(var ConfigPackageData: Record "Config. Package Data"; ConfigPackageCode: Code[20])
-    var
-        DefaultDimension: Record "Default Dimension";
-    begin
-        ConfigPackageData.SetRange("Package Code", ConfigPackageCode);
-        ConfigPackageData.SetRange("Table ID", DATABASE::"Default Dimension");
-        ConfigPackageData.SetRange("Field ID", DefaultDimension.FieldNo("Dimension Value Code"));
-        ConfigPackageData.FindSet();
     end;
 
     local procedure CreatePackageExcludingDimSetIDField(var ConfigPackage: Record "Config. Package"; var ConfigPackageTable: Record "Config. Package Table"; var SalesHeader: Record "Sales Header")
@@ -377,71 +301,12 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
     end;
 
-    local procedure CreateManualPaymentWithDefaultDimension(var CashFlowManualExpense: Record "Cash Flow Manual Expense"; var DefaultDimension: Record "Default Dimension")
-    var
-        Dimension: Record Dimension;
-        DimensionValue: Record "Dimension Value";
-        LibraryCashFlowHelper: Codeunit "Library - Cash Flow Helper";
-    begin
-        LibraryCashFlowHelper.CreateManualPayment(CashFlowManualExpense);
-        LibraryDimension.CreateDimension(Dimension);
-        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
-        LibraryDimension.CreateDefaultDimension(DefaultDimension, DATABASE::"Cash Flow Manual Expense",
-          CashFlowManualExpense.Code, Dimension.Code, DimensionValue.Code);
-    end;
-
     local procedure SetPackageFilterForTable(ConfigPackageCode: Code[20]; TableID: Integer; FieldID: Integer; FieldFilter: Text[250])
     var
         ConfigPackageFilter: Record "Config. Package Filter";
         ConfigPackageMgt: Codeunit "Config. Package Management";
     begin
         ConfigPackageMgt.InsertPackageFilter(ConfigPackageFilter, ConfigPackageCode, TableID, 0, FieldID, FieldFilter);
-    end;
-
-    local procedure ModifyDimensionSetWithNewValue(var DimensionSetEntry: Record "Dimension Set Entry"; var DimensionValue: Record "Dimension Value")
-    begin
-        LibraryDimension.CreateDimensionValue(DimensionValue, DimensionSetEntry."Dimension Code");
-
-        DimensionSetEntry."Dimension Value Code" := DimensionValue.Code;
-        DimensionSetEntry.Modify();
-    end;
-
-    local procedure RestoreDimensionSetWithOldValue(var DimensionSetEntry: Record "Dimension Set Entry"; var DimensionValue: Record "Dimension Value"; OldDimensionValueCode: Code[20]; DeleteDimension: Boolean)
-    begin
-        DimensionSetEntry."Dimension Value Code" := OldDimensionValueCode;
-        DimensionSetEntry.Modify();
-
-        if DeleteDimension then
-            DimensionValue.Delete();
-    end;
-
-    local procedure VerifyImportForDimensionSet(var DimensionSetEntry: Record "Dimension Set Entry"; ConfigPackageCode: Code[20]; LastDimensionSetID: Integer; FADimensionSetID: Integer; TableID: Integer)
-    begin
-        // Verify Dimension Set created
-        DimensionSetEntry.Reset();
-        DimensionSetEntry.FindLast();
-        Assert.IsTrue(LastDimensionSetID < DimensionSetEntry."Dimension Set ID", DimensionSetIsNotCreatedErr);
-
-        // Verify Dimensions is equal to exported values
-        DimensionSetEntry.SetRange("Dimension Set ID", FADimensionSetID);
-        VerifyDimensionSetEqualToConfigPackageData(DimensionSetEntry, ConfigPackageCode, TableID);
-    end;
-
-    local procedure VerifyDimensionSetEqualToConfigPackageData(var DimensionSetEntry: Record "Dimension Set Entry"; PackageCode: Code[20]; TableID: Integer)
-    var
-        ConfigPackageData: Record "Config. Package Data";
-    begin
-        ConfigPackageData.SetRange("Package Code", PackageCode);
-        ConfigPackageData.SetRange("Table ID", TableID);
-        DimensionSetEntry.FindFirst();
-        repeat
-            ConfigPackageData.SetRange(Value, DimensionSetEntry."Dimension Value Code");
-            if ConfigPackageData.FindSet() then
-                repeat
-                    Assert.IsFalse(
-                      DimensionSetEntry.IsEmpty, StrSubstNo(DimensionValueCodeIsNotFoundErr, DimensionSetEntry."Dimension Value Code"));
-                until ConfigPackageData.Next() = 0;
-        until DimensionSetEntry.Next() = 0;
     end;
 
     local procedure VerifyDimValueExistsInSalesHeaderDimSetID(SalesHeader: Record "Sales Header"; DimVal: Record "Dimension Value")
@@ -455,19 +320,6 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         Assert.IsTrue(
           not DimSetEntry.IsEmpty,
           StrSubstNo(DimValueDoesNotExistsInDimSetErr, DimVal."Dimension Code", DimVal.Code, SalesHeader."Dimension Set ID"));
-    end;
-
-    local procedure VerifyImportErrorWithNonExistingDimension(DimensionSetEntry: Record "Dimension Set Entry"; TableID: Integer)
-    var
-        DimensionValue: Record "Dimension Value";
-        ErrorText: Text[250];
-    begin
-        Assert.IsFalse(DimensionValue.Get(DimensionSetEntry."Dimension Code", DimensionSetEntry."Dimension Value Code"),
-          StrSubstNo(DimensionValueIsCreatedForDimSetErr, DimensionSetEntry."Dimension Code", DimensionSetEntry."Dimension Value Code"));
-        ErrorText :=
-          StrSubstNo(DimValueDoesNotExistsErr, DimensionSetEntry."Dimension Code", DimensionSetEntry."Dimension Value Code");
-        Assert.IsTrue(
-          PackageErrorsContainsErrorWithSubstring(TableID, ErrorText), NonExistingDimValueExistsErr);
     end;
 
     local procedure CreateCustomerPackageData(var ConfigPackage: Record "Config. Package"; var ConfigPackageTable: Record "Config. Package Table")
@@ -518,18 +370,6 @@ codeunit 136611 "ERM RS Dimensions as Columns"
 
         LibraryDimension.CreateDefaultDimension(
           DefaultDimension, DATABASE::Customer, Customer."No.", DimensionValue."Dimension Code", DimensionValue.Code);
-    end;
-
-    local procedure PackageErrorsContainsErrorWithSubstring(TableId: Integer; Substring: Text[250]): Boolean
-    var
-        ConfigPackageError: Record "Config. Package Error";
-    begin
-        ConfigPackageError.SetRange("Table ID", TableId);
-        ConfigPackageError.FindSet();
-        repeat
-            if StrPos(ConfigPackageError."Error Text", Substring) <> 0 then
-                exit(true);
-        until ConfigPackageError.Next() = 0;
     end;
 
     local procedure CreateConfigLineAssignPackage(var ConfigPackage: Record "Config. Package"; var ConfigLine: Record "Config. Line")
@@ -635,15 +475,6 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         XMLNode.InnerText := NodeValue;
     end;
 
-    local procedure FindConfigLineByTable(var ConfigLine: Record "Config. Line"; TableId: Integer)
-    begin
-        ConfigLine.SetRange("Table ID", TableId);
-        ConfigLine.SetRange("Line Type", ConfigLine."Line Type"::Table);
-
-        ConfigLine.FindFirst();
-        ConfigLine.SetRecFilter();
-    end;
-
     local procedure FindDimensionWithValue(var DimVal: Record "Dimension Value")
     var
         Dimension: Record Dimension;
@@ -663,14 +494,6 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         LibraryDimension.FindDimensionValue(DimVal, DefaultDimension."Dimension Code");
     end;
 
-    local procedure GetConfigPackageDataValue(ConfigPackageCode: Code[20]; TableId: Integer; RecNo: Integer; FieldId: Integer): Text
-    var
-        ConfigPackageData: Record "Config. Package Data";
-    begin
-        ConfigPackageData.Get(ConfigPackageCode, TableId, RecNo, FieldId);
-        exit(ConfigPackageData.Value);
-    end;
-
     local procedure SetupManualNos(NoSeriesCode: Code[20]; NewManualNos: Boolean) ManualNos: Boolean
     var
         NoSeries: Record "No. Series";
@@ -679,13 +502,6 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ManualNos := NoSeries."Manual Nos.";
         NoSeries."Manual Nos." := NewManualNos;
         NoSeries.Modify();
-    end;
-
-    local procedure RestoreDimSetEntry(var DimensionSetEntry: Record "Dimension Set Entry"; OldDimValue: Code[20])
-    begin
-        DimensionSetEntry.FindFirst();
-        DimensionSetEntry."Dimension Value Code" := OldDimValue;
-        DimensionSetEntry.Modify();
     end;
 
     local procedure CreatePackageWithTable(var ConfigPackage: Record "Config. Package"; var ConfigPackageTable: Record "Config. Package Table"; TableNo: Integer)
@@ -722,4 +538,3 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ConfigPackageFields.OK().Invoke();
     end;
 }
-

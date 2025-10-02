@@ -63,6 +63,7 @@ page 5701 "Stockkeeping Unit List"
                 field(Inventory; Rec.Inventory)
                 {
                     ApplicationArea = Planning;
+                    HideValue = IsNonInventoriable;
                     ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
                 }
                 field("Reorder Point"; Rec."Reorder Point")
@@ -314,35 +315,6 @@ page 5701 "Stockkeeping Unit List"
                     ToolTip = 'View or add comments for the record.';
                 }
             }
-            group(Production_Navigation)
-            {
-                Caption = 'Production';
-                Image = Production;
-                action("Production BOM")
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Production BOM';
-                    Image = BOM;
-                    ToolTip = 'Open the stockkeeping unit''s production bill of material to view or edit its components. If production bill of material is not defined in the stockkeeping unit, the production bill of material from the item card is used.';
-
-                    trigger OnAction()
-                    begin
-                        Rec.OpenProductionBOMForSKUItem(Rec."Production BOM No.", Rec."Item No.");
-                    end;
-                }
-                action("Prod. Active BOM Version")
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Prod. Active BOM Version';
-                    Image = BOMVersions;
-                    ToolTip = 'Open the stockkeeping unit''s active production bill of material to view or edit the components. If production bill of material is not defined in the stockkeeping unit, the production bill of material from the item card is used.';
-
-                    trigger OnAction()
-                    begin
-                        Rec.OpenActiveProductionBOMForSKUItem(Rec."Production BOM No.", Rec."Item No.");
-                    end;
-                }
-            }
             group(Warehouse)
             {
                 Caption = 'Warehouse';
@@ -564,8 +536,22 @@ page 5701 "Stockkeeping Unit List"
             }
         }
     }
+    trigger OnAfterGetRecord()
+    begin
+        EnableControls();
+    end;
+
+    local procedure EnableControls()
+    var
+        Item: Record Item;
+    begin
+        Item.SetLoadFields(Type);
+        Item.Get(Rec."Item No.");
+        IsNonInventoriable := Item.IsNonInventoriableType();
+    end;
 
     var
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        IsNonInventoriable: Boolean;
 }
 

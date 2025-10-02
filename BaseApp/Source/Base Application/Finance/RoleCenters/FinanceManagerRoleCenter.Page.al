@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -546,26 +546,6 @@ page 8901 "Finance Manager Role Center"
                             Tooltip = 'Run the Retained Earnings Statement codeunit.';
                             AccessByPermission = TableData "G/L Account" = R;
                         }
-#if not CLEAN24
-                        action("IRS Details")
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'IRS Details';
-                            RunObject = report "IRS Details";
-                            ObsoleteReason = 'The action has been moved to the IS Core App.';
-                            ObsoleteState = Pending;
-                            ObsoleteTag = '24.0';
-                        }
-                        action("Trial Balance - IRS Number")
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'Trial Balance - IRS Number';
-                            RunObject = report "Trial Balance - IRS Number";
-                            ObsoleteReason = 'The action has been moved to the IS Core App.';
-                            ObsoleteState = Pending;
-                            ObsoleteTag = '24.0';
-                        }
-#endif
                     }
                     group("Group10")
                     {
@@ -650,35 +630,6 @@ page 8901 "Finance Manager Role Center"
                         RunObject = page "VAT Report Setup";
                         Tooltip = 'Open the VAT Report Setup page.';
                     }
-#if not CLEAN24
-                    action("IRS Group")
-                    {
-                        ApplicationArea =;
-                        Caption = 'IRS Group';
-                        RunObject = page "IRS Group";
-                        ObsoleteReason = 'The action has been moved into IS Core App.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '24.0';
-                    }
-                    action("IRS Type")
-                    {
-                        ApplicationArea =;
-                        Caption = 'IRS Type';
-                        RunObject = page "IRS Type";
-                        ObsoleteReason = 'The action has been moved into IS Core App.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '24.0';
-                    }
-                    action("IRS Number")
-                    {
-                        ApplicationArea =;
-                        Caption = 'IRS Number';
-                        RunObject = page "IRS Number";
-                        ObsoleteReason = 'The action has been moved into IS Core App.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '24.0';
-                    }
-#endif
                 }
             }
             group("Group13")
@@ -2185,13 +2136,6 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Inventory Valuation';
                         RunObject = report "Inventory Valuation";
                         Tooltip = 'Run the Inventory Valuation report.';
-                    }
-                    action("Inventory Valuation - WIP")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Production Order - WIP';
-                        RunObject = report "Inventory Valuation - WIP";
-                        Tooltip = 'Run the Production Order - WIP report.';
                     }
                     action("Inventory - List")
                     {

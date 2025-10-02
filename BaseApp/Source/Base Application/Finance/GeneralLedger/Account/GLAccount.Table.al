@@ -61,6 +61,7 @@ table 15 "G/L Account"
         field(3; "Search Name"; Code[100])
         {
             Caption = 'Search Name';
+            OptimizeForTextSearch = true;
         }
         field(4; "Account Type"; Enum "G/L Account Type")
         {
@@ -778,13 +779,8 @@ table 15 "G/L Account"
             Caption = 'IRS Number';
             TableRelation = "IRS Numbers";
             ObsoleteReason = 'The field has been moved to the IS Core App.';
-#if CLEAN24
             ObsoleteState = Removed;
             ObsoleteTag = '27.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-#endif
         }
 #endif
     }
@@ -821,11 +817,6 @@ table 15 "G/L Account"
         key(Key9; "Account Type")
         {
         }
-#if not CLEAN24
-        key(Key10; "IRS Number", "No.")
-        {
-        }
-#endif
         key(Key11; "Account Category")
         {
         }

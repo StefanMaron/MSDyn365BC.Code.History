@@ -41,7 +41,6 @@ using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Costing;
 using Microsoft.Warehouse.History;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Projects.Resources.Ledger;
 using Microsoft.Projects.Resources.Resource;
@@ -128,8 +127,6 @@ permissionset 2529 "Recievables Documents - Post"
                   tabledata "Post Value Entry to G/L" = i,
                   tabledata "Posted Whse. Shipment Header" = R,
                   tabledata "Posted Whse. Shipment Line" = R,
-                  tabledata "Prod. Order Component" = Rm,
-                  tabledata "Prod. Order Line" = Rm,
                   tabledata "Purch. Rcpt. Header" = i,
                   tabledata "Purch. Rcpt. Line" = i,
                   tabledata "Purchase Header" = Rm,

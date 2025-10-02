@@ -156,7 +156,8 @@ report 5956 "Service Load Level"
 
     requestpage
     {
-
+        AboutTitle = 'About Service Load Level';
+        AboutText = 'Get an overview of the service load on your resources.';
         layout
         {
             area(content)

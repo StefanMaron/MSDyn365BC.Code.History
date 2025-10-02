@@ -1085,18 +1085,6 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         ExpectedGUID := PurchaseHeader.SystemId;
     end;
 
-    local procedure CreatePostedInvoiceDiscountTypePct(var PurchInvHeader: Record "Purch. Inv. Header")
-    var
-        PurchaseHeader: Record "Purchase Header";
-        Item: Record Item;
-        Vendor: Record Vendor;
-    begin
-        SetupDataForDiscountTypePct(Item, Vendor);
-        CreateInvoiceWithRandomNumberOfLines(PurchaseHeader, Item, Vendor);
-
-        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false));
-    end;
-
     local procedure CreatePostedCrMemoDiscountTypePct(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     var
         PurchaseHeader: Record "Purchase Header";
@@ -1185,21 +1173,6 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.FindFirst();
-    end;
-
-    local procedure CreateInvoiceWithRandomNumberOfLines(var PurchaseHeader: Record "Purchase Header"; var Item: Record Item; var Vendor: Record Vendor)
-    var
-        PurchaseLine: Record "Purchase Line";
-        I: Integer;
-        ItemQuantity: Decimal;
-        NumberOfLines: Integer;
-    begin
-        NumberOfLines := LibraryRandom.RandIntInRange(3, 10);
-        ItemQuantity := LibraryRandom.RandIntInRange(10, 100);
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
-
-        for I := 1 to NumberOfLines do
-            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", ItemQuantity);
     end;
 
     local procedure CreateCrMemoWithRandomNumberOfLines(var PurchaseHeader: Record "Purchase Header"; var Item: Record Item; var Vendor: Record Vendor)
@@ -1790,4 +1763,3 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
           "No.", '<>%1&<>%2&<>%3&<>%4&<>%5', DummyPurchaseLine.FieldNo("Qty. to Receive"), DummyPurchaseLine.FieldNo("Quantity Received"), DummyPurchaseLine.FieldNo("Currency Code"), DummyPurchaseLine.FieldNo("Qty. to Invoice"), DummyPurchaseLine.FieldNo("Quantity Invoiced"));
     end;
 }
-

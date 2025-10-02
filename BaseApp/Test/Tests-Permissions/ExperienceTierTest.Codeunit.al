@@ -17,15 +17,16 @@ codeunit 135417 "Experience Tier Test"
     procedure TestPremiumPermissionsAreAddedToExperienceTier()
     var
         TempExclusivePremiumExpandedPermissions: Record "Expanded Permission" temporary;
-        ExperienceTier: Codeunit "Experience Tier";
-
+        ServiceExperienceTier: Codeunit "Service Experience Tier";
+        MfgExperienceTier: Codeunit "Mfg. Experience Tier";
     begin
         // This test verifies that all table permissions in the D365 BUS PREMIUM permission set also has subscribers in codeunit 257 "Experience Tier"
         // If this test fails, it means you added a new table that is for the premium license only, but you did not add a subscriber in the experience tier codeunit.
         // Solution: Add an OnBeforeInsertEvent subscriber in codeunit 257 "Experience Tier".
         GetExclusivePremiumTablePermissions(TempExclusivePremiumExpandedPermissions);
 
-        BindSubscription(ExperienceTier);
+        BindSubscription(MfgExperienceTier);
+        BindSubscription(ServiceExperienceTier);
 
         TempExclusivePremiumExpandedPermissions.FindSet();
         repeat
@@ -33,7 +34,8 @@ codeunit 135417 "Experience Tier Test"
                 VerifyErrorOnInsert(TempExclusivePremiumExpandedPermissions."Object ID");
         until TempExclusivePremiumExpandedPermissions.Next() = 0;
 
-        UnbindSubscription(ExperienceTier)
+        UnbindSubscription(ServiceExperienceTier);
+        UnbindSubscription(MfgExperienceTier);
     end;
 
     local procedure GetExclusivePremiumTablePermissions(var TempExpandedPermission: Record "Expanded Permission" temporary)

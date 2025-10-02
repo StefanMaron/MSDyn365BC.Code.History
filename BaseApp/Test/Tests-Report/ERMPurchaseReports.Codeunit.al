@@ -514,11 +514,7 @@ codeunit 134983 "ERM Purchase Reports"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Exercise: Save Purchase Credit Memo Report.
-#if not CLEAN24
-        SavePurchaseCrMemoReport(DocumentNo, false, false, false);
-#else
         SavePurchaseCrMemoReport(DocumentNo, false, false);
-#endif
 
         // Verify: Verify Currency Information on Posted Purchase Credit Memo Report.
         LibraryReportDataset.LoadDataSetFile();
@@ -547,11 +543,7 @@ codeunit 134983 "ERM Purchase Reports"
         ExpectedDimensionValue := StrSubstNo('%1 %2', DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code");
 
         // Exercise: Save Report using Dimension Flag Yes.
-#if not CLEAN24
-        SavePurchaseCrMemoReport(DocumentNo, true, false, false);
-#else
         SavePurchaseCrMemoReport(DocumentNo, true, false);
-#endif
 
         // Verify: Verify Line Dimension on Posted Purchase Credit Memo Report.
         LibraryReportDataset.LoadDataSetFile();
@@ -575,11 +567,7 @@ codeunit 134983 "ERM Purchase Reports"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Exercise: Save Report using Interaction Log Entry Flag Yes.
-#if not CLEAN24
-        SavePurchaseCrMemoReport(DocumentNo, false, true, false);
-#else
         SavePurchaseCrMemoReport(DocumentNo, false, true);
-#endif
 
         // Verify: Verify Interaction Log Entry created for Posted Purchase Credit Memo.
         VerifyInteractionLogEntry(InteractionLogEntry."Document Type"::"Purch. Cr. Memo", DocumentNo);
@@ -607,11 +595,7 @@ codeunit 134983 "ERM Purchase Reports"
         PurchCrMemoLine.CalcVATAmountLines(PurchCrMemoHdr, VATAmountLine);
 
         // Exercise: Save Report with default options.
-#if not CLEAN24
-        SavePurchaseCrMemoReport(PurchCrMemoHdr."No.", false, false, true);
-#else
         SavePurchaseCrMemoReport(PurchCrMemoHdr."No.", false, false);
-#endif
 
         // Verify: Verify VAT Entry on Posted Purchase Credit Memo Report.
         LibraryReportDataset.LoadDataSetFile();
@@ -1197,11 +1181,7 @@ codeunit 134983 "ERM Purchase Reports"
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [WHEN] Print report 407 - "Purchase - Credit Memo"
-#if not CLEAN24
-        SavePurchaseCrMemoReport(PostedCrMemoNo, false, true, false);
-#else
         SavePurchaseCrMemoReport(PostedCrMemoNo, false, true);
-#endif
 
         // [THEN] Caption of "Your reference" contains "Ref"
         VerifyYourReferencePurchaseCrMemo(YourReference);
@@ -1407,7 +1387,7 @@ codeunit 134983 "ERM Purchase Reports"
 
         // [THEN] The Total Amount = 100
         LibraryReportValidation.OpenExcelFile();
-        LibraryReportValidation.VerifyCellValue(85, 27, LibraryReportValidation.FormatDecimalValue(PurchInvLine.Amount));
+        LibraryReportValidation.VerifyCellValue(85, 33, LibraryReportValidation.FormatDecimalValue(PurchInvLine.Amount)); // Row 85, Column AG (Total ISK Excl VAT)
     end;
 
     [Test]
@@ -1818,11 +1798,7 @@ codeunit 134983 "ERM Purchase Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals('G_L_Register__No__', GLRegisterNo);
     end;
 
-#if not CLEAN24
-    local procedure SavePurchaseCrMemoReport(DocumentNo: Code[20]; ShowInternalInfo: Boolean; LogInteraction: Boolean; AlwShowVATSum: Boolean)
-#else
     local procedure SavePurchaseCrMemoReport(DocumentNo: Code[20]; ShowInternalInfo: Boolean; LogInteraction: Boolean)
-#endif
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         PurchaseCreditMemo: Report "Purchase - Credit Memo";
@@ -1830,11 +1806,7 @@ codeunit 134983 "ERM Purchase Reports"
         Clear(PurchaseCreditMemo);
         PurchCrMemoHdr.SetRange("No.", DocumentNo);
         PurchaseCreditMemo.SetTableView(PurchCrMemoHdr);
-#if not CLEAN24
-        PurchaseCreditMemo.InitializeRequest(0, ShowInternalInfo, LogInteraction, AlwShowVATSum);  // Using 0 for No. of Copies.
-#else
         PurchaseCreditMemo.InitializeRequest(0, ShowInternalInfo, LogInteraction);  // Using 0 for No. of Copies.
-#endif
         Commit();
         PurchaseCreditMemo.Run();
     end;
@@ -2184,9 +2156,6 @@ codeunit 134983 "ERM Purchase Reports"
         Order.ShowInternalInformation.SetValue(ShowInternalInfo);
         Order.ArchiveDocument.SetValue(ArchiveDocument);
         Order.LogInteraction.SetValue(LogInteraction);
-#if not CLEAN24
-        Order.AlwShowVATSum.SetValue(AlwShowVATSum);
-#endif
         Order.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
@@ -2299,4 +2268,3 @@ codeunit 134983 "ERM Purchase Reports"
         StandardPurchaseOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-

@@ -11,19 +11,19 @@ table 136606 DuplicatedXMLFields
         }
         field(2; "Indirect Amount %"; Decimal)
         {
-
+            AutoFormatType = 0;
         }
         field(3; "Indirect (Amount) %"; Decimal)
         {
-
+            AutoFormatType = 0;
         }
         field(4; "Indirect Amount"; Decimal)
         {
-
+            AutoFormatType = 0;
         }
         field(5; "<Indirect %> Amount"; Decimal)
         {
-
+            AutoFormatType = 0;
         }
     }
 

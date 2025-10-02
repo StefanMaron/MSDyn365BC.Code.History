@@ -9,9 +9,6 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
     end;
 
     var
-#if not CLEAN24
-        LibraryInventory: Codeunit "Library - Inventory";
-#endif
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
@@ -227,39 +224,6 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         PostedPhysInvtOrder.Close();
     end;
 
-#if not CLEAN24
-    [Test]
-    [HandlerFunctions('PostExpPhInTrackListPageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure ExpectedTrackingLinesPostedPhysInvtOrderSubform()
-    var
-        PstdExpPhysInvtTrack: Record "Pstd. Exp. Phys. Invt. Track";
-        PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr";
-        PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line";
-        PostedPhysInvtOrder: TestPage "Posted Phys. Invt. Order";
-    begin
-        // [SCENARIO] validate ExpectedTrackingLines - OnAction trigger of Page ID - 5005360  Posted Physical Inventory Order Subform.
-        // Setup.
-        Initialize();
-        CreatePostedPhysInvtOrderHeader(PstdPhysInvtOrderHdr);
-        CreatePostedPhysInvtOrderLine(PstdPhysInvtOrderLine, PstdPhysInvtOrderHdr."No.");
-        PstdPhysInvtOrderLine."Quantity (Base)" := 1;
-        PstdPhysInvtOrderLine.Modify();
-
-        CreatePostedExpectPhysInvtTrackLine(
-          PstdExpPhysInvtTrack, PstdPhysInvtOrderLine."Document No.", PstdPhysInvtOrderLine."Line No.");
-        LibraryVariableStorage.Enqueue(PstdPhysInvtOrderHdr."No.");  // Required inside PostExpPhInTrackListPageHandler.
-        LibraryVariableStorage.Enqueue(PstdExpPhysInvtTrack."Serial No.");  // Required inside PostExpPhInTrackListPageHandler.
-        LibraryVariableStorage.Enqueue(PstdExpPhysInvtTrack."Lot No.");  // Required inside PostExpPhInTrackListPageHandler.
-
-        // Exercise & verify: Invokes Action - ExpectedTrackingLines on Posted Physical Inventory Order Subform and verify correct entries created for Posted Physical Inventory Order Header in DimensionSetEntriesPageHandler.
-        OpenPostedPhysInventoryOrderPage(PostedPhysInvtOrder, PstdPhysInvtOrderHdr."No.");
-        PostedPhysInvtOrder.OrderLines.ExpectedTrackingLines.Invoke();  // Invokes PostExpPhInTrackListPageHandler.
-        PostedPhysInvtOrder.Close();
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('PostedExpInvtOrderTrackingPageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -274,9 +238,6 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         // [SCENARIO] validate ExpectedTrackingLines - OnAction trigger of Page ID - 5005360  Posted Physical Inventory Order Subform.
         // Setup.
         Initialize();
-#if not CLEAN24
-        LibraryInventory.SetInvtOrdersPackageTracking(true);
-#endif
         CreatePostedPhysInvtOrderHeader(PstdPhysInvtOrderHdr);
         CreatePostedPhysInvtOrderLine(PstdPhysInvtOrderLine, PstdPhysInvtOrderHdr."No.");
         PstdPhysInvtOrderLine."Quantity (Base)" := 1;
@@ -293,39 +254,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         OpenPostedPhysInventoryOrderPage(PostedPhysInvtOrder, PstdPhysInvtOrderHdr."No.");
         PostedPhysInvtOrder.OrderLines.ExpectedTrackingLines.Invoke();  // Invokes PostedExpInvtTrackingPageHandler.
         PostedPhysInvtOrder.Close();
-#if not CLEAN24
-        LibraryInventory.SetInvtOrdersPackageTracking(false);
-#endif
     end;
-
-#if not CLEAN24
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure SetSourcesUsedTrackingLines()
-    var
-        PhysInvtTrackingBuffer: Record "Phys. Invt. Tracking";
-        PhysInvtTrackingLinesPage: Page "Phys. Invt. Tracking Lines";
-        PhysInvtTrackingLines: TestPage "Phys. Invt. Tracking Lines";
-    begin
-        // [SCENARIO] validate SetSources Function on Page Used Tracking Lines.
-        // Setup: Create Physical Inventory Tracking Buffer.
-        PhysInvtTrackingBuffer."Lot No" := LibraryUTUtility.GetNewCode();
-        PhysInvtTrackingBuffer."Serial No." := LibraryUTUtility.GetNewCode();
-        PhysInvtTrackingBuffer."Qty. Expected (Base)" := 1;
-        PhysInvtTrackingBuffer.Insert();
-        PhysInvtTrackingLines.Trap();
-
-        // [WHEN] SetSources and run the Page - Used Tracking Lines.
-        PhysInvtTrackingLinesPage.SetSources(PhysInvtTrackingBuffer);
-        PhysInvtTrackingLinesPage.Run();
-
-        // [THEN] Verify Serial No, Lot No and Qty. Expected (Base) on Page Used Tracking Lines.
-        PhysInvtTrackingLines."Lot No".AssertEquals(PhysInvtTrackingBuffer."Lot No");
-        PhysInvtTrackingLines."Serial No.".AssertEquals(PhysInvtTrackingBuffer."Serial No.");
-        PhysInvtTrackingLines."Qty. Expected (Base)".AssertEquals(PhysInvtTrackingBuffer."Qty. Expected (Base)");
-    end;
-#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -336,9 +265,6 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         InvtOrderTrackingLinesPage: Page "Invt. Order Tracking Lines";
         InvtOrderTrackingLines: TestPage "Invt. Order Tracking Lines";
     begin
-#if not CLEAN24
-        LibraryInventory.SetInvtOrdersPackageTracking(true);
-#endif
         // [SCENARIO] validate SetSources Function on Page Used Tracking Lines.
         // Setup: Create Physical Inventory Tracking Buffer.
         InvtOrderTrackingBuffer."Serial No." := LibraryUTUtility.GetNewCode();
@@ -357,9 +283,6 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         InvtOrderTrackingLines."Lot No.".AssertEquals(InvtOrderTrackingBuffer."Lot No.");
         InvtOrderTrackingLines."Package No.".AssertEquals(InvtOrderTrackingBuffer."Package No.");
         InvtOrderTrackingLines."Qty. Expected (Base)".AssertEquals(InvtOrderTrackingBuffer."Qty. Expected (Base)");
-#if not CLEAN24
-        LibraryInventory.SetInvtOrdersPackageTracking(false);
-#endif
     end;
 
     [Test]
@@ -712,18 +635,6 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         PhysInventoryLedgerEntry2.Insert();
     end;
 
-#if not CLEAN24
-    local procedure CreatePostedExpectPhysInvtTrackLine(var PstdExpPhysInvtTrack: Record "Pstd. Exp. Phys. Invt. Track"; DocumentNo: Code[20]; OrderLineNo: Integer)
-    begin
-        PstdExpPhysInvtTrack."Order No" := DocumentNo;
-        PstdExpPhysInvtTrack."Order Line No." := OrderLineNo;
-        PstdExpPhysInvtTrack."Serial No." := LibraryUTUtility.GetNewCode();
-        PstdExpPhysInvtTrack."Lot No." := LibraryUTUtility.GetNewCode();
-        PstdExpPhysInvtTrack."Quantity (Base)" := 1;
-        PstdExpPhysInvtTrack.Insert();
-    end;
-#endif
-
     local procedure CreatePostedExpInvtOrderTracking(var PstdExpInvtOrderTracking: Record "Pstd.Exp.Invt.Order.Tracking"; DocumentNo: Code[20]; OrderLineNo: Integer)
     begin
         PstdExpInvtOrderTracking."Order No" := DocumentNo;
@@ -929,27 +840,6 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         DimensionSetEntries.DimensionValueCode.AssertEquals(DimensionValueCode);
         DimensionSetEntries.OK().Invoke();
     end;
-
-#if not CLEAN24
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure PostExpPhInTrackListPageHandler(var PostExpPhInTrackList: TestPage "Posted Exp. Phys. Invt. Track")
-    var
-        OrderNo: Variant;
-        SerialNo: Variant;
-        LotNo: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(OrderNo);
-        LibraryVariableStorage.Dequeue(SerialNo);
-        LibraryVariableStorage.Dequeue(LotNo);
-        PostExpPhInTrackList."Serial No.".AssertEquals(SerialNo);
-        PostExpPhInTrackList."Lot No.".AssertEquals(LotNo);
-        PostExpPhInTrackList."Quantity (Base)".AssertEquals(1);
-        PostExpPhInTrackList."Order No".AssertEquals(OrderNo);
-        PostExpPhInTrackList."Order Line No.".AssertEquals(1);
-        PostExpPhInTrackList.OK().Invoke();
-    end;
-#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]

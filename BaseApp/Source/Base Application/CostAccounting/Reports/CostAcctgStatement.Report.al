@@ -113,6 +113,8 @@ report 1126 "Cost Acctg. Statement"
 
     requestpage
     {
+        AboutTitle = 'About Cost Acctg. Statement';
+        AboutText = 'The **Cost Accounting Statement** report provides a summarized view of all posted cost data across selected dimensions such as departments or cost centers. Use it for getting a high-level overview of total costs by dimension or category to support operational analysis.';
 
         layout
         {

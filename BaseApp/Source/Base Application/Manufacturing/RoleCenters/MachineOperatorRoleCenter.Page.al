@@ -28,48 +28,6 @@ page 9013 "Machine Operator Role Center"
     {
         area(rolecenter)
         {
-#if not CLEAN24
-            group(Control1900724808)
-            {
-                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-                ShowCaption = false;
-                part(Control1900316508; "Machine Operator Activities")
-                {
-                    ApplicationArea = Manufacturing;
-                }
-                part("User Tasks Activities"; "User Tasks Activities")
-                {
-                    ApplicationArea = Suite;
-                }
-            }
-            group(Control1900724708)
-            {
-                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-                ShowCaption = false;
-                part(Control3; "My Job Queue")
-                {
-                    ApplicationArea = Manufacturing;
-                    Visible = false;
-                }
-                part(Control1905989608; "My Items")
-                {
-                    ApplicationArea = Manufacturing;
-                }
-                part(Control5; "Report Inbox Part")
-                {
-                    ApplicationArea = Manufacturing;
-                    Visible = false;
-                }
-                systempart(Control1901377608; MyNotes)
-                {
-                    ApplicationArea = Manufacturing;
-                }
-            }
-#else
             part(Control1900316508; "Machine Operator Activities")
             {
                 ApplicationArea = Manufacturing;
@@ -100,7 +58,6 @@ page 9013 "Machine Operator Role Center"
             {
                 ApplicationArea = Manufacturing;
             }
-#endif
         }
     }
 
@@ -320,4 +277,3 @@ page 9013 "Machine Operator Role Center"
         }
     }
 }
-

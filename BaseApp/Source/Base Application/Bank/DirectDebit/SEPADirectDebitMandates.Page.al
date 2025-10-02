@@ -4,6 +4,11 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.DirectDebit;
 
+/// <summary>
+/// Manages SEPA direct debit mandates that authorize automated payment collection from customers.
+/// Provides functionality to create, edit, and maintain mandate information including validity periods,
+/// payment types, and customer bank account associations.
+/// </summary>
 page 1230 "SEPA Direct Debit Mandates"
 {
     Caption = 'Direct Debit Mandates';

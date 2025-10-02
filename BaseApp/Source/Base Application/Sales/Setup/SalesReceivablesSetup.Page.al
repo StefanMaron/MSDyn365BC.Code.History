@@ -1,10 +1,11 @@
-﻿namespace Microsoft.Sales.Setup;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Setup;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
-#if not CLEAN24
-using Microsoft.Finance;
-#endif
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Integration.Dataverse;
@@ -67,10 +68,16 @@ page 459 "Sales & Receivables Setup"
                 {
                     ApplicationArea = Basic, Suite;
                 }
+#if not CLEAN27                
                 field("Create Item from Item No."; Rec."Create Item from Item No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Visible = false;
+                    ObsoleteReason = 'Discontinued functionality';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif                
                 field("Create Item from Description"; Rec."Create Item from Description")
                 {
                     ApplicationArea = Basic, Suite;
@@ -161,6 +168,11 @@ page 459 "Sales & Receivables Setup"
                 field("Prepmt. Auto Update Frequency"; Rec."Prepmt. Auto Update Frequency")
                 {
                     ApplicationArea = Prepayments;
+                }
+                field("Posting Date Check on Posting"; Rec."Posting Date Check on Posting")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if you want the program to warn you when you post a sales document with a posting date that is different from the Work Date.';
                 }
                 field("Allow Document Deletion Before"; Rec."Allow Document Deletion Before")
                 {
@@ -365,18 +377,6 @@ page 459 "Sales & Receivables Setup"
                 group(Control1050005)
                 {
                     ShowCaption = false;
-#if not CLEAN24
-                    field("Electronic Invoicing"; Rec."Electronic Invoicing")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies if the company complies with the requirement of tracking invoicing electronically, when printing invoices in single copy.';
-                        Visible = not IsISCoreAppEnabled;
-                        Enabled = not IsISCoreAppEnabled;
-                        ObsoleteReason = 'Moved to the Iceland-Core App.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '24.0';
-                    }
-#endif
                     label(NotificationPart1)
                     {
                         ApplicationArea = Basic, Suite;
@@ -647,10 +647,6 @@ page 459 "Sales & Receivables Setup"
     trigger OnOpenPage()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
-#if not CLEAN24
-        [Obsolete('The table used to enable IS Core App.', '24.0')]
-        ISCoreAppSetup: Record "IS Core App Setup";
-#endif
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
@@ -665,9 +661,6 @@ page 459 "Sales & Receivables Setup"
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         GeneralLedgerSetup.Get();
         JnlTemplateNameVisible := GeneralLedgerSetup."Journal Templ. Name Mandatory";
-#if not CLEAN24
-        IsISCoreAppEnabled := ISCoreAppSetup.IsEnabled();
-#endif
     end;
 
     var
@@ -676,9 +669,4 @@ page 459 "Sales & Receivables Setup"
         JnlTemplateNameVisible: Boolean;
 
     protected var
-#if not CLEAN24
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        IsISCoreAppEnabled: Boolean;
-#endif
 }
-

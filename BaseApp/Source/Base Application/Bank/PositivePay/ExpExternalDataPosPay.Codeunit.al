@@ -7,6 +7,17 @@ namespace Microsoft.Bank.PositivePay;
 using System.IO;
 using System.Utilities;
 
+/// <summary>
+/// Handles the external file creation and download processes for positive pay exports.
+/// This codeunit manages the final step of converting data exchange content into downloadable files.
+/// </summary>
+/// <remarks>
+/// The Export External Data Positive Pay codeunit is responsible for creating the physical export files
+/// from processed data exchange records. It handles file content validation, temporary file creation,
+/// and provides download functionality for users. The codeunit supports both interactive and batch
+/// processing modes, allowing users to download files immediately or process them in background jobs.
+/// File management operations include proper error handling and cleanup of temporary resources.
+/// </remarks>
 codeunit 1709 "Exp. External Data Pos. Pay"
 {
     Permissions = TableData "Data Exch." = rimd;
@@ -22,6 +33,17 @@ codeunit 1709 "Exp. External Data Pos. Pay"
 #pragma warning restore AA0470
         DownloadFromStreamErr: Label 'The file has not been saved.';
 
+    /// <summary>
+    /// Creates and downloads the export file from the processed data exchange content.
+    /// </summary>
+    /// <param name="DataExch">The data exchange record containing the processed file content.</param>
+    /// <param name="ShowDialog">Indicates whether to show download dialog to the user.</param>
+    /// <remarks>
+    /// This procedure handles the final file creation step by extracting the processed content from the data exchange
+    /// record and making it available for download. It validates that file content exists and manages the download
+    /// process through the file management framework. Error handling ensures appropriate user feedback when file
+    /// content is missing or download operations fail.
+    /// </remarks>
     [Scope('OnPrem')]
     procedure CreateExportFile(DataExch: Record "Data Exch."; ShowDialog: Boolean)
     var

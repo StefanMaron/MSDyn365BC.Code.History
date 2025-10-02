@@ -40,7 +40,7 @@ page 9640 "Column Picker"
                 var
                     PageMetadata: Record "Page Metadata";
                 begin
-                    Selected.SetTable(PageMetadata);
+                    PageMetadata := Selected;
                     SourcePageName := PageMetadata.Caption;
                     ColumnPickerHelper.FilterAfterLookup(PageMetadata.ID, Rec);
                     CurrPage.Update();

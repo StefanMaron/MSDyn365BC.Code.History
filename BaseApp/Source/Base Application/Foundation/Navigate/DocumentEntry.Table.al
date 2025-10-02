@@ -65,6 +65,10 @@ table 265 "Document Entry"
             Caption = 'Package No. Filter';
             FieldClass = FlowFilter;
         }
+        field(12; "Ref. Document No."; Code[20])
+        {
+            Caption = 'Ref. Document No.';
+        }
     }
 
     keys

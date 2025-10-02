@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Projects.Project.Ledger;
 
 using Microsoft.Finance.Currency;
@@ -446,7 +450,7 @@ table 169 "Job Ledger Entry"
         }
         field(1027; "Original Total Cost (ACY)"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Original Total Cost (ACY)';
         }
@@ -549,6 +553,19 @@ table 169 "Job Ledger Entry"
         Job: Record Job;
         DimMgt: Codeunit DimensionManagement;
 
+    protected var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GeneralLedgerSetupRead: Boolean;
+
+    local procedure GetAdditionalReportingCurrencyCode(): Code[10]
+    begin
+        if not GeneralLedgerSetupRead then begin
+            GeneralLedgerSetup.Get();
+            GeneralLedgerSetupRead := true;
+        end;
+        exit(GeneralLedgerSetup."Additional Reporting Currency")
+    end;
+
     [InherentPermissions(PermissionObjectType::TableData, Database::"Job Ledger Entry", 'r')]
     procedure GetNextEntryNo(): Integer
     var
@@ -583,4 +600,3 @@ table 169 "Job Ledger Entry"
     begin
     end;
 }
-

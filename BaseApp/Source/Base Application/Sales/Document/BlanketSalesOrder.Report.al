@@ -1,13 +1,14 @@
-﻿namespace Microsoft.Sales.Document;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Document;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Interaction;
 using Microsoft.CRM.Segment;
 using Microsoft.CRM.Team;
-#if not CLEAN24
-using Microsoft.Finance;
-#endif
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -330,12 +331,6 @@ report 210 "Blanket Sales Order"
 
                         trigger OnAfterGetRecord()
                         begin
-#if not CLEAN24
-                            if LastVATCode = '' then
-                                LastVATCode := "VAT Identifier";
-                            if LastVATCode <> "VAT Identifier" then
-                                MoreThan1VATCode := true;
-#endif
                         end;
 
                         trigger OnPreDataItem()
@@ -609,10 +604,6 @@ report 210 "Blanket Sales Order"
                             if VATAmount = 0 then
                                 CurrReport.Break();
 
-#if not CLEAN24
-                            if not MoreThan1VATCode and not AlwShowVATSum then
-                                CurrReport.Break();
-#endif
                             SetRange(Number, 1, TempVATAmountLine.Count);
                         end;
                     }
@@ -662,10 +653,6 @@ report 210 "Blanket Sales Order"
                                (TempVATAmountLine.GetTotalVATAmount() = 0)
                             then
                                 CurrReport.Break();
-#if not CLEAN24
-                            if not MoreThan1VATCode and not AlwShowVATSum then
-                                CurrReport.Break();
-#endif
 
                             SetRange(Number, 1, TempVATAmountLine.Count);
                             Clear(VALVATBaseLCY);
@@ -790,10 +777,6 @@ report 210 "Blanket Sales Order"
                 if not IsReportInPreviewMode() then
                     if ArchiveDocument then
                         ArchiveManagement.StoreSalesDocument("Sales Header", LogInteraction);
-#if not CLEAN24
-                MoreThan1VATCode := false;
-                LastVATCode := '';
-#endif
             end;
         }
     }
@@ -840,19 +823,6 @@ report 210 "Blanket Sales Order"
                         Enabled = LogInteractionEnable;
                         ToolTip = 'Specifies if you want the program to log this interaction.';
                     }
-#if not CLEAN24
-                    field(AlwShowVATSum; AlwShowVATSum)
-                    {
-                        ApplicationArea = Advanced;
-                        Caption = 'Always Show VAT Summary';
-                        ToolTip = 'Specifies that you want the document to include VAT information.';
-                        Visible = not IsISCoreAppEnabled;
-                        Enabled = not IsISCoreAppEnabled;
-                        ObsoleteReason = 'Moved to IS Core app.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '24.0';
-                    }
-#endif
                 }
             }
         }
@@ -870,9 +840,6 @@ report 210 "Blanket Sales Order"
 
         trigger OnOpenPage()
         begin
-#if not CLEAN24
-            IsISCoreAppEnabled := ISCoreAppSetup.IsEnabled();
-#endif
         end;
     }
 
@@ -1002,10 +969,6 @@ report 210 "Blanket Sales Order"
         CompanyInfo2: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         TempVATAmountLine: Record "VAT Amount Line" temporary;
-#if not CLEAN24
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        ISCoreAppSetup: Record "IS Core App Setup";
-#endif
         CustAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
@@ -1022,16 +985,6 @@ report 210 "Blanket Sales Order"
         VATDiscountAmount: Decimal;
         VALVATBaseLCY: Decimal;
         VALVATAmountLCY: Decimal;
-#if not CLEAN24
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        AlwShowVATSum: Boolean;
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        MoreThan1VATCode: Boolean;
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        LastVATCode: Code[20];
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        IsISCoreAppEnabled: Boolean;
-#endif
 
     procedure InitializeRequest(NewNoOfCopies: Integer; NewShowInternalInfo: Boolean; NewArchiveDocument: Boolean; NewLogInteraction: Boolean)
     begin
@@ -1071,4 +1024,3 @@ report 210 "Blanket Sales Order"
         VATNoText := FormatDocument.SetText(SalesHeader."VAT Registration No." <> '', SalesHeader.FieldCaption("VAT Registration No."));
     end;
 }
-

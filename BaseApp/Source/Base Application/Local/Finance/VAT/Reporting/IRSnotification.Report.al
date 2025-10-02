@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -6,9 +6,6 @@ namespace Microsoft.Finance.VAT.Reporting;
 
 using Microsoft.Foundation.Company;
 using System.Utilities;
-#if not CLEAN24
-using Microsoft.Finance;
-#endif
 
 report 10913 "IRS notification"
 {
@@ -80,17 +77,7 @@ report 10913 "IRS notification"
     }
 
     trigger OnInitReport()
-#if not CLEAN24
-    var
-        ISCoreAppSetup: Record "IS Core App Setup";
-#endif
     begin
-#if not CLEAN24
-        if ISCoreAppSetup.IsEnabled() then begin
-            Report.Run(14603); // Report - "IS IRS Details"
-            Error('');
-        end;
-#endif
         CompanyInfo.Get();
     end;
 
@@ -105,4 +92,3 @@ report 10913 "IRS notification"
         VersionOfNavisionCaptionLbl: Label 'It is also confirmed that the company uses a version of Navision that complies with the regulation.';
         ManagerCaptionLbl: Label 'Manager';
 }
-

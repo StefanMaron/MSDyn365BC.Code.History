@@ -1,12 +1,13 @@
-﻿namespace Microsoft.Purchases.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.History;
 
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Interaction;
 using Microsoft.CRM.Segment;
 using Microsoft.CRM.Team;
-#if not CLEAN24
-using Microsoft.Finance;
-#endif
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -565,12 +566,6 @@ report 406 "Purchase - Invoice"
                             TotalAmountInclVAT += "Amount Including VAT";
                             TotalPaymentDiscountOnVAT += -("Line Amount" - "Inv. Discount Amount" - "Amount Including VAT");
 
-#if not CLEAN24
-                            if LastVATCode = '' then
-                                LastVATCode := "VAT Identifier";
-                            if LastVATCode <> "VAT Identifier" then
-                                MoreThan1VATCode := true;
-#endif
 
                             if FirstLineHasBeenOutput then
                                 Clear(DummyCompanyInfo.Picture);
@@ -648,10 +643,6 @@ report 406 "Purchase - Invoice"
 
                         trigger OnPreDataItem()
                         begin
-#if not CLEAN24
-                            if not MoreThan1VATCode and not AlwShowVATSum then
-                                CurrReport.Break();
-#endif
                             SetRange(Number, 1, TempVATAmountLine.Count);
                         end;
                     }
@@ -699,10 +690,6 @@ report 406 "Purchase - Invoice"
                                ("Purch. Inv. Header"."Currency Code" = '')
                             then
                                 CurrReport.Break();
-#if not CLEAN24
-                            if not MoreThan1VATCode and not AlwShowVATSum then
-                                CurrReport.Break();
-#endif
 
                             SetRange(Number, 1, TempVATAmountLine.Count);
                             Clear(VALVATBaseLCY);
@@ -850,10 +837,6 @@ report 406 "Purchase - Invoice"
                 PricesInclVATtxt := Format("Prices Including VAT");
 
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
-#if not CLEAN24
-                MoreThan1VATCode := false;
-                LastVATCode := '';
-#endif
             end;
 
             trigger OnPreDataItem()
@@ -898,16 +881,6 @@ report 406 "Purchase - Invoice"
                         Enabled = LogInteractionEnable;
                         ToolTip = 'Specifies that interactions with the contact are logged.';
                     }
-#if not CLEAN24
-                    field(AlwShowVATSum; AlwShowVATSum)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Visible = IsISCoreAppEnabled;
-                        Enabled = IsISCoreAppEnabled;
-                        Caption = 'Always Show VAT Summary';
-                        ToolTip = 'Specifies that you want the document to include VAT information.';
-                    }
-#endif
                 }
             }
         }
@@ -924,9 +897,6 @@ report 406 "Purchase - Invoice"
         
         trigger OnOpenPage()
         begin
-#if not CLEAN24
-            IsISCoreAppEnabled := ISCoreAppSetup.IsEnabled();
-#endif
         end;
     }
 
@@ -1059,19 +1029,6 @@ report 406 "Purchase - Invoice"
         PayToContactPhoneNoLbl: Label 'Pay-to Contact Phone No.';
         PayToContactMobilePhoneNoLbl: Label 'Pay-to Contact Mobile Phone No.';
         PayToContactEmailLbl: Label 'Pay-to Contact E-Mail';
-#if not CLEAN24
-    protected var
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        ISCoreAppSetup: Record "IS Core App Setup";
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        AlwShowVATSum: Boolean;
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        MoreThan1VATCode: Boolean;
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        LastVATCode: Code[20];
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        IsISCoreAppEnabled: Boolean;
-#endif
 
     protected var
         CompanyInfo: Record "Company Information";
@@ -1134,4 +1091,3 @@ report 406 "Purchase - Invoice"
     begin
     end;
 }
-

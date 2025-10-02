@@ -41,25 +41,23 @@ codeunit 5817 "Undo Posting Management"
 
     var
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text001: Label 'You cannot undo line %1 because there is not sufficient content in the receiving bins.';
-        Text002: Label 'You cannot undo line %1 because warehouse put-away lines have already been created.';
-        Text003: Label 'You cannot undo line %1 because warehouse activity lines have already been created.';
-        Text004: Label 'You must delete the related %1 before you undo line %2.';
-        Text005: Label 'You cannot undo line %1 because warehouse receipt lines have already been created.';
-        Text006: Label 'You cannot undo line %1 because warehouse shipment lines have already been created.';
-        Text007: Label 'The items have been picked. If you undo line %1, the items will remain in the shipping area until you put them away.\Do you still want to undo the shipment?';
-        Text008: Label 'You cannot undo line %1 because warehouse worksheet lines exist for this line.';
-        Text009: Label 'You cannot undo line %1 because warehouse put-away lines have already been posted.';
-        Text010: Label 'You cannot undo line %1 because inventory pick lines have already been posted.';
-        Text011: Label 'You cannot undo line %1 because there is an item charge assigned to it on %2 Doc No. %3 Line %4.';
-        Text012: Label 'You cannot undo line %1 because an item charge has already been invoiced.';
-        Text013: Label 'Item ledger entries are missing for line %1.';
-        Text014: Label 'You cannot undo line %1, because a revaluation has already been posted.';
-        Text015: Label 'You cannot undo posting of item %1 with variant ''%2'' and unit of measure %3 because it is not available at location %4, bin code %5. The required quantity is %6. The available quantity is %7.';
+        InsufficientBinContentErr: Label 'You cannot undo line %1 because there is not sufficient content in the receiving bins.';
+        PutAwayLinesCreatedErr: Label 'You cannot undo line %1 because warehouse put-away lines have already been created.';
+        ActivityLinesCreatedErr: Label 'You cannot undo line %1 because warehouse activity lines have already been created.';
+        DeleteRelatedErr: Label 'You must delete the related %1 before you undo line %2.';
+        ReceiptLinesCreatedErr: Label 'You cannot undo line %1 because warehouse receipt lines have already been created.';
+        ShipmentLinesCreatedErr: Label 'You cannot undo line %1 because warehouse shipment lines have already been created.';
+        ItemsPickedQst: Label 'The items have been picked. If you undo line %1, the items will remain in the shipping area until you put them away.\Do you still want to undo the shipment?';
+        WorksheetLinesExistErr: Label 'You cannot undo line %1 because warehouse worksheet lines exist for this line.';
+        PutAwayLinesPostedErr: Label 'You cannot undo line %1 because warehouse put-away lines have already been posted.';
+        InventoryPickPostedErr: Label 'You cannot undo line %1 because inventory pick lines have already been posted.';
+        ItemChargeAssignedErr: Label 'You cannot undo line %1 because there is an item charge assigned to it on %2 Doc No. %3 Line %4.';
+        ItemChargeInvoicedErr: Label 'You cannot undo line %1 because an item charge has already been invoiced.';
+        MissingItemLedgerErr: Label 'Item ledger entries are missing for line %1.';
+        RevaluationPostedErr: Label 'You cannot undo line %1, because a revaluation has already been posted.';
+        ItemNotAvailableErr: Label 'You cannot undo posting of item %1 with variant ''%2'' and unit of measure %3 because it is not available at location %4, bin code %5. The required quantity is %6. The available quantity is %7.';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
         NonSurplusResEntriesErr: Label 'You cannot undo transfer shipment line %1 because this line is Reserved. Reservation Entry No. %2', Comment = '%1 = Line No., %2 = Entry No.';
 
     procedure TestTransferShptLine(TransferShptLine: Record "Transfer Shipment Line")
@@ -247,7 +245,7 @@ codeunit 5817 "Undo Posting Management"
             OnTestWarehouseEntryOnAfterSetFilters(WarehouseEntry, PostedWhseReceiptLine);
             WarehouseEntry.CalcSums(WarehouseEntry."Qty. (Base)");
             if WarehouseEntry."Qty. (Base)" < PostedWhseReceiptLine."Qty. (Base)" then
-                Error(Text001, UndoLineNo);
+                Error(InsufficientBinContentErr, UndoLineNo);
         end;
     end;
 
@@ -264,7 +262,7 @@ codeunit 5817 "Undo Posting Management"
         BinContent.Get(WhseEntry."Location Code", WhseEntry."Bin Code", WhseEntry."Item No.", WhseEntry."Variant Code", WhseEntry."Unit of Measure Code");
         QtyAvailToTake := BinContent.CalcQtyAvailToTake(0);
         if QtyAvailToTake < UndoQtyBase then
-            Error(Text015,
+            Error(ItemNotAvailableErr,
               WhseEntry."Item No.",
               WhseEntry."Variant Code",
               WhseEntry."Unit of Measure Code",
@@ -289,7 +287,7 @@ codeunit 5817 "Undo Posting Management"
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Put-away");
         WarehouseActivityLine.SetRange("Whse. Document Line No.", PostedWhseReceiptLine."Line No.");
         if not WarehouseActivityLine.IsEmpty() then
-            Error(Text002, UndoLineNo);
+            Error(PutAwayLinesCreatedErr, UndoLineNo);
     end;
 
     local procedure TestRgstrdWhseActivityLine2(UndoLineNo: Integer; var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
@@ -306,7 +304,7 @@ codeunit 5817 "Undo Posting Management"
         RegisteredWhseActivityLine.SetRange("Whse. Document No.", PostedWhseReceiptLine."No.");
         RegisteredWhseActivityLine.SetRange("Whse. Document Line No.", PostedWhseReceiptLine."Line No.");
         if not RegisteredWhseActivityLine.IsEmpty() then
-            Error(Text003, UndoLineNo);
+            Error(ActivityLinesCreatedErr, UndoLineNo);
     end;
 
     local procedure TestWhseWorksheetLine2(UndoLineNo: Integer; var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
@@ -317,7 +315,7 @@ codeunit 5817 "Undo Posting Management"
         WhseWorksheetLine.SetRange("Whse. Document No.", PostedWhseReceiptLine."No.");
         WhseWorksheetLine.SetRange("Whse. Document Line No.", PostedWhseReceiptLine."Line No.");
         if not WhseWorksheetLine.IsEmpty() then
-            Error(Text004, WhseWorksheetLine.TableCaption(), UndoLineNo);
+            Error(DeleteRelatedErr, WhseWorksheetLine.TableCaption(), UndoLineNo);
     end;
 
     local procedure TestWarehouseActivityLine(UndoType: Integer; UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)
@@ -333,8 +331,8 @@ codeunit 5817 "Undo Posting Management"
         WarehouseActivityLine.SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, -1, true);
         if not WarehouseActivityLine.IsEmpty() then begin
             if UndoType = DATABASE::"Assembly Line" then
-                Error(Text002, UndoLineNo);
-            Error(Text003, UndoLineNo);
+                Error(PutAwayLinesCreatedErr, UndoLineNo);
+            Error(ActivityLinesCreatedErr, UndoLineNo);
         end;
     end;
 
@@ -351,7 +349,7 @@ codeunit 5817 "Undo Posting Management"
         RegisteredWhseActivityLine.SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, -1, true);
         RegisteredWhseActivityLine.SetRange("Activity Type", RegisteredWhseActivityLine."Activity Type"::"Put-away");
         if not RegisteredWhseActivityLine.IsEmpty() then
-            Error(Text002, UndoLineNo);
+            Error(PutAwayLinesCreatedErr, UndoLineNo);
     end;
 
     local procedure TestWarehouseReceiptLine(UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)
@@ -367,7 +365,7 @@ codeunit 5817 "Undo Posting Management"
 
         WhseManagement.SetSourceFilterForWhseRcptLine(WarehouseReceiptLine, SourceType, SourceSubtype, SourceID, SourceRefNo, true);
         if not WarehouseReceiptLine.IsEmpty() then
-            Error(Text005, UndoLineNo);
+            Error(ReceiptLinesCreatedErr, UndoLineNo);
     end;
 
     local procedure TestWarehouseShipmentLine(UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)
@@ -382,7 +380,7 @@ codeunit 5817 "Undo Posting Management"
 
         WarehouseShipmentLine.SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, true);
         if not WarehouseShipmentLine.IsEmpty() then
-            Error(Text006, UndoLineNo);
+            Error(ShipmentLinesCreatedErr, UndoLineNo);
     end;
 
     local procedure TestPostedWhseShipmentLine(UndoType: Integer; UndoID: Code[20]; UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)
@@ -398,7 +396,7 @@ codeunit 5817 "Undo Posting Management"
 
         WhseManagement.SetSourceFilterForPostedWhseShptLine(PostedWhseShipmentLine, SourceType, SourceSubtype, SourceID, SourceRefNo, true);
         if not PostedWhseShipmentLine.IsEmpty() then
-            if not Confirm(Text007, true, UndoLineNo) then
+            if not Confirm(ItemsPickedQst, true, UndoLineNo) then
                 Error('');
     end;
 
@@ -414,7 +412,7 @@ codeunit 5817 "Undo Posting Management"
 
         WhseWorksheetLine.SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, true);
         if not WhseWorksheetLine.IsEmpty() then
-            Error(Text008, UndoLineNo);
+            Error(WorksheetLinesExistErr, UndoLineNo);
     end;
 
     local procedure TestPostedInvtPutAwayLine(UndoType: Integer; UndoID: Code[20]; UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)
@@ -429,7 +427,7 @@ codeunit 5817 "Undo Posting Management"
 
         PostedInvtPutAwayLine.SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, true);
         if not PostedInvtPutAwayLine.IsEmpty() then
-            Error(Text009, UndoLineNo);
+            Error(PutAwayLinesPostedErr, UndoLineNo);
     end;
 
     local procedure TestPostedInvtPickLine(UndoType: Integer; UndoID: Code[20]; UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)
@@ -444,7 +442,7 @@ codeunit 5817 "Undo Posting Management"
 
         PostedInvtPickLine.SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, true);
         if ShouldThrowErrorForPostedInvtPickLine(PostedInvtPickLine, UndoType, UndoID) then
-            Error(Text010, UndoLineNo);
+            Error(InventoryPickPostedErr, UndoLineNo);
     end;
 
     local procedure ShouldThrowErrorForPostedInvtPickLine(var PostedInvtPickLine: Record "Posted Invt. Pick Line"; UndoType: Integer; UndoID: Code[20]): Boolean
@@ -503,7 +501,7 @@ codeunit 5817 "Undo Posting Management"
         ItemChargeAssignmentPurch.SetRange("Applies-to Doc. Line No.", SourceRefNo);
         if not ItemChargeAssignmentPurch.IsEmpty() then
             if ItemChargeAssignmentPurch.FindFirst() then
-                Error(Text011, UndoLineNo, ItemChargeAssignmentPurch."Document Type", ItemChargeAssignmentPurch."Document No.", ItemChargeAssignmentPurch."Line No.");
+                Error(ItemChargeAssignedErr, UndoLineNo, ItemChargeAssignmentPurch."Document Type", ItemChargeAssignmentPurch."Document No.", ItemChargeAssignmentPurch."Line No.");
     end;
 
     local procedure TestItemChargeAssignmentSales(UndoType: Integer; UndoLineNo: Integer; SourceID: Code[20]; SourceRefNo: Integer)
@@ -523,7 +521,7 @@ codeunit 5817 "Undo Posting Management"
         ItemChargeAssignmentSales.SetRange("Applies-to Doc. Line No.", SourceRefNo);
         if not ItemChargeAssignmentSales.IsEmpty() then
             if ItemChargeAssignmentSales.FindFirst() then
-                Error(Text011, UndoLineNo, ItemChargeAssignmentSales."Document Type", ItemChargeAssignmentSales."Document No.", ItemChargeAssignmentSales."Line No.");
+                Error(ItemChargeAssignedErr, UndoLineNo, ItemChargeAssignmentSales."Document Type", ItemChargeAssignmentSales."Document No.", ItemChargeAssignmentSales."Line No.");
     end;
 
     local procedure GetBinTypeFilter(Type: Option Receive,Ship,"Put Away",Pick): Text[1024]
@@ -615,12 +613,12 @@ codeunit 5817 "Undo Posting Management"
         ValueEntry.SetRange("Item Ledger Entry No.", TempItemLedgEntry."Entry No.");
         ValueEntry.SetFilter("Item Charge No.", '<> %1', '');
         if not ValueEntry.IsEmpty() then
-            Error(Text012, LineRef);
+            Error(ItemChargeInvoicedErr, LineRef);
 
         ValueEntry.SetRange("Item Charge No.");
         ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Revaluation);
         if not ValueEntry.IsEmpty() then
-            Error(Text014, LineRef);
+            Error(RevaluationPostedErr, LineRef);
     end;
 
     procedure PostItemJnlLineAppliedToList(ItemJnlLine: Record "Item Journal Line"; var TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary; UndoQty: Decimal; UndoQtyBase: Decimal; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; var TempItemEntryRelation: Record "Item Entry Relation" temporary)
@@ -661,8 +659,7 @@ codeunit 5817 "Undo Posting Management"
             ItemJnlLine."Item Shpt. Entry No." := 0;
             ItemJnlLine."Quantity (Base)" := -TempApplyToItemLedgEntry.Quantity;
             ItemJnlLine."Invoiced Qty. (Base)" := -TempApplyToItemLedgEntry."Invoiced Quantity";
-            if ItemJnlLine.Correction and ItemJnlLine.Subcontracting then
-                ItemJnlLine."Output Quantity (Base)" := -TempApplyToItemLedgEntry.Quantity;
+            OnPostItemJnlLineAppliedToListOnAfterSetInvoicedQty(ItemJnlLine, TempApplyToItemLedgEntry);
             ItemJnlLine.CopyTrackingFromItemLedgEntry(TempApplyToItemLedgEntry);
             if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Transfer then
                 ItemJnlLine.CopyNewTrackingFromOldItemLedgerEntry(TempApplyToItemLedgEntry);
@@ -734,37 +731,9 @@ codeunit 5817 "Undo Posting Management"
         end;
     end;
 
-    internal procedure CollectOutputItemLedgEntriesForSubcontructingPurcReceiptLine(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; PurchRcptLine: Record "Purch. Rcpt. Line"): Boolean
-    var
-        ItemLedgEntry: Record "Item Ledger Entry";
-        OutputEntriesExist: Boolean;
+    internal procedure CollectOutputItemLedgEntriesForSubcontructingPurcReceiptLine(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; PurchRcptLine: Record "Purch. Rcpt. Line") Result: Boolean
     begin
-        TempItemLedgEntry.Reset();
-        if not TempItemLedgEntry.IsEmpty() then
-            TempItemLedgEntry.DeleteAll();
-
-        ItemLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type", "Prod. Order Comp. Line No.");
-        ItemLedgEntry.SetBaseLoadFields();
-        ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
-        ItemLedgEntry.SetRange("Order No.", PurchRcptLine."Prod. Order No.");
-        ItemLedgEntry.SetRange("Order Line No.", PurchRcptLine."Prod. Order Line No.");
-        ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Output);
-        ItemLedgEntry.SetRange("Item No.", PurchRcptLine."No.");
-        ItemLedgEntry.SetRange(Open, true);
-
-        if ItemLedgEntry.FindSet() then
-            repeat
-                TempItemLedgEntry := ItemLedgEntry;
-                TempItemLedgEntry.Insert();
-            until ItemLedgEntry.Next() = 0;
-
-        OutputEntriesExist := not TempItemLedgEntry.IsEmpty();
-        if not OutputEntriesExist then begin
-            ItemLedgEntry.SetRange(Open);
-            OutputEntriesExist := not ItemLedgEntry.IsEmpty();
-        end;
-
-        exit(OutputEntriesExist);
+        OnCollectOutputItemLedgEntriesForSubcontructingPurcReceiptLine(TempItemLedgEntry, PurchRcptLine, Result);
     end;
 
     local procedure ShouldRevertBaseQtySign(SourceType: Integer) RevertSign: Boolean
@@ -789,7 +758,7 @@ codeunit 5817 "Undo Posting Management"
             exit;
 
         if not ItemTrackingMgt.CollectItemEntryRelation(TempItemLedgEntry, SourceType, 0, DocumentNo, '', 0, LineNo, BaseQty) then
-            Error(Text013, LineNo);
+            Error(MissingItemLedgerErr, LineNo);
     end;
 
     local procedure UndoValuePostingFromJob(ItemJnlLine: Record "Item Journal Line"; ItemApplicationEntry: Record "Item Application Entry"; var TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary)
@@ -861,7 +830,7 @@ codeunit 5817 "Undo Posting Management"
         end;
         OnUpdatePurchLineOnBeforePurchLineModify(PurchLine);
         PurchLine.Modify();
-        if PurchLine."Prod. Order No." = '' then
+        if not PurchLine.IsProdOrder() then
             RevertPostedItemTrackingFromPurchLine(PurchLine, TempUndoneItemLedgEntry);
         xPurchLine."Quantity (Base)" := 0;
         PurchLineReserveVerifyQuantity(PurchLine, xPurchLine);
@@ -1537,6 +1506,11 @@ codeunit 5817 "Undo Posting Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineAppliedToListOnAfterSetInvoicedQty(var ItemJournalLine: Record "Item Journal Line"; TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateSalesLineOnBeforeInitOustanding(var SalesLine: Record "Sales Line"; var UndoQty: Decimal; var UndoQtyBase: Decimal)
     begin
     end;
@@ -1656,6 +1630,11 @@ codeunit 5817 "Undo Posting Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateDerivedTransferLineOnAfterTransferTracking(var TransferLine: Record "Transfer Line"; var TransferShipmentLine: Record "Transfer Shipment Line"; var DerivedTransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCollectOutputItemLedgEntriesForSubcontructingPurcReceiptLine(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; PurchRcptLine: Record "Purch. Rcpt. Line"; var Result: Boolean)
     begin
     end;
 }

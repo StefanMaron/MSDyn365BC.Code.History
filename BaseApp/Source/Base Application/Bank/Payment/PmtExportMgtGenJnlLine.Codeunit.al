@@ -14,6 +14,10 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using System.IO;
 
+/// <summary>
+/// Manages payment export operations for general journal lines.
+/// This codeunit handles the export of payments from journal lines to external payment files.
+/// </summary>
 codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
 {
     Permissions = TableData "Vendor Ledger Entry" = rm,
@@ -33,6 +37,11 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
         PaymentExportMgt: Codeunit "Payment Export Mgt";
         EmployeeMustHaveBankAccountNoErr: Label 'You must specify either Bank Account No. or IBAN for employee %1.', Comment = '%1 - Employee name';
 
+    /// <summary>
+    /// Exports journal payment file with user confirmation if lines were previously exported.
+    /// This procedure prompts the user if re-exporting already exported journal lines.
+    /// </summary>
+    /// <param name="GenJnlLine">General journal lines to export for payment processing.</param>
     [Scope('OnPrem')]
     procedure ExportJournalPaymentFileYN(var GenJnlLine: Record "Gen. Journal Line")
     begin
@@ -44,6 +53,11 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
         ExportJournalPaymentFile(GenJnlLine);
     end;
 
+    /// <summary>
+    /// Exports journal payment file without user prompts.
+    /// This procedure validates and exports general journal lines for payment processing.
+    /// </summary>
+    /// <param name="GenJnlLine">General journal lines to export for payment processing.</param>
     [Scope('OnPrem')]
     procedure ExportJournalPaymentFile(var GenJnlLine: Record "Gen. Journal Line")
     var
@@ -78,6 +92,12 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
         end;
     end;
 
+    /// <summary>
+    /// Processes general journal lines for export to payment file format.
+    /// This procedure creates data exchange entries and credit transfer entries for payment export.
+    /// </summary>
+    /// <param name="GenJnlLine">General journal lines to process for export.</param>
+    /// <param name="CreditTransferRegister">Credit transfer register for tracking the export operation.</param>
     [Scope('OnPrem')]
     procedure ExportGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; var CreditTransferRegister: Record "Credit Transfer Register")
     var
@@ -129,6 +149,14 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
         PaymentExportMgt.CreatePaymentLines(TempPaymentExportData);
     end;
 
+    /// <summary>
+    /// Prepares payment export data from general journal line information.
+    /// This procedure populates payment export data with vendor, employee, and bank account details for payment processing.
+    /// </summary>
+    /// <param name="TempPaymentExportData">Temporary payment export data record to populate.</param>
+    /// <param name="GenJnlLine">General journal line containing payment information.</param>
+    /// <param name="DataExchEntryNo">Data exchange entry number for tracking.</param>
+    /// <param name="LineNo">Line number for the payment export data.</param>
     procedure PreparePaymentExportDataJnl(var TempPaymentExportData: Record "Payment Export Data" temporary; GenJnlLine: Record "Gen. Journal Line"; DataExchEntryNo: Integer; LineNo: Integer)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -208,11 +236,22 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
         TempPaymentExportData.Insert(true);
     end;
 
+    /// <summary>
+    /// Enables export to server temporary file with specified settings.
+    /// This procedure configures payment export to save files on the server instead of client download.
+    /// </summary>
+    /// <param name="SilentServerMode">Whether to run in silent mode without user interaction.</param>
+    /// <param name="ServerFileExtension">File extension for the server temporary file.</param>
     procedure EnableExportToServerTempFile(SilentServerMode: Boolean; ServerFileExtension: Text[3])
     begin
         PaymentExportMgt.EnableExportToServerTempFile(SilentServerMode, ServerFileExtension);
     end;
 
+    /// <summary>
+    /// Retrieves the server temporary file name for payment export.
+    /// This procedure returns the path of the temporary file created on the server during payment export.
+    /// </summary>
+    /// <returns>Server temporary file name with full path.</returns>
     procedure GetServerTempFileName(): Text[1024]
     begin
         exit(PaymentExportMgt.GetServerTempFileName());
@@ -238,24 +277,57 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
         TempPaymentExportData."Recipient Acc. No." := Employee."Bank Account No.";
     end;
 
+    /// <summary>
+    /// Integration event raised before inserting payment export data from general journal line.
+    /// This event allows customization of payment export data before it is processed.
+    /// </summary>
+    /// <param name="PaymentExportData">Payment export data record being prepared for insert.</param>
+    /// <param name="GenJournalLine">Source general journal line containing payment information.</param>
+    /// <param name="GeneralLedgerSetup">General ledger setup for currency and company information.</param>
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnBeforeInsertPmtExportDataJnlFromGenJnlLine(var PaymentExportData: Record "Payment Export Data"; GenJournalLine: Record "Gen. Journal Line"; GeneralLedgerSetup: Record "General Ledger Setup")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before creating general journal data exchange line.
+    /// This event allows customization of data exchange line creation for payment export.
+    /// </summary>
+    /// <param name="DataExch">Data exchange record for the payment export.</param>
+    /// <param name="GenJournalLine">General journal line being processed for export.</param>
+    /// <param name="LineNo">Line number for the data exchange entry.</param>
+    /// <param name="LineAmount">Amount for the specific line being processed.</param>
+    /// <param name="TotalAmount">Total amount for the entire payment export operation.</param>
+    /// <param name="TransferDate">Date when the payment transfer should occur.</param>
+    /// <param name="Handled">Set to true if the data exchange line creation has been handled by an external extension.</param>
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnBeforeCreateGenJnlDataExchLine(DataExch: Record "Data Exch."; GenJournalLine: Record "Gen. Journal Line"; LineNo: Integer; var LineAmount: Decimal; var TotalAmount: Decimal; var TransferDate: Date; var Handled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before payment export operation starts.
+    /// This event allows customization of the payment export process before file generation.
+    /// </summary>
+    /// <param name="BalAccountNo">Balance account number for the payment export.</param>
+    /// <param name="DataExchEntryNo">Data exchange entry number for the export operation.</param>
+    /// <param name="LineCount">Number of lines being exported in this operation.</param>
+    /// <param name="TotalAmount">Total amount for all lines in the payment export.</param>
+    /// <param name="TransferDate">Date when the payment transfer should occur.</param>
+    /// <param name="Handled">Set to true if the payment export has been handled by an external extension.</param>
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnBeforePaymentExport(BalAccountNo: Code[20]; DataExchEntryNo: Integer; LineCount: Integer; TotalAmount: Decimal; TransferDate: Date; var Handled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised during general journal line validation for payment export.
+    /// This event allows external extensions to perform additional validation on journal lines.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal line being validated for payment export.</param>
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnCheckGenJnlLine(GenJournalLine: Record "Gen. Journal Line")

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -8,9 +8,6 @@ using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Enums;
 using System.Utilities;
-#if not CLEAN24
-using Microsoft.Finance;
-#endif
 
 report 10941 "VAT Balancing Report"
 {
@@ -367,17 +364,6 @@ report 10941 "VAT Balancing Report"
         VATReportCaptionLbl: Label 'VAT Report';
         PaymentDueCaptionLbl: Label 'Payment Due';
 
-#if not CLEAN24
-    trigger OnInitReport()
-    var
-        ISCoreAppSetup: Record "IS Core App Setup";
-    begin
-        if ISCoreAppSetup.IsEnabled() then begin
-            Report.Run(14600); // Report -  "IS VAT Balancing Report"
-            Error('');
-        end;
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure FindPeriod()
@@ -477,4 +463,3 @@ report 10941 "VAT Balancing Report"
         exit(0);
     end;
 }
-

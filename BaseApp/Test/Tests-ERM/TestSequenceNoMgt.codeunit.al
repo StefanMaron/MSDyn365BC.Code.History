@@ -13,15 +13,18 @@ codeunit 134899 "Test Sequence No. Mgt."
         SequenceNoMgt: Codeunit "Sequence No. Mgt.";
         SequenceName: Text;
         NextNo: Integer;
+        CurrentNo: Integer;
     begin
         // First time we use GetNextSequenceNo the sequence should be created automatically
         SequenceName := SequenceNoMgt.GetTableSequenceName(Database::"G/L Entry");
         if NumberSequence.Exists(SequenceName) then
             NumberSequence.Delete(SequenceName);
         if GLEntry.FindLast() then;
+        CurrentNo := SequenceNoMgt.GetCurrentSeqNo(Database::"G/L Entry");
         NextNo := SequenceNoMgt.GetNextSeqNo(Database::"G/L Entry");
         Assert.IsTrue(NumberSequence.Exists(SequenceName), 'Sequence not created');
-        Assert.AreEqual(GLEntry."Entry No." + 1, NextNo, 'Wrong number generated');
+        Assert.AreEqual(GLEntry."Entry No.", CurrentNo, 'Wrong current number generated');
+        Assert.AreEqual(GLEntry."Entry No." + 1, NextNo, 'Wrong next number generated');
         Assert.AreEqual('', GetLastErrorText(), 'Error not cleared after TryFunction');
     end;
 
@@ -45,6 +48,52 @@ codeunit 134899 "Test Sequence No. Mgt."
         LastNo := InteractionLogEntry."Entry No.";
         InteractionLogEntry.InsertRecord(); // should trigger rebase and renewed Entry No.
         Assert.IsTrue(InteractionLogEntry."Entry No." > LastNo, 'Wrong number generated');
+    end;
+
+    [Test]
+    procedure VerifyRanges()
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+        ExpectedNo: Integer;
+        FirstNo: Integer;
+        EntryNo: Integer;
+        ManualEntryNo1: Integer;
+        ManualEntryNo2: Integer;
+        i: Integer;
+    begin
+        Clear(SequenceNoMgt);
+        SequenceNoMgt.ClearState();
+        SequenceNoMgt.ValidateSeqNo(32); // Item Ledger Entry
+
+        // Sunshine scenaro - allocate 100 entry nos.
+        ExpectedNo := SequenceNoMgt.GetCurrentSeqNo(32) + 1; // Item Ledger Entry
+        SequenceNoMgt.AllocateSeqNoBuffer(32, 100);
+        FirstNo := SequenceNoMgt.GetNextSeqNo(32);
+        Assert.AreEqual(ExpectedNo, FirstNo, 'Unexpected first entry no.');
+
+        ExpectedNo := FirstNo + 1;
+        EntryNo := SequenceNoMgt.GetNextSeqNo(32);
+        Assert.AreEqual(ExpectedNo, EntryNo, 'Unexpected next entry no. from buffer');
+
+        ExpectedNo := FirstNo + 100;
+        ManualEntryNo1 := NumberSequence.Next(SequenceNoMgt.GetTableSequenceName(32));
+        Assert.AreEqual(ExpectedNo, ManualEntryNo1, 'Unexpected next entry no.');
+
+        SequenceNoMgt.AllocateSeqNoBuffer(32, 100); // will update the list
+
+        ExpectedNo := FirstNo + 2;
+        EntryNo := SequenceNoMgt.GetNextSeqNo(32);
+        Assert.AreEqual(ExpectedNo, EntryNo, 'Unexpected next entry no. from buffer 2');
+
+        ExpectedNo += 99;
+        ManualEntryNo2 := NumberSequence.Next(SequenceNoMgt.GetTableSequenceName(32));
+        Assert.AreEqual(ExpectedNo, ManualEntryNo2, 'Unexpected next entry no. 2');
+
+        for i := 1 to 200 do begin
+            EntryNo := SequenceNoMgt.GetNextSeqNo(32);
+            Assert.AreNotEqual(ManualEntryNo1, EntryNo, 'We got an already used entry no. 1');
+            Assert.AreNotEqual(ManualEntryNo2, EntryNo, 'We got an already used entry no. 2');
+        end;
     end;
 
     [Test]

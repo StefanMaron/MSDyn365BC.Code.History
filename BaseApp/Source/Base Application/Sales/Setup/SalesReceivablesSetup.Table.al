@@ -1,8 +1,9 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Setup;
 
-#if not CLEAN24
-using Microsoft.Finance;
-#endif
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -261,7 +262,7 @@ table 311 "Sales & Receivables Setup"
             Caption = 'Default Quantity to Ship';
             OptionCaption = 'Remainder,Blank';
             OptionMembers = Remainder,Blank;
-            ToolTip = 'Specifies the default value for the Qty. to Ship field on sales order lines and the Return Qty. to Receive field on sales return order lines. If you choose Blank, the quantity to invoice is not automatically calculated.';
+            ToolTip = 'Specifies the default value for the Qty. to Ship field on sales order lines and the Return Qty. to Receive field on sales return order lines. If you choose Blank, the quantity to ship is not automatically calculated.';
         }
         field(38; "Post with Job Queue"; Boolean)
         {
@@ -402,11 +403,21 @@ table 311 "Sales & Receivables Setup"
             Caption = 'Default G/L Account Quantity';
             ToolTip = 'Specifies that Quantity is set to 1 on lines of type G/L Account.';
         }
+#if not CLEANSCHEMA29        
         field(57; "Create Item from Item No."; Boolean)
         {
             Caption = 'Create Item from Item No.';
             ToolTip = 'Specifies if the system will suggest to create a new item when no item matches the number that you enter in the No. Field on sales lines.';
+            ObsoleteReason = 'Discontinued function';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '29.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
         }
+#endif        
         field(58; "Copy Customer Name to Entries"; Boolean)
         {
             Caption = 'Copy Customer Name to Entries';
@@ -710,6 +721,10 @@ table 311 "Sales & Receivables Setup"
             InitValue = true;
             ToolTip = 'Specifies whether the document date changes when the posting date is modified.';
         }
+	field(10500; "Posting Date Check on Posting"; Boolean)
+        {
+            Caption = 'Posting Date Check on Posting';
+        }
 #if not CLEANSCHEMA25
         field(10900; "Credit Memo Nos. Paym. Disc."; Code[10])
         {
@@ -724,24 +739,9 @@ table 311 "Sales & Receivables Setup"
         {
             Caption = 'Electronic Invoicing';
             ObsoleteReason = 'The field has been moved to the IS Core App.';
-#if CLEAN24
             ObsoleteState = Removed;
             ObsoleteTag = '27.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-#endif
 
-#if not CLEAN24
-            trigger OnValidate()
-            begin
-                if not ISCoreAppSetup.IsEnabled() then begin
-                    if "Electronic Invoicing" then
-                        Message(Reminder);
-                    Modify();
-                end;
-            end;
-#endif
         }
 #endif
     }
@@ -760,21 +760,11 @@ table 311 "Sales & Receivables Setup"
 
     var
         JobQueuePriorityErr: Label 'Job Queue Priority must be zero or positive.';
-#if not CLEAN24
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        Reminder: Label 'Reminder to read legal restrictions on form and print/send statement';
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        LocalLegalStatementCaptionLbl: Label 'This invoice originates in a ERP system that conforms with regulation no. 505/2013';
-#endif
         ProductCoupledErr: Label 'You must choose a record that is not coupled to a product in %1.', Comment = '%1 - Dynamics 365 Sales product name';
         RecordHasBeenRead: Boolean;
         CRMBidirectionalSalesOrderIntEnabledErr: Label 'You cannot disable Archive Orders when Dynamics 365 Sales connection and Bidirectional Sales Order Integration are enabled.';
 
     protected var
-#if not CLEAN24     
-        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
-        ISCoreAppSetup: Record "IS Core App Setup";
-#endif 
 
     procedure GetRecordOnce()
     begin
@@ -784,20 +774,10 @@ table 311 "Sales & Receivables Setup"
         RecordHasBeenRead := true;
     end;
 
-#if not CLEAN24
-    [Obsolete('The procedure will be replaced by W1 version, the functionality is moved to IS Core extension and renamed to GetLegalStatementLabel', '24.0')]
-    procedure GetLegalStatement(): Text
-    begin
-        if not ISCoreAppSetup.IsEnabled() then
-            if "Electronic Invoicing" then
-                exit(LocalLegalStatementCaptionLbl);
-    end;
-#else
     procedure GetLegalStatement(): Text
     begin
         exit('');
     end;
-#endif
 
     procedure JobQueueActive(): Boolean
     begin

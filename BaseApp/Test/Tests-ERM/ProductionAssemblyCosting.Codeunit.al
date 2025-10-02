@@ -802,7 +802,7 @@ codeunit 137617 "Production & Assembly Costing"
         ComponentItem: Record Item;
         ProducedItem: Record Item;
         Location: Record Location;
-        ManufacturingSetUp: Record "Manufacturing Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
         DefaultDimension: Record "Default Dimension";
         DefaultDimension2: Record "Default Dimension";
         DimensionValue: Record "Dimension Value";
@@ -821,9 +821,9 @@ codeunit 137617 "Production & Assembly Costing"
         LibraryWarehouse.CreateLocation(Location);
 
         // [GIVEN] Update "Components at Location" in Manufacturing Setup.
-        ManufacturingSetUp.Get();
-        ManufacturingSetUp.Validate("Components at Location", Location.Code);
-        ManufacturingSetUp.Modify(true);
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Components at Location", Location.Code);
+        ManufacturingSetup.Modify(true);
 
         // [GIVEN] Create a Default Dimension for Location.
         LibraryDimension.CreateDefaultDimension(

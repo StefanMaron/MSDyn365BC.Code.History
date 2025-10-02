@@ -92,15 +92,6 @@ codeunit 135158 "Data Classification Mgt. Test"
         Assert.IsTrue(DataClassificationMgt.DataPrivacyEntitiesExist(), 'Exactly one entity should exist');
     end;
 
-    local procedure CreateDataSensitivityRecord(TableNum: Integer; FieldNum: Integer; var DataSensitivity: Record "Data Sensitivity")
-    begin
-        DataSensitivity.Init();
-        DataSensitivity."Company Name" := CopyStr(CompanyName(), 1, MaxStrLen(DataSensitivity."Company Name"));
-        DataSensitivity."Table No" := TableNum;
-        DataSensitivity."Field No" := FieldNum;
-        DataSensitivity.Insert();
-    end;
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Classification Mgt.", 'OnGetDataPrivacyEntities', '', false, false)]
     local procedure OnGetDataPrivacyEntitiesSubscriber(var DataPrivacyEntities: Record "Data Privacy Entities")
     begin

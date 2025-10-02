@@ -268,6 +268,8 @@ table 5900 "Service Header"
                                 if "Document Type" = "Document Type"::Invoice then
                                     ServLine.SetFilter("Shipment No.", '<>%1', '');
 
+                            OnValidateBillToCustomerNoOnAfterSetFilters(ServLine, Rec, xRec);
+
                             if ServLine.FindFirst() then
                                 if "Document Type" = "Document Type"::Order then
                                     ServLine.TestField("Quantity Shipped", 0)
@@ -335,6 +337,7 @@ table 5900 "Service Header"
         field(6; "Bill-to Name 2"; Text[50])
         {
             Caption = 'Bill-to Name 2';
+            ToolTip = 'Specifies an additional part of the name of the customer that you send or sent the invoice or credit memo to.';
         }
         field(7; "Bill-to Address"; Text[100])
         {
@@ -432,6 +435,8 @@ table 5900 "Service Header"
                         end;
 
                 UpdateShipToSalespersonCode();
+                GetShipmentMethodCode();
+                GetShippingTime(FieldNo("Ship-to Code"));
 
                 if (xRec."Customer No." = "Customer No.") and
                    (xRec."Ship-to Code" <> "Ship-to Code")
@@ -952,6 +957,8 @@ table 5900 "Service Header"
                     CopyAppliestoFieldsFromCustLedgerEntry(CustLedgEntry);
                 end;
                 Clear(ServApplyCustEntries);
+
+                OnAfterLookupAppliesToDocNo(Rec, CustLedgEntry);
             end;
 
             trigger OnValidate()
@@ -978,6 +985,8 @@ table 5900 "Service Header"
                     else
                         if ("Applies-to Doc. No." <> xRec."Applies-to Doc. No.") and ("Applies-to Doc. No." = '') then
                             CustLedgEntry.SetAmountToApply(xRec."Applies-to Doc. No.", "Customer No.");
+
+                OnAfterValidateAppliesToDocNo(Rec, xRec, CustLedgEntry);
             end;
         }
         field(55; "Bal. Account No."; Code[20])
@@ -1008,6 +1017,26 @@ table 5900 "Service Header"
                             end;
                     end;
             end;
+        }
+        field(60; Amount; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
+            CalcFormula = sum("Service Line".Amount where("Document Type" = field("Document Type"), "Document No." = field("No.")));
+            Caption = 'Amount';
+            ToolTip = 'Specifies the sum of amounts on all the lines in the document.';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(61; "Amount Including VAT"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
+            CalcFormula = sum("Service Line"."Amount Including VAT" where("Document Type" = field("Document Type"), "Document No." = field("No.")));
+            Caption = 'Amount Including VAT';
+            ToolTip = 'Specifies the sum of amounts, including VAT, on all the lines in the document.';
+            Editable = false;
+            FieldClass = FlowField;
         }
         field(62; "Shipping No."; Code[20])
         {
@@ -1094,6 +1123,7 @@ table 5900 "Service Header"
         field(80; "Name 2"; Text[50])
         {
             Caption = 'Name 2';
+            ToolTip = 'Specifies an additional part of the name of the customer to whom the items on the document will be shipped.';
         }
         field(81; Address; Text[100])
         {
@@ -2024,12 +2054,10 @@ table 5900 "Service Header"
                 end;
             end;
         }
-        field(5907; Priority; Option)
+        field(5907; Priority; Enum "Service Priority")
         {
             Caption = 'Priority';
             Editable = false;
-            OptionCaption = 'Low,Medium,High';
-            OptionMembers = Low,Medium,High;
         }
         field(5911; "Allocated Hours"; Decimal)
         {
@@ -2652,7 +2680,7 @@ table 5900 "Service Header"
         key(Key9; "Incoming Document Entry No.")
         {
         }
-        key(Key10; "Document Type", "Combine Shipments", "Bill-to Customer No.", "Currency Code", "EU 3-Party Trade", "Dimension Set ID", "Journal Templ. Name")
+        key(Key10; "Document Type", "Combine Shipments", "Customer No.", "Bill-to Customer No.", "Currency Code", "EU 3-Party Trade", "Dimension Set ID", "Journal Templ. Name")
         {
         }
     }
@@ -4049,9 +4077,6 @@ table 5900 "Service Header"
     /// </summary>
     procedure InitInsert()
     var
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#endif
         IsHandled: Boolean;
     begin
         GetServiceMgtSetup();
@@ -4062,17 +4087,9 @@ table 5900 "Service Header"
             if "No." = '' then begin
                 TestNoSeries();
                 "No. Series" := GetNoSeriesCode();
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries("No. Series", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
-                if not IsHandled then begin
-#endif
-                    if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                        "No. Series" := xRec."No. Series";
-                    "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-#if not CLEAN24
-                    NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GetNoSeriesCode(), "Posting Date", "No.");
-                end;
-#endif
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
             end;
 
         CheckDocumentTypeAlreadyUsed();
@@ -4159,9 +4176,6 @@ table 5900 "Service Header"
 
     local procedure SetDefaultNoSeries()
     var
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#endif
         PostingNoSeries: Code[20];
         IsHandled: Boolean;
     begin
@@ -4190,53 +4204,28 @@ table 5900 "Service Header"
         case "Document Type" of
             "Document Type"::Quote, "Document Type"::Order:
                 begin
-#if CLEAN24
                     if NoSeries.IsAutomatic(PostingNoSeries) then
                         "Posting No. Series" := PostingNoSeries;
                     if NoSeries.IsAutomatic(ServiceMgtSetup."Posted Service Shipment Nos.") then
                         "Shipping No. Series" := ServiceMgtSetup."Posted Service Shipment Nos.";
-#else
-#pragma warning disable AL0432
-                    NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
-                    NoSeriesMgt.SetDefaultSeries("Shipping No. Series", ServiceMgtSetup."Posted Service Shipment Nos.");
-#pragma warning restore AL0432
-#endif
                 end;
             "Document Type"::Invoice:
                 begin
                     if ("No. Series" <> '') and (ServiceMgtSetup."Service Invoice Nos." = PostingNoSeries) then
                         "Posting No. Series" := "No. Series"
                     else
-#if CLEAN24
                         if NoSeries.IsAutomatic(PostingNoSeries) then
                             "Posting No. Series" := PostingNoSeries;
-#else
-#pragma warning disable AL0432
-                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
-#pragma warning restore AL0432
-#endif
                     if ServiceMgtSetup."Shipment on Invoice" then
-#if CLEAN24
                         if NoSeries.IsAutomatic(ServiceMgtSetup."Posted Service Shipment Nos.") then
                             "Shipping No. Series" := ServiceMgtSetup."Posted Service Shipment Nos.";
-#else
-#pragma warning disable AL0432
-                        NoSeriesMgt.SetDefaultSeries("Shipping No. Series", ServiceMgtSetup."Posted Service Shipment Nos.");
-#pragma warning restore AL0432
-#endif
                 end;
             "Document Type"::"Credit Memo":
                 if ("No. Series" <> '') and (ServiceMgtSetup."Service Credit Memo Nos." = PostingNoSeries) then
                     "Posting No. Series" := "No. Series"
                 else
-#if CLEAN24
                     if NoSeries.IsAutomatic(PostingNoSeries) then
                         "Posting No. Series" := PostingNoSeries;
-#else
-#pragma warning disable AL0432
-                    NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
-#pragma warning restore AL0432
-#endif
         end;
     end;
 
@@ -4649,6 +4638,10 @@ table 5900 "Service Header"
             "Location Code" := ShipToAddr."Location Code";
         "Ship-to Fax No." := ShipToAddr."Fax No.";
         "Ship-to E-Mail" := ShipToAddr."E-Mail";
+
+        Validate("Shipping Agent Code", ShipToAddr."Shipping Agent Code");
+        Validate("Shipping Agent Service Code", ShipToAddr."Shipping Agent Service Code");
+
         if ShipToAddr."Tax Area Code" <> '' then
             "Tax Area Code" := ShipToAddr."Tax Area Code";
         "Tax Liable" := ShipToAddr."Tax Liable";
@@ -4677,6 +4670,9 @@ table 5900 "Service Header"
             "Location Code" := SellToCustomer."Location Code";
         "Ship-to Fax No." := SellToCustomer."Fax No.";
         "Ship-to E-Mail" := SellToCustomer."E-Mail";
+
+        Validate("Shipping Agent Code", SellToCustomer."Shipping Agent Code");
+        Validate("Shipping Agent Service Code", SellToCustomer."Shipping Agent Service Code");
 
         OnAfterCopyShipToCustomerAddressFieldsFromCustomer(Rec, SellToCustomer);
     end;
@@ -4742,6 +4738,7 @@ table 5900 "Service Header"
         if (CalledByFieldNo <> CurrFieldNo) and (CurrFieldNo <> 0) then
             exit;
 
+        ShippingAgentServices.SetLoadFields("Shipping Time");
         if ShippingAgentServices.Get("Shipping Agent Code", "Shipping Agent Service Code") then
             "Shipping Time" := ShippingAgentServices."Shipping Time"
         else begin
@@ -5019,6 +5016,25 @@ table 5900 "Service Header"
         then
             exit(true);
         exit(false);
+    end;
+
+    local procedure GetShipmentMethodCode()
+    var
+        ShipToAddress: Record "Ship-to Address";
+    begin
+        if "Ship-to Code" <> '' then begin
+            ShipToAddress.SetLoadFields("Shipment Method Code");
+            ShipToAddress.Get("Customer No.", "Ship-to Code");
+            if ShipToAddress."Shipment Method Code" <> '' then begin
+                Validate("Shipment Method Code", ShipToAddress."Shipment Method Code");
+                exit;
+            end;
+        end;
+
+        if "Customer No." <> '' then begin
+            GetCust("Customer No.");
+            Validate("Shipment Method Code", Cust."Shipment Method Code");
+        end;
     end;
 
     procedure ConfirmCloseUnposted(): Boolean
@@ -5301,25 +5317,28 @@ table 5900 "Service Header"
 
     internal procedure GetQtyReservedFromStockState() Result: Enum "Reservation From Stock"
     var
-        ServiceLineLocal: Record "Service Line";
         ServiceLineReserve: Codeunit "Service Line-Reserve";
         QtyReservedFromStock: Decimal;
     begin
         QtyReservedFromStock := ServiceLineReserve.GetReservedQtyFromInventory(Rec);
+        if QtyReservedFromStock = 0 then
+            exit(Result::None);
 
-        ServiceLineLocal.SetRange("Document Type", Rec."Document Type");
-        ServiceLineLocal.SetRange("Document No.", Rec."No.");
-        ServiceLineLocal.SetRange(Type, ServiceLineLocal.Type::Item);
-        ServiceLineLocal.CalcSums("Outstanding Qty. (Base)");
+        if QtyReservedFromStock = CalculateReservableOutstandingQuantityBase() then
+            exit(Result::Full);
 
-        case QtyReservedFromStock of
-            0:
-                exit(Result::None);
-            ServiceLineLocal."Outstanding Qty. (Base)":
-                exit(Result::Full);
-            else
-                exit(Result::Partial);
-        end;
+        exit(Result::Partial);
+    end;
+
+    local procedure CalculateReservableOutstandingQuantityBase() OutstandingQtyBase: Decimal
+    var
+        RemQtyBaseInvtItemServiceLine: Query RemQtyBaseInvtItemServiceLine;
+    begin
+        RemQtyBaseInvtItemServiceLine.SetServiceLineFilter(Rec);
+        if RemQtyBaseInvtItemServiceLine.Open() then
+            if RemQtyBaseInvtItemServiceLine.Read() then
+                OutstandingQtyBase := RemQtyBaseInvtItemServiceLine.Outstanding_Qty___Base_;
+        RemQtyBaseInvtItemServiceLine.Close();
     end;
 
     local procedure PrepareDeleteServiceInvoice()
@@ -6342,12 +6361,27 @@ table 5900 "Service Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateBillToCustomerNoOnAfterSetFilters(var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateAppliesToDocNo(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateAllLineDimOnBeforeServiceLineModify(var ServiceLine: Record "Service Line"; var xServiceLine: Record "Service Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAllLineDimOnAfterServiceLineModify(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupAppliesToDocNo(var ServiceHeader: Record "Service Header"; var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }

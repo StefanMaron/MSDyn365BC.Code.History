@@ -15,7 +15,6 @@ using Microsoft.Sales.History;
 using Microsoft.Sales.Pricing;
 using Microsoft.Sales.Document;
 using System.Security.User;
-using Microsoft.Service.Ledger;
 
 permissionset 2911 "D365 ACCOUNTANTS"
 {
@@ -50,8 +49,5 @@ permissionset 2911 "D365 ACCOUNTANTS"
                   tabledata "Sales Prepayment %" = D,
                   tabledata "Sales Shipment Header" = R,
                   tabledata "Standard Customer Sales Code" = RD,
-                  tabledata "User Setup" = RIM,
-
-                  // Service
-                  tabledata "Warranty Ledger Entry" = Rm;
+                  tabledata "User Setup" = RIM;
 }

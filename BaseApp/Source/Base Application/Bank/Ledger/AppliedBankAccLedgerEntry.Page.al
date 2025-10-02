@@ -4,6 +4,11 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Ledger;
 
+/// <summary>
+/// List part page displaying bank account ledger entries that have been applied to bank statements.
+/// Shows read-only view of entries that have been successfully matched during bank reconciliation,
+/// providing audit trail and reference information for reconciled transactions.
+/// </summary>
 page 413 "Applied Bank Acc. Ledger Entry"
 {
     Caption = 'Applied Bank Account Ledger Entry';

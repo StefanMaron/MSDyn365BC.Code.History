@@ -783,7 +783,6 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         // [THEN] Key field "Sales Type" with ID = "13" has "Processing Order" = 2
         VerifyProcessingOrder(ConfigPackage.Code, ConfigPackageTable."Table ID", 13, 2);
     end;
-#endif
 
     local procedure VerifyProcessingOrder(PackageCode: Code[20]; TableID: Integer; FieldID: Integer; ProcessingOrder: Integer)
     var
@@ -792,53 +791,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         ConfigPackageField.Get(PackageCode, TableID, FieldID);
         ConfigPackageField.TestField("Processing Order", ProcessingOrder);
     end;
-
-    local procedure CreateRSPackageForPermissionRecord(var ConfigPackage: Record "Config. Package"; RoleID: Code[20]; ObjectType: Option; ObjectID: Integer; SecurityFilter: Text[250])
-    var
-        ConfigPackageTable: Record "Config. Package Table";
-        Permission: Record Permission;
-    begin
-        LibraryRapidStart.CreatePackageDataForField(
-          ConfigPackage,
-          ConfigPackageTable,
-          DATABASE::Permission,
-          Permission.FieldNo("Role ID"),
-          RoleID,
-          SingleEntryRecNo);
-
-        LibraryRapidStart.CreatePackageDataForField(
-          ConfigPackage,
-          ConfigPackageTable,
-          DATABASE::Permission,
-          Permission.FieldNo("Object Type"),
-          Format(ObjectType),
-          SingleEntryRecNo);
-
-        LibraryRapidStart.CreatePackageDataForField(
-          ConfigPackage,
-          ConfigPackageTable,
-          DATABASE::Permission,
-          Permission.FieldNo("Object ID"),
-          Format(ObjectID),
-          SingleEntryRecNo);
-
-        LibraryRapidStart.CreatePackageDataForField(
-          ConfigPackage,
-          ConfigPackageTable,
-          DATABASE::Permission,
-          Permission.FieldNo("Security Filter"),
-          SecurityFilter,
-          SingleEntryRecNo);
-    end;
-
-    local procedure InsertODataEdmTypeEntry()
-    var
-        ODataEdmType: Record "OData Edm Type";
-    begin
-        ODataEdmType.Init();
-        ODataEdmType.Key := LibraryUtility.GenerateGUID();
-        ODataEdmType.Insert();
-    end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -851,7 +804,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         ReorderingPolicy: Enum "Reordering Policy";
         ItemNo: Code[20];
     begin
-        // [SCENARIO 371872] Validation of Enum field when applying package 
+        // [SCENARIO 371872] Validation of Enum field when applying package
         Initialize();
 
         ItemNo := LibraryInventory.CreateItemNo();
@@ -984,4 +937,3 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
     end;
 
 }
-

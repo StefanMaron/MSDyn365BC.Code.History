@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Requisition;
 
-using Microsoft.Manufacturing.Journal;
 using System.Reflection;
 
 table 244 "Req. Wksh. Template"
@@ -48,8 +47,6 @@ table 244 "Req. Wksh. Template"
                     case Type of
                         Type::"Req.":
                             "Page ID" := Page::"Req. Worksheet";
-                        Type::"For. Labor":
-                            "Page ID" := Page::"Subcontracting Worksheet";
                         Type::Planning:
                             "Page ID" := Page::"Planning Worksheet";
                     end;

@@ -4,15 +4,13 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Requisition;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Setup;
+using Microsoft.Inventory.Setup;
 using Microsoft.Purchases.Document;
 
 
@@ -76,11 +74,12 @@ report 99001023 "Get Action Messages"
                             until TempNewActionMsgEntry.Next() = 0;
                         end else
                             if ActionMessageEntry.Find('+') then
-                                UpdateActionMsgList(ActionMessageEntry."Source Type", ActionMessageEntry."Source Subtype",
-                                  ActionMessageEntry."Source ID", ActionMessageEntry."Source Batch Name",
-                                  ActionMessageEntry."Source Prod. Order Line", ActionMessageEntry."Source Ref. No.",
-                                  ActionMessageEntry."Location Code", ActionMessageEntry."Bin Code",
-                                  ActionMessageEntry."Variant Code", ActionMessageEntry."Item No.", 0D);
+                                UpdateActionMessageList(
+                                    ActionMessageEntry."Source Type", ActionMessageEntry."Source Subtype",
+                                    ActionMessageEntry."Source ID", ActionMessageEntry."Source Batch Name",
+                                    ActionMessageEntry."Source Prod. Order Line", ActionMessageEntry."Source Ref. No.",
+                                    ActionMessageEntry."Location Code", ActionMessageEntry."Bin Code",
+                                    ActionMessageEntry."Variant Code", ActionMessageEntry."Item No.", 0D);
                         ActionMessageEntry.ClearSourceFilter();
                         ActionMessageEntry.SetRange("Location Code");
                         ActionMessageEntry.SetRange("Bin Code");
@@ -150,7 +149,7 @@ report 99001023 "Get Action Messages"
                 TempReqLineList.DeleteAll();
                 TempPlanningCompList.DeleteAll();
 
-                ManufacturingSetup.Get();
+                InventorySetup.Get();
             end;
         }
     }
@@ -187,7 +186,7 @@ report 99001023 "Get Action Messages"
         TempNewActionMsgEntry: Record "Action Message Entry" temporary;
         ActionMessageEntry: Record "Action Message Entry";
         ActionMessageEntry2: Record "Action Message Entry";
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
         TempPlanningCompList: Record "Planning Component" temporary;
         TempReqLineList: Record "Requisition Line" temporary;
         SKU: Record "Stockkeeping Unit";
@@ -220,7 +219,15 @@ report 99001023 "Get Action Messages"
         CurrWorksheetName := WorksheetName;
     end;
 
+#if not CLEAN27
+    [Obsolete('Replaced by UpdateActionMessageList due to extending ForBin to Code20', '27.0')]
     procedure UpdateActionMsgList(ForType: Integer; ForSubtype: Integer; ForID: Code[20]; ForBatchName: Code[10]; ForProdOrderLine: Integer; ForRefNo: Integer; ForLocation: Code[10]; ForBin: Code[10]; ForVariant: Code[10]; ForItem: Code[20]; OrderDate: Date)
+    begin
+        UpdateActionMessageList(ForType, ForSubtype, ForID, ForBatchName, ForProdOrderLine, ForRefNo, ForLocation, ForBin, ForVariant, ForItem, OrderDate);
+    end;
+#endif
+
+    procedure UpdateActionMessageList(ForType: Integer; ForSubtype: Integer; ForID: Code[20]; ForBatchName: Code[10]; ForProdOrderLine: Integer; ForRefNo: Integer; ForLocation: Code[10]; ForBin: Code[20]; ForVariant: Code[10]; ForItem: Code[20]; OrderDate: Date)
     begin
         TempActionMsgEntry.SetSourceFilter(ForType, ForSubtype, ForID, ForRefNo, false);
         TempActionMsgEntry.SetSourceFilter(ForBatchName, ForProdOrderLine);
@@ -282,8 +289,8 @@ report 99001023 "Get Action Messages"
 
         if ActionMessageEntry.Quantity < 0 then
             if SKU."Lot Size" > 0 then
-                if ManufacturingSetup."Default Dampener %" > 0 then
-                    if ManufacturingSetup."Default Dampener %" * SKU."Lot Size" / 100 >= Abs(ActionMessageEntry.Quantity) then
+                if InventorySetup."Default Dampener %" > 0 then
+                    if InventorySetup."Default Dampener %" * SKU."Lot Size" / 100 >= Abs(ActionMessageEntry.Quantity) then
                         ActionMessageEntry.Quantity := 0;
         if (ActionMessageEntry.Quantity = 0) and (ActionMessageEntry."New Date" = 0D) then
             exit;
@@ -344,17 +351,12 @@ report 99001023 "Get Action Messages"
 
     local procedure InitReqFromSource(ActionMsgEntry: Record "Action Message Entry"; var ReqLine: Record "Requisition Line"): Boolean
     var
-        ProdOrderLine: Record "Prod. Order Line";
         PurchOrderLine: Record "Purchase Line";
         TransLine: Record "Transfer Line";
-        AsmHeader: Record "Assembly Header";
+        IsHandled: Boolean;
+        ShouldExit: Boolean;
     begin
         case ActionMsgEntry."Source Type" of
-            Database::"Prod. Order Line":
-                if ProdOrderLine.Get(ActionMsgEntry."Source Subtype", ActionMsgEntry."Source ID", ActionMsgEntry."Source Prod. Order Line") then begin
-                    ReqLine.GetProdOrderLine(ProdOrderLine);
-                    exit(false);
-                end;
             Database::"Purchase Line":
                 if PurchOrderLine.Get(ActionMsgEntry."Source Subtype", ActionMsgEntry."Source ID", ActionMsgEntry."Source Ref. No.") then begin
                     ReqLine.GetPurchOrderLine(PurchOrderLine);
@@ -365,13 +367,14 @@ report 99001023 "Get Action Messages"
                     ReqLine.GetTransLine(TransLine);
                     exit(false);
                 end;
-            Database::"Assembly Header":
-                if AsmHeader.Get(ActionMsgEntry."Source Subtype", ActionMsgEntry."Source ID") then begin
-                    ReqLine.GetAsmHeader(AsmHeader);
+            else begin
+                IsHandled := false;
+                OnInitReqFromSourceBySource(ReqLine, ActionMsgEntry, ShouldExit, IsHandled);
+                if ShouldExit then
                     exit(false);
-                end;
-            else
-                Error(Text009)
+                if not IsHandled then
+                    Error(Text009)
+            end;
         end;
         ReqLine.TransferFromActionMessage(ActionMsgEntry);
         exit(true);
@@ -384,6 +387,11 @@ report 99001023 "Get Action Messages"
         InvtProfileOffsetting.GetRouting(ReqLine);
         InvtProfileOffsetting.GetComponents(ReqLine);
         InvtProfileOffsetting.Recalculate(ReqLine, Direction::Backward, true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitReqFromSourceBySource(var ReqLine: Record "Requisition Line"; ActionMessageEntry: Record "Action Message Entry"; var ShouldExit: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

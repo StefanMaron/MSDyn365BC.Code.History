@@ -319,10 +319,6 @@ table 5875 "Phys. Invt. Order Header"
 
     local procedure InitInsert()
     var
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        DefaultNoSeriesCode: Code[20];
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -330,24 +326,11 @@ table 5875 "Phys. Invt. Order Header"
         if not IsHandled then
             if "No." = '' then begin
                 TestNoSeries();
-#if not CLEAN24
-                DefaultNoSeriesCode := GetNoSeriesCode();
-                NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(DefaultNoSeriesCode, xRec."No. Series", "Order Date", "No.", "No. Series", IsHandled);
-                if not IsHandled then begin
-                    if NoSeries.AreRelated(DefaultNoSeriesCode, xRec."No. Series") then
-                        "No. Series" := xRec."No. Series"
-                    else
-                        "No. Series" := DefaultNoSeriesCode;
-                    "No." := NoSeries.GetNextNo("No. Series", "Order Date");
-                    NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", DefaultNoSeriesCode, "Order Date", "No.");
-                end;
-#else
                 if NoSeries.AreRelated(GetNoSeriesCode(), xRec."No. Series") then
                     "No. Series" := xRec."No. Series"
                 else
                     "No. Series" := GetNoSeriesCode();
                 "No." := NoSeries.GetNextNo("No. Series", "Order Date");
-#endif
             end;
 
         OnInitInsertOnBeforeInitRecord(xRec);

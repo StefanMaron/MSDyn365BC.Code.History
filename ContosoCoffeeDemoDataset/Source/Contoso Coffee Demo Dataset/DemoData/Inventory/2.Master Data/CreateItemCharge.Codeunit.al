@@ -1,3 +1,13 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
+namespace Microsoft.DemoData.Inventory;
+
+using Microsoft.DemoTool.Helpers;
+using Microsoft.DemoData.Finance;
+
 codeunit 5386 "Create Item Charge"
 {
     InherentEntitlements = X;
@@ -5,17 +15,19 @@ codeunit 5386 "Create Item Charge"
 
     trigger OnRun()
     var
+        FinanceModuleSetup: Record "Finance Module Setup";
         ContosoItem: Codeunit "Contoso Item";
-        CreateVatPostingGroups: Codeunit "Create VAT Posting Groups";
         CreatePostingGroup: Codeunit "Create Posting Groups";
     begin
-        ContosoItem.InsertItemCharge(JBFreight(), FreightChargeJBSpeditionLbl, CreatePostingGroup.ServicesPostingGroup(), CreateVatPostingGroups.Standard(), FreightChargeJBSpeditionLbl);
-        ContosoItem.InsertItemCharge(PurchAllowance(), PurchaseAllowanceLbl, CreatePostingGroup.ServicesPostingGroup(), CreateVatPostingGroups.Standard(), PurchaseAllowanceLbl);
-        ContosoItem.InsertItemCharge(PurchFreight(), MiscFreightChargePurchLbl, CreatePostingGroup.ServicesPostingGroup(), CreateVatPostingGroups.Standard(), MiscFreightChargePurchLbl);
-        ContosoItem.InsertItemCharge(PurchRestock(), PurchaseRestockChargeLbl, CreatePostingGroup.ServicesPostingGroup(), CreateVatPostingGroups.Standard(), PurchaseRestockChargeLbl);
-        ContosoItem.InsertItemCharge(SaleAllowance(), SalesAllowanceLbl, CreatePostingGroup.ServicesPostingGroup(), CreateVatPostingGroups.Standard(), SalesAllowanceLbl);
-        ContosoItem.InsertItemCharge(SaleFreight(), MiscFreightChargesSalesLbl, CreatePostingGroup.ServicesPostingGroup(), CreateVatPostingGroups.Standard(), MiscFreightChargesSalesLbl);
-        ContosoItem.InsertItemCharge(SaleRestock(), SalesRestockChargeLbl, CreatePostingGroup.ServicesPostingGroup(), CreateVatPostingGroups.Standard(), SalesRestockChargeLbl);
+        FinanceModuleSetup.Get();
+
+        ContosoItem.InsertItemCharge(JBFreight(), FreightChargeJBSpeditionLbl, CreatePostingGroup.ServicesPostingGroup(), FinanceModuleSetup."VAT Prod. Post Grp. Standard", FreightChargeJBSpeditionLbl);
+        ContosoItem.InsertItemCharge(PurchAllowance(), PurchaseAllowanceLbl, CreatePostingGroup.ServicesPostingGroup(), FinanceModuleSetup."VAT Prod. Post Grp. Standard", PurchaseAllowanceLbl);
+        ContosoItem.InsertItemCharge(PurchFreight(), MiscFreightChargePurchLbl, CreatePostingGroup.ServicesPostingGroup(), FinanceModuleSetup."VAT Prod. Post Grp. Standard", MiscFreightChargePurchLbl);
+        ContosoItem.InsertItemCharge(PurchRestock(), PurchaseRestockChargeLbl, CreatePostingGroup.ServicesPostingGroup(), FinanceModuleSetup."VAT Prod. Post Grp. Standard", PurchaseRestockChargeLbl);
+        ContosoItem.InsertItemCharge(SaleAllowance(), SalesAllowanceLbl, CreatePostingGroup.ServicesPostingGroup(), FinanceModuleSetup."VAT Prod. Post Grp. Standard", SalesAllowanceLbl);
+        ContosoItem.InsertItemCharge(SaleFreight(), MiscFreightChargesSalesLbl, CreatePostingGroup.ServicesPostingGroup(), FinanceModuleSetup."VAT Prod. Post Grp. Standard", MiscFreightChargesSalesLbl);
+        ContosoItem.InsertItemCharge(SaleRestock(), SalesRestockChargeLbl, CreatePostingGroup.ServicesPostingGroup(), FinanceModuleSetup."VAT Prod. Post Grp. Standard", SalesRestockChargeLbl);
     end;
 
     procedure JBFreight(): Code[20]

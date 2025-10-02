@@ -8,14 +8,8 @@ using Microsoft.Finance.VAT.Reporting;
 using Microsoft.HumanResources.Absence;
 using Microsoft.HumanResources.Employee;
 using Microsoft.HumanResources.Payables;
-#if not CLEAN24
-using Microsoft.Finance;
-#endif
 using Microsoft.Sales.Archive;
 using System.Privacy;
-#if not CLEAN24
-using Microsoft.Finance.VAT.Setup;
-#endif
 
 codeunit 1752 "Data Class. Eval. Data Country"
 {
@@ -35,14 +29,9 @@ codeunit 1752 "Data Class. Eval. Data Country"
         ClassifyEmployeeRelative();
         ClassifyEmployeeQualification();
         ClassifyVATReportHeader();
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Alt. Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cause of Absence");
-#if not CLEAN24
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"IRS Numbers");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"IRS Groups");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"IRS Types");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"IS Core App Setup");
-#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
         OnAfterClassifyCountrySpecificTables();
     end;

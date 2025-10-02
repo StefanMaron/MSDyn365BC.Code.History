@@ -1840,7 +1840,7 @@ codeunit 134988 "ERM Purchase Reports III"
     begin
         // [SCENARIO 435424] To check if Aged Account Payable report is not showing Invoices if Posting date is not in range even if Document date is in range
 
-        // [GIVEN] Create Vendor,Post Invoice 
+        // [GIVEN] Create Vendor,Post Invoice
         Initialize();
         VendorNo := CreateVendor();
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
@@ -1876,7 +1876,7 @@ codeunit 134988 "ERM Purchase Reports III"
         Currency: Record Currency;
         PeriodLength: DateFormula;
     begin
-        // [SCENARIO 543167] Amount in Aged Accounts Payable report is displayed with 
+        // [SCENARIO 543167] Amount in Aged Accounts Payable report is displayed with
         // Decimal places defined in the Currency of that Vendor Ledger Entry.
         Initialize();
 
@@ -2030,16 +2030,6 @@ codeunit 134988 "ERM Purchase Reports III"
         Assert.AreEqual(TotalAssignedQuantityForChargeItem, LibraryReportDataset.Sum('PurchLine2_Quantity'), AssignedQuantityErr);
     end;
 
-    local procedure CreateVendorWithVATPostingSetup(VATPostingSetup: Record "VAT Posting Setup"): Code[20]
-    var
-        Vendor: Record Vendor;
-    begin
-        LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        Vendor.Modify(true);
-        exit(Vendor."No.");
-    end;
-
     local procedure CreateAndModifyGeneralLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; DueDate: Date; Amount: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine(
@@ -2078,43 +2068,6 @@ codeunit 134988 "ERM Purchase Reports III"
         PurchaseLine.Modify(true);
         Amount := PurchaseLine."Amount Including VAT";
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-    end;
-
-    local procedure CreateAndSetupPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
-    var
-        PurchaseLine: Record "Purchase Line";
-        VATPostingSetup: Record "VAT Posting Setup";
-        GLAccount: Record "G/L Account";
-        CurrencyCode: Code[10];
-        ExchangeRate: Decimal;
-        LineQuantity: Decimal;
-        LineUnitCost: Decimal;
-        VATPercent: Integer;
-    begin
-        // Certain values to get rounding error
-        LineQuantity := 1;
-        LineUnitCost := 2575872;
-        ExchangeRate := 1.284;
-        VATPercent := 10;
-
-        // Init setups
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRate, ExchangeRate);
-        LibraryERM.UpdateVATPostingSetup(VATPostingSetup, VATPercent);
-
-        // Cteare and post document
-        LibraryPurchase.CreatePurchHeader(
-          PurchaseHeader, DocumentType, CreateVendorWithVATPostingSetup(VATPostingSetup));
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
-        PurchaseHeader.Validate("Posting Date", WorkDate());
-        PurchaseHeader.Validate("Currency Code", CurrencyCode);
-        PurchaseHeader.Modify(true);
-
-        LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase), LineQuantity);
-        PurchaseLine.Validate("Direct Unit Cost", LineUnitCost);
-        PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        PurchaseLine.Modify(true);
     end;
 
     local procedure CreateAndPostWhseShptFromPurchaseReturnOrder(): Code[20]
@@ -3053,54 +3006,6 @@ codeunit 134988 "ERM Purchase Reports III"
         VerifyDocumentEntriesReport(ItemLedgerEntry.TableCaption(), ItemLedgerEntry.Count);
     end;
 
-    local procedure VerifyPurchaseInvoiceReportVATAmountInLCY(DocumentNo: Code[20])
-    var
-        VATEntry: Record "VAT Entry";
-        RowNo: Integer;
-    begin
-        LibraryReportDataset.LoadDataSetFile();
-
-        VATEntry.SetRange(Type, VATEntry.Type::Purchase);
-        VATEntry.SetRange("Document Type", "Gen. Journal Document Type"::Invoice);
-        VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindLast();
-
-        RowNo := LibraryReportDataset.FindRow('VALVATAmtLCY', Round(VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision()));
-        Assert.IsTrue(RowNo > 0, StrSubstNo(RowNotFoundErr, 'VALVATAmtLCY', VATEntry.Amount));
-        RowNo := LibraryReportDataset.FindRow('VALVATBaseLCY', Round(VATEntry.Base, LibraryERM.GetAmountRoundingPrecision()));
-        Assert.IsTrue(RowNo > 0, StrSubstNo(RowNotFoundErr, 'VALVATBaseLCY', VATEntry.Base));
-    end;
-
-    local procedure VerifyPurchaseCreditMemoReportVATAmountInLCY(DocumentNo: Code[20])
-    var
-        VATEntry: Record "VAT Entry";
-        RowNo: Integer;
-    begin
-        LibraryReportDataset.LoadDataSetFile();
-
-        VATEntry.SetRange(Type, VATEntry.Type::Purchase);
-        VATEntry.SetRange("Document Type", "Gen. Journal Document Type"::"Credit Memo");
-        VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindLast();
-
-        RowNo := LibraryReportDataset.FindRow('VALVATAmountLCY', Round(-VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision()));
-        Assert.IsTrue(RowNo > 0, StrSubstNo(RowNotFoundErr, 'VALVATAmountLCY', -VATEntry.Amount));
-        RowNo := LibraryReportDataset.FindRow('VALVATBaseLCY', Round(-VATEntry.Base, LibraryERM.GetAmountRoundingPrecision()));
-        Assert.IsTrue(RowNo > 0, StrSubstNo(RowNotFoundErr, 'VALVATBaseLCY', -VATEntry.Base));
-    end;
-
-    local procedure VerifyPurchaseReportVATAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Sign: Integer; VATAmountElementName: Text; VATBaseAmountElementName: Text)
-    var
-        VATEntry: Record "VAT Entry";
-    begin
-        VATEntry.SetRange(Type, VATEntry.Type::Purchase);
-        VATEntry.SetRange("Document Type", DocumentType);
-        VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindLast();
-        LibraryReportDataset.AssertCurrentRowValueEquals(VATAmountElementName, Sign * VATEntry.Amount);
-        LibraryReportDataset.AssertCurrentRowValueEquals(VATBaseAmountElementName, Sign * VATEntry.Base);
-    end;
-
     local procedure VerifyInvoiceDiscountInReport(PurchaseHeader: Record "Purchase Header")
     var
         PurchaseLine: Record "Purchase Line";
@@ -3133,20 +3038,6 @@ codeunit 134988 "ERM Purchase Reports III"
         LibraryReportDataset.AssertCurrentRowValueEquals('PeriodCreditAmt', Amount);
         LibraryReportDataset.AssertCurrentRowValueEquals('YTDCreditAmt', Amount);
         LibraryReportDataset.AssertCurrentRowValueEquals('YTDTotal', -Amount); // This for Ending Balance
-    end;
-
-    local procedure VerifyPurchaseInvoiceReportVATAmountInLCYSection(DocumentNo: Code[20])
-    var
-        VATEntry: Record "VAT Entry";
-    begin
-        VATEntry.SetRange(Type, VATEntry.Type::Purchase);
-        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
-        VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindLast();
-
-        LibraryReportValidation.OpenExcelFile();
-        LibraryReportValidation.VerifyCellValue(106, 15, LibraryReportValidation.FormatDecimalValue(VATEntry.Base));
-        LibraryReportValidation.VerifyCellValue(106, 27, LibraryReportValidation.FormatDecimalValue(VATEntry.Amount));
     end;
 
     local procedure VerifyVendorBalanceToBalance(VendorNo: Code[20]; GlobalDimension1Code: Code[20]; GlobalDimension2Code: Code[20]; CurrencyCode: Code[10])
@@ -3396,26 +3287,6 @@ codeunit 134988 "ERM Purchase Reports III"
     begin
         // Modal Page Handler.
         Response := ACTION::OK
-    end;
-
-    local procedure SavePurchaseInvoiceReport(DocumentNo: Code[20])
-    var
-        PurchInvHeader: Record "Purch. Inv. Header";
-    begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName());
-        Commit();
-
-        PurchInvHeader.SetRange("No.", DocumentNo);
-        REPORT.Run(REPORT::"Purchase - Invoice", true, false, PurchInvHeader);
-    end;
-
-    local procedure SavePurchaseCreditMemoReport(DocumentNo: Code[20])
-    var
-        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
-    begin
-        PurchCrMemoHdr.SetRange("No.", DocumentNo);
-        REPORT.Run(REPORT::"Purchase - Credit Memo", true, false, PurchCrMemoHdr);
     end;
 
     local procedure CreateCurrencyWithExchangeRates(var Currency: Record Currency)
@@ -3766,4 +3637,3 @@ codeunit 134988 "ERM Purchase Reports III"
         VendorBalanceToDate.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-

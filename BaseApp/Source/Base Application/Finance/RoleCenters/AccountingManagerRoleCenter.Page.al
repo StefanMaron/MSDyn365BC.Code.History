@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.RoleCenters;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.RoleCenters;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Deposit;
@@ -326,32 +330,6 @@ page 9001 "Accounting Manager Role Center"
                 RunObject = Report "G/L - VAT Reconciliation";
                 ToolTip = 'Verify that the VAT amounts on the VAT statements match the amounts from the G/L entries.';
             }
-#if not CLEAN24
-            action("VAT Balancing A")
-            {
-                ApplicationArea = VAT;
-                Caption = 'VAT Balancing A';
-                Image = "Report";
-                RunObject = Report "VAT Reconciliation A";
-                Visible = false;
-                ToolTip = 'View a VAT reconciliation report for sales and purchases for a specified period. The report lists entries by general ledger account and posting group.';
-                ObsoleteReason = 'Moved to the Iceland-Core App.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-            }
-            action("VAT Balancing Report")
-            {
-                ApplicationArea = VAT;
-                Caption = 'VAT Balancing Report';
-                Image = "Report";
-                RunObject = Report "VAT Balancing Report";
-                Visible = false;
-                ToolTip = 'Get an overview of VAT for sales and purchases and payments due for a specified period.';
-                ObsoleteReason = 'Moved to the Iceland-Core App.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-            }
-#endif
             action("VAT - VIES Declaration Tax Aut&h")
             {
                 ApplicationArea = BasicEU;
@@ -1089,4 +1067,3 @@ page 9001 "Accounting Manager Role Center"
         }
     }
 }
-

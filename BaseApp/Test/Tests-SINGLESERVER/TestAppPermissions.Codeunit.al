@@ -114,17 +114,6 @@ codeunit 134614 "Test App Permissions"
         AccessControl.Insert(true);
     end;
 
-    local procedure CreateSuperUser(): Guid
-    var
-        LibraryPermissions: Codeunit "Library - Permissions";
-        UserPermissions: Codeunit "Users - Create Super User";
-    begin
-        LibraryPermissions.CreateUser(User, LibraryUtility.GenerateRandomAlphabeticText(10, 0), false);
-        UserPermissions.AddUserAsSuper(User);
-
-        exit(User."User Security ID");
-    end;
-
     local procedure CleanupData()
     var
         User: Record User;

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Remittance;
 
 using Microsoft.EServices.OnlineMap;
@@ -35,12 +39,10 @@ table 2224 "Remit Address"
         {
             Caption = 'Name 2';
         }
-        // #pragma warning disable AS0086
         field(5; Address; Text[100])
         {
             Caption = 'Address';
         }
-        // #pragma warning restore AS0086
         field(6; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
@@ -143,24 +145,17 @@ table 2224 "Remit Address"
             end;
 #pragma warning restore AA0139
         }
-#if not CLEAN24
-        field(103; "Home Page"; Text[80])
-        {
-            Caption = 'Home Page';
-            ExtendedDatatype = URL;
-            ObsoleteReason = 'Field length will be increased to 255.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-        }
-#else
+#if not CLEAN27
 #pragma warning disable AS0086
+#endif
         field(103; "Home Page"; Text[255])
-        {
-            Caption = 'Home Page';
-            ExtendedDatatype = URL;
-        }
+#if not CLEAN27
 #pragma warning restore AS0086
 #endif
+        {
+            Caption = 'Home Page';
+            ExtendedDatatype = URL;
+        }
     }
 
     keys
@@ -210,4 +205,3 @@ table 2224 "Remit Address"
     begin
     end;
 }
-

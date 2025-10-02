@@ -317,7 +317,12 @@ page 740 "VAT Report"
                     trigger OnAction()
                     var
                         VATReportArchive: Record "VAT Report Archive";
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeDownloadSubmissionMessage(IsHandled, Rec);
+                        if IsHandled then
+                            exit;
                         VATReportArchive.DownloadSubmissionMessage(Rec."VAT Report Config. Code".AsInteger(), Rec."No.");
                     end;
                 }
@@ -332,7 +337,12 @@ page 740 "VAT Report"
                     trigger OnAction()
                     var
                         VATReportArchive: Record "VAT Report Archive";
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeDownloadResponseMessage(IsHandled, Rec);
+                        if IsHandled then
+                            exit;
                         VATReportArchive.DownloadResponseMessage(Rec."VAT Report Config. Code".AsInteger(), Rec."No.");
                     end;
                 }
@@ -538,6 +548,16 @@ page 740 "VAT Report"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitPageControllers(VATReportHeader: Record "VAT Report Header"; var SubmitControllerStatus: Boolean; var MarkAsSubmitControllerStatus: Boolean; var CalcAndPostVATStatus: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDownloadSubmissionMessage(var IsHandled: Boolean; var VATReportHeader: Record "VAT Report Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDownloadResponseMessage(var IsHandled: Boolean; var VATReportHeader: Record "VAT Report Header")
     begin
     end;
 }

@@ -4,18 +4,15 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Reports;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.BOM.Tree;
 using Microsoft.Inventory.Item;
-using Microsoft.Manufacturing.Document;
 using System.Utilities;
 
 report 5871 "Item - Able to Make (Timeline)"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Inventory/Reports/ItemAbletoMakeTimeline.rdlc';
+    DefaultRenderingLayout = ExcelLayout;
     AdditionalSearchTerms = 'assembly availability';
     ApplicationArea = Planning;
     Caption = 'Item - Able to Make (Timeline)';
@@ -156,6 +153,22 @@ report 5871 "Item - Able to Make (Timeline)"
         end;
     }
 
+    rendering
+    {
+        layout(ExcelLayout)
+        {
+            Caption = 'Item - Able to Make (Timeline) Excel';
+            Type = Excel;
+            LayoutFile = './Inventory/Reports/ItemAbletoMakeTimeline.xlsx';
+        }
+        layout(RDLCLayout)
+        {
+            Caption = 'Item - Able to Make (Timeline) RDLC';
+            Type = RDLC;
+            LayoutFile = './Inventory/Reports/ItemAbletoMakeTimeline.rdlc';
+        }
+    }
+
     labels
     {
         ItemAbleToMakeProjectionCaption = 'Item - Able to Make (Timeline)';
@@ -166,6 +179,17 @@ report 5871 "Item - Able to Make (Timeline)"
         SchRcptQtyCaption = 'Scheduled Receipts';
         InvtQtyCaption = 'Inventory';
         AbleToMakeQtyCaption = 'Able to Make';
+        StartDateCaption = 'Starting Date:';
+        ItemAbleToMakePrintLabel = 'Item Able to Make - (Print)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        ItemAbleToMakeAnalysisLabel = 'Item Able to Make - (Analysis)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        DataRetrieved = 'Data retrieved:';
+        // About the report labels
+        AboutTheReportLabel = 'About the report', MaxLength = 31, Comment = 'Excel worksheet name.';
+        EnvironmentLabel = 'Environment';
+        CompanyLabel = 'Company';
+        UserLabel = 'User';
+        RunOnLabel = 'Run on';
+        ReportNameLabel = 'Report name';
     }
 
     trigger OnInitReport()
@@ -174,10 +198,9 @@ report 5871 "Item - Able to Make (Timeline)"
     end;
 
     var
-        AsmHeader: Record "Assembly Header";
-        ProdOrderLine: Record "Prod. Order Line";
         TempBOMBuffer: Record "BOM Buffer" temporary;
         CalcBOMTree: Codeunit "Calculate BOM Tree";
+        SourceRecordVar: Variant;
         DateFormula: DateFormula;
         DateInterval: Option Day,Week,Month,Quarter,Year;
         NoOfIntervals: Integer;
@@ -207,18 +230,10 @@ report 5871 "Item - Able to Make (Timeline)"
                     IsHandled := false;
                     OnGenerateAvailTrendOnBeforeGenerateTreeForItem(Item, TempBOMBuffer, CurrDate, IsHandled);
                     if not IsHandled then
-                        CalcBOMTree.GenerateTreeForItem(Item, TempBOMBuffer, CurrDate, 1);
+                        CalcBOMTree.GenerateTreeForOneItem(Item, TempBOMBuffer, CurrDate, "BOM Tree Type"::Availability);
                 end;
-            ShowBy::Assembly:
-                begin
-                    AsmHeader."Due Date" := CurrDate;
-                    CalcBOMTree.GenerateTreeForAsm(AsmHeader, TempBOMBuffer, 1);
-                end;
-            ShowBy::Production:
-                begin
-                    ProdOrderLine."Due Date" := CurrDate;
-                    CalcBOMTree.GenerateTreeForProdLine(ProdOrderLine, TempBOMBuffer, 1);
-                end;
+            else
+                CalcBOMTree.GenerateTreeForSource(SourceRecordVar, TempBOMBuffer, "BOM Tree Type"::Availability, ShowBy, CurrDate);
         end;
 
         if not TempBOMBuffer.FindFirst() then
@@ -254,17 +269,29 @@ report 5871 "Item - Able to Make (Timeline)"
         ShowDetails := NewShowDetails;
     end;
 
-    procedure InitAsmOrder(NewAsmHeader: Record "Assembly Header")
+    procedure InitSource(NewSourceRecordVar: Variant; NewShowBy: Enum "BOM Structure Show By")
     begin
-        AsmHeader := NewAsmHeader;
-        ShowBy := ShowBy::Assembly;
+        SourceRecordVar := NewSourceRecordVar;
+        ShowBy := NewShowBy;
     end;
 
-    procedure InitProdOrder(NewProdOrderLine: Record "Prod. Order Line")
+#if not CLEAN27
+    [Obsolete('Replaced by procedure InitSource()', '27.0')]
+    procedure InitAsmOrder(NewAsmHeader: Record Microsoft.Assembly.Document."Assembly Header")
     begin
-        ProdOrderLine := NewProdOrderLine;
+        SourceRecordVar := NewAsmHeader;
+        ShowBy := ShowBy::Assembly;
+    end;
+#endif
+
+#if not CLEAN27
+    [Obsolete('Replaced by procedure InitSource()', '27.0')]
+    procedure InitProdOrder(NewProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
+    begin
+        SourceRecordVar := NewProdOrderLine;
         ShowBy := ShowBy::Production;
     end;
+#endif
 
     local procedure CalcQuantities(var Item: Record Item; var InvtQty: Decimal; var SchRcptQty: Decimal; var GrossReqQty: Decimal; Date: Date)
     var

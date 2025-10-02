@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -6,6 +6,7 @@ namespace Microsoft.Finance.VAT.Registration;
 
 using System.Environment;
 using System.Privacy;
+using System.Telemetry;
 
 page 248 "VAT Registration Config"
 {
@@ -39,6 +40,7 @@ page 248 "VAT Registration Config"
                     ApplicationArea = Basic, Suite;
                     trigger OnValidate()
                     var
+                        AuditLog: Codeunit "Audit Log";
                         CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
                         VATRegServiceEnabledLbl: Label 'VAT Registration Service enabled by UserSecurityId %1.', Locked = true;
                     begin
@@ -50,7 +52,7 @@ page 248 "VAT Registration Config"
                                 Rec.Enabled := false;
                                 exit;
                             end else
-                                Session.LogAuditMessage(StrSubstNo(VATRegServiceEnabledLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
+                                AuditLog.LogAuditMessage(StrSubstNo(VATRegServiceEnabledLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
 
                             Rec.TestField("Service Endpoint");
                             Message(TermsAndAgreementMsg);

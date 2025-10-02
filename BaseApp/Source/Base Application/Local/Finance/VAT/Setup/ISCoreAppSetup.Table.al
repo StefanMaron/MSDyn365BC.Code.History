@@ -9,13 +9,8 @@ table 10903 "IS Core App Setup"
 {
     Caption = 'Iceland Core App Setup';
     ObsoleteReason = 'Used to enable the IS Core App.';
-#if not CLEAN24
-    ObsoleteState = Pending;
-    ObsoleteTag = '24.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '27.0';
-#endif
     DataClassification = CustomerContent;
 
     fields

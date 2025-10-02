@@ -468,7 +468,7 @@ codeunit 6153 "API Webhook Notification Mgt."
 
         if TryGetEntityKeyValue(APIWebhookSubscription, ApiWebhookEntity, RecRef, FieldValue, RecordSystemId) then begin
             APIWebhookNotification.SetRange("Subscription ID");
-            APIWebhookNotification.ID := CreateGuid();
+            APIWebhookNotification.ID := Guid.CreateSequentialGuid();
             APIWebhookNotification."Subscription ID" := APIWebhookSubscription."Subscription Id";
             APIWebhookNotification."Created By User SID" := UserSecurityId();
             APIWebhookNotification."Change Type" := ChangeType;

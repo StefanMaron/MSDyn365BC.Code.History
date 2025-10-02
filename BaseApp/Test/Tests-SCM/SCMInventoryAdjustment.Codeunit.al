@@ -616,11 +616,9 @@ codeunit 137037 "SCM Inventory Adjustment"
 
     local procedure CreateProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; var TempItem: Record Item temporary)
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
         ProductionBOMLine: Record "Production BOM Line";
     begin
         // Random values not important.
-        ManufacturingSetup.Get();
         TempItem.FindSet();
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, TempItem."Base Unit of Measure");
         repeat

@@ -11,8 +11,7 @@ using System.Utilities;
 
 report 99000753 "Quantity Explosion of BOM"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Manufacturing/Reports/QuantityExplosionofBOM.rdlc';
+    DefaultRenderingLayout = WordLayout;
     ApplicationArea = Manufacturing;
     Caption = 'Quantity Explosion of BOM';
     UsageCategory = ReportsAndAnalysis;
@@ -26,9 +25,11 @@ report 99000753 "Quantity Explosion of BOM"
             column(AsOfCalcDate; Text000 + Format(CalculateDate))
             {
             }
+            // RDLC only
             column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
+            // RDLC only
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
@@ -40,13 +41,17 @@ report 99000753 "Quantity Explosion of BOM"
             }
             column(No_Item; "No.")
             {
+                IncludeCaption = true;
             }
             column(Desc_Item; Description)
             {
+                IncludeCaption = true;
             }
+            // RDLC only
             column(QtyExplosionofBOMCapt; QtyExplosionofBOMCaptLbl)
             {
             }
+            // RDLC only
             column(CurrReportPageNoCapt; CurrReportPageNoCaptLbl)
             {
             }
@@ -77,9 +82,11 @@ report 99000753 "Quantity Explosion of BOM"
                     MaxIteration = 1;
                     column(BomCompLevelNo; BomComponent[Level]."No.")
                     {
+                        IncludeCaption = true;
                     }
                     column(BomCompLevelDesc; BomComponent[Level].Description)
                     {
+                        IncludeCaption = true;
                     }
                     column(BOMQty; BOMQty)
                     {
@@ -88,17 +95,29 @@ report 99000753 "Quantity Explosion of BOM"
                     column(FormatLevel; PadStr('', Level, ' ') + Format(Level))
                     {
                     }
+                    column(IndentLevel; IndentLevel)
+                    {
+                    }
                     column(BomCompLevelQty; BomComponent[Level].Quantity)
                     {
                         DecimalPlaces = 0 : 5;
+                        IncludeCaption = true;
                     }
                     column(BomCompLevelUOMCode; BomComponent[Level]."Unit of Measure Code")
                     {
+                        IncludeCaption = true;
                     }
 
                     trigger OnAfterGetRecord()
                     begin
+                        Clear(IndentLevel);
                         BOMQty := Quantity[Level] * QtyPerUnitOfMeasure * BomComponent[Level].Quantity;
+                        while IndentLoop < Level do begin
+                            IndentLevel += IndentLevel + '.';
+                            IndentLoop += 1;
+                        end;
+
+                        IndentLoop := 0;
                     end;
 
                     trigger OnPostDataItem()
@@ -212,6 +231,7 @@ report 99000753 "Quantity Explosion of BOM"
         AboutTitle = 'About Quantity Explosion of BOM';
         AboutText = 'Provides an overview on the dynamic BOM availability. Visualise key inventory figures and forecast production capabilities to meet demand efficiently. Stay ahead with real-time insights into your assembly and production schedules.';
 
+
         layout
         {
             area(content)
@@ -239,8 +259,54 @@ report 99000753 "Quantity Explosion of BOM"
         end;
     }
 
+    rendering
+    {
+        layout(WordLayout)
+        {
+            Caption = 'Quantity Explosion of BOM Word';
+            Type = Word;
+            LayoutFile = './Manufacturing/Reports/QuantityExplosionofBOM.docx';
+        }
+        layout(ExcelLayout)
+        {
+            Caption = 'Quantity Explosion of BOM Excel';
+            Type = Excel;
+            LayoutFile = './Manufacturing/Reports/QuantityExplosionOfBOM.xlsx';
+        }
+#if not CLEAN27
+        layout(RDLCLayout)
+        {
+            Caption = 'Quantity Explosion of BOM RDLC';
+            Type = RDLC;
+            LayoutFile = './Manufacturing/Reports/QuantityExplosionofBOM.rdlc';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The RDLC layout has been replaced by the Excel layout and will be removed in a future release.';
+            ObsoleteTag = '27.0';
+        }
+#endif
+    }
+
     labels
     {
+        QuantityExplosionOfBOM = 'Quantity Explosion of BOM';
+        QtyExplosionOfBOMPrint = 'Qty. Expl. Of BOM (Print)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        BOMTopLvlPrint = 'BOM (Top Level) (Print)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        QtyExplosionOfBOMAnalysis = 'Qty. Expl. Of BOM (Analysis)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        QtyExplosionOfBOMAnalysisL1 = 'Qty. Expl. Of BOM (Analysis) L1', MaxLength = 31, Comment = 'Excel worksheet name.';
+        ItemNo = 'Item No.';
+        ItemDesc = 'Item Description';
+        Level = 'Level';
+        BOMQtyCapt = 'Total Quantity';
+        CalculationDateLabel = 'Calculation Date:';
+        DataRetrieved = 'Data retrieved:';
+        // About the report labels
+        AboutTheReportLabel = 'About the report', MaxLength = 31, Comment = 'Excel worksheet name.';
+        EnvironmentLabel = 'Environment';
+        CompanyLabel = 'Company';
+        UserLabel = 'User';
+        RunOnLabel = 'Run on';
+        ReportNameLabel = 'Report name';
+        DocumentationLabel = 'Documentation';
     }
 
     trigger OnPreReport()
@@ -257,6 +323,8 @@ report 99000753 "Quantity Explosion of BOM"
         UOMMgt: Codeunit "Unit of Measure Management";
         VersionMgt: Codeunit VersionManagement;
         ItemFilter: Text;
+        IndentLevel: Text;
+        IndentLoop: Integer;
         CalculateDate: Date;
         NoList: array[99] of Code[20];
         VersionCode: array[99] of Code[20];
@@ -264,7 +332,9 @@ report 99000753 "Quantity Explosion of BOM"
         QtyPerUnitOfMeasure: Decimal;
         NextLevel: Integer;
         BOMQty: Decimal;
+        // RDLC only
         QtyExplosionofBOMCaptLbl: Label 'Quantity Explosion of BOM';
+        // RDLC only
         CurrReportPageNoCaptLbl: Label 'Page';
         BOMQtyCaptionLbl: Label 'Total Quantity';
         BomCompLevelQtyCaptLbl: Label 'BOM Quantity';

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Intercompany.Outbox;
 
 using Microsoft.Finance.GeneralLedger.Journal;
@@ -119,7 +123,7 @@ codeunit 404 "IC Feedback"
         HandledICOutboxTransaction: Record "Handled IC Outbox Trans.";
     begin
         HandledICOutboxTransaction.SetRange("IC Partner Code", ICPartnerCode);
-        HandledICOutboxTransaction.SetRange("Source Type", SourceType);
+        HandledICOutboxTransaction.SetRange("IC Source Type", SourceType);
         HandledICOutboxTransaction.SetRange("Document Type", ICTransactionDocumentType);
         HandledICOutboxTransaction.SetRange("Document No.", DocumentNo);
         HandledICOutboxTransaction.SetRange("Posting Date", PostingDate);

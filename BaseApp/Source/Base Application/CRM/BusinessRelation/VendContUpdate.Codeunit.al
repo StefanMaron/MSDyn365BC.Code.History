@@ -110,9 +110,6 @@ codeunit 5057 "VendCont-Update"
         Cont: Record Contact;
         ContBusRel: Record "Contact Business Relation";
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -139,16 +136,8 @@ codeunit 5057 "VendCont-Update"
             Cont."No." := '';
             Cont."No. Series" := '';
             RMSetup.TestField("Contact Nos.");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(RMSetup."Contact Nos.", '', 0D, Cont."No.", Cont."No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 Cont."No. Series" := RMSetup."Contact Nos.";
                 Cont."No." := NoSeries.GetNextNo(Cont."No. Series");
-#if not CLEAN24
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(Cont."No. Series", RMSetup."Contact Nos.", 0D, Cont."No.");
-            end;
-#endif
         end;
         Cont.Type := Cont.Type::Company;
         Cont.TypeChange();
@@ -282,4 +271,3 @@ codeunit 5057 "VendCont-Update"
     begin
     end;
 }
-

@@ -7,6 +7,17 @@ namespace Microsoft.Bank.PositivePay;
 using Microsoft.Bank.Check;
 using System.IO;
 
+/// <summary>
+/// Provides user feedback and audit trail creation for positive pay export operations.
+/// This codeunit manages the creation of tracking records and status updates after successful export processing.
+/// </summary>
+/// <remarks>
+/// The Export User Feedback Positive Pay codeunit handles post-export processing including the creation of
+/// positive pay entry records for audit trail purposes and updating check ledger entries with export tracking
+/// information. It ensures that all exported check data is properly recorded for compliance and troubleshooting.
+/// The codeunit creates both summary entries and detailed check records to maintain a complete audit trail
+/// of positive pay file transmissions to banks.
+/// </remarks>
 codeunit 1710 "Exp. User Feedback Pos. Pay"
 {
     Permissions = TableData "Check Ledger Entry" = rimd,

@@ -61,12 +61,12 @@ codeunit 131334 "ERM VAT Tool - Helper"
                     SetFilter(RecRef, VATProdGroupFieldNo, VATProdPostingGroup);
                 end;
             DATABASE::"Job Journal Line",
-            DATABASE::"Machine Center",
+            99000758, // DATABASE::"Machine Center"
             DATABASE::"Requisition Line",
             DATABASE::"Res. Journal Line",
             DATABASE::"Standard Item Journal Line",
-            DATABASE::"Work Center",
-            DATABASE::"Production Order",
+            99000754, // DATABASE::"Work Center"
+            5405, // DATABASE::"Production Order"
             DATABASE::"Serv. Price Adjustment Detail":
                 begin
                     GenProdGroupFieldNo := GetGenProdPostingGroupFldId(RecRef.Number);
@@ -759,8 +759,6 @@ codeunit 131334 "ERM VAT Tool - Helper"
         Item: Record Item;
         ItemCharge: Record "Item Charge";
         JobJournalLine: Record "Job Journal Line";
-        MachineCenter: Record "Machine Center";
-        ProductionOrder: Record "Production Order";
         PurchaseLine: Record "Purchase Line";
         RequisitionLine: Record "Requisition Line";
         ResJournalLine: Record "Res. Journal Line";
@@ -770,7 +768,6 @@ codeunit 131334 "ERM VAT Tool - Helper"
         ServPriceAdjustmentDetail: Record "Serv. Price Adjustment Detail";
         StdGenJournalLine: Record "Standard General Journal Line";
         StdItemJournalLine: Record "Standard Item Journal Line";
-        WorkCenter: Record "Work Center";
     begin
         case TableId of
             DATABASE::"Gen. Jnl. Allocation":
@@ -785,10 +782,6 @@ codeunit 131334 "ERM VAT Tool - Helper"
                 exit(ItemCharge.FieldNo("Gen. Prod. Posting Group"));
             DATABASE::"Job Journal Line":
                 exit(JobJournalLine.FieldNo("Gen. Prod. Posting Group"));
-            DATABASE::"Machine Center":
-                exit(MachineCenter.FieldNo("Gen. Prod. Posting Group"));
-            DATABASE::"Production Order":
-                exit(ProductionOrder.FieldNo("Gen. Prod. Posting Group"));
             DATABASE::"Purchase Line":
                 exit(PurchaseLine.FieldNo("Gen. Prod. Posting Group"));
             DATABASE::"Requisition Line":
@@ -807,8 +800,12 @@ codeunit 131334 "ERM VAT Tool - Helper"
                 exit(StdGenJournalLine.FieldNo("Gen. Prod. Posting Group"));
             DATABASE::"Standard Item Journal Line":
                 exit(StdItemJournalLine.FieldNo("Gen. Prod. Posting Group"));
-            DATABASE::"Work Center":
-                exit(WorkCenter.FieldNo("Gen. Prod. Posting Group"));
+            99000758: // DATABASE::"Machine Center"
+                exit(82); // MachineCenter.FieldNo("Gen. Prod. Posting Group"
+            5405: // DATABASE::"Production Order"
+                exit(16); // ProductionOrder.FieldNo("Gen. Prod. Posting Group")
+            99000754: // DATABASE::"Work Center"
+                exit(82); // WorkCenter.FieldNo("Gen. Prod. Posting Group"
         end;
         exit(-1);
     end;
@@ -938,10 +935,6 @@ codeunit 131334 "ERM VAT Tool - Helper"
                 exit(VATRateChangeSetup.FieldNo("Update Item Charges"));
             DATABASE::"Job Journal Line":
                 exit(VATRateChangeSetup.FieldNo("Update Job Journal Lines"));
-            DATABASE::"Machine Center":
-                exit(VATRateChangeSetup.FieldNo("Update Machine Centers"));
-            DATABASE::"Production Order":
-                exit(VATRateChangeSetup.FieldNo("Update Production Orders"));
             DATABASE::"Purchase Line":
                 exit(VATRateChangeSetup.FieldNo("Update Purchase Documents"));
             DATABASE::"Reminder Line":
@@ -962,7 +955,11 @@ codeunit 131334 "ERM VAT Tool - Helper"
                 exit(VATRateChangeSetup.FieldNo("Update Std. Gen. Jnl. Lines"));
             DATABASE::"Standard Item Journal Line":
                 exit(VATRateChangeSetup.FieldNo("Update Std. Item Jnl. Lines"));
-            DATABASE::"Work Center":
+            99000758: // DATABASE::"Machine Center"
+                exit(VATRateChangeSetup.FieldNo("Update Machine Centers"));
+            5405: // DATABASE::"Production Order"
+                exit(VATRateChangeSetup.FieldNo("Update Production Orders"));
+            99000754: // DATABASE::"Work Center"
                 exit(VATRateChangeSetup.FieldNo("Update Work Centers"));
         end;
     end;
