@@ -56,27 +56,14 @@ table 5943 "Troubleshooting Header"
     }
 
     trigger OnInsert()
-#if not CLEAN24
-    var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         ServMgtSetup.Get();
         if "No." = '' then begin
             ServMgtSetup.TestField("Troubleshooting Nos.");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(ServMgtSetup."Troubleshooting Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 "No. Series" := ServMgtSetup."Troubleshooting Nos.";
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
                 "No." := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", ServMgtSetup."Troubleshooting Nos.", 0D, "No.");
-            end;
-#endif
         end;
     end;
 
@@ -213,4 +200,3 @@ table 5943 "Troubleshooting Header"
     begin
     end;
 }
-

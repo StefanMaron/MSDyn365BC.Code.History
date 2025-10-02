@@ -109,6 +109,7 @@ table 8001 "Sub. Contract Renewal Line"
             Caption = 'Price';
             BlankZero = true;
             AutoFormatType = 2;
+            AutoFormatExpression = Rec."Currency Code";
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Subscription Line"."Price" where("Entry No." = field("Subscription Line Entry No.")));
@@ -118,6 +119,7 @@ table 8001 "Sub. Contract Renewal Line"
             Caption = 'Amount';
             BlankZero = true;
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Subscription Line".Amount where("Entry No." = field("Subscription Line Entry No.")));
@@ -135,6 +137,13 @@ table 8001 "Sub. Contract Renewal Line"
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = exist("Planned Subscription Line" where("Entry No." = field("Subscription Line Entry No.")));
+        }
+        field(109; "Currency Code"; Code[10])
+        {
+            Caption = 'Currency Code';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = lookup("Subscription Line"."Currency Code" where("Entry No." = field("Subscription Line Entry No.")));
         }
         field(201; "Agreed Sub. Line Start Date"; Date)
         {

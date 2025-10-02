@@ -1,6 +1,9 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Projects.Project.Archive;
 
-using Microsoft.Projects.Project.Job;
 using System.Security.User;
 
 page 5182 "Job Planning Archive Lines"
@@ -400,20 +403,5 @@ page 5182 "Job Planning Archive Lines"
             }
         }
     }
-
-    actions
-    {
-    }
-
-    trigger OnOpenPage()
-    var
-        Job: Record Job;
-    begin
-        Rec.FilterGroup := 2;
-        if Rec.GetFilter("Job No.") <> '' then
-            if Job.Get(Rec.GetRangeMin("Job No.")) then
-                CurrPage.Editable(not (Job.Blocked = Job.Blocked::All));
-        Rec.FilterGroup := 0;
-    end;
 }
 

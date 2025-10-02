@@ -1269,6 +1269,8 @@ report 5915 "Service Document - Test"
 
     requestpage
     {
+        AboutTitle = 'Service Document - Test';
+        AboutText = 'Verify whether service orders, invoices, or credit memos are correct before you post them.';
         SaveValues = true;
 
         layout

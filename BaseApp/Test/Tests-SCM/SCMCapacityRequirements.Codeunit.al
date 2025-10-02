@@ -4547,7 +4547,7 @@ codeunit 137074 "SCM Capacity Requirements"
         CreateReleasedProdOrderAndRefresh(ProductionOrder, Item, Location.Code, Bin.Code, 1);
 
         // [GIVEN] Create Inbound Whse Request From Released Production Order.
-        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+        LibraryManufacturing.CreateInboundWhseReqFromProdOrder(ProductionOrder);
 
         // [GIVEN] Create Inventory Put-Away from Inventory Put Pick Movement. 
         LibraryWarehouse.CreateInvtPutPickMovement("Warehouse Request Source Document"::"Prod. Output", ProductionOrder."No.", true, false, false);

@@ -235,7 +235,7 @@ report 99000780 "Capacity Task List"
             Type = Excel;
             LayoutFile = './Manufacturing/Reports/CapacityTaskList.xlsx';
         }
-#if not CLEAN26
+#if not CLEAN27
         layout(RDLCLayout)
         {
             Type = RDLC;
@@ -272,7 +272,6 @@ report 99000780 "Capacity Task List"
         RunOnLabel = 'Run on';
         ReportNameLabel = 'Report name';
         DocumentationLabel = 'Documentation';
-        TimezoneLabel = 'UTC';
     }
 
     var

@@ -1,4 +1,4 @@
-﻿#if not CLEAN25
+#if not CLEAN25
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -813,9 +813,6 @@ report 10115 "Vendor 1099 Magnetic Media"
           StrSubstNo('%1', GetForeignEntityIndicator(TempVendorInfo)) + // position 740
           StrSubstNo('          '));
 
-#if not CLEAN24
-        OnAfterWriteTRec(IRSData, TempVendorInfo);
-#endif
     end;
 
     procedure WriteARec()
@@ -1524,13 +1521,6 @@ report 10115 "Vendor 1099 Magnetic Media"
             ProgressDialog.Update(Number, NewText + '%');
     end;
 
-#if not CLEAN24
-    [Obsolete('File operations are not allowed in the cloud. Use OnBeforeDownloadFile instead.', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterWriteTRec(var IRSData: File; VendorCompanyInformation: Record "Company Information")
-    begin
-    end;
-#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDownloadFile(var TempBlob: Codeunit "Temp Blob")
     begin

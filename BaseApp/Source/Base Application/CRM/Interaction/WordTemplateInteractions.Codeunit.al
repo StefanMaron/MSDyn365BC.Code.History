@@ -272,8 +272,9 @@ codeunit 5069 "Word Template Interactions"
         Attachment: Record Attachment;
         DocumentMailing: Codeunit "Document-Mailing";
         DummyTempBlob: Codeunit "Temp Blob";
+        HtmlBodyTempBlob: Codeunit "Temp Blob";
         DummyInStream: InStream;
-        TempServerFileName: Text;
+        HtmlBodyOutStream: OutStream;
         FileName: Text;
         SaveToFile: Text;
         SourceTableIDs, SourceRelationTypes : List of [Integer];
@@ -303,6 +304,7 @@ codeunit 5069 "Word Template Interactions"
                     end;
 
                     Attachment.SetAttachmentFileFromStream(MergedDocumentInStream);
+
                     Attachment."Attachment File".CreateInStream(MergedDocumentInStream, TextEncoding::UTF8);
 
                     if TempDeliverySorter."Send Word Docs. as Attmt." then begin
@@ -312,16 +314,15 @@ codeunit 5069 "Word Template Interactions"
                         FileName += '.docx';
 
                         Attachment."File Extension" := 'docx';
-
-                        DocumentMailing.EmailFile(MergedDocumentInStream, FileName, '', TempDeliverySorter.Subject, ToAddress, HideDialog, Enum::"Email Scenario"::"Interaction Template", SourceTableIDs, SourceIDs, SourceRelationTypes);
+                        Clear(HtmlBodyTempBlob);
+                        DocumentMailing.EmailFile(MergedDocumentInStream, FileName, HtmlBodyTempBlob, TempDeliverySorter.Subject, ToAddress, HideDialog, Enum::"Email Scenario"::"Interaction Template", SourceTableIDs, SourceIDs, SourceRelationTypes);
                     end else begin
-                        TempServerFileName := FileManagement.InstreamExportToServerFile(MergedDocumentInStream, 'html');
-
+                        HtmlBodyTempBlob.CreateOutStream(HtmlBodyOutStream, TextEncoding::UTF8);
+                        CopyStream(HtmlBodyOutStream, MergedDocumentInStream);
                         Attachment."File Extension" := 'html';
 
                         DummyTempBlob.CreateInStream(DummyInStream);
-                        DocumentMailing.EmailFile(DummyInStream, TempDeliverySorter.Subject, TempServerFileName, TempDeliverySorter.Subject, ToAddress, HideDialog, Enum::"Email Scenario"::"Interaction Template", SourceTableIDs, SourceIDs, SourceRelationTypes);
-                        FileManagement.DeleteServerFile(TempServerFileName);
+                        DocumentMailing.EmailFile(DummyInStream, TempDeliverySorter.Subject, HtmlBodyTempBlob, TempDeliverySorter.Subject, ToAddress, HideDialog, Enum::"Email Scenario"::"Interaction Template", SourceTableIDs, SourceIDs, SourceRelationTypes);
                     end;
                     Attachment.Insert(true);
 

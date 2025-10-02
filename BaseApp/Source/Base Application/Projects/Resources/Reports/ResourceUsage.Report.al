@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Projects.Resources.Resource;
 
 using Microsoft.Foundation.Company;
@@ -110,7 +114,8 @@ report 10200 "Resource Usage"
 
     requestpage
     {
-
+        AboutTitle = 'About Resource Utilization';
+        AboutText = 'View the resource utilization that has taken place. The report includes the resource capacity, quantity of usage, and the remaining balance.';
         layout
         {
         }

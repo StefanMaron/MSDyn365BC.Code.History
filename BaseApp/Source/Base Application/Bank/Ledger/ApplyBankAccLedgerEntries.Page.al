@@ -9,6 +9,11 @@ using Microsoft.Bank.Check;
 using Microsoft.Bank.Reconciliation;
 using Microsoft.Finance.GeneralLedger.Setup;
 
+/// <summary>
+/// List part page for selecting and applying bank account ledger entries during bank reconciliation.
+/// Provides filtering, selection, and balance calculation functionality for matching bank statement lines
+/// with posted bank account transactions during the reconciliation process.
+/// </summary>
 page 381 "Apply Bank Acc. Ledger Entries"
 {
     Caption = 'Apply Bank Acc. Ledger Entries';
@@ -255,6 +260,11 @@ page 381 "Apply Bank Acc. Ledger Entries"
         ShowingReversed: Boolean;
         ShowingNonMatched: Boolean;
 
+    /// <summary>
+    /// Retrieves bank account ledger entries selected by the user for application.
+    /// Copies selected entries to a temporary table for further processing during reconciliation.
+    /// </summary>
+    /// <param name="TempBankAccountLedgerEntry">Temporary table to receive the selected entries.</param>
     procedure GetSelectedRecords(var TempBankAccountLedgerEntry: Record "Bank Account Ledger Entry" temporary)
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
@@ -273,6 +283,10 @@ page 381 "Apply Bank Acc. Ledger Entries"
             until BankAccountLedgerEntry.Next() = 0;
     end;
 
+    /// <summary>
+    /// Sets user interaction styling based on the application status of entries.
+    /// Updates visual styling to indicate applied, mismatched, or unmatched entries.
+    /// </summary>
     procedure SetUserInteractions()
     begin
         StyleTxt := '';
@@ -284,6 +298,10 @@ page 381 "Apply Bank Acc. Ledger Entries"
             StyleTxt := 'AttentionAccent';
     end;
 
+    /// <summary>
+    /// Shows all available bank account ledger entries for reconciliation without filtering.
+    /// Resets filters and displays the complete set of entries for the bank account.
+    /// </summary>
     procedure ShowAll()
     begin
         Rec.Reset();
@@ -294,6 +312,10 @@ page 381 "Apply Bank Acc. Ledger Entries"
         CurrPage.Update(false);
     end;
 
+    /// <summary>
+    /// Filters the list to show only bank account ledger entries that have not been matched to statement lines.
+    /// Useful for identifying outstanding transactions during reconciliation.
+    /// </summary>
     procedure ShowNonMatched()
     begin
         ShowingNonMatched := true;
@@ -301,6 +323,10 @@ page 381 "Apply Bank Acc. Ledger Entries"
         CurrPage.Update(false);
     end;
 
+    /// <summary>
+    /// Shows reversed bank account ledger entries in the reconciliation list.
+    /// Includes previously hidden reversed entries for complete transaction visibility.
+    /// </summary>
     procedure ShowReversed()
     begin
         ShowingReversed := true;
@@ -308,6 +334,10 @@ page 381 "Apply Bank Acc. Ledger Entries"
         CurrPage.Update(false);
     end;
 
+    /// <summary>
+    /// Hides reversed bank account ledger entries from the reconciliation list.
+    /// Excludes reversed entries to focus on active transactions for reconciliation.
+    /// </summary>
     procedure HideReversed()
     begin
         ShowingReversed := false;
@@ -315,6 +345,11 @@ page 381 "Apply Bank Acc. Ledger Entries"
         CurrPage.Update(false);
     end;
 
+    /// <summary>
+    /// Applies date-based filtering to show entries within the bank reconciliation date range.
+    /// Filters entries to optimize reconciliation matching by focusing on relevant date periods.
+    /// </summary>
+    /// <param name="StatementDate">Statement date to use for filtering criteria.</param>
     procedure SetBankRecDateFilter(StatementDate: Date)
     begin
         ApplyDateFilter(StatementDate);
@@ -384,6 +419,11 @@ page 381 "Apply Bank Acc. Ledger Entries"
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
     end;
 
+    /// <summary>
+    /// Associates the page with a specific bank account reconciliation record.
+    /// Sets up filtering and context for the reconciliation process.
+    /// </summary>
+    /// <param name="NewBankAccReconciliation">Bank account reconciliation record to associate with the page.</param>
     procedure AssignBankAccReconciliation(var NewBankAccReconciliation: Record "Bank Acc. Reconciliation")
     begin
         BankAccReconciliation := NewBankAccReconciliation;
@@ -391,11 +431,23 @@ page 381 "Apply Bank Acc. Ledger Entries"
         CurrPage.Update(false);
     end;
 
+    /// <summary>
+    /// Integration event raised after applying controlled filters to the bank account ledger entries.
+    /// Allows subscribers to modify or extend the filtering logic for reconciliation scenarios.
+    /// </summary>
+    /// <param name="BankAccountLedgerEntry">Bank account ledger entry record with applied filters.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterApplyControledFilters(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before collecting selected records for reconciliation processing.
+    /// Allows subscribers to customize selection logic or handle records differently.
+    /// </summary>
+    /// <param name="BankAccountLedgerEntry">Source bank account ledger entry being processed.</param>
+    /// <param name="TempBankAccountLedgerEntry">Temporary table receiving selected entries.</param>
+    /// <param name="IsHandled">Set to true to skip standard selection processing.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetSelectedRecords(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; var TempBankAccountLedgerEntry: Record "Bank Account Ledger Entry" temporary; var IsHandled: Boolean)
     begin

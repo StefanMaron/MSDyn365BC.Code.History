@@ -29,6 +29,7 @@ table 134399 "Table With PK 16 Fields"
         field(5; Field5; Decimal)
         {
             DataClassification = SystemMetadata;
+            AutoFormatType = 0;
         }
         field(6; Field6; Option)
         {
@@ -115,4 +116,3 @@ table 134399 "Table With PK 16 Fields"
         Insert();
     end;
 }
-

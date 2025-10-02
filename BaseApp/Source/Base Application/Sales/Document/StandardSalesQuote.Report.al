@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Document;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CRM.Contact;
@@ -1168,7 +1172,7 @@ report 1304 "Standard Sales - Quote"
         VATIdentifierLbl: Label 'VAT Identifier';
         VATPercentageLbl: Label 'VAT %';
         ExchangeRateTxt: Label 'Exchange rate: %1/%2', Comment = '%1 and %2 are both amounts.';
-        NoFilterSetErr: Label 'You must specify one or more filters to avoid accidently printing all documents.';
+        NoFilterSetErr: Label 'You must specify one or more filters to avoid accidentally printing all documents.';
         FromLbl: Label 'From';
         EstimateForLbl: Label 'Estimate for';
         QuestionsLbl: Label 'Questions?';

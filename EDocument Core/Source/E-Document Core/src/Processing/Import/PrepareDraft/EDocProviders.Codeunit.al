@@ -1,4 +1,3 @@
-#pragma warning disable AS0049
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -95,7 +94,6 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineProvider, IUnitOfMeasur
         EDocImpSessionTelemetry: Codeunit "E-Doc. Imp. Session Telemetry";
         EDocActivityLogSession: Codeunit "E-Doc. Activity Log Session";
         ActivityLog: Codeunit "Activity Log Builder";
-        RecordRef: Recordref;
         VendorNo: Code[20];
         FilterInvalidCharTxt: Label '(&)', Locked = true;
         ItemReferenceReasonMsg: Label 'Item reference was found for vendor %1.', Comment = '%1 - Vendor No.';
@@ -115,8 +113,7 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineProvider, IUnitOfMeasur
             EDocumentPurchaseLine.Validate("[BC] Item Reference No.", ItemReference."Reference No.");
             EDocImpSessionTelemetry.SetLineBool(EDocumentPurchaseLine.SystemId, 'Item Reference ', true);
 
-            RecordRef.GetTable(ItemReference);
-            SetActivityLog(EDocumentPurchaseLine.SystemId, EDocumentPurchaseLine.FieldNo("[BC] Item Reference No."), StrSubstNo(ItemReferenceReasonMsg, VendorNo), RecordRef, Page::"Item References", StrSubstNo(ItemReferenceSourceMsg, ItemReference."Reference No."), ActivityLog);
+            SetActivityLog(EDocumentPurchaseLine.SystemId, EDocumentPurchaseLine.FieldNo("[BC] Item Reference No."), StrSubstNo(ItemReferenceReasonMsg, VendorNo), ItemReference, Page::"Item References", StrSubstNo(ItemReferenceSourceMsg, ItemReference."Reference No."), ActivityLog);
             EDocActivityLogSession.Set(EDocActivityLogSession.ItemRefTok(), ActivityLog);
             exit;
         end;
@@ -128,8 +125,7 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineProvider, IUnitOfMeasur
             EDocumentPurchaseLine.Validate("[BC] Purchase Type No.", TextToAccountMapping."Debit Acc. No.");
             EDocImpSessionTelemetry.SetLineBool(EDocumentPurchaseLine.SystemId, 'Text To Account Mapping', true);
 
-            RecordRef.GetTable(TextToAccountMapping);
-            SetActivityLog(EDocumentPurchaseLine.SystemId, EDocumentPurchaseLine.FieldNo("[BC] Purchase Type No."), StrSubstNo(AccountNumberReasonMsg, VendorNo), RecordRef, Page::"Text-to-Account Mapping", StrSubstNo(AccountNumberSourceMsg, TextToAccountMapping."Line No."), ActivityLog);
+            SetActivityLog(EDocumentPurchaseLine.SystemId, EDocumentPurchaseLine.FieldNo("[BC] Purchase Type No."), StrSubstNo(AccountNumberReasonMsg, VendorNo), TextToAccountMapping, Page::"Text-to-Account Mapping", StrSubstNo(AccountNumberSourceMsg, TextToAccountMapping."Line No."), ActivityLog);
             EDocActivityLogSession.Set(EDocActivityLogSession.TextToAccountMappingTok(), ActivityLog);
             exit;
         end;
@@ -154,6 +150,8 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineProvider, IUnitOfMeasur
         ItemReference.SetRange("Reference Type No.", VendorNo);
         ItemReference.SetRange("Reference No.", EDocumentPurchaseLine."Product Code");
         ItemReference.SetRange("Unit of Measure", EDocumentPurchaseLine."[BC] Unit of Measure");
+        ItemReference.SetFilter("Starting Date", '<= %1', WorkDate());
+        ItemReference.SetFilter("Ending Date", '>= %1 | %2', WorkDate(), 0D);
         if ItemReference.FindSet() then
             repeat
                 if ItemReference.HasValidUnitOfMeasure() then
@@ -174,4 +172,3 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineProvider, IUnitOfMeasur
     end;
 
 }
-#pragma warning restore AS0049

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.GeneralLedger.Reports;
 
 using Microsoft.Bank.BankAccount;
@@ -239,6 +243,8 @@ report 10019 "G/L Register"
 
     requestpage
     {
+        AboutTitle = 'About G/L Register';
+        AboutText = 'The **G/L Register** report provides a batch-wise list of all posted general ledger entries, including entry numbers, posting dates, user IDs, and source descriptions. Use it for auditing, tracing who posted what and when, and verifying financial transaction integrity by filtering entries by source, user, or date';
 
         layout
         {

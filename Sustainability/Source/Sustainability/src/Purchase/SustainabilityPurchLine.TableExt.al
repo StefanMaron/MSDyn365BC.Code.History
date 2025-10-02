@@ -1,10 +1,13 @@
 namespace Microsoft.Sustainability.Purchase;
 
-using Microsoft.Sustainability.Account;
-using Microsoft.Sustainability.Setup;
-using Microsoft.Purchases.Document;
-using Microsoft.Projects.Resources.Resource;
 using Microsoft.Inventory.Item;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Purchases.Document;
+using Microsoft.Sustainability.Account;
+using Microsoft.Sustainability.CBAM;
+using Microsoft.Sustainability.Certificate;
+using Microsoft.Sustainability.Energy;
+using Microsoft.Sustainability.Setup;
 
 tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
 {
@@ -75,8 +78,14 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
 
             trigger OnValidate()
             begin
-                if Rec."Sust. Account Subcategory" <> '' then
+                if Rec."Sust. Account Subcategory" <> '' then begin
                     ValidateEmissionPrerequisite(Rec, Rec.FieldNo("Sust. Account Subcategory"));
+
+                    UpdatePurchaseLineFromAccountSubcategory();
+                end else begin
+                    Rec.Validate("Energy Source Code", '');
+                    Rec.Validate("Renewable Energy", false);
+                end;
             end;
         }
         field(6214; "Emission CO2 Per Unit"; Decimal)
@@ -129,6 +138,7 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Emission CO2';
+            CaptionClass = '102,6,1';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -138,6 +148,8 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
 
                 if CurrFieldNo <> Rec.FieldNo("Emission CH4 Per Unit") then
                     UpdateEmissionPerUnit(Rec);
+
+                UpdateCarbonPricingInPurchLine(Rec);
             end;
         }
         field(6218; "Emission CH4"; Decimal)
@@ -145,6 +157,7 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Emission CH4';
+            CaptionClass = '102,6,2';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -153,6 +166,8 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
                     ValidateEmissionPrerequisite(Rec, Rec.FieldNo("Emission CH4"));
 
                 UpdateEmissionPerUnit(Rec);
+
+                UpdateCarbonPricingInPurchLine(Rec);
             end;
         }
         field(6219; "Emission N2O"; Decimal)
@@ -160,6 +175,7 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Emission N2O';
+            CaptionClass = '102,6,3';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -168,6 +184,8 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
                     ValidateEmissionPrerequisite(Rec, Rec.FieldNo("Emission N2O"));
 
                 UpdateEmissionPerUnit(Rec);
+
+                UpdateCarbonPricingInPurchLine(Rec);
             end;
         }
         field(6220; "Posted Emission CO2"; Decimal)
@@ -175,6 +193,7 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Posted Emission CO2';
+            CaptionClass = '102,11,1';
             Editable = false;
             DataClassification = CustomerContent;
 
@@ -189,6 +208,7 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Posted Emission CH4';
+            CaptionClass = '102,11,2';
             Editable = false;
             DataClassification = CustomerContent;
 
@@ -203,6 +223,7 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Posted Emission N2O';
+            CaptionClass = '102,11,3';
             Editable = false;
             DataClassification = CustomerContent;
 
@@ -212,6 +233,158 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
                     ValidateEmissionPrerequisite(Rec, Rec.FieldNo("Posted Emission N2O"));
             end;
         }
+        field(6223; "Energy Source Code"; Code[20])
+        {
+            Caption = 'Energy Source Code';
+            TableRelation = "Sustainability Energy Source";
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                if Rec."Energy Source Code" <> '' then
+                    ValidateEmissionPrerequisite(Rec, Rec.FieldNo("Energy Source Code"));
+
+                if Rec."Energy Source Code" <> xRec."Energy Source Code" then
+                    Rec.Validate("Energy Consumption", 0);
+            end;
+        }
+        field(6224; "Renewable Energy"; Boolean)
+        {
+            Caption = 'Renewable Energy';
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                if Rec."Renewable Energy" then
+                    ValidateEmissionPrerequisite(Rec, Rec.FieldNo("Renewable Energy"));
+            end;
+        }
+        field(6225; "Energy Consumption Per Unit"; Decimal)
+        {
+            AutoFormatType = 11;
+            AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
+            Caption = 'Energy Consumption Per Unit';
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                if Rec."Energy Consumption Per Unit" <> 0 then
+                    ValidateEmissionPrerequisite(Rec, Rec.FieldNo("Energy Consumption Per Unit"));
+
+                UpdateSustainabilityEmission(Rec);
+            end;
+        }
+        field(6226; "Energy Consumption"; Decimal)
+        {
+            AutoFormatType = 11;
+            AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
+            Caption = 'Energy Consumption';
+            CaptionClass = '102,13,4';
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                if Rec."Energy Consumption" <> 0 then begin
+                    Rec.TestField("Energy Source Code");
+                    ValidateEmissionPrerequisite(Rec, Rec.FieldNo("Energy Consumption"));
+                end;
+
+                UpdateEmissionPerUnit(Rec);
+            end;
+        }
+        field(6227; "Posted Energy Consumption"; Decimal)
+        {
+            AutoFormatType = 11;
+            AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
+            Caption = 'Posted Energy Consumption';
+            CaptionClass = '102,14,4';
+            Editable = false;
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                if Rec."Posted Energy Consumption" <> 0 then
+                    ValidateEmissionPrerequisite(Rec, Rec.FieldNo("Posted Energy Consumption"));
+            end;
+        }
+        field(6228; "Source of Emission Data"; Enum "Sust. Source of Emission")
+        {
+            DataClassification = CustomerContent;
+            Caption = 'Source of Emission Data';
+
+            trigger OnValidate()
+            begin
+                if (Rec."Source of Emission Data" <> Rec."Source of Emission Data"::" ") then
+                    ValidateEmissionPrerequisite(Rec, Rec.FieldNo("Source of Emission Data"));
+            end;
+        }
+        field(6229; "Emission Verified"; Boolean)
+        {
+            DataClassification = CustomerContent;
+            Caption = 'Emission Verified';
+
+            trigger OnValidate()
+            begin
+                if Rec."Emission Verified" then
+                    ValidateEmissionPrerequisite(Rec, Rec.FieldNo("Emission Verified"));
+            end;
+        }
+        field(6230; "CBAM Compliance"; Boolean)
+        {
+            DataClassification = CustomerContent;
+            Caption = 'CBAM Compliance';
+
+            trigger OnValidate()
+            begin
+                if Rec."CBAM Compliance" then
+                    ValidateEmissionPrerequisite(Rec, Rec.FieldNo("CBAM Compliance"));
+            end;
+        }
+        field(6231; "Emission Cost Per Unit"; Decimal)
+        {
+            AutoFormatType = 11;
+            AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
+            Caption = 'Emission Cost Per Unit';
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                if Rec."Emission Cost per Unit" <> 0 then
+                    ValidateEmissionPrerequisite(Rec, Rec.FieldNo("Emission Cost per Unit"));
+
+                UpdateSustainabilityEmission(Rec);
+            end;
+        }
+        field(6232; "Total Emission Cost"; Decimal)
+        {
+            AutoFormatType = 11;
+            AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
+            Caption = 'Total Emission Cost';
+            CaptionClass = '102,15,5';
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                if Rec."Total Emission Cost" <> 0 then
+                    ValidateEmissionPrerequisite(Rec, Rec.FieldNo("Total Emission Cost"));
+
+                UpdateEmissionPerUnit(Rec);
+            end;
+        }
+        field(6233; "Posted Total Emission Cost"; Decimal)
+        {
+            AutoFormatType = 11;
+            AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
+            Caption = 'Posted Total Emission Cost';
+            CaptionClass = '102,16,5';
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                if Rec."Posted Total Emission Cost" <> 0 then
+                    ValidateEmissionPrerequisite(Rec, Rec.FieldNo("Posted Total Emission Cost"));
+            end;
+        }
     }
 
     procedure UpdateSustainabilityEmission(var PurchLine: Record "Purchase Line")
@@ -219,6 +392,11 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
         PurchLine."Emission CO2" := PurchLine."Emission CO2 Per Unit" * PurchLine."Qty. per Unit of Measure" * PurchLine.Quantity;
         PurchLine."Emission CH4" := PurchLine."Emission CH4 Per Unit" * PurchLine."Qty. per Unit of Measure" * PurchLine.Quantity;
         PurchLine."Emission N2O" := PurchLine."Emission N2O Per Unit" * PurchLine."Qty. per Unit of Measure" * PurchLine.Quantity;
+        PurchLine."Energy Consumption" := PurchLine."Energy Consumption Per Unit" * PurchLine."Qty. per Unit of Measure" * PurchLine.Quantity;
+        if CurrFieldNo in [0, Rec.FieldNo("Emission CO2 Per Unit"), Rec.FieldNo("Emission CH4 Per Unit"), Rec.FieldNo("Emission N2O Per Unit"), Rec.FieldNo("Sust. Account No.")] then
+            PurchLine.UpdateCarbonPricingInPurchLine(PurchLine);
+
+        PurchLine."Total Emission Cost" := PurchLine."Emission Cost per Unit" * PurchLine."Qty. per Unit of Measure" * PurchLine.Quantity;
     end;
 
     procedure UpdateEmissionPerUnit(var PurchLine: Record "Purchase Line")
@@ -228,6 +406,8 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
         PurchLine."Emission CO2 Per Unit" := 0;
         PurchLine."Emission CH4 Per Unit" := 0;
         PurchLine."Emission N2O Per Unit" := 0;
+        PurchLine."Energy Consumption Per Unit" := 0;
+        PurchLine."Emission Cost per Unit" := 0;
 
         if (PurchLine."Qty. per Unit of Measure" = 0) or (PurchLine.Quantity = 0) then
             exit;
@@ -241,6 +421,40 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
 
         if PurchLine."Emission N2O" <> 0 then
             PurchLine."Emission N2O Per Unit" := PurchLine."Emission N2O" / Denominator;
+
+        if PurchLine."Energy Consumption" <> 0 then
+            PurchLine."Energy Consumption Per Unit" := PurchLine."Energy Consumption" / Denominator;
+
+        if PurchLine."Total Emission Cost" <> 0 then
+            PurchLine."Emission Cost Per Unit" := PurchLine."Total Emission Cost" / Denominator;
+
+        if Rec.Type = Rec.Type::"Charge (Item)" then
+            Rec.UpdateItemChargeAssgnt();
+    end;
+
+    internal procedure UpdateCarbonPricingInPurchLine(var PurchLine: Record "Purchase Line")
+    var
+        SustainabilityCarbonPricing: Record "Sustainability Carbon Pricing";
+        ExistCarbonPrice: Boolean;
+        TotalCO2e: Decimal;
+        Denominator: Decimal;
+    begin
+        PurchLine."Emission Cost Per Unit" := 0;
+        PurchLine."Total Emission Cost" := 0;
+        if (Rec."Sust. Account No." = '') or (Rec.Type <> Rec.Type::Item) then
+            exit;
+
+        FindCarbonPricingFromPurchaseLine(SustainabilityCarbonPricing, PurchLine, ExistCarbonPrice, TotalCO2e);
+        if not ExistCarbonPrice then
+            exit;
+
+        PurchLine."Total Emission Cost" := SustainabilityCarbonPricing."Carbon Price" * TotalCO2e;
+        if (PurchLine."Qty. per Unit of Measure" = 0) or (PurchLine.Quantity = 0) then
+            exit;
+
+        Denominator := PurchLine."Qty. per Unit of Measure" * PurchLine.Quantity;
+        if PurchLine."Total Emission Cost" <> 0 then
+            PurchLine."Emission Cost Per Unit" := PurchLine."Total Emission Cost" / Denominator;
     end;
 
     local procedure UpdateDefaultEmissionOnPurchLine(var PurchaseLine: Record "Purchase Line")
@@ -261,6 +475,10 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
                         PurchaseLine.Validate("Emission CH4 Per Unit", Item."Default CH4 Emission");
                         PurchaseLine.Validate("Emission N2O Per Unit", Item."Default N2O Emission");
                     end;
+
+                    PurchaseLine.Validate("Source of Emission Data", Item."Source of Emission Data");
+                    PurchaseLine.Validate("Emission Verified", Item."Emission Verified");
+                    PurchaseLine.Validate("CBAM Compliance", Item."CBAM Compliance");
                 end;
             PurchaseLine.Type::Resource:
                 begin
@@ -286,6 +504,10 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
         PurchLine.Validate("Emission CO2 Per Unit", 0);
         PurchLine.Validate("Emission CH4 Per Unit", 0);
         PurchLine.Validate("Emission N2O Per Unit", 0);
+        PurchLine.Validate("Source of Emission Data", Rec."Source of Emission Data"::" ");
+        PurchLine.Validate("CBAM Compliance", false);
+        PurchLine.Validate("Emission Verified", false);
+        PurchLine.Validate("Emission Cost Per Unit", 0);
     end;
 
     local procedure ValidateEmissionPrerequisite(PurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer)
@@ -309,7 +531,16 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
                     end;
                 end;
             PurchaseLine.FieldNo("Emission CO2"),
-            PurchaseLine.FieldNo("Emission CO2 Per Unit"):
+            PurchaseLine.FieldNo("Emission CO2 Per Unit"),
+            PurchaseLine.FieldNo("Energy Source Code"),
+            PurchaseLine.FieldNo("Renewable Energy"),
+            PurchaseLine.FieldNo("Energy Consumption"),
+            PurchaseLine.FieldNo("Energy Consumption Per Unit"),
+            PurchaseLine.FieldNo("Emission Verified"),
+            PurchaseLine.FieldNo("Source of Emission Data"),
+            PurchaseLine.FieldNo("CBAM Compliance"),
+            PurchaseLine.FieldNo("Emission Cost Per Unit"),
+            PurchaseLine.FieldNo("Total Emission Cost"):
                 begin
                     PurchaseLine.TestStatusOpen();
                     PurchaseLine.TestField("Sust. Account No.");
@@ -320,8 +551,8 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
             PurchaseLine.FieldNo("Sust. Account Name"):
                 begin
                     PurchaseLine.TestField("No.");
-                    if not (PurchaseLine.Type in [PurchaseLine.Type::Item, PurchaseLine.Type::"G/L Account", PurchaseLine.Type::Resource]) then
-                        Error(InvalidTypeForSustErr, PurchaseLine.Type::Item, PurchaseLine.Type::"G/L Account", PurchaseLine.Type::Resource);
+                    if not (PurchaseLine.Type in [PurchaseLine.Type::Item, PurchaseLine.Type::"G/L Account", PurchaseLine.Type::Resource, PurchaseLine.Type::"Charge (Item)"]) then
+                        Error(InvalidTypeForSustErr, PurchaseLine.Type::Item, PurchaseLine.Type::"G/L Account", PurchaseLine.Type::Resource, PurchaseLine.Type::"Charge (Item)");
 
                     if SustAccountCategory.Get(PurchaseLine."Sust. Account Category") then
                         if SustAccountCategory."Water Intensity" or SustAccountCategory."Waste Intensity" or SustAccountCategory."Discharged Into Water" then
@@ -330,8 +561,58 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
         end;
     end;
 
+    local procedure UpdatePurchaseLineFromAccountSubcategory()
+    var
+        SustainAccountSubcategory: Record "Sustain. Account Subcategory";
+    begin
+        SustainAccountSubcategory.Get(Rec."Sust. Account Category", Rec."Sust. Account Subcategory");
+
+        Rec.Validate("Energy Source Code", SustainAccountSubcategory."Energy Source Code");
+        Rec.Validate("Renewable Energy", SustainAccountSubcategory."Renewable Energy");
+    end;
+
+    local procedure FindCarbonPricingFromPurchaseLine(var SustainabilityCarbonPricing: Record "Sustainability Carbon Pricing"; var PurchLine: Record "Purchase Line"; var ExistCarbonPrice: Boolean; var TotalCO2e: Decimal)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseSubscriber: Codeunit "Sust. Purchase Subscriber";
+    begin
+        PurchaseHeader := PurchLine.GetPurchHeader();
+
+        FilterCarbonPricing(SustainabilityCarbonPricing, PurchaseHeader, PurchLine);
+        if not SustainabilityCarbonPricing.FindLast() then
+            exit;
+
+        PurchaseSubscriber.GetCO2eEmissionFromPurchLine(PurchLine, TotalCO2e);
+        if (TotalCO2e > SustainabilityCarbonPricing."Threshold Quantity") then
+            ExistCarbonPrice := true;
+    end;
+
+    local procedure FilterCarbonPricing(var SustainabilityCarbonPricing: Record "Sustainability Carbon Pricing"; PurchaseHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line")
+    var
+        Item: Record Item;
+    begin
+        Item.Get(PurchLine."No.");
+
+        SustainabilityCarbonPricing.Reset();
+        if Item."Country/Region of Origin Code" <> '' then
+            SustainabilityCarbonPricing.SetRange("Country/Region of Origin", Item."Country/Region of Origin Code")
+        else
+            SustainabilityCarbonPricing.SetRange("Country/Region of Origin", PurchaseHeader."Buy-from Country/Region Code");
+
+        SustainabilityCarbonPricing.SetFilter("Ending Date", '%1|>=%2', 0D, PurchaseHeaderStartDate(PurchaseHeader));
+        SustainabilityCarbonPricing.SetRange("Starting Date", 0D, PurchaseHeaderStartDate(PurchaseHeader));
+    end;
+
+    local procedure PurchaseHeaderStartDate(PurchaseHeader: Record "Purchase Header"): Date
+    begin
+        if PurchaseHeader."Document Type" in [PurchaseHeader."Document Type"::Invoice, PurchaseHeader."Document Type"::"Credit Memo"] then
+            exit(PurchaseHeader."Posting Date")
+        else
+            exit(PurchaseHeader."Order Date");
+    end;
+
     var
         SustainabilitySetup: Record "Sustainability Setup";
-        InvalidTypeForSustErr: Label 'Sustainability is only applicable for Type: %1 , %2 and %3', Comment = '%1 - Purchase Line Type Item, %2 - Purchase Line Type G/L Account, %3 - Purchase Line Type Resource';
+        InvalidTypeForSustErr: Label 'Sustainability is only applicable for Type: %1 , %2 , %3 and %4', Comment = '%1 - Purchase Line Type Item, %2 - Purchase Line Type G/L Account, %3 - Purchase Line Type Resource , %4 - Purchase Line Type Charge (Item)';
         NotAllowedToUseSustAccountForWaterOrWasteErr: Label 'It is not allowed to use Sustainability Account %1 for water or waste in purchase document.', Comment = '%1 = Sust. Account No.';
 }

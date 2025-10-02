@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.History;
 
 using Microsoft.Bank.BankAccount;
@@ -71,6 +75,7 @@ table 124 "Purch. Cr. Memo Hdr."
         field(6; "Pay-to Name 2"; Text[50])
         {
             Caption = 'Pay-to Name 2';
+            ToolTip = 'Specifies an additional part of the name of the vendor who you received the credit memo from.';
         }
         field(7; "Pay-to Address"; Text[100])
         {
@@ -325,6 +330,7 @@ table 124 "Purch. Cr. Memo Hdr."
         field(80; "Buy-from Vendor Name 2"; Text[50])
         {
             Caption = 'Buy-from Vendor Name 2';
+            ToolTip = 'Specifies an additional part of the name of the vendor that you’re buying from.';
         }
         field(81; "Buy-from Address"; Text[100])
         {

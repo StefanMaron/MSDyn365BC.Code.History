@@ -32,7 +32,6 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
         Text003Err: Label 'must not be filled in when a quantity is reserved';
         Text004Err: Label 'must not be changed when a quantity is reserved';
         Text005Err: Label 'Codeunit is not initialized correctly.';
-        Text006Err: Label 'You cannot define item tracking on %1 %2', Comment = '%1 - Operation No. caption, %2 - Operation No. value';
         ItemJournalTxt: Label 'Item Journal';
         SourceDoc4Txt: Label '%1 %2 %3 %4', Locked = true;
 
@@ -79,6 +78,8 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
             Description, ExpectedReceiptDate, ShipmentDate, 0);
 
         FromTrackingSpecification."Source Type" := 0;
+
+        OnAfterCreateReservation(ItemJournalLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservationEntry);
     end;
 
     procedure CreateReservationSetFrom(TrackingSpecification: Record "Tracking Specification")
@@ -391,7 +392,6 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     procedure CallItemTracking(var ItemJournalLine: Record "Item Journal Line"; IsReclass: Boolean)
     var
         TrackingSpecification: Record "Tracking Specification";
-        ReservationEntry: Record "Reservation Entry";
         ItemTrackingLines: Page "Item Tracking Lines";
         IsHandled: Boolean;
     begin
@@ -401,13 +401,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
             exit;
 
         ItemJournalLine.TestField("Item No.");
-        if not ItemJournalLine.ItemPosting() then begin
-            ReservationEntry.InitSortingAndFilters(false);
-            ItemJournalLine.SetReservationFilters(ReservationEntry);
-            ReservationEntry.ClearTrackingFilter();
-            if ReservationEntry.IsEmpty() then
-                Error(Text006Err, ItemJournalLine.FieldCaption("Operation No."), ItemJournalLine."Operation No.");
-        end;
+        OnCallItemTrackingOnCheckItemPosting(ItemJournalLine);
 
         IsHandled := false;
         OnCallItemTrackingOnBeforeCallItemJnlLineItemTracking(ItemJournalLine, IsHandled);
@@ -679,6 +673,11 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCallItemTrackingOnCheckItemPosting(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeVerifyChange(var NewItemJournalLine: Record "Item Journal Line"; OldItemJournalLine: Record "Item Journal Line"; var ReservationManagement: Codeunit "Reservation Management"; var Blocked: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -698,11 +697,13 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('This event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnSetSourceForReservationOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; ItemJnlLine: Record "Item Journal Line")
     begin
     end;
-
+#endif
     // codeunit Create Reserv. Entry
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Create Reserv. Entry", 'OnCheckSourceTypeSubtype', '', false, false)]
@@ -804,5 +805,9 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     begin
     end;
 
-}
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateReservation(var ItemJournalLine: Record "Item Journal Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ReservationEntry: Record "Reservation Entry")
+    begin
+    end;
 
+}

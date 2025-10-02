@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Document;
 
 using Microsoft.Finance.AllocationAccount;
@@ -1326,12 +1330,12 @@ page 47 "Sales Invoice Subform"
         if IsHandled then
             exit(Result);
 
-        if (Rec.Quantity <> 0) and Rec.ItemExists(Rec."No.") then begin
-            Commit();
-            if not SalesLineReserve.DeleteLineConfirm(Rec) then
-                exit(false);
-            SalesLineReserve.DeleteLine(Rec);
-        end;
+        if Rec.Quantity <> 0 then
+            if Rec.ItemExists(Rec."No.") then begin
+                if not SalesLineReserve.DeleteLineConfirm(Rec) then
+                    exit(false);
+                SalesLineReserve.DeleteLine(Rec);
+            end;
         DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
@@ -1466,6 +1470,7 @@ page 47 "Sales Invoice Subform"
             exit;
 
         SalesHeader.Get(Rec."Document Type", Rec."Document No.");
+        SalesHeader.TestStatusOpen();
         SalesCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, SalesHeader);
         DocumentTotals.SalesDocTotalsNotUpToDate();
         CurrPage.Update(false);

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Document;
 
 using Microsoft.Bank.Setup;
 using Microsoft.CRM.Contact;
@@ -71,8 +75,8 @@ page 41 "Sales Quote"
 
                     trigger OnValidate()
                     begin
-                        IsSalesLinesEditable := Rec.SalesLinesEditable();
                         Rec.SelltoCustomerNoOnAfterValidate(Rec, xRec);
+                        IsSalesLinesEditable := Rec.SalesLinesEditable();
                         CurrPage.Update();
                     end;
                 }
@@ -84,16 +88,33 @@ page 41 "Sales Quote"
                     ShowMandatory = true;
                     ToolTip = 'Specifies the name of the customer who will receive the products and be billed by default.';
 
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        Customer: Record Customer;
+                    begin
+                        Selected.SetTable(Customer);
+                        if Rec."Sell-to Customer No." <> Customer."No." then begin
+                            Rec.Validate("Sell-to Customer No.", Customer."No.");
+                            if Rec."Sell-to Customer No." <> Customer."No." then
+                                error('');
+                            IsSalesLinesEditable := Rec.SalesLinesEditable();
+                            CurrPage.Update();
+                        end;
+                    end;
+
                     trigger OnValidate()
                     begin
                         Rec.SelltoCustomerNoOnAfterValidate(Rec, xRec);
+                        IsSalesLinesEditable := Rec.SalesLinesEditable();
                         CurrPage.Update();
                     end;
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        exit(Rec.LookupSellToCustomerName(Text));
-                    end;
+                }
+                field("Sell-to Customer Name 2"; Rec."Sell-to Customer Name 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Name 2';
+                    QuickEntry = false;
+                    Visible = false;
                 }
                 field("External Document No."; Rec."External Document No.")
                 {
@@ -284,8 +305,17 @@ page 41 "Sales Quote"
                 field("Quote Valid Until Date"; Rec."Quote Valid Until Date")
                 {
                     ApplicationArea = Suite;
-                    Importance = Additional;
                     ToolTip = 'Specifies how long the quote is valid.';
+                }
+                field("Quote Accepted"; Rec."Quote Accepted")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies that the quote was accepted by the customer.';
+                }
+                field("Quote Accepted Date"; Rec."Quote Accepted Date")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies when the quote was accepted by the customer.';
                 }
                 field("Due Date"; Rec."Due Date")
                 {
@@ -806,6 +836,16 @@ page 41 "Sales Quote"
 
                                 CurrPage.Update();
                             end;
+                        }
+                        field("Bill-to Name 2"; Rec."Bill-to Name 2")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Name 2';
+                            Editable = BillToOptions = BillToOptions::"Another Customer";
+                            Enabled = BillToOptions = BillToOptions::"Another Customer";
+                            Importance = Additional;
+                            QuickEntry = false;
+                            Visible = false;
                         }
                         field("Bill-to Address"; Rec."Bill-to Address")
                         {
@@ -1904,7 +1944,7 @@ page 41 "Sales Quote"
     begin
         EnableBillToCustomerNo := true;
         EnableSellToCustomerTemplateCode := true;
-        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(FlowServiceManagement.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -1964,7 +2004,7 @@ page 41 "Sales Quote"
         CustomerMgt: Codeunit "Customer Mgt.";
         FormatAddress: Codeunit "Format Address";
         PrivacyNotice: Codeunit "Privacy Notice";
-        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
+        FlowServiceManagement: Codeunit "Flow Service Management";
         ChangeExchangeRate: Page "Change Exchange Rate";
         EnableSellToCustomerTemplateCode: Boolean;
         HasIncomingDocument: Boolean;

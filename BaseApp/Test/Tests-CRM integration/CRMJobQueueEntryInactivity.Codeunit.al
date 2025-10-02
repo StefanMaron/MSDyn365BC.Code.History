@@ -278,15 +278,6 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         CRMIntegrationRecord.Modify();
     end;
 
-    local procedure VerifyJobQueueEntryUnchanged(ExpectedJobQueueEntry: Record "Job Queue Entry")
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-    begin
-        JobQueueEntry := ExpectedJobQueueEntry;
-        JobQueueEntry.Find();
-        JobQueueEntry.TestField(Status, ExpectedJobQueueEntry.Status);
-    end;
-
     local procedure VerifyDateTimeDifference(DateTime1: DateTime; DateTime2: DateTime; ExpectedDiffInSeconds: Integer)
     var
         DiffInMilliseconds: Integer;
@@ -295,4 +286,3 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         Assert.AreEqual(ExpectedDiffInSeconds, Round(DiffInMilliseconds / 1000, 1), 'Expected shift in time.');
     end;
 }
-

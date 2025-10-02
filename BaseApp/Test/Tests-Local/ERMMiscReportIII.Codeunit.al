@@ -27,14 +27,14 @@ codeunit 142062 "ERM Misc. Report III"
     // 33. Verify Total caption for Sales Invoice Report (local currency).
     // 34. Verify Total caption for Purchase Invoice Report (given currency).
     // 35. Verify Total caption for Purchase Invoice Report (local currency).
-    // 
+    //
     // Covers Test Cases for WI - 332267
     // ------------------------------------------------------------------------------------------------------
     // Test Function Name                                                                              TFS ID
     // ------------------------------------------------------------------------------------------------------
     // PaymentJournalTestWithShowDimensions                                                            171128
     // TopVendorListWithShowAsBalances, TopVendorListWithShowAsPurchases                               171178
-    // 
+    //
     // Covers Test Cases for WI - 329576
     // ------------------------------------------------------------------------------------------------------
     // Test Function Name                                                                              TFS ID
@@ -44,7 +44,7 @@ codeunit 142062 "ERM Misc. Report III"
     // SalesQuoteReport                                                                                171082
     // SalesOrderReport                                                                                171081
     // SalesCreditMemoReport                                                                           171079
-    // 
+    //
     // Covers Test Cases for WI - 327944
     // ------------------------------------------------------------------------------------------------------
     // Test Function Name                                                                              TFS ID
@@ -52,32 +52,32 @@ codeunit 142062 "ERM Misc. Report III"
     // RunItemTurnOverWithItemNoFilter, RunItemTurnOverWithDatefilter                                  171090
     // RunPurchaseAdviceReportWithoutFilter, RunPurchaseAdviceReportWithFilters                        171103
     // RunPurchaseOrderStatusReportWithoutFilter, RunPurchaseOrderStatusReportWithFilters              171100
-    // 
+    //
     // Covers Test Cases for WI - 330785
     // ------------------------------------------------------------------------------------------------------
     // Test Function Name                                                                              TFS ID
     // ------------------------------------------------------------------------------------------------------
     // GSTHSTInternetFileTransferWithBlankStartDate                                                    202397
     // GSTHSTInternetFileTransferWithBlankEndDate                                                      202397
-    // 
+    //
     // Covers Test Cases for WI - 338154
     // ------------------------------------------------------------------------------------------------------
     // Test Function Name                                                                              TFS ID
     // ------------------------------------------------------------------------------------------------------
     // SalesOrderConfirmationReport                                                                    151937
-    // 
+    //
     // BUG ID 58797
     // ------------------------------------------------------------------------------------------------------
     // Test Function Name
     // ------------------------------------------------------------------------------------------------------
     // AgedAccountsPayableWithUseExternalDocNo
-    // 
+    //
     // Covers Test Cases for HFR - 351480
     // ------------------------------------------------------------------------------------------------------
     // Test Function Name                                                                              TFS ID
     // ------------------------------------------------------------------------------------------------------
     // SalesInvoiceReportWithAssemblyComponents                                                        351480
-    // 
+    //
     // Covers Test Cases for HFR - 354445
     // ------------------------------------------------------------------------------------------------------
     // Test Function Name                                                                              TFS ID
@@ -88,7 +88,7 @@ codeunit 142062 "ERM Misc. Report III"
     // CheckTotalAmountOnReportWithMultipleVendorWithCurrency,
     // CheckTotalAmountOnAgedAccountsReceivableWithCurrency,
     // CheckTotalAmountOnReportWithMultipleCustomerWithCurrency
-    // 
+    //
     // Covers Test Cases for HFR - 351480
     // ------------------------------------------------------------------------------------------------------
     // Test Function Name                                                                              TFS ID
@@ -159,20 +159,6 @@ codeunit 142062 "ERM Misc. Report III"
         TotalPrice: Label 'AmountExclInvDisc';
         ValueMustMatch: Label 'Value must match.';
         WrongTotalAmountErr: Label 'Wrong total Amount.';
-        GrandTotalBalanceDueCap: Label 'GrandTotalBalanceDue_';
-        GrandBalanceDue1Cap: Label 'GrandBalanceDue_1_';
-        GrandBalanceDue2Cap: Label 'GrandBalanceDue_2_';
-        GrandBalanceDue3Cap: Label 'GrandBalanceDue_3_';
-        GrandBalanceDue4Cap: Label 'GrandBalanceDue_4_';
-        PercentString1Cap: Label 'PercentString_1_';
-        PercentString2Cap: Label 'PercentString_2_';
-        PercentString3Cap: Label 'PercentString_3_';
-        PercentString4Cap: Label 'PercentString_4_';
-        BalanceDue1Cap: Label 'BalanceDue___1_';
-        BalanceDue2Cap: Label 'BalanceDue___2_';
-        BalanceDue3Cap: Label 'BalanceDue___3_';
-        BalanceDue4Cap: Label 'BalanceDue___4_';
-        FormatString: Label '<Precision,2:3><Standard Format,2>';
         TotalCaptionCapTxt: Label 'TotalCaption';
         TotalCaptionTxt: Label 'Total %1:';
         PurchaseInvoiceNoTxt: Label 'No_PurchInvHeader';
@@ -1704,7 +1690,7 @@ codeunit 142062 "ERM Misc. Report III"
         RemitAddress.Validate(Default, true);
         RemitAddress.Modify();
 
-        // [GIVEN] Create Payment Journal With "Remit-to Code" for Vendor 
+        // [GIVEN] Create Payment Journal With "Remit-to Code" for Vendor
         CreateGenJournalLineWithBankAccount(GenJournalLine, "Gen. Journal Document Type"::Payment, "Gen. Journal Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(500, 0), "Bank Payment Type"::"Computer Check");
         GenJournalLine.Validate("Remit-to Code", RemitAddress.Code);
         GenJournalLine.Modify();
@@ -1825,7 +1811,7 @@ codeunit 142062 "ERM Misc. Report III"
         RemitAddress.Validate(Default, true);
         RemitAddress.Modify();
 
-        // [GIVEN] Create Payment Journal With "Remit-to Code" for Vendor 
+        // [GIVEN] Create Payment Journal With "Remit-to Code" for Vendor
         CreateGenJournalLineWithBankAccount(GenJournalLine, "Gen. Journal Document Type"::Payment, "Gen. Journal Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(500, 0), "Bank Payment Type"::"Computer Check");
         GenJournalLine.Validate("Remit-to Code", RemitAddress.Code);
         GenJournalLine.Modify();
@@ -1873,7 +1859,7 @@ codeunit 142062 "ERM Misc. Report III"
         RemitAddress.Validate(Default, true);
         RemitAddress.Modify();
 
-        // [GIVEN] Create Payment Journal With "Remit-to Code" for Vendor 
+        // [GIVEN] Create Payment Journal With "Remit-to Code" for Vendor
         CreateGenJournalLineWithBankAccount(GenJournalLine, "Gen. Journal Document Type"::Payment, "Gen. Journal Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(500, 0), "Bank Payment Type"::"Computer Check");
         GenJournalLine.Validate("Remit-to Code", RemitAddress.Code);
         GenJournalLine.Modify();
@@ -2054,27 +2040,6 @@ codeunit 142062 "ERM Misc. Report III"
         exit(GeneralLedgerSetup."LCY Code");
     end;
 
-    local procedure CalculateAmountWithCurrency(CurrencyCode: Code[10]; var Amount: array[4] of Decimal) GrandTotal: Decimal
-    var
-        CurrencyExchangeRate: Record "Currency Exchange Rate";
-        Factor: Decimal;
-        Counter: Integer;
-    begin
-        Factor := CurrencyExchangeRate.GetCurrentCurrencyFactor(CurrencyCode);
-        for Counter := 1 to ArrayLen(Amount) do begin
-            Amount[Counter] := Amount[Counter] / Factor;
-            GrandTotal += Amount[Counter];
-        end;
-    end;
-
-    local procedure CalculateGrandTotal(Amount: array[4] of Decimal) GrandTotal: Decimal
-    var
-        Counter: Integer;
-    begin
-        for Counter := 1 to ArrayLen(Amount) do
-            GrandTotal += Amount[Counter];
-    end;
-
     local procedure CreateGenJournalLineWithBankAccount(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; BankPaymentType: Enum "Bank Payment Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -2088,19 +2053,6 @@ codeunit 142062 "ERM Misc. Report III"
         GenJournalLine.Validate("Bal. Account No.", BankAccount."No.");
         GenJournalLine.Validate("Bank Payment Type", BankPaymentType);
         GenJournalLine.Modify(true);
-    end;
-
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DateInterval: Text; AccountNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; Amount: Decimal)
-    var
-        PeriodDifference: DateFormula;
-    begin
-        CreateGenJournalLine(GenJournalLine, AccountNo, AccountType, Amount);
-        Evaluate(PeriodDifference, DateInterval);
-        GenJournalLine.Validate("Posting Date", CalcDate(PeriodDifference, GenJournalLine."Posting Date"));
-        // Test MAX length = 35 (TFS ID: 305391)
-        GenJournalLine."External Document No." := CopyStr(LibraryUtility.GenerateRandomXMLText(35), 1);
-        GenJournalLine.Modify(true);
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     [Scope('OnPrem')]
@@ -2125,18 +2077,6 @@ codeunit 142062 "ERM Misc. Report III"
 
         GenJournalLine.SetRange("Account No.", AccountNo);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
-    end;
-
-    local procedure CreateAndPostMultipleGenJnlLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; GenJournalLineAmount: Decimal; var TotalAmount: array[4] of Decimal): Decimal
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        Counter: Integer;
-    begin
-        for Counter := 1 to ArrayLen(TotalAmount) do begin
-            CreateAndPostGenJournalLine(
-              GenJournalLine, StrSubstNo('<-%1M>', Counter - 1), AccountNo, AccountType, GenJournalLineAmount);
-            TotalAmount[Counter] := Abs(GenJournalLineAmount);
-        end;
     end;
 
     local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ToInvoice: Boolean): Code[20]
@@ -2550,15 +2490,6 @@ codeunit 142062 "ERM Misc. Report III"
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
-    local procedure UpdateGLSetupDepositNos()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-    begin
-        GeneralLedgerSetup.Get();
-        GeneralLedgerSetup."Deposit Nos." := LibraryERM.CreateNoSeriesCode();
-        GeneralLedgerSetup.Modify();
-    end;
-
     local procedure EnablePlanningApplicationAreaSetup()
     var
         ApplicationAreaSetup: Record "Application Area Setup";
@@ -2569,16 +2500,6 @@ codeunit 142062 "ERM Misc. Report III"
         ApplicationAreaSetup.Validate(Planning, true);
         ApplicationAreaSetup.Insert(true);
         ApplicationAreaMgmtFacade.SetupApplicationArea();
-    end;
-
-    local procedure ValidateVendorInvoiceNo(var PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
-    var
-        VendorInvoiceNo: Code[35];
-    begin
-        VendorInvoiceNo := CopyStr(LibraryUTUtility.GetNewCode() + LibraryUTUtility.GetNewCode(), 1, MaxStrLen(VendorInvoiceNo));
-        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-        PurchaseHeader.Validate("Vendor Invoice No.", VendorInvoiceNo);
-        PurchaseHeader.Modify(true);
     end;
 
     local procedure VerifyLogInteraction(DocumentNo: Code[20]; ActualLogInteraction: Boolean)
@@ -2654,40 +2575,6 @@ codeunit 142062 "ERM Misc. Report III"
         LibraryReportDataset.AssertElementWithValueExists(RowCaption, RowValue1);
     end;
 
-    local procedure VerifyBalanceDueValuesOnReport(Amount: array[4] of Decimal)
-    begin
-        LibraryReportDataset.AssertElementWithValueExists(BalanceDue1Cap, -Amount[1]);
-        LibraryReportDataset.AssertElementWithValueExists(BalanceDue2Cap, -Amount[2]);
-        LibraryReportDataset.AssertElementWithValueExists(BalanceDue3Cap, -Amount[3]);
-        LibraryReportDataset.AssertElementWithValueExists(BalanceDue4Cap, -Amount[4]);
-    end;
-
-    local procedure VerifyTotalValuesOnReport(Amount: array[4] of Decimal; Amount2: array[4] of Decimal)
-    begin
-        LibraryReportDataset.AssertElementWithValueExists(GrandBalanceDue1Cap, -(Amount[1] + Amount2[1]));
-        LibraryReportDataset.AssertElementWithValueExists(GrandBalanceDue2Cap, -(Amount[2] + Amount2[2]));
-        LibraryReportDataset.AssertElementWithValueExists(GrandBalanceDue3Cap, -(Amount[3] + Amount2[3]));
-        LibraryReportDataset.AssertElementWithValueExists(GrandBalanceDue4Cap, -(Amount[4] + Amount2[4]));
-    end;
-
-    local procedure VerifyTotalAndPercentageValuesOnReport(GrandTotal: Decimal; Amount: array[4] of Decimal)
-    begin
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists(GrandTotalBalanceDueCap, GrandTotal);
-        LibraryReportDataset.AssertElementWithValueExists(GrandBalanceDue1Cap, -Amount[1]);
-        LibraryReportDataset.AssertElementWithValueExists(GrandBalanceDue2Cap, -Amount[2]);
-        LibraryReportDataset.AssertElementWithValueExists(GrandBalanceDue3Cap, -Amount[3]);
-        LibraryReportDataset.AssertElementWithValueExists(GrandBalanceDue4Cap, -Amount[4]);
-        LibraryReportDataset.AssertElementWithValueExists(
-          PercentString1Cap, Format(Round(-Amount[1] / GrandTotal * 100), 0, FormatString) + '%');
-        LibraryReportDataset.AssertElementWithValueExists(
-          PercentString2Cap, Format(Round(-Amount[2] / GrandTotal * 100), 0, FormatString) + '%');
-        LibraryReportDataset.AssertElementWithValueExists(
-          PercentString3Cap, Format(Round(-Amount[3] / GrandTotal * 100), 0, FormatString) + '%');
-        LibraryReportDataset.AssertElementWithValueExists(
-          PercentString4Cap, Format(Round(-Amount[4] / GrandTotal * 100), 0, FormatString) + '%');
-    end;
-
     local procedure VerifyZipCodeOnReport(RemitAddress: Record "Remit Address")
     var
         Country: Record "Country/Region";
@@ -2753,52 +2640,6 @@ codeunit 142062 "ERM Misc. Report III"
                 exit(DataExchDef.Code);
         until DataExchDef.Next() = 0;
         exit('');
-    end;
-
-    local procedure AddDetailColumnWithReplaceRule(DataExchDefCode: Code[20]; ReplaceValue: Text[1]; var ReplacePosition: Integer)
-    var
-        DataExchLineDef: Record "Data Exch. Line Def";
-        DataExchColumnDef: Record "Data Exch. Column Def";
-        DataExchMapping: Record "Data Exch. Mapping";
-        DataExchFieldMapping: Record "Data Exch. Field Mapping";
-        TransformationRule: Record "Transformation Rule";
-    begin
-        DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
-        DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Detail);
-        DataExchLineDef.FindFirst();
-        DataExchLineDef.Validate("Column Count", DataExchLineDef."Column Count" + 1);
-        DataExchLineDef.Modify(true);
-
-        DataExchColumnDef.InsertRec(
-          DataExchLineDef."Data Exch. Def Code", DataExchLineDef.Code, DataExchLineDef."Column Count", 'Record Type Code',
-          true, DataExchColumnDef."Data Type"::Text, '', '', '');
-        DataExchColumnDef.Validate(Length, 1);
-        DataExchColumnDef.Modify(true);
-
-        DataExchMapping.SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
-        DataExchMapping.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
-        DataExchMapping.FindFirst();
-        DataExchFieldMapping.InsertRec(
-          DataExchLineDef."Data Exch. Def Code", DataExchLineDef.Code, DataExchMapping."Table ID",
-          DataExchColumnDef."Column No.", 4, false, 0);
-
-        TransformationRule.Init();
-        TransformationRule.Validate(Code, LibraryUtility.GenerateGUID());
-        TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Replace);
-        TransformationRule.Validate("Find Value", 'O');
-        TransformationRule.Validate("Replace Value", ReplaceValue);
-        TransformationRule.Insert();
-
-        DataExchFieldMapping.Validate("Transformation Rule", TransformationRule.Code);
-        DataExchFieldMapping.Modify(true);
-
-        ReplacePosition := 0;
-        DataExchColumnDef.SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
-        DataExchColumnDef.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
-        DataExchColumnDef.FindSet();
-        repeat
-            ReplacePosition += DataExchColumnDef.Length;
-        until DataExchColumnDef.Next() = 0;
     end;
 
     local procedure FilterCheckLedgerEntry(var CheckLedgerEntry: Record "Check Ledger Entry"; BankAccountNo: Code[20])
@@ -3425,4 +3266,3 @@ codeunit 142062 "ERM Misc. Report III"
         Check.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-

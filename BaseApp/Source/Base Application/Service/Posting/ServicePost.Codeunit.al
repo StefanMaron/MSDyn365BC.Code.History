@@ -316,6 +316,7 @@ codeunit 5980 "Service-Post"
 
         if Invoice and (ServiceHeader."Document Type" <> ServiceHeader."Document Type"::"Credit Memo") then
             ServiceHeader.TestField(ServiceHeader."Due Date");
+        OnCheckAndSetConstantsOnBeforeSetPostingOptions(ServiceHeader, Invoice, Ship);
         SetPostingOptions(PassedShip, PassedConsume, PassedInvoice);
     end;
 
@@ -326,8 +327,10 @@ codeunit 5980 "Service-Post"
             ServiceHeader.Validate("Posting Date", PostingDate);
             ServiceHeader.Validate("Currency Code");
         end;
-        if PostingDateExists and (ReplaceDocumentDate or (ServiceHeader."Document Date" = 0D)) then
+        if PostingDateExists and (ReplaceDocumentDate or (ServiceHeader."Document Date" = 0D)) then begin
             ServiceHeader.Validate("Document Date", PostingDate);
+            OnValidatePostingAndDocumentDateOnAfterValidateDocumentDate(ServiceHeader);
+        end;
 
         OnAfterValidatePostingAndDocumentDate(ServiceHeader, PreviewMode);
     end;
@@ -379,13 +382,20 @@ codeunit 5980 "Service-Post"
     procedure SetPostingDate(NewReplacePostingDate: Boolean; NewReplaceDocumentDate: Boolean; NewPostingDate: Date)
     var
         IsHandled: Boolean;
+        SavedSuppressCommit: Boolean;
+        SavedHideValidationDialog: Boolean;
     begin
         IsHandled := false;
         OnBeforeSetPostingDate(PostingDateExists, ReplacePostingDate, ReplaceDocumentDate, PostingDate, IsHandled);
         if IsHandled then
             exit;
 
+        SavedSuppressCommit := SuppressCommit;
+        SavedHideValidationDialog := HideValidationDialog;
         ClearAll();
+        SuppressCommit := SavedSuppressCommit;
+        HideValidationDialog := SavedHideValidationDialog;
+
         PostingDateExists := true;
         ReplacePostingDate := NewReplacePostingDate;
         ReplaceDocumentDate := NewReplaceDocumentDate;
@@ -679,6 +689,11 @@ codeunit 5980 "Service-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidatePostingAndDocumentDateOnAfterValidateDocumentDate(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckAndSetPostingConstants(var ServiceHeader: Record "Service Header"; var ServDocumentsMgt: Codeunit "Serv-Documents Mgt."; var PassedShip: Boolean; var PassedConsume: Boolean; var PassedInvoice: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -785,6 +800,11 @@ codeunit 5980 "Service-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDateNotAllowedForServiceLine(var PassedServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckAndSetConstantsOnBeforeSetPostingOptions(var ServiceHeader: Record "Service Header"; Invoice: Boolean; Ship: Boolean)
     begin
     end;
 }

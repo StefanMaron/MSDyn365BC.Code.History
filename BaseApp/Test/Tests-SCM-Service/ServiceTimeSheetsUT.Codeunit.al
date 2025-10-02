@@ -54,7 +54,7 @@ codeunit 136510 "Service Time Sheets UT"
         Initialize();
 
         LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
-        LibraryTimeSheet.CreateServiceOrder(ServiceHeader, CalcDate('<+3D>', TimeSheetHeader."Starting Date"));
+        LibraryService.CreateServiceOrder(ServiceHeader, CalcDate('<+3D>', TimeSheetHeader."Starting Date"));
 
         // create time sheet line with type Service
         LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Service, '', '', '', '');
@@ -95,7 +95,7 @@ codeunit 136510 "Service Time Sheets UT"
         Initialize();
 
         LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
-        LibraryTimeSheet.CreateServiceOrder(ServiceHeader, CalcDate('<+3D>', TimeSheetHeader."Starting Date"));
+        LibraryService.CreateServiceOrder(ServiceHeader, CalcDate('<+3D>', TimeSheetHeader."Starting Date"));
 
         // create several time sheet line with type Service
         for RowCount := 1 to 3 do begin
@@ -132,12 +132,12 @@ codeunit 136510 "Service Time Sheets UT"
     begin
         Initialize();
         // test for function "Create lines from time sheets" for Service Order for few time sheets
-        LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
+        LibraryService.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
         TimeSheetNo[1] := TimeSheetHeader."No.";
 
         ServiceHeader.Find();
 
-        LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
+        LibraryService.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
         TimeSheetNo[2] := TimeSheetHeader."No.";
 
         ServTimeSheetMgt.CreateServDocLinesFromTS(ServiceHeader);
@@ -163,7 +163,7 @@ codeunit 136510 "Service Time Sheets UT"
         ModifyCopyTimeSheetLinesinServiceSetup(true);
 
         LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
-        LibraryTimeSheet.CreateServiceOrder(ServiceHeader, CalcDate('<+3D>', TimeSheetHeader."Starting Date"));
+        LibraryService.CreateServiceOrder(ServiceHeader, CalcDate('<+3D>', TimeSheetHeader."Starting Date"));
 
         // create several time sheet line with type Service
         NoOfTimeSheetLines := LibraryRandom.RandIntInRange(2, 10);
@@ -199,10 +199,10 @@ codeunit 136510 "Service Time Sheets UT"
     begin
         Initialize();
         // test for function "CreateServDocLinesFromTSLine" for Service Order from mulitple few time sheets
-        LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
+        LibraryService.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
 
         ServiceHeader.Find();
-        LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
+        LibraryService.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
         ServTimeSheetMgt.CreateServDocLinesFromTSLine(ServiceHeader, TimeSheetLine);
 
         // Verify: only one timesheet header was added to the service order.
@@ -226,7 +226,7 @@ codeunit 136510 "Service Time Sheets UT"
         Initialize();
         ModifyCopyTimeSheetLinesinServiceSetup(false);
         LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
-        LibraryTimeSheet.CreateServiceOrder(ServiceHeader, CalcDate('<+3D>', TimeSheetHeader."Starting Date"));
+        LibraryService.CreateServiceOrder(ServiceHeader, CalcDate('<+3D>', TimeSheetHeader."Starting Date"));
 
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type"::Order);
@@ -265,7 +265,7 @@ codeunit 136510 "Service Time Sheets UT"
     begin
         Initialize();
         // test for function "Create lines from time sheets" for line in time sheet with Chargeagle = No
-        LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
+        LibraryService.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
         TimeSheetLine.Validate(Chargeable, false);
         TimeSheetLine.Modify();
 
@@ -287,7 +287,7 @@ codeunit 136510 "Service Time Sheets UT"
     begin
         Initialize();
         // test for function "Create lines from time sheets" for Service Order
-        LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
+        LibraryService.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
 
         // create lines from time sheet
         ServTimeSheetMgt.CreateServDocLinesFromTS(ServiceHeader);
@@ -316,7 +316,7 @@ codeunit 136510 "Service Time Sheets UT"
         TimeSheetApprovalMgt: Codeunit "Time Sheet Approval Management";
     begin
         Initialize();
-        LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
+        LibraryService.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
         AddRowsWithDifferentTypes(TimeSheetHeader, TimeSheetLine);
 
         // set quantities for lines
@@ -366,7 +366,7 @@ codeunit 136510 "Service Time Sheets UT"
           DefaultDimension, TimeSheetHeader."Resource No.", Dimension.Code, DimensionValue.Code);
 
         // create service order (or credit memo)
-        LibraryTimeSheet.CreateServiceOrder(ServiceHeader, CalcDate('<+3D>', TimeSheetHeader."Starting Date"));
+        LibraryService.CreateServiceOrder(ServiceHeader, CalcDate('<+3D>', TimeSheetHeader."Starting Date"));
 
         // create time sheet line with type Service
         LibraryTimeSheet.CreateTimeSheetLine(
@@ -404,7 +404,7 @@ codeunit 136510 "Service Time Sheets UT"
         ManagerTimeSheet: TestPage "Manager Time Sheet";
     begin
         Initialize();
-        LibraryTimeSheet.InitScenarioWTForServiceOrder(TimeSheetHeader, ServiceHeader);
+        LibraryService.InitScenarioWTForServiceOrder(TimeSheetHeader, ServiceHeader);
 
         // create work type
         Resource.Get(TimeSheetHeader."Resource No.");

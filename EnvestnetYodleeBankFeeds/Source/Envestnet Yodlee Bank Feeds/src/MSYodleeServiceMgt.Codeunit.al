@@ -615,70 +615,6 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         exit(true);
     end;
 
-#if not CLEAN24
-#pragma warning disable AL0432
-    [NonDebuggable]
-    [Obsolete('Use RegisterConsumer with SecretText data type for Password parameter.', '24.0')]
-    procedure RegisterConsumer(var Username: Text[250]; var Password: Text; var ErrorText: Text; CobrandToken: Text): Boolean;
-    var
-        MSYodleeBankServiceSetup: Record "MS - Yodlee Bank Service Setup";
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        PasswordHelper: Codeunit "Password Helper";
-        Response: Text;
-        LcyCode: Text;
-        Email: Text;
-        AuthorizationHeaderValue: Text;
-        AlphanumericCharsTxt: Text;
-    begin
-        AlphanumericCharsTxt := 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        CheckServiceEnabled();
-        Username := DelChr(CompanyName(), '=', DelChr(CompanyName(), '=', AlphanumericCharsTxt)) + '_' + FORMAT(CREATEGUID());
-
-        GeneralLedgerSetup.GET();
-        GeneralLedgerSetup.TESTFIELD("LCY Code");
-        LcyCode := GeneralLedgerSetup."LCY Code";
-
-        MSYodleeBankServiceSetup.GET();
-        Email := MSYodleeBankServiceSetup."User Profile Email Address";
-
-        if ClientCredentialsAuthEnabled() then
-            AuthorizationHeaderValue := YodleeAPIStrings.GetAuthorizationHeaderValue(CobrandToken)
-        else begin
-            AuthorizationHeaderValue := YodleeAPIStrings.GetAuthorizationHeaderValue(CobrandToken, '');
-            Password := COPYSTR(PasswordHelper.GeneratePassword(50), 1, 50);
-        end;
-
-        Session.LogMessage('0000DL9', StrSubstNo(StartingToRegisterUserTxt, UserName, LcyCode), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', YodleeTelemetryCategoryTok);
-        ExecuteWebServiceRequest(YodleeAPIStrings.GetRegisterConsumerURL(), 'POST',
-            YodleeAPIStrings.GetRegisterConsumerBody(CobrandToken, UserName, Password, Email, LcyCode), AuthorizationHeaderValue,
-            ErrorText, '');
-
-        if not GetResponseValue('/', Response, ErrorText) then begin
-            ErrorText := GetAdjustedErrorText(ErrorText, FailedRegisterConsumerTxt);
-            if IsStaleCredentialsErr(ErrorText) then begin
-                ErrorText := StaleCredentialsErr;
-                LogActivityFailed(RegisterConsumerTxt, ErrorText, FailureAction::RethrowError, '', StrSubstNo(TelemetryActivityFailureTxt, RegisterConsumerTxt, ErrorText), Verbosity::Warning);
-                exit(false);
-            end;
-            if ErrorText.Contains(BankStmtServiceStaleIllegalArgumentValueExceptionTxt) then begin
-                ErrorText := RegisterConsumerVerifyLCYCodeTxt;
-                LogActivityFailed(RegisterConsumerTxt, ErrorText, FailureAction::RethrowError, '', StrSubstNo(TelemetryActivityFailureTxt, RegisterConsumerTxt, ErrorText), Verbosity::Warning);
-            end else
-                LogActivityFailed(RegisterConsumerTxt, ErrorText, FailureAction::RethrowError, '', StrSubstNo(TelemetryActivityFailureTxt, RegisterConsumerTxt, ErrorText), Verbosity::Error);
-
-            exit(false);
-        end;
-
-        LogActivitySucceed(RegisterConsumerTxt, SuccessRegisterConsumerTxt, StrSubstNo(TelemetryActivitySuccessTxt, RegisterConsumerTxt, SuccessRegisterConsumerTxt));
-
-        MSYodleeBankServiceSetup.VALIDATE("Consumer Name", COPYSTR(Username, 1, MAXSTRLEN(MSYodleeBankServiceSetup."Consumer Name")));
-        MSYodleeBankServiceSetup.SaveConsumerPassword(MSYodleeBankServiceSetup."Consumer Password", Password);
-        MSYodleeBankServiceSetup.MODIFY(true);
-        StoreConsumerName(MSYodleeBankServiceSetup."Consumer Name");
-        exit(true);
-    end;
-#pragma warning restore AL0432
-#endif
 
     [NonDebuggable]
     procedure RegisterConsumer(var Username: Text[250]; var Password: SecretText; var ErrorText: Text; CobrandToken: Text): Boolean;
@@ -3107,7 +3043,6 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         Session.LogMessage('00001QG', Message, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', YodleeTelemetryCategoryTok);
     end;
 }
-
 
 
 

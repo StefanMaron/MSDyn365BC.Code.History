@@ -211,6 +211,8 @@ report 5500 "Prod. Order Comp. and Routing"
 
     requestpage
     {
+        AboutTitle = 'About Prod. Order Comp. and Routing';
+        AboutText = 'This report provides a summary of the lines, components, and routings of a production order. It helps you monitor quantities, timing, and dependencies, aiding in better planning and material coordination.';
 
         layout
         {

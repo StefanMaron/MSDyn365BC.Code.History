@@ -79,6 +79,12 @@ page 5935 "Service Credit Memo"
                         ApplicationArea = Service;
                         ToolTip = 'Specifies the name of the customer to whom the items on the document will be shipped.';
                     }
+                    field("Name 2"; Rec."Name 2")
+                    {
+                        ApplicationArea = Service;
+                        QuickEntry = false;
+                        Visible = false;
+                    }
                     field(Address; Rec.Address)
                     {
                         ApplicationArea = Service;
@@ -90,6 +96,12 @@ page 5935 "Service Credit Memo"
                         ApplicationArea = Service;
                         QuickEntry = false;
                         ToolTip = 'Specifies additional address information.';
+                    }
+                    field(City; Rec.City)
+                    {
+                        ApplicationArea = Service;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the city of the address.';
                     }
                     group(Control13)
                     {
@@ -107,12 +119,6 @@ page 5935 "Service Credit Memo"
                         ApplicationArea = Service;
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code.';
-                    }
-                    field(City; Rec.City)
-                    {
-                        ApplicationArea = Service;
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the city of the address.';
                     }
                     field("Country/Region Code"; Rec."Country/Region Code")
                     {
@@ -264,6 +270,14 @@ page 5935 "Service Credit Memo"
                         Caption = 'Name';
                         ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
                     }
+                    field("Bill-to Name 2"; Rec."Bill-to Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        Visible = false;
+                    }
                     field("Bill-to Address"; Rec."Bill-to Address")
                     {
                         ApplicationArea = Service;
@@ -277,6 +291,13 @@ page 5935 "Service Credit Memo"
                         Caption = 'Address 2';
                         QuickEntry = false;
                         ToolTip = 'Specifies an additional line of the address.';
+                    }
+                    field("Bill-to City"; Rec."Bill-to City")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'City';
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the city of the address.';
                     }
                     group(Control21)
                     {
@@ -296,13 +317,6 @@ page 5935 "Service Credit Memo"
                         Caption = 'Post Code';
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code of the customer''s billing address.';
-                    }
-                    field("Bill-to City"; Rec."Bill-to City")
-                    {
-                        ApplicationArea = Service;
-                        Caption = 'City';
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the city of the address.';
                     }
                     field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
                     {
@@ -476,6 +490,13 @@ page 5935 "Service Credit Memo"
                         QuickEntry = false;
                         ToolTip = 'Specifies an additional part of the ship-to address, in case it is a long address.';
                     }
+                    field("Ship-to City"; Rec."Ship-to City")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'City';
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the city of the address that the items are shipped to.';
+                    }
                     group(Control29)
                     {
                         ShowCaption = false;
@@ -494,13 +515,6 @@ page 5935 "Service Credit Memo"
                         Caption = 'Post Code';
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
-                    }
-                    field("Ship-to City"; Rec."Ship-to City")
-                    {
-                        ApplicationArea = Service;
-                        Caption = 'City';
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the city of the address that the items are shipped to.';
                     }
                     field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                     {
@@ -1089,12 +1103,14 @@ page 5935 "Service Credit Memo"
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
-        IsPostingGroupEditable: Boolean;
         ServiceDocCheckFactboxVisible: Boolean;
         IsServiceLinesEditable: Boolean;
         ExternalDocNoMandatory: Boolean;
         VATDateEnabled: Boolean;
         DocNoVisible: Boolean;
+
+    protected var
+        IsPostingGroupEditable: Boolean;
 
     local procedure ActivateFields()
     begin

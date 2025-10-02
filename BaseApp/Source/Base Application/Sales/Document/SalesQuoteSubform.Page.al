@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Document;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Assembly.Setup;
@@ -1169,13 +1173,13 @@ page 95 "Sales Quote Subform"
     var
         SalesLineReserve: Codeunit "Sales Line-Reserve";
     begin
-        if (Rec.Quantity <> 0) and Rec.ItemExists(Rec."No.") then begin
-            Commit();
-            if not SalesLineReserve.DeleteLineConfirm(Rec) then
-                exit(false);
-            OnDeleteRecordOnBeforeSalesLineReserveDeleteLine(Rec);
-            SalesLineReserve.DeleteLine(Rec);
-        end;
+        if Rec.Quantity <> 0 then
+            if Rec.ItemExists(Rec."No.") then begin
+                if not SalesLineReserve.DeleteLineConfirm(Rec) then
+                    exit(false);
+                OnDeleteRecordOnBeforeSalesLineReserveDeleteLine(Rec);
+                SalesLineReserve.DeleteLine(Rec);
+            end;
         DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 

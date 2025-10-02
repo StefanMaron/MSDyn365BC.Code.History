@@ -4,9 +4,11 @@ using System.IO;
 using Microsoft.Inventory.Item;
 using Microsoft.Sales.Customer;
 
+#pragma warning disable AA0210
 codeunit 148158 "Link Subscription To SO Test"
 {
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
     Access = Internal;
 
@@ -296,7 +298,8 @@ codeunit 148158 "Link Subscription To SO Test"
         UsageDataGenericImport.SetRange("Supp. Subscription ID", UsageDataSubscription."Supplier Reference");
         UsageDataGenericImport.SetRange("Subscription Header No.", ServiceCommitment."Subscription Header No.");
         UsageDataGenericImport.SetRange("Service Object Availability", UsageDataGenericImport."Service Object Availability"::Connected);
-        UsageDataGenericImport.FindFirst();
+        if UsageDataGenericImport.IsEmpty() then
+            Error('Usage Data Generic Import is empty. It should contain records with Subscription Header No. %1 and Supp. Subscription ID %2.', ServiceCommitment."Subscription Header No.", UsageDataSubscription."Supplier Reference");
     end;
 
     local procedure GetNumberOfCustomerContractLines(FilterClosed: Boolean): Integer
@@ -448,3 +451,4 @@ codeunit 148158 "Link Subscription To SO Test"
 
     #endregion Handlers
 }
+#pragma warning restore AA0210

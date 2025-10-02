@@ -9,6 +9,10 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
 
+/// <summary>
+/// Represents individual direct debit transactions within a collection, linking customer ledger entries
+/// to specific direct debit mandates and managing the transaction lifecycle from creation to posting.
+/// </summary>
 table 1208 "Direct Debit Collection Entry"
 {
     Caption = 'Direct Debit Collection Entry';
@@ -19,15 +23,24 @@ table 1208 "Direct Debit Collection Entry"
 
     fields
     {
+        /// <summary>
+        /// Reference to the parent direct debit collection that contains this entry.
+        /// </summary>
         field(1; "Direct Debit Collection No."; Integer)
         {
             Caption = 'Direct Debit Collection No.';
             TableRelation = "Direct Debit Collection";
         }
+        /// <summary>
+        /// Sequential entry number within the direct debit collection.
+        /// </summary>
         field(2; "Entry No."; Integer)
         {
             Caption = 'Entry No.';
         }
+        /// <summary>
+        /// Customer from whom the direct debit amount will be collected.
+        /// </summary>
         field(3; "Customer No."; Code[20])
         {
             Caption = 'Customer No.';
@@ -39,6 +52,9 @@ table 1208 "Direct Debit Collection Entry"
                     TestField(Status, Status::New);
             end;
         }
+        /// <summary>
+        /// Customer ledger entry that this direct debit entry applies to, typically an invoice or reminder.
+        /// </summary>
         field(4; "Applies-to Entry No."; Integer)
         {
             Caption = 'Applies-to Entry No.';
@@ -81,18 +97,29 @@ table 1208 "Direct Debit Collection Entry"
                 end;
             end;
         }
+        /// <summary>
+        /// Scheduled date when the direct debit collection will be processed.
+        /// </summary>
         field(5; "Transfer Date"; Date)
         {
             Caption = 'Transfer Date';
         }
+        /// <summary>
+        /// Currency code of the transaction, inherited from the customer ledger entry.
+        /// </summary>
         field(6; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             Editable = false;
             TableRelation = Currency;
         }
+        /// <summary>
+        /// Amount to be collected via direct debit from the customer.
+        /// </summary>
         field(7; "Transfer Amount"; Decimal)
         {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Transfer Amount';
 
             trigger OnValidate()
@@ -114,11 +141,17 @@ table 1208 "Direct Debit Collection Entry"
                     Error(LargerThanRemainingErr, CustLedgEntry."Remaining Amount", CustLedgEntry."Currency Code");
             end;
         }
+        /// <summary>
+        /// Unique identifier for the transaction, used in SEPA XML files for tracking purposes.
+        /// </summary>
         field(8; "Transaction ID"; Text[35])
         {
             Caption = 'Transaction ID';
             Editable = false;
         }
+        /// <summary>
+        /// SEPA sequence type indicating whether this is a one-off, first, recurring, or last transaction.
+        /// </summary>
         field(9; "Sequence Type"; Option)
         {
             Caption = 'Sequence Type';
@@ -126,6 +159,9 @@ table 1208 "Direct Debit Collection Entry"
             OptionCaption = 'One Off,First,Recurring,Last';
             OptionMembers = "One Off",First,Recurring,Last;
         }
+        /// <summary>
+        /// Current processing status of the direct debit entry.
+        /// </summary>
         field(10; Status; Option)
         {
             Caption = 'Status';
@@ -133,6 +169,9 @@ table 1208 "Direct Debit Collection Entry"
             OptionCaption = 'New,File Created,Rejected,Posted';
             OptionMembers = New,"File Created",Rejected,Posted;
         }
+        /// <summary>
+        /// SEPA direct debit mandate identifier that authorizes this collection.
+        /// </summary>
         field(11; "Mandate ID"; Code[35])
         {
             Caption = 'Mandate ID';
@@ -148,6 +187,9 @@ table 1208 "Direct Debit Collection Entry"
                 "Sequence Type" := SEPADirectDebitMandate.GetSequenceType();
             end;
         }
+        /// <summary>
+        /// Payment type specified in the mandate (one-off or recurrent), calculated from the mandate.
+        /// </summary>
         field(12; "Mandate Type of Payment"; Option)
         {
             CalcFormula = lookup("SEPA Direct Debit Mandate"."Type of Payment" where(ID = field("Mandate ID")));
@@ -157,6 +199,9 @@ table 1208 "Direct Debit Collection Entry"
             OptionCaption = 'One Off,Recurrent';
             OptionMembers = "One Off",Recurrent;
         }
+        /// <summary>
+        /// Name of the customer, retrieved from the customer master data.
+        /// </summary>
         field(13; "Customer Name"; Text[100])
         {
             CalcFormula = lookup(Customer.Name where("No." = field("Customer No.")));
@@ -164,6 +209,9 @@ table 1208 "Direct Debit Collection Entry"
             Editable = false;
             FieldClass = FlowField;
         }
+        /// <summary>
+        /// Document number of the customer ledger entry this collection applies to.
+        /// </summary>
         field(14; "Applies-to Entry Document No."; Code[20])
         {
             CalcFormula = lookup("Cust. Ledger Entry"."Document No." where("Entry No." = field("Applies-to Entry No.")));
@@ -171,6 +219,9 @@ table 1208 "Direct Debit Collection Entry"
             Editable = false;
             FieldClass = FlowField;
         }
+        /// <summary>
+        /// Description of the customer ledger entry this collection applies to.
+        /// </summary>
         field(15; "Applies-to Entry Description"; Text[100])
         {
             CalcFormula = lookup("Cust. Ledger Entry".Description where("Entry No." = field("Applies-to Entry No.")));
@@ -178,6 +229,9 @@ table 1208 "Direct Debit Collection Entry"
             Editable = false;
             FieldClass = FlowField;
         }
+        /// <summary>
+        /// Posting date of the customer ledger entry this collection applies to.
+        /// </summary>
         field(16; "Applies-to Entry Posting Date"; Date)
         {
             CalcFormula = lookup("Cust. Ledger Entry"."Posting Date" where("Entry No." = field("Applies-to Entry No.")));
@@ -185,6 +239,9 @@ table 1208 "Direct Debit Collection Entry"
             Editable = false;
             FieldClass = FlowField;
         }
+        /// <summary>
+        /// Currency code of the customer ledger entry this collection applies to.
+        /// </summary>
         field(17; "Applies-to Entry Currency Code"; Code[10])
         {
             CalcFormula = lookup("Cust. Ledger Entry"."Currency Code" where("Entry No." = field("Applies-to Entry No.")));
@@ -193,6 +250,9 @@ table 1208 "Direct Debit Collection Entry"
             FieldClass = FlowField;
             TableRelation = Currency;
         }
+        /// <summary>
+        /// Total amount of the customer ledger entry this collection applies to.
+        /// </summary>
         field(18; "Applies-to Entry Amount"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -203,6 +263,9 @@ table 1208 "Direct Debit Collection Entry"
             Editable = false;
             FieldClass = FlowField;
         }
+        /// <summary>
+        /// Remaining amount on the customer ledger entry that this collection applies to.
+        /// </summary>
         field(19; "Applies-to Entry Rem. Amount"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -212,6 +275,9 @@ table 1208 "Direct Debit Collection Entry"
             Editable = false;
             FieldClass = FlowField;
         }
+        /// <summary>
+        /// Indicates whether the customer ledger entry this collection applies to is still open.
+        /// </summary>
         field(20; "Applies-to Entry Open"; Boolean)
         {
             CalcFormula = lookup("Cust. Ledger Entry".Open where("Entry No." = field("Applies-to Entry No.")));
@@ -219,6 +285,9 @@ table 1208 "Direct Debit Collection Entry"
             Editable = false;
             FieldClass = FlowField;
         }
+        /// <summary>
+        /// Status of the parent direct debit collection, retrieved from the collection header.
+        /// </summary>
         field(21; "Direct Debit Collection Status"; Option)
         {
             CalcFormula = lookup("Direct Debit Collection".Status where("No." = field("Direct Debit Collection No.")));
@@ -227,6 +296,9 @@ table 1208 "Direct Debit Collection Entry"
             OptionCaption = 'New,Canceled,File Created,Posted,Closed';
             OptionMembers = New,Canceled,"File Created",Posted,Closed;
         }
+        /// <summary>
+        /// Payment reference from the customer ledger entry, used for reconciliation purposes.
+        /// </summary>
         field(22; "Payment Reference"; Code[50])
         {
             CalcFormula = lookup("Cust. Ledger Entry"."Payment Reference" where("Entry No." = field("Applies-to Entry No.")));
@@ -234,6 +306,9 @@ table 1208 "Direct Debit Collection Entry"
             Editable = false;
             FieldClass = FlowField;
         }
+        /// <summary>
+        /// Optional message to be included in the direct debit instruction for the recipient.
+        /// </summary>
         field(23; "Message to Recipient"; Text[140])
         {
             Caption = 'Message to Recipient';
@@ -285,6 +360,11 @@ table 1208 "Direct Debit Collection Entry"
         LargerThanRemainingErr: Label 'You cannot collect an amount that is larger than the remaining amount for the invoice (%1 %2) that is not on other collection entries.', Comment = '%1 = an amount. %2 = currency code, e.g. 123.45 EUR';
         RejectQst: Label 'Do you want to reject this collection entry?';
 
+    /// <summary>
+    /// Creates a new direct debit collection entry based on a customer ledger entry.
+    /// </summary>
+    /// <param name="DirectDebitCollectionNo">Collection number to associate this entry with</param>
+    /// <param name="CustLedgerEntry">Customer ledger entry to create the collection for</param>
     procedure CreateNew(DirectDebitCollectionNo: Integer; CustLedgerEntry: Record "Cust. Ledger Entry")
     var
         IsHandled: Boolean;
@@ -307,6 +387,9 @@ table 1208 "Direct Debit Collection Entry"
             CODEUNIT.Run(CODEUNIT::"SEPA DD-Check Line", Rec);
     end;
 
+    /// <summary>
+    /// Removes payment file errors associated with this collection entry.
+    /// </summary>
     procedure DeletePaymentFileErrors()
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -315,6 +398,10 @@ table 1208 "Direct Debit Collection Entry"
         GenJnlLine.DeletePaymentFileErrors();
     end;
 
+    /// <summary>
+    /// Checks if any payment file errors exist for this collection entry.
+    /// </summary>
+    /// <returns>True if payment file errors are found</returns>
     procedure HasPaymentFileErrors(): Boolean
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -323,6 +410,9 @@ table 1208 "Direct Debit Collection Entry"
         exit(GenJnlLine.HasPaymentFileErrors());
     end;
 
+    /// <summary>
+    /// Initiates SEPA direct debit export process for this collection entry.
+    /// </summary>
     procedure ExportSEPA()
     var
         IsHandled: Boolean;
@@ -333,6 +423,10 @@ table 1208 "Direct Debit Collection Entry"
             CODEUNIT.Run(CODEUNIT::"SEPA DD-Export File", Rec);
     end;
 
+    /// <summary>
+    /// Creates a payment file error entry with specified text.
+    /// </summary>
+    /// <param name="Text">Error message text</param>
     procedure InsertPaymentFileError(Text: Text)
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -341,6 +435,11 @@ table 1208 "Direct Debit Collection Entry"
         GenJnlLine.InsertPaymentFileError(Text);
     end;
 
+    /// <summary>
+    /// Creates a payment file error entry with additional details.
+    /// </summary>
+    /// <param name="ErrorText">Primary error message</param>
+    /// <param name="AddnlInfo">Additional information about the error</param>
     procedure InsertPaymentFileErrorWithDetails(ErrorText: Text; AddnlInfo: Text)
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -349,6 +448,9 @@ table 1208 "Direct Debit Collection Entry"
         GenJnlLine.InsertPaymentFileErrorWithDetails(ErrorText, AddnlInfo, '');
     end;
 
+    /// <summary>
+    /// Rejects the collection entry and rolls back the mandate sequence type if applicable.
+    /// </summary>
     procedure Reject()
     var
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
@@ -390,6 +492,10 @@ table 1208 "Direct Debit Collection Entry"
         GenJnlLine."Line No." := "Entry No.";
     end;
 
+    /// <summary>
+    /// Calculates the total amount already allocated to other active collections for the same customer ledger entry.
+    /// </summary>
+    /// <returns>Amount already allocated in other collections</returns>
     procedure GetAmountInActiveCollections(): Decimal
     var
         DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
@@ -410,6 +516,9 @@ table 1208 "Direct Debit Collection Entry"
         exit(AmountAlreadyInCollection);
     end;
 
+    /// <summary>
+    /// Updates transfer dates to today for all overdue entries in the same collection.
+    /// </summary>
     procedure SetTodayAsTransferDateForOverdueEnries()
     var
         DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
@@ -425,49 +534,95 @@ table 1208 "Direct Debit Collection Entry"
             until DirectDebitCollectionEntry.Next() = 0;
     end;
 
+    /// <summary>
+    /// Integration event that allows customization of SEPA validation checks.
+    /// </summary>
+    /// <param name="DirectDebitCollectionEntry">The collection entry being validated</param>
+    /// <param name="IsHandled">Whether the event has been handled by subscribers</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckSEPA(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event that allows customization of customer ledger entry amount validation.
+    /// </summary>
+    /// <param name="CustLedgerEntry">The customer ledger entry being validated</param>
+    /// <param name="IsHandled">Whether the event has been handled by subscribers</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCustLedgerEntryAmountPositive(var CustLedgerEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event that allows customization of document type validation logic.
+    /// </summary>
+    /// <param name="CustLedgerEntry">The customer ledger entry being validated</param>
+    /// <param name="AlllowedDocumentType">Whether the document type is allowed</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDocTypeErr(CustLedgerEntry: Record "Cust. Ledger Entry"; var AlllowedDocumentType: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event that allows customization of SEPA export processing.
+    /// </summary>
+    /// <param name="DirectDebitCollectionEntry">The collection entry being exported</param>
+    /// <param name="IsHandled">Whether the event has been handled by subscribers</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeExportSEPA(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event for customizing primary key transfer to general journal line.
+    /// </summary>
+    /// <param name="DirectDebitCollectionEntry">The collection entry being processed</param>
+    /// <param name="GenJnlLine">The general journal line receiving the primary key</param>
+    /// <param name="IsHandled">Whether the event has been handled by subscribers</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferPKToGenJnlLine(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event that allows customization of transfer amount validation.
+    /// </summary>
+    /// <param name="DirectDebitCollectionEntry">The collection entry being validated</param>
+    /// <param name="IsHandled">Whether the event has been handled by subscribers</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateTransferAmount(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event triggered before inserting a new collection entry.
+    /// </summary>
+    /// <param name="CustLedgerEntry">The customer ledger entry used to create the collection</param>
+    /// <param name="DirectDebitCollectionEntry">The collection entry being created</param>
     [IntegrationEvent(false, false)]
     local procedure OnCreateNewOnBeforeInsert(CustLedgerEntry: Record "Cust. Ledger Entry"; var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event triggered after inserting a new collection entry.
+    /// </summary>
+    /// <param name="CustLedgerEntry">The customer ledger entry used to create the collection</param>
+    /// <param name="DirectDebitCollectionEntry">The collection entry that was created</param>
     [IntegrationEvent(false, false)]
     local procedure OnCreateNewOnAfterInsert(CustLedgerEntry: Record "Cust. Ledger Entry"; var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event triggered after transferring fields from customer ledger entry during validation.
+    /// </summary>
+    /// <param name="DirectDebitCollectionEntry">The collection entry being validated</param>
+    /// <param name="xDirectDebitCollectionEntry">The previous state of the collection entry</param>
+    /// <param name="CustLedgerEntry">The customer ledger entry being applied</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateAppliesToEntryNoOnAfterTransferCustLedgerEntryFields(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; xDirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }
-

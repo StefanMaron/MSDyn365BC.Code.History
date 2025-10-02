@@ -148,11 +148,11 @@ page 5845 "Inventory - G/L Reconciliation"
                         if InvtReportHeader."Column Option" = InvtReportHeader."Line Option"::"Income Statement" then
                             if (ItemFilter = '') and (LocationFilter = '') then begin
                                 if ShowWarning then
-                                    ColIntegerLine.SetRange(Number, 1, 18)
+                                    ColIntegerLine.SetRange(Number, 1, 19)
                                 else
-                                    ColIntegerLine.SetRange(Number, 1, 17)
+                                    ColIntegerLine.SetRange(Number, 1, 18)
                             end else
-                                ColIntegerLine.SetRange(Number, 1, 15);
+                                ColIntegerLine.SetRange(Number, 1, 16);
                     i := 1;
 
                     if FindRec(InvtReportHeader."Column Option", MatrixRecords[i], '-', false) then begin
@@ -201,11 +201,11 @@ page 5845 "Inventory - G/L Reconciliation"
             if InvtReportHeader."Line Option" = InvtReportHeader."Line Option"::"Income Statement" then
                 if (ItemFilter = '') and (LocationFilter = '') then begin
                     if ShowWarning then
-                        RowIntegerLine.SetRange(Number, 1, 18)
+                        RowIntegerLine.SetRange(Number, 1, 19)
                     else
-                        RowIntegerLine.SetRange(Number, 1, 17)
+                        RowIntegerLine.SetRange(Number, 1, 18)
                 end else
-                    RowIntegerLine.SetRange(Number, 1, 15);
+                    RowIntegerLine.SetRange(Number, 1, 16);
         exit(FindRec(InvtReportHeader."Line Option", Rec, Which, true));
     end;
 
@@ -360,21 +360,23 @@ page 5845 "Inventory - G/L Reconciliation"
                     10:
                         InsertRow('10', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Material Variance"), 0, false, TheDimCodeBuf);
                     11:
-                        InsertRow('11', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Capacity Variance"), 0, false, TheDimCodeBuf);
+                        InsertRow('11', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Mat. Non-Inventory Variance"), 0, false, TheDimCodeBuf);
                     12:
-                        InsertRow('12', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Subcontracted Variance"), 0, false, TheDimCodeBuf);
+                        InsertRow('12', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Capacity Variance"), 0, false, TheDimCodeBuf);
                     13:
-                        InsertRow('13', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Capacity Overhead Variance"), 0, false, TheDimCodeBuf);
+                        InsertRow('13', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Subcontracted Variance"), 0, false, TheDimCodeBuf);
                     14:
-                        InsertRow('14', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Mfg. Overhead Variance"), 0, false, TheDimCodeBuf);
+                        InsertRow('14', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Capacity Overhead Variance"), 0, false, TheDimCodeBuf);
                     15:
-                        InsertRow('15', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Total), 0, true, TheDimCodeBuf);
+                        InsertRow('15', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Mfg. Overhead Variance"), 0, false, TheDimCodeBuf);
                     16:
-                        InsertRow('16', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."G/L Total"), 0, true, TheDimCodeBuf);
+                        InsertRow('16', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Total), 0, true, TheDimCodeBuf);
                     17:
-                        InsertRow('17', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Difference), 0, true, TheDimCodeBuf);
+                        InsertRow('17', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."G/L Total"), 0, true, TheDimCodeBuf);
                     18:
-                        InsertRow('18', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Warning), 0, true, TheDimCodeBuf);
+                        InsertRow('18', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Difference), 0, true, TheDimCodeBuf);
+                    19:
+                        InsertRow('19', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Warning), 0, true, TheDimCodeBuf);
                 end;
         end
     end;

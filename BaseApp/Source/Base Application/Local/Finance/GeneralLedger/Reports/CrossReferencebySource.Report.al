@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -21,17 +21,9 @@ report 10010 "Cross Reference by Source"
     {
         dataitem("G/L Register"; "G/L Register")
         {
-#if not CLEAN24
-            DataItemTableView = sorting("Source Code", "Journal Batch Name", "Creation Date");
-#else
             DataItemTableView = sorting("Source Code", "Journal Batch Name");
-#endif
             PrintOnlyIfDetail = true;
-#if not CLEAN24
-            RequestFilterFields = "No.", "Source Code", "Journal Batch Name", "Creation Date";
-#else
             RequestFilterFields = "No.", "Source Code", "Journal Batch Name";
-#endif
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
@@ -239,4 +231,3 @@ report 10010 "Cross Reference by Source"
         CurrReportPageNoCaptionLbl: Label 'Page';
         PostingDateCaptionLbl: Label 'Posting Date';
 }
-

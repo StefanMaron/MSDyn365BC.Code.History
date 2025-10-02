@@ -67,6 +67,7 @@ codeunit 142055 "UT REP Vendor 1099"
         LibraryLocalFunctionality: Codeunit "Library - Local Functionality";
         AmountErr: Label 'Wrong value of Amount.';
         UnkownCodeErr: Label 'Invoice %1 for vendor %2 has unknown 1099 code %3.', Comment = '%1 = document number;%2 = vendor number;%3 = IRS 1099 code.';
+        UseNewIRSFormsFeatureMsg: Label 'Use the new IRS Forms feature';
 
     [HandlerFunctions('Vendor1099DivRPH')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -919,7 +920,7 @@ codeunit 142055 "UT REP Vendor 1099"
     end;
 
     [Test]
-    [HandlerFunctions('Vendor1099Misc2022DoNothingRPH')]
+    [HandlerFunctions('Vendor1099Misc2022DoNothingRPH,UseNewIRSFormsFeatureMessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure Vendor1099MiscReportRunsFromTheVendorCard()
@@ -1331,7 +1332,7 @@ codeunit 142055 "UT REP Vendor 1099"
     end;
 
     [Test]
-    [HandlerFunctions('Vendor1099Div2022RPH')]
+    [HandlerFunctions('Vendor1099Div2022RPH,UseNewIRSFormsFeatureMessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure PrintVendor1099Div2022()
@@ -1353,7 +1354,7 @@ codeunit 142055 "UT REP Vendor 1099"
     end;
 
     [Test]
-    [HandlerFunctions('Vendor1099Int2022RPH')]
+    [HandlerFunctions('Vendor1099Int2022RPH,UseNewIRSFormsFeatureMessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure PrintVendor1099Int2022()
@@ -1375,7 +1376,7 @@ codeunit 142055 "UT REP Vendor 1099"
     end;
 
     [Test]
-    [HandlerFunctions('Vendor1099Misc2022RPH')]
+    [HandlerFunctions('Vendor1099Misc2022RPH,UseNewIRSFormsFeatureMessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure PrintVendor1099Misc2022()
@@ -1397,7 +1398,7 @@ codeunit 142055 "UT REP Vendor 1099"
     end;
 
     [Test]
-    [HandlerFunctions('Vendor1099Nec2022RPH')]
+    [HandlerFunctions('Vendor1099Nec2022RPH,UseNewIRSFormsFeatureMessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure PrintVendor1099Nec2022()
@@ -1522,7 +1523,7 @@ codeunit 142055 "UT REP Vendor 1099"
 
 
     [Test]
-    [HandlerFunctions('Vendor1099Nec2022ChangeCurrYearRPH')]
+    [HandlerFunctions('Vendor1099Nec2022ChangeCurrYearRPH,UseNewIRSFormsFeatureMessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure ChangeYearInNec2022Report()
@@ -1555,7 +1556,7 @@ codeunit 142055 "UT REP Vendor 1099"
     end;
 
     [Test]
-    [HandlerFunctions('Vendor1099Div2022TestPrintRPH')]
+    [HandlerFunctions('Vendor1099Div2022TestPrintRPH,UseNewIRSFormsFeatureMessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure Vendor1099Div2022WithTestPrintOption()
@@ -1624,7 +1625,7 @@ codeunit 142055 "UT REP Vendor 1099"
     end;
 
     [Test]
-    [HandlerFunctions('Vendor1099Div2022RPH')]
+    [HandlerFunctions('Vendor1099Div2022RPH,UseNewIRSFormsFeatureMessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure Vendor1099DivReportShowAmountOnlyAdjustment()
@@ -1653,7 +1654,7 @@ codeunit 142055 "UT REP Vendor 1099"
     end;
 
     [Test]
-    [HandlerFunctions('Vendor1099Misc2022RPH')]
+    [HandlerFunctions('Vendor1099Misc2022RPH,UseNewIRSFormsFeatureMessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure Vendor1099MiscReportShowAmountOnlyAdjustment()
@@ -1682,7 +1683,7 @@ codeunit 142055 "UT REP Vendor 1099"
     end;
 
     [Test]
-    [HandlerFunctions('Vendor1099Nec2022RPH')]
+    [HandlerFunctions('Vendor1099Nec2022RPH,UseNewIRSFormsFeatureMessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure Vendor1099NecReportShowAmountOnlyAdjustment()
@@ -1711,7 +1712,7 @@ codeunit 142055 "UT REP Vendor 1099"
     end;
 
     [Test]
-    [HandlerFunctions('Vendor1099Int2022RPH')]
+    [HandlerFunctions('Vendor1099Int2022RPH,UseNewIRSFormsFeatureMessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure Vendor1099IntReportShowAmountOnlyAdjustment()
@@ -1740,7 +1741,7 @@ codeunit 142055 "UT REP Vendor 1099"
     end;
 
     [Test]
-    [HandlerFunctions('Vendor1099Misc2022RPH')]
+    [HandlerFunctions('Vendor1099Misc2022RPH,UseNewIRSFormsFeatureMessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure Vendor1099Misc2022Refund()
@@ -1771,7 +1772,7 @@ codeunit 142055 "UT REP Vendor 1099"
     end;
 
     [Test]
-    [HandlerFunctions('Vendor1099Div2022RPH')]
+    [HandlerFunctions('Vendor1099Div2022RPH,UseNewIRSFormsFeatureMessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure Vendor1099Div2022Refund()
@@ -1802,7 +1803,7 @@ codeunit 142055 "UT REP Vendor 1099"
     end;
 
     [Test]
-    [HandlerFunctions('Vendor1099Nec2022RPH')]
+    [HandlerFunctions('Vendor1099Nec2022RPH,UseNewIRSFormsFeatureMessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure Vendor1099Nec2022Refund()
@@ -1833,7 +1834,7 @@ codeunit 142055 "UT REP Vendor 1099"
     end;
 
     [Test]
-    [HandlerFunctions('Vendor1099Int2022RPH')]
+    [HandlerFunctions('Vendor1099Int2022RPH,UseNewIRSFormsFeatureMessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure Vendor1099Int2022Refund()
@@ -1895,7 +1896,7 @@ codeunit 142055 "UT REP Vendor 1099"
     end;
 
     [Test]
-    [HandlerFunctions('Vendor1099Misc2022RPH')]
+    [HandlerFunctions('Vendor1099Misc2022RPH,UseNewIRSFormsFeatureMessageHandler')]
     procedure Vendor1099Misc2022PaymentAppliedToMultipleInvoicesEachWithPaymentDiscount()
     var
         InvVendorLedgerEntry: array[2] of Record "Vendor Ledger Entry";
@@ -2385,6 +2386,12 @@ codeunit 142055 "UT REP Vendor 1099"
 
         Vendor1099MagneticMedia.VendorData.SetFilter("No.", LibraryVariableStorage.DequeueText());
         Vendor1099MagneticMedia.OK().Invoke();
+    end;
+
+    [MessageHandler]
+    procedure UseNewIRSFormsFeatureMessageHandler(Message: Text)
+    begin
+        Assert.ExpectedMessage(UseNewIRSFormsFeatureMsg, Message);
     end;
 }
 #endif

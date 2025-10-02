@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.Consolidation;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Consolidation;
 
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -20,6 +24,9 @@ codeunit 107 "Import and Consolidate"
         ImportAndConsolidate(ConsolidationProcess);
     end;
 
+    var
+        ConsolidationSetup: Record "Consolidation Setup";
+
     internal procedure ImportAndConsolidate(var ConsolidationProcess: Record "Consolidation Process")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -27,13 +34,11 @@ codeunit 107 "Import and Consolidate"
         BusUnitInConsProcess: Record "Bus. Unit In Cons. Process";
         BusinessUnit: Record "Business Unit";
         BusUnitConsolidationData: Record "Bus. Unit Consolidation Data";
-        ImportConsolidationFromDB: Report "Import Consolidation from DB";
         ImportConsolidationFromAPI: Codeunit "Import Consolidation From API";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         NoSeries: Codeunit "No. Series";
         ConsolidationMethod: Interface "Consolidation Method";
         ImportConsolidationData: Interface "Import Consolidation Data";
-        IsHandled: Boolean;
         ImportingConsolidationDataTxt: Label 'Importing Consolidation Data';
     begin
         if ConsolidationProcess.Status <> ConsolidationProcess.Status::NotStarted then
@@ -41,7 +46,6 @@ codeunit 107 "Import and Consolidate"
         Session.LogSecurityAudit(ImportingConsolidationDataTxt, SecurityOperationResult::Success, UserId(), AuditCategory::Euii);
         GeneralLedgerSetup.Get();
         BusUnitInConsProcess.SetRange("Consolidation Process Id", ConsolidationProcess.Id);
-        BusUnitInConsProcess.SetRange("Default Data Import Method", BusUnitInConsProcess."Default Data Import Method"::API);
         BusUnitInConsProcess.SetAutoCalcFields("Default Data Import Method");
 
         ConsolidationProcess.Status := ConsolidationProcess.Status::InProgress;
@@ -64,39 +68,28 @@ codeunit 107 "Import and Consolidate"
                 BusUnitConsolidationData."Business Unit Code" := BusinessUnit.Code;
                 GetBusinessUnitConsolidationImplementations(BusinessUnit, BusUnitInConsProcess, ImportConsolidationData, ConsolidationMethod);
                 ImportConsolidationData.ImportConsolidationDataForBusinessUnit(ConsolidationProcess, BusinessUnit, BusUnitConsolidationData);
+                Session.LogMessage('0000OUM', 'Data imported succesfully', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', ConsolidationSetup.GetTelemetryCategory());
                 ConsolidationMethod.Consolidate(ConsolidationProcess, BusinessUnit, BusUnitConsolidationData);
+                Session.LogMessage('0000OUN', 'Business unit consolidated succesfully', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', ConsolidationSetup.GetTelemetryCategory());
                 BusUnitInConsProcess.Status := BusUnitInConsProcess.Status::Finished;
                 BusUnitInConsProcess.Modify();
                 Commit();
             until BusUnitInConsProcess.Next() = 0;
             FeatureTelemetry.LogUsage('0000KOH', ImportConsolidationFromAPI.GetFeatureTelemetryName(), 'Completed consolidation imported from API');
         end;
-        BusUnitInConsProcess.SetRange("Default Data Import Method", BusUnitInConsProcess."Default Data Import Method"::Database);
-        if BusUnitInConsProcess.FindSet() then
-            repeat
-                BusUnitInConsProcess.Status := BusUnitInConsProcess.Status::ImportingData;
-                BusUnitInConsProcess.Modify();
-                Commit();
-                Clear(ImportConsolidationFromDB);
-                IsHandled := false;
-                OnImportAndConsolidateOnBeforeSetConsolidationProcessParameters(ConsolidationProcess, BusUnitInConsProcess, IsHandled);
-                if not IsHandled then begin
-                    ImportConsolidationFromDB.SetConsolidationProcessParameters(ConsolidationProcess, BusUnitInConsProcess);
-                    ImportConsolidationFromDB.Execute('');
-                end;
-                BusUnitInConsProcess.Status := BusUnitInConsProcess.Status::Finished;
-                BusUnitInConsProcess.Modify();
-                Commit();
-            until BusUnitInConsProcess.Next() = 0;
         ConsolidationProcess.Status := ConsolidationProcess.Status::Completed;
         ConsolidationProcess.Modify();
     end;
 
     local procedure GetBusinessUnitConsolidationImplementations(BusinessUnit: Record "Business Unit"; BusUnitInConsProcess: Record "Bus. Unit In Cons. Process"; var ImportConsolidationDataImplementation: Interface "Import Consolidation Data"; var ConsolidationMethodImplementation: Interface "Consolidation Method")
     begin
+        case BusinessUnit."Default Data Import Method" of
+            BusinessUnit."Default Data Import Method"::Database:
+                ImportConsolidationDataImplementation := Enum::"Import Consolidation Data"::"Import Consolidation Data from DB";
+            BusinessUnit."Default Data Import Method"::API:
+                ImportConsolidationDataImplementation := Enum::"Import Consolidation Data"::"Import Consolidation Data from API";
+        end;
         ConsolidationMethodImplementation := Enum::"Consolidation Method"::Default;
-        if (BusinessUnit."Default Data Import Method" = BusinessUnit."Default Data Import Method"::API) and (BusUnitInConsProcess."Default Data Import Method" = BusUnitInConsProcess."Default Data Import Method"::API) then
-            ImportConsolidationDataImplementation := Enum::"Import Consolidation Data"::"Import Consolidation Data from API";
         OnAfterGetBusinessUnitConsolidationImplementations(BusinessUnit, BusUnitInConsProcess, ImportConsolidationDataImplementation, ConsolidationMethodImplementation);
     end;
 
@@ -105,9 +98,13 @@ codeunit 107 "Import and Consolidate"
     begin
     end;
 
+    // No other event should be required in this codeunit.
+#if not CLEAN27
     [IntegrationEvent(false, false)]
+    [Obsolete('Please use OnAfterGetBusinessUnitConsolidationImplementations instead. You can override the behavior by providing your own implementations of the interfaces "Import Consolidation Data" and "Consolidation Method"', '27.0')]
     local procedure OnImportAndConsolidateOnBeforeSetConsolidationProcessParameters(var ConsolidationProcess: Record "Consolidation Process"; var BusUnitInConsProcess: Record "Bus. Unit In Cons. Process"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
 }

@@ -63,6 +63,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
         DummyJobsSetup.Modify();
+        LibraryJob.SetJobNoSeriesCode();
 
         Initialized := true;
         Commit();
@@ -783,4 +784,3 @@ codeunit 132521 "JOBs-60SP1-Scripts"
             until TempPurchLine.Next() = 0;
     end;
 }
-

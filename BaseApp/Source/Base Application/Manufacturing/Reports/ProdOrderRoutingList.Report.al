@@ -142,6 +142,8 @@ report 99000761 "Prod. Order - Routing List"
 
     requestpage
     {
+        AboutTitle = 'About Prod. Order - Routing List';
+        AboutText = 'This report gives an overview of the routing steps for a production order, helping you track each operation to ensure efficiency and accuracy.';
 
         layout
         {

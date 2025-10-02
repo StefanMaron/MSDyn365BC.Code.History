@@ -37,6 +37,7 @@ codeunit 10500 "IRS 1099 Management"
         DontShowAgainTxt: Label 'Do not show again';
         IRS1099ComplianceNotificationNameTxt: Label 'Warn If No IRS 1099 Upgrade Is Needed';
         IRS1099ComplianceNotificationDescriptionTxt: Label 'Notifies users that the current version of the 1099 form boxes and reports is up to date.';
+        UseNewIRSFormsFeatureErr: Label 'Use the new IRS Forms feature';
 
     procedure Calculate1099Amount(var Invoice1099Amount: Decimal; var Amounts: array[20] of Decimal; Codes: array[20] of Code[10]; LastLineNo: Integer; VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliedAmount: Decimal)
     begin
@@ -322,6 +323,18 @@ codeunit 10500 "IRS 1099 Management"
                 Message(FormBoxesUpgradedMsg);
             end;
         end;
+    end;
+
+    procedure ThrowUseNewIRSFormsFeatureError()
+    begin
+        error(UseNewIRSFormsFeatureErr);
+    end;
+
+    procedure ThrowUseNewIRSFormsFeatureMessage()
+    begin
+        if not GuiAllowed() then
+            exit;
+        Message(UseNewIRSFormsFeatureErr);
     end;
 
     local procedure UpdateLines(var Amounts: array[20] of Decimal; Codes: array[20] of Code[10]; LastLineNo: Integer; ApplVendorLedgerEntry: Record "Vendor Ledger Entry"; "Code": Code[10]; Amount: Decimal): Integer

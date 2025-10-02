@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.Customer;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Customer;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CRM.Contact;
@@ -24,6 +28,8 @@ using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Pricing;
 using Microsoft.Sales.Reminder;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
 using System.Globalization;
 using Microsoft.eServices.EDocument;
 
@@ -172,6 +178,7 @@ table 1381 "Customer Templ."
         field(26; "Statistics Group"; Integer)
         {
             Caption = 'Statistics Group';
+            ToolTip = 'Specifies the statistics group.';
         }
         field(27; "Payment Terms Code"; Code[10])
         {
@@ -369,26 +376,18 @@ table 1381 "Customer Templ."
             ExtendedDatatype = EMail;
             ToolTip = 'Specifies the customer''s email address.';
         }
-#if not CLEAN24
-        field(103; "Home Page"; Text[80])
-        {
-            Caption = 'Home Page';
-            ExtendedDatatype = URL;
-            ObsoleteReason = 'Field length will be increased to 255.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-            ToolTip = 'Specifies the customer''s home page address.';
-        }
-#else
+#if not CLEAN27
 #pragma warning disable AS0086
+#endif
         field(103; "Home Page"; Text[255])
-        {
-            Caption = 'Home Page';
-            ExtendedDatatype = URL;
-            ToolTip = 'Specifies the customer''s home page address.';
-        }
+#if not CLEAN27
 #pragma warning restore AS0086
 #endif
+        {
+            Caption = 'Home Page';
+            ExtendedDatatype = URL;
+            ToolTip = 'Specifies the customer''s home page address.';
+        }
         field(104; "Reminder Terms Code"; Code[10])
         {
             Caption = 'Reminder Terms Code';
@@ -473,6 +472,12 @@ table 1381 "Customer Templ."
             DataClassification = SystemMetadata;
             ToolTip = 'Specifies that you can change customer name in the document, because the name is not used in search.';
         }
+        field(175; "Allow Multiple Posting Groups"; Boolean)
+        {
+            Caption = 'Allow Multiple Posting Groups';
+            DataClassification = SystemMetadata;
+            ToolTip = 'Specifies if multiple posting groups can be used for posting business transactions for this customer.';
+        }
         field(840; "Cash Flow Payment Terms Code"; Code[10])
         {
             Caption = 'Cash Flow Payment Terms Code';
@@ -513,6 +518,19 @@ table 1381 "Customer Templ."
             Caption = 'Shipping Agent Service Code';
             TableRelation = "Shipping Agent Services".Code where("Shipping Agent Code" = field("Shipping Agent Code"));
             ToolTip = 'Specifies the code for the shipping agent service to use for this customer.';
+        }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+            ToolTip = 'Specifies the default price calculation method.';
+            trigger OnValidate()
+            var
+                PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+                PriceType: Enum "Price Type";
+            begin
+                if Rec."Price Calculation Method" <> Rec."Price Calculation Method"::" " then
+                    PriceCalculationMgt.VerifyMethodImplemented(Rec."Price Calculation Method", PriceType::Sale);
+            end;
         }
         field(7001; "Allow Line Disc."; Boolean)
         {

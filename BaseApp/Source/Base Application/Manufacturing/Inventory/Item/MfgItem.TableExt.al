@@ -6,10 +6,8 @@ namespace Microsoft.Inventory.Item;
 
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Planning;
-using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Forecast;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
@@ -24,11 +22,8 @@ tableextension 99000750 "Mfg. Item" extends Item
                                                                       "Item No." = field("No.")));
             Caption = 'Cost of Open Production Orders';
             FieldClass = FlowField;
-        }
-        field(5417; "Flushing Method"; Enum "Flushing Method")
-        {
-            Caption = 'Flushing Method';
-            DataClassification = CustomerContent;
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(5420; "Scheduled Receipt (Qty.)"; Decimal)
         {
@@ -44,6 +39,7 @@ tableextension 99000750 "Mfg. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
 #if not CLEANSCHEMA28
         field(5421; "Scheduled Need (Qty.)"; Decimal)
@@ -68,6 +64,7 @@ tableextension 99000750 "Mfg. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
 #endif
         field(5429; "Reserved Qty. on Prod. Order"; Decimal)
@@ -84,6 +81,7 @@ tableextension 99000750 "Mfg. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(5430; "Res. Qty. on Prod. Order Comp."; Decimal)
         {
@@ -99,6 +97,7 @@ tableextension 99000750 "Mfg. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(8011; "Production Blocked"; Enum "Item Production Blocked")
         {
@@ -198,63 +197,6 @@ tableextension 99000750 "Mfg. Item" extends Item
                 end;
             end;
         }
-        field(99000752; "Single-Level Material Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Material Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000753; "Single-Level Capacity Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Capacity Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000754; "Single-Level Subcontrd. Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Subcontrd. Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000755; "Single-Level Cap. Ovhd Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Cap. Ovhd Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000756; "Single-Level Mfg. Ovhd Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Mfg. Ovhd Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000758; "Rolled-up Subcontracted Cost"; Decimal)
-        {
-            AccessByPermission = TableData "Production Order" = R;
-            AutoFormatType = 2;
-            Caption = 'Rolled-up Subcontracted Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000759; "Rolled-up Mfg. Ovhd Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Rolled-up Mfg. Ovhd Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000760; "Rolled-up Cap. Overhead Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Rolled-up Cap. Overhead Cost';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
         field(99000765; "Planned Order Receipt (Qty.)"; Decimal)
         {
             CalcFormula = sum("Prod. Order Line"."Remaining Qty. (Base)" where(Status = const(Planned),
@@ -269,6 +211,7 @@ tableextension 99000750 "Mfg. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(99000766; "FP Order Receipt (Qty.)"; Decimal)
         {
@@ -284,6 +227,7 @@ tableextension 99000750 "Mfg. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(99000767; "Rel. Order Receipt (Qty.)"; Decimal)
         {
@@ -299,6 +243,7 @@ tableextension 99000750 "Mfg. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(99000769; "Planned Order Release (Qty.)"; Decimal)
         {
@@ -314,29 +259,7 @@ tableextension 99000750 "Mfg. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
-        }
-        field(99000774; "Prod. Forecast Quantity (Base)"; Decimal)
-        {
-            CalcFormula = sum("Production Forecast Entry"."Forecast Quantity (Base)" where("Item No." = field("No."),
-                                                                                            "Production Forecast Name" = field("Production Forecast Name"),
-                                                                                            "Forecast Date" = field("Date Filter"),
-                                                                                            "Location Code" = field("Location Filter"),
-                                                                                            "Component Forecast" = field("Component Forecast"),
-                                                                                            "Variant Code" = field("Variant Filter")));
-            Caption = 'Prod. Forecast Quantity (Base)';
-            DecimalPlaces = 0 : 5;
-            FieldClass = FlowField;
-        }
-        field(99000775; "Production Forecast Name"; Code[10])
-        {
-            Caption = 'Production Forecast Name';
-            FieldClass = FlowFilter;
-            TableRelation = "Production Forecast Name";
-        }
-        field(99000776; "Component Forecast"; Boolean)
-        {
-            Caption = 'Component Forecast';
-            FieldClass = FlowFilter;
+            AutoFormatType = 0;
         }
         field(99000777; "Qty. on Prod. Order"; Decimal)
         {
@@ -352,6 +275,7 @@ tableextension 99000750 "Mfg. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(99000778; "Qty. on Component Lines"; Decimal)
         {
@@ -367,21 +291,7 @@ tableextension 99000750 "Mfg. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
-        }
-        field(99000779; "Single-Lvl Mat. Non-Invt. Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Material Non-Inventory Cost';
-            ToolTip = 'Specifies the total Non-inventory material cost of all components on the parent item''s BOM';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
-        field(99000780; "Allow Whse. Overpick"; Boolean)
-        {
-            AutoFormatType = 2;
-            Caption = 'Allow Whse. Overpick';
-            DataClassification = CustomerContent;
-            ToolTip = 'Specifies that the record is allowed to be created in the Warehouse Pick list against the Released Production Order more than the quantity defined in the component Line. For example, system will allow to create Pick for 10 units even if the component in the BOM is defined for 3 units.';
+            AutoFormatType = 0;
         }
     }
 
@@ -396,9 +306,9 @@ tableextension 99000750 "Mfg. Item" extends Item
     }
 
     var
-        InventorySetup: Record "Inventory Setup";
-        ManufacturingSetup: Record "Manufacturing Setup";
+#if not CLEAN27
         HideNonInventoryValidateOnStdCost: Boolean;
+#endif
         NoActiveBOMVersionFoundErr: Label 'There is no active Production BOM for the item %1.', Comment = '%1 - Item No.';
         ProductionBlockedOutputItemErr: Label 'You cannot produce %1 %2 because the %3 is %4 on the %1 card.', Comment = '%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption, %4 - Field Value';
         ProductionBlockedOutputItemVariantErr: Label 'You cannot produce variant %1 for %2 %3 because it is blocked for production output.', Comment = '%1 - Item Variant Code, %2 - Table Caption (Item), %3 - Item No.';
@@ -448,15 +358,19 @@ tableextension 99000750 "Mfg. Item" extends Item
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('procedure that was implemented to bypass the error has now been identified as unnecessary', '27.0')]
     procedure SetHideNonInventoryValidateOnStdCost(NewHideNonInventoryValidateOnStdCost: Boolean)
     begin
         HideNonInventoryValidateOnStdCost := NewHideNonInventoryValidateOnStdCost;
     end;
 
+    [Obsolete('procedure that was implemented to bypass the error has now been identified as unnecessary', '27.0')]
     procedure CanHideNonInventoryValidateOnStdCost(): Boolean
     begin
         exit(HideNonInventoryValidateOnStdCost);
     end;
+#endif
 
     internal procedure OpenActiveProdBOMForItem(ProdBOMNo: Code[20]; ItemNo: Code[20])
     var
@@ -511,19 +425,6 @@ tableextension 99000750 "Mfg. Item" extends Item
                         Error(ProductionBlockedOutputItemVariantErr, VariantCode, Item.TableCaption(), ItemNo);
             end;
         end;
-    end;
-
-    procedure ShouldTryCostFromSKU(): Boolean
-    begin
-        if Rec."Costing Method" <> Rec."Costing Method"::Standard then
-            exit(false);
-
-        ManufacturingSetup.GetRecordOnce();
-        if not ManufacturingSetup."Load SKU Cost on Manufacturing" then
-            exit(false);
-
-        InventorySetup.GetRecordOnce();
-        exit(InventorySetup."Average Cost Calc. Type" = InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant");
     end;
 
     local procedure NeedUpdateLowLevelCode(): Boolean

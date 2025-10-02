@@ -227,7 +227,7 @@ report 10182 "Vendor 1099 Nec 2022"
 
     trigger OnInitReport()
     begin
-        IRS1099Management.ThrowErrorfUpgrade2022Needed();
+        IRS1099Management.ThrowUseNewIRSFormsFeatureMessage();
     end;
 
     var

@@ -279,7 +279,7 @@ report 10183 "Vendor 1099 Int 2022"
     var
         IRS1099Management: Codeunit "IRS 1099 Management";
     begin
-        IRS1099Management.ThrowErrorfUpgrade2022Needed();
+        IRS1099Management.ThrowUseNewIRSFormsFeatureMessage();
     end;
 
     var

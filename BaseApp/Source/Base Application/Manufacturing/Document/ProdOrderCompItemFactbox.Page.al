@@ -374,6 +374,12 @@ page 874 "Prod. Order Comp. Item FactBox"
         ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
         QtyReservedFromStock: Decimal;
     begin
+        if not GetItem() then
+            exit(Result::None);
+
+        if Item.IsNonInventoriableType() then
+            exit(Result::None);
+
         QtyReservedFromStock := ProdOrderCompReserve.GetReservedQtyFromInventory(Rec);
         case QtyReservedFromStock of
             0:

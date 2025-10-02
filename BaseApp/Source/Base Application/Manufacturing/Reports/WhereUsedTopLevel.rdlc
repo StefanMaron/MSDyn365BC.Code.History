@@ -1280,6 +1280,141 @@
     </ReportSection>
   </ReportSections>
   <ReportParameters>
+    <ReportParameter Name="WhereUsedListTopLevel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>WhereUsedListTopLevel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>WhereUsedListTopLevel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="WhereUsedTopLevelPrint">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>WhereUsedTopLevelPrint</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>WhereUsedTopLevelPrint</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="WhereUsedTopLevelAnalysis">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>WhereUsedTopLevelAnalysis</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>WhereUsedTopLevelAnalysis</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="LevelLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>LevelLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>LevelLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ItemNoLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ItemNoLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ItemNoLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DescLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DescLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DescLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="QtyNeededLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>QtyNeededLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>QtyNeededLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DataRetrieved">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DataRetrieved</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DataRetrieved</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="AboutTheReportLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>AboutTheReportLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>AboutTheReportLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="EnvironmentLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>EnvironmentLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>EnvironmentLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CompanyLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CompanyLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CompanyLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="UserLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>UserLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>UserLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RunOnLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>RunOnLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>RunOnLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ReportNameLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ReportNameLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ReportNameLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DocumentationLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DocumentationLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DocumentationLabel</Prompt>
+    </ReportParameter>
     <ReportParameter Name="No_ItemCaption">
       <DataType>String</DataType>
       <DefaultValue>
@@ -1298,21 +1433,110 @@
       </DefaultValue>
       <Prompt>Description_ItemCaption</Prompt>
     </ReportParameter>
+    <ReportParameter Name="Search_DescriptionCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Search_DescriptionCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Search_DescriptionCaption</Prompt>
+    </ReportParameter>
   </ReportParameters>
   <ReportParametersLayout>
     <GridLayoutDefinition>
       <NumberOfColumns>1</NumberOfColumns>
-      <NumberOfRows>2</NumberOfRows>
+      <NumberOfRows>18</NumberOfRows>
       <CellDefinitions>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>0</RowIndex>
-          <ParameterName>No_ItemCaption</ParameterName>
+          <ParameterName>WhereUsedListTopLevel</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>1</RowIndex>
+          <ParameterName>WhereUsedTopLevelPrint</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>2</RowIndex>
+          <ParameterName>WhereUsedTopLevelAnalysis</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>3</RowIndex>
+          <ParameterName>LevelLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>4</RowIndex>
+          <ParameterName>ItemNoLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>5</RowIndex>
+          <ParameterName>DescLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>6</RowIndex>
+          <ParameterName>QtyNeededLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>7</RowIndex>
+          <ParameterName>DataRetrieved</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>8</RowIndex>
+          <ParameterName>AboutTheReportLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>9</RowIndex>
+          <ParameterName>EnvironmentLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>10</RowIndex>
+          <ParameterName>CompanyLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>11</RowIndex>
+          <ParameterName>UserLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>12</RowIndex>
+          <ParameterName>RunOnLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>13</RowIndex>
+          <ParameterName>ReportNameLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>14</RowIndex>
+          <ParameterName>DocumentationLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>15</RowIndex>
+          <ParameterName>No_ItemCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>16</RowIndex>
           <ParameterName>Description_ItemCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>17</RowIndex>
+          <ParameterName>Search_DescriptionCaption</ParameterName>
         </CellDefinition>
       </CellDefinitions>
     </GridLayoutDefinition>
@@ -1368,6 +1592,9 @@ End Function
         <Field Name="CalcDateFormatted">
           <DataField>CalcDateFormatted</DataField>
         </Field>
+        <Field Name="CalculateDateFilter">
+          <DataField>CalculateDateFilter</DataField>
+        </Field>
         <Field Name="ItemTableCaptionItemFilter">
           <DataField>ItemTableCaptionItemFilter</DataField>
         </Field>
@@ -1379,6 +1606,9 @@ End Function
         </Field>
         <Field Name="Description_Item">
           <DataField>Description_Item</DataField>
+        </Field>
+        <Field Name="Search_Description">
+          <DataField>Search_Description</DataField>
         </Field>
         <Field Name="WhereUsedListTopLevelCapt">
           <DataField>WhereUsedListTopLevelCapt</DataField>
@@ -1412,6 +1642,9 @@ End Function
         </Field>
         <Field Name="WhereUsedListLevelCode">
           <DataField>WhereUsedListLevelCode</DataField>
+        </Field>
+        <Field Name="Sequence">
+          <DataField>Sequence</DataField>
         </Field>
       </Fields>
       <Query>

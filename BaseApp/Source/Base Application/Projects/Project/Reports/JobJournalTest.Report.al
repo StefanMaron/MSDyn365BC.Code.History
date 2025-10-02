@@ -373,6 +373,8 @@ report 1005 "Job Journal - Test"
 
     requestpage
     {
+        AboutTitle = 'About Project Journal - Test';
+        AboutText = 'Review the results of posting before you post to the projects ledger. Edit the journal lines if there are errors to correct.';
         SaveValues = true;
 
         layout

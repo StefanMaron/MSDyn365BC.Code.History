@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Projects.Project.Job;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.Project.Job;
 
 using Microsoft.Assembly.Document;
 using Microsoft.CRM.Contact;
@@ -100,6 +104,14 @@ page 88 "Job Card"
                     begin
                         exit(Rec.LookupSellToCustomerName(Text));
                     end;
+                }
+                field("Sell-to Customer Name 2"; Rec."Sell-to Customer Name 2")
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Customer Name 2';
+                    Importance = Additional;
+                    QuickEntry = false;
+                    Visible = false;
                 }
                 group("Sell-to")
                 {
@@ -438,6 +450,16 @@ page 88 "Job Card"
                                     CurrPage.Update();
                                 end;
                             end;
+                        }
+                        field("Bill-to Name 2"; Rec."Bill-to Name 2")
+                        {
+                            ApplicationArea = Jobs;
+                            Caption = 'Name 2';
+                            Editable = (BillToOptions = BillToOptions::"Another Customer");
+                            Enabled = (BillToOptions = BillToOptions::"Another Customer");
+                            Importance = Additional;
+                            QuickEntry = false;
+                            Visible = false;
                         }
                         field("Bill-to Address"; Rec."Bill-to Address")
                         {
@@ -1042,9 +1064,7 @@ page 88 "Job Card"
                             exit;
 
                         Rec.TestField("No.");
-                        JobPlanningLine.FilterGroup(2);
                         JobPlanningLine.SetRange("Job No.", Rec."No.");
-                        JobPlanningLine.FilterGroup(0);
                         JobPlanningLines.SetJobTaskNoVisible(true);
                         JobPlanningLines.SetTableView(JobPlanningLine);
                         JobPlanningLines.Editable := true;

@@ -98,12 +98,6 @@ page 5600 "Fixed Asset Card"
                         var
                             IsHandled: Boolean;
                         begin
-#if not CLEAN24
-                            IsHandled := false;
-                            OnBeforeOnValidateFASubclassCode(Rec, xRec, IsHandled);
-                            if IsHandled then
-                                exit;
-#endif
                             IsHandled := false;
                             OnBeforeOnValidateFASubclassCodePage(Rec, xRec, IsHandled);
                             if IsHandled then
@@ -1020,15 +1014,6 @@ page 5600 "Fixed Asset Card"
     begin
     end;
 
-#if not CLEAN24
-#pragma warning disable AL0523
-    [Obsolete('Replaced by event OnBeforeOnValidateFASubclassCodePage', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnValidateFASubclassCode(var FixedAsset: Record "Fixed Asset"; var xFixedAsset: Record "Fixed Asset"; var IsHandled: Boolean)
-    begin
-    end;
-#pragma warning restore AL0523
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnValidateFASubclassCodePage(var FixedAsset: Record "Fixed Asset"; var xFixedAsset: Record "Fixed Asset"; var IsHandled: Boolean)
@@ -1045,4 +1030,3 @@ page 5600 "Fixed Asset Card"
     begin
     end;
 }
-

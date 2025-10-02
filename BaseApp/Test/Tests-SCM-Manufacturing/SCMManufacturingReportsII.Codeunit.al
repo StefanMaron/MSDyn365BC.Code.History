@@ -96,56 +96,6 @@ codeunit 137310 "SCM Manufacturing Reports -II"
 #endif
 
     [Test]
-    [HandlerFunctions('MachineCenterLoadBarRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure MachineCenterLoadBarReport()
-    var
-        WorkCenter: Record "Work Center";
-        MachineCenter: Record "Machine Center";
-    begin
-        // Setup: Create Work Center and Machine Center.
-        Initialize();
-        CreateWorkCenter(WorkCenter);
-        CreateMachineCenter(MachineCenter, WorkCenter."No.");
-
-        // Exercise: Generate the Machine Center Load/Bar report.
-        Commit();
-        WorkCenter.SetRange("No.", WorkCenter."No.");
-        LibraryVariableStorage.Enqueue(4);
-        REPORT.Run(REPORT::"Machine Center Load/Bar", true, false, WorkCenter);
-
-        // Verify: Verify Machine Center Details on Generated Report.
-        VerifyMachineCenterLoadBar(MachineCenter, 4);
-    end;
-
-    [Test]
-    [HandlerFunctions('ProdOrderCalculationRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure ProdOrderCalculationReport()
-    var
-        Item: Record Item;
-        ProductionOrder: Record "Production Order";
-        ProdOrderLine: Record "Prod. Order Line";
-    begin
-        // Setup: Create Production Item Setup, Create Production Order and update Unit Cost Per on Production Order Routing Line.
-        Initialize();
-        CreateProdOrderItemsSetup(Item);
-        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandInt(5));
-        UpdateUnitCostPerOnProdOrderRoutingLine(ProductionOrder."No.", Item."Routing No.");
-
-        // Exercise: Generate the Prod. Order Calculation report.
-        Commit();
-        FilterOnProductionOrder(ProductionOrder);
-        REPORT.Run(REPORT::"Prod. Order - Calculation", true, false, ProductionOrder);
-
-        // Verify: Verify Production details on Generated Report.
-        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst();
-        ProdOrderLine.CalcFields("Expected Operation Cost Amt.", "Expected Component Cost Amt.");
-        VerifyProdOrderCalculation(ProdOrderLine);
-    end;
-
-    [Test]
     [HandlerFunctions('ProdOrderRoutingListRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ProdOrderRoutingListReport()
@@ -210,24 +160,30 @@ codeunit 137310 "SCM Manufacturing Reports -II"
 #endif
 
     [Test]
-    [HandlerFunctions('WorkCenterLoadBarRequestPageHandler')]
+    [HandlerFunctions('WorkMachineCenterLoadRequestPageHandler')]
     [Scope('OnPrem')]
-    procedure WorkCenterLoadBarReport()
+    procedure WorkMachineCenterLoadReport()
     var
         WorkCenter: Record "Work Center";
+        MachineCenter: Record "Machine Center";
     begin
         // Setup: Create Work Center.
         Initialize();
         CreateWorkCenter(WorkCenter);
+        CreateMachineCenter(MachineCenter, WorkCenter."No.");
 
         // Exercise: Generate the Work Center Load/Bar report.
         Commit();
         WorkCenter.SetRange("No.", WorkCenter."No.");
         LibraryVariableStorage.Enqueue(4);
-        REPORT.Run(REPORT::"Work Center Load/Bar", true, false, WorkCenter);
+        Report.Run(Report::"Work/Machine Center Load", true, false, WorkCenter);
 
         // Verify: Verify Work Center Details on Generated Report.
+        LibraryReportDataset.LoadDataSetFile();
         VerifyWorkCenterLoadBar(WorkCenter, 4);
+
+        // Verify: Verify Machine Center Details on Generated Report.
+        VerifyMachineCenterLoadBar(MachineCenter, 4);
     end;
 
     [Test]
@@ -871,19 +827,6 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
-    local procedure UpdateUnitCostPerOnProdOrderRoutingLine(ProdOrderNo: Code[20]; RoutingNo: Code[20])
-    var
-        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
-    begin
-        ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderRoutingLine.SetRange("Routing No.", RoutingNo);
-        ProdOrderRoutingLine.FindSet();
-        repeat
-            ProdOrderRoutingLine.Validate("Unit Cost per", LibraryRandom.RandInt(10));
-            ProdOrderRoutingLine.Modify(true);
-        until ProdOrderRoutingLine.Next() = 0;
-    end;
-
     local procedure ExplodeRoutingAndPostOutputJournal(ProductionOrderNo: Code[20])
     begin
         OutputJournalExplodeRouting(ProductionOrderNo);
@@ -1028,8 +971,8 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         PeriodStartingDate: Date;
         "Count": Integer;
     begin
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.SetRange('Machine_Center__No__', MachineCenter."No.");
+        LibraryReportDataset.Reset();
+        LibraryReportDataset.SetRange('MachineCenterNo', MachineCenter."No.");
         while LibraryReportDataset.GetNextRow() do begin
             Count += 1;
             LibraryReportDataset.FindCurrentRowValue('PeriodStartingDate', VarDate);
@@ -1038,7 +981,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
             Evaluate(PeriodEndingDate, VarDate);
             MachineCenter.SetRange("Date Filter", PeriodStartingDate, PeriodEndingDate);
             MachineCenter.CalcFields("Capacity (Effective)");
-            LibraryReportDataset.AssertCurrentRowValueEquals('Machine_Center__Capacity__Effective__', MachineCenter."Capacity (Effective)");
+            LibraryReportDataset.AssertCurrentRowValueEquals('MachineCenterCapacityEffective', MachineCenter."Capacity (Effective)");
         end;
 
         Assert.AreEqual(NoOfPeriods, Count, NoOfLinesError);
@@ -1082,21 +1025,6 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         until RoutingLine.Next() = 0;
     end;
 
-    local procedure VerifyProdOrderCalculation(ProdOrderLine: Record "Prod. Order Line")
-    begin
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.SetRange('Production_Order_No_', ProdOrderLine."Prod. Order No.");
-        LibraryReportDataset.GetNextRow();
-        LibraryReportDataset.AssertCurrentRowValueEquals('Prod__Order_Line__Item_No__', ProdOrderLine."Item No.");
-        LibraryReportDataset.AssertCurrentRowValueEquals('Prod__Order_Line_Quantity', ProdOrderLine.Quantity);
-        LibraryReportDataset.AssertCurrentRowValueEquals('Prod__Order_Line__Expected_Operation_Cost_Amt__',
-          ProdOrderLine."Expected Operation Cost Amt.");
-        LibraryReportDataset.AssertCurrentRowValueEquals('Prod__Order_Line__Expected_Component_Cost_Amt__',
-          ProdOrderLine."Expected Component Cost Amt.");
-        LibraryReportDataset.AssertCurrentRowValueEquals('TotalCost_Control29',
-          ProdOrderLine."Expected Component Cost Amt." + ProdOrderLine."Expected Operation Cost Amt.");
-    end;
-
     local procedure VerifyWorkCenterLoadBar(WorkCenter: Record "Work Center"; NoOfPeriods: Integer)
     var
         VarDate: Variant;
@@ -1104,8 +1032,8 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         PeriodEndingDate: Date;
         "Count": Integer;
     begin
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.SetRange('Work_Center__No__', WorkCenter."No.");
+        LibraryReportDataset.Reset();
+        LibraryReportDataset.SetRange('WorkCenterNo', WorkCenter."No.");
         while LibraryReportDataset.GetNextRow() do begin
             Count += 1;
             LibraryReportDataset.FindCurrentRowValue('PeriodStartingDate', VarDate);
@@ -1114,7 +1042,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
             Evaluate(PeriodEndingDate, VarDate);
             WorkCenter.SetRange("Date Filter", PeriodStartingDate, PeriodEndingDate);
             WorkCenter.CalcFields("Capacity (Effective)");
-            LibraryReportDataset.AssertCurrentRowValueEquals('Work_Center__Capacity__Effective__', WorkCenter."Capacity (Effective)");
+            LibraryReportDataset.AssertCurrentRowValueEquals('WorkCenterCapacityEffective', WorkCenter."Capacity (Effective)");
         end;
 
         Assert.AreEqual(NoOfPeriods, Count, NoOfLinesError);
@@ -1192,28 +1120,15 @@ codeunit 137310 "SCM Manufacturing Reports -II"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure MachineCenterLoadBarRequestPageHandler(var MachineCenterLoadBar: TestRequestPage "Machine Center Load/Bar")
+    procedure WorkMachineCenterLoadRequestPageHandler(var WorkMachineCenterLoad: TestRequestPage "Work/Machine Center Load")
     var
         NoOfPeriods: Variant;
     begin
         LibraryVariableStorage.Dequeue(NoOfPeriods);
-        MachineCenterLoadBar.StartingDate.SetValue(WorkDate());
-        MachineCenterLoadBar.NoOfPeriods.SetValue(NoOfPeriods);
-        MachineCenterLoadBar.PeriodLength.SetValue('<1W>');
-        MachineCenterLoadBar.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure WorkCenterLoadBarRequestPageHandler(var WorkCenterLoadBar: TestRequestPage "Work Center Load/Bar")
-    var
-        NoOfPeriods: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(NoOfPeriods);
-        WorkCenterLoadBar.StartingDate.SetValue(WorkDate());
-        WorkCenterLoadBar.NoOfPeriods.SetValue(NoOfPeriods);
-        WorkCenterLoadBar.PeriodLength.SetValue('<1W>');
-        WorkCenterLoadBar.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+        WorkMachineCenterLoad.StartingDate.SetValue(WorkDate());
+        WorkMachineCenterLoad.NoOfPeriods.SetValue(NoOfPeriods);
+        WorkMachineCenterLoad.PeriodLength.SetValue('<1W>');
+        WorkMachineCenterLoad.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure AreSameMessages(Message: Text[1024]; Message2: Text[1024]): Boolean
@@ -1253,13 +1168,6 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         MachineCenterList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 #endif
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure ProdOrderCalculationRequestPageHandler(var ProdOrderCalculation: TestRequestPage "Prod. Order - Calculation")
-    begin
-        ProdOrderCalculation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
@@ -1358,4 +1266,3 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         LibraryReportDataset.AssertCurrentRowValueEquals('NeededQuantity', RequiredQty);
     end;
 }
-

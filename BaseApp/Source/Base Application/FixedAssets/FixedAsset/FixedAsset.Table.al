@@ -69,6 +69,7 @@ table 5600 "Fixed Asset"
         field(3; "Search Description"; Code[100])
         {
             Caption = 'Search Description';
+            OptimizeForTextSearch = true;
         }
         field(4; "Description 2"; Text[50])
         {
@@ -300,7 +301,7 @@ table 5600 "Fixed Asset"
         }
         field(9001; "FA Location Id"; Guid)
         {
-            Caption = 'FA Location Code';
+            Caption = 'FA Location Id';
             DataClassification = SystemMetadata;
             TableRelation = "FA Location".SystemId;
 
@@ -546,9 +547,6 @@ table 5600 "Fixed Asset"
     local procedure InitFANo()
     var
         FixedAsset: Record "Fixed Asset";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -559,31 +557,15 @@ table 5600 "Fixed Asset"
         if "No." = '' then begin
             FASetup.Get();
             FASetup.TestField("Fixed Asset Nos.");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(FASetup."Fixed Asset Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-                if NoSeries.AreRelated(FASetup."Fixed Asset Nos.", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series"
-                else
-                    "No. Series" := FASetup."Fixed Asset Nos.";
-                "No." := NoSeries.GetNextNo("No. Series");
-                FixedAsset.ReadIsolation(IsolationLevel::ReadUncommitted);
-                FixedAsset.SetLoadFields("No.");
-                while FixedAsset.Get("No.") do
-                    "No." := NoSeries.GetNextNo("No. Series");
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", FASetup."Fixed Asset Nos.", 0D, "No.");
-            end;
-#else
-			if NoSeries.AreRelated(FASetup."Fixed Asset Nos.", xRec."No. Series") then
-				"No. Series" := xRec."No. Series"
-			else
-				"No. Series" := FASetup."Fixed Asset Nos.";
+            if NoSeries.AreRelated(FASetup."Fixed Asset Nos.", xRec."No. Series") then
+                "No. Series" := xRec."No. Series"
+            else
+                "No. Series" := FASetup."Fixed Asset Nos.";
             "No." := NoSeries.GetNextNo("No. Series");
             FixedAsset.ReadIsolation(IsolationLevel::ReadUncommitted);
             FixedAsset.SetLoadFields("No.");
             while FixedAsset.Get("No.") do
                 "No." := NoSeries.GetNextNo("No. Series");
-#endif
         end;
     end;
 

@@ -29,7 +29,6 @@ codeunit 139182 "CRM Coupling Test"
         BaseUoMErr: Label 'Base Unit of Measure must have a value in %1';
         SyncStartedMsg: Label 'The synchronization has been scheduled.';
         UoMErr: Label 'Item has wrong Base Unit of Measure.';
-        CustomerContactLinkTxt: Label 'Customer-contact link.';
         CurrencyExchangeRateMissingErr: Label 'Cannot create or update the currency %1 in %2, because there is no exchange rate defined for it.', Comment = '%1 - currency code, %2 - CRM product name';
 
     [Test]
@@ -2476,34 +2475,6 @@ codeunit 139182 "CRM Coupling Test"
         exit(IntegrationFieldMapping.FindFirst())
     end;
 
-    local procedure FindIntegrationSynchJobEntry(var IntegrationSynchJob: Record "Integration Synch. Job")
-    begin
-        IntegrationSynchJob.SetRange(Message, CustomerContactLinkTxt);
-        IntegrationSynchJob.FindFirst();
-    end;
-
-    local procedure FindCustomerByAccountId(AccountId: Guid; var Customer: Record Customer): Boolean
-    var
-        CRMIntegrationRecord: Record "CRM Integration Record";
-        CustomerRecordID: RecordID;
-    begin
-        if CRMIntegrationRecord.FindRecordIDFromID(AccountId, DATABASE::Customer, CustomerRecordID) then
-            exit(Customer.Get(CustomerRecordID));
-
-        exit(false);
-    end;
-
-    local procedure FindContactByContactId(ContactId: Guid; var Contact: Record Contact): Boolean
-    var
-        CRMIntegrationRecord: Record "CRM Integration Record";
-        ContactRecordID: RecordID;
-    begin
-        if CRMIntegrationRecord.FindRecordIDFromID(ContactId, DATABASE::Contact, ContactRecordID) then
-            exit(Contact.Get(ContactRecordID));
-
-        exit(false);
-    end;
-
     local procedure SetCustomerPrimaryContact(var Customer: Record Customer; var Contact: Record Contact)
     begin
         Contact.Validate("Company No.", FindCompanyContact(Customer."No."));
@@ -2544,16 +2515,6 @@ codeunit 139182 "CRM Coupling Test"
         IntegrationSynchJobErrors.SetRange("Integration Synch. Job ID", IntegrationSynchJobID);
         IntegrationSynchJobErrors.FindFirst();
         Assert.ExpectedMessage(ExpectedErrorMessage, IntegrationSynchJobErrors.Message);
-    end;
-
-    local procedure VerifyCustomerPrimaryContact(CRMAccount: Record "CRM Account")
-    var
-        Customer: Record Customer;
-        Contact: Record Contact;
-    begin
-        Assert.IsTrue(FindCustomerByAccountId(CRMAccount.AccountId, Customer), 'Customer not found');
-        Assert.IsTrue(FindContactByContactId(CRMAccount.PrimaryContactId, Contact), 'Contact not found');
-        Customer.TestField("Primary Contact No.", Contact."No.");
     end;
 
     local procedure SimulateUncouplingJobsExecution()
@@ -2654,4 +2615,3 @@ codeunit 139182 "CRM Coupling Test"
     begin
     end;
 }
-

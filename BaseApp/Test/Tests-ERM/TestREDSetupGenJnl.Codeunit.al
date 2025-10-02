@@ -1254,7 +1254,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [SCENARIO 334609] Deferral posting date is in range of deferrals posting date, defined in User Setup.
         Initialize();
-        // [GIVEN] G/L Setup has no setup on "Allow Deferrals Posting From/To" 
+        // [GIVEN] G/L Setup has no setup on "Allow Deferrals Posting From/To"
         // [GIVEN] User Setup, where "Allow Posting From" is 010121 "Allow Posting To" 010121,
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
         UserSetup."Allow Posting From" := WorkDate();
@@ -1282,7 +1282,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [SCENARIO 334609] Deferral posting date out of range for allowed deferral posting, defined in User Setup.
         Initialize();
-        // [GIVEN] G/L Setup has no setup on "Allow Deferrals Posting From/To" 
+        // [GIVEN] G/L Setup has no setup on "Allow Deferrals Posting From/To"
         // [GIVEN] User Setup, where "Allow Posting From" is 010121 "Allow Posting To" 010121
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
         UserSetup."Allow Posting From" := WorkDate();
@@ -1308,7 +1308,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [SCENARIO 334609] Deferral posting date is in the range for allowed deferral posting, defined in G/L Setup.
         Initialize();
-        // [GIVEN] User Setup has no setup on "Allow Deferrals Posting From/To" 
+        // [GIVEN] User Setup has no setup on "Allow Deferrals Posting From/To"
         // [GIVEN] G/L Setup, where "Allow Posting From" is 010121 "Allow Posting To" 010121,
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Allow Posting From" := WorkDate();
@@ -1334,7 +1334,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [SCENARIO 334609] Deferral posting date is out of the range for allowed deferral posting, defined in G/L Setup.
         Initialize();
-        // [GIVEN] User Setup has no setup on "Allow Deferrals Posting From/To" 
+        // [GIVEN] User Setup has no setup on "Allow Deferrals Posting From/To"
         // [GIVEN] G/L Setup, where "Allow Posting From" is 010121 "Allow Posting To" 010121,
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Allow Posting From" := WorkDate();
@@ -1642,7 +1642,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralCode: Code[10];
     begin
         // [FEATURE] [Deferral schedule]
-        // [SCENARIO 543272] Post sales invoice with type = item and with defferals, calc. method = user-defined 
+        // [SCENARIO 543272] Post sales invoice with type = item and with defferals, calc. method = user-defined
         Initialize();
 
         // [GIVEN] Deferral Code X, calc.method = user-defined. deferral calculation start date = posting date
@@ -1656,7 +1656,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         // [GIVEN] Insert amounts on deferral schedule
         UpdateAmountOnDeferralSchedule("Deferral Document Type"::Sales, SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
 
-        // [WHEN] Post sales invoice X 
+        // [WHEN] Post sales invoice X
         SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
         // [THEN] Verify created G/L entries
@@ -1694,7 +1694,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         SalesLine.Validate("Deferral Code", DeferralCode);
         SalesLine.Modify();
 
-        // [WHEN] Post sales invoice X 
+        // [WHEN] Post sales invoice X
         SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
         // [THEN] Verify created G/L entries
@@ -1728,7 +1728,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         SalesLine.Validate("Deferral Code", DeferralCode);
         SalesLine.Modify();
 
-        // [WHEN] Post sales invoice X 
+        // [WHEN] Post sales invoice X
         SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
         // [THEN] Verify created G/L entries
@@ -1770,7 +1770,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         // [GIVEN] Insert amounts on deferral schedule
         UpdateAmountOnDeferralSchedule("Deferral Document Type"::Sales, SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
 
-        // [WHEN] Post sales invoice X 
+        // [WHEN] Post sales invoice X
         SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
         // [THEN] Verify created G/L entries
@@ -1794,7 +1794,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralCode: Code[10];
     begin
         // [FEATURE] [Deferral schedule] [Allocation Account]
-        // [SCENARIO 543272] Post sales invoice with type = allocation account and defferals, calc. method = user-defined, deferral calculation start date = posting date 
+        // [SCENARIO 543272] Post sales invoice with type = allocation account and defferals, calc. method = user-defined, deferral calculation start date = posting date
         Initialize();
 
         // [GIVEN] Deferral Code X, calc.method = user-defined, deferral calculation start date = posting date
@@ -1815,7 +1815,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         // [GIVEN] Insert amounts on deferral schedule
         UpdateAmountOnDeferralSchedule("Deferral Document Type"::Sales, SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
 
-        // [WHEN] Post sales invoice X 
+        // [WHEN] Post sales invoice X
         SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
         // [THEN] Verify created G/L entries
@@ -1865,7 +1865,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         SalesAllocAccMgt.CreateLinesFromAllocationAccountLine(SalesLine);
         SalesLine.Delete();
 
-        // [WHEN] Post sales invoice X 
+        // [WHEN] Post sales invoice X
         SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
         // [THEN] Verify created G/L entries
@@ -1958,7 +1958,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralCode: Code[10];
     begin
         // [FEATURE] [Deferral schedule]
-        // [SCENARIO 543891] Post purchase invoice with type = item and with defferals, calc. method = user-defined 
+        // [SCENARIO 543891] Post purchase invoice with type = item and with defferals, calc. method = user-defined
         Initialize();
 
         // [GIVEN] Deferral Code X, calc.method = user-defined. deferral calculation start date = posting date
@@ -1972,7 +1972,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         // [GIVEN] Insert amounts on deferral schedule
         UpdateAmountOnDeferralSchedule("Deferral Document Type"::Purchase, PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.");
 
-        // [WHEN] Post purchase invoice X 
+        // [WHEN] Post purchase invoice X
         PurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         // [THEN] Verify created G/L entries
@@ -2010,7 +2010,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         PurchaseLine.Validate("Deferral Code", DeferralCode);
         PurchaseLine.Modify();
 
-        // [WHEN] Post purchase invoice X 
+        // [WHEN] Post purchase invoice X
         PurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         // [THEN] Verify created G/L entries
@@ -2044,7 +2044,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         PurchaseLine.Validate("Deferral Code", DeferralCode);
         PurchaseLine.Modify();
 
-        // [WHEN] Post purchase invoice X 
+        // [WHEN] Post purchase invoice X
         PurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         // [THEN] Verify created G/L entries
@@ -2086,7 +2086,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         // [GIVEN] Insert amounts on deferral schedule
         UpdateAmountOnDeferralSchedule("Deferral Document Type"::Purchase, PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.");
 
-        // [WHEN] Post purchase invoice X 
+        // [WHEN] Post purchase invoice X
         PurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         // [THEN] Verify created G/L entries
@@ -2110,7 +2110,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralCode: Code[10];
     begin
         // [FEATURE] [Deferral schedule] [Allocation Account]
-        // [SCENARIO 543891] Post purchase invoice with type = allocation account and defferals, calc. method = user-defined, deferral calculation start date = posting date 
+        // [SCENARIO 543891] Post purchase invoice with type = allocation account and defferals, calc. method = user-defined, deferral calculation start date = posting date
         Initialize();
 
         // [GIVEN] Deferral Code X, calc.method = user-defined, deferral calculation start date = posting date
@@ -2131,7 +2131,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         // [GIVEN] Insert amounts on deferral schedule
         UpdateAmountOnDeferralSchedule("Deferral Document Type"::Purchase, PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.");
 
-        // [WHEN] Post purchase invoice X 
+        // [WHEN] Post purchase invoice X
         PurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         // [THEN] Verify created G/L entries
@@ -2181,7 +2181,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         PurchaseAllocAccMgt.CreateLinesFromAllocationAccountLine(PurchaseLine);
         PurchaseLine.Delete();
 
-        // [WHEN] Post purchase invoice X 
+        // [WHEN] Post purchase invoice X
         PurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         // [THEN] Verify created G/L entries
@@ -2507,36 +2507,6 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateGenJournalLineWithTemplate(var GenJournalLine: Record "Gen. Journal Line"; GenJournalTemplate: Record "Gen. Journal Template"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
-    var
-        GenJournalBatch: Record "Gen. Journal Batch";
-    begin
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-
-        LibraryJournals.CreateGenJournalLine(
-          GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name,
-          GenJournalLine."Document Type"::" ", AccountType, AccountNo,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
-          LibraryRandom.RandDecInRange(1000, 2000, 2));
-
-        GenJournalLine.Validate(Description, LibraryUtility.GenerateGUID());
-        GenJournalLine.Validate("Source Code", GenJournalTemplate."Source Code");
-        GenJournalLine.Validate("Deferral Code", CreateEqual5Periods());
-        GenJournalLine.Modify(true);
-    end;
-
-    local procedure CreateGeneralGenJournalTemplateWithSourceCode(var GenJournalTemplate: Record "Gen. Journal Template")
-    var
-        SourceCode: Record "Source Code";
-    begin
-        LibraryERM.CreateSourceCode(SourceCode);
-
-        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::General);
-        GenJournalTemplate.Validate("Source Code", SourceCode.Code);
-        GenJournalTemplate.Modify(true);
-    end;
-
     local procedure CreateGenJournalLineWithDeferral(var GenJournalLine: Record "Gen. Journal Line"): Code[10]
     var
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -2597,18 +2567,6 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
             GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
             GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
             GenJournalLine."Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), LibraryRandom.RandDec(1000, 2));
-    end;
-
-    local procedure UpdateGeneralJournalInSourceCodeSetup()
-    var
-        SourceCodeSetup: Record "Source Code Setup";
-        SourceCode: Record "Source Code";
-    begin
-        LibraryERM.CreateSourceCode(SourceCode);
-
-        SourceCodeSetup.Get();
-        SourceCodeSetup.Validate("General Journal", SourceCode.Code);
-        SourceCodeSetup.Modify(true);
     end;
 
     local procedure UpdateDescriptionAndOmitDefaultDescriptionOnDeferralGLAccount(var GLAccountDeferral: Record "G/L Account"; DeferralCode: Code[10]; NewDescription: Text[100]; NewOmit: Boolean)
@@ -2738,17 +2696,6 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
-        Assert.RecordCount(GLEntry, ExpectedGLEntriesCount);
-    end;
-
-    local procedure VerifyTotalNumberOfPostedDeferralGLEntries(GenJournalLine: Record "Gen. Journal Line"; ExpectedGLEntriesCount: Integer)
-    var
-        GLEntry: Record "G/L Entry";
-        DeferralTemplate: Record "Deferral Template";
-    begin
-        GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
-        DeferralTemplate.Get(GenJournalLine."Deferral Code");
-        GLEntry.SetRange("G/L Account No.", DeferralTemplate."Deferral Account");
         Assert.RecordCount(GLEntry, ExpectedGLEntriesCount);
     end;
 
@@ -2998,4 +2945,3 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
     end;
 }
-

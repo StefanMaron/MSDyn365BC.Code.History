@@ -151,7 +151,7 @@ page 7212 "CRM Shipping Method List"
         CurrentlyMappedCRMPShippingMethodOptionId := OptionId;
     end;
 
-    procedure GetRec(OptionId: Integer): Record "CRM Shipping Method"
+    internal procedure GetRec(OptionId: Integer): Record "CRM Shipping Method"
     begin
         if Rec.Get(OptionId) then
             exit(Rec);

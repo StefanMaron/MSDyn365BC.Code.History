@@ -4,6 +4,11 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Ledger;
 
+/// <summary>
+/// Calculates running account balances for bank account ledger entries with optimized caching.
+/// Provides efficient balance calculations for both local and foreign currency amounts by maintaining
+/// daily totals and entry-specific balance caches to avoid repetitive database queries.
+/// </summary>
 codeunit 105 "Calc. Running Acc. Balance"
 {
     InherentPermissions = X;
@@ -18,6 +23,12 @@ codeunit 105 "Calc. Running Acc. Balance"
         EntryValuesLCY: Dictionary of [Integer, Decimal];
         PrevAccNo: Code[20];
 
+    /// <summary>
+    /// Calculates the running balance for a bank account ledger entry in the original currency.
+    /// Uses cached daily totals and entry-specific values to optimize performance for repeated calls.
+    /// </summary>
+    /// <param name="BankAccountLedgerEntry">Bank account ledger entry to calculate running balance for.</param>
+    /// <returns>Running balance in the original currency at the time of the entry.</returns>
     procedure GetBankAccBalance(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"): Decimal
     var
         RunningBalance: Decimal;
@@ -27,6 +38,12 @@ codeunit 105 "Calc. Running Acc. Balance"
         exit(RunningBalance);
     end;
 
+    /// <summary>
+    /// Calculates the running balance for a bank account ledger entry in local currency (LCY).
+    /// Uses cached daily totals and entry-specific values to optimize performance for repeated calls.
+    /// </summary>
+    /// <param name="BankAccountLedgerEntry">Bank account ledger entry to calculate running balance for.</param>
+    /// <returns>Running balance in local currency (LCY) at the time of the entry.</returns>
     procedure GetBankAccBalanceLCY(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"): Decimal
     var
         RunningBalance: Decimal;

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 104153 "Upgrade - EFT"
 {
     Subtype = Upgrade;

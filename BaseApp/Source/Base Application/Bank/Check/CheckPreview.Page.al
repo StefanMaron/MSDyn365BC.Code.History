@@ -13,6 +13,14 @@ using Microsoft.Purchases.Remittance;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 
+/// <summary>
+/// Provides formatted preview of check layout and content before final printing.
+/// Displays payer information, payee details, and check amounts in standard check format.
+/// </summary>
+/// <remarks>
+/// Source Table: Gen. Journal Line. Integrates with company information and address formatting.
+/// Shows complete check preview including routing numbers, amounts, and remittance details.
+/// </remarks>
 page 404 "Check Preview"
 {
     Caption = 'Check Preview';
@@ -117,17 +125,17 @@ page 404 "Check Preview"
                             ApplicationArea = Basic, Suite;
                             ToolTip = 'Specifies the posting date for the entry.';
                         }
-                        field(Text002; Text002)
+                        field(Text002; PlaceholderLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Visible = false;
                         }
-                        field(Placeholder2; Text002)
+                        field(Placeholder2; PlaceholderLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Visible = false;
                         }
-                        field(Placeholder3; Text002)
+                        field(Placeholder3; PlaceholderLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Visible = false;
@@ -144,17 +152,17 @@ page 404 "Check Preview"
                             ShowCaption = false;
                             ToolTip = 'Specifies the amount that will appear on the check.';
                         }
-                        field(Placeholder4; Text002)
+                        field(Placeholder4; PlaceholderLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Visible = false;
                         }
-                        field(Placeholder5; Text002)
+                        field(Placeholder5; PlaceholderLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Visible = false;
                         }
-                        field(Placeholder6; Text002)
+                        field(Placeholder6; PlaceholderLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Visible = false;
@@ -196,11 +204,9 @@ page 404 "Check Preview"
         CheckStatusText: Text[30];
         CheckAmount: Decimal;
 
-#pragma warning disable AA0074
-        Text000: Label 'Printed Check';
-        Text001: Label 'Not Printed Check';
-        Text002: Label 'Placeholder';
-#pragma warning restore AA0074
+        PrintedCheckLbl: Label 'Printed Check';
+        NotPrintedCheckLbl: Label 'Not Printed Check';
+        PlaceholderLbl: Label 'Placeholder';
         CheckDateFormat: Option " ","MM DD YYYY","DD MM YYYY","YYYY MM DD";
         CheckLanguage: Integer;
         DateSeparator: Option " ","-",".","/";
@@ -226,7 +232,7 @@ page 404 "Check Preview"
             else
                 GenJnlLine.SetRange("Bank Payment Type", GenJnlLine."Bank Payment Type"::"Computer Check");
             GenJnlLine.SetRange("Check Printed", true);
-            CheckStatusText := Text000;
+            CheckStatusText := PrintedCheckLbl;
         end else begin
             GenJnlLine.Reset();
             GenJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.");
@@ -239,7 +245,7 @@ page 404 "Check Preview"
             GenJnlLine.SetRange("Bal. Account Type", Rec."Bal. Account Type");
             GenJnlLine.SetRange("Bal. Account No.", Rec."Bal. Account No.");
             GenJnlLine.SetRange("Bank Payment Type", Rec."Bank Payment Type");
-            CheckStatusText := Text001;
+            CheckStatusText := NotPrintedCheckLbl;
         end;
 
         CheckAmount := 0;
@@ -373,11 +379,35 @@ page 404 "Check Preview"
         Str := DelChr(Str, '<>', ', ');
     end;
 
+    /// <summary>
+    /// Integration event raised before formatting text fields for check display.
+    /// Enables custom formatting logic or field population before standard check formatting.
+    /// </summary>
+    /// <param name="CheckToAddr">Array of address text fields for the check</param>
+    /// <param name="CheckAmount">Amount value for the check</param>
+    /// <param name="GenJournalLine">General journal line associated with the check</param>
+    /// <param name="Customer">Customer record when balance account type is Customer</param>
+    /// <param name="BankAccount">Bank account record for the check</param>
+    /// <param name="Employee">Employee record when balance account type is Employee</param>
+    /// <param name="Vendor">Vendor record when balance account type is Vendor</param>
+    /// <param name="Rec">Current record context for the check preview</param>
+    /// <param name="IsHandled">Set to true to skip standard text field formatting</param>
+    /// <remarks>
+    /// Raised from FormatTextFieldsForCheck procedure before standard check text formatting.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFormatTextFieldsForCheck(var CheckToAddr: array[8] of Text[100]; CheckAmount: Decimal; var GenJournalLine: Record "Gen. Journal Line"; var Customer: Record Customer; var BankAccount: Record "Bank Account"; Employee: Record Employee; var Vendor: Record Vendor; Rec: Record "Gen. Journal Line"; var IsHandled: Boolean; var BankAccount2: Record "Bank Account"; CheckDateFormat: Option; DateSeparator: Option; CheckLanguage: Integer; CheckStyle: Option; CheckDateText: Text[30])
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after formatting text fields for check display.
+    /// Enables custom modifications to formatted check text fields.
+    /// </summary>
+    /// <param name="CheckToAddr">Array of formatted address text fields for the check</param>
+    /// <remarks>
+    /// Raised from FormatTextFieldsForCheck procedure after standard check text formatting.
+    /// </remarks>
     [IntegrationEvent(true, false)]
     local procedure OnAfterFormatTextFieldsForCheck(var CheckToAddr: array[8] of Text[100])
     begin

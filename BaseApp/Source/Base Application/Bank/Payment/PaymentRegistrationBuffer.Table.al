@@ -11,6 +11,16 @@ using Microsoft.Foundation.Navigate;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
 
+/// <summary>
+/// Table 981 "Payment Registration Buffer" serves as a temporary buffer for payment registration operations.
+/// Stores customer ledger entry information for the payment registration workspace, enabling quick
+/// payment entry and batch processing. Supports both individual and lump payment scenarios.
+/// </summary>
+/// <remarks>
+/// Used exclusively as a temporary table (ReplicateData = false) for payment registration UI.
+/// Integrates with customer ledger entries and supports payment tolerance and discount calculations.
+/// Provides extensibility through integration events for custom payment processing logic.
+/// </remarks>
 table 981 "Payment Registration Buffer"
 {
     Caption = 'Payment Registration Buffer';
@@ -19,38 +29,66 @@ table 981 "Payment Registration Buffer"
 
     fields
     {
+        /// <summary>
+        /// Customer ledger entry number that this buffer record represents.
+        /// </summary>
         field(1; "Ledger Entry No."; Integer)
         {
             Caption = 'Ledger Entry No.';
         }
+        /// <summary>
+        /// Customer number or source account number for the payment.
+        /// </summary>
         field(2; "Source No."; Code[20])
         {
             Caption = 'Source No.';
         }
+        /// <summary>
+        /// Document type of the customer ledger entry.
+        /// </summary>
         field(3; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
         }
+        /// <summary>
+        /// Document number of the customer ledger entry.
+        /// </summary>
         field(4; "Document No."; Code[20])
         {
             Caption = 'Document No.';
         }
+        /// <summary>
+        /// Description of the customer ledger entry.
+        /// </summary>
         field(5; Description; Text[100])
         {
             Caption = 'Description';
         }
+        /// <summary>
+        /// Due date of the customer ledger entry.
+        /// </summary>
         field(6; "Due Date"; Date)
         {
             Caption = 'Due Date';
         }
+        /// <summary>
+        /// Customer name associated with the payment.
+        /// </summary>
         field(7; Name; Text[100])
         {
             Caption = 'Name';
         }
+        /// <summary>
+        /// Remaining amount to be paid on the customer ledger entry.
+        /// </summary>
         field(8; "Remaining Amount"; Decimal)
         {
+            AutoFormatType = 1;
             Caption = 'Remaining Amount';
         }
+        /// <summary>
+        /// Indicates whether a payment has been made for this entry.
+        /// </summary>
         field(9; "Payment Made"; Boolean)
         {
             Caption = 'Payment Made';
@@ -71,6 +109,9 @@ table 981 "Payment Registration Buffer"
                 UpdateRemainingAmount();
             end;
         }
+        /// <summary>
+        /// Date when the payment was received.
+        /// </summary>
         field(10; "Date Received"; Date)
         {
             Caption = 'Date Received';
@@ -81,8 +122,12 @@ table 981 "Payment Registration Buffer"
                     Validate("Payment Made", true);
             end;
         }
+        /// <summary>
+        /// Amount received for this payment entry.
+        /// </summary>
         field(11; "Amount Received"; Decimal)
         {
+            AutoFormatType = 1;
             Caption = 'Amount Received';
 
             trigger OnValidate()
@@ -100,14 +145,25 @@ table 981 "Payment Registration Buffer"
                 UpdateRemainingAmount();
             end;
         }
+        /// <summary>
+        /// Original remaining amount before any payment processing.
+        /// </summary>
         field(12; "Original Remaining Amount"; Decimal)
         {
+            AutoFormatType = 1;
             Caption = 'Original Remaining Amount';
         }
+        /// <summary>
+        /// Remaining amount after applying payment discount.
+        /// </summary>
         field(13; "Rem. Amt. after Discount"; Decimal)
         {
+            AutoFormatType = 1;
             Caption = 'Rem. Amt. after Discount';
         }
+        /// <summary>
+        /// Payment discount date for this customer ledger entry.
+        /// </summary>
         field(14; "Pmt. Discount Date"; Date)
         {
             Caption = 'Pmt. Discount Date';
@@ -118,18 +174,30 @@ table 981 "Payment Registration Buffer"
                     Validate("Payment Made", true);
             end;
         }
+        /// <summary>
+        /// Indicates whether the amount received should be limited to maximum allowable amount.
+        /// </summary>
         field(15; "Limit Amount Received"; Boolean)
         {
             Caption = 'Limit Amount Received';
         }
+        /// <summary>
+        /// Payment method code used for this payment registration.
+        /// </summary>
         field(16; "Payment Method Code"; Code[10])
         {
             Caption = 'Payment Method Code';
         }
+        /// <summary>
+        /// Type of balancing account for the payment (G/L Account or Bank Account).
+        /// </summary>
         field(17; "Bal. Account Type"; enum "Payment Balance Account Type")
         {
             Caption = 'Bal. Account Type';
         }
+        /// <summary>
+        /// Number of the balancing account for the payment.
+        /// </summary>
         field(18; "Bal. Account No."; Code[20])
         {
             Caption = 'Bal. Account No.';
@@ -137,6 +205,9 @@ table 981 "Payment Registration Buffer"
             else
             if ("Bal. Account Type" = const("Bank Account")) "Bank Account";
         }
+        /// <summary>
+        /// External document number for the payment registration.
+        /// </summary>
         field(19; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
@@ -348,24 +419,48 @@ table 981 "Payment Registration Buffer"
                 "Remaining Amount" := "Original Remaining Amount" - "Amount Received";
     end;
 
+    /// <summary>
+    /// Integration event raised before inserting a payment registration buffer record during table population.
+    /// Enables custom modifications to buffer data before record insertion.
+    /// </summary>
+    /// <param name="PaymentRegistrationBuffer">Payment registration buffer record being inserted</param>
+    /// <param name="CustLedgerEntry">Source customer ledger entry for the buffer record</param>
     [IntegrationEvent(false, false)]
     local procedure OnPopulateTableOnBeforeInsert(var PaymentRegistrationBuffer: Record "Payment Registration Buffer"; CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after applying filters to customer ledger entries during table population.
+    /// Enables custom filter modifications for payment registration processing.
+    /// </summary>
+    /// <param name="CustLedgerEntry">Customer ledger entry with applied filters</param>
+    /// <param name="PaymentRegistrationBuffer">Payment registration buffer context</param>
     [IntegrationEvent(false, false)]
     local procedure OnPopulateTableOnAfterCustLedgerEntrySetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; var PaymentRegistrationBuffer: Record "Payment Registration Buffer")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before modifying a payment registration buffer record during user value restoration.
+    /// Enables custom logic before restoring user-entered payment values.
+    /// </summary>
+    /// <param name="PaymentRegistrationBuffer">Payment registration buffer record being modified</param>
+    /// <param name="TempSavePmtRegnBuf">Temporary buffer containing saved user values</param>
     [IntegrationEvent(false, false)]
     local procedure OnRestoreUserValuesOnBeforeModify(var PaymentRegistrationBuffer: Record "Payment Registration Buffer"; var TempSavePmtRegnBuf: Record "Payment Registration Buffer" temporary)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before determining the due date style for payment registration display.
+    /// Enables custom styling logic for due date visualization.
+    /// </summary>
+    /// <param name="PaymentRegistrationBuffer">Payment registration buffer record</param>
+    /// <param name="ReturnValue">Style value to be returned</param>
+    /// <param name="IsHandled">Set to true to skip standard style determination</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDueDateStyle(var PaymentRegistrationBuffer: Record "Payment Registration Buffer"; var ReturnValue: Text; var IsHandled: Boolean)
     begin
     end;
 }
-

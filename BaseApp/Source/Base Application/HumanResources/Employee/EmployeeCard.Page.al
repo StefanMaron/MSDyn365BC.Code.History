@@ -1,4 +1,8 @@
-﻿namespace Microsoft.HumanResources.Employee;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.HumanResources.Employee;
 
 using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Contact;
@@ -9,6 +13,7 @@ using Microsoft.HumanResources.Absence;
 using Microsoft.HumanResources.Analysis;
 using Microsoft.HumanResources.Comment;
 using Microsoft.HumanResources.Payables;
+using Microsoft.HumanResources.Setup;
 using Microsoft.Utilities;
 using System.Email;
 
@@ -69,7 +74,6 @@ page 5200 "Employee Card"
                 field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the value of the the employee''s balance.';
                 }
                 field("Search Name"; Rec."Search Name")
                 {
@@ -92,6 +96,21 @@ page 5200 "Employee Card"
                     ApplicationArea = BasicHR;
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the employee''s email address at the company.';
+                }
+                field("Board Member"; Rec."Board Member")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Board Member field.';
+                }
+                field("Manager Role"; Rec."Manager Role")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Manager Role field.';
+                }
+                field(Nationality; Rec.Nationality)
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Nationality field.';
                 }
                 field("Last Date Modified"; Rec."Last Date Modified")
                 {
@@ -275,6 +294,16 @@ page 5200 "Employee Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a salesperson or purchaser code for the employee.';
                 }
+                field("Engagement Type"; Rec."Engagement Type")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Engagement Type field.';
+                }
+                field("Collective Bargain. Agmt. Info"; Rec."Collective Bargain. Agmt. Info")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Collective Bargaining Agreement Info field.';
+                }
             }
             group(Personal)
             {
@@ -310,6 +339,12 @@ page 5200 "Employee Card"
                     ApplicationArea = BasicHR;
                     LookupPageID = "Employee Posting Groups";
                     ToolTip = 'Specifies the employee''s type to link business transactions made for the employee with the appropriate account in the general ledger.';
+                }
+                field("Allow Multiple Posting Groups"; Rec."Allow Multiple Posting Groups")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    Visible = IsAllowMultiplePostingGroupsVisible;
                 }
                 field("Currency Code"; Rec."Currency Code")
                 {
@@ -355,6 +390,35 @@ page 5200 "Employee Card"
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the folio number of the license or permit granted to the operator of the federal freight motor carrier in which the goods or merchandise are moved.';
+                }
+            }
+            group("Payroll")
+            {
+                Caption = 'Payroll';
+                field("Emp. Payroll"; Rec.Payroll)
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Payroll field.';
+                }
+                field("Payroll Currency Code"; Rec."Payroll Currency Code")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Payroll Currency Code field.';
+                }
+                field("Payroll (LCY)"; Rec."Payroll (LCY)")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Payroll (LCY) field.';
+                }
+                field("Working Type"; Rec."Working Type")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Working Type field.';
+                }
+                field("Working Hours"; Rec."Working Hours")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Working Hours field.';
                 }
             }
         }
@@ -724,6 +788,8 @@ page 5200 "Employee Card"
     begin
         SetNoFieldVisible();
         IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+        HumanResourcesSetup.Get();
+        IsAllowMultiplePostingGroupsVisible := HumanResourcesSetup."Allow Multiple Posting Groups";
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -754,10 +820,12 @@ page 5200 "Employee Card"
     end;
 
     var
+        HumanResourcesSetup: Record "Human Resources Setup";
         FormatAddress: Codeunit "Format Address";
         NoFieldVisible: Boolean;
         IsCountyVisible: Boolean;
         NewMode: Boolean;
+        IsAllowMultiplePostingGroupsVisible: Boolean;
 
         ShowMapLbl: Label 'Show on Map';
 

@@ -14,7 +14,7 @@ codeunit 134565 "Recurring Sales Line Test"
         Customer: Record Customer;
         LibrarySales: Codeunit "Library - Sales";
         TaxAreaCode: Code[20];
-        StandardSalesCode: Code[20];
+        StandardSalesCode: Code[10];
     begin
         // [SCENARIO] When automatic sales recurring lines are enabled no error is thrown when running the OnInsert trigger in the table "Sales Header"
         // bug 360031
@@ -35,7 +35,7 @@ codeunit 134565 "Recurring Sales Line Test"
         // [THEN] No error is thrown
     end;
 
-    local procedure InitializeStandardCustomerSalesCode(Customer: Record Customer; StandardSalesCode: Code[20])
+    local procedure InitializeStandardCustomerSalesCode(Customer: Record Customer; StandardSalesCode: Code[10])
     var
         StandardCustomerSalesCode: Record "Standard Customer Sales Code";
     begin
@@ -47,7 +47,7 @@ codeunit 134565 "Recurring Sales Line Test"
         StandardCustomerSalesCode.Insert();
     end;
 
-    local procedure InitializeStandardSalesCode(StandardSalesCode: Code[20])
+    local procedure InitializeStandardSalesCode(StandardSalesCode: Code[10])
     var
         StdSalesCode: Record "Standard Sales Code";
     begin
@@ -56,16 +56,19 @@ codeunit 134565 "Recurring Sales Line Test"
         StdSalesCode.Insert();
     end;
 
-    local procedure InitializeStandardSalesLine(StandardSalesCode: Code[20])
+    local procedure InitializeStandardSalesLine(StandardSalesCode: Code[10])
     var
         StdSalesLine: Record "Standard Sales Line";
+        LibraryInventory: Codeunit "Library - Inventory";
+        ItemNo: Code[20];
     begin
+        ItemNo := LibraryInventory.CreateItemNo();
         StdSalesLine.DeleteAll();
         StdSalesLine."Standard Sales Code" := StandardSalesCode;
         StdSalesLine."Line No." := 1;
         StdSalesLine.Type := StdSalesLine.Type::Item;
         StdSalesLine.Quantity := 1;
-        StdSalesLine."No." := '1';
+        StdSalesLine."No." := ItemNo;
         StdSalesLine.Insert();
     end;
 

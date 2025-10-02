@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Document;
 
 using Microsoft.CRM.Contact;
 using Microsoft.Finance.Currency;
@@ -24,6 +28,7 @@ using Microsoft.Warehouse.InventoryDocument;
 using Microsoft.Warehouse.Request;
 using System.Automation;
 using System.Security.User;
+using System.Threading;
 
 page 6630 "Sales Return Order"
 {
@@ -65,8 +70,8 @@ page 6630 "Sales Return Order"
 
                     trigger OnValidate()
                     begin
-                        IsSalesLinesEditable := Rec.SalesLinesEditable();
                         Rec.SelltoCustomerNoOnAfterValidate(Rec, xRec);
+                        IsSalesLinesEditable := Rec.SalesLinesEditable();
                         CurrPage.Update();
                     end;
                 }
@@ -81,16 +86,32 @@ page 6630 "Sales Return Order"
                     AboutTitle = 'Who''s returning the items?';
                     AboutText = 'This is the customer that bought the items now being returned, and who will be credited if you choose to accept the return.';
 
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        Customer: Record Customer;
+                    begin
+                        Selected.SetTable(Customer);
+                        if Rec."Sell-to Customer No." <> Customer."No." then begin
+                            Rec.Validate("Sell-to Customer No.", Customer."No.");
+                            if Rec."Sell-to Customer No." <> Customer."No." then
+                                error('');
+                            IsSalesLinesEditable := Rec.SalesLinesEditable();
+                            CurrPage.Update();
+                        end;
+                    end;
+
                     trigger OnValidate()
                     begin
                         Rec.SelltoCustomerNoOnAfterValidate(Rec, xRec);
                         CurrPage.Update();
                     end;
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        exit(Rec.LookupSellToCustomerName(Text));
-                    end;
+                }
+                field("Sell-to Customer Name 2"; Rec."Sell-to Customer Name 2")
+                {
+                    ApplicationArea = SalesReturnOrder;
+                    Caption = 'Customer Name 2';
+                    QuickEntry = false;
+                    Visible = false;
                 }
                 group("Sell-to")
                 {
@@ -109,6 +130,13 @@ page 6630 "Sales Return Order"
                         Importance = Additional;
                         ToolTip = 'Specifies an additional part of the customer''s address.';
                     }
+                    field("Sell-to City"; Rec."Sell-to City")
+                    {
+                        ApplicationArea = SalesReturnOrder;
+                        Caption = 'City';
+                        Importance = Additional;
+                        ToolTip = 'Specifies the city of the customer''s address.';
+                    }
                     group(Control170)
                     {
                         ShowCaption = false;
@@ -120,13 +148,6 @@ page 6630 "Sales Return Order"
                             Importance = Additional;
                             ToolTip = 'Specifies the county of the address.';
                         }
-                    }
-                    field("Sell-to City"; Rec."Sell-to City")
-                    {
-                        ApplicationArea = SalesReturnOrder;
-                        Caption = 'City';
-                        Importance = Additional;
-                        ToolTip = 'Specifies the city of the customer''s address.';
                     }
                     field("Sell-to Post Code"; Rec."Sell-to Post Code")
                     {
@@ -293,6 +314,15 @@ page 6630 "Sales Return Order"
                     Importance = Additional;
                     ToolTip = 'Specifies the status of a job queue entry or task that handles the posting of sales return orders.';
                     Visible = JobQueueUsed;
+
+                    trigger OnDrillDown()
+                    var
+                        JobQueueEntry: Record "Job Queue Entry";
+                    begin
+                        if Rec."Job Queue Status" = Rec."Job Queue Status"::" " then
+                            exit;
+                        JobQueueEntry.ShowStatusMsg(Rec."Job Queue Entry ID");
+                    end;
                 }
                 field(Status; Rec.Status)
                 {
@@ -565,6 +595,12 @@ page 6630 "Sales Return Order"
                         Caption = 'Address 2';
                         ToolTip = 'Specifies an additional part of the shipping address.';
                     }
+                    field("Ship-to City"; Rec."Ship-to City")
+                    {
+                        ApplicationArea = SalesReturnOrder;
+                        Caption = 'City';
+                        ToolTip = 'Specifies the city of the shipping address.';
+                    }
                     group(Control76)
                     {
                         ShowCaption = false;
@@ -575,12 +611,6 @@ page 6630 "Sales Return Order"
                             CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                             ToolTip = 'Specifies the county of the address.';
                         }
-                    }
-                    field("Ship-to City"; Rec."Ship-to City")
-                    {
-                        ApplicationArea = SalesReturnOrder;
-                        Caption = 'City';
-                        ToolTip = 'Specifies the city of the shipping address.';
                     }
                     field("Ship-to Post Code"; Rec."Ship-to Post Code")
                     {
@@ -648,6 +678,16 @@ page 6630 "Sales Return Order"
                             CurrPage.Update();
                         end;
                     }
+                    field("Bill-to Name 2"; Rec."Bill-to Name 2")
+                    {
+                        ApplicationArea = SalesReturnOrder;
+                        Caption = 'Name 2';
+                        Editable = Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.";
+                        Enabled = Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.";
+                        Importance = Additional;
+                        QuickEntry = false;
+                        Visible = false;
+                    }
                     field("Bill-to Address"; Rec."Bill-to Address")
                     {
                         ApplicationArea = SalesReturnOrder;
@@ -666,6 +706,15 @@ page 6630 "Sales Return Order"
                         Importance = Additional;
                         ToolTip = 'Specifies an additional part of the billing address.';
                     }
+                    field("Bill-to City"; Rec."Bill-to City")
+                    {
+                        ApplicationArea = SalesReturnOrder;
+                        Caption = 'City';
+                        Editable = Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.";
+                        Enabled = Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.";
+                        Importance = Additional;
+                        ToolTip = 'Specifies the city of the billing address.';
+                    }
                     group(Control80)
                     {
                         ShowCaption = false;
@@ -679,15 +728,6 @@ page 6630 "Sales Return Order"
                             Importance = Additional;
                             ToolTip = 'Specifies the county of the address.';
                         }
-                    }
-                    field("Bill-to City"; Rec."Bill-to City")
-                    {
-                        ApplicationArea = SalesReturnOrder;
-                        Caption = 'City';
-                        Editable = Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.";
-                        Enabled = Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.";
-                        Importance = Additional;
-                        ToolTip = 'Specifies the city of the billing address.';
                     }
                     field("Bill-to Post Code"; Rec."Bill-to Post Code")
                     {
@@ -1837,12 +1877,12 @@ page 6630 "Sales Return Order"
         SalesDocCheckFactboxVisible: Boolean;
         IsJournalTemplNameVisible: Boolean;
         IsPaymentMethodCodeVisible: Boolean;
-        IsPostingGroupEditable: Boolean;
         IsSalesLinesEditable: Boolean;
         VATDateEnabled: Boolean;
 
     protected var
         SalesTaxStatisticsVisible: Boolean;
+        IsPostingGroupEditable: Boolean;
 
     local procedure ActivateFields()
     begin

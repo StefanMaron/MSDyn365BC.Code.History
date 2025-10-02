@@ -87,6 +87,13 @@ table 5612 "FA Depreciation Book"
                         end;
                 end;
                 TestHalfYearConventionMethod();
+
+                if "Depreciation Method" <> "Depreciation Method"::"Straight-Line" then begin
+                    DeprBook.Get("Depreciation Book Code");
+                    if DeprBook."Use Accounting Period" then
+                        Error(MustBeStraightLineTxt, FieldCaption("Depreciation Method"), DeprBook.FieldCaption("Use Accounting Period"), true,
+                          DeprBook.TableCaption(), DeprBook.Code);
+                end;
             end;
         }
         field(4; "Depreciation Starting Date"; Date)
@@ -823,6 +830,7 @@ table 5612 "FA Depreciation Book"
 #pragma warning restore AA0074
         OnlyOneDefaultDeprBookErr: Label 'Only one fixed asset depreciation book can be marked as the default book';
         FiscalYear365Err: Label 'An ending date for depreciation cannot be calculated automatically when the Fiscal Year 365 Days option is chosen. You must manually enter the ending date.';
+        MustBeStraightLineTxt: Label '%1 must be Straight-Line if %2 is %3 in %4: %5.', Comment = '%1="Depreciation Method" Field Caption %2="Use Accounting Period" Field Caption %3="Use Accounting Period" Field Value %4="Depreciation Book" Table Caption %5="Depreciation Book" Value of field Code';
 
     protected var
         FA: Record "Fixed Asset";
@@ -894,7 +902,8 @@ table 5612 "FA Depreciation Book"
                 end;
                 if not DepreciationBook2."Fiscal Year 365 Days" then begin
                     "No. of Depreciation Months" :=
-                      DepreciationCalculation.DeprDays("Depreciation Starting Date", "Depreciation Ending Date", false) / 30;
+                      DepreciationCalculation.DeprDays("Depreciation Starting Date", "Depreciation Ending Date", false,
+                        DeprBook."Use Accounting Period") / 30;
                     "No. of Depreciation Months" := Round("No. of Depreciation Months", 0.00000001);
                     "No. of Depreciation Years" := Round("No. of Depreciation Months" / 12, 0.00000001);
                 end;
@@ -912,7 +921,8 @@ table 5612 "FA Depreciation Book"
         else begin
             EndingDate := FADateCalculation.CalculateDate(
                 "Depreciation Starting Date", Round("No. of Depreciation Years" * 360, 1), false);
-            EndingDate := DepreciationCalculation.Yesterday(EndingDate, false);
+            DeprBook.Get("Depreciation Book Code");
+            EndingDate := DepreciationCalculation.Yesterday(EndingDate, false, DeprBook."Use Accounting Period");
             if EndingDate < "Depreciation Starting Date" then
                 EndingDate := "Depreciation Starting Date";
         end;

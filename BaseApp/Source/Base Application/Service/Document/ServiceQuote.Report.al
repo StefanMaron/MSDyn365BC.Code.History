@@ -650,6 +650,8 @@ report 5902 "Service Quote"
 
     requestpage
     {
+        AboutTitle = 'About Service Quote';
+        AboutText = 'Generate a service quote that you can send to your customer.';
         SaveValues = true;
 
         layout

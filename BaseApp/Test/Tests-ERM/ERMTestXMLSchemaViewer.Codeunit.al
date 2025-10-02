@@ -1455,28 +1455,6 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         OutStr.WriteText('</xsd:schema>');
     end;
 
-    local procedure CreateSchemaFileWithElementAndAttributes(var OutStream: OutStream)
-    begin
-        OutStream.WriteText('<?xml version="1.0" encoding="UTF-8"?>');
-        OutStream.WriteText(
-          '<xs:schema elementFormDefault="qualified" targetNamespace="urn:iso:std:iso:20022:tech:xsd:pain.001.001.04"' +
-          ' xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.04" xmlns:xs="http://www.w3.org/2001/XMLSchema">');
-        OutStream.WriteText('<xs:element name="Customer">');
-        OutStream.WriteText('<xs:complexType>');
-        OutStream.WriteText('<xs:sequence>');
-        OutStream.WriteText('<xs:element name="Elem" type="xs:date" />');
-        OutStream.WriteText('<xs:attribute name="Attr"/>');
-        OutStream.WriteText('<xs:complexType>');
-        OutStream.WriteText('<xs:sequence>');
-        OutStream.WriteText('<xs:element name="Elem" type="xs:string"/>');
-        OutStream.WriteText('</xs:sequence>');
-        OutStream.WriteText('</xs:complexType>');
-        OutStream.WriteText('</xs:sequence>');
-        OutStream.WriteText('</xs:complexType>');
-        OutStream.WriteText('</xs:element>');
-        OutStream.WriteText('</xs:schema>');
-    end;
-
     local procedure GetExpectedDataTypeAndFormat(SimpleDataType: Text; var DataType: Option; var DataFormat: Text; var DataFormattingCulture: Text)
     var
         DataExchColDef: Record "Data Exch. Column Def";
@@ -1624,4 +1602,3 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
     begin
     end;
 }
-

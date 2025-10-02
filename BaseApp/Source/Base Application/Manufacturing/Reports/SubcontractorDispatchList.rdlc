@@ -4798,15 +4798,6 @@
       </DefaultValue>
       <Prompt>DocumentationLabel</Prompt>
     </ReportParameter>
-    <ReportParameter Name="TimezoneLabel">
-      <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>TimezoneLabel</Value>
-        </Values>
-      </DefaultValue>
-      <Prompt>TimezoneLabel</Prompt>
-    </ReportParameter>
   </ReportParameters>
   <Code>Public Function BlankZero(ByVal Value As Decimal)
     if Value = 0 then

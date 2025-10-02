@@ -64,6 +64,16 @@ page 9320 "Service Credit Memos"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the customer to whom the items on the document will be shipped.';
                 }
+                field(Amount; Rec.Amount)
+                {
+                    ApplicationArea = Service;
+                    Visible = false;
+                }
+                field("Amount Including VAT"; Rec."Amount Including VAT")
+                {
+                    ApplicationArea = Service;
+                    Visible = false;
+                }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;

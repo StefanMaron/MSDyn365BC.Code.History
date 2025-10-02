@@ -172,7 +172,8 @@ table 5855 "Invt. Shipment Line"
         }
         field(72; "Unit Cost (ACY)"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
+            AutoFormatType = 2;
             Caption = 'Unit Cost (ACY)';
             Editable = false;
         }
@@ -271,6 +272,7 @@ table 5855 "Invt. Shipment Line"
         }
         field(5813; "Amount (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Amount (ACY)';
         }
@@ -311,6 +313,19 @@ table 5855 "Invt. Shipment Line"
         DimMgt: Codeunit DimensionManagement;
         DocumentLineTxt: Label '%1 %2 %3', Locked = true;
 
+    protected var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GeneralLedgerSetupRead: Boolean;
+
+    local procedure GetAdditionalReportingCurrencyCode(): Code[10]
+    begin
+        if not GeneralLedgerSetupRead then begin
+            GeneralLedgerSetup.Get();
+            GeneralLedgerSetupRead := true;
+        end;
+        exit(GeneralLedgerSetup."Additional Reporting Currency")
+    end;
+
     procedure ShowDimensions()
     begin
         DimMgt.ShowDimensionSet(
@@ -337,4 +352,3 @@ table 5855 "Invt. Shipment Line"
         DimMgt.GetShortcutDimensions(Rec."Dimension Set ID", ShortcutDimCode);
     end;
 }
-

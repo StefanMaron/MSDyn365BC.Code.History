@@ -10,7 +10,6 @@ codeunit 134999 "ERM Excel Reports"
 
     var
         LibraryERM: Codeunit "Library - ERM";
-        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -21,8 +20,6 @@ codeunit 134999 "ERM Excel Reports"
         CellValueNotFoundErr: Label 'Excel cell (row=%1, column=%2) value is not found.';
         TotalLCYCap: Label 'Total (%1)';
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryUTUtility: Codeunit "Library UT Utility";
-        AccountNoNotFoundErr: Label '%1 is not found in %2 table';
         IsInitialized: Boolean;
         AmountMustBeSpecifiedTxt: Label 'Amount must be specified.';
         DefaultTxt: Label 'LCY';
@@ -206,27 +203,6 @@ codeunit 134999 "ERM Excel Reports"
         GLAccount.Modify(true);
     end;
 
-    local procedure CreateVendor(): Code[20]
-    var
-        Vendor: Record Vendor;
-    begin
-        LibraryPurchase.CreateVendor(Vendor);
-        exit(Vendor."No.");
-    end;
-
-    local procedure RunAndVerifyAgedAccountsReport(ReportId: Integer)
-    var
-        AgingMethodOption: Option "Trans Date","Due Date","Document Date";
-    begin
-        LibraryVariableStorage.Enqueue(AgingMethodOption::"Trans Date");
-        LibraryVariableStorage.Enqueue(false);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        Commit();
-
-        REPORT.Run(ReportId);
-        LibraryReportValidation.DownloadFile();
-    end;
-
     local procedure RunReportGeneralJournalTest(JournalTemplateName: Code[20]; JournalBatchName: Code[20])
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -239,15 +215,6 @@ codeunit 134999 "ERM Excel Reports"
         GeneralJournalTest.SetTableView(GenJnlLine);
         GeneralJournalTest.SaveAsExcel(LibraryReportValidation.GetFileName());
         LibraryReportValidation.DownloadFile();
-    end;
-
-    local procedure CreateCustomer(): Code[20]
-    var
-        Customer: Record Customer;
-    begin
-        Customer."No." := LibraryUTUtility.GetNewCode();
-        Customer.Insert();
-        exit(Customer."No.");
     end;
 
     local procedure VerifyGeneralJournalTestTotalBalance()
@@ -293,22 +260,4 @@ codeunit 134999 "ERM Excel Reports"
 
         exit(CopyStr(StrSubstNo(TotalLCYCap, CurrencyResult), 1, 250));
     end;
-
-    local procedure VerifyAgedAccountsReportContent(AccountNo: Code[20]; FieldCaption: Text; TableCaption: Text)
-    var
-        Row: Integer;
-        Column: Integer;
-        CellValue: Text;
-        CellValueFound: Boolean;
-    begin
-        // Verify Saved Report's Data.
-        LibraryReportValidation.OpenExcelFile();
-
-        Row := LibraryReportValidation.FindRowNoFromColumnCaption(FieldCaption) + 1;
-        Column := LibraryReportValidation.FindColumnNoFromColumnCaption(FieldCaption);
-        CellValue := LibraryReportValidation.GetValueAt(CellValueFound, Row, Column);
-        Assert.IsTrue(CellValueFound, StrSubstNo(CellValueNotFoundErr, Row, Column));
-        Assert.AreEqual(AccountNo, CellValue, StrSubstNo(AccountNoNotFoundErr, AccountNo, TableCaption));
-    end;
 }
-

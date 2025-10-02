@@ -265,8 +265,8 @@ codeunit 99000773 "Calculate Prod. Order"
 
     local procedure TransferBOMProcessItem(Level: Integer; LineQtyPerUOM: Decimal; ItemQtyPerUOM: Decimal; var ErrorOccured: Boolean)
     var
-        ComponentSKU: Record "Stockkeeping Unit";
         Item2: Record Item;
+        ComponentSKU: Record "Stockkeeping Unit";
         IsHandled: Boolean;
         QtyRoundPrecision: Decimal;
     begin

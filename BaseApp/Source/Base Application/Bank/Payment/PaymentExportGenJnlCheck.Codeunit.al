@@ -7,6 +7,10 @@ namespace Microsoft.Bank.Payment;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.GeneralLedger.Journal;
 
+/// <summary>
+/// Validates general journal lines before they are exported for payment processing.
+/// This codeunit performs comprehensive checks to ensure payment data integrity and compliance.
+/// </summary>
 codeunit 1211 "Payment Export Gen. Jnl Check"
 {
     TableNo = "Gen. Journal Line";
@@ -90,6 +94,13 @@ codeunit 1211 "Payment Export Gen. Jnl Check"
         end;
     end;
 
+    /// <summary>
+    /// Adds a field empty error to the payment file error log for a general journal line.
+    /// </summary>
+    /// <param name="GenJnlLine">The general journal line record to add the error to.</param>
+    /// <param name="TableCaption2">The caption of the table where the field is missing.</param>
+    /// <param name="FieldCaption">The caption of the field that is empty.</param>
+    /// <param name="KeyValue">The key value to identify the specific record, if applicable.</param>
     procedure AddFieldEmptyError(var GenJnlLine: Record "Gen. Journal Line"; TableCaption2: Text; FieldCaption: Text; KeyValue: Text)
     var
         ErrorText: Text;
@@ -101,6 +112,12 @@ codeunit 1211 "Payment Export Gen. Jnl Check"
         GenJnlLine.InsertPaymentFileError(ErrorText);
     end;
 
+    /// <summary>
+    /// Adds a batch-related empty field error to the payment file error log for a general journal line.
+    /// </summary>
+    /// <param name="GenJnlLine">The general journal line record to add the error to.</param>
+    /// <param name="FieldCaption">The caption of the field that is empty in the journal batch.</param>
+    /// <param name="KeyValue">The key value to identify the specific batch record.</param>
     procedure AddBatchEmptyError(var GenJnlLine: Record "Gen. Journal Line"; FieldCaption: Text; KeyValue: Variant)
     var
         GenJnlBatch: Record "Gen. Journal Batch";
@@ -133,6 +150,12 @@ codeunit 1211 "Payment Export Gen. Jnl Check"
                       StrSubstNo(FieldBlankErr, BankAccount.FieldCaption("Payment Export Format"), BankAccount.TableCaption()));
     end;
 
+    /// <summary>
+    /// Integration event that allows customization of payment export validation logic.
+    /// This event is raised during general journal line validation to allow external extensions to add custom validation rules.
+    /// </summary>
+    /// <param name="GenJournalLine">The general journal line being validated for payment export.</param>
+    /// <param name="Handled">Set to true if the validation has been handled by an external extension.</param>
     [IntegrationEvent(false, false)]
     local procedure OnPaymentExportGenJnlCheck(var GenJournalLine: Record "Gen. Journal Line"; var Handled: Boolean)
     begin

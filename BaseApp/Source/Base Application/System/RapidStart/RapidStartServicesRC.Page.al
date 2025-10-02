@@ -10,46 +10,6 @@ page 9021 "RapidStart Services RC"
     {
         area(rolecenter)
         {
-#if not CLEAN24
-            group(Control2)
-            {
-                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-                ShowCaption = false;
-                part(Activities; "RapidStart Services Activities")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Activities';
-                }
-                part("User Tasks Activities"; "User Tasks Activities")
-                {
-                    ApplicationArea = Suite;
-                }
-                part("Configuration Areas"; "Config. Areas")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Configuration Areas';
-                    SubPageView = sorting("Vertical Sorting");
-                }
-            }
-            group(Control5)
-            {
-                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-                ShowCaption = false;
-                systempart(Control10; MyNotes)
-                {
-                    ApplicationArea = Basic, Suite;
-                }
-                systempart(Control14; Links)
-                {
-                    ApplicationArea = RecordLinks;
-                }
-            }
-        }
-#else
             part(Activities; "RapidStart Services Activities")
             {
                 ApplicationArea = Basic, Suite;
@@ -78,7 +38,6 @@ page 9021 "RapidStart Services RC"
                 ApplicationArea = RecordLinks;
             }
     }
-#endif
     }
 
     actions
@@ -155,4 +114,3 @@ page 9021 "RapidStart Services RC"
         }
     }
 }
-

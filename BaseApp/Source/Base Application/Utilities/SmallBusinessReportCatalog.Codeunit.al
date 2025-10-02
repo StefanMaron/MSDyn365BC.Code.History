@@ -1,3 +1,4 @@
+#if not CLEAN27
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -11,6 +12,9 @@ using System.IO;
 
 codeunit 9025 "Small Business Report Catalog"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The page that this codeunit is used in is no longer used. Therefore, this codeunit is no longer needed.';
+    ObsoleteTag = '27.0';
 
     trigger OnRun()
     begin
@@ -98,4 +102,4 @@ codeunit 9025 "Small Business Report Catalog"
     begin
     end;
 }
-
+#endif

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.Reports;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Reports;
 
 using Microsoft.CRM.Campaign;
 using Microsoft.CRM.Team;
@@ -1590,6 +1594,11 @@ report 202 "Sales Document - Test"
 
                 VerifyPostingDate("Sales Header");
 
+                if SalesSetup."Posting Date Check on Posting" then
+                    if "Posting Date" <> WorkDate() then
+                        AddError(
+                          StrSubstNo(DifferentPostingDateToWorkDateTxt, FieldCaption("Posting Date"), "Posting Date", WorkDate()));
+
                 if "Document Date" <> 0D then
                     if "Document Date" <> NormalDate("Document Date") then
                         AddError(StrSubstNo(Text009, FieldCaption("Document Date")));
@@ -2003,7 +2012,8 @@ report 202 "Sales Document - Test"
 #pragma warning restore AA0074
         SumLineAmount: Decimal;
         SumInvDiscountAmount: Decimal;
-        TaxText: Text[30];
+        DifferentPostingDateToWorkDateTxt: Label '%1 %2 is different to Work Date %3.', Comment = '%1 = Posting Date Field Caption %2=Posting Date Field Value %3=WorkDate value';
+	TaxText: Text[30];
         totAmount: Decimal;
         Summarize: Boolean;
         Salesperson: Record "Salesperson/Purchaser";

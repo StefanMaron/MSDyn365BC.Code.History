@@ -108,7 +108,7 @@ table 9640 "Table Relations Buffer"
                             if not Rec.Insert() then;
                     end;
             until TableRelationsMetadata.Next() = 0;
-        Rec.SetCurrentKey("Related Table Name");
+        Rec.SetCurrentKey("Table Name");
     end;
 
     local procedure CheckValidTable(TableId: Integer): Boolean

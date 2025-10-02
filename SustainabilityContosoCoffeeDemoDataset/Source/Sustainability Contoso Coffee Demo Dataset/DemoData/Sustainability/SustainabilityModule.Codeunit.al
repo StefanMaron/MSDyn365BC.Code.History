@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 5218 "Sustainability Module" implements "Contoso Demo Data Module"
 {
     InherentEntitlements = X;
@@ -19,8 +20,8 @@ codeunit 5218 "Sustainability Module" implements "Contoso Demo Data Module"
 
     procedure CreateSetupData()
     begin
-        Codeunit.Run(Codeunit::"Create Sustainability Setup");
         Codeunit.Run(Codeunit::"Create Sustain. No Series");
+        Codeunit.Run(Codeunit::"Create Sustainability Setup");
         Codeunit.Run(Codeunit::"Create Sustainability Category");
         Codeunit.Run(Codeunit::"Create Sustain. Subcategory");
         Codeunit.Run(Codeunit::"Create Sustainability Account");
@@ -39,6 +40,7 @@ codeunit 5218 "Sustainability Module" implements "Contoso Demo Data Module"
         Codeunit.Run(Codeunit::"Create Sust. Vendor");
         Codeunit.Run(Codeunit::"Create Sust Item Category");
         Codeunit.Run(Codeunit::"Create Sust. Item");
+        Codeunit.Run(Codeunit::"Create Sust. Responsibility");
     end;
 
     procedure CreateTransactionalData()

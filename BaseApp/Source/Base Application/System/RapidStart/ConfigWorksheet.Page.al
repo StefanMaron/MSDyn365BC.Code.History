@@ -380,7 +380,7 @@ page 8632 "Config. Worksheet"
                     begin
                         CurrPage.SetSelectionFilter(ConfigLine);
                         CheckSelectedLines(ConfigLine);
-                        if Confirm(Text003, false) then
+                        if Confirm(ApplyPackageDataQst, false) then
                             ConfigPackageMgt.ApplyConfigLines(ConfigLine);
                     end;
                 }
@@ -474,7 +474,7 @@ page 8632 "Config. Worksheet"
                     begin
                         CurrPage.SetSelectionFilter(ConfigLine);
                         CheckSelectedLines(ConfigLine);
-                        if Confirm(Text005, true, ConfigLine.Count) then
+                        if Confirm(ExportToExcelQst, true, ConfigLine.Count) then
                             ConfigExcelExchange.ExportExcelFromConfig(ConfigLine);
                     end;
                 }
@@ -489,7 +489,7 @@ page 8632 "Config. Worksheet"
                     var
                         ConfigExcelExchange: Codeunit "Config. Excel Exchange";
                     begin
-                        if Confirm(Text004, true) then
+                        if Confirm(ImportFromExcelQst, true) then
                             ConfigExcelExchange.ImportExcelFromConfig(Rec);
                     end;
                 }
@@ -696,15 +696,13 @@ page 8632 "Config. Worksheet"
         NameIndent: Integer;
         NextLineNo: Integer;
         NextVertNo: Integer;
-#pragma warning disable AA0074
-        Text001: Label 'You must assign a package code before you can carry out this action.';
-        Text002: Label 'You must select table lines with the same package code.';
-        Text003: Label 'Do you want to apply package data for the selected tables?';
-        Text004: Label 'Do you want to import data from the Excel template?';
+        NoPackageAssignedErr: Label 'You must assign a package code before you can carry out this action.';
+        DifferentPackageCodeErr: Label 'You must select table lines with the same package code.';
+        ApplyPackageDataQst: Label 'Do you want to apply package data for the selected tables?';
+        ImportFromExcelQst: Label 'Do you want to import data from the Excel template?';
 #pragma warning disable AA0470
-        Text005: Label 'Do you want to export data from %1 tables to the Excel template?';
+        ExportToExcelQst: Label 'Do you want to export data from %1 tables to the Excel template?';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
 
     local procedure ExchangeLines(var ConfigLine1: Record "Config. Line"; var ConfigLine2: Record "Config. Line")
     var
@@ -749,10 +747,10 @@ page 8632 "Config. Worksheet"
                         PackageCode := SelectedConfigLine."Package Code"
                     else
                         if PackageCode <> SelectedConfigLine."Package Code" then
-                            Error(Text002);
+                            Error(DifferentPackageCodeErr);
                 end else
                     if SelectedConfigLine."Package Code" = '' then
-                        Error(Text001);
+                        Error(NoPackageAssignedErr);
             until SelectedConfigLine.Next() = 0;
     end;
 
@@ -760,7 +758,7 @@ page 8632 "Config. Worksheet"
     begin
         Rec.TestField("Table ID");
         if not ConfigPackageTable.Get(Rec."Package Code", Rec."Table ID") then
-            Error(Text001);
+            Error(NoPackageAssignedErr);
     end;
 }
 

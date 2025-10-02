@@ -3671,6 +3671,276 @@
     </ReportSection>
   </ReportSections>
   <ReportParameters>
+    <ReportParameter Name="DataRetrieved">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DataRetrieved</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DataRetrieved</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderStatistics">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderStatistics</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderStatistics</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderStatsPrint">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderStatsPrint</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderStatsPrint</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdOrderStatsAnalysis">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdOrderStatsAnalysis</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdOrderStatsAnalysis</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="PostingDateFilterLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>PostingDateFilterLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>PostingDateFilterLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="AboutTheReportLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>AboutTheReportLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>AboutTheReportLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="EnvironmentLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>EnvironmentLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>EnvironmentLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CompanyLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CompanyLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CompanyLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="UserLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>UserLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>UserLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RunOnLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>RunOnLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>RunOnLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ReportNameLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ReportNameLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ReportNameLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DocumentationLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DocumentationLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DocumentationLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ExpCost1Label">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ExpCost1Label</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ExpCost1Label</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ExpCost2Label">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ExpCost2Label</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ExpCost2Label</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ExpCost3Label">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ExpCost3Label</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ExpCost3Label</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ExpCost4Label">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ExpCost4Label</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ExpCost4Label</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ExpCost5Label">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ExpCost5Label</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ExpCost5Label</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ExpCost6Label">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ExpCost6Label</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ExpCost6Label</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ActCost1Label">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ActCost1Label</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ActCost1Label</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ActCost2Label">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ActCost2Label</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ActCost2Label</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ActCost3Label">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ActCost3Label</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ActCost3Label</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ActCost4Label">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ActCost4Label</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ActCost4Label</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ActCost5Label">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ActCost5Label</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ActCost5Label</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ActCost6Label">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ActCost6Label</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ActCost6Label</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="VarPct1Label">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>VarPct1Label</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>VarPct1Label</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="VarPct2Label">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>VarPct2Label</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>VarPct2Label</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="VarPct3Label">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>VarPct3Label</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>VarPct3Label</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="VarPct4Label">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>VarPct4Label</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>VarPct4Label</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="VarPct5Label">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>VarPct5Label</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>VarPct5Label</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="VarPct6Label">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>VarPct6Label</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>VarPct6Label</Prompt>
+    </ReportParameter>
     <ReportParameter Name="No_ProdOrderCaption">
       <DataType>String</DataType>
       <DefaultValue>
@@ -3689,6 +3959,15 @@
       </DefaultValue>
       <Prompt>Desc_ProdOrderCaption</Prompt>
     </ReportParameter>
+    <ReportParameter Name="Quantity_ProdOrderCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Quantity_ProdOrderCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Quantity_ProdOrderCaption</Prompt>
+    </ReportParameter>
     <ReportParameter Name="Status_ProdOrderCaption">
       <DataType>String</DataType>
       <DefaultValue>
@@ -3702,21 +3981,176 @@
   <ReportParametersLayout>
     <GridLayoutDefinition>
       <NumberOfColumns>1</NumberOfColumns>
-      <NumberOfRows>3</NumberOfRows>
+      <NumberOfRows>34</NumberOfRows>
       <CellDefinitions>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>0</RowIndex>
-          <ParameterName>No_ProdOrderCaption</ParameterName>
+          <ParameterName>DataRetrieved</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>1</RowIndex>
-          <ParameterName>Desc_ProdOrderCaption</ParameterName>
+          <ParameterName>ProdOrderStatistics</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>2</RowIndex>
+          <ParameterName>ProdOrderStatsPrint</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>3</RowIndex>
+          <ParameterName>ProdOrderStatsAnalysis</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>4</RowIndex>
+          <ParameterName>PostingDateFilterLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>5</RowIndex>
+          <ParameterName>AboutTheReportLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>6</RowIndex>
+          <ParameterName>EnvironmentLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>7</RowIndex>
+          <ParameterName>CompanyLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>8</RowIndex>
+          <ParameterName>UserLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>9</RowIndex>
+          <ParameterName>RunOnLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>10</RowIndex>
+          <ParameterName>ReportNameLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>11</RowIndex>
+          <ParameterName>DocumentationLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>12</RowIndex>
+          <ParameterName>ExpCost1Label</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>13</RowIndex>
+          <ParameterName>ExpCost2Label</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>14</RowIndex>
+          <ParameterName>ExpCost3Label</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>15</RowIndex>
+          <ParameterName>ExpCost4Label</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>16</RowIndex>
+          <ParameterName>ExpCost5Label</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>17</RowIndex>
+          <ParameterName>ExpCost6Label</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>18</RowIndex>
+          <ParameterName>ActCost1Label</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>19</RowIndex>
+          <ParameterName>ActCost2Label</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>20</RowIndex>
+          <ParameterName>ActCost3Label</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>21</RowIndex>
+          <ParameterName>ActCost4Label</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>22</RowIndex>
+          <ParameterName>ActCost5Label</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>23</RowIndex>
+          <ParameterName>ActCost6Label</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>24</RowIndex>
+          <ParameterName>VarPct1Label</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>25</RowIndex>
+          <ParameterName>VarPct2Label</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>26</RowIndex>
+          <ParameterName>VarPct3Label</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>27</RowIndex>
+          <ParameterName>VarPct4Label</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>28</RowIndex>
+          <ParameterName>VarPct5Label</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>29</RowIndex>
+          <ParameterName>VarPct6Label</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>30</RowIndex>
+          <ParameterName>No_ProdOrderCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>31</RowIndex>
+          <ParameterName>Desc_ProdOrderCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>32</RowIndex>
+          <ParameterName>Quantity_ProdOrderCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>33</RowIndex>
           <ParameterName>Status_ProdOrderCaption</ParameterName>
         </CellDefinition>
       </CellDefinitions>
@@ -3784,6 +4218,12 @@ End Function</Code>
         </Field>
         <Field Name="Desc_ProdOrder">
           <DataField>Desc_ProdOrder</DataField>
+        </Field>
+        <Field Name="Quantity_ProdOrder">
+          <DataField>Quantity_ProdOrder</DataField>
+        </Field>
+        <Field Name="Quantity_ProdOrderFormat">
+          <DataField>Quantity_ProdOrderFormat</DataField>
         </Field>
         <Field Name="ExpCost2">
           <DataField>ExpCost2</DataField>
@@ -3931,6 +4371,114 @@ End Function</Code>
         </Field>
         <Field Name="TotalCaption">
           <DataField>TotalCaption</DataField>
+        </Field>
+        <Field Name="ExpCostTotal1">
+          <DataField>ExpCostTotal1</DataField>
+        </Field>
+        <Field Name="ExpCostTotal1Format">
+          <DataField>ExpCostTotal1Format</DataField>
+        </Field>
+        <Field Name="ExpCostTotal2">
+          <DataField>ExpCostTotal2</DataField>
+        </Field>
+        <Field Name="ExpCostTotal2Format">
+          <DataField>ExpCostTotal2Format</DataField>
+        </Field>
+        <Field Name="ExpCostTotal3">
+          <DataField>ExpCostTotal3</DataField>
+        </Field>
+        <Field Name="ExpCostTotal3Format">
+          <DataField>ExpCostTotal3Format</DataField>
+        </Field>
+        <Field Name="ExpCostTotal4">
+          <DataField>ExpCostTotal4</DataField>
+        </Field>
+        <Field Name="ExpCostTotal4Format">
+          <DataField>ExpCostTotal4Format</DataField>
+        </Field>
+        <Field Name="ExpCostTotal5">
+          <DataField>ExpCostTotal5</DataField>
+        </Field>
+        <Field Name="ExpCostTotal5Format">
+          <DataField>ExpCostTotal5Format</DataField>
+        </Field>
+        <Field Name="ExpCostTotal6">
+          <DataField>ExpCostTotal6</DataField>
+        </Field>
+        <Field Name="ExpCostTotal6Format">
+          <DataField>ExpCostTotal6Format</DataField>
+        </Field>
+        <Field Name="ActCostTotal1">
+          <DataField>ActCostTotal1</DataField>
+        </Field>
+        <Field Name="ActCostTotal1Format">
+          <DataField>ActCostTotal1Format</DataField>
+        </Field>
+        <Field Name="ActCostTotal2">
+          <DataField>ActCostTotal2</DataField>
+        </Field>
+        <Field Name="ActCostTotal2Format">
+          <DataField>ActCostTotal2Format</DataField>
+        </Field>
+        <Field Name="ActCostTotal3">
+          <DataField>ActCostTotal3</DataField>
+        </Field>
+        <Field Name="ActCostTotal3Format">
+          <DataField>ActCostTotal3Format</DataField>
+        </Field>
+        <Field Name="ActCostTotal4">
+          <DataField>ActCostTotal4</DataField>
+        </Field>
+        <Field Name="ActCostTotal4Format">
+          <DataField>ActCostTotal4Format</DataField>
+        </Field>
+        <Field Name="ActCostTotal5">
+          <DataField>ActCostTotal5</DataField>
+        </Field>
+        <Field Name="ActCostTotal5Format">
+          <DataField>ActCostTotal5Format</DataField>
+        </Field>
+        <Field Name="ActCostTotal6">
+          <DataField>ActCostTotal6</DataField>
+        </Field>
+        <Field Name="ActCostTotal6Format">
+          <DataField>ActCostTotal6Format</DataField>
+        </Field>
+        <Field Name="VarPctTotal1">
+          <DataField>VarPctTotal1</DataField>
+        </Field>
+        <Field Name="VarPctTotal1Format">
+          <DataField>VarPctTotal1Format</DataField>
+        </Field>
+        <Field Name="VarPctTotal2">
+          <DataField>VarPctTotal2</DataField>
+        </Field>
+        <Field Name="VarPctTotal2Format">
+          <DataField>VarPctTotal2Format</DataField>
+        </Field>
+        <Field Name="VarPctTotal3">
+          <DataField>VarPctTotal3</DataField>
+        </Field>
+        <Field Name="VarPctTotal3Format">
+          <DataField>VarPctTotal3Format</DataField>
+        </Field>
+        <Field Name="VarPctTotal4">
+          <DataField>VarPctTotal4</DataField>
+        </Field>
+        <Field Name="VarPctTotal4Format">
+          <DataField>VarPctTotal4Format</DataField>
+        </Field>
+        <Field Name="VarPctTotal5">
+          <DataField>VarPctTotal5</DataField>
+        </Field>
+        <Field Name="VarPctTotal5Format">
+          <DataField>VarPctTotal5Format</DataField>
+        </Field>
+        <Field Name="VarPctTotal6">
+          <DataField>VarPctTotal6</DataField>
+        </Field>
+        <Field Name="VarPctTotal6Format">
+          <DataField>VarPctTotal6Format</DataField>
         </Field>
       </Fields>
       <Query>

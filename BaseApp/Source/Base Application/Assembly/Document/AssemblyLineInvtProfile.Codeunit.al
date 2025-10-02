@@ -55,7 +55,7 @@ codeunit 928 "Assembly Line Invt. Profile"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Inventory Profile", 'OnTransferToTrackingEntrySourceTypeElseCase', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Inventory Profile", 'OnTransferToTrackingEntrySourceTypeElseCase', '', true, true)]
     local procedure OnTransferToTrackingEntrySourceTypeElseCase(var InventoryProfile: Record "Inventory Profile"; var ReservationEntry: Record "Reservation Entry"; var IsHandled: Boolean)
     begin
         if InventoryProfile."Source Type" = Database::"Assembly Line" then begin
@@ -70,7 +70,7 @@ codeunit 928 "Assembly Line Invt. Profile"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Inventory Profile Offsetting", 'OnAfterDemandToInvProfile', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Inventory Profile Offsetting", 'OnAfterDemandToInvProfile', '', true, true)]
     local procedure OnAfterDemandToInvProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; var ReservEntry: Record "Reservation Entry"; var NextLineNo: Integer)
     begin
         TransAssemblyLineToProfile(InventoryProfile, Item, ReservEntry, NextLineNo);
@@ -88,7 +88,7 @@ codeunit 928 "Assembly Line Invt. Profile"
                 if AssemblyLine."Due Date" <> 0D then begin
                     ReqLine.SetRefOrderFilters(
                       ReqLine."Ref. Order Type"::Assembly, AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", 0);
-                    ReqLine.SetRange("Operation No.", '');
+                    ReqLine.SetOperationNoFilterToBlank();
                     if not ReqLine.FindFirst() then
                         InsertAssemblyLineToProfile(InventoryProfile, AssemblyLine, 1, TempReservationEntry, NextLineNo);
                 end;
@@ -99,7 +99,7 @@ codeunit 928 "Assembly Line Invt. Profile"
                 if AssemblyLine."Due Date" <> 0D then begin
                     ReqLine.SetRefOrderFilters(
                         ReqLine."Ref. Order Type"::Assembly, AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", 0);
-                    ReqLine.SetRange("Operation No.", '');
+                    ReqLine.SetOperationNoFilterToBlank();
                     if not ReqLine.FindFirst() then begin
                         AssemblyHeader.Get(AssemblyLine."Document Type", AssemblyLine."Document No.");
                         RemRatio := (AssemblyHeader."Quantity (Base)" - CalcSalesOrderQty(AssemblyLine)) / AssemblyHeader."Quantity (Base)";
@@ -143,14 +143,44 @@ codeunit 928 "Assembly Line Invt. Profile"
             until SalesOrderLine.Next() = 0;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Inventory Profile Offsetting", 'OnAfterSetDemandPriority', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Inventory Profile Offsetting", 'OnAfterSetDemandPriority', '', true, true)]
     local procedure OnAfterSetDemandPriority(var InventoryProfile: Record "Inventory Profile")
     begin
         if InventoryProfile."Source Type" = Database::"Assembly Line" then
             InventoryProfile."Order Priority" := 470;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Plng. Component Invt. Profile", 'OnTransferInventoryProfileFromPlamComponentByRefOrderType', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Inventory Profile Offsetting", 'OnForecastConsumptionOnAfterSetPlanningSourceTypeFilter', '', true, true)]
+    local procedure OnForecastConsumptionOnAfterSetPlanningSourceTypeFilter(var DemandInventoryProfile: Record "Inventory Profile")
+    begin
+        DemandInventoryProfile.SetSourceTypeFilter(Database::"Assembly Line");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Inventory Profile Offsetting", 'OnGetComponentsOnUpdateForActionMessage', '', true, true)]
+    local procedure OnGetComponentsOnUpdateForActionMessage(var RequisitionLine: Record "Requisition Line"; sender: Codeunit "Inventory Profile Offsetting")
+    var
+        AssemblyLine: Record "Assembly Line";
+        PlanningComponent: Record "Planning Component";
+    begin
+        if RequisitionLine."Action Message" <> RequisitionLine."Action Message"::New then
+            case RequisitionLine."Ref. Order Type" of
+                RequisitionLine."Ref. Order Type"::Assembly:
+                    begin
+                        AssemblyLine.SetRange("Document Type", AssemblyLine."Document Type"::Order);
+                        AssemblyLine.SetRange("Document No.", RequisitionLine."Ref. Order No.");
+                        AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
+                        if AssemblyLine.Find('-') then
+                            repeat
+                                PlanningComponent.InitFromRequisitionLine(RequisitionLine);
+                                PlanningComponent.TransferFromAsmLine(AssemblyLine);
+                                sender.InsertPlanningComponent(PlanningComponent);
+                            until AssemblyLine.Next() = 0;
+                    end;
+                else
+            end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Plng. Component Invt. Profile", 'OnTransferInventoryProfileFromPlamComponentByRefOrderType', '', true, true)]
     local procedure OnTransferInventoryProfileFromPlamComponentByRefOrderType(var InventoryProfile: Record "Inventory Profile"; PlanningComponent: Record "Planning Component")
     var
         AssemblyLine: Record "Assembly Line";
@@ -183,7 +213,7 @@ codeunit 928 "Assembly Line Invt. Profile"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Plng. Component Invt. Profile", 'OnTransferToTrackingEntrySourceTypeElseCaseOnSetSource', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Plng. Component Invt. Profile", 'OnTransferToTrackingEntrySourceTypeElseCaseOnSetSource', '', true, true)]
     local procedure OnTransferToTrackingEntrySourceTypeElseCaseOnSetSource(var InventoryProfile: Record "Inventory Profile"; var ReservationEntry: Record "Reservation Entry"; var RequisitionLine: Record "Requisition Line")
     begin
         case RequisitionLine."Ref. Order Type" of
