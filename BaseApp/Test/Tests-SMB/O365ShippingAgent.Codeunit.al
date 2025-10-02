@@ -25,7 +25,7 @@ codeunit 138007 "O365 Shipping Agent"
         SalesHeader: Record "Sales Header";
         SalesHeaderCopy: Record "Sales Header";
         ShippingAgent: Record "Shipping Agent";
-        PackageTrackingNo: Text[30];
+        PackageTrackingNo: Text[50];
     begin
         Initialize();
 
@@ -58,7 +58,7 @@ codeunit 138007 "O365 Shipping Agent"
         SalesHeaderCopy: Record "Sales Header";
         ShippingAgent: Record "Shipping Agent";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
-        PackageTrackingNo: Text[30];
+        PackageTrackingNo: Text[50];
     begin
         // [FEATURE] [Sales Invoice]
         // [SCENARIO 171020] Susan will not see the confirm message on Shipping Agent Code when using SAAS
@@ -100,7 +100,7 @@ codeunit 138007 "O365 Shipping Agent"
         SalesHeaderCopy: Record "Sales Header";
         ShippingAgent: Record "Shipping Agent";
         ShippingAgentServiceCode: Code[10];
-        PackageTrackingNo: Text[30];
+        PackageTrackingNo: Text[50];
     begin
         Initialize();
 
@@ -136,7 +136,7 @@ codeunit 138007 "O365 Shipping Agent"
         SalesHeaderCopy: Record "Sales Header";
         ShippingAgent: Record "Shipping Agent";
         ShippingAgentServiceCode: Code[10];
-        PackageTrackingNo: Text[30];
+        PackageTrackingNo: Text[50];
     begin
         Initialize();
 
@@ -170,7 +170,7 @@ codeunit 138007 "O365 Shipping Agent"
         SalesHeader: Record "Sales Header";
         SalesHeaderCopy: Record "Sales Header";
         ShippingAgent: Record "Shipping Agent";
-        PackageTrackingNo: Text[30];
+        PackageTrackingNo: Text[50];
     begin
         Initialize();
 
@@ -204,7 +204,7 @@ codeunit 138007 "O365 Shipping Agent"
         SalesHeaderCopy: Record "Sales Header";
         ShippingAgent: Record "Shipping Agent";
         ShippingAgentServiceCode: Code[10];
-        PackageTrackingNo: Text[30];
+        PackageTrackingNo: Text[50];
     begin
         Initialize();
 
@@ -239,7 +239,7 @@ codeunit 138007 "O365 Shipping Agent"
         SalesHeaderCopy: Record "Sales Header";
         ShippingAgent: Record "Shipping Agent";
         ShippingAgentServiceCode: Code[10];
-        PackageTrackingNo: Text[30];
+        PackageTrackingNo: Text[50];
     begin
         Initialize();
 
@@ -460,7 +460,7 @@ codeunit 138007 "O365 Shipping Agent"
         SalesQuote.OK().Invoke();
     end;
 
-    local procedure AddPackageTrackingNumberToSalesInvoice(var SalesHeader: Record "Sales Header"; PackageTrackingNo: Text[30])
+    local procedure AddPackageTrackingNumberToSalesInvoice(var SalesHeader: Record "Sales Header"; PackageTrackingNo: Text[50])
     var
         SalesInvoice: TestPage "Sales Invoice";
     begin
@@ -470,7 +470,7 @@ codeunit 138007 "O365 Shipping Agent"
         SalesInvoice.OK().Invoke();
     end;
 
-    local procedure AddPackageTrackingNumberToSalesOrder(var SalesHeader: Record "Sales Header"; PackageTrackingNo: Text[30])
+    local procedure AddPackageTrackingNumberToSalesOrder(var SalesHeader: Record "Sales Header"; PackageTrackingNo: Text[50])
     var
         SalesOrder: TestPage "Sales Order";
     begin
@@ -496,7 +496,7 @@ codeunit 138007 "O365 Shipping Agent"
         exit(Customer."No.");
     end;
 
-    local procedure GenerateRandomPackageTrackingNo(): Text[30]
+    local procedure GenerateRandomPackageTrackingNo(): Text[50]
     var
         DummySalesHeader: Record "Sales Header";
     begin
@@ -598,4 +598,3 @@ codeunit 138007 "O365 Shipping Agent"
     begin
     end;
 }
-

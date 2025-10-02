@@ -49,6 +49,8 @@ table 1113 "Cost Object"
         }
         field(5; "Net Change"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             BlankZero = true;
             CalcFormula = sum("Cost Entry".Amount where("Cost Object Code" = field(Code),
                                                          "Cost Object Code" = field(filter(Totaling)),
@@ -60,6 +62,8 @@ table 1113 "Cost Object"
         }
         field(6; "Balance at Date"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             BlankZero = true;
             CalcFormula = sum("Cost Entry".Amount where("Cost Object Code" = field(Code),
                                                          "Cost Object Code" = field(filter(Totaling)),
@@ -242,4 +246,3 @@ table 1113 "Cost Object"
         exit(false)
     end;
 }
-

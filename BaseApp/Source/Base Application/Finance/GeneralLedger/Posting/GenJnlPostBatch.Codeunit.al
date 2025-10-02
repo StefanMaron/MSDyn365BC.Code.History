@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Posting;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.GeneralLedger.Posting;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.EServices.EDocument;
@@ -346,11 +350,6 @@ codeunit 13 "Gen. Jnl.-Post Batch"
     var
         VATPostingSetup: Record "VAT Posting Setup";
         BalVATPostingSetup: Record "VAT Posting Setup";
-#if not CLEAN24
-#pragma warning disable AL0432
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#pragma warning restore AL0432
-#endif
         ErrorMessage: Text;
         LastDocTypeOption: Option;
         ForceCheckBalance: Boolean;
@@ -392,18 +391,6 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                     ShouldCheckDocNoBasedOnNoSeries := not PreviewMode and (GenJnlBatch."No. Series" <> '') and (LastDocNo <> GenJnlLine."Document No.") and (not GenJnlLine."Check Printed");
                     SkipCheckingPostingNoSeries := false;
                     OnProcessBalanceOfLinesOnAfterCalcShouldCheckDocNoBasedOnNoSeries(GenJnlLine, GenJnlBatch, ShouldCheckDocNoBasedOnNoSeries, SkipCheckingPostingNoSeries, LastDocNo, CurrentBalance);
-#if not CLEAN24
-                    if ShouldCheckDocNoBasedOnNoSeries then begin
-                        // raises the old event.
-                        GenJnlLine.ObsoleteCheckDocNoBasedOnNoSeries(LastDocNo, GenJnlBatch."No. Series", NoSeriesMgt);
-                        if GenJnlLine."Document No." = NoSeriesBatch.PeekNextNo(GenJnlBatch."No. Series", GenJnlLine."Posting Date") then
-                            // No. used is same as peek so need to save it.
-                            NoSeriesBatch.GetNextNo(GenJnlBatch."No. Series", GenJnlLine."Posting Date")
-                        else
-                            // manual nos should be allowed.
-                            NoSeriesBatch.TestManual(GenJnlBatch."No. Series", GenJnlLine."Document No.");
-                    end;
-#else
                     if ShouldCheckDocNoBasedOnNoSeries then
                         if GenJnlLine."Document No." = NoSeriesBatch.PeekNextNo(GenJnlBatch."No. Series", GenJnlLine."Posting Date") then
                             // No. used is same as peek so need to save it.
@@ -411,7 +398,6 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                         else
                             // manual nos should be allowed.
                             NoSeriesBatch.TestManual(GenJnlBatch."No. Series", GenJnlLine."Document No.");
-#endif
                     if not SkipCheckingPostingNoSeries then
                         if GenJnlLine."Posting No. Series" <> '' then
                             GenJnlLine.TestField("Posting No. Series", GenJnlBatch."Posting No. Series");
@@ -2328,4 +2314,3 @@ codeunit 13 "Gen. Jnl.-Post Batch"
     begin
     end;
 }
-

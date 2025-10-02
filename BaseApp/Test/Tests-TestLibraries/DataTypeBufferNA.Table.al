@@ -30,6 +30,7 @@ table 140000 "Data Type Buffer NA"
         }
         field(10; Decimal; Decimal)
         {
+            AutoFormatType = 0;
         }
         field(11; Duration; Duration)
         {
@@ -64,4 +65,3 @@ table 140000 "Data Type Buffer NA"
     {
     }
 }
-

@@ -1650,47 +1650,6 @@ codeunit 134219 "WFWH General Journal Batch"
         WorkflowWebhookEntry.TestField(Response, ResponseArgument);
     end;
 
-    local procedure AllowRecordUsageCode(Variant: Variant; xVariant: Variant)
-    var
-        FirstWorkflowStepInstance: Record "Workflow Step Instance";
-        RemoveRestrictionWorkflowStepInstance: Record "Workflow Step Instance";
-        WorkflowResponseHandling: Codeunit "Workflow Response Handling";
-        WorkflowMgt: Codeunit "Workflow Management";
-    begin
-        CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RemoveRestrictionWorkflowStepInstance,
-          WorkflowResponseHandling.AllowRecordUsageCode());
-        WorkflowMgt.ExecuteResponses(Variant, xVariant, FirstWorkflowStepInstance);
-    end;
-
-    local procedure CreateWorkflowStepInstanceWithTwoResponses(var FirstWorkflowStepInstance: Record "Workflow Step Instance"; var SecondWorkflowStepInstance: Record "Workflow Step Instance"; SecondResponseCode: Code[128])
-    var
-        Workflow: Record Workflow;
-        WorkflowResponseHandling: Codeunit "Workflow Response Handling";
-    begin
-        LibraryWorkflow.CreateWorkflow(Workflow);
-
-        Workflow.Enabled := true;
-        Workflow.Modify();
-
-        CreateResponseWorkflowStepInstance(FirstWorkflowStepInstance, Workflow.Code,
-          CreateGuid(), WorkflowResponseHandling.DoNothingCode(), 1, 0, FirstWorkflowStepInstance.Status::Completed);
-
-        CreateResponseWorkflowStepInstance(SecondWorkflowStepInstance, Workflow.Code,
-          FirstWorkflowStepInstance.ID, SecondResponseCode, 2, 1, SecondWorkflowStepInstance.Status::Active);
-    end;
-
-    local procedure CreateResponseWorkflowStepInstance(var WorkflowStepInstance: Record "Workflow Step Instance"; WorkflowCode: Code[20]; WorkflowInstanceId: Guid; FunctionCode: Code[128]; StepId: Integer; PreviousStepId: Integer; Status: Option)
-    begin
-        WorkflowStepInstance.ID := WorkflowInstanceId;
-        WorkflowStepInstance."Workflow Code" := WorkflowCode;
-        WorkflowStepInstance."Workflow Step ID" := StepId;
-        WorkflowStepInstance.Type := WorkflowStepInstance.Type::Response;
-        WorkflowStepInstance."Function Name" := FunctionCode;
-        WorkflowStepInstance.Status := Status;
-        WorkflowStepInstance."Previous Workflow Step ID" := PreviousStepId;
-        WorkflowStepInstance.Insert();
-    end;
-
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GeneralJournalBatchesModalPageHandler(var GeneralJournalBatches: TestPage "General Journal Batches")
@@ -1705,4 +1664,3 @@ codeunit 134219 "WFWH General Journal Batch"
         Reply := true;
     end;
 }
-

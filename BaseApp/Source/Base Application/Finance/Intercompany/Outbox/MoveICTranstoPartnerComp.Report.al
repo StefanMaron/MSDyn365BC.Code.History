@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Intercompany.Outbox;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Intercompany.Outbox;
 
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Intercompany;
@@ -170,7 +174,9 @@ report 513 "Move IC Trans. to Partner Comp"
 
                 case "Line Action" of
                     "Line Action"::"Send to IC Partner":
-                        ICInboxOutboxMgt.OutboxTransToInbox("IC Outbox Transaction", TempICInboxTransaction, ICPartnerCode);
+                        ICInboxOutboxMgt.OutboxTransToInboxOptimized(
+                          "IC Outbox Transaction", TempICInboxTransaction, ICPartnerCode,
+                          ICPartnerCodeList, TempAllPartnerICInboxTransaction, TempAllPartnerHandledICInboxTrans);
                     "Line Action"::"Return to Inbox":
                         RecreateInboxTrans("IC Outbox Transaction");
                 end;
@@ -209,7 +215,10 @@ report 513 "Move IC Trans. to Partner Comp"
 
     var
         GLSetup: Record "General Ledger Setup";
+        TempAllPartnerICInboxTransaction: Record "IC Inbox Transaction" temporary;
+        TempAllPartnerHandledICInboxTrans: Record "Handled IC Inbox Trans." temporary;
         ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCodeList: List of [Text];
 
     protected var
         ICSetup: Record "IC Setup";
@@ -223,6 +232,13 @@ report 513 "Move IC Trans. to Partner Comp"
         TempInboxOutboxJnlLineDim: Record "IC Inbox/Outbox Jnl. Line Dim." temporary;
         TempICDocDim: Record "IC Document Dimension" temporary;
         TempICCommentLine: Record "IC Comment Line" temporary;
+
+    procedure Initialize(var NewICPartnerCodeList: List of [Text]; var NewTempAllPartnerICInboxTransaction: Record "IC Inbox Transaction" temporary; var NewTempAllPartnerHandledICInboxTrans: Record "Handled IC Inbox Trans." temporary)
+    begin
+        ICPartnerCodeList := NewICPartnerCodeList;
+        TempAllPartnerICInboxTransaction := NewTempAllPartnerICInboxTransaction;
+        TempAllPartnerHandledICInboxTrans := NewTempAllPartnerHandledICInboxTrans;
+    end;
 
     local procedure TransferToPartner()
     var

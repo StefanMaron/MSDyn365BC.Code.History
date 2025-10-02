@@ -20,8 +20,6 @@ using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Manufacturing.WorkCenter;
-using Microsoft.Manufacturing.Capacity;
-using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Request;
@@ -1006,61 +1004,6 @@ codeunit 137034 "SCM Production Journal"
         Assert.IsTrue(ProdOrderRoutingLine."Ending Date-Time" >= ProdOrderCapacityNeed."Ending Date-Time", ProdOrderCapacityNeedTimeCalcError);
     end;
 
-    local procedure CreateWorkCenterSetup(var WorkCenter: Record "Work Center"; CapacityType: Enum "Capacity Type"; StartTime: Time; EndTime: Time)
-    var
-        GeneralPostingSetup: Record "General Posting Setup";
-        CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
-        LibraryERM: Codeunit "Library - ERM";
-    begin
-        CapacityUnitOfMeasure.SetRange(Type, CapacityType);
-        CapacityUnitOfMeasure.FindFirst();
-        LibraryERM.FindGenPostingSetupWithDefVAT(GeneralPostingSetup);
-        LibraryManufacturing.CreateWorkCenter(WorkCenter);
-        WorkCenter.Validate("Unit of Measure Code", CapacityUnitOfMeasure.Code);
-        WorkCenter.Validate("Shop Calendar Code", UpdateShopCalendarWorkingDays(StartTime, EndTime));
-        WorkCenter.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
-        WorkCenter.Validate(Capacity, 1);
-        WorkCenter.Validate(Efficiency, 100);
-        WorkCenter.Modify(true);
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-2M>', WorkDate()), CalcDate('<2M>', WorkDate()));
-    end;
-
-    local procedure UpdateShopCalendarWorkingDays(StartTime: Time; EndTime: Time): Code[10]
-    var
-        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
-        ShopCalendar: Record "Shop Calendar";
-        WorkShift: Record "Work Shift";
-        ShopCalendarCode: Code[10];
-        WorkShiftCode: Code[10];
-    begin
-        // Create Shop Calendar Working Days using with boundary values daily work shift.
-        ShopCalendarCode := LibraryManufacturing.CreateShopCalendarCode(ShopCalendar);
-        WorkShiftCode := LibraryManufacturing.CreateWorkShiftCode(WorkShift);
-        ShopCalendarWorkingDays.SetRange("Shop Calendar Code", ShopCalendarCode);
-
-        LibraryManufacturing.CreateShopCalendarWorkingDays(
-          ShopCalendarWorkingDays, ShopCalendarCode, ShopCalendarWorkingDays.Day::Monday, WorkShiftCode, StartTime, EndTime);
-        LibraryManufacturing.CreateShopCalendarWorkingDays(
-          ShopCalendarWorkingDays, ShopCalendarCode, ShopCalendarWorkingDays.Day::Tuesday, WorkShiftCode, StartTime, EndTime);
-        LibraryManufacturing.CreateShopCalendarWorkingDays(
-          ShopCalendarWorkingDays, ShopCalendarCode, ShopCalendarWorkingDays.Day::Wednesday, WorkShiftCode, StartTime, EndTime);
-        LibraryManufacturing.CreateShopCalendarWorkingDays(
-          ShopCalendarWorkingDays, ShopCalendarCode, ShopCalendarWorkingDays.Day::Thursday, WorkShiftCode, StartTime, EndTime);
-        LibraryManufacturing.CreateShopCalendarWorkingDays(
-          ShopCalendarWorkingDays, ShopCalendarCode, ShopCalendarWorkingDays.Day::Friday, WorkShiftCode, StartTime, EndTime);
-        exit(ShopCalendarCode);
-    end;
-
-    local procedure CreateCapacityConstrainedResource(WorkCenterNo: Code[20])
-    var
-        CapacityConstrainedResource: Record "Capacity Constrained Resource";
-    begin
-        LibraryManufacturing.CreateCapacityConstrainedResource(
-          CapacityConstrainedResource, CapacityConstrainedResource."Capacity Type"::"Work Center", WorkCenterNo);
-        CapacityConstrainedResource.Validate("Critical Load %", 100);
-        CapacityConstrainedResource.Modify(true);
-    end;
-
     local procedure UpdateRoutingLine(var RoutingLine: Record "Routing Line"; SetupTime: Decimal; RunTime: Decimal; WaitTime: Decimal)
     begin
         RoutingLine.Validate("Setup Time", SetupTime);
@@ -1467,7 +1410,7 @@ codeunit 137034 "SCM Production Journal"
         ProductionOrderLine2.Modify(true);
 
         // Create  Inbound Whse. Request
-        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+        LibraryManufacturing.CreateInboundWhseReqFromProdOrder(ProductionOrder);
 
         // Create Inventory Put-away
         LibraryWarehouse.CreateInvtPutPickMovement(
@@ -1670,7 +1613,7 @@ codeunit 137034 "SCM Production Journal"
         // [SCENARIO 479958] Description/Description 2 are not updated when user selects variant code: Prod Order Header
         Initialize();
 
-        // [GIVEN] Create Item with Item Variant. 
+        // [GIVEN] Create Item with Item Variant.
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
         ItemVariant."Description 2" := LibraryUtility.GenerateRandomText(20);
@@ -1801,7 +1744,7 @@ codeunit 137034 "SCM Production Journal"
         // [GIVEN] Create Item with Routing.
         ItemNo := CreateItemWithRouting(RoutingHeader."No.");
 
-        // [GIVEN] Create Item with Item Variant. 
+        // [GIVEN] Create Item with Item Variant.
         LibraryInventory.CreateItemVariant(ItemVariant, ItemNo);
         ItemVariant.Modify(true);
 
@@ -1866,7 +1809,7 @@ codeunit 137034 "SCM Production Journal"
         // [SCENARIO 382546] Verify Variant Code cannot be selected on Production Order if "Production Blocked" is Output on "Item Variant".
         Initialize();
 
-        // [GIVEN] Create Item with Item Variant. 
+        // [GIVEN] Create Item with Item Variant.
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
         ItemVariant.Validate("Production Blocked", ItemVariant."Production Blocked"::Output);
@@ -1919,7 +1862,7 @@ codeunit 137034 "SCM Production Journal"
         // [SCENARIO 382546] Verify Variant Code cannot be selected on Production Order Line if "Production Blocked" is Output on "Item Variant".
         Initialize();
 
-        // [GIVEN] Create Item with Item Variant. 
+        // [GIVEN] Create Item with Item Variant.
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
 
@@ -1981,7 +1924,7 @@ codeunit 137034 "SCM Production Journal"
         // [SCENARIO 382546] Verify "Replan Production Order" cannot be executed if "Production Blocked" is Output on "Item Variant".
         Initialize();
 
-        // [GIVEN] Create Item with Item Variant. 
+        // [GIVEN] Create Item with Item Variant.
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
 
@@ -1997,6 +1940,100 @@ codeunit 137034 "SCM Production Journal"
 
         // [VERIFY] Verify expected error message when "Replan Production Order" is executed if "Production Blocked" is Output on "Item Variant".
         Assert.ExpectedError(StrSubstNo(ProductionBlockedOutputItemVariantErr, ItemVariant.Code, Item.TableCaption(), ItemVariant."Item No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('JournalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ProductionJournalRespectsMfgSetupCalcBasedOn()
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        RoutingHeader: Record "Routing Header";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ChildItemNo: Code[20];
+        ChildItemNo2: Code[20];
+        OldCalcBasedOn: Option;
+    begin
+        // [FEATURE] [Manufacturing Setup] [Default Consumption Calculation Based on]
+        // [SCENARIO] Production Journal respects the Default Consumption Calculation Based on setting in Manufacturing Setup
+
+        // [GIVEN] Manufacturing Setup with Default Consumption Calculation Based on = Actual Output
+        Initialize();
+        ManufacturingSetup.Get();
+        OldCalcBasedOn := ManufacturingSetup."Default Consum. Calc. Based on";
+        ManufacturingSetup."Default Consum. Calc. Based on" := ManufacturingSetup."Default Consum. Calc. Based on"::"Actual Output";
+        ManufacturingSetup.Modify();
+
+        // [GIVEN] Items and Released Production Order Setup
+        CreateItemsWithInventory(
+          ChildItemNo, ChildItemNo2, Item."Manufacturing Policy"::"Make-to-Stock", Item."Manufacturing Policy"::"Make-to-Order");
+        LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ChildItemNo, ChildItemNo2, 1);
+        CreateRoutingSetup(RoutingHeader);
+        CreateItem(
+          Item, Item."Costing Method"::FIFO, RoutingHeader."No.", ProductionBOMHeader."No.", Item."Manufacturing Policy"::"Make-to-Order");
+        CreateAndRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, Item."No.");
+        ProductionOrderNo := ProductionOrder."No.";
+         
+        // [WHEN] Open Production Journal based on Production Order Lines
+        OpenProductionJournal(ProductionOrder, ProductionOrderNo);
+         
+        // [THEN] Verification done in VerifyConsumptionEntriesBasedOnActualOutput after JournalPageHandler captures journal lines
+        VerifyConsumptionEntriesBasedOnActualOutput(ProductionOrderNo);
+
+        // Clean up
+        ManufacturingSetup."Default Consum. Calc. Based on" := OldCalcBasedOn;
+        ManufacturingSetup.Modify();
+    end;
+
+    [Test]
+    [HandlerFunctions('JournalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ProductionJournalWithPostedOutputRespectsMfgSetupCalcBasedOn()
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        RoutingHeader: Record "Routing Header";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ChildItemNo: Code[20];
+        ChildItemNo2: Code[20];
+        OldCalcBasedOn: Option;
+        OperationNo: Code[10];
+    begin
+        // [FEATURE] [Manufacturing Setup] [Default Consumption Calculation Based on]
+        // [SCENARIO] Production Journal respects the Default Consumption Calculation Based on setting in Manufacturing Setup after posting output
+
+        // [GIVEN] Manufacturing Setup with Default Consumption Calculation Based on = Actual Output
+        Initialize();
+        ManufacturingSetup.Get();
+        OldCalcBasedOn := ManufacturingSetup."Default Consum. Calc. Based on";
+        ManufacturingSetup."Default Consum. Calc. Based on" := ManufacturingSetup."Default Consum. Calc. Based on"::"Actual Output";
+        ManufacturingSetup.Modify();
+
+        // [GIVEN] Items and Released Production Order Setup
+        CreateItemsWithInventory(
+          ChildItemNo, ChildItemNo2, Item."Manufacturing Policy"::"Make-to-Stock", Item."Manufacturing Policy"::"Make-to-Order");
+        LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ChildItemNo, ChildItemNo2, 1);
+        OperationNo := CreateRoutingSetup(RoutingHeader);
+        CreateItem(
+          Item, Item."Costing Method"::FIFO, RoutingHeader."No.", ProductionBOMHeader."No.", Item."Manufacturing Policy"::"Make-to-Order");
+        CreateAndRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, Item."No.");
+        ProductionOrderNo := ProductionOrder."No.";
+         
+        // [GIVEN] Post output in Production Journal
+        CreateAndPostOutputJournal(ProductionOrderNo, OperationNo, Item."No.", '', '');
+         
+        // [WHEN] Open Production Journal based on Production Order Lines
+        OpenProductionJournal(ProductionOrder, ProductionOrderNo);
+         
+        // [THEN] Verification done in VerifyConsumptionEntriesBasedOnActualOutput after JournalPageHandler captures journal lines
+        VerifyConsumptionEntriesBasedOnActualOutput(ProductionOrderNo);
+
+        // Clean up
+        ManufacturingSetup."Default Consum. Calc. Based on" := OldCalcBasedOn;
+        ManufacturingSetup.Modify();
     end;
 
     local procedure Initialize()
@@ -2136,7 +2173,7 @@ codeunit 137034 "SCM Production Journal"
         WarehouseRequest: Record "Warehouse Request";
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+        LibraryManufacturing.CreateInboundWhseReqFromProdOrder(ProductionOrder);
         WarehouseRequest.SetRange("Location Code", LocationCode);
         WarehouseRequest.FindFirst();
         LibraryWarehouse.CreateInvtPutAwayPick(WarehouseRequest, true, false, false);
@@ -2730,6 +2767,23 @@ codeunit 137034 "SCM Production Journal"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
 
+
+
+    local procedure VerifyConsumptionEntriesBasedOnActualOutput(ProdOrderNo: Code[20])
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        SelectProdOrderComponent(ProdOrderComponent, ProdOrderNo);
+        ProdOrderLine.Get(ProdOrderLine.Status::Released, ProdOrderNo, ProdOrderComponent."Prod. Order Line No.");
+        TempItemJournalLine.SetRange("Entry Type", TempItemJournalLine."Entry Type"::Consumption);
+        TempItemJournalLine.FindSet();
+        repeat
+            Assert.AreEqual(ProdOrderComponent."Quantity per" * ProdOrderLine."Finished Quantity", TempItemJournalLine.Quantity, ErrMsgQuantity);
+            TempItemJournalLine.Next();
+        until ProdOrderComponent.Next() = 0;
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure JournalReservePageHandler(var ProductionJournal: Page "Production Journal"; var Response: Action)
@@ -2889,4 +2943,3 @@ codeunit 137034 "SCM Production Journal"
         Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
-

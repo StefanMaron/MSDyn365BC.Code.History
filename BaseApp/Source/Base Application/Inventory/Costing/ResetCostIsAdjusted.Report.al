@@ -7,7 +7,6 @@ namespace Microsoft.Inventory.Costing;
 using Microsoft.Assembly.History;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
-using Microsoft.Manufacturing.Document;
 using System.Telemetry;
 using System.Utilities;
 
@@ -126,24 +125,6 @@ report 5803 "Reset Cost Is Adjusted"
                         ToolTip = 'Specifies the starting date for the cost adjustment. You can leave this field blank to run the batch job for all dates.';
                     }
                 }
-                group(ProductionOrder)
-                {
-                    Caption = 'Production Order';
-
-                    field("Reset Prod. Order Costing"; ResetProdOrderCosting)
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Adjust Production Orders';
-                        ToolTip = 'Specifies if you want to mark production orders for the next cost adjustment run.';
-                    }
-                    field("Prod. Order No."; ProdOrderNo)
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'No.';
-                        ToolTip = 'Specifies a filter to run the Adjust Cost - Item Entries batch job for only certain production orders. You can leave this field blank to run the batch job for all production orders.';
-                        TableRelation = "Production Order"."No.";
-                    }
-                }
                 group(AssemblyOrder)
                 {
                     Caption = 'Assembly Order';
@@ -210,11 +191,9 @@ report 5803 "Reset Cost Is Adjusted"
         InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         Window: Dialog;
-        ProdOrderNo: Code[50];
         PostedAssemblyOrderNo: Code[50];
         FromDate: Date;
         ResetItemCosting: Boolean;
-        ResetProdOrderCosting: Boolean;
         ResetAssemblyOrderCosting: Boolean;
         ItemProgressTxt: Label 'Processing item #1###########', Comment = '%1: Item No.';
         NoFilterWarningStartDateQst: Label 'You have not specified a start date, which means that the following cost adjustment may take some time. Are you sure you want to continue?';
@@ -224,4 +203,8 @@ report 5803 "Reset Cost Is Adjusted"
         NoAssemblyHeaderFilterQst: Label 'You have not specified an Assembly Order filter, which means that the following cost adjustment may take some time. Are you sure you want to continue?';
         CostIsAdjustedResetTok: Label 'Cost adjusted reset', Locked = true;
         ItemCostIsAdjustedResetTok: Label 'Item cost was set up to be adjusted.', Locked = true;
+
+    protected var
+        ProdOrderNo: Code[50];
+        ResetProdOrderCosting: Boolean;
 }

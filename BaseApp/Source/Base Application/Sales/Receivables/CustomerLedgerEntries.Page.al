@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.Receivables;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Receivables;
 
 using Microsoft.Bank.Reconciliation;
 using Microsoft.EServices.EDocument;

@@ -384,7 +384,7 @@
     begin
         // Setup: Update Manufacturing Setup. Create Order Items setup.
         Initialize();
-        OldCombinedMPSMRPCalculation := UpdateManufacturingSetupCombinedMPSAndMRP(true);  // Combined MPS,MRP Calculation of Manufacturing Setup - TRUE.
+        OldCombinedMPSMRPCalculation := UpdateManufacturingSetupCombinedMPSAndMRP(true);  // Combined MPS,MRP Calculation - TRUE.
         ProdBOMQtyPer := CreateOrderItemSetup(ChildItem, Item);
 
         // Create two Production forecast entries with different dates for same parent item.
@@ -420,7 +420,7 @@
     begin
         // Setup: Update Manufacturing Setup. Create Order Items setup.
         Initialize();
-        OldCombinedMPSMRPCalculation := UpdateManufacturingSetupCombinedMPSAndMRP(true);  // Combined MPS,MRP Calculation of Manufacturing Setup - TRUE.
+        OldCombinedMPSMRPCalculation := UpdateManufacturingSetupCombinedMPSAndMRP(true);  // Combined MPS,MRP Calculation - TRUE.
         ProdBOMQtyPer := CreateOrderItemSetup(ChildItem, Item);
 
         // Create two Sales Order with different shipment dates for same parent item.
@@ -1302,7 +1302,7 @@
         UpdateDemandForecastVariantMatrixField(DemandForecastCard, Item, Qty);
 
         // [WHEN]  Calculate regenerative plan for the "I" using "F"
-        UpdateForecastOnManufacturingSetup(ProductionForecastName.Name);
+        LibraryPlanning.SetDemandForecast(ProductionForecastName.Name);
         CalcRegenPlanForPlanWkshPage(Item."No.", Item."No.");
 
         // [THEN]  Single Requisition Line is created, quantity is "Q", planning Location Code is blank.
@@ -1360,8 +1360,8 @@
         // [SCENARIO 375977] Calculate Regenerative Plan should consider Components at Location if SKU exists for another Location
         Initialize();
 
-        // [GIVEN] Manufacturing Setup with Components at Location "X"
-        UpdateManufacturingSetupComponentsAtLocation(LocationBlue.Code);
+        // [GIVEN] Setup with Components at Location "X"
+        LibraryManufacturing.SetComponentsAtLocation(LocationBlue.Code);
         UpdateLocationMandatory(false);
 
         // [GIVEN] Item "I" with "Fixed Reorder Qty." and "Reorder Quantity" = "Q"
@@ -1393,7 +1393,7 @@
 
         // [GIVEN] Inventory Setup with Location Mandatory = TRUE
         UpdateLocationMandatory(true);
-        UpdateManufacturingSetupComponentsAtLocation('');
+        LibraryManufacturing.SetComponentsAtLocation('');
 
         // [GIVEN] Item "I" with no SKU
         Qty := LibraryRandom.RandDec(10, 2);
@@ -1421,7 +1421,7 @@
 
         // [GIVEN] Inventory Setup with Location Mandatory = FALSE
         UpdateLocationMandatory(false);
-        UpdateManufacturingSetupComponentsAtLocation('');
+        LibraryManufacturing.SetComponentsAtLocation('');
 
         // [GIVEN] Item "I" with no SKU
         Qty := LibraryRandom.RandDec(10, 2);
@@ -1461,8 +1461,8 @@
         Qty := LibraryRandom.RandInt(100);
         CreateSalesOrderWithLocation(Item."No.", Qty, Location.Code);
 
-        // [GIVEN] Set "Components at Location" = "L" in Manufacturing Setup
-        UpdateManufacturingSetupComponentsAtLocation(Location.Code);
+        // [GIVEN] Set "Components at Location" = "L"
+        LibraryManufacturing.SetComponentsAtLocation(Location.Code);
 
         // [WHEN] Calculate regenerative plan from planning worksheet
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
@@ -1500,8 +1500,8 @@
         Qty := LibraryRandom.RandInt(100);
         CreateSalesOrderWithLocationAndVariant(Item."No.", Qty, Location.Code, ItemVariant.Code);
 
-        // [GIVEN] Set "Components at Location" = "L" in Manufacturing Setup
-        UpdateManufacturingSetupComponentsAtLocation(Location.Code);
+        // [GIVEN] Set "Components at Location" = "L"
+        LibraryManufacturing.SetComponentsAtLocation(Location.Code);
 
         // [WHEN] Calculate regenerative plan from planning worksheet
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
@@ -2331,7 +2331,8 @@
     var
         RequisitionLine: Record "Requisition Line";
         ProductionOrder: Record "Production Order";
-        CarryOutAction: Codeunit "Carry Out Action";
+        TempDocumentEntry: Record "Document Entry" temporary;
+        MfgCarryOutAction: Codeunit "Mfg. Carry Out Action";
     begin
         // [FEATURE] [UT] [Production Order]
         // [SCENARIO 277381] Codeunit 99000813 InsertProductionOrder() on Reqisition Line with "Gen. Business Posting Group" <> '' doesn't fill "Gen. Business Posting Group" in Production Order
@@ -2342,7 +2343,7 @@
         RequisitionLine.TestField("Gen. Business Posting Group");
 
         // [WHEN] Call CarryOutAction.InsertProductionOrder()
-        CarryOutAction.InsertProductionOrder(RequisitionLine, "Planning Create Prod. Order"::Planned);
+        MfgCarryOutAction.InsertProductionOrder(RequisitionLine, "Planning Create Prod. Order"::Planned, TempDocumentEntry);
 
         // [THEN] "Gen. Bus. Posting Group" = blank in created Production order
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Planned);
@@ -2357,7 +2358,8 @@
     var
         RequisitionLine: Record "Requisition Line";
         ProductionOrder: Record "Production Order";
-        CarryOutAction: Codeunit "Carry Out Action";
+        TempDocumentEntry: Record "Document Entry" temporary;
+        MfgCarryOutAction: Codeunit "Mfg. Carry Out Action";
     begin
         // [FEATURE] [Production Order] [Item Variant]
         // [SCENARIO 388994] Codeunit 99000813 InsertProductrionOrder() on Reqisition Line with Variant Code fill "Variant Code" in Production Order
@@ -2368,7 +2370,7 @@
         RequisitionLine.TestField("Gen. Business Posting Group");
 
         // [WHEN] Call CarryOutAction.InsertProductionOrder()
-        CarryOutAction.InsertProductionOrder(RequisitionLine, "Planning Create Prod. Order"::Planned);
+        MfgCarryOutAction.InsertProductionOrder(RequisitionLine, "Planning Create Prod. Order"::Planned, TempDocumentEntry);
 
         // [THEN] "Gen. Bus. Posting Group" = blank in created Production order
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Planned);
@@ -2948,7 +2950,8 @@
     var
         Item: Record Item;
         RequisitionLine: Record "Requisition Line";
-        CarryOutAction: Codeunit "Carry Out Action";
+        TempDocumentEntry: Record "Document Entry" temporary;
+        MfgCarryOutAction: Codeunit "Mfg. Carry Out Action";
     begin
         // [SCENARIO 382546] Verify "Carry Out Action" should throw error if "Production Blocked" is Output on "Item".
         Initialize();
@@ -2962,7 +2965,7 @@
         Item.Modify(true);
 
         // [WHEN] Call CarryOutAction.InsertProductionOrder().
-        asserterror CarryOutAction.InsertProductionOrder(RequisitionLine, "Planning Create Prod. Order"::Planned);
+        asserterror MfgCarryOutAction.InsertProductionOrder(RequisitionLine, "Planning Create Prod. Order"::Planned, TempDocumentEntry);
 
         // [VERIFY] Verify error message if "Production Blocked" is Output on Item.
         Assert.ExpectedError(StrSubstNo(ProductionBlockedOutputItemErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Production Blocked"), Item."Production Blocked"));
@@ -2975,7 +2978,8 @@
         Item: Record Item;
         ItemVariant: Record "Item Variant";
         RequisitionLine: Record "Requisition Line";
-        CarryOutAction: Codeunit "Carry Out Action";
+        TempDocumentEntry: Record "Document Entry" temporary;
+        MfgCarryOutAction: Codeunit "Mfg. Carry Out Action";
     begin
         // [SCENARIO 382546] Verify "Carry Out Action" should throw error if "Production Blocked" is Output on "Item Variant".
         Initialize();
@@ -2989,7 +2993,7 @@
         ItemVariant.Modify(true);
 
         // [WHEN] Call CarryOutAction.InsertProductionOrder().
-        asserterror CarryOutAction.InsertProductionOrder(RequisitionLine, "Planning Create Prod. Order"::Planned);
+        asserterror MfgCarryOutAction.InsertProductionOrder(RequisitionLine, "Planning Create Prod. Order"::Planned, TempDocumentEntry);
 
         // [VERIFY] Verify error message if "Production Blocked" is Output on "Item Variant".
         Assert.ExpectedError(StrSubstNo(ProductionBlockedOutputItemVariantErr, ItemVariant.Code, Item.TableCaption(), ItemVariant."Item No."));
@@ -3090,12 +3094,12 @@
 
     local procedure UpdateManufacturingSetupCombinedMPSAndMRP(NewCombinedMPSMRPCalculation: Boolean) OldCombinedMPSMRPCalculation: Boolean
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
-        ManufacturingSetup.Get();
-        OldCombinedMPSMRPCalculation := ManufacturingSetup."Combined MPS/MRP Calculation";
-        ManufacturingSetup.Validate("Combined MPS/MRP Calculation", NewCombinedMPSMRPCalculation);
-        ManufacturingSetup.Modify(true);
+        InventorySetup.Get();
+        OldCombinedMPSMRPCalculation := InventorySetup."Combined MPS/MRP Calculation";
+        InventorySetup.Validate("Combined MPS/MRP Calculation", NewCombinedMPSMRPCalculation);
+        InventorySetup.Modify(true);
     end;
 
     local procedure CreateSalesOrderAndFirmPlannedProductionOrderAsDemandAndSupply(var TopLevelItem: Record Item; var Level1Item: Record Item; var Level2Item: Record Item; var SalesHeader: Record "Sales Header"; ShipmentDate: Date; LotPeriod: Text)
@@ -3772,13 +3776,13 @@
 
     local procedure SelectDateWithSafetyLeadTime(DateValue: Date; SignFactor: Integer): Date
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
         // Add Safety lead time to the required date and return the Date value.
-        ManufacturingSetup.Get();
+        InventorySetup.Get();
         if SignFactor < 0 then
-            exit(CalcDate('<-' + Format(ManufacturingSetup."Default Safety Lead Time") + '>', DateValue));
-        exit(CalcDate('<' + Format(ManufacturingSetup."Default Safety Lead Time") + '>', DateValue));
+            exit(CalcDate('<-' + Format(InventorySetup."Default Safety Lead Time") + '>', DateValue));
+        exit(CalcDate('<' + Format(InventorySetup."Default Safety Lead Time") + '>', DateValue));
     end;
 
     local procedure SelectSalesOrderLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20])
@@ -3802,7 +3806,8 @@
     begin
         // Create Two Production Forecast with same random quantities but different dates, based on WORKDATE.
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
-        UpdateForecastOnManufacturingSetup(ProductionForecastName.Name);
+        LibraryPlanning.SetDemandForecast(ProductionForecastName.Name);
+
         ForecastQty := LibraryRandom.RandInt(10) + 100;   // Large Random Quantity Required.
         CreateAndUpdateProductionForecast(ProductionForecastName.Name, WorkDate(), ItemNo, ForecastQty);
         if MultipleLines then
@@ -3812,18 +3817,9 @@
     local procedure CreateProductionForecastSetupAtDate(var ProductionForecastName: Record "Production Forecast Name"; ItemNo: Code[20]; ForecastEntryDate: Date) ForecastQty: Integer
     begin
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
-        UpdateForecastOnManufacturingSetup(ProductionForecastName.Name);
+        LibraryPlanning.SetDemandForecast(ProductionForecastName.Name);
         ForecastQty := LibraryRandom.RandIntInRange(100, 1000);
         CreateAndUpdateProductionForecast(ProductionForecastName.Name, ForecastEntryDate, ItemNo, ForecastQty);
-    end;
-
-    local procedure UpdateForecastOnManufacturingSetup(CurrentProductionForecast: Code[10])
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-    begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
-        ManufacturingSetup.Modify(true);
     end;
 
     local procedure CreateAndUpdateProductionForecast(Name: Code[10]; Date: Date; ItemNo: Code[20]; Quantity: Decimal)
@@ -4055,21 +4051,11 @@
     local procedure CreateBOMTree(var BOMBuffer: Record "BOM Buffer"; var Item: Record Item; EndDate: Date)
     var
         CalculateBOMTree: Codeunit "Calculate BOM Tree";
-        TreeType: Option " ",Availability,Cost;
     begin
         Item.SetRange("Date Filter", 0D, EndDate);
         CalculateBOMTree.SetShowTotalAvailability(true);
-        CalculateBOMTree.GenerateTreeForItems(Item, BOMBuffer, TreeType::Availability);
+        CalculateBOMTree.GenerateTreeForManyItems(Item, BOMBuffer, "BOM Tree Type"::Availability);
         BOMBuffer.Find();
-    end;
-
-    local procedure UpdateManufacturingSetupComponentsAtLocation(NewComponentsAtLocation: Code[10])
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-    begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Components at Location", NewComponentsAtLocation);
-        ManufacturingSetup.Modify(true);
     end;
 
     local procedure UpdateManufacturingSetupNormalStartingEndingTime(StartingTime: Time; EndingTime: Time)

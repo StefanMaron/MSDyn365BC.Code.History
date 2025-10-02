@@ -10,7 +10,6 @@ using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
 using System.Environment.Configuration;
 using System.TestLibraries.Utilities;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Assembly.Document;
@@ -47,6 +46,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryDimension: Codeunit "Library - Dimension";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryPlanning: Codeunit "Library - Planning";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -62,7 +62,6 @@ codeunit 137311 "SCM Kitting - Printout Reports"
 
     local procedure Initialize()
     var
-        MfgSetup: Record "Manufacturing Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Kitting - Printout Reports");
@@ -78,8 +77,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
-        MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
+        WorkDate2 := LibraryPlanning.SetSafetyWorkDate(); // to avoid Due Date Before Work Date message.
         LibraryCosting.AdjustCostItemEntries('', '');
         LibraryCosting.PostInvtCostToGL(false, WorkDate2, '');
 

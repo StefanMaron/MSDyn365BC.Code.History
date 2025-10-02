@@ -220,6 +220,8 @@ report 1138 "Cost Acctg. Balance/Budget"
 
     requestpage
     {
+        AboutTitle = 'About Cost Acctg. Balance/Budget';
+        AboutText = 'The **Cost Acctg. Balance/Budget** report summarizes balances in cost accounts and budget figures, with filters for fiscal year, cost type, or budget version to enhance accuracy. Use it for analyzing cost and budget balances to support financial planning, control, and informed decision-making. ';
         SaveValues = true;
 
         layout

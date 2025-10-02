@@ -32,6 +32,7 @@ table 130 "Incoming Document"
     DataCaptionFields = "Vendor Name", "Vendor Invoice No.", Description;
     DrillDownPageID = "Incoming Documents";
     LookupPageID = "Incoming Documents";
+    Permissions = TableData "G/L Entry" = r;
     DataClassification = CustomerContent;
 
     fields

@@ -10,6 +10,11 @@ using Microsoft.Foundation.Enums;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
 
+/// <summary>
+/// Creates direct debit collections from open customer ledger entries based on specified criteria.
+/// Filters customers and invoices, validates mandates, and automatically generates collection entries
+/// for eligible transactions within the specified date range.
+/// </summary>
 report 1200 "Create Direct Debit Collection"
 {
     Caption = 'Create Direct Debit Collection';

@@ -1521,7 +1521,7 @@
         FindEFTExportByGenJournalLine(EFTExport, GenJournalLine);
         ProcessAndGenerateEFTFile(EFTExport, BankAccountNo);
 
-        // [GIVEN] Post the payment journal 
+        // [GIVEN] Post the payment journal
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         GenJournalLine.Find();
         GenJournalLine.Delete();
@@ -2006,7 +2006,7 @@
         asserterror GenerateEFTFiles.GenerateEFTFile.Invoke();
         PaymentJournal.Close();
 
-        // [THEN] Error is thrown with Error Code "TestWrapped:Dialog" and 
+        // [THEN] Error is thrown with Error Code "TestWrapped:Dialog" and
         // [THEN] text "A dimension used in Gen. Journal Line has caused an error. Select a Dimension Value Code for the Dimension Code for Vendor.".
         Assert.ExpectedErrorCode('TestWrapped:Dialog');
         ErrorText :=
@@ -2034,17 +2034,17 @@
         // [GIVEN] A customer bank account for the customer we have just created
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
 
-        // [GIVEN] The customer bank account has "Use for Electronic Payments" set to true 
+        // [GIVEN] The customer bank account has "Use for Electronic Payments" set to true
         CustomerBankAccount.Validate("Use for Electronic Payments", true);
         CustomerBankAccount.Modify(true);
 
-        // [WHEN] Creating a second customer bank account with "Use for Electronic Payments" set to true 
+        // [WHEN] Creating a second customer bank account with "Use for Electronic Payments" set to true
         // for the same customer
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
         CustomerBankAccount.Validate("Use for Electronic Payments", true);
         CustomerBankAccount.Modify(true);
 
-        // [THEN] No errors occur and the customer has 2 customer bank accounts with 
+        // [THEN] No errors occur and the customer has 2 customer bank accounts with
         // "Use for Electronic Payments" set to true
         CustomerBankAccount.SetRange("Customer No.", Customer."No.");
         CustomerBankAccount.SetRange("Use for Electronic Payments", true);
@@ -2067,17 +2067,17 @@
         // [GIVEN] A vendor bank account for the vendor we have just created
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
 
-        // [GIVEN] The vendor bank account has "Use for Electronic Payments" set to true 
+        // [GIVEN] The vendor bank account has "Use for Electronic Payments" set to true
         VendorBankAccount.Validate("Use for Electronic Payments", true);
         VendorBankAccount.Modify(true);
 
-        // [WHEN] Creating a second vendor bank account with "Use for Electronic Payments" set to true 
+        // [WHEN] Creating a second vendor bank account with "Use for Electronic Payments" set to true
         // for the same vendor
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
         VendorBankAccount.Validate("Use for Electronic Payments", true);
         VendorBankAccount.Modify(true);
 
-        // [THEN] No errors occur and the vendor has 2 vendor bank accounts with 
+        // [THEN] No errors occur and the vendor has 2 vendor bank accounts with
         // "Use for Electronic Payments" set to true
         VendorBankAccount.SetRange("Vendor No.", Vendor."No.");
         VendorBankAccount.SetRange("Use for Electronic Payments", true);
@@ -2697,7 +2697,7 @@
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         PaymentJournal: TestPage "Payment Journal";
     begin
-        // [SCENARIO 534209] Export Payment Journal When Apllies-to ID set and during Void Document No. will be blank and Applies to Entry updated by correct Document No. 
+        // [SCENARIO 534209] Export Payment Journal When Apllies-to ID set and during Void Document No. will be blank and Applies to Entry updated by correct Document No.
         Initialize();
 
         // [GIVEN] Set Client Type and bindsubscription
@@ -2723,7 +2723,7 @@
         // [WHEN] Void the Transaction as exported
         PerformVoidTransmitElecPayments(GenJournalLine);
 
-        // [THEN] Verify GenJournalLine Document No. is blank after void the Exported file 
+        // [THEN] Verify GenJournalLine Document No. is blank after void the Exported file
         GenJournalLine.Find();
         Assert.AreEqual('', GenJournalLine."Document No.", DocumentNoBlankErr);
     end;
@@ -2801,7 +2801,7 @@
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         PaymentJournal: TestPage "Payment Journal";
     begin
-        // [SCENARIO 546680] Export Payment Journal when "Applies-to Doc. No." set and during Void 
+        // [SCENARIO 546680] Export Payment Journal when "Applies-to Doc. No." set and during Void
         // "Applies-to Doc. No." will not be blank.
         Initialize();
 
@@ -2931,8 +2931,8 @@
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         PaymentJournal: TestPage "Payment Journal";
     begin
-        // [SCENARIO 572812] When Stan runs Void action for two Payment type Gen. Journal Lines created 
-        // for different Vendors, one using Suggest Vendor Payments action and another one manually, 
+        // [SCENARIO 572812] When Stan runs Void action for two Payment type Gen. Journal Lines created
+        // for different Vendors, one using Suggest Vendor Payments action and another one manually,
         // then "Applies-to ID" doesn't become blank in them.
         Initialize();
         TestClientTypeSubscriber.SetClientType(ClientType::Web);
@@ -4702,16 +4702,6 @@
         GLEntry.FindFirst();
     end;
 
-    local procedure GetReportCaption(ReportId: Integer): Text
-    var
-        AllObjWithCaption: Record AllObjWithCaption;
-    begin
-        AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Report);
-        AllObjWithCaption.SetRange("Object ID", ReportId);
-        AllObjWithCaption.FindFirst();
-        exit(AllObjWithCaption."Object Caption");
-    end;
-
     local procedure GetTransitNo(ExportFormat: Option): Code[20]
     var
         DummyBankAccount: Record "Bank Account";
@@ -5662,4 +5652,3 @@
     end;
 
 }
-

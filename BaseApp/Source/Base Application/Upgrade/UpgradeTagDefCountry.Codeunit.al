@@ -1,4 +1,5 @@
-﻿codeunit 9997 "Upgrade Tag Def - Country"
+#pragma warning disable AA0247
+codeunit 9997 "Upgrade Tag Def - Country"
 {
 
     trigger OnRun()

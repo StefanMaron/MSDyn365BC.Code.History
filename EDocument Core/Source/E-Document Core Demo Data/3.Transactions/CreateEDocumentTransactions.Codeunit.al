@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 5376 "Create E-Document Transactions"
 {
     InherentEntitlements = X;

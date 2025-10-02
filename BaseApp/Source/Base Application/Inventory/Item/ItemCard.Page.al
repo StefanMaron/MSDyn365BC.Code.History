@@ -188,6 +188,11 @@ page 30 "Item Card"
                     ToolTip = 'Specifies whether a variant must be selected if variants exist for the item. ';
                     Visible = not ShowVariantMandatoryDefaultYes;
                 }
+                field("Statistics Group"; Rec."Statistics Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
             }
             group(InventoryGrp)
             {
@@ -2715,7 +2720,7 @@ page 30 "Item Card"
 
         EnabledApprovalWorkflowsExist := WorkflowManagement.EnabledWorkflowExist(DATABASE::Item, EventFilter);
 
-        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(FlowServiceManagement.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -2771,7 +2776,7 @@ page 30 "Item Card"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         PrivacyNotice: Codeunit "Privacy Notice";
-        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
+        FlowServiceManagement: Codeunit "Flow Service Management";
         IsInventoryAdjmtAllowed: Boolean;
         ShowStockoutWarningDefaultYes: Boolean;
         ShowStockoutWarningDefaultNo: Boolean;

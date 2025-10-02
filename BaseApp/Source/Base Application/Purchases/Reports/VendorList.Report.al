@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Reports;
 
 using Microsoft.Foundation.Address;
@@ -132,6 +136,8 @@ report 301 "Vendor - List"
 
     requestpage
     {
+        AboutTitle = 'About Vendor List';
+        AboutText = 'This is a legacy report for vendor analysis. See report documentation for alternatives.';
         SaveValues = true;
 
         layout

@@ -917,8 +917,8 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         AcquisitionCostAfterReclassification := Round(AcquisitionCostBeforeReclassification * ReclassifyAcqCostPct / 100);
         NumberOfDays :=
           DepreciationCalculation.DeprDays(
-            DepreciationCalculation.ToMorrow(PostingDate, false), CalcDate('<1Y>', WorkDate()),
-            false);
+            DepreciationCalculation.ToMorrow(PostingDate, false, false), CalcDate('<1Y>', WorkDate()),
+            false, false);
         DepreciationBeforeReclassification -=
           AcquisitionCostBeforeReclassification * (FADepreciationBook."Declining-Balance %" / 100) * (NumberOfDays / 360);
         DepreciationAfterReclassification := Round(DepreciationBeforeReclassification * ReclassifyAcqCostPct / 100);
@@ -1054,8 +1054,8 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         AcqCostReclassAmount := OriginalAcqCostAmount * (1 - ReclassifyAcqCostPct / 100);
         NumberOfDaysInPeriod :=
           DepreciationCalculation.DeprDays(
-            DepreciationCalculation.ToMorrow(PostingDate, false), CalcDate('<1Y>', WorkDate()),
-            false);
+            DepreciationCalculation.ToMorrow(PostingDate, false, false), CalcDate('<1Y>', WorkDate()),
+            false, false);
         DeprAmount :=
           -Round(
             OriginalAcqCostAmount * (FADepreciationBook."Declining-Balance %" / 100) * (NumberOfDaysInPeriod / 360));  // Take 30 as No. of days for depreciation for one month.

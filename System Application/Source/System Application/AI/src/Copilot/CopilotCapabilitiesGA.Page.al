@@ -55,6 +55,13 @@ page 7774 "Copilot Capabilities GA"
                     ToolTip = 'Specifies the publisher of this Copilot.';
                     Editable = false;
                 }
+                field("Billing Type"; Rec."Billing Type")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Billing Type';
+                    ToolTip = 'Specifies the billing type of this Copilot.';
+                    Editable = false;
+                }
                 field("Learn More"; LearnMore)
                 {
                     ApplicationArea = All;
@@ -93,10 +100,11 @@ page 7774 "Copilot Capabilities GA"
                         exit;
 
                     Rec.Status := Rec.Status::Active;
-                    Rec.Modify(true);
-
-                    CopilotCapabilityImpl.SendActivateTelemetry(Rec.Capability, Rec."App Id");
-                    Session.LogAuditMessage(StrSubstNo(CopilotFeatureActivatedLbl, Rec.Capability, Rec."App Id", UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
+                    if Rec.Modify(true) then begin
+                        CopilotCapabilityImpl.SendActivateTelemetry(Rec.Capability, Rec."App Id");
+                        Session.LogAuditMessage(StrSubstNo(CopilotFeatureActivatedLbl, Rec.Capability, Rec."App Id", UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
+                        CopilotNotifications.ShowCapabilityChange();
+                    end;
                 end;
             }
             action(Deactivate)
@@ -152,6 +160,7 @@ page 7774 "Copilot Capabilities GA"
 
     var
         CopilotCapabilityImpl: Codeunit "Copilot Capability Impl";
+        CopilotNotifications: Codeunit "Copilot Notifications";
         StatusStyleExpr: Text;
         LearnMore: Text;
         LearnMoreLbl: Label 'Learn More';

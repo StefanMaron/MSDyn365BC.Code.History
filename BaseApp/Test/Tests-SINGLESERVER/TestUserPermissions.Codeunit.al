@@ -258,14 +258,6 @@ codeunit 134610 "Test User Permissions"
         CODEUNIT.Run(CODEUNIT::"Users - Create Super User");
     end;
 
-    local procedure CreateTenantPermissionSet(): Record "Tenant Permission Set"
-    var
-        TenantPermissionSet: Record "Tenant Permission Set";
-    begin
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, '', LibrarySingleServer.GetAppIdGuid());
-        exit(TenantPermissionSet);
-    end;
-
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UserLookupHandler(var UserLookup: TestPage "User Lookup")
@@ -370,12 +362,6 @@ codeunit 134610 "Test User Permissions"
         end;
     end;
 
-    local procedure WriteLine(OutStream: OutStream; Text: Text)
-    begin
-        OutStream.WriteText(Text);
-        OutStream.WriteText();
-    end;
-
     local procedure AssignSuperToCurrentUser()
     var
         AccessControl: Record "Access Control";
@@ -420,4 +406,3 @@ codeunit 134610 "Test User Permissions"
         end;
     end;
 }
-

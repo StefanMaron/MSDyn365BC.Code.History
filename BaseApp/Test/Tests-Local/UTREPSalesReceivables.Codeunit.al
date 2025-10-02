@@ -678,14 +678,6 @@ codeunit 142070 "UT REP Sales Receivables"
         DetailedCustLedgEntry.Insert(true);
     end;
 
-    local procedure CreateCustomerLedgerEntryWithDetailed(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; PostingDate: Date; Sign: Integer)
-    begin
-        CreateCustomerLedgerEntryOnDate(CustLedgerEntry, CustomerNo, PostingDate);
-        CreateDetailedCustomerLedgerEntryOnDate(
-          CustLedgerEntry."Entry No.", CustLedgerEntry."Customer No.", PostingDate, Sign * LibraryRandom.RandDec(10, 2));
-        CustLedgerEntry.CalcFields(Amount);
-    end;
-
     local procedure CreateGLRegister(FromEntryNo: Integer)
     var
         GLRegister: Record "G/L Register";
@@ -1028,4 +1020,3 @@ codeunit 142070 "UT REP Sales Receivables"
         VendorAccountDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-

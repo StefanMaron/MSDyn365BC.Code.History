@@ -1,3 +1,13 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
+namespace Microsoft.DemoData.Finance;
+
+using Microsoft.DemoTool.Helpers;
+using Microsoft.Finance.GeneralLedger.Setup;
+
 codeunit 14110 "Create Posting Groups MX"
 {
     SingleInstance = true;
@@ -45,22 +55,6 @@ codeunit 14110 "Create Posting Groups MX"
         UpdateGenPostingSetup(CreatePostingGroups.DomesticPostingGroup(), NOVAT(), CreateGLAccount.CustomerPrepaymentsVAT0(), CreateGLAccount.VendorPrepaymentsVAT());
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Gen. Product Posting Group", 'OnBeforeInsertEvent', '', false, false)]
-    local procedure OnBeforeInsertVATProductPostingGroup(var Rec: Record "Gen. Product Posting Group")
-    var
-        CreatePostingGroups: Codeunit "Create Posting Groups";
-        CreateVATPostingGroupsMX: Codeunit "Create VAT Posting Groups MX";
-    begin
-        case Rec.Code of
-            CreatePostingGroups.FreightPostingGroup(),
-            CreatePostingGroups.MiscPostingGroup(),
-            CreatePostingGroups.RetailPostingGroup():
-                Rec.Validate("Def. VAT Prod. Posting Group", CreateVATPostingGroupsMX.VAT16());
-            CreatePostingGroups.ServicesPostingGroup():
-                Rec.Validate("Def. VAT Prod. Posting Group", CreateVATPostingGroupsMX.VAT8());
-        end;
-    end;
-
     local procedure UpdateGenPostingSetup(GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20]; SalesPrepaymentAccount: Code[20]; PurchasePrepaymentAccount: Code[20])
     var
         GeneralPostingSetup: Record "General Posting Setup";
@@ -74,10 +68,12 @@ codeunit 14110 "Create Posting Groups MX"
 
     local procedure InsertGenProductPostingGroup()
     var
+        FinanceModuleSetup: Record "Finance Module Setup";
         ContosoPostingGroup: Codeunit "Contoso Posting Group";
     begin
+        FinanceModuleSetup.Get();
         ContosoPostingGroup.SetOverwriteData(true);
-        ContosoPostingGroup.InsertGenProductPostingGroup(NOVAT(), MiscellaneousNoVATLbl, NOVAT());
+        ContosoPostingGroup.InsertGenProductPostingGroup(NOVAT(), MiscellaneousNoVATLbl, FinanceModuleSetup."VAT Prod. Post Grp. NO VAT");
         ContosoPostingGroup.SetOverwriteData(false);
     end;
 

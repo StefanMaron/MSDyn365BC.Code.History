@@ -1444,6 +1444,7 @@ codeunit 137062 "SCM Sales & Receivables"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
     end;
 
+#if not CLEAN25
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SalesItemNo: Code[20]; CustomerNo: Code[20])
     var
         Location: Record Location;
@@ -1454,13 +1455,14 @@ codeunit 137062 "SCM Sales & Receivables"
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CustomerNo, SalesItemNo, LibraryRandom.RandDec(10, 2));
         UpdateLocationOnSalesLine(SalesLine, Location.Code);
     end;
-
+#endif
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
     end;
 
+#if not CLEAN25
     local procedure CreatePurchOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; VendorNo: Code[20])
     var
         Location: Record Location;
@@ -1472,7 +1474,7 @@ codeunit 137062 "SCM Sales & Receivables"
         PurchaseLine.Validate("Location Code", Location.Code);
         PurchaseLine.Modify(true);
     end;
-
+#endif
     local procedure CreateItemBudgetEntry(Item: Record Item; Date: Date; DepartmentCode: Code[20]; ProjectCode: Code[20]; CustomerGroupCode: Code[20])
     var
         ItemBudgetEntry: Record "Item Budget Entry";
@@ -1521,6 +1523,7 @@ codeunit 137062 "SCM Sales & Receivables"
         PurchaseHeader.Modify(true);
     end;
 
+#if not CLEAN25
     local procedure CreateItemUnitOfMeasure(var ItemUnitOfMeasure: Record "Item Unit of Measure"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; QtyPerUnitOfMeasure: Decimal)
     begin
         LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, ItemNo, UnitOfMeasureCode, QtyPerUnitOfMeasure);
@@ -1536,7 +1539,7 @@ codeunit 137062 "SCM Sales & Receivables"
         BOMComponent.Validate("Variant Code", VariantCode);
         BOMComponent.Modify(true);
     end;
-
+#endif
     local procedure ClearEntries()
     var
         ItemBudgetEntry: Record "Item Budget Entry";
@@ -1562,6 +1565,7 @@ codeunit 137062 "SCM Sales & Receivables"
         Result := DelChr(String, '>'); // delete trailing space chars
     end;
 
+#if not CLEAN25
     local procedure UpdateChildItem(var Item: Record Item; UnitOfMeasureCode: Code[10]; UnitPrice: Decimal; LastDirectCost: Decimal)
     begin
         Item.Validate("Base Unit of Measure", UnitOfMeasureCode);
@@ -1581,7 +1585,7 @@ codeunit 137062 "SCM Sales & Receivables"
         CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, 1);  // Value is important for Test.
         CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure2.Code, QtyPerUnitOfMeasure);
     end;
-
+#endif
     local procedure CreateItemWithAutoText(var Item: Record Item; var ItemExtText: Text[100])
     begin
         LibraryInventory.CreateItem(Item);
@@ -1623,14 +1627,6 @@ codeunit 137062 "SCM Sales & Receivables"
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
           ItemReference."Item No.", LibraryRandom.RandDec(10, 2));
         SalesLine.Validate("Item Reference No.", ItemReference."Reference No.");
-        SalesLine.Modify(true);
-    end;
-
-
-    local procedure UpdateItemRefNoSalesLine(SalesLine: Record "Sales Line"; ReferenceNo: Code[20])
-    begin
-        // Set a Discontinued Reference No. on Sales Line to generate an error.
-        SalesLine.Validate("Item Reference No.", ReferenceNo);
         SalesLine.Modify(true);
     end;
 
@@ -1969,4 +1965,3 @@ codeunit 137062 "SCM Sales & Receivables"
         IsHandled := true;
     end;
 }
-

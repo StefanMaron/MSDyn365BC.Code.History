@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Warehouse.Document;
 
 using Microsoft.Foundation.Enums;
@@ -491,7 +495,6 @@ table 7317 "Warehouse Receipt Line"
     end;
 
     var
-        Location: Record Location;
         Item: Record Item;
         Bin: Record Bin;
         CrossDockMgt: Codeunit "Whse. Cross-Dock Management";
@@ -511,6 +514,9 @@ table 7317 "Warehouse Receipt Line"
 #pragma warning restore AA0074
         IgnoreErrors: Boolean;
         ErrorOccured: Boolean;
+
+    protected var
+        Location: Record Location;
 
     procedure InitNewLine(DocNo: Code[20])
     var

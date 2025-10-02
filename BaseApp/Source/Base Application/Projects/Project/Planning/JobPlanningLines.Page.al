@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Projects.Project.Planning;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.Project.Planning;
 
 using Microsoft.Foundation.ExtendedText;
 using Microsoft.Inventory.Availability;
@@ -1186,13 +1190,11 @@ page 1007 "Job Planning Lines"
     var
         Job: Record Job;
     begin
-        Rec.FilterGroup := 2;
         if Rec.GetFilter("Job No.") <> '' then
             if Job.Get(Rec.GetRangeMin("Job No.")) then
                 CurrPage.Editable(not (Job.Blocked = Job.Blocked::All));
 
         SelectMultipleItemsVisible := Rec.GetFilter("Job Task No.") <> '';
-        Rec.FilterGroup := 0;
     end;
 
     var

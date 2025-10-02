@@ -43,7 +43,6 @@
         MissingSalesPaymentMethodCodeExceptionErr: Label 'Payment Method Code must have a value in Sales Header';
         MissingServicePaymentMethodCodeExceptionErr: Label 'Payment Method Code must have a value in Service Header';
         MissingServiceUnitOfMeasureExcErr: Label 'Unit of Measure Code must have a value in Service Line';
-        MissingSalesUnitOfMeasureExcErr: Label 'Unit of Measure Code must have a value in Sales Line';
         IncorrectSchemaVersionErr: Label 'Incorrect schema version in the original string %1.';
         IncorrectOriginalStrValueErr: Label 'Incorrect %1 in the original string %2.';
         ConceptoUnidadFieldTxt: Label 'ConceptoUnidad';
@@ -784,8 +783,7 @@
         Cancel(DATABASE::"Cust. Ledger Entry", PaymentNo, ResponseOption::Success);
 
         // [THEN] 'Electronic Document Status' set to "Canceled"
-        CustLedgerEntry.SetRange("Document No.", PaymentNo);
-        CustLedgerEntry.FindFirst();
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, PaymentNo);
         Assert.AreEqual(CustLedgerEntry."Electronic Document Status", CustLedgerEntry."Electronic Document Status"::Canceled, 'Status should be Canceled');
     end;
 
@@ -1255,7 +1253,7 @@
         // [THEN] 'DoctoRelacionado' node has attribute 'NumParcialidad' (partial payment number) = '1' (TFS 363806)
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:DoctoRelacionado', 'NumParcialidad', '1');
-        // [THEN] 'Complemento' node has attribute 'FormaDePagoP' = '03' (TFS 375439)          
+        // [THEN] 'Complemento' node has attribute 'FormaDePagoP' = '03' (TFS 375439)
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Complemento/pago20:Pagos/pago20:Pago', 'FormaDePagoP',
           SATUtilities.GetSATPaymentMethod(CustLedgerEntry."Payment Method Code"));
@@ -1266,7 +1264,7 @@
 
         // [THEN] String for digital stamp has 'ValorUnitario' = 0, 'Importe' = 0  (TFS 329513)
         // [THEN] Original stamp string has NumParcialidad (partial payment number) = '1' (TFS 363806)
-        // [THEN] String for digital stamp has 'FormaDePagoP' = '03' (TFS 375439)          
+        // [THEN] String for digital stamp has 'FormaDePagoP' = '03' (TFS 375439)
         InitOriginalStringFromCustLedgerEntry(CustLedgerEntry, OriginalStr);
         Assert.AreEqual('0', SelectStr(23, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ValorUnitario', OriginalStr));
         Assert.AreEqual('0', SelectStr(24, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Importe', OriginalStr));
@@ -1773,13 +1771,13 @@
         // [SCENARIO 425402] Request stamp for LCY payment when invoice applied to payment
         Initialize();
 
-        // [GIVEN] Posted Sales Invoice with "Amount Including VAT" = 1000 
+        // [GIVEN] Posted Sales Invoice with "Amount Including VAT" = 1000
         CustomerNo := CreateCustomer();
         UpdateCustomerSATPaymentFields(CustomerNo);
         CreateAndPostSalesInvoice(CustLedgerEntryInv, CustomerNo);
         GetPostedSalesInvoice(SalesInvoiceHeader, CustLedgerEntryInv."Document No.");
 
-        // [GIVEN] Payment with amount -1000 
+        // [GIVEN] Payment with amount -1000
         PaymentNo :=
           CreatePostPayment(SalesInvoiceHeader."Sell-to Customer No.", '', -SalesInvoiceHeader."Amount Including VAT", '');
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, PaymentNo);
@@ -1881,7 +1879,7 @@
         PaymentNo: Code[20];
         FileName: Text;
     begin
-        // [FEATURE] [Payment] [Shipment] 
+        // [FEATURE] [Payment] [Shipment]
         // [SCENARIO 474755] Request stamp for payment applied to invoice with partial shipment
         Initialize();
 
@@ -1904,7 +1902,7 @@
         RequestStamp(DATABASE::"Cust. Ledger Entry", PaymentNo, ResponseOption::Success, ActionOption::"Request Stamp");
         ExportPaymentToServerFile(CustLedgerEntry, FileName, CustLedgerEntry."Document Type"::Payment, PaymentNo);
 
-        // [THEN] 'Pagos/Totales' node has attribute 'MontoTotalPagos' with the amount for the payment 
+        // [THEN] 'Pagos/Totales' node has attribute 'MontoTotalPagos' with the amount for the payment
         // [THEN] One TrasladoP node has created with the amounts according to the invoice
         InitXMLReaderForPagos20(FileName);
         InitOriginalStringFromCustLedgerEntry(CustLedgerEntry, OriginalStr);
@@ -1931,7 +1929,7 @@
         PaymentNo: Code[20];
         FileName: Text;
     begin
-        // [FEATURE] [Payment] [VAT] 
+        // [FEATURE] [Payment] [VAT]
         // [SCENARIO 474755] Request stamp for payment applied to invoice with same VAT line but different VAT identifiers
         Initialize();
 
@@ -1954,7 +1952,7 @@
         RequestStamp(DATABASE::"Cust. Ledger Entry", PaymentNo, ResponseOption::Success, ActionOption::"Request Stamp");
         ExportPaymentToServerFile(CustLedgerEntry, FileName, CustLedgerEntry."Document Type"::Payment, PaymentNo);
 
-        // [THEN] 'Pagos/Totales' node has attribute 'MontoTotalPagos' with the amount for the payment 
+        // [THEN] 'Pagos/Totales' node has attribute 'MontoTotalPagos' with the amount for the payment
         // [THEN] One TrasladoP node has created with the amounts according to the invoice
         InitXMLReaderForPagos20(FileName);
         InitOriginalStringFromCustLedgerEntry(CustLedgerEntry, OriginalStr);
@@ -1992,7 +1990,7 @@
         CreateSalesLineItem(SalesLine, SalesHeader, CreateItem(), 1, 0, 16, false, false);
         GetPostedSalesInvoice(SalesInvoiceHeader, LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
-        // [GIVEN] Posted Sales Credit Memo applied to the invoice with amount = 58.000 MXN (50k + 8k VAT) 
+        // [GIVEN] Posted Sales Credit Memo applied to the invoice with amount = 58.000 MXN (50k + 8k VAT)
         CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.", CreatePaymentMethodForSAT());
         CreateSalesLineItem(SalesLine, SalesHeader, CreateItemWithPrice(SalesLine."Unit Price" / 2), 1, 0, 16, false, false);
         SalesHeader.Validate("Applies-to Doc. Type", SalesHeader."Applies-to Doc. Type"::Invoice);
@@ -2049,7 +2047,7 @@
         CreateSalesLineItem(SalesLine, SalesHeader, CreateItem(), 1, 0, 16, false, false);
         GetPostedSalesInvoice(SalesInvoiceHeader, LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
-        // [GIVEN] Posted Sales Credit Memo with amount = 58.000 MXN (50k + 8k VAT) 
+        // [GIVEN] Posted Sales Credit Memo with amount = 58.000 MXN (50k + 8k VAT)
         CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.", CreatePaymentMethodForSAT());
         CreateSalesLineItem(SalesLine, SalesHeader, CreateItemWithPrice(SalesLine."Unit Price" / 2), 1, 0, 16, false, false);
         GetPostedSalesCreditMemo(SalesCrMemoHeader, LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -5049,7 +5047,7 @@
           ServiceLineDisc."Amount Including VAT" - ServiceLineDisc.Amount,
           ServiceLineDisc.Amount, 0);
         // [THEN] 'Concepto' node for normal line has 'Descuento' = 0, Importe = 3000, 'ValorUnitario' = 1000
-        // [THEN] 'Traslado' node for normal line has 'Importe' = 450 (3450 - 3000), 'Base' = 3000 
+        // [THEN] 'Traslado' node for normal line has 'Importe' = 450 (3450 - 3000), 'Base' = 3000
         VerifyLineAmountsByIndex(
           0, UnitPrice * ServiceLine.Quantity, UnitPrice,
           ServiceLine."Amount Including VAT" - ServiceLine.Amount,
@@ -5468,7 +5466,7 @@
         SalesLine.Modify();
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
-        // [WHEN] Request Stamp for the Sales Invoice 
+        // [WHEN] Request Stamp for the Sales Invoice
         RequestStamp(
           DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
 
@@ -5815,7 +5813,7 @@
         // [SCENARIO 458110] Request stamp for the sales invoice having line with Quantity = 0
         Initialize();
 
-        // [GIVEN] Sales Order has two lines:  
+        // [GIVEN] Sales Order has two lines:
         // [GIVEN] First line has Amount = 500, VAT Amount = 80, Quantity = 1
         // [GIVEN] First line has Amount = 1000, VAT Amount = 160, Quantity = 0
         CreateSalesHeaderForCustomer(
@@ -5827,7 +5825,7 @@
         CreateSalesLineItem(
           SalesLine, SalesHeader, CreateItemWithPrice(LibraryRandom.RandIntInRange(100, 200)), 1, 0, 16, false, false);
 
-        // [GIVEN] Posted sales invoice with the Quantity = 0 in the first line 
+        // [GIVEN] Posted sales invoice with the Quantity = 0 in the first line
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         // [WHEN] Request Stamp for the Sales Invoice
@@ -5966,7 +5964,7 @@
         VerifyComercioExteriorHeader(
           OriginalStr, SalesInvoiceHeader."SAT International Trade Term",
           SalesInvoiceHeader."Exchange Rate USD", SalesInvoiceHeader.Amount / SalesInvoiceHeader."Exchange Rate USD", 45);
-        // [THEN] ComercioExterior/Mercancia has CantidadAduana = 2, ValorUnitarioAduana = 50 (1000 / 20), ValorDolares = 100 (2000 / 20) (TFS 472803)          
+        // [THEN] ComercioExterior/Mercancia has CantidadAduana = 2, ValorUnitarioAduana = 50 (1000 / 20), ValorDolares = 100 (2000 / 20) (TFS 472803)
         VerifyComercioExteriorLine(
           OriginalStr, SalesLine, SalesLine.Quantity,
           ROUND(SalesLine."Unit Price" / ExchRateAmount, 0.000001, '<'), SalesLine.Amount / ExchRateAmount, 66, 0);
@@ -6029,7 +6027,7 @@
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
 
-        // [THEN] Comercio Exterior node has TipoCambioUSD = 17.825200, TotalUSD = 85.26 
+        // [THEN] Comercio Exterior node has TipoCambioUSD = 17.825200, TotalUSD = 85.26
         // [THEN] Line1 'cce20:Mercancia' node has CantidadAduana = 2, ValorUnitarioAduana = 12.888489, ValorDolares = 25.7770
         // [THEN] Line2 'cce20:Mercancia' node has CantidadAduana = 4, ValorUnitarioAduana = 14.871333, ValorDolares = 59.4853
         VerifyComercioExteriorHeader(
@@ -6266,7 +6264,7 @@
         VerifyConceptoNode(
           OriginalStr, '84111506', '1', 'ACT', 'Anticipo bien o servicio', FormatDecimal(BaseAmount, 2), FormatDecimal(BaseAmount, 2), 22);
 
-        // [THEN] Total VAT line in 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has 'Base' = 2000, 'Importe' = 320  
+        // [THEN] Total VAT line in 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has 'Base' = 2000, 'Importe' = 320
         // [THEN] Total VAT Amount in 'cfdi:Impuestos/TotalImpuestosTrasladados' =  320
         VATAmount := Round(SalesLine.Amount * SalesHeader."Prepayment %" / 100) * SalesLine."VAT %" / 100;
         VerifyVATAmountLines(OriginalStr, Round(BaseAmount), VATAmount, SalesLine."VAT %", '002', -4, 0);
@@ -6327,7 +6325,7 @@
         VerifyConceptoNode(
           OriginalStr, '84111506', '1', 'ACT', 'Anticipo bien o servicio', FormatDecimal(BaseAmount, 2), FormatDecimal(BaseAmount, 2), 23);
 
-        // [THEN] Total VAT line in 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has 'Base' = 2000, 'Importe' = 320  
+        // [THEN] Total VAT line in 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has 'Base' = 2000, 'Importe' = 320
         // [THEN] Total VAT Amount in 'cfdi:Impuestos/TotalImpuestosTrasladados' =  320
         VATAmount := Round(SalesLine.Amount * SalesHeader."Prepayment %" / 100) * SalesLine."VAT %" / 100;
         VerifyVATAmountLines(OriginalStr, Round(BaseAmount), VATAmount, SalesLine."VAT %", '002', -3, 0);
@@ -6559,7 +6557,7 @@
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
 
-        // [THEN] Carta Porte XML is created for the document 
+        // [THEN] Carta Porte XML is created for the document
         // [THEN] Receptor node has Rfc, Nombre, RegimenFiscalReceptor, DomicilioFiscalReceptor taken from Company Information (TFS 473426, 487886)
         VerifyPartyInformation(
           OriginalStr,
@@ -6891,7 +6889,7 @@
         PostedSalesInvoicePage.Filter.SetFilter("No.", SalesInvoiceHeader."No.");
         FiscalInvoiceNumberPAC := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(FiscalInvoiceNumberPAC);
-        // [GIVEN] Opened "Posted Sales Inv. - Update" page        
+        // [GIVEN] Opened "Posted Sales Inv. - Update" page
         PostedSalesInvoicePage."Update Document".Invoke();
         // [WHEN] Stan sets the "Fiscal Invoice Number PAC" field to a value "X" and closes the page
         // Done in ChangeFiscalNumberPACInPostedSalesInvUpdatePage
@@ -7764,14 +7762,6 @@
         CFDIRelationDocument.Insert();
     end;
 
-    local procedure CreateIsolatedCertificate(): Code[20]
-    var
-        IsolatedCertificate: Record "Isolated Certificate";
-    begin
-        CreateIsolatedCertificate(IsolatedCertificate);
-        exit(IsolatedCertificate.Code);
-    end;
-
     local procedure CreateIsolatedCertificate(var IsolatedCertificate: Record "Isolated Certificate")
     begin
         IsolatedCertificate.Code := LibraryUtility.GenerateGUID();
@@ -7930,27 +7920,6 @@
         Assert.ExpectedError(MissingServicePaymentMethodCodeExceptionErr);
     end;
 
-    local procedure PostSalesDocBlankUnitOfMeasureCode(DocumentType: Enum "Sales Document Type")
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        DocumentNo: Code[20];
-    begin
-        // Setup
-        SetupPACEnvironment(GLSetup."PAC Environment"::Test);
-
-        DocumentNo := CreateSalesDocWithPaymentMethodCode(DocumentType, CreatePaymentMethodForSAT());
-        SalesHeader.Get(DocumentType, DocumentNo);
-
-        // Verify
-        SalesLine.SetRange("Document Type", DocumentType);
-        SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst();
-
-        asserterror SalesLine.Validate("Unit of Measure Code", '');
-        Assert.ExpectedError(MissingSalesUnitOfMeasureExcErr);
-    end;
-
     local procedure PostServiceDocBlankUnitOfMeasureCode(DocumentType: Enum "Service Document Type")
     var
         ServiceHeader: Record "Service Header";
@@ -8091,29 +8060,6 @@
                     CustLedgerEntry.RequestStampEDocument();
                 end;
         end;
-    end;
-
-    local procedure SetupCompanyInformation()
-    var
-        CompanyInformation: Record "Company Information";
-        PostCode: Record "Post Code";
-    begin
-        PostCode.SetFilter(City, '<>%1', '');
-        PostCode.SetFilter("Country/Region Code", '<>%1', '');
-        PostCode.FindFirst();
-
-        CompanyInformation.Get();
-        CompanyInformation.Validate("RFC Number", GenerateString(12));
-        CompanyInformation.Validate("Country/Region Code", PostCode."Country/Region Code");
-        CompanyInformation.Validate(City, PostCode.City);
-        CompanyInformation.Validate("Post Code", PostCode.Code);
-        CompanyInformation.Validate("SAT Postal Code", Format(LibraryRandom.RandIntInRange(10000, 99999)));
-        CompanyInformation.Validate("E-Mail", LibraryUtility.GenerateRandomEmail());
-        CompanyInformation.Validate("Tax Scheme", LibraryUtility.GenerateGUID());
-        CompanyInformation."SAT Tax Regime Classification" :=
-          LibraryUtility.GenerateRandomCode(
-            CompanyInformation.FieldNo("SAT Tax Regime Classification"), DATABASE::"Company Information");
-        CompanyInformation.Modify(true);
     end;
 
     local procedure SendSalesStampRequestBlankTaxSchemeError(DocumentType: Enum "Sales Document Type"; TableNo: Integer)
@@ -8843,24 +8789,6 @@
     local procedure GetForeignRFCNo(): Code[13]
     begin
         exit('XEXX010101000');
-    end;
-
-    local procedure GetSATPostalCode(SATAddressID: Integer): Code[20]
-    var
-        SATAddress: Record "SAT Address";
-    begin
-        if SATAddress.Get(SATAddressID) then
-            exit(SATAddress.GetSATPostalCode());
-        exit('');
-    end;
-
-    local procedure GetSATPostalCodeFromLocation(LocationCode: Code[10]): Code[20]
-    var
-        Location: Record Location;
-    begin
-        if Location.Get(LocationCode) then
-            exit(Location.GetSATPostalCode());
-        exit('');
     end;
 
     local procedure GetTaxCodeTraslado(VATPct: Decimal): Text
@@ -9842,7 +9770,7 @@
           FormatDecimal(TransitDistance, 6), SelectStr(StartPosition + 17, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'DistanciaRecorrida', OriginalStr));
 
-        // Mercancias 
+        // Mercancias
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Complemento/cartaporte31:CartaPorte/cartaporte31:Mercancias', 'PesoBrutoTotal', FormatDecimal(GrossWeight, 3)); // PesoBrutoTotal
         Assert.AreEqual(
@@ -9957,7 +9885,7 @@
           CompanyInformation."RFC Number", SelectStr(StartPosition + CCEOffset + 9, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'RFCRemitenteDestinatario', OriginalStr));
 
-        // Mercancias 
+        // Mercancias
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Complemento/cartaporte31:CartaPorte/cartaporte31:Mercancias', 'UnidadPeso', 'XAG'); // UnidadPeso
         Assert.AreEqual(

@@ -531,7 +531,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         PostPaymentJournalLineWithDateAndSource(GenJournalLine, WorkDate(), LibraryPurchase.CreateVendorNo(), BankAccount."No.");
         // [GIVEN] Debit entries
         PostTwoPaymentJournalLinesWithDocNoAndBalAccount(ExpectedDocumentNo, BankAccount."No.");
-        // [GIVEN] A Bank Account Reconciliation 
+        // [GIVEN] A Bank Account Reconciliation
         CreateSuggestedBankReconc(BankAccReconciliation, BankAccount."No.", false);
         Commit();
 
@@ -727,7 +727,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         // [FEATURE] [UI]
         Initialize();
 
-        // [GIVEN] Open new Bank Account Reconciliation page 
+        // [GIVEN] Open new Bank Account Reconciliation page
         // [WHEN] On Open New
         // [THEN] A notification should be send to import bank data
         BankAccReconciliation.OpenNew();
@@ -1910,13 +1910,13 @@ codeunit 134141 "ERM Bank Reconciliation"
 
         // [GIVEN] Bank account "B"
         LibraryERM.CreateBankAccount(BankAccount);
-        // [GIVEN] Create an post bank reconciliation 
+        // [GIVEN] Create an post bank reconciliation
         BankAccountStatement.Get(BankAccount."No.", CreatePostBankReconciliation(BankAccount));
         // [GIVEN] Open bank statement page
         BankAccountStatementPage.OpenEdit();
         BankAccountStatementPage.Filter.SetFilter("Bank Account No.", BankAccount."No.");
 
-        // [WHEN] Undo bank statement 
+        // [WHEN] Undo bank statement
         BankAccReconciliationPage.Trap();
         BankAccountStatementPage.Undo.Invoke();
 
@@ -1940,13 +1940,13 @@ codeunit 134141 "ERM Bank Reconciliation"
 
         // [GIVEN] Bank account "B"
         LibraryERM.CreateBankAccount(BankAccount);
-        // [GIVEN] Create an post bank reconciliation 
+        // [GIVEN] Create an post bank reconciliation
         BankAccountStatement.Get(BankAccount."No.", CreatePostBankReconciliation(BankAccount));
         // [GIVEN] Open bank statement page
         BankAccountStatementPage.OpenEdit();
         BankAccountStatementPage.Filter.SetFilter("Bank Account No.", BankAccount."No.");
 
-        // [WHEN] Run Undo bank statement action and answer "No" 
+        // [WHEN] Run Undo bank statement action and answer "No"
         BankAccReconciliationPage.Trap();
         BankAccountStatementPage.Undo.Invoke();
 
@@ -1969,7 +1969,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         StatementNo: Code[20];
     begin
         // [FEATURE] [Undo Bank Account Statement]
-        // [SCENARIO 277781] Bank Account statement with differences undo 
+        // [SCENARIO 277781] Bank Account statement with differences undo
         Initialize();
 
         // [GIVEN] Bank account "B"
@@ -1981,7 +1981,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         // [GIVEN] Create and post payment 2 with Amount = 200
         PostPaymentJournalLineWithDateAndSource(GenJournalLine[2], WorkDate(), Vendor."No.", BankAccount."No.");
 
-        // [GIVEN] Create bank reconciliation 
+        // [GIVEN] Create bank reconciliation
         CreateSuggestedBankReconc(BankAccReconciliation, BankAccount."No.", false);
         // [GIVEN] Set for first reconciliation Difference = 50
         DifferenceAmount := LibraryRandom.RandDec(50, 2);
@@ -2019,13 +2019,13 @@ codeunit 134141 "ERM Bank Reconciliation"
         NewStatementNo: Code[20];
     begin
         // [FEATURE] [Undo Bank Account Statement]
-        // [SCENARIO 277781] Undo Bank Account statement with check ledger entry 
+        // [SCENARIO 277781] Undo Bank Account statement with check ledger entry
         Initialize();
 
         // [GIVEN] Create and post check payment
         DocumentNo := PostCheck(BankAccount, CreateBankAccount(), LibraryRandom.RandDec(1000, 2));
 
-        // [GIVEN] Create and post bank reconciliation 
+        // [GIVEN] Create and post bank reconciliation
         CreateSuggestedBankReconc(BankAccReconciliation, BankAccount."No.", true);
         LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
 
@@ -2053,13 +2053,13 @@ codeunit 134141 "ERM Bank Reconciliation"
 
         // [GIVEN] Bank account "B"
         LibraryERM.CreateBankAccount(BankAccount);
-        // [GIVEN] Create an post bank reconciliation 
+        // [GIVEN] Create an post bank reconciliation
         BankAccountStatement.Get(BankAccount."No.", CreatePostBankReconciliation(BankAccount));
         // [GIVEN] Open bank statement page
         BankAccountStatementListPage.OpenEdit();
         BankAccountStatementListPage.Filter.SetFilter("Bank Account No.", BankAccount."No.");
 
-        // [WHEN] Undo bank statement 
+        // [WHEN] Undo bank statement
         BankAccReconciliationPage.Trap();
         BankAccountStatementListPage.Undo.Invoke();
 
@@ -2077,7 +2077,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         NewStatementNo: Code[20];
     begin
-        // [SCENARIO 376737] User is able to change bank account reconciliation Statement No. 
+        // [SCENARIO 376737] User is able to change bank account reconciliation Statement No.
         Initialize();
 
         // [GIVEN] Create bank reconciliation with "Statement No." = 1
@@ -2392,7 +2392,7 @@ codeunit 134141 "ERM Bank Reconciliation"
             CreateEmployee(Employee[i]);
             CreateAndPostGenJournalLineEmployee(GenJnlLine, Employee[i]."No.", Amount);
         end;
-        // [GIVEN] Create payment reconciliation 
+        // [GIVEN] Create payment reconciliation
         CreateBankReconciliationWithEmployee(BankAccReconciliation, BankAccReconciliationLine, '', Amount);
         // [GIVEN] Set transaction text = name of employee "E2"
         BankAccReconciliationLine."Transaction Text" := Employee[2].FullName();
@@ -2435,7 +2435,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         // [WHEN] Post payment reconciliation "R"
         LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
 
-        // [THEN] Empty type entry created for employee "E" with Amount -100 
+        // [THEN] Empty type entry created for employee "E" with Amount -100
         VerifyEmployeeLedgerEntry(Employee."No.", BankAccReconciliation."Statement No.", -Amount, "Gen. Journal Document Type"::" ");
     end;
 
@@ -2470,7 +2470,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         DocPrint: Codeunit "Document-Print";
     begin
         // [FEATURE] [Posted Payment Reconciliation] [UT]
-        // [SCENARIO 315205] Print report "Posted Payment Reconciliation" 
+        // [SCENARIO 315205] Print report "Posted Payment Reconciliation"
         Initialize();
         Clear(LibraryReportDataset);
 
@@ -2660,7 +2660,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         NewStatementNo: Code[20];
     begin
         // [FEATURE] [Undo Bank Account Statement]
-        // [SCENARIO 414381] Undo Bank Account statement which was suggested with "Include Checks" = No and with check ledger entry 
+        // [SCENARIO 414381] Undo Bank Account statement which was suggested with "Include Checks" = No and with check ledger entry
         Initialize();
 
         // [GIVEN] Create and post check payment
@@ -2674,7 +2674,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccountStatement.Get(BankAccount."No.", BankAccReconciliation."Statement No.");
         NewStatementNo := UndoBankStatementYesNo.UndoBankAccountStatement(BankAccountStatement);
 
-        // [THEN] Check account entry has "Statement Status" = "Bank Acc. Entry Applied" 
+        // [THEN] Check account entry has "Statement Status" = "Bank Acc. Entry Applied"
         VerifyUndoneCheckLedgerEntry(BankAccount."No.", DocumentNo, NewStatementNo);
     end;
 
@@ -2691,7 +2691,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         PaymentAmount: Decimal;
     begin
         // [FEATURE] [Undo Bank Account Statement] [Match]
-        // [SCENARIO 414381] Undo Bank Account statement with several lines applied to one bank account entry which has check ledger entry 
+        // [SCENARIO 414381] Undo Bank Account statement with several lines applied to one bank account entry which has check ledger entry
         Initialize();
 
         // [GIVEN] Create and post check payment
@@ -2707,7 +2707,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccountStatement.Get(BankAccount."No.", BankAccReconciliation."Statement No.");
         NewStatementNo := UndoBankStatementYesNo.UndoBankAccountStatement(BankAccountStatement);
 
-        // [THEN] Check account entry has "Statement Status" = "Bank Acc. Entry Applied" 
+        // [THEN] Check account entry has "Statement Status" = "Bank Acc. Entry Applied"
         VerifyUndoneCheckLedgerEntryManyToOne(BankAccount."No.", DocumentNo, NewStatementNo);
     end;
 
@@ -2899,7 +2899,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         // [GIVEN] Print outstanding transactions = false
         LibraryVariableStorage.Enqueue(false);
 
-        // [WHEN] Run Bank Account Statement report 
+        // [WHEN] Run Bank Account Statement report
         BankAccountStatement.SetRange("Bank Account No.", BankAccountNo);
         RequestPageXML := REPORT.RunRequestPage(REPORT::"Bank Account Statement", RequestPageXML);
         LibraryReportDataset.RunReportAndLoad(REPORT::"Bank Account Statement", BankAccountStatement, RequestPageXML);
@@ -2972,7 +2972,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         OutstandingCheckAmount := BankAccRecTest.TotalOutstandingPayments(BankAccReconciliation);
         LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
 
-        // [WHEN] Bank Statement report is visited, Print outstanding transactions = true 
+        // [WHEN] Bank Statement report is visited, Print outstanding transactions = true
         LibraryVariableStorage.Enqueue(true);
         BankAccountStatement.SetRange("Bank Account No.", BankAccountNo);
         RequestPageXML := REPORT.RunRequestPage(REPORT::"Bank Account Statement", RequestPageXML);
@@ -3060,7 +3060,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         UpdateBankAccRecStmEndingBalance(BankAccReconciliation[2],
             -(ClosedBankPaymentAmount + ClosedAfterwardsBankPaymentAmount + ClosedAfterwardsCheckAmount));
 
-        // [WHEN] Bank Statement report is visited, Print outstanding transactions = true 
+        // [WHEN] Bank Statement report is visited, Print outstanding transactions = true
         Commit();
         LibraryVariableStorage.Enqueue(true);
         BankAccountStatement.SetRange("Bank Account No.", BankAccountNo);
@@ -3071,7 +3071,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         // [THEN] "CP" appears as completed payment
         LibraryReportDataset.AssertElementWithValueExists('Amt1_BankAccStmtLineStmt', -ClosedBankPaymentAmount);
 
-        // [THEN] "OP" and "OC" appear as outstanding 
+        // [THEN] "OP" and "OC" appear as outstanding
         LibraryReportDataset.AssertElementWithValueExists('Bank_Acc__Reconciliation___TotalOutstdBankTransactions', OutstandingBankPaymentAmount);
         LibraryReportDataset.AssertElementWithValueExists('Bank_Acc__Reconciliation___TotalOutstdPayments', OutstandingCheckAmount);
         LibraryReportDataset.AssertElementWithValueExists('Outstanding_BankTransaction_Amount', OutstandingBankPaymentAmount);
@@ -3091,7 +3091,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         I: Integer;
     begin
         // [SCENARIO] When a user has a corrupt state in its Bank Ledger Entries, they will be warned when matching (for example when using Suggest Lines)
-        // They should have the option to choose "Yes to  all" for all the entries in this state 
+        // They should have the option to choose "Yes to  all" for all the entries in this state
 
         // [GIVEN] A bank account with several corrupt check entries: A corrupt entry is one with Bank Account Ledger Entry Statement Status open, but Check Ledger Entry with different Statement Status
         Initialize();
@@ -3989,7 +3989,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccountNo: Code[20];
     begin
         Initialize();
-        // [SCENARIO] Two bank ledger entries from the same bank, amounts close. Automatch is run for a similar line 
+        // [SCENARIO] Two bank ledger entries from the same bank, amounts close. Automatch is run for a similar line
         // [GIVEN] A bank with two payments
         BankAccountNo := CreateBankAccount();
         CreateGenJournalLineWithAmount(GenJournalLine, BankAccountNo, 710);
@@ -4008,7 +4008,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccReconciliationLine.Modify();
         // [WHEN] Running automatch
         MatchBankRecLines.BankAccReconciliationAutoMatch(BankAccReconciliation, 0);
-        // [THEN] The line should be matched to the entry 
+        // [THEN] The line should be matched to the entry
         BankAccountLedgerEntry.SetRange(Amount, -720);
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
         BankAccountLedgerEntry.FindFirst();
@@ -4578,7 +4578,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
         Amount: Decimal;
     begin
-        // [SCENARIO 555882] Statement Ending Balance in Bank Acc. Reconciliation accepts decimal values 
+        // [SCENARIO 555882] Statement Ending Balance in Bank Acc. Reconciliation accepts decimal values
         // Defined in Unit-Amount Rounding Precision of Currency of Bank Account.
         Initialize();
 
@@ -4644,8 +4644,8 @@ codeunit 134141 "ERM Bank Reconciliation"
         SourceCode: array[2] of Record "Source Code";
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        // [SCENARIO 560604] Source Code related to Gen. Journal Template Type is populated 
-        // To Gen. Journal Line when Stan runs Transfer To General Journal from Bank Acc. Reconciliation. 
+        // [SCENARIO 560604] Source Code related to Gen. Journal Template Type is populated
+        // To Gen. Journal Line when Stan runs Transfer To General Journal from Bank Acc. Reconciliation.
         Initialize();
 
         // [GIVEN] Create a Bank Account.
@@ -5252,30 +5252,6 @@ codeunit 134141 "ERM Bank Reconciliation"
         AppliedPaymentEntry."Applies-to Entry No." := AppliesToEntryNo;
         AppliedPaymentEntry.Description := NewDescription;
         AppliedPaymentEntry.Insert();
-    end;
-
-    local procedure MockBankAccLedgerEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; BankAccountNo: Code[20]; IsReversed: Boolean)
-    begin
-        BankAccountLedgerEntry.Init();
-        BankAccountLedgerEntry."Entry No." :=
-          LibraryUtility.GetNewRecNo(BankAccountLedgerEntry, BankAccountLedgerEntry.FieldNo("Entry No."));
-        BankAccountLedgerEntry."Bank Account No." := BankAccountNo;
-        BankAccountLedgerEntry."Remaining Amount" := LibraryRandom.RandDec(100, 2);
-        BankAccountLedgerEntry."Statement Status" := BankAccountLedgerEntry."Statement Status"::Open;
-        BankAccountLedgerEntry.Open := true;
-        BankAccountLedgerEntry.Reversed := IsReversed;
-        BankAccountLedgerEntry.Insert();
-    end;
-
-    local procedure MockBankAccountStatement(var BankAccountStatement: Record "Bank Account Statement"; BankAccountNo: Code[20]; StatementNo: Code[20]; BalanceLastStatement: Decimal; StatementEndingBalance: Decimal)
-    begin
-        BankAccountStatement.Init();
-        BankAccountStatement.Validate("Bank Account No.", BankAccountNo);
-        BankAccountStatement.Validate("Statement No.", StatementNo);
-        BankAccountStatement.Validate("Statement Date", WorkDate());
-        BankAccountStatement.Validate("Balance Last Statement", BalanceLastStatement);
-        BankAccountStatement.Validate("Statement Ending Balance", StatementEndingBalance);
-        BankAccountStatement.Insert(true);
     end;
 
     local procedure MockTransactionsToImport(var TempBankAccReconLine: Record "Bank Acc. Reconciliation Line" temporary; BankAccReconciliation: Record "Bank Acc. Reconciliation"; TransactionIDList: List of [Text[50]])

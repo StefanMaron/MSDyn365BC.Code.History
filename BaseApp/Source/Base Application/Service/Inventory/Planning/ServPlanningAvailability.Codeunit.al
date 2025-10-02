@@ -1,16 +1,20 @@
+#if not CLEAN27
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Planning;
 
-using Microsoft.Manufacturing.Reports;
 using Microsoft.Service.Document;
 
 codeunit 6497 "Serv. Planning Availability"
 {
-    [EventSubscriber(ObjectType::Report, Report::"Planning Availability", 'OnCollectData', '', false, false)]
-    local procedure OnCollectData(var TempPlanningBuffer: Record "Planning Buffer" temporary; Selection: Boolean; var sender: Report "Planning Availability")
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The referenced report "Planning Availability" has been deprecated and will be removed in a future release.';
+    ObsoleteTag = '27.0';
+
+    [EventSubscriber(ObjectType::Report, Report::Microsoft.Manufacturing.Reports."Planning Availability", 'OnCollectData', '', false, false)]
+    local procedure OnCollectData(var TempPlanningBuffer: Record "Planning Buffer" temporary; Selection: Boolean; var sender: Report Microsoft.Manufacturing.Reports."Planning Availability")
     var
         ServiceLine: Record "Service Line";
     begin
@@ -39,3 +43,4 @@ codeunit 6497 "Serv. Planning Availability"
             until ServiceLine.Next() = 0;
     end;
 }
+#endif

@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA27
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -82,13 +83,8 @@ table 309 "No. Series Line"
         {
             Caption = 'Series';
             ObsoleteReason = 'The No. Series module cannot reference tax features.';
-#if not CLEAN24
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '27.0';
-#endif
         }
 #endif
 #if not CLEANSCHEMA27
@@ -96,13 +92,8 @@ table 309 "No. Series Line"
         {
             Caption = 'Authorization Code';
             ObsoleteReason = 'The No. Series module cannot reference tax features.';
-#if not CLEAN24
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '27.0';
-#endif
         }
 #endif
 #if not CLEANSCHEMA27
@@ -110,13 +101,8 @@ table 309 "No. Series Line"
         {
             Caption = 'Authorization Year';
             ObsoleteReason = 'The No. Series module cannot reference tax features.';
-#if CLEAN24
             ObsoleteState = Removed;
             ObsoleteTag = '27.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-#endif
         }
 #endif
     }
@@ -129,3 +115,4 @@ table 309 "No. Series Line"
         }
     }
 }
+#endif

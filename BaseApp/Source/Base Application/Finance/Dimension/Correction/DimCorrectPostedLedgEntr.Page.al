@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Dimension.Correction;
 
 using Microsoft.Finance.GeneralLedger.Ledger;
@@ -289,6 +293,8 @@ page 2584 "Dim Correct Posted Ledg Entr"
         FilterText: Text;
         EntryIncluded: Boolean;
     begin
+        if DimensionCorrectionEntryNo = 0 then
+            exit;
         Rec.DeleteAll();
         RecordCount := 0;
         GLEntry.FilterGroup(4);

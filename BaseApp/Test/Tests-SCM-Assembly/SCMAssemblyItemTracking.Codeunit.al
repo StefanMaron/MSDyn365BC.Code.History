@@ -5,7 +5,6 @@
 namespace Microsoft.Assembly.Test;
 
 using Microsoft.Warehouse.Tracking;
-using Microsoft.Manufacturing.Setup;
 using System.TestLibraries.Utilities;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Item;
@@ -32,12 +31,9 @@ codeunit 137926 "SCM Assembly Item Tracking"
     TestPermissions = Disabled;
 
     trigger OnRun()
-    var
-        MfgSetup: Record "Manufacturing Setup";
     begin
         // [FEATURE] [Assembly] [Item Tracking] [SCM]
-        MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
+        WorkDate2 := LibraryPlanning.SetSafetyWorkDate();
         Initialized := false;
     end;
 
@@ -48,13 +44,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryERM: Codeunit "Library - ERM";
-        SNMissingErr: Label 'You must assign a serial number for item', Comment = '%1 - Item No.';
-        LNMissingErr: Label 'You must assign a lot number for item', Comment = '%1 - Item No.';
-        WrongSNErr: Label 'SN different from what expected';
-        WrongLNErr: Label 'LN different from what expected';
-        MessageInvtMvmtCreatedMsg: Label 'Number of Invt. Movement activities created: 1 out of a total of 1.';
-        WrongNoOfT337RecordsErr: Label 'Wrong no of T337 records';
-        MessageWhsePickCreatedMsg: Label 'has been created';
+        LibraryPlanning: Codeunit "Library - Planning";
         LibraryPatterns: Codeunit "Library - Patterns";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
@@ -62,6 +52,14 @@ codeunit 137926 "SCM Assembly Item Tracking"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         WorkDate2: Date;
         Initialized: Boolean;
+
+        SNMissingErr: Label 'You must assign a serial number for item', Comment = '%1 - Item No.';
+        LNMissingErr: Label 'You must assign a lot number for item', Comment = '%1 - Item No.';
+        WrongSNErr: Label 'SN different from what expected';
+        WrongLNErr: Label 'LN different from what expected';
+        MessageInvtMvmtCreatedMsg: Label 'Number of Invt. Movement activities created: 1 out of a total of 1.';
+        WrongNoOfT337RecordsErr: Label 'Wrong no of T337 records';
+        MessageWhsePickCreatedMsg: Label 'has been created';
 
     [Normal]
     local procedure Initialize()

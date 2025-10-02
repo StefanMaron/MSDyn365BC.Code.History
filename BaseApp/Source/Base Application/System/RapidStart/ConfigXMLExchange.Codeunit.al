@@ -58,6 +58,7 @@ codeunit 8614 "Config. XML Exchange"
         PackageImportFinishScopeAllMsg: Label 'Configuration package imported successfully: %1', Comment = '%1 - package code', Locked = true;
         PackageExportStartScopeAllMsg: Label 'Configuration package export started: %1', Comment = '%1 - package code', Locked = true;
         PackageExportFinishScopeAllMsg: Label 'Configuration package exported successfully: %1', Comment = '%1 - package code', Locked = true;
+        ImportingIsNotAllowedDuringUpgradeOrInstallationErr: Label 'Importing configuration packages is not allowed during upgrade or installation. Importing configuration packages requires multiple threads and sessions which is not supported.';
 
     local procedure AddXMLComment(var PackageXML: DotNet XmlDocument; var Node: DotNet XmlNode; Comment: Text[250])
     var
@@ -630,6 +631,7 @@ codeunit 8614 "Config. XML Exchange"
         Dimensions: Dictionary of [Text, Text];
         IsHandled: Boolean;
     begin
+        VerifyCanImportConfigurationPackage();
         StartTime := CurrentDateTime();
         Session.LogMessage('00009Q6', PackageImportStartMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
         FeatureTelemetry.LogUptake('0000E3D', 'Configuration packages', Enum::"Feature Uptake Status"::"Set up");
@@ -725,7 +727,7 @@ codeunit 8614 "Config. XML Exchange"
                                     repeat
                                         ConfigPackageData.Get(
                                           ConfigPackageRecord."Package Code", ConfigPackageRecord."Table ID",
-                                          ConfigPackageRecord."No.", GetPrimaryKeyFieldNumber(TableID));
+                                          ConfigPackageRecord."No.", GetDefaultDimensionNoLinkFieldNumber(TableID));
                                         ConfigPackageMgt.UpdateDefaultDimValues(ConfigPackageRecord, CopyStr(ConfigPackageData.Value, 1, 20));
                                     until ConfigPackageRecord.Next() = 0;
                             end;
@@ -1188,7 +1190,7 @@ codeunit 8614 "Config. XML Exchange"
             end;
         end else
             if ConfigMgt.IsDefaultDimTable(RecRef.Number) then begin // Default Dimensions
-                FieldRef := RecRef.Field(GetPrimaryKeyFieldNumber(RecRef.Number));
+                FieldRef := RecRef.Field(GetDefaultDimensionNoLinkFieldNumber(RecRef.Number));
                 DefaultDim.SetRange("Table ID", RecRef.Number);
                 MasterNo := Format(FieldRef.Value);
                 DefaultDim.SetRange("No.", MasterNo);
@@ -1254,16 +1256,19 @@ codeunit 8614 "Config. XML Exchange"
         exit(CopyStr(GetAttribute(GetElementName(ConfigPackage.FieldName(Code)), DocumentElement), 1, MaxStrLen(ConfigPackage.Code)));
     end;
 
-    local procedure GetPrimaryKeyFieldNumber(TableID: Integer): Integer
+    local procedure GetDefaultDimensionNoLinkFieldNumber(TableID: Integer): Integer
     var
         RecRef: RecordRef;
         FieldRef: FieldRef;
         KeyRef: KeyRef;
+        FieldNumber: Integer;
     begin
         RecRef.Open(TableID);
         KeyRef := RecRef.KeyIndex(1);
         FieldRef := KeyRef.FieldIndex(1);
-        exit(FieldRef.Number);
+        FieldNumber := FieldRef.Number;
+        OnAfterGetDefaultDimensionNoLinkFieldNumber(TableID, FieldNumber);
+        exit(FieldNumber);
     end;
 
     local procedure InitializeMediaTempFolder()
@@ -1425,17 +1430,6 @@ codeunit 8614 "Config. XML Exchange"
         exit(Base64Convert.ToBase64(InStream));
     end;
 
-    local procedure ExportBlob(var FieldRef: FieldRef): Text
-    var
-        TempBlob: Codeunit "Temp Blob";
-        TypeHelper: Codeunit "Type Helper";
-        InStream: InStream;
-    begin
-        TempBlob.FromFieldRef(FieldRef);
-        TempBlob.CreateInStream(InStream);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
-    end;
-
     local procedure ExportMediaSet(var FieldRef: FieldRef): Text
     var
         TempConfigMediaBuffer: Record "Config. Media Buffer" temporary;
@@ -1593,6 +1587,18 @@ codeunit 8614 "Config. XML Exchange"
         end;
     end;
 
+    local procedure VerifyCanImportConfigurationPackage()
+    var
+        CanImportConfigurationPackage: Boolean;
+    begin
+        OnVerifyCanImportConfigurationPackage(CanImportConfigurationPackage);
+        if CanImportConfigurationPackage then
+            exit;
+
+        if Session.GetExecutionContext() in [ExecutionContext::Install, ExecutionContext::Upgrade] then
+            Error(ImportingIsNotAllowedDuringUpgradeOrInstallationErr);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAddFieldAttributes(var ConfigPackageField: Record "Config. Package Field"; var FieldNode: DotNet XmlNode)
     begin
@@ -1735,6 +1741,16 @@ codeunit 8614 "Config. XML Exchange"
 
     [IntegrationEvent(false, false)]
     local procedure OnFormatFieldValueOnBeforeExitInnerText(var FieldRef: FieldRef; ConfigPackage: Record "Config. Package"; var InnerText: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDefaultDimensionNoLinkFieldNumber(TableID: Integer; var FieldNumber: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnVerifyCanImportConfigurationPackage(var CanImportConfigurationPackage: Boolean)
     begin
     end;
 }

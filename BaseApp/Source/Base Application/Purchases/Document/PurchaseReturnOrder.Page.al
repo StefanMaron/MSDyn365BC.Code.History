@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Document;
 
 using Microsoft.CRM.Contact;
 using Microsoft.Finance.Currency;
@@ -24,6 +28,7 @@ using Microsoft.Warehouse.InventoryDocument;
 using Microsoft.Warehouse.Request;
 using System.Automation;
 using System.Security.User;
+using System.Threading;
 
 page 6640 "Purchase Return Order"
 {
@@ -76,17 +81,33 @@ page 6640 "Purchase Return Order"
                     ShowMandatory = true;
                     ToolTip = 'Specifies the name of the vendor who returns the products.';
 
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        Vendor: Record Vendor;
+                    begin
+                        Selected.SetTable(Vendor);
+                        if Rec."Buy-from Vendor No." <> Vendor."No." then begin
+                            Rec.Validate("Buy-from Vendor No.", Vendor."No.");
+                            if Rec."Buy-from Vendor No." <> Vendor."No." then
+                                error('');
+                            IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
+                            CurrPage.Update();
+                        end;
+                    end;
+
                     trigger OnValidate()
                     begin
                         Rec.OnAfterValidateBuyFromVendorNo(Rec, xRec);
-
                         CurrPage.Update();
                     end;
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        exit(Rec.LookupBuyFromVendorName(Text));
-                    end;
+                }
+                field("Buy-from Vendor Name 2"; Rec."Buy-from Vendor Name 2")
+                {
+                    ApplicationArea = PurchReturnOrder;
+                    Caption = 'Vendor Name 2';
+                    Importance = Additional;
+                    QuickEntry = false;
+                    Visible = false;
                 }
                 group("Buy-from")
                 {
@@ -104,6 +125,13 @@ page 6640 "Purchase Return Order"
                         Caption = 'Address 2';
                         Importance = Additional;
                         ToolTip = 'Specifies an additional part of the vendor''s buy-from address.';
+                    }
+                    field("Buy-from City"; Rec."Buy-from City")
+                    {
+                        ApplicationArea = PurchReturnOrder;
+                        Caption = 'City';
+                        Importance = Additional;
+                        ToolTip = 'Specifies the city of the vendor on the purchase document.';
                     }
                     group(Control69)
                     {
@@ -123,13 +151,6 @@ page 6640 "Purchase Return Order"
                         Caption = 'Post Code';
                         Importance = Additional;
                         ToolTip = 'Specifies the postal code.';
-                    }
-                    field("Buy-from City"; Rec."Buy-from City")
-                    {
-                        ApplicationArea = PurchReturnOrder;
-                        Caption = 'City';
-                        Importance = Additional;
-                        ToolTip = 'Specifies the city of the vendor on the purchase document.';
                     }
                     field("Buy-from Country/Region Code"; Rec."Buy-from Country/Region Code")
                     {
@@ -288,6 +309,15 @@ page 6640 "Purchase Return Order"
                     Importance = Additional;
                     ToolTip = 'Specifies the status of a job queue entry that handles the posting of purchase return orders.';
                     Visible = JobQueueUsed;
+
+                    trigger OnDrillDown()
+                    var
+                        JobQueueEntry: Record "Job Queue Entry";
+                    begin
+                        if Rec."Job Queue Status" = Rec."Job Queue Status"::" " then
+                            exit;
+                        JobQueueEntry.ShowStatusMsg(Rec."Job Queue Entry ID");
+                    end;
                 }
                 field(Status; Rec.Status)
                 {
@@ -528,6 +558,14 @@ page 6640 "Purchase Return Order"
                         Importance = Additional;
                         ToolTip = 'Specifies an additional part of the vendor''s buy-from address.';
                     }
+                    field("Ship-to City"; Rec."Ship-to City")
+                    {
+                        ApplicationArea = PurchReturnOrder;
+                        Caption = 'City';
+                        Editable = ShipToOptions = ShipToOptions::"Custom Address";
+                        Importance = Additional;
+                        ToolTip = 'Specifies the city of the vendor on the purchase document.';
+                    }
                     group(Control174)
                     {
                         ShowCaption = false;
@@ -548,14 +586,6 @@ page 6640 "Purchase Return Order"
                         Editable = ShipToOptions = ShipToOptions::"Custom Address";
                         Importance = Additional;
                         ToolTip = 'Specifies the postal code.';
-                    }
-                    field("Ship-to City"; Rec."Ship-to City")
-                    {
-                        ApplicationArea = PurchReturnOrder;
-                        Caption = 'City';
-                        Editable = ShipToOptions = ShipToOptions::"Custom Address";
-                        Importance = Additional;
-                        ToolTip = 'Specifies the city of the vendor on the purchase document.';
                     }
                     field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                     {
@@ -606,6 +636,14 @@ page 6640 "Purchase Return Order"
                             CurrPage.Update();
                         end;
                     }
+                    field("Pay-to Name 2"; Rec."Pay-to Name 2")
+                    {
+                        ApplicationArea = PurchReturnOrder;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        Visible = false;
+                    }
                     field("Pay-to Address"; Rec."Pay-to Address")
                     {
                         ApplicationArea = PurchReturnOrder;
@@ -623,6 +661,15 @@ page 6640 "Purchase Return Order"
                         Enabled = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
                         Importance = Additional;
                         ToolTip = 'Specifies an additional part of the vendor''s buy-from address.';
+                    }
+                    field("Pay-to City"; Rec."Pay-to City")
+                    {
+                        ApplicationArea = PurchReturnOrder;
+                        Caption = 'City';
+                        Editable = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
+                        Enabled = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
+                        Importance = Additional;
+                        ToolTip = 'Specifies the city of the vendor on the purchase document.';
                     }
                     group(Control79)
                     {
@@ -646,15 +693,6 @@ page 6640 "Purchase Return Order"
                         Enabled = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
                         Importance = Additional;
                         ToolTip = 'Specifies the postal code.';
-                    }
-                    field("Pay-to City"; Rec."Pay-to City")
-                    {
-                        ApplicationArea = PurchReturnOrder;
-                        Caption = 'City';
-                        Editable = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
-                        Enabled = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
-                        Importance = Additional;
-                        ToolTip = 'Specifies the city of the vendor on the purchase document.';
                     }
                     field("Pay-to Country/Region Code"; Rec."Pay-to Country/Region Code")
                     {
@@ -1875,7 +1913,6 @@ page 6640 "Purchase Return Order"
         PurchaseDocCheckFactboxVisible: Boolean;
         IsJournalTemplNameVisible: Boolean;
         IsPaymentMethodCodeVisible: Boolean;
-        IsPostingGroupEditable: Boolean;
         IsPurchaseLinesEditable: Boolean;
         VATDateEnabled: Boolean;
         HasIncomingDocument: Boolean;
@@ -1883,6 +1920,7 @@ page 6640 "Purchase Return Order"
     protected var
         ShipToOptions: Option "Default (Vendor Address)","Alternate Vendor Address","Custom Address";
         SalesTaxStatisticsVisible: Boolean;
+        IsPostingGroupEditable: Boolean;
 
     local procedure ActivateFields()
     begin

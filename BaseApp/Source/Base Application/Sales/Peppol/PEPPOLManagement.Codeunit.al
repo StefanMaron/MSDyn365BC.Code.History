@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.Peppol;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Peppol;
 
 using Microsoft.CRM.Team;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -166,12 +170,13 @@ codeunit 1605 "PEPPOL Management"
         end;
 
         OnAfterGetAdditionalDocRefInfo(
-          AdditionalDocumentReferenceID, AdditionalDocRefDocumentType, URI, MimeCode, EmbeddedDocumentBinaryObject, SalesHeader, ProcessedDocType.AsInteger(), DocumentAttachments);
+          AdditionalDocumentReferenceID, AdditionalDocRefDocumentType, URI, MimeCode, EmbeddedDocumentBinaryObject, SalesHeader, ProcessedDocType.AsInteger(), DocumentAttachments, Filename);
     end;
 
     procedure GetAdditionalDocRefInfo(Salesheader: Record "Sales Header"; var AdditionalDocumentReferenceID: Text; var AdditionalDocRefDocumentType: Text; var URI: Text; var MimeCode: Text; var EmbeddedDocumentBinaryObject: Text; NewProcessedDocType: Option Sale,Service)
     var
         DocumentAttachments: Record "Document Attachment";
+        Filename: Text;
     begin
         AdditionalDocumentReferenceID := '';
         AdditionalDocRefDocumentType := '';
@@ -180,7 +185,7 @@ codeunit 1605 "PEPPOL Management"
         EmbeddedDocumentBinaryObject := '';
 
         OnAfterGetAdditionalDocRefInfo(
-          AdditionalDocumentReferenceID, AdditionalDocRefDocumentType, URI, MimeCode, EmbeddedDocumentBinaryObject, SalesHeader, ProcessedDocType.AsInteger(), DocumentAttachments);
+          AdditionalDocumentReferenceID, AdditionalDocRefDocumentType, URI, MimeCode, EmbeddedDocumentBinaryObject, SalesHeader, ProcessedDocType.AsInteger(), DocumentAttachments, Filename);
     end;
 
     procedure GetBuyerReference(SalesHeader: Record "Sales Header") BuyerReference: Text
@@ -436,6 +441,22 @@ codeunit 1605 "PEPPOL Management"
     begin
         GetAccountingCustomerPartyTaxSchemeByFormat(
           SalesHeader, CustPartyTaxSchemeCompanyID, CustPartyTaxSchemeCompIDSchID, CustTaxSchemeID, true);
+    end;
+
+    /// <summary>
+    /// Gets the accounting customer party tax scheme fields values
+    /// </summary>
+    /// <param name="SalesHeader">The sales header used for PEPPOL file creation</param>
+    /// <param name="CustPartyTaxSchemeCompanyID">Return value: The customer party tax scheme company ID</param>
+    /// <param name="CustPartyTaxSchemeCompIDSchID">Return value: The customer company ID's scheme ID</param>
+    /// <param name="CustTaxSchemeID">Return value: The customer tax scheme ID</param>
+    /// <param name="TempVATAmountLine">The temporary VAT amount line used for PEPPOL file creation</param>
+    procedure GetAccountingCustomerPartyTaxSchemeBIS30(SalesHeader: Record "Sales Header"; var CustPartyTaxSchemeCompanyID: Text; var CustPartyTaxSchemeCompIDSchID: Text; var CustTaxSchemeID: Text; var TempVATAmountLine: Record "VAT Amount Line" temporary)
+    begin
+        TempVATAmountLine.SetFilter("Tax Category", '<>%1', GetTaxCategoryO());
+        if not TempVATAmountLine.IsEmpty() then
+            GetAccountingCustomerPartyTaxSchemeByFormat(SalesHeader, CustPartyTaxSchemeCompanyID, CustPartyTaxSchemeCompIDSchID, CustTaxSchemeID, true);
+        TempVATAmountLine.SetRange("Tax Category");
     end;
 
     local procedure GetAccountingCustomerPartyTaxSchemeByFormat(SalesHeader: Record "Sales Header"; var CustPartyTaxSchemeCompanyID: Text; var CustPartyTaxSchemeCompIDSchID: Text; var CustTaxSchemeID: Text; IsBISBilling: Boolean)
@@ -1197,11 +1218,19 @@ codeunit 1605 "PEPPOL Management"
         exit(CountryRegion."VAT Scheme");
     end;
 
+    /// <summary>
+    /// Get the tax category VAT reverse charge
+    /// </summary>
+    /// <returns>Text: AE</returns>
     local procedure GetTaxCategoryAE(): Text
     begin
         exit('AE');
     end;
 
+    /// <summary>
+    /// Get the tax category exempt from tax
+    /// </summary>
+    /// <returns>Text: E</returns>
     local procedure GetTaxCategoryE(): Text
     begin
         exit('E');
@@ -1212,17 +1241,80 @@ codeunit 1605 "PEPPOL Management"
         exit('G');
     end;
 
+    /// <summary>
+    /// Get the tax category VAT exempt for EEA intra-community supply of goods and services
+    /// </summary>
+    /// <returns>Text: K</returns>
     local procedure GetTaxCategoryK(): Text
     begin
         exit('K');
     end;
 
+    /// <summary>
+    /// Get the tax category outside the scope of VAT
+    /// </summary>
+    /// <returns>Text: O</returns>
     local procedure GetTaxCategoryO(): Text
     begin
         exit('O');
     end;
 
-    local procedure FormatVATRegistrationNo(VATRegistrationNo: Text; CountryCode: Code[10]; IsBISBilling: Boolean; IsPartyTaxScheme: Boolean): Text
+    /// <summary>
+    /// Get the tax category zero rated items
+    /// </summary>
+    /// <returns>Text: Z</returns>
+    local procedure GetTaxCategoryZ(): Text
+    begin
+        exit('Z');
+    end;
+
+    /// <summary>
+    /// Get the tax category for standard rated items
+    /// </summary>
+    /// <returns>Text: S</returns>
+    local procedure GetTaxCategoryS(): Text
+    begin
+        exit('S');
+    end;
+
+    /// <summary>
+    /// Check if the VAT category is one of the categories with 0% VAT
+    /// </summary>
+    /// <param name="TaxCategory">Tax category code</param>
+    /// <returns>True if category is one of Z, E, AE, K or G</returns>
+    procedure IsZeroVatCategory(TaxCategory: Code[10]): Boolean
+    begin
+        exit(TaxCategory in [
+            GetTaxCategoryZ(), // Zero rated goods
+            GetTaxCategoryE(), // Exempt from tax
+            GetTaxCategoryAE(), // VAT reverse charge
+            GetTaxCategoryK(), // VAT exempt for EEA intra-community supply of goods and services
+            GetTaxCategoryG(), // Free export item, tax not charged
+            GetTaxCategoryO() // Outside the scope of VAT
+        ]);
+    end;
+
+    /// <summary>
+    /// Check if the VAT category is standard rated
+    /// </summary>
+    /// <param name="TaxCategory">Tax category code</param>
+    /// <returns>True if category is S</returns>
+    procedure IsStandardVATCategory(TaxCategory: Code[10]): Boolean
+    begin
+        exit(TaxCategory = GetTaxCategoryS());
+    end;
+
+    /// <summary>
+    /// Check if the VAT category is outside the scope of VAT
+    /// </summary>
+    /// <param name="TaxCategory">Tax category code</param>
+    /// <returns>True if category is O</returns>
+    procedure IsOutsideScopeVATCategory(TaxCategory: Code[10]): Boolean
+    begin
+        exit(TaxCategory = GetTaxCategoryO());
+    end;
+
+    internal procedure FormatVATRegistrationNo(VATRegistrationNo: Text; CountryCode: Code[10]; IsBISBilling: Boolean; IsPartyTaxScheme: Boolean): Text
     var
         CountryRegion: Record "Country/Region";
     begin
@@ -1570,7 +1662,7 @@ codeunit 1605 "PEPPOL Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetAdditionalDocRefInfo(var AdditionalDocumentReferenceID: Text; var AdditionalDocRefDocumentType: Text; var URI: Text; var MimeCode: Text; var EmbeddedDocumentBinaryObject: Text; SalesHeader: Record "Sales Header"; ProcessedDocType: Option Sale,Service; var DocumentAttachments: Record "Document Attachment")
+    local procedure OnAfterGetAdditionalDocRefInfo(var AdditionalDocumentReferenceID: Text; var AdditionalDocRefDocumentType: Text; var URI: Text; var MimeCode: Text; var EmbeddedDocumentBinaryObject: Text; SalesHeader: Record "Sales Header"; ProcessedDocType: Option Sale,Service; var DocumentAttachments: Record "Document Attachment"; var FileName: Text)
     begin
     end;
 

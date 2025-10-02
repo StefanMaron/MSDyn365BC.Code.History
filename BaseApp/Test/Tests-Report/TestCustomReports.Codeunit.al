@@ -1586,18 +1586,22 @@ codeunit 134761 "Test Custom Reports"
     [Scope('OnPrem')]
     procedure UT_RestrictEmptyReportID_OnModify()
     var
-        CustomReportSelection: Record "Custom Report Selection";
+        CustomReportSelection2: Record "Custom Report Selection";
+        AllObj: Record AllObj;
     begin
         // [FEATURE] [UT]
         // [SCENARIO 270795] User is unable to change "Report ID" to blank in the "Custom Report Selection" table.
         Initialize();
+        AllObj.SetRange("Object Type", AllObj."Object Type"::Report);
+        AllObj.FindSet();
+        AllObj.Next(LibraryRandom.RandIntInRange(20, 30));
 
-        CustomReportSelection.Init();
-        CustomReportSelection.Validate("Report ID", LibraryRandom.RandIntInRange(20, 30));
-        CustomReportSelection.Insert(true);
+        CustomReportSelection2.Init();
+        CustomReportSelection2.Validate("Report ID", AllObj."Object ID");
+        CustomReportSelection2.Insert(true);
 
-        CustomReportSelection.Validate("Report ID", 0);
-        asserterror CustomReportSelection.Insert(true);
+        CustomReportSelection2.Validate("Report ID", 0);
+        asserterror CustomReportSelection2.Insert(true);
         Assert.ExpectedError(ReportIDMustHaveValueErr);
     end;
 
@@ -2038,7 +2042,7 @@ codeunit 134761 "Test Custom Reports"
         FormattedLineAmount: Text;
     begin
         // [FEATURE] [UT] [Format Document] [Purchase]
-        // [SCENARIO 344208] Parameters FormattedVATPct and FormattedLineAmount for SetPurchaseLine in codeunit Format Document 
+        // [SCENARIO 344208] Parameters FormattedVATPct and FormattedLineAmount for SetPurchaseLine in codeunit Format Document
         Initialize();
 
         // [GIVEN] Purchase Line with "VAT %" = 25, "Line Amount" = 100
@@ -3409,4 +3413,3 @@ codeunit 134761 "Test Custom Reports"
         TestMode := true
     end;
 }
-

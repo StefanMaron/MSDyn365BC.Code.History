@@ -664,6 +664,9 @@ report 5900 "Service Order"
 
     requestpage
     {
+        AboutTitle = 'About Service Order';
+        AboutText = 'Generate a service order document that you can send to your customer.';
+
         SaveValues = true;
 
         layout

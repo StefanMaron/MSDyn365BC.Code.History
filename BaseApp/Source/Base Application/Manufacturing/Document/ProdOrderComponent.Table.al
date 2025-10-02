@@ -629,14 +629,14 @@ table 5407 "Prod. Order Component"
 
             trigger OnValidate()
             var
-                CheckDateConflict: Codeunit "Reservation-Check Date Confl.";
+                MfgReservCheckDateConfl: Codeunit "Mfg. ReservCheckDateConfl";
             begin
                 ProdOrderWarehouseMgt.ProdComponentVerifyChange(Rec, xRec);
                 if not Blocked then
                     if CurrFieldNo <> 0 then
-                        CheckDateConflict.ProdOrderComponentCheck(Rec, true, true)
+                        MfgReservCheckDateConfl.ProdOrderComponentCheck(Rec, true, true)
                     else
-                        if CheckDateConflict.ProdOrderComponentCheck(Rec, not WarningRaised, false) then
+                        if MfgReservCheckDateConfl.ProdOrderComponentCheck(Rec, not WarningRaised, false) then
                             WarningRaised := true;
                 UpdateDatetime();
             end;

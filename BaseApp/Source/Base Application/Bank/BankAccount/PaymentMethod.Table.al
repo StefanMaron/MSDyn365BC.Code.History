@@ -11,6 +11,14 @@ using System.Globalization;
 using System.IO;
 using Microsoft.eServices.EDocument;
 
+/// <summary>
+/// Defines payment methods and their processing characteristics for transactions.
+/// Supports various payment types including direct debit, bank transfers, and cash handling.
+/// </summary>
+/// <remarks>
+/// Integrates with Sales/Purchase documents and Payment Processing. 
+/// Supports balancing account assignment and direct debit configuration.
+/// </remarks>
 table 289 "Payment Method"
 {
     Caption = 'Payment Method';
@@ -21,15 +29,24 @@ table 289 "Payment Method"
 
     fields
     {
+        /// <summary>
+        /// Unique identifier for the payment method.
+        /// </summary>
         field(1; "Code"; Code[10])
         {
             Caption = 'Code';
             NotBlank = true;
         }
+        /// <summary>
+        /// Descriptive name of the payment method for user identification.
+        /// </summary>
         field(2; Description; Text[100])
         {
             Caption = 'Description';
         }
+        /// <summary>
+        /// Type of balancing account for automatic posting (G/L Account or Bank Account).
+        /// </summary>
         field(3; "Bal. Account Type"; enum "Payment Balance Account Type")
         {
             Caption = 'Bal. Account Type';
@@ -39,6 +56,9 @@ table 289 "Payment Method"
                 "Bal. Account No." := '';
             end;
         }
+        /// <summary>
+        /// Balancing account number for automatic posting of payment transactions.
+        /// </summary>
         field(4; "Bal. Account No."; Code[20])
         {
             Caption = 'Bal. Account No.';
@@ -54,6 +74,9 @@ table 289 "Payment Method"
                     CheckGLAcc("Bal. Account No.");
             end;
         }
+        /// <summary>
+        /// Indicates whether this payment method supports direct debit operations.
+        /// </summary>
         field(6; "Direct Debit"; Boolean)
         {
             Caption = 'Direct Debit';
@@ -66,6 +89,9 @@ table 289 "Payment Method"
                     TestField("Bal. Account No.", '');
             end;
         }
+        /// <summary>
+        /// Payment terms code used specifically for direct debit payments.
+        /// </summary>
         field(7; "Direct Debit Pmt. Terms Code"; Code[10])
         {
             Caption = 'Direct Debit Pmt. Terms Code';
@@ -77,6 +103,9 @@ table 289 "Payment Method"
                     TestField("Direct Debit", true);
             end;
         }
+        /// <summary>
+        /// Data exchange line definition code used for payment export processing.
+        /// </summary>
         field(8; "Pmt. Export Line Definition"; Code[20])
         {
             Caption = 'Pmt. Export Line Definition';
@@ -103,6 +132,9 @@ table 289 "Payment Method"
                 end;
             end;
         }
+        /// <summary>
+        /// Timestamp indicating when this payment method record was last modified.
+        /// </summary>
         field(11; "Last Modified Date Time"; DateTime)
         {
             Caption = 'Last Modified Date Time';
@@ -178,6 +210,10 @@ table 289 "Payment Method"
         end;
     end;
 
+    /// <summary>
+    /// Updates payment method description with translated text for specified language.
+    /// </summary>
+    /// <param name="Language">Language code for translation lookup</param>
     procedure TranslateDescription(Language: Code[10])
     var
         PaymentMethodTranslation: Record "Payment Method Translation";
@@ -186,6 +222,10 @@ table 289 "Payment Method"
             Validate(Description, CopyStr(PaymentMethodTranslation.Description, 1, MaxStrLen(Description)));
     end;
 
+    /// <summary>
+    /// Retrieves payment method description in the current user's language.
+    /// </summary>
+    /// <returns>Translated description text or original description if translation not found</returns>
     procedure GetDescriptionInCurrentLanguage(): Text[100]
     var
         PaymentMethodTranslation: Record "Payment Method Translation";
@@ -197,6 +237,17 @@ table 289 "Payment Method"
         exit(Description);
     end;
 
+    /// <summary>
+    /// Integration event raised before validating G/L account for payment method.
+    /// Enables custom validation logic for payment method account configuration.
+    /// </summary>
+    /// <param name="PaymentMethod">Payment method record being validated</param>
+    /// <param name="CurrFieldNo">Current field number triggering validation</param>
+    /// <param name="AccNo">Account number being validated</param>
+    /// <param name="IsHandled">Set to true to skip standard G/L account validation</param>
+    /// <remarks>
+    /// Raised from account validation trigger before standard G/L account checking.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckGLAcc(var PaymentMethod: Record "Payment Method"; CurrFieldNo: Integer; AccNo: Code[20]; var IsHandled: Boolean)
     begin

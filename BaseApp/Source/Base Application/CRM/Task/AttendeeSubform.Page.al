@@ -132,9 +132,7 @@ page 5197 "Attendee Subform"
     end;
 
     var
-#pragma warning disable AA0074
-        Text004: Label 'The Make Phone Call function is not available for a salesperson.';
-#pragma warning restore AA0074
+        PhoneCallNotAvailableForSalespersonErr: Label 'The Make Phone Call function is not available for a salesperson.';
         StyleIsStrong: Boolean;
         SendInvitationEditable: Boolean;
         AttendanceTypeIndent: Integer;
@@ -166,7 +164,7 @@ page 5197 "Attendee Subform"
         Task: Record "To-do";
     begin
         if Rec."Attendee Type" = Rec."Attendee Type"::Salesperson then
-            Error(Text004);
+            Error(PhoneCallNotAvailableForSalespersonErr);
         if Cont.Get(Rec."Attendee No.") then begin
             if Task.FindAttendeeTask(Task, Attendee) then
                 TempSegmentLine."To-do No." := Task."No.";

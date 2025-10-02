@@ -21,6 +21,15 @@ using Microsoft.Sales.Receivables;
 using System.Automation;
 using System.Utilities;
 
+/// <summary>
+/// Generates formatted check documents with proper alignment and security features.
+/// Supports multiple check formats, void processing, and remittance stub generation.
+/// </summary>
+/// <remarks>
+/// Data sources: Gen. Journal Line for check data, Bank Account for routing information.
+/// Output formats: RDLC with precise positioning for check stock compatibility.
+/// Integrates with CheckManagement codeunit for check numbering and void processing.
+/// </remarks>
 report 1401 Check
 {
     DefaultLayout = RDLC;
@@ -1352,6 +1361,15 @@ report 1401 Check
         OnAfterVendUpdateAmounts(VendLedgEntry2, DocDate);
     end;
 
+    /// <summary>
+    /// Initializes request parameters for check printing operation.
+    /// </summary>
+    /// <param name="BankAcc">Bank account code to use for check printing</param>
+    /// <param name="LastCheckNo">Last check number for numbering sequence</param>
+    /// <param name="NewOneCheckPrVend">Whether to print one check per vendor</param>
+    /// <param name="NewReprintChecks">Whether to reprint existing checks</param>
+    /// <param name="NewTestPrint">Whether this is a test print operation</param>
+    /// <param name="NewPreprintedStub">Whether to use preprinted check stubs</param>
     procedure InitializeRequest(BankAcc: Code[20]; LastCheckNo: Code[20]; NewOneCheckPrVend: Boolean; NewReprintChecks: Boolean; NewTestPrint: Boolean; NewPreprintedStub: Boolean)
     begin
         if BankAcc <> '' then
@@ -1389,6 +1407,9 @@ report 1401 Check
         exit(Decimal2);
     end;
 
+    /// <summary>
+    /// Validates and retrieves bank account information for check processing.
+    /// </summary>
     procedure InputBankAccount()
     begin
         if BankAcc2."No." <> '' then begin
@@ -1573,21 +1594,58 @@ report 1401 Check
           CheckStyle);
     end;
 
+    /// <summary>
+    /// Integration event raised after updating vendor ledger entry amounts during check processing.
+    /// Enables custom processing or field updates after vendor amount calculations.
+    /// </summary>
+    /// <param name="VendLedgEntry2">Vendor ledger entry with updated amounts</param>
+    /// <param name="DocDate">Document date used in processing</param>
+    /// <remarks>
+    /// Raised from VendUpdateAmounts procedure after calculating and updating vendor payment amounts.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnAfterVendUpdateAmounts(var VendLedgEntry2: Record "Vendor Ledger Entry"; var DocDate: Date)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after processing vendor record in general journal line context.
+    /// Enables custom processing or field updates after vendor data retrieval for balancing account.
+    /// </summary>
+    /// <param name="Vendor">Vendor record that was processed</param>
+    /// <param name="GenJnlLine">General journal line in balancing context</param>
+    /// <remarks>
+    /// Raised from general journal line processing when balance account type is vendor.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnGenJnlLineOnAfterGetRecordOnAfterBalancingTypeVendorCase(var Vendor: Record Vendor; var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after assigning document number to general journal line.
+    /// Enables custom processing or logging after document number assignment.
+    /// </summary>
+    /// <param name="GenJnlLine">General journal line with assigned document number</param>
+    /// <param name="PreviousDocumentNo">Previous document number for reference</param>
+    /// <remarks>
+    /// Raised from document number assignment logic after setting new document number.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignGenJnlLineDocumentNo(var GenJnlLine: Record "Gen. Journal Line"; PreviousDocumentNo: Code[20])
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after assigning document number and account type to general journal line.
+    /// Enables custom processing after document and account type assignment in specific apply methods.
+    /// </summary>
+    /// <param name="GenJnlLine">General journal line with assigned values</param>
+    /// <param name="PreviousDocumentNo">Previous document number for reference</param>
+    /// <param name="ApplyMethod">Apply method option used in the assignment</param>
+    /// <remarks>
+    /// Raised from document and account assignment logic for specific application methods.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignGenJnlLineDocNoAndAccountType(var GenJnlLine: Record "Gen. Journal Line"; PreviousDocumentNo: Code[20]; ApplyMethod: Option)
     begin

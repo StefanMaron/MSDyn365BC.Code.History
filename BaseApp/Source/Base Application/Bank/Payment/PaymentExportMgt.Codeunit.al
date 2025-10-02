@@ -10,6 +10,16 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using System.IO;
 using System.Text;
 
+/// <summary>
+/// Codeunit 1210 "Payment Export Mgt" manages the export of payment data to bank files.
+/// Handles data exchange creation, payment line processing, column mapping, and file export operations
+/// for various payment export formats including SEPA and bank-specific formats.
+/// </summary>
+/// <remarks>
+/// Integrates with Data Exchange Framework for flexible payment file formats. Supports both
+/// server-side and client-side file exports. Provides extensibility through integration events
+/// for custom export logic and validation.
+/// </remarks>
 codeunit 1210 "Payment Export Mgt"
 {
     Permissions = TableData "Gen. Journal Line" = rm,
@@ -29,6 +39,11 @@ codeunit 1210 "Payment Export Mgt"
         FormatNotDefinedErr: Label 'You must choose a valid export format for the bank account. Format %1 is not correctly defined.', Comment = '%1 = Data Exch. Def. Code';
         DataExchLineDefNotFoundErr: Label 'The %1 export format does not support the Payment Method Code %2.', Comment = '%1=Data Exch. Def. Name;%2=Data Exch. Line Def. Code';
 
+    /// <summary>
+    /// Creates a new data exchange record for payment export.
+    /// </summary>
+    /// <param name="DataExch">Data exchange record to be created</param>
+    /// <param name="BankAccountCode">Bank account code for export format lookup</param>
     procedure CreateDataExch(var DataExch: Record "Data Exch."; BankAccountCode: Code[20])
     var
         BankAccount: Record "Bank Account";
@@ -43,6 +58,10 @@ codeunit 1210 "Payment Export Mgt"
         DataExch.Insert(true);
     end;
 
+    /// <summary>
+    /// Creates payment lines in the data exchange from payment export data.
+    /// </summary>
+    /// <param name="PaymentExportData">Payment export data to process</param>
     procedure CreatePaymentLines(var PaymentExportData: Record "Payment Export Data")
     var
         BankAccount: Record "Bank Account";
@@ -60,6 +79,14 @@ codeunit 1210 "Payment Export Mgt"
           PaymentExportData."Line No.", PaymentExportData."Data Exch. Line Def Code", PaymentExportDataRecRef.Number);
     end;
 
+    /// <summary>
+    /// Processes column mapping for payment export data exchange.
+    /// </summary>
+    /// <param name="DataExch">Data exchange record</param>
+    /// <param name="RecRef">Record reference containing source data</param>
+    /// <param name="LineNo">Line number in the data exchange</param>
+    /// <param name="DataExchLineDefCode">Data exchange line definition code</param>
+    /// <param name="TableID">Table ID of the source record</param>
     procedure ProcessColumnMapping(DataExch: Record "Data Exch."; RecRef: RecordRef; LineNo: Integer; DataExchLineDefCode: Code[20]; TableID: Integer)
     var
         DataExchDef: Record "Data Exch. Def";
@@ -382,26 +409,69 @@ codeunit 1210 "Payment Export Mgt"
         exit(ServerFileName);
     end;
 
+    /// <summary>
+    /// Integration event raised before checking the length of a mapped value during payment export processing.
+    /// Enables custom length validation logic for export field values.
+    /// </summary>
+    /// <param name="ValueAsString">The string value to validate</param>
+    /// <param name="DataExchFieldMapping">Field mapping configuration for the export</param>
+    /// <param name="DataExchColumnDef">Column definition for the export field</param>
     [IntegrationEvent(false, false)]
     local procedure OnProcessColumnMappingOnBeforeCheckLength(var ValueAsString: Text[250]; DataExchFieldMapping: Record "Data Exch. Field Mapping"; DataExchColumnDef: Record "Data Exch. Column Def")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before formatting a value to text during column mapping in payment export.
+    /// Enables custom text formatting logic for export values.
+    /// </summary>
+    /// <param name="ValueAsString">The string value being formatted</param>
+    /// <param name="ValueAsDestType">The value in destination data type</param>
+    /// <param name="DataExchDef">Data exchange definition for the export</param>
+    /// <param name="DataExchColumnDef">Column definition for the export field</param>
+    /// <param name="IsHandled">Set to true to skip standard formatting processing</param>
     [IntegrationEvent(false, false)]
     local procedure OnOnProcessColumnMappingOnBeforeFormatToText(var ValueAsString: Text[250]; ValueAsDestType: Variant; DataExchDef: Record "Data Exch. Def"; DataExchColumnDef: Record "Data Exch. Column Def"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before checking the length of an export value against column definition limits.
+    /// Enables custom length validation for payment export fields.
+    /// </summary>
+    /// <param name="Value">The text value to check</param>
+    /// <param name="FieldRef">Field reference for the value being checked</param>
+    /// <param name="DataExchDef">Data exchange definition for the export</param>
+    /// <param name="DataExchColumnDef">Column definition with length constraints</param>
+    /// <param name="IsHandled">Set to true to skip standard length validation</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckLength(Value: Text; FieldRef: FieldRef; DataExchDef: Record "Data Exch. Def"; DataExchColumnDef: Record "Data Exch. Column Def"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before formatting a value to text for payment export.
+    /// Enables custom formatting logic for export field values.
+    /// </summary>
+    /// <param name="ValueToFormat">The value to be formatted</param>
+    /// <param name="DataExchDef">Data exchange definition for the export</param>
+    /// <param name="DataExchColumnDef">Column definition for formatting rules</param>
+    /// <param name="ResultText">The formatted text result</param>
+    /// <param name="IsHandled">Set to true to skip standard formatting processing</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFormatToText(ValueToFormat: Variant; DataExchDef: Record "Data Exch. Def"; DataExchColumnDef: Record "Data Exch. Column Def"; var ResultText: Text[250]; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before casting a value to its destination data type during payment export.
+    /// Enables custom type conversion logic for export values.
+    /// </summary>
+    /// <param name="DestinationValue">The value after type conversion</param>
+    /// <param name="SourceValue">The original source value</param>
+    /// <param name="DataExchColumnDef">Column definition with type information</param>
+    /// <param name="Multiplier">Multiplier value for numeric conversions</param>
+    /// <param name="IsHandled">Set to true to skip standard type conversion</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCastToDestinationType(var DestinationValue: Variant; SourceValue: Variant; DataExchColumnDef: Record "Data Exch. Column Def"; Multiplier: Decimal; var IsHandled: Boolean)
     begin

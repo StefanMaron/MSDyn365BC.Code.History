@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Warehouse.Request;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Warehouse.Request;
 
 using Microsoft.Inventory.Journal;
 using Microsoft.Warehouse.Activity;
@@ -47,10 +51,6 @@ codeunit 5775 "Whse. Management"
                 SourceDocument := "Warehouse Request Source Document"::"Inbound Transfer";
             WhseJournalSourceDocument::"Outb. Transfer":
                 SourceDocument := "Warehouse Request Source Document"::"Outbound Transfer";
-            WhseJournalSourceDocument::"Prod. Consumption":
-                SourceDocument := "Warehouse Request Source Document"::"Prod. Consumption";
-            WhseJournalSourceDocument::"Item Jnl.":
-                SourceDocument := "Warehouse Request Source Document"::"Prod. Output";
             WhseJournalSourceDocument::"Assembly Order":
                 SourceDocument := "Warehouse Request Source Document"::"Assembly Order";
             WhseJournalSourceDocument::"Assembly Consumption":

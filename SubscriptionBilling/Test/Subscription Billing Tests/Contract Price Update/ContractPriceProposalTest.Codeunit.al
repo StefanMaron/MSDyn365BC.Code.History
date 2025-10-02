@@ -10,9 +10,11 @@ using Microsoft.Purchases.History;
 using Microsoft.Finance.Currency;
 using System.TestLibraries.Utilities;
 
+#pragma warning disable AA0210
 codeunit 139690 "Contract Price Proposal Test"
 {
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
     Access = Internal;
 
@@ -897,3 +899,4 @@ codeunit 139690 "Contract Price Proposal Test"
 
     #endregion Handlers
 }
+#pragma warning restore AA0210

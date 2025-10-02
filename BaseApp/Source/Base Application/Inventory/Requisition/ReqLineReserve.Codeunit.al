@@ -4,14 +4,12 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Requisition;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Foundation.Enums;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 
@@ -324,53 +322,25 @@ codeunit 99000833 "Req. Line-Reserve"
           Database::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", '', 0, PurchaseLine."Line No.");
     end;
 
-    procedure TransferPlanningLineToPOLine(var OldRequisitionLine: Record "Requisition Line"; var NewProdOrderLine: Record "Prod. Order Line"; TransferQty: Decimal; TransferAll: Boolean)
+#if not CLEAN27
+    [Obsolete('Moved to codeunit ProdOrderLineReserve', '27.0')]
+    procedure TransferPlanningLineToPOLine(var OldRequisitionLine: Record "Requisition Line"; var NewProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; TransferQty: Decimal; TransferAll: Boolean)
     var
-        OldReservationEntry: Record "Reservation Entry";
-        IsHandled: Boolean;
+        ProdOrderLineReserve: Codeunit Microsoft.Manufacturing.Document."Prod. Order Line-Reserve";
     begin
-        IsHandled := false;
-        OnBeforeTransferPlanningLineToPOLine(OldRequisitionLine, NewProdOrderLine, TransferQty, TransferAll, IsHandled);
-        if IsHandled then
-            exit;
-
-        if not FindReservEntry(OldRequisitionLine, OldReservationEntry) then
-            exit;
-
-        IsHandled := false;
-        OnTransferPlanningLineToPOLineOnBeforeCheckFields(OldRequisitionLine, NewProdOrderLine, TransferQty, TransferAll, IsHandled);
-        if not IsHandled then begin
-            NewProdOrderLine.TestField("Item No.", OldRequisitionLine."No.");
-            NewProdOrderLine.TestField("Variant Code", OldRequisitionLine."Variant Code");
-            NewProdOrderLine.TestField("Location Code", OldRequisitionLine."Location Code");
-        end;
-
-        OnTransferReqLineToPOLineOnBeforeTransfer(OldReservationEntry, OldRequisitionLine, NewProdOrderLine);
-
-        OldReservationEntry.TransferReservations(
-            OldReservationEntry, OldRequisitionLine."No.", OldRequisitionLine."Variant Code", OldRequisitionLine."Location Code",
-            TransferAll, TransferQty, NewProdOrderLine."Qty. per Unit of Measure",
-            Database::"Prod. Order Line", NewProdOrderLine.Status.AsInteger(), NewProdOrderLine."Prod. Order No.", '', NewProdOrderLine."Line No.", 0);
+        ProdOrderLineReserve.TransferPlanningLineToPOLine(OldRequisitionLine, NewProdOrderLine, TransferQty, TransferAll);
     end;
+#endif
 
-    procedure TransferPlanningLineToAsmHdr(var OldRequisitionLine: Record "Requisition Line"; var NewAssemblyHeader: Record "Assembly Header"; TransferQty: Decimal; TransferAll: Boolean)
+#if not CLEAN27
+    [Obsolete('Moved to codeunit AssemblyHeaderReserve', '27.0')]
+    procedure TransferPlanningLineToAsmHdr(var OldRequisitionLine: Record "Requisition Line"; var NewAssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header"; TransferQty: Decimal; TransferAll: Boolean)
     var
-        OldReservationEntry: Record "Reservation Entry";
+        AssemblyHeaderReserve: Codeunit Microsoft.Assembly.Document."Assembly Header-Reserve";
     begin
-        if not FindReservEntry(OldRequisitionLine, OldReservationEntry) then
-            exit;
-
-        NewAssemblyHeader.TestField("Item No.", OldRequisitionLine."No.");
-        NewAssemblyHeader.TestField("Variant Code", OldRequisitionLine."Variant Code");
-        NewAssemblyHeader.TestField("Location Code", OldRequisitionLine."Location Code");
-
-        OnTransferReqLineToAsmHdrOnBeforeTransfer(OldReservationEntry, OldRequisitionLine, NewAssemblyHeader);
-
-        OldReservationEntry.TransferReservations(
-            OldReservationEntry, OldRequisitionLine."No.", OldRequisitionLine."Variant Code", OldRequisitionLine."Location Code",
-            TransferAll, TransferQty, NewAssemblyHeader."Qty. per Unit of Measure",
-            Database::"Assembly Header", NewAssemblyHeader."Document Type".AsInteger(), NewAssemblyHeader."No.", '', 0, 0);
+        AssemblyHeaderReserve.TransferPlanningLineToAsmHdr(OldRequisitionLine, NewAssemblyHeader, TransferQty, TransferAll);
     end;
+#endif
 
     procedure TransferReqLineToTransLine(var RequisitionLine: Record "Requisition Line"; var TransferLine: Record "Transfer Line"; TransferQty: Decimal; TransferAll: Boolean)
     var
@@ -471,9 +441,6 @@ codeunit 99000833 "Req. Line-Reserve"
 
     procedure DeleteLine(var RequisitionLine: Record "Requisition Line")
     var
-        ProdOrderComponent: Record "Prod. Order Component";
-        ReservationEntry: Record "Reservation Entry";
-        QtyTracked: Decimal;
         ShouldExitForBlocked: Boolean;
     begin
         ShouldExitForBlocked := Blocked;
@@ -483,36 +450,14 @@ codeunit 99000833 "Req. Line-Reserve"
 
         ReservationManagement.SetReservSource(RequisitionLine);
         ReservationManagement.SetItemTrackingHandling(1);
+
         // Allow Deletion
         ReservationManagement.DeleteReservEntries(true, 0);
         RequisitionLine.CalcFields("Reserved Qty. (Base)");
         AssignForPlanning(RequisitionLine);
+
         // Retracking of components:
-        if (RequisitionLine."Action Message" = RequisitionLine."Action Message"::Cancel) and
-           (RequisitionLine."Planning Line Origin" = RequisitionLine."Planning Line Origin"::Planning) and
-           (RequisitionLine."Ref. Order Type" = RequisitionLine."Ref. Order Type"::"Prod. Order")
-        then begin
-            ProdOrderComponent.SetAutoCalcFields("Reserved Qty. (Base)");
-            ProdOrderComponent.SetCurrentKey(Status, "Prod. Order No.", "Prod. Order Line No.");
-            ProdOrderComponent.SetRange(Status, RequisitionLine."Ref. Order Status");
-            ProdOrderComponent.SetRange("Prod. Order No.", RequisitionLine."Ref. Order No.");
-            ProdOrderComponent.SetRange("Prod. Order Line No.", RequisitionLine."Ref. Line No.");
-            if ProdOrderComponent.FindSet() then
-                repeat
-                    QtyTracked := ProdOrderComponent."Reserved Qty. (Base)";
-                    ReservationEntry.Reset();
-                    ReservationEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype");
-                    ProdOrderComponent.SetReservationFilters(ReservationEntry);
-                    ReservationEntry.SetFilter("Reservation Status", '<>%1', ReservationEntry."Reservation Status"::Reservation);
-                    if ReservationEntry.FindSet() then
-                        repeat
-                            QtyTracked := QtyTracked - ReservationEntry."Quantity (Base)";
-                        until ReservationEntry.Next() = 0;
-                    ReservationManagement.SetReservSource(ProdOrderComponent);
-                    ReservationManagement.DeleteReservEntries(QtyTracked = 0, QtyTracked);
-                    ReservationManagement.AutoTrack(ProdOrderComponent."Remaining Qty. (Base)");
-                until ProdOrderComponent.Next() = 0;
-        end
+        OnAfterDeleteLine(RequisitionLine);
     end;
 
     procedure UpdateDerivedTracking(var RequisitionLine: Record "Requisition Line")
@@ -528,15 +473,10 @@ codeunit 99000833 "Req. Line-Reserve"
         case RequisitionLine."Ref. Order Type" of
             RequisitionLine."Ref. Order Type"::Purchase:
                 ReservationEntry.SetSourceFilter(Database::"Purchase Line", 1, RequisitionLine."Ref. Order No.", RequisitionLine."Ref. Line No.", true);
-            RequisitionLine."Ref. Order Type"::"Prod. Order":
-                begin
-                    ReservationEntry.SetSourceFilter(Database::"Prod. Order Line", RequisitionLine."Ref. Order Status".AsInteger(), RequisitionLine."Ref. Order No.", -1, true);
-                    ReservationEntry.SetRange("Source Prod. Order Line", RequisitionLine."Ref. Line No.");
-                end;
             RequisitionLine."Ref. Order Type"::Transfer:
                 ReservationEntry.SetSourceFilter(Database::"Transfer Line", 1, RequisitionLine."Ref. Order No.", RequisitionLine."Ref. Line No.", true);
-            RequisitionLine."Ref. Order Type"::Assembly:
-                ReservationEntry.SetSourceFilter(Database::"Assembly Header", 1, RequisitionLine."Ref. Order No.", 0, true);
+            else
+                OnSetReservationSourceFilterByRefOrderType(RequisitionLine, ReservationEntry);
         end;
 
         if ReservationEntry.FindSet() then
@@ -792,20 +732,36 @@ codeunit 99000833 "Req. Line-Reserve"
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnTransferReqLineToAsmHdrOnBeforeTransfer(var OldReservEntry: Record "Reservation Entry"; var OldReqLine: Record "Requisition Line"; var AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header")
+    begin
+        OnTransferReqLineToAsmHdrOnBeforeTransfer(OldReservEntry, OldReqLine, AssemblyHeader);
+    end;
+
+    [Obsolete('Moved to codeunit AssemblyHeaderReserve', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnTransferReqLineToAsmHdrOnBeforeTransfer(var OldReservEntry: Record "Reservation Entry"; var OldReqLine: Record "Requisition Line"; var AssemblyHeader: Record "Assembly Header")
+    local procedure OnTransferReqLineToAsmHdrOnBeforeTransfer(var OldReservEntry: Record "Reservation Entry"; var OldReqLine: Record "Requisition Line"; var AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferReqLineToPurchLineOnBeforeTransfer(var OldReservEntry: Record "Reservation Entry"; var OldReqLine: Record "Requisition Line"; var PurchLine: Record "Purchase Line")
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnTransferReqLineToPOLineOnBeforeTransfer(var OldReservEntry: Record "Reservation Entry"; var OldReqLine: Record "Requisition Line"; var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
+    begin
+        OnTransferReqLineToPOLineOnBeforeTransfer(OldReservEntry, OldReqLine, ProdOrderLine);
+    end;
+
+    [Obsolete('Moved to codeunit ProdOrderLineReserve', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnTransferReqLineToPOLineOnBeforeTransfer(var OldReservEntry: Record "Reservation Entry"; var OldReqLine: Record "Requisition Line"; var ProdOrderLine: Record "Prod. Order Line")
+    local procedure OnTransferReqLineToPOLineOnBeforeTransfer(var OldReservEntry: Record "Reservation Entry"; var OldReqLine: Record "Requisition Line"; var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferReqLineToReqLineOnBeforeTransfer(var OldReservEntry: Record "Reservation Entry"; var OldReqLine: Record "Requisition Line"; var NewReqLine: Record "Requisition Line")
@@ -832,25 +788,44 @@ codeunit 99000833 "Req. Line-Reserve"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeTransferPlanningLineToPOLine(var OldRequisitionLine: Record "Requisition Line"; var ProdOrderLine: Record "Prod. Order Line"; TransferQty: Decimal; TransferAll: Boolean; var IsHandled: Boolean)
+#if not CLEAN27
+    internal procedure RunOnBeforeTransferPlanningLineToPOLine(var OldRequisitionLine: Record "Requisition Line"; var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; TransferQty: Decimal; TransferAll: Boolean; var IsHandled: Boolean)
     begin
+        OnBeforeTransferPlanningLineToPOLine(OldRequisitionLine, ProdOrderLine, TransferQty, TransferAll, IsHandled);
     end;
 
+    [Obsolete('Moved to codeunit ProdOrderLineReserve', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnTransferPlanningLineToPOLineOnBeforeCheckFields(var OldRequisitionLine: Record "Requisition Line"; var ProdOrderLine: Record "Prod. Order Line"; TransferQty: Decimal; TransferAll: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeTransferPlanningLineToPOLine(var OldRequisitionLine: Record "Requisition Line"; var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; TransferQty: Decimal; TransferAll: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnTransferPlanningLineToPOLineOnBeforeCheckFields(var OldRequisitionLine: Record "Requisition Line"; var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; TransferQty: Decimal; TransferAll: Boolean; var IsHandled: Boolean)
+    begin
+        OnTransferPlanningLineToPOLineOnBeforeCheckFields(OldRequisitionLine, ProdOrderLine, TransferQty, TransferAll, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit ProdOrderLineReserve', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferPlanningLineToPOLineOnBeforeCheckFields(var OldRequisitionLine: Record "Requisition Line"; var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; TransferQty: Decimal; TransferAll: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteLineOnAfterCalcShouldExitForBlocked(var RequisitionLine: Record "Requisition Line"; var ShouldExitForBlocked: Boolean)
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('Event is not used', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnSetSourceForReservationOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; ReqLine: Record "Requisition Line")
     begin
     end;
+#endif
 
     // codeunit Create Reserv. Entry
 
@@ -997,5 +972,15 @@ codeunit 99000833 "Req. Line-Reserve"
     begin
         if InventoryProfile."Source Type" = Database::"Requisition Line" then
             InventoryProfile."Order Priority" := 300;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDeleteLine(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetReservationSourceFilterByRefOrderType(var RequisitionLine: Record "Requisition Line"; var ReservationEntry: Record "Reservation Entry")
+    begin
     end;
 }

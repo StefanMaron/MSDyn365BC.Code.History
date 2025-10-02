@@ -8,7 +8,6 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
-using Microsoft.Service.History;
 using System.Reflection;
 
 codeunit 10151 "E-Invoice Cancel Request Batch"
@@ -24,11 +23,11 @@ codeunit 10151 "E-Invoice Cancel Request Batch"
     begin
         ProcessResponsePostedSalesInvoices();
         ProcessResponsePostedSalesCrMemos();
-        ProcessResponsePostedServiceInvoices();
-        ProcessResponsePostedServiceCrMemos();
         ProcessResponsePostedSalesShipments();
         ProcessResponsePostedTransferShipments();
         ProcessResponseCustomerLedgerEntries();
+
+        OnAfterCancelRequsetStatusBatch();
     end;
 
     local procedure ProcessResponsePostedSalesInvoices()
@@ -62,44 +61,6 @@ codeunit 10151 "E-Invoice Cancel Request Batch"
           SalesCrMemoHeader."Electronic Document Status"::"Cancel In Progress",
           SalesCrMemoHeader."Electronic Document Status"::"Cancel Error");
         RecRef.GetTable(SalesCrMemoHeader);
-        if RecRef.FindSet(true) then
-            repeat
-                EInvoiceMgt.CancelDocumentRequestStatus(RecRef);
-            until RecRef.Next() = 0;
-        RecRef.Close();
-    end;
-
-    local procedure ProcessResponsePostedServiceInvoices()
-    var
-        ServiceInvoiceHeader: Record "Service Invoice Header";
-        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
-        RecRef: RecordRef;
-    begin
-        ServiceInvoiceHeader.SetFilter("CFDI Cancellation ID", '<>%1', '');
-        ServiceInvoiceHeader.SetFilter(
-          "Electronic Document Status", '%1|%2',
-          ServiceInvoiceHeader."Electronic Document Status"::"Cancel In Progress",
-          ServiceInvoiceHeader."Electronic Document Status"::"Cancel Error");
-        RecRef.GetTable(ServiceInvoiceHeader);
-        if RecRef.FindSet(true) then
-            repeat
-                EInvoiceMgt.CancelDocumentRequestStatus(RecRef);
-            until RecRef.Next() = 0;
-        RecRef.Close();
-    end;
-
-    local procedure ProcessResponsePostedServiceCrMemos()
-    var
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
-        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
-        RecRef: RecordRef;
-    begin
-        ServiceCrMemoHeader.SetFilter("CFDI Cancellation ID", '<>%1', '');
-        ServiceCrMemoHeader.SetFilter(
-          "Electronic Document Status", '%1|%2',
-          ServiceCrMemoHeader."Electronic Document Status"::"Cancel In Progress",
-          ServiceCrMemoHeader."Electronic Document Status"::"Cancel Error");
-        RecRef.GetTable(ServiceCrMemoHeader);
         if RecRef.FindSet(true) then
             repeat
                 EInvoiceMgt.CancelDocumentRequestStatus(RecRef);
@@ -173,11 +134,11 @@ codeunit 10151 "E-Invoice Cancel Request Batch"
 
         CancelAfter72hrsSalesInvoices();
         CancelAfter72hrsSalesCrMemos();
-        CancelAfter72hrsServiceInvoices();
-        CancelAfter72hrsServiceCrMemos();
         CancelAfter72hrsSalesShipments();
         CancelAfter72hrsTransferShipments();
         CancelAfter72hrsCustomerLedgerEntries();
+
+        OnAfterCancelAfter72Hrs();
     end;
 
     local procedure CancelAfter72hrsSalesInvoices()
@@ -213,46 +174,6 @@ codeunit 10151 "E-Invoice Cancel Request Batch"
           SalesCrMemoHeader."Electronic Document Status"::"Cancel Error");
         SalesCrMemoHeader.SetFilter("Date/Time Cancel Sent", '>%1&<%2', 0DT, GetDateTime72HoursAgo());
         RecRef.GetTable(SalesCrMemoHeader);
-        if RecRef.FindSet(true) then
-            repeat
-                EInvoiceMgt.SetCancelManual(RecRef);
-            until RecRef.Next() = 0;
-        RecRef.Close();
-    end;
-
-    local procedure CancelAfter72hrsServiceInvoices()
-    var
-        ServiceInvoiceHeader: Record "Service Invoice Header";
-        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
-        RecRef: RecordRef;
-    begin
-        ServiceInvoiceHeader.SetFilter("CFDI Cancellation ID", '<>%1', '');
-        ServiceInvoiceHeader.SetFilter(
-          "Electronic Document Status", '%1|%2',
-          ServiceInvoiceHeader."Electronic Document Status"::"Cancel In Progress",
-          ServiceInvoiceHeader."Electronic Document Status"::"Cancel Error");
-        ServiceInvoiceHeader.SetFilter("Date/Time Cancel Sent", '>%1&<%2', 0DT, GetDateTime72HoursAgo());
-        RecRef.GetTable(ServiceInvoiceHeader);
-        if RecRef.FindSet(true) then
-            repeat
-                EInvoiceMgt.SetCancelManual(RecRef);
-            until RecRef.Next() = 0;
-        RecRef.Close();
-    end;
-
-    local procedure CancelAfter72hrsServiceCrMemos()
-    var
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
-        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
-        RecRef: RecordRef;
-    begin
-        ServiceCrMemoHeader.SetFilter("CFDI Cancellation ID", '<>%1', '');
-        ServiceCrMemoHeader.SetFilter(
-          "Electronic Document Status", '%1|%2',
-          ServiceCrMemoHeader."Electronic Document Status"::"Cancel In Progress",
-          ServiceCrMemoHeader."Electronic Document Status"::"Cancel Error");
-        ServiceCrMemoHeader.SetFilter("Date/Time Cancel Sent", '>%1&<%2', 0DT, GetDateTime72HoursAgo());
-        RecRef.GetTable(ServiceCrMemoHeader);
         if RecRef.FindSet(true) then
             repeat
                 EInvoiceMgt.SetCancelManual(RecRef);
@@ -326,6 +247,16 @@ codeunit 10151 "E-Invoice Cancel Request Batch"
     begin
         exit(
             TypeHelper.GetCurrentDateTimeInUserTimeZone() - 3 * 24 * 3600 * 1000);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCancelRequsetStatusBatch()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCancelAfter72Hrs()
+    begin
     end;
 }
 

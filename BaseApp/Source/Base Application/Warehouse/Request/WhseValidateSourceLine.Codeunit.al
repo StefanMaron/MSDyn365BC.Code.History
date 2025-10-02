@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Warehouse.Request;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Warehouse.Request;
 
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
@@ -23,13 +27,10 @@ codeunit 5777 "Whse. Validate Source Line"
         WhseActivLine: Record "Warehouse Activity Line";
         TableCaptionValue: Text;
 
-#pragma warning disable AA0074
-#pragma warning disable AA0470
+#pragma warning disable AA0074, AA0470
         Text000: Label 'must not be changed when a %1 for this %2 exists: ';
         Text001: Label 'The %1 cannot be deleted when a related %2 exists.';
-        Text002: Label 'You cannot post consumption for order no. %1 because a quantity of %2 remains to be picked.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
+#pragma warning restore AA0074, AA0470
         JobPostQtyPickRemainErr: Label 'You cannot post usage for project number %1 because a quantity of %2 remains to be picked.', Comment = '%1 = Project number, %2 = remaining quantity to pick';
 
     procedure VerifyFieldNotChanged(NewRecRef: RecordRef; OldRecRef: RecordRef; FieldNumber: Integer)
@@ -342,12 +343,6 @@ codeunit 5777 "Whse. Validate Source Line"
             Error(JobPostQtyPickRemainErr, NewJobJnlLine."Job No.", QtyRemainingToBePicked);
     end;
 
-    local procedure CheckQtyRemainingToBePicked(QtyRemainingToBePicked: Decimal; OrderNo: Code[20])
-    begin
-        if QtyRemainingToBePicked > 0 then
-            Error(Text002, OrderNo, QtyRemainingToBePicked);
-    end;
-
 #if not CLEAN26
     [Obsolete('Replaced by same procedure in codeunit ProdOrder Warehouse Mgt.', '26.0')]
     procedure CalcNextLevelProdOutput(ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component"): Decimal
@@ -478,4 +473,3 @@ codeunit 5777 "Whse. Validate Source Line"
     begin
     end;
 }
-

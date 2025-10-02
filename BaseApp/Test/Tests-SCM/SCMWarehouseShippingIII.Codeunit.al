@@ -3414,17 +3414,17 @@
 
     local procedure CreateTwoSalesOrdersWithShipmentsAndPicks(var WarehouseShipmentHeader: array[2] of Record "Warehouse Shipment Header"; var WarehouseShipmentLine: array[2] of Record "Warehouse Shipment Line"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
         SalesHeader: array[2] of Record "Sales Header";
         SalesLine: array[2] of Record "Sales Line";
         AssemblyHeader: Record "Assembly Header";
         i: Integer;
     begin
-        ManufacturingSetup.Get();
+        InventorySetup.Get();
         for i := 1 to 2 do begin
             LibrarySales.CreateSalesDocumentWithItem(
               SalesHeader[i], SalesLine[i], SalesHeader[i]."Document Type"::Order, LibrarySales.CreateCustomerNo(),
-              ItemNo, Quantity, LocationCode, CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()));
+              ItemNo, Quantity, LocationCode, CalcDate(InventorySetup."Default Safety Lead Time", WorkDate()));
             SalesLine[i].Validate("Qty. to Assemble to Order", Quantity);
             SalesLine[i].Modify(true);
             LibrarySales.ReleaseSalesDocument(SalesHeader[i]);

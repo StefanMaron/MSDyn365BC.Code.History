@@ -294,7 +294,7 @@ codeunit 6140 "E-Doc. Import"
         if not SelectPurchaseOrderFromList(EDocument, Vendor, DocumentHeader) then
             exit;
 
-        // If new purchase order is selected 
+        // If new purchase order is selected
         // Release purchase header if it is pointing to this document
         if PurchaseHeader.Get(EDocument."Document Record ID") then
             if PurchaseHeader."E-Document Link" = EDocument.SystemId then begin
@@ -909,17 +909,19 @@ codeunit 6140 "E-Doc. Import"
     local procedure OnAfterPrepareReceivedDoc(var EDocument: Record "E-Document"; var TempBlob: Codeunit "Temp Blob"; SourceDocumentHeader: RecordRef; SourceDocumentLine: RecordRef; TempEDocMapping: Record "E-Doc. Mapping" temporary);
     begin
     end;
-
+#if not CLEAN27
+    [Obsolete('This event is not raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateDocument(var EDocument: Record "E-Document"; var TempDocumentHeader: RecordRef; var TempDocumentLine: RecordRef; var DocumentHeader: RecordRef)
     begin
     end;
 
+    [Obsolete('This event is not raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateDocument(var EDocument: Record "E-Document"; var TempDocumentHeader: RecordRef; var TempDocumentLine: RecordRef; var DocumentHeader: RecordRef)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDocument(var EDocument: Record "E-Document"; var TempDocumentHeader: RecordRef; var TempDocumentLine: RecordRef; var DocumentHeader: RecordRef)
     begin

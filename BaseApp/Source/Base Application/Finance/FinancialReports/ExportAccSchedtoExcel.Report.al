@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.FinancialReports;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.FinancialReports;
 
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Currency;
@@ -120,7 +124,7 @@ report 29 "Export Acc. Sched. to Excel"
                         repeat
                             ColumnNo := ColumnNo + 1;
                             EnterCell(
-                              RowNo, ColumnNo, ColumnLayout."Column Header", false, false, false, false, '', TempExcelBuffer."Cell Type"::Text);
+                              RowNo, ColumnNo, AccSchedManagement.CalcColumnHeader(AccSchedLine, ColumnLayout), false, false, false, false, '', TempExcelBuffer."Cell Type"::Text);
                         until ColumnLayout.Next() = 0;
                     end;
                     repeat
@@ -265,12 +269,12 @@ report 29 "Export Acc. Sched. to Excel"
         end;
     end;
 
-    local procedure EnterCell(RowNo: Integer; ColumnNo: Integer; CellValue: Text[250]; Bold: Boolean; Italic: Boolean; UnderLine: Boolean; DoubleUnderLine: Boolean; Format: Text[30]; CellType: Option)
+    local procedure EnterCell(RowNo: Integer; ColumnNo: Integer; CellValue: Text; Bold: Boolean; Italic: Boolean; UnderLine: Boolean; DoubleUnderLine: Boolean; Format: Text[30]; CellType: Option)
     begin
         TempExcelBuffer.Init();
         TempExcelBuffer.Validate("Row No.", RowNo);
         TempExcelBuffer.Validate("Column No.", ColumnNo);
-        TempExcelBuffer."Cell Value as Text" := CellValue;
+        TempExcelBuffer."Cell Value as Text" := CopyStr(CellValue, 1, MaxStrLen(TempExcelBuffer."Cell Value as Text"));
         TempExcelBuffer.Formula := '';
         TempExcelBuffer.Bold := Bold;
         TempExcelBuffer.Italic := Italic;

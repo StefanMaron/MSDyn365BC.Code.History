@@ -4,6 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Setup;
 
+/// <summary>
+/// Dialog page for selecting payment service provider types during setup.
+/// Provides read-only list of available payment service providers for configuration.
+/// </summary>
+/// <remarks>
+/// Source Table: Payment Service Setup (1060) - Temporary. Used during payment service creation workflow.
+/// Displays registered payment service providers for user selection during setup process.
+/// </remarks>
 page 1062 "Select Payment Service Type"
 {
     Caption = 'Select Payment Service Type';

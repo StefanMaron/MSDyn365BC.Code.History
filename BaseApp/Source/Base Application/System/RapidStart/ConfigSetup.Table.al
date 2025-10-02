@@ -1,4 +1,4 @@
-﻿namespace System.IO;
+namespace System.IO;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.SalesTax;
@@ -179,23 +179,17 @@ table 8627 "Config. Setup"
         {
             Caption = 'Email';
         }
-#if not CLEAN24
-        field(35; "Home Page"; Text[80])
-        {
-            Caption = 'Home Page';
-            ObsoleteReason = 'Field length will be increased to 255.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-        }
-#else
+#if not CLEAN27
 #pragma warning disable AS0086
+#endif
         field(35; "Home Page"; Text[255])
+#if not CLEAN27
+#pragma warning restore AS0086
+#endif
         {
             Caption = 'Home Page';
             ExtendedDatatype = URL;
         }
-#pragma warning restore AS0086
-#endif
         field(36; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';
@@ -535,4 +529,3 @@ table 8627 "Config. Setup"
         ConfigXMLExchange.DecompressPackageToBlob(TempBlob, TempBlobUncompressed);
     end;
 }
-

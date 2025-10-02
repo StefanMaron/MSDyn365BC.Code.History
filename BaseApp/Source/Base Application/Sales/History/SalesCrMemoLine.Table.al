@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.History;
 
 using Microsoft.Finance.Currency;
@@ -552,7 +556,13 @@ table 115 "Sales Cr.Memo Line"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(10000; "Package Tracking No."; Text[30])
+#if not CLEAN27
+#pragma warning disable AS0086
+#endif
+        field(10000; "Package Tracking No."; Text[50])
+#if not CLEAN27
+#pragma warning restore AS0086
+#endif
         {
             Caption = 'Package Tracking No.';
         }
@@ -678,6 +688,12 @@ table 115 "Sales Cr.Memo Line"
             exit("Line Amount");
 
         exit(Round("Line Amount" * (1 + "VAT %" / 100), Currency."Amount Rounding Precision"));
+    end;
+
+    procedure GetCreditMemoHeader(): Record "Sales Cr.Memo Header"
+    begin
+        GetHeader();
+        exit(SalesCrMemoHeader);
     end;
 
     local procedure GetHeader()

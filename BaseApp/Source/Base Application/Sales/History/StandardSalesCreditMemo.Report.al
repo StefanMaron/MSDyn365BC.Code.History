@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.History;
 
 using Microsoft.Assembly.History;
 using Microsoft.Bank.BankAccount;
@@ -1226,7 +1230,7 @@ report 1307 "Standard Sales - Credit Memo"
 #pragma warning restore AA0470
         ExchangeRateTxt: Label 'Exchange rate: %1/%2', Comment = '%1 and %2 are both amounts.';
         AppliesToTextLbl: Label 'Applies to Document';
-        NoFilterSetErr: Label 'You must specify one or more filters to avoid accidently printing all documents.';
+        NoFilterSetErr: Label 'You must specify one or more filters to avoid accidentally printing all documents.';
         GreetingLbl: Label 'Hello';
         ClosingLbl: Label 'Sincerely';
         BodyLbl: Label 'Thank you for your business. Your credit memo is attached to this message.';

@@ -99,7 +99,7 @@ codeunit 134168 "Suggest Price Lines UT"
         // [WHEN] run Initialize() for Price List 'X'
         PriceLineFilters.Initialize(PriceListHeader, true);
 
-        // [THEN] "To Price List Code" is 'X', "Asset Type" is 'All', "Adjustment Factor" = 1, 
+        // [THEN] "To Price List Code" is 'X', "Asset Type" is 'All', "Adjustment Factor" = 1,
         PriceLineFilters.TestField("Price Type", PriceListHeader."Price Type");
         PriceLineFilters.TestField("Source Group", PriceListHeader."Source Group");
         PriceLineFilters.TestField("To Price List Code", PriceListHeader.Code);
@@ -624,7 +624,7 @@ codeunit 134168 "Suggest Price Lines UT"
         LibraryVariableStorage.Enqueue(true); // click OK
         PriceWorksheet.CopyLines.Invoke();
 
-        // [THEN] Page "Suggest Price Line" is open, closed, one line is created, 
+        // [THEN] Page "Suggest Price Line" is open, closed, one line is created,
         // [THEN] where "Existing Line" is yes, "Minimum Quantity" is 12, "Unit Price" is doubled, "Existing Unit Price" is set
         PriceWorksheetLine.SetRange("Price List Code", FromPriceListLine."Price List Code");
         Assert.IsTrue(PriceWorksheetLine.FindFirst(), 'The line is not copied.');
@@ -682,7 +682,7 @@ codeunit 134168 "Suggest Price Lines UT"
         LibraryVariableStorage.Enqueue(true); // click OK
         PriceWorksheet.CopyLines.Invoke();
 
-        // [THEN] Page "Suggest Price Line" is open, closed, one new line for price list 'D' is created, 
+        // [THEN] Page "Suggest Price Line" is open, closed, one new line for price list 'D' is created,
         // [THEN] where "Existing Line" is false ,"Minimum Quantity" is 12, "Unit Price" is doubled, "Existing Unit Price" is set
         PriceWorksheetLine.SetRange("Price List Code", PriceListCode);
         Assert.IsTrue(PriceWorksheetLine.FindFirst(), 'The line is not copied.');
@@ -743,7 +743,7 @@ codeunit 134168 "Suggest Price Lines UT"
         LibraryVariableStorage.Enqueue(true); // click OK
         PriceWorksheet.CopyLines.Invoke();
 
-        // [THEN] Page "Suggest Price Line" is open, closed, one new line for price list 'D' is created, 
+        // [THEN] Page "Suggest Price Line" is open, closed, one new line for price list 'D' is created,
         // [THEN] where "Existing Line" is false ,"Minimum Quantity" is 12, "Unit Price" is doubled, "Existing Unit Price" is set
         PriceWorksheetLine.SetRange("Price List Code", PriceListCode);
         Assert.IsTrue(PriceWorksheetLine.FindFirst(), 'The line is not copied.');
@@ -1480,9 +1480,9 @@ codeunit 134168 "Suggest Price Lines UT"
         DuplicatePriceLine.Validate(Remove, false);
 
         // [THEN] "Remove" values are changed:
-        // [THEN] Duplicate line #2, where "Remove" is 'No' 
+        // [THEN] Duplicate line #2, where "Remove" is 'No'
         DuplicatePriceLine.TestField(Remove, false);
-        // [THEN] Duplicate line #1, where "Remove" is 'Yes' 
+        // [THEN] Duplicate line #1, where "Remove" is 'Yes'
         DuplicatePriceLine.Get(PriceListLine[1]."Price List Code", PriceListLine[1]."Line No.");
         DuplicatePriceLine.TestField(Remove, true);
     end;
@@ -1510,9 +1510,9 @@ codeunit 134168 "Suggest Price Lines UT"
         DuplicatePriceLine.Validate(Remove, true);
 
         // [THEN] "Remove" values are not changed:
-        // [THEN] Duplicate line #1, where "Remove" is 'No' 
+        // [THEN] Duplicate line #1, where "Remove" is 'No'
         DuplicatePriceLine.TestField(Remove, false);
-        // [THEN] Duplicate line #2, where "Remove" is 'Yes' 
+        // [THEN] Duplicate line #2, where "Remove" is 'Yes'
         DuplicatePriceLine.Get(PriceListLine[2]."Price List Code", PriceListLine[2]."Line No.");
         DuplicatePriceLine.TestField(Remove, true);
     end;
@@ -1538,9 +1538,9 @@ codeunit 134168 "Suggest Price Lines UT"
         DuplicatePriceLine.Validate(Remove, true);
 
         // [THEN] "Remove" values are not changed:
-        // [THEN] Duplicate line #2, where "Remove" is 'Yes' 
+        // [THEN] Duplicate line #2, where "Remove" is 'Yes'
         DuplicatePriceLine.TestField(Remove, true);
-        // [THEN] Duplicate line #1, where "Remove" is 'No' 
+        // [THEN] Duplicate line #1, where "Remove" is 'No'
         DuplicatePriceLine.Get(PriceListLine[1]."Price List Code", PriceListLine[1]."Line No.");
         DuplicatePriceLine.TestField(Remove, false);
     end;
@@ -1569,24 +1569,24 @@ codeunit 134168 "Suggest Price Lines UT"
         DuplicatePriceLine.Get(PriceListLine[2]."Price List Code", PriceListLine[2]."Line No.");
         DuplicatePriceLine.Validate(Remove, false);
 
-        // [THEN] Duplicate line #2, where "Remove" is 'No' 
+        // [THEN] Duplicate line #2, where "Remove" is 'No'
         DuplicatePriceLine.TestField(Remove, false);
-        // [THEN] Duplicate line #1, where "Remove" is 'Yes' 
+        // [THEN] Duplicate line #1, where "Remove" is 'Yes'
         DuplicatePriceLine.Get(PriceListLine[1]."Price List Code", PriceListLine[1]."Line No.");
         DuplicatePriceLine.TestField(Remove, true);
-        // [THEN] Duplicate line #3, where "Remove" is 'Yes' 
+        // [THEN] Duplicate line #3, where "Remove" is 'Yes'
         DuplicatePriceLine.Get(PriceListLine[3]."Price List Code", PriceListLine[3]."Line No.");
         DuplicatePriceLine.TestField(Remove, true);
 
         // [WHEN] Set "Remove" to 'No' in the line #3
         DuplicatePriceLine.Validate(Remove, false);
 
-        // [THEN] Duplicate line #3, where "Remove" is 'No' 
+        // [THEN] Duplicate line #3, where "Remove" is 'No'
         DuplicatePriceLine.TestField(Remove, false);
-        // [THEN] Duplicate line #1, where "Remove" is 'Yes' 
+        // [THEN] Duplicate line #1, where "Remove" is 'Yes'
         DuplicatePriceLine.Get(PriceListLine[1]."Price List Code", PriceListLine[1]."Line No.");
         DuplicatePriceLine.TestField(Remove, true);
-        // [THEN] Duplicate line #2, where "Remove" is 'Yes' 
+        // [THEN] Duplicate line #2, where "Remove" is 'Yes'
         DuplicatePriceLine.Get(PriceListLine[2]."Price List Code", PriceListLine[2]."Line No.");
         DuplicatePriceLine.TestField(Remove, true);
     end;
@@ -1685,7 +1685,7 @@ codeunit 134168 "Suggest Price Lines UT"
         ToPriceListHeader.Description := ToPriceListHeader.Code;
         ToPriceListHeader.Modify();
 
-        // [WHEN] LookupPriceLists for Price List Code 'X' 
+        // [WHEN] LookupPriceLists for Price List Code 'X'
         PriceListCode := ToPriceListHeader.Code;
         LibraryVariableStorage.Enqueue(true); // to click Ok
         LibraryVariableStorage.Enqueue(ToPriceListHeader.Description); // Description to pick
@@ -1743,7 +1743,7 @@ codeunit 134168 "Suggest Price Lines UT"
         ToPriceListHeader.Description := ToPriceListHeader.Code;
         ToPriceListHeader.Modify();
 
-        // [WHEN] LookupPriceLists for Price List Code 'X' 
+        // [WHEN] LookupPriceLists for Price List Code 'X'
         PriceListCode := ToPriceListHeader.Code;
         LibraryVariableStorage.Enqueue(true); // to click Ok
         LibraryVariableStorage.Enqueue(ToPriceListHeader.Description); // Description to pick
@@ -1801,7 +1801,7 @@ codeunit 134168 "Suggest Price Lines UT"
         ToPriceListHeader.Description := ToPriceListHeader.Code;
         ToPriceListHeader.Modify();
 
-        // [WHEN] LookupPriceLists for Price List Code 'X' 
+        // [WHEN] LookupPriceLists for Price List Code 'X'
         PriceListCode := ToPriceListHeader.Code;
         LibraryVariableStorage.Enqueue(true); // to click Ok
         LibraryVariableStorage.Enqueue(ToPriceListHeader.Description); // Description to pick
@@ -1859,7 +1859,7 @@ codeunit 134168 "Suggest Price Lines UT"
         ToPriceListHeader.Description := ToPriceListHeader.Code;
         ToPriceListHeader.Modify();
 
-        // [WHEN] LookupPriceLists for Price List Code 'X' 
+        // [WHEN] LookupPriceLists for Price List Code 'X'
         PriceListCode := ToPriceListHeader.Code;
         LibraryVariableStorage.Enqueue(true); // to click Ok
         LibraryVariableStorage.Enqueue(ToPriceListHeader.Description); // Description to pick
@@ -1923,14 +1923,14 @@ codeunit 134168 "Suggest Price Lines UT"
         LibraryInventory.CreateItem(Item[2]);
         Item[2]."Unit Price" := LibraryRandom.RandDec(1000, 2);
         Item[2].Modify();
-        // [GIVEN] Sales Price List, where "Currency Code" is <blank>, "Amount Type"::Any 
+        // [GIVEN] Sales Price List, where "Currency Code" is <blank>, "Amount Type"::Any
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
         PriceListHeader."Allow Updating Defaults" := true;
         PriceListHeader."Amount Type" := "Price Amount Type"::Any;
         // [GIVEN] "Allow Invoice Disc." is 'true'
         PriceListHeader."Allow Invoice Disc." := true;
         PriceListHeader.Modify();
-        // [GIVEN] Open sales price list page on Price List 'X' and run "Suggest Lines.." 
+        // [GIVEN] Open sales price list page on Price List 'X' and run "Suggest Lines.."
         SalesPriceList.OpenEdit();
         SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
 
@@ -1979,7 +1979,7 @@ codeunit 134168 "Suggest Price Lines UT"
         // [GIVEN] "Allow Invoice Disc." is 'true'
         PriceListHeader."Allow Invoice Disc." := true;
         PriceListHeader.Modify();
-        // [GIVEN] Open purchase price list page on Price List 'X' and run "Suggest Lines.." 
+        // [GIVEN] Open purchase price list page on Price List 'X' and run "Suggest Lines.."
         PurchasePriceList.OpenEdit();
         PurchasePriceList.Filter.SetFilter(Code, PriceListHeader.Code);
 
@@ -2103,7 +2103,7 @@ codeunit 134168 "Suggest Price Lines UT"
         LibraryInventory.CreateItem(Item[2]);
         Item[2]."Unit Price" := LibraryRandom.RandDec(1000, 2);
         item[2].Modify();
-        // [GIVEN] Open Price Worksheet page for Sales/Customer and run "Suggest Lines.." 
+        // [GIVEN] Open Price Worksheet page for Sales/Customer and run "Suggest Lines.."
         PriceWorksheet.OpenEdit();
         PriceWorksheet.PriceTypeFilter.SetValue("Price Type"::Sale);
         PriceWorksheet.SourceGroupFilter.SetValue("Price Source Group"::Customer);
@@ -2149,7 +2149,7 @@ codeunit 134168 "Suggest Price Lines UT"
         LibraryService.CreateServiceCost(ServiceCost[2]);
         ServiceCost[2]."Default Unit Price" := LibraryRandom.RandDec(1000, 2);
         ServiceCost[2].Modify();
-        // [GIVEN] Open Price Worksheet page for Sales/Customer and run "Suggest Lines.." 
+        // [GIVEN] Open Price Worksheet page for Sales/Customer and run "Suggest Lines.."
         PriceWorksheet.OpenEdit();
         PriceWorksheet.PriceTypeFilter.SetValue("Price Type"::Sale);
         PriceWorksheet.SourceGroupFilter.SetValue("Price Source Group"::Customer);
@@ -2195,7 +2195,7 @@ codeunit 134168 "Suggest Price Lines UT"
         LibraryService.CreateServiceCost(ServiceCost[2]);
         ServiceCost[2]."Default Unit Cost" := LibraryRandom.RandDec(1000, 2);
         ServiceCost[2].Modify();
-        // [GIVEN] Open Price Worksheet page for Purchase/Vendor and run "Suggest Lines.." 
+        // [GIVEN] Open Price Worksheet page for Purchase/Vendor and run "Suggest Lines.."
         PriceWorksheet.OpenEdit();
         PriceWorksheet.PriceTypeFilter.SetValue("Price Type"::Purchase);
         PriceWorksheet.SourceGroupFilter.SetValue("Price Source Group"::Vendor);
@@ -2246,7 +2246,7 @@ codeunit 134168 "Suggest Price Lines UT"
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
         PriceListHeader.Validate("Currency Code", CurrencyCode);
         PriceListHeader.Modify(true);
-        // [GIVEN] Open sales price list page on Price List 'X' and run "Suggest Lines.." 
+        // [GIVEN] Open sales price list page on Price List 'X' and run "Suggest Lines.."
         SalesPriceList.OpenEdit();
         SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
 
@@ -2256,7 +2256,7 @@ codeunit 134168 "Suggest Price Lines UT"
         LibraryVariableStorage.Enqueue(WorkDate() + 1); // "Exchange Rate Date"
         SalesPriceList.SuggestLines.Invoke();
 
-        // [THEN] One price line is added for Items 'A', where "Unit Price" is 30.00 
+        // [THEN] One price line is added for Items 'A', where "Unit Price" is 30.00
         PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
         Assert.IsTrue(PriceListLine.FindFirst(), 'The list is blank.');
         PriceListLine.TestField("Unit Price", Item."Unit Price" * 3);
@@ -2276,7 +2276,7 @@ codeunit 134168 "Suggest Price Lines UT"
         PriceListManagement: Codeunit "Price List Management";
     begin
         Initialize(true);
-        // [GIVEN] Currency 'C', where exchange rate is '2' 
+        // [GIVEN] Currency 'C', where exchange rate is '2'
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 2, 2);
         // [GIVEN] Items 'A', where "Unit Price" is 17.09
         LibraryInventory.CreateItem(Item);
@@ -2591,7 +2591,7 @@ codeunit 134168 "Suggest Price Lines UT"
             "Price Source Type"::"All Customers",
             '');
 
-        // [GIVEN] Open Sales Price List Page & Perform "Suggest Line action. 
+        // [GIVEN] Open Sales Price List Page & Perform "Suggest Line action.
         SalesPriceList.OpenEdit();
         SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
         Item.SetRange("No.", Item."No.");
@@ -2652,11 +2652,6 @@ codeunit 134168 "Suggest Price Lines UT"
         JobsSetup.Get();
         JobsSetup.Validate("Price List Nos.", LibraryERM.CreateNoSeriesCode('JOB'));
         JobsSetup.Modify();
-    end;
-
-    local procedure VerifyPriceLine(PriceListLine: Record "Price List Line"; Item: Record Item; MinQty: Decimal)
-    begin
-        VerifyPriceLine(PriceListLine, Item, MinQty, "Price Amount Type"::Price);
     end;
 
     local procedure VerifyPriceLine(PriceListLine: Record "Price List Line"; Item: Record Item; MinQty: Decimal; AmountType: Enum "Price Amount Type")

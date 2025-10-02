@@ -188,7 +188,8 @@ report 5974 "Contract Quotes to Be Signed"
 
     requestpage
     {
-
+        AboutTitle = 'About Contract Quotes to Be Signed';
+        AboutText = 'Get an overview of contract quotes that you need to sign. Optionally, add a forecast of contract quotes to sign in the future.';
         layout
         {
             area(content)

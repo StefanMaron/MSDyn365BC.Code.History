@@ -9,6 +9,7 @@ using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.Period;
+using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Setup;
@@ -133,6 +134,7 @@ codeunit 5845 "Get Inventory Report"
     var
         InvtPostingSetup: Record "Inventory Posting Setup";
         TempInvtPostingSetup: Record "Inventory Posting Setup" temporary;
+        MfgCostCalculationMgt: Codeunit "Mfg. Cost Calculation Mgt.";
     begin
         if InvtPostingSetup.Find('-') then
             repeat
@@ -157,6 +159,16 @@ codeunit 5845 "Get Inventory Report"
                     UpDateWindow(WindowType, WindowNo, InvtPostingSetup.FieldCaption(InvtPostingSetup."Material Variance Account"));
                     InsertGLInvtReportEntry(
                       InventoryReportLine, InvtPostingSetup."Material Variance Account", InventoryReportLine."Material Variance");
+                end;
+
+                if MfgCostCalculationMgt.CanIncNonInvCostIntoProductionItem() then begin
+                    TempInvtPostingSetup.Reset();
+                    TempInvtPostingSetup.SetRange("Mat. Non-Inv. Variance Acc.", InvtPostingSetup."Mat. Non-Inv. Variance Acc.");
+                    if not TempInvtPostingSetup.FindFirst() then begin
+                        UpDateWindow(WindowType, WindowNo, InvtPostingSetup.FieldCaption(InvtPostingSetup."Mat. Non-Inv. Variance Acc."));
+                        InsertGLInvtReportEntry(
+                          InventoryReportLine, InvtPostingSetup."Mat. Non-Inv. Variance Acc.", InventoryReportLine."Mat. Non-Inventory Variance");
+                    end;
                 end;
 
                 TempInvtPostingSetup.Reset();
@@ -355,6 +367,8 @@ codeunit 5845 "Get Inventory Report"
     end;
 
     local procedure CalcValueEntries(var InventoryReportLine: Record "Inventory Report Entry")
+    var
+        MfgCostCalculationMgt: Codeunit "Mfg. Cost Calculation Mgt.";
     begin
         UpDateWindow(WindowType, WindowNo, Format(ValueEntry."Entry Type"));
         InventoryReportLine."Direct Cost Applied Actual" := InventoryReportLine."Direct Cost Applied Actual" + CalcDirectCostAppliedActual(ValueEntry);
@@ -366,6 +380,8 @@ codeunit 5845 "Get Inventory Report"
         InventoryReportLine."COGS (Interim)" := InventoryReportLine."COGS (Interim)" + CalcCOGSInterim(ValueEntry);
         InventoryReportLine."WIP Inventory" := InventoryReportLine."WIP Inventory" + CalcWIPInventory(ValueEntry);
         InventoryReportLine."Material Variance" := InventoryReportLine."Material Variance" + CalcMaterialVariance(ValueEntry);
+        if MfgCostCalculationMgt.CanIncNonInvCostIntoProductionItem() then
+            InventoryReportLine."Mat. Non-Inventory Variance" := InventoryReportLine."Mat. Non-Inventory Variance" + CalcMaterialNonInventoryVariance(ValueEntry);
         InventoryReportLine."Capacity Variance" := InventoryReportLine."Capacity Variance" + CalcCapVariance(ValueEntry);
         InventoryReportLine."Subcontracted Variance" := InventoryReportLine."Subcontracted Variance" + CalcSubcontractedVariance(ValueEntry);
         InventoryReportLine."Capacity Overhead Variance" := InventoryReportLine."Capacity Overhead Variance" + CalcCapOverheadVariance(ValueEntry);
@@ -399,6 +415,7 @@ codeunit 5845 "Get Inventory Report"
     local procedure CalcDiff(var InventoryReportLine: Record "Inventory Report Entry")
     var
         CalcInventoryReportLine: Record "Inventory Report Entry";
+        MfgCostCalculationMgt: Codeunit "Mfg. Cost Calculation Mgt.";
     begin
         CalcInventoryReportLine.Copy(InventoryReportLine);
         InventoryReportLine.Reset();
@@ -408,7 +425,7 @@ codeunit 5845 "Get Inventory Report"
           Inventory, "Inventory (Interim)", "WIP Inventory",
           "Direct Cost Applied Actual", "Overhead Applied Actual", "Purchase Variance",
           "Inventory Adjmt.", "Invt. Accrual (Interim)", COGS,
-          "COGS (Interim)", "Material Variance");
+          "COGS (Interim)", "Material Variance", "Mat. Non-Inventory Variance");
         InventoryReportLine.CalcSums(
           "Capacity Variance", "Subcontracted Variance", "Capacity Overhead Variance",
           "Mfg. Overhead Variance", "Direct Cost Applied WIP", "Overhead Applied WIP",
@@ -422,7 +439,7 @@ codeunit 5845 "Get Inventory Report"
           Inventory, "Inventory (Interim)", "WIP Inventory",
           "Direct Cost Applied Actual", "Overhead Applied Actual", "Purchase Variance",
           "Inventory Adjmt.", "Invt. Accrual (Interim)", COGS,
-          "COGS (Interim)", "Material Variance");
+          "COGS (Interim)", "Material Variance", "Mat. Non-Inventory Variance");
         InventoryReportLine.CalcSums(
           "Capacity Variance", "Subcontracted Variance", "Capacity Overhead Variance",
           "Mfg. Overhead Variance", "Direct Cost Applied WIP", "Overhead Applied WIP",
@@ -441,6 +458,8 @@ codeunit 5845 "Get Inventory Report"
         CalcInventoryReportLine.COGS := CalcInventoryReportLine.COGS - InventoryReportLine.COGS;
         CalcInventoryReportLine."COGS (Interim)" := CalcInventoryReportLine."COGS (Interim)" - InventoryReportLine."COGS (Interim)";
         CalcInventoryReportLine."Material Variance" := CalcInventoryReportLine."Material Variance" - InventoryReportLine."Material Variance";
+        if MfgCostCalculationMgt.CanIncNonInvCostIntoProductionItem() then
+            CalcInventoryReportLine."Mat. Non-Inventory Variance" := CalcInventoryReportLine."Mat. Non-Inventory Variance" - InventoryReportLine."Mat. Non-Inventory Variance";
         CalcInventoryReportLine."Capacity Variance" := CalcInventoryReportLine."Capacity Variance" - InventoryReportLine."Capacity Variance";
         CalcInventoryReportLine."Subcontracted Variance" := CalcInventoryReportLine."Subcontracted Variance" - InventoryReportLine."Subcontracted Variance";
         CalcInventoryReportLine."Capacity Overhead Variance" := CalcInventoryReportLine."Capacity Overhead Variance" - InventoryReportLine."Capacity Overhead Variance";
@@ -618,6 +637,20 @@ codeunit 5845 "Get Inventory Report"
             ValueEntry.CalcSums(ValueEntry."Cost Amount (Actual)");
             exit(-ValueEntry."Cost Amount (Actual)");
         end;
+        exit(0);
+    end;
+
+    local procedure CalcMaterialNonInventoryVariance(var ValueEntry: Record "Value Entry"): Decimal
+    begin
+        if (ValueEntry."Entry Type" = ValueEntry."Entry Type"::Variance) and
+            (ValueEntry."Item Ledger Entry Type" in [ValueEntry."Item Ledger Entry Type"::Output,
+                                                     ValueEntry."Item Ledger Entry Type"::"Assembly Output"]) and
+            (ValueEntry."Variance Type" = ValueEntry."Variance Type"::"Material - Non Inventory")
+        then begin
+            ValueEntry.CalcSums(ValueEntry."Cost Amount (Actual)");
+            exit(-ValueEntry."Cost Amount (Actual)");
+        end;
+
         exit(0);
     end;
 
@@ -989,11 +1022,27 @@ codeunit 5845 "Get Inventory Report"
           InvtReportEntry, InvtReportEntry.FieldNo("Material Variance"), ValueEntry.FieldNo("Cost Amount (Actual)"));
     end;
 
+    procedure DrillDownMaterialNonInventoryVariance(var InvtReportEntry: Record "Inventory Report Entry")
+    begin
+        DrillDownInventoryReportEntryAmount(
+          InvtReportEntry, InvtReportEntry.FieldNo("Mat. Non-Inventory Variance"), ValueEntry.FieldNo("Cost Amount (Actual)"));
+    end;
+
     local procedure SetFiltersMaterialVariance(var ValueEntry: Record "Value Entry"; var InvtReportEntry: Record "Inventory Report Entry")
     begin
         CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
         ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Variance);
         ValueEntry.SetRange("Variance Type", ValueEntry."Variance Type"::Material);
+        ValueEntry.SetFilter("Item Ledger Entry Type", '%1|%2',
+          ValueEntry."Item Ledger Entry Type"::Output,
+          ValueEntry."Item Ledger Entry Type"::"Assembly Output");
+    end;
+
+    local procedure SetFiltersMaterialNonInventoryVariance(var ValueEntry: Record "Value Entry"; var InvtReportEntry: Record "Inventory Report Entry")
+    begin
+        CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Variance);
+        ValueEntry.SetRange("Variance Type", ValueEntry."Variance Type"::"Material - Non Inventory");
         ValueEntry.SetFilter("Item Ledger Entry Type", '%1|%2',
           ValueEntry."Item Ledger Entry Type"::Output,
           ValueEntry."Item Ledger Entry Type"::"Assembly Output");
@@ -1229,6 +1278,8 @@ codeunit 5845 "Get Inventory Report"
                 SetFiltersWIPInventory(ValueEntry, InvtReportEntry);
             InvtReportEntry.FieldNo("Material Variance"):
                 SetFiltersMaterialVariance(ValueEntry, InvtReportEntry);
+            InvtReportEntry.FieldNo("Mat. Non-Inventory Variance"):
+                SetFiltersMaterialNonInventoryVariance(ValueEntry, InvtReportEntry);
             InvtReportEntry.FieldNo("Capacity Variance"):
                 SetFiltersCapVariance(ValueEntry, InvtReportEntry);
             InvtReportEntry.FieldNo("Subcontracted Variance"):
@@ -1330,6 +1381,7 @@ codeunit 5845 "Get Inventory Report"
             (InventoryReportLine.COGS = 0) and
             (InventoryReportLine."COGS (Interim)" = 0) and
             (InventoryReportLine."Material Variance" = 0) and
+            (InventoryReportLine."Mat. Non-Inventory Variance" = 0) and
             (InventoryReportLine."Capacity Variance" = 0) and
             (InventoryReportLine."Subcontracted Variance" = 0) and
             (InventoryReportLine."Capacity Overhead Variance" = 0) and
@@ -1421,6 +1473,7 @@ codeunit 5845 "Get Inventory Report"
             (InventoryReportLine."Inventory Adjmt." = 0) and
             (InventoryReportLine.COGS = 0) and
             (InventoryReportLine."Material Variance" = 0) and
+            (InventoryReportLine."Mat. Non-Inventory Variance" = 0) and
             (InventoryReportLine."Capacity Variance" = 0) and
             (InventoryReportLine."Subcontracted Variance" = 0) and
             (InventoryReportLine."Capacity Overhead Variance" = 0) and
@@ -1549,6 +1602,7 @@ codeunit 5845 "Get Inventory Report"
             InventoryReportLine.COGS +
             InventoryReportLine."COGS (Interim)" +
             InventoryReportLine."Material Variance" +
+            InventoryReportLine."Mat. Non-Inventory Variance" +
             InventoryReportLine."Capacity Variance" +
             InventoryReportLine."Subcontracted Variance" +
             InventoryReportLine."Capacity Overhead Variance" +

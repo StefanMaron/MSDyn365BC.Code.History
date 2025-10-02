@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.FinancialReports;
 
 page 103 "Account Schedule Names"
@@ -77,6 +81,21 @@ page 103 "Account Schedule Names"
                     AccSchedule.Run();
                 end;
             }
+            action(WhereUsed)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Where-Used';
+                ToolTip = 'View or edit financial reports in which the row definition is used.';
+                Image = Track;
+
+                trigger OnAction()
+                var
+                    FinancialReport: Record "Financial Report";
+                begin
+                    FinancialReport.SetRange("Financial Report Row Group", Rec.Name);
+                    Page.Run(0, FinancialReport);
+                end;
+            }
             action(CopyAccountSchedule)
             {
                 ApplicationArea = Basic, Suite;
@@ -126,17 +145,17 @@ page 103 "Account Schedule Names"
             {
                 Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
 
-                actionref(EditAccountSchedule_Promoted; EditAccountSchedule)
-                {
-                }
-            }
-            group(CopyExportImport)
-            {
-                Caption = 'Copy/Export/Import';
+                actionref(EditAccountSchedule_Promoted; EditAccountSchedule) { }
+                actionref(WhereUsed_Promoted; WhereUsed) { }
 
-                actionref(CopyAccountSchedule_Promoted; CopyAccountSchedule) { }
-                actionref(ExportAccountSchedule_Promoted; ExportAccountSchedule) { }
-                actionref(ImportAccountSchedule_Promoted; ImportAccountSchedule) { }
+                group(CopyExportImport)
+                {
+                    Caption = 'Copy/Export/Import';
+
+                    actionref(CopyAccountSchedule_Promoted; CopyAccountSchedule) { }
+                    actionref(ExportAccountSchedule_Promoted; ExportAccountSchedule) { }
+                    actionref(ImportAccountSchedule_Promoted; ImportAccountSchedule) { }
+                }
             }
 
             group(Category_Category4)

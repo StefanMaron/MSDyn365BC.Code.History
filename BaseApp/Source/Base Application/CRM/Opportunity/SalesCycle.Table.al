@@ -46,6 +46,7 @@ table 5090 "Sales Cycle"
         }
         field(6; "Estimated Value (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Opportunity Entry"."Estimated Value (LCY)" where(Active = const(true),
                                                                                  "Sales Cycle Code" = field(Code),
@@ -57,6 +58,7 @@ table 5090 "Sales Cycle"
         }
         field(7; "Calcd. Current Value (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Opportunity Entry"."Calcd. Current Value (LCY)" where(Active = const(true),
                                                                                       "Sales Cycle Code" = field(Code),
@@ -111,4 +113,3 @@ table 5090 "Sales Cycle"
         RMCommentLine: Record "Rlshp. Mgt. Comment Line";
         SalesCycleStage: Record "Sales Cycle Stage";
 }
-

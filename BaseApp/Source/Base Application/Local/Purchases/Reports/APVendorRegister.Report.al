@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -24,11 +24,7 @@ report 10108 "AP - Vendor Register"
         {
             DataItemTableView = sorting("No.");
             PrintOnlyIfDetail = true;
-#if not CLEAN24
-            RequestFilterFields = "No.", "Creation Date", "Source Code", "Journal Batch Name";
-#else
             RequestFilterFields = "No.", "Source Code", "Journal Batch Name";
-#endif
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
@@ -223,4 +219,3 @@ report 10108 "AP - Vendor Register"
         Number_of_entries_recorded__this_posting_CaptionLbl: Label 'Number of entries recorded (this posting)';
         Number_of_Vendor_entries__this_posting_CaptionLbl: Label 'Number of Vendor entries (this posting)';
 }
-

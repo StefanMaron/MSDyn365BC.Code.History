@@ -8,7 +8,7 @@ using Microsoft.Manufacturing.Document;
 
 codeunit 99000791 "Mfg. Page Management"
 {
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Page Management", 'OnConditionalCardPageIDNotFound', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Page Management", 'OnConditionalCardPageIDNotFound', '', false, false)]
     local procedure OnConditionalCardPageIDNotFound(RecordRef: RecordRef; var CardPageID: Integer);
     begin
         case RecordRef.Number of
@@ -36,9 +36,11 @@ codeunit 99000791 "Mfg. Page Management"
         end;
     end;
 
+#if not CLEAN27
+    [Obsolete('This event added by mistake to Mfg part, use correct event in ServPageManagement codeunit', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetServiceHeaderPageID(RecRef: RecordRef; ServiceHeader: Record Microsoft.Service.Document."Service Header"; var Result: Integer)
     begin
     end;
-
+#endif
 }

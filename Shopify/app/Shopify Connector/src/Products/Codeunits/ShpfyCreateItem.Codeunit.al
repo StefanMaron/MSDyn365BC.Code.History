@@ -1,3 +1,8 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
 namespace Microsoft.Integration.Shopify;
 
 using Microsoft.Inventory.Item;
@@ -437,6 +442,33 @@ codeunit 30171 "Shpfy Create Item"
                     exit(UnitofMeasure.Code);
                 end;
             end;
+    end;
+
+    /// <summary>
+    /// Create Items from Shopify Products.
+    /// </summary>
+    /// <param name="Product">Parameter of type Record "Shpfy Product".</param>
+    internal procedure CreateItemsFromShopifyProducts(var Product: Record "Shpfy Product")
+    begin
+        if Product.FindSet() then
+            repeat
+                CreateItemFromShopifyProduct(Product);
+            until Product.Next() = 0;
+    end;
+
+    /// <summary>
+    /// Create Item from Shopify Product.
+    /// </summary>
+    /// <param name="Product">Parameter of type Record "Shpfy Product".</param>
+    internal procedure CreateItemFromShopifyProduct(Product: Record "Shpfy Product")
+    var
+        ProductImport: Codeunit "Shpfy Product Import";
+    begin
+        ProductImport.SetShop(Product."Shop Code");
+        ProductImport.SetProduct(Product);
+        ProductImport.SetCreateNewItem(true);
+        Commit();  // Ensure product/variant creation is committed before running the item create/update
+        ProductImport.Run();
     end;
 
     /// <summary> 

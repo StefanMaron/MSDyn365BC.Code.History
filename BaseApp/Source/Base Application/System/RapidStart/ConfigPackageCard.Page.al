@@ -140,7 +140,7 @@ page 8614 "Config. Package Card"
                         Rec.TestField(Code);
 
                         ConfigPackageTable.SetRange("Package Code", Rec.Code);
-                        if ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text004, Rec.Code, ConfigPackageTable.Count), true) then
+                        if ConfirmManagement.GetResponseOrDefault(StrSubstNo(ExportPackageQst, Rec.Code, ConfigPackageTable.Count), true) then
                             ConfigExcelExchange.ExportExcelFromTables(ConfigPackageTable);
                     end;
                 }
@@ -227,7 +227,7 @@ page 8614 "Config. Package Card"
                         ConfigPackageMgt: Codeunit "Config. Package Management";
                         ConfirmManagement: Codeunit "Confirm Management";
                     begin
-                        if ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text002, Rec."Package Name"), true) then begin
+                        if ConfirmManagement.GetResponseOrDefault(StrSubstNo(ValidatePackageQst, Rec."Package Name"), true) then begin
                             ConfigPackageTable.SetRange("Package Code", Rec.Code);
                             ConfigPackageMgt.ValidatePackageRelations(ConfigPackageTable, TempConfigPackageTable, true);
                         end;
@@ -250,7 +250,7 @@ page 8614 "Config. Package Card"
 
                         ConfigXMLExchange.SetAdvanced(true);
                         ConfigPackageTable.SetRange("Package Code", Rec.Code);
-                        if ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text004, Rec.Code, ConfigPackageTable.Count), true) then
+                        if ConfirmManagement.GetResponseOrDefault(StrSubstNo(ExportPackageQst, Rec.Code, ConfigPackageTable.Count), true) then
                             ConfigXMLExchange.ExportPackageXML(ConfigPackageTable, '');
                     end;
                 }
@@ -345,19 +345,15 @@ page 8614 "Config. Package Card"
 
     var
         ConfigXMLExchange: Codeunit "Config. XML Exchange";
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text002: Label 'Validate package %1?';
+        ValidatePackageQst: Label 'Validate package %1?';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
 #pragma warning disable AA0470
         ApplyDataConfirmMsg: Label 'Apply data from package %1?';
 #pragma warning restore AA0470
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text004: Label 'Export package %1 with %2 tables?';
+        ExportPackageQst: Label 'Export package %1 with %2 tables?';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
         IsErrorTabVisible: Boolean;
 
     local procedure ProcessPackageTablesWithDefaultProcessingReport()

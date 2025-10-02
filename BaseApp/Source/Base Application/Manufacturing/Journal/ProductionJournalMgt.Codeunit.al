@@ -472,7 +472,7 @@ codeunit 5510 "Production Journal Mgt"
     begin
         MfgSetup.Get();
         PostingDate := WorkDate();
-        CalcBasedOn := CalcBasedOn::"Expected Output";
+        CalcBasedOn := MfgSetup."Default Consum. Calc. Based on";
         PresetOutputQuantity := MfgSetup."Preset Output Quantity";
 
         OnAfterInitSetupValues(PostingDate, CalcBasedOn)

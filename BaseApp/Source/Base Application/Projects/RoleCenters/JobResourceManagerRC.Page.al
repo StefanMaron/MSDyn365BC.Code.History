@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Projects.RoleCenters;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.RoleCenters;
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Foundation.Navigate;
@@ -34,51 +38,6 @@ page 9014 "Job Resource Manager RC"
     {
         area(rolecenter)
         {
-#if not CLEAN24
-            group(Control1900724808)
-            {
-                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-                ShowCaption = false;
-                part(Control1904257908; "Resource Manager Activities")
-                {
-                    ApplicationArea = Jobs;
-                }
-                part("User Tasks Activities"; "User Tasks Activities")
-                {
-                    ApplicationArea = Suite;
-                }
-                part(Control1907692008; "My Customers")
-                {
-                    ApplicationArea = Jobs;
-                }
-            }
-            group(Control1900724708)
-            {
-                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-                ShowCaption = false;
-                part(Control19; "My Job Queue")
-                {
-                    ApplicationArea = Jobs;
-                    Visible = false;
-                }
-                part(Control18; "Time Sheet Chart")
-                {
-                    ApplicationArea = Jobs;
-                }
-                part(Control22; "Report Inbox Part")
-                {
-                    ApplicationArea = Jobs;
-                }
-                systempart(Control1901377608; MyNotes)
-                {
-                    ApplicationArea = Jobs;
-                }
-            }
-#else
             part(Control1904257908; "Resource Manager Activities")
             {
                 ApplicationArea = Jobs;
@@ -112,7 +71,6 @@ page 9014 "Job Resource Manager RC"
             {
                 ApplicationArea = Jobs;
             }
-#endif
         }
     }
 
@@ -426,4 +384,3 @@ page 9014 "Job Resource Manager RC"
         }
     }
 }
-

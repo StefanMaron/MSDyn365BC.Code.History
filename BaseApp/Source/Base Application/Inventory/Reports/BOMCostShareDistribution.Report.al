@@ -105,7 +105,7 @@ report 5872 "BOM Cost Share Distribution"
                         CurrReport.Break();
 
                     MaterialCost := TempBOMBuffer."Rolled-up Material Cost";
-                    if MfgCostCalMgmt.CanIncNonInvCostIntoProductionItem() then
+                    if CostCalcMgt.CanIncNonInvCostIntoProductionItem() then
                         NonInventoryMaterialCost := TempBOMBuffer."Rolled-up Mat. Non-Invt. Cost";
 
                     CapacityCost := TempBOMBuffer."Rolled-up Capacity Cost";
@@ -208,7 +208,7 @@ report 5872 "BOM Cost Share Distribution"
         BOMBuffer: Record "BOM Buffer";
         TempBOMBuffer: Record "BOM Buffer" temporary;
         CalcBOMTree: Codeunit "Calculate BOM Tree";
-        MfgCostCalMgmt: Codeunit "Mfg. Cost Calculation Mgt.";
+        CostCalcMgt: Codeunit "Cost Calculation Management";
         ItemFilters: Text;
         ShowLevelAs: Option "First BOM Level","BOM Leaves";
         ShowDetails: Boolean;
@@ -238,7 +238,7 @@ report 5872 "BOM Cost Share Distribution"
         IsHandled := false;
         OnGenerateAvailTrendOnBeforeGenerateTreeForItem(Item, TempBOMBuffer, IsHandled);
         if not IsHandled then
-            CalcBOMTree.GenerateTreeForItem(Item, TempBOMBuffer, WorkDate(), 2);
+            CalcBOMTree.GenerateTreeForOneItem(Item, TempBOMBuffer, WorkDate(), "BOM Tree Type"::Cost);
 
         if TempBOMBuffer.FindFirst() then
             repeat
@@ -303,7 +303,7 @@ report 5872 "BOM Cost Share Distribution"
         if TempBOMBuffer."Is Leaf" then
             exit(false);
         if ShowCostShareAs = ShowCostShareAs::"Single-level" then
-            if MfgCostCalMgmt.CanIncNonInvCostIntoProductionItem() then
+            if CostCalcMgt.CanIncNonInvCostIntoProductionItem() then
                 exit((TempBOMBuffer."Single-Level Material Cost" = 0) and (TempBOMBuffer."Single-Lvl Mat. Non-Invt. Cost" = 0))
             else
                 exit(TempBOMBuffer."Single-Level Material Cost" = 0);

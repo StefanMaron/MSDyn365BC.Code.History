@@ -632,6 +632,8 @@ report 5912 "Service - Credit Memo"
 
     requestpage
     {
+        AboutTitle = 'About Service - Credit Memo';
+        AboutText = 'Generate a service credit memo that you can send to your customer.';
         SaveValues = true;
 
         layout

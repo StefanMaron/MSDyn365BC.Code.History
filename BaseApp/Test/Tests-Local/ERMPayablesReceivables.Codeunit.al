@@ -10,7 +10,6 @@ codeunit 142052 "ERM Payables/Receivables"
 
     var
         Assert: Codeunit Assert;
-        LibraryDimension: Codeunit "Library - Dimension";
         LibraryERM: Codeunit "Library - ERM";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -312,28 +311,6 @@ codeunit 142052 "ERM Payables/Receivables"
         SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-    end;
-
-    local procedure CreateBankAccRecnocilation(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; BankAccount: Record "Bank Account")
-    begin
-        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.",
-          BankAccReconciliation."Statement Type"::"Bank Reconciliation");
-        BankAccReconciliation.Validate("Statement Date", WorkDate());
-        BankAccReconciliation.Modify(true);
-    end;
-
-    local procedure CreateDefaultDimension(TableID: Integer; No: Code[20])
-    var
-        Dimension: Record Dimension;
-        DimensionValue: Record "Dimension Value";
-        DefaultDimension: Record "Default Dimension";
-    begin
-        LibraryDimension.CreateDimension(Dimension);
-        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
-        LibraryDimension.CreateDefaultDimension(DefaultDimension, TableID, No, Dimension.Code, DimensionValue.Code);
-        LibraryDimension.FindDefaultDimension(DefaultDimension, TableID, No);
-        DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Same Code");
-        DefaultDimension.Modify(true);
     end;
 
     local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Enum "Gen. Journal Template Type")

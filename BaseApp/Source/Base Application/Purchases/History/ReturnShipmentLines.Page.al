@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.History;
 
 using Microsoft.Finance.Dimension;
@@ -112,11 +116,6 @@ page 6657 "Return Shipment Lines"
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
-                }
-                field("Prod. Order No."; Rec."Prod. Order No.")
-                {
-                    ApplicationArea = PurchReturnOrder;
-                    ToolTip = 'Specifies the number of the related production order.';
                 }
                 field("Quantity Invoiced"; Rec."Quantity Invoiced")
                 {

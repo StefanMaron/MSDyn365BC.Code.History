@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Projects.Project.Job;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.Project.Job;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Projects.Project.Ledger;
@@ -251,10 +255,8 @@ page 1002 "Job Task Lines"
                         Rec.TestField("Job Task Type", Rec."Job Task Type"::Posting);
                         Rec.TestField("Job No.");
                         Rec.TestField("Job Task No.");
-                        JobPlanningLine.FilterGroup(2);
                         JobPlanningLine.SetRange("Job No.", Rec."Job No.");
                         JobPlanningLine.SetRange("Job Task No.", Rec."Job Task No.");
-                        JobPlanningLine.FilterGroup(0);
                         JobPlanningLines.SetJobTaskNoVisible(false);
                         JobPlanningLines.SetTableView(JobPlanningLine);
                         JobPlanningLines.Run();
@@ -435,7 +437,7 @@ page 1002 "Job Task Lines"
                     ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
                     ObsoleteState = Pending;
                     ObsoleteTag = '25.0';
-                    
+
                     action(ManageCRMCoupling)
                     {
                         AccessByPermission = TableData "CRM Integration Record" = IM;
@@ -832,6 +834,8 @@ page 1002 "Job Task Lines"
 
     var
         DescriptionIndent: Integer;
+
+    protected var
         StyleIsStrong: Boolean;
 
     procedure SetPurchLineFilters(var PurchLine: Record "Purchase Line"; JobNo: Code[20]; JobTaskNo: Code[20])

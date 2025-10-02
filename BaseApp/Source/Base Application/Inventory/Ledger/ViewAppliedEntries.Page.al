@@ -328,203 +328,200 @@ page 522 "View Applied Entries"
     end;
 
     var
-        RecordToShow: Record "Item Ledger Entry";
-        TempItemLedgEntry: Record "Item Ledger Entry" temporary;
-        Apply: Codeunit "Item Jnl.-Post Line";
+        ItemLedgerEntryToShow: Record "Item Ledger Entry";
+        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
+        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         ShowApplied: Boolean;
         ShowQuantity: Boolean;
+        RemoveAppButtonVisible: Boolean;
         MaxToApply: Decimal;
         ApplQty: Decimal;
         Qty: Decimal;
         TotalApplied: Decimal;
-#pragma warning disable AA0074
-        Text001: Label 'Applied Entries';
-        Text002: Label 'Unapplied Entries';
-#pragma warning restore AA0074
-        RemoveAppButtonVisible: Boolean;
+        AppliedEntriesLbl: Label 'Applied Entries';
+        UnappliedEntriesLbl: Label 'Unapplied Entries';
 
-    procedure SetRecordToShow(var RecordToSet: Record "Item Ledger Entry"; var ApplyCodeunit: Codeunit "Item Jnl.-Post Line"; newShowApplied: Boolean)
+    procedure SetRecordToShow(var RecordToSet: Record "Item Ledger Entry"; var ApplyCodeunit: Codeunit "Item Jnl.-Post Line"; NewShowApplied: Boolean)
     begin
-        RecordToShow.Copy(RecordToSet);
-        Apply := ApplyCodeunit;
-        ShowApplied := newShowApplied;
+        ItemLedgerEntryToShow.Copy(RecordToSet);
+        ItemJnlPostLine := ApplyCodeunit;
+        ShowApplied := NewShowApplied;
     end;
 
     local procedure Show()
     var
-        ItemLedgEntry: Record "Item Ledger Entry";
-        Apprec: Record "Item Application Entry";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
     begin
-        ItemLedgEntry.Get(RecordToShow."Entry No.");
-        ShowQuantity := not ((ItemLedgEntry."Entry Type" in [ItemLedgEntry."Entry Type"::Sale, ItemLedgEntry."Entry Type"::Consumption, ItemLedgEntry."Entry Type"::Output]) and ItemLedgEntry.Positive);
+        ItemLedgerEntry.Get(ItemLedgerEntryToShow."Entry No.");
+        ShowQuantity := not ((ItemLedgerEntry."Entry Type" in [ItemLedgerEntry."Entry Type"::Sale, ItemLedgerEntry."Entry Type"::Consumption, ItemLedgerEntry."Entry Type"::Output]) and ItemLedgerEntry.Positive);
 
         MaxToApply := 0;
         if not ShowQuantity then
-            MaxToApply := ItemLedgEntry.Quantity + Apprec.Returned(ItemLedgEntry."Entry No.");
-        SetMyView(RecordToShow, ShowApplied, ShowQuantity, MaxToApply);
+            MaxToApply := ItemLedgerEntry.Quantity + ItemApplicationEntry.Returned(ItemLedgerEntry."Entry No.");
+        SetMyView(ItemLedgerEntryToShow, ShowApplied, ShowQuantity, MaxToApply);
     end;
 
-    local procedure SetMyView(ItemLedgEntry: Record "Item Ledger Entry"; ShowApplied: Boolean; ShowQuantity: Boolean; MaxToApply: Decimal)
+    local procedure SetMyView(ItemLedgerEntry: Record "Item Ledger Entry"; ShowApplied2: Boolean; ShowQuantity2: Boolean; MaxToApply2: Decimal)
     begin
         InitView();
-        case ShowQuantity of
+        case ShowQuantity2 of
             true:
-                case ShowApplied of
+                case ShowApplied2 of
                     true:
-                        ShowQuantityApplied(ItemLedgEntry);
+                        ShowQuantityApplied(ItemLedgerEntry);
                     false:
                         begin
-                            ShowQuantityOpen(ItemLedgEntry);
-                            ShowCostOpen(ItemLedgEntry, MaxToApply);
+                            ShowQuantityOpen(ItemLedgerEntry);
+                            ShowCostOpen(ItemLedgerEntry, MaxToApply2);
                         end;
                 end;
             false:
-                case ShowApplied of
+                case ShowApplied2 of
                     true:
-                        ShowCostApplied(ItemLedgEntry);
+                        ShowCostApplied(ItemLedgerEntry);
                     false:
-                        ShowCostOpen(ItemLedgEntry, MaxToApply);
+                        ShowCostOpen(ItemLedgerEntry, MaxToApply2);
                 end;
         end;
 
-        if TempItemLedgEntry.FindSet() then
+        if TempItemLedgerEntry.FindSet() then
             repeat
-                Rec := TempItemLedgEntry;
+                Rec := TempItemLedgerEntry;
                 Rec.Insert();
-            until TempItemLedgEntry.Next() = 0;
+            until TempItemLedgerEntry.Next() = 0;
     end;
 
     local procedure InitView()
     begin
         Rec.DeleteAll();
-        TempItemLedgEntry.Reset();
-        TempItemLedgEntry.DeleteAll();
+
+        TempItemLedgerEntry.Reset();
+        TempItemLedgerEntry.DeleteAll();
     end;
 
-    local procedure ShowQuantityApplied(ItemLedgEntry: Record "Item Ledger Entry")
+    local procedure ShowQuantityApplied(ItemLedgerEntry: Record "Item Ledger Entry")
     var
-        ItemApplnEntry: Record "Item Application Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
     begin
         InitApplied();
-        if ItemLedgEntry.Positive then begin
-            ItemApplnEntry.Reset();
-            ItemApplnEntry.SetCurrentKey("Inbound Item Entry No.", "Outbound Item Entry No.", "Cost Application");
-            ItemApplnEntry.SetRange("Inbound Item Entry No.", ItemLedgEntry."Entry No.");
-            ItemApplnEntry.SetFilter("Outbound Item Entry No.", '<>%1&<>%2', ItemLedgEntry."Entry No.", 0);
-            if ItemApplnEntry.Find('-') then
+
+        if ItemLedgerEntry.Positive then begin
+            ItemApplicationEntry.SetRange("Inbound Item Entry No.", ItemLedgerEntry."Entry No.");
+            ItemApplicationEntry.SetFilter("Outbound Item Entry No.", '<>%1&<>%2', ItemLedgerEntry."Entry No.", 0);
+            ItemApplicationEntry.SetLoadFields("Outbound Item Entry No.", Quantity);
+            if ItemApplicationEntry.FindSet() then
                 repeat
-                    InsertTempEntry(ItemApplnEntry."Outbound Item Entry No.", ItemApplnEntry.Quantity, true);
-                until ItemApplnEntry.Next() = 0;
+                    InsertTempEntry(ItemApplicationEntry."Outbound Item Entry No.", ItemApplicationEntry.Quantity, true);
+                until ItemApplicationEntry.Next() = 0;
         end else begin
-            ItemApplnEntry.Reset();
-            ItemApplnEntry.SetCurrentKey("Outbound Item Entry No.", "Item Ledger Entry No.", "Cost Application");
-            ItemApplnEntry.SetRange("Outbound Item Entry No.", ItemLedgEntry."Entry No.");
-            ItemApplnEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
-            if ItemApplnEntry.Find('-') then
+            ItemApplicationEntry.SetRange("Outbound Item Entry No.", ItemLedgerEntry."Entry No.");
+            ItemApplicationEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
+            ItemApplicationEntry.SetLoadFields("Inbound Item Entry No.", Quantity);
+            if ItemApplicationEntry.FindSet() then
                 repeat
-                    InsertTempEntry(ItemApplnEntry."Inbound Item Entry No.", -ItemApplnEntry.Quantity, true);
-                until ItemApplnEntry.Next() = 0;
+                    InsertTempEntry(ItemApplicationEntry."Inbound Item Entry No.", -ItemApplicationEntry.Quantity, true);
+                until ItemApplicationEntry.Next() = 0;
         end;
     end;
 
-    local procedure ShowQuantityOpen(ItemLedgEntry: Record "Item Ledger Entry")
+    local procedure ShowQuantityOpen(ItemLedgerEntry: Record "Item Ledger Entry")
     var
-        ItemApplnEntry: Record "Item Application Entry";
-        ItemLedgEntry2: Record "Item Ledger Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
+        ItemLedgerEntry2: Record "Item Ledger Entry";
     begin
-        if ItemLedgEntry."Remaining Quantity" <> 0 then begin
-            ItemLedgEntry2.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date", "Entry No.");
-            ItemLedgEntry2.SetRange("Item No.", ItemLedgEntry."Item No.");
-            ItemLedgEntry2.SetRange("Location Code", ItemLedgEntry."Location Code");
-            ItemLedgEntry2.SetRange(Positive, not ItemLedgEntry.Positive);
-            ItemLedgEntry2.SetRange(Open, true);
-            if ItemLedgEntry2.Find('-') then
-                repeat
-                    if (QuantityAvailable(ItemLedgEntry2) <> 0) and
-                       not ItemApplnEntry.ExistsBetween(ItemLedgEntry."Entry No.", ItemLedgEntry2."Entry No.")
-                    then
-                        InsertTempEntry(ItemLedgEntry2."Entry No.", 0, true);
-                until ItemLedgEntry2.Next() = 0;
-        end;
-    end;
+        if ItemLedgerEntry."Remaining Quantity" = 0 then
+            exit;
 
-    local procedure ShowCostApplied(ItemLedgEntry: Record "Item Ledger Entry")
-    var
-        ItemApplnEntry: Record "Item Application Entry";
-    begin
-        InitApplied();
-        if ItemLedgEntry.Positive then begin
-            ItemApplnEntry.Reset();
-            ItemApplnEntry.SetCurrentKey("Inbound Item Entry No.", "Outbound Item Entry No.", "Cost Application");
-            ItemApplnEntry.SetRange("Inbound Item Entry No.", ItemLedgEntry."Entry No.");
-            ItemApplnEntry.SetFilter("Item Ledger Entry No.", '<>%1', ItemLedgEntry."Entry No.");
-            ItemApplnEntry.SetFilter("Outbound Item Entry No.", '<>%1', 0);
-            ItemApplnEntry.SetRange("Cost Application", true);
-            // we want to show even average cost application
-            if ItemApplnEntry.Find('-') then
-                repeat
-                    InsertTempEntry(ItemApplnEntry."Outbound Item Entry No.", ItemApplnEntry.Quantity, false);
-                until ItemApplnEntry.Next() = 0;
-        end else begin
-            ItemApplnEntry.Reset();
-            ItemApplnEntry.SetCurrentKey("Outbound Item Entry No.", "Item Ledger Entry No.", "Cost Application");
-            ItemApplnEntry.SetRange("Outbound Item Entry No.", ItemLedgEntry."Entry No.");
-            ItemApplnEntry.SetFilter("Item Ledger Entry No.", '<>%1', ItemLedgEntry."Entry No.");
-            ItemApplnEntry.SetRange("Cost Application", true);
-            // we want to show even average cost application
-            if ItemApplnEntry.Find('-') then
-                repeat
-                    InsertTempEntry(ItemApplnEntry."Inbound Item Entry No.", -ItemApplnEntry.Quantity, false);
-                until ItemApplnEntry.Next() = 0;
-        end;
-    end;
-
-    local procedure ShowCostOpen(ItemLedgEntry: Record "Item Ledger Entry"; MaxToApply: Decimal)
-    var
-        ItemApplnEntry: Record "Item Application Entry";
-        ItemLedgEntry2: Record "Item Ledger Entry";
-    begin
-        ItemLedgEntry2.SetCurrentKey("Item No.", Positive, "Location Code", "Variant Code");
-        ItemLedgEntry2.SetRange("Item No.", ItemLedgEntry."Item No.");
-        ItemLedgEntry2.SetRange("Location Code", ItemLedgEntry."Location Code");
-        ItemLedgEntry2.SetRange(Positive, not ItemLedgEntry.Positive);
-        ItemLedgEntry2.SetFilter("Shipped Qty. Not Returned", '<%1&>=%2', 0, -MaxToApply);
-        if (MaxToApply <> 0) and ItemLedgEntry.Positive then
-            ItemLedgEntry2.SetFilter("Shipped Qty. Not Returned", '<=%1', -MaxToApply);
-        if ItemLedgEntry2.Find('-') then
+        ItemLedgerEntry2.SetRange("Item No.", ItemLedgerEntry."Item No.");
+        ItemLedgerEntry2.SetRange("Location Code", ItemLedgerEntry."Location Code");
+        ItemLedgerEntry2.SetRange(Positive, not ItemLedgerEntry.Positive);
+        ItemLedgerEntry2.SetRange(Open, true);
+        ItemLedgerEntry2.SetAutoCalcFields("Reserved Quantity");
+        ItemLedgerEntry2.SetLoadFields("Remaining Quantity", "Reserved Quantity");
+        if ItemLedgerEntry2.FindSet() then
             repeat
-                if (CostAvailable(ItemLedgEntry2) <> 0) and
-                   not ItemApplnEntry.ExistsBetween(ItemLedgEntry."Entry No.", ItemLedgEntry2."Entry No.")
-                then
-                    InsertTempEntry(ItemLedgEntry2."Entry No.", 0, true);
-            until ItemLedgEntry2.Next() = 0;
+                if ItemLedgerEntry2."Remaining Quantity" - ItemLedgerEntry2."Reserved Quantity" <> 0 then
+                    if not ItemApplicationEntry.ExistsBetween(ItemLedgerEntry."Entry No.", ItemLedgerEntry2."Entry No.") then
+                        InsertTempEntry(ItemLedgerEntry2."Entry No.", 0, true);
+            until ItemLedgerEntry2.Next() = 0;
     end;
 
-    local procedure InsertTempEntry(EntryNo: Integer; AppliedQty: Decimal; ShowQuantity: Boolean)
+    local procedure ShowCostApplied(ItemLedgerEntry: Record "Item Ledger Entry")
     var
-        ItemLedgEntry: Record "Item Ledger Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
+    begin
+        InitApplied();
+
+        if ItemLedgerEntry.Positive then begin
+            ItemApplicationEntry.SetRange("Inbound Item Entry No.", ItemLedgerEntry."Entry No.");
+            ItemApplicationEntry.SetFilter("Item Ledger Entry No.", '<>%1', ItemLedgerEntry."Entry No.");
+            ItemApplicationEntry.SetFilter("Outbound Item Entry No.", '<>%1', 0);
+            ItemApplicationEntry.SetRange("Cost Application", true);
+            ItemApplicationEntry.SetLoadFields("Outbound Item Entry No.", Quantity);
+            // Show even average cost application
+            if ItemApplicationEntry.FindSet() then
+                repeat
+                    InsertTempEntry(ItemApplicationEntry."Outbound Item Entry No.", ItemApplicationEntry.Quantity, false);
+                until ItemApplicationEntry.Next() = 0;
+        end else begin
+            ItemApplicationEntry.SetRange("Outbound Item Entry No.", ItemLedgerEntry."Entry No.");
+            ItemApplicationEntry.SetFilter("Item Ledger Entry No.", '<>%1', ItemLedgerEntry."Entry No.");
+            ItemApplicationEntry.SetRange("Cost Application", true);
+            ItemApplicationEntry.SetLoadFields("Inbound Item Entry No.", Quantity);
+            // Show even average cost application
+            if ItemApplicationEntry.FindSet() then
+                repeat
+                    InsertTempEntry(ItemApplicationEntry."Inbound Item Entry No.", -ItemApplicationEntry.Quantity, false);
+                until ItemApplicationEntry.Next() = 0;
+        end;
+    end;
+
+    local procedure ShowCostOpen(ItemLedgerEntry: Record "Item Ledger Entry"; MaxToApply2: Decimal)
+    var
+        ItemApplicationEntry: Record "Item Application Entry";
+        ItemLedgerEntry2: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry2.SetRange("Item No.", ItemLedgerEntry."Item No.");
+        ItemLedgerEntry2.SetRange("Location Code", ItemLedgerEntry."Location Code");
+        ItemLedgerEntry2.SetRange(Positive, not ItemLedgerEntry.Positive);
+        ItemLedgerEntry2.SetFilter("Shipped Qty. Not Returned", '<%1&>=%2', 0, -MaxToApply2);
+        if (MaxToApply2 <> 0) and ItemLedgerEntry.Positive then
+            ItemLedgerEntry2.SetFilter("Shipped Qty. Not Returned", '<=%1', -MaxToApply2);
+        ItemLedgerEntry2.SetLoadFields("Shipped Qty. Not Returned", "Remaining Quantity");
+        if ItemLedgerEntry2.FindSet() then
+            repeat
+                if CostAvailable(ItemLedgerEntry2) <> 0 then
+                    if not ItemApplicationEntry.ExistsBetween(ItemLedgerEntry."Entry No.", ItemLedgerEntry2."Entry No.") then
+                        InsertTempEntry(ItemLedgerEntry2."Entry No.", 0, true);
+            until ItemLedgerEntry2.Next() = 0;
+    end;
+
+    local procedure InsertTempEntry(EntryNo: Integer; AppliedQty: Decimal; ShowQuantity2: Boolean)
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
         IsHandled: Boolean;
     begin
-        ItemLedgEntry.Get(EntryNo);
+        ItemLedgerEntry.Get(EntryNo);
 
         IsHandled := false;
-        OnBeforeInsertTempEntry(ItemLedgEntry, AppliedQty, ShowQuantity, TotalApplied, TempItemLedgEntry, IsHandled);
+        OnBeforeInsertTempEntry(ItemLedgerEntry, AppliedQty, ShowQuantity2, TotalApplied, TempItemLedgerEntry, IsHandled);
         if IsHandled then
             exit;
 
-        if ShowQuantity then
-            if AppliedQty * ItemLedgEntry.Quantity < 0 then
+        if ShowQuantity2 then
+            if AppliedQty * ItemLedgerEntry.Quantity < 0 then
                 exit;
 
-        if not TempItemLedgEntry.Get(EntryNo) then begin
-            TempItemLedgEntry.Reset();
-            TempItemLedgEntry := ItemLedgEntry;
-            TempItemLedgEntry.CalcFields("Reserved Quantity");
-            TempItemLedgEntry.Quantity := AppliedQty;
-            TempItemLedgEntry.Insert();
+        if not TempItemLedgerEntry.Get(EntryNo) then begin
+            TempItemLedgerEntry.Reset();
+            TempItemLedgerEntry := ItemLedgerEntry;
+            TempItemLedgerEntry.CalcFields("Reserved Quantity");
+            TempItemLedgerEntry.Quantity := AppliedQty;
+            TempItemLedgerEntry.Insert();
         end else begin
-            TempItemLedgEntry.Quantity := TempItemLedgEntry.Quantity + AppliedQty;
-            TempItemLedgEntry.Modify();
+            TempItemLedgerEntry.Quantity := TempItemLedgerEntry.Quantity + AppliedQty;
+            TempItemLedgerEntry.Modify();
         end;
 
         TotalApplied := TotalApplied + AppliedQty;
@@ -537,58 +534,59 @@ page 522 "View Applied Entries"
 
     local procedure RemoveApplications(Inbound: Integer; OutBound: Integer)
     var
-        Application: Record "Item Application Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
     begin
-        Application.SetCurrentKey("Inbound Item Entry No.", "Outbound Item Entry No.");
-        Application.SetRange("Inbound Item Entry No.", Inbound);
-        Application.SetRange("Outbound Item Entry No.", OutBound);
-        if Application.FindSet() then
+        ItemApplicationEntry.SetCurrentKey("Inbound Item Entry No.", "Outbound Item Entry No.");
+        ItemApplicationEntry.SetRange("Inbound Item Entry No.", Inbound);
+        ItemApplicationEntry.SetRange("Outbound Item Entry No.", OutBound);
+        if ItemApplicationEntry.FindSet() then
             repeat
-                Apply.UnApply(Application);
-                Apply.LogUnapply(Application);
-            until Application.Next() = 0;
+                ItemJnlPostLine.UnApply(ItemApplicationEntry);
+                ItemJnlPostLine.LogUnapply(ItemApplicationEntry);
+            until ItemApplicationEntry.Next() = 0;
     end;
 
     local procedure UnapplyRec()
     var
-        Applyrec: Record "Item Ledger Entry";
-        AppliedItemLedgEntry: Record "Item Ledger Entry";
+        ItemLedgerEntryToApply: Record "Item Ledger Entry";
+        AppliedItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        Applyrec.Get(RecordToShow."Entry No.");
-        CurrPage.SetSelectionFilter(TempItemLedgEntry);
-        if TempItemLedgEntry.FindSet() then begin
+        ItemLedgerEntryToApply.Get(ItemLedgerEntryToShow."Entry No.");
+        CurrPage.SetSelectionFilter(TempItemLedgerEntry);
+        if TempItemLedgerEntry.FindSet() then begin
             repeat
-                AppliedItemLedgEntry.Get(TempItemLedgEntry."Entry No.");
-                if AppliedItemLedgEntry."Entry No." <> 0 then
-                    if Applyrec.Positive then
-                        RemoveApplications(Applyrec."Entry No.", AppliedItemLedgEntry."Entry No.")
+                AppliedItemLedgerEntry.Get(TempItemLedgerEntry."Entry No.");
+                if AppliedItemLedgerEntry."Entry No." <> 0 then
+                    if ItemLedgerEntryToApply.Positive then
+                        RemoveApplications(ItemLedgerEntryToApply."Entry No.", AppliedItemLedgerEntry."Entry No.")
                     else
-                        RemoveApplications(AppliedItemLedgEntry."Entry No.", Applyrec."Entry No.");
-            until TempItemLedgEntry.Next() = 0;
+                        RemoveApplications(AppliedItemLedgerEntry."Entry No.", ItemLedgerEntryToApply."Entry No.");
+            until TempItemLedgerEntry.Next() = 0;
 
-            BlockItem(Applyrec."Item No.");
+            BlockItem(ItemLedgerEntryToApply."Item No.");
         end;
+
         Show();
     end;
 
     procedure ApplyRec()
     var
-        Applyrec: Record "Item Ledger Entry";
-        AppliedItemLedgEntry: Record "Item Ledger Entry";
+        ItemLedgerEntryToApply: Record "Item Ledger Entry";
+        AppliedItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        Applyrec.Get(RecordToShow."Entry No.");
-        CurrPage.SetSelectionFilter(TempItemLedgEntry);
-        if TempItemLedgEntry.FindSet() then
+        ItemLedgerEntryToApply.Get(ItemLedgerEntryToShow."Entry No.");
+        CurrPage.SetSelectionFilter(TempItemLedgerEntry);
+        if TempItemLedgerEntry.FindSet() then
             repeat
-                AppliedItemLedgEntry.Get(TempItemLedgEntry."Entry No.");
-                if AppliedItemLedgEntry."Entry No." <> 0 then begin
-                    Apply.ReApply(Applyrec, AppliedItemLedgEntry."Entry No.");
-                    Apply.LogApply(Applyrec, AppliedItemLedgEntry);
+                AppliedItemLedgerEntry.Get(TempItemLedgerEntry."Entry No.");
+                if AppliedItemLedgerEntry."Entry No." <> 0 then begin
+                    ItemJnlPostLine.ReApply(ItemLedgerEntryToApply, AppliedItemLedgerEntry."Entry No.");
+                    ItemJnlPostLine.LogApply(ItemLedgerEntryToApply, AppliedItemLedgerEntry);
                 end;
-            until TempItemLedgEntry.Next() = 0;
+            until TempItemLedgerEntry.Next() = 0;
 
-        if Applyrec.Positive then
-            RemoveDuplicateApplication(Applyrec."Entry No.");
+        if ItemLedgerEntryToApply.Positive then
+            RemoveDuplicateApplication(ItemLedgerEntryToApply."Entry No.");
 
         Show();
     end;
@@ -597,7 +595,6 @@ page 522 "View Applied Entries"
     var
         ItemApplicationEntry: Record "Item Application Entry";
     begin
-        ItemApplicationEntry.SetCurrentKey("Inbound Item Entry No.", "Item Ledger Entry No.", "Outbound Item Entry No.", "Cost Application");
         ItemApplicationEntry.SetRange("Inbound Item Entry No.", ItemLedgerEntryNo);
         ItemApplicationEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
         ItemApplicationEntry.SetFilter("Outbound Item Entry No.", '<>0');
@@ -621,41 +618,41 @@ page 522 "View Applied Entries"
         if Item."Application Wksh. User ID" <> UpperCase(UserId) then
             Item.CheckBlockedByApplWorksheet();
 
-        Item."Application Wksh. User ID" := UserId;
+        Item."Application Wksh. User ID" := CopyStr(UserId(), 1, MaxStrLen(Item."Application Wksh. User ID"));
         Item.Modify(true);
     end;
 
     local procedure GetApplQty()
     var
-        ItemLedgEntry: Record "Item Ledger Entry";
+        ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        ItemLedgEntry.Get(Rec."Entry No.");
+        ItemLedgerEntry.Get(Rec."Entry No.");
         ApplQty := Rec.Quantity;
-        Qty := ItemLedgEntry.Quantity;
+        Qty := ItemLedgerEntry.Quantity;
     end;
 
-    local procedure QuantityAvailable(ILE: Record "Item Ledger Entry"): Decimal
+    local procedure QuantityAvailable(ItemLedgerEntry: Record "Item Ledger Entry"): Decimal
     begin
-        ILE.CalcFields("Reserved Quantity");
-        exit(ILE."Remaining Quantity" - ILE."Reserved Quantity");
+        ItemLedgerEntry.CalcFields("Reserved Quantity");
+        exit(ItemLedgerEntry."Remaining Quantity" - ItemLedgerEntry."Reserved Quantity");
     end;
 
-    local procedure CostAvailable(ILE: Record "Item Ledger Entry"): Decimal
+    local procedure CostAvailable(ItemLedgerEntry: Record "Item Ledger Entry"): Decimal
     var
-        Apprec: Record "Item Application Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
     begin
-        if ILE."Shipped Qty. Not Returned" <> 0 then
-            exit(-ILE."Shipped Qty. Not Returned");
+        if ItemLedgerEntry."Shipped Qty. Not Returned" <> 0 then
+            exit(-ItemLedgerEntry."Shipped Qty. Not Returned");
 
-        exit(ILE."Remaining Quantity" + Apprec.Returned(ILE."Entry No."));
+        exit(ItemLedgerEntry."Remaining Quantity" + ItemApplicationEntry.Returned(ItemLedgerEntry."Entry No."));
     end;
 
     procedure CaptionExpr(): Text
     begin
         if ShowApplied then
-            exit(Text001);
+            exit(AppliedEntriesLbl);
 
-        exit(Text002);
+        exit(UnappliedEntriesLbl);
     end;
 
     [IntegrationEvent(false, false)]

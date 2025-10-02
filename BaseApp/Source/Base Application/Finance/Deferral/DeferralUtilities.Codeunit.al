@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Deferral;
 
 using Microsoft.Bank.BankAccount;
@@ -11,6 +15,10 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using System.Security.User;
 
+/// <summary>
+/// Central utility functions for deferral processing including schedule creation, calculation methods, and posting operations.
+/// Handles all core deferral business logic and integrates with various document types and posting routines.
+/// </summary>
 codeunit 1720 "Deferral Utilities"
 {
 
@@ -26,6 +34,13 @@ codeunit 1720 "Deferral Utilities"
         SelectDeferralCodeMsg: Label 'A deferral code must be selected for the line to view the deferral schedule.';
         DescriptionTok: Label '%1-%2', Locked = true;
 
+    /// <summary>
+    /// Creates a period-specific description by substituting placeholders with actual date values.
+    /// Supports day, week, month, month text, accounting period name, and year placeholders.
+    /// </summary>
+    /// <param name="PostingDate">The posting date to extract date components from</param>
+    /// <param name="Description">Template description with placeholders (%1=Day, %2=Week, %3=Month, %4=Month Text, %5=Period Name, %6=Year)</param>
+    /// <returns>Final description with placeholders replaced by actual values</returns>
     procedure CreateRecurringDescription(PostingDate: Date; Description: Text[100]) FinalDescription: Text[100]
     var
         AccountingPeriod: Record "Accounting Period";
@@ -49,6 +64,25 @@ codeunit 1720 "Deferral Utilities"
           CopyStr(StrSubstNo(Description, Day, Week, Month, MonthText, AccountingPeriod.Name, Year), 1, MaxStrLen(Description));
     end;
 
+    /// <summary>
+    /// Creates a complete deferral schedule based on the specified parameters and calculation method.
+    /// Generates header and line records with amounts distributed according to the selected calculation method.
+    /// </summary>
+    /// <param name="DeferralCode">Deferral template code defining calculation parameters</param>
+    /// <param name="DeferralDocType">Type of source document (Purchase, Sales, G/L)</param>
+    /// <param name="GenJnlTemplateName">General Journal Template name for G/L deferrals</param>
+    /// <param name="GenJnlBatchName">General Journal Batch name for G/L deferrals</param>
+    /// <param name="DocumentType">Document type ID from the source document</param>
+    /// <param name="DocumentNo">Document number from the source document</param>
+    /// <param name="LineNo">Line number within the source document</param>
+    /// <param name="AmountToDefer">Total amount to be deferred</param>
+    /// <param name="CalcMethod">Method for calculating period amounts (Straight-Line, Equal per Period, etc.)</param>
+    /// <param name="StartDate">Date to start the deferral schedule</param>
+    /// <param name="NoOfPeriods">Number of periods to distribute the deferral over</param>
+    /// <param name="ApplyDeferralPercentage">Whether to apply the deferral percentage from the template</param>
+    /// <param name="DeferralDescription">Description for the deferral schedule</param>
+    /// <param name="AdjustStartDate">Whether to adjust start date based on template settings</param>
+    /// <param name="CurrencyCode">Currency code for foreign currency handling</param>
     procedure CreateDeferralSchedule(DeferralCode: Code[10]; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; AmountToDefer: Decimal; CalcMethod: Enum "Deferral Calculation Method"; StartDate: Date; NoOfPeriods: Integer; ApplyDeferralPercentage: Boolean; DeferralDescription: Text[100]; AdjustStartDate: Boolean; CurrencyCode: Code[10])
     var
         DeferralTemplate: Record "Deferral Template";
@@ -161,6 +195,14 @@ codeunit 1720 "Deferral Utilities"
         DeferralLine.Modify(true);
     end;
 
+    /// <summary>
+    /// Calculates the actual number of deferral periods based on the calculation method and parameters.
+    /// For user-defined methods, returns the number of existing deferral lines instead of the parameter value.
+    /// </summary>
+    /// <param name="CalcMethod">Calculation method (Straight-Line, Equal per Period, Days per Period, User-Defined)</param>
+    /// <param name="NoOfPeriods">Number of periods specified in the deferral setup</param>
+    /// <param name="StartDate">Start date for the deferral schedule</param>
+    /// <returns>Actual number of periods that will be created for the deferral schedule</returns>
     procedure CalcDeferralNoOfPeriods(CalcMethod: Enum "Deferral Calculation Method"; NoOfPeriods: Integer; StartDate: Date): Integer
     var
         DeferralTemplate: Record "Deferral Template";
@@ -469,6 +511,17 @@ codeunit 1720 "Deferral Utilities"
         DeferralLine.Description := CreateRecurringDescription(PostDate, DeferralTemplate."Period Description");
     end;
 
+    /// <summary>
+    /// Sets filters on the deferral line record to retrieve lines for a specific source document.
+    /// Used throughout the deferral system to isolate deferral lines by their source document parameters.
+    /// </summary>
+    /// <param name="DeferralLine">Deferral Line record reference to apply filters to</param>
+    /// <param name="DeferralDocType">Type of source document (Purchase, Sales, G/L)</param>
+    /// <param name="GenJnlTemplateName">General Journal Template name for G/L deferrals</param>
+    /// <param name="GenJnlBatchName">General Journal Batch name for G/L deferrals</param>
+    /// <param name="DocumentType">Document type ID from the source document</param>
+    /// <param name="DocumentNo">Document number from the source document</param>
+    /// <param name="LineNo">Line number within the source document</param>
     procedure FilterDeferralLines(var DeferralLine: Record "Deferral Line"; DeferralDocType: Option; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer)
     begin
         DeferralLine.SetRange("Deferral Doc. Type", DeferralDocType);
@@ -479,6 +532,11 @@ codeunit 1720 "Deferral Utilities"
         DeferralLine.SetRange("Line No.", LineNo);
     end;
 
+    /// <summary>
+    /// Checks if the specified posting date is allowed for deferral posting based on user and general ledger setup.
+    /// </summary>
+    /// <param name="PostingDate">Date to validate for deferral posting</param>
+    /// <returns>True if the date is not allowed, false if it is allowed</returns>
     procedure IsDateNotAllowed(PostingDate: Date) Result: Boolean
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -548,6 +606,26 @@ codeunit 1720 "Deferral Utilities"
         OnAfterSetStartDate(DeferralTemplate, StartDate, AdjustedStartDate);
     end;
 
+    /// <summary>
+    /// Creates or updates a deferral header record with the specified parameters.
+    /// Handles both new header creation and updating existing headers with new calculation parameters.
+    /// </summary>
+    /// <param name="DeferralHeader">Deferral Header record reference to create or update</param>
+    /// <param name="DeferralDocType">Type of source document (Purchase, Sales, G/L)</param>
+    /// <param name="GenJnlTemplateName">General Journal Template name for G/L deferrals</param>
+    /// <param name="GenJnlBatchName">General Journal Batch name for G/L deferrals</param>
+    /// <param name="DocumentType">Document type ID from the source document</param>
+    /// <param name="DocumentNo">Document number from the source document</param>
+    /// <param name="LineNo">Line number within the source document</param>
+    /// <param name="CalcMethod">Method for calculating period amounts</param>
+    /// <param name="NoOfPeriods">Number of periods to distribute the deferral over</param>
+    /// <param name="AdjustedDeferralAmount">Final deferral amount after percentage application</param>
+    /// <param name="AdjustedStartDate">Final start date after template-based adjustments</param>
+    /// <param name="DeferralCode">Deferral template code</param>
+    /// <param name="DeferralDescription">Description for the deferral schedule</param>
+    /// <param name="AmountToDefer">Original amount to defer before adjustments</param>
+    /// <param name="AdjustStartDate">Whether start date was adjusted</param>
+    /// <param name="CurrencyCode">Currency code for foreign currency handling</param>
     procedure SetDeferralRecords(var DeferralHeader: Record "Deferral Header"; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; CalcMethod: Enum "Deferral Calculation Method"; NoOfPeriods: Integer; AdjustedDeferralAmount: Decimal; AdjustedStartDate: Date; DeferralCode: Code[10]; DeferralDescription: Text[100]; AmountToDefer: Decimal; AdjustStartDate: Boolean; CurrencyCode: Code[10])
     begin
         if not DeferralHeader.Get(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo) then begin
@@ -575,6 +653,22 @@ codeunit 1720 "Deferral Utilities"
         RemoveDeferralLines(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo);
     end;
 
+    /// <summary>
+    /// Creates, updates, or removes a deferral schedule based on the provided deferral code and parameters.
+    /// If no deferral code is provided, removes any existing schedule. If a code is provided, creates or updates the schedule.
+    /// </summary>
+    /// <param name="DeferralCode">Deferral template code to use, blank to remove schedule</param>
+    /// <param name="DeferralDocType">Type of document containing the deferral</param>
+    /// <param name="GenJnlTemplateName">General Journal Template name for G/L deferrals</param>
+    /// <param name="GenJnlBatchName">General Journal Batch name for G/L deferrals</param>
+    /// <param name="DocumentType">Document type ID from the source document</param>
+    /// <param name="DocumentNo">Document number from the source document</param>
+    /// <param name="LineNo">Line number within the source document</param>
+    /// <param name="Amount">Amount to defer</param>
+    /// <param name="PostingDate">Posting date for the deferral</param>
+    /// <param name="Description">Description for the deferral schedule</param>
+    /// <param name="CurrencyCode">Currency code for foreign currency handling</param>
+    /// <param name="AdjustStartDate">Whether to adjust the start date based on template settings</param>
     procedure RemoveOrSetDeferralSchedule(DeferralCode: Code[10]; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; Amount: Decimal; PostingDate: Date; Description: Text[100]; CurrencyCode: Code[10]; AdjustStartDate: Boolean)
     var
         DeferralHeader: Record "Deferral Header";
@@ -623,6 +717,12 @@ codeunit 1720 "Deferral Utilities"
                 end;
     end;
 
+    /// <summary>
+    /// Creates posted deferral records from a general journal line's deferral schedule.
+    /// Transfers the deferral header and lines to posted tables and links them to the posted general ledger entry.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal line being posted</param>
+    /// <param name="FirstEntryNo">First G/L entry number created from the journal line</param>
     procedure CreateScheduleFromGL(GenJournalLine: Record "Gen. Journal Line"; FirstEntryNo: Integer)
     var
         DeferralHeader: Record "Deferral Header";
@@ -720,6 +820,21 @@ codeunit 1720 "Deferral Utilities"
         GenJnlPostLine.RemoveDeferralSchedule(GenJournalLine);
     end;
 
+    /// <summary>
+    /// Validates and creates/updates a deferral schedule when a deferral code is entered or changed.
+    /// Removes existing schedule if the code is cleared.
+    /// </summary>
+    /// <param name="DeferralCode">Deferral template code being validated</param>
+    /// <param name="DeferralDocType">Type of document containing the deferral</param>
+    /// <param name="GenJnlTemplateName">General Journal Template name for G/L deferrals</param>
+    /// <param name="GenJnlBatchName">General Journal Batch name for G/L deferrals</param>
+    /// <param name="DocumentType">Document type ID from the source document</param>
+    /// <param name="DocumentNo">Document number from the source document</param>
+    /// <param name="LineNo">Line number within the source document</param>
+    /// <param name="Amount">Amount to defer</param>
+    /// <param name="PostingDate">Posting date for the deferral</param>
+    /// <param name="Description">Description for the deferral schedule</param>
+    /// <param name="CurrencyCode">Currency code for foreign currency handling</param>
     procedure DeferralCodeOnValidate(DeferralCode: Code[10]; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; Amount: Decimal; PostingDate: Date; Description: Text[100]; CurrencyCode: Code[10])
     var
         DeferralHeader: Record "Deferral Header";
@@ -749,6 +864,16 @@ codeunit 1720 "Deferral Utilities"
                 end;
     end;
 
+    /// <summary>
+    /// Removes a deferral schedule when a deferral code is deleted or cleared.
+    /// Deletes the header and all associated deferral lines.
+    /// </summary>
+    /// <param name="DeferralDocType">Type of document containing the deferral</param>
+    /// <param name="GenJnlTemplateName">General Journal Template name for G/L deferrals</param>
+    /// <param name="GenJnlBatchName">General Journal Batch name for G/L deferrals</param>
+    /// <param name="DocumentType">Document type ID from the source document</param>
+    /// <param name="DocumentNo">Document number from the source document</param>
+    /// <param name="LineNo">Line number within the source document</param>
     procedure DeferralCodeOnDelete(DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer)
     var
         DeferralHeader: Record "Deferral Header";
@@ -761,6 +886,22 @@ codeunit 1720 "Deferral Utilities"
             end;
     end;
 
+    /// <summary>
+    /// Opens the deferral schedule editing page for a specific line.
+    /// Creates a new schedule if one doesn't exist, or allows editing of an existing schedule.
+    /// </summary>
+    /// <param name="DeferralCode">Deferral template code</param>
+    /// <param name="DeferralDocType">Type of document containing the deferral</param>
+    /// <param name="GenJnlTemplateName">General Journal Template name for G/L deferrals</param>
+    /// <param name="GenJnlBatchName">General Journal Batch name for G/L deferrals</param>
+    /// <param name="DocumentType">Document type ID from the source document</param>
+    /// <param name="DocumentNo">Document number from the source document</param>
+    /// <param name="LineNo">Line number within the source document</param>
+    /// <param name="Amount">Amount to defer</param>
+    /// <param name="PostingDate">Posting date for the deferral</param>
+    /// <param name="Description">Description for the deferral schedule</param>
+    /// <param name="CurrencyCode">Currency code for foreign currency handling</param>
+    /// <returns>True if changes were made to the schedule, false otherwise</returns>
     procedure OpenLineScheduleEdit(DeferralCode: Code[10]; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; Amount: Decimal; PostingDate: Date; Description: Text[100]; CurrencyCode: Code[10]): Boolean
     var
         DeferralTemplate: Record "Deferral Template";
@@ -798,6 +939,16 @@ codeunit 1720 "Deferral Utilities"
         exit(Changed);
     end;
 
+    /// <summary>
+    /// Opens the deferral schedule view page for posted/archived deferrals in read-only mode.
+    /// </summary>
+    /// <param name="DeferralCode">Deferral template code</param>
+    /// <param name="DeferralDocType">Type of document containing the deferral</param>
+    /// <param name="GenJnlTemplateName">General Journal Template name for G/L deferrals</param>
+    /// <param name="GenJnlBatchName">General Journal Batch name for G/L deferrals</param>
+    /// <param name="DocumentType">Document type ID from the source document</param>
+    /// <param name="DocumentNo">Document number from the source document</param>
+    /// <param name="LineNo">Line number within the source document</param>
     procedure OpenLineScheduleView(DeferralCode: Code[10]; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer)
     var
         DeferralTemplate: Record "Deferral Template";
@@ -810,6 +961,16 @@ codeunit 1720 "Deferral Utilities"
                     PAGE.RunModal(PAGE::"Deferral Schedule View", PostedDeferralHeader);
     end;
 
+    /// <summary>
+    /// Opens the archived deferral schedule view page for document archive scenarios.
+    /// </summary>
+    /// <param name="DeferralCode">Deferral template code</param>
+    /// <param name="DeferralDocType">Type of document containing the deferral</param>
+    /// <param name="DocumentType">Document type ID from the source document</param>
+    /// <param name="DocumentNo">Document number from the source document</param>
+    /// <param name="DocNoOccurence">Document number occurrence for archive</param>
+    /// <param name="VersionNo">Version number for archive</param>
+    /// <param name="LineNo">Line number within the source document</param>
     procedure OpenLineScheduleArchive(DeferralCode: Code[10]; DeferralDocType: Integer; DocumentType: Integer; DocumentNo: Code[20]; DocNoOccurence: Integer; VersionNo: Integer; LineNo: Integer)
     var
         DeferralHeaderArchive: Record "Deferral Header Archive";
@@ -842,6 +1003,16 @@ codeunit 1720 "Deferral Utilities"
         DeferralTemplate.TestField("No. of Periods");
     end;
 
+    /// <summary>
+    /// Rounds deferral amounts to appropriate precision based on currency settings.
+    /// Handles both LCY and foreign currency amounts with proper rounding.
+    /// </summary>
+    /// <param name="DeferralHeader">Deferral header containing schedule information</param>
+    /// <param name="CurrencyCode">Currency code for the amounts</param>
+    /// <param name="CurrencyFactor">Exchange rate factor for currency conversion</param>
+    /// <param name="PostingDate">Date for currency exchange rate lookup</param>
+    /// <param name="AmtToDefer">Amount to defer (will be updated with rounded value)</param>
+    /// <param name="AmtToDeferLCY">LCY amount to defer (will be updated with rounded value)</param>
     procedure RoundDeferralAmount(var DeferralHeader: Record "Deferral Header"; CurrencyCode: Code[10]; CurrencyFactor: Decimal; PostingDate: Date; var AmtToDefer: Decimal; var AmtToDeferLCY: Decimal)
     var
         DeferralLine: Record "Deferral Line";
@@ -903,6 +1074,14 @@ codeunit 1720 "Deferral Utilities"
         AmountRoundingPrecision := Currency."Amount Rounding Precision";
     end;
 
+    /// <summary>
+    /// Initializes a deferral line record with header information and sets the appropriate posting date.
+    /// Handles period-based date calculations using accounting periods.
+    /// </summary>
+    /// <param name="DeferralLine">Deferral line record to initialize</param>
+    /// <param name="DeferralHeader">Deferral header containing source information</param>
+    /// <param name="PeriodicCount">Current period number in the deferral schedule</param>
+    /// <param name="PostDate">Posting date that will be updated based on period calculations</param>
     procedure InitializeDeferralHeaderAndSetPostDate(var DeferralLine: Record "Deferral Line"; DeferralHeader: Record "Deferral Header"; PeriodicCount: Integer; var PostDate: Date)
     var
         AccountingPeriod: Record "Accounting Period";
@@ -946,6 +1125,17 @@ codeunit 1720 "Deferral Utilities"
         exit(false);
     end;
 
+    /// <summary>
+    /// Gets the start date for a deferral from existing schedule or calculates from template settings.
+    /// Used to maintain consistency when adjusting existing deferrals.
+    /// </summary>
+    /// <param name="DeferralDocType">Type of document containing the deferral</param>
+    /// <param name="RecordDocumentType">Document type ID from the source document</param>
+    /// <param name="RecordDocumentNo">Document number from the source document</param>
+    /// <param name="RecordLineNo">Line number within the source document</param>
+    /// <param name="DeferralCode">Deferral template code</param>
+    /// <param name="PostingDate">Default posting date if no template or schedule exists</param>
+    /// <returns>Start date for the deferral schedule</returns>
     procedure GetDeferralStartDate(DeferralDocType: Integer; RecordDocumentType: Integer; RecordDocumentNo: Code[20]; RecordLineNo: Integer; DeferralCode: Code[10]; PostingDate: Date): Date
     var
         DeferralHeader: Record "Deferral Header";
@@ -960,11 +1150,35 @@ codeunit 1720 "Deferral Utilities"
         exit(PostingDate);
     end;
 
+    /// <summary>
+    /// Adjusts total amounts for deferral posting by subtracting deferred amounts from totals.
+    /// Handles both LCY and ACY amounts with VAT base calculations.
+    /// </summary>
+    /// <param name="DeferralCode">Deferral template code, blank if no deferral</param>
+    /// <param name="AmtToDefer">Amount being deferred (may be zeroed if fully deferred)</param>
+    /// <param name="AmtToDeferACY">ACY amount being deferred</param>
+    /// <param name="TotalAmount">Total amount to adjust</param>
+    /// <param name="TotalAmountACY">Total ACY amount to adjust</param>
+    /// <param name="TotalVATBase">VAT base amount to set</param>
+    /// <param name="TotalVATBaseACY">ACY VAT base amount to set</param>
     procedure AdjustTotalAmountForDeferrals(DeferralCode: Code[10]; var AmtToDefer: Decimal; var AmtToDeferACY: Decimal; var TotalAmount: Decimal; var TotalAmountACY: Decimal; var TotalVATBase: Decimal; var TotalVATBaseACY: Decimal)
     begin
         AdjustTotalAmountForDeferrals(DeferralCode, AmtToDefer, AmtToDeferACY, TotalAmount, TotalAmountACY, TotalVATBase, TotalVATBaseACY, 0, 0);
     end;
 
+    /// <summary>
+    /// Adjusts total amounts for deferral posting including discount handling.
+    /// Extended version with discount amount parameters.
+    /// </summary>
+    /// <param name="DeferralCode">Deferral template code, blank if no deferral</param>
+    /// <param name="AmtToDefer">Amount being deferred (may be zeroed if fully deferred)</param>
+    /// <param name="AmtToDeferACY">ACY amount being deferred</param>
+    /// <param name="TotalAmount">Total amount to adjust</param>
+    /// <param name="TotalAmountACY">Total ACY amount to adjust</param>
+    /// <param name="TotalVATBase">VAT base amount to set</param>
+    /// <param name="TotalVATBaseACY">ACY VAT base amount to set</param>
+    /// <param name="DiscountAmount">Discount amount to consider</param>
+    /// <param name="DiscountAmountACY">ACY discount amount to consider</param>
     procedure AdjustTotalAmountForDeferrals(DeferralCode: Code[10]; var AmtToDefer: Decimal; var AmtToDeferACY: Decimal; var TotalAmount: Decimal; var TotalAmountACY: Decimal; var TotalVATBase: Decimal; var TotalVATBaseACY: Decimal; DiscountAmount: Decimal; DiscountAmountACY: Decimal)
     begin
         TotalVATBase := TotalAmount;
@@ -981,11 +1195,31 @@ codeunit 1720 "Deferral Utilities"
         OnAfterAdjustTotalAmountForDeferrals(DeferralCode, AmtToDefer, AmtToDeferACY, TotalAmount, TotalAmountACY, DiscountAmount, DiscountAmountACY);
     end;
 
+    /// <summary>
+    /// Adjusts total amounts for deferral posting without VAT base calculations.
+    /// Simplified version for scenarios where VAT base is not required.
+    /// </summary>
+    /// <param name="DeferralCode">Deferral template code, blank if no deferral</param>
+    /// <param name="AmtToDefer">Amount being deferred (may be zeroed if fully deferred)</param>
+    /// <param name="AmtToDeferACY">ACY amount being deferred</param>
+    /// <param name="TotalAmount">Total amount to adjust</param>
+    /// <param name="TotalAmountACY">Total ACY amount to adjust</param>
     procedure AdjustTotalAmountForDeferralsNoBase(DeferralCode: Code[10]; var AmtToDefer: Decimal; var AmtToDeferACY: Decimal; var TotalAmount: Decimal; var TotalAmountACY: Decimal)
     begin
         AdjustTotalAmountForDeferralsNoBase(DeferralCode, AmtToDefer, AmtToDeferACY, TotalAmount, TotalAmountACY, 0, 0);
     end;
 
+    /// <summary>
+    /// Adjusts total amounts for deferral posting without VAT base calculations, including discount handling.
+    /// Extended version with discount amount parameters.
+    /// </summary>
+    /// <param name="DeferralCode">Deferral template code, blank if no deferral</param>
+    /// <param name="AmtToDefer">Amount being deferred (may be zeroed if fully deferred)</param>
+    /// <param name="AmtToDeferACY">ACY amount being deferred</param>
+    /// <param name="TotalAmount">Total amount to adjust</param>
+    /// <param name="TotalAmountACY">Total ACY amount to adjust</param>
+    /// <param name="DiscountAmount">Discount amount to consider</param>
+    /// <param name="DiscountAmountACY">ACY discount amount to consider</param>
     procedure AdjustTotalAmountForDeferralsNoBase(DeferralCode: Code[10]; var AmtToDefer: Decimal; var AmtToDeferACY: Decimal; var TotalAmount: Decimal; var TotalAmountACY: Decimal; DiscountAmount: Decimal; DiscountAmountACY: Decimal)
     begin
         if DeferralCode <> '' then
@@ -1000,6 +1234,11 @@ codeunit 1720 "Deferral Utilities"
         OnAfterAdjustTotalAmountForDeferrals(DeferralCode, AmtToDefer, AmtToDeferACY, TotalAmount, TotalAmountACY, DiscountAmount, DiscountAmountACY);
     end;
 
+    /// <summary>
+    /// Validates general journal line conditions for deferral usage.
+    /// Ensures source codes are properly configured for deferral processing.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal line to validate</param>
     procedure CheckDeferralConditionForGenJournal(var GenJournalLine: Record "Gen. Journal Line")
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -1057,6 +1296,11 @@ codeunit 1720 "Deferral Utilities"
         end;
     end;
 
+    /// <summary>
+    /// Opens the General Journal Templates page filtered to the template from the error context.
+    /// Action method for error handling in deferral validation.
+    /// </summary>
+    /// <param name="ErrorInfo">Error information containing the journal line context</param>
     procedure ShowGenJournalTemplate(ErrorInfo: ErrorInfo)
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -1071,6 +1315,11 @@ codeunit 1720 "Deferral Utilities"
         GeneralJournalTemplates.RunModal();
     end;
 
+    /// <summary>
+    /// Opens the Source Code Setup page for configuring source codes.
+    /// Action method for error handling in deferral validation.
+    /// </summary>
+    /// <param name="ErrorInfo">Error information for context</param>
     procedure ShowSourceCodeSetup(ErrorInfo: ErrorInfo)
     var
         SourceCodeSetup: Page "Source Code Setup";
@@ -1132,6 +1381,12 @@ codeunit 1720 "Deferral Utilities"
         exit(CopyStr(StrSubstNo(DescriptionTok, DocumentNo, Description), 1, 100));
     end;
 
+    /// <summary>
+    /// Creates a copy of an existing deferral schedule for a new source line.
+    /// Used when copying document lines to maintain consistent deferral schedules.
+    /// </summary>
+    /// <param name="DeferralHeader">Source deferral header to copy from</param>
+    /// <param name="NewSourceLineNo">New line number for the copied schedule</param>
     procedure CreateCopyOfDeferralSchedule(DeferralHeader: Record "Deferral Header"; NewSourceLineNo: Integer)
     var
         DeferralLine: Record "Deferral Line";
@@ -1164,176 +1419,572 @@ codeunit 1720 "Deferral Utilities"
             until DeferralLine.Next() = 0;
     end;
 
+    /// <summary>
+    /// Integration event raised after calculating deferral amounts using days per period method.
+    /// Enables custom processing or adjustments to deferral calculations.
+    /// </summary>
+    /// <param name="DeferralHeader">Deferral header record containing calculation parameters</param>
+    /// <param name="DeferralLine">Deferral line record with calculated amounts</param>
+    /// <param name="DeferralTemplate">Deferral template containing calculation settings</param>
+    /// <remarks>
+    /// Raised from CalculateDaysPerPeriod procedure after completing days-based deferral calculations.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateDaysPerPeriod(DeferralHeader: Record "Deferral Header"; var DeferralLine: Record "Deferral Line"; DeferralTemplate: Record "Deferral Template")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after calculating deferral amounts using equal per period method.
+    /// Enables custom processing or adjustments to equal period deferral calculations.
+    /// </summary>
+    /// <param name="DeferralHeader">Deferral header record containing calculation parameters</param>
+    /// <param name="DeferralLine">Deferral line record with calculated amounts</param>
+    /// <param name="DeferralTemplate">Deferral template containing calculation settings</param>
+    /// <remarks>
+    /// Raised from CalculateEqualPerPeriod procedure after completing equal period deferral calculations.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateEqualPerPeriod(DeferralHeader: Record "Deferral Header"; var DeferralLine: Record "Deferral Line"; DeferralTemplate: Record "Deferral Template")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after calculating deferral amounts using straight-line method.
+    /// Enables custom processing or adjustments to straight-line deferral calculations.
+    /// </summary>
+    /// <param name="DeferralHeader">Deferral header record containing calculation parameters</param>
+    /// <param name="DeferralLine">Deferral line record with calculated amounts</param>
+    /// <param name="DeferralTemplate">Deferral template containing calculation settings</param>
+    /// <remarks>
+    /// Raised from CalculateStraightline procedure after completing straight-line deferral calculations.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateStraightline(DeferralHeader: Record "Deferral Header"; var DeferralLine: Record "Deferral Line"; DeferralTemplate: Record "Deferral Template")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after calculating deferral amounts using user-defined method.
+    /// Enables custom processing or adjustments to user-defined deferral calculations.
+    /// </summary>
+    /// <param name="DeferralHeader">Deferral header record containing calculation parameters</param>
+    /// <param name="DeferralLine">Deferral line record with calculated amounts</param>
+    /// <param name="DeferralTemplate">Deferral template containing calculation settings</param>
+    /// <remarks>
+    /// Raised from CalculateUserDefined procedure after completing user-defined deferral calculations.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateUserDefined(DeferralHeader: Record "Deferral Header"; var DeferralLine: Record "Deferral Line"; DeferralTemplate: Record "Deferral Template")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after creating the complete deferral schedule.
+    /// Enables custom processing or validation after schedule generation is complete.
+    /// </summary>
+    /// <param name="DeferralHeader">Deferral header record for the created schedule</param>
+    /// <param name="DeferralLine">Deferral line record representing the schedule lines</param>
+    /// <param name="DeferralTemplate">Deferral template used for schedule creation</param>
+    /// <param name="CalcMethod">Calculation method used for the schedule</param>
+    /// <remarks>
+    /// Raised from CreateDeferralSchedule procedure after completing schedule creation.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDeferralSchedule(DeferralHeader: Record "Deferral Header"; var DeferralLine: Record "Deferral Line"; DeferralTemplate: Record "Deferral Template"; CalcMethod: Enum "Deferral Calculation Method")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after creating deferral schedule from general journal line posting.
+    /// Enables custom processing or field updates after G/L deferral schedule creation.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal line that was posted</param>
+    /// <param name="PostedDeferralHeader">Posted deferral header created from the journal line</param>
+    /// <remarks>
+    /// Raised from CreateScheduleFromGL procedure after creating posted deferral records.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateScheduleFromGL(var GenJournalLine: Record "Gen. Journal Line"; var PostedDeferralHeader: Record "Posted Deferral Header")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after setting the start date for deferral calculations.
+    /// Enables custom start date logic or adjustments based on deferral template settings.
+    /// </summary>
+    /// <param name="DeferralTemplate">Deferral template containing start date calculation rules</param>
+    /// <param name="StartDate">Original start date for the deferral</param>
+    /// <param name="AdjustedStartDate">Adjusted start date for calculations (can be modified by subscribers)</param>
+    /// <remarks>
+    /// Raised from SetStartDate procedure after calculating adjusted start date.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetStartDate(DeferralTemplate: Record "Deferral Template"; var StartDate: Date; var AdjustedStartDate: Date)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before calculating deferral amounts using days per period method.
+    /// Enables custom preprocessing or parameter modification before days-based calculations.
+    /// </summary>
+    /// <param name="DeferralHeader">Deferral header record containing calculation parameters</param>
+    /// <param name="DeferralLine">Deferral line record to be calculated</param>
+    /// <param name="DeferralTemplate">Deferral template containing calculation settings</param>
+    /// <remarks>
+    /// Raised from CalculateDaysPerPeriod procedure before starting days-based deferral calculations.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateDaysPerPeriod(DeferralHeader: Record "Deferral Header"; var DeferralLine: Record "Deferral Line"; DeferralTemplate: Record "Deferral Template")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before calculating deferral amounts using equal per period method.
+    /// Enables custom preprocessing or parameter modification before equal period calculations.
+    /// </summary>
+    /// <param name="DeferralHeader">Deferral header record containing calculation parameters</param>
+    /// <param name="DeferralLine">Deferral line record to be calculated</param>
+    /// <param name="DeferralTemplate">Deferral template containing calculation settings</param>
+    /// <remarks>
+    /// Raised from CalculateEqualPerPeriod procedure before starting equal period deferral calculations.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateEqualPerPeriod(DeferralHeader: Record "Deferral Header"; var DeferralLine: Record "Deferral Line"; DeferralTemplate: Record "Deferral Template")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before calculating deferral amounts using straight-line method.
+    /// Enables custom preprocessing or parameter modification before straight-line calculations.
+    /// </summary>
+    /// <param name="DeferralHeader">Deferral header record containing calculation parameters</param>
+    /// <param name="DeferralLine">Deferral line record to be calculated</param>
+    /// <param name="DeferralTemplate">Deferral template containing calculation settings</param>
+    /// <remarks>
+    /// Raised from CalculateStraightline procedure before starting straight-line deferral calculations.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateStraightline(DeferralHeader: Record "Deferral Header"; var DeferralLine: Record "Deferral Line"; DeferralTemplate: Record "Deferral Template")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before calculating deferral amounts using user-defined method.
+    /// Enables custom preprocessing or parameter modification before user-defined calculations.
+    /// </summary>
+    /// <param name="DeferralHeader">Deferral header record containing calculation parameters</param>
+    /// <param name="DeferralLine">Deferral line record to be calculated</param>
+    /// <param name="DeferralTemplate">Deferral template containing calculation settings</param>
+    /// <remarks>
+    /// Raised from CalculateUserDefined procedure before starting user-defined deferral calculations.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateUserDefined(DeferralHeader: Record "Deferral Header"; var DeferralLine: Record "Deferral Line"; DeferralTemplate: Record "Deferral Template")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before creating a deferral schedule with comprehensive parameters.
+    /// Enables custom schedule creation logic or parameter validation before schedule generation.
+    /// </summary>
+    /// <param name="DeferralCode">Deferral template code for the schedule</param>
+    /// <param name="DeferralDocType">Document type for the deferral (G/L, Sales, Purchase)</param>
+    /// <param name="GenJnlTemplateName">General journal template name if applicable</param>
+    /// <param name="GenJnlBatchName">General journal batch name if applicable</param>
+    /// <param name="DocumentType">Document type identifier</param>
+    /// <param name="DocumentNo">Document number for the deferral</param>
+    /// <param name="LineNo">Line number within the document</param>
+    /// <param name="AmountToDefer">Total amount to be deferred</param>
+    /// <param name="CalcMethod">Calculation method for the schedule</param>
+    /// <param name="StartDate">Start date for the deferral schedule</param>
+    /// <param name="NoOfPeriods">Number of periods for the deferral</param>
+    /// <param name="ApplyDeferralPercentage">Whether to apply percentage-based deferrals</param>
+    /// <param name="DeferralDescription">Description for the deferral schedule</param>
+    /// <param name="AdjustStartDate">Whether to adjust the start date</param>
+    /// <param name="CurrencyCode">Currency code for the deferral</param>
+    /// <param name="IsHandled">Set to true to skip standard schedule creation</param>
+    /// <param name="RedistributeDeferralSchedule">Whether to redistribute the schedule</param>
+    /// <remarks>
+    /// Raised from CreateDeferralSchedule procedure before creating deferral header and lines.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDeferralSchedule(DeferralCode: Code[10]; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; AmountToDefer: Decimal; CalcMethod: Enum "Deferral Calculation Method"; var StartDate: Date; var NoOfPeriods: Integer; ApplyDeferralPercentage: Boolean; DeferralDescription: Text[100]; var AdjustStartDate: Boolean; CurrencyCode: Code[10]; var IsHandled: Boolean; var RedistributeDeferralSchedule: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before validating deferral code input.
+    /// Enables custom deferral code validation logic or preprocessing.
+    /// </summary>
+    /// <param name="DeferralCode">Deferral template code being validated</param>
+    /// <param name="DeferralDocType">Document type for the deferral</param>
+    /// <param name="GenJnlTemplateName">General journal template name if applicable</param>
+    /// <param name="GenJnlBatchName">General journal batch name if applicable</param>
+    /// <param name="DocumentType">Document type identifier</param>
+    /// <param name="DocumentNo">Document number for the deferral</param>
+    /// <param name="LineNo">Line number within the document</param>
+    /// <param name="Amount">Deferral amount</param>
+    /// <param name="PostingDate">Posting date for the deferral</param>
+    /// <param name="Description">Description for the deferral</param>
+    /// <param name="CurrencyCode">Currency code for the deferral</param>
+    /// <param name="IsHandled">Set to true to skip standard deferral code validation</param>
+    /// <remarks>
+    /// Raised from DeferralCodeOnValidate procedure before standard deferral code processing.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeferralCodeOnValidate(DeferralCode: Code[10]; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; Amount: Decimal; PostingDate: Date; Description: Text[100]; CurrencyCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before inserting posted deferral header record.
+    /// Enables custom field updates or validation before posted deferral header creation.
+    /// </summary>
+    /// <param name="PostedDeferralHeader">Posted deferral header record to be inserted</param>
+    /// <param name="GenJournalLine">Source general journal line for the deferral</param>
+    /// <remarks>
+    /// Raised from CreateScheduleFromGL procedure before inserting posted deferral header.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostedDeferralHeaderInsert(var PostedDeferralHeader: Record "Posted Deferral Header"; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before inserting posted deferral line record.
+    /// Enables custom field updates or validation before posted deferral line creation.
+    /// </summary>
+    /// <param name="PostedDeferralLine">Posted deferral line record to be inserted</param>
+    /// <param name="GenJournalLine">Source general journal line for the deferral</param>
+    /// <remarks>
+    /// Raised from CreateScheduleFromGL procedure before inserting posted deferral lines.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostedDeferralLineInsert(var PostedDeferralLine: Record "Posted Deferral Line"; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before opening deferral schedule editor for line editing.
+    /// Enables custom preprocessing or parameter modification before schedule editing.
+    /// </summary>
+    /// <param name="DeferralCode">Deferral template code for the schedule</param>
+    /// <param name="DeferralDocType">Document type for the deferral</param>
+    /// <param name="GenJnlTemplateName">General journal template name if applicable</param>
+    /// <param name="GenJnlBatchName">General journal batch name if applicable</param>
+    /// <param name="DocumentType">Document type identifier</param>
+    /// <param name="DocumentNo">Document number for the deferral</param>
+    /// <param name="LineNo">Line number within the document</param>
+    /// <param name="Amount">Deferral amount</param>
+    /// <param name="PostingDate">Posting date for the deferral</param>
+    /// <param name="Description">Description for the deferral</param>
+    /// <param name="CurrencyCode">Currency code for the deferral</param>
+    /// <remarks>
+    /// Raised from OpenLineScheduleEdit procedure before opening deferral schedule page.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenLineScheduleEdit(DeferralCode: Code[10]; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; Amount: Decimal; PostingDate: Date; Description: Text[100]; CurrencyCode: Code[10])
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after adjusting total amounts for deferral calculations.
+    /// Enables custom processing or validation after deferral amount adjustments.
+    /// </summary>
+    /// <param name="DeferralCode">Deferral template code</param>
+    /// <param name="AmtToDefer">Amount to defer in local currency</param>
+    /// <param name="AmtToDeferACY">Amount to defer in additional currency</param>
+    /// <param name="TotalAmount">Total amount in local currency</param>
+    /// <param name="TotalAmountACY">Total amount in additional currency</param>
+    /// <param name="DiscountAmount">Discount amount in local currency</param>
+    /// <param name="DiscountAmountACY">Discount amount in additional currency</param>
+    /// <remarks>
+    /// Raised from AdjustTotalAmountForDeferrals procedure after calculating adjusted amounts.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnAfterAdjustTotalAmountForDeferrals(DeferralCode: Code[10]; var AmtToDefer: Decimal; var AmtToDeferACY: Decimal; var TotalAmount: Decimal; var TotalAmountACY: Decimal; DiscountAmount: Decimal; DiscountAmountACY: Decimal);
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before calculating number of deferral periods.
+    /// Enables custom period calculation logic based on calculation method and start date.
+    /// </summary>
+    /// <param name="CalcMethod">Calculation method for determining periods</param>
+    /// <param name="NoOfPeriods">Number of periods (can be modified by subscribers)</param>
+    /// <param name="StartDate">Start date for period calculation</param>
+    /// <param name="IsHandled">Set to true to skip standard period calculation</param>
+    /// <remarks>
+    /// Raised from CalcDeferralNoOfPeriods procedure before standard period calculation.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcDeferralNoOfPeriods(CalcMethod: Enum "Deferral Calculation Method"; var NoOfPeriods: Integer; StartDate: Date; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before checking posting date validity for deferral lines.
+    /// Enables custom posting date validation logic for deferral schedules.
+    /// </summary>
+    /// <param name="DeferralHeader">Deferral header context for validation</param>
+    /// <param name="DeferralLine">Deferral line with posting date to validate</param>
+    /// <param name="IsHandled">Set to true to skip standard posting date validation</param>
+    /// <remarks>
+    /// Raised from CheckPostingDate procedure before standard date validation logic.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckPostingDate(DeferralHeader: Record "Deferral Header"; var DeferralLine: record "Deferral Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before generating deferral description text.
+    /// Enables custom description logic for deferral schedule entries.
+    /// </summary>
+    /// <param name="GenJnlBatchName">General journal batch name for context</param>
+    /// <param name="DocumentNo">Document number for the deferral</param>
+    /// <param name="Description">Source description text</param>
+    /// <param name="Result">Generated description result (can be modified by subscribers)</param>
+    /// <param name="IsHandled">Set to true to skip standard description generation</param>
+    /// <remarks>
+    /// Raised from GetDeferralDescription procedure before standard description generation.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDeferralDescription(GenJnlBatchName: Code[10]; DocumentNo: Code[20]; Description: Text[100]; var Result: Text[100]; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before inserting deferral line during equal per period calculation.
+    /// Enables custom field updates or validation before line insertion.
+    /// </summary>
+    /// <param name="DeferralHeader">Deferral header context for the calculation</param>
+    /// <param name="DeferralLine">Deferral line record to be inserted</param>
+    /// <remarks>
+    /// Raised from CalculateEqualPerPeriod procedure before inserting each deferral line.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnCalculateEqualPerPeriodOnBeforeDeferralLineInsert(DeferralHeader: Record "Deferral Header"; var DeferralLine: record "Deferral Line")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after calculating the second period date in straight-line deferral calculations.
+    /// Enables custom period date adjustments for straight-line deferral schedules.
+    /// </summary>
+    /// <param name="DeferralHeader">Deferral header record containing calculation parameters</param>
+    /// <param name="PostDate">Original posting date for the deferral</param>
+    /// <param name="FirstPeriodDate">First period date for the deferral schedule</param>
+    /// <param name="SecondPeriodDate">Second period date (can be modified by subscribers)</param>
+    /// <remarks>
+    /// Raised from CalculateStraightline procedure after calculating the second period date.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnCalculateStraightlineOnAfterCalcSecondPeriodDate(DeferralHeader: Record "Deferral Header"; PostDate: Date; var FirstPeriodDate: Date; var SecondPeriodDate: Date)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before inserting deferral line during straight-line calculation.
+    /// Enables custom field updates or validation before line insertion.
+    /// </summary>
+    /// <param name="DeferralLine">Deferral line record to be inserted</param>
+    /// <param name="DeferralHeader">Deferral header context for the calculation</param>
+    /// <remarks>
+    /// Raised from CalculateStraightline procedure before inserting each deferral line.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnCalculateStraightlineOnBeforeDeferralLineInsert(var DeferralLine: Record "Deferral Line"; DeferralHeader: Record "Deferral Header")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before calculating periodic deferral amount in straight-line method.
+    /// Enables custom amount calculation logic for straight-line deferral periods.
+    /// </summary>
+    /// <param name="DeferralHeader">Deferral header record containing calculation parameters</param>
+    /// <param name="PeriodicDeferralAmount">Periodic deferral amount (can be modified by subscribers)</param>
+    /// <param name="AmountRoundingPrecision">Rounding precision for amount calculations</param>
+    /// <param name="IsHandled">Set to true to skip standard periodic amount calculation</param>
+    /// <remarks>
+    /// Raised from CalculateStraightline procedure before calculating periodic deferral amounts.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnCalculateStraightlineOnBeforeCalcPeriodicDeferralAmount(var DeferralHeader: Record "Deferral Header"; var PeriodicDeferralAmount: Decimal; AmountRoundingPrecision: Decimal; var IsHandled: Boolean);
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after calculating end date for days per period deferral method.
+    /// Enables custom end date adjustments for days-based deferral calculations.
+    /// </summary>
+    /// <param name="DeferralHeader">Deferral header record containing calculation parameters</param>
+    /// <param name="DeferralLine">Deferral line record with calculated dates</param>
+    /// <param name="DeferralTemplate">Deferral template containing calculation settings</param>
+    /// <param name="EndDate">Calculated end date (can be modified by subscribers)</param>
+    /// <remarks>
+    /// Raised from CalculateDaysPerPeriod procedure after calculating period end date.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnCalculateDaysPerPeriodOnAfterCalcEndDate(var DeferralHeader: Record "Deferral Header"; var DeferralLine: Record "Deferral Line"; DeferralTemplate: Record "Deferral Template"; var EndDate: Date)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before inserting deferral line during days per period calculation.
+    /// Enables custom field updates or validation before line insertion.
+    /// </summary>
+    /// <param name="DeferralHeader">Deferral header context for the calculation</param>
+    /// <param name="DeferralLine">Deferral line record to be inserted</param>
+    /// <remarks>
+    /// Raised from CalculateDaysPerPeriod procedure before inserting each deferral line.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnCalculateDaysPerPeriodOnBeforeDeferralLineInsert(DeferralHeader: Record "Deferral Header"; var DeferralLine: record "Deferral Line")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before inserting deferral line during user-defined calculation.
+    /// Enables custom field updates or validation before line insertion.
+    /// </summary>
+    /// <param name="DeferralHeader">Deferral header context for the calculation</param>
+    /// <param name="DeferralLine">Deferral line record to be inserted</param>
+    /// <remarks>
+    /// Raised from CalculateUserDefined procedure before inserting each deferral line.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnCalculateUserDefinedOnBeforeDeferralLineInsert(DeferralHeader: Record "Deferral Header"; var DeferralLine: record "Deferral Line")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before modifying deferral header during record setup.
+    /// Enables custom field updates or validation before deferral header modification.
+    /// </summary>
+    /// <param name="DeferralHeader">Deferral header record to be modified</param>
+    /// <remarks>
+    /// Raised from SetDeferralRecords procedure before modifying deferral header.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnSetDeferralRecordsOnBeforeDeferralHeaderModify(var DeferralHeader: Record "Deferral Header")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before checking if a posting date is allowed for deferral processing.
+    /// Enables custom date validation logic for deferral schedule processing.
+    /// </summary>
+    /// <param name="PostingDate">Posting date to be validated</param>
+    /// <param name="Result">Validation result (can be modified by subscribers)</param>
+    /// <param name="IsHandled">Set to true to skip standard date validation</param>
+    /// <remarks>
+    /// Raised from IsDateNotAllowed procedure before standard posting date validation.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsDateNotAllowed(PostingDate: Date; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before updating deferral line description during schedule creation.
+    /// Enables custom description generation logic for deferral line entries.
+    /// </summary>
+    /// <param name="DeferralLine">Deferral line record to update</param>
+    /// <param name="DeferralHeader">Deferral header context for description generation</param>
+    /// <param name="DeferralTemplate">Deferral template containing description settings</param>
+    /// <param name="PostDate">Posting date for the deferral line</param>
+    /// <param name="IsHandled">Set to true to skip standard description update</param>
+    /// <remarks>
+    /// Raised from UpdateDeferralLineDescription procedure before updating line description.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateDeferralLineDescription(var DeferralLine: Record "Deferral Line"; DeferralHeader: Record "Deferral Header"; DeferralTemplate: Record "Deferral Template"; PostDate: Date; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before validating deferral template settings.
+    /// Enables custom validation logic for deferral template configuration.
+    /// </summary>
+    /// <param name="DeferralTemplate">Deferral template record to validate</param>
+    /// <param name="IsHandled">Set to true to skip standard template validation</param>
+    /// <remarks>
+    /// Raised from ValidateDeferralTemplate procedure before standard template validation.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateDeferralTemplate(DeferralTemplate: Record "Deferral Template"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after initializing deferral line during deferral header initialization.
+    /// Enables custom field updates or additional processing after deferral line setup.
+    /// </summary>
+    /// <param name="DeferralLine">Deferral line record that was initialized</param>
+    /// <remarks>
+    /// Raised from InitializeDeferralHeaderAndSetPostDate procedure after initializing deferral line.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnInitializeDeferralHeaderAndSetPostDateAfterInitDeferralLine(var DeferralLine: Record "Deferral Line")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before setting parameters for deferral schedule page during line editing.
+    /// Enables custom parameter setup or validation before opening deferral schedule editor.
+    /// </summary>
+    /// <param name="DeferralSchedule">Deferral schedule page instance</param>
+    /// <param name="DeferralDocType">Document type for the deferral</param>
+    /// <param name="GenJnlTemplateName">General journal template name if applicable</param>
+    /// <param name="GenJnlBatchName">General journal batch name if applicable</param>
+    /// <param name="DocumentType">Document type identifier</param>
+    /// <param name="DocumentNo">Document number for the deferral</param>
+    /// <param name="DeferralHeader">Deferral header context for the schedule</param>
+    /// <param name="IsHandled">Set to true to skip standard parameter setup</param>
+    /// <remarks>
+    /// Raised from OpenLineScheduleEdit procedure before setting deferral schedule parameters.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnOpenLineScheduleEditOnBeforeDeferralScheduleSetParameters(var DeferralSchedule: Page "Deferral Schedule"; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; DeferralHeader: Record "Deferral Header"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before checking deferral conditions for general journal lines.
+    /// Enables custom deferral condition logic for journal line processing.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal line to check for deferral conditions</param>
+    /// <param name="IsHandled">Set to true to skip standard deferral condition checking</param>
+    /// <remarks>
+    /// Raised from CheckDeferralConditionForGenJournal procedure before standard condition validation.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDeferralConditionForGenJournal(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before removing or setting up deferral schedule for a document line.
+    /// Enables custom deferral schedule management logic and validation.
+    /// </summary>
+    /// <param name="DeferralCode">Deferral template code for the schedule</param>
+    /// <param name="DeferralDocType">Document type for the deferral</param>
+    /// <param name="GenJnlTemplateName">General journal template name if applicable</param>
+    /// <param name="GenJnlBatchName">General journal batch name if applicable</param>
+    /// <param name="DocumentType">Document type identifier</param>
+    /// <param name="DocumentNo">Document number for the deferral</param>
+    /// <param name="LineNo">Line number within the document</param>
+    /// <param name="Amount">Deferral amount</param>
+    /// <param name="PostingDate">Posting date for the deferral</param>
+    /// <param name="Description">Description for the deferral</param>
+    /// <param name="CurrencyCode">Currency code for the deferral</param>
+    /// <param name="AdjustStartDate">Whether to adjust the start date</param>
+    /// <param name="IsHandled">Set to true to skip standard deferral schedule processing</param>
+    /// <remarks>
+    /// Raised from RemoveOrSetDeferralSchedule procedure before standard schedule management.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRemoveOrSetDeferralSchedule(DeferralCode: Code[10]; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; Amount: Decimal; PostingDate: Date; Description: Text[100]; CurrencyCode: Code[10]; AdjustStartDate: Boolean; var IsHandled: Boolean)
     begin

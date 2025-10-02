@@ -331,25 +331,6 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         ServiceInvoice.Run();
     end;
 
-    local procedure PostSalesInvoice(CustomerNo: Code[20]; PostingDate: Date): Code[20]
-    var
-        Item: Record Item;
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-    begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
-        SalesHeader.Validate("Posting Date", PostingDate);
-        SalesHeader.Modify(true);
-        LibraryInventory.CreateItem(Item);
-        Item.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
-        Item.Modify(true);
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDecInRange(1, 1000, 2));
-        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
-        SalesLine.Modify(true);
-        exit(LibrarySales.PostSalesDocument(SalesHeader, false, true)); // Ship, Invoice
-    end;
-
     local procedure PostServiceInvoice(CustomerNo: Code[20]; PostingDate: Date): Code[20]
     var
         Item: Record Item;
@@ -442,4 +423,3 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         ServiceInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 }
-

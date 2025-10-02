@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.FinancialReports;
 
 using Microsoft.Finance.Analysis;
@@ -334,7 +338,7 @@ table 84 "Acc. Schedule Name"
             exit;
 
         TelemetryDimensions.Add('RowDefinitionCode', DefinitionName);
-        FeatureTelemetry.LogUsage('0000ONP', 'Financial Report', StrSubstNo(TelemetryEventTxt, DefinitionName, Action), TelemetryDimensions);
+        FeatureTelemetry.LogUsage('0000ONP', 'Financial Report', StrSubstNo(TelemetryEventTxt, Action, DefinitionName), TelemetryDimensions);
     end;
 }
 

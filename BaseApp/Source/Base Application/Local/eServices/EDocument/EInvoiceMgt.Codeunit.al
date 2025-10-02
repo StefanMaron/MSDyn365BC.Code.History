@@ -7728,9 +7728,9 @@ codeunit 10145 "E-Invoice Mgt."
     var
         PartialPaymentMultiplifier: Decimal;
     begin
-        CustLedgerEntry.CalcFields("Amount (LCY)");
-        if CustLedgerEntry."Amount (LCY)" <> 0 then
-            PartialPaymentMultiplifier := Abs(TempDetailedCustLedgEntry."Amount (LCY)" / CustLedgerEntry."Amount (LCY)")
+        CustLedgerEntry.CalcFields(Amount);
+        if CustLedgerEntry.Amount <> 0 then
+            PartialPaymentMultiplifier := Abs(TempDetailedCustLedgEntry.Amount / CustLedgerEntry.Amount)
         else
             PartialPaymentMultiplifier := 1;
         if PartialPaymentMultiplifier <> 1 then

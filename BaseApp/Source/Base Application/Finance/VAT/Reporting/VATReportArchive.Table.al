@@ -80,6 +80,7 @@ table 747 "VAT Report Archive"
             exit(false);
 
         VATReportArchive.Init();
+        OnAfterInitVATReportArchive(VATReportArchive, Rec);
         VATReportArchive."VAT Report No." := VATReportNoValue;
         VATReportArchive."VAT Report Type" := "VAT Report Configuration".FromInteger(VATReportTypeValue);
         VATReportArchive."Submitted By" := UserId;
@@ -118,6 +119,7 @@ table 747 "VAT Report Archive"
         if not VATReportArchive.Get(VATReportTypeValue, VATReportNoValue) then
             Error(NoSubmissionMessageAvailableErr);
 
+        OnAfterNoSubmissionMessageAvailableError(VATReportArchive, Rec, VATReportTypeValue, VATReportNoValue);
         if not VATReportArchive."Submission Message BLOB".HasValue() then
             Error(NoSubmissionMessageAvailableErr);
 
@@ -141,6 +143,7 @@ table 747 "VAT Report Archive"
         if not VATReportArchive.Get(VATReportTypeValue, VATReportNoValue) then
             Error(NoResponseMessageAvailableErr);
 
+        OnAfterNoResponseMessageAvailableError(VATReportArchive, Rec, VATReportTypeValue, VATReportNoValue);
         if not VATReportArchive."Response Message BLOB".HasValue() then
             Error(NoResponseMessageAvailableErr);
 
@@ -186,6 +189,21 @@ table 747 "VAT Report Archive"
         RecordRef.GetTable(Rec);
         TempBlob.ToRecordRef(RecordRef, FieldNo("Response Message BLOB"));
         RecordRef.SetTable(Rec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitVATReportArchive(var VATReportArchive: Record "VAT Report Archive"; var Rec: Record "VAT Report Archive")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterNoSubmissionMessageAvailableError(var VATReportArchive: Record "VAT Report Archive"; var Rec: Record "VAT Report Archive"; VATReportTypeValue: Option; VATReportNoValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterNoResponseMessageAvailableError(var VATReportArchive: Record "VAT Report Archive"; var Rec: Record "VAT Report Archive"; VATReportTypeValue: Option; VATReportNoValue: Code[20])
+    begin
     end;
 }
 

@@ -2490,15 +2490,6 @@
       </DefaultValue>
       <Prompt>DocumentationLabel</Prompt>
     </ReportParameter>
-    <ReportParameter Name="TimezoneLabel">
-      <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>TimezoneLabel</Value>
-        </Values>
-      </DefaultValue>
-      <Prompt>TimezoneLabel</Prompt>
-    </ReportParameter>
     <ReportParameter Name="Type_ProdOrderRtngLineCaption">
       <DataType>String</DataType>
       <DefaultValue>
@@ -2584,7 +2575,7 @@
   <ReportParametersLayout>
     <GridLayoutDefinition>
       <NumberOfColumns>1</NumberOfColumns>
-      <NumberOfRows>32</NumberOfRows>
+      <NumberOfRows>31</NumberOfRows>
       <CellDefinitions>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
@@ -2699,51 +2690,46 @@
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>22</RowIndex>
-          <ParameterName>TimezoneLabel</ParameterName>
-        </CellDefinition>
-        <CellDefinition>
-          <ColumnIndex>0</ColumnIndex>
-          <RowIndex>23</RowIndex>
           <ParameterName>Type_ProdOrderRtngLineCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>24</RowIndex>
+          <RowIndex>23</RowIndex>
           <ParameterName>No_ProdOrderRtngLineCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>25</RowIndex>
+          <RowIndex>24</RowIndex>
           <ParameterName>PONo_ProdOrderRtngLineCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>26</RowIndex>
+          <RowIndex>25</RowIndex>
           <ParameterName>RtngNo_ProdOrderRtngLineCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>27</RowIndex>
+          <RowIndex>26</RowIndex>
           <ParameterName>OPNo_ProdOrderRtngLineCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>28</RowIndex>
+          <RowIndex>27</RowIndex>
           <ParameterName>Desc_ProdOrderRtngLineCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>29</RowIndex>
+          <RowIndex>28</RowIndex>
           <ParameterName>InptQty_ProdOrderRtngLineCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>30</RowIndex>
+          <RowIndex>29</RowIndex>
           <ParameterName>ItemNoCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>31</RowIndex>
+          <RowIndex>30</RowIndex>
           <ParameterName>DescriptionCaption</ParameterName>
         </CellDefinition>
       </CellDefinitions>

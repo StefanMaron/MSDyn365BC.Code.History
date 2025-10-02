@@ -4,6 +4,13 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Payroll;
 
+/// <summary>
+/// Configuration page for payroll import settings and default journal assignments.
+/// Provides setup interface for user accounts and journal template preferences.
+/// </summary>
+/// <remarks>
+/// Source Table: Payroll Setup (1660). Environment-specific visibility controlled by PayrollManagement codeunit.
+/// </remarks>
 page 1660 "Payroll Setup"
 {
     Caption = 'Payroll Setup';

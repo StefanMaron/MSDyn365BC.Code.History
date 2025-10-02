@@ -267,6 +267,22 @@ table 5611 "Depreciation Book"
                     until FADeprBook.Next() = 0;
             end;
         }
+        field(10500; "Use Accounting Period"; Boolean)
+        {
+            Caption = 'Use Accounting Period';
+
+            trigger OnValidate()
+            var
+                FADeprBook: Record "FA Depreciation Book";
+            begin
+                if "Use Accounting Period" then begin
+                    FADeprBook.SetRange("Depreciation Book Code", Code);
+                    FADeprBook.SetFilter("Depreciation Method", '<> %1', FADeprBook."Depreciation Method"::"Straight-Line");
+                    if not FADeprBook.IsEmpty() then
+                        Error(MustBeStraightLineTxt, FieldCaption("Use Accounting Period"), true);
+                end;
+            end;
+        }
     }
 
     keys
@@ -342,6 +358,7 @@ table 5611 "Depreciation Book"
     var
         FASetup: Record "FA Setup";
         FAJnlSetup: Record "FA Journal Setup";
+        MustBeStraightLineTxt: Label 'You cannot set %1 to %2 because some Fixed Assets associated with this book\exists where Depreciation Method is other than Straight-Line.',Comment ='%1="Use Accounting Period" Field Caption %2="Use Accounting Period" Field Value';
 
 #pragma warning disable AA0074
         Text000: Label 'The book cannot be deleted because it is in use.';

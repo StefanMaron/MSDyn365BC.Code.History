@@ -635,11 +635,6 @@ page 6405 "Purchase Document Line Entity"
                     ApplicationArea = All;
                     Caption = 'Returns Deferral Start Date', Locked = true;
                 }
-                field(prodOrderNumber; Rec."Prod. Order No.")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Prod. Order No.', Locked = true;
-                }
                 field(variantCode; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
@@ -929,31 +924,6 @@ page 6405 "Purchase Document Line Entity"
                     ApplicationArea = All;
                     Caption = 'Subtype', Locked = true;
                 }
-                field(routingNumber; Rec."Routing No.")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Routing No.', Locked = true;
-                }
-                field(operationNumber; Rec."Operation No.")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Operation No.', Locked = true;
-                }
-                field(workCenterNumber; Rec."Work Center No.")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Work Center No.', Locked = true;
-                }
-                field(finished; Rec.Finished)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Finished', Locked = true;
-                }
-                field(prodOrderLineNumber; Rec."Prod. Order Line No.")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Prod. Order Line No.', Locked = true;
-                }
                 field(overheadRate; Rec."Overhead Rate")
                 {
                     ApplicationArea = All;
@@ -973,11 +943,6 @@ page 6405 "Purchase Document Line Entity"
                 {
                     ApplicationArea = All;
                     Caption = 'Safety Lead Time', Locked = true;
-                }
-                field(routingReferenceNumber; Rec."Routing Reference No.")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Routing Reference No.', Locked = true;
                 }
             }
         }

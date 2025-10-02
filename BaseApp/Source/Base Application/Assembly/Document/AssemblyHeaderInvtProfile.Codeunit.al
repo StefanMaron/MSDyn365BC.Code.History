@@ -6,9 +6,17 @@ namespace Microsoft.Assembly.Document;
 
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Requisition;
+using Microsoft.Inventory.Planning;
+using Microsoft.Inventory.Location;
 
 codeunit 927 "Assembly Header Invt. Profile"
 {
+    var
+#pragma warning disable AA0470 
+        AcceptMessageTxt: Label '%1: The %2 of %3 %4 is %5.';
+#pragma warning restore AA0470 
+
     // Inventory Profile
 
     procedure TransferInventoryProfileFromAssemblyHeader(var InventoryProfile: Record "Inventory Profile"; var AssemblyHeader: Record "Assembly Header"; var TrackingReservationEntry: Record "Reservation Entry")
@@ -88,6 +96,66 @@ codeunit 927 "Assembly Header Invt. Profile"
                     InventoryProfile.InsertSupplyInvtProfile(ToDate);
                 end;
             until AssemblyHeader.Next() = 0;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Inventory Profile Offsetting", 'OnSetAcceptActionOnBeforeAcceptActionMsg', '', false, false)]
+    local procedure OnSetAcceptActionOnBeforeAcceptActionMsg(var RequisitionLine: Record "Requisition Line"; var AcceptActionMsg: Boolean; var PlanningTransparency: Codeunit "Planning Transparency")
+    var
+        AssemblyHeader: Record "Assembly Header";
+        DummyInventoryProfileTrackBuffer: Record "Inventory Profile Track Buffer";
+    begin
+        if RequisitionLine."Action Message" <> RequisitionLine."Action Message"::New then
+            case RequisitionLine."Ref. Order Type" of
+                RequisitionLine."Ref. Order Type"::Assembly:
+                    if AssemblyHeader.Get(RequisitionLine."Ref. Order Status", RequisitionLine."Ref. Order No.") and
+                        (AssemblyHeader.Status = AssemblyHeader.Status::Released)
+                    then begin
+                        AcceptActionMsg := false;
+                        PlanningTransparency.LogWarning(
+                            0, RequisitionLine, DummyInventoryProfileTrackBuffer."Warning Level",
+                            StrSubstNo(
+                                AcceptMessageTxt, DummyInventoryProfileTrackBuffer."Warning Level", AssemblyHeader.FieldCaption(Status),
+                                RequisitionLine."Ref. Order Type", RequisitionLine."Ref. Order No.", AssemblyHeader.Status));
+                    end;
+            end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Inventory Profile Offsetting", 'OnAfterInitSupply', '', false, false)]
+    local procedure OnAfterInitSupply(var InventoryProfile: Record "Inventory Profile"; var StockkeepingUnit: Record "Stockkeeping Unit")
+    begin
+        case StockkeepingUnit."Replenishment System" of
+            StockkeepingUnit."Replenishment System"::Assembly:
+                InventoryProfile."Source Type" := Database::"Assembly Header";
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Inventory Profile Offsetting", 'OnMaintainPlanningLineOnBeforeValidateNo', '', false, false)]
+    local procedure OnMaintainPlanningLineOnBeforeValidateNo(var RequisitionLine: Record "Requisition Line"; StockkeepingUnit: Record "Stockkeeping Unit")
+    begin
+        case StockkeepingUnit."Replenishment System" of
+            StockkeepingUnit."Replenishment System"::Assembly:
+                RequisitionLine."Ref. Order Type" := RequisitionLine."Ref. Order Type"::Assembly;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Inventory Profile Offsetting", 'OnMaintainPlanningLineOnAfterSetSourceForNotNewReqLine', '', false, false)]
+    local procedure OnMaintainPlanningLineOnAfterSetSourceForNotNewReqLine(var RequisitionLine: Record "Requisition Line"; var InventoryProfile: Record "Inventory Profile")
+    begin
+        case InventoryProfile."Source Type" of
+            Database::"Assembly Header":
+                SetAssembly(RequisitionLine, InventoryProfile);
+        end;
+    end;
+
+    local procedure SetAssembly(var RequisitionLine: Record "Requisition Line"; var InventoryProfile: Record "Inventory Profile")
+    var
+        AssemblyHeader: Record "Assembly Header";
+    begin
+        RequisitionLine."Ref. Order Type" := RequisitionLine."Ref. Order Type"::Assembly;
+        RequisitionLine."Ref. Order No." := InventoryProfile."Source ID";
+        RequisitionLine."Ref. Line No." := 0;
+        AssemblyHeader.Get("Assembly Document Type"::Order, RequisitionLine."Ref. Order No.");
+        RequisitionLine.TransferFromAsmHeader(AssemblyHeader);
     end;
 
 }

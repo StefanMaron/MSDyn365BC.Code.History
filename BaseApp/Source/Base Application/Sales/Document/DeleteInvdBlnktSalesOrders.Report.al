@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -8,6 +8,7 @@ using Microsoft.Assembly.Document;
 using Microsoft.Sales.Comment;
 using Microsoft.Utilities;
 using System.Automation;
+using System.Telemetry;
 
 report 291 "Delete Invd Blnkt Sales Orders"
 {
@@ -100,8 +101,10 @@ report 291 "Delete Invd Blnkt Sales Orders"
     }
 
     trigger OnPostReport()
+    var
+        AuditLog: Codeunit "Audit Log";
     begin
-        Session.LogAuditMessage(StrSubstNo(DeletedInvoicedBlanketSalesOrdersLbl, UserSecurityId(), CompanyName()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
+        AuditLog.LogAuditMessage(StrSubstNo(DeletedInvoicedBlanketSalesOrdersLbl, UserSecurityId(), CompanyName()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
     end;
 
     var

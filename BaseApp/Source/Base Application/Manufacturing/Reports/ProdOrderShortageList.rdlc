@@ -1550,6 +1550,114 @@
     </ReportSection>
   </ReportSections>
   <ReportParameters>
+    <ReportParameter Name="DataRetrieved">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DataRetrieved</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DataRetrieved</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdShtgList">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdShtgList</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdShtgList</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdShtgListPrint">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdShtgListPrint</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdShtgListPrint</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ProdShtgListAnalysis">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ProdShtgListAnalysis</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ProdShtgListAnalysis</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="PostingDateFilterLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>PostingDateFilterLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>PostingDateFilterLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="AboutTheReportLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>AboutTheReportLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>AboutTheReportLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="EnvironmentLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>EnvironmentLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>EnvironmentLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CompanyLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CompanyLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CompanyLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="UserLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>UserLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>UserLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RunOnLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>RunOnLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>RunOnLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ReportNameLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ReportNameLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ReportNameLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DocumentationLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DocumentationLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DocumentationLabel</Prompt>
+    </ReportParameter>
     <ReportParameter Name="Status_ProdOrderCaption">
       <DataType>String</DataType>
       <DefaultValue>
@@ -1558,6 +1666,150 @@
         </Values>
       </DefaultValue>
       <Prompt>Status_ProdOrderCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="StatusCaptionLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>StatusCaptionLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>StatusCaptionLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="NoCaptionLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>NoCaptionLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>NoCaptionLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DescCaptionLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DescCaptionLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DescCaptionLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ItemNoCaptionLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ItemNoCaptionLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ItemNoCaptionLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ItemDescCaptionLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ItemDescCaptionLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ItemDescCaptionLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="LineNoCaptionLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>LineNoCaptionLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>LineNoCaptionLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="PageNoCaptionLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>PageNoCaptionLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>PageNoCaptionLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DueDateCaptionLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DueDateCaptionLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DueDateCaptionLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="NeededQtyCaptionLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>NeededQtyCaptionLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>NeededQtyCaptionLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CompItemScheduledNeedQtyCaptionLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CompItemScheduledNeedQtyCaptionLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CompItemScheduledNeedQtyCaptionLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CompItemInventoryCaptionLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CompItemInventoryCaptionLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CompItemInventoryCaptionLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RemainingQtyBaseCaptionLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>RemainingQtyBaseCaptionLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>RemainingQtyBaseCaptionLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RemQtyBaseCaptionLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>RemQtyBaseCaptionLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>RemQtyBaseCaptionLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ReceiptQtyCaptionLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ReceiptQtyCaptionLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ReceiptQtyCaptionLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="QtyonPurchOrderCaptionLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>QtyonPurchOrderCaptionLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>QtyonPurchOrderCaptionLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="QtyonSalesOrderCaptionLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>QtyonSalesOrderCaptionLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>QtyonSalesOrderCaptionLbl</Prompt>
     </ReportParameter>
     <ReportParameter Name="No_ProdOrderCaption">
       <DataType>String</DataType>
@@ -1577,6 +1829,24 @@
       </DefaultValue>
       <Prompt>Desc_ProdOrderCaption</Prompt>
     </ReportParameter>
+    <ReportParameter Name="LineNo_ProdOrderLineCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>LineNo_ProdOrderLineCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>LineNo_ProdOrderLineCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CompItemSchdldNeedQtyCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CompItemSchdldNeedQtyCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CompItemSchdldNeedQtyCaption</Prompt>
+    </ReportParameter>
     <ReportParameter Name="ItemNo_ProdOrderCompCaption">
       <DataType>String</DataType>
       <DefaultValue>
@@ -1595,36 +1865,228 @@
       </DefaultValue>
       <Prompt>Desc_ProdOrderCompCaption</Prompt>
     </ReportParameter>
+    <ReportParameter Name="CompItemSchdldRcptQtyCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CompItemSchdldRcptQtyCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CompItemSchdldRcptQtyCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CompItemQtyonPurchOrderCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CompItemQtyonPurchOrderCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CompItemQtyonPurchOrderCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CompItemQtyonSalesOrderCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CompItemQtyonSalesOrderCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CompItemQtyonSalesOrderCaption</Prompt>
+    </ReportParameter>
   </ReportParameters>
   <ReportParametersLayout>
     <GridLayoutDefinition>
       <NumberOfColumns>1</NumberOfColumns>
-      <NumberOfRows>5</NumberOfRows>
+      <NumberOfRows>38</NumberOfRows>
       <CellDefinitions>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>0</RowIndex>
-          <ParameterName>Status_ProdOrderCaption</ParameterName>
+          <ParameterName>DataRetrieved</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>1</RowIndex>
-          <ParameterName>No_ProdOrderCaption</ParameterName>
+          <ParameterName>ProdShtgList</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>2</RowIndex>
-          <ParameterName>Desc_ProdOrderCaption</ParameterName>
+          <ParameterName>ProdShtgListPrint</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>3</RowIndex>
-          <ParameterName>ItemNo_ProdOrderCompCaption</ParameterName>
+          <ParameterName>ProdShtgListAnalysis</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>4</RowIndex>
+          <ParameterName>PostingDateFilterLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>5</RowIndex>
+          <ParameterName>AboutTheReportLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>6</RowIndex>
+          <ParameterName>EnvironmentLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>7</RowIndex>
+          <ParameterName>CompanyLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>8</RowIndex>
+          <ParameterName>UserLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>9</RowIndex>
+          <ParameterName>RunOnLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>10</RowIndex>
+          <ParameterName>ReportNameLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>11</RowIndex>
+          <ParameterName>DocumentationLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>12</RowIndex>
+          <ParameterName>Status_ProdOrderCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>13</RowIndex>
+          <ParameterName>StatusCaptionLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>14</RowIndex>
+          <ParameterName>NoCaptionLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>15</RowIndex>
+          <ParameterName>DescCaptionLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>16</RowIndex>
+          <ParameterName>ItemNoCaptionLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>17</RowIndex>
+          <ParameterName>ItemDescCaptionLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>18</RowIndex>
+          <ParameterName>LineNoCaptionLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>19</RowIndex>
+          <ParameterName>PageNoCaptionLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>20</RowIndex>
+          <ParameterName>DueDateCaptionLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>21</RowIndex>
+          <ParameterName>NeededQtyCaptionLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>22</RowIndex>
+          <ParameterName>CompItemScheduledNeedQtyCaptionLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>23</RowIndex>
+          <ParameterName>CompItemInventoryCaptionLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>24</RowIndex>
+          <ParameterName>RemainingQtyBaseCaptionLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>25</RowIndex>
+          <ParameterName>RemQtyBaseCaptionLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>26</RowIndex>
+          <ParameterName>ReceiptQtyCaptionLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>27</RowIndex>
+          <ParameterName>QtyonPurchOrderCaptionLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>28</RowIndex>
+          <ParameterName>QtyonSalesOrderCaptionLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>29</RowIndex>
+          <ParameterName>No_ProdOrderCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>30</RowIndex>
+          <ParameterName>Desc_ProdOrderCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>31</RowIndex>
+          <ParameterName>LineNo_ProdOrderLineCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>32</RowIndex>
+          <ParameterName>CompItemSchdldNeedQtyCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>33</RowIndex>
+          <ParameterName>ItemNo_ProdOrderCompCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>34</RowIndex>
           <ParameterName>Desc_ProdOrderCompCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>35</RowIndex>
+          <ParameterName>CompItemSchdldRcptQtyCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>36</RowIndex>
+          <ParameterName>CompItemQtyonPurchOrderCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>37</RowIndex>
+          <ParameterName>CompItemQtyonSalesOrderCaption</ParameterName>
         </CellDefinition>
       </CellDefinitions>
     </GridLayoutDefinition>
@@ -1671,12 +2133,6 @@ End Function
   <DataSets>
     <DataSet Name="DataSet_Result">
       <Fields>
-        <Field Name="TodayFormatted">
-          <DataField>TodayFormatted</DataField>
-        </Field>
-        <Field Name="CompanyName">
-          <DataField>CompanyName</DataField>
-        </Field>
         <Field Name="Status_ProdOrder">
           <DataField>Status_ProdOrder</DataField>
         </Field>
@@ -1688,6 +2144,12 @@ End Function
         </Field>
         <Field Name="DueDate_ProdOrder">
           <DataField>DueDate_ProdOrder</DataField>
+        </Field>
+        <Field Name="TodayFormatted">
+          <DataField>TodayFormatted</DataField>
+        </Field>
+        <Field Name="CompanyName">
+          <DataField>CompanyName</DataField>
         </Field>
         <Field Name="ShortageListCaption">
           <DataField>ShortageListCaption</DataField>

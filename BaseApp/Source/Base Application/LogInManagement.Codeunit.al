@@ -231,7 +231,7 @@ codeunit 40 LogInManagement
         UserPersonalization: Record "User Personalization";
         AllProfile: Record "All Profile";
         AllObjWithCaption: Record AllObjWithCaption;
-        PermissionManager: Codeunit "Permission Manager";
+        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
         if not UserPersonalization.Get(UserSecurityId()) then
@@ -251,7 +251,7 @@ codeunit 40 LogInManagement
         end else
             if EnvironmentInfo.IsSaaS() then begin
                 AllProfile.Reset();
-                PermissionManager.GetDefaultProfileID(UserSecurityId(), AllProfile);
+                ConfPersonalizationMgt.GetDefaultProfileID(UserSecurityId(), AllProfile);
 
                 if not AllProfile.IsEmpty() then begin
                     UserPersonalization."Profile ID" := AllProfile."Profile ID";
@@ -275,9 +275,7 @@ codeunit 40 LogInManagement
         CurrentDate := DT2Date(TypeHelper.GetCurrentDateTimeInUserTimeZone());
     end;
 
-#pragma warning disable AS0105
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterInitialization', '', false, false)]
-#pragma warning restore AS0105
     local procedure OnCompanyOpen()
     begin
         CompanyOpen();
@@ -324,4 +322,3 @@ codeunit 40 LogInManagement
     begin
     end;
 }
-

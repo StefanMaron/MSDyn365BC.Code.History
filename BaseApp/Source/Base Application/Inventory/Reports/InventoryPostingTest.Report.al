@@ -143,13 +143,13 @@ report 702 "Inventory Posting - Test"
                 column(Item_Journal_Line__Document_No__; "Document No.")
                 {
                 }
-                column(Item_Journal_Line__Output_Quantity_; "Output Quantity")
+                column(Item_Journal_Line__Output_Quantity_; OutputQuantity)
                 {
                 }
-                column(Item_Journal_Line__Run_Time_; "Run Time")
+                column(Item_Journal_Line__Run_Time_; RunTime)
                 {
                 }
-                column(Item_Journal_Line__Setup_Time_; "Setup Time")
+                column(Item_Journal_Line__Setup_Time_; SetupTime)
                 {
                 }
                 column(Item_Journal_Line_Description_Control59; Description)
@@ -161,19 +161,19 @@ report 702 "Inventory Posting - Test"
                 column(Item_Journal_Line_Type; Type)
                 {
                 }
-                column(Item_Journal_Line__Operation_No__; "Operation No.")
+                column(Item_Journal_Line__Operation_No__; OperationNo)
                 {
                 }
                 column(Item_Journal_Line__Unit_Cost__Control99; "Unit Cost")
                 {
                 }
-                column(Item_Journal_Line__Stop_Code_; "Stop Code")
+                column(Item_Journal_Line__Stop_Code_; StopCode)
                 {
                 }
-                column(Item_Journal_Line__Scrap_Code_; "Scrap Code")
+                column(Item_Journal_Line__Scrap_Code_; ScrapCode)
                 {
                 }
-                column(Item_Journal_Line__Stop_Time_; "Stop Time")
+                column(Item_Journal_Line__Stop_Time_; StopTime)
                 {
                 }
                 column(NoOfEntries_5_; NoOfEntries[5])
@@ -294,7 +294,7 @@ report 702 "Inventory Posting - Test"
                 column(Item_Journal_Line__Document_No__Caption; FieldCaption("Document No."))
                 {
                 }
-                column(Item_Journal_Line__Operation_No__Caption; FieldCaption("Operation No."))
+                column(Item_Journal_Line__Operation_No__Caption; OperationNoCaption)
                 {
                 }
                 column(Item_Journal_Line_TypeCaption; FieldCaption(Type))
@@ -306,25 +306,25 @@ report 702 "Inventory Posting - Test"
                 column(Item_Journal_Line_Description_Control59Caption; FieldCaption(Description))
                 {
                 }
-                column(Item_Journal_Line__Setup_Time_Caption; FieldCaption("Setup Time"))
+                column(Item_Journal_Line__Setup_Time_Caption; SetupTimeCaption)
                 {
                 }
-                column(Item_Journal_Line__Run_Time_Caption; FieldCaption("Run Time"))
+                column(Item_Journal_Line__Run_Time_Caption; RunTimeCaption)
                 {
                 }
-                column(Item_Journal_Line__Output_Quantity_Caption; FieldCaption("Output Quantity"))
+                column(Item_Journal_Line__Output_Quantity_Caption; OutputQuantityCaption)
                 {
                 }
                 column(Item_Journal_Line__Unit_Cost__Control99Caption; FieldCaption("Unit Cost"))
                 {
                 }
-                column(Item_Journal_Line__Stop_Time_Caption; FieldCaption("Stop Time"))
+                column(Item_Journal_Line__Stop_Time_Caption; StopTimeCaption)
                 {
                 }
-                column(Item_Journal_Line__Scrap_Code_Caption; FieldCaption("Scrap Code"))
+                column(Item_Journal_Line__Scrap_Code_Caption; ScrapCodeCaption)
                 {
                 }
-                column(Item_Journal_Line__Stop_Code_Caption; FieldCaption("Stop Code"))
+                column(Item_Journal_Line__Stop_Code_Caption; StopCodeCaption)
                 {
                 }
                 column(TotalAmountCaption; TotalAmountCaptionLbl)
@@ -580,41 +580,7 @@ report 702 "Inventory Posting - Test"
                                 true));
                     end;
 
-                    if ("Entry Type" in ["Entry Type"::Output, "Entry Type"::Consumption]) and ("Order Type" = "Order Type"::Production) and
-                       not OnlyStopTime()
-                    then begin
-                        if "Order No." = '' then
-                            AddError(StrSubstNo(Text001, FieldCaption("Order No.")));
-                        if "Order Line No." = 0 then
-                            AddError(StrSubstNo(Text001, FieldCaption("Order Line No.")));
-
-                        if "Entry Type" = "Entry Type"::Output then
-                            if (("Run Time" = 0) and ("Setup Time" = 0) and ("Output Quantity" = 0) and
-                                ("Scrap Quantity" = 0)) and not QtyError
-                            then begin
-                                QtyError := true;
-                                AddError(
-                                  StrSubstNo(Text019,
-                                    FieldCaption("Setup Time"),
-                                    FieldCaption("Run Time"),
-                                    FieldCaption("Output Quantity"), FieldCaption("Scrap Quantity")));
-                            end;
-                    end;
-
-                    if "Entry Type" <> "Entry Type"::Output then begin
-                        if "Setup Time" <> 0 then
-                            AddError(StrSubstNo(Text009, FieldCaption("Setup Time")));
-                        if "Run Time" <> 0 then
-                            AddError(StrSubstNo(Text009, FieldCaption("Run Time")));
-                        if "Stop Time" <> 0 then
-                            AddError(StrSubstNo(Text009, FieldCaption("Stop Time")));
-                        if "Output Quantity" <> 0 then
-                            AddError(StrSubstNo(Text009, FieldCaption("Output Quantity")));
-                        if "Scrap Quantity" <> 0 then
-                            AddError(StrSubstNo(Text009, FieldCaption("Scrap Quantity")));
-                        if "Concurrent Capacity" <> 0 then
-                            AddError(StrSubstNo(Text009, FieldCaption("Concurrent Capacity")));
-                    end;
+                    OnAfterGetRecordOnCheckManufacturing("Item Journal Line", QtyError);
 
                     if (Quantity = 0) and ("Invoiced Quantity" <> 0) then begin
                         if "Item Shpt. Entry No." = 0 then
@@ -649,8 +615,8 @@ report 702 "Inventory Posting - Test"
                     CheckDimValuePosting("Item Journal Line");
 
                     if (ItemJnlTemplate.Type in
-                        [ItemJnlTemplate.Type::Consumption, ItemJnlTemplate.Type::Transfer]) or
-                       ((ItemJnlTemplate.Type = ItemJnlTemplate.Type::"Prod. Order") and
+                        [ItemJnlTemplate.GetConsumptionTemplateType(), ItemJnlTemplate.Type::Transfer]) or
+                       ((ItemJnlTemplate.Type = ItemJnlTemplate.GetProdOrderTemplateType()) and
                         ("Entry Type" = "Entry Type"::Consumption))
                     then begin
                         ItemJnlLine4.Reset();
@@ -739,6 +705,11 @@ report 702 "Inventory Posting - Test"
                                 TotalCostAm5 := TotalCostAm5 + CostAmount;
                             end;
                     end;
+
+                    OnAfterGetRecordOnSetmanufacturingFields(
+                        "Item Journal Line",
+                        OperationNo, OperationNoCaption, OutputQuantity, OutputQuantityCaption, ScrapCode, ScrapCodeCaption, StopCode, StopCodeCaption,
+                        RunTime, RunTimeCaption, SetupTime, SetupTimeCaption, StopTime, StopTimeCaption);
 
                     OnAfterCheckItemJnLLine("Item Journal Line", Item, ErrorCounter, ErrorText);
                 end;
@@ -852,6 +823,21 @@ report 702 "Inventory Posting - Test"
         ShowDim: Boolean;
         Continue: Boolean;
 
+        OperationNo: Code[20];
+        OperationNoCaption: Text;
+        ScrapCode: Code[10];
+        ScrapCodeCaption: Text;
+        StopCode: Code[10];
+        StopCodeCaption: Text;
+        OutputQuantity: Decimal;
+        OutputQuantityCaption: Text;
+        RunTime: Decimal;
+        RunTimeCaption: Text;
+        SetupTime: Decimal;
+        SetupTimeCaption: Text;
+        StopTime: Decimal;
+        StopTimeCaption: Text;
+
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text000: Label '%1 cannot be filtered when you post recurring journals.';
@@ -874,7 +860,6 @@ report 702 "Inventory Posting - Test"
 #pragma warning restore AA0470
         Text017: Label 'There is a gap in the number series.';
 #pragma warning disable AA0470
-        Text019: Label '%1,%2,%3 or %4 must be specified.';
         Text020: Label '%1 %2 is not on inventory for %3 %4.';
         Text021: Label '%1 %2 is not on inventory.';
 #pragma warning restore AA0470
@@ -961,6 +946,20 @@ report 702 "Inventory Posting - Test"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeItemJournalLineOnAfterGetRecord(ItemJournalLine: Record "Item Journal Line"; var ErrorCounter: Integer; var ErrorText: array[30] of Text[250])
+    begin
+    end;
+
+    [InternalEvent(true)]
+    local procedure OnAfterGetRecordOnCheckManufacturing(var ItemJournalLine: Record "Item Journal Line"; var QtyError: Boolean)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnAfterGetRecordOnSetManufacturingFields(
+        var ItemJournalLine: Record "Item Journal Line";
+        var OperationNo: Code[20]; var OperationNoCaption: Text; var OutputQuantity: Decimal; var OutputQuantityCaption: Text;
+        var ScrapCode: Code[10]; var ScrapCodeCaption: Text; var StopCode: Code[10]; var StopCodeCaption: Text;
+        var RunTime: Decimal; var RunTimeCaption: Text; var SetupTime: Decimal; var SetupTimeCaption: Text; var StopTime: Decimal; var StopTimeCaption: Text)
     begin
     end;
 }

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.Vendor;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Vendor;
 
 using Microsoft.Bank.Reconciliation;
 using Microsoft.CRM.Contact;
@@ -724,6 +728,7 @@ page 27 "Vendor List"
                     ObsoleteReason = 'Moved to IRS Forms App.';
                     ObsoleteState = Pending;
                     ObsoleteTag = '25.0';
+                    Visible = false;
                 }
 #endif
                 action("Statistics by C&urrencies")

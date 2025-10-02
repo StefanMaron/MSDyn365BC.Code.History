@@ -359,7 +359,7 @@ page 1500 Workflows
             ExternalLinkEnabled := not IsNullGuid(Rec."External Client ID");
 
             if ExternalLinkEnabled then
-                Source := FlowSourceText
+                Source := PowerAutomateTxt
             else
                 Source := BusinessCentralSourceTxt;
         end
@@ -385,9 +385,7 @@ page 1500 Workflows
         IsSaaS: Boolean;
         Source: Text;
         BusinessCentralSourceTxt: Label 'Business Central';
-#pragma warning disable AA0074
-        FlowSourceText: Label 'Power Automate';
-#pragma warning restore AA0074
+        PowerAutomateTxt: Label 'Power Automate';
 
     protected var
         ExportEnabled: Boolean;

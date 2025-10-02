@@ -4,6 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Setup;
 
+/// <summary>
+/// Dialog page for selecting which payment services to include on sales documents.
+/// Allows users to choose which payment options are made available to customers.
+/// </summary>
+/// <remarks>
+/// Source Table: Payment Service Setup (1060). Provides multi-selection interface for payment services.
+/// Used when configuring payment options for specific documents or general settings.
+/// </remarks>
 page 1061 "Select Payment Service"
 {
     Caption = 'Select Payment Service';

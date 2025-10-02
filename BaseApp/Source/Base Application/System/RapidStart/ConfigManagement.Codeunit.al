@@ -1,3 +1,4 @@
+#pragma warning disable AS0018
 namespace System.IO;
 
 #if not CLEAN25
@@ -23,21 +24,19 @@ codeunit 8616 "Config. Management"
         ConfigPackageMgt: Codeunit "Config. Package Management";
         HideDialog: Boolean;
 
-#pragma warning disable AA0074
-        Text000: Label 'You must specify a company name.';
+        NoCompanyNameSpecifiedErr: Label 'You must specify a company name.';
 #pragma warning disable AA0470
-        Text001: Label 'Do you want to copy the data from the %1 table in %2?';
-        Text002: Label 'Data from the %1 table in %2 has been copied successfully.';
-        Text003: Label 'Do you want to copy the data from the selected tables in %1?';
-        Text004: Label 'Data from the selected tables in %1 has been copied successfully.';
+        CopyTableDataQst: Label 'Do you want to copy the data from the %1 table in %2?';
+        TableDataCopiedSuccessfullyMsg: Label 'Data from the %1 table in %2 has been copied successfully.';
+        CopySelectedTableDataQst: Label 'Do you want to copy the data from the selected tables in %1?';
+        SelectedTableDataCopiedSuccessfullyMsg: Label 'Data from the selected tables in %1 has been copied successfully.';
 #pragma warning restore AA0470
-        Text006: Label 'The base company must not be the same as the current company.';
+        SameCompanyErr: Label 'The base company must not be the same as the current company.';
 #pragma warning disable AA0470
-        Text007: Label 'The %1 table in %2 already contains data.\\You must delete the data from the table before you can use this function.';
-        Text009: Label 'There is no data in the %1 table in %2.\\You must set up the table in %3 manually.';
+        TableContainsDataErr: Label 'The %1 table in %2 already contains data.\\You must delete the data from the table before you can use this function.';
+        NoDataInTableErr: Label 'There is no data in the %1 table in %2.\\You must set up the table in %3 manually.';
 #pragma warning restore AA0470
-        Text023: Label 'Processing tables';
-#pragma warning restore AA0074
+        ProcessingTablesMsg: Label 'Processing tables';
 
     procedure CopyDataDialog(NewCompanyName: Text[30]; var ConfigLine: Record "Config. Line")
     var
@@ -50,18 +49,17 @@ codeunit 8616 "Config. Management"
         OnBeforeCopyDataDialog(ConfigLine, NewCompanyName, IsHandled);
         if IsHandled then
             exit;
-
         if NewCompanyName = '' then
-            Error(Text000);
+            Error(NoCompanyNameSpecifiedErr);
         if not ConfigLine.FindFirst() then
             exit;
         SingleTable := ConfigLine.Next() = 0;
         if SingleTable then begin
-            ConfirmTableText := StrSubstNo(Text001, ConfigLine.Name, NewCompanyName);
-            MessageTableText := StrSubstNo(Text002, ConfigLine.Name, NewCompanyName);
+            ConfirmTableText := StrSubstNo(CopyTableDataQst, ConfigLine.Name, NewCompanyName);
+            MessageTableText := StrSubstNo(TableDataCopiedSuccessfullyMsg, ConfigLine.Name, NewCompanyName);
         end else begin
-            ConfirmTableText := StrSubstNo(Text003, NewCompanyName);
-            MessageTableText := StrSubstNo(Text004, NewCompanyName);
+            ConfirmTableText := StrSubstNo(CopySelectedTableDataQst, NewCompanyName);
+            MessageTableText := StrSubstNo(SelectedTableDataCopiedSuccessfullyMsg, NewCompanyName);
         end;
         if not Confirm(ConfirmTableText, SingleTable) then
             exit;
@@ -82,15 +80,15 @@ codeunit 8616 "Config. Management"
         BaseCompanyName := ConfigLine.GetRangeMax("Company Filter (Source Table)");
         ConfigLine.FilterGroup := 0;
         if BaseCompanyName = CompanyName then
-            Error(Text006);
+            Error(SameCompanyErr);
         ConfigLine.CalcFields("No. of Records", "No. of Records (Source Table)");
         if ConfigLine."No. of Records" <> 0 then
             Error(
-              Text007,
+              TableContainsDataErr,
               ConfigLine.Name, CompanyName);
         if ConfigLine."No. of Records (Source Table)" = 0 then
             Error(
-              Text009,
+              NoDataInTableErr,
               ConfigLine.Name, BaseCompanyName, CompanyName);
         TransferContents(ConfigLine."Table ID", BaseCompanyName, true);
     end;
@@ -433,34 +431,8 @@ codeunit 8616 "Config. Management"
                 exit(Page::Microsoft.HumanResources.Setup."Employee Statistics Groups");
             Database::Microsoft.HumanResources.Setup.Union:
                 exit(Page::Microsoft.HumanResources.Setup.Unions);
-            Database::Microsoft.Manufacturing.Setup."Manufacturing Setup":
-                exit(Page::Microsoft.Manufacturing.Setup."Manufacturing Setup");
-            Database::Microsoft.Manufacturing.Family.Family:
-                exit(Page::Microsoft.Manufacturing.Family.Family);
-            Database::Microsoft.Manufacturing.ProductionBOM."Production BOM Header":
-                exit(Page::Microsoft.Manufacturing.ProductionBOM."Production BOM");
             Database::Microsoft.Manufacturing.Capacity."Capacity Unit of Measure":
                 exit(Page::Microsoft.Manufacturing.Capacity."Capacity Units of Measure");
-            Database::Microsoft.Manufacturing.Setup."Work Shift":
-                exit(Page::Microsoft.Manufacturing.Setup."Work Shifts");
-            Database::Microsoft.Manufacturing.Capacity."Shop Calendar":
-                exit(Page::Microsoft.Manufacturing.Capacity."Shop Calendars");
-            Database::Microsoft.Manufacturing.WorkCenter."Work Center Group":
-                exit(Page::Microsoft.Manufacturing.WorkCenter."Work Center Groups");
-            Database::Microsoft.Manufacturing.Routing."Standard Task":
-                exit(Page::Microsoft.Manufacturing.Routing."Standard Tasks");
-            Database::Microsoft.Manufacturing.Routing."Routing Link":
-                exit(Page::Microsoft.Manufacturing.Routing."Routing Links");
-            Database::Microsoft.Manufacturing.Setup.Stop:
-                exit(Page::Microsoft.Manufacturing.Setup."Stop Codes");
-            Database::Microsoft.Manufacturing.Setup.Scrap:
-                exit(Page::Microsoft.Manufacturing.Setup."Scrap Codes");
-            Database::Microsoft.Manufacturing.MachineCenter."Machine Center":
-                exit(Page::Microsoft.Manufacturing.MachineCenter."Machine Center List");
-            Database::Microsoft.Manufacturing.WorkCenter."Work Center":
-                exit(Page::Microsoft.Manufacturing.WorkCenter."Work Center List");
-            Database::Microsoft.Manufacturing.Routing."Routing Header":
-                exit(Page::Microsoft.Manufacturing.Routing.Routing);
             Database::Microsoft.CostAccounting.Account."Cost Type":
                 exit(Page::Microsoft.CostAccounting.Account."Cost Type List");
             Database::Microsoft.CostAccounting.Journal."Cost Journal Template":
@@ -603,7 +575,7 @@ codeunit 8616 "Config. Management"
         Include: Boolean;
     begin
         if not HideDialog then
-            ConfigProgressBar.Init(AllObj.Count, 1, Text023);
+            ConfigProgressBar.Init(AllObj.Count, 1, ProcessingTablesMsg);
 
         TempInt.DeleteAll();
 
@@ -705,22 +677,21 @@ codeunit 8616 "Config. Management"
     begin
         case TableID of
             Database::Microsoft.Finance.GeneralLedger.Account."G/L Account",
-          Database::Microsoft.Sales.Customer.Customer,
-          Database::Microsoft.Purchases.Vendor.Vendor,
-          Database::Microsoft.Inventory.Item.Item,
-          Database::Microsoft.Projects.Resources.Resource."Resource Group",
-          Database::Microsoft.Projects.Resources.Resource.Resource,
-          Database::Microsoft.Projects.Project.Job.Job,
-          Database::Microsoft.Bank.BankAccount."Bank Account",
-          Database::Microsoft.HumanResources.Employee.Employee,
-          Database::Microsoft.FixedAssets.FixedAsset."Fixed Asset",
-          Database::Microsoft.FixedAssets.Insurance.Insurance,
-          Database::Microsoft.Inventory.Location."Responsibility Center",
-          Database::Microsoft.Manufacturing.WorkCenter."Work Center",
-          Database::Microsoft.CRM.Team."Salesperson/Purchaser",
-          Database::Microsoft.CRM.Campaign.Campaign,
-          Database::Microsoft.CashFlow.Setup."Cash Flow Manual Expense",
-          Database::Microsoft.CashFlow.Setup."Cash Flow Manual Revenue":
+            Database::Microsoft.Sales.Customer.Customer,
+            Database::Microsoft.Purchases.Vendor.Vendor,
+            Database::Microsoft.Inventory.Item.Item,
+            Database::Microsoft.Projects.Resources.Resource."Resource Group",
+            Database::Microsoft.Projects.Resources.Resource.Resource,
+            Database::Microsoft.Projects.Project.Job.Job,
+            Database::Microsoft.Bank.BankAccount."Bank Account",
+            Database::Microsoft.HumanResources.Employee.Employee,
+            Database::Microsoft.FixedAssets.FixedAsset."Fixed Asset",
+            Database::Microsoft.FixedAssets.Insurance.Insurance,
+            Database::Microsoft.Inventory.Location."Responsibility Center",
+            Database::Microsoft.CRM.Team."Salesperson/Purchaser",
+            Database::Microsoft.CRM.Campaign.Campaign,
+            Database::Microsoft.CashFlow.Setup."Cash Flow Manual Expense",
+            Database::Microsoft.CashFlow.Setup."Cash Flow Manual Revenue":
                 exit(true);
         end;
 
@@ -754,7 +725,6 @@ codeunit 8616 "Config. Management"
                               Database::"Tenant Permission Set Rel.",
                               Database::"Tenant Permission Set",
                               Database::"Tenant Permission"];
-        OnAfterTableIsInAllowedRange(TableID, Result);
     end;
 
     local procedure IsNormalTable(TableID: Integer): Boolean
@@ -772,7 +742,6 @@ codeunit 8616 "Config. Management"
                                                               Database::"Tenant Permission Set Rel.",
                                                               Database::"Tenant Permission Set",
                                                               Database::"Tenant Permission"]);
-        OnAfterIsSystemTable(TableID, Result);
     end;
 
     procedure AssignParentLineNos()
@@ -880,16 +849,6 @@ codeunit 8616 "Config. Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTableIsInAllowedRange(TableID: Integer; var Result: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterIsSystemTable(TableID: Integer; var Result: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyDataDialog(var ConfigLine: Record "Config. Line"; NewCompanyName: Text[30]; var IsHandled: Boolean)
     begin
     end;
@@ -899,4 +858,5 @@ codeunit 8616 "Config. Management"
     begin
     end;
 }
+#pragma warning restore AS0018
 

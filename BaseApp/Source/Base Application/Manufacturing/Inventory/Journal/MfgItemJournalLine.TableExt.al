@@ -15,17 +15,12 @@ using Microsoft.Manufacturing.Setup;
 using Microsoft.Foundation.UOM;
 using Microsoft.Warehouse.Request;
 using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Inventory.Location;
 
 tableextension 99000758 "Mfg. Item Journal Line" extends "Item Journal Line"
 {
     fields
     {
-        field(5561; "Flushing Method"; Enum "Flushing Method")
-        {
-            Caption = 'Flushing Method';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
         field(5838; "Operation No."; Code[10])
         {
             Caption = 'Operation No.';
@@ -336,11 +331,6 @@ tableextension 99000758 "Mfg. Item Journal Line" extends "Item Journal Line"
             Caption = 'Finished';
             DataClassification = CustomerContent;
         }
-        field(5888; Subcontracting; Boolean)
-        {
-            Caption = 'Subcontracting';
-            DataClassification = CustomerContent;
-        }
         field(5895; "Stop Code"; Code[10])
         {
             Caption = 'Stop Code';
@@ -400,7 +390,7 @@ tableextension 99000758 "Mfg. Item Journal Line" extends "Item Journal Line"
     var
         UOMMgt: Codeunit "Unit of Measure Management";
 
-        DifferentBinCodeQst: Label 'The entered bin code %1 is different from the bin code %2 in production order component %3.\\Are you sure that you want to post the consumption from bin code %1?';
+        DifferentBinCodeQst: Label 'The entered bin code %1 is different from the bin code %2 in production order component %3.\\Are you sure that you want to post the consumption from bin code %1?', Comment = '%1, %2 - bin code, %3 - prod. order component';
         FinishedOutputQst: Label 'The operation has been finished. Do you want to post output for the finished operation?';
         ScrapCodeTypeErr: Label 'When using Scrap Code, Type must be Work Center or Machine Center.';
         SubcontractedErr: Label '%1 must be zero in line number %2 because it is linked to the subcontracted work center.', Comment = '%1 - Field Caption, %2 - Line No.';
@@ -687,7 +677,6 @@ tableextension 99000758 "Mfg. Item Journal Line" extends "Item Journal Line"
     procedure LastOutputOperation(ItemJnlLine2: Record "Item Journal Line") Result: Boolean
     var
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
-        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         Operation: Boolean;
         IsHandled: Boolean;
     begin
@@ -712,7 +701,7 @@ tableextension 99000758 "Mfg. Item Journal Line" extends "Item Journal Line"
                 ProdOrderRtngLine."Routing Status" := ProdOrderRtngLine."Routing Status"::Finished
             else
                 ProdOrderRtngLine."Routing Status" := ProdOrderRtngLine."Routing Status"::"In Progress";
-            Operation := not ItemJnlPostLine.NextOperationExist(ProdOrderRtngLine);
+            Operation := not ProdOrderRtngLine.NextOperationExist();
         end else
             Operation := true;
         exit(Operation);
@@ -776,18 +765,6 @@ tableextension 99000758 "Mfg. Item Journal Line" extends "Item Journal Line"
                 Validate("Prod. Order Comp. Line No.", ProdOrderComp."Line No.");
             end;
         end;
-    end;
-
-    /// <summary>
-    /// Determines if only the stop time field of the current item journal line record is set.
-    /// </summary>
-    /// <remarks>
-    /// In order to return true, setup time and run time fields must not be set.
-    /// </remarks>
-    /// <returns>True if only the stop time is set, otherwise false.</returns>
-    procedure OnlyStopTime(): Boolean
-    begin
-        exit(("Setup Time" = 0) and ("Run Time" = 0) and ("Stop Time" <> 0));
     end;
 
     /// <summary>
@@ -858,6 +835,29 @@ tableextension 99000758 "Mfg. Item Journal Line" extends "Item Journal Line"
             exit;
 
         UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Output Quantity", "Output Quantity (Base)", 0, 0);
+    end;
+
+    /// <summary>
+    /// Checks warehouse settings for a provided location and adjusts the output quantity 
+    /// for an item journal line record based on these settings and the entry type of the record.
+    /// </summary>
+    /// <param name="LocationCode">Location to check warehouse settings for.</param>
+    /// <param name="QtyToPost">Return value: Output quantity to use.</param>
+    procedure CheckWhse(LocationCode: Code[20]; var QtyToPost: Decimal)
+    var
+        Location: Record Location;
+    begin
+        Location.Get(LocationCode);
+
+        if "Entry Type" = "Entry Type"::Output then begin
+            if Location."Prod. Output Whse. Handling" = Enum::Microsoft.Manufacturing.Setup."Prod. Output Whse. Handling"::"Inventory Put-away" then
+                QtyToPost := 0;
+        end else
+            if Location."Require Put-away" and
+               (not Location."Directed Put-away and Pick") and
+               (not Location."Require Receive")
+            then
+                QtyToPost := 0;
     end;
 
     [IntegrationEvent(false, false)]

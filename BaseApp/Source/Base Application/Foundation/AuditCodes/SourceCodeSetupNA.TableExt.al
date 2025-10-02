@@ -16,14 +16,18 @@ tableextension 10002 SourceCodeSetupNA extends "Source Code Setup"
             Caption = 'Bank Rec. Adjustment';
             TableRelation = "Source Code";
             DataClassification = CustomerContent;
+#if not CLEANSCHEMA27
             MovedFrom = 'f3552374-a1f2-4356-848e-196002525837';
+#endif
         }
         field(10003; Deposits; Code[10])
         {
             Caption = 'Deposits';
             TableRelation = "Source Code";
             DataClassification = CustomerContent;
+#if not CLEANSCHEMA27
             MovedFrom = 'f3552374-a1f2-4356-848e-196002525837';
+#endif
         }
     }
 }

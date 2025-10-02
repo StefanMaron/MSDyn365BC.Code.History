@@ -19,6 +19,15 @@ using Microsoft.HumanResources.Payables;
 using Microsoft.Purchases.Payables;
 using Microsoft.Sales.Receivables;
 
+/// <summary>
+/// Manages check printing, voiding, and electronic payment processing for bank accounts.
+/// Handles complete check lifecycle from creation through financial voiding and positive pay export.
+/// </summary>
+/// <remarks>
+/// Integrates with Gen. Jnl.-Post Line, Bank Account Ledger Entry, and vendor/customer payment applications.
+/// Supports physical check printing, electronic payments, and automated reconciliation processes.
+/// Extensible through OnInsertCheckOnBeforeCheckLedgEntryInsert, OnBeforeVoidCheck, and related events.
+/// </remarks>
 codeunit 367 CheckManagement
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
@@ -54,6 +63,12 @@ codeunit 367 CheckManagement
         BankAccountTypeErr: Label 'Either the %1 or the %2 must refer to a Bank Account.', Comment = '%1=Account type., %2=Balancing Account type.';
         NoAppliedEntryErr: Label 'Cannot find an applied entry within the specified filter.';
 
+    /// <summary>
+    /// Creates a new check ledger entry with sequential numbering and duplicate validation.
+    /// Validates check number uniqueness within the bank account before insertion.
+    /// </summary>
+    /// <param name="CheckLedgEntry">Check ledger entry record to insert with initial data</param>
+    /// <param name="RecordIdToPrint">RecordID reference for check printing operations</param>
     procedure InsertCheck(var CheckLedgEntry: Record "Check Ledger Entry"; RecordIdToPrint: RecordID)
     var
         CheckLedgEntry2: Record "Check Ledger Entry";
@@ -89,15 +104,17 @@ codeunit 367 CheckManagement
         CheckLedgEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(CheckLedgEntry."User ID"));
         CheckLedgEntry."Entry No." := NextCheckEntryNo;
         CheckLedgEntry."Print Gen Jnl Line SystemId" := GenJournalLineGetSystemIdFromRecordId(RecordIdToPrint);
-#if not CLEAN24
-        CheckLedgEntry."Record ID to Print" := RecordIdToPrint;
-#endif        
         OnInsertCheckOnBeforeCheckLedgEntryInsert(CheckLedgEntry);
         CheckLedgEntry.Insert();
         OnInsertCheckOnAfterCheckLedgEntryInsert(CheckLedgEntry);
         NextCheckEntryNo := NextCheckEntryNo + 1;
     end;
 
+    /// <summary>
+    /// Voids a check by creating reversing entries and updating check ledger entry status.
+    /// Handles currency conversion and validates payment document types.
+    /// </summary>
+    /// <param name="GenJnlLine">General journal line containing check information to void</param>
     procedure VoidCheck(var GenJnlLine: Record "Gen. Journal Line")
     var
         Currency: Record Currency;
@@ -183,6 +200,11 @@ codeunit 367 CheckManagement
         OnAfterVoidCheck(GenJnlLine, CheckLedgEntry2);
     end;
 
+    /// <summary>
+    /// Performs financial voiding of a posted check by creating offsetting journal entries.
+    /// Unapplies vendor/customer invoices and reverses all financial impacts while maintaining audit trail.
+    /// </summary>
+    /// <param name="CheckLedgEntry">Check ledger entry to financially void</param>
     procedure FinancialVoidCheck(var CheckLedgEntry: Record "Check Ledger Entry")
     var
         ConfirmFinancialVoid: Page "Confirm Financial Void";
@@ -749,6 +771,12 @@ codeunit 367 CheckManagement
         OnAfterIsElectronicBankPaymentType(BankPaymentType, IsElectronicPaymentType);
     end;
 
+    /// <summary>
+    /// Processes electronic payment transmission or voiding based on specified operation type.
+    /// Manages electronic payment status updates and data exchange integration.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal line containing electronic payment information</param>
+    /// <param name="WhichProcess">Process type: Void or Transmit electronic payment</param>
     procedure ProcessElectronicPayment(var GenJournalLine: Record "Gen. Journal Line"; WhichProcess: Option ,Void,Transmit)
     var
         CheckLedgEntry2: Record "Check Ledger Entry";
@@ -956,204 +984,581 @@ codeunit 367 CheckManagement
         exit(GenJournalLine."Applies-to ID" = '');
     end;
 
+    /// <summary>
+    /// Integration event raised after calculating the total amount to void for a check.
+    /// Enables custom calculation logic or adjustments to the void amount.
+    /// </summary>
+    /// <param name="CheckLedgerEntry">Check ledger entry being processed for voiding</param>
+    /// <param name="AmountToVoid">Calculated amount to void (can be modified by subscribers)</param>
+    /// <remarks>
+    /// Raised from CalcAmountToVoid procedure after summing all related check entries.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcAmountToVoid(var CheckLedgerEntry: Record "Check Ledger Entry"; var AmountToVoid: Decimal)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after successfully voiding a check entry.
+    /// Enables custom processing or logging after the void operation completes.
+    /// </summary>
+    /// <param name="GenJnlLine">General journal line used for the void operation</param>
+    /// <param name="CheckLedgerEntry">Check ledger entry that was voided</param>
+    /// <remarks>
+    /// Raised from VoidCheck procedure after updating the check status to Voided.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnAfterVoidCheck(var GenJnlLine: Record "Gen. Journal Line"; var CheckLedgerEntry: Record "Check Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after completing a financial void operation on a check.
+    /// Enables custom processing or notifications after the check has been financially voided.
+    /// </summary>
+    /// <param name="CheckLedgerEntry">Check ledger entry that was financially voided</param>
+    /// <remarks>
+    /// Raised from FinancialVoidCheck procedure after all void entries are posted and analysis view is updated.
+    /// 
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnAfterFinancialVoidCheck(var CheckLedgerEntry: Record "Check Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after validating prerequisites for financial void operation.
+    /// Enables additional validation or processing after standard void validation completes.
+    /// </summary>
+    /// <param name="CheckLedgerEntry">Check ledger entry being validated for void</param>
+    /// <param name="BankAccountLedgerEntry">Associated bank account ledger entry</param>
+    /// <remarks>
+    /// Raised from FinancialVoidCheckPreValidation procedure after verifying transaction balance is zero.
+    /// 
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnAfterFinancialVoidCheckPreValidation(CheckLedgerEntry: Record "Check Ledger Entry"; BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before starting a check void operation.
+    /// Enables custom validation or processing before the void operation begins.
+    /// </summary>
+    /// <param name="GenJnlLine">General journal line for the check being voided</param>
+    /// <param name="IsHandled">Set to true to skip standard void processing</param>
+    /// <remarks>
+    /// Raised from VoidCheck procedure before any void processing begins.
+    /// 
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVoidCheck(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before marking check ledger entries as void.
+    /// Enables custom logic for handling check entry void marking.
+    /// </summary>
+    /// <param name="OriginalCheckLedgerEntry">Original check ledger entry being marked as voided</param>
+    /// <param name="VoidDate">Date when the void operation is performed</param>
+    /// <param name="IsHandled">Set to true to skip standard void marking logic</param>
+    /// <remarks>
+    /// Raised from MarkCheckEntriesVoid procedure before updating entry status to Financially Voided.
+    /// 
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeMarkCheckEntriesVoid(var OriginalCheckLedgerEntry: Record "Check Ledger Entry"; VoidDate: Date; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before starting a financial void operation on a check.
+    /// Enables custom validation or alternative void processing.
+    /// </summary>
+    /// <param name="CheckLedgerEntry">Check ledger entry being financially voided</param>
+    /// <param name="IsHandled">Set to true to skip standard financial void processing</param>
+    /// <remarks>
+    /// Raised from FinancialVoidCheck procedure before performing void validation and processing.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFinancialVoidCheck(var CheckLedgerEntry: Record "Check Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before modifying a general journal line during check void operation.
+    /// Enables custom field updates or validation before journal line modification.
+    /// </summary>
+    /// <param name="GenJournalLine2">General journal line being modified</param>
+    /// <param name="GenJournalLine">Original general journal line for reference</param>
+    /// <remarks>
+    /// Raised from VoidCheck procedure before setting voided status on journal line.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVoidCheckGenJnlLine2Modify(var GenJournalLine2: Record "Gen. Journal Line"; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before modifying related check ledger entries during void operation.
+    /// Enables custom processing of related check entries before they are marked as voided.
+    /// </summary>
+    /// <param name="CheckLedgerEntry">Related check ledger entry being modified</param>
+    /// <param name="VoidDate">Date when the void operation is performed</param>
+    /// <remarks>
+    /// Raised from MarkCheckEntriesVoid procedure when processing related check entries with same check number.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnMarkCheckEntriesVoidOnBeforeRelatedCheckLedgerEntry2Modify(var CheckLedgerEntry: Record "Check Ledger Entry"; var VoidDate: Date)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before modifying the original check ledger entry during void operation.
+    /// Enables custom field updates or validation before the original check entry is marked as voided.
+    /// </summary>
+    /// <param name="CheckLedgerEntry">Original check ledger entry being modified</param>
+    /// <param name="VoidDate">Date when the void operation is performed</param>
+    /// <remarks>
+    /// Raised from MarkCheckEntriesVoid procedure before setting entry status to Financially Voided.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnMarkCheckEntriesVoidOnBeforeOriginalCheckLedgerEntryModify(var CheckLedgerEntry: Record "Check Ledger Entry"; var VoidDate: Date)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after modifying a general journal line during check void operation.
+    /// Enables custom processing or logging after journal line has been updated with void status.
+    /// </summary>
+    /// <param name="GenJournalLine2">General journal line that was modified</param>
+    /// <param name="GenJournalLine">Original general journal line for reference</param>
+    /// <remarks>
+    /// Raised from VoidCheck procedure after marking journal line as voided.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnVoidCheckOnAfterGenJnlLine2Modify(var GenJournalLine2: Record "Gen. Journal Line"; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after setting filters on check ledger entry during void operation.
+    /// Enables custom filter modification or additional processing on filtered check entries.
+    /// </summary>
+    /// <param name="CheckLedgerEntry">Check ledger entry with filters applied</param>
+    /// <param name="GenJournalLine">General journal line context for the void operation</param>
+    /// <remarks>
+    /// Raised from VoidCheck procedure after filtering check ledger entries for void processing.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnVoidCheckOnAfterCheckLedgEntry2SetFilters(var CheckLedgerEntry: Record "Check Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before posting customer entries during financial void operation.
+    /// Enables custom processing or validation before customer ledger entries are posted.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal line for the void entry</param>
+    /// <param name="CustLedgerEntry">Customer ledger entry being processed</param>
+    /// <param name="BalanceAmountLCY">Balance amount in local currency</param>
+    /// <remarks>
+    /// Raised from FinancialVoidCheck procedure before posting customer-related void entries.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnFinancialVoidCheckOnBeforePostCust(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var BalanceAmountLCY: Decimal)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before checking balance account type during financial void operation.
+    /// Enables custom validation or processing based on the balance account type.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal line for the void operation</param>
+    /// <param name="CheckLedgerEntry">Check ledger entry being voided</param>
+    /// <param name="BankAccountLedgerEntry">Bank account ledger entry associated with the check</param>
+    /// <remarks>
+    /// Raised from FinancialVoidCheck procedure before processing balance account type specific logic.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnFinancialVoidCheckOnBeforeCheckBalAccountType(var GenJournalLine: Record "Gen. Journal Line"; var CheckLedgerEntry: Record "Check Ledger Entry"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before posting bank account entries during financial void operation.
+    /// Enables custom processing or validation before bank account ledger entries are posted.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal line for the void entry</param>
+    /// <param name="BankAccountLedgerEntry">Bank account ledger entry being processed</param>
+    /// <remarks>
+    /// Raised from FinancialVoidCheck procedure before posting bank account-related void entries.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnFinancialVoidCheckOnBeforePostBankAccount(var GenJournalLine: Record "Gen. Journal Line"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before posting fixed asset entries during financial void operation.
+    /// Enables custom processing or validation before fixed asset ledger entries are posted.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal line for the void entry</param>
+    /// <param name="FALedgerEntry">Fixed asset ledger entry being processed</param>
+    /// <remarks>
+    /// Raised from FinancialVoidCheck procedure before posting fixed asset-related void entries.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnFinancialVoidCheckOnBeforePostFixedAsset(var GenJournalLine: Record "Gen. Journal Line"; var FALedgerEntry: Record "FA Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before posting vendor entries during financial void operation.
+    /// Enables custom processing or validation before vendor ledger entries are posted.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal line for the void entry</param>
+    /// <param name="VendorLedgerEntry">Vendor ledger entry being processed</param>
+    /// <param name="BalanceAmountLCY">Balance amount in local currency</param>
+    /// <remarks>
+    /// Raised from FinancialVoidCheck procedure before posting vendor-related void entries.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnFinancialVoidCheckOnBeforePostVend(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry"; var BalanceAmountLCY: Decimal)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before posting employee entries during financial void operation.
+    /// Enables custom processing or validation before employee ledger entries are posted.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal line for the void entry</param>
+    /// <param name="EmployeeLedgerEntry">Employee ledger entry being processed</param>
+    /// <remarks>
+    /// Raised from FinancialVoidCheck procedure before posting employee-related void entries.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnFinancialVoidCheckOnBeforePostEmp(var GenJournalLine: Record "Gen. Journal Line"; var EmployeeLedgerEntry: Record "Employee Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after posting a void check line during financial void operation.
+    /// Enables custom processing or logging after void entries are posted.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal line that was posted</param>
+    /// <param name="GenJnlPostLine">General journal posting codeunit reference</param>
+    /// <remarks>
+    /// Raised from FinancialVoidCheck procedure after posting each void journal line entry.
+    /// 
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnFinancialVoidCheckOnAfterPostVoidCheckLine(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after setting filters on vendor ledger entries during financial void operation.
+    /// Enables custom filter modification or additional processing on filtered vendor entries.
+    /// </summary>
+    /// <param name="VendorLedgEntry">Vendor ledger entry with filters applied</param>
+    /// <param name="BankAccLedgEntry">Bank account ledger entry context for filtering</param>
+    /// <remarks>
+    /// Raised from FinancialVoidCheck procedure after filtering vendor ledger entries.
+    /// 
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnFinancialVoidCheckOnAfterVendorLedgEntrySetFilters(var VendorLedgEntry: Record "Vendor Ledger Entry"; BankAccLedgEntry: Record "Bank Account Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before posting a void check line during financial void operation.
+    /// Enables custom processing or validation before void entries are posted.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal line to be posted</param>
+    /// <param name="CheckLedgEntry">Check ledger entry being voided</param>
+    /// <param name="BankAccLedgEntry2">Bank account ledger entry associated with the check</param>
+    /// <remarks>
+    /// Raised from FinancialVoidCheck procedure before posting each void journal line entry.
+    /// 
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnFinancialVoidCheckOnBeforePostVoidCheckLine(var GenJournalLine: Record "Gen. Journal Line"; var CheckLedgEntry: Record "Check Ledger Entry"; var BankAccLedgEntry2: Record "Bank Account Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after posting balance account line during financial void operation.
+    /// Enables custom processing or logging after balance account entries are posted.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal line that was posted</param>
+    /// <param name="CheckLedgerEntry">Check ledger entry being voided</param>
+    /// <param name="GenJnlPostLine">General journal posting codeunit reference</param>
+    /// <remarks>
+    /// Raised from FinancialVoidCheck procedure after posting balance account entries.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnFinancialVoidCheckOnAfterPostBalAccLine(var GenJournalLine: Record "Gen. Journal Line"; CheckLedgerEntry: Record "Check Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before posting balance account line during financial void operation.
+    /// Enables custom processing or validation before balance account entries are posted.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal line to be posted</param>
+    /// <param name="CheckLedgerEntry">Check ledger entry being voided</param>
+    /// <remarks>
+    /// Raised from FinancialVoidCheck procedure before posting balance account entries.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnFinancialVoidCheckOnBeforePostBalAccLine(var GenJournalLine: Record "Gen. Journal Line"; CheckLedgerEntry: Record "Check Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before processing G/L entries loop during financial void of G/L account.
+    /// Enables custom processing or filtering of G/L entries before void operation.
+    /// </summary>
+    /// <param name="GLEntry">G/L entry with filters applied</param>
+    /// <param name="CheckLedgerEntry">Check ledger entry being voided</param>
+    /// <remarks>
+    /// Raised from FinancialVoidPostGLAccount procedure before processing G/L entries for void.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnFinancialVoidPostGLAccountOnBeforeGLEntryLoop(var GLEntry: Record "G/L Entry"; var CheckLedgerEntry: Record "Check Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after inserting a new check ledger entry.
+    /// Enables custom processing or additional field updates after check entry creation.
+    /// </summary>
+    /// <param name="CheckLedgEntry">Check ledger entry that was inserted</param>
+    /// <remarks>
+    /// Raised from InsertCheck procedure after inserting check ledger entry into database.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnInsertCheckOnAfterCheckLedgEntryInsert(var CheckLedgEntry: Record "Check Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before inserting a new check ledger entry.
+    /// Enables custom field updates or validation before check entry creation.
+    /// </summary>
+    /// <param name="CheckLedgEntry">Check ledger entry to be inserted</param>
+    /// <remarks>
+    /// Raised from InsertCheck procedure before inserting check ledger entry into database.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnInsertCheckOnBeforeCheckLedgEntryInsert(var CheckLedgEntry: Record "Check Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after posting rounding amount entries during financial void operation.
+    /// Enables custom processing or logging after currency rounding entries are posted.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal line for the rounding entry that was posted</param>
+    /// <param name="CheckLedgerEntry">Check ledger entry being voided</param>
+    /// <param name="GenJnlPostLine">General journal posting codeunit reference</param>
+    /// <remarks>
+    /// Raised from PostRoundingAmount procedure after posting currency conversion rounding entries.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnPostRoundingAmountOnAfterGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line"; CheckLedgerEntry: Record "Check Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before modifying check ledger entry during electronic payment processing.
+    /// Enables custom field updates or validation before electronic payment status changes.
+    /// </summary>
+    /// <param name="CheckLedgerEntry">Check ledger entry being modified for electronic payment</param>
+    /// <param name="WhichProcess">Process type being performed (Void or Transmit)</param>
+    /// <remarks>
+    /// Raised from ProcessElectronicPayment procedure before updating check entry status.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnProcessElectronicPaymentOnBeforeCheckLedgEntry3Modify(var CheckLedgerEntry: Record "Check Ledger Entry"; var WhichProcess: Option)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before posting rounding amount entries during financial void operation.
+    /// Enables custom processing or validation before currency rounding entries are posted.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal line for the rounding entry to be posted</param>
+    /// <param name="CheckLedgerEntry">Check ledger entry being voided</param>
+    /// <param name="BankAccountLedgerEntry">Bank account ledger entry associated with the check</param>
+    /// <remarks>
+    /// Raised from PostRoundingAmount procedure before posting currency conversion rounding entries.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnPostRoundingAmountOnBeforeGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line"; CheckLedgerEntry: Record "Check Ledger Entry"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before posting unapplication entries for customer invoices during void operation.
+    /// Enables custom processing or validation before customer unapplication entries are posted.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal line for the unapplication entry</param>
+    /// <param name="CustLedgerEntry">Customer ledger entry being unapplied</param>
+    /// <param name="DetailedCustLedgEntry">Detailed customer ledger entry for the application being reversed</param>
+    /// <remarks>
+    /// Raised from UnApplyCustInvoices procedure before posting customer unapplication entries.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnUnApplyCustInvoicesOnBeforePost(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before posting unapplication entries for vendor invoices during void operation.
+    /// Enables custom processing or validation before vendor unapplication entries are posted.
+    /// </summary>
+    /// <param name="GenJournalLine">General journal line for the unapplication entry</param>
+    /// <param name="VendorLedgerEntry">Vendor ledger entry being unapplied</param>
+    /// <param name="DetailedVendorLedgEntry">Detailed vendor ledger entry for the application being reversed</param>
+    /// <remarks>
+    /// Raised from UnApplyVendInvoices procedure before posting vendor unapplication entries.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnUnApplyVendInvoicesOnBeforePost(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry"; var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after determining if a bank payment type is electronic.
+    /// Enables custom logic for identifying electronic payment types.
+    /// </summary>
+    /// <param name="BankPaymenType">Bank payment type being evaluated</param>
+    /// <param name="IsElectronicPaymentType">Whether the payment type is electronic (can be modified by subscribers)</param>
+    /// <remarks>
+    /// Raised from IsElectronicBankPaymentType procedure after standard electronic payment type evaluation.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsElectronicBankPaymentType(BankPaymenType: Enum "Bank Payment Type"; var IsElectronicPaymentType: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after calculating remaining amount for customer entries during void operation.
+    /// Enables custom processing or adjustments after remaining amount calculation for customer ledger entries.
+    /// </summary>
+    /// <param name="CustLedgerEntry">Customer ledger entry with calculated remaining amount</param>
+    /// <remarks>
+    /// Raised from UnApplyCustInvoices procedure after calculating remaining amount for customer entries.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnUnApplyCustInvoicesOnAfterCalcRemainingAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after calculating remaining amount for vendor entries during void operation.
+    /// Enables custom processing or adjustments after remaining amount calculation for vendor ledger entries.
+    /// </summary>
+    /// <param name="VendorLedgerEntry">Vendor ledger entry with calculated remaining amount</param>
+    /// <remarks>
+    /// Raised from UnApplyVendInvoices procedure after calculating remaining amount for vendor entries.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnUnApplyVendInvoicesOnAfterCalcRemainingAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before showing error for missing applied entries during vendor invoice unapplication.
+    /// Enables custom error handling or alternative processing when no applied entries are found.
+    /// </summary>
+    /// <param name="BankAccLedgEntry">Bank account ledger entry context</param>
+    /// <param name="GenJnlLine">General journal line context</param>
+    /// <param name="IsHandled">Set to true to skip standard error handling</param>
+    /// <remarks>
+    /// Raised from UnApplyVendInvoices procedure when no applied entries are found for unapplication.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnUnApplyVendInvoicesOnBeforeErrorNoAppliedEntry(var BankAccLedgEntry: Record "Bank Account Ledger Entry"; var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean);
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before setting general journal line fields during check operations.
+    /// Enables custom field updates or validation before journal line field assignment.
+    /// </summary>
+    /// <param name="GenJnlLine">General journal line being updated</param>
+    /// <param name="IsHandled">Set to true to skip standard field setting logic</param>
+    /// <remarks>
+    /// Raised from SetGenJnlLine procedure before setting standard journal line fields.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean);
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after setting general journal line fields during check operations.
+    /// Enables custom field updates or additional processing after journal line field assignment.
+    /// </summary>
+    /// <param name="GenJnlLine">General journal line that was updated</param>
+    /// <remarks>
+    /// Raised from SetGenJnlLine procedure after setting standard journal line fields.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetGenJnlLine(var GenJnlLine: Record "Gen. Journal Line");
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before starting vendor invoice unapplication during void operation.
+    /// Enables custom logic for handling vendor invoice unapplication or skipping standard processing.
+    /// </summary>
+    /// <param name="CheckLedgEntry">Check ledger entry being processed for void</param>
+    /// <param name="VoidDate">Date when the void operation is performed</param>
+    /// <param name="IsHandled">Set to true to skip standard vendor unapplication logic</param>
+    /// <param name="Result">Result of the unapplication operation (can be set by subscribers)</param>
+    /// <remarks>
+    /// Raised from UnApplyVendInvoices procedure before performing vendor invoice unapplication.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUnApplyVendInvoices(var CheckLedgEntry: Record "Check Ledger Entry"; var VoidDate: Date; var IsHandled: Boolean; var Result: Boolean);
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before confirming financial void operation on a check.
+    /// Enables custom confirmation dialog or validation before financial void confirmation.
+    /// </summary>
+    /// <param name="CheckLedgEntry">Check ledger entry being considered for financial void</param>
+    /// <param name="IsHandled">Set to true to skip standard confirmation dialog</param>
+    /// <remarks>
+    /// Raised from FinancialVoidCheck procedure before showing confirmation dialog to user.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnFinancialVoidCheckOnBeforeConfirmFinancialVoid(var CheckLedgEntry: Record "Check Ledger Entry"; var IsHandled: Boolean);
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before posting rounding amount during financial void operation.
+    /// Enables custom processing or validation before currency rounding entries are posted.
+    /// </summary>
+    /// <param name="BankAcc">Bank account for the check being voided</param>
+    /// <param name="CheckLedgEntry">Check ledger entry being voided</param>
+    /// <param name="BankAccLedgEntry2">Bank account ledger entry associated with the check</param>
+    /// <param name="PostingDate">Date when the rounding entry will be posted</param>
+    /// <param name="RoundingAmount">Currency rounding amount to be posted</param>
+    /// <param name="IsHandled">Set to true to skip standard rounding amount posting</param>
+    /// <remarks>
+    /// Raised from PostRoundingAmount procedure before posting currency conversion rounding entries.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostRoundingAmount(var BankAcc: Record "Bank Account"; var CheckLedgEntry: Record "Check Ledger Entry"; BankAccLedgEntry2: Record "Bank Account Ledger Entry"; var PostingDate: Date; var RoundingAmount: Decimal; var IsHandled: Boolean)
     begin
     end;
 }
-

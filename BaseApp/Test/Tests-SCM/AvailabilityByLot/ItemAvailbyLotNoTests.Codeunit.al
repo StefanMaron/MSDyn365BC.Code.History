@@ -574,7 +574,7 @@ codeunit 134084 "Item Avail. by Lot No Tests"
         );
 
         if LotNo <> '' then
-            LibraryItemTracking.CreateProdOrderItemTracking(
+            LibraryManufacturing.CreateProdOrderItemTracking(
                 ReservationEntry,
                 ProdOrderLine,
                 '',

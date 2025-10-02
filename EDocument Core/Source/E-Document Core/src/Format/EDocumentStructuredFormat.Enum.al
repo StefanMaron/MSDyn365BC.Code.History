@@ -1,9 +1,4 @@
 #if not CLEAN26
-#pragma warning disable AS0067
-#pragma warning disable AS0050
-#pragma warning disable AS0125
-#pragma warning disable AS0090
-#pragma warning disable AS0072
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -35,9 +30,4 @@ enum 6104 "E-Document Structured Format" implements IStructuredFormatReader
             IStructuredFormatReader = "E-Document PEPPOL Handler";
     }
 }
-#pragma warning restore AS0067
-#pragma warning restore AS0050
-#pragma warning restore AS0125
-#pragma warning restore AS0090
-#pragma warning restore AS0072
 #endif

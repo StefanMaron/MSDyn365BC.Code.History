@@ -3138,7 +3138,9 @@ codeunit 137056 "SCM Warehouse-V"
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
+        SequenceNoMgt.ClearState();
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse-V");
         LibraryVariableStorage.Clear();
         Clear(NewUnitOfMeasure);

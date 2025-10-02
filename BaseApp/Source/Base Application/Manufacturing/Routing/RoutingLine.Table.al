@@ -479,7 +479,8 @@ table 99000764 "Routing Line"
                 "Wait Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
             if "Move Time Unit of Meas. Code" = '' then
                 "Move Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
-            Description := WorkCenter.Name;
+            if "Standard Task Code" = '' then
+                Description := WorkCenter.Name;
         end;
         OnAfterWorkCenterTransferFields(Rec, WorkCenter);
     end;

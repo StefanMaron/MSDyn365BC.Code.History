@@ -724,10 +724,6 @@ table 5405 "Production Order"
     var
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        DefaultNoSeriesCode: Code[20];
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -738,24 +734,11 @@ table 5405 "Production Order"
         MfgSetup.Get();
         if "No." = '' then begin
             TestNoSeries();
-#if not CLEAN24
-            DefaultNoSeriesCode := GetNoSeriesCode();
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(DefaultNoSeriesCode, xRec."No. Series", "Due Date", "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-                if NoSeries.AreRelated(DefaultNoSeriesCode, xRec."No. Series") then
-                    "No. Series" := xRec."No. Series"
-                else
-                    "No. Series" := DefaultNoSeriesCode;
-                "No." := NoSeries.GetNextNo("No. Series", "Due Date");
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", DefaultNoSeriesCode, "Due Date", "No.");
-            end;
-#else
             if NoSeries.AreRelated(GetNoSeriesCode(), xRec."No. Series") then
                 "No. Series" := xRec."No. Series"
             else
                 "No. Series" := GetNoSeriesCode();
             "No." := NoSeries.GetNextNo("No. Series", "Due Date");
-#endif
         end;
 
         IsHandled := false;
@@ -1593,24 +1576,28 @@ table 5405 "Production Order"
 
     internal procedure GetQtyReservedFromStockState() Result: Enum "Reservation From Stock"
     var
-        ProdOrderComponent: Record "Prod. Order Component";
         ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
         QtyReservedFromStock: Decimal;
     begin
         QtyReservedFromStock := ProdOrderCompReserve.GetReservedQtyFromInventory(Rec);
+        if QtyReservedFromStock = 0 then
+            exit(Result::None);
 
-        ProdOrderComponent.SetRange(Status, Rec.Status);
-        ProdOrderComponent.SetRange("Prod. Order No.", Rec."No.");
-        ProdOrderComponent.CalcSums("Remaining Qty. (Base)");
+        if QtyReservedFromStock = CalculateReservableRemainingQuantityBase() then
+            exit(Result::Full);
 
-        case QtyReservedFromStock of
-            0:
-                exit(Result::None);
-            ProdOrderComponent."Remaining Qty. (Base)":
-                exit(Result::Full);
-            else
-                exit(Result::Partial);
-        end;
+        exit(Result::Partial);
+    end;
+
+    local procedure CalculateReservableRemainingQuantityBase() RemainingQtyBase: Decimal
+    var
+        RemQtyBaseInvtItemProdOrdComp: Query RemQtyBaseInvtItemProdOrdComp;
+    begin
+        RemQtyBaseInvtItemProdOrdComp.SetJobPlanningLineFilter(Rec);
+        if RemQtyBaseInvtItemProdOrdComp.Open() then
+            if RemQtyBaseInvtItemProdOrdComp.Read() then
+                RemainingQtyBase := RemQtyBaseInvtItemProdOrdComp.Remaining_Qty___Base_;
+        RemQtyBaseInvtItemProdOrdComp.Close();
     end;
 
     local procedure ConfirmDeletion()
@@ -1863,4 +1850,3 @@ table 5405 "Production Order"
     begin
     end;
 }
-
