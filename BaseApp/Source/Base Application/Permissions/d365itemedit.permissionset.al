@@ -17,7 +17,6 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
@@ -31,11 +30,6 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Pricing;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Item;
-using Microsoft.Service.Ledger;
-using Microsoft.Service.Maintenance;
-using Microsoft.Service.Resources;
 using Microsoft.Warehouse.ADCS;
 using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Setup;
@@ -85,7 +79,6 @@ permissionset 5947 "D365 ITEM, EDIT"
                   tabledata "Price List Line" = RIMD,
                   tabledata "Price Source" = RIMD,
                   tabledata "Price Worksheet Line" = RIMD,
-                  tabledata "Production BOM Line" = R,
                   tabledata "Purch. Cr. Memo Line" = r,
                   tabledata "Purch. Inv. Line" = r,
                   tabledata "Purch. Rcpt. Line" = r,
@@ -120,14 +113,5 @@ permissionset 5947 "D365 ITEM, EDIT"
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = R,
                   tabledata "Vendor Bank Account" = R,
-                  tabledata "Warehouse Entry" = Rm,
-
-                  // Service
-                  tabledata "Resource Skill" = RIMD,
-                  tabledata "Service Contract Line" = R,
-                  tabledata "Service Item" = RM,
-                  tabledata "Service Item Component" = RM,
-                  tabledata "Service Ledger Entry" = Rm,
-                  tabledata "Troubleshooting Setup" = RIMD,
-                  tabledata "Warranty Ledger Entry" = RM;
+                  tabledata "Warehouse Entry" = Rm;
 }

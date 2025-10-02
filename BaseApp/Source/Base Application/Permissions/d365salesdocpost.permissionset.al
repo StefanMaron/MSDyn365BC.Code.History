@@ -35,6 +35,7 @@ using Microsoft.Foundation.BatchProcessing;
 using Microsoft.Sales.Document;
 using Microsoft.Finance.VAT.Registration;
 using Microsoft.Finance.VAT.Calculation;
+using Microsoft.HumanResources.Employee;
 
 permissionset 9977 "D365 SALES DOC, POST"
 {
@@ -49,6 +50,7 @@ permissionset 9977 "D365 SALES DOC, POST"
                   tabledata "Analysis View Filter" = r,
                   tabledata "Alt. Customer Posting Group" = RM,
                   tabledata "Alt. Vendor Posting Group" = RM,
+                  tabledata "Alt. Employee Posting Group" = RM,
                   tabledata "Avg. Cost Adjmt. Entry Point" = RIM,
                   tabledata "Bank Account Ledger Entry" = rim,
                   tabledata "Batch Processing Parameter" = Rimd,

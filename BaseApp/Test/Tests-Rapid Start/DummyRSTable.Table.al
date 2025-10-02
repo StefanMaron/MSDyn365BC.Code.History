@@ -11,7 +11,7 @@ table 136607 DummyRSTable
         }
         field(2; "Decimal Field"; Decimal)
         {
-
+            AutoFormatType = 0;
         }
         field(3; "Date Field"; Date)
         {

@@ -2701,7 +2701,7 @@ codeunit 134151 "ERM Intercompany"
         Assert.AreEqual(ICInboxTransaction."IC Partner Code", ICInboxTransaction."IC Partner Code", ICInboxTransaction.FieldCaption("IC Partner Code"));
         Assert.AreEqual(ICOutboxTransaction."Transaction Source", ICInboxTransaction."Transaction Source", ICInboxTransaction.FieldCaption("Transaction Source"));
         Assert.AreEqual(ICOutboxTransaction."Document Type", ICInboxTransaction."Document Type", ICInboxTransaction.FieldCaption("Document Type"));
-        Assert.AreEqual(ICInboxTransaction."Source Type"::Journal, ICInboxTransaction."Source Type", ICInboxTransaction.FieldCaption("Source Type"));
+        Assert.AreEqual(ICInboxTransaction."IC Source Type"::Journal, ICInboxTransaction."IC Source Type", ICInboxTransaction.FieldCaption("IC Source Type"));
         Assert.AreEqual(ICOutboxTransaction."Document No.", ICInboxTransaction."Document No.", ICInboxTransaction.FieldCaption("Document No."));
         Assert.AreEqual(ICOutboxTransaction."Document No.", ICInboxTransaction."Original Document No.", ICInboxTransaction.FieldCaption("Original Document No."));
         Assert.AreEqual(ICOutboxTransaction."Posting Date", ICInboxTransaction."Posting Date", ICInboxTransaction.FieldCaption("Posting Date"));

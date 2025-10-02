@@ -25,7 +25,7 @@ codeunit 28 "Error Message Management"
         exit(Activate(ErrorMessageHandler, true));
     end;
 
-    internal procedure Activate(var ErrorMessageHandler: Codeunit "Error Message Handler"; ClearError: Boolean): Boolean
+    procedure Activate(var ErrorMessageHandler: Codeunit "Error Message Handler"; ClearError: Boolean): Boolean
     begin
         if not IsActive() then begin
             if ClearError then

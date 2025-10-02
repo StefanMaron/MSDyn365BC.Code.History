@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.History;
 
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Interaction;
@@ -611,6 +615,7 @@ report 408 "Purchase - Receipt"
         ShowInternalInfo := NewShowInternalInfo;
         LogInteraction := NewLogInteraction;
         ShowCorrectionLines := NewShowCorrectionLines;
+        OnAfterInitializeRequest(NoOfCopies, ShowInternalInfo, LogInteraction, ShowCorrectionLines);
     end;
 
     local procedure InitLogInteraction()
@@ -646,6 +651,11 @@ report 408 "Purchase - Receipt"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterPostDataItem(var PurchRcptHeader: Record "Purch. Rcpt. Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInitializeRequest(var NoOfCopies: Integer; var ShowInternalInfo: Boolean; var LogInteraction: Boolean; var ShowCorrectionLines: Boolean)
     begin
     end;
 }

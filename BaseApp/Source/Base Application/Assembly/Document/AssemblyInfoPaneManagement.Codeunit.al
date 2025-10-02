@@ -107,6 +107,12 @@ codeunit 915 "Assembly Info-Pane Management"
         AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
         QtyReservedFromStock: Decimal;
     begin
+        if not GetItem(AssemblyLine) then
+            exit(Result::None);
+
+        if Item.IsNonInventoriableType() then
+            exit(Result::None);
+
         QtyReservedFromStock := AssemblyLineReserve.GetReservedQtyFromInventory(AssemblyLine);
         case QtyReservedFromStock of
             0:

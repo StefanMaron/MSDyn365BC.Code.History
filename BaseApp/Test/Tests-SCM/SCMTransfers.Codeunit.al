@@ -31,7 +31,7 @@
         SourceDocument: Option ,"S. Order","S. Invoice","S. Credit Memo","S. Return Order","P. Order","P. Invoice","P. Credit Memo","P. Return Order","Inb. Transfer","Outb. Transfer","Prod. Consumption","Item Jnl.","Phys. Invt. Jnl.","Reclass. Jnl.","Consumption Jnl.","Output Jnl.","BOM Jnl.","Serv. Order","Job Jnl.","Assembly Consumption","Assembly Order";
         TrackingOption: Option AssignLotNo,AssignSerialNo,SelectEntries,ShowEntries,VerifyEntries,AssignManualLotNos;
         isInitialized: Boolean;
-        ErrNoOfLinesMustBeEqual: Label 'No. of Line Must Be Equal.';
+        NoOfLinesMustBeEqualErr: Label 'No. of Line Must Be Equal.';
         TransferOrderCountErr: Label 'Wrong Transfer Order''s count';
         ItemIsNotOnInventoryErr: Label 'Item %1 is not in inventory.', Locked = true;
         UpdateFromHeaderLinesQst: Label 'You may have changed a dimension.\\Do you want to update the lines?';
@@ -1173,7 +1173,7 @@
         // The reply is inside the handler ConfirmHandlerForTransferHeaderDimUpdate
 
         // [THEN] Transfer Line dimension set contains "NewDimValue"
-        TransferLine.Find();
+        TransferLine.GetBySystemId(TransferLine.SystemId);
         VerifyDimensionOnDimSet(TransferLine."Dimension Set ID", DimensionValue);
     end;
 
@@ -1240,7 +1240,7 @@
         // The reply is inside the handler ConfirmHandlerForTransferHeaderDimUpdate
 
         // [THEN] Transfer Line dimension set contains "NewDimValue"
-        TransferLine.Find();
+        TransferLine.GetBySystemId(TransferLine.SystemId);
         VerifyDimensionOnDimSet(TransferLine."Dimension Set ID", DimensionValue);
     end;
 
@@ -1366,7 +1366,7 @@
         // [WHEN] Answer Yes on shipped line update confirmation
 
         // [THEN] Transfer Line dimension set contains "NewDimValue"
-        TransferLine.Find();
+        TransferLine.GetBySystemId(TransferLine.SystemId);
         VerifyDimensionOnDimSet(TransferLine."Dimension Set ID", DimensionValue);
     end;
 
@@ -1562,8 +1562,9 @@
     [Scope('OnPrem')]
     procedure TransferOrderSubpageUpdatedAfterShippingTimeUpdatedOnHeader()
     var
-        TransferOrder: TestPage "Transfer Order";
         ShippingTime: DateFormula;
+        TransferOrder: TestPage "Transfer Order";
+        DateFormulaTok: Label '<%1D>', Comment = '%1 = Number of days';
     begin
         // [SCENARIO 380067] Receipt Date on Transfer Order subpage is updated after Receipt Date on the header page is updated through new Shipping Time.
         Initialize();
@@ -1573,7 +1574,7 @@
         CreateTransferOrderAndInitializeNewTransferLine(TransferOrder, '');
 
         // [WHEN] Update Shipping Time on Transfer Order header page.
-        Evaluate(ShippingTime, StrSubstNo('<%1D>', LibraryRandom.RandInt(10)));
+        Evaluate(ShippingTime, StrSubstNo(DateFormulaTok, LibraryRandom.RandInt(10)));
         TransferOrder."Shipping Time".SetValue(ShippingTime);
 
         // [THEN] Receipt Date on the subpage is updated and becomes equal to Receipt Date on the header page.
@@ -1604,8 +1605,9 @@
     [Scope('OnPrem')]
     procedure TransferOrderSubpageUpdatedAfterOutboundWhseTimeUpdatedOnHeader()
     var
-        TransferOrder: TestPage "Transfer Order";
         OutboundWhseHandlingTime: DateFormula;
+        TransferOrder: TestPage "Transfer Order";
+        DateFormulaTok: Label '<%1D>', Comment = '%1 = Number of days';
     begin
         // [SCENARIO 380067] Receipt Date on Transfer Order subpage is updated after Receipt Date on the header page is updated through new Outbound Whse. Handling Time.
         Initialize();
@@ -1615,7 +1617,7 @@
         CreateTransferOrderAndInitializeNewTransferLine(TransferOrder, '');
 
         // [WHEN] Update Outbound Whse. Handling Time on Transfer Order header page.
-        Evaluate(OutboundWhseHandlingTime, StrSubstNo('<%1D>', LibraryRandom.RandInt(10)));
+        Evaluate(OutboundWhseHandlingTime, StrSubstNo(DateFormulaTok, LibraryRandom.RandInt(10)));
         TransferOrder."Outbound Whse. Handling Time".SetValue(OutboundWhseHandlingTime);
 
         // [THEN] Receipt Date on the subpage is updated and becomes equal to Receipt Date on the header page.
@@ -1626,8 +1628,9 @@
     [Scope('OnPrem')]
     procedure TransferOrderSubpageUpdatedAfterInboundWhseTimeUpdatedOnHeader()
     var
-        TransferOrder: TestPage "Transfer Order";
         InboundWhseHandlingTime: DateFormula;
+        TransferOrder: TestPage "Transfer Order";
+        DateFormulaTok: Label '<%1D>', Comment = '%1 = Number of days';
     begin
         // [SCENARIO 380067] Receipt Date on Transfer Order subpage is updated after Receipt Date on the header page is updated through new Inbound Whse. Handling Time.
         Initialize();
@@ -1637,7 +1640,7 @@
         CreateTransferOrderAndInitializeNewTransferLine(TransferOrder, '');
 
         // [WHEN] Update Inbound Whse. Handling Time on Transfer Order header page.
-        Evaluate(InboundWhseHandlingTime, StrSubstNo('<%1D>', LibraryRandom.RandInt(10)));
+        Evaluate(InboundWhseHandlingTime, StrSubstNo(DateFormulaTok, LibraryRandom.RandInt(10)));
         TransferOrder."Inbound Whse. Handling Time".SetValue(InboundWhseHandlingTime);
 
         // [THEN] Receipt Date on the subpage is updated and becomes equal to Receipt Date on the header page.
@@ -3119,8 +3122,10 @@
         // [FEATURE] [Intrastat] [Partner VAT ID]
         // [SCENARIO 417835] Post Transfer Order with typed header field "Partner VAT ID"
         Initialize();
+#pragma warning disable AA0139  // Code below still raises warning AA0139, although the overflow can never happen
         Length := MaxStrLen(TransferHeader."Partner VAT ID");
         PartnerVATID := CopyStr(LibraryUtility.GenerateRandomText(Length), 1, Length);
+#pragma warning restore
 
         // [GIVEN] Item "I" on Location "A"
         CreateLocations(FromLocationCode, ToLocationCode);
@@ -4881,7 +4886,7 @@
 
         RequisitionLine.SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         RequisitionLine.SetRange("No.", ItemNo[1], ItemNo[4]);
-        Assert.AreEqual(NoOfLines, RequisitionLine.Count, ErrNoOfLinesMustBeEqual);
+        Assert.AreEqual(NoOfLines, RequisitionLine.Count, NoOfLinesMustBeEqualErr);
     end;
 
     local procedure VerifyItemNoExistInReqLine(ItemNo: Code[20])
@@ -5338,7 +5343,7 @@
         TransferShipmentLine.SetRange("Document No.", TransferShptNo);
         TransferShipmentLine.SetFilter(Quantity, '<>0');
         Assert.AreEqual(0, TransferShipmentLine.Count mod 2, 'Expected an even no. of Transfer Shipment Lines for undone Transfer Shipment');
-        TransferShipmentLine.FindFirst();
+        TransferShipmentLine.FindSet();
         repeat
             QtySum := QtySum + TransferShipmentLine."Quantity (Base)";
             Assert.IsTrue(TransferShipmentLine."Correction Line", TransShptLineNotCorrectionErr);
@@ -5355,7 +5360,7 @@
     begin
         ItemLedgerEntry.SetFilter("Document No.", TransShptNo);
         ItemLedgerEntry.SetFilter("Location Code", LocationCode);
-        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.FindSet();
         QtySum := 0;
         repeat
             QtySum := QtySum + ItemLedgerEntry."Quantity";

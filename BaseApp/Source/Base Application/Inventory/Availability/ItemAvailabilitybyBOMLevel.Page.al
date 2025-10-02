@@ -4,13 +4,11 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Availability;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.BOM.Tree;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Reports;
-using Microsoft.Manufacturing.Document;
 
 page 5871 "Item Availability by BOM Level"
 {
@@ -481,8 +479,7 @@ page 5871 "Item Availability by BOM Level"
     end;
 
     var
-        AssemblyHeader: Record "Assembly Header";
-        ProdOrderLine: Record "Prod. Order Line";
+        SourceRecordVar: Variant;
         IsParentExpr: Boolean;
         DemandDate: Date;
         ShowTotalAvailability: Boolean;
@@ -509,17 +506,29 @@ page 5871 "Item Availability by BOM Level"
         ShowBy := ShowBy::Item;
     end;
 
-    procedure InitAsmOrder(NewAsmHeader: Record "Assembly Header")
+    procedure InitSource(NewSourceRecordVar: Variant; NewShowBy: Enum "BOM Structure Show By")
     begin
-        AssemblyHeader := NewAsmHeader;
-        ShowBy := ShowBy::Assembly;
+        SourceRecordVar := NewSourceRecordVar;
+        ShowBy := NewShowBy;
     end;
 
-    procedure InitProdOrder(NewProdOrderLine: Record "Prod. Order Line")
+#if not CLEAN27
+    [Obsolete('Replaced by procedure InitSource()', '27.0')]
+    procedure InitAsmOrder(NewAsmHeader: Record Microsoft.Assembly.Document."Assembly Header")
     begin
-        ProdOrderLine := NewProdOrderLine;
+        SourceRecordVar := NewAsmHeader;
+        ShowBy := ShowBy::Assembly;
+    end;
+#endif
+
+#if not CLEAN27
+    [Obsolete('Replaced by procedure InitSource()', '27.0')]
+    procedure InitProdOrder(NewProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
+    begin
+        SourceRecordVar := NewProdOrderLine;
         ShowBy := ShowBy::Production;
     end;
+#endif
 
     procedure InitDate(NewDemandDate: Date)
     begin
@@ -547,18 +556,10 @@ page 5871 "Item Availability by BOM Level"
                     if not IsHandled then
                         if not Item.HasBOM() then
                             Error(Text000);
-                    CalculateBOMTree.GenerateTreeForItems(Item, Rec, 1);
+                    CalculateBOMTree.GenerateTreeForManyItems(Item, Rec, "BOM Tree Type"::Availability);
                 end;
-            ShowBy::Production:
-                begin
-                    ProdOrderLine."Due Date" := DemandDate;
-                    CalculateBOMTree.GenerateTreeForProdLine(ProdOrderLine, Rec, 1);
-                end;
-            ShowBy::Assembly:
-                begin
-                    AssemblyHeader."Due Date" := DemandDate;
-                    CalculateBOMTree.GenerateTreeForAsm(AssemblyHeader, Rec, 1);
-                end;
+            else
+                CalculateBOMTree.GenerateTreeForSource(SourceRecordVar, Rec, "BOM Tree Type"::Availability, ShowBy, DemandDate);
         end;
 
         CurrPage.Update(false);
@@ -607,10 +608,8 @@ page 5871 "Item Availability by BOM Level"
                         ItemAbleToMake.SetFilter("Location Filter", LocationFilter);
                         ItemAbleToMake.SetFilter("Variant Filter", VariantFilter);
                     end;
-                ShowBy::Assembly:
-                    ItemAbleToMakeTimeline.InitAsmOrder(AssemblyHeader);
-                ShowBy::Production:
-                    ItemAbleToMakeTimeline.InitProdOrder(ProdOrderLine);
+                else
+                    ItemAbleToMakeTimeline.InitSource(SourceRecordVar, ShowBy);
             end
         else begin
             ItemAbleToMake.SetFilter("Location Filter", LocationFilter);

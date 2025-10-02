@@ -5,6 +5,7 @@
 namespace Microsoft.Assembly.Document;
 
 using Microsoft.Inventory.Availability;
+using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
@@ -359,7 +360,7 @@ codeunit 99000874 "Assembly Availability Mgt."
         ItemAvailByBOMLevel: Page "Item Availability by BOM Level";
     begin
         Clear(ItemAvailByBOMLevel);
-        ItemAvailByBOMLevel.InitAsmOrder(AsmHeader);
+        ItemAvailByBOMLevel.InitSource(AsmHeader, "BOM Structure Show By"::Assembly);
         ItemAvailByBOMLevel.InitDate(OldDate);
         if FieldCaption <> '' then
             ItemAvailByBOMLevel.LookupMode(true);

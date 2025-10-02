@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Projects.Project.Job;
 
 using Microsoft.Assembly.Document;
@@ -442,6 +446,7 @@ table 167 Job
         field(68; "Bill-to Name 2"; Text[50])
         {
             Caption = 'Bill-to Name 2';
+            ToolTip = 'Specifies an additional part of the name of the customer who pays for the project.';
         }
         field(80; "Task Billing Method"; Enum "Task Billing Method")
         {
@@ -951,6 +956,7 @@ table 167 Job
         field(2002; "Sell-to Customer Name 2"; Text[50])
         {
             Caption = 'Sell-to Customer Name 2';
+            ToolTip = 'Specifies an additional part of the name of the customer who will receive the products and be billed by default.';
         }
         field(2003; "Sell-to Address"; Text[100])
         {
@@ -1386,10 +1392,6 @@ table 167 Job
         ConfirmDeleteQst: Label 'The items have been picked. If you delete the Job, then the items will remain in the operation area until you put them away.\Related item tracking information that is defined during the pick will be deleted.\Are you sure that you want to delete the Job?';
 
     protected var
-#if not CLEAN24
-        [Obsolete('Variable NoSeriesMgt is obsolete and will be removed. Please refer to No. Series codeunit instead.', '24.0')]
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#endif
         NoSeries: Codeunit "No. Series";
         DimMgt: Codeunit DimensionManagement;
         SkipSellToContact: Boolean;
@@ -1399,11 +1401,7 @@ table 167 Job
         IsHandled: Boolean;
     begin
         IsHandled := false;
-#if not CLEAN24
-        OnBeforeAssistEdit(Rec, OldJob, Result, IsHandled, NoSeriesMgt);
-#else
         OnBeforeAssistEdit(Rec, OldJob, Result, IsHandled);
-#endif
         if IsHandled then
             exit(Result);
 
@@ -1478,23 +1476,15 @@ table 167 Job
 
         if "No." = '' then begin
             JobsSetup.TestField("Job Nos.");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(JobsSetup."Job Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
-                "No. Series" := JobsSetup."Job Nos.";
-                OnInitJobNoOnAfterAssignNoSeries(Rec, xRec, JobsSetup);
-                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series";
+            "No. Series" := JobsSetup."Job Nos.";
+            OnInitJobNoOnAfterAssignNoSeries(Rec, xRec, JobsSetup);
+            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                "No. Series" := xRec."No. Series";
+            "No." := NoSeries.GetNextNo("No. Series");
+            Job2.ReadIsolation(IsolationLevel::ReadUncommitted);
+            Job2.SetLoadFields("No.");
+            while Job2.Get("No.") do
                 "No." := NoSeries.GetNextNo("No. Series");
-                Job2.ReadIsolation(IsolationLevel::ReadUncommitted);
-                Job2.SetLoadFields("No.");
-                while Job2.Get("No.") do
-                    "No." := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", JobsSetup."Job Nos.", 0D, "No.");
-            end;
-#endif
         end;
     end;
 
@@ -2791,24 +2781,28 @@ table 167 Job
 
     internal procedure GetQtyReservedFromStockState() Result: Enum "Reservation From Stock"
     var
-        JobPlanningLineLocal: Record "Job Planning Line";
         JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
         QtyReservedFromStock: Decimal;
     begin
         QtyReservedFromStock := JobPlanningLineReserve.GetReservedQtyFromInventory(Rec);
+        if QtyReservedFromStock = 0 then
+            exit(Result::None);
 
-        JobPlanningLineLocal.SetRange("Job No.", Rec."No.");
-        JobPlanningLineLocal.SetRange(Type, JobPlanningLineLocal.Type::Item);
-        JobPlanningLineLocal.CalcSums("Remaining Qty. (Base)");
+        if QtyReservedFromStock = CalculateReservableRemainingQuantityBase() then
+            exit(Result::Full);
 
-        case QtyReservedFromStock of
-            0:
-                exit(Result::None);
-            JobPlanningLineLocal."Remaining Qty. (Base)":
-                exit(Result::Full);
-            else
-                exit(Result::Partial);
-        end;
+        exit(Result::Partial);
+    end;
+
+    local procedure CalculateReservableRemainingQuantityBase() RemainingQtyBase: Decimal
+    var
+        RemQtyBaseInvtItemJobPlannLine: Query RemQtyBaseInvtItemJobPlannLine;
+    begin
+        RemQtyBaseInvtItemJobPlannLine.SetJobPlanningLineFilter(Rec);
+        if RemQtyBaseInvtItemJobPlannLine.Open() then
+            if RemQtyBaseInvtItemJobPlannLine.Read() then
+                RemainingQtyBase := RemQtyBaseInvtItemJobPlannLine.Remaining_Qty___Base_;
+        RemQtyBaseInvtItemJobPlannLine.Close();
     end;
 
     local procedure UpdateSellToCust(ContactNo: Code[20])
@@ -3095,18 +3089,10 @@ table 167 Job
     begin
     end;
 
-#if not CLEAN24
-    [IntegrationEvent(false, false)]
-    [Obsolete('Parameter NoSeriesMgt is obsolete and will be removed, update your subscriber accordingly.', '24.0')]
-    local procedure OnBeforeAssistEdit(var Job: Record Job; var OldJob: Record Job; var Result: Boolean; var IsHandled: Boolean; var NoSeriesManagement: Codeunit NoSeriesManagement)
-    begin
-    end;
-#else
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAssistEdit(var Job: Record Job; var OldJob: Record Job; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckContactBillToCustomerBusRelation(var Job: Record Job; Contact: Record Contact; var IsHandled: Boolean)

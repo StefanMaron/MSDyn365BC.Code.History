@@ -13,39 +13,31 @@ codeunit 8610 "Questionnaire Management"
     end;
 
     var
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text000: Label 'The value of the key field %1 has not been filled in for questionnaire %2.';
+        KeyFieldMissingErr: Label 'The value of the key field %1 has not been filled in for questionnaire %2.';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
         OpenXMLManagement: Codeunit "OpenXML Management";
         XMLDOMMgt: Codeunit "XML DOM Management";
         ConfigPackageMgt: Codeunit "Config. Package Management";
         ConfigProgressBar: Codeunit "Config. Progress Bar";
         ConfigValidateMgt: Codeunit "Config. Validate Management";
         FileMgt: Codeunit "File Management";
-#pragma warning disable AA0074
-        Text001: Label 'Exporting questionnaire';
-        Text002: Label 'Importing questionnaire';
-        Text005: Label 'Could not create the XML schema.';
-        Text007: Label 'Applying answers';
-        Text008: Label 'Updating questionnaire';
-#pragma warning restore AA0074
+        ExportingQuestionnaireTxt: Label 'Exporting questionnaire';
+        ImportingQuestionnaireTxt: Label 'Importing questionnaire';
+        XMLSchemaCreationErr: Label 'Could not create the XML schema.';
+        ApplyingAnswersTxt: Label 'Applying answers';
+        UpdatingQuestionnaireTxt: Label 'Updating questionnaire';
         TypeHelper: Codeunit "Type Helper";
         WrkBkWriter: DotNet WorkbookWriter;
         FieldNameCaptionList: Text;
         ExportToExcel: Boolean;
-#pragma warning disable AA0074
-        Text022: Label 'Creating Excel worksheet';
-        Text024: Label 'Download';
-        Text025: Label '*.*|*.*';
-        Text026: Label 'Default';
-#pragma warning restore AA0074
+        CreatingExcelWorksheetTxt: Label 'Creating Excel worksheet';
+        DownloadTxt: Label 'Download';
+        AllFilesTxt: Label '*.*|*.*';
+        DefaultTxt: Label 'Default';
         CalledFromCode: Boolean;
-#pragma warning disable AA0074
-        Text028: Label 'Import File';
-        Text029: Label 'XML file (*.xml)|*.xml', Comment = 'Only translate ''XML Files'' {Split=r"[\|\(]\*\.[^ |)]*[|) ]?"}';
-#pragma warning restore AA0074
+        ImportFileTxt: Label 'Import File';
+        XMLFileFilterTxt: Label 'XML file (*.xml)|*.xml', Comment = 'Only translate ''XML Files'' {Split=r"[\|\(]\*\.[^ |)]*[|) ]?"}';
         CreateWrkBkFailedErr: Label 'Could not create the Excel workbook.';
 
     procedure UpdateQuestions(ConfigQuestionArea: Record "Config. Question Area")
@@ -106,7 +98,7 @@ codeunit 8610 "Questionnaire Management"
         ConfigQuestionArea.Reset();
         ConfigQuestionArea.SetRange("Questionnaire Code", ConfigQuestionnaire.Code);
         if ConfigQuestionArea.FindSet() then begin
-            ConfigProgressBar.Init(ConfigQuestionArea.Count, 1, Text008);
+            ConfigProgressBar.Init(ConfigQuestionArea.Count, 1, UpdatingQuestionnaireTxt);
             repeat
                 ConfigProgressBar.Update(ConfigQuestionArea.Code);
                 UpdateQuestions(ConfigQuestionArea);
@@ -163,7 +155,7 @@ codeunit 8610 "Questionnaire Management"
         ConfigQuestionArea.Reset();
         ConfigQuestionArea.SetRange("Questionnaire Code", ConfigQuestionnaire.Code);
         if ConfigQuestionArea.FindSet() then begin
-            ConfigProgressBar.Init(ConfigQuestionArea.Count, 1, Text007);
+            ConfigProgressBar.Init(ConfigQuestionArea.Count, 1, ApplyingAnswersTxt);
             repeat
                 ConfigProgressBar.Update(ConfigQuestionArea.Code);
                 ApplyAnswer(ConfigQuestionArea);
@@ -207,7 +199,7 @@ codeunit 8610 "Questionnaire Management"
                 ConfigValidateMgt.ValidateFieldValue(RecRef, FieldRef, ConfigQuestion.Answer, false, GlobalLanguage)
             else
                 if KeyRef.FieldCount <> 1 then
-                    Error(Text000, FieldRef.Name, ConfigQuestionArea.Code);
+                    Error(KeyFieldMissingErr, FieldRef.Name, ConfigQuestionArea.Code);
         end;
 
         RecRef1 := RecRef.Duplicate();
@@ -261,13 +253,13 @@ codeunit 8610 "Questionnaire Management"
         Exported := true;
         if not ExportToExcel then begin
             FileName := XMLDataFile;
-            ToFile := Text026 + '.xml';
+            ToFile := DefaultTxt + '.xml';
 
             if not CalledFromCode then
                 FileName := FileMgt.ServerTempFileName('.xml');
             QuestionnaireXML.Save(FileName);
             if not CalledFromCode then
-                Exported := FileMgt.DownloadHandler(FileName, Text024, '', Text025, ToFile);
+                Exported := FileMgt.DownloadHandler(FileName, DownloadTxt, '', AllFilesTxt, ToFile);
         end else begin
             FileName := XMLDataFile;
             QuestionnaireXML.Save(FileName);
@@ -293,7 +285,7 @@ codeunit 8610 "Questionnaire Management"
 
         ConfigQuestionArea.SetRange("Questionnaire Code", ConfigQuestionnaire.Code);
         if ConfigQuestionArea.FindSet() then begin
-            ConfigProgressBar.Init(ConfigQuestionArea.Count, 1, Text001);
+            ConfigProgressBar.Init(ConfigQuestionArea.Count, 1, ExportingQuestionnaireTxt);
             repeat
                 ConfigProgressBar.Update(ConfigQuestionArea.Code);
                 CreateQuestionNodes(QuestionnaireXML, ConfigQuestionArea);
@@ -308,7 +300,7 @@ codeunit 8610 "Questionnaire Management"
         ServerFileName: Text;
     begin
         ServerFileName := FileMgt.ServerTempFileName('.xml');
-        if Upload(Text028, '', Text029, '', ServerFileName) then
+        if Upload(ImportFileTxt, '', XMLFileFilterTxt, '', ServerFileName) then
             exit(ImportQuestionnaireAsXML(ServerFileName));
 
         exit(false);
@@ -342,7 +334,7 @@ codeunit 8610 "Questionnaire Management"
         UpdateInsertQuestionnaireField(ConfigQuestionnaire, QuestionnaireNode);
         QuestionAreaNodes := QuestionnaireNode.SelectNodes('child::*[position() >= 3]');
 
-        ConfigProgressBar.Init(QuestionAreaNodes.Count, 1, Text002);
+        ConfigProgressBar.Init(QuestionAreaNodes.Count, 1, ImportingQuestionnaireTxt);
 
         for AreaNodeCount := 0 to QuestionAreaNodes.Count - 1 do begin
             QuestionAreaNode := QuestionAreaNodes.Item(AreaNodeCount);
@@ -398,7 +390,7 @@ codeunit 8610 "Questionnaire Management"
         XMLDOMMgt.LoadXMLDocumentFromFile(TempConfigQuestionnaireFileName, QuestionnaireXML);
         QuestionnaireNode := QuestionnaireXML.SelectSingleNode('//Questionnaire');
         QuestionAreaNodes := QuestionnaireNode.SelectNodes('child::*[position() >= 3]');
-        ConfigProgressBar.Init(QuestionAreaNodes.Count, 1, Text022);
+        ConfigProgressBar.Init(QuestionAreaNodes.Count, 1, CreatingExcelWorksheetTxt);
 
         foreach QuestionAreaNode in QuestionAreaNodes do begin
             ConfigProgressBar.Update(QuestionAreaNode.Name);
@@ -721,7 +713,7 @@ codeunit 8610 "Questionnaire Management"
         ConfigQuestionnaireSchema.SetTableView(ConfigQuestionnaire);
         ConfigQuestionnaireSchema.SetDestination(OStream);
         if not ConfigQuestionnaireSchema.Export() then
-            Error(Text005);
+            Error(XMLSchemaCreationErr);
 
         TempSchemaFile.Close();
     end;

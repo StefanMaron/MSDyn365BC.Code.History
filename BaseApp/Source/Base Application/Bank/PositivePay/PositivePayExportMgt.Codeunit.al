@@ -7,6 +7,16 @@ namespace Microsoft.Bank.PositivePay;
 using System.IO;
 using System.Text;
 
+/// <summary>
+/// Manages the export of positive pay data to external file formats, handling data exchange processes for positive pay checks.
+/// This codeunit orchestrates the complete export workflow including file generation, data mapping, and validation.
+/// </summary>
+/// <remarks>
+/// The Positive Pay Export Management codeunit is responsible for converting positive pay entries into various export formats
+/// required by different banks. It handles the data exchange framework operations including field mapping, data transformation,
+/// and file formatting. The codeunit supports fixed-width and delimited file formats and ensures data integrity through
+/// validation processes. It integrates with the Data Exchange framework to provide flexible export capabilities.
+/// </remarks>
 codeunit 1711 "Positive Pay Export Mgt"
 {
     Permissions = TableData "Data Exch." = rimd,
@@ -24,6 +34,18 @@ codeunit 1711 "Positive Pay Export Mgt"
         DataExchLineDefNotFoundErr: Label 'The %1 export format does not support the Payment Method Code %2.', Comment = '%1=Data Exch. Def. Name;%2=Data Exch. Line Def. Code';
         IncorrectLengthOfValuesErr: Label 'The payment that you are trying to export is different from the specified %1, %2.\\The value in the %3 field does not have the length that is required by the export format. \Expected: %4 \Actual: %5 \Field Value: %6.', Comment = '%1=Data Exch.Def Type;%2=Data Exch. Def Code;%3=Field;%4=Expected length;%5=Actual length;%6=Actual Value';
 
+    /// <summary>
+    /// Exports data exchange records to a flat file format with proper formatting and line structure.
+    /// </summary>
+    /// <param name="DataExchNo">The data exchange entry number to export.</param>
+    /// <param name="Filename">The target file path for the export.</param>
+    /// <param name="LineFileType">The type of line being exported (Detail, Header, or Footer).</param>
+    /// <param name="HeaderCount">The number of header records processed.</param>
+    /// <remarks>
+    /// This procedure handles the physical file creation and writing process for positive pay exports.
+    /// It manages file appending for multiple line types and ensures proper line termination with CRLF.
+    /// The procedure integrates with the Export Generic Fixed Width XMLport for data formatting.
+    /// </remarks>
     [Scope('OnPrem')]
     procedure ExportDataExchToFlatFile(DataExchNo: Integer; Filename: Text; LineFileType: Integer; HeaderCount: Integer)
     var
@@ -82,6 +104,16 @@ codeunit 1711 "Positive Pay Export Mgt"
         end;
     end;
 
+    /// <summary>
+    /// Creates data exchange field records for flat file export based on record data and mapping configuration.
+    /// </summary>
+    /// <param name="DataExch">The data exchange record containing export configuration.</param>
+    /// <param name="LineNo">The line number in the export file.</param>
+    /// <param name="RecRef">Reference to the source record containing data to export.</param>
+    /// <remarks>
+    /// This procedure bridges the gap between source data records and the data exchange framework.
+    /// It identifies the appropriate table mapping and delegates field processing to handle data transformation.
+    /// </remarks>
     [Scope('OnPrem')]
     procedure InsertDataExchLineForFlatFile(var DataExch: Record "Data Exch."; LineNo: Integer; RecRef: RecordRef)
     var
@@ -284,6 +316,15 @@ codeunit 1711 "Positive Pay Export Mgt"
         exit(Format(DataExchDef.Type));
     end;
 
+    /// <summary>
+    /// Prepares positive pay header record with basic account and company information for export.
+    /// </summary>
+    /// <param name="DataExch">The data exchange record to associate with the header.</param>
+    /// <param name="BankAccountNo">The bank account number for the positive pay file.</param>
+    /// <remarks>
+    /// This procedure creates the header record that will be included in the positive pay export file.
+    /// The header contains essential identification information including company name, account number, and file date.
+    /// </remarks>
     procedure PreparePosPayHeader(DataExch: Record "Data Exch."; BankAccountNo: Text[30])
     var
         PosPayHeader: Record "Positive Pay Header";
@@ -296,6 +337,16 @@ codeunit 1711 "Positive Pay Export Mgt"
         PosPayHeader.Insert();
     end;
 
+    /// <summary>
+    /// Prepares positive pay footer record with summary information for the export file.
+    /// </summary>
+    /// <param name="DataExch">The data exchange record to associate with the footer.</param>
+    /// <param name="DataExchDetalEntryNo">The detail entry number for cross-reference.</param>
+    /// <param name="BankAccountNo">The bank account number for the positive pay file.</param>
+    /// <remarks>
+    /// This procedure creates the footer record that concludes the positive pay export file.
+    /// The footer provides summary information and maintains referential integrity with detail records.
+    /// </remarks>
     procedure PreparePosPayFooter(DataExch: Record "Data Exch."; DataExchDetalEntryNo: Integer; BankAccountNo: Text[30])
     var
         PosPayFooter: Record "Positive Pay Footer";
@@ -307,6 +358,18 @@ codeunit 1711 "Positive Pay Export Mgt"
         PosPayFooter.Insert();
     end;
 
+    /// <summary>
+    /// Integration event that allows customization of data type casting during export processing.
+    /// </summary>
+    /// <param name="DestinationValue">The converted value in the target data type.</param>
+    /// <param name="SourceValue">The original value from the source field.</param>
+    /// <param name="DataExchColumnDef">The column definition containing conversion rules.</param>
+    /// <param name="Multiplier">The multiplier to apply during numeric conversions.</param>
+    /// <param name="IsHandled">Indicates whether the conversion has been handled by subscriber code.</param>
+    /// <remarks>
+    /// This integration event enables customization of how field values are converted between different data types
+    /// during the export process. Subscribers can implement custom conversion logic for specific scenarios.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCastToDestinationType(var DestinationValue: Variant; SourceValue: Variant; DataExchColumnDef: Record "Data Exch. Column Def"; Multiplier: Decimal; var IsHandled: Boolean)
     begin

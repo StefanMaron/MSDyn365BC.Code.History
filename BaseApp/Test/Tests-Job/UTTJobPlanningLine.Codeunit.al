@@ -41,6 +41,7 @@ codeunit 136353 "UT T Job Planning Line"
         NoJobPlanningLineErr: Label '%1 must be %2 in %3', Comment = '%1 = "No." field of Job Planning Line, %2 = Value of "No." field of Item, %3 = Job Planning Line';
         UnitCostLCYErr: Label '%1 must be %2 in %3', Comment = '%1 = Unit Cost (LCY), %2 = Unit Cost of Item, %3 = Job Planning Line';
         UnitCostErr: Label '%1 must be %2 in %3', Comment = '%1 = Unit Cost, %2 = UnitCost variable value, %3 = Job Planning Line';
+        ProjectPlanningLinesShouldShowLinesErr: Label 'Project Planning Lines should show lines for the selected job';
 
     [Test]
     [Scope('OnPrem')]
@@ -593,7 +594,8 @@ codeunit 136353 "UT T Job Planning Line"
         SecondJobNo: Code[20];
     begin
         // [FEATURE] [UI]
-        // [SCENARIO 381083] Filter for "Job No." is set changeless when "Job Planning Lines" page opened from Job Task Lines.
+        // [SCENARIO 381083] Filter for "Job No." is set when "Job Planning Lines" page opened from Job Task Lines.
+        // [SCENARIO 578676] User can change "Job No." filter on "Job Planning Lines" page opened from Job Task Lines.
         Initialize();
 
         // [GIVEN] Job "J", Job Task "JT", where "Job No." = "J"
@@ -603,15 +605,15 @@ codeunit 136353 "UT T Job Planning Line"
 
         // [GIVEN]  "Job Planning Lines" page opened from "Job Task Lines" page filtered on "J1" Job
         JobTaskLines.OpenEdit();
-        JobTaskLines.FILTER.SetFilter("Job No.", SecondJobNo);
+        JobTaskLines.Filter.SetFilter("Job No.", SecondJobNo);
         JobPlanningLines.Trap();
         JobTaskLines.JobPlanningLines.Invoke();
 
         // [WHEN] Set JobPlanningLines "Job No." filter to "J"
-        JobPlanningLines.FILTER.SetFilter("Job No.", JobNo);
+        JobPlanningLines.Filter.SetFilter("Job No.", JobNo);
 
-        // [THEN] Page JobPlanningLines is empty
-        Assert.IsFalse(JobPlanningLines.First(), RecordExistErr);
+        // [THEN] Page JobPlanningLines is filtered on "J" Job, and not empty.
+        Assert.IsTrue(JobPlanningLines.First(), ProjectPlanningLinesShouldShowLinesErr);
         JobPlanningLines.Close();
         JobTaskLines.Close();
     end;
@@ -626,7 +628,8 @@ codeunit 136353 "UT T Job Planning Line"
         SecondJobNo: Code[20];
     begin
         // [FEATURE] [UI]
-        // [SCENARIO 381083] Filter for "Job No." is set changeless when "Job Planning Lines" page opened from Job Card.
+        // [SCENARIO 381083] Filter for "Job No." is set when "Job Planning Lines" page opened from Job Card.
+        // [SCENARIO 578676] User can change "Job No." filter on "Job Planning Lines" page opened from Job Card.
 
         // [GIVEN] Job "J", Job Task "JT", where "Job No." = "J"
         // [GIVEN] Job Planning Line "JPL", where "Job No." = "J", "Job Task No." = "JT"
@@ -635,15 +638,15 @@ codeunit 136353 "UT T Job Planning Line"
 
         // [GIVEN]  "Job Planning Lines" page opened from "Job Card" page filtered on "J1" Job
         JobCard.OpenEdit();
-        JobCard.FILTER.SetFilter("No.", SecondJobNo);
+        JobCard.Filter.SetFilter("No.", SecondJobNo);
         JobPlanningLines.Trap();
         JobCard.JobPlanningLines.Invoke();
 
         // [WHEN] Set JobPlanningLines "Job No." filter to "J"
-        JobPlanningLines.FILTER.SetFilter("Job No.", JobNo);
+        JobPlanningLines.Filter.SetFilter("Job No.", JobNo);
 
-        // [THEN] Page JobPlanningLines is empty
-        Assert.IsFalse(JobPlanningLines.First(), RecordExistErr);
+        // [THEN] Page JobPlanningLines is filtered on "J" Job, and not empty.
+        Assert.IsTrue(JobPlanningLines.First(), ProjectPlanningLinesShouldShowLinesErr);
         JobPlanningLines.Close();
         JobCard.Close();
     end;
@@ -1551,13 +1554,13 @@ codeunit 136353 "UT T Job Planning Line"
         PriceListLine: Record "Price List Line";
 #endif
         JobPlanningLine: Record "Job Planning Line";
-#if CLEAN25        
+#if CLEAN25
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
 #endif
         CostFactor: Decimal;
         UnitPrice: Decimal;
     begin
-        // [SCENARIO 405107] Quantity modification updates "Unit Price calculated by "Cost Factor" 
+        // [SCENARIO 405107] Quantity modification updates "Unit Price calculated by "Cost Factor"
         Initialize();
         // [GIVEN] A job with a job task
         LibraryJob.CreateJob(Job);
@@ -1609,7 +1612,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobJournalLine2: Record "Job Journal Line";
         JobTransferLine: Codeunit "Job Transfer Line";
     begin
-        // [SCENARIO] Job planning lines for non-inventory items with location set. 
+        // [SCENARIO] Job planning lines for non-inventory items with location set.
         // Location should be transfered to job journal lines.
         Initialize();
 
@@ -1857,7 +1860,7 @@ codeunit 136353 "UT T Job Planning Line"
         Job: Record Job;
         JobTask: Record "Job Task";
     begin
-        // [SCENARIO 480325] Verify Description on Job Planning Line for Variant with Item Translation 
+        // [SCENARIO 480325] Verify Description on Job Planning Line for Variant with Item Translation
         Initialize();
 
         // [GIVEN] Create Item
@@ -1882,7 +1885,7 @@ codeunit 136353 "UT T Job Planning Line"
             JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
         JobPlanningLine.Validate("No.", Item."No.");
 
-        // [WHEN] Validate Variant on Job Planning Line        
+        // [WHEN] Validate Variant on Job Planning Line
         JobPlanningLine.Validate("Variant Code", ItemVariant.Code);
 
         // [THEN] Verify Description on Job Planning Line
@@ -1897,7 +1900,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobTask: Record "Job Task";
         JobPlanningLine: Record "Job Planning Line";
     begin
-        // [SCENARIO 547563] When Stan enters the Description of an Item in "No." field of 
+        // [SCENARIO 547563] When Stan enters the Description of an Item in "No." field of
         // Job Planning Line having Type selected as Item, then "No." field of Job Planning Line
         // Is updated with the value of "No." field of the Item without any error.
         Initialize();
@@ -2202,7 +2205,7 @@ codeunit 136353 "UT T Job Planning Line"
             JobPlanningLine."Job Task No.",
             JobPlanningLine."Line No.");
 
-        // [THEN] Unit Cost of Job Planning Line is equal to Unit Cost.
+        // [THEN] Unit Cost of Job Planning Line is equal to UnitCost.
         Assert.AreEqual(
             UnitCost,
             JobPlanningLine."Unit Cost",
@@ -2212,7 +2215,7 @@ codeunit 136353 "UT T Job Planning Line"
                 UnitCost,
                 JobPlanningLine.TableCaption()));
 
-        // [THEN] Unit Cost (LCY) of Job Planning Line is equal to Unit Cost.
+        // [THEN] Unit Cost (LCY) of Job Planning Line is equal to UnitCost.
         Assert.AreEqual(
             UnitCost,
             JobPlanningLine."Unit Cost (LCY)",
@@ -2715,7 +2718,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobLedgEntry."Entry Type" := JLEntryType;
         JobLedgEntry.Insert();
     end;
-
+#if not CLEAN25
     local procedure SetAllowLineDiscOfCustPostGroup(var Job: Record Job; AllowLineDisc: Boolean): Code[10]
     var
         CustomerPriceGroup: Record "Customer Price Group";
@@ -2727,7 +2730,7 @@ codeunit 136353 "UT T Job Planning Line"
         Job.Modify(true);
         exit(CustomerPriceGroup.Code);
     end;
-
+#endif
     local procedure OpenOrderPromissingPage(var JobPlanningLine: Record "Job Planning Line")
     var
         JobPlanningLines: TestPage "Job Planning Lines";
@@ -2888,4 +2891,3 @@ codeunit 136353 "UT T Job Planning Line"
         ItemList.OK().Invoke();
     end;
 }
-

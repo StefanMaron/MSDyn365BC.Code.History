@@ -215,7 +215,7 @@ codeunit 18466 "Subcontracting Post"
             OriginalQty := ItemJnlLine.Quantity;
             OriginalQtyBase := ItemJnlLine."Quantity (Base)";
             if not ItemJnlPostLine.RunWithCheck(ItemJnlLine) then
-                ItemJnlPostLine.CheckItemTracking();
+                ItemJnlPostLine.CheckItemTracking(ItemJnlLine);
             ItemJnlPostLine.CollectTrackingSpecification(TempTrackingSpecification);
             ItemJnlPostBatch.PostWhseJnlLine(ItemJnlLine, OriginalQty, OriginalQtyBase, TempTrackingSpecification);
             Clear(ItemJnlPostLine);
@@ -2557,7 +2557,7 @@ codeunit 18466 "Subcontracting Post"
             AllowApplication := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterPostItemJnlLineCopyProdOrder', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Mfg. Purch.-Post", 'OnAfterPostItemJnlLineCopyProdOrder', '', false, false)]
     local procedure OnAfterPostItemJnlLineCopyProdOrder(var ItemJnlLine: Record "Item Journal Line"; PurchLine: Record "Purchase Line")
     begin
         if ItemJnlLine."Entry Type" <> ItemJnlLine."Entry Type"::Output then

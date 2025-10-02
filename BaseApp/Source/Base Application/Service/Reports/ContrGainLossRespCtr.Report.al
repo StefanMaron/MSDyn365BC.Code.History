@@ -114,7 +114,8 @@ report 5981 "Contr. Gain/Loss - Resp. Ctr."
 
     requestpage
     {
-
+        AboutTitle = 'About Contr. Gain/Loss - Resp. Ctr.';
+        AboutText = 'Analyze gains and losses made on contracts attached to responsibility centers.';
         layout
         {
             area(content)

@@ -4,7 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Counting.History;
 
-using Microsoft.Inventory.Counting.Reports;
+using Microsoft.Foundation.Reporting;
 
 page 5884 "Posted Phys. Invt. Order List"
 {
@@ -86,8 +86,14 @@ page 5884 "Posted Phys. Invt. Order List"
                 Image = "Report";
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
-                RunObject = Report "Phys. Invt. Order Diff. List";
                 ToolTip = 'View or print the list of differences after counting.';
+
+                trigger OnAction()
+                var
+                    DocumentPrint: Codeunit "Document-Print";
+                begin
+                    DocumentPrint.PrintPostedInvtOrder(Rec, true);
+                end;
             }
         }
         area(Promoted)

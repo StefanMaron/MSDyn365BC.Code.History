@@ -2224,7 +2224,7 @@ codeunit 137154 "SCM Warehouse Management II"
             CreatePickFromPickWorksheetLine(WhseWorksheetName, '', ProductionBOMLine."No.");
         end else begin
             ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
-            LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+            LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         end;
         RegisterWarehouseActivity(
           WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Prod. Consumption", ProductionOrderNo,
@@ -2333,7 +2333,7 @@ codeunit 137154 "SCM Warehouse Management II"
         LibraryWarehouse.CreateWarehouseSourceFilter(WhseSourceFilter, WhseSourceFilter.Type::Outbound);
         Commit(); // Make sure the created Warehouse Source Filter goes into the table
 
-        // Exercise: Create Warehouse Shipment and use Filters to Get Source Doucments Action
+        // Exercise: Create Warehouse Shipment and use Filters to Get Source documents Action
         CreateWarehouseShipmentHeaderWithLocation(WhseShipmentHeader, LocationWhite.Code);
         WhseShipment.OpenEdit();
         WhseShipment.FILTER.SetFilter("No.", WhseShipmentHeader."No.");
@@ -3348,54 +3348,6 @@ codeunit 137154 "SCM Warehouse Management II"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler')]
-    procedure PostWarehouseShipmentWithMultipleRegisteredPicks()
-    var
-        Item: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
-        LotNo: Code[50];
-        Counter: Integer;
-        Quantity: Decimal;
-        Quantity2: Decimal;
-    begin
-        // [SCENARIO 563117] Post Warehouse Shipment with multiple Registered Pick.
-        Initialize();
-
-        // [GIVEN] Create Item with Lot No. Tracking.
-        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', LotItemTrackingCode.Code);
-
-        // [GIVEN] Generate Quantity.
-        Quantity := LibraryRandom.RandInt(5);
-        Quantity2 := Quantity + LibraryRandom.RandInt(20);
-
-        // [GIVEN] Generate Lot No.
-        LotNo := LibraryUtility.GenerateRandomCode(ItemJournalLine.FieldNo("Lot No."), Database::"Warehouse Activity Line");
-
-        // [GIVEN] Post Positive Adjustment with Item Tracking.
-        LibraryItemTracking.PostPositiveAdjustmentWithItemTracking(Item, LocationYellow.Code, '', Quantity2, WorkDate(), '', LotNo);
-
-        // [GIVEN] Create and Release Sales Order.
-        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Select Entries");
-        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", LocationYellow.Code, '', Quantity2, WorkDate(), false, true);
-
-        // [GIVEN] Post Negative Adjustment with Item Tracking.
-        POSTNegativeAdjustmentWithItemTracking(Item, LocationYellow.Code, '', Quantity, WorkDate(), '', LotNo);
-
-        // [GIVEN] Create Warehouse Shipment and Pick.
-        CreatePickFromWarehouseShipment(WarehouseShipmentHeader, SalesHeader);
-
-        // [WHEN] Register Pick Multiple Times.
-        for Counter := 1 to (Quantity2 - Quantity) do
-            UpdateQuantityToHandleAndLotNoOnPickAndRegisterPick(SalesHeader."No.", 1, LotNo);
-
-        // [THEN] Post the Warehouse Shipment.
-        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
-    end;
-
-    [Test]
     [HandlerFunctions('CloseGLPostingPreviewPageHandler')]
     procedure WarehouseShipmentPageRemainsOpenWhenRunPreviewPostAndCloseGLPostingPreviewPage()
     var
@@ -3449,6 +3401,53 @@ codeunit 137154 "SCM Warehouse Management II"
         WarehouseShipment."No.".AssertEquals(Format(WarehouseShipmentHeader."No."));
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler')]
+    procedure PostWarehouseShipmentWithMultipleRegisteredPicks()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        LotNo: Code[50];
+        Counter: Integer;
+        Quantity: Decimal;
+        Quantity2: Decimal;
+    begin
+        // [SCENARIO 563117] Post Warehouse Shipment with multiple Registered Pick.
+        Initialize();
+
+        // [GIVEN] Create Item with Lot No. Tracking.
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', LotItemTrackingCode.Code);
+
+        // [GIVEN] Generate Quantity.
+        Quantity := LibraryRandom.RandInt(5);
+        Quantity2 := Quantity + LibraryRandom.RandInt(20);
+
+        // [GIVEN] Generate Lot No.
+        LotNo := LibraryUtility.GenerateRandomCode(ItemJournalLine.FieldNo("Lot No."), Database::"Warehouse Activity Line");
+
+        // [GIVEN] Post Positive Adjustment with Item Tracking.
+        LibraryItemTracking.PostPositiveAdjustmentWithItemTracking(Item, LocationYellow.Code, '', Quantity2, WorkDate(), '', LotNo);
+
+        // [GIVEN] Create and Release Sales Order.
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Select Entries");
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", LocationYellow.Code, '', Quantity2, WorkDate(), false, true);
+
+        // [GIVEN] Post Negative Adjustment with Item Tracking.
+        POSTNegativeAdjustmentWithItemTracking(Item, LocationYellow.Code, '', Quantity, WorkDate(), '', LotNo);
+
+        // [GIVEN] Create Warehouse Shipment and Pick.
+        CreatePickFromWarehouseShipment(WarehouseShipmentHeader, SalesHeader);
+
+        // [WHEN] Register Pick Multiple Times.
+        for Counter := 1 to (Quantity2 - Quantity) do
+            UpdateQuantityToHandleAndLotNoOnPickAndRegisterPick(SalesHeader."No.", 1, LotNo);
+
+        // [THEN] Post the Warehouse Shipment.
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+    end;
 
     [Test]
     [HandlerFunctions('ProductionJournalPageHandler,ConfirmHandlerYes,MessageHandlerNotext')]

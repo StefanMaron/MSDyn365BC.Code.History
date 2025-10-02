@@ -189,7 +189,8 @@ report 5984 "Contract Invoicing"
 
     requestpage
     {
-
+        AboutTitle = 'About Contract Invoicing - Test';
+        AboutText = 'Find service contracts that are due for invoicing up to a date that you specify.';
         layout
         {
             area(content)

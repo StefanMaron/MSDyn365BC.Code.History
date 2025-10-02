@@ -41,12 +41,6 @@ page 99000861 "Planning Component List"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the description of the component.';
                 }
-                field("Scrap %"; Rec."Scrap %")
-                {
-                    ApplicationArea = Planning;
-                    ToolTip = 'Specifies the percentage of the item that you expect to be scrapped in the production process.';
-                    Visible = false;
-                }
                 field("Calculation Formula"; Rec."Calculation Formula")
                 {
                     ApplicationArea = Planning;
@@ -110,11 +104,6 @@ page 99000861 "Planning Component List"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the code for the inventory location, where the item on the planning component line will be registered.';
                     Visible = false;
-                }
-                field("Routing Link Code"; Rec."Routing Link Code")
-                {
-                    ApplicationArea = Planning;
-                    ToolTip = 'Specifies a routing link code to link a planning component with a specific operation.';
                 }
                 field("Unit Cost"; Rec."Unit Cost")
                 {

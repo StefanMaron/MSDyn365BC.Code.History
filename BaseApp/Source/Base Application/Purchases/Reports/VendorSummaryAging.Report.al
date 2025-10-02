@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Reports;
 
 using Microsoft.Finance.Currency;
@@ -291,6 +295,8 @@ report 305 "Vendor - Summary Aging"
 
     requestpage
     {
+        AboutTitle = 'About Vendor - Summary Aging';
+        AboutText = 'This is a legacy report for aged accounts payable. See report documentation for alternatives.';
         SaveValues = true;
 
         layout

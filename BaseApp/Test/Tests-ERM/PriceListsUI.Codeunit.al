@@ -4376,6 +4376,7 @@ codeunit 134117 "Price Lists UI"
     begin
         // [SCENARIO 566994] Bug fix to ensure the field "Amount Type" does not change after closing the page "Sales Price List" 
         Initialize(true);
+
         // [GIVEN] Sales Price List for discount
         PriceListHeaderCode := LibraryUtility.GenerateGUID();
         SalesPriceList.OpenEdit();
@@ -4389,8 +4390,10 @@ codeunit 134117 "Price Lists UI"
         CustomerDiscountGroup.Insert();
         SalesPriceList.AssignToNo.SetValue(CustomerDiscountGroup.Code);
         SalesPriceList.Status.SetValue("Price Status"::Active);
+
         // [WHEN] Close the page "Sales Price List"
         SalesPriceList.Close();
+
         // [THEN] Check the field "Amount Type" has not reverted to Price & Discount
         PriceListHeader.Get(PriceListHeaderCode);
         Assert.IsTrue((PriceListHeader."Amount Type" = PriceListHeader."Amount Type"::Discount), 'The field "Amount Type" has changed after closing the page "Sales Price List"');

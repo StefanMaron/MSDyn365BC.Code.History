@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Document;
 
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Ledger;
@@ -251,6 +255,8 @@ report 409 "Purchase Reservation Avail."
 
     requestpage
     {
+        AboutTitle = 'About Purchase Reservation Avail.';
+        AboutText = 'Explore the availability of items for shipment on purchase documents, such as return orders.';
         SaveValues = true;
 
         layout

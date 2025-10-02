@@ -56,11 +56,10 @@ pageextension 9800 "Users Perf. Factboxes" extends Users
     trigger OnAfterGetCurrRecord()
     var
         Parameters: Dictionary of [Text, Text];
-        TaskId: Integer;
         Skip: Boolean;
     begin
         IsOwnUser := Rec."User Security ID" = UserSecurityId();
-        if not UserSecurityGroupsPBT.ShouldEnqueueBackgroundTask(Rec."User Security ID", Parameters) then begin
+        if not UserSecurityGroupsPBT.ShouldEnqueueBackgroundTask(Rec, Parameters) then begin
             UpdateVisibility(true);
             exit;
         end;
@@ -71,11 +70,14 @@ pageextension 9800 "Users Perf. Factboxes" extends Users
         if Skip then
             exit;
 
-        CurrPage.EnqueueBackgroundTask(TaskId, Codeunit::"User Security Groups PBT", Parameters);
+        CurrPage.EnqueueBackgroundTask(SecurityGroupTaskId, Codeunit::"User Security Groups PBT", Parameters);
     end;
 
     trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])
     begin
+        if SecurityGroupTaskId <> TaskId then
+            exit;
+
         RefreshFactboxes(Results);
     end;
 
@@ -105,4 +107,5 @@ pageextension 9800 "Users Perf. Factboxes" extends Users
         IsOwnUser: Boolean;
         AreFactboxesVisible: Boolean;
         AreLoadingFactboxesVisible: Boolean;
+        SecurityGroupTaskId: Integer;
 }

@@ -1344,17 +1344,6 @@ codeunit 18390 "GST Transfer Order Receipt"
         ReservationEntry.Insert();
     end;
 
-    local procedure GetLocation(LocationCode: Code[10])
-    var
-        Location: Record Location;
-    begin
-        if LocationCode = '' then
-            Location.GetLocationSetup(LocationCode, Location)
-        else
-            if Location.Code <> LocationCode then
-                Location.Get(LocationCode);
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertTransRcptLineFillBuffer(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
     begin

@@ -111,18 +111,6 @@ table 2020 "Image Analysis Setup"
         exit(Regex.IsMatch(LowerCase(ApiUri), '/analyze$'));
     end;
 
-#if not CLEAN24
-    [NonDebuggable]
-    [Scope('OnPrem')]
-    [Obsolete('Use "SetApiKey(ApiKey: SecretText)" instead.', '24.0')]
-    procedure SetApiKey(ApiKey: Text)
-    var
-        ApiKeyAsSecret: SecretText;
-    begin
-        ApiKeyAsSecret := ApiKey;
-        SetApiKey(ApiKeyAsSecret);
-    end;
-#endif
     [Scope('OnPrem')]
     procedure SetApiKey(ApiKey: SecretText)
     begin
@@ -132,18 +120,6 @@ table 2020 "Image Analysis Setup"
         IsolatedStorageManagement.Set("Api Key Key", ApiKey, DATASCOPE::Company);
     end;
 
-#if not CLEAN24
-    [NonDebuggable]
-    [Scope('OnPrem')]
-    [Obsolete('Replaced by GetApiKeyAsSecret', '24.0')]
-    procedure GetApiKey(): Text
-    var
-        Value: Text;
-    begin
-        IsolatedStorageManagement.Get("Api Key Key", DATASCOPE::Company, Value);
-        exit(Value);
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure GetApiKeyAsSecret(): SecretText

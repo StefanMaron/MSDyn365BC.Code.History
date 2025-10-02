@@ -300,6 +300,7 @@ codeunit 18191 "GST Sales Ship To Addr Tests"
         LibraryAssert.RecordCount(CustomerLedgerEntry, 1);
     end;
 
+
     local procedure CreateSalesHeaderWithGST(
         var SalesHeader: Record "Sales Header";
         CustomerNo: Code[20];

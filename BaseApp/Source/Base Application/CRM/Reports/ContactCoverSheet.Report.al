@@ -195,6 +195,8 @@ report 5055 "Contact - Cover Sheet"
 
     requestpage
     {
+        AboutTitle = 'About Contact - Cover Sheet';
+        AboutText = 'Get cover sheets to send to one or more of your contacts.';
         SaveValues = false;
 
         layout

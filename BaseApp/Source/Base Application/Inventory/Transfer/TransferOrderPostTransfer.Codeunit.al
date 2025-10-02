@@ -190,7 +190,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
         Window.Close();
 
         TransferHeader2 := TransHeader;
-        OnAfterTransferOrderPostTransfer(TransferHeader2, SuppressCommit, DirectTransHeader, InvtPickPutAway);
+        OnAfterTransferOrderPostTransfer(TransferHeader2, SuppressCommit, PreviewMode, DirectTransHeader, InvtPickPutAway);
 
         UpdateAnalysisView.UpdateAll(0, true);
         UpdateItemAnalysisView.UpdateAll(0, true);
@@ -259,7 +259,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
             ReserveTransLine.TransferTransferToItemJnlLine(TransLine3,
               ItemJnlLine, ItemJnlLine."Quantity (Base)", Enum::"Transfer Direction"::Inbound, true);
 
-        OnPostItemJnlLineBeforeItemJnlPostLineRunWithCheck(ItemJnlLine, Transline3, DirectTransHeader2, DirectTransLine2, SuppressCommit);
+        OnPostItemJnlLineBeforeItemJnlPostLineRunWithCheck(ItemJnlLine, Transline3, DirectTransHeader2, DirectTransLine2, SuppressCommit, PreviewMode);
 
         ItemJnlPostLine.RunWithCheck(ItemJnlLine);
 
@@ -709,7 +709,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferOrderPostTransfer(var TransferHeader: Record "Transfer Header"; var SuppressCommit: Boolean; var DirectTransHeader: Record "Direct Trans. Header"; InvtPickPutAway: Boolean)
+    local procedure OnAfterTransferOrderPostTransfer(var TransferHeader: Record "Transfer Header"; var SuppressCommit: Boolean; PreviewMode: Boolean; var DirectTransHeader: Record "Direct Trans. Header"; InvtPickPutAway: Boolean)
     begin
     end;
 
@@ -719,7 +719,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemJnlLineBeforeItemJnlPostLineRunWithCheck(var ItemJournalLine: Record "Item Journal Line"; TransferLine: Record "Transfer Line"; DirectTransHeader: Record "Direct Trans. Header"; DirectTransLine: Record "Direct Trans. Line"; CommitIsSuppressed: Boolean)
+    local procedure OnPostItemJnlLineBeforeItemJnlPostLineRunWithCheck(var ItemJournalLine: Record "Item Journal Line"; TransferLine: Record "Transfer Line"; DirectTransHeader: Record "Direct Trans. Header"; DirectTransLine: Record "Direct Trans. Line"; CommitIsSuppressed: Boolean; PreviewMode: Boolean)
     begin
     end;
 
@@ -748,4 +748,3 @@ codeunit 5856 "TransferOrder-Post Transfer"
     begin
     end;
 }
-

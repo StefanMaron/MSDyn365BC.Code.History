@@ -349,33 +349,6 @@
         CreateSalesLine(SalesHeader, GLAccountNo[4], Amounts[9]);
     end;
 
-    local procedure CreateSalesInvoice_TFS268735_2(var SalesHeader: Record "Sales Header"; var GLAccountNo: array[4] of Code[20])
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-        CustomerNo: Code[20];
-        CurrencyCode: Code[10];
-        CurrExchRate: Decimal;
-        Amounts: array[9] of Decimal;
-        i: Integer;
-    begin
-        CreateVATPostingSetup(VATPostingSetup, 0);
-        CustomerNo := LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
-        for i := 1 to ArrayLen(GLAccountNo) do
-            GLAccountNo[i] := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" ");
-        PrepareAmounts_TFS268735(Amounts, CurrExchRate);
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), CurrExchRate, 1);
-
-        CreateSalesHeader(SalesHeader, CustomerNo, CurrencyCode);
-        CreateSalesLine(SalesHeader, GLAccountNo[1], Amounts[1]);
-        CreateSalesLine(SalesHeader, GLAccountNo[2], Amounts[2]);
-        CreateSalesLine(SalesHeader, GLAccountNo[3], Amounts[3]);
-        CreateSalesLine(SalesHeader, GLAccountNo[1], Amounts[4]);
-        CreateSalesLine(SalesHeader, GLAccountNo[2], Amounts[5]);
-        CreateSalesLine(SalesHeader, GLAccountNo[1], Amounts[7]);
-        CreateSalesLine(SalesHeader, GLAccountNo[2], Amounts[8]);
-        CreateSalesLine(SalesHeader, GLAccountNo[4], Amounts[9]);
-    end;
-
     local procedure CreateCurrencyWithExchangeRate(var Currency: Record Currency; StartingDate: Date; ExchangeRateAmount: Decimal; AdjustmentExchangeRateAmount: Decimal)
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
@@ -493,4 +466,3 @@
         InvoicePostingBuffer.TestField("VAT Base Amount (ACY)", ExpVATBaseAmountACY);
     end;
 }
-

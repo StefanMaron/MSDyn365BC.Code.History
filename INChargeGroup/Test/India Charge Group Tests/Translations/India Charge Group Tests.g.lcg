@@ -149,24 +149,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Purchase Charge Group - NamedType VendorNoLbl)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3753122319 - NamedType 1947827686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AccountNo]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales Charge Group - NamedType AccountNoLbl)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3753122319 - NamedType 620290077" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AccountType]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales Charge Group - NamedType AccountTypeLbl)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3753122319 - NamedType 3373308843" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[CGST]]></Val>
@@ -320,15 +302,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales Charge Group - NamedType PartialShipLbl)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3753122319 - NamedType 3386354979" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[PaymentDocNo]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales Charge Group - NamedType PaymentDocNoLbl)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3753122319 - NamedType 1612725874" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[POS]]></Val>
@@ -390,15 +363,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales Charge Group - NamedType ToStateCodeLbl)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3753122319 - NamedType 2572654342" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 is incorrect in %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 and %2 = Field Caption and Table Caption]D;]A;(LookupHint=Codeunit Sales Charge Group - NamedType VerifyErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3753122319 - NamedType 3308505251" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

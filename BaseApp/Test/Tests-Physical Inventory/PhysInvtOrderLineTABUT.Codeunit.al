@@ -110,33 +110,6 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
         PhysInvtOrderLine.ShowPhysInvtRecordingLines();  // Invokes PhysInvtRecLinesPageHandler.
     end;
 
-#if not CLEAN24
-    [Test]
-    [HandlerFunctions('ExpectPhysInvTrackListPageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure ShowExpectPhysInvtTrackLinesPhysInvtOrderLine()
-    var
-        ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking";
-        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
-    begin
-        // [SCENARIO] validate ShowExpPhysInvtTrackings function of Table ID - 5005351  Phys. Inventory Order Line.
-        // Setup.
-        Initialize();
-        CreatePhysInventoryOrderLine(PhysInvtOrderLine, LibraryUTUtility.GetNewCode());
-        PhysInvtOrderLine."Qty. Exp. Calculated" := true;
-        PhysInvtOrderLine.Modify();
-
-        ExpPhysInvtTracking."Order No" := PhysInvtOrderLine."Document No.";
-        ExpPhysInvtTracking."Order Line No." := PhysInvtOrderLine."Line No.";
-        ExpPhysInvtTracking.Insert();
-
-        // Exercise & verify: Invokes function ShowExpPhysInvtTracking on Table Phys. Inventory Order Line and verify correct entries created in ExpectPhysInvTrackListPageHandler.
-        LibraryVariableStorage.Enqueue(PhysInvtOrderLine."Document No.");  // Required inside ExpectPhysInvTrackListPageHandler.
-        PhysInvtOrderLine.ShowExpectPhysInvtTrackLines();  // Invokes ExpectPhysInvTrackListPageHandler.
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('ExpInvtOrderTrackingPageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -149,9 +122,6 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
         // [SCENARIO] validate ShowExpPhysInvtTrackings function of Table ID - 5005351  Phys. Inventory Order Line.
         // Setup.
         Initialize();
-#if not CLEAN24
-        LibraryInventory.SetInvtOrdersPackageTracking(true);
-#endif
         CreatePhysInventoryOrderLine(PhysInvtOrderLine, LibraryUTUtility.GetNewCode());
         PhysInvtOrderLine."Qty. Exp. Calculated" := true;
         PhysInvtOrderLine.Modify();
@@ -163,9 +133,6 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
         // Exercise & verify: Invokes function ShowExpPhysInvtTracking on Table Phys. Inventory Order Line and verify correct entries created in ExpectPhysInvTrackListPageHandler.
         LibraryVariableStorage.Enqueue(PhysInvtOrderLine."Document No.");  // Required inside ExpectPhysInvTrackListPageHandler.
         PhysInvtOrderLine.ShowExpectPhysInvtTrackLines();  // Invokes ExpectPhysInvTrackListPageHandler.
-#if not CLEAN24
-        LibraryInventory.SetInvtOrdersPackageTracking(false);
-#endif
     end;
 
     [Test]
@@ -632,20 +599,6 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
         PhysInvtRecordingLines."Order No.".AssertEquals(OrderNo);
         PhysInvtRecordingLines.OK().Invoke();
     end;
-
-#if not CLEAN24
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure ExpectPhysInvTrackListPageHandler(var ExpectPhysInvTrackList: TestPage "Exp. Phys. Invt. Tracking")
-    var
-        OrderNo: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(OrderNo);
-        ExpectPhysInvTrackList."Order No".AssertEquals(OrderNo);
-        ExpectPhysInvTrackList."Order Line No.".AssertEquals(1);
-        ExpectPhysInvTrackList.OK().Invoke();
-    end;
-#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]

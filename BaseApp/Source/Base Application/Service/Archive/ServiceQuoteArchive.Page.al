@@ -61,6 +61,12 @@ page 6268 "Service Quote Archive"
                         ApplicationArea = Service;
                         ToolTip = 'Specifies the name of the customer to whom the items on the document will be shipped.';
                     }
+                    field("Name 2"; Rec."Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Importance = Additional;
+                        Visible = false;
+                    }
                     field(Address; Rec.Address)
                     {
                         ApplicationArea = Service;
@@ -72,6 +78,12 @@ page 6268 "Service Quote Archive"
                         ApplicationArea = Service;
                         QuickEntry = false;
                         ToolTip = 'Specifies additional address information.';
+                    }
+                    field(City; Rec.City)
+                    {
+                        ApplicationArea = Service;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the city of the address.';
                     }
                     group(CountyGroup)
                     {
@@ -113,12 +125,6 @@ page 6268 "Service Quote Archive"
                     ApplicationArea = Service;
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the email address of the customer in this service order.';
-                }
-                field(City; Rec.City)
-                {
-                    ApplicationArea = Service;
-                    QuickEntry = false;
-                    ToolTip = 'Specifies the city of the address.';
                 }
                 field("Phone No. 2"; Rec."Phone No. 2")
                 {
@@ -217,6 +223,13 @@ page 6268 "Service Quote Archive"
                         Caption = 'Name';
                         ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
                     }
+                    field("Bill-to Name 2"; Rec."Bill-to Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        Visible = false;
+                    }
                     field("Bill-to Address"; Rec."Bill-to Address")
                     {
                         ApplicationArea = Service;
@@ -230,6 +243,13 @@ page 6268 "Service Quote Archive"
                         Caption = 'Address 2';
                         QuickEntry = false;
                         ToolTip = 'Specifies an additional line of the address.';
+                    }
+                    field("Bill-to City"; Rec."Bill-to City")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'City';
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the city of the address.';
                     }
                     group(BillCounty)
                     {
@@ -249,13 +269,6 @@ page 6268 "Service Quote Archive"
                         Caption = 'Post Code';
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code of the customer''s billing address.';
-                    }
-                    field("Bill-to City"; Rec."Bill-to City")
-                    {
-                        ApplicationArea = Service;
-                        Caption = 'City';
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the city of the address.';
                     }
                     field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
                     {
@@ -374,6 +387,13 @@ page 6268 "Service Quote Archive"
                         QuickEntry = false;
                         ToolTip = 'Specifies an additional part of the ship-to address, in case it is a long address.';
                     }
+                    field("Ship-to City"; Rec."Ship-to City")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'City';
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the city of the address that the items are shipped to.';
+                    }
                     group(ShipCounty)
                     {
                         ShowCaption = false;
@@ -393,13 +413,6 @@ page 6268 "Service Quote Archive"
                         Importance = Promoted;
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
-                    }
-                    field("Ship-to City"; Rec."Ship-to City")
-                    {
-                        ApplicationArea = Service;
-                        Caption = 'City';
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the city of the address that the items are shipped to.';
                     }
                     field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                     {
@@ -436,6 +449,24 @@ page 6268 "Service Quote Archive"
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location of the service item, such as a warehouse or distribution center.';
+                }
+                field("Shipment Method Code"; Rec."Shipment Method Code")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
+                    Visible = false;
+                }
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
+                    Visible = false;
+                }
+                field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
+                    Visible = false;
                 }
             }
             group(Details)

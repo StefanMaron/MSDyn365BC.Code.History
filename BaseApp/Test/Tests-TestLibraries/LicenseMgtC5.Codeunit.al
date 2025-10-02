@@ -1,3 +1,4 @@
+#pragma warning disable AL0801
 codeunit 130031 "License Mgt. C5"
 {
 

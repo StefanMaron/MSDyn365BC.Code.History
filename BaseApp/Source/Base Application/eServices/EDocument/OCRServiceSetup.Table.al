@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -120,12 +120,13 @@ table 1270 "OCR Service Setup"
                 CompanyInformation: Record "Company Information";
                 OCRServiceMgt: Codeunit "OCR Service Mgt.";
                 CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
+                AuditLog: Codeunit "Audit Log";
             begin
                 if not xRec."Enabled" and Rec."Enabled" then
                     Rec."Enabled" := CustomerConsentMgt.ConfirmUserConsent();
 
                 if Rec.Enabled then begin
-                    Session.LogAuditMessage(StrSubstNo(OCRServiceConsentProvidedLbl, UserSecurityId(), CompanyName()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
+                    AuditLog.LogAuditMessage(StrSubstNo(OCRServiceConsentProvidedLbl, UserSecurityId(), CompanyName()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
                     OCRServiceMgt.SetupConnection(Rec);
                     if "Default OCR Doc. Template" = '' then
                         if CompanyInformation.Get() then

@@ -203,7 +203,8 @@ report 5976 "Service Profit (Contracts)"
 
     requestpage
     {
-
+        AboutTitle = 'About Service Profit (Contracts)';
+        AboutText = 'Get an overview of profit for service contracts.';
         layout
         {
             area(content)

@@ -38,7 +38,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         DeleteEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
         ExpectedMessage: Label 'The Credit Memo doesn''t have a Corrected Invoice No. Do you want to continue?';
         JournalLinesRegistered: Label 'The journal lines were successfully registered.You are now in the ';
-        FinishProductionOrder: Label 'Production Order %1 has not been finished. Some output is still missing.';
+        FinishProductionOrder: Label 'Production Order %1 has not been finished:\\  * Some output is still missing.';
         PhysInvLedgerEntriesExists: Label 'Physical Inventory Ledger Entries Must Be Deleted.';
         ProdOrderCreated: Label 'Prod. Order';
         PostJournalLines: Label 'Do you want to post the journal lines';
@@ -2138,6 +2138,7 @@ codeunit 137295 "SCM Inventory Misc. III"
           WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", Location.Code, false);
     end;
 
+#if not CLEAN25
     local procedure CreateAndUpdateSalesOrder(var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     begin
         CreateSalesOrderWithOrderDate(SalesLine, CustomerNo, ItemNo, WorkDate(), '', Quantity);
@@ -2157,7 +2158,6 @@ codeunit 137295 "SCM Inventory Misc. III"
         exit(Customer."No.");
     end;
 
-#if not CLEAN25
     local procedure CreateAndUpdateSalesPrice(var SalesPrice: Record "Sales Price"; VATBusPostingGrPrice: Code[20]; ItemNo: Code[20]; SalesType: Enum "Sales Price Type"; SalesCode: Code[20])
     begin
         CreateSalesPrice(SalesPrice, ItemNo, SalesType, SalesCode, LibraryRandom.RandDec(10, 2), '');  // Take random for Quantity.
@@ -2199,6 +2199,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         exit(Customer."No.");
     end;
 
+#if not CLEAN25
     local procedure CreateCurrency(): Code[10]
     var
         Currency: Record Currency;
@@ -2207,7 +2208,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
         exit(Currency.Code);
     end;
-
+#endif
     local procedure CreateItem(ReplenishmentSystem: Enum "Replenishment System"): Code[20]
     var
         Item: Record Item;
@@ -2218,6 +2219,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         exit(Item."No.");
     end;
 
+#if not CLEAN25
     local procedure CreateItemWithVAT(VATProdPostingGroup: Code[20]): Code[20]
     var
         Item: Record Item;
@@ -2227,7 +2229,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         Item.Modify(true);
         exit(Item."No.");
     end;
-
+#endif
     local procedure CreateTrackedItemWithReorderingPolicy(var Item: Record Item; Serial: Boolean; Lot: Boolean; ReorderingPolicy: Enum "Reordering Policy")
     begin
         LibraryInventory.CreateTrackedItem(Item, '', LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCode(Serial, Lot));
@@ -2422,6 +2424,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         PurchaseLine.OpenItemTrackingLines();
     end;
 
+#if not CLEAN25
     local procedure CreateSalesOrderWithOrderDate(var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; ItemNo: Code[20]; OrderDate: Date; CurrencyCode: Code[10]; Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
@@ -2433,7 +2436,6 @@ codeunit 137295 "SCM Inventory Misc. III"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
     end;
 
-#if not CLEAN25
     local procedure CreateSalesPrice(var SalesPrice: Record "Sales Price"; ItemNo: Code[20]; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; Quantity: Decimal; CurrencyCode: Code[10])
     begin
         LibraryCosting.CreateSalesPrice(SalesPrice, SalesType, SalesCode, ItemNo, WorkDate(), CurrencyCode, '', '', Quantity);
@@ -2887,6 +2889,7 @@ codeunit 137295 "SCM Inventory Misc. III"
           StrSubstNo(ValidationError, ItemLedgerEntry.FieldCaption("Cost Amount (Actual)"), CostAmountActual));
     end;
 
+#if not CLEAN25
     local procedure CreateAndUpdateCustPriceGroup(VATBusPostingGrPrice: Code[20]): Code[10]
     var
         CustomerPriceGroup: Record "Customer Price Group";
@@ -2898,7 +2901,6 @@ codeunit 137295 "SCM Inventory Misc. III"
         exit(CustomerPriceGroup.Code);
     end;
 
-#if not CLEAN25
     local procedure UpdateDiscOnSalesLineDiscount(SalesLineDiscount: Record "Sales Line Discount"): Decimal
     begin
         SalesLineDiscount.Validate("Line Discount %", SalesLineDiscount."Line Discount %" + LibraryRandom.RandDec(10, 2));  // Take random for update Line Discount Pct.
@@ -2974,6 +2976,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         ItemJournalLine.TestField("Qty. (Phys. Inventory)", Quantity);
     end;
 
+#if not CLEAN25
     local procedure VerifySalesInvoiceLine(DocumentNo: Code[20]; UnitPrice: Decimal; LineDiscountPct: Decimal)
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
@@ -2984,7 +2987,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         SalesInvoiceLine.TestField("Unit Price", UnitPrice);
         SalesInvoiceLine.TestField("Line Discount %", LineDiscountPct);
     end;
-
+#endif
     local procedure VerifyValueEntry(ItemLedgerEntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; CostAmount: Decimal)
     var
         ValueEntry: Record "Value Entry";
@@ -3320,4 +3323,3 @@ codeunit 137295 "SCM Inventory Misc. III"
         ItemTrackingSummary.OK().Invoke();
     end;
 }
-

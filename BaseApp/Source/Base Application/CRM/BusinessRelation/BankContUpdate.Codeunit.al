@@ -118,9 +118,6 @@ codeunit 5058 "BankCont-Update"
     local procedure InitContactFromBankAccount(var Contact: Record Contact; BankAcc: Record "Bank Account")
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -138,16 +135,8 @@ codeunit 5058 "BankCont-Update"
             Contact."No." := '';
             Contact."No. Series" := '';
             RMSetup.TestField("Contact Nos.");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(RMSetup."Contact Nos.", '', 0D, Contact."No.", Contact."No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 Contact."No. Series" := RMSetup."Contact Nos.";
                 Contact."No." := NoSeries.GetNextNo(Contact."No. Series");
-#if not CLEAN24
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(Contact."No. Series", RMSetup."Contact Nos.", 0D, Contact."No.");
-            end;
-#endif
         end;
         Contact.Type := Contact.Type::Company;
         Contact.TypeChange();
@@ -204,4 +193,3 @@ codeunit 5058 "BankCont-Update"
     begin
     end;
 }
-

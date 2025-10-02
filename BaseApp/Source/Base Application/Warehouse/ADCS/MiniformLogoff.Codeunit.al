@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Warehouse.ADCS;
 
 using System;
@@ -39,16 +43,14 @@ codeunit 7706 "Miniform Logoff"
         LocationFilter: Text[250];
         CurrentCode: Text[250];
         StackCode: Text[250];
-#pragma warning disable AA0074
-        Text001: Label 'No input Node found.';
-#pragma warning restore AA0074
+        NoInputNodeErr: Label 'No input Node found.';
 
     local procedure Process()
     begin
         if XMLDOMMgt.FindNode(RootNode, 'Header/Input', ReturnedNode) then
             TextValue := ReturnedNode.InnerText
         else
-            Error(Text001);
+            Error(NoInputNodeErr);
 
         ADCSCommunication.GetCallMiniForm(MiniformHeader.Code, MiniformHeader2, TextValue);
         ADCSCommunication.IncreaseStack(DOMxmlin, MiniformHeader.Code);

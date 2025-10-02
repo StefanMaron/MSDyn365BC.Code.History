@@ -1,3 +1,8 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
 namespace Microsoft.Integration.Shopify;
 
 using System.Azure.KeyVault;
@@ -15,7 +20,7 @@ codeunit 30199 "Shpfy Authentication Mgt."
 
     var
         // https://shopify.dev/api/usage/access-scopes
-        ScopeTxt: Label 'write_orders,read_all_orders,write_assigned_fulfillment_orders,read_checkouts,write_customers,read_discounts,write_files,write_merchant_managed_fulfillment_orders,write_fulfillments,write_inventory,read_locations,write_products,write_shipping,read_shopify_payments_disputes,read_shopify_payments_payouts,write_returns,write_translations,write_third_party_fulfillment_orders,write_order_edits,write_companies,write_publications,write_payment_terms,write_draft_orders,read_locales,read_shopify_payments_accounts', Locked = true;
+        ScopeTxt: Label 'write_orders,read_all_orders,write_assigned_fulfillment_orders,read_checkouts,write_customers,read_discounts,write_files,write_merchant_managed_fulfillment_orders,write_fulfillments,write_inventory,read_locations,write_products,write_shipping,read_shopify_payments_disputes,read_shopify_payments_payouts,write_returns,write_translations,write_third_party_fulfillment_orders,write_order_edits,write_publications,write_payment_terms,write_draft_orders,read_locales,read_shopify_payments_accounts,read_users,read_markets', Locked = true;
         ShopifyAPIKeyAKVSecretNameLbl: Label 'ShopifyApiKey', Locked = true;
         ShopifyAPISecretAKVSecretNameLbl: Label 'ShopifyApiSecret', Locked = true;
         MissingAPIKeyTelemetryTxt: Label 'The api key has not been initialized.', Locked = true;
@@ -24,14 +29,15 @@ codeunit 30199 "Shpfy Authentication Mgt."
         NoCallbackErr: Label 'No callback was received from Shopify. Make sure that you haven''t closed the page that says "Waiting for a response - do not close this page", and then try again.';
         HttpRequestBlockedErr: Label 'Shopify connector is not allowed to make HTTP requests when running in a non-production environment.';
         EnableHttpRequestActionLbl: Label 'Allow HTTP requests';
+        InvalidShopUrlErr: Label 'The URL must refer to the internal shop location at myshopify.com. It must not be the public URL that customers use, such as myshop.com.';
         NotSupportedOnPremErr: Label 'Shopify connector is only supported in SaaS environments.';
 
-    [Scope('OnPrem')]
-    local procedure GetClientId(): SecretText
+    [NonDebuggable]
+    local procedure GetClientId(): Text
     var
         AzureKeyVault: Codeunit "Azure Key Vault";
         EnvironmentInformation: Codeunit "Environment Information";
-        ClientId: SecretText;
+        ClientId: Text;
     begin
         if not EnvironmentInformation.IsSaaS() then
             Error(NotSupportedOnPremErr);
@@ -42,7 +48,7 @@ codeunit 30199 "Shpfy Authentication Mgt."
             exit(ClientId);
     end;
 
-    [Scope('OnPrem')]
+    [NonDebuggable]
     local procedure GetClientSecret(): SecretText
     var
         AzureKeyVault: Codeunit "Azure Key Vault";
@@ -58,14 +64,14 @@ codeunit 30199 "Shpfy Authentication Mgt."
             exit(ClientSecret);
     end;
 
-    [Scope('OnPrem')]
+    [NonDebuggable]
     internal procedure InstallShopifyApp(InstalllToStore: Text)
     var
         OAuth2: Codeunit "OAuth2";
         ShopifyAuthentication: Page "Shpfy Authentication";
         State: Integer;
         GrandOptionsTxt: Label 'value', Locked = true;
-        FullUrl: SecretText;
+        FullUrl: Text;
         Url: Text;
         RedirectUrl: Text;
         Store: Text;
@@ -76,8 +82,8 @@ codeunit 30199 "Shpfy Authentication Mgt."
     begin
         OAuth2.GetDefaultRedirectURL(RedirectUrl);
         State := Random(999);
-        Url := StrSubstNo(InstallURLTxt, InstalllToStore, ScopeTxt, RedirectUrl, State, GrandOptionsTxt);
-        FullUrl := SecretStrSubstNo(InstallURLWithClientIdParamTok, Url, GetClientId());
+        Url := StrSubstNo(InstallURLTxt, InstalllToStore, GetScope(), RedirectUrl, State, GrandOptionsTxt);
+        FullUrl := StrSubstNo(InstallURLWithClientIdParamTok, Url, GetClientId());
         ShopifyAuthentication.SetOAuth2Properties(FullUrl);
         Commit();
         ShopifyAuthentication.RunModal();
@@ -94,11 +100,11 @@ codeunit 30199 "Shpfy Authentication Mgt."
     end;
 
     [NonDebuggable]
-    [Scope('OnPrem')]
     local procedure GetToken(Store: Text; AuthorizationCode: SecretText)
     var
         JsonHelper: Codeunit "Shpfy Json Helper";
         Body: Text;
+        SecretBody: SecretText;
         Url: Text;
         HttpClient: HttpClient;
         RequestHeaders: HttpHeaders;
@@ -106,17 +112,20 @@ codeunit 30199 "Shpfy Authentication Mgt."
         HttpResponseMessage: HttpResponseMessage;
         JObject: JsonObject;
         RequestBody: JsonObject;
+        Credentials: Dictionary of [Text, SecretText];
         AccessTokenURLTxt: Label 'https://%1/admin/oauth/access_token', Comment = '%1 = Store', Locked = true;
         HttpRequestBlockedErrorInfo: ErrorInfo;
     begin
-        RequestBody.Add('client_id', GetClientId().Unwrap());
-        RequestBody.Add('client_secret', GetClientSecret().Unwrap());
-        RequestBody.Add('code', AuthorizationCode.Unwrap());
-        RequestBody.WriteTo(Body);
+        RequestBody.Add('client_id', GetClientId());
+        RequestBody.Add('client_secret', '');
+        RequestBody.Add('code', '');
+        Credentials.Add('$.client_secret', GetClientSecret());
+        Credentials.Add('$.code', AuthorizationCode);
+        RequestBody.WriteWithSecretsTo(Credentials, SecretBody);
 
         Url := StrSubstNo(AccessTokenURLTxt, Store);
 
-        RequestHttpContent.WriteFrom(Body);
+        RequestHttpContent.WriteFrom(SecretBody);
         RequestHttpContent.GetHeaders(RequestHeaders);
         RequestHeaders.Clear();
         RequestHeaders.Add('Content-Type', 'application/json');
@@ -138,8 +147,6 @@ codeunit 30199 "Shpfy Authentication Mgt."
         SaveStoreInfo(Store, JsonHelper.GetValueAsText(JObject.AsToken(), 'scope'), JsonHelper.GetValueAsText(JObject.AsToken(), 'access_token'));
     end;
 
-
-    [Scope('OnPrem')]
     local procedure SaveStoreInfo(Store: Text; ActualScope: Text; AccessToken: SecretText)
     var
         RegisteredStoreNew: Record "Shpfy Registered Store New";
@@ -150,43 +157,29 @@ codeunit 30199 "Shpfy Authentication Mgt."
             RegisteredStoreNew.Store := CopyStr(Store, 1, MaxStrLen(RegisteredStoreNew.Store));
             RegisteredStoreNew.Insert();
         end;
-        RegisteredStoreNew."Requested Scope" := ScopeTxt;
+        RegisteredStoreNew."Requested Scope" := GetScope();
         RegisteredStoreNew."Actual Scope" := CopyStr(ActualScope, 1, MaxStrLen(RegisteredStoreNew."Actual Scope"));
         RegisteredStoreNew.Modify();
         RegisteredStoreNew.SetAccessToken(AccessToken);
     end;
 
-    [Scope('OnPrem')]
-    internal procedure GetAccessToken(Store: Text): SecretText
-    var
-        RegisteredStoreNew: Record "Shpfy Registered Store New";
-        AccessToken: SecretText;
-        NoAccessTokenErr: label 'No Access token for the store "%1".\Please request an access token for this store.', Comment = '%1 = Store';
-        ChangedScopeErr: Label 'The application scope is changed, please request a new access token for the store "%1".', Comment = '%1 = Store';
-    begin
-        if RegisteredStoreNew.Get(Store) then
-            if RegisteredStoreNew."Requested Scope" = ScopeTxt then begin
-                AccessToken := RegisteredStoreNew.GetAccessToken();
-                if not AccessToken.IsEmpty() then
-                    exit(AccessToken)
-                else
-                    Error(NoAccessTokenErr, Store);
-            end else
-                Error(ChangedScopeErr, Store);
-        Error(NoAccessTokenErr, Store);
-    end;
-
-    [Scope('OnPrem')]
+    [NonDebuggable]
     internal procedure AccessTokenExist(Store: Text): Boolean
     var
         RegisteredStoreNew: Record "Shpfy Registered Store New";
     begin
         if RegisteredStoreNew.Get(Store) then
-            if RegisteredStoreNew."Requested Scope" = ScopeTxt then
+            if RegisteredStoreNew."Requested Scope" = GetScope() then
                 exit(not RegisteredStoreNew.GetAccessToken().IsEmpty());
     end;
 
-    procedure IsValidShopUrl(ShopUrl: Text): Boolean
+    internal procedure AssertValidShopUrl(ShopUrl: Text)
+    begin
+        if not IsValidShopUrl(ShopUrl) then
+            Error(InvalidShopUrlErr);
+    end;
+
+    local procedure IsValidShopUrl(ShopUrl: Text): Boolean
     var
         Regex: Codeunit Regex;
         PatternLbl: Label '^(https)\:\/\/[a-zA-Z0-9][a-zA-Z0-9\-]*\.myshopify\.com[\/]*$', Locked = true;
@@ -207,8 +200,10 @@ codeunit 30199 "Shpfy Authentication Mgt."
         if not ShopUrl.ToLower().StartsWith('https://') then
             ShopUrl := CopyStr('https://' + ShopUrl, 1, MaxStrLen(ShopUrl));
 
-        if ShopUrl.ToLower().StartsWith('https://admin.shopify.com/store/') then
+        if ShopUrl.ToLower().StartsWith('https://admin.shopify.com/store/') then begin
+            ShopUrl := CopyStr(ShopUrl.TrimEnd('?'), 1, MaxStrLen(ShopUrl));
             ShopUrl := CopyStr('https://' + ShopUrl.Replace('https://admin.shopify.com/store/', '').Split('/').Get(1) + '.myshopify.com', 1, MaxStrLen(ShopUrl));
+        end;
     end;
 
     internal procedure EnableHttpRequestForShopifyConnector(ErrorInfo: ErrorInfo)
@@ -225,8 +220,13 @@ codeunit 30199 "Shpfy Authentication Mgt."
         RegisteredStoreNew: Record "Shpfy Registered Store New";
     begin
         if RegisteredStoreNew.Get(Shop.GetStoreName()) then
-            exit(RegisteredStoreNew."Actual Scope" <> ScopeTxt);
+            exit(RegisteredStoreNew."Actual Scope" <> GetScope());
 
         exit(false);
+    end;
+
+    internal procedure GetScope(): Text[1024]
+    begin
+        exit(ScopeTxt);
     end;
 }

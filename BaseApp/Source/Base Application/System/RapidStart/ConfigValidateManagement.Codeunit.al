@@ -17,10 +17,10 @@ codeunit 8617 "Config. Validate Management"
         TypeHelper: Codeunit "Type Helper";
 
 #pragma warning disable AA0470
-        Text001Msg: Label 'Field %2 in table %1 can only contain %3 characters (%4).';
-        Text002Msg: Label '%1 is not a supported data type.';
-        Text003Msg: Label '%1 is not a valid %2.';
-        Text004Msg: Label '%1 is not a valid option.\Valid options are %2.';
+        FieldLengthExceededMsg: Label 'Field %2 in table %1 can only contain %3 characters (%4).';
+        UnsupportedDataTypeMsg: Label '%1 is not a supported data type.';
+        InvalidValueForTypeMsg: Label '%1 is not a valid %2.';
+        InvalidOptionValueMsg: Label '%1 is not a valid option.\Valid options are %2.';
 #pragma warning restore AA0470
         ExternalTablesAreNotAllowedErr: Label 'External tables cannot be added in Configuration Packages.';
 
@@ -211,7 +211,7 @@ codeunit 8617 "Config. Validate Management"
     local procedure EvaluateValueBase(var FieldRef: FieldRef; Value: Text; XMLValue: Boolean; Validate: Boolean): Text
     begin
         if (Value <> '') and not IsNormalField(FieldRef) then
-            exit(StrSubstNo(Text002Msg, FieldRef.Name));
+            exit(StrSubstNo(UnsupportedDataTypeMsg, FieldRef.Name));
 
         case FieldRef.Type of
             FieldType::Text:
@@ -259,9 +259,8 @@ codeunit 8617 "Config. Validate Management"
         RecordRef := FieldRef.Record();
         Field.Get(RecordRef.Number, FieldRef.Number);
         TypeHelper.TestFieldIsNotObsolete(Field);
-
         if StrLen(Value) > FieldRef.Length then
-            exit(StrSubstNo(Text001Msg, FieldRef.Record().Caption, FieldRef.Caption, FieldRef.Length, Value));
+            exit(StrSubstNo(FieldLengthExceededMsg, FieldRef.Record().Caption, FieldRef.Caption, FieldRef.Length, Value));
 
         if Validate then
             FieldRef.Validate(Value)
@@ -279,9 +278,8 @@ codeunit 8617 "Config. Validate Management"
         RecordRef := FieldRef.Record();
         Field.Get(RecordRef.Number, FieldRef.Number);
         TypeHelper.TestFieldIsNotObsolete(Field);
-
         if StrLen(Value) > Field.Len then
-            exit(StrSubstNo(Text001Msg, FieldRef.Record().Caption(), FieldRef.Caption(), FieldRef.Length(), Value));
+            exit(StrSubstNo(FieldLengthExceededMsg, FieldRef.Record().Caption(), FieldRef.Caption(), FieldRef.Length(), Value));
 
         if Validate then
             FieldRef.Validate(Code)
@@ -299,9 +297,8 @@ codeunit 8617 "Config. Validate Management"
                 Evaluate(Integer, Value);
         end else
             Integer := GetOptionNo(Value, FieldRef);
-
         if Integer = -1 then
-            exit(StrSubstNo(Text004Msg, Value, FieldRef.OptionCaption));
+            exit(StrSubstNo(InvalidOptionValueMsg, Value, FieldRef.OptionCaption));
 
         if Validate then
             FieldRef.Validate(Integer)
@@ -330,14 +327,13 @@ codeunit 8617 "Config. Validate Management"
         if not IsDateEvaluated then
             if Evaluate(Date, Value) or Evaluate(Date, Value, XMLFormat()) then
                 IsDateEvaluated := true;
-
         if IsDateEvaluated then begin
             if Validate then
                 FieldRef.Validate(Date)
             else
                 FieldRef.Value := Date;
         end else
-            exit(StrSubstNo(Text003Msg, Value, Format(FieldType::Date)));
+            exit(StrSubstNo(InvalidValueForTypeMsg, Value, Format(FieldType::Date)));
     end;
 
     local procedure EvaluateValueToDateFormula(var FieldRef: FieldRef; Value: Text; Validate: Boolean): Text
@@ -345,7 +341,7 @@ codeunit 8617 "Config. Validate Management"
         DateFormula: DateFormula;
     begin
         if not Evaluate(DateFormula, Value) and not Evaluate(DateFormula, Value, XMLFormat()) then
-            exit(StrSubstNo(Text003Msg, Value, Format(FieldType::DateFormula)));
+            exit(StrSubstNo(InvalidValueForTypeMsg, Value, Format(FieldType::DateFormula)));
 
         if Validate then
             FieldRef.Validate(DateFormula)
@@ -358,7 +354,7 @@ codeunit 8617 "Config. Validate Management"
         DateTime: DateTime;
     begin
         if not Evaluate(DateTime, Value) and not Evaluate(DateTime, Value, XMLFormat()) then
-            exit(StrSubstNo(Text003Msg, Value, Format(FieldType::DateTime)));
+            exit(StrSubstNo(InvalidValueForTypeMsg, Value, Format(FieldType::DateTime)));
 
         if Validate then
             FieldRef.Validate(DateTime)
@@ -373,7 +369,7 @@ codeunit 8617 "Config. Validate Management"
     begin
         if not Evaluate(Time, Value) and not Evaluate(Time, Value, XMLFormat()) then
             if not Evaluate(Decimal, Value) or not Evaluate(Time, Format(DT2Time(OADateToDateTime(Decimal)))) then
-                exit(StrSubstNo(Text003Msg, Value, Format(FieldType::Time)));
+                exit(StrSubstNo(InvalidValueForTypeMsg, Value, Format(FieldType::Time)));
 
         if Validate then
             FieldRef.Validate(Time)
@@ -386,7 +382,7 @@ codeunit 8617 "Config. Validate Management"
         Duration: Duration;
     begin
         if not Evaluate(Duration, Value) and not Evaluate(Duration, Value, XMLFormat()) then
-            exit(StrSubstNo(Text003Msg, Value, Format(FieldType::Duration)));
+            exit(StrSubstNo(InvalidValueForTypeMsg, Value, Format(FieldType::Duration)));
 
         if Validate then
             FieldRef.Validate(Duration)
@@ -399,7 +395,7 @@ codeunit 8617 "Config. Validate Management"
         "Integer": Integer;
     begin
         if not Evaluate(Integer, Value) and not Evaluate(Integer, Value, XMLFormat()) then
-            exit(StrSubstNo(Text003Msg, Value, Format(FieldType::Integer)));
+            exit(StrSubstNo(InvalidValueForTypeMsg, Value, Format(FieldType::Integer)));
 
         if Validate then
             FieldRef.Validate(Integer)
@@ -412,7 +408,7 @@ codeunit 8617 "Config. Validate Management"
         BigInteger: BigInteger;
     begin
         if not Evaluate(BigInteger, Value) and not Evaluate(BigInteger, Value, XMLFormat()) then
-            exit(StrSubstNo(Text003Msg, Value, Format(FieldType::BigInteger)));
+            exit(StrSubstNo(InvalidValueForTypeMsg, Value, Format(FieldType::BigInteger)));
 
         if Validate then
             FieldRef.Validate(BigInteger)
@@ -425,7 +421,7 @@ codeunit 8617 "Config. Validate Management"
         DecimalValue: Decimal;
     begin
         if not Evaluate(DecimalValue, Value) and not Evaluate(DecimalValue, Value, XMLFormat()) then
-            exit(StrSubstNo(Text003Msg, Value, Format(FieldType::Decimal)));
+            exit(StrSubstNo(InvalidValueForTypeMsg, Value, Format(FieldType::Decimal)));
 
         RoundDecimalValue(FieldRef, DecimalValue);
 
@@ -441,7 +437,7 @@ codeunit 8617 "Config. Validate Management"
         Boolean: Boolean;
     begin
         if not Evaluate(Boolean, Value) and not Evaluate(Boolean, Value, XMLFormat()) then
-            exit(StrSubstNo(Text003Msg, Value, Format(FieldType::Boolean)));
+            exit(StrSubstNo(InvalidValueForTypeMsg, Value, Format(FieldType::Boolean)));
 
         if Validate then
             FieldRef.Validate(Boolean)
@@ -454,7 +450,7 @@ codeunit 8617 "Config. Validate Management"
         Guid: Guid;
     begin
         if not Evaluate(Guid, Value) and not Evaluate(Guid, Value, XMLFormat()) then
-            exit(StrSubstNo(Text003Msg, Value, Format(FieldType::GUID)));
+            exit(StrSubstNo(InvalidValueForTypeMsg, Value, Format(FieldType::GUID)));
 
         if Validate then
             FieldRef.Validate(Guid)
@@ -477,7 +473,7 @@ codeunit 8617 "Config. Validate Management"
         TableFilter: Text;
     begin
         if not Evaluate(TableFilter, Value) and not Evaluate(TableFilter, Value, XMLFormat()) then
-            exit(StrSubstNo(Text003Msg, Value, Format(FieldType::TableFilter)));
+            exit(StrSubstNo(InvalidValueForTypeMsg, Value, Format(FieldType::TableFilter)));
 
         Evaluate(FieldRef, TableFilter);
     end;
@@ -488,7 +484,7 @@ codeunit 8617 "Config. Validate Management"
         RecordID: RecordId;
     begin
         if not Evaluate(RecordID, Value) and not Evaluate(RecordID, Value, XMLFormat()) then
-            exit(StrSubstNo(Text003Msg, Value, Format(Field.Type::RecordID)));
+            exit(StrSubstNo(InvalidValueForTypeMsg, Value, Format(Field.Type::RecordID)));
 
         if Validate then
             FieldRef.Validate(RecordID)

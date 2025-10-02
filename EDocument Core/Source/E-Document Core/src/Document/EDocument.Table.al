@@ -16,7 +16,11 @@ using System.Reflection;
 using System.Threading;
 using Microsoft.eServices.EDocument.Processing.Import;
 using Microsoft.eServices.EDocument.Processing.Interfaces;
+using Microsoft.eServices.EDocument.OrderMatch;
 using Microsoft.eServices.EDocument.Processing.Import.Purchase;
+#if not CLEAN27
+using Microsoft.Purchases.Document;
+#endif
 
 table 6121 "E-Document"
 {
@@ -221,9 +225,6 @@ table 6121 "E-Document"
             Caption = 'File Name';
             ToolTip = 'Specifies the file name of the E-Document source.';
         }
-#pragma warning disable AS0004
-#pragma warning disable AS0115
-#pragma warning disable AS0072
 #if not CLEANSCHEMA26
         field(36; "File Type"; Integer)
         {
@@ -242,9 +243,6 @@ table 6121 "E-Document"
             ObsoleteTag = '26.0';
         }
 #endif
-#pragma warning restore AS0115
-#pragma warning restore AS0004
-#pragma warning restore AS0072
         field(38; "Service Integration"; Enum "Service Integration")
         {
             Caption = 'Service Integration';
@@ -284,6 +282,21 @@ table 6121 "E-Document"
             Caption = 'Structured Data Process';
             ToolTip = 'Specifies the implementation to use for processing the draft received.';
         }
+        #endregion
+
+        #region Clearance Model
+        field(60; "Clearance Date"; DateTime)
+        {
+            Caption = 'Clearance Date';
+            ToolTip = 'Specifies date and time when document was cleared by authority';
+            DataClassification = SystemMetadata;
+        }
+        field(61; "Last Clearance Request Time"; DateTime)
+        {
+            Caption = 'Last Clearance Request Time';
+            DataClassification = SystemMetadata;
+        }
+
         #endregion
     }
     keys
@@ -384,8 +397,15 @@ table 6121 "E-Document"
         EDocMappingLog: Record "E-Doc. Mapping Log";
         EDocumentIntegrationLog: Record "E-Document Integration Log";
         EDocumentLog: Record "E-Document Log";
+        EDocImportedLine: Record "E-Doc. Imported Line";
         EDocumentServiceStatus: Record "E-Document Service Status";
+#if not CLEAN27
+        PurchaseHeader: Record "Purchase Header";
+#endif
         IProcessStructuredData: Interface IProcessStructuredData;
+#if not CLEAN27
+        NullGuid: Guid;
+#endif
     begin
         EDocumentLog.SetRange("E-Doc. Entry No", Rec."Entry No");
         if not EDocumentLog.IsEmpty() then
@@ -408,6 +428,18 @@ table 6121 "E-Document"
         if not EDocMappingLog.IsEmpty() then
             EDocMappingLog.DeleteAll(true);
 
+        EDocImportedLine.SetRange("E-Document Entry No.", Rec."Entry No");
+        if not EDocImportedLine.IsEmpty() then
+            EDocImportedLine.DeleteAll(true);
+
+#if not CLEAN27
+        // Version 1 processing cleanup
+        // Can be removed soon as version 1 is fully migrated to version 2
+        PurchaseHeader.SetRange("E-Document Link", Rec.SystemId);
+        PurchaseHeader.ModifyAll("E-Document Link", NullGuid, false);
+#endif
+
+        // Version 2 processing cleanup
         IProcessStructuredData := Rec."Process Draft Impl.";
         IProcessStructuredData.CleanUpDraft(Rec);
     end;
@@ -478,11 +510,13 @@ table 6121 "E-Document"
         if EDocumentService.Get(GetEDocumentServiceStatus()."E-Document Service Code") then;
     end;
 
+#if not CLEAN27
+    [Obsolete('Use flow field "Import Processing Status"', '27.0')]
     procedure GetEDocumentImportProcessingStatus(): Enum "Import E-Doc. Proc. Status"
     begin
         exit(GetEDocumentServiceStatus()."Import Processing Status");
     end;
-
+#endif
     internal procedure ToString(): Text
     begin
         exit(StrSubstNo(ToStringLbl, SystemId, "Document Record ID", "Workflow Step Instance ID", "Job Queue Entry ID"));

@@ -1,5 +1,13 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Deferral;
 
+/// <summary>
+/// Card page for creating and editing deferral templates.
+/// Provides interface for defining deferral calculation methods, accounts, and schedule parameters.
+/// </summary>
 page 1700 "Deferral Template Card"
 {
     Caption = 'Deferral Template Card';

@@ -111,7 +111,7 @@ page 8065 "Assign Service Commitments"
     var
         Item: Record Item;
         ServiceCommitmentPackage: Record "Subscription Package";
-        EmptyInvoicingItemNoInPackageLineErr: Label 'The %1 %2 can not be used with Item %3, because at least one of the Service Commitment Package lines is missing an "Invoicing Item No."';
+        EmptyInvoicingItemNoInPackageLineErr: Label 'The %1 %2 can not be used with Item %3, because at least one of the Service Commitment Package lines is missing an "Invoicing Item No."', Comment = '%1=Table Caption, %2=Code, %3=Item No.';
     begin
         if SalesLine.Type <> SalesLine.Type::Item then
             exit;

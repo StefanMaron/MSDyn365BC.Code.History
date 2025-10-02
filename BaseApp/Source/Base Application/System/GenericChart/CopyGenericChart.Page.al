@@ -41,7 +41,7 @@ page 9187 "Copy Generic Chart"
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then begin
             ValidateUserInput();
             GenericChartMgt.CopyChart(SourceChart, NewChartID, NewChartTitle);
-            Message(Text001);
+            Message(ChartCopiedSuccessfullyMsg);
         end
     end;
 
@@ -49,15 +49,13 @@ page 9187 "Copy Generic Chart"
         SourceChart: Record Chart;
         NewChartID: Code[20];
         NewChartTitle: Text[50];
-#pragma warning disable AA0074
-        Text001: Label 'The chart was successfully copied.';
-        Text002: Label 'Specify a chart ID.';
-#pragma warning restore AA0074
+        ChartCopiedSuccessfullyMsg: Label 'The chart was successfully copied.';
+        SpecifyChartIDErr: Label 'Specify a chart ID.';
 
     local procedure ValidateUserInput()
     begin
         if NewChartID = '' then
-            Error(Text002);
+            Error(SpecifyChartIDErr);
     end;
 
     procedure SetSourceChart(SourceChartInput: Record Chart)

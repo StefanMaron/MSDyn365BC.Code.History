@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Document;
 
 using Microsoft.Inventory.Availability;
@@ -438,6 +442,7 @@ codeunit 99000973 "Purch. Availability Mgt."
         UpdatePurchOrderAvail(AvailabilityAtDate, Item, sender);
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Purchase Line", 'r')]
     local procedure UpdatePurchOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; var AvailableToPromise: Codeunit "Available to Promise")
     var
         PurchaseLine: Record "Purchase Line";

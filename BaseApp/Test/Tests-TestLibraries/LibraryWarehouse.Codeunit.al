@@ -14,9 +14,6 @@
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
-        Text003Msg: Label 'Inbound Whse. Requests are created.';
-        Text004Msg: Label 'No Inbound Whse. Request is created.';
-        Text005Msg: Label 'Inbound Whse. Requests have already been created.';
 
     procedure AutoFillQtyHandleWhseActivity(WarehouseActivityHeaderRec: Record "Warehouse Activity Header")
     var
@@ -345,20 +342,17 @@
         BinType.Insert(true);
     end;
 
+#if not CLEAN27
+#pragma warning disable AL0801
+    [Obsolete('Moved to codeunit LibraryManufacturing', '27.0')]
     procedure CreateInboundWhseReqFromProdO(ProductionOrder: Record "Production Order")
     var
-        WhseOutputProdRelease: Codeunit "Whse.-Output Prod. Release";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
     begin
-        if WhseOutputProdRelease.CheckWhseRqst(ProductionOrder) then
-            Message(Text005Msg)
-        else begin
-            Clear(WhseOutputProdRelease);
-            if WhseOutputProdRelease.Release(ProductionOrder) then
-                Message(Text003Msg)
-            else
-                Message(Text004Msg);
-        end;
+        LibraryManufacturing.CreateInboundWhseReqFromProdOrder(ProductionOrder);
     end;
+#pragma warning restore AL0801
+#endif
 
     procedure CreateInternalMovementHeader(var InternalMovementHeader: Record "Internal Movement Header"; LocationCode: Code[10]; ToBinCode: Code[20])
     begin
@@ -993,11 +987,17 @@
         WarehouseShipmentLineRec.CreatePickDoc(WhseShptLine, WhseShptHeader);
     end;
 
+#if not CLEAN27
+#pragma warning disable AL0801
+    [Obsolete('Moved to codeunit LibraryManufacturing', '27.0')]
     procedure CreateWhsePickFromProduction(ProductionOrder: Record "Production Order")
+    var
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
     begin
-        ProductionOrder.SetHideValidationDialog(true);
-        ProductionOrder.CreatePick(CopyStr(UserId(), 1, 50), 0, false, false, false);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
     end;
+#pragma warning restore AL0801
+#endif
 
     procedure CreateWhseReceiptFromPO(var PurchaseHeader: Record "Purchase Header")
     var

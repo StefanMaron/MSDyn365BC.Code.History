@@ -57,12 +57,14 @@ table 8004 "Sub. Contr. Price Update Line"
             Caption = 'Old Price';
             BlankZero = true;
             AutoFormatType = 2;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(12; "New Price"; Decimal)
         {
             Caption = 'New Price';
             BlankZero = true;
             AutoFormatType = 2;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(13; "Additional Amount"; Decimal)
         {
@@ -70,18 +72,21 @@ table 8004 "Sub. Contr. Price Update Line"
             Editable = false;
             BlankZero = true;
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(14; "Old Amount"; Decimal)
         {
             Caption = 'Old Amount';
             BlankZero = true;
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(15; "New Amount"; Decimal)
         {
             Caption = 'New Amount';
             BlankZero = true;
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(16; "Old Calculation Base"; Decimal)
         {
@@ -89,6 +94,7 @@ table 8004 "Sub. Contr. Price Update Line"
             MinValue = 0;
             BlankZero = true;
             AutoFormatType = 2;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(17; "New Calculation Base"; Decimal)
         {
@@ -96,6 +102,7 @@ table 8004 "Sub. Contr. Price Update Line"
             Editable = false;
             BlankZero = true;
             AutoFormatType = 2;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(18; "Old Calculation Base %"; Decimal)
         {
@@ -103,12 +110,14 @@ table 8004 "Sub. Contr. Price Update Line"
             MinValue = 0;
             BlankZero = true;
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(19; "New Calculation Base %"; Decimal)
         {
             Caption = 'New Calculation Base %';
             Editable = false;
             BlankZero = true;
+            AutoFormatType = 0;
         }
         field(20; "Discount %"; Decimal)
         {
@@ -117,18 +126,21 @@ table 8004 "Sub. Contr. Price Update Line"
             MaxValue = 100;
             BlankZero = true;
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(21; "Discount Amount"; Decimal)
         {
             Caption = 'Discount Amount';
             MinValue = 0;
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
             BlankZero = true;
         }
         field(22; Quantity; Decimal)
         {
             Caption = 'Quantity';
             BlankZero = true;
+            AutoFormatType = 0;
         }
         field(23; "Next Price Update"; Date)
         {
@@ -137,6 +149,10 @@ table 8004 "Sub. Contr. Price Update Line"
         field(24; "Perform Update On"; Date)
         {
             Caption = 'Perform Update On';
+        }
+        field(25; "Currency Code"; Code[10])
+        {
+            Caption = 'Currency Code';
         }
         field(100; Indent; Integer)
         {
@@ -184,6 +200,7 @@ table 8004 "Sub. Contr. Price Update Line"
         Rec."Discount %" := ServiceCommitment."Discount %";
         Rec."Discount Amount" := ServiceCommitment."Discount Amount";
         Rec.Quantity := ServiceCommitment.Quantity;
+        Rec."Currency Code" := ServiceCommitment."Currency Code";
     end;
 
     internal procedure UpdateFromContract(ServicePartner: Enum "Service Partner"; ContractNo: Code[20])

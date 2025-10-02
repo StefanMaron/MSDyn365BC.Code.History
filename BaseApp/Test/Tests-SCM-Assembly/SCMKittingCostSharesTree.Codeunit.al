@@ -673,11 +673,10 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     var
         Item1: Record Item;
         CalculateBOMTree: Codeunit "Calculate BOM Tree";
-        TreeType: Option " ",Availability,Cost;
     begin
         Item.Get(Item."No.");
         Item1.SetRange("No.", Item."No.");
-        CalculateBOMTree.GenerateTreeForItems(Item1, BOMBuf, TreeType::Cost);
+        CalculateBOMTree.GenerateTreeForManyItems(Item1, BOMBuf, "BOM Tree Type"::Cost);
     end;
 
     local procedure AddBOMWarning(var TempItem: Record Item temporary; var BOMItem: Record Item; var WarningText: Text)

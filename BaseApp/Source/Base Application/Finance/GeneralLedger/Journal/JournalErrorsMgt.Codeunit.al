@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.GeneralLedger.Journal;
 
 using Microsoft.FixedAssets.Journal;
@@ -264,6 +268,24 @@ codeunit 9080 "Journal Errors Mgt."
 
     [EventSubscriber(ObjectType::Page, Page::"Fixed Asset G/L Journal", 'OnInsertRecordEvent', '', false, false)]
     local procedure OnInsertRecordEventFixedAssetGLJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowInsert: Boolean)
+    begin
+        SetRecXRecOnModify(xRec, Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Recurring General Journal", 'OnDeleteRecordEvent', '', false, false)]
+    local procedure OnDeleteRecordEventRecurringGenJournal(var Rec: Record "Gen. Journal Line"; var AllowDelete: Boolean)
+    begin
+        InsertDeletedLine(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Recurring General Journal", 'OnModifyRecordEvent', '', false, false)]
+    local procedure OnModifyRecordEventRecurringGenJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowModify: Boolean)
+    begin
+        SetRecXRecOnModify(xRec, Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Recurring General Journal", 'OnInsertRecordEvent', '', false, false)]
+    local procedure OnInsertRecordEventRecurringGenJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowInsert: Boolean)
     begin
         SetRecXRecOnModify(xRec, Rec);
     end;

@@ -41,10 +41,12 @@ table 502 "Reminder Attachment Text"
         {
             Caption = 'Beginning Line';
             DataClassification = CustomerContent;
-#if not CLEAN25
+#if not CLEAN26
             ObsoleteReason = 'To support the use of multiple lines, this field will be replaced by the Reminder Attachment Text Line table.';
             ObsoleteState = Pending;
-            ObsoleteTag = '25.0';
+#pragma warning disable AS0074
+                ObsoleteTag = '26.0';
+#pragma warning restore AS0074
 #else
             ObsoleteReason = 'To support the use of multiple lines, this is replaced by Reminder Attachment Text Line table.';
             ObsoleteState = Removed;
@@ -62,10 +64,12 @@ table 502 "Reminder Attachment Text"
         {
             Caption = 'Ending Line';
             DataClassification = CustomerContent;
-#if not CLEAN25
+#if not CLEAN26
             ObsoleteReason = 'To support the use of multiple lines, this field will be replaced by the Reminder Attachment Text Line table.';
             ObsoleteState = Pending;
-            ObsoleteTag = '25.0';
+#pragma warning disable AS0074
+                ObsoleteTag = '26.0';
+#pragma warning restore AS0074
 #else
             ObsoleteReason = 'To support the use of multiple lines, this is replaced by Reminder Attachment Text Line table.';
             ObsoleteState = Removed;

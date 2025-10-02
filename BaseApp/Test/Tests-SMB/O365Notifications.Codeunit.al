@@ -377,7 +377,6 @@ codeunit 138030 "O365 Notifications"
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
 
         LibraryVariableStorage.Enqueue(DontShowAgain);
-        PurchaseInvoice.PurchLines.Description.SetValue('Test Description');
 
         PurchaseInvoice.PurchLines.New();
         PurchaseInvoice.PurchLines."No.".SetValue(Item."No.");
@@ -404,7 +403,6 @@ codeunit 138030 "O365 Notifications"
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vendor.Name);
 
         LibraryVariableStorage.Enqueue(DontShowAgain);
-        PurchaseCreditMemo.PurchLines.Description.SetValue('Test Description');
 
         PurchaseCreditMemo.PurchLines.New();
         PurchaseCreditMemo.PurchLines."No.".SetValue(Item."No.");

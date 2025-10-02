@@ -6,6 +6,14 @@ namespace Microsoft.Bank.Payment;
 
 using System.IO;
 
+/// <summary>
+/// Page 1227 "Pmt. Export Line Definitions" displays data exchange line definitions for payment export.
+/// This page provides a read-only view of line definitions used in payment file export configurations.
+/// </summary>
+/// <remarks>
+/// Source table: Data Exch. Line Def. Used for viewing payment export format configurations
+/// and line definition structures in data exchange frameworks.
+/// </remarks>
 page 1227 "Pmt. Export Line Definitions"
 {
     Caption = 'Pmt. Export Line Definitions';

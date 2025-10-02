@@ -23,6 +23,12 @@ page 32 "Item Lookup"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the item.';
                 }
+                field("No. 2"; Rec."No. 2")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the alternative number of the item.';
+                    Visible = false;
+                }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
@@ -54,11 +60,6 @@ page 32 "Item Lookup"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies that a stockkeeping unit exists for this item.';
                     Visible = false;
-                }
-                field("Routing No."; Rec."Routing No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the production route that contains the operations needed to manufacture this item.';
                 }
                 field("Shelf No."; Rec."Shelf No.")
                 {
@@ -140,6 +141,25 @@ page 32 "Item Lookup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number that the vendor uses for this item.';
+                    Visible = false;
+                }
+                field(GTIN; Rec.GTIN)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number that is used for barcodes etc.';
+                    Visible = false;
+                }
+                field("Alternative Item No."; Rec."Alternative Item No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies an alternative number for the item.';
+                    Visible = false;
+                }
+                field("Common Item No."; Rec."Common Item No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a commonly used number for the item.';
+                    Visible = false;
                 }
                 field("Tariff No."; Rec."Tariff No.")
                 {
@@ -175,6 +195,18 @@ page 32 "Item Lookup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that transactions with the item cannot be posted, for example, because the item is in quarantine.';
+                    Visible = false;
+                }
+                field(SalesBlocked; Rec."Sales Blocked")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that transactions with the item cannot be sold, for example, because the item is in quarantine.';
+                    Visible = false;
+                }
+                field(PurchasingBlocked; Rec."Purchasing Blocked")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that transactions with the item cannot be purchased.';
                     Visible = false;
                 }
                 field("Last Date Modified"; Rec."Last Date Modified")
@@ -282,6 +314,11 @@ page 32 "Item Lookup"
             }
         }
     }
+
+    trigger OnOpenPage()
+    begin
+        Rec.SetRange(Blocked, false);
+    end;
 
     trigger OnFindRecord(Which: Text): Boolean
     var

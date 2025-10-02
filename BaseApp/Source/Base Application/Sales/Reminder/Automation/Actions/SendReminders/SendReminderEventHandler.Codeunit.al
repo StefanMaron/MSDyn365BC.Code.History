@@ -177,8 +177,8 @@ codeunit 6753 "Send Reminder Event Handler"
         Handled := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document-Mailing", 'OnBeforeEmailFileInternal', '', false, false)]
-    local procedure AttachRelatedDocumentsBeforeEmailFileInternal(var TempEmailItem: Record "Email Item" temporary; var HtmlBodyFilePath: Text[250]; var EmailSubject: Text[250]; var ToEmailAddress: Text[250]; var PostedDocNo: Code[20]; var EmailDocName: Text[250]; var HideDialog: Boolean; var ReportUsage: Integer; var IsFromPostedDoc: Boolean; var SenderUserID: Code[50]; var EmailScenario: Enum "Email Scenario"; var EmailSentSuccessfully: Boolean; var IsHandled: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document-Mailing", 'OnBeforeEmailItemPreparation', '', false, false)]
+    local procedure AttachRelatedDocumentsBeforeEmailFileInternal(var TempEmailItem: Record "Email Item" temporary; var PostedDocNo: Code[20]; var ReportUsage: Integer)
     var
         SourceTableList: List of [Integer];
         SourceIDList: List of [Guid];

@@ -130,7 +130,8 @@ report 5977 "Service Contract - Customer"
 
     requestpage
     {
-
+        AboutTitle = 'About Service Contract - Customer';
+        AboutText = 'Get an overview of service contracts for each customer in a selected time period.';
         layout
         {
         }

@@ -121,21 +121,6 @@ page 6513 "Enter Quantity to Create"
         InitCreateNewPackageNo: Boolean;
         InitCreateSNInfo: Boolean;
 
-#if not CLEAN24
-    [Obsolete('Replaced by namesake procedure with additional parameter SetCreateNewPackageNo.', '24.0')]
-    procedure SetFields(SetItemNo: Code[20]; SetVariantCode: Code[10]; SetQtyToCreate: Integer; SetCreateNewLotNo: Boolean; SetCreateSNInfo: Boolean)
-    begin
-        SetFields(SetItemNo, SetVariantCode, SetQtyToCreate, SetCreateNewLotNo, false, SetCreateSNInfo);
-    end;
-
-    [Obsolete('Replaced by namesake procedure with additional parameter GetCreateNewPackageNo.', '24.0')]
-    procedure GetFields(var GetQtyToCreate: Integer; var GetCreateNewLotNo: Boolean; var GetCreateSNInfo: Boolean)
-    var
-        DummyGetCreateNewPackageNo: Boolean;
-    begin
-        GetFields(GetQtyToCreate, GetCreateNewLotNo, DummyGetCreateNewPackageNo, GetCreateSNInfo);
-    end;
-#endif
 
     procedure SetFields(SetItemNo: Code[20]; SetVariantCode: Code[10]; SetQtyToCreate: Integer; SetCreateNewLotNo: Boolean; SetCreateNewPackageNo: Boolean; SetCreateSNInfo: Boolean)
     begin
@@ -155,4 +140,3 @@ page 6513 "Enter Quantity to Create"
         GetCreateSNInfo := CreateSNInfo;
     end;
 }
-

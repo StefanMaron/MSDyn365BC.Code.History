@@ -15,6 +15,7 @@ using Microsoft.Sales.Document;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Sales.Receivables;
 using System.Environment;
+using System.Text;
 
 codeunit 1311 "Activities Mgt."
 {
@@ -27,7 +28,6 @@ codeunit 1311 "Activities Mgt."
 
     var
         DefaultWorkDate: Date;
-        RefreshFrequencyErr: Label 'Refresh intervals of less than 10 minutes are not supported.';
         NoSubCategoryWithAdditionalReportDefinitionOfCashAccountsTok: Label 'There are no %1 with %2 specified for %3', Comment = '%1 Table Comment G/L Account Category, %2 field Additional Report Definition, %3 value: Cash Accounts';
 
     procedure OverdueSalesInvoiceAmount(CalledFromWebService: Boolean; UseCachedValue: Boolean) TotalAmount: Decimal
@@ -146,23 +146,12 @@ codeunit 1311 "Activities Mgt."
     end;
 
     procedure CalcSalesThisMonthAmount(CalledFromWebService: Boolean) TotalAmount: Decimal
-    begin
-        exit(CalcSalesThisMonthAmount(CalledFromWebService, true));
-    end;
-
-    procedure CalcSalesThisMonthAmount(CalledFromWebService: Boolean; UseCachedValue: Boolean) TotalAmount: Decimal
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         CustLedgerEntry: Record "Cust. Ledger Entry";
-        ActivitiesCue: Record "Activities Cue";
         [SecurityFiltering(SecurityFilter::Filtered)]
         CustLedgEntrySales: Query "Cust. Ledg. Entry Sales";
     begin
-        if UseCachedValue then
-            if ActivitiesCue.Get() then
-                if not IsCachedCueDataExpired(ActivitiesCue, CurrentDateTime()) then
-                    exit(ActivitiesCue."Sales This Month");
-
         CustLedgEntrySales.SetFilter(Document_Type, '%1|%2', CustLedgerEntry."Document Type"::Invoice, CustLedgerEntry."Document Type"::"Credit Memo");
         if CalledFromWebService then
             CustLedgEntrySales.SetRange(Posting_Date, CalcDate('<-CM>', Today()), Today())
@@ -172,6 +161,14 @@ codeunit 1311 "Activities Mgt."
         if CustLedgEntrySales.Read() then
             TotalAmount := CustLedgEntrySales.Sum_Sales_LCY;
     end;
+
+#if not CLEAN27
+    [Obsolete('"Sales This Month" cue field is no longer calculated using cached value. Use CalcSalesThisMonthAmount(CalledFromWebService: Boolean) for live data.', '27.0')]
+    procedure CalcSalesThisMonthAmount(CalledFromWebService: Boolean; UseCachedValue: Boolean) TotalAmount: Decimal
+    begin
+        exit(CalcSalesThisMonthAmount(CalledFromWebService));
+    end;
+#endif
 
     [Scope('OnPrem')]
     procedure SetFilterForCalcSalesThisMonthAmount(var CustLedgerEntry: Record "Cust. Ledger Entry"; CalledFromWebService: Boolean)
@@ -270,7 +267,6 @@ codeunit 1311 "Activities Mgt."
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
         ReservationEntry: Record "Reservation Entry";
         ActivitiesCue: Record "Activities Cue";
         SalesReservFromItemLedger: Query "Sales Reserv. From Item Ledger";
@@ -302,15 +298,9 @@ codeunit 1311 "Activities Mgt."
         while SalesReservFromItemLedger.Read() do
             if SalesReservFromItemLedger.Reserved_Quantity__Base_ <> 0 then begin
                 SalesHeader.SetLoadFields("Document Type", "No.");
-                if SalesHeader.Get(SalesHeader."Document Type"::Order, SalesReservFromItemLedger.SalesHeaderNo) then begin
-                    SalesLine.SetLoadFields("Document Type", "Document No.", Type, "Outstanding Qty. (Base)");
-                    SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Order);
-                    SalesLine.SetRange("Document No.", SalesHeader."No.");
-                    SalesLine.SetRange(Type, SalesLine.Type::Item);
-                    SalesLine.CalcSums("Outstanding Qty. (Base)");
-                    if SalesReservFromItemLedger.Reserved_Quantity__Base_ = SalesLine."Outstanding Qty. (Base)" then
+                if SalesHeader.Get(SalesHeader."Document Type"::Order, SalesReservFromItemLedger.SalesHeaderNo) then
+                    if SalesReservFromItemLedger.Reserved_Quantity__Base_ = SalesHeader.CalculateReservableOutstandingQuantityBase() then
                         Number += 1;
-                end;
             end;
     end;
 
@@ -445,7 +435,7 @@ codeunit 1311 "Activities Mgt."
             ActivitiesCue."Overdue Purch. Invoice Amount" := OverduePurchaseInvoiceAmount(false, false);
 
         if ActivitiesCue.FieldActive("Sales This Month") then
-            ActivitiesCue."Sales This Month" := CalcSalesThisMonthAmount(false, false);
+            ActivitiesCue."Sales This Month" := CalcSalesThisMonthAmount(false);
 
         if ActivitiesCue.FieldActive("Average Collection Days") then
             ActivitiesCue."Average Collection Days" := CalcAverageCollectionDays(false);
@@ -491,49 +481,44 @@ codeunit 1311 "Activities Mgt."
     var
         MinInterval: Duration;
     begin
-        MinInterval := 10 * 60 * 1000; // 10 minutes
-        Interval := 60 * 60 * 1000; // 1 hr
+        MinInterval := 2 * 60 * 1000; // 2 minutes
+        Interval := 5 * 60 * 1000; // 5 minutes
         OnGetRefreshInterval(Interval);
         if Interval < MinInterval then
-            Error(RefreshFrequencyErr);
+            Interval := MinInterval;
     end;
 
     local procedure CreateFilterForGLAccSubCategoryEntries(AddRepDef: Option): Text
     var
         GLAccountCategory: Record "G/L Account Category";
-        FilterOperand: Char;
-        FilterTxt: Text;
+        FilterTextBuilder: TextBuilder;
     begin
-        FilterOperand := '|';
         GLAccountCategory.SetLoadFields("Entry No.");
         GLAccountCategory.SetRange("Additional Report Definition", AddRepDef);
         if GLAccountCategory.FindSet() then
             repeat
-                if FilterTxt = '' then
-                    FilterTxt := Format(GLAccountCategory."Entry No.") + FilterOperand
-                else
-                    FilterTxt := FilterTxt + Format(GLAccountCategory."Entry No.") + FilterOperand;
+                if FilterTextBuilder.Length() > 0 then
+                    FilterTextBuilder.Append('|');
+                FilterTextBuilder.Append(Format(GLAccountCategory."Entry No."));
             until GLAccountCategory.Next() = 0;
-        // Remove the last |
-        exit(DelChr(FilterTxt, '>', FilterOperand));
+
+        exit(FilterTextBuilder.ToText());
     end;
 
     local procedure CreateFilterForGLAccounts(var GLAccount: Record "G/L Account"): Text
     var
-        FilterOperand: Char;
-        FilterTxt: Text;
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+        FilterTextBuilder: TextBuilder;
     begin
-        FilterOperand := '|';
         GLAccount.SetLoadFields("No.");
         if GLAccount.FindSet() then
             repeat
-                if FilterTxt = '' then
-                    FilterTxt := Format(GLAccount."No.") + FilterOperand
-                else
-                    FilterTxt := FilterTxt + Format(GLAccount."No.") + FilterOperand;
+                if FilterTextBuilder.Length() > 0 then
+                    FilterTextBuilder.Append('|');
+                FilterTextBuilder.Append(SelectionFilterManagement.AddQuotes(GLAccount."No."));
             until GLAccount.Next() = 0;
-        // Remove the last |
-        exit(DelChr(FilterTxt, '>', FilterOperand));
+
+        exit(FilterTextBuilder.ToText());
     end;
 
     [IntegrationEvent(false, false)]

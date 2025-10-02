@@ -197,7 +197,7 @@ codeunit 18467 "Subcontracting Post Batch"
 
         if ItemJnlLine."Value Entry Type" <> ItemJnlLine."Value Entry Type"::Revaluation then begin
             if not ItemJnlPostLine.RunWithCheck(ItemJnlLine) then
-                ItemJnlPostLine.CheckItemTracking();
+                ItemJnlPostLine.CheckItemTracking(ItemJnlLine);
             ItemJnlPostLine.CollectTrackingSpecification(TempTrackingSpecification);
             ItemJnlPostBatch.PostWhseJnlLine(ItemJnlLine, ItemJnlLine.Quantity, ItemJnlLine."Quantity (Base)", TempTrackingSpecification);
         end;
