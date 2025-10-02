@@ -1660,7 +1660,7 @@ table 8052 "Customer Subscription Contract"
 
     local procedure ShouldReplaceCurrencyCode(BillToCustomer: Record Customer): Boolean
     var
-        CurrencyCodeWillBeChangedQst: Label 'The Currency Code for the selected customer is different from the current Currency Code in Customer Contract %1. If the customer is changed the currency and exchange rate needs to be updated.';
+        CurrencyCodeWillBeChangedQst: Label 'The Currency Code for the selected customer is different from the current Currency Code in Customer Contract %1. If the customer is changed the currency and exchange rate needs to be updated.', Comment = '%1 = Contract number';
     begin
         if "Currency Code" = '' then
             exit(true);
@@ -2147,9 +2147,11 @@ table 8052 "Customer Subscription Contract"
         if CustomerContractLine.FindSet() then
             repeat
                 if not TempServiceObject.Get(CustomerContractLine."Subscription Header No.") then begin
+#pragma warning disable AA0214
                     ServiceObject.Get(CustomerContractLine."Subscription Header No.");
                     ServiceObject.UpdateServicesDates();
                     ServiceObject.Modify(false);
+#pragma warning restore AA0214
                     TempServiceObject := ServiceObject;
                     TempServiceObject.Insert(false);
                 end;

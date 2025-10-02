@@ -274,6 +274,17 @@ codeunit 1330 "Instruction Mgt."
           IsEnabled(DefaultDimPrioritiesCode()));
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"My Notifications", 'OnAfterIsNotificationEnabled', '', false, false)]
+    local procedure OnAfterIsNotificationEnabled(NotificationId: Guid)
+    var
+        MyNotifications: Record "My Notifications";
+        InstructionMgt: Codeunit "Instruction Mgt.";
+    begin
+        if MyNotifications.WritePermission then
+            if NotificationId = InstructionMgt.GetClosingUnpostedDocumentNotificationId() then
+                InstructionMgt.InsertDefaultUnpostedDoucumentNotification();
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"My Notifications", 'OnStateChanged', '', false, false)]
     local procedure OnStateChanged(NotificationId: Guid; NewEnabledState: Boolean)
     begin

@@ -1231,15 +1231,6 @@ codeunit 139196 "CDS Connection Setup Test"
         SetTenantLicenseStateToTrial();
     end;
 
-    local procedure AssertConnectionNotRegistered(ConnectionName: Code[10])
-    var
-        CDSConnectionSetup: Record "CDS Connection Setup";
-    begin
-        CDSConnectionSetup.Get(ConnectionName);
-        CDSIntegrationImpl.RegisterConnection();
-        CDSIntegrationImpl.UnregisterConnection();
-    end;
-
     local procedure CreateIntTableMappingWithJobQueueEntries()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
@@ -1332,27 +1323,6 @@ codeunit 139196 "CDS Connection Setup Test"
         JobQueueEntry."Object ID to Run" := ID;
         JobQueueEntry.Status := Status;
         JobQueueEntry.Insert();
-    end;
-
-    local procedure MockCDSConnectionSetupWithEnableValidConnection()
-    var
-        CDSConnectionSetup: Record "CDS Connection Setup";
-        DummyPassword: Text;
-    begin
-        CDSConnectionSetup.DeleteAll();
-        InitializeSetup(false);
-        CDSConnectionSetup.Get();
-        DummyPassword := 'password';
-        CDSConnectionSetup.SetPassword(DummyPassword);
-        CDSConnectionSetup.Modify();
-    end;
-
-    local procedure VerifyCurrencyData(CDSConnectionSetup: Record "CDS Connection Setup"; CRMOrganization: Record "CRM Organization")
-    begin
-        CDSConnectionSetup.TestField(CurrencyDecimalPrecision, CRMOrganization.CurrencyDecimalPrecision);
-        CDSConnectionSetup.TestField(BaseCurrencyId, CRMOrganization.BaseCurrencyId);
-        CDSConnectionSetup.TestField(BaseCurrencyPrecision, CRMOrganization.BaseCurrencyPrecision);
-        CDSConnectionSetup.TestField(BaseCurrencySymbol, CRMOrganization.BaseCurrencySymbol);
     end;
 
     local procedure VerifyJobQueueEntriesStatusIsOnHold()

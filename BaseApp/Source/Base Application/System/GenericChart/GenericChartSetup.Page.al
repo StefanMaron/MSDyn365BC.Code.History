@@ -850,18 +850,14 @@ page 9183 "Generic Chart Setup"
         xRecSourceID: Integer;
         DummyInt: Integer;
         DummyCaption: Text[50];
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text001: Label 'All fields will be reset. Are you sure that you want to change the %1?';
+        ResetFieldsQst: Label 'All fields will be reset. Are you sure that you want to change the %1?';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
         OptionalMeasuresEnabled: Boolean;
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text002: Label 'Field %1 is already assigned to a measure or dimension. Select a different field.';
-        Text003: Label 'Do you want to replace the existing definition for %1 %2?', Comment = 'Do you want to replace the existing definition for Chart 36-06?';
+        FieldAlreadyAssignedErr: Label 'Field %1 is already assigned to a measure or dimension. Select a different field.';
+        ReplaceChartDefinitionQst: Label 'Do you want to replace the existing definition for %1 %2?', Comment = 'Do you want to replace the existing definition for Chart 36-06?';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
         DataColumn1Enabled: Boolean;
         DataColumn2Enabled: Boolean;
         DataColumn3Enabled: Boolean;
@@ -869,10 +865,8 @@ page 9183 "Generic Chart Setup"
         DataColumn5Enabled: Boolean;
         DataColumn6Enabled: Boolean;
         ZAxisEnabled: Boolean;
-#pragma warning disable AA0074
-        Text004: Label 'You can only specify one Measure with aggregation type Count.';
-        Text005: Label 'If you select Aggregation Count, the Data Column will be cleared for this measure. Do you want to continue?';
-#pragma warning restore AA0074
+        OnlyOneCountAggregationErr: Label 'You can only specify one Measure with aggregation type Count.';
+        AggregationCountChangeQst: Label 'If you select Aggregation Count, the Data Column will be cleared for this measure. Do you want to continue?';
         TitleEnabled: Boolean;
 
     local procedure SetFieldValues()
@@ -905,9 +899,8 @@ page 9183 "Generic Chart Setup"
         for i := 1 to ArrayLen(DataColumn) do
             if (DataColumn[i] <> '') and (Index <> i) then
                 FieldAlreadyExists := (DataColumn[Index] = DataColumn[i]) or FieldAlreadyExists;
-
         if FieldAlreadyExists then
-            Error(Text002, DataColumn[Index]);
+            Error(FieldAlreadyAssignedErr, DataColumn[Index]);
 
         GenericChartMgt.CheckDataTypeAggregationCompliance(TempGenericChartSetup, DataColumn[Index], Aggregation[Index]);
         GenericChartMgt.ValidateFieldColumn(TempGenericChartSetup, DummyInt, DataColumn[Index], DummyCaption, 2, false, Aggregation[Index]);
@@ -921,7 +914,7 @@ page 9183 "Generic Chart Setup"
     begin
         GenericChartMgt.CheckSourceTypeID(TempGenericChartSetup, true);
         if (TempGenericChartSetup."X-Axis Field Name" <> '') and (TempGenericChartSetup."Z-Axis Field Name" <> '') and (TempGenericChartSetup."X-Axis Field Name" = TempGenericChartSetup."Z-Axis Field Name") then
-            Error(Text002, DataColumn[Index]);
+            Error(FieldAlreadyAssignedErr, DataColumn[Index]);
         case Index of
             1:
                 GenericChartMgt.ValidateFieldColumn(
@@ -1070,7 +1063,7 @@ page 9183 "Generic Chart Setup"
                     if TempGenericChartSetup."Source Type" = xRecSourceType then
                         exit;
                     if xRecSourceType <> xRecSourceType::" " then
-                        if not Confirm(Text001, true, TempGenericChartSetup.FieldCaption("Source Type")) then
+                        if not Confirm(ResetFieldsQst, true, TempGenericChartSetup.FieldCaption("Source Type")) then
                             Error('');
                 end;
             CalledFrom::"Source ID":
@@ -1078,7 +1071,7 @@ page 9183 "Generic Chart Setup"
                     if TempGenericChartSetup."Source ID" = xRecSourceID then
                         exit;
                     if xRecSourceID <> 0 then
-                        if not Confirm(Text001, true, TempGenericChartSetup.FieldCaption("Source ID")) then
+                        if not Confirm(ResetFieldsQst, true, TempGenericChartSetup.FieldCaption("Source ID")) then
                             Error('');
                 end;
         end;
@@ -1131,9 +1124,8 @@ page 9183 "Generic Chart Setup"
     begin
         if FileMgt.BLOBImport(TempBlob, '*.xml') = '' then
             exit;
-
         if Rec.BLOB.HasValue() then
-            if not Confirm(Text003, false, Rec.TableCaption(), Rec.ID) then
+            if not Confirm(ReplaceChartDefinitionQst, false, Rec.TableCaption(), Rec.ID) then
                 exit;
 
         RecordRef.GetTable(Rec);
@@ -1186,7 +1178,7 @@ page 9183 "Generic Chart Setup"
                 FieldOfTypeCountAlreadyExists := (Aggregation[index] = Aggregation[i]) or FieldOfTypeCountAlreadyExists;
 
         if FieldOfTypeCountAlreadyExists then
-            Error(Text004);
+            Error(OnlyOneCountAggregationErr);
 
         GenericChartMgt.CheckDataTypeAggregationCompliance(TempGenericChartSetup, DataColumn[index], Aggregation[index]);
         if Aggregation[index] = Aggregation[index] ::Count then begin
@@ -1194,7 +1186,7 @@ page 9183 "Generic Chart Setup"
             if DataColumn[index] <> CountColumnName then begin
                 ReplaceDataColumn := true;
                 if DataColumn[index] <> '' then
-                    ReplaceDataColumn := Confirm(Text005, false);
+                    ReplaceDataColumn := Confirm(AggregationCountChangeQst, false);
                 if ReplaceDataColumn then
                     DataColumn[index] := CountColumnName
                 else

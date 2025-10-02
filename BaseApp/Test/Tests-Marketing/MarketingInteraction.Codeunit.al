@@ -2018,7 +2018,7 @@ codeunit 136208 "Marketing Interaction"
         ContactCard: TestPage "Contact Card";
     begin
         // [FEATURE] [UI] [Contact Interaction Subform]
-        // [SCENARIO 386492] Action "Evaluate Interaction" of Contact Interaction Subform 
+        // [SCENARIO 386492] Action "Evaluate Interaction" of Contact Interaction Subform
         Initialize();
 
         // [GIVEN] Contact "C"
@@ -2053,7 +2053,7 @@ codeunit 136208 "Marketing Interaction"
         ContactCard: TestPage "Contact Card";
     begin
         // [FEATURE] [UI] [Contact Interaction Subform]
-        // [SCENARIO 386492] Action "Switch Checkmark in Canceled" of Contact Interaction Subform 
+        // [SCENARIO 386492] Action "Switch Checkmark in Canceled" of Contact Interaction Subform
         Initialize();
 
         // [GIVEN] Contact "C"
@@ -2534,7 +2534,7 @@ codeunit 136208 "Marketing Interaction"
         DataCompression.OpenZipArchive(InStreamVar, false);
         DataCompression.GetEntryList(ZipEntryList);
 
-        // [THEN] Zip file contains 2 pdf files. 
+        // [THEN] Zip file contains 2 pdf files.
         Assert.AreEqual(2, ZipEntryList.Count, '');
         Assert.IsTrue(ZipEntryList.Contains(Contact[1]."No." + '.pdf'), '');
         Assert.IsTrue(ZipEntryList.Contains(Contact[2]."No." + '.pdf'), '');
@@ -2585,7 +2585,7 @@ codeunit 136208 "Marketing Interaction"
         DataCompression.OpenZipArchive(InStreamVar, false);
         DataCompression.GetEntryList(ZipEntryList);
 
-        // [THEN] Zip file contains 2 pdf files. 
+        // [THEN] Zip file contains 2 pdf files.
         // 1st file name = Contact[1]."No." + '.pdf'
         // 2nd file name = "Contact[2].Company Name - Contact[2]."No." + '.pdf'
         Assert.AreEqual(2, ZipEntryList.Count, '');
@@ -2608,7 +2608,7 @@ codeunit 136208 "Marketing Interaction"
         // [SCENARIO 428476] Segment with Attachment when logged for 1 contacts generates 1 pdf file
         Initialize();
 
-        // [GIVEN] Segment with Attachment for 1 Contact 
+        // [GIVEN] Segment with Attachment for 1 Contact
         FileExtension := 'DOC';
         CreateContactWithEmail(Contact);
         PrepareSegmentWithAttachment(SegmentHeader, FileExtension, Contact);
@@ -2663,7 +2663,7 @@ codeunit 136208 "Marketing Interaction"
             InteractionTemplate."Wizard Action"::" ",
             WordTemplateCode);
 
-        // [GIVEN] Validate Interaction Group Code.    
+        // [GIVEN] Validate Interaction Group Code.
         InteractionTemplate.Validate("Interaction Group Code", InteractionGroup.Code);
         InteractionTemplate.Modify(true);
 
@@ -3032,18 +3032,6 @@ codeunit 136208 "Marketing Interaction"
         end;
     end;
 
-    local procedure AttachmentFromInteractionLogEntry(var Attachment: Record Attachment; ContactNo: Code[20]; InteractionGroupCode: Code[10]; InteractionTemplateCode: Code[10])
-    var
-        InteractionLogEntry: Record "Interaction Log Entry";
-    begin
-        InteractionLogEntry.Reset();
-        InteractionLogEntry.SetRange("Contact No.", ContactNo);
-        InteractionLogEntry.SetRange("Interaction Group Code", InteractionGroupCode);
-        InteractionLogEntry.SetRange("Interaction Template Code", InteractionTemplateCode);
-        InteractionLogEntry.FindFirst();
-        Attachment.Get(InteractionLogEntry."Attachment No.");
-    end;
-
     local procedure CreateAttachmentWithFileValue(FileExtension: Text[250]): Integer
     var
         Attachment: Record Attachment;
@@ -3085,13 +3073,6 @@ codeunit 136208 "Marketing Interaction"
     begin
         LibraryMarketing.CreateCompanyContact(Contact);
         Contact.Validate("Phone No.", '1234567890');
-        Contact.Modify(true);
-    end;
-
-    local procedure CreateContactWithFaxNo(var Contact: Record Contact)
-    begin
-        LibraryMarketing.CreateCompanyContact(Contact);
-        Contact.Validate("Fax No.", '1234567890');
         Contact.Modify(true);
     end;
 
@@ -3388,32 +3369,6 @@ codeunit 136208 "Marketing Interaction"
         end;
     end;
 
-    local procedure MockAttachmentMergeSource(var Attachment: Record Attachment)
-    var
-        OutStream: OutStream;
-    begin
-        Attachment."Merge Source".CreateOutStream(OutStream);
-        OutStream.Write('<html>');
-        OutStream.Write('<body>');
-        OutStream.Write('<table>');
-        OutStream.Write('<tr>');
-        OutStream.Write('<td>Entry No.</td>');
-        OutStream.Write('<td>Value</td>');
-        OutStream.Write('</tr>');
-        OutStream.Write('<tr>');
-        OutStream.Write('<td>139</td>');
-        OutStream.Write('<td>HundredThirtyNine</td>');
-        OutStream.Write('</tr>');
-        OutStream.Write('<tr>');
-        OutStream.Write('<td>140</td>');
-        OutStream.Write('<td>HundredForty</td>');
-        OutStream.Write('</tr>');
-        OutStream.Write('</table>');
-        OutStream.Write('</body>');
-        OutStream.Write('</html>');
-        Attachment.Modify();
-    end;
-
     local procedure MockContactNo(LanguageCode: Code[10]): Code[20]
     var
         Contact: Record Contact;
@@ -3587,13 +3542,6 @@ codeunit 136208 "Marketing Interaction"
         LibraryVariableStorage.Enqueue(SegmentHeader."Subject (Default)");
     end;
 
-    local procedure PrepareSegmentWordTemplate(var SegmentHeader: Record "Segment Header"; WizardAction: Enum "Interaction Template Wizard Action")
-    var
-        Contact: Array[2] of Record Contact;
-    begin
-        PrepareSegmentWordTemplate(SegmentHeader, WizardAction, Contact);
-    end;
-
     local procedure PrepareSegmentWordTemplate(var SegmentHeader: Record "Segment Header"; WizardAction: Enum "Interaction Template Wizard Action"; var Contact: Array[2] of Record Contact)
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
@@ -3667,15 +3615,6 @@ codeunit 136208 "Marketing Interaction"
         InteractionTemplate.Validate("Unit Cost (LCY)", LibraryRandom.RandDec(10, 2));
         InteractionTemplate.Validate("Unit Duration (Min.)", LibraryRandom.RandDec(10, 2));
         InteractionTemplate.Modify(true);
-    end;
-
-    local procedure UpdateMarketingSetup(MarketingSetup: Record "Marketing Setup"; StorageType: Enum "Setup Attachment Storage Type"; StorageLocation: Text)
-    begin
-        MarketingSetup.Get();
-        MarketingSetup."Attachment Storage Type" := StorageType;
-        MarketingSetup."Attachment Storage Location" :=
-CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Location"));
-        MarketingSetup.Modify();
     end;
 
     local procedure VerifyInteractionLogEntry(ContactNo: Code[20]; InteractionTemplateCode: Code[10])
@@ -4331,4 +4270,3 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
         CreateInteraction.FinishInteraction.Invoke();
     end;
 }
-

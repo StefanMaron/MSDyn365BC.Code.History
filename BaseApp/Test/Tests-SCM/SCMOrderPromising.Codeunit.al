@@ -1533,10 +1533,10 @@ codeunit 137044 "SCM Order Promising"
 
     local procedure AdjustDateForDefaultSafetyLeadTime(OldDate: Date): Date
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
-        ManufacturingSetup.Get();
-        exit(CalcDate(ManufacturingSetup."Default Safety Lead Time", OldDate));
+        InventorySetup.Get();
+        exit(CalcDate(InventorySetup."Default Safety Lead Time", OldDate));
     end;
 
     local procedure UpdateCompSalesManufPurchSetup()
@@ -1661,13 +1661,11 @@ codeunit 137044 "SCM Order Promising"
 
     local procedure CreateProdBOM(var ProductionBOMHeader: Record "Production BOM Header"; ReplenishmentSystem: Enum "Replenishment System"; BaseUnitOfMeasure: Code[10]; NoBOMLine: Integer)
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
         ProductionBOMLine: Record "Production BOM Line";
         Item: Record Item;
         ItemNo: array[5] of Code[20];
         "Count": Integer;
     begin
-        ManufacturingSetup.Get();
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, BaseUnitOfMeasure);
 
         for Count := 1 to NoBOMLine do begin
@@ -1683,12 +1681,10 @@ codeunit 137044 "SCM Order Promising"
 
     local procedure CreateRouting(var RoutingHeader: Record "Routing Header")
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
         RoutingLine: Record "Routing Line";
         WorkCenter: Record "Work Center";
         MachineCenter: Record "Machine Center";
     begin
-        ManufacturingSetup.Get();
         CreateSetupWorkCenter(WorkCenter);
         CreateSetupMachineCenter(MachineCenter, WorkCenter."No.");
 

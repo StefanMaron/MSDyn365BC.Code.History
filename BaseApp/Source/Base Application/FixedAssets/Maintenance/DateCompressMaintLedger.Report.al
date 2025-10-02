@@ -343,10 +343,6 @@ report 5698 "Date Compress Maint. Ledger"
     begin
         FAReg.Init();
         FAReg."No." := FAReg.GetLastEntryNo() + 1;
-#if not CLEAN24
-        FAReg."Creation Date" := Today;
-        FAReg."Creation Time" := Time;
-#endif
         FAReg."Journal Type" := FAReg."Journal Type"::"Fixed Asset";
         FAReg."Source Code" := SourceCodeSetup."Compress Maintenance Ledger";
         FAReg."User ID" := CopyStr(UserId(), 1, MaxStrLen(FAReg."User ID"));
@@ -577,4 +573,3 @@ report 5698 "Date Compress Maint. Ledger"
         InsertField("Maintenance Ledger Entry".FieldNo("Index Entry"), "Maintenance Ledger Entry".FieldCaption("Index Entry"));
     end;
 }
-

@@ -404,6 +404,11 @@ table 5700 "Stockkeeping Unit"
             Caption = 'Components at Location';
             TableRelation = Location;
         }
+        field(5417; "Flushing Method"; Enum Microsoft.Manufacturing.Setup."Flushing Method")
+        {
+            Caption = 'Flushing Method';
+            DataClassification = CustomerContent;
+        }
         field(5419; "Replenishment System"; Enum "Replenishment System")
         {
             Caption = 'Replenishment System';
@@ -722,6 +727,60 @@ table 5700 "Stockkeeping Unit"
             DecimalPlaces = 2 : 5;
             Editable = false;
         }
+        field(99000752; "Single-Level Material Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Single-Level Material Cost';
+            Editable = false;
+        }
+        field(99000753; "Single-Level Capacity Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Single-Level Capacity Cost';
+            Editable = false;
+        }
+        field(99000754; "Single-Level Subcontrd. Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Single-Level Subcontrd. Cost';
+            Editable = false;
+        }
+        field(99000755; "Single-Level Cap. Ovhd Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Single-Level Cap. Ovhd Cost';
+            Editable = false;
+        }
+        field(99000756; "Single-Level Mfg. Ovhd Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Single-Level Mfg. Ovhd Cost';
+            Editable = false;
+        }
+        field(99000758; "Rolled-up Subcontracted Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Rolled-up Subcontracted Cost';
+            Editable = false;
+        }
+        field(99000759; "Rolled-up Mfg. Ovhd Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Rolled-up Mfg. Ovhd Cost';
+            Editable = false;
+        }
+        field(99000760; "Rolled-up Cap. Overhead Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Rolled-up Cap. Overhead Cost';
+            Editable = false;
+        }
+        field(99000779; "Single-Lvl Mat. Non-Invt. Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Single-Level Material Non-Inventory Cost';
+            Editable = false;
+        }
     }
 
     keys
@@ -985,8 +1044,26 @@ table 5700 "Stockkeeping Unit"
         "Last Direct Cost" := Item."Last Direct Cost";
         "Standard Cost" := Item."Standard Cost";
         "Unit Cost" := Item."Unit Cost";
+        "Flushing Method" := Item."Flushing Method";
 
         OnAfterCopyFromItem(Rec, Item);
+    end;
+
+    procedure TransferManufCostsFromItem(Item: Record Item)
+    begin
+        "Single-Level Material Cost" := Item."Single-Level Material Cost";
+        "Single-Level Capacity Cost" := Item."Single-Level Capacity Cost";
+        "Single-Level Subcontrd. Cost" := Item."Single-Level Subcontrd. Cost";
+        "Single-Level Cap. Ovhd Cost" := Item."Single-Level Cap. Ovhd Cost";
+        "Single-Level Mfg. Ovhd Cost" := Item."Single-Level Mfg. Ovhd Cost";
+        "Single-Lvl Mat. Non-Invt. Cost" := Item."Single-Lvl Mat. Non-Invt. Cost";
+
+        "Rolled-up Material Cost" := Item."Rolled-up Material Cost";
+        "Rolled-up Capacity Cost" := Item."Rolled-up Capacity Cost";
+        "Rolled-up Subcontracted Cost" := Item."Rolled-up Subcontracted Cost";
+        "Rolled-up Mfg. Ovhd Cost" := Item."Rolled-up Mfg. Ovhd Cost";
+        "Rolled-up Cap. Overhead Cost" := Item."Rolled-up Cap. Overhead Cost";
+        "Rolled-up Mat. Non-Invt. Cost" := Item."Rolled-up Mat. Non-Invt. Cost";
     end;
 
     [IntegrationEvent(false, false)]

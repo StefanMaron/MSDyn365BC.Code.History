@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -259,9 +259,6 @@ table 5005270 "Delivery Reminder Header"
     trigger OnInsert()
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#endif
         IsHandled: Boolean;
     begin
         PurchSetup.Get();
@@ -271,29 +268,17 @@ table 5005270 "Delivery Reminder Header"
             if "No." = '' then begin
                 PurchSetup.TestField("Delivery Reminder Nos.");
                 PurchSetup.TestField("Issued Delivery Reminder Nos.");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(PurchSetup."Delivery Reminder Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
-                if not IsHandled then begin
-#endif
                     "No. Series" := PurchSetup."Delivery Reminder Nos.";
                     if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                         "No. Series" := xRec."No. Series";
                     "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-#if not CLEAN24
-                    NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", PurchSetup."Delivery Reminder Nos.", "Posting Date", "No.");
-                end;
-#endif
             end;
             "Posting Description" := StrSubstNo(Text1140000, "No.");
             if ("No. Series" <> '') and (PurchSetup."Delivery Reminder Nos." = PurchSetup."Issued Delivery Reminder Nos.") then
                 "Issuing No. Series" := "No. Series"
             else
-#if CLEAN24
                 if NoSeries.IsAutomatic(PurchSetup."Issued Delivery Reminder Nos.") then
                     "Issuing No. Series" := PurchSetup."Issued Delivery Reminder Nos.";
-#else
-                NoSeriesMgt.SetDefaultSeries("Issuing No. Series", PurchSetup."Issued Delivery Reminder Nos.");
-#endif
         end;
         if "Posting Date" = 0D then
             "Posting Date" := WorkDate();
@@ -377,4 +362,3 @@ table 5005270 "Delivery Reminder Header"
     begin
     end;
 }
-

@@ -9,9 +9,6 @@ using Microsoft.Service.Item;
 codeunit 5975 "Copy Service Contract Mgt."
 {
     var
-#if not CLEAN24
-        CopyDocumentMgt: Codeunit Microsoft.Utilities."Copy Document Mgt.";
-#endif
         DocumentNoErr: Label 'Please enter a Contract No.';
 
     procedure CopyServiceContractLines(ToServiceContractHeader: Record "Service Contract Header"; FromContractType: Enum "Service Contract Type From"; FromContractNo: Code[20]; var FromServiceContractLine: Record "Service Contract Line") AllLinesCopied: Boolean
@@ -19,9 +16,6 @@ codeunit 5975 "Copy Service Contract Mgt."
         ExistingServiceContractLine: Record "Service Contract Line";
         ServContractManagement: Codeunit ServContractManagement;
         LineNo: Integer;
-#if not CLEAN24
-        FromContractTypeOption: Option;
-#endif
     begin
         if FromContractNo = '' then
             Error(DocumentNoErr);
@@ -54,11 +48,6 @@ codeunit 5975 "Copy Service Contract Mgt."
                     LineNo := LineNo + 10000
             until FromServiceContractLine.Next() = 0;
 
-#if not CLEAN24
-        FromContractTypeOption := FromContractType.AsInteger();
-        CopyDocumentMgt.RunOnAfterCopyServContractLines(ToServiceContractHeader, FromContractTypeOption, FromContractNo, FromServiceContractLine);
-        FromContractType := "Service Contract Type From".FromInteger(FromContractTypeOption);
-#endif
         OnAfterCopyServiceContractLines(ToServiceContractHeader, FromContractType, FromContractNo, FromServiceContractLine);
     end;
 
@@ -107,9 +96,6 @@ codeunit 5975 "Copy Service Contract Mgt."
         ToServiceContractLine.SetupNewLine();
         ToServiceContractLine.Insert(true);
 
-#if not CLEAN24
-        CopyDocumentMgt.RunOnAfterProcessServContractLine(ToServiceContractLine, FromServiceContractLine);
-#endif
         OnAfterProcessServiceContractLine(ToServiceContractLine, FromServiceContractLine);
         exit(true);
     end;

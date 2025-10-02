@@ -277,121 +277,6 @@ codeunit 134073 "Check Document No. Unit Test"
         Assert.AreEqual(NoSeries.Code, ActualNoSeries, IncorrectNoSeriesCodeErr);
     end;
 
-#if not CLEAN24
-#pragma warning disable AL0432
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('CheckDocNoBasedOnNoSeries is removed', '24.0')]
-    procedure LastNoUsedForExportedPmtLine()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        NoSeriesLine: Record "No. Series Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-    begin
-        // [FEATURE] [No. Series] [UT]
-        // [SCENARIO 261484] TAB81.CheckDocNoBasedOnNoSeries updates internal "No Series" instance of NoSeriesManagement without modification. Further modification can be done by NoSeriesManagement.SaveNoSeries
-
-        NoSeriesLine.SetRange("Series Code", LibraryERM.CreateNoSeriesCode());
-        NoSeriesLine.FindFirst();
-
-        Commit();
-
-        GenJournalLine.Init();
-        GenJournalLine."Posting Date" := WorkDate();
-        GenJournalLine."Exported to Payment File" := true;
-        GenJournalLine."Document No." := NoSeriesManagement.TryGetNextNo(NoSeriesLine."Series Code", GenJournalLine."Posting Date");
-
-        GenJournalLine.CheckDocNoBasedOnNoSeries('', NoSeriesLine."Series Code", NoSeriesManagement);
-        NoSeriesManagement.SaveNoSeries();
-
-        NoSeriesLine.Find();
-        NoSeriesLine.TestField("Last No. Used", GenJournalLine."Document No.");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('CheckDocNoBasedOnNoSeries is removed', '24.0')]
-    procedure LastNoUsedNotIncrementedWhenManualNosTrueAndDocNoManual()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        NoSeriesCode: Code[20];
-        LastNoUsed: Code[20];
-    begin
-        // [FEATURE] [No. Series]
-        // [SCENARIO 376013] Run CheckDocNoBasedOnNoSeries funcion of table Gen. Journal Line for No Series with Manual Nos = true when Document No. is not the next No of No. Series.
-
-        // [GIVEN] No. Series with Manual Nos. = true.
-        // [GIVEN] No. Series Line with Last No. Used = 'A001'.
-        // [GIVEN] General Journal Line with Document No. = 'ABC', i.e. number is not from No Series.
-        NoSeriesCode := CreateNoSeriesWithManualNos(true);
-        LastNoUsed := GetLastNoUsedFromNoSeries(NoSeriesCode);
-        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateRandomXMLText(MaxStrLen(GenJournalLine."Document No.")));
-
-        // [WHEN] Run CheckDocNoBasedOnNoSeries function of Gen. Journal Line table on General Journal Line with No Series as a parameter.
-        GenJournalLine.CheckDocNoBasedOnNoSeries('', NoSeriesCode, NoSeriesMgt);
-
-        // [THEN] Last No. Used was not incremented, so the next No that is gotten from No. Series is 'A002'.
-        NoSeriesMgt.IncrementNoText(LastNoUsed, 1);
-        Assert.AreEqual(LastNoUsed, NoSeriesMgt.GetNextNo(NoSeriesCode, WorkDate(), false), '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('CheckDocNoBasedOnNoSeries is removed', '24.0')]
-    procedure ErrorWhenManualNosFalseAndDocNoManual()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        NoSeriesCode: Code[20];
-    begin
-        // [FEATURE] [No. Series]
-        // [SCENARIO 376013] Run CheckDocNoBasedOnNoSeries funcion of table Gen. Journal Line for No. Series with Manual Nos = false when Document No. is not the next No of No. Series.
-
-        // [GIVEN] No. Series with Manual Nos. = false.
-        // [GIVEN] No. Series Line with Last No. Used = 'A001'.
-        // [GIVEN] General Journal Line with Document No. = 'ABC', i.e. number is not from No Series.
-        NoSeriesCode := CreateNoSeriesWithManualNos(false);
-        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateRandomXMLText(MaxStrLen(GenJournalLine."Document No.")));
-
-        // [WHEN] Run CheckDocNoBasedOnNoSeries function of Gen. Journal Line table on General Journal Line with No Series as a parameter.
-        asserterror GenJournalLine.CheckDocNoBasedOnNoSeries('', NoSeriesCode, NoSeriesMgt);
-
-        // [THEN] Error "You have one or more documents that must be posted before you post document no. ABC" is thrown.
-        Assert.ExpectedError('You have one or more documents that must be posted before you post document no.');
-        Assert.ExpectedErrorCode('Dialog');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('CheckDocNoBasedOnNoSeries is removed', '24.0')]
-    procedure LastNoUsedIncrementedWhenDocNoIsNextNoFromNoSeries()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        NoSeriesCode: Code[20];
-        DocumentNo: Code[20];
-    begin
-        // [FEATURE] [No. Series]
-        // [SCENARIO 376013] Run CheckDocNoBasedOnNoSeries funcion of table Gen. Journal Line for No. Series with Manual Nos = true when Document No. is equal to the next No from No. Series.
-
-        // [GIVEN] No. Series with Manual Nos. = true.
-        // [GIVEN] No. Series Line with Last No. Used = 'A001'.
-        // [GIVEN] General Journal Line with Document No. = 'A002', i.e. number is the next No from No Series.
-        NoSeriesCode := CreateNoSeriesWithManualNos(true);
-        DocumentNo := GetLastNoUsedFromNoSeries(NoSeriesCode);
-        NoSeriesMgt.IncrementNoText(DocumentNo, 1);
-        GenJournalLine.Validate("Document No.", DocumentNo);
-
-        // [WHEN] Run CheckDocNoBasedOnNoSeries function of Gen. Journal Line table on General Journal Line with No Series as a parameter.
-        GenJournalLine.CheckDocNoBasedOnNoSeries('', NoSeriesCode, NoSeriesMgt);
-
-        // [THEN] Last No. Used was incremented, so the next No that is gotten from No. Series is 'A003'.
-        NoSeriesMgt.IncrementNoText(DocumentNo, 1);
-        Assert.AreEqual(DocumentNo, NoSeriesMgt.GetNextNo(NoSeriesCode, WorkDate(), false), '');
-    end;
-#pragma warning restore AL0432
-#endif
     [Test]
     [Scope('OnPrem')]
     procedure LastNoUsedNotIncrementedWhenPostGenJnlLineDocNoManual()
@@ -461,39 +346,6 @@ codeunit 134073 "Check Document No. Unit Test"
         Assert.AreEqual(DocumentNo, GetLastNoUsedFromNoSeries(NoSeriesCode), '');
     end;
 
-#if not CLEAN24
-#pragma warning disable AL0432
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('CheckDocNoBasedOnNoSeries is removed', '24.0')]
-    procedure NoSeriesMgtInstanceIsNotClearedAfterRunCheckDocNoBasedOnNoSeries()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        NoSeriesMgtInstance: Codeunit NoSeriesManagement;
-        LastDocNo: Code[20];
-        NoSeriesCode: Code[20];
-        TryNoSeriesCode: Code[20];
-    begin
-        // [FEATURE] [UT] [No. Series]
-        // [SCENARIO 390143] Run CheckDocNoBasedOnNoSeries() function of GenJournalLine table when global variables of NoSeriesMgtInstance codeunit are initialized.
-
-        // [GIVEN] No. Series with Manual Nos. = true.
-        NoSeriesCode := CreateNoSeriesWithManualNos(true);
-
-        // [GIVEN] Global variable TryNoSeriesCode is initialized inside NoSeriesMgtInstance with mock value.
-        TryNoSeriesCode := LibraryUtility.GenerateGUID();
-        NoSeriesMgtInstance.SetParametersBeforeRun(TryNoSeriesCode, LibraryRandom.RandDate(20));
-
-        // [WHEN] Run CheckDocNoBasedOnNoSeries() function of GenJournalLine table.
-        GenJournalLine.CheckDocNoBasedOnNoSeries(LastDocNo, NoSeriesCode, NoSeriesMgtInstance);
-
-        // [THEN] TryNoSeriesCode was not reset.
-        asserterror NoSeriesMgtInstance.Run();
-        Assert.ExpectedErrorCannotFind(Database::"No. Series", TryNoSeriesCode);
-        Assert.ExpectedErrorCode('DB:RecordNotFound');
-    end;
-#pragma warning restore AL0432
-#endif
     [Test]
     [Scope('OnPrem')]
     procedure ErrorWhenManualNosEnabledAndPostingDateOrderReversedInGenJournalLines()
@@ -683,4 +535,3 @@ codeunit 134073 "Check Document No. Unit Test"
         NoSeriesList.Cancel().Invoke();
     end;
 }
-

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -17,9 +17,6 @@ using Microsoft.Finance.GeneralLedger.Reports;
 using Microsoft.Foundation.Reporting;
 #endif
 using Microsoft.Purchases.Document;
-#if not CLEAN24
-using Microsoft.Inventory.Counting;
-#endif
 
 codeunit 1752 "Data Class. Eval. Data Country"
 {
@@ -39,6 +36,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         ClassifyEmployeeRelative();
         ClassifyEmployeeQualification();
         ClassifyVATReportHeader();
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Alt. Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cause of Absence");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Place of Dispatcher");
@@ -66,20 +64,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Delivery Reminder Term");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Delivery Reminder Level");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Delivery Reminder Text");
-#if not CLEAN24
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Phys. Inventory Order Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Phys. Inventory Order Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Phys. Invt. Recording Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Phys. Invt. Recording Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Post. Phys. Invt. Order Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Phys. Invt. Order Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Phys. Invt. Rec. Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Phys. Invt. Rec. Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Phys. Inventory Comment Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Phys. Invt. Track. Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Expect. Phys. Inv. Track. Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Post. Exp. Ph. In. Track. Line");
-#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
         OnAfterClassifyCountrySpecificTables();
     end;

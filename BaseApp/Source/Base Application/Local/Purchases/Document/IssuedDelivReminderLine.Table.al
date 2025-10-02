@@ -101,9 +101,7 @@ table 5005273 "Issued Deliv. Reminder Line"
             Caption = 'Attached to Line No.';
             Editable = false;
         }
-#pragma warning disable AS0086
         field(18; "Vendor Item No."; Text[50])
-#pragma warning restore
         {
             Caption = 'Vendor Item No.';
         }
@@ -136,4 +134,3 @@ table 5005273 "Issued Deliv. Reminder Line"
     {
     }
 }
-

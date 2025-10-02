@@ -9,6 +9,15 @@ using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Period;
 using System.Utilities;
 
+/// <summary>
+/// Removes non-printed check ledger entries from the database to manage storage space.
+/// Maintains audit trail through date compression register while safely cleaning historical data.
+/// </summary>
+/// <remarks>
+/// Data source: Check Ledger Entry with filtering for non-printed entries only.
+/// Creates date compression register entries for audit trail compliance.
+/// Excludes printed checks to preserve complete payment history.
+/// </remarks>
 report 1495 "Delete Check Ledger Entries"
 {
     Caption = 'Delete Check Ledger Entries';
@@ -53,9 +62,9 @@ report 1495 "Delete Check Ledger Entries"
             trigger OnPreDataItem()
             begin
                 if EntrdDateComprReg."Ending Date" = 0D then
-                    Error(Text003, EntrdDateComprReg.FieldCaption("Ending Date"));
+                    Error(MustBeSpecifiedErr, EntrdDateComprReg.FieldCaption("Ending Date"));
 
-                Window.Open(Text004);
+                Window.Open(DateCompressingEntriesMsg);
 
                 SourceCodeSetup.Get();
                 SourceCodeSetup.TestField("Compress Check Ledger");
@@ -159,13 +168,11 @@ report 1495 "Delete Check Ledger Entries"
         RegExists: Boolean;
 
         CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text003: Label '%1 must be specified.';
-        Text004: Label 'Date compressing check ledger entries...\\Bank Account No.       #1##########\No. of entries deleted #4######';
+        MustBeSpecifiedErr: Label '%1 must be specified.';
+        DateCompressingEntriesMsg: Label 'Date compressing check ledger entries...\\Bank Account No.       #1##########\No. of entries deleted #4######';
 #pragma warning restore AA0470
-        Text007: Label 'All records deleted';
-#pragma warning restore AA0074
+        AllRecordsDeletedLbl: Label 'All records deleted';
 
     local procedure InitRegister()
     var
@@ -179,7 +186,7 @@ report 1495 "Delete Check Ledger Entries"
           EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date", EntrdDateComprReg."Period Length",
           CheckLedgEntryFilter, 0, SourceCodeSetup."Compress Check Ledger");
 
-        DateComprReg."Retain Field Contents" := Text007;
+        DateComprReg."Retain Field Contents" := AllRecordsDeletedLbl;
 
         RegExists := false;
         NoOfDeleted := 0;
@@ -202,6 +209,11 @@ report 1495 "Delete Check Ledger Entries"
         InitRegister();
     end;
 
+    /// <summary>
+    /// Initializes the date range parameters for check ledger entry deletion.
+    /// </summary>
+    /// <param name="StartingDate">Starting date for deletion range</param>
+    /// <param name="EndingDate">Ending date for deletion range</param>
     procedure InitializeRequest(StartingDate: Date; EndingDate: Date)
     begin
         EntrdDateComprReg."Starting Date" := StartingDate;

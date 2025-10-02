@@ -41,13 +41,6 @@ using Microsoft.Warehouse.Worksheet;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Registration;
 
-using Microsoft.Service.Archive;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
-using Microsoft.Service.Item;
-using Microsoft.Service.Ledger;
-
 permissionset 5729 "D365 CUSTOMER, EDIT"
 {
     Assignable = true;
@@ -141,21 +134,5 @@ permissionset 5729 "D365 CUSTOMER, EDIT"
                   tabledata "Warehouse Reason Code" = RM,
                   tabledata "Warehouse Request" = rm,
                   tabledata "Warehouse Shipment Line" = rm,
-                  tabledata "Whse. Worksheet Line" = r,
-
-                  // Service
-                  tabledata "Contract Gain/Loss Entry" = rm,
-                  tabledata "Filed Contract Line" = rm,
-                  tabledata "Service Contract Header" = Rm,
-                  tabledata "Service Contract Line" = Rm,
-                  tabledata "Service Header" = Rm,
-                  tabledata "Service Header Archive" = rm,
-                  tabledata "Service Invoice Line" = Rm,
-                  tabledata "Service Item" = Rm,
-                  tabledata "Service Item Line" = Rm,
-                  tabledata "Service Item Line Archive" = rm,
-                  tabledata "Service Ledger Entry" = rm,
-                  tabledata "Service Line" = r,
-                  tabledata "Service Line Archive" = r,
-                  tabledata "Warranty Ledger Entry" = rm;
+                  tabledata "Whse. Worksheet Line" = r;
 }

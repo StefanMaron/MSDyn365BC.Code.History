@@ -1202,13 +1202,15 @@ codeunit 7009 CopyFromToPriceListLine
     local procedure OnBeforeInsertHeader(PriceListLine: Record "Price List Line"; var PriceListHeader: Record "Price List Header")
     begin
     end;
-
+#if not CLEAN25
+#pragma warning disable AS0072
+    [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertPriceListLine(var PriceListLine: Record "Price List Line")
+#pragma warning restore AS0072
     begin
     end;
 
-#if not CLEAN25
     [IntegrationEvent(false, false)]
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
@@ -1296,5 +1298,5 @@ codeunit 7009 CopyFromToPriceListLine
 #pragma warning restore AS0072
     begin
     end;
-#endif    
+#endif
 }

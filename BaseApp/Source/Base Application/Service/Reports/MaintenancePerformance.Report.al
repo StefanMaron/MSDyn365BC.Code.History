@@ -136,7 +136,8 @@ report 5982 "Maintenance Performance"
 
     requestpage
     {
-
+        AboutTitle = 'About Maintenance Performance';
+        AboutText = 'Analyze maintenance performance for responsibility centers.';
         layout
         {
             area(content)

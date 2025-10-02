@@ -380,11 +380,16 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
 
     local procedure CreateManufacturingSetup()
     var
+        InventorySetup: Record "Inventory Setup";
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         LibraryE2EPlanPermissions.SetViralSignupPlan();
         ManufacturingSetup.DeleteAll();
         ManufacturingSetup.Insert();
+        InventorySetup.Get();
+        Clear(InventorySetup."Default Safety Lead Time");
+        InventorySetup."Combined MPS/MRP Calculation" := false;
+        InventorySetup.Modify();
         Commit();
     end;
 

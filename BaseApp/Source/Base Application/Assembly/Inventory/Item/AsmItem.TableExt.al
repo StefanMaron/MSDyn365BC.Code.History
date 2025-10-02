@@ -25,6 +25,7 @@ tableextension 905 "Asm. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(930; "Res. Qty. on  Asm. Comp."; Decimal)
         {
@@ -40,6 +41,7 @@ tableextension 905 "Asm. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(977; "Qty. on Assembly Order"; Decimal)
         {
@@ -55,6 +57,7 @@ tableextension 905 "Asm. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(978; "Qty. on Asm. Component"; Decimal)
         {
@@ -71,6 +74,7 @@ tableextension 905 "Asm. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
     }
 

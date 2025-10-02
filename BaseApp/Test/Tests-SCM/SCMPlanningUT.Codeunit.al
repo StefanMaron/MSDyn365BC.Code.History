@@ -89,7 +89,6 @@ codeunit 137801 "SCM - Planning UT"
         Item: Record Item;
         PurchaseLine: Record "Purchase Line";
         ReqWkshTemplate: Record "Req. Wksh. Template";
-        ManufacturingSetup: Record "Manufacturing Setup";
         RequisitionLine: Record "Requisition Line";
         InventoryProfileOffsetting: Codeunit "Inventory Profile Offsetting";
     begin
@@ -100,9 +99,7 @@ codeunit 137801 "SCM - Planning UT"
         CreateReqWkshTemplate(ReqWkshTemplate, PAGE::"Req. Worksheet");
 
         // [WHEN] Calc. Regenerative plan
-        ManufacturingSetup.Init();
-        InventoryProfileOffsetting.CalculatePlanFromWorksheet(
-          Item, ManufacturingSetup, ReqWkshTemplate.Name, '', WorkDate(), WorkDate(), true, false);
+        InventoryProfileOffsetting.CalculatePlanFromWorksheet(Item, ReqWkshTemplate.Name, '', WorkDate(), WorkDate(), true, false);
 
         // [THEN] There is no generated planning lines
         RequisitionLine.SetRange("Worksheet Template Name", ReqWkshTemplate.Name);
@@ -486,20 +483,24 @@ codeunit 137801 "SCM - Planning UT"
     procedure ManufacturingSetupWithEssentialUserExperience()
     var
         Location: Record Location;
+        InventorySetup: TestPage "Inventory Setup";
         ManufacturingSetup: TestPage "Manufacturing Setup";
         SafetyLeadTime: DateFormula;
     begin
         // [FEATURE] [UI]
-        // [SCENARIO 300072] "Planned Order Nos.", "Components at Location" and "Default Safety Lead Time" settings in Manufacturing Setup are related to planning process and are available with Essential user experience.
+        // [SCENARIO 300072] "Planned Order Nos.", "Components at Location" and "Default Safety Lead Time" settings in setup are related to planning process and are available with Essential user experience.
         Initialize();
 
         LibraryWarehouse.CreateLocation(Location);
         Evaluate(SafetyLeadTime, StrSubstNo('<%1D>', LibraryRandom.RandInt(10)));
 
+        InventorySetup.OpenEdit();
+        InventorySetup."Default Safety Lead Time".SetValue(SafetyLeadTime);
+        InventorySetup.Close();
+
         ManufacturingSetup.OpenEdit();
         ManufacturingSetup."Planned Order Nos.".SetValue(LibraryUtility.GetGlobalNoSeriesCode());
         ManufacturingSetup."Components at Location".SetValue(Location.Code);
-        ManufacturingSetup."Default Safety Lead Time".SetValue(SafetyLeadTime);
         ManufacturingSetup.Close();
     end;
 
@@ -630,7 +631,7 @@ codeunit 137801 "SCM - Planning UT"
         // EXERCISE
         ManufacturingSetup.Init();
         InventoryProfileOffsetting.CalculatePlanFromWorksheet(
-          Item, ManufacturingSetup, ReqWkshTemplate.Name, '', SalesLine."Shipment Date", SalesLine."Shipment Date" + 30, true, false);
+          Item, ReqWkshTemplate.Name, '', SalesLine."Shipment Date", SalesLine."Shipment Date" + 30, true, false);
 
         // VERIFY
         VerifyReqLines(Item, ReqWkshTemplate.Name, SalesLine."Outstanding Qty. (Base)");

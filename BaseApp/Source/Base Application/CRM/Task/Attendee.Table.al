@@ -116,10 +116,10 @@ table 5199 Attendee
                 if "Send Invitation" and (Task.Type <> Task.Type::"Phone Call") then
                     if "Attendee Type" = "Attendee Type"::Salesperson then begin
                         if Salesperson.Get("Attendee No.") and (Salesperson."E-Mail" = '') then
-                            Error(Text004, FieldCaption("Send Invitation"), Salesperson.Name);
+                            Error(MissingEmailAddressErr, FieldCaption("Send Invitation"), Salesperson.Name);
                     end else
                         if Cont.Get("Attendee No.") and (Cont."E-Mail" = '') then
-                            Error(Text004, FieldCaption("Send Invitation"), Cont.Name);
+                            Error(MissingEmailAddressErr, FieldCaption("Send Invitation"), Cont.Name);
             end;
         }
         field(8; "Invitation Response Type"; Option)
@@ -155,7 +155,7 @@ table 5199 Attendee
     trigger OnDelete()
     begin
         if "Attendance Type" = "Attendance Type"::"To-do Organizer" then
-            Error(Text005);
+            Error(CannotDeleteTaskOrganizerErr);
         Task.DeleteAttendeeTask(Rec);
 
         Task.Get("To-do No.");
@@ -179,7 +179,7 @@ table 5199 Attendee
             if "Attendance Type" <> xRec."Attendance Type" then
                 Error(CannotChangeForTaskOrgErr, FieldCaption("Attendance Type"));
             if "Attendee No." <> xRec."Attendee No." then
-                Error(Text008);
+                Error(CannotChangeTaskOrganizerErr);
         end else
             if "Attendee No." <> xRec."Attendee No." then begin
                 Task2.DeleteAttendeeTask(xRec);
@@ -196,19 +196,15 @@ table 5199 Attendee
         Attendee: Record Attendee;
         Task: Record "To-do";
 
-#pragma warning disable AA0074
-        Text001: Label 'A task organizer must always be a salesperson.';
-        Text002: Label 'You cannot have more than one task organizer.';
-        Text003: Label 'This attendee already exists.';
-        Text004: Label 'You cannot select the %1 for %2 because he/she does not have an email address.', Comment = '%1 = field caption for Send Invitation, %2 = Salesperson Name';
-        Text005: Label 'You cannot delete a task organizer.';
-#pragma warning restore AA0074
+        TaskOrganizerMustBeSalespersonErr: Label 'A task organizer must always be a salesperson.';
+        OnlyOneTaskOrganizerErr: Label 'You cannot have more than one task organizer.';
+        AttendeeAlreadyExistsErr: Label 'This attendee already exists.';
+        MissingEmailAddressErr: Label 'You cannot select the %1 for %2 because he/she does not have an email address.', Comment = '%1 = field caption for Send Invitation, %2 = Salesperson Name';
+        CannotDeleteTaskOrganizerErr: Label 'You cannot delete a task organizer.';
         CannotChangeForTaskOrgErr: Label 'You cannot change an %1 for a task organizer.', Comment = '%1 = Attendance Type';
         SendInvitationIsNotAvailableErr: Label 'The Send Invitation option is not available for a task organizer.';
-#pragma warning disable AA0074
-        Text008: Label 'You cannot change the task organizer.';
-        Text011: Label 'You cannot set %1 as organizer because he/she does not have email address.', Comment = '%1 = Sales / Purchaseer person name';
-#pragma warning restore AA0074
+        CannotChangeTaskOrganizerErr: Label 'You cannot change the task organizer.';
+        NoEmailForOrganizerErr: Label 'You cannot set %1 as organizer because he/she does not have email address.', Comment = '%1 = Sales / Purchaseer person name';
 
     procedure ValidateAttendee(AttendeeRec: Record Attendee; var Attendee: Record Attendee)
     var
@@ -224,14 +220,14 @@ table 5199 Attendee
 
         if AttendeeRec."Attendance Type" = "Attendance Type"::"To-do Organizer" then begin
             if AttendeeRec."Attendee Type" = "Attendee Type"::Contact then
-                Error(Text001);
+                Error(TaskOrganizerMustBeSalespersonErr);
 
             Attendee.SetRange("To-do No.", AttendeeRec."To-do No.");
             Attendee.SetRange("Attendance Type", "Attendance Type"::"To-do Organizer");
             if Attendee.Find('-') then
                 if Attendee."Line No." <> AttendeeRec."Line No." then begin
                     Attendee.Reset();
-                    Error(Text002);
+                    Error(OnlyOneTaskOrganizerErr);
                 end;
             Attendee.Reset();
         end;
@@ -241,7 +237,7 @@ table 5199 Attendee
         if Attendee.Find('-') then
             if Attendee."Line No." <> AttendeeRec."Line No." then begin
                 Attendee.Reset();
-                Error(Text003);
+                Error(AttendeeAlreadyExistsErr);
             end;
         Attendee.Reset();
     end;
@@ -280,13 +276,13 @@ table 5199 Attendee
             exit;
 
         if AttendeeType = "Attendee Type"::Contact then
-            Error(Text001);
+            Error(TaskOrganizerMustBeSalespersonErr);
 
         SalesPurchPerson.Get(AttendeeNo);
         Task2.Init();
         if Task2.Get(TodoNo) then;
         if (SalesPurchPerson."E-Mail" = '') and (Task2.Type <> Task2.Type::"Phone Call") then
-            Error(Text011, SalesPurchPerson.Name);
+            Error(NoEmailForOrganizerErr, SalesPurchPerson.Name);
     end;
 
     [IntegrationEvent(false, false)]

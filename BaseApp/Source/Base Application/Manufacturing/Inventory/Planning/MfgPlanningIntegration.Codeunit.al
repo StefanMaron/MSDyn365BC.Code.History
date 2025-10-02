@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Planning;
 
 using Microsoft.Inventory.Item;
@@ -15,42 +19,40 @@ using Microsoft.Manufacturing.Forecast;
 
 codeunit 99000861 "Mfg. Planning Integration"
 {
-    [EventSubscriber(ObjectType::Table, Database::"Planning Assignment", 'OnItemChange', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::"Planning Assignment", 'OnItemChange', '', false, false)]
     local procedure PlanningAssignmentOnItemChange(var NewItem: Record Item; var OldItem: Record Item; var PlanningAssignment: Record "Planning Assignment")
     var
         InventorySetup: Record "Inventory Setup";
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         if PlanningAssignment.PlanningParametersChanged(NewItem, OldItem) then begin
-            ManufacturingSetup.Get();
             InventorySetup.Get();
-            if (ManufacturingSetup."Components at Location" <> '') or
-                not InventorySetup."Location Mandatory"
-            then
+            ManufacturingSetup.Get();
+            if (ManufacturingSetup."Components at Location" <> '') or not InventorySetup."Location Mandatory" then
                 PlanningAssignment.AssignOne(NewItem."No.", '', ManufacturingSetup."Components at Location", WorkDate());
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Planning Component", 'OnAfterGetUpdateFromSKU', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::"Planning Component", 'OnAfterGetUpdateFromSKU', '', false, false)]
     local procedure OnAfterGetUpdateFromSKU(var PlanningComponent: Record "Planning Component"; StockeepingUnit: Record "Stockkeeping Unit")
     begin
         PlanningComponent.Validate("Flushing Method", StockeepingUnit."Flushing Method");
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Planning Component", 'OnAfterValidateCalculationFormula', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::"Planning Component", 'OnAfterValidateCalculationFormula', '', false, false)]
     local procedure PlanningCompomentOnAfterValidateCalculationFormula(var PlanningComponent: Record "Planning Component")
     begin
         if PlanningComponent."Calculation Formula" <> PlanningComponent."Calculation Formula"::"Fixed Quantity" then
             PlanningComponent.UpdateExpectedQuantityForPlanningNeeds();
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Planning Component", 'OnGetToBinOnBeforeGetWMSDefaultCode', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::"Planning Component", 'OnGetToBinOnBeforeGetWMSDefaultCode', '', false, false)]
     local procedure OnGetToBinOnBeforeGetWMSDefaultCode(var PlanningComponent: Record "Planning Component"; var BinCode: Code[20])
     begin
         BinCode := PlanningComponent.GetRefOrderTypeBin();
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Planning Error Log", 'OnShowError', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::"Planning Error Log", 'OnShowError', '', false, false)]
     local procedure PlanningErrorLogOnShowError(RecRef: RecordRef; TableID: Integer)
     var
         ProdBOMHeader: Record "Production BOM Header";
@@ -106,7 +108,7 @@ codeunit 99000861 "Mfg. Planning Integration"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Planning Transparency", 'OnSurplusQtyOnSetReservEntryFilters', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Planning Transparency", 'OnSurplusQtyOnSetReservEntryFilters', '', false, false)]
     local procedure OnSurplusQtyOnSetReservEntryFilters(var ReservEntry: Record "Reservation Entry"; var RequisitionLine: Record "Requisition Line")
     begin
         case RequisitionLine."Ref. Order Type" of
@@ -120,7 +122,7 @@ codeunit 99000861 "Mfg. Planning Integration"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Planning Transparency", 'OnFindReasonOnAfterSetSurplusType', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Planning Transparency", 'OnFindReasonOnAfterSetSurplusType', '', false, false)]
     local procedure OnFindReasonOnAfterSetSurplusType(var DemandInventoryProfile: Record "Inventory Profile"; var SurplusType: Enum "Planning Surplus Type")
     begin
         case DemandInventoryProfile."Source Type" of
@@ -129,4 +131,24 @@ codeunit 99000861 "Mfg. Planning Integration"
         end;
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Planning-Get Parameters", 'OnAtSKUOnBeforeSetSafetyLeadTime', '', false, false)]
+    local procedure OnAtSKUOnBeforeSetSafetyLeadTime(var GlobalSKU: Record "Stockkeeping Unit"; ManualScheduling: Boolean)
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        if ManualScheduling then begin
+            ManufacturingSetup.Get();
+            if ManufacturingSetup."Manual Scheduling" then
+                GlobalSKU."Safety Lead Time" := ManufacturingSetup."Safety Lead Time for Man. Sch.";
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Inventory Setup", 'OnGetComponentsAtLocation', '', false, false)]
+    local procedure OnGetComponentsAtLocation(var LocationCode: Code[10])
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        if ManufacturingSetup.Get() then
+            LocationCode := ManufacturingSetup."Components at Location";
+    end;
 }

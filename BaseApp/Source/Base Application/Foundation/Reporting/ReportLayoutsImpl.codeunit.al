@@ -12,6 +12,7 @@ using System.IO;
 using System.Utilities;
 using System.Security.AccessControl;
 using System;
+using System.Telemetry;
 
 /// <summary>
 /// This code unit supports the 'Report Layouts' page and provides implementations for adding/deleting/editing user and extension defined report layouts.
@@ -790,8 +791,10 @@ codeunit 9660 "Report Layouts Impl."
     end;
 
     local procedure Log(EventId: Text; AuditMessage: Text; CustomDimensions: Dictionary of [Text, Text])
+    var
+        AuditLog: Codeunit "Audit Log";
     begin
         Session.LogMessage(EventId, AuditMessage, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, CustomDimensions);
-        Session.LogAuditMessage(AuditMessage, SecurityOperationResult::Success, AuditCategory::Other, 7, 0, CustomDimensions);
+        AuditLog.LogAuditMessage(AuditMessage, SecurityOperationResult::Success, AuditCategory::Other, 7, 0, CustomDimensions);
     end;
 }

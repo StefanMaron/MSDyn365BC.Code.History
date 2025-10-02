@@ -8,6 +8,10 @@ using Microsoft.Foundation.NoSeries;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Setup;
 
+/// <summary>
+/// Stores SEPA direct debit mandates that authorize automated collection of payments from customer accounts.
+/// Manages mandate validity periods, payment types, usage counters, and compliance with SEPA regulations.
+/// </summary>
 table 1230 "SEPA Direct Debit Mandate"
 {
     Caption = 'Direct Debit Mandate';
@@ -18,6 +22,9 @@ table 1230 "SEPA Direct Debit Mandate"
 
     fields
     {
+        /// <summary>
+        /// Unique identifier for the direct debit mandate, typically assigned automatically from number series.
+        /// </summary>
         field(1; ID; Code[35])
         {
             Caption = 'ID';
@@ -34,6 +41,9 @@ table 1230 "SEPA Direct Debit Mandate"
                 end;
             end;
         }
+        /// <summary>
+        /// Customer who has granted authorization for direct debit collections through this mandate.
+        /// </summary>
         field(2; "Customer No."; Code[20])
         {
             Caption = 'Customer No.';
@@ -49,12 +59,18 @@ table 1230 "SEPA Direct Debit Mandate"
                 end;
             end;
         }
+        /// <summary>
+        /// Bank account code from which direct debit collections will be processed.
+        /// </summary>
         field(3; "Customer Bank Account Code"; Code[20])
         {
             Caption = 'Customer Bank Account Code';
             NotBlank = true;
             TableRelation = "Customer Bank Account".Code where("Customer No." = field("Customer No."));
         }
+        /// <summary>
+        /// Start date from which the mandate becomes valid for direct debit collections.
+        /// </summary>
         field(4; "Valid From"; Date)
         {
             Caption = 'Valid From';
@@ -64,6 +80,9 @@ table 1230 "SEPA Direct Debit Mandate"
                 ValidateDates();
             end;
         }
+        /// <summary>
+        /// End date after which the mandate is no longer valid for direct debit collections.
+        /// </summary>
         field(5; "Valid To"; Date)
         {
             Caption = 'Valid To';
@@ -73,11 +92,17 @@ table 1230 "SEPA Direct Debit Mandate"
                 ValidateDates();
             end;
         }
+        /// <summary>
+        /// Date when the customer signed the mandate, required for SEPA compliance.
+        /// </summary>
         field(6; "Date of Signature"; Date)
         {
             Caption = 'Date of Signature';
             NotBlank = true;
         }
+        /// <summary>
+        /// Specifies whether this is a one-off or recurrent mandate for multiple collections.
+        /// </summary>
         field(7; "Type of Payment"; Option)
         {
             Caption = 'Type of Payment';
@@ -94,10 +119,16 @@ table 1230 "SEPA Direct Debit Mandate"
                 end;
             end;
         }
+        /// <summary>
+        /// Indicates whether the mandate is blocked and cannot be used for new collections.
+        /// </summary>
         field(8; Blocked; Boolean)
         {
             Caption = 'Blocked';
         }
+        /// <summary>
+        /// Expected total number of debits to be processed under this mandate.
+        /// </summary>
         field(9; "Expected Number of Debits"; Integer)
         {
             Caption = 'Expected Number of Debits';
@@ -113,6 +144,9 @@ table 1230 "SEPA Direct Debit Mandate"
                 SetClosed();
             end;
         }
+        /// <summary>
+        /// Current count of how many times this mandate has been used for direct debit collections.
+        /// </summary>
         field(10; "Debit Counter"; Integer)
         {
             Caption = 'Debit Counter';
@@ -126,16 +160,25 @@ table 1230 "SEPA Direct Debit Mandate"
                 end;
             end;
         }
+        /// <summary>
+        /// Number series code used for automatic generation of mandate IDs.
+        /// </summary>
         field(11; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
             TableRelation = "No. Series";
         }
+        /// <summary>
+        /// Indicates whether the mandate has reached its expected number of debits and is closed.
+        /// </summary>
         field(12; Closed; Boolean)
         {
             Caption = 'Closed';
             Editable = false;
         }
+        /// <summary>
+        /// When enabled, allows collections to exceed the expected number of debits without closing the mandate.
+        /// </summary>
         field(13; "Ignore Exp. Number of Debits"; Boolean)
         {
             Caption = 'Ignore Expected Number of Debits';
@@ -191,36 +234,23 @@ table 1230 "SEPA Direct Debit Mandate"
     var
         SalesSetup: Record "Sales & Receivables Setup";
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        NewNo: Code[20];
-        IsHandled: Boolean;
-#endif
     begin
         if ID = '' then begin
             SalesSetup.Get();
             SalesSetup.TestField("Direct Debit Mandate Nos.");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(SalesSetup."Direct Debit Mandate Nos.", xRec."No. Series", 0D, NewNo, "No. Series", IsHandled);
-            if not IsHandled then begin
-                if NoSeries.AreRelated(SalesSetup."Direct Debit Mandate Nos.", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series"
-                else
-                    "No. Series" := SalesSetup."Direct Debit Mandate Nos.";
-                NewNo := NoSeries.GetNextNo("No. Series");
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", SalesSetup."Direct Debit Mandate Nos.", 0D, NewNo);
-            end;
-            ID := NewNo;
-#else
-			if NoSeries.AreRelated(SalesSetup."Direct Debit Mandate Nos.", xRec."No. Series") then
-				"No. Series" := xRec."No. Series"
-			else
-				"No. Series" := SalesSetup."Direct Debit Mandate Nos.";
+            if NoSeries.AreRelated(SalesSetup."Direct Debit Mandate Nos.", xRec."No. Series") then
+                "No. Series" := xRec."No. Series"
+            else
+                "No. Series" := SalesSetup."Direct Debit Mandate Nos.";
             ID := NoSeries.GetNextNo("No. Series");
-#endif
         end;
     end;
 
+    /// <summary>
+    /// Checks if the mandate is active and valid for the specified transaction date.
+    /// </summary>
+    /// <param name="TransactionDate">Date to check mandate validity against</param>
+    /// <returns>True if mandate is active and valid for the transaction date</returns>
     procedure IsMandateActive(TransactionDate: Date): Boolean
     begin
         if ("Valid To" <> 0D) and ("Valid To" < TransactionDate) or ("Valid From" > TransactionDate) or Blocked or Closed then
@@ -233,6 +263,13 @@ table 1230 "SEPA Direct Debit Mandate"
         exit(not "Ignore Exp. Number of Debits" and ("Debit Counter" > "Expected Number of Debits"));
     end;
 
+    /// <summary>
+    /// Finds the default active mandate for a customer on a specific due date.
+    /// Prioritizes customer's preferred bank account if specified.
+    /// </summary>
+    /// <param name="CustomerNo">Customer number to find mandate for</param>
+    /// <param name="DueDate">Due date to validate mandate against</param>
+    /// <returns>ID of the default mandate, or empty if none found</returns>
     procedure GetDefaultMandate(CustomerNo: Code[20]; DueDate: Date): Code[35]
     var
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
@@ -250,6 +287,9 @@ table 1230 "SEPA Direct Debit Mandate"
         exit(SEPADirectDebitMandate.ID);
     end;
 
+    /// <summary>
+    /// Increments the debit counter when the mandate is used and updates the closed status.
+    /// </summary>
     procedure UpdateCounter()
     begin
         TestField(Blocked, false);
@@ -258,6 +298,10 @@ table 1230 "SEPA Direct Debit Mandate"
         Modify();
     end;
 
+    /// <summary>
+    /// Determines the SEPA sequence type based on mandate type and usage history.
+    /// </summary>
+    /// <returns>Sequence type: One Off, First, Recurring, or Last</returns>
     procedure GetSequenceType(): Integer
     var
         DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
@@ -273,6 +317,9 @@ table 1230 "SEPA Direct Debit Mandate"
         exit(DirectDebitCollectionEntry."Sequence Type"::Recurring);
     end;
 
+    /// <summary>
+    /// Decrements the debit counter when a collection is rejected or rolled back.
+    /// </summary>
     procedure RollBackSequenceType()
     begin
         if "Debit Counter" <= 0 then
@@ -305,14 +352,23 @@ table 1230 "SEPA Direct Debit Mandate"
         OnBeforeModify(IsHandled, Rec);
     end;
 
+    /// <summary>
+    /// Integration event triggered before inserting a new mandate record.
+    /// </summary>
+    /// <param name="IsHandled">Whether the event has been handled by subscribers</param>
+    /// <param name="SEPADirectDebitMandate">The mandate record being inserted</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsert(var IsHandled: boolean; var SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate")
     begin
     end;
 
+    /// <summary>
+    /// Integration event triggered before modifying a mandate record.
+    /// </summary>
+    /// <param name="IsHandled">Whether the event has been handled by subscribers</param>
+    /// <param name="SEPADirectDebitMandate">The mandate record being modified</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeModify(var IsHandled: boolean; var SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate")
     begin
     end;
 }
-

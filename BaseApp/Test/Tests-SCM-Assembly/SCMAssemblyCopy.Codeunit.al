@@ -21,7 +21,7 @@ using Microsoft.Inventory.Journal;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Sales.History;
 using Microsoft.Assembly.History;
-using Microsoft.Manufacturing.Setup;
+using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Ledger;
 
 codeunit 137927 "SCM Assembly Copy"
@@ -1254,7 +1254,7 @@ codeunit 137927 "SCM Assembly Copy"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
         case DocumentType of
             DocumentType::Quote:
@@ -1264,9 +1264,9 @@ codeunit 137927 "SCM Assembly Copy"
             DocumentType::"Blanket Order":
                 LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", SellToCustomerNo);
         end;
-        ManufacturingSetup.Get();
+        InventorySetup.Get();
         SalesHeader.Validate(
-          "Shipment Date", CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()));
+          "Shipment Date", CalcDate(InventorySetup."Default Safety Lead Time", WorkDate()));
         SalesHeader.Validate("Location Code", UsedLocationCode);
         SalesHeader.Modify();
         if AssemblyItemQuantity > 0 then begin

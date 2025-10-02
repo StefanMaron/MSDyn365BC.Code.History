@@ -263,6 +263,8 @@ report 5068 "Opportunity - Details"
 
     requestpage
     {
+        AboutTitle = 'About Opportunity - Details';
+        AboutText = 'Get an overview of sales stages, to-dos, and planned to-dos for an opportunity.';
 
         layout
         {

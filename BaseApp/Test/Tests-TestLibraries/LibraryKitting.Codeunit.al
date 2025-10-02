@@ -10,7 +10,6 @@ codeunit 132205 "Library - Kitting"
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryResource: Codeunit "Library - Resource";
-        BOMItemLineNo: Integer;
         ITEM_DESC: Label 'Test Calculate Sales Price';
         POSTING_GRP_DESC: Label 'Test Assembly Orders';
 
@@ -365,32 +364,17 @@ codeunit 132205 "Library - Kitting"
             CompanyInfo.Modify();
     end;
 
+#if not CLEAN27
+#pragma warning disable AL0801
+    [Obsolete('Moved to codeunit LibraryManufacturing', '27.0')]
     procedure AddProdBOMItem(var MfgItem: Record Item; SubItemNo: Code[20]; Qty: Decimal)
     var
-        ProdBOMHeader: Record "Production BOM Header";
-        ProdBOMLine: Record "Production BOM Line";
-        subItem: Record Item;
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
     begin
-        if MfgItem.IsMfgItem() then
-            ProdBOMHeader.Get(MfgItem."Production BOM No.")
-        else begin
-            ProdBOMHeader."No." := CopyStr(MfgItem."No." + 'BOM', 1, MaxStrLen(ProdBOMHeader."No."));
-            ProdBOMHeader.Status := ProdBOMHeader.Status::Certified;
-            ProdBOMHeader.Insert();
-            MfgItem."Production BOM No." := ProdBOMHeader."No.";
-            MfgItem."Replenishment System" := MfgItem."Replenishment System"::"Prod. Order";
-            MfgItem.Modify();
-        end;
-        ProdBOMLine."Production BOM No." := ProdBOMHeader."No.";
-        BOMItemLineNo += 1;
-        ProdBOMLine."Line No." := BOMItemLineNo;
-        ProdBOMLine.Type := ProdBOMLine.Type::Item;
-        ProdBOMLine."No." := SubItemNo;
-        subItem.Get(SubItemNo);
-        ProdBOMLine."Unit of Measure Code" := subItem."Base Unit of Measure";
-        ProdBOMLine.Quantity := Qty;
-        ProdBOMLine.Insert();
+        LibraryManufacturing.AddProdBOMItem(MfgItem, SubItemNo, Qty);
     end;
+#pragma warning restore AL0801
+#endif
 
     procedure SetCopyFrom(CopyFrom: Option "Order Header","Item/Resource Card")
     var

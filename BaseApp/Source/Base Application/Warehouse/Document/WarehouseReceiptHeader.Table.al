@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Warehouse.Document;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Warehouse.Document;
 
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Location;
@@ -292,37 +296,18 @@ table 7316 "Warehouse Receipt Header"
     end;
 
     trigger OnInsert()
-#if not CLEAN24
-    var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         WhseSetup.Get();
         if "No." = '' then begin
             WhseSetup.TestField("Whse. Receipt Nos.");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(WhseSetup."Whse. Receipt Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 "No. Series" := WhseSetup."Whse. Receipt Nos.";
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
                 "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", WhseSetup."Whse. Receipt Nos.", "Posting Date", "No.");
-            end;
-#endif
         end;
 
-#if CLEAN24
         if NoSeries.IsAutomatic(WhseSetup."Posted Whse. Receipt Nos.") then
             "Receiving No. Series" := WhseSetup."Posted Whse. Receipt Nos.";
-#else
-#pragma warning disable AL0432
-        NoSeriesMgt.SetDefaultSeries("Receiving No. Series", WhseSetup."Posted Whse. Receipt Nos.");
-#pragma warning restore AL0432
-#endif
 
         GetLocation("Location Code");
         Validate("Bin Code", Location."Receipt Bin Code");
@@ -640,4 +625,3 @@ table 7316 "Warehouse Receipt Header"
     begin
     end;
 }
-

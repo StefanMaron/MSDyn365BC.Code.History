@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Assembly.Test;
 
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Utilities;
 using Microsoft.Assembly.Document;
@@ -32,13 +31,10 @@ codeunit 137915 "SCM Assembly Posting"
     TestPermissions = Disabled;
 
     trigger OnRun()
-    var
-        MfgSetup: Record "Manufacturing Setup";
     begin
         // [FEATURE] [SCM] [Assembly]
         Initialized := false;
-        MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
+        WorkDate2 := LibraryPlanning.SetSafetyWorkDate(); // to avoid Due Date Before Work Date message.
     end;
 
     var
@@ -48,6 +44,7 @@ codeunit 137915 "SCM Assembly Posting"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryCosting: Codeunit "Library - Costing";
+        LibraryPlanning: Codeunit "Library - Planning";
         ErrItemNoEmpty: Label 'Item No. must have a value in Assembly Header:';
         ErrNotOnInventory: Label 'on inventory.';
         ErrOrderAlreadyExists: Label 'cannot be created, because it already exists or has been posted.';

@@ -7,6 +7,11 @@ namespace Microsoft.Bank.DirectDebit;
 using Microsoft.Bank.Payment;
 using System.Utilities;
 
+/// <summary>
+/// Displays and manages individual direct debit collection entries within a collection.
+/// Provides functionality to create, edit, validate, and export collection entries
+/// for automated customer payment processing.
+/// </summary>
 page 1208 "Direct Debit Collect. Entries"
 {
     Caption = 'Direct Debit Collect. Entries';

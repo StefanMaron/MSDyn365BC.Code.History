@@ -25,13 +25,13 @@ codeunit 142060 "ERM Sales/Purchase Report"
     // 22. Verify Crossborder Services report with General Product Posting Group Filter.
     // 23. Verify Crossborder Services report with Posting Date and Country Region Filter.
     // 24. Verify Crossborder Services report with Posting Date, Country Region Filter and General Product Posting Group.
-    // 
+    //
     // Covers Test cases: for WI - 326566
     // ---------------------------------------------------------------------------------------------------------
     // Test Function Name                                                                                TFS ID
     // ---------------------------------------------------------------------------------------------------------
     // SalesOrderWithSalesPostingBatchJob                                                                151814
-    // 
+    //
     // Covers Test cases: for WI - 326564
     // ---------------------------------------------------------------------------------------------------------
     // Test Function Name                                                                                TFS ID
@@ -39,7 +39,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
     // SalesOrderWithSalesInvoiceReport, SalesCrMemowithSalesCreditMemoReport                            151815
     // PurchaseOrderWithVendRegistrationNumber,
     // PurchCrMemowithPurchaseCreditMemoReport                                      151817,152696,153189,153192
-    // 
+    //
     // Covers Test cases: for WI - 326565
     // ---------------------------------------------------------------------------------------------------------
     // Test Function Name                                                                                TFS ID
@@ -49,14 +49,14 @@ codeunit 142060 "ERM Sales/Purchase Report"
     // PurchCreditMemoReportWithBuyFromVendFilter                                                        153202
     // PurchCreditMemoReportWithPostingDateFilter                                                        153205
     // PurchCreditMemoReportWithVendCrMemoNoFilter                                                       153208
-    // 
+    //
     // Covers Test cases: for WI - 326561
     // ---------------------------------------------------------------------------------------------------------
     // Test Function Name                                                                                TFS ID
     // ---------------------------------------------------------------------------------------------------------
     // VendDtldAgingReportWithoutVendorFilter, VendDtldAgingReportWithVendorNoFilter
     // VendDtldAgingReportWithVendorNoRangeFilter                                    152918,152919,152920,152921
-    // 
+    //
     // Covers Test cases: for WI - 326538
     // ---------------------------------------------------------------------------------------------------------
     // Test Function Name                                                                                TFS ID
@@ -67,7 +67,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
     // CrossborderServicesWithTypeOfServicesInFCY                                                        153169
     // CrossborderServicesWithCountriesInFCY                                                             153168
     // CrossborderServicesWithBothInFCY                                                                  153170
-    // 
+    //
     // Covers Test cases: for WI - 326558
     // ---------------------------------------------------------------------------------------------------------
     // Test Function Name                                                                                TFS ID
@@ -118,7 +118,6 @@ codeunit 142060 "ERM Sales/Purchase Report"
         RangeFilter: Label '%1|%2';
         RegistrationNoCaption: Label 'RegNoText';
         RemainingAmountCaption: Label 'CurrTotalBuffer2TotAmt';
-        SalesHdrDimText: Label 'DimText';
         SalesToCustomerCaption: Label 'SalesToCust';
         SalesToCustomerControlCaption: Label 'SalesToCust_Control1160023';
         VendFilterCaption: Label 'VendFilter';
@@ -148,24 +147,6 @@ codeunit 142060 "ERM Sales/Purchase Report"
 
         // Verify: Verify Posted Sales Shipment and posted Sales Invoice.
         VerifyPostedSalesDocument(SalesHeader."No.", SalesHeader."Sell-to Customer No.");
-    end;
-
-    local procedure SalesSetupAndSalesReport(DocumentType: Enum "Sales Document Type"; Number: Integer; VATRegNoName: Text[50])
-    var
-        SalesHeader: Record "Sales Header";
-        DocumentNo: Code[20];
-    begin
-        // Setup: Create and post Sales Document.
-        Initialize();
-        CreateSalesDocument(SalesHeader, DocumentType, CreateCustomerWithDimension());
-        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        LibraryVariableStorage.Enqueue(DocumentNo);  // Enqueue value for ReportHandler.
-
-        // Exercise: Run Report.
-        REPORT.Run(Number);
-
-        // Verify: Verify Company Information and Dimension on Report.
-        VerifyCompanyInfoAndDocHdrDim(SalesHeader."Dimension Set ID", SalesHeader."Shortcut Dimension 1 Code", SalesHdrDimText, VATRegNoName);
     end;
 
     [Test]
@@ -1204,4 +1185,3 @@ codeunit 142060 "ERM Sales/Purchase Report"
         LibraryReportValidation.DeleteObjectOptions(CurrentSaveValuesId);
     end;
 }
-

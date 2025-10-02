@@ -74,7 +74,7 @@ codeunit 5404 "Lead-Time Management"
         exit(Format(Location."Outbound Whse. Handling Time"));
     end;
 
-    local procedure WhseInBoundHandlingTime(LocationCode: Code[10]) Result: Code[10]
+    procedure WhseInBoundHandlingTime(LocationCode: Code[10]) Result: Code[10]
     var
         IsHandled: Boolean;
     begin

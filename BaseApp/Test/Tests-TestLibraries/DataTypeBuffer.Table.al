@@ -31,6 +31,7 @@ table 135000 "Data Type Buffer"
         }
         field(10; Decimal; Decimal)
         {
+            AutoFormatType = 0;
         }
         field(11; Duration; Duration)
         {
@@ -65,4 +66,3 @@ table 135000 "Data Type Buffer"
     {
     }
 }
-

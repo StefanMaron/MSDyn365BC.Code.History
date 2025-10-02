@@ -9,13 +9,8 @@ table 5005360 "Phys. Invt. Tracking Buffer"
 {
     Caption = 'Phys. Invt. Tracking Buffer';
     ObsoleteReason = 'Merged to W1';
-#if not CLEAN24
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '27.0';
-#endif
     DataClassification = CustomerContent;
 
     fields

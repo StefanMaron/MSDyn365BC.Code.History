@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.History;
 
 using Microsoft.CRM.Contact;
@@ -58,6 +62,13 @@ page 6660 "Posted Return Receipt"
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer.';
                     }
+                    field("Sell-to Customer Name 2"; Rec."Sell-to Customer Name 2")
+                    {
+                        ApplicationArea = SalesReturnOrder;
+                        Caption = 'Name 2';
+                        Editable = false;
+                        Visible = false;
+                    }
                     field("Sell-to Address"; Rec."Sell-to Address")
                     {
                         ApplicationArea = SalesReturnOrder;
@@ -71,6 +82,13 @@ page 6660 "Posted Return Receipt"
                         Caption = 'Address 2';
                         Editable = false;
                         ToolTip = 'Specifies an additional part of the address.';
+                    }
+                    field("Sell-to City"; Rec."Sell-to City")
+                    {
+                        ApplicationArea = SalesReturnOrder;
+                        Caption = 'City';
+                        Editable = false;
+                        ToolTip = 'Specifies the city of the customer''s main address.';
                     }
                     group(Control19)
                     {
@@ -89,13 +107,6 @@ page 6660 "Posted Return Receipt"
                         Caption = 'Post Code';
                         Editable = false;
                         ToolTip = 'Specifies the postal code of the customer''s main address.';
-                    }
-                    field("Sell-to City"; Rec."Sell-to City")
-                    {
-                        ApplicationArea = SalesReturnOrder;
-                        Caption = 'City';
-                        Editable = false;
-                        ToolTip = 'Specifies the city of the customer''s main address.';
                     }
                     field("Sell-to Country/Region Code"; Rec."Sell-to Country/Region Code")
                     {
@@ -214,6 +225,14 @@ page 6660 "Posted Return Receipt"
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
                     }
+                    field("Bill-to Name 2"; Rec."Bill-to Name 2")
+                    {
+                        ApplicationArea = SalesReturnOrder;
+                        Caption = 'Name 2';
+                        Editable = false;
+                        Importance = Additional;
+                        Visible = false;
+                    }
                     field("Bill-to Address"; Rec."Bill-to Address")
                     {
                         ApplicationArea = SalesReturnOrder;
@@ -227,6 +246,13 @@ page 6660 "Posted Return Receipt"
                         Caption = 'Address 2';
                         Editable = false;
                         ToolTip = 'Specifies an additional line of the address.';
+                    }
+                    field("Bill-to City"; Rec."Bill-to City")
+                    {
+                        ApplicationArea = SalesReturnOrder;
+                        Caption = 'City';
+                        Editable = false;
+                        ToolTip = 'Specifies the city of the address.';
                     }
                     group(Control29)
                     {
@@ -245,13 +271,6 @@ page 6660 "Posted Return Receipt"
                         Caption = 'Post Code';
                         Editable = false;
                         ToolTip = 'Specifies the postal code of the customer''s billing address.';
-                    }
-                    field("Bill-to City"; Rec."Bill-to City")
-                    {
-                        ApplicationArea = SalesReturnOrder;
-                        Caption = 'City';
-                        Editable = false;
-                        ToolTip = 'Specifies the city of the address.';
                     }
                     field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
                     {
@@ -349,6 +368,13 @@ page 6660 "Posted Return Receipt"
                         Editable = false;
                         ToolTip = 'Specifies an additional part of the ship-to address, in case it is a long address.';
                     }
+                    field("Ship-to City"; Rec."Ship-to City")
+                    {
+                        ApplicationArea = SalesReturnOrder;
+                        Caption = 'City';
+                        Editable = false;
+                        ToolTip = 'Specifies the city of the address that the items are shipped to.';
+                    }
                     group(Control37)
                     {
                         ShowCaption = false;
@@ -366,13 +392,6 @@ page 6660 "Posted Return Receipt"
                         Caption = 'Post Code';
                         Editable = false;
                         ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
-                    }
-                    field("Ship-to City"; Rec."Ship-to City")
-                    {
-                        ApplicationArea = SalesReturnOrder;
-                        Caption = 'City';
-                        Editable = false;
-                        ToolTip = 'Specifies the city of the address that the items are shipped to.';
                     }
                     field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                     {

@@ -1,4 +1,8 @@
-﻿namespace System.EMail;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace System.EMail;
 
 using Microsoft.CRM.Outlook;
 using Microsoft.Foundation.Company;
@@ -6,7 +10,9 @@ using Microsoft.Foundation.Reporting;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using System;
+#if not CLEAN27
 using System.IO;
+#endif
 using System.Threading;
 using System.Utilities;
 
@@ -30,15 +36,16 @@ codeunit 260 "Document-Mailing"
         PdfFileNamePluralTxt: Label '%1.pdf', Comment = '%1 = Document Type in plural form';
         CustomerLbl: Label '<Customer>';
 
-    internal procedure EnqueueEmailFile(AttachmentInStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
+    internal procedure EnqueueEmailFile(AttachmentInStream: Instream; AttachmentName: Text; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
+        HtmlBody: Codeunit "Temp Blob";
     begin
         TempEmailItem.SetSourceDocuments(SourceTables, SourceIDs, SourceRelationTypes);
         TempEmailItem.AddAttachment(AttachmentInStream, AttachmentName);
         exit(EmailFileInternal(
             TempEmailItem,
-            HtmlBodyFilePath,
+            HtmlBody,
             '',
             ToEmailAddress,
             PostedDocNo,
@@ -52,14 +59,30 @@ codeunit 260 "Document-Mailing"
             ));
     end;
 
+
+#if not CLEAN27
+    [Obsolete('Use procedure EmailFile that accepts a "Temp Blob" for the html body instead.', '27.0')]
     procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean; EmailScenario: Enum "Email Scenario"): Boolean
+    var
+        FileManagement: Codeunit "File Management";
+        HtmlBody: Codeunit "Temp Blob";
+    begin
+        if HtmlBodyFilePath <> '' then
+            FileManagement.BLOBImportFromServerFile(HtmlBody, HtmlBodyFilePath);
+
+        exit(EmailFile(AttachmentStream, AttachmentName, HtmlBody, EmailSubject, ToEmailAddress, HideDialog, EmailScenario));
+    end;
+#endif
+    procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; var HtmlBody: Codeunit "Temp Blob"; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean; EmailScenario: Enum "Email Scenario"): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
     begin
+
         TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
+
         exit(EmailFileInternal(
             TempEmailItem,
-            CopyStr(HtmlBodyFilePath, 1, MaxStrLen(TempEmailItem."Body File Path")),
+            HtmlBody,
             CopyStr(EmailSubject, 1, MaxStrLen(TempEmailItem.Subject)),
             CopyStr(ToEmailAddress, 1, MaxStrLen(TempEmailItem."Send to")),
             '',
@@ -72,7 +95,20 @@ codeunit 260 "Document-Mailing"
             false));
     end;
 
+#if not CLEAN27
+    [Obsolete('Use procedure EmailFile that accepts a "Temp Blob" for the html body instead.', '27.0')]
     procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer): Boolean
+    var
+        FileManagement: Codeunit "File Management";
+        HtmlBody: Codeunit "Temp Blob";
+    begin
+        if HtmlBodyFilePath <> '' then
+            FileManagement.BLOBImportFromServerFile(HtmlBody, HtmlBodyFilePath);
+        exit(EmailFile(AttachmentStream, AttachmentName, HtmlBody, PostedDocNo, ToEmailAddress, EmailDocName, HideDialog, ReportUsage));
+    end;
+#endif
+
+    procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; var HtmlBody: Codeunit "Temp Blob"; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
     begin
@@ -80,7 +116,7 @@ codeunit 260 "Document-Mailing"
         TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
         exit(EmailFileInternal(
             TempEmailItem,
-            HtmlBodyFilePath,
+            HtmlBody,
             '',
             ToEmailAddress,
             PostedDocNo,
@@ -93,7 +129,20 @@ codeunit 260 "Document-Mailing"
             false));
     end;
 
+#if not CLEAN27
+    [Obsolete('Use procedure EmailFile that accepts a "Temp Blob" for the html body instead.', '27.0')]
     procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean; EmailScenario: Enum "Email Scenario"; SourceReference: RecordRef): Boolean
+    var
+        FileManagement: Codeunit "File Management";
+        HtmlBody: Codeunit "Temp Blob";
+    begin
+        if HtmlBodyFilePath <> '' then
+            FileManagement.BLOBImportFromServerFile(HtmlBody, HtmlBodyFilePath);
+        exit(EmailFile(AttachmentStream, AttachmentName, HtmlBody, EmailSubject, ToEmailAddress, HideDialog, EmailScenario, SourceReference));
+    end;
+#endif
+
+    procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; var HtmlBody: Codeunit "Temp Blob"; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean; EmailScenario: Enum "Email Scenario"; SourceReference: RecordRef): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
     begin
@@ -104,7 +153,7 @@ codeunit 260 "Document-Mailing"
         TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
         exit(EmailFileInternal(
             TempEmailItem,
-            CopyStr(HtmlBodyFilePath, 1, MaxStrLen(TempEmailItem."Body File Path")),
+            HtmlBody,
             CopyStr(EmailSubject, 1, MaxStrLen(TempEmailItem.Subject)),
             CopyStr(ToEmailAddress, 1, MaxStrLen(TempEmailItem."Send to")),
             '',
@@ -117,7 +166,20 @@ codeunit 260 "Document-Mailing"
             false));
     end;
 
+#if not CLEAN27
+    [Obsolete('Use procedure EmailFile that accepts a "Temp Blob" for the html body instead.', '27.0')]
     procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean; EmailScenario: Enum "Email Scenario"; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
+    var
+        FileManagement: Codeunit "File Management";
+        HtmlBody: Codeunit "Temp Blob";
+    begin
+        if HtmlBodyFilePath <> '' then
+            FileManagement.BLOBImportFromServerFile(HtmlBody, HtmlBodyFilePath);
+        exit(EmailFile(AttachmentStream, AttachmentName, HtmlBody, EmailSubject, ToEmailAddress, HideDialog, EmailScenario, SourceTables, SourceIDs, SourceRelationTypes));
+    end;
+#endif
+
+    procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; var HtmlBody: Codeunit "Temp Blob"; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean; EmailScenario: Enum "Email Scenario"; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
     begin
@@ -126,7 +188,7 @@ codeunit 260 "Document-Mailing"
 
         exit(EmailFileInternal(
             TempEmailItem,
-            CopyStr(HtmlBodyFilePath, 1, MaxStrLen(TempEmailItem."Body File Path")),
+            HtmlBody,
             CopyStr(EmailSubject, 1, MaxStrLen(TempEmailItem.Subject)),
             CopyStr(ToEmailAddress, 1, MaxStrLen(TempEmailItem."Send to")),
             '',
@@ -139,7 +201,20 @@ codeunit 260 "Document-Mailing"
             false));
     end;
 
+#if not CLEAN27
+    [Obsolete('Use procedure EmailFile that accepts a "Temp Blob" for the html body instead.', '27.0')]
     procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceReference: RecordRef): Boolean
+    var
+        FileManagement: Codeunit "File Management";
+        HtmlBody: Codeunit "Temp Blob";
+    begin
+        if HtmlBodyFilePath <> '' then
+            FileManagement.BLOBImportFromServerFile(HtmlBody, HtmlBodyFilePath);
+        exit(EmailFile(AttachmentStream, AttachmentName, HtmlBody, PostedDocNo, ToEmailAddress, EmailDocName, HideDialog, ReportUsage, SourceReference));
+    end;
+#endif
+
+    procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; var HtmlBody: Codeunit "Temp Blob"; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceReference: RecordRef): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
     begin
@@ -150,7 +225,7 @@ codeunit 260 "Document-Mailing"
         TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
         exit(EmailFileInternal(
             TempEmailItem,
-            HtmlBodyFilePath,
+            HtmlBody,
             '',
             ToEmailAddress,
             PostedDocNo,
@@ -166,17 +241,18 @@ codeunit 260 "Document-Mailing"
     procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyInstream: InStream; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean; EmailScenario: Enum "Email Scenario"; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
-        FileManagement: Codeunit "File Management";
-        HtmlBodyFilePath: Text;
+        HtmlBody: Codeunit "Temp Blob";
+        HtmlBodyOutStream: OutStream;
     begin
         TempEmailItem.SetSourceDocuments(SourceTables, SourceIDs, SourceRelationTypes);
         TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
 
-        HtmlBodyFilePath := FileManagement.InstreamExportToServerFile(HtmlBodyInstream, 'html');
+        HtmlBody.CreateOutStream(HtmlBodyOutStream, TextEncoding::UTF8);
+        CopyStream(HtmlBodyOutStream, HtmlBodyInstream);
 
         exit(EmailFileInternal(
             TempEmailItem,
-            CopyStr(HtmlBodyFilePath, 1, MaxStrLen(TempEmailItem."Body File Path")),
+            HtmlBody,
             CopyStr(EmailSubject, 1, MaxStrLen(TempEmailItem.Subject)),
             CopyStr(ToEmailAddress, 1, MaxStrLen(TempEmailItem."Send to")),
             '',
@@ -189,7 +265,20 @@ codeunit 260 "Document-Mailing"
             false));
     end;
 
+#if not CLEAN27
+    [Obsolete('Use procedure EmailFile that accepts a "Temp Blob" for the html body instead.', '27.0')]
     procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
+    var
+        FileManagement: Codeunit "File Management";
+        HtmlBody: Codeunit "Temp Blob";
+    begin
+        if HtmlBodyFilePath <> '' then
+            FileManagement.BLOBImportFromServerFile(HtmlBody, HtmlBodyFilePath);
+        exit(EmailFile(AttachmentStream, AttachmentName, HtmlBody, PostedDocNo, ToEmailAddress, EmailDocName, HideDialog, ReportUsage, SourceTables, SourceIDs, SourceRelationTypes));
+    end;
+#endif
+
+    procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; var EmailBody: Codeunit "Temp Blob"; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
     begin
@@ -198,7 +287,7 @@ codeunit 260 "Document-Mailing"
 
         exit(EmailFileInternal(
             TempEmailItem,
-            HtmlBodyFilePath,
+            EmailBody,
             '',
             ToEmailAddress,
             PostedDocNo,
@@ -210,21 +299,45 @@ codeunit 260 "Document-Mailing"
             Enum::"Email Scenario"::Default,
             false));
     end;
+
+    procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; var HtmlBody: Codeunit "Temp Blob"; EmailSubject: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
+    var
+        TempEmailItem: Record "Email Item" temporary;
+    begin
+        TempEmailItem.SetSourceDocuments(SourceTables, SourceIDs, SourceRelationTypes);
+        TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
+
+        exit(EmailFileInternal(
+            TempEmailItem,
+            HtmlBody,
+            '',
+            ToEmailAddress,
+            PostedDocNo,
+            EmailDocName,
+            HideDialog,
+            ReportUsage,
+            true,
+            '',
+            Enum::"Email Scenario"::Default,
+            false));
+    end;
+
 
     procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyInstream: Instream; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
-        FileManagement: Codeunit "File Management";
-        HtmlBodyFilePath: Text;
+        HtmlBody: Codeunit "Temp Blob";
+        HtmlBodyOutStream: OutStream;
     begin
         TempEmailItem.SetSourceDocuments(SourceTables, SourceIDs, SourceRelationTypes);
         TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
 
-        HtmlBodyFilePath := FileManagement.InstreamExportToServerFile(HtmlBodyInstream, 'html');
+        HtmlBody.CreateOutStream(HtmlBodyOutStream, TextEncoding::UTF8);
+        CopyStream(HtmlBodyOutStream, HtmlBodyInstream);
 
         exit(EmailFileInternal(
             TempEmailItem,
-            CopyStr(HtmlBodyFilePath, 1, MaxStrLen(TempEmailItem."Body File Path")),
+            HtmlBody,
             '',
             ToEmailAddress,
             PostedDocNo,
@@ -237,14 +350,27 @@ codeunit 260 "Document-Mailing"
             false));
     end;
 
+#if not CLEAN27
+    [Obsolete('Use procedure EmailFileWithSubjectAndReportUsage that accepts a "Temp Blob" for the html body instead.', '27.0')]
     procedure EmailFileWithSubjectAndReportUsage(AttachmentStream: InStream; AttachmentName: Text; HtmlBodyFilePath: Text[250]; EmailSubject: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer): Boolean
+    var
+        FileManagement: Codeunit "File Management";
+        HtmlBody: Codeunit "Temp Blob";
+    begin
+        if HtmlBodyFilePath <> '' then
+            FileManagement.BLOBImportFromServerFile(HtmlBody, HtmlBodyFilePath);
+        exit(EmailFileWithSubjectAndReportUsage(AttachmentStream, AttachmentName, HtmlBody, EmailSubject, PostedDocNo, ToEmailAddress, EmailDocName, HideDialog, ReportUsage));
+    end;
+#endif
+
+    procedure EmailFileWithSubjectAndReportUsage(AttachmentStream: InStream; AttachmentName: Text; var HtmlBody: Codeunit "Temp Blob"; EmailSubject: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
     begin
         TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
         exit(EmailFileInternal(
             TempEmailItem,
-            HtmlBodyFilePath,
+            HtmlBody,
             EmailSubject,
             ToEmailAddress,
             PostedDocNo,
@@ -257,7 +383,20 @@ codeunit 260 "Document-Mailing"
             false));
     end;
 
+#if not CLEAN27
+    [Obsolete('Use procedure EmailFileWithSubjectAndReportUsage that accepts a "Temp Blob" for the html body instead.', '27.0')]
     procedure EmailFileWithSubjectAndReportUsage(AttachmentStream: InStream; AttachmentName: Text; HtmlBodyFilePath: Text[250]; EmailSubject: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceReference: RecordRef): Boolean
+    var
+        FileManagement: Codeunit "File Management";
+        HtmlBody: Codeunit "Temp Blob";
+    begin
+        if HtmlBodyFilePath <> '' then
+            FileManagement.BLOBImportFromServerFile(HtmlBody, HtmlBodyFilePath);
+        exit(EmailFileWithSubjectAndReportUsage(AttachmentStream, AttachmentName, HtmlBody, EmailSubject, PostedDocNo, ToEmailAddress, EmailDocName, HideDialog, ReportUsage, SourceReference));
+    end;
+#endif
+
+    procedure EmailFileWithSubjectAndReportUsage(AttachmentStream: InStream; AttachmentName: Text; var HtmlBody: Codeunit "Temp Blob"; EmailSubject: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceReference: RecordRef): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
     begin
@@ -269,7 +408,7 @@ codeunit 260 "Document-Mailing"
 
         exit(EmailFileInternal(
             TempEmailItem,
-            HtmlBodyFilePath,
+            HtmlBody,
             EmailSubject,
             ToEmailAddress,
             PostedDocNo,
@@ -282,7 +421,19 @@ codeunit 260 "Document-Mailing"
             false));
     end;
 
+#if not CLEAN27
+    [Obsolete('Use procedure EmailFileWithSubjectAndReportUsage that accepts a "Temp Blob" for the html body instead.', '27.0')]
     procedure EmailFileWithSubjectAndReportUsage(AttachmentStream: InStream; AttachmentName: Text; HtmlBodyFilePath: Text[250]; EmailSubject: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
+    var
+        FileManagement: Codeunit "File Management";
+        HtmlBody: Codeunit "Temp Blob";
+    begin
+        if HtmlBodyFilePath <> '' then
+            FileManagement.BLOBImportFromServerFile(HtmlBody, HtmlBodyFilePath);
+        exit(EmailFileWithSubjectAndReportUsage(AttachmentStream, AttachmentName, HtmlBody, EmailSubject, PostedDocNo, ToEmailAddress, EmailDocName, HideDialog, ReportUsage, SourceTables, SourceIDs, SourceRelationTypes));
+    end;
+#endif
+    procedure EmailFileWithSubjectAndReportUsage(AttachmentStream: InStream; AttachmentName: Text; var HtmlBody: Codeunit "Temp Blob"; EmailSubject: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
     begin
@@ -291,7 +442,7 @@ codeunit 260 "Document-Mailing"
 
         exit(EmailFileInternal(
             TempEmailItem,
-            HtmlBodyFilePath,
+            HtmlBody,
             EmailSubject,
             ToEmailAddress,
             PostedDocNo,
@@ -467,20 +618,40 @@ codeunit 260 "Document-Mailing"
     end;
 
     // Email Item needs to be passed by var so the attachments are available
-    local procedure EmailFileInternal(var TempEmailItem: Record "Email Item" temporary; HtmlBodyFilePath: Text[250]; EmailSubject: Text[250]; ToEmailAddress: Text[250]; PostedDocNo: Code[20]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; IsFromPostedDoc: Boolean; SenderUserID: Code[50]; EmailScenario: Enum "Email Scenario"; Enqueue: Boolean): Boolean
+    local procedure EmailFileInternal(var TempEmailItem: Record "Email Item" temporary; var HtmlBody: Codeunit "Temp Blob"; EmailSubject: Text[250]; ToEmailAddress: Text[250]; PostedDocNo: Code[20]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; IsFromPostedDoc: Boolean; SenderUserID: Code[50]; EmailScenario: Enum "Email Scenario"; Enqueue: Boolean): Boolean
     var
         OfficeMgt: Codeunit "Office Management";
         EmailScenarioMapping: Codeunit "Email Scenario Mapping";
         Attachments: Codeunit "Temp Blob List";
         Attachment: Codeunit "Temp Blob";
+#if not CLEAN27
+        FileManagement: Codeunit "File Management";
+#endif
         EmailSentSuccesfully: Boolean;
         IsHandled: Boolean;
         AttachmentStream: Instream;
         AttachmentNames: List of [Text];
+#if not CLEAN27
+        HtmlBodyFilePath: Text[250];
+#endif
         Name: Text[250];
     begin
         IsHandled := false;
+
+#if not CLEAN27
+        if HtmlBody.HasValue() then
+            HtmlBodyFilePath := FileManagement.TempBlobToServerFile(HtmlBody, 'html');
         OnBeforeEmailFileInternal(TempEmailItem, HtmlBodyFilePath, EmailSubject, ToEmailAddress, PostedDocNo, EmailDocName, HideDialog, ReportUsage, IsFromPostedDoc, SenderUserID, EmailScenario, EmailSentSuccesfully, IsHandled);
+        if IsHandled then
+            exit(EmailSentSuccesfully);
+        if HtmlBodyFilePath <> '' then begin
+            Clear(HtmlBody);
+            FileManagement.BLOBImportFromServerFile(HtmlBody, HtmlBodyFilePath);
+            FileManagement.DeleteServerFile(HtmlBodyFilePath);
+        end;
+#endif
+
+        OnBeforeEmailItemPreparation(TempEmailItem, HtmlBody, EmailSubject, ToEmailAddress, PostedDocNo, EmailDocName, HideDialog, ReportUsage, IsFromPostedDoc, SenderUserID, EmailScenario, EmailSentSuccesfully, IsHandled);
         if IsHandled then
             exit(EmailSentSuccesfully);
 
@@ -501,9 +672,8 @@ codeunit 260 "Document-Mailing"
 
         TempEmailItem.Subject := EmailSubject;
 
-        if HtmlBodyFilePath <> '' then begin
-            TempEmailItem.Validate("Plaintext Formatted", false);
-            TempEmailItem.Validate("Body File Path", HtmlBodyFilePath);
+        if HtmlBody.HasValue() then begin
+            TempEmailItem.SetBody(HtmlBody);
             TempEmailItem.Validate("Message Type", TempEmailItem."Message Type"::"From Email Body Template");
         end;
 
@@ -542,6 +712,7 @@ codeunit 260 "Document-Mailing"
     procedure EmailFileFromStream(AttachmentStream: InStream; AttachmentName: Text; Body: Text; Subject: Text; MailTo: Text; HideDialog: Boolean; ReportUsage: Integer): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
+        HtmlBody: Codeunit "Temp Blob";
     begin
         TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
         TempEmailItem.Validate("Plaintext Formatted", true);
@@ -549,7 +720,7 @@ codeunit 260 "Document-Mailing"
 
         exit(EmailFileInternal(
             TempEmailItem,
-            '',
+            HtmlBody,
             CopyStr(Subject, 1, MaxStrLen(TempEmailItem.Subject)),
             CopyStr(MailTo, 1, MaxStrLen(TempEmailItem."Send to")),
             '',
@@ -565,13 +736,14 @@ codeunit 260 "Document-Mailing"
     procedure EmailHtmlFromStream(MailInStream: InStream; ToEmailAddress: Text[250]; Subject: Text; HideDialog: Boolean; ReportUsage: Integer): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
-        FileManagement: Codeunit "File Management";
-        FileName: Text;
+        HtmlBody: Codeunit "Temp Blob";
+        BodyOutStream: OutStream;
     begin
-        FileName := FileManagement.InstreamExportToServerFile(MailInStream, 'html');
+        HtmlBody.CreateOutStream(BodyOutStream, TextEncoding::UTF8);
+        CopyStream(BodyOutStream, MailInStream);
         exit(EmailFileInternal(
             TempEmailItem,
-            CopyStr(FileName, 1, MaxStrLen(TempEmailItem."Body File Path")),
+            HtmlBody,
             CopyStr(Subject, 1, MaxStrLen(TempEmailItem.Subject)),
             CopyStr(ToEmailAddress, 1, MaxStrLen(TempEmailItem."Send to")),
             '',
@@ -592,14 +764,15 @@ codeunit 260 "Document-Mailing"
     procedure EmailFileAndHtmlFromStream(AttachmentStream: InStream; AttachmentName: Text; MailInStream: InStream; ToEmailAddress: Text[250]; Subject: Text; HideDialog: Boolean; ReportUsage: Integer; PostedDocNo: Code[20]; IsFromPostedDoc: Boolean): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
-        FileManagement: Codeunit "File Management";
-        BodyFileName: Text;
+        HtmlBody: Codeunit "Temp Blob";
+        BodyOutStream: OutStream;
     begin
         TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
-        BodyFileName := FileManagement.InstreamExportToServerFile(MailInStream, 'html');
+        HtmlBody.CreateOutStream(BodyOutStream, TextEncoding::UTF8);
+        CopyStream(BodyOutStream, MailInStream);
         exit(EmailFileInternal(
             TempEmailItem,
-            CopyStr(BodyFileName, 1, MaxStrLen(TempEmailItem."Body File Path")),
+            HtmlBody,
             CopyStr(Subject, 1, MaxStrLen(TempEmailItem.Subject)),
             CopyStr(ToEmailAddress, 1, MaxStrLen(TempEmailItem."Send to")),
             PostedDocNo,
@@ -622,8 +795,15 @@ codeunit 260 "Document-Mailing"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('Use new Event OnBeforeEmailItemPreparation instead.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeEmailFileInternal(var TempEmailItem: Record "Email Item" temporary; var HtmlBodyFilePath: Text[250]; var EmailSubject: Text[250]; var ToEmailAddress: Text[250]; var PostedDocNo: Code[20]; var EmailDocName: Text[250]; var HideDialog: Boolean; var ReportUsage: Integer; var IsFromPostedDoc: Boolean; var SenderUserID: Code[50]; var EmailScenario: Enum "Email Scenario"; var EmailSentSuccessfully: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeEmailItemPreparation(var TempEmailItem: Record "Email Item" temporary; var HtmlBody: Codeunit "Temp Blob"; var EmailSubject: Text[250]; var ToEmailAddress: Text[250]; var PostedDocNo: Code[20]; var EmailDocName: Text[250]; var HideDialog: Boolean; var ReportUsage: Integer; var IsFromPostedDoc: Boolean; var SenderUserID: Code[50]; var EmailScenario: Enum "Email Scenario"; var EmailSentSuccessfully: Boolean; var IsHandled: Boolean)
     begin
     end;
 

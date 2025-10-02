@@ -205,9 +205,6 @@ page 6500 "Item Tracking Summary"
         UpdateSelectedQuantity();
 
         BinContentVisible := CurrBinCode <> '';
-#if not CLEAN24
-        SetPackageTrackingVisibility();
-#endif
     end;
 
     var
@@ -227,10 +224,6 @@ page 6500 "Item Tracking Summary"
         Selected1Visible: Boolean;
         Undefined1Visible: Boolean;
         SelectedQuantityEditable: Boolean;
-#if not CLEAN24
-        [Obsolete('Package Tracking enabled by default.', '24.0')]
-        PackageTrackingVisible: Boolean;
-#endif
 
     procedure SetSources(var ReservEntry: Record "Reservation Entry"; var EntrySummary: Record "Entry Summary")
     var
@@ -444,12 +437,6 @@ page 6500 "Item Tracking Summary"
         CurrPage.Update();
     end;
 
-#if not CLEAN24
-    local procedure SetPackageTrackingVisibility()
-    begin
-        PackageTrackingVisible := true;
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetCurrentBinAndItemTrkgCode(var CurrBinCode: Code[20]; var CurrItemTrackingCode: Record "Item Tracking Code"; var BinContentVisible: Boolean; var EntrySummary: Record "Entry Summary"; var ReservationEntry: Record "Reservation Entry")
@@ -491,4 +478,3 @@ page 6500 "Item Tracking Summary"
     begin
     end;
 }
-

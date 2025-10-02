@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Document;
 
 using Microsoft.Inventory.Item;
@@ -79,6 +83,11 @@ page 56 "Purchase Orders"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the sum of amounts in the Line Amount field on the purchase order lines.';
+                }
+                field("Amount Including VAT"; Rec."Amount Including VAT")
+                {
+                    ApplicationArea = Suite;
+                    Visible = false;
                 }
                 field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {

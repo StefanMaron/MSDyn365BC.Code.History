@@ -4,6 +4,15 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Payment;
 
+/// <summary>
+/// Page 1205 "Credit Transfer Registers" displays a list of credit transfer register entries.
+/// Provides overview and management of payment file exports, including re-export functionality
+/// and history tracking. Used to monitor and manage exported payment batches.
+/// </summary>
+/// <remarks>
+/// Source table: Credit Transfer Register. Read-only list page for viewing export history,
+/// status tracking, and file re-export operations. Supports drill-down to individual entries.
+/// </remarks>
 page 1205 "Credit Transfer Registers"
 {
     AdditionalSearchTerms = 'payment file export,bank file export,re-export payment file,payment history';

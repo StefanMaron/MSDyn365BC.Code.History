@@ -362,11 +362,13 @@ codeunit 132217 "Library - Lower Permissions"
     procedure PushPermissionSet(PermissionSetRoleID: Code[20])
     begin
         PushPermissionSetInternal(PermissionSetRoleID, true);
+        OnAfterPushPermissionSet(PermissionSetRoleID)
     end;
 
     procedure PushPermissionSetWithoutDefaults(PermissionSetRoleID: Code[20])
     begin
         PushPermissionSetInternal(PermissionSetRoleID, false);
+        OnAfterPushPermissionSet(PermissionSetRoleID)
     end;
 
     /// <summary>
@@ -414,6 +416,7 @@ codeunit 132217 "Library - Lower Permissions"
             exit;
 
         PermissionsMock.Assign(PermissionSetRoleID);
+        OnAfterAddPermissionSet(PermissionSetRoleID);
     end;
 
     procedure AddO365INVSetup()
@@ -723,6 +726,16 @@ codeunit 132217 "Library - Lower Permissions"
     procedure CanLowerPermission(): Boolean
     begin
         exit(PermissionsMock.IsStarted());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPushPermissionSet(PermissionSetRoleID: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddPermissionSet(PermissionSetRoleID: Code[20])
+    begin
     end;
 }
 

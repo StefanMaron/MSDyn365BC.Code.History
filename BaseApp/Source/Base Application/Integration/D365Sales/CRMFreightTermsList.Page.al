@@ -151,7 +151,7 @@ page 7211 "CRM Freight Terms List"
         CurrentlyMappedCRMFreightTermOptionId := OptionId;
     end;
 
-    procedure GetRec(OptionId: Integer): Record "CRM Freight Terms"
+    internal procedure GetRec(OptionId: Integer): Record "CRM Freight Terms"
     begin
         if Rec.Get(OptionId) then
             exit(Rec);

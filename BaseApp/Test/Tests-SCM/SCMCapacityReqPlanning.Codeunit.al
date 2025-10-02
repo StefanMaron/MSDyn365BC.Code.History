@@ -14,7 +14,6 @@ codeunit 137042 "SCM Capacity Req. Planning"
         ManufacturingSetup: Record "Manufacturing Setup";
         LibraryRandom: Codeunit "Library - Random";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
-        LibraryPlanning: Codeunit "Library - Planning";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -233,7 +232,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
 
         // Exercise:Create Sales Order and Create Firm Planned Production order using order Planning.
         CreateSalesOrder(SalesHeader, Item."No.");
-        LibraryPlanning.CreateProdOrderUsingPlanning(
+        LibraryManufacturing.CreateProdOrderUsingPlanning(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", SalesHeader."No.", Item."No.");
 
         // Verify : Firm Planned Production Order created.

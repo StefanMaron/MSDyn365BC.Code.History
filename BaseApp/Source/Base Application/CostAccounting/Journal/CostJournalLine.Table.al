@@ -7,6 +7,7 @@ namespace Microsoft.CostAccounting.Journal;
 using Microsoft.CostAccounting.Account;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.Finance.GeneralLedger.Setup;
 
 table 1101 "Cost Journal Line"
 {
@@ -79,6 +80,8 @@ table 1101 "Cost Journal Line"
         }
         field(16; Amount; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             Caption = 'Amount';
 
             trigger OnValidate()
@@ -89,11 +92,15 @@ table 1101 "Cost Journal Line"
         }
         field(17; Balance; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             Caption = 'Balance';
             Editable = false;
         }
         field(18; "Debit Amount"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             Caption = 'Debit Amount';
 
             trigger OnValidate()
@@ -103,6 +110,8 @@ table 1101 "Cost Journal Line"
         }
         field(19; "Credit Amount"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             Caption = 'Credit Amount';
 
             trigger OnValidate()
@@ -190,18 +199,21 @@ table 1101 "Cost Journal Line"
         }
         field(68; "Additional-Currency Amount"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Additional-Currency Amount';
             Editable = false;
         }
         field(69; "Add.-Currency Debit Amount"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Currency Debit Amount';
             Editable = false;
         }
         field(70; "Add.-Currency Credit Amount"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Currency Credit Amount';
             Editable = false;
@@ -365,5 +377,12 @@ table 1101 "Cost Journal Line"
     local procedure OnAfterSetUpNewLine(var CostJournalLine: Record "Cost Journal Line"; CostJournalTemplate: Record "Cost Journal Template"; CostJournalBatch: Record "Cost Journal Batch"; LastCostJournalLine: Record "Cost Journal Line")
     begin
     end;
-}
 
+    local procedure GetAdditionalReportingCurrencyCode(): Code[10]
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        exit(GeneralLedgerSetup."Additional Reporting Currency");
+    end;
+}

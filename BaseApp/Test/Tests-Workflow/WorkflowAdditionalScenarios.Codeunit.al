@@ -24,7 +24,6 @@ codeunit 134317 "Workflow Additional Scenarios"
         PurchHeaderTypeCondnTxt: Label '<?xml version="1.0" standalone="yes"?><ReportParameters name="Purch. Doc. Event Conditions" id="1502"><DataItems><DataItem name="Purchase Header">SORTING(Document Type,No.) WHERE(Document Type=FILTER(%1))</DataItem><DataItem name="Purchase Line">SORTING(Document Type,Document No.,Line No.)</DataItem></DataItems></ReportParameters>', Locked = true;
         SalesHeaderTypeCondnTxt: Label '<?xml version="1.0" standalone="yes"?><ReportParameters name="Sales Doc. Event Conditions" id="1504"><DataItems><DataItem name="Sales Header">SORTING(Document Type,No.) WHERE(Document Type=FILTER(%1))</DataItem><DataItem name="Sales Line">SORTING(Document Type,Document No.,Line No.)</DataItem></DataItems></ReportParameters>', Locked = true;
         SameEventConditionsErr: Label 'One or more entry-point steps exist that use the same event on table %1. You must specify unique event conditions on entry-point steps that use the same table.', Comment = '%1=Table Caption';
-        ParametersHeaderLineTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Table454">VERSION(1) SORTING(Field29) WHERE(Field2=1(2|3))</DataItem></DataItems></ReportParameters>', Locked = true;
         UnExpectedOverdueNotificationTxt: Label 'Unexpected overdue notifications.';
         LibraryJobQueue: Codeunit "Library - Job Queue";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -730,43 +729,6 @@ codeunit 134317 "Workflow Additional Scenarios"
         LibraryWorkflow.EnableWorkflow(Workflow);
     end;
 
-    local procedure CreateOverdueWorkflow()
-    var
-        Workflow: Record Workflow;
-        WorkflowEvent: Record "Workflow Event";
-        WorkFlowSetup: Codeunit "Workflow Setup";
-        WorkFlowCode: Code[20];
-        EntryPointEventStep: Integer;
-    begin
-        WorkFlowCode := WorkFlowSetup.InsertOverdueApprovalsWorkflow();
-        Workflow.Get(WorkFlowCode);
-        CreateAnyEvent(WorkflowEvent, DATABASE::"Approval Entry");
-        EntryPointEventStep := GetOverdueWorkflowStep(WorkFlowCode);
-        LibraryWorkflow.InsertEventArgument(EntryPointEventStep, ParametersHeaderLineTxt);
-        Workflow.Validate(Enabled, true);
-        Workflow.Modify();
-    end;
-
-    local procedure GetOverdueWorkflowStep(WorkFlowCode: Code[20]): Integer
-    var
-        WorkflowStep: Record "Workflow Step";
-    begin
-        WorkflowStep.SetRange("Workflow Code", WorkFlowCode);
-        WorkflowStep.SetRange("Entry Point", true);
-        WorkflowStep.FindFirst();
-
-        exit(WorkflowStep.ID);
-    end;
-
-    local procedure CreateAnyEvent(var WorkflowEvent: Record "Workflow Event"; TableID: Integer)
-    begin
-        WorkflowEvent.Init();
-        WorkflowEvent."Function Name" := LibraryUtility.GenerateGUID();
-        WorkflowEvent.Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(WorkflowEvent.Description)), 1, MaxStrLen(WorkflowEvent.Description));
-        WorkflowEvent."Table ID" := TableID;
-        WorkflowEvent.Insert(true);
-    end;
-
     local procedure ChangeApprovalWorkflowsWithDueDateFormula(Workflow: Record Workflow; DueDateDelay: Integer)
     var
         WorkflowStep: Record "Workflow Step";
@@ -891,4 +853,3 @@ codeunit 134317 "Workflow Additional Scenarios"
         DoNotScheduleTask := true
     end;
 }
-

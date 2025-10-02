@@ -13,7 +13,7 @@ page 8028 "Change Date"
             field(Date; ChangedDate)
             {
                 Caption = 'New Date';
-                ToolTip = 'Enter the new Date.';
+                ToolTip = 'Specifies the new Date.';
             }
         }
     }

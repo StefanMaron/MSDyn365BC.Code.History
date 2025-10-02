@@ -21,8 +21,8 @@ using Microsoft.API.Upgrade;
 
 codeunit 5477 "Sales Invoice Aggregator"
 {
-    Permissions = tabledata "Sales Invoice Header" = riMd,
-                  tabledata "Sales Invoice Entity Aggregate" = RM;
+    Permissions = tabledata "Sales Invoice Header" = rimd,
+                  tabledata "Sales Invoice Entity Aggregate" = rimd;
 
     trigger OnRun()
     begin

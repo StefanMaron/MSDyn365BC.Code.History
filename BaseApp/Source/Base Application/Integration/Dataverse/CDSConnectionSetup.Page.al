@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -141,6 +141,7 @@ page 7200 "CDS Connection Setup"
                     trigger OnValidate()
                     var
                         CRMIntegrationRecord: Record "CRM Integration Record";
+                        AuditLog: Codeunit "Audit Log";
                         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
                         FeatureTelemetry: Codeunit "Feature Telemetry";
                         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
@@ -152,7 +153,7 @@ page 7200 "CDS Connection Setup"
                             FeatureTelemetry.LogUptake('0000H7J', 'Dataverse', Enum::"Feature Uptake Status"::"Set up");
                             FeatureTelemetry.LogUptake('0000IIM', 'Dataverse Base Entities', Enum::"Feature Uptake Status"::"Set up");
                             Session.LogMessage('0000CDE', CDSConnEnabledOnPageTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-                            Session.LogAuditMessage(StrSubstNo(DataverseEnabledLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
+                            AuditLog.LogAuditMessage(StrSubstNo(DataverseEnabledLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
 
                             if (Rec."Server Address" <> '') and (Rec."Server Address" <> TestServerAddressTok) then
                                 if CDSIntegrationImpl.MultipleCompaniesConnected() then
@@ -198,20 +199,6 @@ page 7200 "CDS Connection Setup"
             {
                 Caption = 'Integration Solution Settings';
                 Visible = Rec."Is Enabled";
-#if not CLEAN24
-                field("CDS Version"; CDSVersion)
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Dataverse Version';
-                    Editable = false;
-                    StyleExpr = CDSVersionStatusStyleExpr;
-                    ToolTip = 'Specifies the version of Dataverse that you are connected to.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with field Dataverse Version checked';
-                    ObsoleteTag = '24.0';
-                }
-#endif
                 field("Solution Version"; SolutionVersion)
                 {
                     ApplicationArea = Suite;

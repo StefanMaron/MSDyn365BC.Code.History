@@ -9,9 +9,6 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
     end;
 
     var
-#if not CLEAN24
-        LibraryInventory: Codeunit "Library - Inventory";
-#endif
         LibraryUTUtility: Codeunit "Library UT Utility";
         Assert: Codeunit Assert;
         PhyInvtCommentLineExistMsg: Label 'Physical Inventory Comment Line exists.';
@@ -130,38 +127,6 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
         // [THEN] Verify Dimension Set Entries Page Open. Added Page Handler DimensionSetEntriesModalPageHandler.
     end;
 
-#if not CLEAN24
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnDeletePostedPhysInvtOrderLine()
-    var
-        PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line";
-        PstdExpPhysInvtTrack: Record "Pstd. Exp. Phys. Invt. Track";
-    begin
-        // [SCENARIO] validate Trigger OnDelete for Table Pstd. Phys. Invt. Order Line.
-        // [GIVEN] Create Posted Physical Inventory Order Line and Posted Expect Physical Inventory Tracking Line.
-        CreatePostedPhysInvtOrderLine(PstdPhysInvtOrderLine, LibraryUTUtility.GetNewCode());
-
-        PstdExpPhysInvtTrack."Order No" := PstdPhysInvtOrderLine."Document No.";
-        PstdExpPhysInvtTrack."Order Line No." := PstdPhysInvtOrderLine."Line No.";
-        PstdExpPhysInvtTrack.Insert();
-
-        // Exercise.
-        PstdPhysInvtOrderLine.Delete(true);
-
-        // [THEN] Verify Posted Physical Inventory Order Line and Posted Expect Physical Inventory Tracking Line deleted.
-        Assert.IsFalse(
-          PstdPhysInvtOrderLine.Get(PstdPhysInvtOrderLine."Document No.", PstdPhysInvtOrderLine."Line No."),
-          PostedPhysInvtOrderLineExistMsg);
-        Assert.IsFalse(
-          PstdExpPhysInvtTrack.Get(
-            PstdExpPhysInvtTrack."Order No", PstdExpPhysInvtTrack."Order Line No.",
-            PstdExpPhysInvtTrack."Serial No.", PstdExpPhysInvtTrack."Lot No."),
-          'Posted Expect Physical Inventory Tracking Line exists.');
-    end;
-#endif
-
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -172,9 +137,6 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
     begin
         // [SCENARIO] validate Trigger OnDelete for Table Pstd. Phys. Invt. Order Line.
         // [GIVEN] Create Posted Physical Inventory Order Line and Posted Expect Physical Inventory Tracking Line.
-#if not CLEAN24
-        LibraryInventory.SetInvtOrdersPackageTracking(true);
-#endif
         CreatePostedPhysInvtOrderLine(PstdPhysInvtOrderLine, LibraryUTUtility.GetNewCode());
 
         PstdExpInvtOrderTracking."Order No" := PstdPhysInvtOrderLine."Document No.";
@@ -193,9 +155,6 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
                 PstdExpInvtOrderTracking."Order No", PstdExpInvtOrderTracking."Order Line No.",
                 PstdExpInvtOrderTracking."Serial No.", PstdExpInvtOrderTracking."Lot No.", PstdExpInvtOrderTracking."Package No."),
                'Posted Expect Physical Inventory Tracking Line exists.');
-#if not CLEAN24
-        LibraryInventory.SetInvtOrdersPackageTracking(false);
-#endif
     end;
 
     [Test]

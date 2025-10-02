@@ -5,10 +5,12 @@
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Inventory.Item;
+using Microsoft.Manufacturing.Setup;
 using Microsoft.Sales.Document;
 
 codeunit 99000777 "Check Prod. Order Status"
 {
+    Permissions = tabledata "Manufacturing Setup" = r;
 
     trigger OnRun()
     begin
@@ -34,6 +36,41 @@ codeunit 99000777 "Check Prod. Order Status"
                 if not OK then
                     Error(Text000);
             end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnCheckReceiptOrderStatus', '', true, true)]
+    local procedure OnCheckReceiptOrderStatus(var SalesLine: Record "Sales Line")
+    begin
+        CheckReceiptOrderStatus(SalesLine);
+    end;
+
+    procedure CheckReceiptOrderStatus(var SalesLine: Record "Sales Line")
+    var
+#if not CLEAN27
+        AddonIntegrManagement: Codeunit Microsoft.Inventory.AddOnIntegrManagement;
+#endif
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckReceiptOrderStatus(SalesLine, IsHandled);
+#if not CLEAN27
+        AddonIntegrManagement.RunOnBeforeCheckReceiptOrderStatus(SalesLine, IsHandled);
+#endif
+        if IsHandled then
+            exit;
+
+        if SalesLine."Document Type" <> SalesLine."Document Type"::Order then
+            exit;
+
+        if SalesLine.Type <> SalesLine.Type::Item then
+            exit;
+
+        SalesLineCheck(SalesLine);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckReceiptOrderStatus(SalesLine: Record "Sales Line"; var Checked: Boolean)
+    begin
     end;
 }
 

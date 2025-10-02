@@ -203,8 +203,11 @@ codeunit 99000858 "Mfg. Get Demand To Reserve"
         until TempProdOrderComponent.Next() = 0;
     end;
 
+#if not CLEAN27
+    [Obsolete('This event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnGetDemandOnBeforeSetTempProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; var IsHandled: Boolean)
     begin
     end;
+#endif
 }

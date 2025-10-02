@@ -10,6 +10,7 @@ using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
+using Microsoft.Manufacturing.Setup;
 
 report 5405 "Calc. Consumption"
 {
@@ -106,7 +107,7 @@ report 5405 "Calc. Consumption"
                         ApplicationArea = Manufacturing;
                         Caption = 'Calculation Based on';
                         OptionCaption = 'Actual Output,Expected Output';
-                        ToolTip = 'Specifies whether the calculation of the quantity to consume is based on the actual output or on the expected output (the quantity of finished goods that you expect to produce).';
+                        ToolTip = 'Specifies whether the calculation of the quantity to consume is based on the actual output or on the expected output (the quantity of finished goods that you expect to produce). The default value of this field can be set in the Manufacturing Setup.';
                     }
                     field(LocationCode; LocationCode)
                     {
@@ -142,7 +143,7 @@ report 5405 "Calc. Consumption"
 
         trigger OnOpenPage()
         begin
-            InitializeRequest(WorkDate(), CalcBasedOn::"Expected Output");
+            InitializeRequest(WorkDate(), GetDefaultCalcBasedOn());
         end;
     }
 
@@ -180,6 +181,16 @@ report 5405 "Calc. Consumption"
     begin
         PostingDate := NewPostingDate;
         CalcBasedOn := NewCalcBasedOn;
+    end;
+
+    local procedure GetDefaultCalcBasedOn(): Option
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        if ManufacturingSetup.Get() then
+            exit(ManufacturingSetup."Default Consum. Calc. Based on");
+
+        exit(ManufacturingSetup."Default Consum. Calc. Based on"::"Expected Output");
     end;
 
     local procedure CreateConsumpJnlLine(LocationCode: Code[10]; BinCode: Code[20]; OriginalQtyToPost: Decimal)

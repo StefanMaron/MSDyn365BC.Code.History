@@ -470,6 +470,8 @@ report 512 "IC Transactions"
 
     requestpage
     {
+        AboutTitle = 'About IC Transactions';
+        AboutText = 'The **Intercompany Transactions** report lists all posted intercompany sales, purchases, and journal entries between internal entities. Use it for reviewing and reconciling intercompany activity before financial consolidation to ensure transparency and balance across companies.';
         SaveValues = true;
 
         layout

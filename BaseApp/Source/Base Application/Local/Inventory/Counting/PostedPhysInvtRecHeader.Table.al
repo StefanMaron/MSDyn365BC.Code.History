@@ -13,13 +13,8 @@ table 5005356 "Posted Phys. Invt. Rec. Header"
 {
     Caption = 'Posted Phys. Invt. Rec. Header';
     ObsoleteReason = 'Merged to W1';
-#if not CLEAN24
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '27.0';
-#endif
     DataClassification = CustomerContent;
 
     fields

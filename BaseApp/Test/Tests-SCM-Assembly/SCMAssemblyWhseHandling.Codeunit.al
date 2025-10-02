@@ -705,7 +705,7 @@ codeunit 137932 "SCM Assembly Whse. Handling"
             CreateAndPostItemJournalLine(CompItem2."No.", "Item Ledger Entry Type"::"Positive Adjmt.", 20, Location.Code, Bin.Code, false);
         until Bin.Next() = 0;
 
-        // [GIVEN] Create Released Produciton Order for 1 quantity of the parent item.
+        // [GIVEN] Create Released Production Order for 1 quantity of the parent item.
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, CalcDate('<+14D>', WorkDate()), ParentItem."No.", Location.Code, 1, '');
         AssemblyHeader.Validate("Location Code", Location.Code);
         AssemblyHeader.Modify(true);

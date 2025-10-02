@@ -55,6 +55,8 @@ table 1112 "Cost Center"
         }
         field(6; "Net Change"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             BlankZero = true;
             CalcFormula = sum("Cost Entry".Amount where("Cost Center Code" = field(Code),
                                                          "Cost Center Code" = field(filter(Totaling)),
@@ -66,6 +68,8 @@ table 1112 "Cost Center"
         }
         field(7; "Balance at Date"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             BlankZero = true;
             CalcFormula = sum("Cost Entry".Amount where("Cost Center Code" = field(Code),
                                                          "Cost Center Code" = field(filter(Totaling)),
@@ -77,6 +81,8 @@ table 1112 "Cost Center"
         }
         field(8; "Balance to Allocate"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             BlankZero = true;
             CalcFormula = sum("Cost Entry".Amount where("Cost Center Code" = field(Code),
                                                          "Cost Center Code" = field(filter(Totaling)),
@@ -276,4 +282,3 @@ table 1112 "Cost Center"
         exit(false)
     end;
 }
-

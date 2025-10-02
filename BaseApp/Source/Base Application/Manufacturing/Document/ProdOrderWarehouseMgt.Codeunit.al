@@ -1392,7 +1392,7 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
             exit(FlushingMethod in [FlushingMethod::Manual, FlushingMethod::"Pick + Manual", FlushingMethod::"Pick + Backward", FlushingMethod::"Pick + Forward"])
         else
 #endif
-            exit(FlushingMethod in [FlushingMethod::"Pick + Manual", FlushingMethod::"Pick + Backward", FlushingMethod::"Pick + Forward"]);
+        exit(FlushingMethod in [FlushingMethod::"Pick + Manual", FlushingMethod::"Pick + Backward", FlushingMethod::"Pick + Forward"]);
     end;
 
     local procedure FlushingMethodRequiresManualPick(FlushingMethod: Enum "Flushing Method"): Boolean
@@ -1406,12 +1406,29 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
             exit(FlushingMethod in [FlushingMethod::Manual, FlushingMethod::"Pick + Manual"])
         else
 #endif
-            exit(FlushingMethod = FlushingMethod::"Pick + Manual");
+        exit(FlushingMethod = FlushingMethod::"Pick + Manual");
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFromProdOrderCompLineCreateWhseWkshLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; ProdOrderComponent: Record "Prod. Order Component"; LocationCode: Code[10]; ToBinCode: Code[20])
     begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnAfterGetWhseRqstSourceDocument', '', false, false)]
+    local procedure OnAfterGetWhseRqstSourceDocument(WhseJournalSourceDocument: Enum "Warehouse Journal Source Document"; var SourceDocument: Enum "Warehouse Request Source Document")
+    begin
+        case WhseJournalSourceDocument of
+            WhseJournalSourceDocument::"Prod. Consumption":
+                SourceDocument := "Warehouse Request Source Document"::"Prod. Consumption";
+            WhseJournalSourceDocument::"Item Jnl.":
+                SourceDocument := "Warehouse Request Source Document"::"Prod. Output";
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Warehouse Activity Header", 'OnProdWhseHandlingIsInventoryPutaway', '', false, false)]
+    local procedure OnProdWhseHandlingIsInventoryPutaway(Location: Record Location; var Result: Boolean)
+    begin
+        Result := Location."Prod. Output Whse. Handling" = Location."Prod. Output Whse. Handling"::"Inventory Put-away";
     end;
 
     [IntegrationEvent(false, false)]
