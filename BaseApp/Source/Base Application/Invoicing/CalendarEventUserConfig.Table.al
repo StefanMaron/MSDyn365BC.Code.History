@@ -1,8 +1,17 @@
+#if not CLEANSCHEMA27
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+#pragma warning disable AS0001,AS0115,AA0247
 table 2161 "Calendar Event User Config."
 {
     Caption = 'Calendar Event User Config.';
     ReplicateData = false;
     DataClassification = CustomerContent;
+    ObsoleteReason = 'Invoicing';
+    ObsoleteState = Removed;
+    ObsoleteTag = '27.0';
 
     fields
     {
@@ -40,4 +49,4 @@ table 2161 "Calendar Event User Config."
     {
     }
 }
-
+#endif

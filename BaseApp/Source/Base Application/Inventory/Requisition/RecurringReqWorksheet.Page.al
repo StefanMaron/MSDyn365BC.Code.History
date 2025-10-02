@@ -280,12 +280,6 @@ page 296 "Recurring Req. Worksheet"
                     ToolTip = 'Specifies the ID of the user who is ordering the items on the line.';
                     Visible = false;
                 }
-                field("Prod. Order No."; Rec."Prod. Order No.")
-                {
-                    ApplicationArea = Planning;
-                    ToolTip = 'Specifies the number of the related production order.';
-                    Visible = false;
-                }
                 field(Confirmed; Rec.Confirmed)
                 {
                     ApplicationArea = Planning;

@@ -26,12 +26,10 @@ codeunit 844 "Cash Flow Wksh.-Register Batch"
         StartLineNo: Integer;
         NoOfRecords: Integer;
 
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text1002: Label 'Checking lines        #2######\';
-        Text1005: Label 'Register lines         #3###### @4@@@@@@@@@@@@@';
+        CheckingLinesTxt: Label 'Checking lines        #2######\';
+        RegisterLinesTxt: Label 'Register lines         #3###### @4@@@@@@@@@@@@@';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
 
     local procedure "Code"()
     var
@@ -75,8 +73,8 @@ codeunit 844 "Cash Flow Wksh.-Register Batch"
     local procedure CreateWindow()
     begin
         Window.Open(
-          Text1002 +
-          Text1005);
+          CheckingLinesTxt +
+          RegisterLinesTxt);
     end;
 
     local procedure CheckLines()

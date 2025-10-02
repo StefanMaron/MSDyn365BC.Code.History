@@ -241,14 +241,27 @@ page 99000787 "Production BOM List"
                 RunObject = Report "Quantity Explosion of BOM";
                 ToolTip = 'View an indented BOM listing for the item or items that you specify in the filters. The production BOM is completely exploded for all levels.';
             }
+#if not CLEAN27
             action("Compare List")
             {
                 ApplicationArea = Manufacturing;
-                Caption = 'Compare List';
+                Caption = 'Compare List (Obsolete)';
                 Image = "Report";
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Compare List";
+                ToolTip = 'View a comparison of components for two items. The printout compares the components, their unit cost, cost share and cost per component.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report has been replaced by the "Compare Production Cost Shares" report and will be removed in a future release.';
+                ObsoleteTag = '27.0';
+            }
+#endif
+            action("Compare Production Cost Shares")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Compare Production Cost Shares';
+                Image = "Report";
+                RunObject = Report "Compare Production Cost Shares";
                 ToolTip = 'View a comparison of components for two items. The printout compares the components, their unit cost, cost share and cost per component.';
             }
         }

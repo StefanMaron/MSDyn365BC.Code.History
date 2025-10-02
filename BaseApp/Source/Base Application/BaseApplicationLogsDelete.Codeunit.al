@@ -4,20 +4,23 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft;
 
-using System.DataAdministration;
-using Microsoft.Projects.Project.Archive;
-using System.Diagnostics;
-using System.Threading;
-using System.Automation;
-using Microsoft.Integration.SyncEngine;
-using Microsoft.Sales.Archive;
-using Microsoft.Purchases.Archive;
+using Microsoft.EServices.EDocument;
 using Microsoft.Integration.Dataverse;
+using Microsoft.Integration.SyncEngine;
+using Microsoft.Projects.Project.Archive;
+using Microsoft.Purchases.Archive;
+using Microsoft.Sales.Archive;
+using Microsoft.Utilities;
 using Microsoft.Warehouse.Activity.History;
 using Microsoft.Warehouse.History;
+using Microsoft.Warehouse.InventoryDocument;
+using System.Automation;
+using System.DataAdministration;
+using System.Diagnostics;
 using System.Environment.Configuration;
-using Microsoft.Utilities;
-using Microsoft.EServices.EDocument;
+using System.IO;
+using System.Threading;
+using System.Utilities;
 
 codeunit 3995 "Base Application Logs Delete"
 {
@@ -25,14 +28,20 @@ codeunit 3995 "Base Application Logs Delete"
     Permissions =
                 tabledata "Activity Log" = rd,
                 tabledata "Change Log Entry" = rd,
+                tabledata "Data Exch." = rd,
                 tabledata "Dataverse Entity Change" = rd,
+                tabledata "Error Message" = rd,
+                tabledata "Error Message Register" = rd,
                 tabledata "Integration Synch. Job" = rd,
                 tabledata "Integration Synch. Job Errors" = rd,
                 tabledata "Job Queue Log Entry" = rd,
+                tabledata "Posted Invt. Pick Header" = rd,
+                tabledata "Posted Invt. Put-away Header" = rd,
                 tabledata "Posted Whse. Receipt Header" = rd,
                 tabledata "Posted Whse. Shipment Header" = rd,
                 tabledata "Purchase Header Archive" = rd,
                 tabledata "Registered Whse. Activity Hdr." = rd,
+                tabledata "Registered Invt. Movement Hdr." = rd,
                 tabledata "Report Inbox" = rd,
                 tabledata "Sales Header Archive" = rd,
                 tabledata "Workflow Step Instance Archive" = rd,
@@ -63,10 +72,16 @@ codeunit 3995 "Base Application Logs Delete"
             Database::"Purchase Header Archive",
             Database::"Dataverse Entity Change",
             Database::"Sent Notification Entry",
-            Database::"Registered Whse. Activity Hdr.",
+            Database::"Posted Invt. Pick Header",
+            Database::"Posted Invt. Put-away Header",
             Database::"Posted Whse. Receipt Header",
             Database::"Posted Whse. Shipment Header",
-            Database::"Activity Log"])
+            Database::"Registered Whse. Activity Hdr.",
+            Database::"Registered Invt. Movement Hdr.",
+            Database::"Data Exch.",
+            Database::"Activity Log",
+            Database::"Error Message",
+            Database::"Error Message Register"])
         then
             exit;
 

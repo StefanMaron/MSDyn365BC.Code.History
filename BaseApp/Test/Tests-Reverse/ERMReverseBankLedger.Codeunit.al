@@ -1174,15 +1174,6 @@
         Assert.AreEqual(ExpectedSourceCode, BankAccountLedgerEntry."Source Code", BankAccountLedgerEntry.FieldCaption("Source Code"));
     end;
 
-    local procedure VerifyBankAccLedgerEntry(BankAccountNo: Code[20]; PostingDate: Date; DocumentNo: Code[20]; ExpectedAmount: Decimal; ExpectedSourceCode: Code[10])
-    var
-        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
-    begin
-        FindBankAccountLedgerEntry(BankAccountLedgerEntry, BankAccountNo, PostingDate, BankAccountLedgerEntry."Document Type"::" ", DocumentNo);
-        Assert.AreEqual(ExpectedAmount, BankAccountLedgerEntry.Amount, BankAccountLedgerEntry.FieldCaption(Amount));
-        Assert.AreEqual(ExpectedSourceCode, BankAccountLedgerEntry."Source Code", BankAccountLedgerEntry.FieldCaption("Source Code"));
-    end;
-
     local procedure VerifyCheckLedgerEntry(BankAccountNo: Code[20]; DocumentNo: Code[20]; ExpectedAmount: Decimal)
     var
         CheckLedgerEntry: Record "Check Ledger Entry";
@@ -1241,4 +1232,3 @@
         ExcludeReversedEntries := true;
     end;
 }
-

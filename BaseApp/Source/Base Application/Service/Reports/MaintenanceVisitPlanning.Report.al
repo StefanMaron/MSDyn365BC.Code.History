@@ -127,7 +127,8 @@ report 5980 "Maintenance Visit - Planning"
 
     requestpage
     {
-
+        AboutTitle = 'About Maintenance Visit - Planning';
+        AboutText = 'Generate a report that shows all your scheduled maintenance visits.';
         layout
         {
         }

@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Assembly.Test;
 
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Assembly.Setup;
 using Microsoft.Assembly.Document;
 using Microsoft.Sales.Document;
@@ -21,6 +20,7 @@ using Microsoft.Manufacturing.Document;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Setup;
 
 codeunit 137095 "SCM Kitting - Reservations"
 {
@@ -34,7 +34,7 @@ codeunit 137095 "SCM Kitting - Reservations"
     end;
 
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
         AssemblySetup: Record "Assembly Setup";
         AssemblyLine: Record "Assembly Line";
         AssemblyHeader: Record "Assembly Header";
@@ -47,6 +47,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryPlanning: Codeunit "Library - Planning";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
@@ -93,8 +94,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         PurchasesPayablesSetup.Validate("Vendor Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
 
-        ManufacturingSetup.Get();
-        WorkDate2 := CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
+        WorkDate2 := LibraryPlanning.SetSafetyWorkDate();
         LibraryAssembly.UpdateAssemblySetup(
           AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Order Header", LibraryUtility.GetGlobalNoSeriesCode());
 
@@ -2006,7 +2006,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         UpdateBOMReservationPolicy(Item."No.", Reserve);
         LibraryAssembly.CreateAssemblyHeader(
           AssemblyHeader, WorkDate2, Item."No.", Location.Code, 50 + LibraryRandom.RandInt(50), '');
-        AssemblyHeader.Validate("Due Date", CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate2));
+        AssemblyHeader.Validate("Due Date", CalcDate(InventorySetup."Default Safety Lead Time", WorkDate2));
         AssemblyHeader.Modify(true);
 
         // Find any item component line for the Assembly Order.

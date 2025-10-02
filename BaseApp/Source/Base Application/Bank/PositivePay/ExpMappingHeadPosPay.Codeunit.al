@@ -6,6 +6,16 @@ namespace Microsoft.Bank.PositivePay;
 
 using System.IO;
 
+/// <summary>
+/// Maps positive pay header records to data exchange fields for export file generation.
+/// This codeunit handles the transformation of header identification data into the structured format required for bank files.
+/// </summary>
+/// <remarks>
+/// The Export Mapping Header Positive Pay codeunit processes positive pay header records containing company and account
+/// identification information. It maps header fields to the data exchange structure ensuring that file identification
+/// data is properly formatted according to export definition requirements. The header mapping provides banks with
+/// essential context for processing the positive pay file content.
+/// </remarks>
 codeunit 1703 "Exp. Mapping Head Pos. Pay"
 {
     TableNo = "Data Exch.";

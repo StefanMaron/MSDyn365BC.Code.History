@@ -1039,7 +1039,7 @@ table 5409 "Prod. Order Routing Line"
             "Run Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
             "Wait Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
             "Move Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
-            if not SkipUpdateDescription then
+            if (not SkipUpdateDescription) and ("Standard Task Code" = '') then
                 Description := WorkCenter.Name;
             "Flushing Method" := WorkCenter."Flushing Method";
             "Unit Cost per" := WorkCenter."Unit Cost";
@@ -1140,7 +1140,7 @@ table 5409 "Prod. Order Routing Line"
     procedure CalcStartingEndingDates(PlanningDirection: Option Forward,Backward)
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
-        ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
+        MfgReserveCheckDateConfl: Codeunit "Mfg. ReservCheckDateConfl";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1178,7 +1178,7 @@ table 5409 "Prod. Order Routing Line"
         if PlanningDirection = PlanningDirection::Forward then
             ShiftTimeForwardOnParentProdOrderLines(ProdOrderLine);
 
-        ReservationCheckDateConfl.ProdOrderLineCheck(ProdOrderLine, true);
+        MfgReserveCheckDateConfl.ProdOrderLineCheck(ProdOrderLine, true);
 
         OnAfterCalcStartingEndingDates(Rec, xRec, ProdOrderLine, CurrFieldNo);
     end;
@@ -1597,7 +1597,7 @@ table 5409 "Prod. Order Routing Line"
     var
         ParentProdOrderLine: Record "Prod. Order Line";
         ProdOrderComponent: Record "Prod. Order Component";
-        ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
+        MfgReservCheckDateConfl: Codeunit "Mfg. ReservCheckDateConfl";
     begin
         ParentProdOrderLine.SetRange(Status, ChildProdOrderLine.Status);
         ParentProdOrderLine.SetRange("Prod. Order No.", ChildProdOrderLine."Prod. Order No.");
@@ -1614,7 +1614,7 @@ table 5409 "Prod. Order Routing Line"
                         ShowMessage(TimeShiftedOnParentLineMsg);
                     ParentProdOrderLine.Validate("Starting Date-Time", ChildProdOrderLine."Ending Date-Time");
                     if ParentProdOrderLine."Planning Level Code" = 0 then
-                        ReservationCheckDateConfl.ProdOrderLineCheck(ParentProdOrderLine, true);
+                        MfgReservCheckDateConfl.ProdOrderLineCheck(ParentProdOrderLine, true);
 
                     if ParentProdOrderLine."Ending Date-Time" < ParentProdOrderLine."Starting Date-Time" then
                         ParentProdOrderLine."Ending Date-Time" := ParentProdOrderLine."Starting Date-Time";
@@ -1745,6 +1745,12 @@ table 5409 "Prod. Order Routing Line"
     begin
         ProdOrderComponent."Due Date" := ProdOrderRoutingLine."Starting Date";
         ProdOrderComponent."Due Time" := ProdOrderRoutingLine."Starting Time";
+    end;
+
+    procedure NextOperationExist(): Boolean
+    begin
+        OnBeforeNextOperationExist(Rec);
+        exit("Next Operation No." <> '');
     end;
 
     [IntegrationEvent(false, false)]
@@ -1914,6 +1920,11 @@ table 5409 "Prod. Order Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowMessage(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var MessageText: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNextOperationExist(var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
     begin
     end;
 }

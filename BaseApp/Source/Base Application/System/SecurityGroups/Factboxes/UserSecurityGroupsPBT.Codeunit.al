@@ -53,18 +53,21 @@ codeunit 9874 "User Security Groups PBT"
         exit(UserSecurityGroups);
     end;
 
-    procedure ShouldEnqueueBackgroundTask(UserSecId: Guid; var Parameters: Dictionary of [Text, Text]): Boolean
+    procedure ShouldEnqueueBackgroundTask(User: Record User; var Parameters: Dictionary of [Text, Text]): Boolean
     begin
+        if User.State = User.State::Disabled then
+            exit(false);
+
         if not IsFetchingGroupsPerUserAvailable() then
             exit(false);
 
         if not IsAnySecurityGroupPresent() then
             exit(false);
 
-        if not ShouldFetchUserMemberships(UserSecId) then
+        if not ShouldFetchUserMemberships(User."User Security ID") then
             exit(false);
 
-        Parameters.Set(GetUserSecurityIdParameterKey(), UserSecId);
+        Parameters.Set(GetUserSecurityIdParameterKey(), user."User Security ID");
         exit(true);
     end;
 

@@ -36,6 +36,7 @@ codeunit 137910 "SCM Calculate Standard Cost"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryResource: Codeunit "Library - Resource";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
         CalcRecursionLevel: Integer;
         RecursionInstruction: Text[1024];
         TEXT_PART1: Label 'Part 1';
@@ -83,8 +84,8 @@ codeunit 137910 "SCM Calculate Standard Cost"
           asmTopItem, BOMComponent.Type::Item, asm1Item."No.", 3, asm1Item."Base Unit of Measure", false);
         prod1Item.Get(CreateItem('PROD 1', 0, 0));
 
-        LibraryKitting.AddProdBOMItem(prod1Item, CreateItem('PURCH 3', 100, 200), 4);
-        LibraryKitting.AddProdBOMItem(prod1Item, TEXT_PART1, 5);
+        LibraryManufacturing.AddProdBOMItem(prod1Item, CreateItem('PURCH 3', 100, 200), 4);
+        LibraryManufacturing.AddProdBOMItem(prod1Item, TEXT_PART1, 5);
         LibraryKitting.CreateBOMComponentLine(
           asmTopItem, BOMComponent.Type::Item, prod1Item."No.", 6, prod1Item."Base Unit of Measure", false);
 
@@ -112,14 +113,14 @@ codeunit 137910 "SCM Calculate Standard Cost"
         Initialize();
         prodTopItem.Get(CreateItem('PROD TOP', 0, 0));
         childItem.Get(CreateItem(TEXT_PART1, 1, 2));
-        LibraryKitting.AddProdBOMItem(prodTopItem, childItem."No.", 1);
+        LibraryManufacturing.AddProdBOMItem(prodTopItem, childItem."No.", 1);
         asm1Item.Get(CreateItem('ASM 1', 0, 0));
         LibraryKitting.CreateBOMComponentLine(
           asm1Item, BOMComponent.Type::Item, childItem."No.", 2, childItem."Base Unit of Measure", false);
         childItem.Get(CreateItem(TEXT_PART3, 10, 20));
         LibraryKitting.CreateBOMComponentLine(
           asm1Item, BOMComponent.Type::Item, childItem."No.", 3, childItem."Base Unit of Measure", false);
-        LibraryKitting.AddProdBOMItem(prodTopItem, asm1Item."No.", 4);
+        LibraryManufacturing.AddProdBOMItem(prodTopItem, asm1Item."No.", 4);
 
         TestCost('', prodTopItem, 0, 0, 0, 0, 0, 0, 0, 0);
         TestCost('', prodTopItem, 1 * 1 + 4 * 0, 1, 1 + 0, 0, 0, 1, 0, 0);

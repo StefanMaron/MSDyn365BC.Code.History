@@ -70,7 +70,7 @@ codeunit 136319 "Job Item Tracking"
         Job.Validate("Apply Usage Link", true);
         Job.Modify(true);
 
-        // [GIVEN] Create job tasks and a Job Planning Line 
+        // [GIVEN] Create job tasks and a Job Planning Line
         // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Budget
         // [GIVEN] Job Planning Line for Job Task T1: Type = SerialTrackedItem, Line Type = Budget
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -122,7 +122,7 @@ codeunit 136319 "Job Item Tracking"
         Job.Validate("Apply Usage Link", true);
         Job.Modify(true);
 
-        // [GIVEN] Create job tasks and a Job Planning Line 
+        // [GIVEN] Create job tasks and a Job Planning Line
         // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Budget
         // [GIVEN] Job Planning Line for Job Task T1: Type = SerialTrackedItem, Line Type = Budget
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -180,7 +180,7 @@ codeunit 136319 "Job Item Tracking"
         Job.Validate("Apply Usage Link", true);
         Job.Modify(true);
 
-        // [GIVEN] Create job tasks and a Job Planning Line 
+        // [GIVEN] Create job tasks and a Job Planning Line
         // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Budget
         LibraryJob.CreateJobTask(Job, JobTask);
         CreateJobPlanningLineWithData(JobPlanningLine1, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine1.Type::Item, Item."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, LibraryRandom.RandInt(10));
@@ -215,7 +215,7 @@ codeunit 136319 "Job Item Tracking"
         Job.Validate("Apply Usage Link", true);
         Job.Modify(true);
 
-        // [GIVEN] Create job tasks and a Job Planning Line 
+        // [GIVEN] Create job tasks and a Job Planning Line
         // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Billable
         LibraryJob.CreateJobTask(Job, JobTask);
         CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Billable, JobPlanningLine.Type::Item, Item."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, LibraryRandom.RandInt(10));
@@ -249,7 +249,7 @@ codeunit 136319 "Job Item Tracking"
         Job.Validate("Apply Usage Link", true);
         Job.Modify(true);
 
-        // [GIVEN] Create job tasks and a Job Planning Line 
+        // [GIVEN] Create job tasks and a Job Planning Line
         // [GIVEN] Job Planning Line for Job Task T1: Type = Resource, Line Type = Budget
         LibraryJob.CreateJobTask(Job, JobTask);
         CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Resource, ResourceNo, LocationWithRequirePick.Code, '', LibraryRandom.RandInt(10));
@@ -288,7 +288,7 @@ codeunit 136319 "Job Item Tracking"
         Job.Validate("Apply Usage Link", true);
         Job.Modify(true);
 
-        // [GIVEN] Create job tasks and a Job Planning Line 
+        // [GIVEN] Create job tasks and a Job Planning Line
         // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Budget
         LibraryJob.CreateJobTask(Job, JobTask);
         CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, SerialTrackedItem."No.", LocationWithRequirePick.Code, '', LibraryRandom.RandInt(10));
@@ -360,7 +360,7 @@ codeunit 136319 "Job Item Tracking"
         Job.Validate("Apply Usage Link", true);
         Job.Modify(true);
 
-        // [GIVEN] Create job tasks and a Job Planning Line 
+        // [GIVEN] Create job tasks and a Job Planning Line
         // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Budget
         LibraryJob.CreateJobTask(Job, JobTask);
         CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, SerialTrackedItem."No.", LocationWithRequirePick.Code, '', 1);
@@ -453,7 +453,7 @@ codeunit 136319 "Job Item Tracking"
         Job.Validate("Apply Usage Link", true);
         Job.Modify(true);
 
-        // [GIVEN] Create job tasks and a Job Planning Line 
+        // [GIVEN] Create job tasks and a Job Planning Line
         // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Budget
         LibraryJob.CreateJobTask(Job, JobTask);
         CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, LotTrackedItem."No.", LocationWithRequirePick.Code, '', 1);
@@ -547,7 +547,7 @@ codeunit 136319 "Job Item Tracking"
         Job.Validate("Apply Usage Link", true);
         Job.Modify(true);
 
-        // [GIVEN] Create job tasks and a Job Planning Line 
+        // [GIVEN] Create job tasks and a Job Planning Line
         // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Budget
         LibraryJob.CreateJobTask(Job, JobTask);
         CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, LotTrackedItem."No.", LocationWithRequirePick.Code, '', QtyInventory);
@@ -569,7 +569,7 @@ codeunit 136319 "Job Item Tracking"
         // [WHEN] Creating Job Journal Lines from Job Planning Lines
         TransferToJobJournalFromJobPlanningLine(JobPlanningLine);
 
-        // [THEN] Reservation entries are also transferred (2 lots created) 
+        // [THEN] Reservation entries are also transferred (2 lots created)
         ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
         ReservationEntry.SetRange("Item No.", LotTrackedItem."No.");
         ReservationEntry.SetRange("Source Type", Database::"Job Planning Line");
@@ -655,7 +655,7 @@ codeunit 136319 "Job Item Tracking"
         // [GIVEN] A Job with a task
         CreateJobWithJobTask(JobTask);
 
-        // [GIVEN] Create job tasks and a Job Planning Line 
+        // [GIVEN] Create job tasks and a Job Planning Line
         // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Both Budget and Billable
         CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::"Both Budget and Billable", JobPlanningLine.Type::Item, SerialTrackedItem."No.", LocationWithRequirePick.Code, '', QtyInventory);
 
@@ -1680,7 +1680,7 @@ codeunit 136319 "Job Item Tracking"
         SetItemQtyToHandleOnWhsActLine(ItemSNAll, QtyInventory);
         Commit(); //After the below error, Qty. to Handle gets reset.
 
-        // [WHEN] Post Inventory Pick for ItemSNAll with bin mandatory 
+        // [WHEN] Post Inventory Pick for ItemSNAll with bin mandatory
         asserterror PostInventoryPickFromPage(JobPlanningLine1."Job No.", JobPlanningLine1."Location Code", false);
         // [THEN] Error: Serial Number is not assigned
         Assert.ExpectedError('must assign a serial number');
@@ -1704,7 +1704,7 @@ codeunit 136319 "Job Item Tracking"
         SetItemQtyToHandleOnWhsActLine(ItemSNWMS, QtyInventory);
         Commit(); //After the below error, Qty. to Handle gets reset.
 
-        // [WHEN] Post Inventory Pick for ItemSNWMS with bin mandatory 
+        // [WHEN] Post Inventory Pick for ItemSNWMS with bin mandatory
         asserterror PostInventoryPickFromPage(JobPlanningLine2."Job No.", JobPlanningLine2."Location Code", false);
         // [THEN] Error: Serial Number is not assigned
         Assert.ExpectedError('must have a value in');
@@ -1956,7 +1956,7 @@ codeunit 136319 "Job Item Tracking"
         counter: Integer;
     begin
         // [FEATURE] 427973 [WMS] Support Item Tracking for Inventory Pick and Warehouse Pick scenarios for Job Planning Lines
-        // [SCENARIO] Partial posting of Inventory Picks is possible for SN tracking transferred from Job Planning Line 
+        // [SCENARIO] Partial posting of Inventory Picks is possible for SN tracking transferred from Job Planning Line
 
         // [GIVEN] Job planning line with ItemAll Location LocationWithRequirePick
         // [GIVEN] Job planning line with ItemAll Location LocationWithRequirePickBinMandatory Bin1
@@ -2051,7 +2051,7 @@ codeunit 136319 "Job Item Tracking"
         QtyToHandle: Integer;
     begin
         // [FEATURE] 427973 [WMS] Support Item Tracking for Inventory Pick and Warehouse Pick scenarios for Job Planning Lines
-        // [SCENARIO] Partial posting of Inventory Picks is possible for Lot tracking transferred from Job Planning Line 
+        // [SCENARIO] Partial posting of Inventory Picks is possible for Lot tracking transferred from Job Planning Line
 
         // [GIVEN] Job planning line with ItemLotAll Location LocationWithRequirePick
         // [GIVEN] Job planning line with ItemLotAll Location LocationWithRequirePickBinMandatory Bin1
@@ -2204,7 +2204,7 @@ codeunit 136319 "Job Item Tracking"
         Commit(); //committing before the error.
         asserterror PostInventoryPickFromPage(Job."No.", LocationWithRequirePickBinMandatory.Code, false);
 
-        // [THEN] Error is thrown that quantity to handle in item tracking does not match with the inventory pick quantity 
+        // [THEN] Error is thrown that quantity to handle in item tracking does not match with the inventory pick quantity
         Assert.ExpectedError(StrSubstNo('%1 in the item tracking assigned', WarehouseActivityLine.FieldCaption(WarehouseActivityLine."Qty. to Handle (Base)")));
 
         // [WHEN] Post Inventory Pick for LocationWithRequirePick
@@ -2245,7 +2245,7 @@ codeunit 136319 "Job Item Tracking"
         QtyToHandle: Integer;
     begin
         // [FEATURE] 427973 [WMS] Support Item Tracking for Inventory Pick and Warehouse Pick scenarios for Job Planning Lines
-        // [SCENARIO] Posting of Inventory Picks is possible after splitting for Lot tracking transferred from Job Planning Line 
+        // [SCENARIO] Posting of Inventory Picks is possible after splitting for Lot tracking transferred from Job Planning Line
 
         // [GIVEN] Job planning line with ItemLotAll1 Location LocationWithRequirePickBinMandatory Bin1
         // [GIVEN] Job planning line with ItemLotAll1 Location LocationWithRequirePick
@@ -2266,7 +2266,7 @@ codeunit 136319 "Job Item Tracking"
         CreateAndPostInvtAdjustmentWithLotTracking(ItemLotAll1."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, QtyInventory / 2, LibraryRandom.RandDec(10, 2));
         CreateAndPostInvtAdjustmentWithLotTracking(ItemLotAll1."No.", LocationWithRequirePick.Code, '', QtyInventory / 2, LibraryRandom.RandDec(10, 2));
 
-        // [GIVEN] ItemAll2 is assigned 1 Lot. 
+        // [GIVEN] ItemAll2 is assigned 1 Lot.
         CreateAndPostInvtAdjustmentWithLotTracking(ItemLotAll2."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
         CreateAndPostInvtAdjustmentWithLotTracking(ItemLotAll2."No.", LocationWithRequirePick.Code, '', QtyInventory, LibraryRandom.RandDec(10, 2));
 
@@ -2365,7 +2365,7 @@ codeunit 136319 "Job Item Tracking"
         QtyToHandle: Integer;
     begin
         // [FEATURE] 427973 [WMS] Support Item Tracking for Inventory Pick and Warehouse Pick scenarios for Job Planning Lines
-        // [SCENARIO] Partial posting of Inventory Picks is possible for Lot tracking transferred from Job Planning Lines for Lot Specific tracking and not assigning Lot No. for item with negative Lot adjustment. 
+        // [SCENARIO] Partial posting of Inventory Picks is possible for Lot tracking transferred from Job Planning Lines for Lot Specific tracking and not assigning Lot No. for item with negative Lot adjustment.
 
         // [GIVEN] Job planning line with ItemLotAll Location LocationWithRequirePick
         // [GIVEN] Job planning line with ItemLotAll Location LocationWithRequirePickBinMandatory Bin1
@@ -2713,7 +2713,7 @@ codeunit 136319 "Job Item Tracking"
                 ItemLedgerEntry.SetRange("Location Code", WarehouseActivityLine."Location Code");
                 ItemLedgerEntry.FindFirst();
             end;
-            // Assign the same serial number for take and pick action 
+            // Assign the same serial number for take and pick action
             WarehouseActivityLine.Validate("Serial No.", ItemLedgerEntry."Serial No.");
             WarehouseActivityLine.Modify(true);
             Iteration += 1;
@@ -2931,7 +2931,7 @@ codeunit 136319 "Job Item Tracking"
         Job.Validate("Apply Usage Link", true);
         Job.Modify(true);
 
-        // [GIVEN] Create job tasks and a Job Planning Line 
+        // [GIVEN] Create job tasks and a Job Planning Line
         // [GIVEN] Job Planning Line for Job Task T1: Type = SerialTrackedItem, Line Type = Budget
         LibraryJob.CreateJobTask(Job, JobTask);
         CreateJobPlanningLineWithData(
@@ -2949,7 +2949,7 @@ codeunit 136319 "Job Item Tracking"
         Job.Get(JobTask."Job No.");
         OpenJobAndCreateWarehousePick(Job);
 
-        // [GIVEN] Select serial number for quantity 2(2 takes and 2 places) and set quantity to handle on the last line to 0 without setting serial number 
+        // [GIVEN] Select serial number for quantity 2(2 takes and 2 places) and set quantity to handle on the last line to 0 without setting serial number
         SetItemQtyToHandleOnWhsPickAction(Item, 1, true, true, LocationRequireWhsePickBinMandatory.Code);
         WarehouseActivityLine.SetRange("Item No.", Item."No.");
         WarehouseActivityLine.FindSet(true);
@@ -3190,7 +3190,7 @@ codeunit 136319 "Job Item Tracking"
         Job.Validate("Apply Usage Link", true);
         Job.Modify(true);
 
-        // [GIVEN] Create job tasks and a Job Planning Line 
+        // [GIVEN] Create job tasks and a Job Planning Line
         // [GIVEN] Job Planning Line for Job Task T1: Type = SerialTrackedItem, Line Type = Budget
         LibraryJob.CreateJobTask(Job, JobTask);
         CreateJobPlanningLineWithData(
@@ -3245,7 +3245,7 @@ codeunit 136319 "Job Item Tracking"
         Job.Validate("Apply Usage Link", true);
         Job.Modify(true);
 
-        // [GIVEN] Create job tasks and a Job Planning Line 
+        // [GIVEN] Create job tasks and a Job Planning Line
         // [GIVEN] Job Planning Line for Job Task T1: Type = SerialTrackedItem, Line Type = Budget
         LibraryJob.CreateJobTask(Job, JobTask);
         CreateJobPlanningLineWithData(
@@ -4044,16 +4044,6 @@ codeunit 136319 "Job Item Tracking"
         exit(Customer."No.");
     end;
 
-    local procedure CreateItem(): Code[20]
-    var
-        Item: Record Item;
-    begin
-        LibraryInventory.CreateItem(Item);
-        Item.Validate("Unit Price", LibraryRandom.RandDec(50, 2));  // Use Random value for Unit Price.
-        Item.Modify(true);
-        exit(Item."No.");
-    end;
-
     local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; LineType: Enum "Job Planning Line Line Type"; ConsumableType: Enum "Job Planning Line Type"; JobTask: Record "Job Task"; No: Code[20]; Quantity: Decimal; UnitCost: Decimal; UnitPrice: Decimal)
     begin
         LibraryJob.CreateJobPlanningLine(LineType, ConsumableType, JobTask, JobPlanningLine);
@@ -4330,4 +4320,3 @@ codeunit 136319 "Job Item Tracking"
         CreateInvtPutawayPickMvmt.OK().Invoke();
     end;
 }
-

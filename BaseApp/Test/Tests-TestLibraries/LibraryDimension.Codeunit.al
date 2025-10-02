@@ -451,7 +451,6 @@ codeunit 131001 "Library - Dimension"
         AddTable(TableBuffer, DATABASE::Insurance);
         AddTable(TableBuffer, DATABASE::"Responsibility Center");
         AddTable(TableBuffer, DATABASE::"Item Charge");
-        AddTable(TableBuffer, DATABASE::"Work Center");
 
         OnGetTableNosWithGlobalDimensionCode(TableBuffer);
     end;
@@ -463,7 +462,7 @@ codeunit 131001 "Library - Dimension"
         exit(DimensionManagement.ChunkDimSetFilters(TempDimensionSetEntry));
     end;
 
-    local procedure AddTable(var TableBuffer: Record "Integer" temporary; TableID: Integer)
+    procedure AddTable(var TableBuffer: Record "Integer" temporary; TableID: Integer)
     begin
         if not TableBuffer.Get(TableID) then begin
             TableBuffer.Number := TableID;
@@ -494,7 +493,7 @@ codeunit 131001 "Library - Dimension"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnGetTableNosWithGlobalDimensionCode(var TableBuffer: Record "Integer" temporary)
     begin
     end;

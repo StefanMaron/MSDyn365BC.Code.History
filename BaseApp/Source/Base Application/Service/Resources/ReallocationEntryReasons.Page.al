@@ -106,7 +106,6 @@ page 6022 "Reallocation Entry Reasons"
             {
                 ApplicationArea = Service;
                 Caption = 'Priority';
-                OptionCaption = 'Low,Medium,High';
             }
             field(ReasonCode; ReasonCode)
             {
@@ -141,7 +140,7 @@ page 6022 "Reallocation Entry Reasons"
         ReasonCode: Code[10];
         NewResource: Code[20];
         NewResourceGr: Code[20];
-        ServPriority: Option Low,Medium,High;
+        ServPriority: Enum "Service Priority";
 
     procedure ReturnReasonCode(): Code[10]
     begin

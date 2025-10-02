@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ codeunit 1173 "Document Attachment Mgmt"
 
         SetDocumentAttachmentFiltersForRecRef(DocumentAttachment, RecRef);
         if AttachedDocumentsExist(RecRef) then
-            DocumentAttachment.DeleteAll();
+            DocumentAttachment.DeleteAll(true);
     end;
 
     procedure DeleteAttachedDocumentsWithConfirm(RecRef: RecordRef)
@@ -1255,13 +1255,6 @@ codeunit 1173 "Document Attachment Mgmt"
         MoveAttachmentsWithinSameRecordType(MoveFromRecRef, MoveToRecRef);
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced with the same procedure with enum instead of option.', '24.0')]
-    procedure IsDuplicateFile(TableID: Integer; DocumentNo: Code[20]; RecDocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; RecLineNo: Integer; FileName: Text; FileExtension: Text): Boolean
-    begin
-        exit(IsDuplicateFile(TableID, DocumentNo, Enum::"Attachment Document Type".FromInteger(RecDocType), RecLineNo, FileName, FileExtension));
-    end;
-#endif
 
     procedure IsDuplicateFile(TableID: Integer; DocumentNo: Code[20]; AttachmentDocumentType: Enum "Attachment Document Type"; RecLineNo: Integer; FileName: Text; FileExtension: Text): Boolean
     var
@@ -1864,4 +1857,3 @@ codeunit 1173 "Document Attachment Mgmt"
     begin
     end;
 }
-

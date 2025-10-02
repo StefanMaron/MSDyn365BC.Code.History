@@ -227,9 +227,14 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
     end;
 
     local procedure InsertRecord(var IntegrationTableMapping: Record "Integration Table Mapping"; var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var SynchAction: Option; JobId: Guid; IntegrationTableConnectionType: TableConnectionType)
+    var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        InsertWithSystemId: Boolean;
     begin
-        OnBeforeInsertRecord(IntegrationTableMapping, SourceRecordRef, DestinationRecordRef);
-        DestinationRecordRef.Insert(true);
+        OnBeforeInsertRecord(IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, InsertWithSystemId);
+        if InsertWithSystemId then
+            InsertWithSystemId := CRMIntegrationManagement.IsCRMTable(SourceRecordRef.Number());
+        DestinationRecordRef.Insert(true, InsertWithSystemId);
         ApplyConfigTemplate(IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, JobId, SynchAction);
         OnInsertRecordOnAfterApplyConfigTemplate(IntegrationTableMapping, SourceRecordRef, DestinationRecordRef);
         if SynchAction <> SynchActionType::Fail then begin
@@ -770,7 +775,7 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertRecord(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
+    local procedure OnBeforeInsertRecord(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var InsertWithSystemId: Boolean)
     begin
     end;
 

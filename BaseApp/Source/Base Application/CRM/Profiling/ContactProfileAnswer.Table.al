@@ -101,6 +101,7 @@ table 5089 "Contact Profile Answer"
         }
         field(11; "Questions Answered (%)"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Questions Answered (%)';
             DecimalPlaces = 0 : 0;
@@ -265,4 +266,3 @@ table 5089 "Contact Profile Answer"
     begin
     end;
 }
-

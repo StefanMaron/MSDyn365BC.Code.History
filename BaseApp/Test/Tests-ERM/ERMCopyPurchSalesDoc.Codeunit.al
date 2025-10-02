@@ -31,11 +31,11 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
         OneLineShouldBeCopiedErr: Label 'One line should be copied.';
-        InvoiceNoTxt: Label 'Invoice No. %1:';
+        InvoiceNoTxt: Label 'Invoice No. %1:', Comment = '%1: Invoice No.';
         WrongCopyPurchaseResourceErr: Label 'Wrong data after copy purchase resource';
         AddrChangedErr: Label 'field on the purchase order %1 must be the same as on sales order %2.', Comment = '%1: Purchase Order No., %2: Sales Order No.';
         ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
-        GLEntryExistLabel: Label 'G/L Entry with zero amount is posted.';
+        GLEntryExistLbl: Label 'G/L Entry with zero amount is posted.';
 
 #if not CLEAN25
     [Test]
@@ -1979,14 +1979,14 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         RunCopySalesDoc(
           SalesHeader."No.", ToSalesHeader,
           MapperSalesHeaders(SalesHeader."Document Type"), true, true);
-        ToSalesHeader.Find();
+        ToSalesHeader.Get(ToSalesHeader."Document Type", ToSalesHeader."No.");
         ToSalesHeader.TestField("Invoice Discount Value", 0);
 
         // [WHEN] Calc invoice discount on destination sales line
         CalcInvoiceDiscountOnSalesLine(ToSalesLine, ToSalesHeader, SalesLine."No.");
 
         // [THEN] "Inv. Disc. Amount to Invoice" is 0
-        ToSalesLine.Find();
+        ToSalesLine.Get(ToSalesLine."Document Type", ToSalesLine."Document No.", ToSalesLine."Line No.");
         ToSalesLine.TestField("Inv. Disc. Amount to Invoice", 0);
     end;
 
@@ -2023,14 +2023,14 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         RunCopySalesDoc(
           SalesHeader."No.", ToSalesHeader,
           MapperSalesHeaders(SalesHeader."Document Type"), true, true);
-        ToSalesHeader.Find();
+        ToSalesHeader.Get(ToSalesHeader."Document Type", ToSalesHeader."No.");
         ToSalesHeader.TestField("Invoice Discount Value", Item."Unit Price" * SalesLine.Quantity);
 
         // [WHEN] Calc invoice discount on destination sales line
         CalcInvoiceDiscountOnSalesLine(ToSalesLine, ToSalesHeader, SalesLine."No.");
 
         // [THEN] "Inv. Disc. Amount to Invoice" = 2
-        ToSalesLine.Find();
+        ToSalesLine.Get(ToSalesLine."Document Type", ToSalesLine."Document No.", ToSalesLine."Line No.");
         ToSalesLine.TestField("Inv. Disc. Amount to Invoice", ToSalesLine."Line Amount");
     end;
 
@@ -2060,14 +2060,14 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         LibraryPurchase.CreatePurchHeader(ToPurchaseHeader, ToPurchaseHeader."Document Type"::Order, PurchaseHeader."Buy-from Vendor No.");
         RunCopyPurchaseDoc(
           PurchaseHeader."No.", ToPurchaseHeader, MapperPurchaseHeaders(PurchaseHeader."Document Type"), true, true);
-        ToPurchaseHeader.Find();
+        ToPurchaseHeader.Get(ToPurchaseHeader."Document Type", ToPurchaseHeader."No.");
         ToPurchaseHeader.TestField("Invoice Discount Value", 0);
 
         // [WHEN] Calc invoice discount on destination purchase line
         CalcInvoiceDiscountOnPurchaseLine(ToPurchaseLine, ToPurchaseHeader, PurchaseLine."No.");
 
         // [THEN] "Inv. Disc. Amount to Invoice" is 0
-        ToPurchaseLine.Find();
+        ToPurchaseLine.Get(ToPurchaseLine."Document Type", ToPurchaseLine."Document No.", ToPurchaseLine."Line No.");
         ToPurchaseLine.TestField("Inv. Disc. Amount to Invoice", 0);
     end;
 
@@ -2103,14 +2103,14 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         LibraryPurchase.CreatePurchHeader(ToPurchaseHeader, ToPurchaseHeader."Document Type"::Order, PurchaseHeader."Buy-from Vendor No.");
         RunCopyPurchaseDoc(
           PurchaseHeader."No.", ToPurchaseHeader, MapperPurchaseHeaders(PurchaseHeader."Document Type"), true, true);
-        ToPurchaseHeader.Find();
+        ToPurchaseHeader.Get(ToPurchaseHeader."Document Type", ToPurchaseHeader."No.");
         ToPurchaseHeader.TestField("Invoice Discount Value", Item."Unit Price" * PurchaseLine.Quantity);
 
         // [WHEN] Calc invoice discount on destination purhcase line
         CalcInvoiceDiscountOnPurchaseLine(ToPurchaseLine, ToPurchaseHeader, PurchaseLine."No.");
 
         // [THEN] "Inv. Disc. Amount to Invoice" = 2
-        ToPurchaseLine.Find();
+        ToPurchaseLine.Get(ToPurchaseLine."Document Type", ToPurchaseLine."Document No.", ToPurchaseLine."Line No.");
         ToPurchaseLine.TestField("Inv. Disc. Amount to Invoice", ToPurchaseLine."Line Amount");
     end;
 
@@ -2433,7 +2433,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [GIVEN] Subscibe on CopyDocumentMgt.OnBeforeInsertOldPurchDocNoLine
         BindSubscription(ERMCopyPurchSalesDoc);
 
-        // [WHEN] Copy posted invoice XXX to purchase invoice YYY 
+        // [WHEN] Copy posted invoice XXX to purchase invoice YYY
         RunCopyPurchaseDoc(
           InvoiceNo, DestinationPurchHeader, "Purchase Document Type From"::"Posted Invoice", true, true);
 
@@ -2471,7 +2471,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [GIVEN] Subscibe on CopyDocumentMgt.OnBeforeInsertOldSalesDocNoLine
         BindSubscription(ERMCopySalesSalesDoc);
 
-        // [WHEN] Copy posted invoice XXX to sales invoice YYY 
+        // [WHEN] Copy posted invoice XXX to sales invoice YYY
         RunCopySalesDoc(
           InvoiceNo, DestinationSalesHeader, "Sales Document Type From"::"Posted Invoice", true, true);
 
@@ -2537,7 +2537,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [SCENARIO 289386] Copy purchase order from posted purchase invoice with resource line and "Recalculate Lines" = true
         Initialize();
 
-        // [GIVEN] Posted purchase invoice "PPI" with resource line 
+        // [GIVEN] Posted purchase invoice "PPI" with resource line
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, '', LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
@@ -2580,7 +2580,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [SCENARIO 289386] Copy purchase order from posted purchase invoice with blocked resource line
         Initialize();
 
-        // [GIVEN] Posted purchase invoice "PPI" with resource line 
+        // [GIVEN] Posted purchase invoice "PPI" with resource line
         LibraryResource.CreateResourceNew(Resource);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, Resource."No.", LibraryRandom.RandInt(10));
@@ -2598,7 +2598,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         CopyDocumentMgt.CopyPurchDoc("Purchase Document TYpe From"::"Posted Invoice", DocNo, ToPurchaseHeader);
 
         // [THEN] "Resource" line was not coppied
-        // [THEN] "PO" contains one comment line       
+        // [THEN] "PO" contains one comment line
         ToPurchaseLine.SetRange("Document Type", ToPurchaseHeader."Document Type");
         ToPurchaseLine.SetRange("Document No.", ToPurchaseHeader."No.");
         Assert.RecordCount(ToPurchaseLine, 1);
@@ -2631,7 +2631,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         Resource.Validate("Default Deferral Template Code", CreateDeferralTemplate());
         Resource.Modify(true);
 
-        // [GIVEN] Posted purchase receipt "PPR" with resource line 
+        // [GIVEN] Posted purchase receipt "PPR" with resource line
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, Resource."No.", LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
@@ -2750,7 +2750,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [SCENARIO 382275] Copy "VAT Clause Code" and "VAT Identifier" when "Get Posted Document Lines to Reverse" from posted Invoice
         Initialize();
         LibraryERM.CreateVATClause(VATClause);
-        VATIdentifier := LibraryUtility.GenerateRandomText(MaxStrLen(VATIdentifier));
+        VATIdentifier := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(VATIdentifier)), 1, MaxStrLen(VATIdentifier));
 
         // [GIVEN] Posted sales invoice refered to VAT Posting Setup with "VAT Clause Code" = "VC" and "VAT Identifier" = "VI"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
@@ -2789,7 +2789,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [SCENARIO 382275] Copy "VAT Clause Code" and "VAT Identifier" when "Get Posted Document Lines to Reverse" from posted Invoice
         Initialize();
         LibraryERM.CreateVATClause(VATClause);
-        VATIdentifier := LibraryUtility.GenerateRandomText(MaxStrLen(VATIdentifier));
+        VATIdentifier := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(VATIdentifier)), 1, MaxStrLen(VATIdentifier));
 
         // [GIVEN] Posted sales invoice refered to VAT Posting Setup with "VAT Clause Code" = "VC" and "VAT Identifier" = "VI"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
@@ -2901,8 +2901,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     procedure CopyWorkDescriptionSalesArchiveShipment()
     var
         SalesHeader: Record "Sales Header";
-        DestinationSalesHeader: Array[2] of Record "Sales Header";
-        SalesHeaderArchive: Record "Sales Header Archive";
+        DestinationSalesHeader: array[2] of Record "Sales Header";
         SalesShipmentHeader: Record "Sales Shipment Header";
         ArchiveManagement: Codeunit ArchiveManagement;
         WorkDescriptionText: Text;
@@ -2918,8 +2917,6 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
         // [WHEN] 'Copy Document' is invoked to copy from Archived Sales Order
         LibrarySales.CreateSalesHeader(DestinationSalesHeader[1], DestinationSalesHeader[1]."Document Type"::Order, SalesHeader."Sell-to Customer No.");
-        SalesHeaderArchive.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesHeaderArchive.FindFirst();
         CopySalesDocFromArchive(
             DestinationSalesHeader[1], "Sales Document Type From"::"Arch. Order",
             SalesHeader."No.", true, false, SalesHeader."Document Type");
@@ -3028,14 +3025,14 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     [HandlerFunctions('ConfirmHandlerYes')]
     procedure CorrectiveSalesCreditMemoLineOrder()
     var
-        Item: Array[2] of Record Item;
+        Item: array[2] of Record Item;
         SalesHeader: Record "Sales Header";
-        SalesLine: Array[2] of Record "Sales Line";
+        SalesLine: array[2] of Record "Sales Line";
         SalesShipmentLine: Record "Sales Shipment Line";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
         DocumentNo: Code[20];
-        ShipmentNo: Array[2] of Code[20];
+        ShipmentNo: array[2] of Code[20];
     begin
         // [SCENARIO 412021] Corrective Sales Credit Memo should generate lines in correct order
         Initialize();
@@ -3062,7 +3059,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
         // [GIVEN] Ship "Item1" with Quantity = 1.
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
-        SalesLine[2].Find();
+        SalesLine[2].Get(SalesLine[2]."Document Type", SalesLine[2]."Document No.", SalesLine[2]."Line No.");
         SalesLine[2].Validate("Qty. to Ship", 1);
         SalesLine[2].Modify();
 
@@ -3197,14 +3194,14 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     [HandlerFunctions('ConfirmHandlerYes')]
     procedure CorrectivePurchCreditMemoLineOrder()
     var
-        Item: Array[2] of Record Item;
+        Item: array[2] of Record Item;
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Array[2] of Record "Purchase Line";
+        PurchaseLine: array[2] of Record "Purchase Line";
         PurchRcptLine: Record "Purch. Rcpt. Line";
         PurchInvHeader: Record "Purch. Inv. Header";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
         DocumentNo: Code[20];
-        ReceiptNo: Array[2] of Code[20];
+        ReceiptNo: array[2] of Code[20];
     begin
         // [SCENARIO 412021] Corrective Purchase Credit Memo should generate lines in correct order
         Initialize();
@@ -3232,7 +3229,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
         // [GIVEN] Receive "Item1" with Quantity = 1.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
-        PurchaseLine[2].Find();
+        PurchaseLine[2].Get(PurchaseLine[2]."Document Type", PurchaseLine[2]."Document No.", PurchaseLine[2]."Line No.");
         PurchaseLine[2].Validate("Qty. to Receive", 1);
         PurchaseLine[2].Modify();
 
@@ -3404,7 +3401,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
             MapperPurchaseHeaders(SourcePurchaseHeader."Document Type"), false, false);
 
         // [THEN] Order "PO2" header "Transaction Specification" = "TS2"
-        TargetPurchaseHeader.Find();
+        TargetPurchaseHeader.Get(TargetPurchaseHeader."Document Type", TargetPurchaseHeader."No.");
         TargetPurchaseHeader.TestField(Area, OldTargetPurchaseHeader.Area);
         TargetPurchaseHeader.TestField("Entry Point", OldTargetPurchaseHeader."Entry Point");
         TargetPurchaseHeader.TestField("Transaction Specification", OldTargetPurchaseHeader."Transaction Specification");
@@ -3440,7 +3437,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
             MapperSalesHeaders(SourceSalesHeader."Document Type"), false, false);
 
         // [THEN] Order "PO2" header "Transaction Specification" = "TS2"
-        TargetSalesHeader.Find();
+        TargetSalesHeader.Get(TargetSalesHeader."Document Type", TargetSalesHeader."No.");
         TargetSalesHeader.TestField(Area, OldTargetSalesHeader.Area);
         TargetSalesHeader.TestField("Exit Point", OldTargetSalesHeader."Exit Point");
         TargetSalesHeader.TestField("Transaction Specification", OldTargetSalesHeader."Transaction Specification");
@@ -3480,7 +3477,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
         RunCopySalesDoc(SalesInvoiceHeader."No.", SalesHeaderOrder, SalesDocumentTypeFrom::"Posted Invoice", true, false);
 
-        SalesHeaderOrder.Find();
+        SalesHeaderOrder.Get(SalesHeaderOrder."Document Type", SalesHeaderOrder."No.");
         LibrarySales.FindFirstSalesLine(SalesLineOrder, SalesHeaderOrder);
         SalesLineOrder.FindLast();
         SalesLineOrder.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
@@ -3488,11 +3485,11 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
         LibrarySales.PostSalesDocument(SalesHeaderOrder, true, false);
 
-        SalesHeaderOrder.Find();
+        SalesHeaderOrder.Get(SalesHeaderOrder."Document Type", SalesHeaderOrder."No.");
 
         LibrarySales.PostSalesDocument(SalesHeaderOrder, false, true);
 
-        Assert.IsFalse(SalesHeaderOrder.Find(), '');
+        Assert.IsFalse(SalesHeaderOrder.Get(SalesHeaderOrder."Document Type", SalesHeaderOrder."No."), '');
     end;
 
     [Test]
@@ -3527,7 +3524,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
         RunCopyPurchaseDoc(PurchInveHeader."No.", PurchaseHeaderOrder, PurchaseDocumentTypeFrom::"Posted Invoice", true, false);
 
-        PurchaseHeaderOrder.Find();
+        PurchaseHeaderOrder.Get(PurchaseHeaderOrder."Document Type", PurchaseHeaderOrder."No.");
         PurchaseHeaderOrder.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeaderOrder.Modify(true);
 
@@ -3538,13 +3535,13 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
 
-        PurchaseHeaderOrder.Find();
+        PurchaseHeaderOrder.Get(PurchaseHeaderOrder."Document Type", PurchaseHeaderOrder."No.");
         PurchaseHeaderOrder.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeaderOrder.Modify(true);
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, false, true);
 
-        Assert.IsFalse(PurchaseHeaderOrder.Find(), '');
+        Assert.IsFalse(PurchaseHeaderOrder.Get(PurchaseHeaderOrder."Document Type", PurchaseHeaderOrder."No."), '');
     end;
 
     [Test]
@@ -6689,7 +6686,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         PostedSalesDocNo: Code[20];
     begin
         // [FEATURE] [Sales][Credit Memo]
-        // [SCENARIO 469244] Verify Ship-to Address is updated with Company data after coyping Posted Sales Invoice to Sales Return Order        
+        // [SCENARIO 469244] Verify Ship-to Address is updated with Company data after coyping Posted Sales Invoice to Sales Return Order
         Initialize();
 
         // [GIVEN] Company Information with "Ship-to Address" = "SA"
@@ -6820,13 +6817,13 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesInvHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         // [THEN] Verify Zero Amount G/L Entry not Posted.
-        Assert.AreEqual(false, VerifyZeroAmountEntryGLEntryExist(SalesInvHeader."No."), GLEntryExistLabel);
+        Assert.AreEqual(false, VerifyZeroAmountEntryGLEntryExist(SalesInvHeader."No."), GLEntryExistLbl);
     end;
 
     local procedure Initialize()
     var
-        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         PriceListLine: Record "Price List Line";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Copy Purch/Sales Doc");
         LibrarySetupStorage.Restore();
@@ -6850,7 +6847,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Copy Purch/Sales Doc");
     end;
-
+#if not CLEAN25
     local procedure SetRandomSalesValues(var ItemCost: Integer; var ItemPrice: Integer; var DestinationDocType: Enum "Sales Document Type"; var OriginalDocType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
@@ -6880,7 +6877,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         DestinationDocType := "Purchase Document Type".FromInteger(LibraryRandom.RandInt(NumOfDocTypes) - 1);
         OriginalDocType := "Purchase Document Type".FromInteger(LibraryRandom.RandInt(NumOfDocTypes) - 1);
     end;
-
+#endif
     local procedure CopyPurchDocFromArchive(ToPurchaseHeader: Record "Purchase Header"; FromDocType: Enum "Purchase Document Type From"; FromDocNo: Code[20]; IncludeHeader: Boolean; RecalculateLines: Boolean; ArchivedDocType: Enum "Purchase Document Type")
     var
         PurchaseHeaderArchive: Record "Purchase Header Archive";
@@ -6998,7 +6995,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesLine.Validate("No.", '');
         SalesLine.Modify();
         LibraryUtility.FillFieldMaxText(SalesLine, SalesLine.FieldNo(Description));
-        SalesLine.Find();
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
 
         CustomerNo := SalesHeader."Sell-to Customer No.";
         Description := SalesLine.Description;
@@ -7018,7 +7015,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         PurchaseLine.Validate("No.", '');
         PurchaseLine.Modify();
         LibraryUtility.FillFieldMaxText(PurchaseLine, PurchaseLine.FieldNo(Description));
-        PurchaseLine.Find();
+        PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
 
         VendorNo := PurchaseHeader."Buy-from Vendor No.";
         Description := PurchaseLine.Description;
@@ -7368,7 +7365,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesHeader.Validate("Sell-to Customer No.", CustomerCode);
         SalesHeader.Modify(true);
     end;
-
+#if not CLEAN25
     local procedure CreateCopiableItem(var Item: Record Item; ItemCost: Integer; ItemPrice: Integer)
     begin
         // Create an item and set the last item cost, so when copying the lines we'll have a cost to retrieve (otherwise is 0).
@@ -7378,7 +7375,6 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         Item.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure CreateVendorItemDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount"; VendorCode: Code[20]; Item: Record Item)
     begin
         // Create a random discount without item quantity limitation (to be sure it is applied when recalculating lines)
@@ -7687,7 +7683,9 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
         LibraryUtility.FillFieldMaxText(PurchaseHeader, PurchaseHeader.FieldNo("Ship-to Contact"));
         PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+#pragma warning disable AA0217
         Evaluate(PurchaseHeader."Inbound Whse. Handling Time", StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(5, 10)));
+#pragma warning restore AA0217
         PurchaseHeader."Location Code" := LocationCode;
         PurchaseHeader.Validate("Ship-to Phone No.", LibraryUtility.GenerateRandomPhoneNo());
         PurchaseHeader.Modify();
@@ -7784,7 +7782,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         PurchRcptLine.SetRange(Quantity, Quantity);
         PurchRcptLine.FindFirst();
     end;
-
+#if not CLEAN25
     local procedure GetNumberOfOptions(TableID: Integer; FieldNo: Integer): Integer
     var
         "Field": Record "Field";
@@ -7802,7 +7800,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
             exit(0);
         exit(StrLen(OptionStringCommas) + 1);
     end;
-
+#endif
     local procedure MapperPurchaseHeaders(PurchHeaderDocType: Enum "Purchase Document Type") ReportDocType: Enum "Purchase Document Type From"
     var
         PurchHeader: Record "Purchase Header";
@@ -7842,7 +7840,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
                 ReportDocType := "Sales Document Type From"::"Return Order";
         end;
     end;
-
+#if not CLEAN25
     local procedure PrepareSalesTest(var Item: Record Item; var OriginalDocType: Enum "Sales Document Type"; var DestinationDocType: Enum "Sales Document Type"; var ItemCost: Integer; var ItemPrice: Integer)
     begin
         SetRandomSalesValues(ItemCost, ItemPrice, DestinationDocType, OriginalDocType);
@@ -7854,7 +7852,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SetRandomPurchaseValues(ItemCost, ItemPrice, DestinationDocType, OriginalDocType);
         CreateCopiableItem(Item, ItemCost, ItemPrice);
     end;
-
+#endif
     local procedure UpdateVATClauseVATIdentifierOnVATPostingSetup(VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; VATClauseCode: Code[20]; VATIdentifier: Code[20])
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -7884,7 +7882,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesLine.TestField("Drop Shipment", DropShipment);
         SalesLine.TestField("Special Order", SpecialOrder);
     end;
-
+#if not CLEAN25
     local procedure VerifyPurchaseHeadersAreEqual(OriginalPurchHeader: Record "Purchase Header"; CopiedPurchHeader: Record "Purchase Header")
     begin
         OriginalPurchHeader.TestField("Buy-from Vendor No.", CopiedPurchHeader."Buy-from Vendor No.");
@@ -7896,7 +7894,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         OriginalSalesHeader.TestField("Sell-to Customer No.", CopiedSalesHeader."Sell-to Customer No.");
         OriginalSalesHeader.TestField(Amount, CopiedSalesHeader.Amount);
     end;
-
+#endif
     local procedure VerifyPurchaseLinesAreEqual(PurchHeaderOriginal: Record "Purchase Header"; PurchHeaderCopied: Record "Purchase Header")
     var
         OriginalPurchLine: Record "Purchase Line";
@@ -8160,7 +8158,9 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
         AttachedSalesLine.SetRange("Document Type", SalesLine."Document Type");
         AttachedSalesLine.SetRange("Document No.", SalesLine."Document No.");
+#pragma warning disable AA0210
         AttachedSalesLine.SetRange("Attached to Line No.", SalesLine."Line No.");
+#pragma warning restore AA0210
         AttachedSalesLine.SetRange(Type, SalesLine.Type::" ");
 
         Assert.RecordCount(AttachedSalesLine, ExtendedTextLine.Count());

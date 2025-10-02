@@ -1,3 +1,4 @@
+#pragma warning disable AA0473
 table 132583 "Amount Auto Format Test Table"
 {
     ReplicateData = false;
@@ -27,3 +28,4 @@ table 132583 "Amount Auto Format Test Table"
         }
     }
 }
+#pragma warning restore AA0473

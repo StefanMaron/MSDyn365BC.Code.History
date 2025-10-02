@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Journal;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.GeneralLedger.Journal;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -1071,22 +1075,24 @@ table 181 "Posted Gen. Journal Line"
         }
         field(6203; "Non-Deductible VAT Base LCY"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Base LCY';
         }
         field(6204; "Non-Deductible VAT Amount LCY"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Amount LCY';
         }
         field(6205; "Non-Deductible VAT Base ACY"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
+            AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Base ACY';
         }
         field(6206; "Non-Deductible VAT Amount ACY"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
+            AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Amount ACY';
         }
         field(6208; "Non-Deductible VAT Diff."; Decimal)
@@ -1346,6 +1352,19 @@ table 181 "Posted Gen. Journal Line"
         }
     }
 
+    protected var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GeneralLedgerSetupRead: Boolean;
+
+    local procedure GetAdditionalReportingCurrencyCode(): Code[10]
+    begin
+        if not GeneralLedgerSetupRead then begin
+            GeneralLedgerSetup.Get();
+            GeneralLedgerSetupRead := true;
+        end;
+        exit(GeneralLedgerSetup."Additional Reporting Currency")
+    end;
+
     procedure InsertFromGenJournalLine(GenJournalLine: Record "Gen. Journal Line"; GLRegNo: Integer; FirstLine: Boolean)
     var
         IsHandled: Boolean;
@@ -1377,4 +1396,3 @@ table 181 "Posted Gen. Journal Line"
     begin
     end;
 }
-

@@ -364,6 +364,7 @@ codeunit 483 "Change Global Dimensions"
             CurrentRecNo := ChangeGlobalDimLogEntry."Completed Records";
             StartedFromRecord := CurrentRecNo;
             ChangeGlobalDimLogEntry."Total Records" := RecRef.Count();
+            OnChangeDimsOnTableOnBeforeCalcRecordsWithinCommit(ChangeGlobalDimLogEntry, ChangeGlobalDimLogMgt, ChangeGlobalDimHeader, Completed, StartedFromRecord, RecRef);
             RecordsWithinCommit := CalcRecordsWithinCommit(ChangeGlobalDimLogEntry."Total Records");
             if RecRef.FindSet(true) then begin
                 HasDependentTable := FindDependentTables(DependentChangeGlobalDimLogEntry, ChangeGlobalDimLogEntry, DependentRecRef);
@@ -656,7 +657,6 @@ codeunit 483 "Change Global Dimensions"
         ChangeGlobalDimLogEntry.LockTable();
         ChangeGlobalDimLogEntry.DeleteAll(true);
         if FindTablesWithDims(TempAllObjWithCaption) then begin
-            OnInitTableListOnAfterFindTablesWithDims(ChangeGlobalDimHeader);
             repeat
                 ChangeGlobalDimLogEntry.Init();
                 ChangeGlobalDimLogEntry."Table ID" := TempAllObjWithCaption."Object ID";
@@ -668,7 +668,6 @@ codeunit 483 "Change Global Dimensions"
                 TempParentTableInteger.Number := ChangeGlobalDimLogEntry."Parent Table ID";
                 if TempParentTableInteger.Number <> 0 then
                     if TempParentTableInteger.Insert() then;
-                OnInitTableListOnBeforeInsertChangeGlobalDimLogEntry(ChangeGlobalDimHeader, ChangeGlobalDimLogEntry);
                 ChangeGlobalDimLogEntry.Insert();
             until TempAllObjWithCaption.Next() = 0;
 
@@ -851,12 +850,7 @@ codeunit 483 "Change Global Dimensions"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInitTableListOnAfterFindTablesWithDims(var ChangeGlobalDimHeader: Record "Change Global Dim. Header")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnInitTableListOnBeforeInsertChangeGlobalDimLogEntry(var ChangeGlobalDimHeader: Record "Change Global Dim. Header"; var ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry")
+    local procedure OnChangeDimsOnTableOnBeforeCalcRecordsWithinCommit(var ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; var ChangeGlobalDimLogMgt: Codeunit "Change Global Dim. Log Mgt."; var ChangeGlobalDimHeader: Record "Change Global Dim. Header"; var Completed: Boolean; var StartedFromRecord: Integer; var RecRef: RecordRef)
     begin
     end;
 }

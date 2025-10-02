@@ -2791,11 +2791,13 @@ codeunit 5334 "CRM Setup Defaults"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('This event is never raised.', '27.0')]
     [IntegrationEvent(true, false)]
     local procedure OnGetTableIDCRMEntityNameMappingOnAfterAddFSEntityTableMapping(var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
     begin
     end;
-
+#endif
 #if not CLEAN25
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '19.0')]
     [IntegrationEvent(false, false)]
@@ -2804,5 +2806,3 @@ codeunit 5334 "CRM Setup Defaults"
     end;
 #endif
 }
-
-

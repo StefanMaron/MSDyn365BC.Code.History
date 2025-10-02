@@ -78,7 +78,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         // Setup: Create Lot for Lot Item. Create Production Forecast with multiple Entries.
         Initialize();
-        OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation of Manufacturing Setup -FALSE.
+        OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation -FALSE.
         CreateLotForLotItem(Item);
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", WorkDate(), false);  // Boolean - FALSE, for single Forecast Entry.
 
@@ -116,7 +116,7 @@ codeunit 137071 "SCM Supply Planning -II"
         RequisitionWkshName: Record "Requisition Wksh. Name";
         RequisitionLine: Record "Requisition Line";
         RequisitionLine2: Record "Requisition Line";
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
         PlanningWorksheet: TestPage "Planning Worksheet";
         OldCombinedMPSMRPCalculation: Boolean;
         ForecastDate: Date;
@@ -124,7 +124,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         // Setup: Create Lot for Lot Parent and Child Item. Create And Certify Production BOM.
         Initialize();
-        OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation of Manufacturing Setup - FALSE.
+        OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation of - FALSE.
         CreateLotForLotItem(ChildItem);
         CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
         CreateLotForLotItem(Item);
@@ -142,8 +142,8 @@ codeunit 137071 "SCM Supply Planning -II"
         CalcRegenPlanForPlanWkshPage(PlanningWorksheet, RequisitionWkshName.Name, Item."No.", Item."No.");
 
         // Verify: Verify Planning Worksheet for Quantities and Reference Order Type for Parent Item.
-        ManufacturingSetup.Get();
-        NewShipmentDate := CalcDate('<-' + Format(ManufacturingSetup."Default Safety Lead Time"), SalesLine."Shipment Date");
+        InventorySetup.Get();
+        NewShipmentDate := CalcDate('<-' + Format(InventorySetup."Default Safety Lead Time"), SalesLine."Shipment Date");
         VerifyRequisitionLineWithDueDate(Item, RequisitionLine."Action Message"::New, SalesLine.Quantity, 0, NewShipmentDate);
         VerifyRequisitionLineWithDueDate(
           Item, RequisitionLine."Action Message"::New, ProductionForecastEntry[1]."Forecast Quantity (Base)", 0,
@@ -876,7 +876,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         // Setup: Create Order Item. Create Production Forecast.
         Initialize();
-        OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation of Manufacturing Setup -FALSE.
+        OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation -FALSE.
         CreateOrderItem(Item);
         ForecastDate := GetRequiredDate(10, 0, WorkDate(), 1);  // Forecast Date Relative to Workdate.
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", ForecastDate, false);  // Boolean - FALSE, for single Forecast Entry.
@@ -919,7 +919,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         // Setup: Create Order Item. Update Item parameters. Create Production Forecast
         Initialize();
-        OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation of Manufacturing Setup -FALSE.
+        OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation -FALSE.
         CreateOrderItem(Item);
         UpdateUnitOfMeasuresOnItem(Item);  // Update Sales and Purchase Unit Of Measure and Include Inventory - FALSE on Item.
         ForecastDate := GetRequiredDate(10, 0, WorkDate(), 1);  // Forecast Date Relative to Workdate.
@@ -1709,7 +1709,7 @@ codeunit 137071 "SCM Supply Planning -II"
         CustomerNo1: Code[20];
         CustomerNo2: Code[20];
     begin
-        // Scenario: Create Sales Order, use Capable-to-Promise to create requisition lines. 
+        // Scenario: Create Sales Order, use Capable-to-Promise to create requisition lines.
         // Then, create a Credit Memo with the same "Document No."" and a "Sell-to Customer No.".
         // Then change the "Sell-to Customer No" and verify that the req lines are not removed.
 
@@ -2864,7 +2864,7 @@ codeunit 137071 "SCM Supply Planning -II"
         LibraryRandom.Init();
 
         LibraryApplicationArea.EnableEssentialSetup();
-        UpdateForecastOnLocationsOnManufacturingSetup(true);
+        LibraryPlanning.SetUseForecastOnLocations(true);
         UpdateManufacturingSetup(true);
 
         // Lazy Setup.
@@ -2994,7 +2994,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         // Setup: Create BOM with component.
         Initialize();
-        OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(true); // Combined MPS/MRP Calculation of Manufacturing Setup -TRUE.
+        OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(true); // Combined MPS/MRP Calculation -TRUE.
         CreateLotForLotItemSetup(ChildItem, Item);
 
         if IsSales then
@@ -3079,7 +3079,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         // Using Random Value and Dates based on WORKDATE.
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
-        UpdateForecastOnManufacturingSetup(ProductionForecastName.Name);
+        LibraryPlanning.SetDemandForecast(ProductionForecastName.Name);
         CreateAndUpdateProductionForecast(
           ProductionForecastEntry[1], ProductionForecastName.Name, ForecastDate, ItemNo, LibraryRandom.RandDec(10, 2) + 100);  // Large Random Quantity Required.
         if MultipleLine then begin
@@ -3103,32 +3103,14 @@ codeunit 137071 "SCM Supply Planning -II"
         LibraryWarehouse.PostInventoryActivity(WhseActivityHeader, false);
     end;
 
-    local procedure UpdateForecastOnManufacturingSetup(CurrentProductionForecast: Code[10])
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-    begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
-        ManufacturingSetup.Modify(true);
-    end;
-
-    local procedure UpdateForecastOnLocationsOnManufacturingSetup(UseForecastOnLocations: Boolean)
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-    begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Use Forecast on Locations", UseForecastOnLocations);
-        ManufacturingSetup.Modify(true);
-    end;
-
     local procedure UpdateManufacturingSetup(NewCombinedMPSMRPCalculation: Boolean) OldCombinedMPSMRPCalculation: Boolean
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
-        ManufacturingSetup.Get();
-        OldCombinedMPSMRPCalculation := ManufacturingSetup."Combined MPS/MRP Calculation";
-        ManufacturingSetup.Validate("Combined MPS/MRP Calculation", NewCombinedMPSMRPCalculation);
-        ManufacturingSetup.Modify(true);
+        InventorySetup.Get();
+        OldCombinedMPSMRPCalculation := InventorySetup."Combined MPS/MRP Calculation";
+        InventorySetup.Validate("Combined MPS/MRP Calculation", NewCombinedMPSMRPCalculation);
+        InventorySetup.Modify(true);
     end;
 
     local procedure UpdateLocation(RequirePick: Boolean) OriginalRequirePick: Boolean
@@ -3776,7 +3758,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         // Using Random Value and Dates based on WORKDATE.
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
-        UpdateForecastOnManufacturingSetup(ProductionForecastName.Name);
+        LibraryPlanning.SetDemandForecast(ProductionForecastName.Name);
         CreateAndUpdateProductionForecastWithLocation(
           ProductionForecastEntry[1], ProductionForecastName.Name, ForecastDate, ItemNo, LocationCode, LibraryRandom.RandDec(10, 2) +
           100);  // Large Random Quantity Required.
@@ -4035,17 +4017,6 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         EndDate := GetRequiredDate(10, 30, WorkDate(), 1);  // End Date relative to Workdate.
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), EndDate);
-    end;
-
-    local procedure AssignTrackingAndPostPurchaseWithUpdatedQuantity(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20])
-    var
-        PurchaseHeader: Record "Purchase Header";
-    begin
-        UpdateQuantityOnPurchaseLine(ItemNo);
-        SelectPurchaseLine(PurchaseLine, ItemNo);
-        PurchaseLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingPageHandler.
-        PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseLine."Document No.");
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
     end;
 
     local procedure AssignTrackingAndPostPurchaseWithReducedQuantity(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20])
@@ -4714,4 +4685,3 @@ codeunit 137071 "SCM Supply Planning -II"
         Reservation."Auto Reserve".Invoke();
     end;
 }
-

@@ -1310,13 +1310,6 @@
         PurchasesPayablesSetup.Modify(true);
     end;
 
-    local procedure UpdateGeneralLedgerSetupAndPurchasesSetup(GeneralLedgerSetup: Record "General Ledger Setup"; OldGSTProdPostingGroup: Code[20])
-    begin
-        UpdateLocalFunctionalitiesOnGeneralLedgerSetup(
-          GeneralLedgerSetup."Enable GST (Australia)", GeneralLedgerSetup."Enable WHT", GeneralLedgerSetup."GST Report");
-        UpdateGSTProdPostingGroupOnPurchasesSetup(OldGSTProdPostingGroup);
-    end;
-
     local procedure UpdateGLSetupAndPurchasesPayablesSetup(var VATPostingSetup: Record "VAT Posting Setup")
     begin
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true);  // Enable GST (Australia),Enable WHT and GST Report as True.
@@ -1521,4 +1514,3 @@
     begin
     end;
 }
-

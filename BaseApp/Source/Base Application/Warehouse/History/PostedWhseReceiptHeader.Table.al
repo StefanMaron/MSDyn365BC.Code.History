@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Warehouse.History;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Warehouse.History;
 
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Location;
@@ -123,9 +127,6 @@ table 7318 "Posted Whse. Receipt Header"
     var
         WarehouseSetup: Record "Warehouse Setup";
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#endif
         IsHandled: Boolean;
     begin
         WarehouseSetup.Get();
@@ -134,18 +135,10 @@ table 7318 "Posted Whse. Receipt Header"
             OnInsertOnBeforeTestWhseReceiptNos(WarehouseSetup, IsHandled);
             if not IsHandled then
                 WarehouseSetup.TestField("Whse. Receipt Nos.");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(WarehouseSetup."Posted Whse. Receipt Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 "No. Series" := WarehouseSetup."Posted Whse. Receipt Nos.";
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
                 "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", WarehouseSetup."Posted Whse. Receipt Nos.", "Posting Date", "No.");
-            end;
-#endif
         end;
     end;
 
@@ -284,4 +277,3 @@ table 7318 "Posted Whse. Receipt Header"
     begin
     end;
 }
-

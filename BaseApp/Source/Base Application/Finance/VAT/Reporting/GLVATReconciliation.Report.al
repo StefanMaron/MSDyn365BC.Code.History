@@ -378,6 +378,8 @@ report 11 "G/L - VAT Reconciliation"
 
     requestpage
     {
+        AboutTitle = 'About G/L - VAT Reconciliation';
+        AboutText = 'The **G/L - VAT Reconciliation** report compares VAT amounts posted in the general ledger with the underlying VAT entries. Use it for validating VAT accuracy during filing periods to ensure reported amounts match transaction-level data. It helps detect discrepancies early and supports audit readiness by reconciling VAT postings with actual entries.';
         SaveValues = true;
 
         layout

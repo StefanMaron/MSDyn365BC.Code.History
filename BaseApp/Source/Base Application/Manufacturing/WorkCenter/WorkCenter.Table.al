@@ -663,26 +663,14 @@ table 99000754 "Work Center"
     trigger OnInsert()
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         MfgSetup.Get();
         if "No." = '' then begin
             MfgSetup.TestField("Work Center Nos.");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(MfgSetup."Work Center Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 "No. Series" := MfgSetup."Work Center Nos.";
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
                 "No." := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", MfgSetup."Work Center Nos.", 0D, "No.");
-            end;
-#endif
         end;
         DimMgt.UpdateDefaultDim(
           Database::"Work Center", "No.",
@@ -890,4 +878,3 @@ table 99000754 "Work Center"
     begin
     end;
 }
-

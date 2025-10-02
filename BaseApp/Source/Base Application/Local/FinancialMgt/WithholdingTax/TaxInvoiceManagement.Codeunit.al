@@ -1922,7 +1922,6 @@ codeunit 28070 TaxInvoiceManagement
         NoSeriesLine: Record "No. Series Line";
         NoSeries: Record "No. Series";
         NoSeriesCodeunit: Codeunit "No. Series";
-        NoSeriesSetup: Codeunit "No. Series - Setup";
     begin
         if SeriesDate = 0D then
             SeriesDate := WorkDate();
@@ -1944,7 +1943,7 @@ codeunit 28070 TaxInvoiceManagement
             NoSeriesLine.TestField("Starting No.");
             NoSeriesLine."Last No. Used" := NoSeriesLine."Starting No.";
         end else
-            NoSeriesSetup.IncrementNoText(NoSeriesLine."Last No. Used", -NoSeriesLine."Increment-by No.");
+            NoSeriesLine."Last No. Used" := IncStr(NoSeriesLine."Last No. Used", -NoSeriesLine."Increment-by No.");
 
         if (NoSeriesLine."Ending No." <> '') and (NoSeriesLine."Last No. Used" > NoSeriesLine."Ending No.") then
             Error(CannotAssignGreaterErr, NoSeriesLine."Ending No.", NoSeriesCode);

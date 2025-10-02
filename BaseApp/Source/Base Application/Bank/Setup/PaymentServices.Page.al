@@ -4,6 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Setup;
 
+/// <summary>
+/// Administration page for managing payment service providers and their configuration.
+/// Provides interface for enabling, configuring, and setting up online payment services.
+/// </summary>
+/// <remarks>
+/// Source Table: Payment Service Setup (1060) - Temporary. Displays available payment services like PayPal, Microsoft Pay, WorldPay.
+/// Supports creation of new payment service configurations and management of existing ones.
+/// </remarks>
 page 1060 "Payment Services"
 {
     AdditionalSearchTerms = 'paypal,microsoft pay payments,worldpay,online payment';
@@ -141,6 +149,10 @@ page 1060 "Payment Services"
         NoServicesInstalledErr: Label 'No payment service extension has been installed.';
         SetupEditable: Boolean;
 
+    /// <summary>
+    /// Updates the setup editable flag based on whether payment services are available.
+    /// Controls the enabled state of setup-related actions and fields.
+    /// </summary>
     local procedure UpdateSetupEditable()
     begin
         SetupEditable := not Rec.IsEmpty();

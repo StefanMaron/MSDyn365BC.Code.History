@@ -173,6 +173,8 @@ report 5065 "Segment - Labels"
 
     requestpage
     {
+        AboutTitle = 'About Segment - Labels';
+        AboutText = 'Print labels with the names and addresses of contacts for your segments.';
         SaveValues = true;
 
         layout

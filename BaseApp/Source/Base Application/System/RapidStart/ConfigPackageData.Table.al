@@ -34,9 +34,7 @@ table 8615 "Config. Package Data"
             TableRelation = "Config. Package Field"."Field ID" where("Package Code" = field("Package Code"),
                                                                      "Table ID" = field("Table ID"));
         }
-#pragma warning disable AS0086
         field(5; Value; Text[2048])
-#pragma warning restore AS0086
         {
             Caption = 'Value';
         }
@@ -65,4 +63,3 @@ table 8615 "Config. Package Data"
     {
     }
 }
-

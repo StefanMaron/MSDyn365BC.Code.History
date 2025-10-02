@@ -35,6 +35,7 @@ table 5091 "Sales Cycle Stage"
         }
         field(4; "Completed %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Completed %';
             DecimalPlaces = 0 : 0;
             MaxValue = 100;
@@ -74,6 +75,7 @@ table 5091 "Sales Cycle Stage"
         }
         field(10; "Estimated Value (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Opportunity Entry"."Estimated Value (LCY)" where(Active = const(true),
                                                                                  "Sales Cycle Code" = field("Sales Cycle Code"),
@@ -85,6 +87,7 @@ table 5091 "Sales Cycle Stage"
         }
         field(11; "Calcd. Current Value (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Opportunity Entry"."Calcd. Current Value (LCY)" where(Active = const(true),
                                                                                       "Sales Cycle Code" = field("Sales Cycle Code"),
@@ -96,6 +99,7 @@ table 5091 "Sales Cycle Stage"
         }
         field(12; "Average No. of Days"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = average("Opportunity Entry"."Days Open" where(Active = const(false),
                                                                          "Sales Cycle Code" = field("Sales Cycle Code"),
                                                                          "Sales Cycle Stage" = field(Stage),
@@ -116,6 +120,7 @@ table 5091 "Sales Cycle Stage"
         }
         field(15; "Chances of Success %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Chances of Success %';
             MaxValue = 100;
             MinValue = 0;
@@ -157,4 +162,3 @@ table 5091 "Sales Cycle Stage"
         Text000: Label 'You cannot delete a stage which has active entries.';
 #pragma warning restore AA0074
 }
-

@@ -1,12 +1,14 @@
-﻿namespace Microsoft.Warehouse.Worksheet;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Warehouse.Worksheet;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Foundation.Shipping;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Vendor;
@@ -190,7 +192,7 @@ table 7326 "Whse. Worksheet Line"
                 if Quantity < "Qty. Handled" then
                     FieldError(Quantity, StrSubstNo(Text010, "Qty. Handled"));
 
-                if Rec."Source Type" <> Database::"Prod. Order Line" then
+                if not IsProdOrder(Rec."Source Type") then
                     Validate("Qty. Outstanding", (Quantity - "Qty. Handled"))
                 else
                     UpdateQtyHandledForProdOrderOutput();
@@ -305,7 +307,7 @@ table 7326 "Whse. Worksheet Line"
             begin
                 "Qty. Handled (Base)" := CalcBaseQty("Qty. Handled", FieldCaption("Qty. Handled"), FieldCaption("Qty. Handled (Base)"));
 
-                if Rec."Source Type" <> Database::"Prod. Order Line" then
+                if not IsProdOrder(Rec."Source Type") then
                     Validate("Qty. Outstanding", Quantity - "Qty. Handled")
                 else
                     UpdateQtyHandledForProdOrderOutput();
@@ -321,7 +323,7 @@ table 7326 "Whse. Worksheet Line"
             begin
                 "Qty. Handled" := CalcQty("Qty. Handled (Base)");
 
-                if Rec."Source Type" <> Database::"Prod. Order Line" then
+                if not IsProdOrder(Rec."Source Type") then
                     Validate("Qty. Outstanding", Quantity - "Qty. Handled")
                 else
                     UpdateQtyHandledForProdOrderOutput();
@@ -472,9 +474,6 @@ table 7326 "Whse. Worksheet Line"
             else
             if ("Whse. Document Type" = const("Internal Pick")) "Whse. Internal Pick Header"."No." where("No." = field("Whse. Document No."))
             else
-            if ("Whse. Document Type" = const(Assembly)) "Assembly Header"."No." where("Document Type" = const(Order),
-                                                                                       "No." = field("Whse. Document No."))
-            else
             if ("Whse. Document Type" = const(Job)) Job."No." where("No." = field("Whse. Document No."));
         }
         field(48; "Whse. Document Line No."; Integer)
@@ -493,10 +492,6 @@ table 7326 "Whse. Worksheet Line"
             else
             if ("Whse. Document Type" = const("Internal Pick")) "Whse. Internal Pick Line"."Line No." where("No." = field("Whse. Document No."),
                                                                                                             "Line No." = field("Whse. Document Line No."))
-            else
-            if ("Whse. Document Type" = const(Assembly)) "Assembly Line"."Line No." where("Document Type" = const(Order),
-                                                                                          "Document No." = field("Whse. Document No."),
-                                                                                          "Line No." = field("Whse. Document Line No."))
             else
             if ("Whse. Document Type" = const(Job)) "Job Planning Line"."Job Contract Entry No." where("Job No." = field("Whse. Document No."),
                                                                                                        "Job Contract Entry No." = field("Whse. Document Line No."));
@@ -801,16 +796,13 @@ table 7326 "Whse. Worksheet Line"
     end;
 
     local procedure UpdateQtyHandledForProdOrderOutput()
-    var
-        ProdOrderLine: Record "Prod. Order Line";
     begin
-        ProdOrderLine.Get(Rec."Source Subtype", Rec."Source No.", Rec."Source Line No.");
-        ProdOrderLine.CalcFields("Put-away Qty. (Base)");
+        OnUpdateQtyHandledForProdOrderOutput(Rec);
+    end;
 
-        if ProdOrderLine."Finished Quantity" = "Qty. Handled" then
-            Rec.Validate("Qty. Outstanding", 0)
-        else
-            Rec.Validate("Qty. Outstanding", ProdOrderLine."Finished Qty. (Base)" - (ProdOrderLine."Qty. Put Away (Base)" + ProdOrderLine."Put-away Qty. (Base)"));
+    local procedure IsProdOrder(SourceType: Integer): Boolean
+    begin
+        exit(SourceType = 5406); // Database::"Prod. Order Line"
     end;
 
     procedure SortWhseWkshLines(WhseWkshTemplate: Code[10]; WhseWkshName: Code[10]; LocationCode: Code[10]; SortingMethod: Enum "Whse. Activity Sorting Method")
@@ -1361,8 +1353,6 @@ table 7326 "Whse. Worksheet Line"
                 WhseItemTrackingLines.SetSource(Rec, Database::"Whse. Internal Put-away Line");
             "Whse. Document Type"::"Internal Pick":
                 WhseItemTrackingLines.SetSource(Rec, Database::"Whse. Internal Pick Line");
-            "Whse. Document Type"::Assembly:
-                WhseItemTrackingLines.SetSource(Rec, Database::"Assembly Line");
             else begin
                 IsHandled := false;
                 OnWhseItemTrackingLinesSetSource(Rec, WhseItemTrackingLines, IsHandled);
@@ -1721,6 +1711,11 @@ table 7326 "Whse. Worksheet Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnWhseItemTrackingLinesSetSource(var WhseWorksheetLine: Record "Whse. Worksheet Line"; var WhseItemTrackingLines: Page "Whse. Item Tracking Lines"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateQtyHandledForProdOrderOutput(var WhseWorksheetLine: Record "Whse. Worksheet Line")
     begin
     end;
 }

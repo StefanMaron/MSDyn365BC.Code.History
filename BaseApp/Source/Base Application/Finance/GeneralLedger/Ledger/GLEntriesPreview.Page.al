@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.GeneralLedger.Ledger;
 
 using Microsoft.Finance.Dimension;
@@ -122,7 +126,7 @@ page 122 "G/L Entries Preview"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the source currency code for G/L entries.';
-#if not CLEAN24
+#if not CLEAN25
                     Visible = SourceCurrencyVisible;
 #endif
                 }
@@ -131,7 +135,7 @@ page 122 "G/L Entries Preview"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the source currency amount for G/L entries.';
-#if not CLEAN24
+#if not CLEAN25
                     Visible = SourceCurrencyVisible;
 #endif
                 }
@@ -152,7 +156,7 @@ page 122 "G/L Entries Preview"
                     ApplicationArea = VAT;
                     Editable = false;
                     ToolTip = 'Specifies the source currency VAT amount for G/L entries.';
-#if not CLEAN24
+#if not CLEAN25
                     Visible = SourceCurrencyVisible;
 #endif
                 }
@@ -347,12 +351,12 @@ page 122 "G/L Entries Preview"
     trigger OnOpenPage()
     var
         GLSetup: Record "General Ledger Setup";
-#if not CLEAN24
+#if not CLEAN25
         FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
 #endif
     begin
         SetDimVisibility();
-#if not CLEAN24
+#if not CLEAN25
         SourceCurrencyVisible := FeatureKeyManagement.IsGLCurrencyRevaluationEnabled();
 #endif
         GLSetup.Get();
@@ -364,7 +368,7 @@ page 122 "G/L Entries Preview"
         GLAcc: Record "G/L Account";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
-#if not CLEAN24
+#if not CLEAN25
         SourceCurrencyVisible: Boolean;
 #endif
 

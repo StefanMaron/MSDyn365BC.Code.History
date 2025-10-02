@@ -206,6 +206,7 @@ table 5088 "Profile Questionnaire Line"
         }
         field(14; "From Value"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'From Value';
             DecimalPlaces = 0 : 25;
@@ -218,6 +219,7 @@ table 5088 "Profile Questionnaire Line"
         }
         field(15; "To Value"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'To Value';
             DecimalPlaces = 0 : 25;
@@ -268,6 +270,7 @@ table 5088 "Profile Questionnaire Line"
         }
         field(19; "Min. % Questions Answered"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Min. % Questions Answered';
             DecimalPlaces = 0 : 0;
             MaxValue = 100;
@@ -306,6 +309,7 @@ table 5088 "Profile Questionnaire Line"
         }
         field(9505; "Wizard From Value"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Wizard From Value';
             DecimalPlaces = 0 : 25;
@@ -318,6 +322,7 @@ table 5088 "Profile Questionnaire Line"
         }
         field(9506; "Wizard To Value"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Wizard To Value';
             DecimalPlaces = 0 : 25;
@@ -727,4 +732,3 @@ table 5088 "Profile Questionnaire Line"
             until TempProfileQuestionnaireLine.Next() = 0;
     end;
 }
-

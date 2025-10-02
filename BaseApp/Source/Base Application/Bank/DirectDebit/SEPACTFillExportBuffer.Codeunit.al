@@ -18,6 +18,10 @@ using Microsoft.Sales.Receivables;
 using System.Reflection;
 using System.Utilities;
 
+/// <summary>
+/// Populates the payment export data buffer with information from general journal lines
+/// for SEPA credit transfer processing. Formats and validates data for XML export compliance.
+/// </summary>
 codeunit 1221 "SEPA CT-Fill Export Buffer"
 {
     Permissions = TableData "Payment Export Data" = rimd;
@@ -33,6 +37,13 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
         SameBankErr: Label 'All lines must have the same bank account as the balancing account.';
         RemitMsg: Label '%1 %2', Comment = '%1=Document type, %2=Document no., e.g. Invoice A123';
 
+    /// <summary>
+    /// Fills the payment export data buffer with information from general journal lines for SEPA credit transfer.
+    /// Validates journal lines, retrieves bank account and recipient information, and formats data
+    /// according to SEPA credit transfer standards for XML export processing.
+    /// </summary>
+    /// <param name="GenJnlLine">General journal lines containing payment data to export</param>
+    /// <param name="PaymentExportData">Payment export data buffer to populate with formatted export data</param>
     procedure FillExportBuffer(var GenJnlLine: Record "Gen. Journal Line"; var PaymentExportData: Record "Payment Export Data")
     var
         TempGenJnlLine: Record "Gen. Journal Line" temporary;
@@ -316,21 +327,58 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
         PaymentExportData.AddGenJnlLineErrorText(GenJnlLine, StrSubstNo(FieldIsBlankErr, Field."Field Caption"));
     end;
 
+    /// <summary>
+    /// Integration event raised after creating new credit transfer entry during export buffer processing.
+    /// Enables custom processing or field updates after credit transfer entry creation.
+    /// </summary>
+    /// <param name="PaymentExportData">Payment export data record being processed</param>
+    /// <param name="CreditTransferEntry">Credit transfer entry that was created</param>
+    /// <param name="TempGenJnlLine">Temporary general journal line providing source data</param>
+    /// <remarks>
+    /// Raised from FillExportBuffer procedure after creating credit transfer entry.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateNewCreditTransferEntry(var PaymentExportData: Record "Payment Export Data"; var CreditTransferEntry: Record "Credit Transfer Entry"; var TempGenJnlLine: Record "Gen. Journal Line" temporary)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after completing export buffer processing for SEPA credit transfer.
+    /// Enables final custom processing or validation after all export data has been populated.
+    /// </summary>
+    /// <param name="PaymentExportData">Payment export data that was processed</param>
+    /// <param name="BankExportImportSetup">Bank export/import setup used for processing</param>
+    /// <remarks>
+    /// Raised from FillExportBuffer procedure after completing all export buffer operations.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillExportBuffer(var PaymentExportData: Record "Payment Export Data"; BankExportImportSetup: Record "Bank Export/Import Setup")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after generating message ID during export buffer processing.
+    /// Enables custom message ID generation or modification.
+    /// </summary>
+    /// <param name="TempGenJnlLine">Temporary general journal line being processed</param>
+    /// <param name="MessageID">Message ID that was generated</param>
+    /// <remarks>
+    /// Raised from FillExportBuffer procedure after determining message ID for export.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnFillExportBufferOnAfterGetMessageID(var TempGenJnlLine: Record "Gen. Journal Line" temporary; var MessageID: code[20])
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after creating new credit transfer register during export processing.
+    /// Enables custom processing or field updates after register creation.
+    /// </summary>
+    /// <param name="CreditTransferRegister">Credit transfer register that was created</param>
+    /// <param name="BankExportImportSetup">Bank export/import setup used for processing</param>
+    /// <remarks>
+    /// Raised from FillExportBuffer procedure after creating credit transfer register.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnFillExportBufferOnAfterCreateNewRegister(var CreditTransferRegister: Record "Credit Transfer Register"; var BankExportImportSetup: Record "Bank Export/Import Setup")
     begin

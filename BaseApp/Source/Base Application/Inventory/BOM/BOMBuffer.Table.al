@@ -1,31 +1,22 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.BOM;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.UOM;
-using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
-using Microsoft.Manufacturing.Capacity;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.MachineCenter;
-using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Projects.Resources.Resource;
 
 table 5870 "BOM Buffer"
 {
     Caption = 'BOM Buffer';
     DataCaptionFields = "No.", Description;
-    Permissions =;
     ReplicateData = false;
-    DataClassification = CustomerContent;
+    DataClassification = SystemMetadata;
 
     fields
     {
@@ -33,34 +24,25 @@ table 5870 "BOM Buffer"
         {
             AutoIncrement = true;
             Caption = 'Entry No.';
-            DataClassification = SystemMetadata;
         }
         field(2; Type; Enum "BOM Type")
         {
             Caption = 'Type';
-            DataClassification = SystemMetadata;
         }
         field(3; "No."; Code[20])
         {
             Caption = 'No.';
-            DataClassification = SystemMetadata;
             TableRelation = if (Type = const(Item)) Item
-            else
-            if (Type = const("Machine Center")) "Machine Center"
-            else
-            if (Type = const("Work Center")) "Work Center"
             else
             if (Type = const(Resource)) Resource;
         }
         field(5; Description; Text[100])
         {
             Caption = 'Description';
-            DataClassification = SystemMetadata;
         }
         field(6; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
-            DataClassification = SystemMetadata;
             TableRelation = if (Type = const(Item)) "Item Unit of Measure".Code where("Item No." = field("No."))
             else
             if (Type = const(Resource)) "Resource Unit of Measure".Code where("Resource No." = field("No."));
@@ -68,181 +50,139 @@ table 5870 "BOM Buffer"
         field(7; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            DataClassification = SystemMetadata;
             TableRelation = if (Type = const(Item)) "Item Variant".Code where("Item No." = field("No."));
         }
         field(8; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
-            DataClassification = SystemMetadata;
             TableRelation = Location;
         }
         field(9; "Replenishment System"; Enum "Replenishment System")
         {
             Caption = 'Replenishment System';
-            DataClassification = SystemMetadata;
         }
         field(10; Indentation; Integer)
         {
             Caption = 'Indentation';
-            DataClassification = SystemMetadata;
         }
         field(11; "Is Leaf"; Boolean)
         {
             Caption = 'Is Leaf';
-            DataClassification = SystemMetadata;
         }
         field(13; Bottleneck; Boolean)
         {
             Caption = 'Bottleneck';
-            DataClassification = SystemMetadata;
-        }
-        field(15; "Routing No."; Code[20])
-        {
-            Caption = 'Routing No.';
-            DataClassification = SystemMetadata;
-            TableRelation = "Routing Header";
-        }
-        field(16; "Production BOM No."; Code[20])
-        {
-            Caption = 'Production BOM No.';
-            DataClassification = SystemMetadata;
-            TableRelation = "Production BOM Header";
         }
         field(20; "Lot Size"; Decimal)
         {
-            AccessByPermission = TableData "Production Order" = R;
             Caption = 'Lot Size';
-            DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
             MinValue = 0;
         }
         field(21; "Low-Level Code"; Integer)
         {
             Caption = 'Low-Level Code';
-            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(22; "Rounding Precision"; Decimal)
         {
             Caption = 'Rounding Precision';
-            DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
             InitValue = 1;
         }
         field(30; "Qty. per Parent"; Decimal)
         {
             Caption = 'Qty. per Parent';
-            DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
         }
         field(31; "Qty. per Top Item"; Decimal)
         {
             Caption = 'Qty. per Top Item';
-            DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
         }
         field(32; "Able to Make Top Item"; Decimal)
         {
             Caption = 'Able to Make Top Item';
-            DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
         }
         field(33; "Able to Make Parent"; Decimal)
         {
             Caption = 'Able to Make Parent';
-            DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
         }
         field(35; "Available Quantity"; Decimal)
         {
             Caption = 'Available Quantity';
-            DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
         }
         field(36; "Gross Requirement"; Decimal)
         {
             Caption = 'Gross Requirement';
-            DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
         }
         field(37; "Scheduled Receipts"; Decimal)
         {
             Caption = 'Scheduled Receipts';
-            DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
         }
         field(38; "Unused Quantity"; Decimal)
         {
             Caption = 'Unused Quantity';
-            DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
         }
         field(40; "Lead Time Calculation"; DateFormula)
         {
             Caption = 'Lead Time Calculation';
-            DataClassification = SystemMetadata;
         }
         field(41; "Lead-Time Offset"; DateFormula)
         {
             Caption = 'Lead-Time Offset';
-            DataClassification = SystemMetadata;
         }
         field(42; "Rolled-up Lead-Time Offset"; Integer)
         {
             Caption = 'Rolled-up Lead-Time Offset';
-            DataClassification = SystemMetadata;
         }
         field(43; "Needed by Date"; Date)
         {
             Caption = 'Needed by Date';
-            DataClassification = SystemMetadata;
         }
         field(45; "Safety Lead Time"; DateFormula)
         {
             Caption = 'Safety Lead Time';
-            DataClassification = SystemMetadata;
         }
         field(50; "Unit Cost"; Decimal)
         {
             AutoFormatType = 2;
             Caption = 'Unit Cost';
-            DataClassification = SystemMetadata;
         }
         field(52; "Indirect Cost %"; Decimal)
         {
             Caption = 'Indirect Cost %';
-            DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
         }
         field(54; "Overhead Rate"; Decimal)
         {
             AutoFormatType = 2;
             Caption = 'Overhead Rate';
-            DataClassification = SystemMetadata;
         }
         field(55; "Scrap %"; Decimal)
         {
             BlankZero = true;
             Caption = 'Scrap %';
-            DataClassification = SystemMetadata;
         }
         field(56; "Scrap Qty. per Parent"; Decimal)
         {
             Caption = 'Scrap Qty. per Parent';
-            DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
         }
         field(57; "Scrap Qty. per Top Item"; Decimal)
         {
             Caption = 'Scrap Qty. per Top Item';
-            DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
         }
         field(59; "Resource Usage Type"; Option)
         {
             Caption = 'Resource Usage Type';
-            DataClassification = SystemMetadata;
             OptionCaption = 'Direct,Fixed';
             OptionMembers = Direct,"Fixed";
         }
@@ -251,7 +191,6 @@ table 5870 "BOM Buffer"
             AutoFormatType = 2;
             BlankZero = true;
             Caption = 'Single-Level Material Cost';
-            DataClassification = SystemMetadata;
             DecimalPlaces = 2 : 5;
         }
         field(62; "Single-Level Capacity Cost"; Decimal)
@@ -259,16 +198,6 @@ table 5870 "BOM Buffer"
             AutoFormatType = 2;
             BlankZero = true;
             Caption = 'Single-Level Capacity Cost';
-            DataClassification = SystemMetadata;
-            DecimalPlaces = 2 : 5;
-        }
-        field(63; "Single-Level Subcontrd. Cost"; Decimal)
-        {
-            AccessByPermission = TableData "Machine Center" = R;
-            AutoFormatType = 2;
-            BlankZero = true;
-            Caption = 'Single-Level Subcontrd. Cost';
-            DataClassification = SystemMetadata;
             DecimalPlaces = 2 : 5;
         }
         field(64; "Single-Level Cap. Ovhd Cost"; Decimal)
@@ -276,7 +205,13 @@ table 5870 "BOM Buffer"
             AutoFormatType = 2;
             BlankZero = true;
             Caption = 'Single-Level Cap. Ovhd Cost';
-            DataClassification = SystemMetadata;
+            DecimalPlaces = 2 : 5;
+        }
+        field(63; "Single-Level Subcontrd. Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            BlankZero = true;
+            Caption = 'Single-Level Subcontrd. Cost';
             DecimalPlaces = 2 : 5;
         }
         field(65; "Single-Level Mfg. Ovhd Cost"; Decimal)
@@ -284,14 +219,12 @@ table 5870 "BOM Buffer"
             AutoFormatType = 2;
             BlankZero = true;
             Caption = 'Single-Level Mfg. Ovhd Cost';
-            DataClassification = SystemMetadata;
             DecimalPlaces = 2 : 5;
         }
         field(66; "Single-Level Scrap Cost"; Decimal)
         {
             BlankZero = true;
             Caption = 'Single-Level Scrap Cost';
-            DataClassification = SystemMetadata;
             DecimalPlaces = 2 : 5;
         }
         field(71; "Rolled-up Material Cost"; Decimal)
@@ -299,7 +232,6 @@ table 5870 "BOM Buffer"
             AutoFormatType = 2;
             BlankZero = true;
             Caption = 'Rolled-up Material Cost';
-            DataClassification = SystemMetadata;
             DecimalPlaces = 2 : 5;
             Editable = false;
         }
@@ -308,17 +240,7 @@ table 5870 "BOM Buffer"
             AutoFormatType = 2;
             BlankZero = true;
             Caption = 'Rolled-up Capacity Cost';
-            DataClassification = SystemMetadata;
             DecimalPlaces = 2 : 5;
-            Editable = false;
-        }
-        field(73; "Rolled-up Subcontracted Cost"; Decimal)
-        {
-            AccessByPermission = TableData "Machine Center" = R;
-            AutoFormatType = 2;
-            BlankZero = true;
-            Caption = 'Rolled-up Subcontracted Cost';
-            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(74; "Rolled-up Capacity Ovhd. Cost"; Decimal)
@@ -326,7 +248,13 @@ table 5870 "BOM Buffer"
             AutoFormatType = 2;
             BlankZero = true;
             Caption = 'Rolled-up Capacity Ovhd. Cost';
-            DataClassification = SystemMetadata;
+            Editable = false;
+        }
+        field(73; "Rolled-up Subcontracted Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            BlankZero = true;
+            Caption = 'Rolled-up Subcontracted Cost';
             Editable = false;
         }
         field(75; "Rolled-up Mfg. Ovhd Cost"; Decimal)
@@ -334,14 +262,12 @@ table 5870 "BOM Buffer"
             AutoFormatType = 2;
             BlankZero = true;
             Caption = 'Rolled-up Mfg. Ovhd Cost';
-            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(76; "Rolled-up Scrap Cost"; Decimal)
         {
             BlankZero = true;
             Caption = 'Rolled-up Scrap Cost';
-            DataClassification = SystemMetadata;
             DecimalPlaces = 2 : 5;
         }
         field(77; "Single-Lvl Mat. Non-Invt. Cost"; Decimal)
@@ -349,7 +275,6 @@ table 5870 "BOM Buffer"
             AutoFormatType = 2;
             BlankZero = true;
             Caption = 'Single-Level Material Non-Inventory Cost';
-            DataClassification = CustomerContent;
             DecimalPlaces = 2 : 5;
         }
         field(78; "Rolled-up Mat. Non-Invt. Cost"; Decimal)
@@ -357,7 +282,6 @@ table 5870 "BOM Buffer"
             AutoFormatType = 2;
             BlankZero = true;
             Caption = 'Rolled-up Material Non-Inventory Cost';
-            DataClassification = CustomerContent;
             DecimalPlaces = 2 : 5;
             Editable = false;
         }
@@ -365,13 +289,11 @@ table 5870 "BOM Buffer"
         {
             BlankZero = true;
             Caption = 'Total Cost';
-            DataClassification = SystemMetadata;
             DecimalPlaces = 2 : 5;
         }
         field(82; "BOM Unit of Measure Code"; Code[10])
         {
             Caption = 'BOM Unit of Measure Code';
-            DataClassification = SystemMetadata;
             TableRelation = if (Type = const(Item)) "Item Unit of Measure".Code where("Item No." = field("No."))
             else
             if (Type = const(Resource)) "Resource Unit of Measure".Code where("Resource No." = field("No."));
@@ -379,18 +301,15 @@ table 5870 "BOM Buffer"
         field(83; "Qty. per BOM Line"; Decimal)
         {
             Caption = 'Qty. per BOM Line';
-            DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
         }
         field(84; "Inventoriable"; Boolean)
         {
             Caption = 'Inventoriable';
-            DataClassification = SystemMetadata;
         }
         field(85; "Calculation Formula"; Enum "Quantity Calculation Formula")
         {
             Caption = 'Calculation Formula';
-            DataClassification = SystemMetadata;
         }
     }
 
@@ -419,15 +338,12 @@ table 5870 "BOM Buffer"
     var
         GLSetup: Record "General Ledger Setup";
         UOMMgt: Codeunit "Unit of Measure Management";
-        MfgCostCalcMgmt: Codeunit "Mfg. Cost Calculation Mgt.";
         GLSetupRead: Boolean;
 
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text001: Label 'The Low-level Code for Item %1 has not been calculated.';
         Text002: Label 'The Quantity per. field in the BOM for Item %1 has not been set.';
-        Text003: Label 'Routing %1 has not been certified.';
-        Text004: Label 'Production BOM %1 has not been certified.';
         Text005: Label 'Item %1 is not a BOM. Therefore, the Replenishment System field must be set to Purchase.';
         Text006: Label 'Replenishment System for Item %1 is Assembly, but the item is not an assembly BOM. Verify that this is correct.';
         Text007: Label 'Replenishment System for Item %1 is Prod. Order, but the item does not have a production BOM. Verify that this is correct.';
@@ -450,55 +366,6 @@ table 5870 "BOM Buffer"
         Indentation := 0;
 
         OnTransferFromItemCopyFields(Rec, Item);
-        Insert(true);
-    end;
-
-    procedure TransferFromAsmHeader(var EntryNo: Integer; AsmHeader: Record "Assembly Header")
-    var
-        BOMItem: Record Item;
-    begin
-        Init();
-        EntryNo += 1;
-        "Entry No." := EntryNo;
-        Type := Type::Item;
-
-        BOMItem.Get(AsmHeader."Item No.");
-        InitFromItem(BOMItem);
-
-        "Qty. per Parent" := 1;
-        "Qty. per Top Item" := 1;
-        "Unit of Measure Code" := AsmHeader."Unit of Measure Code";
-        "Location Code" := AsmHeader."Location Code";
-        "Variant Code" := AsmHeader."Variant Code";
-        "Needed by Date" := AsmHeader."Due Date";
-        Indentation := 0;
-
-        OnTransferFromAsmHeaderCopyFields(Rec, AsmHeader);
-        Insert(true);
-    end;
-
-    procedure TransferFromAsmLine(var EntryNo: Integer; AsmLine: Record "Assembly Line")
-    var
-        BOMItem: Record Item;
-    begin
-        Init();
-        EntryNo += 1;
-        "Entry No." := EntryNo;
-        Type := Type::Item;
-
-        BOMItem.Get(AsmLine."No.");
-        InitFromItem(BOMItem);
-
-        "Qty. per Parent" := AsmLine."Quantity per";
-        "Qty. per Top Item" := AsmLine."Quantity per";
-        "Unit of Measure Code" := AsmLine."Unit of Measure Code";
-        "Location Code" := AsmLine."Location Code";
-        "Variant Code" := AsmLine."Variant Code";
-        "Needed by Date" := AsmLine."Due Date";
-        "Lead-Time Offset" := AsmLine."Lead-Time Offset";
-        Indentation := 1;
-
-        OnTransferFromAsmLineCopyFields(Rec, AsmLine);
         Insert(true);
     end;
 
@@ -543,155 +410,9 @@ table 5870 "BOM Buffer"
         Insert(true);
     end;
 
-    procedure TransferFromProdComp(var EntryNo: Integer; ProdBOMLine: Record "Production BOM Line"; NewIndentation: Integer; ParentQtyPer: Decimal; ParentScrapQtyPer: Decimal; ParentScrapPct: Decimal; NeedByDate: Date; ParentLocationCode: Code[10]; ParentItem: Record Item; BOMQtyPerUOM: Decimal)
-    var
-        BOMItem: Record Item;
-        OriginalItem: Record Item;
-        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
-        UOMMgt: Codeunit "Unit of Measure Management";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeTransferFromProdComp(EntryNo, ProdBOMLine, NewIndentation, ParentQtyPer, ParentScrapQtyPer, ParentScrapPct, NeedByDate, ParentLocationCode, ParentItem, BOMQtyPerUOM, IsHandled);
-        if not IsHandled then begin
-            Init();
-            EntryNo += 1;
-            "Entry No." := EntryNo;
-            Type := Type::Item;
-
-            OriginalItem.Get(ParentItem."No."); // to assign "Routing No." 
-
-            BOMItem.Get(ProdBOMLine."No.");
-            InitFromItem(BOMItem);
-
-            if ParentItem."Lot Size" = 0 then
-                ParentItem."Lot Size" := 1;
-
-            Description := ProdBOMLine.Description;
-            "Qty. per Parent" :=
-              MfgCostCalcMgt.CalcCompItemQtyBase(
-                ProdBOMLine, WorkDate(),
-                MfgCostCalcMgt.CalcQtyAdjdForBOMScrap(ParentItem."Lot Size", ParentScrapPct), OriginalItem."Routing No.", true) /
-              UOMMgt.GetQtyPerUnitOfMeasure(BOMItem, ProdBOMLine."Unit of Measure Code") /
-              BOMQtyPerUOM / ParentItem."Lot Size";
-            "Qty. per Top Item" := Round(ParentQtyPer * "Qty. per Parent", UOMMgt.QtyRndPrecision());
-            "Qty. per Parent" := Round("Qty. per Parent", UOMMgt.QtyRndPrecision());
-
-            "Scrap Qty. per Parent" := "Qty. per Parent" - (ProdBOMLine.Quantity / BOMQtyPerUOM);
-            "Scrap Qty. per Top Item" :=
-              "Qty. per Top Item" -
-              Round((ParentQtyPer - ParentScrapQtyPer) * ("Qty. per Parent" - "Scrap Qty. per Parent"), UOMMgt.QtyRndPrecision());
-            "Scrap Qty. per Parent" := Round("Scrap Qty. per Parent", UOMMgt.QtyRndPrecision());
-
-            "Qty. per BOM Line" := ProdBOMLine."Quantity per";
-            "Unit of Measure Code" := ProdBOMLine."Unit of Measure Code";
-            "Variant Code" := ProdBOMLine."Variant Code";
-            "Location Code" := ParentLocationCode;
-            "Lead-Time Offset" := ProdBOMLine."Lead-Time Offset";
-            "Needed by Date" := NeedByDate;
-            Indentation := NewIndentation;
-            if ProdBOMLine."Calculation Formula" = ProdBOMLine."Calculation Formula"::"Fixed Quantity" then
-                "Calculation Formula" := ProdBOMLine."Calculation Formula";
-
-            OnTransferFromProdCompCopyFields(Rec, ProdBOMLine, ParentItem, ParentQtyPer, ParentScrapQtyPer);
-            Insert(true);
-        end;
-        OnAfterTransferFromProdComp(Rec, ProdBOMLine, ParentItem, EntryNo)
-    end;
-
-    procedure TransferFromProdOrderLine(var EntryNo: Integer; ProdOrderLine: Record "Prod. Order Line")
-    var
-        BOMItem: Record Item;
-    begin
-        Init();
-        EntryNo += 1;
-        "Entry No." := EntryNo;
-        Type := Type::Item;
-
-        BOMItem.Get(ProdOrderLine."Item No.");
-        InitFromItem(BOMItem);
-
-        "Scrap %" := ProdOrderLine."Scrap %";
-        "Production BOM No." := ProdOrderLine."Production BOM No.";
-        "Qty. per Parent" := 1;
-        "Qty. per Top Item" := 1;
-        "Unit of Measure Code" := ProdOrderLine."Unit of Measure Code";
-        "Variant Code" := ProdOrderLine."Variant Code";
-        "Location Code" := ProdOrderLine."Location Code";
-        "Needed by Date" := ProdOrderLine."Due Date";
-        Indentation := 0;
-
-        OnTransferFromProdOrderLineCopyFields(Rec, ProdOrderLine);
-        Insert(true);
-    end;
-
-    procedure TransferFromProdOrderComp(var EntryNo: Integer; ProdOrderComp: Record "Prod. Order Component")
-    var
-        BOMItem: Record Item;
-    begin
-        Init();
-        EntryNo += 1;
-        "Entry No." := EntryNo;
-        Type := Type::Item;
-
-        BOMItem.Get(ProdOrderComp."Item No.");
-        InitFromItem(BOMItem);
-
-        "Qty. per Parent" := ProdOrderComp."Quantity per";
-        "Qty. per Top Item" := ProdOrderComp."Quantity per";
-        "Unit of Measure Code" := ProdOrderComp."Unit of Measure Code";
-        "Variant Code" := ProdOrderComp."Variant Code";
-        "Location Code" := ProdOrderComp."Location Code";
-        "Needed by Date" := ProdOrderComp."Due Date";
-        "Lead-Time Offset" := ProdOrderComp."Lead-Time Offset";
-        Indentation := 1;
-
-        OnTransferFromProdOrderCompCopyFields(Rec, ProdOrderComp);
-        Insert(true);
-    end;
-
-    procedure TransferFromProdRouting(var EntryNo: Integer; RoutingLine: Record "Routing Line"; NewIndentation: Integer; ParentQtyPer: Decimal; NeedByDate: Date; ParentLocationCode: Code[10])
-    var
-        MachineCenter: Record "Machine Center";
-        WorkCenter: Record "Work Center";
-        RunTimeQty: Decimal;
-        SetupWaitMoveTimeQty: Decimal;
-    begin
-        Init();
-        EntryNo += 1;
-        "Entry No." := EntryNo;
-
-        case RoutingLine.Type of
-            RoutingLine.Type::"Machine Center":
-                begin
-                    MachineCenter.Get(RoutingLine."No.");
-                    InitFromMachineCenter(MachineCenter);
-                end;
-            RoutingLine.Type::"Work Center":
-                begin
-                    WorkCenter.Get(RoutingLine."No.");
-                    InitFromWorkCenter(WorkCenter);
-                end;
-        end;
-
-        Description := RoutingLine.Description;
-        CalcQtyPerParentFromProdRouting(RoutingLine, RunTimeQty, SetupWaitMoveTimeQty);
-        "Qty. per Parent" := SetupWaitMoveTimeQty + RunTimeQty;
-        "Qty. per Top Item" := SetupWaitMoveTimeQty + RunTimeQty * ParentQtyPer;
-        "Location Code" := ParentLocationCode;
-        "Needed by Date" := NeedByDate;
-        Indentation := NewIndentation;
-
-        OnTransferFromProdRoutingCopyFields(Rec, RoutingLine);
-        Insert(true);
-    end;
-
     procedure InitFromItem(Item: Record Item)
     var
         SKU: Record "Stockkeeping Unit";
-        VersionMgt: Codeunit VersionManagement;
-        ProductionBOMCheck: Codeunit "Production BOM-Check";
-        VersionCode: Code[20];
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -704,17 +425,11 @@ table 5870 "BOM Buffer"
         Description := Item.Description;
         "Unit of Measure Code" := Item."Base Unit of Measure";
 
-        "Production BOM No." := Item."Production BOM No.";
-        "Routing No." := Item."Routing No.";
         if GetSKUFromFilter(SKU, "No.") then
             "Replenishment System" := SKU."Replenishment System"
         else
             "Replenishment System" := Item."Replenishment System";
-        if "Replenishment System" = "Replenishment System"::"Prod. Order" then begin
-            VersionCode := VersionMgt.GetBOMVersion("Production BOM No.", WorkDate(), true);
-            "BOM Unit of Measure Code" := VersionMgt.GetBOMUnitOfMeasure("Production BOM No.", VersionCode);
-            ProductionBOMCheck.CheckBOM("Production BOM No.", VersionCode);
-        end;
+        OnInitFromItemOnAfterSetReplenishmentSystem(Rec, Item, SKU);
 
         "Lot Size" := Item."Lot Size";
         "Scrap %" := Item."Scrap %";
@@ -752,50 +467,6 @@ table 5870 "BOM Buffer"
         OnAfterInitFromRes(Rec, Resourse);
     end;
 
-    procedure InitFromMachineCenter(MachineCenter: Record "Machine Center")
-    var
-        WorkCenter: Record "Work Center";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeInitFromMachineCenter(Rec, MachineCenter, IsHandled);
-        if IsHandled then
-            exit;
-
-        Type := Type::"Machine Center";
-        "No." := MachineCenter."No.";
-        Description := MachineCenter.Name;
-        if MachineCenter."Work Center No." <> '' then begin
-            WorkCenter.Get(MachineCenter."Work Center No.");
-            "Unit of Measure Code" := WorkCenter."Unit of Measure Code";
-        end;
-
-        "Replenishment System" := "Replenishment System"::Transfer;
-        "Is Leaf" := true;
-
-        OnAfterInitFromMachineCenter(Rec, MachineCenter);
-    end;
-
-    procedure InitFromWorkCenter(WorkCenter: Record "Work Center")
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeInitFromWorkCenter(Rec, WorkCenter, IsHandled);
-        if IsHandled then
-            exit;
-
-        Type := Type::"Work Center";
-        "No." := WorkCenter."No.";
-        Description := WorkCenter.Name;
-        "Unit of Measure Code" := WorkCenter."Unit of Measure Code";
-
-        "Replenishment System" := "Replenishment System"::Transfer;
-        "Is Leaf" := true;
-
-        OnAfterInitFromWorkCenter(Rec, WorkCenter);
-    end;
-
     local procedure SetAbleToMakeToZeroIfNegative()
     begin
         if "Able to Make Parent" < 0 then
@@ -807,7 +478,6 @@ table 5870 "BOM Buffer"
     procedure UpdateAbleToMake(AvailQty: Decimal)
     var
         Item: Record Item;
-        UOMMgt: Codeunit "Unit of Measure Management";
         QtyPerUOM: Decimal;
         IsHandled: Boolean;
     begin
@@ -849,28 +519,22 @@ table 5870 "BOM Buffer"
         "Rolled-up Material Cost" += RolledUpCostAmt;
     end;
 
-    procedure AddNonInvMaterialCost(SingleLvlCostAmt: Decimal; RolledUpCostAmt: Decimal)
-    begin
-        "Single-Lvl Mat. Non-Invt. Cost" += SingleLvlCostAmt;
-        "Rolled-up Mat. Non-Invt. Cost" += RolledUpCostAmt;
-    end;
-
     procedure AddCapacityCost(SingleLvlCostAmt: Decimal; RolledUpCostAmt: Decimal)
     begin
         "Single-Level Capacity Cost" += SingleLvlCostAmt;
         "Rolled-up Capacity Cost" += RolledUpCostAmt;
     end;
 
-    procedure AddSubcontrdCost(SingleLvlCostAmt: Decimal; RolledUpCostAmt: Decimal)
-    begin
-        "Single-Level Subcontrd. Cost" += SingleLvlCostAmt;
-        "Rolled-up Subcontracted Cost" += RolledUpCostAmt;
-    end;
-
     procedure AddCapOvhdCost(SingleLvlCostAmt: Decimal; RolledUpCostAmt: Decimal)
     begin
         "Single-Level Cap. Ovhd Cost" += SingleLvlCostAmt;
         "Rolled-up Capacity Ovhd. Cost" += RolledUpCostAmt;
+    end;
+
+    procedure AddSubcontrdCost(SingleLvlCostAmt: Decimal; RolledUpCostAmt: Decimal)
+    begin
+        "Single-Level Subcontrd. Cost" += SingleLvlCostAmt;
+        "Rolled-up Subcontracted Cost" += RolledUpCostAmt;
     end;
 
     procedure AddMfgOvhdCost(SingleLvlCostAmt: Decimal; RolledUpCostAmt: Decimal)
@@ -885,10 +549,15 @@ table 5870 "BOM Buffer"
         "Rolled-up Scrap Cost" += RolledUpCostAmt;
     end;
 
+    procedure AddNonInvMaterialCost(SingleLvlCostAmt: Decimal; RolledUpCostAmt: Decimal)
+    begin
+        "Single-Lvl Mat. Non-Invt. Cost" += SingleLvlCostAmt;
+        "Rolled-up Mat. Non-Invt. Cost" += RolledUpCostAmt;
+    end;
+
     procedure GetItemCosts()
     var
         Item: Record Item;
-        UOMMgt: Codeunit "Unit of Measure Management";
     begin
         TestField(Type, Type::Item);
         Item.Get("No.");
@@ -897,29 +566,9 @@ table 5870 "BOM Buffer"
         if Item.IsInventoriableType() then begin
             "Single-Level Material Cost" := "Unit Cost";
             "Rolled-up Material Cost" := "Single-Level Material Cost";
-        end else
-            if MfgCostCalcMgmt.CanIncNonInvCostIntoProductionItem() then
-                if not Item.IsInventoriableType() then begin
-                    "Single-Lvl Mat. Non-Invt. Cost" := "Unit Cost";
-                    "Rolled-up Mat. Non-Invt. Cost" := "Single-Lvl Mat. Non-Invt. Cost";
-                end else begin
-                    "Single-Level Material Cost" := "Unit Cost";
-                    "Rolled-up Material Cost" := "Single-Level Material Cost";
-                end;
-
-        if MfgCostCalcMgmt.CanIncNonInvCostIntoProductionItem() then begin
-            if "Qty. per Parent" <> 0 then
-                "Single-Level Scrap Cost" := ("Single-Level Material Cost" + "Single-Lvl Mat. Non-Invt. Cost") * "Scrap Qty. per Parent" / "Qty. per Parent";
-            if "Qty. per Top Item" <> 0 then
-                "Rolled-up Scrap Cost" := ("Rolled-up Material Cost" + "Rolled-up Mat. Non-Invt. Cost") * "Scrap Qty. per Top Item" / "Qty. per Top Item";
-        end else begin
-            if "Qty. per Parent" <> 0 then
-                "Single-Level Scrap Cost" := "Single-Level Material Cost" * "Scrap Qty. per Parent" / "Qty. per Parent";
-            if "Qty. per Top Item" <> 0 then
-                "Rolled-up Scrap Cost" := "Rolled-up Material Cost" * "Scrap Qty. per Top Item" / "Qty. per Top Item";
         end;
 
-        OnGetItemCostsOnBeforeRoundCosts(Rec);
+        OnGetItemCostsOnBeforeRoundCosts(Rec, Item);
         RoundCosts(UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code") * "Qty. per Top Item");
 
         OnAfterGetItemCosts(Rec, Item);
@@ -935,20 +584,15 @@ table 5870 "BOM Buffer"
         "Unit Cost" := Item."Unit Cost";
         "Single-Level Material Cost" :=
           RoundUnitAmt(Item."Single-Level Material Cost", UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code") * "Qty. per Top Item");
-        if MfgCostCalcMgmt.CanIncNonInvCostIntoProductionItem() then
-            "Single-Lvl Mat. Non-Invt. Cost" :=
-              RoundUnitAmt(Item."Single-Lvl Mat. Non-Invt. Cost", UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code") * "Qty. per Top Item");
         "Rolled-up Material Cost" :=
           RoundUnitAmt(Item."Unit Cost", UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code") * "Qty. per Top Item");
-        if MfgCostCalcMgmt.CanIncNonInvCostIntoProductionItem() then
-            "Rolled-up Mat. Non-Invt. Cost" :=
-              RoundUnitAmt(Item."Unit Cost", UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code") * "Qty. per Top Item");
+
+        OnAfterGetUnitCost(Rec, Item);
     end;
 
     procedure GetResCosts()
     var
         Res: Record Resource;
-        UOMMgt: Codeunit "Unit of Measure Management";
     begin
         TestField(Type, Type::Resource);
         Res.Get("No.");
@@ -987,29 +631,17 @@ table 5870 "BOM Buffer"
     procedure RoundCosts(ShareOfTotalCost: Decimal)
     begin
         "Single-Level Material Cost" := RoundUnitAmt("Single-Level Material Cost", ShareOfTotalCost);
-        if MfgCostCalcMgmt.CanIncNonInvCostIntoProductionItem() then
-            "Single-Lvl Mat. Non-Invt. Cost" := RoundUnitAmt("Single-Lvl Mat. Non-Invt. Cost", ShareOfTotalCost);
-
         "Single-Level Capacity Cost" := RoundUnitAmt("Single-Level Capacity Cost", ShareOfTotalCost);
-        "Single-Level Subcontrd. Cost" := RoundUnitAmt("Single-Level Subcontrd. Cost", ShareOfTotalCost);
         "Single-Level Cap. Ovhd Cost" := RoundUnitAmt("Single-Level Cap. Ovhd Cost", ShareOfTotalCost);
-        "Single-Level Mfg. Ovhd Cost" := RoundUnitAmt("Single-Level Mfg. Ovhd Cost", ShareOfTotalCost);
-        "Single-Level Scrap Cost" := RoundUnitAmt("Single-Level Scrap Cost", ShareOfTotalCost);
 
         "Rolled-up Material Cost" := RoundUnitAmt("Rolled-up Material Cost", ShareOfTotalCost);
-        if MfgCostCalcMgmt.CanIncNonInvCostIntoProductionItem() then
-            "Rolled-up Mat. Non-Invt. Cost" := RoundUnitAmt("Rolled-up Mat. Non-Invt. Cost", ShareOfTotalCost);
-
         "Rolled-up Capacity Cost" := RoundUnitAmt("Rolled-up Capacity Cost", ShareOfTotalCost);
-        "Rolled-up Subcontracted Cost" := RoundUnitAmt("Rolled-up Subcontracted Cost", ShareOfTotalCost);
         "Rolled-up Capacity Ovhd. Cost" := RoundUnitAmt("Rolled-up Capacity Ovhd. Cost", ShareOfTotalCost);
-        "Rolled-up Mfg. Ovhd Cost" := RoundUnitAmt("Rolled-up Mfg. Ovhd Cost", ShareOfTotalCost);
-        "Rolled-up Scrap Cost" := RoundUnitAmt("Rolled-up Scrap Cost", ShareOfTotalCost);
 
         OnAfterRoundCosts(Rec, ShareOfTotalCost);
     end;
 
-    local procedure RoundUnitAmt(Amt: Decimal; ShareOfCost: Decimal) Result: Decimal
+    procedure RoundUnitAmt(Amt: Decimal; ShareOfCost: Decimal) Result: Decimal
     var
         IsHandled: Boolean;
     begin
@@ -1025,7 +657,6 @@ table 5870 "BOM Buffer"
     procedure CalcOvhdCost()
     var
         Item: Record Item;
-        UOMMgt: Codeunit "Unit of Measure Management";
         LotSize: Decimal;
         IsHandled: Boolean;
     begin
@@ -1043,65 +674,21 @@ table 5870 "BOM Buffer"
         "Overhead Rate" :=
           RoundUnitAmt("Overhead Rate", UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code") * "Qty. per Top Item");
 
-        if MfgCostCalcMgmt.CanIncNonInvCostIntoProductionItem() then
-            "Single-Level Mfg. Ovhd Cost" +=
-              (("Single-Level Material Cost" +
-                "Single-Lvl Mat. Non-Invt. Cost" +
-                "Single-Level Capacity Cost" +
-                "Single-Level Subcontrd. Cost" +
-                "Single-Level Cap. Ovhd Cost") *
-               "Indirect Cost %" / 100) +
-              ("Overhead Rate" * LotSize)
-        else
-            "Single-Level Mfg. Ovhd Cost" +=
-              (("Single-Level Material Cost" +
-                "Single-Level Capacity Cost" +
-                "Single-Level Subcontrd. Cost" +
-                "Single-Level Cap. Ovhd Cost") *
-               "Indirect Cost %" / 100) +
-              ("Overhead Rate" * LotSize);
-        "Single-Level Mfg. Ovhd Cost" := RoundUnitAmt("Single-Level Mfg. Ovhd Cost", 1);
-
-        if MfgCostCalcMgmt.CanIncNonInvCostIntoProductionItem() then
-            "Rolled-up Mfg. Ovhd Cost" +=
-              (("Rolled-up Material Cost" +
-                "Rolled-up Mat. Non-Invt. Cost" +
-                "Rolled-up Capacity Cost" +
-                "Rolled-up Subcontracted Cost" +
-                "Rolled-up Capacity Ovhd. Cost" +
-                "Rolled-up Mfg. Ovhd Cost") *
-               "Indirect Cost %" / 100) +
-              ("Overhead Rate" * LotSize)
-        else
-            "Rolled-up Mfg. Ovhd Cost" +=
-            (("Rolled-up Material Cost" +
-              "Rolled-up Capacity Cost" +
-              "Rolled-up Subcontracted Cost" +
-              "Rolled-up Capacity Ovhd. Cost" +
-              "Rolled-up Mfg. Ovhd Cost") *
-             "Indirect Cost %" / 100) +
-            ("Overhead Rate" * LotSize);
-        "Rolled-up Mfg. Ovhd Cost" := RoundUnitAmt("Rolled-up Mfg. Ovhd Cost", 1);
+        OnAfterCalcOvhdCost(Rec, LotSize);
     end;
 
-    procedure CalcDirectCost(): Decimal
+    procedure CalcDirectCost() Cost: Decimal
     begin
-        if not MfgCostCalcMgmt.CanIncNonInvCostIntoProductionItem() then
-            exit(
-              "Single-Level Material Cost" +
-              "Single-Level Capacity Cost" +
-              "Single-Level Subcontrd. Cost")
-        else
-            exit(
-            "Single-Level Material Cost" +
-            "Single-Lvl Mat. Non-Invt. Cost" +
-            "Single-Level Capacity Cost" +
-            "Single-Level Subcontrd. Cost");
+        Cost := "Single-Level Material Cost" + "Single-Level Capacity Cost";
+
+        OnAfterCalcDirectCost(Rec, Cost);
     end;
 
-    procedure CalcIndirectCost(): Decimal
+    procedure CalcIndirectCost() Cost: Decimal
     begin
-        exit("Single-Level Mfg. Ovhd Cost" + "Single-Level Cap. Ovhd Cost");
+        Cost := "Single-Level Cap. Ovhd Cost";
+
+        OnAfterCalcIndirectCost(Rec, Cost);
     end;
 
     procedure CalcUnitCost()
@@ -1111,59 +698,6 @@ table 5870 "BOM Buffer"
         if "Qty. per Top Item" <> 0 then
             "Unit Cost" := Round("Total Cost" / "Qty. per Top Item", 0.00001);
         OnAfterCalcUnitCost(Rec);
-    end;
-
-    local procedure CalcQtyPerParentFromProdRouting(RoutingLine: Record "Routing Line"; var RunTimeQty: Decimal; var SetupWaitMoveTimeQty: Decimal)
-    var
-        WorkCenter: Record "Work Center";
-        CalendarMgt: Codeunit "Shop Calendar Management";
-        SetupTimeFactor: Decimal;
-        RunTimeFactor: Decimal;
-        WaitTimeFactor: Decimal;
-        MoveTimeFactor: Decimal;
-        CurrentTimeFactor: Decimal;
-        LotSizeFactor: Decimal;
-    begin
-        SetupTimeFactor := CalendarMgt.TimeFactor(RoutingLine."Setup Time Unit of Meas. Code");
-        RunTimeFactor := CalendarMgt.TimeFactor(RoutingLine."Run Time Unit of Meas. Code");
-        WaitTimeFactor := CalendarMgt.TimeFactor(RoutingLine."Wait Time Unit of Meas. Code");
-        MoveTimeFactor := CalendarMgt.TimeFactor(RoutingLine."Move Time Unit of Meas. Code");
-
-        if RoutingLine."Lot Size" = 0 then
-            LotSizeFactor := 1
-        else
-            LotSizeFactor := RoutingLine."Lot Size";
-
-        RunTimeQty := RoutingLine."Run Time" * RunTimeFactor / LotSizeFactor;
-        SetupWaitMoveTimeQty :=
-          (RoutingLine."Setup Time" * SetupTimeFactor + RoutingLine."Wait Time" * WaitTimeFactor +
-          RoutingLine."Move Time" * MoveTimeFactor) / LotSizeFactor;
-
-        if "Unit of Measure Code" = '' then begin
-            // select base UOM from Setup/Run/Wait/Move UOMs
-            CurrentTimeFactor := SetupTimeFactor;
-            "Unit of Measure Code" := RoutingLine."Setup Time Unit of Meas. Code";
-            if CurrentTimeFactor > RunTimeFactor then begin
-                CurrentTimeFactor := RunTimeFactor;
-                "Unit of Measure Code" := RoutingLine."Run Time Unit of Meas. Code";
-            end;
-            if CurrentTimeFactor > WaitTimeFactor then begin
-                CurrentTimeFactor := WaitTimeFactor;
-                "Unit of Measure Code" := RoutingLine."Wait Time Unit of Meas. Code";
-            end;
-            if CurrentTimeFactor > MoveTimeFactor then begin
-                CurrentTimeFactor := MoveTimeFactor;
-                "Unit of Measure Code" := RoutingLine."Move Time Unit of Meas. Code";
-            end;
-        end;
-
-        if not WorkCenter.Get(RoutingLine."Work Center No.") then
-            WorkCenter.Init();
-
-        RunTimeQty :=
-          Round(RunTimeQty / CalendarMgt.TimeFactor("Unit of Measure Code"), WorkCenter."Calendar Rounding Precision");
-        SetupWaitMoveTimeQty :=
-          Round(SetupWaitMoveTimeQty / CalendarMgt.TimeFactor("Unit of Measure Code"), WorkCenter."Calendar Rounding Precision");
     end;
 
     local procedure IsLowLevelOk(LogWarning: Boolean; var BOMWarningLog: Record "BOM Warning Log") Result: Boolean
@@ -1186,7 +720,7 @@ table 5870 "BOM Buffer"
             exit(true);
 
         if LogWarning then
-            BOMWarningLog.SetWarning(StrSubstNo(Text001, Item."No."), DATABASE::Item, Item.GetPosition());
+            SetItemWarningLog(BOMWarningLog, Item, Text001);
     end;
 
     local procedure TraverseIsLowLevelOk(ParentItem: Record Item): Boolean
@@ -1218,7 +752,6 @@ table 5870 "BOM Buffer"
     var
         Item: Record Item;
         CopyOfBOMBuffer: Record "BOM Buffer";
-        ProdBOMHeader: Record "Production BOM Header";
         IsHandled: Boolean;
         Result: Boolean;
     begin
@@ -1247,41 +780,11 @@ table 5870 "BOM Buffer"
                 Item.Get("No.");
                 Item.CalcFields("Assembly BOM");
                 if Item."Assembly BOM" then
-                    BOMWarningLog.SetWarning(StrSubstNo(Text002, Item."No."), DATABASE::Item, Item.GetPosition())
-                else
-                    if ProdBOMHeader.Get(Item."Production BOM No.") then
-                        BOMWarningLog.SetWarning(StrSubstNo(Text002, Item."No."), DATABASE::"Production BOM Header", ProdBOMHeader.GetPosition())
+                    SetItemWarningLog(BOMWarningLog, Item, Text002);
+                OnIsQtyPerOKOnAfterCheckItemAssemblyBOM(Item, BOMWarningLog);
             end;
             Copy(CopyOfBOMBuffer);
         end;
-    end;
-
-    local procedure IsProdBOMOk(LogWarning: Boolean; var BOMWarningLog: Record "BOM Warning Log"): Boolean
-    var
-        ProdBOMHeader: Record "Production BOM Header";
-    begin
-        if "Production BOM No." = '' then
-            exit(true);
-        ProdBOMHeader.Get("Production BOM No.");
-        if ProdBOMHeader.Status = ProdBOMHeader.Status::Certified then
-            exit(true);
-
-        if LogWarning then
-            BOMWarningLog.SetWarning(StrSubstNo(Text004, ProdBOMHeader."No."), DATABASE::"Production BOM Header", ProdBOMHeader.GetPosition());
-    end;
-
-    local procedure IsRoutingOk(LogWarning: Boolean; var BOMWarningLog: Record "BOM Warning Log"): Boolean
-    var
-        RoutingHeader: Record "Routing Header";
-    begin
-        if "Routing No." = '' then
-            exit(true);
-        RoutingHeader.Get("Routing No.");
-        if RoutingHeader.Status = RoutingHeader.Status::Certified then
-            exit(true);
-
-        if LogWarning then
-            BOMWarningLog.SetWarning(StrSubstNo(Text003, RoutingHeader."No."), DATABASE::"Routing Header", RoutingHeader.GetPosition());
     end;
 
     local procedure IsReplenishmentOk(LogWarning: Boolean; var BOMWarningLog: Record "BOM Warning Log"): Boolean
@@ -1305,12 +808,12 @@ table 5870 "BOM Buffer"
             if Item."Replenishment System" in ["Replenishment System"::Purchase, "Replenishment System"::Transfer] then
                 exit(true);
             if LogWarning then
-                BOMWarningLog.SetWarning(StrSubstNo(Text005, Item."No."), DATABASE::Item, Item.GetPosition());
+                SetItemWarningLog(BOMWarningLog, Item, Text005);
         end else begin
-            if Item."Replenishment System" in ["Replenishment System"::"Prod. Order", "Replenishment System"::Assembly] then
+            if Item.IsMfgItem() or Item.IsAssemblyItem() then
                 exit(IsBOMOk(LogWarning, BOMWarningLog));
             if LogWarning then
-                BOMWarningLog.SetWarning(StrSubstNo(Text008, Item."No."), DATABASE::Item, Item.GetPosition());
+                SetItemWarningLog(BOMWarningLog, Item, Text008);
         end;
     end;
 
@@ -1337,17 +840,19 @@ table 5870 "BOM Buffer"
                     if Item."Assembly BOM" then
                         exit(true);
                     if LogWarning then
-                        BOMWarningLog.SetWarning(StrSubstNo(Text006, Item."No."), DATABASE::Item, Item.GetPosition());
+                        SetItemWarningLog(BOMWarningLog, Item, Text006);
                 end;
             Item."Replenishment System"::"Prod. Order":
                 begin
-                    if Item."Production BOM No." <> '' then
+                    if Item.IsProductionBOM() then
                         exit(true);
                     if LogWarning then
-                        BOMWarningLog.SetWarning(StrSubstNo(Text007, Item."No."), DATABASE::Item, Item.GetPosition());
+                        SetItemWarningLog(BOMWarningLog, Item, Text007);
                 end;
-            else
+            else begin
+                IsHandled := false;
                 exit(true);
+            end;
         end;
     end;
 
@@ -1356,8 +861,6 @@ table 5870 "BOM Buffer"
         Result :=
           IsLowLevelOk(LogWarning, BOMWarningLog) and
           IsQtyPerOk(LogWarning, BOMWarningLog) and
-          IsProdBOMOk(LogWarning, BOMWarningLog) and
-          IsRoutingOk(LogWarning, BOMWarningLog) and
           IsReplenishmentOk(LogWarning, BOMWarningLog);
 
         OnAfterIsLineOk(Rec, LogWarning, BOMWarningLog, Result);
@@ -1396,6 +899,11 @@ table 5870 "BOM Buffer"
         SetFilter("Variant Code", ItemFilter.GetFilter("Variant Filter"));
     end;
 
+    procedure SetItemWarningLog(var BOMWarningLog: Record "BOM Warning Log"; var Item: Record Item; WarningText: Text)
+    begin
+        BOMWarningLog.SetWarning(StrSubstNo(WarningText, Item."No."), DATABASE::Item, CopyStr(Item.GetPosition(), 1, 250));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcUnitCost(var BOMBuffer: Record "BOM Buffer")
     begin
@@ -1417,27 +925,12 @@ table 5870 "BOM Buffer"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromMachineCenter(var BOMBuffer: Record "BOM Buffer"; MachineCenter: Record "Machine Center");
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromWorkCenter(var BOMBuffer: Record "BOM Buffer"; WorkCenter: Record "Work Center");
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnAfterIsLineOk(var BOMBuffer: Record "BOM Buffer"; LogWarning: Boolean; var BOMWarningLog: Record "BOM Warning Log"; var Result: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRoundCosts(var BOMBuffer: Record "BOM Buffer"; ShareOfTotalCost: Decimal);
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromProdComp(var BOMBuffer: Record "BOM Buffer"; ProductionBOMLine: Record "Production BOM Line"; ParentItem: Record Item; var EntryNo: Integer)
     begin
     end;
 
@@ -1467,27 +960,12 @@ table 5870 "BOM Buffer"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitFromMachineCenter(var BOMBuffer: Record "BOM Buffer"; MachineCenter: Record "Machine Center"; var IsHandled: Boolean);
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnbeforeInitFromWorkCenter(var BOMBuffer: Record "BOM Buffer"; WorkCenter: Record "Work Center"; var IsHandled: Boolean);
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeTransferFromProdComp(var EntryNo: Integer; ProductionBOMLine: Record "Production BOM Line"; NewIndentation: Integer; ParentQtyPer: Decimal; ParentScrapQtyPer: Decimal; ParentScrapPct: Decimal; NeedByDate: Date; ParentLocationCode: Code[10]; ParentItem: Record Item; BOMQtyPerUOM: Decimal; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAbleToMake(var BOMBuffer: Record "BOM Buffer"; var AvailQty: Decimal; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetItemCostsOnBeforeRoundCosts(var BOMBuffer: Record "BOM Buffer")
+    local procedure OnGetItemCostsOnBeforeRoundCosts(var BOMBuffer: Record "BOM Buffer"; var Item: Record Item)
     begin
     end;
 
@@ -1497,37 +975,7 @@ table 5870 "BOM Buffer"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransferFromAsmHeaderCopyFields(var BOMBuffer: Record "BOM Buffer"; AssemblyHeader: Record "Assembly Header")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnTransferFromAsmLineCopyFields(var BOMBuffer: Record "BOM Buffer"; AssemblyLine: Record "Assembly Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnTransferFromBOMCompCopyFields(var BOMBuffer: Record "BOM Buffer"; BOMComponent: Record "BOM Component")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnTransferFromProdCompCopyFields(var BOMBuffer: Record "BOM Buffer"; ProductionBOMLine: Record "Production BOM Line"; ParentItem: Record Item; ParentQtyPer: Decimal; ParentScrapQtyPer: Decimal)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnTransferFromProdOrderLineCopyFields(var BOMBuffer: Record "BOM Buffer"; ProdOrderLine: Record "Prod. Order Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnTransferFromProdOrderCompCopyFields(var BOMBuffer: Record "BOM Buffer"; ProdOrderComponent: Record "Prod. Order Component")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnTransferFromProdRoutingCopyFields(var BOMBuffer: Record "BOM Buffer"; RoutingLine: Record "Routing Line")
     begin
     end;
 
@@ -1543,6 +991,36 @@ table 5870 "BOM Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRoundUnitAmt(Amt: Decimal; ShareOfCost: Decimal; var IsHandled: Boolean; var ReturnValue: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcDirectCost(var BOMBuffer: Record "BOM Buffer"; var Cost: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcIndirectCost(var BOMBuffer: Record "BOM Buffer"; var Cost: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcOvhdCost(var BOMBuffer: Record "BOM Buffer"; LotSize: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetUnitCost(var BOMBuffer: Record "BOM Buffer"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsQtyPerOKOnAfterCheckItemAssemblyBOM(Item: Record Item; var BOMWarningLog: Record "BOM Warning Log")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitFromItemOnAfterSetReplenishmentSystem(var BOMBuffer: Record "BOM Buffer"; Item: Record Item; StockkeepingUnit: Record "Stockkeeping Unit")
     begin
     end;
 }

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.HumanResources.Payables;
 
 using Microsoft.Finance.Currency;
@@ -160,6 +164,12 @@ table 5223 "Detailed Employee Ledger Entry"
         {
             Caption = 'Ledger Entry Amount';
             Editable = false;
+        }
+        field(44; "Posting Group"; Code[20])
+        {
+            Caption = 'Employee Posting Group';
+            Editable = false;
+            TableRelation = "Employee Posting Group";
         }
         field(45; "Exch. Rate Adjmt. Reg. No."; Integer)
         {

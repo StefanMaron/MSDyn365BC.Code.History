@@ -7,6 +7,10 @@ namespace Microsoft.Bank.Payment;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Purchases.Payables;
 
+/// <summary>
+/// Validates vendor ledger entries before they are exported for payment processing.
+/// This codeunit performs comprehensive checks to ensure vendor payment data integrity and compliance.
+/// </summary>
 codeunit 1212 "Pmt. Export Vend. Ledger Check"
 {
     TableNo = "Vendor Ledger Entry";
@@ -118,11 +122,22 @@ codeunit 1212 "Pmt. Export Vend. Ledger Check"
         BankAccount.TestField("Payment Export Format");
     end;
 
+    /// <summary>
+    /// Integration event that allows customization of vendor ledger entry validation logic for payment export.
+    /// This event is raised during vendor ledger entry validation to allow external extensions to add custom validation rules.
+    /// </summary>
+    /// <param name="VendorLedgerEntry">The vendor ledger entry being validated for payment export.</param>
     [IntegrationEvent(false, false)]
     local procedure OnPmtExportVendorLedgerCheck(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event that allows customization of payment information validation for vendor ledger entries.
+    /// This event is raised during empty payment information checks to enable custom validation logic.
+    /// </summary>
+    /// <param name="VendorLedgerEntry">The vendor ledger entry being checked for payment information.</param>
+    /// <param name="Handled">Set to true if the validation has been handled by an external extension.</param>
     [IntegrationEvent(false, false)]
     local procedure OnCheckEmptyPmtInfoVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var Handled: Boolean)
     begin

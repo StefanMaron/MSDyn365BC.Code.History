@@ -52,6 +52,8 @@ codeunit 6515 "Package Info. Management"
         BinContent.CopyFilter("Package No. Filter", PackageNoInfo."Package No.");
         PackageNoInfo.SetRange(Blocked, true);
 
+        OnBinContentOnBeforeCalcQtyWithBlockedItemTrackingOnAfterTrackingInformationFiltered(SerialNoInfo, LotNoInfo, PackageNoInfo, BinContent);
+
         if SerialNoInfo.IsEmpty() and LotNoInfo.IsEmpty() and PackageNoInfo.IsEmpty() then
             exit;
 
@@ -289,6 +291,11 @@ codeunit 6515 "Package Info. Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupPackageNo(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBinContentOnBeforeCalcQtyWithBlockedItemTrackingOnAfterTrackingInformationFiltered(var SerialNoInformation: Record "Serial No. Information"; var LotNoInformation: Record "Lot No. Information"; var PackageNoInformation: Record "Package No. Information"; var BinContent: Record "Bin Content")
     begin
     end;
 }

@@ -9,12 +9,12 @@ using Microsoft.Inventory.Item;
 using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.BOM;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Assembly.Setup;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Journal;
 using Microsoft.Purchases.Document;
+using Microsoft.Inventory.Setup;
 
 codeunit 137912 "SCM Assembly Availability II"
 {
@@ -30,17 +30,15 @@ codeunit 137912 "SCM Assembly Availability II"
     var
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        FirstNumber: Label '137912-001';
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPlanning: Codeunit "Library - Planning";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         TestMethodName: Text[30];
         Step: Integer;
-        CnfmUpdateLocationOnLines: Label 'Do you want to update the Location Code on the lines?';
-        CnfmChangeOfItemNo: Label 'Changing Item No. will change all the lines. Do you want to change the Item No.';
-        CnfmRefreshLines: Label 'This assembly order may have customized lines. Are you sure that you want to reset the lines according to the assembly BOM?';
         SubStep: Integer;
         SupplyDate1: Date;
         SupplyQty1: Decimal;
@@ -48,6 +46,19 @@ codeunit 137912 "SCM Assembly Availability II"
         SupplyQty2: Decimal;
         DemandDate: Date;
         DemandQty: Decimal;
+        OldDueDate: Date;
+        NewDueDate: Date;
+        OldEndDate: Date;
+        NewEndDate: Date;
+        OldStartDate: Date;
+        NewStartDate: Date;
+        NewLineDueDate: Date;
+        Initialized: Boolean;
+
+        FirstNumber: Label '137912-001';
+        CnfmUpdateLocationOnLines: Label 'Do you want to update the Location Code on the lines?';
+        CnfmChangeOfItemNo: Label 'Changing Item No. will change all the lines. Do you want to change the Item No.';
+        CnfmRefreshLines: Label 'This assembly order may have customized lines. Are you sure that you want to reset the lines according to the assembly BOM?';
         TestMethodVSTF238977: Label 'TestMethod: VSTF238977';
         TestVSTF257960A: Label 'VSTF257960A';
         CnfmStartingDateChanged: Label 'You have modified the Starting Date from %1 to %2. Do you want to update the Ending Date from %3 to %4 and the Due Date from %5 to %6?';
@@ -55,21 +66,12 @@ codeunit 137912 "SCM Assembly Availability II"
         ErrEndDateBeforeStartDate: Label 'Ending Date %1 is before Starting Date %2.';
         ErrDueDateBeforeEndDate: Label 'Due Date %1 is before Ending Date %2.';
         ErrLineDueDateBeforeStartDate: Label 'Due Date cannot be later than %1 because the Starting Date is set to %2.';
-        OldDueDate: Date;
-        NewDueDate: Date;
-        OldEndDate: Date;
-        NewEndDate: Date;
-        OldStartDate: Date;
-        NewStartDate: Date;
         MsgDueDateBeforeWDFromLine: Label 'Due Date %1 is before work date %2.';
         MsgDueDateBeforeWDFromHeader: Label 'Due Date %1 is before work date %2 in one or more of the assembly lines.';
-        NewLineDueDate: Date;
         TestVSTF257960B: Label 'VSTF257960B';
         TestDataConsistencyCheck: Label 'DataConsistencyCheck';
         TestVSTF266309: Label 'VSTF266309';
         TestMsgAvailConfirm: Label 'Availability warning at step = %1.';
-        DateFormula1D: Label '1D';
-        Initialized: Boolean;
 
     [Normal]
     local procedure Initialize()
@@ -77,12 +79,14 @@ codeunit 137912 "SCM Assembly Availability II"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Assembly Availability II");
+        LibrarySetupStorage.Restore();
         if Initialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Assembly Availability II");
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibrarySetupStorage.SaveInventorySetup();
 
         Initialized := true;
         Commit();
@@ -424,21 +428,21 @@ codeunit 137912 "SCM Assembly Availability II"
         ParentItem: Record Item;
         Location: Record Location;
         StockkeepingUnit: Record "Stockkeeping Unit";
-        MfgSetup: Record "Manufacturing Setup";
         AsmHeader: Record "Assembly Header";
         DTFormula: DateFormula;
         NewStartDate2: Date;
         NewEndDate2: Date;
         NewDueDate2: Date;
-        OldDefSafetyLeadTime: DateFormula;
     begin
         Initialize();
         TestMethodName := 'VSTF258428';
         Step := 0;
+
         // Create item KIT with Replenishment System = Assembly
         MockItem(ParentItem);
         ParentItem.Validate("Replenishment System", ParentItem."Replenishment System"::Assembly);
         ParentItem.Modify(true);
+
         // Create SKU for KIT @ BLUE with Safety Lead Time = 3D and Lead Time Calculation =4D
         MockLocation(Location);
         LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, Location.Code, ParentItem."No.", '');
@@ -447,18 +451,17 @@ codeunit 137912 "SCM Assembly Availability II"
         Evaluate(DTFormula, '4D');
         StockkeepingUnit.Validate("Lead Time Calculation", DTFormula);
         StockkeepingUnit.Modify(true);
+
         // Change manufacturing Default Safety Lead Time = 2D
-        OldDefSafetyLeadTime := MfgSetup."Default Safety Lead Time";
-        Evaluate(DTFormula, '2D');
-        MfgSetup.Get();
-        MfgSetup.Validate("Default Safety Lead Time", DTFormula);
-        MfgSetup.Modify(true);
+        LibraryPlanning.SetDefaultSafetyLeadTime('2D');
+
         // Create asm order for KIT with due date = WorkDate(), Location=Blank.
         MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate(), '');
         Assert.AreEqual(WorkDate(), AsmHeader."Due Date", 'Due Date = WorkDate');
         Evaluate(DTFormula, '-2D');
         Assert.AreEqual(CalcDate(DTFormula, WorkDate()), AsmHeader."Ending Date", 'Ending Date = WorkDate() - 2D');
         Assert.AreEqual(AsmHeader."Ending Date", AsmHeader."Starting Date", 'Starting Date = Ending Date');
+
         // Change location code on header = BLUE
         AsmHeader.Validate("Location Code", Location.Code);
         Assert.AreEqual(WorkDate(), AsmHeader."Due Date", 'Due Date = WorkDate');
@@ -507,12 +510,6 @@ codeunit 137912 "SCM Assembly Availability II"
         AsmHeader.Validate("Ending Date", NewEndDate);
         Assert.AreEqual(NewStartDate, AsmHeader."Starting Date", 'Starting Date = Ending date - 4D (SKU Lead Time Calculation)');
         Assert.AreEqual(NewDueDate, AsmHeader."Due Date", 'Due Date = Ending date + 3D (SKU safety lead time)');
-
-        asserterror Error(''); // to restore Mfg Setup Default Safety Lead time to original value
-
-        // set data back to original
-        MfgSetup.Validate("Default Safety Lead Time", OldDefSafetyLeadTime);
-        MfgSetup.Modify(true);
     end;
 
     [Test]
@@ -524,7 +521,6 @@ codeunit 137912 "SCM Assembly Availability II"
         ChildItem: Record Item;
         AsmHeader: Record "Assembly Header";
         AsmLine: Record "Assembly Line";
-        MfgSetup: Record "Manufacturing Setup";
     begin
         Initialize();
         TestMethodName := TestMethodVSTF238977;
@@ -534,8 +530,7 @@ codeunit 137912 "SCM Assembly Availability II"
         MockPurchOrder(ChildItem."No.", 10, '', CalcDate('<+1M>', WorkDate()));
         // Create assembly order. Qty = 1
         Step := 1;
-        MfgSetup.Get();
-        MockAsmOrder(AsmHeader, ParentItem, 1, CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()), ''); // to avoid the message about due date being before work date
+        MockAsmOrder(AsmHeader, ParentItem, 1, LibraryPlanning.SetSafetyWorkDate(), ''); // to avoid the message about due date being before work date
         Step := 2;
         // Set due date on the line to 1W before the expected rcpt date of the purchase
         AsmHeader.Validate("Starting Date", CalcDate('<+1M-1W>', WorkDate()));
@@ -854,27 +849,25 @@ codeunit 137912 "SCM Assembly Availability II"
         Bin: Record Bin;
         AsmHeader: Record "Assembly Header";
         AsmLine: Record "Assembly Line";
-        MfgSetup: Record "Manufacturing Setup";
-        OldDefSafetyLeadTime: DateFormula;
-        DTFormula: DateFormula;
     begin
         Initialize();
+
         // Create assembled item with one comp (qty per = 1).
         MockAsmItem(ParentItem, ChildItem, 1);
+
         // Create Bin Mandatory location with To-Assembly Bin filled in
         MockLocation(Location);
         Location."Bin Mandatory" := true;
         LibraryWarehouse.CreateBin(Bin, Location.Code, FirstNumber, '', '');
         Location."To-Assembly Bin Code" := Bin.Code;
         Location.Modify();
+
         // Add 2 PCS of component to inventory
         AddItemToInventory(ChildItem, Location.Code, Bin.Code, 2);
+
         // Change manufacturing Default Safety Lead Time = 2D
-        OldDefSafetyLeadTime := MfgSetup."Default Safety Lead Time";
-        Evaluate(DTFormula, DateFormula1D);
-        MfgSetup.Get();
-        MfgSetup.Validate("Default Safety Lead Time", DTFormula);
-        MfgSetup.Modify(true);
+        LibraryPlanning.SetDefaultSafetyLeadTime('1D');
+
         // Create asm order
         Clear(AsmHeader);
         AsmHeader."Document Type" := AsmHeader."Document Type"::Order;
@@ -889,10 +882,6 @@ codeunit 137912 "SCM Assembly Availability II"
         AsmLine.SetRange("Document No.", AsmHeader."No.");
         AsmLine.FindLast();
         Assert.AreEqual(Bin.Code, AsmLine."Bin Code", '');
-
-        // set data back to original
-        MfgSetup.Validate("Default Safety Lead Time", OldDefSafetyLeadTime);
-        MfgSetup.Modify(true);
     end;
 
     local procedure ShiftDateBackBy(Offset: DateFormula; RefDate: Date): Date
@@ -1171,12 +1160,10 @@ codeunit 137912 "SCM Assembly Availability II"
         ChildItem: Record Item;
         AsmHeader: Record "Assembly Header";
         AsmLine: Record "Assembly Line";
-        MfgSetup: Record "Manufacturing Setup";
         Location: Record Location;
         ItemUOM: Record "Item Unit of Measure";
         UnitOfMeasure: Record "Unit of Measure";
         LeadTime: DateFormula;
-        OldDefSafetyLeadTime: DateFormula;
     begin
         Initialize();
         // 1. Create item X with 2 UOMs (BOX = 5, PCS = 1). Set replenishment system = Assembly.
@@ -1195,11 +1182,7 @@ codeunit 137912 "SCM Assembly Availability II"
         ParentItem.Modify(true);
 
         // Set dates
-        MfgSetup.Get();
-        OldDefSafetyLeadTime := MfgSetup."Default Safety Lead Time";
-        Evaluate(LeadTime, '2D');
-        MfgSetup.Validate("Default Safety Lead Time", LeadTime);
-        MfgSetup.Modify(true);
+        LibraryPlanning.SetDefaultSafetyLeadTime('2D');
         MockLocation(Location);
         MockSKU(ParentItem, Location.Code, '3D', '4D');
 
@@ -1236,8 +1219,6 @@ codeunit 137912 "SCM Assembly Availability II"
         ClearLastError();
 
         // set data back to original
-        MfgSetup.Validate("Default Safety Lead Time", OldDefSafetyLeadTime);
-        MfgSetup.Modify(true);
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -1270,20 +1251,12 @@ codeunit 137912 "SCM Assembly Availability II"
     [HandlerFunctions('CAWTestAvailWarningPage,EarliestDatesCheckAvailabilityTestPageNotificationHandler,DueDateBeforeWorkDateMsgHandler')]
     [Scope('OnPrem')]
     procedure CheckAvailWarning()
-    var
-        MfgSetup: Record "Manufacturing Setup";
-        OldDefSafetyLeadTime: DateFormula;
-        DTFormula: DateFormula;
     begin
         Initialize();
         TestMethodName := 'CheckAvailWarning';
 
         // Change manufacturing Default Safety Lead Time = 2D
-        OldDefSafetyLeadTime := MfgSetup."Default Safety Lead Time";
-        Evaluate(DTFormula, DateFormula1D);
-        MfgSetup.Get();
-        MfgSetup.Validate("Default Safety Lead Time", DTFormula);
-        MfgSetup.Modify(true);
+        LibraryPlanning.SetDefaultSafetyLeadTime('1D');
 
         // Steps 1 to 3 are for case when no other demand exists
         SupplyDate1 := GetDate('-1W', WorkDate());
@@ -1330,10 +1303,6 @@ codeunit 137912 "SCM Assembly Availability II"
         CAWLaunchTest(GetDate('+1W', SupplyDate2));
         Step := 12; // Asm order created after asm demand
         CAWLaunchTest(GetDate('+1W', DemandDate));
-
-        // set data back to original
-        MfgSetup.Validate("Default Safety Lead Time", OldDefSafetyLeadTime);
-        MfgSetup.Modify(true);
     end;
 
     local procedure CAWLaunchTest(AsmDueDate: Date)
@@ -1510,7 +1479,7 @@ codeunit 137912 "SCM Assembly Availability II"
     [Scope('OnPrem')]
     procedure CAWVerifyAvailWarningPage(var AsmAvailability: TestPage "Assembly Availability"; var ExpectedPageToAppear: Boolean; ExpectedLineAvailDate: Date; ExpectedAbleToAssemble: Decimal; ExpectedHeaderSchRcpt: Decimal; ExpectedLineSchRcpt: Decimal; ExpectedLineGrossReq: Decimal)
     var
-        MfgSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
         StockkeepingUnit: Record "Stockkeeping Unit";
         HdrEarliestDateOffset: Text[30];
         ExpectedAvailDate: Date;
@@ -1537,13 +1506,13 @@ codeunit 137912 "SCM Assembly Availability II"
         Assert.AreEqual(0, ActualGrossReq, 'Incorrect Gross Req in Header. ' + StepInfo); // always zero in these test methods
         Evaluate(ActualSchRcpt, AsmAvailability.ScheduledReceipts.Value);
         Assert.AreEqual(ExpectedHeaderSchRcpt, ActualSchRcpt, 'Incorrect Scheduled Receipt in Header. ' + StepInfo);
-        MfgSetup.Get();
+        InventorySetup.Get();
         if StockkeepingUnit.Get(AsmAvailability."Location Code".Value, AsmAvailability."Item No.".Value,
              AsmAvailability."Variant Code".Value)
         then
             ;
         if ExpectedLineAvailDate > 0D then begin
-            AddToDateOffsetText(HdrEarliestDateOffset, MfgSetup."Default Safety Lead Time", false);
+            AddToDateOffsetText(HdrEarliestDateOffset, InventorySetup."Default Safety Lead Time", false);
             AddToDateOffsetText(HdrEarliestDateOffset, StockkeepingUnit."Safety Lead Time", true);
             AddToDateOffsetText(HdrEarliestDateOffset, StockkeepingUnit."Lead Time Calculation", false);
             Evaluate(DF, AsmAvailability.AssemblyLineAvail."Lead-Time Offset".Value);
@@ -1560,7 +1529,7 @@ codeunit 137912 "SCM Assembly Availability II"
     [Scope('OnPrem')]
     procedure CAWVerifyAvailCheckWarningPage(var AsmAvailabilityCheck: TestPage "Assembly Availability Check"; var ExpectedPageToAppear: Boolean; ExpectedLineAvailDate: Date; ExpectedAbleToAssemble: Decimal; ExpectedHeaderSchRcpt: Decimal; ExpectedLineSchRcpt: Decimal; ExpectedLineGrossReq: Decimal)
     var
-        MfgSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
         StockkeepingUnit: Record "Stockkeeping Unit";
         HdrEarliestDateOffset: Text[30];
         ExpectedAvailDate: Date;
@@ -1587,13 +1556,13 @@ codeunit 137912 "SCM Assembly Availability II"
         Assert.AreEqual(0, ActualGrossReq, 'Incorrect Gross Req in Header. ' + StepInfo); // always zero in these test methods
         Evaluate(ActualSchRcpt, AsmAvailabilityCheck.ScheduledReceipts.Value);
         Assert.AreEqual(ExpectedHeaderSchRcpt, ActualSchRcpt, 'Incorrect Scheduled Receipt in Header. ' + StepInfo);
-        MfgSetup.Get();
+        InventorySetup.Get();
         if StockkeepingUnit.Get(AsmAvailabilityCheck."Location Code".Value, AsmAvailabilityCheck."Item No.".Value,
              AsmAvailabilityCheck."Variant Code".Value)
         then
             ;
         if ExpectedLineAvailDate > 0D then begin
-            AddToDateOffsetText(HdrEarliestDateOffset, MfgSetup."Default Safety Lead Time", false);
+            AddToDateOffsetText(HdrEarliestDateOffset, InventorySetup."Default Safety Lead Time", false);
             AddToDateOffsetText(HdrEarliestDateOffset, StockkeepingUnit."Safety Lead Time", true);
             AddToDateOffsetText(HdrEarliestDateOffset, StockkeepingUnit."Lead Time Calculation", false);
             Evaluate(DF, AsmAvailabilityCheck.AssemblyLineAvail."Lead-Time Offset".Value);

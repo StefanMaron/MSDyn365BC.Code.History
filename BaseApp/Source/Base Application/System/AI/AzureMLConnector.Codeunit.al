@@ -27,18 +27,6 @@ codeunit 2001 "Azure ML Connector"
         ParametersName: Text;
         InvalidURIErr: Label 'Provided API URL (%1) is not a valid AzureML URL.', Comment = '%1 = custom URL';
 
-#if not CLEAN24
-    [NonDebuggable]
-    [TryFunction]
-    [Obsolete('Use "Initialize(ApiKey: SecretText; ApiUri: SecretText; TimeOutSeconds: Integer)" instead.', '24.0')]
-    procedure Initialize(ApiKey: Text; ApiUri: Text; TimeOutSeconds: Integer)
-    var
-        SecretApiKey: SecretText;
-    begin
-        SecretApiKey := ApiKey;
-        Initialize(SecretApiKey, ApiUri, TimeOutSeconds);
-    end;
-#endif
 
     [NonDebuggable]
     [TryFunction]
@@ -189,4 +177,3 @@ codeunit 2001 "Azure ML Connector"
         ParameterValue := AzureMLParametersBuilder.GetParameter(Name);
     end;
 }
-

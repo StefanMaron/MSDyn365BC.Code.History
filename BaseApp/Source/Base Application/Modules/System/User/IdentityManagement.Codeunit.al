@@ -144,7 +144,6 @@ codeunit 9801 "Identity Management"
         Ok := UserAccountHelper.IsWindowsAuthentication();
     end;
 
-    [Scope('OnPrem')]
     procedure IsUserNamePasswordAuthentication() Ok: Boolean
     begin
         Ok := UserAccountHelper.IsUserNamePasswordAuthentication();

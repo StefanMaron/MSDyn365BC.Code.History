@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Reports;
 
 using Microsoft.Inventory.Item;
@@ -173,6 +177,8 @@ report 320 "Vendor Item Catalog"
 
     requestpage
     {
+        AboutTitle = 'About Vendor Item Catalog';
+        AboutText = 'Get a list of vendors by item or items per vendor.';
 
         layout
         {

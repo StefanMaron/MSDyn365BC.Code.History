@@ -314,9 +314,6 @@
         asserterror CreatePurchaseOrder(
             PurchaseHeader, PurchaseLine, PurchaseLine.Type::Item, LibraryPurchase.CreateVendorNo(), Item."No.",
             LibraryRandom.RandDec(10, 2));
-
-        // Verify: Verify Blocked Item error message.
-        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -1636,7 +1633,8 @@
         ProductionOrder: Record "Production Order";
         ReqWkshTemplate: Record "Req. Wksh. Template";
         RequisitionWkshName: Record "Requisition Wksh. Name";
-        CarryOutAction: Codeunit "Carry Out Action";
+        TempDocumentEntry: Record "Document Entry" temporary;
+        MfgCarryOutAction: Codeunit "Mfg. Carry Out Action";
         DocumentNo: Code[20];
         ItemNo: Code[20];
         "Count": Integer;
@@ -1665,7 +1663,8 @@
 
         // [WHEN] InsertProductionOrder is called for all 3 lines (2 = Firm Production Order)
         for Count := 1 to ArrayLen(RequisitionLine) do
-            CarryOutAction.InsertProductionOrder(RequisitionLine[Count], "Planning Create Prod. Order"::"Firm Planned");
+            MfgCarryOutAction.InsertProductionOrder(
+                RequisitionLine[Count], "Planning Create Prod. Order"::"Firm Planned", TempDocumentEntry);
 
         // [THEN] Production order is created
         ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
@@ -2631,6 +2630,82 @@
     end;
 
     [Test]
+    procedure BinCodeInSalesInvoiceViaGetShipmentLines()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        Bin: Record Bin;
+        ItemJournalLine: Record "Item Journal Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        SalesGetShipment: Codeunit "Sales-Get Shipment";
+        BinCode1: Code[20];
+        BinCode2: Code[20];
+    begin
+        // [FEATURE] [Sales] [Order] [Invoice] [Bin Code] [Get Shipment Lines]
+        // [SCENARIO 573407] BinCode in sales invoice created via "Get Shipment Lines".
+        Initialize();
+
+        // [GIVEN] Item and location with required receive and ship and with Bin mandatory.
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, true, true);
+        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', 2, false);
+        Bin.SetRange("Location Code", Location.Code);
+        Bin.FindFirst();
+        BinCode1 := Bin.Code;
+        Bin.FindLast();
+        BinCode2 := Bin.Code;
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Item on stock in the location "L" with Bin Code "B1" and B2.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, BinCode1, LibraryRandom.RandInt(10) + 10);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, BinCode2, LibraryRandom.RandInt(10) + 10);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Sales order for Item and created Warehouse Shipment.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), Location.Code, WorkDate());
+        SalesLine.TestField("Bin Code", BinCode1);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] Update warehouse shipment line Bin Code from "B1" to "B2".
+        WarehouseShipmentLine.SetRange("Source No.", SalesHeader."No.");
+        WarehouseShipmentLine.SetRange("Item No.", Item."No.");
+        WarehouseShipmentLine.SetRange("Location Code", Location.Code);
+        WarehouseShipmentLine.FindFirst();
+        WarehouseShipmentLine.TestField("Bin Code", BinCode1);
+        WarehouseShipmentLine.Validate("Bin Code", BinCode2);
+        WarehouseShipmentLine.Modify(true);
+
+        // [GIVEN] Post the warehouse shipment.
+        WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // [WHEN] Create sales invoice via "Get Shipment Lines".
+        LibrarySales.CreateSalesHeader(SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, SalesHeader."Sell-to Customer No.");
+        SalesShipmentLine.SetRange("Order No.", SalesHeader."No.");
+        SalesGetShipment.SetSalesHeader(SalesHeaderInvoice);
+        SalesGetShipment.CreateInvLines(SalesShipmentLine);
+
+        // [THEN] The sales invoice is created with Bin Code "B2".
+        SalesLine.Reset();
+        SalesLine.SetRange("Document Type", SalesHeaderInvoice."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeaderInvoice."No.");
+        SalesLine.SetRange("No.", Item."No.");
+        SalesLine.FindFirst();
+        SalesLine.TestField("Bin Code", BinCode2);
+
+        // [THEN] Post the sales invoice.
+        LibrarySales.PostSalesDocument(SalesHeaderInvoice, true, true);
+    end;
+
+    [Test]
     procedure CannotCarryOutPlanningForDropShipWithLocationMandatory()
     var
         Item: Record Item;
@@ -2694,7 +2769,7 @@
         // [WHEN] User tries to change status to "Certified"
         LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
 
-        // [THEN] No error is thrown 
+        // [THEN] No error is thrown
     end;
 
     [Test]
@@ -2732,7 +2807,7 @@
         // [WHEN] User tries to release document
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
-        // [THEN] No error is thrown 
+        // [THEN] No error is thrown
     end;
 
     [Test]
@@ -2771,7 +2846,7 @@
         // [WHEN] User tries to post document
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
-        // [THEN] No error is thrown 
+        // [THEN] No error is thrown
     end;
 
     [Test]
@@ -2808,7 +2883,7 @@
         // [WHEN] User tries to release document
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
-        // [THEN] No error is thrown 
+        // [THEN] No error is thrown
     end;
 
     [Test]
@@ -2846,7 +2921,7 @@
         // [WHEN] User tries to post document
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
-        // [THEN] No error is thrown 
+        // [THEN] No error is thrown
     end;
 
     [Test]
@@ -2989,7 +3064,7 @@
         // [WHEN] Header is posted
         LibraryInventory.PostInvtDocument(InvtDocHeader);
 
-        // [THEN] No error is thrown 
+        // [THEN] No error is thrown
     end;
 
     [Test]
@@ -3030,7 +3105,7 @@
         // [WHEN] Batch is posted
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
-        // [THEN] No error is thrown 
+        // [THEN] No error is thrown
     end;
 
     [Test]
@@ -3062,13 +3137,13 @@
         Assert.ExpectedError(OrderPromisingLine.FieldCaption(OrderPromisingLine."Variant Code"));
 
         // [GIVEN] Variant is specified
-        SalesLine.Validate("Variant Code", ItemVariant.Code); // Variant is set on SalesLine and transferred to OrderPromisingLine 
+        SalesLine.Validate("Variant Code", ItemVariant.Code); // Variant is set on SalesLine and transferred to OrderPromisingLine
         SalesLine.Modify();
 
         // [WHEN] Lines on Order promising lines page is set (triggered by SetSalesHeader)
         AvailabilityManagement.SetSourceRecord(OrderPromisingLine, SalesHeader);
 
-        // [THEN] No error is thrown 
+        // [THEN] No error is thrown
     end;
 
     [Test]
@@ -4246,12 +4321,13 @@
         SalesOrder.FILTER.SetFilter("No.", SalesHeaderNo);
     end;
 
+#if not CLEAN25
     local procedure OpenVendorCard(var VendorCard: TestPage "Vendor Card"; VendorNo: Code[20])
     begin
         VendorCard.OpenEdit();  // Open Vendor Card.
         VendorCard.FILTER.SetFilter("No.", VendorNo);
     end;
-
+#endif
     local procedure PostCreditMemoAgainstPurchaseReturnOrderUsingPayToVendorDifferentFromPurchaseOrder(ReturnOrder: Boolean; CreditMemo: Boolean)
     var
         GLEntry: Record "G/L Entry";
@@ -5113,4 +5189,3 @@
         Assert.IsTrue(SalesHeader.Find(), '');
     end;
 }
-

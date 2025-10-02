@@ -8,6 +8,17 @@ using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
 using System.IO;
 
+/// <summary>
+/// Prepares positive pay detail records from check ledger entries for export processing.
+/// This codeunit converts check ledger entry data into the standardized positive pay detail format.
+/// </summary>
+/// <remarks>
+/// The Export Pre-Mapping Detail Positive Pay codeunit is responsible for creating positive pay detail records
+/// from check ledger entries during the export process. It handles both regular checks and voided checks,
+/// applying appropriate record type codes and indicators. The codeunit processes check ledger entries in batches
+/// and provides progress feedback to users during large exports. It also provides extensibility through
+/// integration events for custom field mapping and validation requirements.
+/// </remarks>
 codeunit 1704 "Exp. Pre-Mapping Det Pos. Pay"
 {
     Permissions = TableData "Positive Pay Detail" = rimd;
@@ -82,11 +93,30 @@ codeunit 1704 "Exp. Pre-Mapping Det Pos. Pay"
         PosPayDetail.Insert(true);
     end;
 
+    /// <summary>
+    /// Integration event that allows retrieval of custom filters before preparing positive pay details.
+    /// </summary>
+    /// <param name="CheckLedgerEntryView">Returns the filter view to be applied to check ledger entries.</param>
+    /// <remarks>
+    /// This integration event allows external code to specify custom filtering criteria for check ledger entries
+    /// before they are processed into positive pay details. Subscribers can set specific date ranges, account filters,
+    /// or other criteria to control which checks are included in the export.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnGetFiltersBeforePreparingPosPayDetails(var CheckLedgerEntryView: Text)
     begin
     end;
 
+    /// <summary>
+    /// Integration event that allows customization of positive pay detail records before insertion.
+    /// </summary>
+    /// <param name="CheckLedgerEntry">The source check ledger entry being processed.</param>
+    /// <param name="PositivePayDetail">The positive pay detail record being created, available for modification.</param>
+    /// <remarks>
+    /// This integration event enables customization of positive pay detail records after standard field mapping
+    /// but before the record is inserted. Subscribers can add custom field mappings, perform additional validation,
+    /// or modify field values based on specific business requirements.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnPreparePosPayDetailOnBeforeInsert(CheckLedgerEntry: Record "Check Ledger Entry"; var PositivePayDetail: Record "Positive Pay Detail")
     begin

@@ -7,6 +7,17 @@ namespace Microsoft.Bank.PositivePay;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
 
+/// <summary>
+/// Provides the user interface for exporting positive pay files for bank accounts.
+/// This page allows users to configure export parameters and generate positive pay files for bank validation.
+/// </summary>
+/// <remarks>
+/// The Positive Pay Export page serves as the main interface for users to export positive pay data to banks.
+/// Users can specify date ranges, review check details, and initiate the export process. The page displays
+/// available checks in a subform and provides options for filtering by upload dates and cutoff criteria.
+/// The export functionality integrates with the data exchange framework to generate files in the format
+/// required by the bank. All export activities are logged for audit and reprocessing purposes.
+/// </remarks>
 page 1233 "Positive Pay Export"
 {
     Caption = 'Positive Pay Export';

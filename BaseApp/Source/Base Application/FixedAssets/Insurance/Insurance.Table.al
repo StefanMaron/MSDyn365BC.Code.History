@@ -200,32 +200,15 @@ table 5628 Insurance
     end;
 
     trigger OnInsert()
-#if not CLEAN24
-    var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         if "No." = '' then begin
             FASetup.Get();
             FASetup.TestField("Insurance Nos.");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(FASetup."Insurance Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-                if NoSeries.AreRelated(FASetup."Insurance Nos.", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series"
-                else
-                    "No. Series" := FASetup."Insurance Nos.";
-                "No." := NoSeries.GetNextNo("No. Series");
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", FASetup."Insurance Nos.", 0D, "No.");
-            end;
-#else
 			if NoSeries.AreRelated(FASetup."Insurance Nos.", xRec."No. Series") then
 				"No. Series" := xRec."No. Series"
 			else
 				"No. Series" := FASetup."Insurance Nos.";
             "No." := NoSeries.GetNextNo("No. Series");
-#endif
         end;
 
         DimMgt.UpdateDefaultDim(
@@ -300,4 +283,3 @@ table 5628 Insurance
     begin
     end;
 }
-

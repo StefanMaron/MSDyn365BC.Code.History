@@ -129,32 +129,16 @@ table 99000779 "Production BOM Version"
     trigger OnInsert()
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
 
     begin
         ProdBOMHeader.Get("Production BOM No.");
         if "Version Code" = '' then begin
             ProdBOMHeader.TestField("Version Nos.");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(ProdBOMHeader."Version Nos.", xRec."No. Series", 0D, "Version Code", "No. Series", IsHandled);
-            if not IsHandled then begin
-                if NoSeries.AreRelated(ProdBOMHeader."Version Nos.", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series"
-                else
-                    "No. Series" := ProdBOMHeader."Version Nos.";
-                "Version Code" := NoSeries.GetNextNo("No. Series");
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", ProdBOMHeader."Version Nos.", 0D, "Version Code");
-            end;
-#else
             if NoSeries.AreRelated(ProdBOMHeader."Version Nos.", xRec."No. Series") then
                 "No. Series" := xRec."No. Series"
             else
                 "No. Series" := ProdBOMHeader."Version Nos.";
             "Version Code" := NoSeries.GetNextNo("No. Series");
-#endif
         end;
     end;
 
@@ -231,4 +215,3 @@ table 99000779 "Production BOM Version"
     begin
     end;
 }
-

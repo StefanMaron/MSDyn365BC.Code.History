@@ -71,12 +71,13 @@ codeunit 5610 "Calculate Depreciation"
            (FADeprBook."Depreciation Method" = FADeprBook."Depreciation Method"::"DB1/SL")
         then
             FiscalYearBegin := FADateCalc.GetFiscalYear(DeprBook.Code, UntilDate);
-        if DeprBook."Fiscal Year 365 Days" then
-            NoOfDeprDays := 365
-        else
-            NoOfDeprDays := 360;
+        if not DeprBook."Use Accounting Period" then
+            if DeprBook."Fiscal Year 365 Days" then
+                NoOfDeprDays := 365
+            else
+                NoOfDeprDays := 360;
         if DepreciationCalc.DeprDays(
-             FiscalYearBegin, UntilDate, DeprBook."Fiscal Year 365 Days") > NoOfDeprDays
+             FiscalYearBegin, UntilDate, DeprBook."Fiscal Year 365 Days", DeprBook."Use Accounting Period") > NoOfDeprDays
         then
             DeprBook.TestField("Allow more than 360/365 Days");
     end;

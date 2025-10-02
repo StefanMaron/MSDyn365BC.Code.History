@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Reports;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.GeneralLedger.Reports;
 
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Reporting;
@@ -136,6 +140,8 @@ report 5 "Receivables-Payables"
 
     requestpage
     {
+        AboutTitle = 'About Receivables-Payables';
+        AboutText = 'The **Receivables-Payables** report provides a side-by-side comparison of customer and vendor balances against their respective general ledger control accounts. Use it for financial close and reconciliation tasks to ensure subledger balances align with the G/L, helping identify discrepancies quickly and accurately.';
         SaveValues = true;
 
         layout

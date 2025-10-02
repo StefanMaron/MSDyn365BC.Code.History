@@ -22,23 +22,25 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Initialized: Boolean;
+#pragma warning disable AA0240
         CustomerEmailTxt: Label 'Customer@contoso.com';
+#pragma warning restore AA0240
         NoDataOutputErr: Label 'No data exists for the specified report filters.';
         PlatformEmptyErr: Label 'The error, The report couldn’t be generated, because it was empty. Adjust your filters and try again.';
         TargetEmailAddressErr: Label 'The target email address has not been specified on the document layout for';
-        ReqParametersTemplatesTok: Label '<?xml version="1.0" standalone="yes"?><ReportParameters name="Standard Statement" id="1316"><Options><Field name="StartDate">%1</Field><Field name="EndDate">%2</Field><Field name="PrintEntriesDue">false</Field><Field name="PrintAllHavingEntry">false</Field><Field name="PrintAllHavingBal">true</Field><Field name="PrintReversedEntries">false</Field><Field name="PrintUnappliedEntries">false</Field><Field name="IncludeAgingBand">false</Field><Field name="PeriodLength">1M+CM</Field><Field name="DateChoice">0</Field><Field name="LogInteraction">true</Field><Field name="SupportedOutputMethod">%3</Field><Field name="ChosenOutputMethod">%4</Field><Field name="PrintIfEmailIsMissing">%5</Field></Options><DataItems><DataItem name="Customer">VERSION(1) SORTING(Field1) WHERE(Field1=1(%6))</DataItem><DataItem name="Integer">VERSION(1) SORTING(Field1)</DataItem><DataItem name="CurrencyLoop">VERSION(1) SORTING(Field1)</DataItem><DataItem name="CustLedgEntryHdr">VERSION(1) SORTING(Field1)</DataItem><DataItem name="DtldCustLedgEntries">VERSION(1) SORTING(Field9,Field4,Field3,Field10)</DataItem><DataItem name="CustLedgEntryFooter">VERSION(1) SORTING(Field1)</DataItem><DataItem name="OverdueVisible">VERSION(1) SORTING(Field1)</DataItem><DataItem name="CustLedgEntry2">VERSION(1) SORTING(Field3,Field36,Field43,Field37,Field11)</DataItem><DataItem name="OverdueEntryFooder">VERSION(1) SORTING(Field1)</DataItem><DataItem name="AgingBandVisible">VERSION(1) SORTING(Field1)</DataItem><DataItem name="AgingCustLedgEntry">VERSION(1) SORTING(Field3,Field36,Field43,Field37,Field11)</DataItem><DataItem name="AgingBandLoop">VERSION(1) SORTING(Field1)</DataItem><DataItem name="LetterText">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>';
+        ReqParametersTemplatesTxt: Label '<?xml version="1.0" standalone="yes"?><ReportParameters name="Standard Statement" id="1316"><Options><Field name="StartDate">%1</Field><Field name="EndDate">%2</Field><Field name="PrintEntriesDue">false</Field><Field name="PrintAllHavingEntry">false</Field><Field name="PrintAllHavingBal">true</Field><Field name="PrintReversedEntries">false</Field><Field name="PrintUnappliedEntries">false</Field><Field name="IncludeAgingBand">false</Field><Field name="PeriodLength">1M+CM</Field><Field name="DateChoice">0</Field><Field name="LogInteraction">true</Field><Field name="SupportedOutputMethod">%3</Field><Field name="ChosenOutputMethod">%4</Field><Field name="PrintIfEmailIsMissing">%5</Field></Options><DataItems><DataItem name="Customer">VERSION(1) SORTING(Field1) WHERE(Field1=1(%6))</DataItem><DataItem name="Integer">VERSION(1) SORTING(Field1)</DataItem><DataItem name="CurrencyLoop">VERSION(1) SORTING(Field1)</DataItem><DataItem name="CustLedgEntryHdr">VERSION(1) SORTING(Field1)</DataItem><DataItem name="DtldCustLedgEntries">VERSION(1) SORTING(Field9,Field4,Field3,Field10)</DataItem><DataItem name="CustLedgEntryFooter">VERSION(1) SORTING(Field1)</DataItem><DataItem name="OverdueVisible">VERSION(1) SORTING(Field1)</DataItem><DataItem name="CustLedgEntry2">VERSION(1) SORTING(Field3,Field36,Field43,Field37,Field11)</DataItem><DataItem name="OverdueEntryFooder">VERSION(1) SORTING(Field1)</DataItem><DataItem name="AgingBandVisible">VERSION(1) SORTING(Field1)</DataItem><DataItem name="AgingCustLedgEntry">VERSION(1) SORTING(Field3,Field36,Field43,Field37,Field11)</DataItem><DataItem name="AgingBandLoop">VERSION(1) SORTING(Field1)</DataItem><DataItem name="LetterText">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>', Locked = true;
         ReqPageParamsTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters name="Standard Statement" id="1316"><Options><Field name="StartDate">%1</Field><Field name="EndDate">%2</Field><Field name="PrintAllHavingBal">true</Field><Field name="PeriodLength">1M+CM</Field><Field name="DateChoice">0</Field><Field name="SupportedOutputMethod">%3</Field><Field name="ChosenOutputMethod">%4</Field><Field name="PrintIfEmailIsMissing">%5</Field></Options><DataItems><DataItem name="Customer">VERSION(1) SORTING(Field1) WHERE(Field%6=1(%7))</DataItem></DataItems></ReportParameters>', Locked = true;
         StandardStatementReportOutputType: Option Print,Preview,Word,PDF,Email,XML;
         ConfirmStartJobQueueQst: Label 'Do you want to set the job queue entry up to run immediately?';
         UnexpectedConfirmationErr: Label 'Unxpected confimation.';
-        StatementTitleDocxTxt: Label 'Statement for %1 as of %2.docx';
-        StatementTitlePdfTxt: Label 'Statement for %1 as of %2.pdf';
-        StatementTitleHtmlTxt: Label 'Statement for %1 as of %2.html';
+        StatementTitleDocxTxt: Label 'Statement for %1 as of %2.docx', Comment = '%1 is Customer Name, %2 is a date';
+        StatementTitlePdfTxt: Label 'Statement for %1 as of %2.pdf', Comment = '%1 is Customer Name, %2 is a date';
+        StatementTitleHtmlTxt: Label 'Statement for %1 as of %2.html', Comment = '%1 is Customer Name, %2 is a date';
         FailedToSendEmailErr: Label 'Failed to send email';
-        MoreErrorsOnErrorMessagesPageErr: Label '%1 contains more errors than expected.';
-        LessErrorsOnErrorMessagesPageErr: Label '%1 contains less errors than expected.';
+        MoreErrorsOnErrorMessagesPageErr: Label '%1 contains more errors than expected.', Comment = '%1 is the caption of the page';
+        LessErrorsOnErrorMessagesPageErr: Label '%1 contains less errors than expected.', Comment = '%1 is the caption of the page';
         RequestParametersErr: Label 'Request parameters for the Standard Statement report have not been set up.';
-        EscapeTok: Label '''%1''';
+        EscapeTok: Label '''%1''', Locked = true;
         StatementCountErr: Label 'Customer Statement are not Sent.';
 
     [Test]
@@ -128,8 +130,8 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     [Scope('OnPrem')]
     procedure Email_SingleCustomer_A_DataNoEmail_B_DataEmail_PrintIfEmailMissing()
     var
-        RepSelectionsStdStmt: Codeunit "Rep. Selections - Std. Stmt.";
         Customer: array[2] of Record Customer;
+        RepSelectionsStdStmt: Codeunit "Rep. Selections - Std. Stmt.";
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" with entries, email is not specified and Customer "B" with entries, email is specified. "Print Remaining" = TRUE, Filter = "A"
@@ -182,8 +184,8 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     [Scope('OnPrem')]
     procedure Email_SingleCustomer_A_DataNoEmail_B_NoDataEmail_PrintIfEmailMissing()
     var
-        RepSelectionsStdStmt: Codeunit "Rep. Selections - Std. Stmt.";
         Customer: array[2] of Record Customer;
+        RepSelectionsStdStmt: Codeunit "Rep. Selections - Std. Stmt.";
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" with entries, email is not specified and Customer "B" without entries, email is specified. "Print Remaining" = TRUE, Filter = "A"
@@ -598,8 +600,8 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         Customer: array[2] of Record Customer;
         TempErrorMessage: Record "Error Message" temporary;
         LibraryTempNVBufferHandler: Codeunit "Library - TempNVBufferHandler";
-        ErrorMessages: TestPage "Error Messages";
         RepSelectionsStdStmt: Codeunit "Rep. Selections - Std. Stmt.";
+        ErrorMessages: TestPage "Error Messages";
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" without entries, email is specified and Customer "B" with entries, email is not specified. "Print Remaining" = FALSE, Filter = "A|B"
@@ -2183,7 +2185,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         Initialize();
 
         JobQueueEntry.ID := CreateGuid();
-        JobQueueEntry."User ID" := UserId;
+        JobQueueEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(JobQueueEntry."User ID"));
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Customer Statement via Queue";
         JobQueueEntry.Insert();
@@ -2335,7 +2337,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler.AssertQueueEmpty();
 
         // [VERIFY] Email sent successfully by checking Customer statement Count increase to 1
-        Customer.Find();
+        Customer.Get(Customer."No.");
         Assert.AreEqual(Customer."Last Statement No.", 1, StatementCountErr);
     end;
 
@@ -2528,11 +2530,11 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         JobQueueEntry.SetRange("User ID", UserId);
         JobQueueEntry.DeleteAll();
 
-        // We should clean legacy activity log. 
+        // We should clean legacy activity log.
         ActivityLog.SetRange("User ID", UserId);
         ActivityLog.DeleteAll();
 
-        // We should clean legacy report inbox. 
+        // We should clean legacy report inbox.
         ReportInbox.SetRange("User ID", UserId);
         ReportInbox.SetRange("Report ID", GetStandardStatementReportID());
         ReportInbox.DeleteAll();
@@ -2636,7 +2638,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         exit(REPORT::"Standard Statement");
     end;
 
-    local procedure GenerateRandomPackageTrackingNo(): Text[30]
+    local procedure GenerateRandomPackageTrackingNo(): Text[50]
     var
         DummySalesHeader: Record "Sales Header";
     begin
@@ -2806,7 +2808,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         ReportParameters :=
           StrSubstNo(
-            ReqParametersTemplatesTok, Format(WorkDate(), 0, 9), Format(WorkDate(), 0, 9),
+            ReqParametersTemplatesTxt, Format(WorkDate(), 0, 9), Format(WorkDate(), 0, 9),
             OutputTypeInt, MethodTypeInt, Format(PrintRemaining, 0, 9), DotNet_SecurityElement.Escape(CustomerFilter));
 
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
@@ -2911,7 +2913,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
             ErrorMessages."Message Type".AssertEquals(TempErrorMessage."Message Type");
             Stop := TempErrorMessage.Next() = 0;
             if not Stop then
+#pragma warning disable AA0181
                 Assert.IsTrue(ErrorMessages.Next(), StrSubstNo(LessErrorsOnErrorMessagesPageErr, ErrorMessages.Caption));
+#pragma warning restore AA0181
         until Stop;
 
         Assert.IsFalse(ErrorMessages.Next(), StrSubstNo(MoreErrorsOnErrorMessagesPageErr, ErrorMessages.Caption));
@@ -2991,4 +2995,3 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         StandardStatement.SaveAsPdf(FileManagement.ServerTempFileName('.pdf'));
     end;
 }
-

@@ -5,6 +5,7 @@
 namespace Microsoft.DemoData.Localization;
 
 using Microsoft.eServices.EDocument.Format;
+using Microsoft.DemoData.Finance;
 using Microsoft.Purchases.Document;
 
 codeunit 17211 "Create EDocs From Resources NZ"

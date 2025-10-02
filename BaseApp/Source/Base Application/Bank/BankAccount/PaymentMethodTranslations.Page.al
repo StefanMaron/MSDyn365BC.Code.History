@@ -4,6 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.BankAccount;
 
+/// <summary>
+/// Interface for managing multi-language translations of payment method descriptions.
+/// Allows users to define localized payment method names for international operations.
+/// </summary>
+/// <remarks>
+/// Source Table: Payment Method Translation (466). Accessed from Payment Method setup.
+/// Supports translation management for payment methods across different languages.
+/// </remarks>
 page 758 "Payment Method Translations"
 {
     Caption = 'Payment Method Translations';

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.Setup;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Setup;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -63,10 +67,16 @@ page 459 "Sales & Receivables Setup"
                 {
                     ApplicationArea = Basic, Suite;
                 }
+#if not CLEAN27                
                 field("Create Item from Item No."; Rec."Create Item from Item No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Visible = false;
+                    ObsoleteReason = 'Discontinued functionality';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif                
                 field("Create Item from Description"; Rec."Create Item from Description")
                 {
                     ApplicationArea = Basic, Suite;
@@ -157,6 +167,11 @@ page 459 "Sales & Receivables Setup"
                 field("Prepmt. Auto Update Frequency"; Rec."Prepmt. Auto Update Frequency")
                 {
                     ApplicationArea = Prepayments;
+                }
+                field("Posting Date Check on Posting"; Rec."Posting Date Check on Posting")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if you want the program to warn you when you post a sales document with a posting date that is different from the Work Date.';
                 }
                 field("Allow Document Deletion Before"; Rec."Allow Document Deletion Before")
                 {

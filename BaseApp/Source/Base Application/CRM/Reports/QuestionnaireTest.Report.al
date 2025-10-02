@@ -91,6 +91,8 @@ report 5067 "Questionnaire - Test"
 
     requestpage
     {
+        AboutTitle = 'About Questionnaire - Test';
+        AboutText = 'Show test reports of your profile questionnaires.';
 
         layout
         {

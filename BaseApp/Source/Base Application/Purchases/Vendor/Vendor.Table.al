@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Vendor;
 
 using Microsoft.Bank.BankAccount;
@@ -108,6 +112,7 @@ table 23 Vendor
         field(3; "Search Name"; Code[100])
         {
             Caption = 'Search Name';
+            OptimizeForTextSearch = true;
         }
         field(4; "Name 2"; Text[50])
         {
@@ -302,6 +307,7 @@ table 23 Vendor
         field(26; "Statistics Group"; Integer)
         {
             Caption = 'Statistics Group';
+            ToolTip = 'Specifies the statistics group.';
         }
         field(27; "Payment Terms Code"; Code[10])
         {
@@ -385,6 +391,7 @@ table 23 Vendor
         {
             Caption = 'Pay-to Vendor No.';
             TableRelation = Vendor;
+            OptimizeForTextSearch = true;
         }
         field(46; Priority; Integer)
         {
@@ -406,6 +413,15 @@ table 23 Vendor
             OptimizeForTextSearch = true;
             TableRelation = "Language Selection"."Language Tag";
         }
+#pragma warning disable AA0232
+        field(52; "First Transaction Date"; Date)
+        {
+            Caption = 'Vendor Since';
+            ToolTip = 'Specifies the date of the first transaction with the vendor.';
+            FieldClass = FlowField;
+            CalcFormula = min("Vendor Ledger Entry"."Posting Date" where("Vendor No." = field("No.")));
+        }
+#pragma warning restore AA0232
         field(53; "Last Modified Date Time"; DateTime)
         {
             Caption = 'Last Modified Date Time';
@@ -863,26 +879,18 @@ table 23 Vendor
                 MailManagement.CheckValidEmailAddresses("E-Mail");
             end;
         }
-#if not CLEAN24
-        field(103; "Home Page"; Text[80])
-        {
-            Caption = 'Home Page';
-            OptimizeForTextSearch = true;
-            ExtendedDatatype = URL;
-            ObsoleteReason = 'Field length will be increased to 255.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-        }
-#else
+#if not CLEAN27
 #pragma warning disable AS0086
+#endif
         field(103; "Home Page"; Text[255])
-        {
-            Caption = 'Home Page';
-            OptimizeForTextSearch = true;
-            ExtendedDatatype = URL;
-        }
+#if not CLEAN27
 #pragma warning restore AS0086
 #endif
+        {
+            Caption = 'Home Page';
+            OptimizeForTextSearch = true;
+            ExtendedDatatype = URL;
+        }
         field(104; "Reminder Amounts"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -1698,7 +1706,7 @@ table 23 Vendor
 
     fieldgroups
     {
-        fieldgroup(DropDown; "No.", Name, City, "Post Code", "Phone No.", Contact)
+        fieldgroup(DropDown; "No.", Name, Address, City, "Post Code", "Phone No.", Contact, "E-Mail", "Pay-to Vendor No.", "Registration Number")
         {
         }
         fieldgroup(Brick; "No.", Name, "Balance (LCY)", Contact, "Balance Due (LCY)", Image)
@@ -1767,9 +1775,6 @@ table 23 Vendor
     trigger OnInsert()
     var
         Vendor: Record Vendor;
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1780,22 +1785,14 @@ table 23 Vendor
         if "No." = '' then begin
             PurchSetup.Get();
             PurchSetup.TestField("Vendor Nos.");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(PurchSetup."Vendor Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
-                "No. Series" := PurchSetup."Vendor Nos.";
-                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series";
+            "No. Series" := PurchSetup."Vendor Nos.";
+            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                "No. Series" := xRec."No. Series";
+            "No." := NoSeries.GetNextNo("No. Series");
+            Vendor.ReadIsolation(IsolationLevel::ReadUncommitted);
+            Vendor.SetLoadFields("No.");
+            while Vendor.Get("No.") do
                 "No." := NoSeries.GetNextNo("No. Series");
-                Vendor.ReadIsolation(IsolationLevel::ReadUncommitted);
-                Vendor.SetLoadFields("No.");
-                while Vendor.Get("No.") do
-                    "No." := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", PurchSetup."Vendor Nos.", 0D, "No.");
-            end;
-#endif
         end;
 
         if "Invoice Disc. Code" = '' then
@@ -2412,14 +2409,6 @@ table 23 Vendor
         exit(Result);
     end;
 
-#if not CLEAN24
-    [Scope('OnPrem')]
-    [Obsolete('Use SelectVendor(var Vendor: Record Vendor): Boolean instead.', '24.0')]
-    procedure LookupVendor(var Vendor: Record Vendor): Boolean
-    begin
-        exit(SelectVendor(Vendor));
-    end;
-#endif
 
     local procedure MarkVendorsByFilters(var Vendor: Record Vendor)
     begin
@@ -2690,6 +2679,7 @@ table 23 Vendor
             VatRegNo := DelStr(VatRegNo, 1, StrLen(CountryRegionCode));
         exit(VatRegNo);
     end;
+
 
     local procedure UpdatePaymentMethodCode()
     var

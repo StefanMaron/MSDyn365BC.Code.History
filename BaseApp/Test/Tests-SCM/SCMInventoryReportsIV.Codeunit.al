@@ -2082,7 +2082,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         // [SCENARIO 374328] Cost Shares Breakdown report with no consumption posted should be generated correctly
         Initialize();
 
-        // [GIVEN] Product Item. Item Journal Line for that Item is Created and Posted 
+        // [GIVEN] Product Item. Item Journal Line for that Item is Created and Posted
         CreateItem(ProdItem, ProdItem."Replenishment System"::Purchase);
         CreateAndPostItemJournalLine(ItemJournalLine, ProdItem."No.");
 
@@ -3332,15 +3332,6 @@ codeunit 137351 "SCM Inventory Reports - IV"
         Assert.AreNearlyEqual(UnitCost, StandardCost, LibraryERM.GetAmountRoundingPrecision(), ValueNotMatchedError);
     end;
 
-    local procedure VerifyItemVendorCatalogReport(ItemNo: Code[20]; VendorNo: Code[20]; VendorItemNo: Text[20]; LeadTime: Text)
-    begin
-        LibraryReportDataset.SetRange('Purchase_Price__Vendor_No__', VendorNo);
-        LibraryReportDataset.GetNextRow();
-        LibraryReportDataset.AssertCurrentRowValueEquals('Item__No__', ItemNo);
-        LibraryReportDataset.AssertCurrentRowValueEquals('ItemVend__Vendor_Item_No__', VendorItemNo);
-        LibraryReportDataset.AssertCurrentRowValueEquals('ItemVend__Lead_Time_Calculation_', LeadTime);
-    end;
-
     local procedure VerifyItemVendorCatalogReportExtPriceCalc(ItemNo: Code[20]; VendorNo: Code[20]; VendorItemNo: Text[20]; LeadTime: Text; UnitCost: Decimal)
     begin
         LibraryReportDataset.SetRange('Price_Vendor_No', VendorNo);
@@ -4052,4 +4043,3 @@ codeunit 137351 "SCM Inventory Reports - IV"
         Reply := true;
     end;
 }
-

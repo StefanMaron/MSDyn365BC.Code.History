@@ -134,12 +134,6 @@ codeunit 139016 "File Mgt. Tests"
         ClientFileHelper.Delete(FileName);
     end;
 
-    [Normal]
-    local procedure VerifyClientFileExist(FileName: Text): Boolean
-    begin
-        exit(ClientFileHelper.Exists(FileName));
-    end;
-
     local procedure WriteToBlob(var TempBlob: Codeunit "Temp Blob"; Content: Text)
     var
         OStream: OutStream;
@@ -453,18 +447,6 @@ codeunit 139016 "File Mgt. Tests"
         exit(Result);
     end;
 
-    local procedure ValidateExportedClientFile(FileName: Text; TextArray: array[10] of Text[30]; NoOfElements: Integer): Boolean
-    var
-        [RunOnClient]
-        StreamReader: DotNet StreamReader;
-        Result: Boolean;
-    begin
-        StreamReader := StreamReader.StreamReader(FileName);
-        Result := ValidateExportedFile(StreamReader, TextArray, NoOfElements);
-        StreamReader.Close();
-        exit(Result);
-    end;
-
     local procedure ValidateExportedFile(var StreamReader: DotNet StreamReader; TextArray: array[10] of Text[30]; NoOfElements: Integer): Boolean
     var
         ReadData: Text[30];
@@ -540,43 +522,4 @@ codeunit 139016 "File Mgt. Tests"
             TextArray[Counter] := TextStringTxt + Format(Counter);
     end;
 
-    local procedure CreateOneLineTextFileOnServer(Text: Text[30]): Text
-    var
-        TmpTextArray: array[1] of Text[30];
-    begin
-        TmpTextArray[1] := Text;
-        exit(CreateTextFileOnServer(TmpTextArray, 1));
-    end;
-
-    local procedure CreateNonEmptyTextFile(Content: Text[1024]) FileName: Text
-    var
-        FileMgt: Codeunit "File Management";
-        InputFile: File;
-        OutStream: OutStream;
-    begin
-        FileName := FileMgt.ServerTempFileName('txt');
-
-        InputFile.WriteMode := true;
-        InputFile.TextMode := true;
-        InputFile.Create(FileName);
-        InputFile.CreateOutStream(OutStream);
-        OutStream.WriteText(Content);
-        InputFile.Close();
-    end;
-
-    local procedure VerifyUploadedFile(FileName: Text; Content: Text[1024])
-    var
-        UploadedFile: File;
-        ActualContent: Text[1024];
-    begin
-        UploadedFile.WriteMode := false;
-        UploadedFile.TextMode := true;
-        UploadedFile.Open(FileName);
-        Assert.AreNotEqual(0, UploadedFile.Len, 'Uploaded file is empty.');
-        UploadedFile.Read(ActualContent);
-        Assert.AreEqual(Content, ActualContent, 'Uploaded file''s content is different.');
-        UploadedFile.Close();
-    end;
-
 }
-

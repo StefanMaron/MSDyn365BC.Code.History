@@ -12,9 +12,6 @@ using Microsoft.Inventory.Item.Substitution;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Manufacturing.Routing;
 using Microsoft.Inventory.MarketingText;
 using Microsoft.Foundation.UOM;
 using Microsoft.Finance.VAT.RateChange;
@@ -45,10 +42,6 @@ permissionset 9346 "Inventory - View"
                   tabledata "Nonstock Item" = R,
                   tabledata "Package No. Information" = R,
                   tabledata "Planning Component" = Rm,
-                  tabledata "Prod. Order Component" = Rm,
-                  tabledata "Prod. Order Line" = RIMD,
-                  tabledata "Production BOM Header" = R,
-                  tabledata "Routing Header" = R,
                   tabledata "Serial No. Information" = R,
                   tabledata "Stockkeeping Unit" = R,
                   tabledata "Stockkeeping Unit Comment Line" = R,

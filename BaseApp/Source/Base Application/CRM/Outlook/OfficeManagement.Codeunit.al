@@ -6,6 +6,7 @@ namespace Microsoft.CRM.Outlook;
 
 using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Contact;
+using System.EMail;
 using Microsoft.EServices.EDocument;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Purchases.Document;
@@ -36,6 +37,7 @@ codeunit 1630 "Office Management"
         IncomingDocumentTelemetryTxt: Label 'Creating Incoming Document from Outlook add-in. %1 attachment(s).', Locked = true;
         CodeUnitNotFoundErr: Label 'Cannot find the object that handles integration with Office.';
         CompanyNotSetupErr: Label 'In order to use another company, you must first start the trial, which cannot be done from the Outlook add-in.';
+        CannotSendMailThenDownloadErr: Label 'You cannot send the email.\Verify that the email settings are correct.';
 
     [Scope('OnPrem')]
     procedure InitializeHost(NewOfficeHost: DotNet OfficeHost; NewHostType: Text)
@@ -581,6 +583,13 @@ codeunit 1630 "Office Management"
             exit;
 
         NewCompanyName := SelectAndChangeCompany();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Mail Management", OnBeforeDownloadPdfAttachment, '', false, false)]
+    local procedure OnBeforeDownloadPdfAttachment(var TempEmailItem: Record "Email Item" temporary)
+    begin
+        if not TempEmailItem.HasAttachments() or (not GuiAllowed()) or (this.IsAvailable() and not this.IsPopOut()) then
+            Error(CannotSendMailThenDownloadErr);
     end;
 }
 

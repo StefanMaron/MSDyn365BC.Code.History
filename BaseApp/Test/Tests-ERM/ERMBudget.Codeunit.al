@@ -2830,13 +2830,6 @@ codeunit 134922 "ERM Budget"
         PurchaseBudgetOverview.Close();
     end;
 
-    local procedure OpenGLBudgetWithGLAccFilter(GLBudgetName: Code[10]; CurrentGLAccFilter: Text; NewGLAccFilter: Text)
-    begin
-        LibraryVariableStorage.Enqueue(CurrentGLAccFilter);
-        LibraryVariableStorage.Enqueue(NewGLAccFilter);
-        OpenGLBudgetPage(GLBudgetName);
-    end;
-
     local procedure VerifyValuesInBudgetEntries(ExpectedValue: array[2] of Decimal)
     var
         ActualValue: Variant;

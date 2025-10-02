@@ -17,22 +17,10 @@ codeunit 141061 "UT REP Show FCY and Amt"
         AmountLangA1AmountLangA2Cap: Label 'AmountLangA1AmountLangA2';
         AmountLangB1AmountLangB2Cap: Label 'AmountLangB1AmountLangB2';
         AmountLCYCap: Label 'AmountLCY';
-        AmtLangA1AmtLangA2Cap: Label 'AmtLangA1AmtLangA2';
-        AmtLangB1AmtLangB2Cap: Label 'AmtLangB1AmtLangB2';
-        AmtLangASalesCrMemoLineCap: Label 'AmtLangA_SalesCrMemoLine';
-        AmtLangBSalesCrMemoLineCap: Label 'AmtLangB_SalesCrMemoLine';
-        AmtLCYCap: Label 'AmtLCY';
-        AmtIncLCYCap: Label 'AmtIncLCY';
         PurchCrMemoLineAmountCap: Label 'Amount_PurchCrMemoLine';
         PurchCrMemoLineAmtInclVATCap: Label 'AmtInclVAT_PurchCrMemoLine';
         PurchInvLineAmountCap: Label 'Amount_PurchInvLine';
         PurchInvLineAmtInclVATCap: Label 'AmtInclVAT_PurchInvLine';
-        SalesInvLineAmountCap: Label 'Amount__SalesInvLine';
-        SalesInvLineAmtIncludVATCap: Label 'AmtIncludVAT_SalesInvLine';
-        SalesCrMemoLineAmtCap: Label 'Amt_SalesCrMemoLine';
-        SalesCrMemoLineAmtInclVatCap: Label 'AmtInclVat_SalesCrMemoLine';
-        SalesCrMemoLineAmtLCYCap: Label 'AmtLCY_SalesCrMemoLine';
-        SalesCrMemoLineAmtIncLCYCap: Label 'AmtIncLCY_SalesCrMemoLine';
 
     [Test]
     [HandlerFunctions('PurchaseInvoiceRequestPageHandler')]
@@ -155,36 +143,6 @@ codeunit 141061 "UT REP Show FCY and Amt"
         PurchInvLine.Insert();
     end;
 
-    local procedure CreatePostedSalesCreditMemo(var SalesCrMemoLine: Record "Sales Cr.Memo Line")
-    var
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-    begin
-        SalesCrMemoHeader."No." := LibraryUTUtility.GetNewCode();
-        SalesCrMemoHeader."Currency Code" := CreateCurrencyExchangeRate();
-        SalesCrMemoHeader."Posting Date" := WorkDate();
-        SalesCrMemoHeader."Currency Factor" := LibraryRandom.RandDec(10, 2);
-        SalesCrMemoHeader.Insert();
-        SalesCrMemoLine."Document No." := SalesCrMemoHeader."No.";
-        SalesCrMemoLine.Amount := LibraryRandom.RandDec(100, 2);
-        SalesCrMemoLine."Amount Including VAT" := LibraryRandom.RandDecInRange(100, 200, 2);
-        SalesCrMemoLine.Insert();
-    end;
-
-    local procedure CreatePostedSalesInvoice(var SalesInvoiceLine: Record "Sales Invoice Line")
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-    begin
-        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode();
-        SalesInvoiceHeader."Currency Code" := CreateCurrencyExchangeRate();
-        SalesInvoiceHeader."Posting Date" := WorkDate();
-        SalesInvoiceHeader."Currency Factor" := LibraryRandom.RandDec(10, 2);
-        SalesInvoiceHeader.Insert();
-        SalesInvoiceLine."Document No." := SalesInvoiceHeader."No.";
-        SalesInvoiceLine.Amount := LibraryRandom.RandDec(100, 2);
-        SalesInvoiceLine."Amount Including VAT" := LibraryRandom.RandDecInRange(100, 200, 2);
-        SalesInvoiceLine.Insert();
-    end;
-
     local procedure VerifyAmountConversionNumberToText(AmountInTextCap: Text; AmountInTextThCap: Text; CurrencyCode: Code[10]; AmountIncludingVAT: Decimal)
     var
         AmountInText: Text;
@@ -230,39 +188,6 @@ codeunit 141061 "UT REP Show FCY and Amt"
           PurchCrMemoLine."Amount Including VAT" / PurchCrMemoHdr."Currency Factor", PurchCrMemoLine."Amount Including VAT");
     end;
 
-    local procedure VerifyValuesOnPostedSalesInvoice(SalesInvoiceLine: Record "Sales Invoice Line")
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-    begin
-        SalesInvoiceHeader.Get(SalesInvoiceLine."Document No.");
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists(SalesInvLineAmountCap, SalesInvoiceLine.Amount);
-        LibraryReportDataset.AssertElementWithValueExists(SalesInvLineAmtIncludVATCap, SalesInvoiceLine."Amount Including VAT");
-        LibraryReportDataset.AssertElementWithValueExists(
-          AmtLCYCap, Round(SalesInvoiceLine.Amount / SalesInvoiceHeader."Currency Factor"));
-        LibraryReportDataset.AssertElementWithValueExists(
-          AmtIncLCYCap, Round(SalesInvoiceLine."Amount Including VAT" / SalesInvoiceHeader."Currency Factor"));
-        VerifyAmountConversionNumberToText(
-          AmtLangA1AmtLangA2Cap, AmtLangB1AmtLangB2Cap, SalesInvoiceHeader."Currency Code", SalesInvoiceLine."Amount Including VAT");
-    end;
-
-    local procedure VerifyValuesOnPostedSalesCreditMemo(SalesCrMemoLine: Record "Sales Cr.Memo Line")
-    var
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-    begin
-        SalesCrMemoHeader.Get(SalesCrMemoLine."Document No.");
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists(SalesCrMemoLineAmtCap, SalesCrMemoLine.Amount);
-        LibraryReportDataset.AssertElementWithValueExists(SalesCrMemoLineAmtInclVatCap, SalesCrMemoLine."Amount Including VAT");
-        LibraryReportDataset.AssertElementWithValueExists(
-          SalesCrMemoLineAmtLCYCap, Round(SalesCrMemoLine.Amount / SalesCrMemoHeader."Currency Factor"));
-        LibraryReportDataset.AssertElementWithValueExists(
-          SalesCrMemoLineAmtIncLCYCap, Round(SalesCrMemoLine."Amount Including VAT" / SalesCrMemoHeader."Currency Factor"));
-        VerifyAmountConversionNumberToText(
-          AmtLangASalesCrMemoLineCap, AmtLangBSalesCrMemoLineCap,
-          SalesCrMemoHeader."Currency Code", SalesCrMemoLine."Amount Including VAT");
-    end;
-
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseInvoiceRequestPageHandler(var PurchaseInvoice: TestRequestPage "Purchase - Invoice")
@@ -291,4 +216,3 @@ codeunit 141061 "UT REP Show FCY and Amt"
         PurchaseCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-

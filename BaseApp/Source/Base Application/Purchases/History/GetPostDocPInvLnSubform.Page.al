@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.History;
 
 using Microsoft.Finance.Dimension;
@@ -445,7 +449,7 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
         end;
         if PurchInvLine2.Type <> PurchInvLine2.Type::Item then
             exit(true);
-        if (PurchInvLine2."Job No." <> '') or (PurchInvLine2."Prod. Order No." <> '') then
+        if (PurchInvLine2."Job No." <> '') or PurchInvLine2.IsProdOrder() then
             exit(not RevQtyFilter);
         PurchInvLine2.CalcReceivedPurchNotReturned(RemainingQty, RevUnitCostLCY, FillExactCostReverse);
         if not RevQtyFilter then

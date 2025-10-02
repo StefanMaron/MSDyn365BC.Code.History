@@ -2,9 +2,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-#if CLEAN24
 namespace Microsoft.EServices.EDocument;
-#endif
 
 page 2123 "O365 Incoming Doc. Att. Pict."
 {

@@ -1179,28 +1179,6 @@ codeunit 134902 "ERM Account Schedule"
         ColumnLayoutFormulaError('++', OperatorErr);
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure ColumnLayoutWithChangeLayoutName()
-    var
-        ColumnLayoutName: Record "Column Layout Name";
-        ColumnLayout: TestPage "Column Layout";
-    begin
-        // Check that Program allows to change the column layout name on Column layout window.
-
-        // 1. Setup: Create Column Layout Name.
-        Initialize();
-        LibraryLowerPermissions.SetFinancialReporting();
-        LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
-
-        // 2. Exercise: Open Column Layout Page and change the Column Layout Name.
-        ColumnLayout.OpenEdit();
-        ColumnLayout.CurrentColumnName.SetValue(ColumnLayoutName.Name);
-
-        // 3. Verify: Verify "Column Layout Name" has been changed on Column Layout Page without any confirmation message.
-        ColumnLayout.CurrentColumnName.AssertEquals(ColumnLayoutName);
-    end;
-
     local procedure ColumnLayoutWithShow(Show: Enum "Column Layout Show")
     var
         ColumnLayout: Record "Column Layout";
@@ -3403,6 +3381,143 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure AutoFillGLAccRowNoAndDescription()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        GLAccount: Record "G/L Account";
+        GLAccount2: Record "G/L Account";
+    begin
+        // [SCENARIO] When setting up a Posting Account line, row no. and description should be auto-filled from the G/L Account
+
+        Initialize();
+        // [GIVEN] Account Schedule Name and two G/L Accounts
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryERM.CreateGLAccount(GLAccount2);
+
+        // [WHEN] Setting up a new Posting Account line
+        AccScheduleLine.Init();
+        AccScheduleLine.Validate("Schedule Name", AccScheduleName.Name);
+        AccScheduleLine.Validate("Totaling Type", AccScheduleLine."Totaling Type"::"Posting Accounts");
+        AccScheduleLine.Validate(Totaling, GLAccount."No.");
+        // [THEN] Row No. and Description should be auto-filled from G/L Account
+        Assert.AreEqual(CopyStr(GLAccount."No.", 1, MaxStrLen(AccScheduleLine."Row No.")), AccScheduleLine."Row No.", 'Row No. should be auto-filled from G/L Account');
+        Assert.AreEqual(GLAccount.Name, AccScheduleLine.Description, 'Description should be auto-filled from G/L Account');
+
+        // [WHEN] Changing G/L Account on existing Posting Account line
+        AccScheduleLine.Validate(Totaling, GLAccount2."No.");
+        // [THEN] Row No. and Description should remain the same
+        Assert.AreEqual(CopyStr(GLAccount."No.", 1, MaxStrLen(AccScheduleLine."Row No.")), AccScheduleLine."Row No.", 'Row No. should remain after changing G/L Account');
+        Assert.AreEqual(GLAccount.Name, AccScheduleLine.Description, 'Description should remain after changing G/L Account');
+
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoFillGLAccCatRowNoAndDescription()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        GLAccCategory: Record "G/L Account Category";
+        GLAccCategory2: Record "G/L Account Category";
+    begin
+        // [SCENARIO] When setting up a Account Category line, row no. and description should be auto-filled from the G/L Account Category
+
+        Initialize();
+        // [GIVEN] Account Schedule Name and two G/L Account Categories
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        LibraryERM.CreateGLAccountCategory(GLAccCategory);
+        LibraryERM.CreateGLAccountCategory(GLAccCategory2);
+
+        // [WHEN] Setting up a new Account Category line
+        AccScheduleLine.Init();
+        AccScheduleLine.Validate("Schedule Name", AccScheduleName.Name);
+        AccScheduleLine.Validate("Totaling Type", AccScheduleLine."Totaling Type"::"Account Category");
+        AccScheduleLine.Validate(Totaling, Format(GLAccCategory."Entry No."));
+        // [THEN] Row No. and Description should be auto-filled from G/L Account Category
+        Assert.AreEqual(CopyStr(Format(GLAccCategory."Entry No."), 1, MaxStrLen(AccScheduleLine."Row No.")), AccScheduleLine."Row No.", 'Row No. should be auto-filled from G/L Account Category');
+        Assert.AreEqual(GLAccCategory.Description, AccScheduleLine.Description, 'Description should be auto-filled from G/L Account Category');
+
+        // [WHEN] Changing G/L Account Category on existing Account Category line
+        AccScheduleLine.Validate(Totaling, Format(GLAccCategory2."Entry No."));
+        // [THEN] Row No. and Description should remain the same
+        Assert.AreEqual(CopyStr(Format(GLAccCategory."Entry No."), 1, MaxStrLen(AccScheduleLine."Row No.")), AccScheduleLine."Row No.", 'Row No. should remain after changing G/L Account Category');
+        Assert.AreEqual(GLAccCategory.Description, AccScheduleLine.Description, 'Description should remain after changing G/L Account Category');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoFillCostTypeRowNoAndDescription()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        CostType: Record "Cost Type";
+        CostType2: Record "Cost Type";
+    begin
+        // [SCENARIO] When setting up a Cost Type line, row no. and description should be auto-filled from the Cost Type
+
+        Initialize();
+        // [GIVEN] Account Schedule Name and two Cost Types
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
+        CostType.Name := LibraryUtility.GenerateRandomCode(CostType.FieldNo(Name), Database::"Cost Type");
+        CostType.Modify();
+        LibraryCostAccounting.CreateCostTypeNoGLRange(CostType2);
+        CostType2.Name := LibraryUtility.GenerateRandomCode(CostType.FieldNo(Name), Database::"Cost Type");
+        CostType2.Modify();
+
+        // [WHEN] Setting up a new Cost Type line
+        AccScheduleLine.Init();
+        AccScheduleLine.Validate("Schedule Name", AccScheduleName.Name);
+        AccScheduleLine.Validate("Totaling Type", AccScheduleLine."Totaling Type"::"Cost Type");
+        AccScheduleLine.Validate(Totaling, CostType."No.");
+        // [THEN] Row No. and Description should be auto-filled from Cost Type
+        Assert.AreEqual(CopyStr(CostType."No.", 1, MaxStrLen(AccScheduleLine."Row No.")), AccScheduleLine."Row No.", 'Row No. should be auto-filled from Cost Type');
+        Assert.AreEqual(CostType.Name, AccScheduleLine.Description, 'Description should be auto-filled from Cost Type');
+
+        // [WHEN] Changing Cost Type on existing Cost Type line
+        AccScheduleLine.Validate(Totaling, CostType2."No.");
+        // [THEN] Row No. and Description should remain the same
+        Assert.AreEqual(CopyStr(CostType."No.", 1, MaxStrLen(AccScheduleLine."Row No.")), AccScheduleLine."Row No.", 'Row No. should remain after changing Cost Type');
+        Assert.AreEqual(CostType.Name, AccScheduleLine.Description, 'Description should remain after changing Cost Type');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoFillCashFlowAccRowNoAndDescription()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        CashFlowAccount: Record "Cash Flow Account";
+        CashFlowAccount2: Record "Cash Flow Account";
+    begin
+        // [SCENARIO] When setting up a Cash Flow Account line, row no. and description should be auto-filled from the Cash Flow Account
+
+        Initialize();
+        // [GIVEN] Account Schedule Name and two Cash Flow Accounts
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        LibraryCashFlow.CreateCashFlowAccount(CashFlowAccount, CashFlowAccount."Account Type"::Entry);
+        LibraryCashFlow.CreateCashFlowAccount(CashFlowAccount2, CashFlowAccount2."Account Type"::Entry);
+
+        // [WHEN] Setting up a new Cash Flow Account line
+        AccScheduleLine.Init();
+        AccScheduleLine.Validate("Schedule Name", AccScheduleName.Name);
+        AccScheduleLine.Validate("Totaling Type", AccScheduleLine."Totaling Type"::"Cash Flow Entry Accounts");
+        AccScheduleLine.Validate(Totaling, CashFlowAccount."No.");
+        // [THEN] Row No. and Description should be auto-filled from Cash Flow Account
+        Assert.AreEqual(CopyStr(CashFlowAccount."No.", 1, MaxStrLen(AccScheduleLine."Row No.")), AccScheduleLine."Row No.", 'Row No. should be auto-filled from Cash Flow Account');
+        Assert.AreEqual(CashFlowAccount.Name, AccScheduleLine.Description, 'Description should be auto-filled from Cash Flow Account');
+
+        // [WHEN] Changing Cash Flow Account on existing Cash Flow Account line
+        AccScheduleLine.Validate(Totaling, CashFlowAccount2."No.");
+        // [THEN] Row No. and Description should remain the same
+        Assert.AreEqual(CopyStr(CashFlowAccount."No.", 1, MaxStrLen(AccScheduleLine."Row No.")), AccScheduleLine."Row No.", 'Row No. should remain after changing Cash Flow Account');
+        Assert.AreEqual(CashFlowAccount.Name, AccScheduleLine.Description, 'Description should remain after changing Cash Flow Account');
+    end;
+
+    [Test]
     [HandlerFunctions('AccountScheduleOverviewVerifyFormulaResultPageHandler')]
     [Scope('OnPrem')]
     procedure AccountScheduleLongFormula()
@@ -5062,7 +5177,7 @@ codeunit 134902 "ERM Account Schedule"
         PackageCode := StrSubstNo(TwoPosTxt, AccSchedPrefixTxt, AccScheduleLine."Schedule Name");
         ConfigPackage.Get(PackageCode);
         ConfigPackage.TestField("Exclude Config. Tables", true);
-        // [THEN] Includes lines for 2 tables "Acc. Schedule Name", "Acc. Schedule Line" 
+        // [THEN] Includes lines for 2 tables "Acc. Schedule Name", "Acc. Schedule Line"
         ConfigPackageTable.SetRange("Package Code", PackageCode);
         Assert.RecordCount(ConfigPackageTable, 2);
         ConfigPackageTable.SetFilter("Table ID", '%1|%2', Database::"Acc. Schedule Name", Database::"Acc. Schedule Line");
@@ -5089,7 +5204,7 @@ codeunit 134902 "ERM Account Schedule"
         // [SCENARIO] Export Financial Report as rapidstart package.
         Initialize();
 
-        // [GIVEN] Financial Report 'X', Library ERM CreateAccountScheduleName creates a Financial Report 
+        // [GIVEN] Financial Report 'X', Library ERM CreateAccountScheduleName creates a Financial Report
         // with the same name as the account schedule now called row definition
         CreateAccountScheduleWithGLAccount(AccScheduleLine);
         // [GIVEN] Find 'X' in "Financial Reports" page
@@ -5103,7 +5218,7 @@ codeunit 134902 "ERM Account Schedule"
         PackageCode := StrSubstNo(TwoPosTxt, FinRepPrefixTxt, AccScheduleLine."Schedule Name");
         ConfigPackage.Get(PackageCode);
         ConfigPackage.TestField("Exclude Config. Tables", true);
-        // [THEN] Includes lines for 2 tables "Acc. Schedule Name", "Acc. Schedule Line" 
+        // [THEN] Includes lines for 2 tables "Acc. Schedule Name", "Acc. Schedule Line"
         ConfigPackageTable.SetRange("Package Code", PackageCode);
         Assert.RecordCount(ConfigPackageTable, 3); // Fin Rep, Row Def, and Col Def
         ConfigPackageTable.SetFilter("Table ID", '%1', Database::"Financial Report");
@@ -5746,6 +5861,64 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
+    procedure ColumnLayoutGLAccountTotaling()
+    var
+        GLAccount1: Record "G/L Account";
+        GLAccount2: Record "G/L Account";
+        GLAccount3: Record "G/L Account";
+        ColumnLayout: Record "Column Layout";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AccScheduleOverview: Page "Acc. Schedule Overview";
+        AccScheduleOverviewTestPage: TestPage "Acc. Schedule Overview";
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO] Setting GL account totaling on both rows and columns will resulting in intersection of amounts.
+        Initialize();
+
+        // [GIVEN] 3 account with amounts
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        LibraryERM.CreateGLAccount(GLAccount1);
+        LibraryERM.CreateGLAccount(GLAccount2);
+        LibraryERM.CreateGLAccount(GLAccount3);
+        CreateAndPostJournal(CustomerNo, GLAccount1."No.", LibraryRandom.RandDecInRange(100, 199, 2));
+        CreateAndPostJournal(CustomerNo, GLAccount2."No.", LibraryRandom.RandDecInRange(200, 299, 2));
+        CreateAndPostJournal(CustomerNo, GLAccount3."No.", LibraryRandom.RandDecInRange(300, 399, 2));
+        GLAccount1.CalcFields(Balance);
+        GLAccount2.CalcFields(Balance);
+        GLAccount3.CalcFields(Balance);
+
+        // [GIVEN] The row 1 with accounts 1 + 2 and row 2 with account 3
+        CreateAndUpdateAccountSchedule(AccScheduleLine, '10', AccScheduleLine."Totaling Type"::"Posting Accounts",
+            GLAccount1."No." + '|' + GLAccount2."No.");
+        AccScheduleLine."Line No." += 10000;
+        AccScheduleLine."Row No." := '20';
+        AccScheduleLine.Totaling := GLAccount3."No.";
+        AccScheduleLine.Insert(true);
+
+        // [GIVEN] The column 1 with account 1 and the column 2 with account 3
+        CreateColumnLayout(ColumnLayout);
+        ColumnLayout.Validate("G/L Account Totaling", GLAccount1."No.");
+        ColumnLayout.Modify(true);
+        ColumnLayout."Line No." += 10000;
+        ColumnLayout.Validate("G/L Account Totaling", GLAccount3."No.");
+        ColumnLayout.Insert(true);
+
+        // [WHEN] The financial report is opened
+        AccScheduleOverviewTestPage.Trap();
+        AccScheduleOverview.Run();
+        AccScheduleOverviewTestPage.CurrentSchedName.SetValue(AccScheduleLine."Schedule Name");
+        AccScheduleOverviewTestPage.CurrentColumnName.SetValue(ColumnLayout."Column Layout Name");
+
+        // [THEN] (1,1) shows account 1 balance and (2,2) shows account 3 balance, the other cells are 0 due to non-intersecting filters
+        AccScheduleOverviewTestPage.First();
+        AccScheduleOverviewTestPage.ColumnValues1.AssertEquals(GLAccount1.Balance);
+        AccScheduleOverviewTestPage.ColumnValues2.AssertEquals(0);
+        AccScheduleOverviewTestPage.Next();
+        AccScheduleOverviewTestPage.ColumnValues1.AssertEquals(0);
+        AccScheduleOverviewTestPage.ColumnValues2.AssertEquals(GLAccount3.Balance);
+    end;
+
+    [Test]
     procedure AccScheduleWithTotalingTypeAccountCategory()
     var
         ParentGLAccCat: Record "G/L Account Category";
@@ -5999,19 +6172,6 @@ codeunit 134902 "ERM Account Schedule"
         AccountScheduleOverview.Print.Invoke();
     end;
 
-    local procedure CreateFinancialReportAccountScheduleNameAndColumn(var FinancialReport: Record "Financial Report"; var AccScheduleName: Record "Acc. Schedule Name"; var ColumnLayoutName: Record "Column Layout Name")
-    var
-        AccScheduleLine: Record "Acc. Schedule Line";
-        ColumnLayout: Record "Column Layout";
-    begin
-        LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
-        LibraryERM.CreateColumnLayout(ColumnLayout, ColumnLayoutName.Name);
-        LibraryERM.CreateAccScheduleName(AccScheduleName);
-        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
-        FinancialReport.Get(AccScheduleName.Name); // Financial Report is created during AccScheduleName creation with the same name.
-        UpdateDefaultColumnLayoutOnAccSchNameRec(AccScheduleName, ColumnLayoutName.Name);
-    end;
-
     local procedure CreateAccountScheduleNameAndColumn(var AccScheduleName: Record "Acc. Schedule Name"; var ColumnLayoutName: Record "Column Layout Name")
     var
         AccScheduleLine: Record "Acc. Schedule Line";
@@ -6119,6 +6279,12 @@ codeunit 134902 "ERM Account Schedule"
     begin
         CreateAccountScheduleAndLine(AccScheduleLine, ColumnLayoutName);
         UpdateAccScheduleLine(AccScheduleLine, GLAccountNo, TotalingType, Format(LibraryRandom.RandInt(5)));
+    end;
+
+    local procedure CreateAndUpdateAccountSchedule(var AccScheduleLine: Record "Acc. Schedule Line"; RowNo: Code[10]; TotalingType: Enum "Acc. Schedule Line Totaling Type"; Totaling: Text[250])
+    begin
+        CreateAccountScheduleAndLine(AccScheduleLine, RowNo);
+        UpdateAccScheduleLine(AccScheduleLine, Totaling, TotalingType, RowNo);
     end;
 
     local procedure CreateColumnLayout(var ColumnLayout: Record "Column Layout")
@@ -7399,4 +7565,3 @@ codeunit 134902 "ERM Account Schedule"
         LibraryVariableStorage.Enqueue(AccountSchedule.StartDate.Enabled());
     end;
 }
-

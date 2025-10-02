@@ -24,7 +24,7 @@ report 1404 "Bank Acc. - Detail Trial Bal."
             DataItemTableView = sorting("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Search Name", "Bank Acc. Posting Group", "Date Filter";
-            column(FilterPeriod_BankAccLedg; StrSubstNo(Text000, DateFilter_BankAccount))
+            column(FilterPeriod_BankAccLedg; StrSubstNo(PeriodLbl, DateFilter_BankAccount))
             {
             }
             column(CompanyName; COMPANYPROPERTY.DisplayName())
@@ -253,11 +253,9 @@ report 1404 "Bank Acc. - Detail Trial Bal."
     end;
 
     var
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text000: Label 'Period: %1';
+        PeriodLbl: Label 'Period: %1';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
         BankAccFilter: Text;
         DateFilter_BankAccount: Text;
         BankAccBalance: Decimal;

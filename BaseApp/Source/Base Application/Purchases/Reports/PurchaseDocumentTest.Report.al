@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.Reports;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Reports;
 
 using Microsoft.CRM.Campaign;
 using Microsoft.CRM.Team;
@@ -1490,6 +1494,12 @@ report 402 "Purchase Document - Test"
 
                 VerifyPostingDate("Purchase Header");
 
+                if PurchSetup."Posting Date Check on Posting" then
+                    if "Posting Date" <> WorkDate() then
+                        AddError(
+                          StrSubstNo(
+                            DifferentPostingDateToWorkDateTxt, FieldCaption("Posting Date"), "Posting Date", WorkDate()));
+
                 if "Document Date" <> 0D then
                     if "Document Date" <> NormalDate("Document Date") then
                         AddError(StrSubstNo(Text009, FieldCaption("Document Date")));
@@ -1926,6 +1936,7 @@ report 402 "Purchase Document - Test"
         AllowInvDisctxt: Text[30];
         SumLineAmount: Decimal;
         SumInvDiscountAmount: Decimal;
+        DifferentPostingDateToWorkDateTxt: Label '%1 %2 is different to Work Date %3.', Comment = '%1 = Posting Date Field Caption %2=Posting Date Field Value %3=WorkDate value';
         Purchase_Document___TestCaptionLbl: Label 'Purchase Document - Test';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Ship_toCaptionLbl: Label 'Ship-to';
@@ -2096,6 +2107,7 @@ report 402 "Purchase Document - Test"
                     AddError(ErrorText);
             end;
         end;
+        OnAfterCheckPurchLine(PurchaseLine, "Purchase Header", ErrorCounter, ErrorText);
     end;
 
     local procedure CheckRcptLines(PurchLine2: Record "Purchase Line")
@@ -2467,6 +2479,11 @@ report 402 "Purchase Document - Test"
 
     [IntegrationEvent(false, false)]
     local procedure OnRoundLoopOnBeforeAfterGetRecord(var PurchaseLine: Record "Purchase Line"; var ErrorCounter: Integer; var ErrorText: array[99] of Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckPurchLine(PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header"; var ErrorCounter: Integer; var ErrorText: Text[250])
     begin
     end;
 }

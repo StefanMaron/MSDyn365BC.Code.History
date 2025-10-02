@@ -7,9 +7,6 @@ namespace Microsoft.Inventory.Counting.Tracking;
 using Microsoft.Inventory.Counting.Document;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
-#if not CLEAN24
-using Microsoft.Inventory.Setup;
-#endif
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 
@@ -115,17 +112,6 @@ codeunit 5889 "Phys. Invt. Tracking Mgt."
                         ItemJnlLine."Line No.", ItemJnlLine."Qty. per Unit of Measure", ReservEntry, Qty);
             until (ReservEntry.Next() = 0) or (Qty = 0);
     end;
-
-#if not CLEAN24
-    [Obsolete('Temporary wrapper procedure to enable test automation', '24.0')]
-    procedure IsPackageTrackingEnabled(): Boolean;
-    var
-        InventorySetup: Record "Inventory Setup";
-    begin
-        if InventorySetup.Get() then
-            exit(InventorySetup."Invt. Orders Package Tracking");
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetTrackingNosFromWhse(Item: Record Item; ItemTrackingCode: Record "Item Tracking Code"; var Result: Boolean)
