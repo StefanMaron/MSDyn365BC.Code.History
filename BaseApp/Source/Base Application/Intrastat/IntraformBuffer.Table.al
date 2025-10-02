@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 #if not CLEANSCHEMA25 
 table 12118 "Intra - form Buffer"
 {

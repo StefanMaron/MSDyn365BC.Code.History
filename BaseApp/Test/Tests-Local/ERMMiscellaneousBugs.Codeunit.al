@@ -1829,16 +1829,6 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateChargeItemWithVATProdPostingGroup(VATProdPostingGroup: Code[20]): Code[20]
-    var
-        ItemCharge: Record "Item Charge";
-    begin
-        LibraryInventory.CreateItemCharge(ItemCharge);
-        ItemCharge.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
-        ItemCharge.Modify(true);
-        exit(ItemCharge."No.");
-    end;
-
     local procedure CreateEUVendor(): Code[20]
     var
         Vendor: Record Vendor;
@@ -1959,33 +1949,6 @@ codeunit 144105 "ERM Miscellaneous Bugs"
           VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
         CreatePurchaseLine(
           PurchaseHeader, PurchaseLine.Type::Item, CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
-    end;
-
-    local procedure CreatePurchaseLineItemChargeAssignment(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"): Decimal
-    var
-        ItemChargeAssignmentPurchase: Record "Item Charge Assignment (Purch)";
-        ItemChargeNo: Code[20];
-    begin
-        ItemChargeNo := CreateChargeItemWithVATProdPostingGroup(PurchaseLine."VAT Prod. Posting Group");
-        CreatePurchaseLine(PurchaseHeader, PurchaseLine.Type::"Charge (Item)", ItemChargeNo);
-        FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseLine.Type::"Charge (Item)", PurchaseHeader."No.");
-        LibraryInventory.CreateItemChargeAssignPurchase(
-          ItemChargeAssignmentPurchase, PurchaseLine, PurchaseHeader."Document Type",
-          PurchaseHeader."No.", PurchaseLine."Line No.", ItemChargeNo);
-        exit(PurchaseLine.Amount);
-    end;
-
-    local procedure CreateSalesLineItemChargeAssignment(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"): Decimal
-    var
-        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
-        ItemChargeNo: Code[20];
-    begin
-        ItemChargeNo := CreateChargeItemWithVATProdPostingGroup(SalesLine."VAT Prod. Posting Group");
-        CreateSalesLine(SalesHeader, SalesLine.Type::"Charge (Item)", ItemChargeNo);
-        FindSalesLine(SalesLine, SalesHeader."Document Type", SalesLine.Type::"Charge (Item)", SalesHeader."No.");
-        LibraryInventory.CreateItemChargeAssignment(
-          ItemChargeAssignmentSales, SalesLine, SalesHeader."Document Type", SalesHeader."No.", SalesLine."Line No.", ItemChargeNo);
-        exit(SalesLine.Amount);
     end;
 
     local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
@@ -2287,13 +2250,6 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetRange(Type, Type);
         PurchaseLine.FindFirst();
-    end;
-
-    local procedure FindLineAmount(DocumentType: Enum "Sales Document Type"; Amount: Decimal): Decimal
-    begin
-        if DocumentType = "Sales Document Type"::Invoice then
-            exit(Amount);
-        exit(-Amount);
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; Type: Enum "Sales Line Type"; DocumentNo: Code[20])
@@ -3141,4 +3097,3 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         LibraryVariableStorage.Enqueue(PaymentToleranceWarning.BalanceAmount.Value);
     end;
 }
-

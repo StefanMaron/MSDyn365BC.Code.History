@@ -610,18 +610,29 @@ codeunit 5631 "FA Jnl.-Check Line"
         AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
         EndingDate: Date;
         StartingDate: Date;
+        IsHandled: Boolean;
     begin
         if (GenJnlLine."FA Posting Type" = GenJnlLine."FA Posting Type"::Depreciation) and
            (GenJnlLine."No. of Depreciation Days" <> 0) and
            (FADeprBook."Depreciation Method" = FADeprBook."Depreciation Method"::"Declining-Balance 1")
         then begin
-            EndingDate := DepreciationCalculation.ToMorrow(GenJnlLine."FA Posting Date", DeprBook."Fiscal Year 365 Days");
+            EndingDate :=
+               DepreciationCalculation.ToMorrow(
+                 GenJnlLine."FA Posting Date",
+                 DeprBook."Fiscal Year 365 Days",
+                 DeprBook."Use Accounting Period");
             if DeprBook."Fiscal Year 365 Days" then
                 StartingDate := CalcDate(StrSubstNo('<-%1D>', GenJnlLine."No. of Depreciation Days"), EndingDate)
             else begin
                 StartingDate := CalcDate(StrSubstNo('<-%1M>', GenJnlLine."No. of Depreciation Days" div 30), EndingDate);
                 StartingDate := CalcDate(StrSubstNo('<-%1D>', GenJnlLine."No. of Depreciation Days" mod 30), StartingDate);
             end;
+
+            IsHandled := false;
+            OnCheckFADepAcrossFiscalYearOnBeforeCheckAccPeriod(StartingDate, GenJnlLine, IsHandled);
+            if IsHandled then
+                exit;
+
             AccPeriod.SetFilter("Starting Date", '>%1&<=%2', AccountingPeriodMgt.FindFiscalYear(StartingDate), GenJnlLine."FA Posting Date");
             AccPeriod.SetRange("New Fiscal Year", true);
             if not AccPeriod.IsEmpty() then
@@ -706,6 +717,11 @@ codeunit 5631 "FA Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetGenJournalLineValuesBeforeConsistencyCheck(var IsHandled: Boolean; GenJnlPosting: Boolean; var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckFADepAcrossFiscalYearOnBeforeCheckAccPeriod(var StartingDate: Date; var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

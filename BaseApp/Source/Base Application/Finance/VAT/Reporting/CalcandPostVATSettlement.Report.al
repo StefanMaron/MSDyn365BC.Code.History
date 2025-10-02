@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Reporting;
 
-using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
@@ -702,6 +701,7 @@ report 20 "Calc. and Post VAT Settlement"
 #else
                         UpdatePeriodicSettlementVATEntryActivityCode();
 #endif
+                OnVATPostingSetupOnAfterOnPostDataItem(GenJnlLine, PostSettlement);
             end;
 
             trigger OnPreDataItem()
@@ -804,6 +804,8 @@ report 20 "Calc. and Post VAT Settlement"
 
     requestpage
     {
+        AboutTitle = 'About Calc. and Post VAT Settlement';
+        AboutText = 'The **Calculate and Post Tax Settlement** report calculates VAT based on posted entries and generates a journal to record the VAT settlement. Use it for automating VAT processing at the end of a filing period (typically monthly or quarterly) by posting the net VAT due or refundable, helping streamline tax reporting and compliance.';
         SaveValues = true;
         ShowFilter = false;
 
@@ -951,7 +953,7 @@ report 20 "Calc. and Post VAT Settlement"
         ConfirmManagement: Codeunit "Confirm Management";
         ITReportManagement: Codeunit "IT - Report Management";
     begin
-        OnBeforePreReport("VAT Posting Setup", PostSettlement, GLAccSettle);
+        OnBeforePreReport("VAT Posting Setup", PostSettlement, GLAccSettle, DocNo);
 
         GetGLSetup();
         if EndDateReq = 0D then
@@ -1029,7 +1031,7 @@ report 20 "Calc. and Post VAT Settlement"
             GLSetup.TestField("Use Activity Code");
             ValidatePreviousEntrySplit();
         end;
-        
+
         InitializeTotals();
 #endif
         if PostSettlement then
@@ -1254,22 +1256,6 @@ report 20 "Calc. and Post VAT Settlement"
             exit(GLSetup."Additional Reporting Currency");
 
         exit('');
-    end;
-
-    local procedure PostGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
-    var
-        DimMgt: Codeunit DimensionManagement;
-        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
-    begin
-        DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", GenJnlLine."Account No.");
-        DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", GenJnlLine."Bal. Account No.");
-        GenJnlLine."Dimension Set ID" :=
-          DimMgt.GetRecDefaultDimID(
-            GenJnlLine, 0, DefaultDimSource, GenJnlLine."Source Code",
-            GenJnlLine."Shortcut Dimension 1 Code", GenJnlLine."Shortcut Dimension 2 Code", 0, 0);
-        OnPostGenJnlLineOnBeforeGenJnlPostLineRun(GenJnlLine);
-        GenJnlPostLine.SetIgnoreJournalTemplNameMandatoryCheck();
-        GenJnlPostLine.Run(GenJnlLine);
     end;
 
     procedure SetInitialized(NewInitialized: Boolean)
@@ -1572,20 +1558,6 @@ report 20 "Calc. and Post VAT Settlement"
         GenJnlLine."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
     end;
 
-    local procedure IncrementGenPostingType(var OldGenPostingType: Enum "General Posting Type") NewGenPostingType: Enum "General Posting Type"
-    begin
-        case OldGenPostingType of
-            OldGenPostingType::" ":
-                exit(NewGenPostingType::Purchase);
-            OldGenPostingType::Purchase:
-                exit(NewGenPostingType::Sale);
-            OldGenPostingType::Sale:
-                exit(NewGenPostingType::Settlement);
-        end;
-
-        OnAfterIncrementGenPostingType(OldGenPostingType, NewGenPostingType);
-    end;
-
     local procedure CloseVATEntriesOnPostSettlement(var VATEntry: Record "VAT Entry"; NextVATEntryNo: Integer)
     var
         IsHandled: Boolean;
@@ -1601,14 +1573,6 @@ report 20 "Calc. and Post VAT Settlement"
         VATEntry.SetRange(Closed, true);
         VATEntry.ModifyAll("VAT Period", VATPeriod);
         VATEntry.SetRange(Closed, false);
-    end;
-
-    local procedure IsNotSettlement(GenPostingType: Enum "General Posting Type"): Boolean
-    begin
-        exit(
-            (GenPostingType = GenPostingType::" ") or
-            (GenPostingType = GenPostingType::Purchase) or
-            (GenPostingType = GenPostingType::Sale));
     end;
 
     local procedure GetSettlementVATEntryNo(PostVATSettlement: Boolean; IsPostingAllowed: Boolean): Integer
@@ -1684,7 +1648,7 @@ report 20 "Calc. and Post VAT Settlement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePreReport(var VATPostingSetup: Record "VAT Posting Setup"; PostSettlement: Boolean; GLAccountSettle: Record "G/L Account")
+    local procedure OnBeforePreReport(var VATPostingSetup: Record "VAT Posting Setup"; PostSettlement: Boolean; GLAccountSettle: Record "G/L Account"; var DocNo: Code[20])
     begin
     end;
 
@@ -1693,11 +1657,13 @@ report 20 "Calc. and Post VAT Settlement"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('The event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterIncrementGenPostingType(OldGenPostingType: Enum "General Posting Type"; var NewGenPostingType: Enum "General Posting Type")
     begin
     end;
-
+#endif
     [IntegrationEvent(true, false)]
     local procedure OnClosingGLAndVATEntryOnAfterGetRecordOnAfterSetVATEntryFilters(VATPostingSetup: Record "VAT Posting Setup"; var VATEntry: Record "VAT Entry"; var VATEntry2: Record "VAT Entry")
     begin
@@ -1713,14 +1679,20 @@ report 20 "Calc. and Post VAT Settlement"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('The event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnPostGenJnlLineOnBeforeGenJnlPostLineRun(var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyAmounts(var GenJournalLine: Record "Gen. Journal Line"; var VATEntry: Record "VAT Entry")
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnVATPostingSetupOnAfterOnPostDataItem(GenJnlLine: Record "Gen. Journal Line"; PostSettlement: Boolean)
+    begin
+    end;
+}

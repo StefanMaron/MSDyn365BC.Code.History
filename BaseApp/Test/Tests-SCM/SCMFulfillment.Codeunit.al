@@ -14,6 +14,7 @@ codeunit 137014 "SCM Fulfillment"
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
         LibraryWarehouse: Codeunit "Library - Warehouse";
@@ -23,6 +24,7 @@ codeunit 137014 "SCM Fulfillment"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
+        ReservationFromStockErr: Label 'Reservation from Stock must be %1 in %2.', Comment = '%1= Field Value, %2 =Table Caption.';
 
     [Test]
     procedure ReservedQtyFromInventoryForAssemblyLine()
@@ -1862,7 +1864,59 @@ codeunit 137014 "SCM Fulfillment"
         JobJournalLine.FindFirst();
         JobJournalLine.TestField(Quantity, 10);
     end;
+    
+    [Test]
+    procedure ReservedQtyFromInventoryAndNonInventoryItemForServiceOrder()
+    var
+        Item: array[2] of Record Item;
+        ServiceItem: Record "Service Item";
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: Record "Service Line";
+        ReservationFromStock: Enum "Reservation From Stock";
+    begin
+        // [SCENARIO 563164] Reserved from Stock has "Full" status on Statistics page of Service Order when there is non-inventory item is in the Service Lines.
+        Initialize();
 
+        // [GIVEN] Create Item in inventory.
+        LibraryInventory.CreateItem(Item[1]);
+
+        // [GIVEN] Post Item to Inventory.
+        PostItemToInventory(Item[1]."No.", '', '', LibraryRandom.RandIntInRange(15, 20));
+
+        // [GIVEN] Create Non Inventory Item.
+        LibraryInventory.CreateNonInventoryTypeItem(Item[2]);
+
+        // [GIVEN] Create a Service Header.
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
+
+        // [GIVEN] Create a Service Item.
+        LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
+
+        // [GIVEN] Create Service Item Line.
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+
+        // [GIVEN] Create Service Line with Quantity and Validate Service Item Line No.
+        LibraryService.CreateServiceLineWithQuantity(ServiceLine, ServiceHeader, Enum::"Service Line Type"::Item, Item[1]."No.", 10);
+        ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
+        ServiceLine.Modify(true);
+
+        // [GIVEN] Reserve Service Line.
+        LibraryService.AutoReserveServiceLine(ServiceLine);
+
+        // [WHEN] Create Service Line with Quantity.
+        LibraryService.CreateServiceLineWithQuantity(ServiceLine, ServiceHeader, Enum::"Service Line Type"::Item, Item[2]."No.", 10);
+
+        // [THEN] Reservation from stock must be Full.
+        Assert.AreEqual(
+            ReservationFromStock::Full,
+            ServiceHeader.GetQtyReservedFromStockState(),
+            StrSubstNo(
+                ReservationFromStockErr,
+                ReservationFromStock::Full,
+                ServiceHeader.TableCaption()));
+    end;
+    
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Fulfillment");

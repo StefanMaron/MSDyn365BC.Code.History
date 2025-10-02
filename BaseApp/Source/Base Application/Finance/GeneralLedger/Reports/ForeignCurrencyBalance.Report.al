@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.GeneralLedger.Reports;
 
 using Microsoft.Bank.BankAccount;
@@ -232,6 +236,8 @@ report 503 "Foreign Currency Balance"
 
     requestpage
     {
+        AboutTitle = 'About Foreign Currency Balance';
+        AboutText = 'The **Foreign Currency Balance** report displays account balances in both local and foreign currencies for G/L, customer, or vendor accounts. Use it for monitoring and reconciling multi-currency transactions, especially during revaluation or when reviewing exchange rate impacts.';
 
         layout
         {

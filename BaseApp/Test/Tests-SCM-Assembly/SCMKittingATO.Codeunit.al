@@ -64,6 +64,7 @@ codeunit 137096 "SCM Kitting - ATO"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryCosting: Codeunit "Library - Costing";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPlanning: Codeunit "Library - Planning";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
@@ -156,7 +157,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         SetupAssembly();
         LibraryInventory.ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch);
-        SetupManufacturingSetup();
+        SetupInventorySetup();
         SetupSalesAndReceivablesSetup();
         SetupLocation(LocationBlue, false);
         LibraryAssembly.SetupPostingToGL(GenProdPostingGr, AsmInvtPostingGr, CompInvtPostingGr, '');
@@ -272,16 +273,10 @@ codeunit 137096 "SCM Kitting - ATO"
         ItemJournalLine.DeleteAll();
     end;
 
-    local procedure SetupManufacturingSetup()
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
+    local procedure SetupInventorySetup()
     begin
-        Clear(ManufacturingSetup);
-        ManufacturingSetup.Get();
-        Evaluate(ManufacturingSetup."Default Safety Lead Time", '<1D>');
-        ManufacturingSetup.Modify(true);
-
-        WorkDate2 := CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
+        LibraryPlanning.SetDefaultSafetyLeadTime('<1D>');
+        WorkDate2 := LibraryPlanning.SetSafetyWorkDate(); // to avoid Due Date Before Work Date message.
     end;
 
     local procedure SetupSalesAndReceivablesSetup()
@@ -512,7 +507,7 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         SKU: Record "Stockkeeping Unit";
         Item: Record Item;
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
         // IF SKU exist take values from SKU
         if FindSKU(SKU, ItemNo, LocationCode, VariantCode) then begin
@@ -523,8 +518,8 @@ codeunit 137096 "SCM Kitting - ATO"
             LeadTimeCalculation := Item."Lead Time Calculation";
             SafetyLeadTime := Item."Safety Lead Time";
             if Format(SafetyLeadTime) = '' then begin // if safety lead time is empty consider the manuf setup one
-                ManufacturingSetup.Get();
-                SafetyLeadTime := ManufacturingSetup."Default Safety Lead Time";
+                InventorySetup.Get();
+                SafetyLeadTime := InventorySetup."Default Safety Lead Time";
             end;
         end;
     end;
@@ -2191,14 +2186,6 @@ codeunit 137096 "SCM Kitting - ATO"
           AssertOption::Reservation);
     end;
 
-    local procedure CalculateDateUsingDefaultSafetyLeadTime(): Date
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-    begin
-        ManufacturingSetup.Get();
-        exit(CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()));
-    end;
-
     [Test]
     [HandlerFunctions('LocationCodeConfirm')]
     [Scope('OnPrem')]
@@ -2593,7 +2580,7 @@ codeunit 137096 "SCM Kitting - ATO"
 
         // [GIVEN] Assembly Order for Parent Item
         LibraryAssembly.CreateAssemblyHeader(
-          AssemblyHeader, CalculateDateUsingDefaultSafetyLeadTime(), ParentItem."No.", Location.Code, LibraryRandom.RandInt(9), '');
+          AssemblyHeader, LibraryPlanning.SetSafetyWorkDate(), ParentItem."No.", Location.Code, LibraryRandom.RandInt(9), '');
         LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ComponentItem."No.",
           ComponentItem."Base Unit of Measure", LibraryRandom.RandInt(5), LibraryRandom.RandInt(5), '');
 

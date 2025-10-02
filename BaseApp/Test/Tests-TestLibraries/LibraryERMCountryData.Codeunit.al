@@ -118,6 +118,7 @@ codeunit 131305 "Library - ERM Country Data"
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Prevent Posted Doc. Deletion" := false;
         PurchasesPayablesSetup.Modify();
+	    UpdatePostingDateCheckonPostingPurchase();
     end;
 
     procedure SetDiscountPostingInPurchasePayablesSetup()
@@ -132,6 +133,7 @@ codeunit 131305 "Library - ERM Country Data"
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Prevent Posted Doc. Deletion" := false;
         SalesReceivablesSetup.Modify();
+	    UpdatePostingDateCheckonPostingSales();
     end;
 
     procedure SetDiscountPostingInSalesReceivablesSetup()
@@ -328,6 +330,24 @@ codeunit 131305 "Library - ERM Country Data"
         UnitofMeasure.Code := Code;
         UnitofMeasure.Description := Code;
         UnitofMeasure.Insert();
+    end;
+    
+    local procedure UpdatePostingDateCheckonPostingSales()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Posting Date Check on Posting", false);
+        SalesReceivablesSetup.Modify(true);
+    end;
+
+    local procedure UpdatePostingDateCheckonPostingPurchase()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Posting Date Check on Posting", false);
+        PurchasesPayablesSetup.Modify(true);
     end;
 }
 

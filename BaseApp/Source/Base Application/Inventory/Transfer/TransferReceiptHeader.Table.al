@@ -244,7 +244,13 @@ table 5746 "Transfer Receipt Header"
                 Rec.ShowDimensions();
             end;
         }
-        field(12100; "Package Tracking No."; Text[30])
+#if not CLEAN27
+#pragma warning disable AS0086
+#endif
+        field(12100; "Package Tracking No."; Text[50])
+#if not CLEAN27
+#pragma warning restore AS0086
+#endif
         {
             Caption = 'Package Tracking No.';
         }
@@ -446,4 +452,3 @@ table 5746 "Transfer Receipt Header"
     begin
     end;
 }
-

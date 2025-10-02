@@ -34,7 +34,6 @@ using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Reporting;
 using Microsoft.HumanResources.Setup;
 using Microsoft.Intercompany.Setup;
-using Microsoft.Inventory;
 using Microsoft.Inventory.Analysis;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Counting.Document;
@@ -66,7 +65,6 @@ using System.Globalization;
 using System.Feedback;
 using System.IO;
 using System.Upgrade;
-using Microsoft.Bank.Payment;
 
 codeunit 2 "Company-Initialize"
 {
@@ -99,7 +97,6 @@ codeunit 2 "Company-Initialize"
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         TransformationRule: Record "Transformation Rule";
-        AddOnIntegrMgt: Codeunit AddOnIntegrManagement;
         WorkflowSetup: Codeunit "Workflow Setup";
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
         SatisfactionSurveyMgt: Codeunit "Satisfaction Survey Mgt.";
@@ -111,7 +108,6 @@ codeunit 2 "Company-Initialize"
         OnBeforeOnRun();
 
         InitSetupTables();
-        AddOnIntegrMgt.InitMfgSetup();
         InitSourceCodeSetup();
         InitStandardTexts();
         InitReportSelection();
@@ -266,10 +262,6 @@ codeunit 2 "Company-Initialize"
         InvtReceiptsTxt: Label 'INVTRCPT', Comment = 'INVENTORY RECEIPTS';
         InvtShipmentsTxt: Label 'INVTSHPT', Comment = 'INVENTORY SHIPMENTS';
         InvtOrderTxt: Label 'INVTORDER', Comment = 'INVENTORY ORDERS';
-        LegacyCTBankExportCodeTxt: Label 'BONIFICI';
-        LegacyCTBankExportNameTxt: Label 'Vendor Bills Floppy Payment File';
-        LegacyDDBankExportCodeTxt: Label 'EFFETTI';
-        LegacyDDBankExportNameTxt: Label 'Customer Bills Floppy Payment File';
         PEPPOLBIS3_ElectronicFormatTxt: Label 'PEPPOL BIS3', Locked = true;
         PEPPOLBIS3_ElectronicFormatDescriptionTxt: Label 'PEPPOL BIS3 Format (Pan-European Public Procurement Online)';
         SourceCodeGeneralDeferralLbl: Label 'Gen-Defer';
@@ -278,8 +270,6 @@ codeunit 2 "Company-Initialize"
         SourceCodeGeneralDeferralTxt: Label 'General Deferral';
         SourceCodeSalesDeferralTxt: Label 'Sales Deferral';
         SourceCodePurchaseDeferralTxt: Label 'Purchase Deferral';
-        FatturaPA_ElectronicFormatTxt: Label 'FatturaPA';
-        FatturaPA_ElectronicFormatDescriptionTxt: Label 'FatturaPA (Fattura elettronica)';
         ProductionOrderLbl: Label 'PRODUCTION';
         ProductionOrderTxt: Label 'Production Order';
 
@@ -593,14 +583,12 @@ codeunit 2 "Company-Initialize"
               CODEUNIT::"SEPA CT-Export File", XMLPORT::"SEPA CT pain.001.001.03", CODEUNIT::"SEPA CT-Check Line");
             InsertBankExportImportSetup(SEPADDCodeTxt, SEPADDNameTxt, BankExportImportSetup.Direction::Export,
               CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.02", CODEUNIT::"SEPA DD-Check Line");
-            InsertBankExportImportSetup(LegacyCTBankExportCodeTxt, LegacyCTBankExportNameTxt, BankExportImportSetup.Direction::Export,
-              CODEUNIT::"Vendor Bills Floppy", 0, 0);
-            InsertBankExportImportSetup(LegacyDDBankExportCodeTxt, LegacyDDBankExportNameTxt, BankExportImportSetup.Direction::Export,
-              CODEUNIT::"Customer Bills Floppy", 0, 0);
             InsertBankExportImportSetup(SEPACTCode09Txt, SEPACTName09Txt, BankExportImportSetup.Direction::Export,
               CODEUNIT::"SEPA CT-Export File", XMLPORT::"SEPA CT pain.001.001.09", CODEUNIT::"SEPA CT-Check Line");
             InsertBankExportImportSetup(SEPADDCode08Txt, SEPADDName08Txt, BankExportImportSetup.Direction::Export,
               CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.08", CODEUNIT::"SEPA DD-Check Line");
+
+            OnAfterInitBankExportImportSetup();
         end;
     end;
 
@@ -650,19 +638,6 @@ codeunit 2 "Company-Initialize"
         ElectronicDocumentFormat.InsertElectronicFormat(
           PEPPOLBIS3_ElectronicFormatTxt, PEPPOLBIS3_ElectronicFormatDescriptionTxt,
           CODEUNIT::"PEPPOL Validation", 0, ElectronicDocumentFormat.Usage::"Sales Validation".AsInteger());
-
-        // FatturaPA
-        ElectronicDocumentFormat.InsertElectronicFormat(
-          FatturaPA_ElectronicFormatTxt, FatturaPA_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"Export FatturaPA Document", 0, ElectronicDocumentFormat.Usage::"Sales Invoice".AsInteger());
-
-        ElectronicDocumentFormat.InsertElectronicFormat(
-          FatturaPA_ElectronicFormatTxt, FatturaPA_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"Export FatturaPA Document", 0, ElectronicDocumentFormat.Usage::"Sales Credit Memo".AsInteger());
-
-        ElectronicDocumentFormat.InsertElectronicFormat(
-          FatturaPA_ElectronicFormatTxt, FatturaPA_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"Export FatturaPA Document", 0, ElectronicDocumentFormat.Usage::"Service Invoice".AsInteger());
 
         OnAfterInitElectronicFormats();
     end;
@@ -821,6 +796,11 @@ codeunit 2 "Company-Initialize"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitBankExportImportSetup()
+    begin
+    end;
+    
     [IntegrationEvent(true, false)]
     local procedure OnBeforeSourceCodeSetupInsert(var SourceCodeSetup: Record "Source Code Setup")
     begin

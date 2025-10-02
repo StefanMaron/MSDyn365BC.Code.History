@@ -21,7 +21,6 @@ codeunit 139162 "CRM Integration Mgt Test"
         CRMSynchHelper: Codeunit "CRM Synch. Helper";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
-        IdentityManagement: Codeunit "Identity Management";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         SynchDirection: Option Cancel,ToCRM,ToNAV;
         ConfirmStartCouplingReply: Boolean;
@@ -1093,7 +1092,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         ResetDefaultCRMSetupConfiguration(false);
         // [WHEN] Find Integration Table Mapping for "Price List Header"
         // [THEN] Mapped to "CRM Pricelevel", Direction is "To Integration Table",
-        // [THEN] "Table Filter" is "Price Type" is 'Sale', "Amount Type" is 'Price', "Allow Editing Defaults" is 'Yes' 
+        // [THEN] "Table Filter" is "Price Type" is 'Sale', "Amount Type" is 'Price', "Allow Editing Defaults" is 'Yes'
         // [THEN] no "Integration Table Filter", "Synch. Only Coupled Records" is Yes
         CDSIntegrationMgt.GetCDSCompany(CDSCompany);
         ExpectedIntTableFilter := StrSubstNo('VERSION(1) SORTING(Field1) WHERE(Field31=1(%1|{00000000-0000-0000-0000-000000000000}))', Format(CDSCompany.CompanyId));
@@ -2353,17 +2352,6 @@ codeunit 139162 "CRM Integration Mgt Test"
         LibraryCRMIntegration.ConfigureCRM();
         ResetDefaultCRMSetupConfiguration(false);
         LibraryCRMIntegration.GetGLSetupCRMTransactionCurrencyID();
-    end;
-
-    local procedure CreateUserWithAccessKey(var User: Record User): Text[80]
-    begin
-        User.Init();
-        User.Validate("User Name", LibraryUtility.GenerateGUID());
-        User.Validate("License Type", User."License Type"::"Full User");
-        User.Validate("User Security ID", CreateGuid());
-        User.Insert(true);
-
-        exit(IdentityManagement.CreateWebServicesKeyNoExpiry(User."User Security ID"));
     end;
 
     local procedure RunHyperlinkTest(RecordID: RecordID)

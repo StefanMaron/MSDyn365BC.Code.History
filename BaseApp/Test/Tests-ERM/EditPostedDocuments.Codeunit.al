@@ -870,8 +870,8 @@ codeunit 134658 "Edit Posted Documents"
         PurchaseInvoice: TestPage "Purchase Invoice";
         CashFlowWorksheet: TestPage "Cash Flow Worksheet";
     begin
-        // [SCENARIO 544391] When Stan runs Suggest Worksheet Lines action from Cash Flow Worksheet page 
-        // Then Cash Flow Worksheet Line is not created for a Purchase Order if Prepayment 
+        // [SCENARIO 544391] When Stan runs Suggest Worksheet Lines action from Cash Flow Worksheet page
+        // Then Cash Flow Worksheet Line is not created for a Purchase Order if Prepayment
         // And Purchase Invoice are completely posted.
         Initialize();
 
@@ -1000,15 +1000,6 @@ codeunit 134658 "Edit Posted Documents"
     begin
         LibrarySales.CreateSalesOrder(SalesHeader);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, false));
-    end;
-
-    local procedure CreateAndPostSalesOrderGetInvoiceNo(): Code[20]
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        LibrarySales.CreateSalesOrder(SalesHeader);
-        LibrarySales.PostSalesDocument(SalesHeader, true, false);
-        exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
     end;
 
     local procedure CreateAndPostSalesCreditMemo(): Code[20]
@@ -1619,7 +1610,7 @@ codeunit 134658 "Edit Posted Documents"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure PostedServiceShipmentUpdateOKModalPageHandler(var PostedServiceShptUpdate: TestPage "Posted Service Shpt. - Update")
+    procedure PostedServiceShipmentUpdateOKModalPageHandler(var PostedServiceShptUpdate: TestPage "Posted Service Ship. - Update")
     begin
         PostedServiceShptUpdate."Additional Information".SetValue(LibraryVariableStorage.DequeueText());
         PostedServiceShptUpdate."Additional Notes".SetValue(LibraryVariableStorage.DequeueText());
@@ -1634,7 +1625,7 @@ codeunit 134658 "Edit Posted Documents"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure PostedServiceShipmentUpdateCancelModalPageHandler(var PostedServiceShptUpdate: TestPage "Posted Service Shpt. - Update")
+    procedure PostedServiceShipmentUpdateCancelModalPageHandler(var PostedServiceShptUpdate: TestPage "Posted Service Ship. - Update")
     begin
         PostedServiceShptUpdate."Additional Information".SetValue(LibraryVariableStorage.DequeueText());
         PostedServiceShptUpdate."Additional Notes".SetValue(LibraryVariableStorage.DequeueText());

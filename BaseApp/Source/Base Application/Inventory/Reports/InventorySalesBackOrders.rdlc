@@ -19,33 +19,33 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>0.64725in</Width>
+                  <Width>1.64402cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.76665in</Width>
+                  <Width>1.94729cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>1.62795in</Width>
+                  <Width>4.13499cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.9159in</Width>
+                  <Width>2.32639cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.72247in</Width>
+                  <Width>1.83507cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.677in</Width>
+                  <Width>1.71958cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.86917in</Width>
+                  <Width>2.20769cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.90561in</Width>
+                  <Width>2.30025cm</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -296,7 +296,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.06944in</Height>
+                  <Height>0.17638cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -333,7 +333,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.06944in</Height>
+                  <Height>0.17638cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -376,7 +376,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -471,7 +471,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -543,7 +543,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!CustName.Value</Value>
+                                  <Value>=Fields!CustName_SalesLine.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -576,7 +576,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!CustPhoneNo.Value</Value>
+                                  <Value>=Fields!CustPhoneNo_SalesLine.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -714,7 +714,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!OtherBackOrders.Value</Value>
+                                  <Value>=Fields!OtherBackOrders_SalesLine.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -741,7 +741,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -896,7 +896,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -1235,6 +1235,123 @@
     </ReportSection>
   </ReportSections>
   <ReportParameters>
+    <ReportParameter Name="DataRetrieved">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DataRetrieved</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DataRetrieved</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="InventorySalesBackOrders">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>InventorySalesBackOrders</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>InventorySalesBackOrders</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="InventorySalesBackOrdersPrint">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>InventorySalesBackOrdersPrint</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>InventorySalesBackOrdersPrint</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="InvSalesBackOrdersAnalysis">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>InvSalesBackOrdersAnalysis</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>InvSalesBackOrdersAnalysis</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="AboutTheReportLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>AboutTheReportLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>AboutTheReportLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="EnvironmentLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>EnvironmentLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>EnvironmentLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CompanyLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CompanyLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CompanyLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="UserLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>UserLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>UserLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RunOnLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>RunOnLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>RunOnLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ReportNameLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ReportNameLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ReportNameLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DocumentationLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DocumentationLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DocumentationLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ShipmentDateLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ShipmentDateLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ShipmentDateLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="OtherBackOrdersLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>OtherBackOrdersLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>OtherBackOrdersLabel</Prompt>
+    </ReportParameter>
     <ReportParameter Name="ItemNoCaptionLbl">
       <DataType>String</DataType>
       <DefaultValue>
@@ -1244,6 +1361,24 @@
       </DefaultValue>
       <Prompt>ItemNoCaptionLbl</Prompt>
     </ReportParameter>
+    <ReportParameter Name="No_ItemCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>No_ItemCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>No_ItemCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Description_ItemCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Description_ItemCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Description_ItemCaption</Prompt>
+    </ReportParameter>
     <ReportParameter Name="DocumentNo_SalesLineCaption">
       <DataType>String</DataType>
       <DefaultValue>
@@ -1252,6 +1387,24 @@
         </Values>
       </DefaultValue>
       <Prompt>DocumentNo_SalesLineCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CustName_SalesLineCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CustName_SalesLineCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CustName_SalesLineCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CustPhoneNo_SalesLineCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CustPhoneNo_SalesLineCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CustPhoneNo_SalesLineCaption</Prompt>
     </ReportParameter>
     <ReportParameter Name="Quantity_SalesLineCaption">
       <DataType>String</DataType>
@@ -1275,26 +1428,111 @@
   <ReportParametersLayout>
     <GridLayoutDefinition>
       <NumberOfColumns>1</NumberOfColumns>
-      <NumberOfRows>4</NumberOfRows>
+      <NumberOfRows>21</NumberOfRows>
       <CellDefinitions>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>0</RowIndex>
-          <ParameterName>ItemNoCaptionLbl</ParameterName>
+          <ParameterName>DataRetrieved</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>1</RowIndex>
-          <ParameterName>DocumentNo_SalesLineCaption</ParameterName>
+          <ParameterName>InventorySalesBackOrders</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>2</RowIndex>
-          <ParameterName>Quantity_SalesLineCaption</ParameterName>
+          <ParameterName>InventorySalesBackOrdersPrint</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>3</RowIndex>
+          <ParameterName>InvSalesBackOrdersAnalysis</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>4</RowIndex>
+          <ParameterName>AboutTheReportLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>5</RowIndex>
+          <ParameterName>EnvironmentLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>6</RowIndex>
+          <ParameterName>CompanyLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>7</RowIndex>
+          <ParameterName>UserLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>8</RowIndex>
+          <ParameterName>RunOnLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>9</RowIndex>
+          <ParameterName>ReportNameLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>10</RowIndex>
+          <ParameterName>DocumentationLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>11</RowIndex>
+          <ParameterName>ShipmentDateLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>12</RowIndex>
+          <ParameterName>OtherBackOrdersLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>13</RowIndex>
+          <ParameterName>ItemNoCaptionLbl</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>14</RowIndex>
+          <ParameterName>No_ItemCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>15</RowIndex>
+          <ParameterName>Description_ItemCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>16</RowIndex>
+          <ParameterName>DocumentNo_SalesLineCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>17</RowIndex>
+          <ParameterName>CustName_SalesLineCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>18</RowIndex>
+          <ParameterName>CustPhoneNo_SalesLineCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>19</RowIndex>
+          <ParameterName>Quantity_SalesLineCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>20</RowIndex>
           <ParameterName>OutstandingQty_SalesLineCaption</ParameterName>
         </CellDefinition>
       </CellDefinitions>
@@ -1348,14 +1586,20 @@ End Function
         <Field Name="ItemTableCaptItemFilter">
           <DataField>ItemTableCaptItemFilter</DataField>
         </Field>
-        <Field Name="ItemFilter">
-          <DataField>ItemFilter</DataField>
-        </Field>
         <Field Name="StrSubStNoSalesLineFltr">
           <DataField>StrSubStNoSalesLineFltr</DataField>
         </Field>
+        <Field Name="ItemFilter">
+          <DataField>ItemFilter</DataField>
+        </Field>
+        <Field Name="ItemFilterTxt">
+          <DataField>ItemFilterTxt</DataField>
+        </Field>
         <Field Name="SalesLineFilter">
           <DataField>SalesLineFilter</DataField>
+        </Field>
+        <Field Name="SalesLineFilterTxt">
+          <DataField>SalesLineFilterTxt</DataField>
         </Field>
         <Field Name="No_Item">
           <DataField>No_Item</DataField>
@@ -1399,11 +1643,11 @@ End Function
         <Field Name="DocumentNo_SalesLine">
           <DataField>DocumentNo_SalesLine</DataField>
         </Field>
-        <Field Name="CustName">
-          <DataField>CustName</DataField>
+        <Field Name="CustName_SalesLine">
+          <DataField>CustName_SalesLine</DataField>
         </Field>
-        <Field Name="CustPhoneNo">
-          <DataField>CustPhoneNo</DataField>
+        <Field Name="CustPhoneNo_SalesLine">
+          <DataField>CustPhoneNo_SalesLine</DataField>
         </Field>
         <Field Name="ShipmentDate_SalesLine">
           <DataField>ShipmentDate_SalesLine</DataField>
@@ -1420,8 +1664,14 @@ End Function
         <Field Name="OutstandingQty_SalesLineFormat">
           <DataField>OutstandingQty_SalesLineFormat</DataField>
         </Field>
-        <Field Name="OtherBackOrders">
-          <DataField>OtherBackOrders</DataField>
+        <Field Name="OtherBackOrders_SalesLine">
+          <DataField>OtherBackOrders_SalesLine</DataField>
+        </Field>
+        <Field Name="SubTotals_Outstanding_Qty">
+          <DataField>SubTotals_Outstanding_Qty</DataField>
+        </Field>
+        <Field Name="SubTotals_Outstanding_QtyFormat">
+          <DataField>SubTotals_Outstanding_QtyFormat</DataField>
         </Field>
       </Fields>
       <Query>

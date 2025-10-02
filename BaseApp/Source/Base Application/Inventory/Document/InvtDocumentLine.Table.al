@@ -372,7 +372,8 @@ table 5851 "Invt. Document Line"
         }
         field(72; "Unit Cost (ACY)"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
+            AutoFormatType = 2;
             Caption = 'Unit Cost (ACY)';
             Editable = false;
         }
@@ -406,6 +407,9 @@ table 5851 "Invt. Document Line"
                     ItemVariant.Get("Item No.", "Variant Code");
                     ItemVariant.TestField(Blocked, false);
                     Description := ItemVariant.Description;
+                end else begin
+                    GetItem();
+                    Rec.Validate(Description, Item.Description);
                 end;
 
                 if "Variant Code" <> xRec."Variant Code" then begin
@@ -663,6 +667,7 @@ table 5851 "Invt. Document Line"
         }
         field(5813; "Amount (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Amount (ACY)';
         }
@@ -765,6 +770,19 @@ table 5851 "Invt. Document Line"
         UseItemTrackingLinesErr: Label 'You must use page Item Tracking Lines to enter %1, if item tracking is used.', Comment = '%1 - field caption';
         CannotReserveAutomaticallyErr: Label 'Quantity %1 in line %2 cannot be reserved automatically.', Comment = '%1 - quantity, %2 - line number';
         DocumentLineTxt: Label '%1 %2 %3', Locked = true;
+
+    protected var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GeneralLedgerSetupRead: Boolean;
+
+    local procedure GetAdditionalReportingCurrencyCode(): Code[10]
+    begin
+        if not GeneralLedgerSetupRead then begin
+            GeneralLedgerSetup.Get();
+            GeneralLedgerSetupRead := true;
+        end;
+        exit(GeneralLedgerSetup."Additional Reporting Currency")
+    end;
 
     procedure SuppressRecalculateDimensions(RecalculateDimensions: Boolean)
     begin
@@ -1233,4 +1251,3 @@ table 5851 "Invt. Document Line"
     begin
     end;
 }
-

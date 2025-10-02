@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN27
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -15,6 +16,9 @@ report 12155 "Subcontr. Dispatching List"
     ApplicationArea = Basic, Suite;
     Caption = 'Subcontractor - Dispatch List IT';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+    ObsoleteState = Pending;
+    ObsoleteTag = '27.0';
 
     dataset
     {
@@ -364,4 +368,4 @@ report 12155 "Subcontr. Dispatching List"
         Expected_Qty___Base______Qty__transf__to_Subcontractor______Qty__in_Transit__Base__CaptionLbl: Label 'Qty to ship';
         UoMCaption_Control1130544Lbl: Label 'UoM';
 }
-
+#endif

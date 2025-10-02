@@ -688,7 +688,13 @@ table 5740 "Transfer Header"
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = "User Setup";
         }
-        field(12100; "Package Tracking No."; Text[30])
+#if not CLEAN27
+#pragma warning disable AS0086
+#endif
+        field(12100; "Package Tracking No."; Text[50])
+#if not CLEAN27
+#pragma warning restore AS0086
+#endif
         {
             Caption = 'Package Tracking No.';
         }
@@ -1635,10 +1641,6 @@ table 5740 "Transfer Header"
     var
         TransferHeader: Record "Transfer Header";
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        DefaultNoSeriesCode: Code[20];
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1646,22 +1648,6 @@ table 5740 "Transfer Header"
         if not IsHandled then
             if "No." = '' then begin
                 TestNoSeries();
-#if not CLEAN24
-                DefaultNoSeriesCode := GetNoSeriesCode();
-                NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(DefaultNoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
-                if not IsHandled then begin
-                    if NoSeries.AreRelated(DefaultNoSeriesCode, xRec."No. Series") then
-                        "No. Series" := xRec."No. Series"
-                    else
-                        "No. Series" := DefaultNoSeriesCode;
-                    "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-                    TransferHeader.ReadIsolation(IsolationLevel::ReadUncommitted);
-                    TransferHeader.SetLoadFields("No.");
-                    while TransferHeader.Get("No.") do
-                        "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-                    NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", DefaultNoSeriesCode, "Posting Date", "No.");
-                end;
-#else
                 if NoSeries.AreRelated(GetNoSeriesCode(), xRec."No. Series") then
                     "No. Series" := xRec."No. Series"
                 else
@@ -1671,7 +1657,6 @@ table 5740 "Transfer Header"
                 TransferHeader.SetLoadFields("No.");
                 while TransferHeader.Get("No.") do
                     "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-#endif
             end;
 
         OnInitInsertOnBeforeInitRecord(xRec);
@@ -1729,23 +1714,28 @@ table 5740 "Transfer Header"
 
     internal procedure GetQtyReservedFromStockState() Result: Enum "Reservation From Stock"
     var
-        TransferLineLocal: Record "Transfer Line";
         TransferLineReserve: Codeunit "Transfer Line-Reserve";
         QtyReservedFromStock: Decimal;
     begin
         QtyReservedFromStock := TransferLineReserve.GetReservedQtyFromInventory(Rec);
+        if QtyReservedFromStock = 0 then
+            exit(Result::None);
 
-        TransferLineLocal.SetRange("Document No.", Rec."No.");
-        TransferLineLocal.CalcSums("Outstanding Qty. (Base)");
+        if QtyReservedFromStock = CalculateReservableOutstandingQuantityBase() then
+            exit(Result::Full);
 
-        case QtyReservedFromStock of
-            0:
-                exit(Result::None);
-            TransferLineLocal."Outstanding Qty. (Base)":
-                exit(Result::Full);
-            else
-                exit(Result::Partial);
-        end;
+        exit(Result::Partial);
+    end;
+
+    local procedure CalculateReservableOutstandingQuantityBase() OutstandingQtyBase: Decimal
+    var
+        RemQtyBaseInvtItemTransferLine: Query RemQtyBaseInvtItemTransferLine;
+    begin
+        RemQtyBaseInvtItemTransferLine.SetTransferLineFilter(Rec);
+        if RemQtyBaseInvtItemTransferLine.Open() then
+            if RemQtyBaseInvtItemTransferLine.Read() then
+                OutstandingQtyBase := RemQtyBaseInvtItemTransferLine.Outstanding_Qty___Base_;
+        RemQtyBaseInvtItemTransferLine.Close();
     end;
 
     local procedure FindPurchRcptHeader(var PurchRcptHeader: Record "Purch. Rcpt. Header")
@@ -2018,4 +2008,3 @@ table 5740 "Transfer Header"
     begin
     end;
 }
-

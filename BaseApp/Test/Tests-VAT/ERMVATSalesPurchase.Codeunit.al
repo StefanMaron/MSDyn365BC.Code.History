@@ -2831,10 +2831,10 @@
 
         ExternaDocNo := GenJournalLine."External Document No.";
 
-        // [WHEN] Recurring Journal got posted 
+        // [WHEN] Recurring Journal got posted
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
-        // [THEN] Two VAT Entries are created (one recurring line with VAT Reporting Date = VAT Date, one allocation line wiyth VAT Reporrting Date = Posting Date + 1)  
+        // [THEN] Two VAT Entries are created (one recurring line with VAT Reporting Date = VAT Date, one allocation line wiyth VAT Reporrting Date = Posting Date + 1)
         VerifyVATDateRecurringJournal(ExternaDocNo, GenJournalLine."Posting Date", VATDate);
     end;
 
@@ -3381,42 +3381,6 @@
         SalesOrder.SalesLines."Unit Price".SetValue(LibraryRandom.RandDec(100, 2));
         SalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
         exit(SalesOrder.SalesLines."No.".Value);
-    end;
-
-    local procedure CreateAndPostSalesDoc(VATDate: Date; DocType: Enum "Gen. Journal Document Type"): Code[20]
-    var
-        SalesLine: Record "Sales Line";
-        SalesHeader: Record "Sales Header";
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
-        SalesHeader.Validate("Document Date", CalcDate(Format(-LibraryRandom.RandIntInRange(50, 100)) + '<D>', WorkDate()));
-        if VATDate <> 0D then
-            SalesHeader.Validate("VAT Reporting Date", VATDate)
-        else
-            SalesHeader.Validate("VAT Reporting Date");
-        SalesHeader.Modify(true);
-        CreateSalesLine(SalesLine, SalesHeader, VATPostingSetup);
-        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-    end;
-
-    local procedure CreateAndPostPurchDoc(VATDate: Date; DocType: Enum "Gen. Journal Document Type"): Code[20]
-    var
-        PurchaseLine: Record "Purchase Line";
-        PurchaseHeader: Record "Purchase Header";
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
-        PurchaseHeader.Validate("Document Date", CalcDate(Format(-LibraryRandom.RandIntInRange(50, 100)) + '<D>', WorkDate()));
-        if VATDate <> 0D then
-            PurchaseHeader.Validate("VAT Reporting Date", VATDate)
-        else
-            PurchaseHeader.Validate("VAT Reporting Date");
-        PurchaseHeader.Modify(true);
-        CreatePurchaseLine(PurchaseLine, PurchaseHeader, VATPostingSetup);
-        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
     local procedure CreateAndPostSalesInvoiceWithPaymentTermCode(VATPostingSetup: Record "VAT Posting Setup"; CustomerNo: Code[20]): Code[20]

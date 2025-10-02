@@ -61,7 +61,7 @@ codeunit 5802 "Inventory Posting To G/L"
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         DimMgt: Codeunit DimensionManagement;
-        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
+        CostCalcMgt: Codeunit "Cost Calculation Management";
         COGSAmt: Decimal;
         InvtAdjmtAmt: Decimal;
         DirCostAmt: Decimal;
@@ -358,7 +358,7 @@ codeunit 5802 "Inventory Posting To G/L"
                 end;
             ValueEntry."Entry Type"::"Direct Cost - Non Inventory":
                 if (CostToPost <> 0) or (CostToPostACY <> 0) then
-                    if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+                    if CostCalcMgt.CanIncNonInvCostIntoProductionItem() then
                         InitInvtPostBuf(
                           ValueEntry,
                           TempGlobalInvtPostingBuffer."Account Type"::Inventory,
@@ -379,7 +379,7 @@ codeunit 5802 "Inventory Posting To G/L"
                           TempGlobalInvtPostingBuffer."Account Type"::"Material Variance",
                           CostToPost, CostToPostACY, false);
                     ValueEntry."Variance Type"::"Material - Non Inventory":
-                        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+                        if CostCalcMgt.CanIncNonInvCostIntoProductionItem() then
                             InitInvtPostBuf(
                               ValueEntry,
                               TempGlobalInvtPostingBuffer."Account Type"::Inventory,

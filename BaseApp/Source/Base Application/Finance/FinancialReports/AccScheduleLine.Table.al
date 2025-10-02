@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.FinancialReports;
 
 using Microsoft.CashFlow.Account;
@@ -60,12 +64,28 @@ table 85 "Acc. Schedule Line"
             end;
 
             trigger OnValidate()
+            var
+                GLAccCategory: Record "G/L Account Category";
             begin
                 case "Totaling Type" of
                     "Totaling Type"::"Posting Accounts", "Totaling Type"::"Total Accounts":
                         begin
                             GLAcc.SetFilter("No.", Totaling);
                             GLAcc.CalcFields(Balance);
+                            if GLAcc.Count() = 1 then begin
+                                GLAcc.FindFirst();
+                                "Row No." := "Row No." = '' ? CopyStr(GLAcc."No.", 1, MaxStrLen("Row No.")) : "Row No.";
+                                Description := Description = '' ? GLAcc.Name : Description;
+                            end;
+                        end;
+                    "Totaling Type"::"Account Category":
+                        begin
+                            GLAccCategory.SetFilter("Entry No.", Totaling);
+                            if GLAccCategory.Count() = 1 then begin
+                                GLAccCategory.FindFirst();
+                                "Row No." := "Row No." = '' ? CopyStr(Format(GLAccCategory."Entry No."), 1, MaxStrLen("Row No.")) : "Row No.";
+                                Description := Description = '' ? GLAccCategory.Description : Description;
+                            end;
                         end;
                     "Totaling Type"::Formula, "Totaling Type"::"Set Base For Percent":
                         begin
@@ -76,11 +96,21 @@ table 85 "Acc. Schedule Line"
                         begin
                             CostType.SetFilter("No.", Totaling);
                             CostType.CalcFields(Balance);
+                            if CostType.Count() = 1 then begin
+                                CostType.FindFirst();
+                                "Row No." := "Row No." = '' ? CopyStr(CostType."No.", 1, MaxStrLen("Row No.")) : "Row No.";
+                                Description := Description = '' ? CostType.Name : Description;
+                            end;
                         end;
                     "Totaling Type"::"Cash Flow Entry Accounts", "Totaling Type"::"Cash Flow Total Accounts":
                         begin
                             CFAccount.SetFilter("No.", Totaling);
                             CFAccount.CalcFields(Amount);
+                            if CFAccount.Count() = 1 then begin
+                                CFAccount.FindFirst();
+                                "Row No." := "Row No." = '' ? CopyStr(CFAccount."No.", 1, MaxStrLen("Row No.")) : "Row No.";
+                                Description := Description = '' ? CFAccount.Name : Description;
+                            end;
                         end;
                 end;
             end;

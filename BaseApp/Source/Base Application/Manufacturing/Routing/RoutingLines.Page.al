@@ -5,7 +5,9 @@
 namespace Microsoft.Manufacturing.Routing;
 
 using Microsoft.Manufacturing.Capacity;
+#if not CLEAN27
 using Microsoft.Manufacturing.Document;
+#endif
 
 page 99000765 "Routing Lines"
 {
@@ -157,11 +159,16 @@ page 99000765 "Routing Lines"
                     ToolTip = 'Specifies the number of items that are included in the same operation at the same time. The run time on routing lines is reduced proportionally to the lot size. For example, if the lot size is two pieces, the run time will be reduced by half.';
                     Visible = false;
                 }
+#if not CLEAN27
                 field("WIP Item"; Rec."WIP Item")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies if the item is a work in process (WIP) item.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif
             }
         }
     }
@@ -225,18 +232,23 @@ page 99000765 "Routing Lines"
                         ShowQualityMeasures();
                     end;
                 }
+#if not CLEAN27
                 action("Subcontracting Prices")
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Subcontracting Prices';
                     Image = Price;
                     ToolTip = 'View the related subcontracting prices.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
 
                     trigger OnAction()
                     begin
                         ShowSubcPrices();
                     end;
                 }
+#endif
             }
         }
     }
@@ -299,6 +311,8 @@ page 99000765 "Routing Lines"
         PAGE.Run(PAGE::"Routing Quality Measures", RtngQltyMeasure);
     end;
 
+#if not CLEAN27
+    [Obsolete('Preparation for replacement by Subcontracting app', '27.0')]
     [Scope('OnPrem')]
     procedure ShowSubcPrices()
     var
@@ -313,6 +327,7 @@ page 99000765 "Routing Lines"
 
         PAGE.Run(PAGE::"Subcontracting Prices", SubcPrice);
     end;
+#endif
 
     local procedure SetEditable()
     begin

@@ -4,12 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.BOM;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.BOM.Tree;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
-using Microsoft.Manufacturing.Document;
 
 page 5870 "BOM Structure"
 {
@@ -313,8 +311,7 @@ page 5870 "BOM Structure"
 
     var
         Item: Record Item;
-        AssemblyHeader: Record "Assembly Header";
-        ProdOrderLine: Record "Prod. Order Line";
+        SourceRecordVar: Variant;
         IsParentExpr: Boolean;
         HasWarning: Boolean;
         CouldNotFindBOMLevelsErr: Label 'Could not find items with BOM levels.';
@@ -333,34 +330,52 @@ page 5870 "BOM Structure"
         ShowBy := ShowBy::Item;
     end;
 
-    procedure InitAsmOrder(NewAsmHeader: Record "Assembly Header")
+    procedure InitSource(NewSourceRecordVar: Variant; NewShowBy: Enum "BOM Structure Show By")
     begin
-        AssemblyHeader := NewAsmHeader;
+        SourceRecordVar := NewSourceRecordVar;
+        ShowBy := NewShowBy;
+    end;
+
+#if not CLEAN27
+    [Obsolete('Replaced by procedure InitSource()', '27.0')]
+    procedure InitAsmOrder(NewAsmHeader: Record Microsoft.Assembly.Document."Assembly Header")
+    begin
+        SourceRecordVar := NewAsmHeader;
         ShowBy := ShowBy::Assembly;
     end;
+#endif
 
-    procedure InitProdOrder(NewProdOrderLine: Record "Prod. Order Line")
+#if not CLEAN27
+    [Obsolete('Replaced by procedure InitSource()', '27.0')]
+    procedure InitProdOrder(NewProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
     begin
-        ProdOrderLine := NewProdOrderLine;
+        SourceRecordVar := NewProdOrderLine;
         ShowBy := ShowBy::Production;
     end;
+#endif
 
     procedure RefreshPage()
-    begin
-        GenerateBOMTree();
-
-        CurrPage.Update(false);
-    end;
-
-    local procedure GenerateBOMTree()
     var
+#if not CLEAN27
+        AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header";
+        ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line";
+#endif
         CalculateBOMTree: Codeunit "Calculate BOM Tree";
         RaiseError: Boolean;
         ErrorText: Text;
         IsHandled: Boolean;
     begin
         IsHandled := false;
+#if not CLEAN27
+        case ShowBy of
+            ShowBy::Assembly:
+                AssemblyHeader := SourceRecordVar;
+            ShowBy::Production:
+                ProdOrderLine := SourceRecordVar;
+        end;
         OnBeforeGenerateBOMTree(Rec, Item, AssemblyHeader, ProdOrderLine, ShowBy.AsInteger(), ItemFilter, IsHandled);
+#endif
+        OnBeforeRefreshPage(Rec, Item, SourceRecordVar, ShowBy, ItemFilter, IsHandled);
         if IsHandled then
             exit;
 
@@ -371,17 +386,15 @@ page 5870 "BOM Structure"
             ShowBy::Item:
                 begin
                     Item.FindFirst();
-                    RaiseError := (not Item.HasBOM()) and (Item."Routing No." = '');
+                    RaiseError := (not Item.HasBOM()) and (not Item.HasRoutingNo());
                     ErrorText := CouldNotFindBOMLevelsErr;
                     OnRefreshPageOnBeforeRaiseError(Item, RaiseError, ErrorText);
                     if RaiseError then
                         Error(ErrorText);
-                    CalculateBOMTree.GenerateTreeForItems(Item, Rec, 0);
+                    CalculateBOMTree.GenerateTreeForManyItems(Item, Rec, "BOM Tree Type"::" ");
                 end;
-            ShowBy::Production:
-                CalculateBOMTree.GenerateTreeForProdLine(ProdOrderLine, Rec, 0);
-            ShowBy::Assembly:
-                CalculateBOMTree.GenerateTreeForAsm(AssemblyHeader, Rec, 0);
+            else
+                CalculateBOMTree.GenerateTreeForSource(SourceRecordVar, Rec, "BOM Tree Type"::" ", ShowBy, WorkDate());
         end;
     end;
 
@@ -422,8 +435,16 @@ page 5870 "BOM Structure"
         ItemAvailabilityFormsMgt.ShowItemAvailabilityFromItem(ItemForShowAvailability, AvailType);
     end;
 
+#if not CLEAN27
+    [Obsolete('Replaced by event OnBeforeRefreshPage', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGenerateBOMTree(var BOMBuffer: Record "BOM Buffer"; var Item: Record Item; var AsmHeader: Record "Assembly Header"; var ProdOrderLine: Record "Prod. Order Line"; ShowBy: Integer; ItemFilter: Code[250]; var IsHandled: Boolean)
+    local procedure OnBeforeGenerateBOMTree(var BOMBuffer: Record "BOM Buffer"; var Item: Record Item; var AsmHeader: Record Microsoft.Assembly.Document."Assembly Header"; var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; ShowBy: Integer; ItemFilter: Code[250]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRefreshPage(var BOMBuffer: Record "BOM Buffer"; var Item: Record Item; var SourceRecordVar: Variant; ShowBy: Enum "BOM Structure Show By"; ItemFilter: Code[250]; var IsHandled: Boolean)
     begin
     end;
 

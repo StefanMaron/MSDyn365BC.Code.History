@@ -5,12 +5,16 @@
 namespace Microsoft.Manufacturing.Setup;
 
 using Microsoft.Finance.GeneralLedger.Setup;
+#if not CLEAN27
 using Microsoft.Foundation.Calendar;
+#endif
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.BOM.Tree;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
+#if not CLEAN27
 using Microsoft.Inventory.Setup;
+#endif
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Forecast;
 using Microsoft.Manufacturing.MachineCenter;
@@ -24,6 +28,8 @@ table 99000765 "Manufacturing Setup"
     DataClassification = CustomerContent;
     DrillDownPageID = "Manufacturing Setup";
     LookupPageID = "Manufacturing Setup";
+    InherentEntitlements = R;
+    InherentPermissions = r;
 
     fields
     {
@@ -114,20 +120,52 @@ table 99000765 "Manufacturing Setup"
         {
             Caption = 'Current Demand Forecast';
             TableRelation = "Production Forecast Name".Name;
+            ObsoleteReason = 'Field moved to same field in table Inventory Setup';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(36; "Use Forecast on Variants"; Boolean)
         {
             Caption = 'Use forecast on variants';
+            ObsoleteReason = 'Field moved to same field in table Inventory Setup';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(37; "Use Forecast on Locations"; Boolean)
         {
             Caption = 'Use forecast on locations';
+            ObsoleteReason = 'Field moved to same field in table Inventory Setup';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(38; "Combined MPS/MRP Calculation"; Boolean)
         {
             AccessByPermission = TableData "Planning Component" = R;
             Caption = 'Combined MPS/MRP Calculation';
             InitValue = true;
+            ObsoleteReason = 'Field moved to same field in table Inventory Setup';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(39; "Components at Location"; Code[10])
         {
@@ -137,34 +175,75 @@ table 99000765 "Manufacturing Setup"
         field(40; "Default Dampener Period"; DateFormula)
         {
             Caption = 'Default Dampener Period';
-
+            ObsoleteReason = 'Field moved to same field in table Inventory Setup';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
+#if not CLEAN27
             trigger OnValidate()
             var
                 CalendarMgt: Codeunit "Calendar Management";
             begin
                 CalendarMgt.CheckDateFormulaPositive("Default Dampener Period");
             end;
+#endif
         }
         field(41; "Default Dampener %"; Decimal)
         {
             Caption = 'Default Dampener %';
             DecimalPlaces = 1 : 1;
             MinValue = 0;
+            ObsoleteReason = 'Field moved to same field in table Inventory Setup';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(42; "Default Safety Lead Time"; DateFormula)
         {
             Caption = 'Default Safety Lead Time';
+            ObsoleteReason = 'Field moved to same field in table Inventory Setup';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(43; "Blank Overflow Level"; Option)
         {
             Caption = 'Blank Overflow Level';
             OptionCaption = 'Allow Default Calculation,Use Item/SKU Values Only';
             OptionMembers = "Allow Default Calculation","Use Item/SKU Values Only";
+            ObsoleteReason = 'Field moved to same field in table Inventory Setup';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(50; "Show Capacity In"; Code[10])
         {
             Caption = 'Show Capacity In';
             TableRelation = "Capacity Unit of Measure".Code;
+        }
+        field(55; "Default Consum. Calc. Based on"; Option)
+        {
+            Caption = 'Default Consumption Calculation Based on';
+            InitValue = "Expected Output";
+            ToolTip = 'Specifies default calculation based on, used for consumption calculation. Whether the calculation of the quantity to consume is based on the actual output or on the expected output (the quantity of finished goods that you expect to produce).';
+            OptionCaption = 'Actual Output,Expected Output';
+            OptionMembers = "Actual Output","Expected Output";
         }
         field(210; "Finish Order without Output"; Boolean)
         {
@@ -231,16 +310,38 @@ table 99000765 "Manufacturing Setup"
             OptionCaption = 'Expected Quantity,Zero on All Operations,Zero on Last Operation';
             OptionMembers = "Expected Quantity","Zero on All Operations","Zero on Last Operation";
         }
+#if not CLEANSCHEMA30
         field(12180; "Subcontr. Ship. Reason Code"; Code[10])
         {
             Caption = 'Subcontr. Ship. Reason Code';
+#if not CLEAN27
             TableRelation = "Transport Reason Code";
+#endif
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12181; "Subcontr. Return Reason Code"; Code[10])
         {
             Caption = 'Subcontr. Return Reason Code';
+#if not CLEAN27
             TableRelation = "Transport Reason Code";
+#endif
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
+#endif
     }
 
     keys

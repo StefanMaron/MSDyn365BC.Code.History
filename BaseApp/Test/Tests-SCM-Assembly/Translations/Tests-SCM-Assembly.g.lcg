@@ -59,15 +59,6 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Assembly Availability II - NamedType CnfmUpdateLocationOnLines)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1436320574 - NamedType 3073924945" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[1D]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Assembly Availability II - NamedType DateFormula1D)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1436320574 - NamedType 2801022353" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Due Date %1 is before Ending Date %2.]]></Val>

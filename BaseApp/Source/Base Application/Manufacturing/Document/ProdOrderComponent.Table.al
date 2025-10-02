@@ -17,13 +17,17 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Tracking;
+#if not CLEAN27
 using Microsoft.Inventory.Transfer;
+#endif
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Purchases.Document;
+#if not CLEAN27
 using Microsoft.Purchases.Vendor;
+#endif
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Structure;
@@ -161,11 +165,13 @@ table 5407 "Prod. Order Component"
             var
                 ProdOrderLine: Record "Prod. Order Line";
                 ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+#if not CLEAN27
                 Vendor: Record Vendor;
                 SKU: Record "Stockkeeping Unit";
                 GetPlanningParameters: Codeunit "Planning-Get Parameters";
                 SubcontractingManagement: Codeunit SubcontractingManagement;
                 ShouldUpdateLocation: Boolean;
+#endif
                 IsHandled: Boolean;
             begin
                 UpdateExpectedQuantity();
@@ -186,6 +192,7 @@ table 5407 "Prod. Order Component"
                         if ProdOrderRoutingLine.FindFirst() then begin
                             "Due Date" := ProdOrderRoutingLine."Starting Date";
                             "Due Time" := ProdOrderRoutingLine."Starting Time";
+#if not CLEAN27
                             if SubcontractorPrices.ReadPermission then
                                 if (ProdOrderRoutingLine.Type = ProdOrderRoutingLine.Type::"Work Center") then
                                     if SubcontractingManagement.GetSubcontractor(ProdOrderRoutingLine."No.", Vendor) then begin
@@ -206,6 +213,7 @@ table 5407 "Prod. Order Component"
                             ProdOrderLine."Variant Code",
                             ProdOrderLine."Location Code");
                             Validate("Location Code", SKU."Components at Location");
+#endif
                         end;
                     end;
                 end;
@@ -657,14 +665,14 @@ table 5407 "Prod. Order Component"
 
             trigger OnValidate()
             var
-                CheckDateConflict: Codeunit "Reservation-Check Date Confl.";
+                MfgReservCheckDateConfl: Codeunit "Mfg. ReservCheckDateConfl";
             begin
                 ProdOrderWarehouseMgt.ProdComponentVerifyChange(Rec, xRec);
                 if not Blocked then
                     if CurrFieldNo <> 0 then
-                        CheckDateConflict.ProdOrderComponentCheck(Rec, true, true)
+                        MfgReservCheckDateConfl.ProdOrderComponentCheck(Rec, true, true)
                     else
-                        if CheckDateConflict.ProdOrderComponentCheck(Rec, not WarningRaised, false) then
+                        if MfgReservCheckDateConfl.ProdOrderComponentCheck(Rec, not WarningRaised, false) then
                             WarningRaised := true;
                 UpdateDatetime();
             end;
@@ -875,6 +883,8 @@ table 5407 "Prod. Order Component"
             Editable = false;
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA30
+#if not CLEAN27
         field(12180; "Qty. transf. to Subcontractor"; Decimal)
         {
             CalcFormula = sum("Item Ledger Entry".Quantity where("Entry Type" = const(Transfer),
@@ -887,6 +897,9 @@ table 5407 "Prod. Order Component"
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
         }
         field(12181; "Qty. in Transit (Base)"; Decimal)
         {
@@ -900,6 +913,9 @@ table 5407 "Prod. Order Component"
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
         }
         field(12182; "Qty. on Transfer Order (Base)"; Decimal)
         {
@@ -913,19 +929,40 @@ table 5407 "Prod. Order Component"
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
         }
+#endif
         field(12183; "Purchase Order Filter"; Code[20])
         {
             Caption = 'Purchase Order Filter';
             FieldClass = FlowFilter;
             TableRelation = "Purchase Header"."No." where("Document Type" = const(Order),
                                                            "Subcontracting Order" = const(true));
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12185; "Original Location"; Code[10])
         {
             Caption = 'Original Location';
             TableRelation = Location;
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
+#endif
         field(99000754; "Direct Unit Cost"; Decimal)
         {
             Caption = 'Direct Unit Cost';
@@ -1037,11 +1074,12 @@ table 5407 "Prod. Order Component"
             if not ItemLedgEntry.IsEmpty() then
                 Error(Text99000000, "Item No.", "Line No.");
 
+#if not CLEAN27
             CalcFields("Qty. transf. to Subcontractor", "Qty. on Transfer Order (Base)", "Qty. in Transit (Base)");
             TestField("Qty. transf. to Subcontractor", 0);
             TestField("Qty. in Transit (Base)", 0);
-            TestField("Qty. on Transfer Order (Base)", 0);                
-
+            TestField("Qty. on Transfer Order (Base)", 0);
+#endif
             ConfirmDeletion();
         end;
 
@@ -1144,7 +1182,9 @@ table 5407 "Prod. Order Component"
         ConfirmDeleteQst: Label '%1 = %2 is greater than %3 = %4. If you delete the %5, the items will remain in the operation area until you put them away.\Any related item tracking information defined during the pick process will be deleted.\Do you still want to delete the %5?', Comment = '%1 = FieldCaption("Qty. Picked"), %2 = "Qty. Picked", %3 = Qty. Posted, %4 = ("Expected Quantity" - "Remaining Quantity"), %5 = TableCaption';
         IgnoreErrors: Boolean;
         ErrorOccured: Boolean;
+#if not CLEAN27
         SubcontractorPrices: Record "Subcontractor Prices";
+#endif
         WarningRaised: Boolean;
         CalledFromHeader: Boolean;
 
@@ -1544,14 +1584,12 @@ table 5407 "Prod. Order Component"
     local procedure RoundExpectedQuantity()
     var
         IsHandled: Boolean;
-        QtyBeforeRounding: Decimal;
     begin
         IsHandled := false;
         OnBeforeRoundExpectedQuantity(Rec, IsHandled);
         if IsHandled then
             exit;
 
-        QtyBeforeRounding := "Expected Quantity";
         "Expected Quantity" := UOMMgt.RoundToItemRndPrecision("Expected Quantity", Item."Rounding Precision");
 
         OnAfterRoundExpectedQuantity(Rec);
@@ -2431,10 +2469,13 @@ table 5407 "Prod. Order Component"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('Preparation for replacement by Subcontracting app', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnValidateRoutingLinkCodeOnAfterShouldUpdateLocation(var ProdOrderComponent: Record "Prod. Order Component"; var PlanningGetParameters: Codeunit "Planning-Get Parameters"; var StockkeepingUnit: Record "Stockkeeping Unit"; var ProdOrderLine: Record "Prod. Order Line"; var ShouldUpdateLocation: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowItemSub(var ProdOrderComponent: Record "Prod. Order Component"; var IsHandled: Boolean)
@@ -2501,10 +2542,13 @@ table 5407 "Prod. Order Component"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('Replacec by Subcontracting app', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnValidateRoutingLinkCodeOnBeforeSubcontractorProcurementCheck(var ProdOrderComponent: Record "Prod. Order Component"; Vendor: Record Vendor; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateRoutingLinkCodeOnBeforeUpdateDueDateAndTime(var ProdOrderComponent: Record "Prod. Order Component"; var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean)

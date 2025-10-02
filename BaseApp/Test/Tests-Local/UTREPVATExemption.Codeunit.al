@@ -704,28 +704,6 @@ codeunit 144073 "UT REP VAT Exemption"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreateSalesCreditMemoHeader(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; CurrencyCode: Code[10]; YourReference: Text[35]; VATRegistrationNo: Code[20])
-    begin
-        SalesCrMemoHeader."No." := LibraryUTUtility.GetNewCode();
-        SalesCrMemoHeader."Sell-to Customer No." := CreateCustomer();
-        SalesCrMemoHeader."Bill-to Customer No." := SalesCrMemoHeader."Sell-to Customer No.";
-        SalesCrMemoHeader."Document Date" := WorkDate();
-        SalesCrMemoHeader."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup();
-        SalesCrMemoHeader."Currency Code" := CurrencyCode;
-        SalesCrMemoHeader."Your Reference" := YourReference;
-        SalesCrMemoHeader."VAT Registration No." := VATRegistrationNo;
-        SalesCrMemoHeader.Insert();
-    end;
-
-    local procedure CreateSalesCreditMemoLine(DocumentNo: Code[20])
-    var
-        SalesCrMemoLine: Record "Sales Cr.Memo Line";
-    begin
-        SalesCrMemoLine."Document No." := DocumentNo;
-        SalesCrMemoLine.Description := LibraryUTUtility.GetNewCode();
-        SalesCrMemoLine.Insert();
-    end;
-
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header")
     begin
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
@@ -734,29 +712,6 @@ codeunit 144073 "UT REP VAT Exemption"
         SalesHeader."Bill-to Customer No." := CreateCustomer();
         SalesHeader."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup();
         SalesHeader.Insert();
-    end;
-
-    local procedure CreateSalesInvoiceHeader(var SalesInvoiceHeader: Record "Sales Invoice Header"; CurrencyCode: Code[10]; YourReference: Text[35]; VATRegistrationNo: Code[20])
-    begin
-        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode();
-        SalesInvoiceHeader."Sell-to Customer No." := CreateCustomer();
-        SalesInvoiceHeader."Bill-to Customer No." := SalesInvoiceHeader."Sell-to Customer No.";
-        SalesInvoiceHeader."Document Date" := WorkDate();
-        SalesInvoiceHeader."Posting Date" := WorkDate();
-        SalesInvoiceHeader."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup();
-        SalesInvoiceHeader."Currency Code" := CurrencyCode;
-        SalesInvoiceHeader."Your Reference" := YourReference;
-        SalesInvoiceHeader."VAT Registration No." := VATRegistrationNo;
-        SalesInvoiceHeader.Insert();
-    end;
-
-    local procedure CreateSalesInvoiceLine(DocumentNo: Code[20])
-    var
-        SalesInvoiceLine: Record "Sales Invoice Line";
-    begin
-        SalesInvoiceLine."Document No." := DocumentNo;
-        SalesInvoiceLine.Description := LibraryUTUtility.GetNewCode();
-        SalesInvoiceLine.Insert();
     end;
 
     local procedure CreateSalesLine(DocumentNo: Code[20])
@@ -1100,4 +1055,3 @@ codeunit 144073 "UT REP VAT Exemption"
         Reply := true;
     end;
 }
-

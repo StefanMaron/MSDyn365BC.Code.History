@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN27
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -18,6 +19,9 @@ page 35491 "Subcontracting Transfer List"
     SourceTableView = sorting("No.")
                       where("Subcontracting Order" = const(true));
     UsageCategory = Lists;
+    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+    ObsoleteState = Pending;
+    ObsoleteTag = '27.0';
 
     layout
     {
@@ -112,4 +116,4 @@ page 35491 "Subcontracting Transfer List"
     var
         DimMgt: Codeunit DimensionManagement;
 }
-
+#endif

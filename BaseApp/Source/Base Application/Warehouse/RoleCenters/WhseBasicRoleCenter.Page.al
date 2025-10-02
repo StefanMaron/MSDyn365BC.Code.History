@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Warehouse.RoleCenters;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Warehouse.RoleCenters;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Assembly.History;
@@ -165,13 +169,18 @@ page 9008 "Whse. Basic Role Center"
                 RunObject = Page "Transfer Orders";
                 ToolTip = 'Move inventory items between company locations. With transfer orders, you ship the outbound transfer from one location and receive the inbound transfer at the other location. This allows you to manage the involved warehouse activities and provides more certainty that inventory quantities are updated correctly.';
             }
+#if not CLEAN27
             action("Subcontracting Transfers")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Subcontracting Transfers';
                 RunObject = Page "Subcontracting Transfer List";
                 ToolTip = 'View the list of subcontracting transfers.';
+                ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
             }
+#endif
             action(AssemblyOrders)
             {
                 ApplicationArea = Assembly;

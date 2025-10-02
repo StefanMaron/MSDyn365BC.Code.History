@@ -3,6 +3,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Setup;
+using System.DataAdministration;
 
 page 99000768 "Manufacturing Setup"
 {
@@ -36,6 +37,10 @@ page 99000768 "Manufacturing Setup"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies what to show in the Output Quantity field of a production journal when it is first opened.';
+                }
+                field("Default Consum. Calc. Based on"; Rec."Default Consum. Calc. Based on")
+                {
+                    ApplicationArea = Manufacturing, Planning;
                 }
                 field("Show Capacity In"; Rec."Show Capacity In")
                 {
@@ -131,51 +136,95 @@ page 99000768 "Manufacturing Setup"
             group(Planning)
             {
                 Caption = 'Planning';
+#if not CLEAN27
                 field("Current Production Forecast"; Rec."Current Production Forecast")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the name of the relevant demand forecast to use to calculate a plan.';
+                    ToolTip = 'Specifies the name of the relevant demand forecast to use to calculate a plan. Use Inventory Setup page to change this field.';
+                    ObsoleteReason = 'Moved to page Inventory Setup';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
+                    Editable = false;
+                    Visible = false;
                 }
                 field("Use Forecast on Locations"; Rec."Use Forecast on Locations")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies that actual demand for the selected demand forecast is nettet for the specified location only. If you leave the check box empty, the program regards the demand forecast as valid for all locations.';
+                    ToolTip = 'Specifies that actual demand for the selected demand forecast is nettet for the specified location only. If you leave the check box empty, the program regards the demand forecast as valid for all locations. Use Inventory Setup page to change this field.';
+                    ObsoleteReason = 'Moved to page Inventory Setup';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
+                    Editable = false;
+                    Visible = false;
                 }
                 field("Use Forecast on Variants"; Rec."Use Forecast on Variants")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies that actual demand for the selected demand forecast is nettet for the specified item variant. If you leave the check box empty, the program regards the demand forecast as valid for all variants.';
+                    ToolTip = 'Specifies that actual demand for the selected demand forecast is nettet for the specified item variant. If you leave the check box empty, the program regards the demand forecast as valid for all variants. Use Inventory Setup page to change this field.';
+                    ObsoleteReason = 'Moved to page Inventory Setup';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
+                    Editable = false;
+                    Visible = false;
                 }
                 field("Default Safety Lead Time"; Rec."Default Safety Lead Time")
                 {
                     ApplicationArea = Manufacturing, Planning;
-                    ToolTip = 'Specifies a time period that is added to the lead time of all items that do not have another value specified in the Safety Lead Time field.';
+                    ToolTip = 'Specifies a time period that is added to the lead time of all items that do not have another value specified in the Safety Lead Time field. Use Inventory Setup page to change this field.';
+                    ObsoleteReason = 'Moved to page Inventory Setup';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
+                    Editable = false;
+                    Visible = false;
                 }
                 field("Blank Overflow Level"; Rec."Blank Overflow Level")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies how the planning system should react if the Overflow Level field on the item or SKU card is empty.';
+                    ToolTip = 'Specifies how the planning system should react if the Overflow Level field on the item or SKU card is empty. Use Inventory Setup page to change this field.';
+                    ObsoleteReason = 'Moved to page Inventory Setup';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
+                    Editable = false;
+                    Visible = false;
                 }
                 field("Combined MPS/MRP Calculation"; Rec."Combined MPS/MRP Calculation")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies if both master production schedule and material requirements plan are run when you choose the Calc. Regenerative Plan action in the planning worksheet.';
+                    ToolTip = 'Specifies if both master production schedule and material requirements plan are run when you choose the Calc. Regenerative Plan action in the planning worksheet. Use Inventory Setup page to change this field.';
+                    ObsoleteReason = 'Moved to page Inventory Setup';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
+                    Editable = false;
+                    Visible = false;
                 }
+#endif
                 field("Components at Location"; Rec."Components at Location")
                 {
                     ApplicationArea = Manufacturing, Planning;
                     ToolTip = 'Specifies the inventory location from where the production order components are to be taken.';
                 }
+#if not CLEAN27
                 field("Default Dampener Period"; Rec."Default Dampener Period")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies a period of time during which you do not want the planning system to propose to reschedule existing supply order''s forward. This value in this field applies to all items except for items that have a different value in the Dampener Period field on the item card. When a dampener time is set, an order is only rescheduled when the defined dampener time has passed since the order s original due date. Note: The dampener time that is applied to an item can never be higher than the value in the item''s Lot Accumulation Period field. This is because the inventory build-up time that occurs during a dampener period would conflict with the build-up period defined by the item''s lot accumulation period. Accordingly, the default dampener period generally applies to all items. However, if an item''s lot accumulation period is shorter than the default dampener period, then the item''s dampener time equals its lot accumulation period.';
+                    ToolTip = 'Specifies a period of time during which you do not want the planning system to propose to reschedule existing supply order''s forward. This value in this field applies to all items except for items that have a different value in the Dampener Period field on the item card. When a dampener time is set, an order is only rescheduled when the defined dampener time has passed since the order s original due date. Note: The dampener time that is applied to an item can never be higher than the value in the item''s Lot Accumulation Period field. This is because the inventory build-up time that occurs during a dampener period would conflict with the build-up period defined by the item''s lot accumulation period. Accordingly, the default dampener period generally applies to all items. However, if an item''s lot accumulation period is shorter than the default dampener period, then the item''s dampener time equals its lot accumulation period. Use Inventory Setup page to change this field.';
+                    ObsoleteReason = 'Moved to page Inventory Setup';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
+                    Editable = false;
+                    Visible = false;
                 }
                 field("Default Dampener %"; Rec."Default Dampener %")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies a percentage of an item''s lot size by which an existing supply must change before a planning suggestion is made.';
+                    ToolTip = 'Specifies a percentage of an item''s lot size by which an existing supply must change before a planning suggestion is made. Use Inventory Setup page to change this field.';
+                    ObsoleteReason = 'Moved to page Inventory Setup';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
+                    Editable = false;
+                    Visible = false;
                 }
+#endif
                 field("Manual Scheduling"; Rec."Manual Scheduling")
                 {
                     ApplicationArea = Manufacturing;
@@ -185,20 +234,31 @@ page 99000768 "Manufacturing Setup"
                     ApplicationArea = Manufacturing;
                 }
             }
+#if not CLEAN27
             group(Subcontracting)
             {
+                ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
                 Caption = 'Subcontracting';
                 field("Subcontr. Ship. Reason Code"; Rec."Subcontr. Ship. Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reason code for the subcontracting shipment.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Subcontr. Return Reason Code"; Rec."Subcontr. Return Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reason code for the subcontracting return.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
             }
+#endif
         }
         area(factboxes)
         {
@@ -220,12 +280,17 @@ page 99000768 "Manufacturing Setup"
     }
 
     trigger OnOpenPage()
+    var
+        ManufacturingSetupNotif: Codeunit "Manufacturing Setup Notif.";
     begin
         Rec.Reset();
         if not Rec.Get() then begin
             Rec.Init();
             Rec.Insert();
         end;
+
+        ManufacturingSetupNotif.ShowPlanningFieldsMoveNotification();
     end;
+
 }
 

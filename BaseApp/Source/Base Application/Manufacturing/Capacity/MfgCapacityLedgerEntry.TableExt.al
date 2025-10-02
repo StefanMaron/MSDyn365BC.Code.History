@@ -9,8 +9,10 @@ using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Manufacturing.Document;
+#if not CLEAN27
 using Microsoft.Purchases.Vendor;
 using Microsoft.Purchases.Document;
+#endif
 
 tableextension 99000801 "Mfg. Capacity Ledger Entry" extends "Capacity Ledger Entry"
 {
@@ -127,37 +129,79 @@ tableextension 99000801 "Mfg. Capacity Ledger Entry" extends "Capacity Ledger En
             TableRelation = if ("Order Type" = const(Production)) "Prod. Order Line"."Line No." where(Status = filter(Released ..),
                                                                                                      "Prod. Order No." = field("Order No."));
         }
+#if not CLEANSCHEMA30
         field(12180; "WIP Item Qty."; Decimal)
         {
             Caption = 'WIP Item Qty.';
             DataClassification = CustomerContent;
             DecimalPlaces = 0 : 5;
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
+#endif
         field(12181; "Shipping Document No."; Code[20])
         {
             Caption = 'Shipping Document No.';
             DataClassification = CustomerContent;
             Editable = false;
         }
+#if not CLEANSCHEMA30
         field(12182; "Subcontractor No."; Code[20])
         {
             Caption = 'Subcontractor No.';
             DataClassification = CustomerContent;
+#if not CLEAN27
             TableRelation = Vendor;
+#endif
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12183; "Subcontr. Purch. Order No."; Code[20])
         {
             Caption = 'Subcontr. Purch. Order No.';
             DataClassification = CustomerContent;
+#if not CLEAN27
             TableRelation = "Purchase Header"."No." where("Document Type" = const(Order));
+#endif
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12184; "Subcontr. Purch. Order Line"; Integer)
         {
             Caption = 'Subcontr. Purch. Order Line';
             DataClassification = CustomerContent;
+#if not CLEAN27
             TableRelation = "Purchase Line"."Line No." where("Document Type" = const(Order),
                                                               "Document No." = field("Subcontr. Purch. Order No."));
+#endif
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
+#endif
     }
 
     keys
@@ -165,6 +209,7 @@ tableextension 99000801 "Mfg. Capacity Ledger Entry" extends "Capacity Ledger En
         key(Key4; "Work Center No.", "Work Shift Code")
         {
         }
+#if not CLEAN27
         key(Key12180; "Subcontr. Purch. Order No.", "Subcontr. Purch. Order Line")
         {
             SumIndexFields = "WIP Item Qty.";
@@ -172,6 +217,7 @@ tableextension 99000801 "Mfg. Capacity Ledger Entry" extends "Capacity Ledger En
         key(Key12182; "Item No.", "Order Type", "Order No.", "Posting Date", Subcontracting)
         {
         }
+#endif
     }
 
     procedure SetFilterByProdOrderRoutingLine(ProdOrderNo: Code[20]; ProdOrderLineNo: Integer; ProdOrderRoutingNo: Code[20]; ProdOrderRoutingLineNo: Integer)

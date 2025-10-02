@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Warehouse.RoleCenters;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Warehouse.RoleCenters;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Assembly.History;
@@ -268,13 +272,18 @@ page 9000 "Whse. WMS Role Center"
                 RunObject = Page "Phys. Inventory Recording List";
                 ToolTip = 'Prepare to count inventory by creating a recording document to capture the quantities.';
             }
+#if not CLEAN27
             action("Subcontracting Transfers")
             {
                 ApplicationArea = Warehouse;
                 Caption = 'Subcontracting Transfers';
                 RunObject = Page "Subcontracting Transfer List";
                 ToolTip = 'View the list of subcontracting transfers.';
+                ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
             }
+#endif
             action(AssemblyOrders)
             {
                 ApplicationArea = Assembly;

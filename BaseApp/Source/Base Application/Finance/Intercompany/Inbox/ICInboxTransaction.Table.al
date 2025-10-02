@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Intercompany.Inbox;
 
 using Microsoft.Intercompany.Journal;
@@ -25,9 +29,24 @@ table 418 "IC Inbox Transaction"
             Editable = false;
             TableRelation = "IC Partner";
         }
-        field(3; "Source Type"; enum "IC Transaction Source Type")
+#if not CLEANSCHEMA29
+        field(3; "Source Type"; Enum "IC Transaction Source Type")
         {
             Caption = 'Source Type';
+            Editable = false;
+            ObsoleteReason = 'Replaced by IC Source Type for Enum typing';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '29.0';
+#endif
+        }
+#endif
+        field(4; "IC Source Type"; Enum "IC Transaction Source Type")
+        {
+            Caption = 'IC Source Type';
             Editable = false;
         }
         field(5; "Document Type"; Enum "IC Transaction Document Type")
@@ -122,8 +141,8 @@ table 418 "IC Inbox Transaction"
         ICInboxPurchHdr: Record "IC Inbox Purchase Header";
         ICInboxSalesHdr: Record "IC Inbox Sales Header";
     begin
-        case "Source Type" of
-            "Source Type"::Journal:
+        case "IC Source Type" of
+            "IC Source Type"::Journal:
                 begin
                     ICInboxJnlLine.SetRange("Transaction No.", "Transaction No.");
                     ICInboxJnlLine.SetRange("IC Partner Code", "IC Partner Code");
@@ -131,7 +150,7 @@ table 418 "IC Inbox Transaction"
                     if ICInboxJnlLine.FindFirst() then
                         ICInboxJnlLine.DeleteAll(true);
                 end;
-            "Source Type"::"Sales Document":
+            "IC Source Type"::"Sales Document":
                 begin
                     ICInboxSalesHdr.SetRange("IC Transaction No.", "Transaction No.");
                     ICInboxSalesHdr.SetRange("IC Partner Code", "IC Partner Code");
@@ -139,7 +158,7 @@ table 418 "IC Inbox Transaction"
                     if ICInboxSalesHdr.FindFirst() then
                         ICInboxSalesHdr.Delete(true);
                 end;
-            "Source Type"::"Purchase Document":
+            "IC Source Type"::"Purchase Document":
                 begin
                     ICInboxPurchHdr.SetRange("IC Transaction No.", "Transaction No.");
                     ICInboxPurchHdr.SetRange("IC Partner Code", "IC Partner Code");
@@ -172,8 +191,8 @@ table 418 "IC Inbox Transaction"
         IsHandled := false;
         OnBeforeShowDetails(Rec, IsHandled);
         if not IsHandled then
-            case "Source Type" of
-                "Source Type"::Journal:
+            case "IC Source Type" of
+                "IC Source Type"::Journal:
                     begin
                         ICInBoxJnlLine.SetRange("Transaction No.", "Transaction No.");
                         ICInBoxJnlLine.SetRange("IC Partner Code", "IC Partner Code");
@@ -182,7 +201,7 @@ table 418 "IC Inbox Transaction"
                         ICInboxJnlLines.SetTableView(ICInBoxJnlLine);
                         ICInboxJnlLines.RunModal();
                     end;
-                "Source Type"::"Sales Document":
+                "IC Source Type"::"Sales Document":
                     begin
                         ICInboxSalesHeader.SetRange("IC Transaction No.", "Transaction No.");
                         ICInboxSalesHeader.SetRange("IC Partner Code", "IC Partner Code");
@@ -191,7 +210,7 @@ table 418 "IC Inbox Transaction"
                         ICInboxSalesDoc.SetTableView(ICInboxSalesHeader);
                         ICInboxSalesDoc.RunModal();
                     end;
-                "Source Type"::"Purchase Document":
+                "IC Source Type"::"Purchase Document":
                     begin
                         ICInboxPurchHeader.SetRange("IC Partner Code", "IC Partner Code");
                         ICInboxPurchHeader.SetRange("IC Transaction No.", "Transaction No.");
@@ -222,7 +241,7 @@ table 418 "IC Inbox Transaction"
 
         HandledICInboxTrans.SetRange("IC Partner Code", "IC Partner Code");
         HandledICInboxTrans.SetRange("Document Type", "Document Type");
-        HandledICInboxTrans.SetRange("Source Type", "Source Type");
+        HandledICInboxTrans.SetRange("IC Source Type", "IC Source Type");
         HandledICInboxTrans.SetRange("Document No.", "Document No.");
         if HandledICInboxTrans.FindFirst() then
             if not ConfirmManagement.GetResponseOrDefault(
@@ -235,7 +254,7 @@ table 418 "IC Inbox Transaction"
 
         ICInboxTransaction2.SetRange("IC Partner Code", "IC Partner Code");
         ICInboxTransaction2.SetRange("Document Type", "Document Type");
-        ICInboxTransaction2.SetRange("Source Type", "Source Type");
+        ICInboxTransaction2.SetRange("IC Source Type", "IC Source Type");
         ICInboxTransaction2.SetRange("Document No.", "Document No.");
         ICInboxTransaction2.SetFilter("Transaction No.", '<>%1', "Transaction No.");
         ICInboxTransaction2.SetRange("IC Account Type", "IC Account Type");
@@ -247,7 +266,7 @@ table 418 "IC Inbox Transaction"
                  StrSubstNo(DuplicateTransactionNoMsg, ICInboxTransaction2."Transaction No.", "Transaction No."), true)
             then
                 Error('');
-        if ("Source Type" = "Source Type"::"Purchase Document") and
+        if ("IC Source Type" = "IC Source Type"::"Purchase Document") and
            ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"])
         then begin
             ICInboxPurchHeader.Get("Transaction No.", "IC Partner Code", "Transaction Source");

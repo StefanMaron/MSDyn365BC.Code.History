@@ -117,16 +117,20 @@ codeunit 99000773 "Calculate Prod. Order"
     var
         WorkCenter: Record "Work Center";
         MachineCenter: Record "Machine Center";
+#if not CLEAN27
         SubcPrices: Record "Subcontractor Prices";
         SubcontractingPriceMgt: Codeunit SubcontractingPricesMgt;
         SubcontractingManagement: Codeunit SubcontractingManagement;
+#endif
     begin
         ProdOrderRoutingLine.Init();
         ProdOrderRoutingLine.Status := ProdOrderLine.Status;
         ProdOrderRoutingLine."Prod. Order No." := ProdOrderLine."Prod. Order No.";
         ProdOrderRoutingLine."Routing Reference No." := ProdOrderLine."Routing Reference No.";
         ProdOrderRoutingLine."Routing No." := ProdOrderLine."Routing No.";
+#if not CLEAN27
         ProdOrderRoutingLine."Operation No." := RoutingLine."Operation No.";
+#endif
         ProdOrderRoutingLine.CopyFromRoutingLine(RoutingLine);
         case ProdOrderRoutingLine.Type of
             ProdOrderRoutingLine.Type::"Work Center":
@@ -142,6 +146,7 @@ codeunit 99000773 "Calculate Prod. Order"
         end;
 
         OnTransferRoutingOnBeforeCalcRoutingCostPerUnit(ProdOrderRoutingLine, ProdOrderLine, RoutingLine);
+#if not CLEAN27
         if (ProdOrderRoutingLine.Type = ProdOrderRoutingLine.Type::"Work Center") and
            (WorkCenter."Subcontractor No." <> '')
         then begin
@@ -159,6 +164,7 @@ codeunit 99000773 "Calculate Prod. Order"
                 ProdOrderRoutingLine."Unit Cost per", ProdOrderRoutingLine."Unit Cost Calculation",
                 ProdOrderLine.Quantity, ProdOrderLine."Qty. per Unit of Measure", ProdOrderLine."Quantity (Base)");
         end else
+#endif
             MfgCostCalcMgt.CalcRoutingCostPerUnit(
                 ProdOrderRoutingLine.Type, ProdOrderRoutingLine."No.",
                 ProdOrderRoutingLine."Direct Unit Cost", ProdOrderRoutingLine."Indirect Cost %", ProdOrderRoutingLine."Overhead Rate",
@@ -166,11 +172,13 @@ codeunit 99000773 "Calculate Prod. Order"
 
         OnTransferRoutingOnbeforeValidateDirectUnitCost(ProdOrderRoutingLine, ProdOrderLine, RoutingLine);
 
+#if not CLEAN27
         ProdOrderRoutingLine."WIP Item" := RoutingLine."WIP Item";
         if (ProdOrderRoutingLine."Routing Link Code" <> '') and
            (WorkCenter."Subcontractor No." <> '')
         then
             SubcontractingManagement.UpdLinkedComponents(ProdOrderRoutingLine, false);
+#endif
         ProdOrderRoutingLine.Validate("Direct Unit Cost");
         ProdOrderRoutingLine."Starting Time" := ProdOrderLine."Starting Time";
         ProdOrderRoutingLine."Starting Date" := ProdOrderLine."Starting Date";
@@ -291,8 +299,8 @@ codeunit 99000773 "Calculate Prod. Order"
 
     local procedure TransferBOMProcessItem(Level: Integer; LineQtyPerUOM: Decimal; ItemQtyPerUOM: Decimal; var ErrorOccured: Boolean)
     var
-        ComponentSKU: Record "Stockkeeping Unit";
         Item2: Record Item;
+        ComponentSKU: Record "Stockkeeping Unit";
         IsHandled: Boolean;
         QtyRoundPrecision: Decimal;
     begin

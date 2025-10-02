@@ -1,13 +1,17 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Planning;
 
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Forecast;
 using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Setup;
+#if not CLEAN27
 using Microsoft.Purchases.Vendor;
 using System.Security.AccessControl;
+#endif
 
 tableextension 99000829 "Mfg. Planning Component" extends "Planning Component"
 {
@@ -22,12 +26,14 @@ tableextension 99000829 "Mfg. Planning Component" extends "Planning Component"
             trigger OnValidate()
             var
                 PlanningRtngLine: Record "Planning Routing Line";
+#if not CLEAN27
                 SKU: Record "Stockkeeping Unit";
                 Vendor: Record Vendor;
                 SubcontractingManagement: Codeunit SubcontractingManagement;
                 GetPlanningParameters: Codeunit "Planning-Get Parameters";
                 LicensePermission: Record "License Permission";
                 IsHandled: Boolean;
+#endif
             begin
                 if "Calculation Formula" = "Calculation Formula"::"Fixed Quantity" then
                     Validate("Expected Quantity", Quantity)
@@ -36,6 +42,18 @@ tableextension 99000829 "Mfg. Planning Component" extends "Planning Component"
 
                 "Due Date" := ReqLine."Starting Date";
                 "Due Time" := ReqLine."Starting Time";
+#if CLEAN27
+                if "Routing Link Code" <> '' then begin
+                    PlanningRtngLine.SetRange("Worksheet Template Name", "Worksheet Template Name");
+                    PlanningRtngLine.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
+                    PlanningRtngLine.SetRange("Worksheet Line No.", "Worksheet Line No.");
+                    PlanningRtngLine.SetRange("Routing Link Code", "Routing Link Code");
+                    if PlanningRtngLine.FindFirst() then begin
+                        "Due Date" := PlanningRtngLine."Starting Date";
+                        "Due Time" := PlanningRtngLine."Starting Time";
+                    end;
+                end;
+#else
                 if "Routing Link Code" <> '' then begin
                     PlanningRtngLine.SetRange("Worksheet Template Name", "Worksheet Template Name");
                     PlanningRtngLine.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
@@ -64,6 +82,7 @@ tableextension 99000829 "Mfg. Planning Component" extends "Planning Component"
                           "Location Code");
                         Validate("Location Code", SKU."Components at Location");
                     end;
+#endif
                 if Format("Lead-Time Offset") <> '' then begin
                     if "Due Date" = 0D then
                         "Due Date" := ReqLine."Ending Date";
@@ -89,11 +108,6 @@ tableextension 99000829 "Mfg. Planning Component" extends "Planning Component"
             begin
                 UpdateExpectedQuantityForPlanningNeeds();
             end;
-        }
-        field(28; "Flushing Method"; Enum "Flushing Method")
-        {
-            Caption = 'Flushing Method';
-            DataClassification = CustomerContent;
         }
     }
 
@@ -203,21 +217,6 @@ tableextension 99000829 "Mfg. Planning Component" extends "Planning Component"
         exit(PlanningRoutingLine.FindFirst());
     end;
 
-    procedure FindCurrForecastName(var ForecastName: Code[10]): Boolean
-    var
-        UntrackedPlanningElement: Record "Untracked Planning Element";
-    begin
-        UntrackedPlanningElement.SetRange("Worksheet Template Name", "Worksheet Template Name");
-        UntrackedPlanningElement.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
-        UntrackedPlanningElement.SetRange("Item No.", "Item No.");
-        UntrackedPlanningElement.SetRange("Source Type", Database::"Production Forecast Entry");
-        UntrackedPlanningElement.SetLoadFields("Source ID");
-        if UntrackedPlanningElement.FindFirst() then begin
-            ForecastName := CopyStr(UntrackedPlanningElement."Source ID", 1, 10);
-            exit(true);
-        end;
-    end;
-
     procedure GetRefOrderTypeBin() BinCode: Code[20]
     var
         PlanningRoutingLine: Record "Planning Routing Line";
@@ -250,7 +249,7 @@ tableextension 99000829 "Mfg. Planning Component" extends "Planning Component"
     local procedure GetFlushingMethodBin(): Code[20]
 #if not CLEAN26
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
 #endif
     begin
 #if not CLEAN26
@@ -267,16 +266,16 @@ tableextension 99000829 "Mfg. Planning Component" extends "Planning Component"
             end
         else
 #endif
-            case "Flushing Method" of
-                "Flushing Method"::"Pick + Manual",
-                "Flushing Method"::"Pick + Forward",
-                "Flushing Method"::"Pick + Backward":
-                    exit(Location."To-Production Bin Code");
-                "Flushing Method"::Manual,
-                "Flushing Method"::Forward,
-                "Flushing Method"::Backward:
-                    exit(Location."Open Shop Floor Bin Code");
-            end;
+        case "Flushing Method" of
+            "Flushing Method"::"Pick + Manual",
+            "Flushing Method"::"Pick + Forward",
+            "Flushing Method"::"Pick + Backward":
+                exit(Location."To-Production Bin Code");
+            "Flushing Method"::Manual,
+            "Flushing Method"::Forward,
+            "Flushing Method"::Backward:
+                exit(Location."Open Shop Floor Bin Code");
+        end;
     end;
 
     procedure UpdateExpectedQuantityForPlanningNeeds()
@@ -326,8 +325,11 @@ tableextension 99000829 "Mfg. Planning Component" extends "Planning Component"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('Preparation for replacement by Subcontracting app', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnValidateRoutingLinkCodeOnBeforeSubcontractorProcurementCheck(var PlanningComponent: Record "Planning Component"; Vendor: Record Vendor; var IsHandled: Boolean)
     begin
     end;
+#endif
 }

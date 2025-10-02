@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -127,14 +127,19 @@ page 9010 "Production Planner Role Center"
                     RunObject = Report "Inventory - Availability Plan";
                     ToolTip = 'View a list of the quantity of each item in customer, purchase, and transfer orders and the quantity available in inventory. The list is divided into columns that cover six periods with starting and ending dates as well as the periods before and after those periods. The list is useful when you are planning your inventory purchases.';
                 }
+#if not CLEAN27
                 action("Planning Availability")
                 {
                     ApplicationArea = Manufacturing;
-                    Caption = 'Planning Availability';
+                    Caption = 'Planning Availability (Obsolete)';
                     Image = "Report";
                     RunObject = Report "Planning Availability";
                     ToolTip = 'View all known existing requirements and receipts for the items that you select on a specific date. You can use the report to get a quick picture of the current demand-supply situation for an item. The report displays the item number and description plus the actual quantity in inventory.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This report has been deprecated and will be removed in a future release.';
+                    ObsoleteTag = '27.0';
                 }
+#endif
                 action("Capacity Task List")
                 {
                     ApplicationArea = Manufacturing;
@@ -171,13 +176,26 @@ page 9010 "Production Planner Role Center"
                     RunObject = Report "Detailed Calculation";
                     ToolTip = 'View a cost list per item taking into account the scrap.';
                 }
+#if not CLEAN27
                 action("P&roduction Order - Calculation")
                 {
                     ApplicationArea = Manufacturing;
-                    Caption = 'P&roduction Order - Calculation';
+                    Caption = 'P&roduction Order - Calculation (Obsolete)';
                     Image = "Report";
                     RunObject = Report "Prod. Order - Calculation";
                     ToolTip = 'View a list of the production orders and their costs, such as expected operation costs, expected component costs, and total costs.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This report has been replaced by the "Production Order Statistics" report and will be removed in a future release.';
+                    ObsoleteTag = '27.0';
+                }
+#endif
+                action("Production Order Statistics")
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Production Order Statistics';
+                    Image = "Report";
+                    RunObject = report "Production Order Statistics";
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                 }
                 action("Sta&tus")
                 {
@@ -222,12 +240,16 @@ page 9010 "Production Planner Role Center"
                 RunObject = Page "Transfer Orders";
                 ToolTip = 'Move inventory items between company locations. With transfer orders, you ship the outbound transfer from one location and receive the inbound transfer at the other location. This allows you to manage the involved warehouse activities and provides more certainty that inventory quantities are updated correctly.';
             }
+#if not CLEAN27
             action("Subcontracting Orders")
             {
                 ApplicationArea = Manufacturing;
                 Caption = 'Subcontracting Orders';
                 RunObject = Page "Subcontracting Order List";
                 ToolTip = 'View the list of subcontracting orders.';
+                ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
             }
             action("Subcontracting Transfers")
             {
@@ -235,7 +257,11 @@ page 9010 "Production Planner Role Center"
                 Caption = 'Subcontracting Transfers';
                 RunObject = Page "Subcontracting Transfer List";
                 ToolTip = 'View the list of subcontracting transfers.';
+                ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
             }
+#endif
         }
         area(sections)
         {
@@ -715,21 +741,6 @@ page 9010 "Production Planner Role Center"
                     RunObject = Page "Planning Worksheet";
                     ToolTip = 'Plan supply orders automatically to fulfill new demand.';
                 }
-#if not CLEAN24
-                action("Item Availability by Timeline")
-                {
-                    ApplicationArea = Planning;
-                    Caption = 'Item Availability by Timeline';
-                    Image = Timeline;
-                    RunObject = Page "Item Avail. by Location Lines";
-                    ToolTip = 'Get a graphical view of an item''s projected inventory based on future supply and demand events, with or without planning suggestions. The result is a graphical representation of the inventory profile.';
-                    Enabled = false;
-                    Visible = false;
-                    ObsoleteReason = 'Page Item Availability by Timeline obsoleted and removed in 24.0, temporarily replaced by page Item Avail. by Location Lines';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-                }
-#endif
                 action("Subcontracting &Worksheet")
                 {
                     ApplicationArea = Manufacturing;
@@ -799,4 +810,3 @@ page 9010 "Production Planner Role Center"
         }
     }
 }
-

@@ -1446,7 +1446,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         ParentItem.Modify(true);
 
         // [WHEN] Calculate BOM cost shares for item "P" on 24.01.2019
-        CalculateBOMTree.GenerateTreeForItem(ParentItem, TempBOMBuffer, ReportDate, 1);
+        CalculateBOMTree.GenerateTreeForOneItem(ParentItem, TempBOMBuffer, ReportDate, "BOM Tree Type"::Availability);
 
         // [THEN] Component "C1" is included in the report
         TempBOMBuffer.SetRange(Type, TempBOMBuffer.Type::Item);

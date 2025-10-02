@@ -4,6 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Payment;
 
+/// <summary>
+/// Page 985 "Document Search" provides a search interface for finding open documents during payment registration.
+/// This page allows users to search for customer documents by document number and amount with tolerance settings.
+/// </summary>
+/// <remarks>
+/// Used in conjunction with payment registration to locate and match customer documents
+/// with received payments based on search criteria and amount tolerances.
+/// </remarks>
 page 985 "Document Search"
 {
     Caption = 'Document Search';

@@ -204,11 +204,13 @@ codeunit 139052 "Office Addin Initiate Tasks"
     procedure MailEngineCustomerPageCreateQuoteEmail()
     var
         OfficeAddinContext: Record "Office Add-in Context";
-        TempEmailItem: Record "Email Item" temporary;
         ReportSelections: Record "Report Selections";
         SalesHeader: Record "Sales Header";
         CustomerCard: TestPage "Customer Card";
         SalesQuote: TestPage "Sales Quote";
+        BodyTextInStream: InStream;
+        EmailBodyTempBlob: Codeunit "Temp Blob";
+        BodyText: Text;
         QuoteNextNo: Code[20];
         DummyEmailAddress: Text[250];
     begin
@@ -232,9 +234,11 @@ codeunit 139052 "Office Addin Initiate Tasks"
         // Get Email body text
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
         SalesHeader.SetRange("No.", QuoteNextNo);
-        ReportSelections.GetEmailBodyForCust(TempEmailItem."Body File Path",
-          ReportSelections.Usage::"S.Quote", SalesHeader, CustomerCard."No.".Value, DummyEmailAddress);
-        LibraryVariableStorage.Enqueue(TempEmailItem.GetBodyText());
+        ReportSelections.GetEmailBodyForCust(EmailBodyTempBlob, ReportSelections.Usage::"S.Quote", SalesHeader, CustomerCard."No.".Value, DummyEmailAddress);
+        EmailBodyTempBlob.CreateInStream(BodyTextInStream);
+        BodyTextInStream.Read(BodyText);
+
+        LibraryVariableStorage.Enqueue(BodyText);
 
         // [WHEN] Email action is invoked from the sales quote page
         SalesQuote.Email.Invoke();
@@ -929,9 +933,11 @@ codeunit 139052 "Office Addin Initiate Tasks"
     [Scope('OnPrem')]
     procedure ShipAndInvoiceActionHandler(Message: Text[1024])
     var
-        TempEmailItem: Record "Email Item" temporary;
         ReportSelections: Record "Report Selections";
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        BodyTextInStream: InStream;
+        EmailBodyTempBlob: Codeunit "Temp Blob";
+        BodyText: Text;
         ActualAction: Text;
         ActualUrl1: Text;
         ActualUrl2: Text;
@@ -961,10 +967,11 @@ codeunit 139052 "Office Addin Initiate Tasks"
         InvoiceNo := CopyStr(InvoiceFileName, NoPos, StrPos(InvoiceFileName, '.') - NoPos);
         SalesInvoiceHeader.SetRange("No.", InvoiceNo);
         CustNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, 20);
-        ReportSelections.GetEmailBodyForCust(TempEmailItem."Body File Path",
-          ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, CustNo, DummyEmailAddress);
+        ReportSelections.GetEmailBodyForCust(EmailBodyTempBlob, ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, CustNo, DummyEmailAddress);
+        EmailBodyTempBlob.CreateInStream(BodyTextInStream);
+        BodyTextInStream.Read(BodyText);
 
-        ExpectedEmailBody := CopyStr(TempEmailItem.GetBodyText(), 1,
+        ExpectedEmailBody := CopyStr(BodyText, 1,
             1000 - StrLen(StrSubstNo('%1|%2|%3|%4|%5|', ActualAction, ActualUrl1, ActualUrl2, ActualFileName1, ActualFileName2)));
 
         Assert.AreNotEqual('', ActualUrl1, 'Two document urls not provided.');

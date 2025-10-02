@@ -124,7 +124,6 @@ table 8619 "Config. Template Line"
                     Error(TemplateHierarchyErr, "Template Code");
             end;
         }
-#pragma warning disable AS0086
         field(9; "Template Description"; Text[100])
         {
             CalcFormula = lookup("Config. Template Header".Description where(Code = field("Data Template Code")));
@@ -132,7 +131,6 @@ table 8619 "Config. Template Line"
             Editable = false;
             FieldClass = FlowField;
         }
-#pragma warning restore AS0086
         field(10; Mandatory; Boolean)
         {
             Caption = 'Mandatory';
@@ -148,9 +146,7 @@ table 8619 "Config. Template Line"
             Caption = 'Reference';
             ExtendedDatatype = URL;
         }
-#pragma warning disable AS0086
         field(12; "Default Value"; Text[2048])
-#pragma warning restore AS0086
         {
             Caption = 'Default Value';
 
@@ -306,4 +302,3 @@ table 8619 "Config. Template Line"
         exit(ConfigTemplateManagement.LookupFieldValueFromConfigTemplateLine(Rec, FieldValue));
     end;
 }
-

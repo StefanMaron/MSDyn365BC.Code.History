@@ -278,26 +278,14 @@ table 12159 "Company Officials"
     trigger OnInsert()
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         if "No." = '' then begin
             GLSetup.Get();
             GLSetup.TestField("Company Officials Nos.");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(GLSetup."Company Officials Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 "No. Series" := GLSetup."Company Officials Nos.";
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
                 "No." := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GLSetup."Company Officials Nos.", 0D, "No.");
-            end;
-#endif
         end;
     end;
 
@@ -340,4 +328,3 @@ table 12159 "Company Officials"
         exit("First Name" + ' ' + "Middle Name" + ' ' + "Last Name");
     end;
 }
-

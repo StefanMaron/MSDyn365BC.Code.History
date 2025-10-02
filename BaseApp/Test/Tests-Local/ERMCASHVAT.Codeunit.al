@@ -18,7 +18,7 @@ codeunit 144110 "ERM CASHVAT"
     // 15.Test to verify CashVAT Product Posting Group on the Sales - Credit Memo Report for Sales Prepayment Credit Memo Posting.
     // 16.Test to verify CashVAT Product Posting Group updated on the Sales - Credit Memo Report successfully for Sales Prepayment Credit Memo Posting with multiple Sales Line.
     // 17.Test to verify CashVAT Product Posting Group updated on the Purchase - Invoice Report successfully for Purchase Prepayment Invoice.
-    // 
+    //
     //   Covers Test Cases for WI - 346117
     //   ------------------------------------------------------------------------------------------------
     //   Test Function Name                                                                        TFS ID
@@ -29,7 +29,7 @@ codeunit 144110 "ERM CASHVAT"
     //   PostedSalesOrderWithCashVATProductPostingGroup                                            155927
     //   PostedSalesInvoiceWithCashVATProductPostingGroup                                          155928
     //   PostedSalesCrMemoWithCashVATProductPostingGroup                                           155931
-    // 
+    //
     //   Covers Test Cases for WI - 346187, 346665
     //   ------------------------------------------------------------------------------------------------
     //   Test Function Name                                                                        TFS ID
@@ -58,7 +58,6 @@ codeunit 144110 "ERM CASHVAT"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
-        LibrarySales: Codeunit "Library - Sales";
         CashVATFooterTextCap: Label 'CashVATFooterText';
         VATIdentifierPurchInvLineCap: Label 'VATIdentifier_PurchInvLine';
         VATIdentifierPurchCrMemoLineCap: Label 'VATIdentifier_PurchCrMemoLine';
@@ -288,50 +287,6 @@ codeunit 144110 "ERM CASHVAT"
         end;
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; VATBusPostingGroup: Code[20]; PrepaymentPct: Decimal)
-    var
-        Customer: Record Customer;
-        NoSeries: Record "No. Series";
-    begin
-        LibrarySales.CreateCustomer(Customer);
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
-        SalesHeader.Validate("Operation Type", FindNoSeries(NoSeries."No. Series Type"::Sales));
-        SalesHeader.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-        SalesHeader.Validate("Prepayment %", PrepaymentPct);
-        SalesHeader.Modify(true);
-    end;
-
-    local procedure CreateAndPostSalesDocument(DocumentType: Enum "Sales Document Type"; VATProdPostingGroup: Code[20]; VATBusPostingGroup: Code[20]; MultipleLine: Boolean) PostedDocumentNo: Code[20]
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        CreateSalesHeader(SalesHeader, DocumentType, VATBusPostingGroup, 0); // Prepayment % - 0.
-        CreateSalesLines(SalesHeader, VATProdPostingGroup, VATBusPostingGroup, MultipleLine);
-        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-    end;
-
-    local procedure CreateAndPostSalesInvoicePrepayment(var SalesHeader: Record "Sales Header"; VATProdPostingGroup: Code[20]; VATBusPostingGroup: Code[20]; MultipleLine: Boolean)
-    begin
-        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, VATBusPostingGroup, LibraryRandom.RandDec(10, 2));  // Random Prepayment %.
-        CreateSalesLines(SalesHeader, VATProdPostingGroup, VATBusPostingGroup, MultipleLine);
-        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
-    end;
-
-    local procedure CreateSalesLines(SalesHeader: Record "Sales Header"; VATProdPostingGroup: Code[20]; VATBusPostingGroup: Code[20]; MultipleLine: Boolean)
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-        SalesLine: Record "Sales Line";
-    begin
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(VATProdPostingGroup), LibraryRandom.RandDec(10, 2));  // Random Quantity.
-        if MultipleLine then begin
-            CreateVATPostingSetupWithPrepaymentAccount(VATPostingSetup, VATBusPostingGroup);
-            LibrarySales.CreateSalesLine(
-              SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(VATPostingSetup."VAT Prod. Posting Group"),
-              LibraryRandom.RandDec(10, 2));  // Random Quantity.
-        end;
-    end;
-
     local procedure CreateVATPostingSetupWithPrepaymentAccount(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostingGroup: Code[20])
     var
         VATIdentifier: Record "VAT Identifier";
@@ -411,4 +366,3 @@ codeunit 144110 "ERM CASHVAT"
         PurchaseCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-

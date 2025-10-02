@@ -1,4 +1,4 @@
-#if not CLEAN24
+#if not CLEAN25
 namespace System.Environment.Configuration;
 
 using Microsoft.Finance.GeneralLedger.Account;

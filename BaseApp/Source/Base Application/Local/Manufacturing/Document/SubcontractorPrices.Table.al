@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEANSCHEMA30
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -13,8 +14,18 @@ using Microsoft.Purchases.Vendor;
 table 12152 "Subcontractor Prices"
 {
     Caption = 'Subcontractor Prices';
+#if not CLEAN27
     LookupPageID = "Subcontracting Prices";
+#endif
     DataClassification = CustomerContent;
+    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+    ObsoleteState = Pending;
+    ObsoleteTag = '27.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '30.0';
+#endif
 
     fields
     {
@@ -28,18 +39,19 @@ table 12152 "Subcontractor Prices"
             Caption = 'Vendor No.';
             TableRelation = Vendor;
             ValidateTableRelation = true;
-
+#if not CLEAN27
             trigger OnValidate()
             begin
                 if Vendor.Get("Vendor No.") then
                     "Currency Code" := Vendor."Currency Code";
             end;
+#endif
         }
         field(3; "Item No."; Code[20])
         {
             Caption = 'Item No.';
             TableRelation = Item;
-
+#if not CLEAN27
             trigger OnValidate()
             begin
                 if "Item No." <> xRec."Item No." then begin
@@ -47,6 +59,7 @@ table 12152 "Subcontractor Prices"
                     "Variant Code" := '';
                 end;
             end;
+#endif
         }
         field(4; "Currency Code"; Code[10])
         {
@@ -61,21 +74,23 @@ table 12152 "Subcontractor Prices"
         field(6; "Start Date"; Date)
         {
             Caption = 'Start Date';
-
+#if not CLEAN27
             trigger OnValidate()
             begin
                 if ("Start Date" > "End Date") and ("End Date" <> 0D) then
                     Error(InvalidStartDateErr);
             end;
+#endif
         }
         field(7; "End Date"; Date)
         {
             Caption = 'End Date';
-
+#if not CLEAN27
             trigger OnValidate()
             begin
                 Validate("Start Date");
             end;
+#endif
         }
         field(8; "Direct Unit Cost"; Decimal)
         {
@@ -120,9 +135,10 @@ table 12152 "Subcontractor Prices"
     fieldgroups
     {
     }
-
+#if not CLEAN27
     var
         Vendor: Record Vendor;
         InvalidStartDateErr: Label 'The Start Date cannot be after the End Date.';
+#endif
 }
-
+#endif

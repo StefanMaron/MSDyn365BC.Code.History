@@ -13,7 +13,9 @@ using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.WorkCenter;
 using System.Utilities;
+#if not CLEAN27
 using Microsoft.Manufacturing.Document;
+#endif
 
 report 99000756 "Detailed Calculation"
 {
@@ -138,14 +140,17 @@ report 99000756 "Detailed Calculation"
                 trigger OnAfterGetRecord()
                 var
                     WorkCenter: Record "Work Center";
+#if not CLEAN27
                     SubcPrices: Record "Subcontractor Prices";
                     SubcontractingPriceMgt: Codeunit SubcontractingPricesMgt;
+#endif
                     UnitCostCalculation: Enum "Unit Cost Calculation Type";
                 begin
                     ProdUnitCost := "Unit Cost per";
 
                     if "Routing Line".Type = "Routing Line".Type::"Work Center" then
                         WorkCenter.Get("Routing Line"."Work Center No.");
+#if not CLEAN27
                     if ("Routing Line".Type = "Routing Line".Type::"Work Center") and
                        (WorkCenter."Subcontractor No." <> '')
                     then begin
@@ -169,6 +174,7 @@ report 99000756 "Detailed Calculation"
                           1,
                           1);
                     end else
+#endif
                         MfgCostCalcMgt.CalcRoutingCostPerUnit(
                           Type, "No.", DirectUnitCost, IndirectCostPct, OverheadRate, ProdUnitCost, UnitCostCalculation);
                     CostTime :=

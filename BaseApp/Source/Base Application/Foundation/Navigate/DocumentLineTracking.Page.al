@@ -237,15 +237,6 @@ page 6560 "Document Line Tracking"
         PostedReturnShipmentLinesTxt: Label 'Posted Return Shipment Lines';
         PostedPurchaseCreditMemoLinesTxt: Label 'Posted Purchase Credit Memo Lines';
 
-#if not CLEAN24
-    [Obsolete('Replaced by procedure SetSourceDoc() with enum parameter', '24.0')]
-    procedure SetDoc(NewSourceDocType: Option SalesOrder,PurchaseOrder,BlanketSalesOrder,BlanketPurchaseOrder,SalesShipment,PurchaseReceipt,SalesInvoice,PurchaseInvoice,SalesReturnOrder,PurchaseReturnOrder,SalesCreditMemo,PurchaseCreditMemo,ReturnReceipt,ReturnShipment; NewDocNo: Code[20]; NewSourceDocLineNo: Integer; NewDocBlanketOrderNo: Code[20]; NewDocBlanketOrderLineNo: Integer; NewDocOrderNo: Code[20]; NewDocOrderLineNo: Integer)
-    begin
-        SetSourceDoc(
-            "Document Line Source Type".FromInteger(NewSourceDocType),
-            NewDocNo, NewSourceDocLineNo, NewDocBlanketOrderNo, NewDocBlanketOrderLineNo, NewDocOrderNo, NewDocOrderLineNo);
-    end;
-#endif
 
     procedure SetSourceDoc(NewSourceDocType: Enum "Document Line Source Type"; NewDocNo: Code[20]; NewSourceDocLineNo: Integer; NewDocBlanketOrderNo: Code[20]; NewDocBlanketOrderLineNo: Integer; NewDocOrderNo: Code[20]; NewDocOrderLineNo: Integer)
     begin
@@ -1099,4 +1090,3 @@ page 6560 "Document Line Tracking"
     begin
     end;
 }
-

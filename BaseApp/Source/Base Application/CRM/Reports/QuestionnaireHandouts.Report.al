@@ -102,6 +102,8 @@ report 5066 "Questionnaire - Handouts"
 
     requestpage
     {
+        AboutTitle = 'About Questionnaire - Handouts';
+        AboutText = 'Print handouts for a profile questionnaire.';
 
         layout
         {

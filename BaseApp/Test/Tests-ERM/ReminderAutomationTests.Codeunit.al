@@ -5,6 +5,7 @@ codeunit 134979 "Reminder Automation Tests"
 
     local procedure Initialize()
     var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         CreateRemindersSetup: Record "Create Reminders Setup";
         IssueReminderSetup: Record "Issue Reminders Setup";
         SendRemindersSetup: Record "Send Reminders Setup";
@@ -19,8 +20,13 @@ codeunit 134979 "Reminder Automation Tests"
         if IsInitialized then
             exit;
 
-        IsInitialized := true;
+        if not SalesReceivablesSetup.Get() then
+            SalesReceivablesSetup.Insert();
+
+        SalesReceivablesSetup."Posting Date Check on Posting" := false;
+        SalesReceivablesSetup.Modify();
         Commit();
+        IsInitialized := true;
     end;
 
     [HandlerFunctions('NewReminderActionModalPageHandler,CreateRemindersSetupModalPageHandler')]

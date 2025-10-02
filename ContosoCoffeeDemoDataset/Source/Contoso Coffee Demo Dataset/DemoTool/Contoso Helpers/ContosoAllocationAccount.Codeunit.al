@@ -5,6 +5,7 @@
 namespace Microsoft.DemoTool.Helpers;
 
 using Microsoft.Finance.AllocationAccount;
+using Microsoft.DemoTool;
 
 codeunit 5183 "Contoso Allocation Account"
 {

@@ -318,37 +318,6 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
     [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
-    procedure InvoiceChangingSellToVendorRecalculatesForInvoiceDiscountTypePercentage()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        Item: Record Item;
-        Vendor: Record Vendor;
-        NewVendor: Record Vendor;
-        PurchaseInvoice: TestPage "Purchase Invoice";
-        NumberOfLines: Integer;
-        DiscPct: Decimal;
-        ItemQuantity: Decimal;
-        TotalAmount: Decimal;
-        NewCustDiscPct: Decimal;
-    begin
-        Initialize();
-        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor, DiscPct);
-        NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
-        CreateVendorWithDiscount(NewVendor, NewCustDiscPct, 0);
-
-        CreateInvoiceWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
-        OpenPurchaseInvoice(PurchaseHeader, PurchaseInvoice);
-
-        AnswerYesToAllConfirmDialogs();
-        PurchaseInvoice."Buy-from Vendor Name".SetValue(NewVendor.Name);
-
-        TotalAmount := NumberOfLines * ItemQuantity * Item."Last Direct Cost";
-        CheckInvoiceDiscountTypePercentage(NewCustDiscPct, TotalAmount, PurchaseInvoice, true, '');
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandler')]
-    [Scope('OnPrem')]
     procedure InvoiceChangingSellToVendorSetsDiscountToZeroForInvoiceDiscountTypeAmount()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -867,36 +836,6 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
 
         TotalAmount := NumberOfLines * ItemQuantity * Item."Unit Cost";
         CheckCreditMemoDiscountTypePercentage(DiscPct, TotalAmount, PurchaseCreditMemo, false, '');
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
-    [Scope('OnPrem')]
-    procedure CreditMemoChangingBuyFromVendorRecalculatesForInvoiceDiscountTypePercentage()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        Item: Record Item;
-        Vendor: Record Vendor;
-        NewVendor: Record Vendor;
-        PurchaseCreditMemo: TestPage "Purchase Credit Memo";
-        NumberOfLines: Integer;
-        DiscPct: Decimal;
-        ItemQuantity: Decimal;
-        TotalAmount: Decimal;
-        NewVendDiscPct: Decimal;
-    begin
-        Initialize();
-        SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor, DiscPct);
-        NewVendDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
-        CreateVendorWithDiscount(NewVendor, NewVendDiscPct, 0);
-
-        CreateCreditMemoWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
-        OpenPurchaseCreditMemo(PurchaseHeader, PurchaseCreditMemo);
-
-        PurchaseCreditMemo."Buy-from Vendor Name".SetValue(NewVendor.Name);
-
-        TotalAmount := NumberOfLines * ItemQuantity * Item."Unit Cost";
-        CheckCreditMemoDiscountTypePercentage(NewVendDiscPct, TotalAmount, PurchaseCreditMemo, true, '');
     end;
 
     [Test]

@@ -387,9 +387,6 @@ page 167 "Item Ledger Entries Preview"
 
     trigger OnOpenPage()
     begin
-#if not CLEAN24
-        PackageTrackingVisible := ItemTrackingVisible;
-#endif
         SetDimVisibility();
     end;
 
@@ -415,10 +412,6 @@ page 167 "Item Ledger Entries Preview"
         Dim7Visible: Boolean;
         Dim8Visible: Boolean;
         ItemTrackingVisible: Boolean;
-#if not CLEAN24
-        [Obsolete('Package Tracking enabled by default.', '24.0')]
-        PackageTrackingVisible: Boolean;
-#endif
 
     local procedure SetDimVisibility()
     var
@@ -470,4 +463,3 @@ page 167 "Item Ledger Entries Preview"
             until TempValueEntry.Next() = 0;
     end;
 }
-

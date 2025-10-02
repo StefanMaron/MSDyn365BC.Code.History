@@ -144,6 +144,9 @@ codeunit 143000 "Library - IT Localization"
         ServiceTariffNumber.Insert(true);
     end;
 
+#if not CLEAN27
+#pragma warning disable AL0801
+    [Obsolete('Preparation for replacement by Subcontracting app', '27.0')]
     [Scope('OnPrem')]
     procedure CreateSubContractingPrice(var SubcontractorPrices: Record "Subcontractor Prices"; WorkCenterNo: Code[20]; VendorNo: Code[20]; ItemNo: Code[20]; StandardTaskCode: Code[10]; VariantCode: Code[10]; StartDate: Date; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal; CurrencyCode: Code[10])
     begin
@@ -159,6 +162,8 @@ codeunit 143000 "Library - IT Localization"
         SubcontractorPrices.Validate("Currency Code", CurrencyCode);
         SubcontractorPrices.Insert(true);
     end;
+#pragma warning restore AL0801
+#endif
 
     [Scope('OnPrem')]
     procedure CreateTransportMethod(var TransportMethod: Record "Transport Method")

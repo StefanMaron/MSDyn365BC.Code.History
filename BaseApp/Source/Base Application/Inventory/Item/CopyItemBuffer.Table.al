@@ -128,6 +128,11 @@ table 729 "Copy Item Buffer"
             Caption = 'Item References';
             DataClassification = SystemMetadata;
         }
+        field(100; "Show Created Items"; Boolean)
+        {
+            Caption = 'Show Created Items';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys

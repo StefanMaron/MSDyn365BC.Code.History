@@ -86,7 +86,6 @@ using Microsoft.Inventory.Reconciliation;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Projects.Resources.Journal;
 #if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
@@ -140,10 +139,6 @@ using System.Privacy;
 using System.Security.User;
 using System.Threading;
 
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
-using Microsoft.Service.Ledger;
-
 permissionset 191 "D365 SETUP"
 {
     Access = Public;
@@ -180,6 +175,7 @@ permissionset 191 "D365 SETUP"
                   tabledata Activity = D,
                   tabledata "Alt. Customer Posting Group" = RIMD,
                   tabledata "Alt. Vendor Posting Group" = RIMD,
+                  tabledata "Alt. Employee Posting Group" = RIMD,
                   tabledata "Analysis Column" = D,
                   tabledata "Analysis Column Template" = D,
                   tabledata "Analysis Field Value" = D,
@@ -322,9 +318,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Exch. Rate Adjmt. Ledg. Entry" = d,
                   tabledata "Exchange Folder" = D,
                   tabledata "Exchange Service Setup" = RIMD,
-#if not CLEAN24
-                  tabledata "Exp. Phys. Invt. Tracking" = RIMD,
-#endif
                   tabledata "Exp. Invt. Order Tracking" = RIMD,
                   tabledata "FA Setup" = Rimd,
                   tabledata "Fin. Charge Comment Line" = D,
@@ -395,9 +388,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Line Fee Note on Report Hist." = imd,
                   tabledata "Logged Segment" = d,
                   tabledata "Lot No. Information" = RIMD,
-#if not CLEAN24
-                  tabledata "Man. Integration Field Mapping" = RIMD,
-#endif
                   tabledata "Man. Integration Table Mapping" = RIMD,
                   tabledata "Man. Int. Field Mapping" = RIMD,
                   tabledata Manufacturer = RIMD,
@@ -436,9 +426,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Phys. Invt. Order Line" = RIMD,
                   tabledata "Phys. Invt. Record Header" = RIMD,
                   tabledata "Phys. Invt. Record Line" = RIMD,
-#if not CLEAN24
-                  tabledata "Phys. Invt. Tracking" = RIMD,
-#endif
                   tabledata "Invt. Order Tracking" = RIMD,
                   tabledata "Planning Assignment" = D,
                   tabledata "Planning Component" = D,
@@ -462,9 +449,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Price Source" = RIMD,
                   tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Profile Questionnaire Line" = D,
-#if not CLEAN24
-                  tabledata "Pstd. Exp. Phys. Invt. Track" = RIMD,
-#endif
                   tabledata "Pstd.Exp.Invt.Order.Tracking" = RIMD,
                   tabledata "Pstd. Phys. Invt. Order Hdr" = RIMD,
                   tabledata "Pstd. Phys. Invt. Order Line" = RIMD,
@@ -639,7 +623,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Whse. Pick Request" = D,
                   tabledata "Whse. Put-away Request" = D,
                   tabledata "Whse. Worksheet Line" = D,
-                  tabledata "Work Center" = D,
                   tabledata "Work Type" = D,
                   tabledata "Workflow - Table Relation" = RIMD,
                   tabledata Workflow = RIMD,
@@ -653,11 +636,5 @@ permissionset 191 "D365 SETUP"
                   tabledata "Workflow Table Relation Value" = RimD,
                   tabledata "Workflow User Group" = RIMD,
                   tabledata "Workflow User Group Member" = RIMD,
-                  tabledata "Report Settings Override" = Rimd,
-
-                  // Service
-                  tabledata "Contract Gain/Loss Entry" = D,
-                  tabledata "Filed Contract Line" = RD,
-                  tabledata "Service Line" = Rm,
-                  tabledata "Warranty Ledger Entry" = d;
+                  tabledata "Report Settings Override" = Rimd;
 }

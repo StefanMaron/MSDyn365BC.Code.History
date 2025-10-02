@@ -15,7 +15,6 @@ codeunit 134912 "ERM User Personalization"
         ProfileDefaultRCMustBeUniqueErr: Label 'There must be one default Role Center.';
         WrongExpectedRoleCenter: Label 'Unexpected Default Role Center.';
         UserCassieTxt: Label 'USER-CASSIE';
-        ProfilesErr: Label 'Wrong profiles in the list.';
         NotDefaultRoleCenterIDErr: Label 'Default Role Center ID wasn''t assigned to a newly created Profile.';
 
     [Test]
@@ -382,72 +381,6 @@ codeunit 134912 "ERM User Personalization"
         ProfileCard.OK().Invoke();
     end;
 
-    local procedure CreateProfileID(): Code[30]
-    var
-        ProfileCard: TestPage "Profile Card";
-        ProfileID: Code[30];
-    begin
-        ProfileCard.OpenNew();
-        ProfileCard.ProfileIdField.SetValue(LibraryUtility.GenerateGUID());
-        ProfileCard.DescriptionField.SetValue(LibraryUtility.GenerateGUID());
-        ProfileCard.CaptionField.SetValue(LibraryUtility.GenerateGUID());
-        ProfileID := ProfileCard.ProfileIdField.Value();
-        ProfileCard.OK().Invoke();
-        exit(ProfileID);
-    end;
-
-    local procedure CreateUserPersonalization(var UserPersonalization: Record "User Personalization"; UserSID: Guid; ProfileID: Code[30])
-    begin
-        UserPersonalization.Init();
-        UserPersonalization.Validate("User SID", UserSID);
-        UserPersonalization.Validate("Profile ID", ProfileID);
-        UserPersonalization.Insert(true);
-    end;
-
-    local procedure CreateUserPersonalization(var UserPersonalization: Record "User Personalization"; AppID: Guid; Scope: Option; UserSID: Guid; ProfileID: Code[30])
-    begin
-        UserPersonalization.Init();
-        UserPersonalization.Validate("User SID", UserSID);
-        UserPersonalization.Validate("App ID", AppID);
-        UserPersonalization.Validate(Scope, Scope);
-        UserPersonalization.Validate("Profile ID", ProfileID);
-        UserPersonalization.CalcFields(Role);
-        UserPersonalization.Insert(true);
-    end;
-
-    local procedure CreateOrFindDefaultProfileID(): Code[30]
-    var
-        AllProfile: Record "All Profile";
-        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
-        DefProfileID: Code[30];
-    begin
-        AllProfile.SetRange("Default Role Center", true);
-        if AllProfile.FindFirst() then
-            DefProfileID := AllProfile."Profile ID"
-        else begin
-            DefProfileID := LibraryUtility.GenerateGUID();
-            CreateNewProfile(DefProfileID, ConfPersonalizationMgt.DefaultRoleCenterID(), true);
-        end;
-        exit(DefProfileID);
-    end;
-
-    local procedure GetCurrentTimeZone(): Text[180]
-    var
-        UserPersonalization: Record "User Personalization";
-    begin
-        UserPersonalization.Get(UserSecurityId());
-        exit(UserPersonalization."Time Zone");
-    end;
-
-    local procedure SetTimeZone(TimeZone: Text[180])
-    var
-        UserPersonalization: Record "User Personalization";
-    begin
-        UserPersonalization.Get(UserSecurityId());
-        UserPersonalization.Validate("Time Zone", TimeZone);
-        UserPersonalization.Modify(true);
-    end;
-
     local procedure DeleteProfile(AllObjWithCaption: Record AllObjWithCaption)
     var
         AllProfile: Record "All Profile";
@@ -514,16 +447,6 @@ codeunit 134912 "ERM User Personalization"
         AllObjWithCaption.FindFirst();
     end;
 
-    local procedure IsRoleCenterPageID(PageId: Integer): Boolean
-    var
-        AllObjWithCaption: Record AllObjWithCaption;
-    begin
-        AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Page);
-        AllObjWithCaption.SetRange("Object Subtype", 'RoleCenter');
-        AllObjWithCaption.SetRange("Object ID", PageId);
-        exit(not AllObjWithCaption.IsEmpty());
-    end;
-
     local procedure EnsureDefaultRoleCenterExists()
     var
         AllProfile: Record "All Profile";
@@ -537,44 +460,6 @@ codeunit 134912 "ERM User Personalization"
     begin
         AllProfile.Validate("Default Role Center", true);
         AllProfile.Modify(true);
-    end;
-
-    local procedure VerifyProfileListPage(var ProfileListPage: TestPage "Profile List"; ExpectedProfilesCount: Integer)
-    var
-        I: Integer;
-    begin
-        ProfileListPage.First();
-        repeat
-            I += 1;
-        until ProfileListPage.Next() = false;
-        Assert.IsTrue(I = ExpectedProfilesCount, ProfilesErr);
-    end;
-
-    local procedure VerifyAvailableRolesPage(var Roles: TestPage Roles; ExpectedProfilesCount: Integer)
-    var
-        I: Integer;
-    begin
-        Roles.First();
-        repeat
-            I += 1;
-        until Roles.Next() = false;
-        Assert.IsTrue(I = ExpectedProfilesCount, ProfilesErr);
-    end;
-
-    local procedure VerifyUserPersonalization(UserSecurityID: Guid; ProfileID: Code[30])
-    var
-        UserPersonalization: Record "User Personalization";
-    begin
-        UserPersonalization.Get(UserSecurityID);
-        UserPersonalization.TestField("Profile ID", ProfileID);
-    end;
-
-    local procedure GetProfileIDForUser(UserID: Guid): Code[30]
-    var
-        UserPersonalization: Record "User Personalization";
-    begin
-        if UserPersonalization.Get(UserID) then;
-        exit(UserPersonalization."Profile ID");
     end;
 
     local procedure DeleteUser(UserName: Code[50])
@@ -609,15 +494,6 @@ codeunit 134912 "ERM User Personalization"
 
         if IsDefault then
             ConfPersonalizationMgt.SetOtherProfilesAsNonDefault(AllProfile);
-    end;
-
-    local procedure DeleteProfileById(ProfileID: Code[30])
-    var
-        AllProfile: Record "All Profile";
-    begin
-        AllProfile.SetRange("Profile ID", ProfileID);
-        if AllProfile.FindFirst() then
-            AllProfile.Delete();
     end;
 
     local procedure SetSandboxValue(Enable: Boolean)
@@ -688,4 +564,3 @@ codeunit 134912 "ERM User Personalization"
     begin
     end;
 }
-

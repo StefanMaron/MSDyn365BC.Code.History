@@ -272,18 +272,6 @@ codeunit 744 "VAT Report Validate"
                 StrSubstNo(LineNumberErr, VATReportLine."Line No.")));
     end;
 
-    local procedure CleanPhoneNumber(PhoneNumber: Text): Text
-    var
-        CleanedNumber: Text;
-        Index: Integer;
-    begin
-        CleanedNumber := '';
-        for Index := 1 to StrLen(PhoneNumber) do
-            if PhoneNumber[Index] in ['0' .. '9'] then
-                CleanedNumber += Format(PhoneNumber[Index]);
-        exit(CleanedNumber);
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateVATReportLines(var VATReportLine: Record "VAT Report Line")
     begin
@@ -294,4 +282,3 @@ codeunit 744 "VAT Report Validate"
     begin
     end;
 }
-

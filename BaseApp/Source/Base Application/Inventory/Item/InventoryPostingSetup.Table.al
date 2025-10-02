@@ -87,6 +87,42 @@ table 5813 "Inventory Posting Setup"
                       FieldNo("Inventory Account (Interim)"), "Inventory Account (Interim)", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory());
             end;
         }
+        field(99000750; "WIP Account"; Code[20])
+        {
+            Caption = 'WIP Account';
+            TableRelation = "G/L Account";
+        }
+        field(99000753; "Material Variance Account"; Code[20])
+        {
+            Caption = 'Material Variance Account';
+            TableRelation = "G/L Account";
+        }
+        field(99000754; "Capacity Variance Account"; Code[20])
+        {
+            Caption = 'Capacity Variance Account';
+            TableRelation = "G/L Account";
+        }
+        field(99000755; "Mfg. Overhead Variance Account"; Code[20])
+        {
+            Caption = 'Mfg. Overhead Variance Account';
+            TableRelation = "G/L Account";
+        }
+        field(99000756; "Cap. Overhead Variance Account"; Code[20])
+        {
+            Caption = 'Cap. Overhead Variance Account';
+            TableRelation = "G/L Account";
+        }
+        field(99000757; "Subcontracted Variance Account"; Code[20])
+        {
+            Caption = 'Subcontracted Variance Account';
+            TableRelation = "G/L Account";
+        }
+        field(99000758; "Mat. Non-Inv. Variance Acc."; Code[20])
+        {
+            Caption = 'Material Non-Inventory Variance Account';
+            ToolTip = 'Specifies the general ledger account number to which to post material non-inventory variance transactions for items in this combination.';
+            TableRelation = "G/L Account";
+        }
     }
 
     keys
@@ -141,6 +177,62 @@ table 5813 "Inventory Posting Setup"
             PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("Inventory Account (Interim)"));
 
         exit("Inventory Account (Interim)");
+    end;
+
+    procedure GetCapacityVarianceAccount(): Code[20]
+    begin
+        if "Capacity Variance Account" = '' then
+            PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("Capacity Variance Account"));
+
+        exit("Capacity Variance Account");
+    end;
+
+    procedure GetCapOverheadVarianceAccount(): Code[20]
+    begin
+        if "Cap. Overhead Variance Account" = '' then
+            PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("Cap. Overhead Variance Account"));
+
+        exit("Cap. Overhead Variance Account");
+    end;
+
+    procedure GetMaterialVarianceAccount(): Code[20]
+    begin
+        if "Material Variance Account" = '' then
+            PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("Material Variance Account"));
+
+        exit("Material Variance Account");
+    end;
+
+    procedure GetMaterialNonInventoryVarianceAccount(): Code[20]
+    begin
+        if "Mat. Non-Inv. Variance Acc." = '' then
+            PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("Mat. Non-Inv. Variance Acc."));
+
+        exit("Mat. Non-Inv. Variance Acc.");
+    end;
+
+    procedure GetMfgOverheadVarianceAccount(): Code[20]
+    begin
+        if "Mfg. Overhead Variance Account" = '' then
+            PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("Mfg. Overhead Variance Account"));
+
+        exit("Mfg. Overhead Variance Account");
+    end;
+
+    procedure GetSubcontractedVarianceAccount(): Code[20]
+    begin
+        if "Subcontracted Variance Account" = '' then
+            PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("Subcontracted Variance Account"));
+
+        exit("Subcontracted Variance Account");
+    end;
+
+    procedure GetWIPAccount(): Code[20]
+    begin
+        if "WIP Account" = '' then
+            PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("WIP Account"));
+
+        exit("WIP Account");
     end;
 
     procedure SuggestSetupAccounts()

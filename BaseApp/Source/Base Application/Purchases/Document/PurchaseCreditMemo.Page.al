@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Document;
 
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Outlook;
@@ -25,6 +29,7 @@ using System.Privacy;
 using System.Security.User;
 using Microsoft.Finance.WithholdingTax;
 using Microsoft.Foundation.PaymentTerms;
+using System.Threading;
 
 page 52 "Purchase Credit Memo"
 {
@@ -78,25 +83,33 @@ page 52 "Purchase Credit Memo"
                     ShowMandatory = true;
                     ToolTip = 'Specifies the name of the vendor who delivers the products.';
 
-                    trigger OnValidate()
+                    trigger OnAfterLookup(Selected: RecordRef)
                     var
-                        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+                        Vendor: Record Vendor;
                     begin
-                        if Rec."No." = '' then
-                            Rec.InitRecord();
+                        Selected.SetTable(Vendor);
+                        if Rec."Buy-from Vendor No." <> Vendor."No." then begin
+                            Rec.Validate("Buy-from Vendor No.", Vendor."No.");
+                            if Rec."Buy-from Vendor No." <> Vendor."No." then
+                                error('');
+                            IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
+                            CurrPage.Update();
+                        end;
+                    end;
 
+                    trigger OnValidate()
+                    begin
                         Rec.OnAfterValidateBuyFromVendorNo(Rec, xRec);
-
-                        if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
-                            PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
-
                         CurrPage.Update();
                     end;
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        exit(Rec.LookupBuyFromVendorName(Text));
-                    end;
+                }
+                field("Buy-from Vendor Name 2"; Rec."Buy-from Vendor Name 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Vendor Name 2';
+                    Importance = Additional;
+                    QuickEntry = false;
+                    Visible = false;
                 }
                 field("Posting Description"; Rec."Posting Description")
                 {
@@ -371,6 +384,15 @@ page 52 "Purchase Credit Memo"
                     Importance = Additional;
                     ToolTip = 'Specifies the status of a job queue entry that handles the posting of purchase credit memos.';
                     Visible = JobQueueUsed;
+
+                    trigger OnDrillDown()
+                    var
+                        JobQueueEntry: Record "Job Queue Entry";
+                    begin
+                        if Rec."Job Queue Status" = Rec."Job Queue Status"::" " then
+                            exit;
+                        JobQueueEntry.ShowStatusMsg(Rec."Job Queue Entry ID");
+                    end;
                 }
                 field(Status; Rec.Status)
                 {
@@ -740,6 +762,14 @@ page 52 "Purchase Credit Memo"
 
                             CurrPage.Update(false);
                         end;
+                    }
+                    field("Pay-to Name 2"; Rec."Pay-to Name 2")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        Visible = false;
                     }
                     field("Pay-to Address"; Rec."Pay-to Address")
                     {
@@ -1837,7 +1867,7 @@ page 52 "Purchase Credit Memo"
 
         SetIsActivityCodeMandatory();
 
-        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(FlowServiceManagement.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1901,7 +1931,7 @@ page 52 "Purchase Credit Memo"
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
         FormatAddress: Codeunit "Format Address";
         PrivacyNotice: Codeunit "Privacy Notice";
-        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
+        FlowServiceManagement: Codeunit "Flow Service Management";
         ChangeExchangeRate: Page "Change Exchange Rate";
         JobQueueVisible: Boolean;
         JobQueueUsed: Boolean;
@@ -1926,7 +1956,6 @@ page 52 "Purchase Credit Memo"
         PurchaseDocCheckFactboxVisible: Boolean;
         IsJournalTemplNameVisible: Boolean;
         IsPaymentMethodCodeVisible: Boolean;
-        IsPostingGroupEditable: Boolean;
         IsPurchaseLinesEditable: Boolean;
         VATDateEnabled: Boolean;
         DocAmountEnable, DocAmountsEditable : Boolean;
@@ -1934,6 +1963,7 @@ page 52 "Purchase Credit Memo"
     protected var
         ShipToOptions: Option "Default (Vendor Address)","Alternate Vendor Address","Custom Address";
         IsActivityCodeMandatory: Boolean;
+        IsPostingGroupEditable: Boolean;
 
     local procedure ActivateFields()
     begin

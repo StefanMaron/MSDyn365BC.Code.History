@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Projects.Project.Job;
 
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -284,7 +288,6 @@ codeunit 1008 "Job Calculate Statistics"
 
     procedure ShowPlanningLine(JobType: Option " ",Resource,Item,GL; Schedule: Boolean)
     begin
-        JobPlanningLine.FilterGroup(2);
         JobPlanningLine.SetRange("Contract Line");
         JobPlanningLine.SetRange("Schedule Line");
         JobPlanningLine.SetRange(Type);
@@ -294,7 +297,6 @@ codeunit 1008 "Job Calculate Statistics"
             JobPlanningLine.SetRange("Schedule Line", true)
         else
             JobPlanningLine.SetRange("Contract Line", true);
-        JobPlanningLine.FilterGroup(0);
         OnShowPlanningLineOnAfterJobPlanningLineSetFilters(JobPlanningLine);
         PAGE.Run(PAGE::"Job Planning Lines", JobPlanningLine);
     end;

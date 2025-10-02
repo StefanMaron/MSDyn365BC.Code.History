@@ -1,6 +1,6 @@
 codeunit 144106 "Miscellaneous Bugs IT"
 {
-    // 
+    //
     //  1. Test to verify Vendor Bank Account No. on Vendor Bill Card after Insert Line on Manual Vendor Payment Line.
     //  2. Test to verify VAT entry after posting Payment Journal applied to Purchase Prepayment Invoice and Purchase Invoice with Unrealized VAT.
     //  3. Test to verify VAT entry after posting Cash Receipt Journal applied to Sales Prepayment Invoice and Sales Invoice with Unrealized VAT.
@@ -10,7 +10,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
     //  7. Test to verify Name on VAT Register - Print Report after Sales Invoice is posted and Name is updated on Customer.
     //  8. Test to verify Amount on Intrastat Journal Line after posting the Purchase Invoice and Payment on same Posting Date.
     //  9. Test to verify Amount on Intrastat Journal Line after posting the Purchase Invoice and Payment on different Posting Date.
-    // 
+    //
     // Covers Test Cases for WI - 349083
     // ------------------------------------------------------------------------------------
     // Test Function Name                                                            TFS ID
@@ -20,7 +20,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
     // CashRcptJournalAppliedToSalesPrepmtInvAndSalesInv                             346203
     // PostSalesOrderPaymentMethodCodeWithBalanceAccount                             348959
     // ReportingValuesOnPostedTransferShipmentPage                                   345104
-    // 
+    //
     // Covers Test Cases for WI - 349772
     // ------------------------------------------------------------------------------------
     // Test Function Name                                                            TFS ID
@@ -51,7 +51,6 @@ codeunit 144106 "Miscellaneous Bugs IT"
         LibraryRandom: Codeunit "Library - Random";
         AmountErr: Label 'Amount must be equal.';
         DescrCap: Label 'Descr';
-        FormatTxt: Label '########';
         NameCap: Label 'Name';
 
     [Test]
@@ -315,28 +314,6 @@ codeunit 144106 "Miscellaneous Bugs IT"
         LibraryVariableStorage.Clear();
     end;
 
-    local procedure CreateCountryRegion(): Code[10]
-    var
-        CountryRegion: Record "Country/Region";
-    begin
-        LibraryERM.CreateCountryRegion(CountryRegion);
-        CountryRegion.Validate("Intrastat Code", CountryRegion.Code);
-        CountryRegion.Modify(true);
-        exit(CountryRegion.Code);
-    end;
-
-    local procedure CreateEUVendor(VATBusPostingGroup: Code[20]): Code[20]
-    var
-        Vendor: Record Vendor;
-    begin
-        LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-        Vendor.Validate("Country/Region Code", CreateVATRegistrationNoFormat());
-        Vendor.Validate("VAT Registration No.", LibraryUtility.GenerateGUID());
-        Vendor.Modify(true);
-        exit(Vendor."No.");
-    end;
-
     local procedure CreateGLAccount(VATProdPostingGroup: Code[20]): Code[20]
     var
         GeneralPostingSetup: Record "General Posting Setup";
@@ -477,16 +454,6 @@ codeunit 144106 "Miscellaneous Bugs IT"
         VendorBillHeader.Modify(true);
     end;
 
-    local procedure CreateVATRegistrationNoFormat(): Code[10]
-    var
-        VATRegistrationNoFormat: Record "VAT Registration No. Format";
-    begin
-        LibraryERM.CreateVATRegistrationNoFormat(VATRegistrationNoFormat, CreateCountryRegion());
-        VATRegistrationNoFormat.Validate(Format, CopyStr(LibraryUtility.GenerateGUID(), 1, 2) + FormatTxt);
-        VATRegistrationNoFormat.Modify(true);
-        exit(VATRegistrationNoFormat."Country/Region Code");
-    end;
-
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type"; EUService: Boolean)
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
@@ -517,15 +484,6 @@ codeunit 144106 "Miscellaneous Bugs IT"
         NoSeries.SetRange("Date Order", true);
         NoSeries.FindFirst();
         exit(NoSeries.Code);
-    end;
-
-    local procedure GetPurchaseInvoiceLineAmount(DocumentNo: Code[20]): Decimal
-    var
-        PurchInvLine: Record "Purch. Inv. Line";
-    begin
-        PurchInvLine.SetRange("Document No.", DocumentNo);
-        PurchInvLine.FindFirst();
-        exit(PurchInvLine.Amount);
     end;
 
     local procedure GetPrepaymentPurchaseInvoiceHeaderNo(BuyFromVendorNo: Code[20]): Code[20]
@@ -641,4 +599,3 @@ codeunit 144106 "Miscellaneous Bugs IT"
         VATRegisterPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-

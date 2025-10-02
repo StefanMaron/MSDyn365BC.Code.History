@@ -22,6 +22,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryFA: Codeunit "Library - Fixed Asset";
+        LibraryService: Codeunit "Library - Service";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
@@ -279,7 +280,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // Setup
         Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
-        CFHelper.CreateDefaultServiceOrder(ServiceHeader);
+        LibraryService.CreateDefaultServiceOrder(ServiceHeader);
 
         // Exercise
         ConsiderSource["Cash Flow Source Type"::"Service Orders".AsInteger()] := true;
@@ -672,7 +673,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         Initialize();
         CFHelper.CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
-        CFHelper.CreateSpecificServiceOrder(ServiceHeader, PaymentTerms.Code);
+        LibraryService.CreateSpecificServiceOrder(ServiceHeader, PaymentTerms.Code);
         ExpectedAmount := CFHelper.GetTotalServiceAmount(ServiceHeader, true);
         ExpectedCFDate := CalculateDiscountDate(PaymentTerms, ServiceHeader."Document Date");
 
@@ -1399,7 +1400,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // Setup
         Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
-        CFHelper.CreateDefaultServiceOrder(ServiceHeader);
+        LibraryService.CreateDefaultServiceOrder(ServiceHeader);
 
         // Exercise
         ConsiderSource["Cash Flow Source Type"::"Service Orders".AsInteger()] := true;
@@ -1423,7 +1424,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // Setup
         Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
-        CFHelper.CreateDefaultServiceOrder(ServiceHeader);
+        LibraryService.CreateDefaultServiceOrder(ServiceHeader);
 
         // Exercise
         ConsiderSource["Cash Flow Source Type"::"Service Orders".AsInteger()] := true;

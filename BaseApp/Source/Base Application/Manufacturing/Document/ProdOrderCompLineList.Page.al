@@ -145,21 +145,32 @@ page 5407 "Prod. Order Comp. Line List"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the difference between the finished and planned quantities, or zero if the finished quantity is greater than the remaining quantity.';
                 }
+#if not CLEAN27
                 field("Qty. on Transfer Order (Base)"; Rec."Qty. on Transfer Order (Base)")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the item amount that is on the transfer order.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Qty. in Transit (Base)"; Rec."Qty. in Transit (Base)")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the items that are in transit.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Qty. transf. to Subcontractor"; Rec."Qty. transf. to Subcontractor")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the item amount that will be transferred to the subcontractor.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif
                 field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Manufacturing;
@@ -231,7 +242,7 @@ page 5407 "Prod. Order Comp. Line List"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial, lot and package numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()

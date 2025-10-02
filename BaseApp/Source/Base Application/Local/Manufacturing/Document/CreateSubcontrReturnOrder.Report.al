@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN27
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -16,6 +17,9 @@ report 12153 "Create Subcontr. Return Order"
 {
     Caption = 'Create Subcontr. Return Order';
     ProcessingOnly = true;
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
 
     dataset
     {
@@ -297,4 +301,4 @@ report 12153 "Create Subcontr. Return Order"
     begin
     end;
 }
-
+#endif

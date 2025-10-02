@@ -107,26 +107,14 @@ table 99000786 "Routing Version"
     trigger OnInsert()
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         if "Version Code" = '' then begin
             RoutingHeader.Get("Routing No.");
             RoutingHeader.TestField("Version Nos.");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(RoutingHeader."Version Nos.", xRec."No. Series", 0D, VersionCode, "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 "No. Series" := RoutingHeader."Version Nos.";
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
                 VersionCode := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", RoutingHeader."Version Nos.", 0D, VersionCode);
-            end;
-#endif
             if StrLen(VersionCode) > MaxStrLen("Version Code") then
                 Error(Text000,
                   FieldCaption("Version Code"),
@@ -221,4 +209,3 @@ table 99000786 "Routing Version"
     begin
     end;
 }
-

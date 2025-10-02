@@ -1,4 +1,8 @@
 #if not CLEANSCHEMA25 
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Payables;
 
 using Microsoft.Finance.Currency;

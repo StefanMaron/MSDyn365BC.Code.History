@@ -10,12 +10,16 @@ table 143000 "Split VAT Test"
         }
         field(2; "Amount Excl. VAT"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(3; "VAT %"; Integer)
         {
         }
         field(4; "VAT Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(5; "VAT Bus. Post. Group"; Code[20])
         {
@@ -37,4 +41,3 @@ table 143000 "Split VAT Test"
     {
     }
 }
-

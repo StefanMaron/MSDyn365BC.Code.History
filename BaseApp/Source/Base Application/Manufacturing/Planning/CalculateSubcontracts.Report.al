@@ -14,7 +14,9 @@ using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
+#if not CLEAN27
 using Microsoft.Purchases.Vendor;
+#endif
 
 report 99001015 "Calculate Subcontracts"
 {
@@ -42,12 +44,15 @@ report 99001015 "Calculate Subcontracts"
             }
 
             trigger OnAfterGetRecord()
+#if not CLEAN27
             var
                 Vendor: Record Vendor;
+#endif
             begin
                 if "Subcontractor No." = '' then
                     CurrReport.Skip();
 
+#if not CLEAN27
                 if "Subcontractor No." <> '' then begin
                     Vendor.Get("Work Center"."Subcontractor No.");
                     if Vendor."Privacy Blocked" then begin
@@ -60,6 +65,7 @@ report 99001015 "Calculate Subcontracts"
                         CurrReport.Skip();
                     end;
                 end;
+#endif
 
                 Window.Update(1, "No.");
             end;
@@ -131,9 +137,11 @@ report 99001015 "Calculate Subcontracts"
         BaseQtyToPurch: Decimal;
         QtyToPurch: Decimal;
         GLSetupRead: Boolean;
+#if not CLEAN27
         Text1130000: Label 'Production Order %1 skipped because Item No. %2 is blocked';
         Text1130001: Label 'Work Center %1 skipped because Vendor %2  is blocked';
         PrivacyBlockedMsg: Label 'Work Center %1 skipped because Vendor %2 is blocked for privacy.', Comment = '%1 = work center code, %2 = vendor code.';
+#endif
 
 #pragma warning disable AA0074
 #pragma warning disable AA0470
@@ -203,16 +211,18 @@ report 99001015 "Calculate Subcontracts"
         ReqLine."Prod. Order No." := ProdOrderLine."Prod. Order No.";
         ReqLine."Prod. Order Line No." := ProdOrderLine."Line No.";
         ReqLine."Due Date" := ProdOrderRoutingLine."Ending Date";
-        ReqLine."Requester ID" := UserId;
+        ReqLine."Requester ID" := CopyStr(UserId(), 1, 50);
         ReqLine."Location Code" := ProdOrderLine."Location Code";
         ReqLine."Bin Code" := ProdOrderLine."Bin Code";
         ReqLine."Routing Reference No." := ProdOrderRoutingLine."Routing Reference No.";
         ReqLine."Routing No." := ProdOrderRoutingLine."Routing No.";
         ReqLine."Operation No." := ProdOrderRoutingLine."Operation No.";
         ReqLine."Work Center No." := ProdOrderRoutingLine."Work Center No.";
+#if not CLEAN27
         ReqLine."Standard Task Code" := ProdOrderRoutingLine."Standard Task Code";
         ReqLine."Variant Code" := ProdOrderLine."Variant Code";
         ReqLine."WIP Item" := ProdOrderRoutingLine."WIP Item";
+#endif
         ReqLine.Validate(ReqLine."Vendor No.", WorkCenter."Subcontractor No.");
         ReqLine.Description := ProdOrderRoutingLine.Description;
         SetVendorItemNo();
@@ -350,14 +360,16 @@ report 99001015 "Calculate Subcontracts"
                 ProdOrderLine.SetRange("Routing No.", TempProdOrderRoutingLine."Routing No.");
                 ProdOrderLine.SetRange("Routing Reference No.", TempProdOrderRoutingLine."Routing Reference No.");
                 OnProdOrderRoutingLineOnAfterGetRecordOnAfterProdOrderLineSetFilters(ProdOrderLine, TempProdOrderRoutingLine);
-                if ProdOrderLine.Findset() then begin
+                if ProdOrderLine.FindSet() then begin
                     DeleteRepeatedReqLines(TempProdOrderRoutingLine);
                     repeat
+#if not CLEAN27
                         Item.Get(ProdOrderLine."Item No.");
                         if Item.Blocked then begin
                             Message(Text1130000, TempProdOrderRoutingLine."Prod. Order No.", ProdOrderLine."Item No.");
                             CurrReport.Skip();
                         end;
+#endif
                         BaseQtyToPurch :=
                             MfgCostCalcMgt.CalcQtyAdjdForRoutingScrap(
                                 MfgCostCalcMgt.CalcQtyAdjdForBOMScrap(

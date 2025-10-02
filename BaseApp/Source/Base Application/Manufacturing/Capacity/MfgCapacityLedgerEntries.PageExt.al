@@ -4,8 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Capacity;
 
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Manufacturing.MachineCenter;
+using Microsoft.Manufacturing.Document;
+
 pageextension 99000802 "Mfg. Capacity Ledger Entries" extends "Capacity Ledger Entries"
 {
+    DataCaptionExpression = GetCaption();
+
     layout
     {
         addafter("Order No.")
@@ -94,11 +100,16 @@ pageextension 99000802 "Mfg. Capacity Ledger Entries" extends "Capacity Ledger E
                 ApplicationArea = Manufacturing;
                 ToolTip = 'Specifies the scrap quantity, in base units of measure.';
             }
+#if not CLEAN27
             field("WIP Item Qty."; Rec."WIP Item Qty.")
             {
                 ApplicationArea = Manufacturing;
                 ToolTip = 'Specifies the number of work in process (WIP) items on a subcontractor order.';
+                ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
             }
+#endif
         }
         addafter("Global Dimension 2 Code")
         {
@@ -116,4 +127,72 @@ pageextension 99000802 "Mfg. Capacity Ledger Entries" extends "Capacity Ledger E
             }
         }
     }
+    actions
+    {
+        addafter("&Navigate")
+        {
+            action("Reverse")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Reverse Production Entry';
+                Image = ReverseLines;
+                ToolTip = 'Reverse a production capacity ledger entry for the selected lines.';
+                Ellipsis = true;
+
+                trigger OnAction()
+                var
+                    CapacityLedgEntry: Record "Capacity Ledger Entry";
+                    UndoProdPostingMgmt: Codeunit Microsoft.Manufacturing.Journal."Undo Prod. Posting Mgmt.";
+                begin
+                    CurrPage.SetSelectionFilter(CapacityLedgEntry);
+                    UndoProdPostingMgmt.ReverseCapacityLedgerEntry(CapacityLedgEntry);
+                end;
+            }
+        }
+    }
+
+    local procedure GetCaption(): Text
+    var
+        ObjTransl: Record System.Globalization."Object Translation";
+        WorkCenter: Record "Work Center";
+        MachineCenter: Record "Machine Center";
+        ProdOrder: Record "Production Order";
+        SourceTableName: Text[250];
+        SourceFilter: Text;
+        Description: Text[100];
+    begin
+        Description := '';
+
+        case true of
+            Rec.GetFilter("Work Center No.") <> '':
+                begin
+                    SourceTableName := ObjTransl.TranslateObject(ObjTransl."Object Type"::Table, Database::"Work Center");
+                    SourceFilter := Rec.GetFilter("Work Center No.");
+                    if MaxStrLen(WorkCenter."No.") >= StrLen(SourceFilter) then
+                        if WorkCenter.Get(SourceFilter) then
+                            Description := WorkCenter.Name;
+                end;
+            (Rec.GetFilter("No.") <> '') and (Rec.GetFilter(Type) = MachineCenter.TableCaption()):
+                begin
+                    SourceTableName := ObjTransl.TranslateObject(ObjTransl."Object Type"::Table, Database::"Machine Center");
+                    SourceFilter := Rec.GetFilter("No.");
+                    if MaxStrLen(MachineCenter."No.") >= StrLen(SourceFilter) then
+                        if MachineCenter.Get(SourceFilter) then
+                            Description := MachineCenter.Name;
+                end;
+            (Rec.GetFilter("Order No.") <> '') and (Rec."Order Type" = Rec."Order Type"::Production):
+                begin
+                    SourceTableName := ObjTransl.TranslateObject(ObjTransl."Object Type"::Table, Database::"Production Order");
+                    SourceFilter := Rec.GetFilter("Order No.");
+                    if MaxStrLen(ProdOrder."No.") >= StrLen(SourceFilter) then
+                        if ProdOrder.Get(ProdOrder.Status::Released, SourceFilter) or
+                           ProdOrder.Get(ProdOrder.Status::Finished, SourceFilter)
+                        then begin
+                            SourceTableName := StrSubstNo('%1 %2', ProdOrder.Status, SourceTableName);
+                            Description := ProdOrder.Description;
+                        end;
+                end;
+        end;
+        exit(StrSubstNo('%1 %2 %3', SourceTableName, SourceFilter, Description));
+    end;
 }

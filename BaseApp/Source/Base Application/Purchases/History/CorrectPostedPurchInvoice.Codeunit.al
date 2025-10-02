@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.History;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -17,8 +21,8 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Posting;
 using Microsoft.Purchases.Setup;
 using Microsoft.Purchases.Vendor;
-using Microsoft.Warehouse.Request;
 using Microsoft.Utilities;
+using Microsoft.Warehouse.Request;
 using System.Environment.Configuration;
 
 codeunit 1313 "Correct Posted Purch. Invoice"
@@ -915,6 +919,11 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         PurchaseHeader.Modify();
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateCheckTotal(PurchInvHeader: Record "Purch. Inv. Header"; var PurchaseHeader: Record "Purchase Header"; var CancellingOnly: Boolean; var SuppressCommit: Boolean)
+    begin
+    end;
+
     internal procedure UpdatePurchaseOrderLineIfExist(PurchaseCreditMemoNo: Code[20])
     var
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
@@ -1059,11 +1068,6 @@ codeunit 1313 "Correct Posted Purch. Invoice"
             WarehouseRequest."Completely Handled" := false;
             WarehouseRequest.Modify();
         end;
-    end;
-    
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateCheckTotal(PurchInvHeader: Record "Purch. Inv. Header"; var PurchaseHeader: Record "Purchase Header"; var CancellingOnly: Boolean; var SuppressCommit: Boolean)
-    begin
     end;
 
     [IntegrationEvent(false, false)]

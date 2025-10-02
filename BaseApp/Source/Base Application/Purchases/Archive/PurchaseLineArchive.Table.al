@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Archive;
 
 using Microsoft.Finance.Currency;
@@ -31,7 +35,6 @@ using Microsoft.Sales.Document;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Structure;
 using System.Reflection;
-using Microsoft.Manufacturing.Capacity;
 
 table 5110 "Purchase Line Archive"
 {
@@ -627,21 +630,25 @@ table 5110 "Purchase Line Archive"
         {
             AccessByPermission = TableData Job = R;
             Caption = 'Project Unit Price (LCY)';
+            AutoFormatType = 2;
         }
         field(1009; "Job Total Price (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             Caption = 'Project Total Price (LCY)';
+            AutoFormatType = 1;
         }
         field(1010; "Job Line Amount (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             Caption = 'Project Line Amount (LCY)';
+            AutoFormatType = 1;
         }
         field(1011; "Job Line Disc. Amount (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             Caption = 'Project Line Disc. Amount (LCY)';
+            AutoFormatType = 1;
         }
         field(1012; "Job Currency Factor"; Decimal)
         {
@@ -962,6 +969,7 @@ table 5110 "Purchase Line Archive"
         {
             BlankZero = true;
             Caption = 'No. of Fixed Asset Cards';
+            ToolTip = 'Specifies the number of fixed assets that is being purchased.';
             MinValue = 0;
         }
         field(12101; "Deductible %"; Decimal)
@@ -1007,24 +1015,46 @@ table 5110 "Purchase Line Archive"
             OptionCaption = ' ,Current,Current Calendar Year,Previous Calendar Year';
             OptionMembers = " ",Current,"Current Calendar Year","Previous Calendar Year";
         }
+#if not CLEANSCHEMA30
         field(12180; "WIP Item"; Boolean)
         {
             Caption = 'WIP Item';
             Editable = false;
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
+#if not CLEAN27
         field(12182; "WIP Qty at Subc.Loc. (Base)"; Decimal)
         {
-            CalcFormula = sum("Capacity Ledger Entry"."WIP Item Qty." where("Subcontr. Purch. Order No." = field("Document No."),
+            CalcFormula = sum(Microsoft.Manufacturing.Capacity."Capacity Ledger Entry"."WIP Item Qty." where("Subcontr. Purch. Order No." = field("Document No."),
                                                                              "Subcontr. Purch. Order Line" = field("Line No.")));
             Caption = 'WIP Qty at Subc.Loc. (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
         }
+#endif
         field(12183; "Not Proc. WIP Qty to Receive"; Decimal)
         {
             Caption = 'Not Proc. WIP Qty to Receive';
             DecimalPlaces = 0 : 5;
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12184; "Base UM Qty/Pricelist UM Qty"; Decimal)
         {
@@ -1032,25 +1062,58 @@ table 5110 "Purchase Line Archive"
             DecimalPlaces = 0 : 5;
             Editable = false;
             InitValue = 1;
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12185; "UoM for Pricelist"; Code[10])
         {
             Caption = 'UoM for Pricelist';
             Editable = false;
             TableRelation = "Unit of Measure";
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12186; "Pricelist UM Qty/Base UM Qty"; Decimal)
         {
             Caption = 'Pricelist UM Qty/Base UM Qty';
             DecimalPlaces = 0 : 5;
             Editable = false;
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12187; "Pricelist Cost"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 2;
             Editable = false;
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
+#endif
         field(99000755; "Overhead Rate"; Decimal)
         {
             Caption = 'Overhead Rate';

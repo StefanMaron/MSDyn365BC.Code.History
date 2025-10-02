@@ -8,7 +8,6 @@ using Microsoft.Foundation.Company;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Sales.Peppol;
-using Microsoft.EServices.EDocument;
 
 codeunit 6475 "Service Company Initialize"
 {
@@ -19,8 +18,6 @@ codeunit 6475 "Service Company Initialize"
         ServiceManagementTxt: Label 'Service Management';
         PEPPOLBIS3_ElectronicFormatTxt: Label 'PEPPOL BIS3', Locked = true;
         PEPPOLBIS3_ElectronicFormatDescriptionTxt: Label 'PEPPOL BIS3 Format (Pan-European Public Procurement Online)';
-        FatturaPA_ElectronicFormatTxt: Label 'FatturaPA';
-        FatturaPA_ElectronicFormatDescriptionTxt: Label 'FatturaPA (Fattura elettronica)';
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnAfterInitSetupTables', '', false, false)]
     local procedure OnAfterInitSetupTables()
@@ -55,18 +52,6 @@ codeunit 6475 "Service Company Initialize"
         ElectronicDocumentFormat.InsertElectronicFormat(
           PEPPOLBIS3_ElectronicFormatTxt, PEPPOLBIS3_ElectronicFormatDescriptionTxt,
           CODEUNIT::"PEPPOL Service Validation", 0, ElectronicDocumentFormat.Usage::"Service Validation".AsInteger());
-
-        ElectronicDocumentFormat.InsertElectronicFormat(
-          FatturaPA_ElectronicFormatTxt, FatturaPA_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"Export FatturaPA Document", 0, ElectronicDocumentFormat.Usage::"Service Credit Memo".AsInteger());
-
-        ElectronicDocumentFormat.InsertElectronicFormat(
-          FatturaPA_ElectronicFormatTxt, FatturaPA_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"FatturaPA Sales Validation", 0, ElectronicDocumentFormat.Usage::"Sales Validation".AsInteger());
-
-        ElectronicDocumentFormat.InsertElectronicFormat(
-          FatturaPA_ElectronicFormatTxt, FatturaPA_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"FatturaPA Service Validation", 0, ElectronicDocumentFormat.Usage::"Service Validation".AsInteger());
     end;
 
 }

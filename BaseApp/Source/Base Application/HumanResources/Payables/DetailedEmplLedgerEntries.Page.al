@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.HumanResources.Payables;
 
 using Microsoft.Foundation.Navigate;
@@ -56,6 +60,12 @@ page 5238 "Detailed Empl. Ledger Entries"
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the Global Dimension 2 code of the initial employee ledger entry.';
+                    Visible = false;
+                }
+                field("Posting Group"; Rec."Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the employee''s market type to link business transactions to.';
                     Visible = false;
                 }
                 field("Currency Code"; Rec."Currency Code")

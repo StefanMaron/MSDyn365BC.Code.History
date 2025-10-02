@@ -9,7 +9,9 @@ using Microsoft.Inventory.Location;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Comment;
 using Microsoft.Manufacturing.Reports;
+#if not CLEAN27
 using Microsoft.Manufacturing.Document;
+#endif
 
 page 99000754 "Work Center Card"
 {
@@ -334,6 +336,7 @@ page 99000754 "Work Center Card"
                 }
             }
         }
+#if not CLEAN27
         area(processing)
         {
             action("Subcontr. &Prices")
@@ -346,8 +349,12 @@ page 99000754 "Work Center Card"
                 RunPageLink = "Work Center No." = field("No.");
                 RunPageView = sorting("Vendor No.", "Item No.", "Standard Task Code", "Work Center No.", "Variant Code", "Start Date", "Unit of Measure Code", "Minimum Quantity", "Currency Code");
                 ToolTip = 'View the subcontracting prices.';
+                ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
             }
         }
+#endif
         area(reporting)
         {
             action("Subcontractor - Dispatch List")
@@ -367,9 +374,14 @@ page 99000754 "Work Center Card"
             {
                 Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
 
+#if not CLEAN27
                 actionref("Subcontr. &Prices_Promoted"; "Subcontr. &Prices")
                 {
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif
                 actionref("Lo&ad_Promoted"; "Lo&ad")
                 {
                 }

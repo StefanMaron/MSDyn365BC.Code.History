@@ -114,6 +114,7 @@ page 99000799 "Standard Tasks"
         }
     }
 
+#if not CLEAN27
     [Scope('OnPrem')]
     procedure GetSelectionFilter(): Code[80]
     var
@@ -160,5 +161,6 @@ page 99000799 "Standard Tasks"
         end;
         exit(SelectionFilter);
     end;
+#endif
 }
 

@@ -394,13 +394,6 @@ codeunit 144207 "FatturaPA Applications"
         exit(Format(DateToFormat, 0, TypeHelper.GetXMLDateFormat()));
     end;
 
-    local procedure DeleteServerFile(TempBlob: Text)
-    var
-        FileManagement: Codeunit "File Management";
-    begin
-        FileManagement.DeleteServerFile(TempBlob);
-    end;
-
     local procedure AssertElementValue(var TempXMLBuffer: Record "XML Buffer" temporary; ElementName: Text; ElementValue: Text)
     begin
         FindNextElement(TempXMLBuffer);
@@ -452,4 +445,3 @@ codeunit 144207 "FatturaPA Applications"
           CompanyInformation."Fiscal Code" + '_' + ZeroNo + BaseString + '.xml');
     end;
 }
-

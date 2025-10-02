@@ -16,13 +16,17 @@ tableextension 6637 ReturnReasonExt extends "Return Reason"
             Caption = 'Default Location Code';
             DataClassification = CustomerContent;
             TableRelation = Location where("Use As In-Transit" = const(false));
+#if not CLEANSCHEMA27
             MovedFrom = 'f3552374-a1f2-4356-848e-196002525837';
+#endif
         }
         field(4; "Inventory Value Zero"; Boolean)
         {
             Caption = 'Inventory Value Zero';
             DataClassification = CustomerContent;
+#if not CLEANSCHEMA27
             MovedFrom = 'f3552374-a1f2-4356-848e-196002525837';
+#endif
         }
     }
 

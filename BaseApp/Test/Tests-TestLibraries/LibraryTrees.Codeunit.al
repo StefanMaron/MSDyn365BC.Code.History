@@ -271,11 +271,11 @@ codeunit 132208 "Library - Trees"
     [Normal]
     procedure CreateNodeSupply(ParentItemNo: Code[20]; LocationCode: Code[10]; DueDate: Date; SourceType: Option; Qty: Decimal; BottleneckFactor: Decimal; DirectAvailFactor: Decimal)
     var
-        MfgSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
         BOMComponent: Record "BOM Component";
         DirectAvailability: Decimal;
     begin
-        MfgSetup.Get();
+        InventorySetup.Get();
         BOMComponent.SetRange("Parent Item No.", ParentItemNo);
         BOMComponent.SetRange(Type, BOMComponent.Type::Item);
 
@@ -285,34 +285,34 @@ codeunit 132208 "Library - Trees"
                 if BOMComponent."Assembly BOM" then begin
                     DirectAvailability := Qty * BottleneckFactor * DirectAvailFactor;
                     CreateNodeSupply(
-                      BOMComponent."No.", LocationCode, CalcDate('<-' + Format(MfgSetup."Default Safety Lead Time") + '>', DueDate), SourceType,
+                      BOMComponent."No.", LocationCode, CalcDate('<-' + Format(InventorySetup."Default Safety Lead Time") + '>', DueDate), SourceType,
                       (Qty * BottleneckFactor - DirectAvailability) * BOMComponent."Quantity per", 1, DirectAvailFactor);
 
                     if DirectAvailability > 0 then begin
                         CreateSupply(
                           BOMComponent."No.", BOMComponent."Variant Code", LocationCode,
-                          CalcDate('<-' + Format(MfgSetup."Default Safety Lead Time") + '>', DueDate), SourceType,
+                          CalcDate('<-' + Format(InventorySetup."Default Safety Lead Time") + '>', DueDate), SourceType,
                           DirectAvailability * BOMComponent."Quantity per");
                         // Create un-available supply: by variant, location.
                         CreateSupply(
-                          BOMComponent."No.", '', LocationCode, CalcDate('<-' + Format(MfgSetup."Default Safety Lead Time") + '>', DueDate),
+                          BOMComponent."No.", '', LocationCode, CalcDate('<-' + Format(InventorySetup."Default Safety Lead Time") + '>', DueDate),
                           SourceType, (DirectAvailability + 1) * BOMComponent."Quantity per");
                         CreateSupply(
                           BOMComponent."No.", BOMComponent."Variant Code", '',
-                          CalcDate('<-' + Format(MfgSetup."Default Safety Lead Time") + '>', DueDate), SourceType,
+                          CalcDate('<-' + Format(InventorySetup."Default Safety Lead Time") + '>', DueDate), SourceType,
                           (DirectAvailability + 1) * BOMComponent."Quantity per");
                     end;
                 end else begin
                     CreateSupply(
                       BOMComponent."No.", BOMComponent."Variant Code", LocationCode,
-                      CalcDate('<-' + Format(MfgSetup."Default Safety Lead Time") + '>', DueDate), SourceType, Qty * BOMComponent."Quantity per");
+                      CalcDate('<-' + Format(InventorySetup."Default Safety Lead Time") + '>', DueDate), SourceType, Qty * BOMComponent."Quantity per");
                     // Create  un-available supply: by variant, location.
                     CreateSupply(
-                      BOMComponent."No.", '', LocationCode, CalcDate('<-' + Format(MfgSetup."Default Safety Lead Time") + '>', DueDate),
+                      BOMComponent."No.", '', LocationCode, CalcDate('<-' + Format(InventorySetup."Default Safety Lead Time") + '>', DueDate),
                       SourceType, (Qty + 1) * BOMComponent."Quantity per");
                     CreateSupply(
                       BOMComponent."No.", BOMComponent."Variant Code", '',
-                      CalcDate('<-' + Format(MfgSetup."Default Safety Lead Time") + '>', DueDate), SourceType,
+                      CalcDate('<-' + Format(InventorySetup."Default Safety Lead Time") + '>', DueDate), SourceType,
                       (Qty + 1) * BOMComponent."Quantity per");
                 end;
 

@@ -28,7 +28,7 @@ codeunit 138060 "Non-O365 Shipping Agent"
         SalesHeader: Record "Sales Header";
         SalesHeaderCopy: Record "Sales Header";
         ShippingAgent: Record "Shipping Agent";
-        PackageTrackingNo: Text[30];
+        PackageTrackingNo: Text[50];
     begin
         Initialize();
 
@@ -61,7 +61,7 @@ codeunit 138060 "Non-O365 Shipping Agent"
         SalesHeaderCopy: Record "Sales Header";
         ShippingAgent: Record "Shipping Agent";
         ShippingAgentServiceCode: Code[10];
-        PackageTrackingNo: Text[30];
+        PackageTrackingNo: Text[50];
     begin
         Initialize();
 
@@ -99,7 +99,7 @@ codeunit 138060 "Non-O365 Shipping Agent"
         SalesHeaderCopy: Record "Sales Header";
         ShippingAgent: Record "Shipping Agent";
         ShippingAgentServiceCode: Code[10];
-        PackageTrackingNo: Text[30];
+        PackageTrackingNo: Text[50];
     begin
         Initialize();
 
@@ -179,7 +179,7 @@ codeunit 138060 "Non-O365 Shipping Agent"
         SalesReturnOrder.OK().Invoke();
     end;
 
-    local procedure AddPackageTrackingNumberToSalesReturnOrder(var SalesHeader: Record "Sales Header"; PackageTrackingNo: Text[30])
+    local procedure AddPackageTrackingNumberToSalesReturnOrder(var SalesHeader: Record "Sales Header"; PackageTrackingNo: Text[50])
     var
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
@@ -205,7 +205,7 @@ codeunit 138060 "Non-O365 Shipping Agent"
         exit(Customer."No.");
     end;
 
-    local procedure GenerateRandomPackageTrackingNo(): Text[30]
+    local procedure GenerateRandomPackageTrackingNo(): Text[50]
     var
         DummySalesHeader: Record "Sales Header";
     begin
@@ -255,4 +255,3 @@ codeunit 138060 "Non-O365 Shipping Agent"
         Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
-

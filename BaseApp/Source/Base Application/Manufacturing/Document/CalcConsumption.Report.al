@@ -10,7 +10,10 @@ using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
+using Microsoft.Manufacturing.Setup;
+#if not CLEAN27
 using Microsoft.Manufacturing.WorkCenter;
+#endif
 
 report 5405 "Calc. Consumption"
 {
@@ -107,7 +110,7 @@ report 5405 "Calc. Consumption"
                         ApplicationArea = Manufacturing;
                         Caption = 'Calculation Based on';
                         OptionCaption = 'Actual Output,Expected Output';
-                        ToolTip = 'Specifies whether the calculation of the quantity to consume is based on the actual output or on the expected output (the quantity of finished goods that you expect to produce).';
+                        ToolTip = 'Specifies whether the calculation of the quantity to consume is based on the actual output or on the expected output (the quantity of finished goods that you expect to produce). The default value of this field can be set in the Manufacturing Setup.';
                     }
                     field(LocationCode; LocationCode)
                     {
@@ -143,7 +146,7 @@ report 5405 "Calc. Consumption"
 
         trigger OnOpenPage()
         begin
-            InitializeRequest(WorkDate(), CalcBasedOn::"Expected Output");
+            InitializeRequest(WorkDate(), GetDefaultCalcBasedOn());
         end;
     }
 
@@ -183,12 +186,24 @@ report 5405 "Calc. Consumption"
         CalcBasedOn := NewCalcBasedOn;
     end;
 
+    local procedure GetDefaultCalcBasedOn(): Option
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        if ManufacturingSetup.Get() then
+            exit(ManufacturingSetup."Default Consum. Calc. Based on");
+
+        exit(ManufacturingSetup."Default Consum. Calc. Based on"::"Expected Output");
+    end;
+
     local procedure CreateConsumpJnlLine(LocationCode: Code[10]; BinCode: Code[20]; OriginalQtyToPost: Decimal)
     var
         Location: Record Location;
+#if not CLEAN27
         SubcontractingMgt: Codeunit SubcontractingManagement;
         WorkCenter: Record "Work Center";
         ProdOrdRoutLine: Record "Prod. Order Routing Line";
+#endif
 #if not CLEAN26
         ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
 #endif
@@ -241,6 +256,7 @@ report 5405 "Calc. Consumption"
             ValidateItemJnlLineQuantity(QtyToPost, QtyToPost < OriginalQtyToPost);
             ItemJnlLine."Variant Code" := "Prod. Order Component"."Variant Code";
             ItemJnlLine.Validate("Location Code", LocationCode);
+#if not CLEAN27
             Clear(WorkCenter);
             ProdOrdRoutLine.SetRange(Status, ProdOrderLine.Status);
             ProdOrdRoutLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
@@ -252,6 +268,7 @@ report 5405 "Calc. Consumption"
                 WorkCenter.Get(ProdOrdRoutLine."Work Center No.");
             if ("Prod. Order Component"."Routing Link Code" <> '') and (WorkCenter."Subcontractor No." <> '') then
                 ItemJnlLine."Location Code" := SubcontractingMgt.GetConsLocation("Prod. Order Component", ItemJnlLine."Location Code");
+#endif
             if BinCode <> '' then
                 ItemJnlLine."Bin Code" := BinCode;
             ItemJnlLine.Validate("Order Line No.", "Prod. Order Component"."Prod. Order Line No.");

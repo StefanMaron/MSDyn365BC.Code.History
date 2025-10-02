@@ -127,6 +127,11 @@ page 5610 "Depreciation Book Card"
                     Caption = 'Calc. Custom 2 Depreciation';
                     ToolTip = 'Specifies if an accelerated or reduced depreciation should be calculated during the depreciation process.';
                 }
+                field("Use Accounting Period"; Rec."Use Accounting Period")
+                {
+                    ApplicationArea = FixedAssets;
+                    ToolTip = 'Specifies if you want the periods between start date and ending date to correspond to the accounting periods that you have set up.';
+                }
             }
             group(Integration)
             {

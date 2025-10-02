@@ -8,6 +8,10 @@ using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 
+/// <summary>
+/// Stores user-specific configuration settings for payment registration functionality.
+/// This table manages default values and preferences for the payment registration process.
+/// </summary>
 table 980 "Payment Registration Setup"
 {
     Caption = 'Payment Registration Setup';
@@ -15,11 +19,19 @@ table 980 "Payment Registration Setup"
 
     fields
     {
+        /// <summary>
+        /// Specifies the user ID for whom this payment registration setup applies.
+        /// Each user can have their own personalized payment registration configuration.
+        /// </summary>
         field(1; "User ID"; Code[50])
         {
             Caption = 'User ID';
             DataClassification = EndUserIdentifiableInformation;
         }
+        /// <summary>
+        /// Specifies the general journal template used for payment registration posting.
+        /// Determines the template structure and defaults for payment journal entries.
+        /// </summary>
         field(2; "Journal Template Name"; Code[10])
         {
             Caption = 'Journal Template Name';
@@ -30,6 +42,10 @@ table 980 "Payment Registration Setup"
                 "Journal Batch Name" := '';
             end;
         }
+        /// <summary>
+        /// Specifies the general journal batch used for payment registration posting.
+        /// Works in conjunction with the journal template to define posting behavior.
+        /// </summary>
         field(3; "Journal Batch Name"; Code[10])
         {
             Caption = 'Journal Batch Name';
@@ -55,6 +71,10 @@ table 980 "Payment Registration Setup"
                     Validate("Bal. Account No.", GenJournalBatch."Bal. Account No.");
             end;
         }
+        /// <summary>
+        /// Specifies the type of balancing account used for payment registration entries.
+        /// Determines whether payments are balanced against G/L accounts or bank accounts.
+        /// </summary>
         field(4; "Bal. Account Type"; Option)
         {
             Caption = 'Bal. Account Type';
@@ -66,6 +86,10 @@ table 980 "Payment Registration Setup"
                 "Bal. Account No." := '';
             end;
         }
+        /// <summary>
+        /// Specifies the number of the balancing account used for payment registration entries.
+        /// Must correspond to an account of the type specified in the Bal. Account Type field.
+        /// </summary>
         field(5; "Bal. Account No."; Code[20])
         {
             Caption = 'Bal. Account No.';
@@ -73,11 +97,19 @@ table 980 "Payment Registration Setup"
             else
             if ("Bal. Account Type" = const("Bank Account")) "Bank Account";
         }
+        /// <summary>
+        /// Specifies whether this account setup should be used as the default for payment registration.
+        /// When enabled, the balancing account settings are automatically applied.
+        /// </summary>
         field(6; "Use this Account as Def."; Boolean)
         {
             Caption = 'Use this Account as Def.';
             InitValue = true;
         }
+        /// <summary>
+        /// Specifies whether the Date Received field should be automatically filled during payment registration.
+        /// When enabled, the current date is automatically inserted when marking payments as received.
+        /// </summary>
         field(7; "Auto Fill Date Received"; Boolean)
         {
             Caption = 'Auto Fill Date Received';
@@ -102,6 +134,11 @@ table 980 "Payment Registration Setup"
         ValidateMandatoryFields(true);
     end;
 
+    /// <summary>
+    /// Retrieves the corresponding general journal line balance account type for the setup.
+    /// Converts the setup's balance account type to the format used in general journal lines.
+    /// </summary>
+    /// <returns>Integer value corresponding to the general journal line balance account type.</returns>
     procedure GetGLBalAccountType(): Integer
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -115,6 +152,12 @@ table 980 "Payment Registration Setup"
         end;
     end;
 
+    /// <summary>
+    /// Validates that all mandatory fields for payment registration setup are populated.
+    /// Ensures the setup is complete and ready for use in payment registration operations.
+    /// </summary>
+    /// <param name="ShowError">If true, shows error messages for missing fields; if false, returns validation status silently.</param>
+    /// <returns>True if all mandatory fields are populated, false otherwise.</returns>
     procedure ValidateMandatoryFields(ShowError: Boolean): Boolean
     var
         GenJnlBatch: Record "Gen. Journal Batch";

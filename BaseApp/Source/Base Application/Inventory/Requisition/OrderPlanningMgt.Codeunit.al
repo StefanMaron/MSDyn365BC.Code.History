@@ -12,7 +12,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Substitution;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
-using Microsoft.Manufacturing.Document;
 
 codeunit 5522 "Order Planning Mgt."
 {
@@ -22,7 +21,6 @@ codeunit 5522 "Order Planning Mgt."
 
     var
         TempUnplannedDemand: Record "Unplanned Demand";
-        ProdOrderComp: Record "Prod. Order Component";
         CompanyInfo: Record "Company Information";
         UOMMgt: Codeunit "Unit of Measure Management";
         DemandType: Enum "Unplanned Demand Type";
@@ -357,13 +355,9 @@ codeunit 5522 "Order Planning Mgt."
     procedure InsertAltSupplySubstitution(var ReqLine: Record "Requisition Line")
     var
         TempItemSub: Record "Item Substitution" temporary;
-        TempReqLine2: Record "Requisition Line" temporary;
         ItemSubstMgt: Codeunit "Item Subst.";
-        MfgItemSubstitution: Codeunit "Mfg. Item Substitution";
-        PlanningLineMgt: Codeunit "Planning Line Management";
         GrossReq: Decimal;
         SchedScpt: Decimal;
-        UnAvailableQtyBase: Decimal;
     begin
         if not SubstitutionPossible(ReqLine) then
             Error(Text001);
@@ -385,48 +379,23 @@ codeunit 5522 "Order Planning Mgt."
         if TempItemSub.FindFirst() then;
         if PAGE.RunModal(PAGE::"Item Substitution Entries", TempItemSub) = ACTION::LookupOK then begin
             // Update sourceline
-            ProdOrderComp.Get(ReqLine."Demand Subtype", ReqLine."Demand Order No.", ReqLine."Demand Line No.", ReqLine."Demand Ref. No.");
-            MfgItemSubstitution.UpdateProdOrderComp(ProdOrderComp, TempItemSub."Substitute No.", TempItemSub."Substitute Variant Code");
-            ProdOrderComp.Modify(true);
-            ProdOrderComp.AutoReserve();
+            OnInsertAltSupplyLocationOnAfterSelectSubstitution(ReqLine, TempItemSub);
 
             if TempItemSub."Quantity Avail. on Shpt. Date" >= ReqLine."Needed Quantity (Base)" then begin
                 ReqLine.Delete(true);
                 DelReqLine := true;
-            end else begin
-                TempReqLine2 := ReqLine; // Save Original Line
-
-                UnAvailableQtyBase :=
-                  CalcNeededQty(
-                    TempItemSub."Quantity Avail. on Shpt. Date", TempReqLine2."Demand Quantity (Base)");
-
-                // Update Req.Line
-                ReqLine."Worksheet Template Name" := TempReqLine2."Worksheet Template Name";
-                ReqLine."Journal Batch Name" := TempReqLine2."Journal Batch Name";
-                ReqLine."Line No." := TempReqLine2."Line No.";
-                ReqLine."Location Code" := ProdOrderComp."Location Code";
-                ReqLine."Bin Code" := ProdOrderComp."Bin Code";
-                ReqLine.Validate("No.", ProdOrderComp."Item No.");
-                ReqLine.Validate("Variant Code", ProdOrderComp."Variant Code");
-                ReqLine."Unit Of Measure Code (Demand)" := ProdOrderComp."Unit of Measure Code";
-                ReqLine."Qty. per UOM (Demand)" := ProdOrderComp."Qty. per Unit of Measure";
-                ReqLine.SetSupplyQty(TempReqLine2."Demand Quantity (Base)", UnAvailableQtyBase);
-                ReqLine.SetSupplyDates(TempReqLine2."Demand Date");
-                ReqLine."Original Item No." := TempReqLine2."No.";
-                ReqLine."Original Variant Code" := TempReqLine2."Variant Code";
-                OnBeforeReqLineModify(ReqLine, TempReqLine2, ProdOrderComp);
-                ReqLine.Modify();
-                PlanningLineMgt.Calculate(ReqLine, 1, true, true, 0);
-            end;
+            end else
+                OnInsertAltSupplyLocationOnUpdateReqLine(ReqLine, TempItemSub);
         end;
     end;
 
     procedure SubstitutionPossible(ReqLine: Record "Requisition Line"): Boolean
     var
         Item: Record Item;
+        ShouldExit: Boolean;
     begin
         if (ReqLine.Type <> ReqLine.Type::Item) or
-           (ReqLine."Demand Type" <> Database::"Prod. Order Component")
+           (ReqLine."Demand Type" <> 5407) // Database::"Prod. Order Component"
         then
             exit(false);
 
@@ -440,14 +409,9 @@ codeunit 5522 "Order Planning Mgt."
         if ReqLine."Reserved Qty. (Base)" <> 0 then
             exit(false);
 
-        if ProdOrderComp.Get(
-             ReqLine."Demand Subtype",
-             ReqLine."Demand Order No.",
-             ReqLine."Demand Line No.",
-             ReqLine."Demand Ref. No.")
-        then
-            if ProdOrderComp."Supplied-by Line No." <> 0 then
-                exit(false);
+        OnSubstitutionPossibleOnAfterCheckReqLine(ReqLine, ShouldExit);
+        if ShouldExit then
+            exit(false);
 
         Item.CalcFields("Substitutes Exist");
         exit(Item."Substitutes Exist");
@@ -592,10 +556,18 @@ codeunit 5522 "Order Planning Mgt."
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnBeforeReqLineModify(var RequisitionLine: Record "Requisition Line"; RequisitionLine2: Record "Requisition Line"; ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component")
+    begin
+        OnBeforeReqLineModify(RequisitionLine, RequisitionLine2, ProdOrderComponent);
+    end;
+
+    [Obsolete('Moved to codeunit MfgOrderPlanningMgt', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReqLineModify(var RequisitionLine: Record "Requisition Line"; RequisitionLine2: Record "Requisition Line"; ProdOrderComponent: Record "Prod. Order Component")
+    local procedure OnBeforeReqLineModify(var RequisitionLine: Record "Requisition Line"; RequisitionLine2: Record "Requisition Line"; ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunGetUnplannedDemand(var UnplannedDemand: Record "Unplanned Demand"; var IsHandled: Boolean)
@@ -644,6 +616,21 @@ codeunit 5522 "Order Planning Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertDemandLinesOnBeforeFindUnplannedDemand(var TempUnplannedDemand: Record "Unplanned Demand" temporary; var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertAltSupplyLocationOnAfterSelectSubstitution(var RequisitionLine: Record "Requisition Line"; var TempItemSub: Record "Item Substitution" temporary)
+    begin
+    end;
+
+    [InternalEvent(false, false)]
+    local procedure OnInsertAltSupplyLocationOnUpdateReqLine(var RequisitionLine: Record "Requisition Line"; var TempItemSub: Record "Item Substitution" temporary)
+    begin
+    end;
+
+    [InternalEvent(false, false)]
+    local procedure OnSubstitutionPossibleOnAfterCheckReqLine(var RequisitionLine: Record "Requisition Line"; var ShouldExit: Boolean)
     begin
     end;
 }

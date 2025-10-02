@@ -26,8 +26,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         CalcStdCostOptionTxt: Label '&Top level,&All levels';
-        MissingOutputQst: Label 'Some output is still missing.';
-        MissingConsumptionQst: Label 'Some consumption is still missing.';
+        MissingQst: Label '\\  * Some output is still missing.\  * Some consumption is still missing.';
         RunAdjCostMsg: Label 'You must run the Adjust Cost - Item Entries batch job once to adjust these.';
         ItemFilterTok: Label '%1|%2|%3';
         isInitialized: Boolean;
@@ -159,8 +158,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         LibraryManufacturing.POSTConsumption(ProdOrderLine, CompItem, '', '', ProductionOrder.Quantity, WorkDate(), CompItem."Unit Cost");
 
         // Change Prod. Order status
-        LibraryVariableStorage.Enqueue(MissingOutputQst);
-        LibraryVariableStorage.Enqueue(MissingConsumptionQst);
+        LibraryVariableStorage.Enqueue(MissingQst);
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
 
         // Create and post sales order

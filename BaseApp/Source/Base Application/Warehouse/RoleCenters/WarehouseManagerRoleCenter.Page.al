@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Warehouse.RoleCenters;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Warehouse.RoleCenters;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Assembly.History;
@@ -40,7 +44,9 @@ using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Worksheet;
+#if not CLEAN27
 using Microsoft.Manufacturing.Document;
+#endif
 
 page 8909 "Warehouse Manager Role Center"
 {
@@ -101,18 +107,26 @@ page 8909 "Warehouse Manager Role Center"
                     Caption = 'Assembly Orders';
                     RunObject = page "Assembly Orders";
                 }
+#if not CLEAN27
                 action("Subcontracting Orders")
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Subcontracting Orders';
                     RunObject = page "Subcontracting Order List";
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 action("Subcontracting Transfer Orders")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Subcontracting Transfer Orders';
                     RunObject = page "Subcontracting Transfer List";
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif
                 group("Group1")
                 {
                     Caption = 'Posted Documents';
@@ -746,6 +760,17 @@ page 8909 "Warehouse Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Report Selections Inventory';
                         RunObject = page "Report Selection - Inventory";
+                    }
+                }
+                group("Reports")
+                {
+                    Caption = 'Reports';
+                    action("Inventory by Location")
+                    {
+                        ApplicationArea = InventoryAnalysis;
+                        Caption = 'Analyze Inventory by Location';
+                        RunObject = Query "Inventory by Location";
+                        ToolTip = 'Analyze (group, summarize, pivot) your Item Ledger Entries with related Location master data.';
                     }
                 }
             }

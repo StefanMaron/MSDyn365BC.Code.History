@@ -4,14 +4,12 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Tracking;
 
-using Microsoft.Assembly.History;
 using Microsoft.Inventory.Document;
 using Microsoft.Inventory.History;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
@@ -425,8 +423,6 @@ codeunit 6503 "Item Tracking Doc. Management"
     var
         SalesShipmentLine: Record "Sales Shipment Line";
         Item: Record Item;
-        PostedAsmHeader: Record "Posted Assembly Header";
-        PostedAsmLine: Record "Posted Assembly Line";
         Descr: Text[100];
     begin
         SalesShipmentLine.SetRange("Document No.", SourceID);
@@ -440,18 +436,11 @@ codeunit 6503 "Item Tracking Doc. Management"
                 then begin
                     if Item.Get(SalesShipmentLine."No.") then
                         Descr := Item.Description;
-                    FindShptRcptEntries(TempTrackingSpecBuffer,
-                      Database::"Sales Shipment Line", 0, SalesShipmentLine."Document No.", '', 0, SalesShipmentLine."Line No.", Descr);
+                    FindShptRcptEntries(
+                        TempTrackingSpecBuffer,
+                        Database::"Sales Shipment Line", 0, SalesShipmentLine."Document No.", '', 0, SalesShipmentLine."Line No.", Descr);
                     if RetrieveAsmItemTracking then
-                        if SalesShipmentLine.AsmToShipmentExists(PostedAsmHeader) then begin
-                            PostedAsmLine.SetRange("Document No.", PostedAsmHeader."No.");
-                            if PostedAsmLine.FindSet() then
-                                repeat
-                                    Descr := PostedAsmLine.Description;
-                                    FindShptRcptEntries(TempTrackingSpecBuffer,
-                                      Database::"Posted Assembly Line", 0, PostedAsmLine."Document No.", '', 0, PostedAsmLine."Line No.", Descr);
-                                until PostedAsmLine.Next() = 0;
-                        end;
+                        OnRetrieveTrackingSalesShipmentForAssembly(SalesShipmentLine, TempTrackingSpecBuffer);
                 end;
             until SalesShipmentLine.Next() = 0;
         end;
@@ -620,46 +609,15 @@ codeunit 6503 "Item Tracking Doc. Management"
         ShowItemTrackingForEntity(SourceType, SourceNo, ItemNo, VariantCode, LocationCode, DummyItemTrackingSetup);
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit Mfg. Item Tracking Mgt.', '27.0')]
     procedure ShowItemTrackingForProdOrderComp(Type: Integer; ID: Code[20]; ProdOrderLine: Integer; RefNo: Integer): Boolean
     var
-        ItemLedgEntry: Record "Item Ledger Entry";
-        TempItemLedgEntry: Record "Item Ledger Entry" temporary;
-        Window: Dialog;
+        MfgItemTrackingMgt: Codeunit "Mfg. Item Tracking Mgt.";
     begin
-        Window.Open(CountingRecordsMsg);
-        ItemLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.",
-          "Entry Type", "Prod. Order Comp. Line No.");
-        ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
-        ItemLedgEntry.SetRange("Order No.", ID);
-        ItemLedgEntry.SetRange("Order Line No.", ProdOrderLine);
-        case Type of
-            Database::"Prod. Order Line":
-                begin
-                    ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Output);
-                    ItemLedgEntry.SetRange("Prod. Order Comp. Line No.", 0);
-                end;
-            Database::"Prod. Order Component":
-                begin
-                    ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Consumption);
-                    ItemLedgEntry.SetRange("Prod. Order Comp. Line No.", RefNo);
-                end;
-            else
-                exit(false);
-        end;
-        if ItemLedgEntry.FindSet() then
-            repeat
-                if ItemLedgEntry.TrackingExists() then begin
-                    TempItemLedgEntry := ItemLedgEntry;
-                    TempItemLedgEntry.Insert();
-                end
-            until ItemLedgEntry.Next() = 0;
-        Window.Close();
-        if TempItemLedgEntry.IsEmpty() then
-            exit(false);
-
-        PAGE.RunModal(PAGE::"Posted Item Tracking Lines", TempItemLedgEntry);
-        exit(true);
+        exit(MfgItemTrackingMgt.ShowItemTrackingForProdOrderComp(Type, ID, ProdOrderLine, RefNo));
     end;
+#endif
 
     internal procedure ShowItemTrackingForJobPlanningLine(Type: Integer; ID: Code[20]; RefNo: Integer): Boolean
     var
@@ -715,15 +673,12 @@ codeunit 6503 "Item Tracking Doc. Management"
                        Database::"Sales Shipment Line",
                        Database::"Sales Invoice Line",
                        Database::"Purch. Cr. Memo Line",
-                       Database::"Prod. Order Component",
                        Database::"Transfer Shipment Line",
                        Database::"Return Shipment Line",
                        Database::"Invt. Shipment Line",
-                       Database::"Planning Component",
-                       Database::"Posted Assembly Line"]
+                       Database::"Planning Component"]
         then
             exit(-1);
-
 
         OnAfterTableSignFactor(TableNo, Sign);
         if Sign <> 0 then
@@ -971,6 +926,11 @@ codeunit 6503 "Item Tracking Doc. Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTableSignFactor(TableNo: Integer; var Sign: Integer);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnRetrieveTrackingSalesShipmentForAssembly(SalesShipmentLine: Record "Sales Shipment Line"; var TempTrackingSpecBuffer: Record "Tracking Specification" temporary)
     begin
     end;
 }

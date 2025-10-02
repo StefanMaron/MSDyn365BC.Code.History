@@ -6,6 +6,14 @@ namespace Microsoft.Bank.BankAccount;
 
 using Microsoft.Foundation.Enums;
 
+/// <summary>
+/// Displays bank account balance trends and analysis by configurable time periods.
+/// Provides graphical and tabular views of balance changes over time for financial analysis.
+/// </summary>
+/// <remarks>
+/// Source Table: Bank Account (270). Features period-based balance calculations and chart visualization.
+/// Uses Bank Account Balance Buffer for period aggregation and display.
+/// </remarks>
 page 377 "Bank Account Balance"
 {
     Caption = 'Bank Account Balance';

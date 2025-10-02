@@ -121,16 +121,24 @@ page 12153 "Subcontracting Order Subform"
                     ToolTip = 'Specifies the unit of measure for the item.';
                     Visible = false;
                 }
+#if not CLEAN27
                 field("WIP Item"; Rec."WIP Item")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies if the item is a work in process (WIP) item.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("WIP Qty at Subc.Loc. (Base)"; Rec."WIP Qty at Subc.Loc. (Base)")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of work in process (WIP) items that are at the subcontracting location.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif
                 field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
                     ApplicationArea = Manufacturing;
@@ -197,11 +205,16 @@ page 12153 "Subcontracting Order Subform"
                     BlankZero = true;
                     ToolTip = 'Specifies the number of items that have been received.';
                 }
+#if not CLEAN27
                 field("Not Proc. WIP Qty to Receive"; Rec."Not Proc. WIP Qty to Receive")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the non-processed portion of work in process (WIP) items that are still at the subcontracting location.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif
                 field("Qty. to Invoice"; Rec."Qty. to Invoice")
                 {
                     ApplicationArea = Manufacturing;
@@ -433,26 +446,40 @@ page 12153 "Subcontracting Order Subform"
                         Rec.ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
                 }
+#if not CLEAN27
                 field("UoM for Pricelist"; Rec."UoM for Pricelist")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the unit of measure for the pricelist.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Base UM Qty/Pricelist UM Qty"; Rec."Base UM Qty/Pricelist UM Qty")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the quantity of the base unit of measure or the pricelist unit of measure.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Pricelist UM Qty/Base UM Qty"; Rec."Pricelist UM Qty/Base UM Qty")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the quantity of the pricelist unit of measure or the base unit of measure.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Pricelist Cost"; Rec."Pricelist Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the cost of the pricelist.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif
             }
         }
     }

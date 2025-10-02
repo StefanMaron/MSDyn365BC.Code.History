@@ -214,14 +214,6 @@
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Suggest Reminder");
     end;
 
-    local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
-    var
-        GenJournalTemplate: Record "Gen. Journal Template";
-    begin
-        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-    end;
-
     local procedure CreateAndPostSalesInvoice(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
     var
         Item: Record Item;
@@ -248,22 +240,6 @@
         ReminderNo :=
           CreateAndSuggestingReminder(
             SalesHeader."Sell-to Customer No.", CalcDate('<' + Format(NoOfDays) + 'D>', CalcDate(GracePeriod, SalesHeader."Due Date")));
-    end;
-
-    local procedure CreatePostGeneralJnlLine(CustomerNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocDate: Date; Amt: Decimal)
-    var
-        GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        CreateGenJournalBatch(GenJournalBatch);
-        LibraryERM.CreateGeneralJnlLineWithBalAcc(
-          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          DocType, GenJournalLine."Account Type"::Customer, CustomerNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), Amt);
-        GenJournalLine.Validate("Posting Date", DocDate);
-        GenJournalLine.Modify(true);
-
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -390,4 +366,3 @@
         ReminderLine.FindFirst();
     end;
 }
-

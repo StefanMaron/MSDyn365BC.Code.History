@@ -25,14 +25,14 @@ codeunit 144078 "ERM Extra VAT"
     // 22. Verify Prepayment VAT Fields and Your Reference Field on Order Confirmation Report.
     // 23. Verify VAT entries with when Credit memo applied to Invoice and Unrealized VAT Type = FIRST
     // 24. Verify VAT entries for sales invoice partially applied with Credit Memo.
-    // 
+    //
     // Covers Test Cases for WI - 346928
     // --------------------------------------------------------------------------------------
     // Test Function Name                                                              TFS ID
     // --------------------------------------------------------------------------------------
     // SalesInvoiceFullApplyAndUnapply,SalesInvoicePartialApplyAndUnapply       156505,156506
     // SalesCreditMemoFullApplyAndUnapply,SalesCreditMemoPartialApplyAndUnapply 156507,156508
-    // 
+    //
     // Covers Test Cases for WI - 346863
     // ------------------------------------------------------------------------
     // Test Function Name                                                TFS ID
@@ -42,7 +42,7 @@ codeunit 144078 "ERM Extra VAT"
     // GeneralJournalWithVATPeriodClosedError                            157128
     // ReverseTransactionWithVATPeriodClosedError                        157131
     // ApplicationWithVATPeriodClosedError                               157129
-    // 
+    //
     // Covers Test Cases for WI - 346862
     // ------------------------------------------------------------------------
     // Test Function Name                                                TFS ID
@@ -53,7 +53,7 @@ codeunit 144078 "ERM Extra VAT"
     // ApplyPaymentToOneSalesInvInstallmentWithLCY                       156071
     // ApplyPaymentToOneServiceInvInstallmentWithFCY                     156075
     // ApplyPaymentToOneServiceInvInstallmentWithLCY                     156072
-    // 
+    //
     // Covers Test Cases for WI - 346437
     // ------------------------------------------------------------------------
     // Test Function Name                                                TFS ID
@@ -62,25 +62,25 @@ codeunit 144078 "ERM Extra VAT"
     // PurchInvDeductiblePcthundredWithNondeductibleAcc           244535,244536
     // PurchInvDeductiblePctRandomWithoutNondeductibleAcc                244533
     // PurchInvDeductiblePcthundredWithoutNondeductibleAcc        244538,244537
-    // 
+    //
     // Covers Test Cases for WI - 347101
     // ------------------------------------------------------------------------
     // Test Function Name                                                TFS ID
     // ------------------------------------------------------------------------
     // PurchaseInvoiceWithDifferentVATProductPostingGroup         155713,155714
     // VATPrepmtAmtAndYourReferenceOnOrderConfirmationRpt                155495
-    // 
+    //
     // Covers Test Cases for WI - 349791
     // ------------------------------------------------------------------------
     // Test Function Name                                                TFS ID
     // ------------------------------------------------------------------------
     // UnapplicationWithVATPeriodClosedError                             157130
-    // 
+    //
     // Test Function Name                                                TFS ID
     // ------------------------------------------------------------------------
     // ApplyCreditMemoToInvoiceVATypeFirst                               89342
     // ApplySalesInvoiceWithNegativeLineOnCreditMemo                     93934
-    // 
+    //
     // VerifyVATDocNosOnPurchPrepmtWithReverseChargeVAT                  359764
     // VerifyVATDocNosOnPurchMultiPrepmtWithReverseChargeVAT             360225
 
@@ -98,17 +98,12 @@ codeunit 144078 "ERM Extra VAT"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryITLocalization: Codeunit "Library - IT Localization";
         LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryReportDataSet: Codeunit "Library - Report Dataset";
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         AmountErr: Label '%1 must be %2 in %3.';
-        PrepmtTotalAmtInclVATCap: Label 'PrepmtTotalAmtInclVAT';
-        PrepmtVATBaseAmountCap: Label 'PrepmtVATBaseAmount';
-        PrepmtVATAmountCap: Label 'PrepmtVATAmount';
-        YourReferenceCap: Label 'YourReference_SalesHeader';
         VATPeriodTxt: Label '%1/%2', Comment = '%1=Field Value,%2=Field Value';
 #if not CLEAN27
         VATPeriodClosedErr: Label 'VAT Period Closed must be equal to ''No''  in Periodic Settlement VAT Entry: VAT Period=%1/%2. Current value is ''Yes''.', Comment = '%1=Field Value,%2=Field Value';
@@ -1912,12 +1907,6 @@ codeunit 144078 "ERM Extra VAT"
         exit(PaymentTerms.Code);
     end;
 
-    local procedure FindVATPostingSetupWithSalesPrepmtAccount(var VATPostingSetup: Record "VAT Posting Setup")
-    begin
-        VATPostingSetup.SetFilter("Sales Prepayments Account", '<>%1', '');
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-    end;
-
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; VATEntryType: Enum "General Posting Type"; CVNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         VATEntry.SetRange(Type, VATEntryType);
@@ -2058,27 +2047,6 @@ codeunit 144078 "ERM Extra VAT"
         VATPostingSetup.Modify(true);
     end;
 
-    local procedure UpdatePrintVATSpecificationInLCYOnGLSetup(NewPrintVATSpecificationInLCY: Boolean)
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-    begin
-        GeneralLedgerSetup.Get();
-        GeneralLedgerSetup.Validate("Print VAT specification in LCY", NewPrintVATSpecificationInLCY);
-        GeneralLedgerSetup.Modify(true);
-    end;
-
-    local procedure UpdateSalesOrder(var SalesLine: Record "Sales Line"; VATBusPostingGroup: Code[20])
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        SalesHeader.Get(SalesHeader."Document Type"::Order, SalesLine."Document No.");
-        SalesHeader.Validate("Bill-to Customer No.", CreateCustomer(VATBusPostingGroup, '', '', false));  // Using blank value for Payment Terms Code and Currency Code. False for Prices Including VAT.
-        SalesHeader.Validate("Your Reference", SalesHeader."No.");
-        SalesHeader.Modify(true);
-        SalesLine.Validate("Prepayment %", LibraryRandom.RandDec(10, 2));
-        SalesLine.Modify(true);
-    end;
-
     local procedure UpdateDeductibleVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; DeductiblePct: Decimal)
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -2212,15 +2180,6 @@ codeunit 144078 "ERM Extra VAT"
         Assert.AreNearlyEqual(
           Amount2, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount2, GLEntry.TableCaption()));
-    end;
-
-    local procedure VerifyValuesOnOrderConfirmationReport(YourReference: Text[35]; PrepmtAmountIncludingVAT: Decimal; PrepmtVATAmount: Decimal; PrepmtVATBaseAmount: Decimal)
-    begin
-        LibraryReportDataSet.LoadDataSetFile();
-        LibraryReportDataSet.AssertElementWithValueExists(YourReferenceCap, YourReference);
-        LibraryReportDataSet.AssertElementWithValueExists(PrepmtVATBaseAmountCap, PrepmtVATBaseAmount);
-        LibraryReportDataSet.AssertElementWithValueExists(PrepmtVATAmountCap, PrepmtVATAmount);
-        LibraryReportDataSet.AssertElementWithValueExists(PrepmtTotalAmtInclVATCap, PrepmtAmountIncludingVAT);
     end;
 
     local procedure VerifyVATEntry(DocumentNo: Code[20]; Base: Decimal; Amount: Decimal; AdditionalCurrencyBase: Decimal; AdditionalCurrencyAmount: Decimal)
@@ -2712,4 +2671,5 @@ codeunit 144078 "ERM Extra VAT"
         PurchaseStatisticsPage.SubForm."Deductible %".AssertEquals(DeductiblePer);
         PurchaseStatisticsPage.Close();
     end;
+
 }

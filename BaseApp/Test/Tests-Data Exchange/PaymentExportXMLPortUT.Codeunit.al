@@ -626,16 +626,6 @@ codeunit 132573 "Payment Export XMLPort UT"
         DataExchLineDef.InsertRec(DataExchDef.Code, DataExchDef.Code, DataExchDef.Code, ArrayLen(ExportTextArray, 2));
     end;
 
-    local procedure CreateDataExchColumnDef(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; ColumnNo: Integer; Path: Text[250])
-    var
-        DataExchColumnDef: Record "Data Exch. Column Def";
-    begin
-        DataExchColumnDef.InsertRecForExport(DataExchDefCode, DataExchLineDefCode, ColumnNo, '',
-          DataExchColumnDef."Data Type"::Text, '', 0, '');
-        DataExchColumnDef.Path := Path;
-        DataExchColumnDef.Modify();
-    end;
-
     local procedure CreateExportData(var ExportText: array[10, 100] of Text[250])
     var
         FixedId: Text[250];
@@ -849,4 +839,3 @@ codeunit 132573 "Payment Export XMLPort UT"
           LineText, 'Wrong export text on line ' + Format(LineNo));
     end;
 }
-

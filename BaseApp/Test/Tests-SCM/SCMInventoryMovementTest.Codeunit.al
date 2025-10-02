@@ -1152,9 +1152,9 @@ codeunit 137200 "SCM Inventory Movement Test"
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderComponent.FindFirst();
 
-        LibraryItemTracking.CreateProdOrderCompItemTracking(ReservationEntry, ProdOrderComponent, 'S11', '', 1);
-        LibraryItemTracking.CreateProdOrderCompItemTracking(ReservationEntry, ProdOrderComponent, 'S12', '', 1);
-        LibraryItemTracking.CreateProdOrderCompItemTracking(ReservationEntry, ProdOrderComponent, 'S23', '', 1);
+        LibraryManufacturing.CreateProdOrderCompItemTracking(ReservationEntry, ProdOrderComponent, 'S11', '', 1);
+        LibraryManufacturing.CreateProdOrderCompItemTracking(ReservationEntry, ProdOrderComponent, 'S12', '', 1);
+        LibraryManufacturing.CreateProdOrderCompItemTracking(ReservationEntry, ProdOrderComponent, 'S23', '', 1);
     end;
 
     [MessageHandler]
@@ -1234,7 +1234,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         WarehouseRequest.SetRange("Source Document", WarehouseRequest."Source Document"::"Prod. Output");
         WarehouseRequest.SetRange("Source No.", ProductionOrder."No.");
 
-        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+        LibraryManufacturing.CreateInboundWhseReqFromProdOrder(ProductionOrder);
         LibraryWarehouse.CreateInvtPutAwayPick(WarehouseRequest, true, false, false);
 
         WarehouseActivityHeader.SetRange(Type, WarehouseActivityHeader.Type::"Invt. Put-away");

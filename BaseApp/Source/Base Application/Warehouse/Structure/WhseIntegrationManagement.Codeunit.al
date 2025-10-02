@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Warehouse.Structure;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Warehouse.Structure;
 
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
@@ -31,20 +35,6 @@ codeunit 7317 "Whse. Integration Management"
 #pragma warning restore AA0074
 #endif
 
-#if not CLEAN24
-    [Obsolete('Replaced by procedure CheckBinTypeAndCode()', '24.0')]
-    procedure CheckBinTypeCode(SourceTable: Integer; BinCodeFieldCaption: Text[30]; LocationCode: Code[10]; BinCode: Code[20]; AdditionalIdentifier: Option)
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnStartCheckBinTypeCode(SourceTable, BinCodeFieldCaption, LocationCode, BinCode, AdditionalIdentifier, IsHandled);
-        if IsHandled then
-            exit;
-
-        CheckBinTypeAndCode(SourceTable, BinCodeFieldCaption, LocationCode, BinCode, AdditionalIdentifier);
-    end;
-#endif
 
     procedure CheckBinTypeAndCode(SourceTable: Integer; BinCodeFieldCaption: Text; LocationCode: Code[10]; BinCode: Code[20]; AdditionalIdentifier: Option)
     var
@@ -68,12 +58,6 @@ codeunit 7317 "Whse. Integration Management"
         if BinCode = Location."Adjustment Bin Code" then
             Error(Text000, BinCodeFieldCaption, LocationCode);
 
-#if not CLEAN24
-        IsHandled := false;
-        OnBeforeCheckBinTypeCode(SourceTable, CopyStr(BinCodeFieldCaption, 1, 30), LocationCode, BinCode, AdditionalIdentifier, IsHandled);
-        if IsHandled then
-            exit;
-#endif
         IsHandled := false;
         OnCheckBinTypeCodeOnBeforeCheckPerSource(SourceTable, BinCodeFieldCaption, LocationCode, BinCode, AdditionalIdentifier, IsHandled);
         if IsHandled then
@@ -108,14 +92,7 @@ codeunit 7317 "Whse. Integration Management"
                         BinType.AllowPutawayOrQCBinsOnly();
                 end;
             else
-#if not CLEAN24
-                begin
-                OnCheckBinTypeCode(Location, Bin, BinType, SourceTable, CopyStr(BinCodeFieldCaption, 1, 30), AdditionalIdentifier);
-#endif
                 OnCheckBinTypeAndCode(Location, Bin, BinType, SourceTable, BinCodeFieldCaption, AdditionalIdentifier);
-#if not CLEAN24
-            end;
-#endif
         end;
     end;
 
@@ -267,38 +244,17 @@ codeunit 7317 "Whse. Integration Management"
     end;
 #endif
 
-#if not CLEAN24
-    [Obsolete('Replaced by event OnCheckBinTypeCodeOnBeforeCheckPerSource', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckBinTypeCode(SourceTable: Integer; BinCodeFieldCaption: Text[30]; LocationCode: Code[10]; BinCode: Code[20]; AdditionalIdentifier: Option; var IsHandled: Boolean);
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckBinTypeCodeOnBeforeCheckPerSource(SourceTable: Integer; BinCodeFieldCaption: Text; LocationCode: Code[10]; BinCode: Code[20]; AdditionalIdentifier: Option; var IsHandled: Boolean);
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by event OnBeforeCheckBinTypeAndCode', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCheckBinTypeCode(Location: Record Location; Bin: Record Bin; BinType: Record "Bin Type"; SourceTable: Integer; BinCodeFieldCaption: Text[30]; AdditionalIdentifier: Option)
-    begin
-    end;
-#endif
     [IntegrationEvent(false, false)]
     local procedure OnCheckBinTypeAndCode(Location: Record Location; Bin: Record Bin; BinType: Record "Bin Type"; SourceTable: Integer; BinCodeFieldCaption: Text; AdditionalIdentifier: Option)
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by event OnBeforeCheckBinTypeAndCode', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnStartCheckBinTypeCode(SourceTable: Integer; BinCodeFieldCaption: Text[30]; LocationCode: Code[10]; BinCode: Code[20]; AdditionalIdentifier: Option; var IsHandled: Boolean);
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBinTypeAndCode(SourceTable: Integer; BinCodeFieldCaption: Text; LocationCode: Code[10]; BinCode: Code[20]; AdditionalIdentifier: Option; var IsHandled: Boolean);

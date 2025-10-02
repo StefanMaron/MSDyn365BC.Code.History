@@ -290,6 +290,7 @@ page 99000831 "Released Production Order"
                         ShortCutKey = 'Ctrl+F7';
                         ToolTip = 'View the item ledger entries of the item on the document or journal line.';
                     }
+#if not CLEAN27
                     action("Subcontracting Transfer Entries")
                     {
                         ApplicationArea = Manufacturing;
@@ -300,7 +301,11 @@ page 99000831 "Released Production Order"
                                       "Prod. Order No." = field("No.");
                         RunPageView = sorting("Order Type", "Order No.");
                         ToolTip = 'View the list of subcontracting transfers.';
+                        ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '27.0';
                     }
+#endif
                     action("Capacity Ledger Entries")
                     {
                         ApplicationArea = Manufacturing;
@@ -629,9 +634,9 @@ page 99000831 "Released Production Order"
 
                     trigger OnAction()
                     var
-                        CreatePutAway: Codeunit "Create Put-away";
+                        MfgCreatePutAway: Codeunit "Mfg. Create Put-away";
                     begin
-                        CreatePutAway.CreateWhsePutAwayForProdOrder(Rec);
+                        MfgCreatePutAway.CreateWhsePutAwayForProdOrder(Rec);
                     end;
                 }
             }

@@ -2397,10 +2397,8 @@
         VATExemption.Validate("No.", CustNo);
         VATExemption.Validate("VAT Exempt. Starting Date", WorkDate());
         VATExemption.Validate("VAT Exempt. Ending Date", CalcDate('<+1D>', WorkDate()));
-        VATExemption.Validate("VAT Exempt. Int. Registry No.",
-          LibraryUtility.GenerateRandomCode(VATExemption.FieldNo("VAT Exempt. Int. Registry No."), DATABASE::"VAT Exemption"));
-        VATExemption.Validate("VAT Exempt. No.",
-          LibraryUtility.GenerateRandomCode(VATExemption.FieldNo("VAT Exempt. No."), DATABASE::"VAT Exemption"));
+        VATExemption.Validate("VAT Exempt. Int. Registry No.", LibraryUtility.GenerateRandomCode(VATExemption.FieldNo("VAT Exempt. Int. Registry No."), DATABASE::"VAT Exemption"));
+        VATExemption.Validate("VAT Exempt. No.", LibraryUtility.GenerateRandomCode(VATExemption.FieldNo("VAT Exempt. No."), DATABASE::"VAT Exemption"));
         VATExemption.Validate("VAT Exempt. Date", LibraryRandom.RandDate(10));
         VATExemption.Insert(true);
 
@@ -3190,4 +3188,3 @@
         PurchasesPayablesSetup.Modify();
     end;
 }
-

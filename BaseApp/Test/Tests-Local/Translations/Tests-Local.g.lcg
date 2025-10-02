@@ -707,33 +707,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Extra VAT - NamedType AmountErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 389291773 - NamedType 2390364463" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[PrepmtTotalAmtInclVAT]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Extra VAT - NamedType PrepmtTotalAmtInclVATCap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 389291773 - NamedType 2053647813" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[PrepmtVATAmount]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Extra VAT - NamedType PrepmtVATAmountCap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 389291773 - NamedType 3160812010" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[PrepmtVATBaseAmount]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Extra VAT - NamedType PrepmtVATBaseAmountCap)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 389291773 - NamedType 3705218072" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Field %1 contains wrong value]]></Val>
@@ -759,15 +732,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1=Field Value,%2=Field Value]D;]A;(LookupHint=Codeunit ERM Extra VAT - NamedType VATPeriodTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 389291773 - NamedType 1306924332" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[YourReference_SalesHeader]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Extra VAT - NamedType YourReferenceCap)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 45030859 - NamedType 3128920879" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2759,15 +2723,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IT - Fixed Assets - NamedType CompletionStatsTok)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 831125063 - NamedType 66440807" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[New fixed assets were not created.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IT - Fixed Assets - NamedType FixedAssetCountError)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 831125063 - NamedType 2769733987" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect number of entries posted to %1 table.]]></Val>
@@ -3333,15 +3288,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Miscellaneous Bugs IT - NamedType DescrCap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1151307552 - NamedType 1019460973" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[########]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Miscellaneous Bugs IT - NamedType FormatTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1151307552 - NamedType 3014879639" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4647,42 +4593,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Fiscal Book - NamedType TestValidationErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1650478557 - NamedType 1066406369" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[FreeInvoiceCaption]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Free Invoice - NamedType FreeInvoiceCap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1650478557 - NamedType 2070538655" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[FREE INVOICE]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Free Invoice - NamedType FreeInvoiceTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1650478557 - NamedType 2712787657" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[FreeInvTxt]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Free Invoice - NamedType FreeInvTxtCap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1650478557 - NamedType 2850425920" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[FreeInvVATAmt]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Free Invoice - NamedType FreeInvVATAmtCap)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 663076692 - NamedType 3486763210" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

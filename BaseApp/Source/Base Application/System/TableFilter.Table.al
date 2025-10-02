@@ -69,11 +69,9 @@ table 9805 "Table Filter"
     }
 
     var
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text001: Label 'The filter for the field %1 %2 already exists.', Comment = 'The filter for the field <Field Number> <Field Name> already exists. Example: The filter for the field 15 Base Unit of Measure already exists.';
+        DuplicateFilterErr: Label 'The filter for the field %1 %2 already exists.', Comment = 'The filter for the field <Field Number> <Field Name> already exists. Example: The filter for the field 15 Base Unit of Measure already exists.';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
 
     procedure CheckDuplicateField("Field": Record "Field")
     var
@@ -85,7 +83,7 @@ table 9805 "Table Filter"
         SetRange("Field Number", Field."No.");
         SetFilter("Line No.", '<>%1', "Line No.");
         if not IsEmpty() then
-            Error(Text001, Field."No.", Field."Field Caption");
+            Error(DuplicateFilterErr, Field."No.", Field."Field Caption");
         Copy(TableFilter);
     end;
 }

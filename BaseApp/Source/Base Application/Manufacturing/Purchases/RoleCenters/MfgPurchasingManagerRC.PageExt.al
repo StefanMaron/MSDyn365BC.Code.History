@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.RoleCenters;
 
 using Microsoft.Manufacturing.Document;
@@ -57,6 +61,7 @@ pageextension 99000761 "Mfg. Purchasing Manager RC" extends "Purchasing Manager 
                 RunObject = report "Prod. Order - Mat. Requisition";
             }
         }
+#if not CLEAN27
         // IT Subcontracting
         addafter("Return Orders")
         {
@@ -65,6 +70,9 @@ pageextension 99000761 "Mfg. Purchasing Manager RC" extends "Purchasing Manager 
                 ApplicationArea = Manufacturing;
                 Caption = 'Subcontracting Orders';
                 RunObject = page "Subcontracting Order List";
+                ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
             }
         }
         addafter("Transfer Orders")
@@ -74,6 +82,9 @@ pageextension 99000761 "Mfg. Purchasing Manager RC" extends "Purchasing Manager 
                 ApplicationArea = Basic, Suite;
                 Caption = 'Subcontracting Transfer Orders';
                 RunObject = page "Subcontracting Transfer List";
+                ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
             }
         }
         addafter("Orders2")
@@ -83,6 +94,9 @@ pageextension 99000761 "Mfg. Purchasing Manager RC" extends "Purchasing Manager 
                 ApplicationArea = Manufacturing;
                 Caption = 'Subcontracting Orders';
                 RunObject = page "Subcontracting Order List";
+                ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
             }
         }
         addafter("Transfer Orders1")
@@ -92,7 +106,11 @@ pageextension 99000761 "Mfg. Purchasing Manager RC" extends "Purchasing Manager 
                 ApplicationArea = Basic, Suite;
                 Caption = 'Subcontracting Transfer Orders';
                 RunObject = page "Subcontracting Transfer List";
+                ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
             }
         }
+#endif
     }
 }

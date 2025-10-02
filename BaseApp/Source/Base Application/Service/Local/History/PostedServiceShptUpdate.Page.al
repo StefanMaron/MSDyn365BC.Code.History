@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN27
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -15,6 +16,9 @@ page 12166 "Posted Service Shpt. - Update"
     ShowFilter = false;
     SourceTable = "Service Shipment Header";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Replaced by W1 page PostedServiceShipUpdate';
+    ObsoleteState = Pending;
+    ObsoleteTag = '27.0';
 
     layout
     {
@@ -102,7 +106,7 @@ page 12166 "Posted Service Shpt. - Update"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
-        ServShipmentHeaderEdit: Codeunit "Serv. Shipment Header - Edit";
+        ServShipmentHeaderEdit: Codeunit "Service Shipment Header - Edit";
     begin
         if CloseAction = ACTION::LookupOK then
             if RecordChanged() then
@@ -124,7 +128,7 @@ page 12166 "Posted Service Shpt. - Update"
           (Rec."3rd Party Loader Type" <> xServiceShipmentHeader."3rd Party Loader Type") or
           (Rec."3rd Party Loader No." <> xServiceShipmentHeader."3rd Party Loader No.");
 
-		  OnAfterRecordChanged(Rec, xServiceShipmentHeader, IsChanged);
+        OnAfterRecordChanged(Rec, xServiceShipmentHeader, IsChanged);
     end;
 
     [Scope('OnPrem')]
@@ -133,10 +137,10 @@ page 12166 "Posted Service Shpt. - Update"
         Rec := ServiceShptHeader;
         Rec.Insert();
     end;
-	
-	[IntegrationEvent(false, false)]
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterRecordChanged(var ServiceShipmentHeader: Record "Service Shipment Header"; xServiceShipmentHeader: Record "Service Shipment Header"; var IsChanged: Boolean)
     begin
     end;
 }
-
+#endif

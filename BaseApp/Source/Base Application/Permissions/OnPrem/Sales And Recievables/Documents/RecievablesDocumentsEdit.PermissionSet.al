@@ -46,7 +46,6 @@ using Microsoft.Inventory.Planning;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Projects.Resources.Resource;
 #if not CLEAN25
@@ -134,8 +133,6 @@ permissionset 8651 "Recievables Documents - Edit"
                   tabledata "Price List Line" = R,
                   tabledata "Price Source" = R,
                   tabledata "Price Worksheet Line" = R,
-                  tabledata "Prod. Order Component" = Rm,
-                  tabledata "Prod. Order Line" = Rm,
                   tabledata "Purchase Header" = R,
                   tabledata "Purchase Line" = Rm,
                   tabledata "Reason Code" = R,

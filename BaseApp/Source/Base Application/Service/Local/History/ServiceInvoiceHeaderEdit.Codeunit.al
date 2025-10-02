@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN27
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -8,6 +9,9 @@ codeunit 12187 "Service Invoice Header - Edit"
 {
     Permissions = TableData "Service Invoice Header" = rm;
     TableNo = "Service Invoice Header";
+    ObsoleteReason = 'Replaced by W1 codeunit ServiceInvHeaderEdit';
+    ObsoleteState = Pending;
+    ObsoleteTag = '27.0';
 
     trigger OnRun()
     var
@@ -28,4 +32,4 @@ codeunit 12187 "Service Invoice Header - Edit"
     begin
     end;
 }
-
+#endif

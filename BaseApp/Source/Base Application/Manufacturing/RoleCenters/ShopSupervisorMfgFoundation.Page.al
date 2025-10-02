@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -37,48 +37,6 @@ page 9011 "Shop Supervisor Mfg Foundation"
     {
         area(rolecenter)
         {
-#if not CLEAN24
-            group(Control1900724808)
-            {
-                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-                ShowCaption = false;
-                part(Control1907234908; "Shop Super. basic Activities")
-                {
-                    ApplicationArea = Manufacturing;
-                }
-                part("User Tasks Activities"; "User Tasks Activities")
-                {
-                    ApplicationArea = Suite;
-                }
-                part(Control1905989608; "My Items")
-                {
-                    ApplicationArea = Manufacturing;
-                }
-            }
-            group(Control1900724708)
-            {
-                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-                ShowCaption = false;
-                part(Control21; "My Job Queue")
-                {
-                    ApplicationArea = Manufacturing;
-                    Visible = false;
-                }
-                part(Control27; "Report Inbox Part")
-                {
-                    ApplicationArea = Manufacturing;
-                    Visible = false;
-                }
-                systempart(Control1901377608; MyNotes)
-                {
-                    ApplicationArea = Manufacturing;
-                }
-            }
-#else
             part(Control1907234908; "Shop Super. basic Activities")
             {
                 ApplicationArea = Manufacturing;
@@ -109,7 +67,6 @@ page 9011 "Shop Supervisor Mfg Foundation"
             {
                 ApplicationArea = Manufacturing;
             }
-#endif
         }
     }
 
@@ -130,19 +87,36 @@ page 9011 "Shop Supervisor Mfg Foundation"
                 ApplicationArea = Manufacturing;
                 Caption = 'Subcontractor - Dis&patch List';
                 Image = "Report";
+#if not CLEAN27
                 RunObject = Report "Subcontr. Dispatching List";
+#else
+                RunObject = Report "Subcontractor - Dispatch List";
+#endif
                 ToolTip = 'View the list of material to be sent to manufacturing subcontractors.';
             }
             separator(Action42)
             {
             }
+#if not CLEAN27
             action("Production &Order Calculation")
             {
                 ApplicationArea = Manufacturing;
-                Caption = 'Production &Order Calculation';
+                Caption = 'Production &Order Calculation (Obsolete)';
                 Image = "Report";
                 RunObject = Report "Prod. Order - Calculation";
                 ToolTip = 'View a list of the production orders and their costs. Expected Operation Costs, Expected Component Costs and Total Costs are printed.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report has been replaced by the "Production Order Statistics" report and will be removed in a future release.';
+                ObsoleteTag = '27.0';
+            }
+#endif
+            action("Production Order Statistics")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Production Order Statistics';
+                Image = "Report";
+                RunObject = report "Production Order Statistics";
+                ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
             }
             action("S&tatus")
             {
@@ -301,12 +275,16 @@ page 9011 "Shop Supervisor Mfg Foundation"
                 RunObject = Page "Transfer Orders";
                 ToolTip = 'Move inventory items between company locations. With transfer orders, you ship the outbound transfer from one location and receive the inbound transfer at the other location. This allows you to manage the involved warehouse activities and provides more certainty that inventory quantities are updated correctly.';
             }
+#if not CLEAN27
             action("Subcontracting Orders")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Subcontracting Orders';
                 RunObject = Page "Subcontracting Order List";
                 ToolTip = 'View the list of subcontracting orders.';
+                ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
             }
             action("Subcontracting Transfers")
             {
@@ -314,7 +292,11 @@ page 9011 "Shop Supervisor Mfg Foundation"
                 Caption = 'Subcontracting Transfers';
                 RunObject = Page "Subcontracting Transfer List";
                 ToolTip = 'View the list of subcontracting transfers.';
+                ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
             }
+#endif
             action("Inventory Put-aways")
             {
                 ApplicationArea = Manufacturing;
@@ -571,4 +553,3 @@ page 9011 "Shop Supervisor Mfg Foundation"
         }
     }
 }
-

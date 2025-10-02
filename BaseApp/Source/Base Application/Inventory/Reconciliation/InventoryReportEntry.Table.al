@@ -4,9 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Reconciliation;
 
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.MachineCenter;
-
 table 5846 "Inventory Report Entry"
 {
     Caption = 'Inventory Report Entry';
@@ -84,7 +81,6 @@ table 5846 "Inventory Report Entry"
         }
         field(21; "Subcontracted Variance"; Decimal)
         {
-            AccessByPermission = TableData "Machine Center" = R;
             Caption = 'Subcontracted Variance';
         }
         field(22; "Capacity Overhead Variance"; Decimal)
@@ -93,7 +89,6 @@ table 5846 "Inventory Report Entry"
         }
         field(23; "Mfg. Overhead Variance"; Decimal)
         {
-            AccessByPermission = TableData "Machine Center" = R;
             Caption = 'Mfg. Overhead Variance';
         }
         field(28; Total; Decimal)
@@ -120,17 +115,14 @@ table 5846 "Inventory Report Entry"
         }
         field(33; "Overhead Applied WIP"; Decimal)
         {
-            AccessByPermission = TableData "Machine Center" = R;
             Caption = 'Overhead Applied WIP';
         }
         field(35; "Inventory To WIP"; Decimal)
         {
-            AccessByPermission = TableData "Production Order" = R;
             Caption = 'Inventory To WIP';
         }
         field(36; "WIP To Interim"; Decimal)
         {
-            AccessByPermission = TableData "Production Order" = R;
             Caption = 'WIP To Interim';
         }
         field(37; "Direct Cost Applied"; Decimal)
@@ -184,6 +176,10 @@ table 5846 "Inventory Report Entry"
         field(69; "Deleted G/L Accounts Warning"; Boolean)
         {
             Caption = 'Deleted G/L Accounts Warning';
+        }
+        field(70; "Mat. Non-Inventory Variance"; Decimal)
+        {
+            Caption = 'Material Non-Inventory Variance';
         }
     }
 

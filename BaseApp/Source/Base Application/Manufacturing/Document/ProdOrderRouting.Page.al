@@ -62,11 +62,16 @@ page 99000817 "Prod. Order Routing"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
+#if not CLEAN27
                 field("WIP Item"; Rec."WIP Item")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies if the item is a work in process (WIP) item.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Manufacturing;
@@ -314,36 +319,56 @@ page 99000817 "Prod. Order Routing"
                     ToolTip = 'Specifies the corresponding bin at the machine or work center if the location code matches the setup of that machine or work center.';
                     Visible = false;
                 }
+#if not CLEAN27
                 field("Qty. WIP on Transfer Order"; Rec."Qty. WIP on Transfer Order")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of work in process (WIP) items on a subcontractor transfer order.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Qty. WIP on Subcontractors"; Rec."Qty. WIP on Subcontractors")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of work in process (WIP) items on a subcontractor order.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Posted Output Quantity"; Rec."Posted Output Quantity")
                 {
                     ApplicationArea = Manufacturing;
                     Visible = false;
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Posted Scrap Quantity"; Rec."Posted Scrap Quantity")
                 {
                     ApplicationArea = Manufacturing;
                     Visible = false;
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Posted Run Time"; Rec."Posted Run Time")
                 {
                     ApplicationArea = Manufacturing;
                     Visible = false;
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Posted Setup Time"; Rec."Posted Setup Time")
                 {
                     ApplicationArea = Manufacturing;
                     Visible = false;
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif
                 field("Standard Task Code"; Rec."Standard Task Code")
                 {
                     ApplicationArea = Manufacturing;

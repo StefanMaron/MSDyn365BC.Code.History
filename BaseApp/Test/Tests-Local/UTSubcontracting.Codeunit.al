@@ -1,3 +1,5 @@
+#if not CLEAN27
+#pragma warning disable AL0801
 codeunit 144082 "UT Subcontracting"
 {
     // 1. Purpose of the test is to validate Prod. Order Component - OnPreDataItem Trigger of Report - 12155 Subcontr. Dispatching List.
@@ -18,6 +20,9 @@ codeunit 144082 "UT Subcontracting"
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+    ObsoleteState = Pending;
+    ObsoleteTag = '27.0';
 
     trigger OnRun()
     begin
@@ -366,4 +371,4 @@ codeunit 144082 "UT Subcontracting"
         SubcontractTransferShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-
+#endif

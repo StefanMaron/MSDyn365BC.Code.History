@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Warehouse.Journal;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Warehouse.Journal;
 
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Item;
@@ -23,7 +27,6 @@ codeunit 7301 "Whse. Jnl.-Register Line"
 
     var
         Location: Record Location;
-        WarehouseSetup: Record "Warehouse Setup";
         WhseJnlLine: Record "Warehouse Journal Line";
         Bin: Record Bin;
         WhseReg: Record "Warehouse Register";
@@ -42,9 +45,12 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     var
         GlobalWhseEntry: Record "Warehouse Entry";
         Item: Record Item;
+        xGlobalWhseEntryNo: Integer;
         IsHandled: Boolean;
     begin
+        xGlobalWhseEntryNo := GlobalWhseEntryNo;
         OnBeforeCode(WhseJnlLine, GlobalWhseEntryNo, IsHandled);
+        ValidateSequenceNo(GlobalWhseEntryNo, xGlobalWhseEntryNo, Database::"Warehouse Entry");
         if IsHandled then
             exit;
 
@@ -52,11 +58,6 @@ codeunit 7301 "Whse. Jnl.-Register Line"
             exit;
         WhseJnlLine.TestField("Item No.");
         GetLocation(WhseJnlLine."Location Code");
-
-        if WarehouseSetup.UseLegacyPosting() then begin
-            LockWarehouseTables();
-            GlobalWhseEntryNo := GlobalWhseEntry.GetLastEntryNo();
-        end;
 
         Item.SetLoadFields("Variant Mandatory if Exists");
         Item.Get(WhseJnlLine."Item No.");
@@ -79,7 +80,9 @@ codeunit 7301 "Whse. Jnl.-Register Line"
 
         InsertWhseEntry(GlobalWhseEntry);
 
+        xGlobalWhseEntryNo := GlobalWhseEntryNo;
         OnAfterCode(WhseJnlLine, GlobalWhseEntryNo, WhseReg);
+        ValidateSequenceNo(GlobalWhseEntryNo, xGlobalWhseEntryNo, Database::"Warehouse Entry");
     end;
 
 
@@ -92,29 +95,25 @@ codeunit 7301 "Whse. Jnl.-Register Line"
         WarehouseRegister.Lock();
     end;
 
+#if not CLEAN27
+    [Obsolete('This function is deprecated. Concurrent warehouse posting is always on.', '27.0')]
     procedure LockIfLegacyPosting()
     begin
-        if WarehouseSetup.UseLegacyPosting() then
-            LockWarehouseTables();
     end;
 
+    [Obsolete('This function is deprecated. Concurrent warehouse posting is always on.', '27.0')]
     procedure LockTables()
-    var
-        WarehouseEntry: Record "Warehouse Entry";
     begin
-        WarehouseEntry.Lock();
     end;
-
+#endif
     procedure InitWhseEntry(var WhseEntry: Record "Warehouse Entry"; ZoneCode: Code[10]; BinCode: Code[20]; Sign: Integer)
     var
         ToBinContent: Record "Bin Content";
+        xGlobalWhseEntryNo: Integer;
         IsHandled: Boolean;
         ShouldDeleteFromBinContent: Boolean;
     begin
-        if WarehouseSetup.UseLegacyPosting() then
-            GlobalWhseEntryNo += 1
-        else
-            GlobalWhseEntryNo := WhseEntry.GetNextEntryNo();
+        GlobalWhseEntryNo := WhseEntry.GetNextEntryNo();
 
         WhseEntry.Init();
         WhseEntry."Entry No." := GlobalWhseEntryNo;
@@ -189,7 +188,9 @@ codeunit 7301 "Whse. Jnl.-Register Line"
                     else
                         if Location."Default Bin Selection" = Location."Default Bin Selection"::"Last-Used Bin" then
                             UpdateDefaultBinContent(WhseJnlLine."Item No.", WhseJnlLine."Variant Code", WhseJnlLine."Location Code", BinCode);
+                    xGlobalWhseEntryNo := GlobalWhseEntryNo;
                     OnInitWhseEntryOnAfterGetToBinContent(WhseEntry, ItemTrackingMgt, WhseJnlLine, WhseReg, GlobalWhseEntryNo, Bin);
+                    ValidateSequenceNo(GlobalWhseEntryNo, xGlobalWhseEntryNo, Database::"Warehouse Entry");
                 end
             end else begin
                 ShouldDeleteFromBinContent := BinCode <> Location."Adjustment Bin Code";
@@ -205,6 +206,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
         WhseEntry2: Record "Warehouse Entry";
         WhseItemTrackingSetup: Record "Item Tracking Setup";
         Sign: Integer;
+        xGlobalWhseEntryNo: Integer;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -221,7 +223,9 @@ codeunit 7301 "Whse. Jnl.-Register Line"
         WhseItemTrackingSetup.CopyTrackingFromWhseEntry(WhseEntry);
         FromBinContent.SetTrackingFilterFromItemTrackingSetupIfRequired(WhseItemTrackingSetup);
         IsHandled := false;
+        xGlobalWhseEntryNo := GlobalWhseEntryNo;
         OnDeleteFromBinContentOnAfterSetFiltersForBinContent(FromBinContent, WhseEntry, WhseJnlLine, WhseReg, GlobalWhseEntryNo, IsHandled);
+        ValidateSequenceNo(GlobalWhseEntryNo, xGlobalWhseEntryNo, Database::"Warehouse Entry");
         if IsHandled then
             exit;
         FromBinContent.CalcFields("Quantity (Base)", "Positive Adjmt. Qty. (Base)", "Put-away Quantity (Base)");
@@ -298,10 +302,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
         WhseJnlRegLine.SetWhseRegister(WhseReg);
         WhseJnlRegLine.Run(WhseJnlLine2);
         WhseJnlRegLine.GetWhseRegister(WhseReg);
-        if WarehouseSetup.UseLegacyPosting() then
-            GlobalWhseEntryNo := WhseReg."To Entry No." + 1
-        else
-            GlobalWhseEntryNo := WhseEntry.GetNextEntryNo();
+        GlobalWhseEntryNo := WhseEntry.GetNextEntryNo();
         WhseEntry."Entry No." := GlobalWhseEntryNo;
     end;
 
@@ -338,10 +339,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
         OnBeforeInsertWhseEntry(WhseEntry, WhseJnlLine);
         InsertWhseReg(WhseEntry."Entry No.");
         WhseEntry."Warehouse Register No." := WhseReg."No.";
-        if WarehouseSetup.UseLegacyPosting() then
-            WhseEntry.Insert()
-        else
-            WhseEntry.InsertRecord();
+        WhseEntry.Insert(true);
         UpdateBinEmpty(WhseEntry);
 
         OnAfterInsertWhseEntry(WhseEntry, WhseJnlLine);
@@ -514,7 +512,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     begin
         if WhseReg."No." = 0 then begin
             WhseReg.Init();
-            WhseReg."No." := WhseReg.GetNextEntryNo(WarehouseSetup.UseLegacyPosting());
+            WhseReg."No." := WhseReg.GetNextEntryNo();
             WhseReg."From Entry No." := WhseEntryNo;
             WhseReg."To Entry No." := WhseEntryNo;
             WhseReg."Creation Date" := Today;
@@ -523,7 +521,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
             WhseReg."Source Code" := WhseJnlLine."Source Code";
             WhseReg."User ID" := CopyStr(UserId(), 1, MaxStrLen(WhseJnlLine."User ID"));
             OnInsertWhseRegOnBeforeInsertRecord(WhseReg, WhseJnlLine, WhseEntryNo);
-            WhseReg.InsertRecord(WarehouseSetup.UseLegacyPosting());
+            WhseReg.InsertRecord();
         end else begin
             if ((WhseEntryNo < WhseReg."From Entry No.") and (WhseEntryNo <> 0)) or
                ((WhseReg."From Entry No." = 0) and (WhseEntryNo > 0))
@@ -587,13 +585,27 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     end;
 
     procedure SetWhseEntryNo(NewWhseEntryNo: Integer)
+    var
+        xGlobalWhseEntryNo: Integer;
     begin
+        xGlobalWhseEntryNo := GlobalWhseEntryNo;
         GlobalWhseEntryNo := NewWhseEntryNo;
+        ValidateSequenceNo(GlobalWhseEntryNo, xGlobalWhseEntryNo, Database::"Warehouse Entry");
     end;
 
     procedure GetWhseEntryNo(): Integer
     begin
         exit(GlobalWhseEntryNo);
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Warehouse Entry", 'r')]
+    local procedure ValidateSequenceNo(LedgEntryNo: Integer; xLedgEntryNo: Integer; TableNo: Integer)
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+    begin
+        if LedgEntryNo = xLedgEntryNo then
+            exit;
+        SequenceNoMgt.ValidateSeqNo(TableNo);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sequence No. Mgt.", 'OnPreviewableLedgerEntry', '', false, false)]

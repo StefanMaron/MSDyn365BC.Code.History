@@ -53,11 +53,13 @@ tableextension 12456 "Service Invoice Header IT" extends "Service Invoice Header
         {
             Caption = 'First Name';
             DataClassification = CustomerContent;
+            OptimizeForTextSearch = true;
         }
         field(12134; "Last Name"; Text[30])
         {
             Caption = 'Last Name';
             DataClassification = CustomerContent;
+            OptimizeForTextSearch = true;
         }
         field(12135; "Date of Birth"; Date)
         {
@@ -73,6 +75,7 @@ tableextension 12456 "Service Invoice Header IT" extends "Service Invoice Header
         {
             Caption = 'Place of Birth';
             DataClassification = CustomerContent;
+            OptimizeForTextSearch = true;
         }
         field(12172; "Bank Account"; Code[20])
         {
@@ -100,6 +103,7 @@ tableextension 12456 "Service Invoice Header IT" extends "Service Invoice Header
         {
             Caption = 'Customer Purchase Order No.';
             DataClassification = CustomerContent;
+            OptimizeForTextSearch = true;
         }
         field(12185; "Fattura Stamp"; Boolean)
         {

@@ -1,4 +1,4 @@
-﻿codeunit 144210 "FatturaPA Document Type"
+codeunit 144210 "FatturaPA Document Type"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;

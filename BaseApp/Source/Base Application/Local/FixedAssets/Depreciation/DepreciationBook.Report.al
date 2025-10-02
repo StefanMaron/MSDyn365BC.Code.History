@@ -1075,14 +1075,6 @@ report 12119 "Depreciation Book"
         TotalAntAccDepreciation := TotalNetChangeAmounts[5] + TotalNetChangeAmounts[6];
     end;
 
-    local procedure GetStartingDate(StartingDate: Date): Date
-    begin
-        if StartingDate <= 00000101D then
-            exit(0D);
-
-        exit(StartingDate - 1);
-    end;
-
     local procedure CalcTotals()
     var
         EntryType: Integer;
@@ -1311,4 +1303,3 @@ report 12119 "Depreciation Book"
         exit(Default);
     end;
 }
-

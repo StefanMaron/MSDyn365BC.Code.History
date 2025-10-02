@@ -31,7 +31,7 @@ codeunit 137502 "SCM Dedicated Bins"
     [Normal]
     local procedure Initialize()
     var
-        MfgSetup: Record "Manufacturing Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Dedicated Bins");
@@ -43,10 +43,10 @@ codeunit 137502 "SCM Dedicated Bins"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         // set Manufacturing Setup Component @ Location = blank
-        MfgSetup.Get();
-        MfgSetup.Validate("Components at Location", '');
-        MfgSetup.Validate("Default Flushing Method", MfgSetup."Default Flushing Method"::"Pick + Manual");
-        MfgSetup.Modify(true);
+        LibraryManufacturing.SetComponentsAtLocation('');
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Default Flushing Method", ManufacturingSetup."Default Flushing Method"::"Pick + Manual");
+        ManufacturingSetup.Modify(true);
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Dedicated Bins");
@@ -1347,7 +1347,7 @@ codeunit 137502 "SCM Dedicated Bins"
         end else
             if Location."Require Pick" then begin
                 // for warehouse picks, create and register pick
-                LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+                LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
                 WhseActivityLine.SetRange("Source Type", DATABASE::"Prod. Order Component");
                 WhseActivityLine.SetRange("Source Subtype", ProductionOrder.Status);
                 WhseActivityLine.SetRange("Source No.", ProductionOrder."No.");

@@ -29,6 +29,7 @@ table 132590 "Comparison Type"
         }
         field(8; "Decimal Field"; Decimal)
         {
+            AutoFormatType = 0;
         }
         field(9; "Duration Field"; Duration)
         {
@@ -115,4 +116,3 @@ table 132590 "Comparison Type"
         Insert();
     end;
 }
-

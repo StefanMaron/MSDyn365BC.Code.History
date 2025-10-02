@@ -133,7 +133,7 @@ codeunit 5612 "Calculate Custom 1 Depr."
             if DateFromProjection > 0D then
                 FirstDeprDate := DateFromProjection
             else begin
-                FirstDeprDate := DepreciationCalc.GetFirstDeprDate(FANo, DeprBookCode, false);
+                FirstDeprDate := DepreciationCalc.GetFirstDeprDate(FANo, DeprBookCode, false, DeprBook."Use Accounting Period");
                 if (FirstDeprDate > UntilDate) or (FirstDeprDate = 0D) then
                     exit;
                 if (Custom1DeprUntil = 0D) or (FirstDeprDate <= Custom1DeprUntil) then begin
@@ -148,14 +148,14 @@ codeunit 5612 "Calculate Custom 1 Depr."
             end;
             if UseDeprStartingDate then
                 ExtraDays := DepreciationCalc.DeprDays(
-                    Custom1DeprStartingDate, DeprStartingDate, false) - 1;
+                    Custom1DeprStartingDate, DeprStartingDate, false, DeprBook."Use Accounting Period") - 1;
             if (Custom1DeprUntil > 0D) and (FirstDeprDate <= Custom1DeprUntil) and
                (UntilDate > Custom1DeprUntil)
             then
                 Error(
                   Text000,
                   FAName(), FADeprBook.FieldCaption("Depr. Ending Date (Custom 1)"), Custom1DeprUntil);
-            NumberOfDays := DepreciationCalc.DeprDays(FirstDeprDate, UntilDate, false);
+            NumberOfDays := DepreciationCalc.DeprDays(FirstDeprDate, UntilDate, false, DeprBook."Use Accounting Period");
 
             if NumberOfDays <= 0 then
                 exit;
@@ -223,7 +223,8 @@ codeunit 5612 "Calculate Custom 1 Depr."
                 RemainingLife :=
                   (DeprYears * DaysInFiscalYear) -
                   DepreciationCalc.DeprDays(
-                    DeprStartingDate, DepreciationCalc.Yesterday(FirstDeprDate, false), false);
+                    DeprStartingDate, DepreciationCalc.Yesterday(FirstDeprDate, false, DeprBook."Use Accounting Period"),
+                    false, DeprBook."Use Accounting Period");
                 OnCalcSLAmountOnAfterSetRemainingLife(RemainingLife, Custom1PropertyClass, Custom1DeprStartingDate, Custom1DeprUntil);
                 if RemainingLife < 1 then
                     exit(-BookValue);
@@ -303,7 +304,8 @@ codeunit 5612 "Calculate Custom 1 Depr."
 
         YearsOfCustom1Depr :=
           DepreciationCalc.DeprDays(
-            Custom1DeprStartingDate, Custom1DeprUntil, false) / DaysInFiscalYear;
+            Custom1DeprStartingDate, Custom1DeprUntil, false, DeprBook."Use Accounting Period")
+          / DaysInFiscalYear;
         CalcDeprYears := 100 / SLPercent;
         if (CalcDeprYears - YearsOfCustom1Depr) <= 0.001 then
             exit(0);
@@ -401,7 +403,8 @@ codeunit 5612 "Calculate Custom 1 Depr."
                   FAName(), FADeprBook.FieldCaption("Depreciation Starting Date"), FADeprBook.FieldCaption("Depreciation Ending Date"));
             DeprYears :=
               DepreciationCalc.DeprDays(
-                FADeprBook."Depreciation Starting Date", FADeprBook."Depreciation Ending Date", false) / 360;
+                FADeprBook."Depreciation Starting Date", FADeprBook."Depreciation Ending Date", false,
+                DeprBook."Use Accounting Period") / 360;
         end;
         FixedAmount := FADeprBook."Fixed Depr. Amount";
         FinalRoundingAmount := FADeprBook."Final Rounding Amount";

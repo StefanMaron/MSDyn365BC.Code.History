@@ -625,6 +625,8 @@ report 5913 "Service - Shipment"
 
     requestpage
     {
+        AboutTitle = 'About Service - Shipment';
+        AboutText = 'Generate a service shipment document that you can send to your customer.';
         SaveValues = true;
 
         layout

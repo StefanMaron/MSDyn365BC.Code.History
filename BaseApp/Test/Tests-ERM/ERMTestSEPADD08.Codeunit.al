@@ -152,7 +152,7 @@ codeunit 134429 "ERM Test SEPA DD 08"
         SEPADirectDebitMandate: record "SEPA Direct Debit Mandate";
     begin
         // [FEATURE] [Ignore Expected Number of Debits]
-        // [SCENARIO] "Expected Number of Debits" is reset to 1 on validation of "Type of Payment"::OneOff 
+        // [SCENARIO] "Expected Number of Debits" is reset to 1 on validation of "Type of Payment"::OneOff
         SEPADirectDebitMandate.Init();
         SEPADirectDebitMandate."Expected Number of Debits" := 2;
         SEPADirectDebitMandate."Ignore Exp. Number of Debits" := true;
@@ -1773,12 +1773,6 @@ codeunit 134429 "ERM Test SEPA DD 08"
         SEPADirectDebitMandate.Insert(true);
     end;
 
-    local procedure GetGLAccount(var GLAccount: Record "G/L Account")
-    begin
-        GLAccount.SetRange("Income/Balance", GLAccount."Income/Balance"::"Income Statement");
-        LibraryERM.FindDirectPostingGLAccount(GLAccount);
-    end;
-
     local procedure GetCreditorNo(BankAccNo: Code[20]): Text
     var
         BankAccount: Record "Bank Account";
@@ -2197,4 +2191,3 @@ codeunit 134429 "ERM Test SEPA DD 08"
         Assert.ExpectedError(StrSubstNo(DirectDebitMsgNosErr, BankAccount."No."));
     end;
 }
-

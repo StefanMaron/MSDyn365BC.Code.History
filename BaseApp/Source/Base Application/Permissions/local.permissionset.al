@@ -16,11 +16,10 @@ using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Inventory.Item;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.FinancialReports;
-#if not CLEAN24
-using Microsoft.Foundation.NoSeries;
-#endif
 using Microsoft.Finance.GeneralLedger.Setup;
+#if not CLEAN27
 using Microsoft.Manufacturing.Document;
+#endif
 using Microsoft.Inventory.Setup;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Setup;
@@ -74,10 +73,6 @@ permissionset 1001 "LOCAL"
                   tabledata "Item Costing Setup" = RIMD,
                   tabledata "Lifo Band" = RIMD,
                   tabledata "Lifo Category" = RIMD,
-#if not CLEAN24
-                  tabledata "No. Series Line Purchase" = RIMD,
-                  tabledata "No. Series Line Sales" = RIMD,
-#endif
                   tabledata "Payment Lines" = RIMD,
 #if not CLEAN27
                   tabledata "Periodic Settlement VAT Entry" = RIMD,
@@ -90,7 +85,9 @@ permissionset 1001 "LOCAL"
                   tabledata "Reprint Info Fiscal Reports" = RIMD,
                   tabledata "Service Tariff Number" = RIMD,
                   tabledata "Spesometro Appointment" = RIMD,
+#if not CLEAN27
                   tabledata "Subcontractor Prices" = RIMD,
+#endif
                   tabledata "Tmp Withholding Contribution" = RIMD,
                   tabledata "Transport Reason Code" = RIMD,
                   tabledata "VAT Book Entry" = RIMD,

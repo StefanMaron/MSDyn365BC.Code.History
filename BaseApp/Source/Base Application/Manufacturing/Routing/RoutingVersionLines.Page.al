@@ -51,11 +51,16 @@ page 99000767 "Routing Version Lines"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a standard task.';
                 }
+#if not CLEAN27
                 field("WIP Item"; Rec."WIP Item")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies if the item is a work in process (WIP) item.';
+                    ObsoleteReason = 'Preparation for replacement by Suncontracting app ';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif
                 field("Routing Link Code"; Rec."Routing Link Code")
                 {
                     ApplicationArea = Manufacturing;

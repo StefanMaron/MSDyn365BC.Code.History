@@ -4,7 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Transfer;
 
+#if not CLEAN27
 using Microsoft.Manufacturing.Document;
+#endif
 
 page 5749 "Transfer Lines"
 {
@@ -129,10 +131,12 @@ page 5749 "Transfer Lines"
                     begin
                         TransferHeader.Get(Rec."Document No.");
                         TransferHeader.CalcFields("Subcontracting Order");
+#if not CLEAN27
                         if TransferHeader."Subcontracting Order" then
                             PAGE.Run(PAGE::"Subcontr. Transfer Order", TransferHeader)
                         else
-                            PAGE.Run(PAGE::"Transfer Order", TransferHeader);
+#endif
+                        PAGE.Run(PAGE::"Transfer Order", TransferHeader);
                     end;
                 }
             }

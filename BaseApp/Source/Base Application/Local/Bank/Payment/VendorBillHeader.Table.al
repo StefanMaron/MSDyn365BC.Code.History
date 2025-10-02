@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -209,24 +209,12 @@ table 12181 "Vendor Bill Header"
     trigger OnInsert()
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         if "No." = '' then begin
             PurchSetup.Get();
             PurchSetup.TestField("Temporary Bill List No.");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(PurchSetup."Temporary Bill List No.", "No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 "No. Series" := PurchSetup."Temporary Bill List No.";
                 "No." := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", PurchSetup."Temporary Bill List No.", 0D, "No.");
-            end;
-#endif
         end;
 
         "List Date" := WorkDate();
@@ -310,4 +298,3 @@ table 12181 "Vendor Bill Header"
     begin
     end;
 }
-

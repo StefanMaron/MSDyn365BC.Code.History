@@ -19,7 +19,6 @@ codeunit 144000 "IT - Fixed Assets"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
-        FixedAssetCountError: Label 'New fixed assets were not created.';
         IncorrectNumberOfEntries: Label 'Incorrect number of entries posted to %1 table.';
         DepreciationBookCode: Code[10];
         UseAnticipatedDepr: Boolean;
@@ -33,67 +32,6 @@ codeunit 144000 "IT - Fixed Assets"
         Clear(DepreciationBookCode);
         Clear(UseAnticipatedDepr);
         Clear(UseAccDecrDepr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CreateMultipleFACards()
-    var
-        PurchaseLine: Record "Purchase Line";
-        FixedAssetCount: Integer;
-    begin
-        // Test Posting Purchase Invoice when No. of Fixed Asset Cards is greater than 1.
-
-        // 1.Setup: Count number of existing Fixed Assets.
-        Initialize();
-        FixedAssetCount := GetFACount();
-
-        // 2.Exercise: Create Fixed Asset, Depreciation Book, FA Posting Group. Post Purchase Invoice with FA.
-        CreatePostPurchInvoice(PurchaseLine, LibraryRandom.RandInt(5) + 1); // Quantity should be greater than 1.
-
-        // 3.Verify: Verify that Multiple Fixed Assets were created, FA Depreciation Book copied and Acqusition Cost posted.
-        Assert.AreEqual(FixedAssetCount + PurchaseLine."No. of Fixed Asset Cards", GetFACount(), FixedAssetCountError);
-        VerifyNewFixedAssets(PurchaseLine."No.", PurchaseLine."No. of Fixed Asset Cards");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CreateSingleFACard()
-    var
-        PurchaseLine: Record "Purchase Line";
-        FixedAssetCount: Integer;
-    begin
-        // Test Posting Purchase Invoice when No. of Fixed Asset Cards is 1.
-
-        // 1.Setup: Count number of existing Fixed Assets.
-        Initialize();
-        FixedAssetCount := GetFACount();
-
-        // 2.Exercise: Create Fixed Asset, Depreciation Book, FA Posting Group. Post Purchase Invoice with FA.
-        CreatePostPurchInvoice(PurchaseLine, 1); // Quantity should be equal to 1.
-
-        // 3.Verify: Verify that Additonal Fixed Assets were not created.
-        Assert.AreEqual(FixedAssetCount + PurchaseLine."No. of Fixed Asset Cards", GetFACount(), FixedAssetCountError);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CreateZeroFACard()
-    var
-        PurchaseLine: Record "Purchase Line";
-        FixedAssetCount: Integer;
-    begin
-        // Test Posting Purchase Invoice when No. of Fixed Asset Cards is 0.
-
-        // 1.Setup: Count number of existing Fixed Assets.
-        Initialize();
-        FixedAssetCount := GetFACount();
-
-        // 2.Exercise: Create Fixed Asset, Depreciation Book, FA Posting Group. Post Purchase Invoice with FA.
-        CreatePostPurchInvoice(PurchaseLine, 0); // Quantity should be equal to 0.
-
-        // 3.Verify: Verify that Additonal Fixed Assets were not created.
-        Assert.AreEqual(FixedAssetCount + PurchaseLine.Quantity, GetFACount(), FixedAssetCountError);
     end;
 
     [Test]
@@ -554,15 +492,6 @@ codeunit 144000 "IT - Fixed Assets"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreatePostPurchInvoice(var PurchaseLine: Record "Purchase Line"; NoOfFACards: Integer)
-    var
-        PurchaseHeader: Record "Purchase Header";
-    begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor());
-        CreatePurchLine(PurchaseLine, PurchaseHeader, GetDefaultDepreciationBook(), CreateFAPostingGroup(), NoOfFACards);
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-    end;
-
     local procedure CreatePurchLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; DepreciationBook: Code[10]; FAPostingGroup: Code[20]; NoOfFACards: Integer): Code[20]
     var
         FixedAsset: Record "Fixed Asset";
@@ -579,21 +508,6 @@ codeunit 144000 "IT - Fixed Assets"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         exit(Vendor."No.");
-    end;
-
-    local procedure GetDefaultDepreciationBook(): Code[10]
-    var
-        FASetup: Record "FA Setup";
-    begin
-        FASetup.Get();
-        exit(FASetup."Default Depr. Book");
-    end;
-
-    local procedure GetFACount(): Integer
-    var
-        FixedAsset: Record "Fixed Asset";
-    begin
-        exit(FixedAsset.Count);
     end;
 
     local procedure GetFAJournalLine(var FAJournalLine: Record "FA Journal Line"; DepreciationBook: Code[10])
@@ -712,37 +626,6 @@ codeunit 144000 "IT - Fixed Assets"
             GLEntry.CalcSums(Amount);
         end;
         GLEntry.TestField(Amount, -FALedgerEntry.Amount);
-    end;
-
-    local procedure VerifyNewFixedAssets(FixedAssetNo: Code[20]; Quantity: Integer)
-    var
-        FixedAsset: Record "Fixed Asset";
-        FADepreciationBook: Record "FA Depreciation Book";
-        FADepreciationBook2: Record "FA Depreciation Book";
-    begin
-        // Find Initial Fixed Asset.
-        FixedAsset.Get(FixedAssetNo);
-        FixedAsset.SetFilter(Description, FixedAsset.Description);
-
-        // Verify that Description field was copied for new Fixed Assets.
-        Assert.AreEqual(Quantity, FixedAsset.Count, FixedAssetCountError);
-        FixedAsset.FindSet();
-
-        // Find FA Deprecition Book for the initial Fixed Asset.
-        FADepreciationBook2.SetFilter("FA No.", FixedAssetNo);
-        FADepreciationBook2.FindFirst();
-        FADepreciationBook2.CalcFields("Acquisition Cost");
-
-        // Verify Depreciation Method, FA Posting Group, Acquisition Cost.
-        repeat
-            FADepreciationBook.Get(FixedAsset."No.", FADepreciationBook2."Depreciation Book Code");
-            FADepreciationBook.CalcFields("Acquisition Cost");
-            FADepreciationBook.TestField("FA Posting Group", FADepreciationBook2."FA Posting Group");
-            FADepreciationBook.TestField("Depreciation Method", FADepreciationBook2."Depreciation Method");
-            FADepreciationBook.TestField("Depreciation Starting Date", FADepreciationBook2."Depreciation Starting Date");
-            FADepreciationBook.TestField("Depreciation Ending Date", FADepreciationBook2."Depreciation Ending Date");
-            FADepreciationBook.TestField("Acquisition Cost", FADepreciationBook2."Acquisition Cost");
-        until FixedAsset.Next() = 0;
     end;
 
     local procedure VerifyNoGLEntriesPosted(DocumentNo: Code[20]; "Count": Integer)

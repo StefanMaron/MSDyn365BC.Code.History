@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.ReceivablesPayables;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.ReceivablesPayables;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Journal;
@@ -201,6 +205,7 @@ table 383 "Detailed CV Ledg. Entry Buffer"
         }
         field(32; "Additional-Currency Amount"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Additional-Currency Amount';
             DataClassification = SystemMetadata;
@@ -262,13 +267,13 @@ table 383 "Detailed CV Ledg. Entry Buffer"
         }
         field(6201; "Non-Deductible VAT Amount LCY"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
             Caption = 'Non-Deductible VAT Amount LCY';
             Editable = false;
+            AutoFormatType = 1;
         }
         field(6202; "Non-Deductible VAT Amount ACY"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             Caption = 'Non-Deductible VAT Amount ACY';
             Editable = false;
         }
@@ -338,6 +343,19 @@ table 383 "Detailed CV Ledg. Entry Buffer"
     fieldgroups
     {
     }
+
+    protected var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GeneralLedgerSetupRead: Boolean;
+
+    local procedure GetAdditionalReportingCurrencyCode(): Code[10]
+    begin
+        if not GeneralLedgerSetupRead then begin
+            GeneralLedgerSetup.Get();
+            GeneralLedgerSetupRead := true;
+        end;
+        exit(GeneralLedgerSetup."Additional Reporting Currency")
+    end;
 
     procedure InsertDtldCVLedgEntry(var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var CVLedgEntryBuf: Record "CV Ledger Entry Buffer"; InsertZeroAmout: Boolean)
     var
@@ -569,4 +587,3 @@ table 383 "Detailed CV Ledg. Entry Buffer"
     begin
     end;
 }
-

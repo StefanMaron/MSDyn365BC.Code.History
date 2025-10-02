@@ -19,6 +19,7 @@ page 5975 "Posted Service Shipment"
     Caption = 'Posted Service Shipment';
     DeleteAllowed = false;
     InsertAllowed = false;
+    ModifyAllowed = false;
     PageType = Document;
     RefreshOnActivate = true;
     SourceTable = "Service Shipment Header";
@@ -64,6 +65,12 @@ page 5975 "Posted Service Shipment"
                         ApplicationArea = Service;
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer.';
+                    }
+                    field("Name 2"; Rec."Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Editable = false;
+                        Visible = false;
                     }
                     field(Address; Rec.Address)
                     {
@@ -264,6 +271,13 @@ page 5975 "Posted Service Shipment"
                         Caption = ' Name';
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
+                    }
+                    field("Bill-to Name 2"; Rec."Bill-to Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Name 2';
+                        Editable = false;
+                        Visible = false;
                     }
                     field("Bill-to Address"; Rec."Bill-to Address")
                     {
@@ -485,30 +499,6 @@ page 5975 "Posted Service Shipment"
                     Editable = false;
                     ToolTip = 'Specifies the email address at the address that the items are shipped to.';
                 }
-                field("Additional Information"; Rec."Additional Information")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies additional declaration information that is needed for the shipment.';
-                }
-                field("Additional Notes"; Rec."Additional Notes")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies additional notes that are needed for the shipment.';
-                }
-                field("Additional Instructions"; Rec."Additional Instructions")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies additional instructions that are needed for the shipment.';
-                }
-                field("TDD Prepared By"; Rec."TDD Prepared By")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies the user ID of the transport delivery document (TDD) for the posted service shipment.';
-                }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
@@ -541,18 +531,6 @@ page 5975 "Posted Service Shipment"
                         Editable = false;
                         Importance = Additional;
                         ToolTip = 'Specifies which shipping agent service is used to transport the items on the service document to the customer.';
-                    }
-                    field("3rd Party Loader Type"; Rec."3rd Party Loader Type")
-                    {
-                        ApplicationArea = Service;
-                        Editable = false;
-                        ToolTip = 'Specifies the type of third party that is responsible for loading the items for this document.';
-                    }
-                    field("3rd Party Loader No."; Rec."3rd Party Loader No.")
-                    {
-                        ApplicationArea = Service;
-                        Editable = false;
-                        ToolTip = 'Specifies the ID of the vendor or contact that is responsible for loading the items for this document.';
                     }
                 }
             }
@@ -854,6 +832,7 @@ page 5975 "Posted Service Shipment"
 
                 trigger OnAction()
                 begin
+                    ServShptHeader := Rec;
                     CurrPage.SetSelectionFilter(ServShptHeader);
                     ServShptHeader.PrintRecords(true);
                 end;
@@ -880,7 +859,7 @@ page 5975 "Posted Service Shipment"
 
                 trigger OnAction()
                 var
-                    PostedServiceShptUpdate: Page "Posted Service Shpt. - Update";
+                    PostedServiceShptUpdate: Page "Posted Service Ship. - Update";
                 begin
                     PostedServiceShptUpdate.LookupMode := true;
                     PostedServiceShptUpdate.SetRec(Rec);
@@ -950,6 +929,12 @@ page 5975 "Posted Service Shipment"
             exit(true);
         Rec.SetRange("No.");
         exit(Rec.Find(Which));
+    end;
+
+    trigger OnModifyRecord(): Boolean
+    begin
+        CODEUNIT.Run(CODEUNIT::"Service Shipment Header - Edit", Rec);
+        exit(false);
     end;
 
     trigger OnAfterGetRecord()

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Document;
 
 using Microsoft.CRM.Contact;
 using Microsoft.EServices.EDocument;
@@ -36,6 +40,7 @@ using System.Environment.Configuration;
 using System.Privacy;
 using System.Security.User;
 using Microsoft.Foundation.PaymentTerms;
+using System.Threading;
 
 page 50 "Purchase Order"
 {
@@ -90,16 +95,34 @@ page 50 "Purchase Order"
                     ShowMandatory = true;
                     ToolTip = 'Specifies the name of the vendor who delivers the products.';
 
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        Vendor: Record Vendor;
+                    begin
+                        Selected.SetTable(Vendor);
+                        if Rec."Buy-from Vendor No." <> Vendor."No." then begin
+                            Rec.Validate("Buy-from Vendor No.", Vendor."No.");
+                            if Rec."Buy-from Vendor No." <> Vendor."No." then
+                                error('');
+                            IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
+                            CurrPage.Update();
+                        end;
+                    end;
+
                     trigger OnValidate()
                     begin
+                        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
                         Rec.OnAfterValidateBuyFromVendorNo(Rec, xRec);
                         CurrPage.Update();
                     end;
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        exit(Rec.LookupBuyFromVendorName(Text));
-                    end;
+                }
+                field("Buy-from Vendor Name 2"; Rec."Buy-from Vendor Name 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Vendor Name 2';
+                    Importance = Additional;
+                    QuickEntry = false;
+                    Visible = false;
                 }
                 field("Posting Description"; Rec."Posting Description")
                 {
@@ -376,6 +399,15 @@ page 50 "Purchase Order"
                     Importance = Additional;
                     ToolTip = 'Specifies the status of a job queue entry that handles the posting of purchase orders.';
                     Visible = JobQueueUsed;
+
+                    trigger OnDrillDown()
+                    var
+                        JobQueueEntry: Record "Job Queue Entry";
+                    begin
+                        if Rec."Job Queue Status" = Rec."Job Queue Status"::" " then
+                            exit;
+                        JobQueueEntry.ShowStatusMsg(Rec."Job Queue Entry ID");
+                    end;
                 }
                 field("Language Code"; Rec."Language Code")
                 {
@@ -741,9 +773,16 @@ page 50 "Purchase Order"
                             Importance = Promoted;
                             ToolTip = 'Specifies the name of the vendor sending the invoice.';
 
-                            trigger OnLookup(var Text: Text): Boolean
+                            trigger OnAfterLookup(Selected: RecordRef)
+                            var
+                                Vendor: Record Vendor;
                             begin
-                                exit(Rec.LookupPayToVendorName(Text));
+                                Selected.SetTable(Vendor);
+                                if Rec."Pay-to Vendor No." <> Vendor."No." then begin
+                                    Rec.Validate("Pay-to Vendor No.", Vendor."No.");
+                                    if Rec."Pay-to Vendor No." <> Vendor."No." then  // if the user responds 'no' to questions
+                                        error('');
+                                end;
                             end;
 
                             trigger OnValidate()
@@ -756,6 +795,16 @@ page 50 "Purchase Order"
                                     CurrPage.Update();
                                 end;
                             end;
+                        }
+                        field("Pay-to Name 2"; Rec."Pay-to Name 2")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Name 2';
+                            Editable = PayToOptions = PayToOptions::"Another Vendor";
+                            Enabled = PayToOptions = PayToOptions::"Another Vendor";
+                            Importance = Additional;
+                            QuickEntry = false;
+                            Visible = false;
                         }
                         field("Pay-to Address"; Rec."Pay-to Address")
                         {
@@ -2426,7 +2475,7 @@ page 50 "Purchase Order"
 
         SetIsActivityCodeMandatory();
 
-        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(FlowServiceManagement.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -2511,7 +2560,7 @@ page 50 "Purchase Order"
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         FormatAddress: Codeunit "Format Address";
         PrivacyNotice: Codeunit "Privacy Notice";
-        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
+        FlowServiceManagement: Codeunit "Flow Service Management";
         ChangeExchangeRate: Page "Change Exchange Rate";
         JobQueueVisible: Boolean;
         JobQueueUsed: Boolean;
@@ -2538,7 +2587,6 @@ page 50 "Purchase Order"
         PurchaseDocCheckFactboxVisible: Boolean;
         IsJournalTemplNameVisible: Boolean;
         IsPaymentMethodCodeVisible: Boolean;
-        IsPostingGroupEditable: Boolean;
         IsPurchaseLinesEditable: Boolean;
         ShouldSearchForVendByName: Boolean;
         IsRemitToCountyVisible: Boolean;
@@ -2549,6 +2597,7 @@ page 50 "Purchase Order"
         ShipToOptions: Enum "Purchase Order Ship-to Options";
         PayToOptions: Enum "Purchase Order Pay-to Options";
         IsActivityCodeMandatory: Boolean;
+        IsPostingGroupEditable: Boolean;
 
     local procedure SetOpenPage()
     var

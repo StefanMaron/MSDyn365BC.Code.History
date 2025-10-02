@@ -290,7 +290,6 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         ProductionForecastEntry: Record "Production Forecast Entry";
         ProductionForecastEntry2: Record "Production Forecast Entry";
         RequisitionLine: Record "Requisition Line";
-        ManufacturingSetup: Record "Manufacturing Setup";
         Quantity: Decimal;
     begin
         // Verify Planning Lines for Production Forecast with Item Variant when 'Use forecast on Variants' is OFF and Calculate Regenerative Plan is invoked.
@@ -317,10 +316,8 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         ProductionForecastEntry2.Validate("Forecast Quantity (Base)", Quantity * 2);
         ProductionForecastEntry2.Modify(true);
 
-        // Setup: Switch OFF 'Use forecast on Variants' on Manufacturing Setup
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Use Forecast on Variants", false);
-        ManufacturingSetup.Modify(true);
+        // Setup: Switch OFF 'Use forecast on Variants'
+        LibraryPlanning.SetUseForecastOnVariants(false);
 
         // Exercise: Calculate Regenerative Plan.
         EnqueueFilters(Item."No.", '', '');
@@ -350,9 +347,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         ItemVariant: Record "Item Variant";
         ItemVariant2: Record "Item Variant";
         ProductionForecastEntry: Record "Production Forecast Entry";
-        //ProductionForecastEntry2: Record "Production Forecast Entry";
         RequisitionLine: Record "Requisition Line";
-        ManufacturingSetup: Record "Manufacturing Setup";
         Location: Record Location;
         Quantity: Decimal;
     begin
@@ -372,10 +367,8 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Setup: Create Production Forecast for item with empty variant.
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", Location.Code, '', Quantity);
 
-        // Setup: Switch ON 'Use forecast on Variants' on Manufacturing Setup
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Use Forecast on Variants", true);
-        ManufacturingSetup.Modify(true);
+        // Setup: Switch ON 'Use forecast on Variants'
+        LibraryPlanning.SetUseForecastOnVariants(true);
 
         // Exercise: Calculate Regenerative Plan.
         EnqueueFilters(Item."No.", Location.Code, ItemVariant.Code);
@@ -396,7 +389,6 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         ItemVariant2: Record "Item Variant";
         ProductionForecastEntry: Record "Production Forecast Entry";
         RequisitionLine: Record "Requisition Line";
-        ManufacturingSetup: Record "Manufacturing Setup";
         Location: Record Location;
         Quantity: Decimal;
     begin
@@ -416,10 +408,8 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Setup: Create Production Forecast for item with empty variant.
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", Location.Code, '', Quantity);
 
-        // Setup: Switch OFF 'Use forecast on Variants' on Manufacturing Setup
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Use Forecast on Variants", false);
-        ManufacturingSetup.Modify(true);
+        // Setup: Switch OFF 'Use forecast on Variants'
+        LibraryPlanning.SetUseForecastOnVariants(false);
 
         // Exercise: Calculate Regenerative Plan.
         EnqueueFilters(Item."No.", Location.Code, ItemVariant.Code);
@@ -441,7 +431,6 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         ProductionForecastEntry: Record "Production Forecast Entry";
         //ProductionForecastEntry2: Record "Production Forecast Entry";
         RequisitionLine: Record "Requisition Line";
-        ManufacturingSetup: Record "Manufacturing Setup";
         Location: Record Location;
         Quantity: Decimal;
     begin
@@ -462,9 +451,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", Location.Code, '', Quantity);
 
         // Setup: Switch OFF 'Use forecast on Variants' on Manufacturing Setup
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Use Forecast on Variants", true);
-        ManufacturingSetup.Modify(true);
+        LibraryPlanning.SetUseForecastOnVariants(true);
 
         // Exercise: Calculate Regenerative Plan.
         EnqueueFilters(Item."No.", Location.Code, '');
@@ -1839,6 +1826,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
+        LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
         isInitialized := true;
         Commit();
@@ -2052,11 +2040,6 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
     end;
 
-    local procedure CreateAndUpdateProductionForecast(var ProductionForecastEntry: Record "Production Forecast Entry"; Name: Code[10]; Date: Date; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
-    begin
-        CreateAndUpdateProductionForecast(ProductionForecastEntry, Name, Date, ItemNo, LocationCode, '', Quantity);
-    end;
-
     local procedure CreateAndUpdateProductionForecast(var ProductionForecastEntry: Record "Production Forecast Entry"; Name: Code[10]; Date: Date; ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; Quantity: Decimal)
     begin
         LibraryManufacturing.CreateProductionForecastEntry(ProductionForecastEntry, Name, ItemNo, '', Date, false);
@@ -2258,7 +2241,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     begin
         // Calculate Forecast Date earlier than WORKDATE using Ranndom value.
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
-        UpdateForecastOnManufacturingSetup(ProductionForecastName.Name, true, true);
+        UpdateDemandForecastSetup(ProductionForecastName.Name, true, true);
         CreateAndUpdateProductionForecast(
           ProductionForecastEntry, ProductionForecastName.Name, CalcDate('<' + Format(-LibraryRandom.RandInt(20)) + 'D>', WorkDate()),
           ParentItemNo, LocationCode, VariantCode, Quantity);
@@ -2601,36 +2584,22 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     local procedure SetupSalesAndManufacturingSetup()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        ManufacturingSetup: Record "Manufacturing Setup";
-        DefaultSafetyLeadTime: DateFormula;
     begin
         SalesReceivablesSetup.Get();
         UpdateSalesSetup(SalesReceivablesSetup."Credit Warnings"::"No Warning", false);
-
-        ManufacturingSetup.Get();
-        Evaluate(DefaultSafetyLeadTime, '<' + Format(LibraryRandom.RandInt(5)) + 'D>');  // Use Random value for Safety Lead Time.
-        UpdateManufacturingSetup(true, DefaultSafetyLeadTime);
+        LibraryPlanning.SetDefaultSafetyLeadTime('<' + Format(LibraryRandom.RandInt(5)) + 'D>');
+        LibraryPlanning.SetCombinedMPSMRPCalculation(true);
     end;
 
-    local procedure UpdateForecastOnManufacturingSetup(CurrentProductionForecast: Code[10]; UseForecastOnLocations: Boolean)
+    local procedure UpdateDemandForecastSetup(CurrentDemandForecast: Code[10]; UseForecastOnLocations: Boolean; UseForecastOnVariants: Boolean)
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
-        ManufacturingSetup.Validate("Use Forecast on Locations", UseForecastOnLocations);
-        ManufacturingSetup.Modify(true);
-    end;
-
-    local procedure UpdateForecastOnManufacturingSetup(CurrentProductionForecast: Code[10]; UseForecastOnLocations: Boolean; UseForecastOnVariants: Boolean)
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-    begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
-        ManufacturingSetup.Validate("Use Forecast on Locations", UseForecastOnLocations);
-        ManufacturingSetup.Validate("Use Forecast on Variants", UseForecastOnVariants);
-        ManufacturingSetup.Modify(true);
+        InventorySetup.Get();
+        InventorySetup.Validate("Current Demand Forecast", CurrentDemandForecast);
+        InventorySetup.Validate("Use Forecast on Locations", UseForecastOnLocations);
+        InventorySetup.Validate("Use Forecast on Variants", UseForecastOnVariants);
+        InventorySetup.Modify(true);
     end;
 
     local procedure UpdateItem(var Item: Record Item; ProductionBOMNo: Code[20])
@@ -2658,16 +2627,6 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         CreateAndCertifyProductionBOM(ProductionBOMHeader, ParentItem."Base Unit of Measure", ChildItemNo, VariantCode);
         UpdateItem(ParentItem, ProductionBOMHeader."No.");
         PostItemJournalLine(ItemJournalLine."Entry Type"::"Negative Adjmt.", ParentItem."No.", LocationCode, Quantity, false);
-    end;
-
-    local procedure UpdateManufacturingSetup(CombinedMPSMRPCalculation: Boolean; DefaultSafetyLeadTime: DateFormula)
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-    begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Combined MPS/MRP Calculation", CombinedMPSMRPCalculation);
-        ManufacturingSetup.Validate("Default Safety Lead Time", DefaultSafetyLeadTime);
-        ManufacturingSetup.Modify(true);
     end;
 
     local procedure UpdateSalesSetup(CreditWarnings: Option; StockoutWarning: Boolean)

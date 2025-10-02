@@ -1,8 +1,9 @@
-﻿namespace System.AI;
+namespace System.AI;
 
 using Microsoft.CashFlow.Setup;
 using Microsoft.Foundation.Period;
 using System;
+using System.Globalization;
 using System.Reflection;
 using System.Utilities;
 
@@ -39,17 +40,6 @@ codeunit 2000 "Time Series Management"
         UseStandardCredentials: Boolean;
         ForecastSecretNameTxt: Label 'ml-forecast', Locked = true;
 
-#if not CLEAN24
-    [NonDebuggable]
-    [Obsolete('Use Initialize(Uri: SecretText; "Key": SecretText; TimeOutSeconds: Integer; UseStdCredentials: Boolean) instead.', '24.0')]
-    [TryFunction]
-    procedure Initialize(Uri: Text; "Key": Text; TimeOutSeconds: Integer; UseStdCredentials: Boolean)
-    var
-        SecretKey: SecretText;
-    begin
-        Initialize(Uri, SecretKey, TimeOutSeconds, UseStdCredentials);
-    end;
-#endif
     [TryFunction]
     procedure Initialize(Uri: Text; "Key": SecretText; TimeOutSeconds: Integer; UseStdCredentials: Boolean)
     var
@@ -342,6 +332,7 @@ codeunit 2000 "Time Series Management"
     var
         TypeHelper: Codeunit "Type Helper";
         PeriodPageManagement: Codeunit PeriodPageManagement;
+        DotNet_CultureInfo: Codeunit DotNet_CultureInfo;
         Value: Variant;
         LineNo: Integer;
         GroupID: Code[50];
@@ -359,11 +350,11 @@ codeunit 2000 "Time Series Management"
               PeriodPageManagement.MoveDateByPeriod(
                 TimeSeriesForecastingStartDate, TimeSeriesPeriodType, PeriodNo - TimeSeriesObservationPeriods - 1);
             Value := TempTimeSeriesForecast.Value;
-            TypeHelper.Evaluate(Value, GetOutput(LineNo, 3), '', '');
+            TypeHelper.Evaluate(Value, GetOutput(LineNo, 3), '', DotNet_CultureInfo.CurrentCultureName());
             TempTimeSeriesForecast.Value := Value;
 
             Value := TempTimeSeriesForecast.Delta;
-            TypeHelper.Evaluate(Value, GetOutput(LineNo, 4), '', '');
+            TypeHelper.Evaluate(Value, GetOutput(LineNo, 4), '', DotNet_CultureInfo.CurrentCultureName());
             TempTimeSeriesForecast.Delta := Value;
             if TempTimeSeriesForecast.Value <> 0 then
                 TempTimeSeriesForecast."Delta %" := Abs(TempTimeSeriesForecast.Delta / TempTimeSeriesForecast.Value) * 100;
@@ -475,19 +466,6 @@ codeunit 2000 "Time Series Management"
         exit(TimeSeriesModelOption);
     end;
 
-#if not CLEAN24
-    [NonDebuggable]
-    [TryFunction]
-    [Scope('OnPrem')]
-    [Obsolete('Use GetMLForecastCredentials(var Uri: Text[250]; var "Key": SecretText; var LimitType: Option; var Limit: Decimal) instead.', '24.0')]
-    procedure GetMLForecastCredentials(var LocalApiUri: Text[250]; var "Key": Text[200]; var LimitType: Option; var Limit: Decimal)
-    var
-        MachineLearningKeyVaultMgmt: Codeunit "Machine Learning KeyVaultMgmt.";
-    begin
-        MachineLearningKeyVaultMgmt.GetMachineLearningCredentials(ForecastSecretNameTxt, LocalApiUri, "Key", LimitType, Limit);
-        LocalApiUri += '/execute?api-version=2.0&details=true';
-    end;
-#endif
     [NonDebuggable]
     [TryFunction]
     [Scope('OnPrem')]
@@ -499,4 +477,3 @@ codeunit 2000 "Time Series Management"
         LocalApiUri += '/execute?api-version=2.0&details=true';
     end;
 }
-

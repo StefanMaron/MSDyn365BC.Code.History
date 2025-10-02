@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN27
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -16,6 +17,9 @@ using Microsoft.Purchases.Vendor;
 
 codeunit 12152 SubcontractingManagement
 {
+    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+    ObsoleteState = Pending;
+    ObsoleteTag = '27.0';
 
     trigger OnRun()
     begin
@@ -342,4 +346,4 @@ codeunit 12152 SubcontractingManagement
     begin
     end;
 }
-
+#endif

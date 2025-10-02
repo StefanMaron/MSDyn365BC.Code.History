@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN27
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -27,6 +28,9 @@ page 12152 "Subcontracting Order"
     SourceTable = "Purchase Header";
     SourceTableView = where("Document Type" = filter(Order),
                             "Subcontracting Order" = const(true));
+    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+    ObsoleteState = Pending;
+    ObsoleteTag = '27.0';
 
     layout
     {
@@ -824,4 +828,4 @@ page 12152 "Subcontracting Order"
         CurrPage.PurchLines.PAGE.UpdateForm(true);
     end;
 }
-
+#endif

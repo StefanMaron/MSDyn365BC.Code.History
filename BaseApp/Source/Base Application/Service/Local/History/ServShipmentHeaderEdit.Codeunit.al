@@ -1,3 +1,4 @@
+#if not CLEAN27
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -8,6 +9,9 @@ codeunit 12191 "Serv. Shipment Header - Edit"
 {
     Permissions = TableData "Service Shipment Header" = m;
     TableNo = "Service Shipment Header";
+    ObsoleteReason = 'Replaced by W1 codeunit ServiceShipmentHeaderEdit';
+    ObsoleteState = Pending;
+    ObsoleteTag = '27.0';
 
     procedure ModifyServiceShipment(var ServiceShptHeader2: Record "Service Shipment Header")
     var
@@ -34,3 +38,4 @@ codeunit 12191 "Serv. Shipment Header - Edit"
     begin
     end;
 }
+#endif

@@ -8,7 +8,9 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Enums;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
+#if not CLEAN27
 using Microsoft.Inventory.Transfer;
+#endif
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Manufacturing.Routing;
@@ -16,7 +18,9 @@ using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
 using Microsoft.Warehouse.Request;
+#if not CLEAN27
 using System.Security.AccessControl;
+#endif
 using System.Utilities;
 
 table 5409 "Prod. Order Routing Line"
@@ -104,12 +108,15 @@ table 5409 "Prod. Order Routing Line"
             if (Type = const("Machine Center")) "Machine Center";
 
             trigger OnValidate()
+#if not CLEAN27
             var
                 PurchLine: Record "Purchase Line";
                 PurchHeader: Record "Purchase Header";
                 SubcontractingManagement: Codeunit SubcontractingManagement;
                 LicensePermission: Record "License Permission";
+#endif
             begin
+#if not CLEAN27
                 if LicensePermission.Get(LicensePermission."Object Type"::Codeunit, CODEUNIT::SubcontractingManagement) then
                     if LicensePermission."Execute Permission" <> LicensePermission."Execute Permission"::" " then begin
                         if Status = Status::Released then
@@ -118,6 +125,13 @@ table 5409 "Prod. Order Routing Line"
                         if (xRec."No." <> "No.") and ("Routing Link Code" <> '') then
                             SubcontractingManagement.UpdLinkedComponents(Rec, not HideValidationDialog);
                     end;
+#else
+                if ("No." <> xRec."No.") and (xRec."No." <> '') then
+                    if SubcontractingPurchOrderExist() then
+                        Error(
+                          Text007,
+                          FieldCaption("No."), PurchLine.TableCaption(), Status, TableCaption(), "Operation No.");
+#endif
 
                 SetRecalcStatus();
 
@@ -325,7 +339,9 @@ table 5409 "Prod. Order Routing Line"
             trigger OnValidate()
             var
                 ProdOrderRoutingLineToCheckDuplicateRoutingLinkCode: Record "Prod. Order Routing Line";
+#if not CLEAN27
                 SubcontractingManagement: Codeunit SubcontractingManagement;
+#endif
             begin
                 ProdOrderRoutingLineToCheckDuplicateRoutingLinkCode := Rec;
                 ProdOrderRoutingLineToCheckDuplicateRoutingLinkCode.SetRecFilter();
@@ -335,6 +351,7 @@ table 5409 "Prod. Order Routing Line"
                     if not Confirm(DuplicateRoutingLinkCodeLbl, false, FieldCaption("Routing Link Code"), "Routing Link Code") then
                         Error(CancelledUpdateLbl);
 
+#if not CLEAN27
                 if "Routing Link Code" <> xRec."Routing Link Code" then
                     if xRec."Routing Link Code" <> '' then begin
                         SubcontractingManagement.DelLocationLinkedComponents(xRec, true);
@@ -346,6 +363,7 @@ table 5409 "Prod. Order Routing Line"
 
                 if "Routing Link Code" <> '' then
                     TestField("WIP Item", false);
+#endif
 
                 AdjustProdOrderComponentForRoutingLinkCode(Rec, xRec);
             end;
@@ -367,10 +385,12 @@ table 5409 "Prod. Order Routing Line"
                 ProdOrderRtngQltyMeas: Record "Prod. Order Rtng Qlty Meas.";
                 ProdOrderRtngCommentLine: Record "Prod. Order Rtng Comment Line";
             begin
+#if not CLEAN27
                 if (Type = Type::"Work Center") then begin
                     WorkCenter.Get("No.");
                     GetSubcPricelist();
                 end;
+#endif
 
                 if "Standard Task Code" = '' then
                     exit;
@@ -696,10 +716,19 @@ table 5409 "Prod. Order Routing Line"
             Caption = 'From-Production Bin Code';
             Editable = false;
         }
+#if not CLEANSCHEMA30
         field(12180; "WIP Item"; Boolean)
         {
             Caption = 'WIP Item';
-
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
+#if not CLEAN27
             trigger OnValidate()
             begin
                 if "WIP Item" then begin
@@ -712,7 +741,9 @@ table 5409 "Prod. Order Routing Line"
                     TestField("Qty. WIP on Subcontractors", 0);
                 end;
             end;
+#endif
         }
+#if not CLEAN27
         field(12181; "Qty. WIP on Subcontractors"; Decimal)
         {
             CalcFormula = sum("Capacity Ledger Entry"."WIP Item Qty." where("Order Type" = const(Production),
@@ -725,6 +756,9 @@ table 5409 "Prod. Order Routing Line"
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
         }
         field(12182; "Qty. WIP on Transfer Order"; Decimal)
         {
@@ -738,14 +772,27 @@ table 5409 "Prod. Order Routing Line"
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
         }
+#endif
         field(12183; "Purchase Order Filter"; Code[20])
         {
             Caption = 'Purchase Order Filter';
             FieldClass = FlowFilter;
             TableRelation = "Purchase Header"."No." where("Document Type" = const(Order),
                                                            "Subcontracting Order" = const(true));
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
+#endif
         field(7304; "Posted Output Quantity"; Decimal)
         {
             Caption = 'Posted Output Quantity';
@@ -851,10 +898,12 @@ table 5409 "Prod. Order Routing Line"
     trigger OnDelete()
     var
         CapLedgEntry: Record "Capacity Ledger Entry";
+#if not CLEAN27
         PurchLine: Record "Purchase Line";
         PurchHeader: Record "Purchase Header";
         SubcontractingManagement: Codeunit SubcontractingManagement;
         SubcontractorPrices: Record "Subcontractor Prices";
+#endif
     begin
         if Status = Status::Finished then
             Error(Text006, Status, TableCaption);
@@ -869,14 +918,19 @@ table 5409 "Prod. Order Routing Line"
                 Error(
                   Text000,
                   Status, TableCaption(), "Operation No.", CapLedgEntry.TableCaption());
+#if not CLEAN27
             if SubcontractorPrices.ReadPermission then begin
                 if SubcontractingManagement.FindSubcOrder(Rec, PurchLine, PurchHeader) then
                     Error(Text1130002, Status, TableCaption(), "Operation No.", PurchLine."Document No.");
                 if ("Routing Link Code" <> '') and (WorkCenter."Subcontractor No." <> '') then
                     SubcontractingManagement.DelLocationLinkedComponents(Rec, false);
             end;
+#endif
         end;
 
+#if CLEAN27
+        CheckIfSubcontractingPurchOrderExist();
+#endif
         DeleteRelations();
 
         UpdateComponentsBin(2); // from trigger = delete
@@ -931,10 +985,15 @@ table 5409 "Prod. Order Routing Line"
         Text004: Label 'Some routing lines are referring to the operation just deleted. The references are\in the fields %1 and %2.\\This may have to be corrected as a routing line referring to a non-existent\operation will lead to serious errors in capacity planning.\\Do you want to see a list of the lines in question?\(Access the columns Next Operation No. and Previous Operation No.)';
         Text005: Label 'Routing Lines referring to deleted Operation No. %1';
         Text006: Label 'A %1 %2 can not be inserted, modified, or deleted.';
+#if CLEAN27
+        Text007: Label 'You cannot change %1, because there is at least one %2 associated with %3 %4 %5.';
+#endif
         Text008: Label 'You cannot change the %1 from %2 to %3.';
         Text009: Label 'If you change the %1 to %2, then all related allocated capacity will be deleted, and you will not be able to change the %1 of the operation again.\\Are you sure that you want to continue?';
+#if not CLEAN27
         Text1130001: Label 'You can not modify %1 %2 %3 because exists Sucontractor Purchase Order %4 associated with it.';
         Text1130002: Label 'You can not delete %1 %2 %3 because exists Sucontractor Purchase Order %4 associated with it.';
+#endif
 #pragma warning restore AA0470
 #pragma warning restore AA0074
         SkipUpdateOfCompBinCodes: Boolean;
@@ -1023,7 +1082,9 @@ table 5409 "Prod. Order Routing Line"
         "Expected Operation Cost Amt." := PlanningRoutingLine."Expected Operation Cost Amt.";
         "Expected Capacity Ovhd. Cost" := PlanningRoutingLine."Expected Capacity Ovhd. Cost";
         "Expected Capacity Need" := PlanningRoutingLine."Expected Capacity Need";
+#if not CLEAN27
         "WIP Item" := PlanningRoutingLine."WIP Item";
+#endif
 
         OnAfterCopyFromPlanningRoutingLine(Rec, PlanningRoutingLine);
     end;
@@ -1127,7 +1188,7 @@ table 5409 "Prod. Order Routing Line"
             "Run Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
             "Wait Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
             "Move Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
-            if not SkipUpdateDescription then
+            if (not SkipUpdateDescription) and ("Standard Task Code" = '') then
                 Description := WorkCenter.Name;
             "Flushing Method" := WorkCenter."Flushing Method";
             "Unit Cost per" := WorkCenter."Unit Cost";
@@ -1136,7 +1197,9 @@ table 5409 "Prod. Order Routing Line"
             "Overhead Rate" := WorkCenter."Overhead Rate";
             "Unit Cost Calculation" := WorkCenter."Unit Cost Calculation";
             FillDefaultLocationAndBins();
+#if not CLEAN27
             GetSubcPricelist();
+#endif
         end;
         OnAfterWorkCenterTransferFields(Rec, WorkCenter);
     end;
@@ -1229,7 +1292,7 @@ table 5409 "Prod. Order Routing Line"
     procedure CalcStartingEndingDates(PlanningDirection: Option Forward,Backward)
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
-        ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
+        MfgReserveCheckDateConfl: Codeunit "Mfg. ReservCheckDateConfl";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1267,7 +1330,7 @@ table 5409 "Prod. Order Routing Line"
         if PlanningDirection = PlanningDirection::Forward then
             ShiftTimeForwardOnParentProdOrderLines(ProdOrderLine);
 
-        ReservationCheckDateConfl.ProdOrderLineCheck(ProdOrderLine, true);
+        MfgReserveCheckDateConfl.ProdOrderLineCheck(ProdOrderLine, true);
 
         OnAfterCalcStartingEndingDates(Rec, xRec, ProdOrderLine, CurrFieldNo);
     end;
@@ -1568,6 +1631,7 @@ table 5409 "Prod. Order Routing Line"
         end;
     end;
 
+#if not CLEAN27
     [Scope('OnPrem')]
     procedure GetSubcPricelist()
     var
@@ -1597,6 +1661,7 @@ table 5409 "Prod. Order Routing Line"
               ProdOrderLine."Quantity (Base)");
         end;
     end;
+#endif
 
     procedure SubcontractingPurchOrderExist(): Boolean
     begin
@@ -1624,6 +1689,22 @@ table 5409 "Prod. Order Routing Line"
         exit(false);
     end;
 
+#if CLEAN27
+    local procedure CheckIfSubcontractingPurchOrderExist()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckIfSubcontractingPurchOrderExist(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if SubcontractingPurchOrderExist() then
+            Error(
+              Text000,
+              Status, TableCaption(), "Operation No.", PurchLine.TableCaption());
+    end;
+#endif
     procedure UpdateComponentsBin(FromTrigger: Option Insert,Modify,Delete)
     var
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
@@ -1701,7 +1782,7 @@ table 5409 "Prod. Order Routing Line"
     var
         ParentProdOrderLine: Record "Prod. Order Line";
         ProdOrderComponent: Record "Prod. Order Component";
-        ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
+        MfgReservCheckDateConfl: Codeunit "Mfg. ReservCheckDateConfl";
     begin
         ParentProdOrderLine.SetRange(Status, ChildProdOrderLine.Status);
         ParentProdOrderLine.SetRange("Prod. Order No.", ChildProdOrderLine."Prod. Order No.");
@@ -1718,7 +1799,7 @@ table 5409 "Prod. Order Routing Line"
                         ShowMessage(TimeShiftedOnParentLineMsg);
                     ParentProdOrderLine.Validate("Starting Date-Time", ChildProdOrderLine."Ending Date-Time");
                     if ParentProdOrderLine."Planning Level Code" = 0 then
-                        ReservationCheckDateConfl.ProdOrderLineCheck(ParentProdOrderLine, true);
+                        MfgReservCheckDateConfl.ProdOrderLineCheck(ParentProdOrderLine, true);
 
                     if ParentProdOrderLine."Ending Date-Time" < ParentProdOrderLine."Starting Date-Time" then
                         ParentProdOrderLine."Ending Date-Time" := ParentProdOrderLine."Starting Date-Time";
@@ -1851,6 +1932,12 @@ table 5409 "Prod. Order Routing Line"
         ProdOrderComponent."Due Time" := ProdOrderRoutingLine."Starting Time";
     end;
 
+    procedure NextOperationExist(): Boolean
+    begin
+        OnBeforeNextOperationExist(Rec);
+        exit("Next Operation No." <> '');
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcStartingEndingDates(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var xProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderLine: Record "Prod. Order Line"; CallingFieldNo: Integer)
     begin
@@ -1930,6 +2017,13 @@ table 5409 "Prod. Order Routing Line"
     local procedure OnBeforeCheckRoutingNoNotBlank(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean)
     begin
     end;
+
+#if CLEAN27
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIfSubcontractingPurchOrderExist(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; xProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteRelations(var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
@@ -2013,6 +2107,11 @@ table 5409 "Prod. Order Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowMessage(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var MessageText: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNextOperationExist(var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
     begin
     end;
 }

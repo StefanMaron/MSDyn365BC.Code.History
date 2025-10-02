@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -72,7 +72,8 @@ table 12186 "VAT Exemption"
             begin
                 if "VAT Exempt. Int. Registry No." <> xRec."VAT Exempt. Int. Registry No." then begin
                     SalesSetup.Get();
-                    NoSeries.TestManual(SalesSetup."VAT Exemption Nos.");
+                    if SalesSetup."VAT Exemption Nos." <> '' then
+                        NoSeries.TestManual(SalesSetup."VAT Exemption Nos.");
                     "No. Series" := '';
                 end;
             end;
@@ -142,10 +143,6 @@ table 12186 "VAT Exemption"
         SalesSetup: Record "Sales & Receivables Setup";
         PurchSetup: Record "Purchases & Payables Setup";
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         if "VAT Exempt. Int. Registry No." = '' then
             case Type of
@@ -153,36 +150,20 @@ table 12186 "VAT Exemption"
                     begin
                         SalesSetup.Get();
                         if SalesSetup."VAT Exemption Nos." <> '' then begin
-#if not CLEAN24
-                            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(SalesSetup."VAT Exemption Nos.", xRec."No. Series", 0D, "VAT Exempt. Int. Registry No.", "No. Series", IsHandled);
-                            if not IsHandled then begin
-#endif
-                                "No. Series" := SalesSetup."VAT Exemption Nos.";
-                                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                                    "No. Series" := xRec."No. Series";
-                                "VAT Exempt. Int. Registry No." := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", SalesSetup."VAT Exemption Nos.", 0D, "VAT Exempt. Int. Registry No.");
-                            end;
-#endif
+                            "No. Series" := SalesSetup."VAT Exemption Nos.";
+                            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                                "No. Series" := xRec."No. Series";
+                            "VAT Exempt. Int. Registry No." := NoSeries.GetNextNo("No. Series");
                         end;
                     end;
                 Type::Vendor:
                     begin
                         PurchSetup.Get();
                         PurchSetup.TestField("VAT Exemption Nos.");
-#if not CLEAN24
-                        NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(PurchSetup."VAT Exemption Nos.", xRec."No. Series", 0D, "VAT Exempt. Int. Registry No.", "No. Series", IsHandled);
-                        if not IsHandled then begin
-#endif
-                            "No. Series" := PurchSetup."VAT Exemption Nos.";
-                            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                                "No. Series" := xRec."No. Series";
-                            "VAT Exempt. Int. Registry No." := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                            NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", PurchSetup."VAT Exemption Nos.", 0D, "VAT Exempt. Int. Registry No.");
-                        end;
-#endif
+                        "No. Series" := PurchSetup."VAT Exemption Nos.";
+                        if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                            "No. Series" := xRec."No. Series";
+                        "VAT Exempt. Int. Registry No." := NoSeries.GetNextNo("No. Series");
                     end;
             end;
     end;
@@ -269,4 +250,3 @@ table 12186 "VAT Exemption"
     begin
     end;
 }
-

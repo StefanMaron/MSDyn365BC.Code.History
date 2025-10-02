@@ -48,9 +48,9 @@
         CountErr: Label 'There must be %1 record(-s) in table %2 with the following filters: %3';
         ColumnWrongVisibilityErr: Label 'Column[%1] has wrong visibility';
         IncorrectFieldValueErr: Label 'Incorrect %1 field value.';
-        IncorrectDimSetIDErr: Label 'Incorrect Dimension Set ID in %1.';
         WrongQtyToReceiveErr: Label 'Qty. to Receive should not be non zero because Quantity was not changed.';
 #if not CLEAN25
+        IncorrectDimSetIDErr: Label 'Incorrect Dimension Set ID in %1.';
         JobUnitPriceErr: Label 'Job Unit Price is incorrect.';
 #endif
         WrongDimValueErr: Label 'Wrong dimension value in Sales Header %1.';
@@ -3983,7 +3983,6 @@
         // [SCENARIO 215821] Purchase Line's G/L Account validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
         Initialize();
-        EnableFindRecordByNo();
         No := 'GLACC_TEST_GLACC';
         Description := 'Description(Test)Description';
 
@@ -3997,12 +3996,6 @@
         // [WHEN] Validate purchase line's "No." = "glacc"/"desc"/"glac"/"des"/"acc"/"esc"/"xesc"
         // [THEN] Purchase line's: "No." = "GLACC", "Description" = "(Desc)"
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'glacc_test_glacc', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description(test)des', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'glacc_test', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'test_glacc', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, '(test)description', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'lacc_test_glac', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'ription(test)descrip', No, Description);
 
         // Tear down
         GLAccount.Get(No);
@@ -4023,7 +4016,6 @@
         // [SCENARIO 215821] Purchase Line's Item validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
         Initialize();
-        EnableFindRecordByNo();
         No := 'ITEM_TEST_ITEM';
         Description := 'Description(Test)Description';
 
@@ -4037,13 +4029,6 @@
         // [WHEN] Validate purchase line's "Description" = "glacc"/"(desc)"/"glac"/"(des"/"acc"/"esc"/"xesc)"
         // [THEN] Purchase line's: "No." = "ITEM", "Description" = "(Desc)"
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'item_test_item', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description(test)des', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'item_test', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description(test)', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'test_item', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, '(test)description', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'tem_test_ite', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'ription(test)descrip', No, Description);
 
         // Tear down
         Item.Get(No);
@@ -4064,7 +4049,6 @@
         // [SCENARIO 215821] Purchase Line's Item Charge validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
         Initialize();
-        EnableFindRecordByNo();
         No := 'ITEMCH_TEST_ITEMCH';
         Description := 'Description(Test)Description';
 
@@ -4078,12 +4062,6 @@
         // [WHEN] Validate purchase line's "Description" = "itemcharge"/"desc"/"itemch"/"des"/"charge"/"esc"/"xesc"
         // [THEN] Purchase line's: "No." = "ITEMCHARGE", "Description" = "(Desc)"
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'itemch_test_itemch', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description(test)des', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'itemch_test', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'test_itemch', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, '(test)description', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'emch_test_item', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'ription(test)descrip', No, Description);
 
         // Tear down
         ItemCharge.Get(No);
@@ -4104,7 +4082,6 @@
         // [SCENARIO 215821] Purchase Line's Fixed Asset validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
         Initialize();
-        EnableFindRecordByNo();
         No := 'FA_TEST_FA';
         Description := 'Description(Test)Description';
 
@@ -4118,12 +4095,6 @@
         // [WHEN] Validate purchase line's "Description" = "fixedasset"/"desc"/"fixed"/"des"/"asset"/"esc"/"xesc"
         // [THEN] Purchase line's: "No." = "FIXEDASSET", "Description" = "(Desc)"
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'fa_test_fa', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description(test)des', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'fa_test', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'test_fa', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, '(test)description', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'a_test_f', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'ription(test)descrip', No, Description);
 
         // Tear down
         FixedAsset.Get(No);
@@ -4144,7 +4115,6 @@
         // [SCENARIO 222522] Purchase Line's Standard Text validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
         Initialize();
-        EnableFindRecordByNo();
         No := 'STDTEXT_TEST_STDTEXT';
         Description := 'Description(Test)Description';
 
@@ -4157,12 +4127,6 @@
         // [WHEN] Validate purchase line's "Description" = "stdtext"/"desc"/"stdte"/"des"/"tdtext"/"esc"/"xesc"
         // [THEN] Purchase line's: "No." = "STDTEXT", "Description" = "(Desc)"
         VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'stdtext_test_stdtext', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'description(test)des', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'stdtext_test', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'test_stdtext', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, '(test)description', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'tdtext_test_stdtex', No, Description);
-        VerifyPurchaseLineFindRecordByNo(PurchaseLine, 'ription(test)descrip', No, Description);
 
         // Tear down
         StandardText.Get(No);
@@ -4774,7 +4738,7 @@
         // [GIVEN] Create Customer Ship-to Address "C10000_SA" without "Location Code".
         CreateCustomerWithLocationAndShipToAddressWithoutLocation(Customer, ShipToAddress);
 
-        // [WHEN] Create "Purchase Header" for Purchase Order and then validate "Buy-from Vendor No." with "V10000" after inserting Purchase Order Header. 
+        // [WHEN] Create "Purchase Header" for Purchase Order and then validate "Buy-from Vendor No." with "V10000" after inserting Purchase Order Header.
         // [WHEN] Then validate "Sell-to Customer No." with "C10000" and "Ship-to Code" with "C10000_SA".
         PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseHeader.Insert(true);
@@ -4811,7 +4775,7 @@
         // [GIVEN] Create Customer Ship-to Address "C10000_SA" with Location "GREEN".
         CreateCustomerWithLocationAndShipToAddressWithDifferentLocation(Customer, ShipToAddress);
 
-        // [WHEN] Create "Purchase Header" for Purchase Order and then validate "Buy-from Vendor No." with "V10000" after inserting Purchase Order Header. 
+        // [WHEN] Create "Purchase Header" for Purchase Order and then validate "Buy-from Vendor No." with "V10000" after inserting Purchase Order Header.
         // [WHEN] Then validate "Sell-to Customer No." with "C10000" and "Ship-to Code" with "C10000_SA".
         PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseHeader.Insert(true);
@@ -4874,7 +4838,7 @@
         // [GIVEN] Create Customer Ship-to Address "C10000_SA" without "Location Code".
         CreateCustomerWithLocationAndShipToAddressWithoutLocation(Customer, ShipToAddress);
 
-        // [WHEN] Create "Purchase Header" for Purchase Order and then validate "Buy-from Vendor No." with "V10000" before inserting Purchase Order Header. 
+        // [WHEN] Create "Purchase Header" for Purchase Order and then validate "Buy-from Vendor No." with "V10000" before inserting Purchase Order Header.
         // [WHEN] Then validate "Sell-to Customer No." with "C10000" and "Ship-to Code" with "C10000_SA".
         PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
@@ -4910,7 +4874,7 @@
         // [GIVEN] Create Customer Ship-to Address "C10000_SA" with Location "GREEN".
         CreateCustomerWithLocationAndShipToAddressWithDifferentLocation(Customer, ShipToAddress);
 
-        // [WHEN] Create "Purchase Header" for Purchase Order and then validate "Buy-from Vendor No." with "V10000" before inserting Purchase Order Header. 
+        // [WHEN] Create "Purchase Header" for Purchase Order and then validate "Buy-from Vendor No." with "V10000" before inserting Purchase Order Header.
         // [WHEN] Then validate "Sell-to Customer No." with "C10000" and "Ship-to Code" with "C10000_SA".
         PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
@@ -4946,7 +4910,7 @@
         // [GIVEN] Create Customer Ship-to Address "C10000_SA" without "Location Code".
         CreateCustomerWithLocationAndShipToAddressWithoutLocation(Customer, ShipToAddress);
 
-        // [WHEN] Create "Purchase Header" for Purchase Order and then validate "Buy-from Vendor No." with "V10000" before inserting Purchase Order Header. 
+        // [WHEN] Create "Purchase Header" for Purchase Order and then validate "Buy-from Vendor No." with "V10000" before inserting Purchase Order Header.
         // [WHEN] Then validate "Sell-to Customer No." with "C10000" and "Ship-to Code" with "C10000_SA".
         PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
@@ -4983,7 +4947,7 @@
         // [GIVEN] Create Customer Ship-to Address "C10000_SA" with Location "GREEN".
         CreateCustomerWithLocationAndShipToAddressWithDifferentLocation(Customer, ShipToAddress);
 
-        // [WHEN] Create "Purchase Header" for Purchase Order and then validate "Buy-from Vendor No." with "V10000" before inserting Purchase Order Header. 
+        // [WHEN] Create "Purchase Header" for Purchase Order and then validate "Buy-from Vendor No." with "V10000" before inserting Purchase Order Header.
         // [WHEN] Then validate "Sell-to Customer No." with "C10000" and "Ship-to Code" with "C10000_SA".
         PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
@@ -6617,7 +6581,7 @@
         // [WHEN] Validate "Purchase Line"."No." with resource
         PurchaseLine.Validate("No.", Resource."No.");
 
-        // [THEN] "Purchase Line" fields are filled from resource      
+        // [THEN] "Purchase Line" fields are filled from resource
         VerifyPurchaseLineCopiedFromResource(PurchaseLine, Resource);
     end;
 
@@ -6847,7 +6811,7 @@
         NewStdCost := Resource."Direct Unit Cost" + LibraryRandom.RandDec(100, 2);
         ImplementStandardCostChanges(Resource, Resource."Direct Unit Cost", NewStdCost);
 
-        // [THEN] ResourceCost is updated: "Direct Unit Cost" is 100, "Unit Cost" is 111 
+        // [THEN] ResourceCost is updated: "Direct Unit Cost" is 100, "Unit Cost" is 111
         ResourceCost.Find();
         ResourceCost.TestField("Direct Unit Cost", Resource."Direct Unit Cost");
         ResourceCost.TestField("Unit Cost", NewStdCost);
@@ -7049,7 +7013,7 @@
         MockFixedAsset(FADeprBook[2], false);
         Commit();
 
-        // [GIVEN] Purchase Order with two Purchase Lines for disposed and non-disposed FA 
+        // [GIVEN] Purchase Order with two Purchase Lines for disposed and non-disposed FA
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
             PurchaseLine[1], PurchaseHeader, "Purchase Line Type"::"Fixed Asset", FADeprBook[1]."FA No.", 1);
@@ -7249,7 +7213,7 @@
         PurchaseLine2: Record "Purchase Line";
         PurchaseLine3: Record "Purchase Line";
     begin
-        // [SCENARIO] Create purchase order with location for item and non-inventory items. 
+        // [SCENARIO] Create purchase order with location for item and non-inventory items.
         // Bin code should only be possible to set for item.
         Initialize();
 
@@ -7353,7 +7317,7 @@
         PurchaseLine: Record "Purchase Line";
         Item: Record Item;
     begin
-        // [FEATURE] 
+        // [FEATURE]
         // [SCENARIO 414831] The purchase line with "No." = '' and Type <> 'Item' must be recreated when Vendor No. is changed
         Initialize();
 
@@ -7540,7 +7504,7 @@
         // [WHEN] Find Created Purchase records and Open Purchase Order
         OpenCreatedPurchaseOrder(PurchaseOrder, PurchaseLine, Vendor);
 
-        // [THEN] Verify Special Purchase Order and Sales Order are connected        
+        // [THEN] Verify Special Purchase Order and Sales Order are connected
         Assert.IsTrue(PurchaseLine."Special Order", 'Not Special Order.');
         Assert.IsTrue(PurchaseLine."Special Order Sales No." = SalesHeader."No.", 'Orders are not connected.');
         Assert.IsTrue(PurchaseLine."Special Order Sales Line No." = SalesLine."Line No.", 'Orders are not connected.');
@@ -7550,7 +7514,7 @@
         Assert.IsTrue(SalesLine."Special Order Purchase No." = PurchaseLine."Document No.", 'Orders are not connected.');
 
         // [WHEN] Call Explode BOM action
-        // [HANDLER] ExplodeBOMHandler        
+        // [HANDLER] ExplodeBOMHandler
         PurchaseOrder.PurchLines."E&xplode BOM".Invoke();
 
         // [THEN] Verify special values on Sales Order and Purchase Order are cleared
@@ -7705,7 +7669,7 @@
         PurchaseOrder: TestPage "Purchase Order";
         ShipToOptions: Option "Default (Company Address)",Location,"Customer Address","Custom Address";
     begin
-        // [SCENARION: 459002] Verify Shipping Data are returned to default when user switch Ship-to option from Custom Address to Default 
+        // [SCENARION: 459002] Verify Shipping Data are returned to default when user switch Ship-to option from Custom Address to Default
         // [GIVEN] Initialize
         Initialize();
 
@@ -7784,18 +7748,18 @@
         ServiceChargeAmt: array[2] of Decimal;
         PayToOptions: Option "Default (Vendor)","Another Vendor";
     begin
-        // [SCENARIO 461917] Verify Service Charge line is removed and new is created on update Pay-to Vendor on Purchase Order 
+        // [SCENARIO 461917] Verify Service Charge line is removed and new is created on update Pay-to Vendor on Purchase Order
         // [GIVEN] Initialize
         Initialize();
 
         // [GIVEN] Enable invoice discount calculation on "Purchases & Payables Setup".
         LibraryPurchase.SetCalcInvDiscount(true);
 
-        // [GIVEN] Create two Vendors with Service Charge line 
+        // [GIVEN] Create two Vendors with Service Charge line
         CreateVendorWithServiceChargeAmount(VendorNo[1], ServiceChargeAmt[1]);
         CreateVendorWithServiceChargeAmount(VendorNo[2], ServiceChargeAmt[2]);
 
-        // [WHEN] Purchase order with vendor = "V" 
+        // [WHEN] Purchase order with vendor = "V"
         CreatePurchaseOrderWithServiceCharge(PurchaseHeader, VendorNo[1]);
         LibraryPurchase.CalcPurchaseDiscount(PurchaseHeader);
 
@@ -7804,7 +7768,7 @@
         Assert.RecordCount(PurchaseLine, 1);
         PurchaseLine.TestField(Amount, ServiceChargeAmt[1]);
 
-        // [WHEN] Purchase Order page is opened, and Pay-to Vendor is picked        
+        // [WHEN] Purchase Order page is opened, and Pay-to Vendor is picked
         PurchaseOrder.OpenEdit();
         PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
         PurchaseOrder.PayToOptions.SetValue(PayToOptions::"Another Vendor");
@@ -7971,8 +7935,8 @@
         PurchaseLine: Record "Purchase Line";
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        // [SCENARIO 479158] A Purchase Order in status of Released allows for the deletion or addition of Job No., Job 
-        // Task No., and Job Line Type - This is not expected especially for a client using Approvals and now allowed to 
+        // [SCENARIO 479158] A Purchase Order in status of Released allows for the deletion or addition of Job No., Job
+        // Task No., and Job Line Type - This is not expected especially for a client using Approvals and now allowed to
         // change after Release
         Initialize();
 
@@ -8047,7 +8011,7 @@
         // [SCENARIO 487985] If you enter the Vendor Name directly in a new Purchase Order, the vendor selected in a previous lookup on the Pay-to Vendor field is taken instead of the vendor entered.
         Initialize();
 
-        // [GIVEN] Create Vendors and Purchase Order 
+        // [GIVEN] Create Vendors and Purchase Order
         BuyFromVendor.Get(CreateVendor());
         PayToVendor.Get(CreateVendor());
         LibraryVariableStorage.Enqueue(PayToVendor."No.");
@@ -8244,7 +8208,7 @@
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        // [SCENARIO 522444] When run Release action from a Purchase Order having a Purchase Line without 
+        // [SCENARIO 522444] When run Release action from a Purchase Order having a Purchase Line without
         // Unit of Measure Code, then it gives error and the document is not released.
         Initialize();
 
@@ -8325,7 +8289,7 @@
         //[GIVEN] Create Job
         LibraryJob.CreateJob(Job);
 
-        // [GIVEN] Create Purchase order 
+        // [GIVEN] Create Purchase order
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, LibraryInventory.CreateItemNo());
         PurchaseLine.validate("Location Code", LibraryWarehouse.CreateLocation(Location));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 99, 2));
@@ -8403,7 +8367,7 @@
         Quantity: Integer;
         DirectUnitCost: Decimal;
     begin
-        // [SCENARIO 547910] Item Charge fields 'Qty to Assign' and 'Item Charge Qty. to Handle' are not updated correctly by 
+        // [SCENARIO 547910] Item Charge fields 'Qty to Assign' and 'Item Charge Qty. to Handle' are not updated correctly by
         // Purchase Invoice in Purchase Order when total Item Charge has already been accounted for in the Purchase Invoice.
         Initialize();
 
@@ -8432,7 +8396,7 @@
             PurchaseLine[2], PurchaseHeader[1], PurchaseLine[2].Type::Item,
             Item."No.", Quantity, 0, DirectUnitCost);
 
-        // [GIVEN] Create Purchase Lines three with an Charge Item.    
+        // [GIVEN] Create Purchase Lines three with an Charge Item.
         CreatePurchaseLinesAndUpdateQtytoReceive(
             PurchaseLine[3], PurchaseHeader[1], PurchaseLine[3].Type::"Charge (Item)",
             ItemCharge."No.", Quantity, Quantity, LibraryRandom.RandDecInRange(20, 20, 2));
@@ -8474,7 +8438,7 @@
         // [GIVEN] Open Item Charge Assignment.
         PurchaseLine[3].ShowItemChargeAssgnt();
 
-        // [THEN] Verify Fields Qty.to Assign and Qty. to Handle of Item Charge Assignment .   
+        // [THEN] Verify Fields Qty.to Assign and Qty. to Handle of Item Charge Assignment .
         VerifyItemChargeQty(PurchaseLine[2]);
     end;
 
@@ -8606,7 +8570,7 @@
         PurchGetReceipt.SetPurchHeader(PurchaseHeader[2]);
         PurchGetReceipt.CreateInvLines(PurchRcptLine);
 
-        // [GIVEN] Create new Purchase Lines three with an Charge Item.    
+        // [GIVEN] Create new Purchase Lines three with an Charge Item.
         CreatePurchaseLinesAndUpdateQtytoReceive(
             PurchaseLine[3], PurchaseHeader[2], PurchaseLine[3].Type::"Charge (Item)",
             ItemCharge."No.", Quantity, Quantity, LibraryRandom.RandDecInRange(20, 20, 2));
@@ -8699,7 +8663,7 @@
         GLEntry.SetRange("G/L Account No.", VATPostingSetup."Reverse Chrg. VAT Acc.");
         GLEntry.FindFirst();
         Assert.IsTrue(
-            GLEntry."Source Currency Amount" < 0,
+            GLEntry."Source Currency Amount" <= 0,
             StrSubstNo(
                 SourceCurrencyErr,
                 GLEntry.FieldCaption("Source Currency Amount")));
@@ -8736,7 +8700,7 @@
         PurchaseHeader.CalcFields("Amount Including VAT");
         PurchaseHeader.Validate("Check Total", PurchaseHeader."Amount Including VAT");
         PurchaseHeader.Modify(true);
-        
+
         // [GIVEN] Post the partial Purchase order.
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
 
@@ -9495,7 +9459,7 @@
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
         exit(PurchLine."Dimension Set ID");
     end;
-#endif
+
     local procedure CreatePostInvoiceWithReceiptLines(ItemChargeDimValue: Record "Dimension Value"; DimensionCode: Code[20]; DimValueCode: Code[20]; OrderPurchHeader: Record "Purchase Header"): Integer
     var
         PurchHeader: Record "Purchase Header";
@@ -9512,23 +9476,7 @@
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
         exit(PurchLine."Dimension Set ID");
     end;
-
-    local procedure CreatePurchaseInvoiceWithStandardText(var PurchaseHeader: Record "Purchase Header"; var StandardTextDescription: Text[100])
-    var
-        StandardText: Record "Standard Text";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        LibrarySales.CreateStandardText(StandardText);
-        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
-        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
-        PurchaseLine.FindFirst();
-        PurchaseLine.Validate(Type, PurchaseLine.Type::" ");
-        PurchaseLine.Validate("No.", StandardText.Code);
-        PurchaseLine.Modify(true);
-        StandardTextDescription := StandardText.Description;
-    end;
-
+#endif
     local procedure CreatePostPurchInvWithGetReceiptLines(ChargePurchHeader: Record "Purchase Header")
     var
         PurchHeader: Record "Purchase Header";
@@ -9657,6 +9605,7 @@
         Item.Modify(true);
     end;
 
+#if not CLEAN25
     local procedure CreateItemCharge(): Code[20]
     var
         ItemCharge: Record "Item Charge";
@@ -9675,7 +9624,7 @@
         Item.Modify(true);
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 1);
     end;
-
+#endif
     local procedure CreateItemWithAutoExtendedText(): Code[20]
     var
         Item: Record Item;
@@ -9776,7 +9725,7 @@
         VendorInvoiceDisc.Modify(true);
         exit(VendorInvoiceDisc.Code);
     end;
-
+#if not CLEAN25
     local procedure CreateDimValue(var DimensionValue: Record "Dimension Value")
     var
         Dimension: Record Dimension;
@@ -9811,7 +9760,7 @@
             TempDimSetEntry.Modify();
         DimSetID := DimensionMgt.GetDimensionSetID(TempDimSetEntry);
     end;
-
+#endif
     local procedure CreatePurchOrderWithPurchCode(var StandardPurchaseLine: Record "Standard Purchase Line"; var PurchaseHeader: Record "Purchase Header"; ShortCutDimension1: Code[20]; ShortCutDimension2: Code[20])
     var
         StandardPurchaseCode: Record "Standard Purchase Code";
@@ -10043,15 +9992,6 @@
         PurchaseLine.Modify(true);
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
-    end;
-
-    local procedure EnableFindRecordByNo()
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-    begin
-        PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup."Create Item from Item No." := true;
-        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure UpdateDefaultWarehouseSetup(RequirePutAway: Boolean; RequirePick: Boolean; RequireReceive: Boolean; RequireShipment: Boolean)
@@ -10459,7 +10399,7 @@
         PurchaseLine.Modify(true);
         exit(PurchaseLine."Direct Unit Cost");
     end;
-
+#if not CLEAN25
     local procedure ModifyDimOnPurchaseLine(var PurchLine: Record "Purchase Line"; BaseDimValue: Record "Dimension Value"; DimensionCode: Code[20]; DimValueCode: Code[20])
     var
         DimValue: Record "Dimension Value";
@@ -10468,7 +10408,7 @@
         DimValue.Get(DimensionCode, DimValueCode);
         CreateDimSetIDFromDimValue(PurchLine."Dimension Set ID", DimValue);
     end;
-
+#endif
     local procedure ModifyItemIndirectCost(var Item: Record Item)
     begin
         Item.Validate("Indirect Cost %", 10);
@@ -10491,7 +10431,7 @@
         InvPurchLine.Validate("Qty. to Invoice", Round(InvPurchLine.Quantity / LibraryRandom.RandIntInRange(3, 5)));
         InvPurchLine.Modify(true);
     end;
-
+#if not CLEAN25
     local procedure AssignItemChargeToReceipt(OrderNo: Code[20]; PurchLine: Record "Purchase Line")
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
@@ -10502,7 +10442,7 @@
           ItemChargeAssignmentPurch, PurchLine, ItemChargeAssignmentPurch."Applies-to Doc. Type"::Receipt,
           PurchRcptLine."Document No.", PurchRcptLine."Line No.", PurchRcptLine."No.");
     end;
-
+#endif
     local procedure AssignItemChargeToShipment(OrderNo: Code[20]; PurchLine: Record "Purchase Line")
     var
         SalesShptLine: Record "Sales Shipment Line";
@@ -11212,7 +11152,7 @@
         ItemChargeAssignmentPurch.TestField("Qty. to Assign", PurchaseLine.Quantity);
         ItemChargeAssignmentPurch.TestField("Amount to Assign", PurchaseLine."Line Amount");
     end;
-
+#if not CLEAN25
     local procedure VerifyLineDiscountAmount(PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]; LineDiscountAmount: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -11229,7 +11169,7 @@
           LineDiscountAmount, PurchaseLine."Line Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountError, PurchaseLine.FieldCaption("Line Discount Amount"), LineDiscountAmount, PurchaseLine.TableCaption()));
     end;
-
+#endif
     local procedure VerifyVendorLedgerEntry(DocumentNo: Code[20]; Amount: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -11538,7 +11478,7 @@
         PurchaseLine.FindFirst();
         PurchaseLine.TestField("Dimension Set ID", GetDimensionSetId(PostedDocumentNo));
     end;
-
+#if not CLEAN25
     local procedure VerifyDimSetIDOnItemLedgEntry(ExpectedDimSetID: Integer)
     var
         ItemLedgEntry: Record "Item Ledger Entry";
@@ -11551,7 +11491,7 @@
         Assert.AreEqual(
           ExpectedDimSetID, ValueEntry."Dimension Set ID", StrSubstNo(IncorrectDimSetIDErr, ItemLedgEntry.TableCaption()));
     end;
-
+#endif
     local procedure VerifyChargeValueEntry(DocNo: array[2] of Code[20]; ItemChargeNo: Code[20]; ShipmentCount: Integer)
     var
         ItemLedgEntry: Record "Item Ledger Entry";

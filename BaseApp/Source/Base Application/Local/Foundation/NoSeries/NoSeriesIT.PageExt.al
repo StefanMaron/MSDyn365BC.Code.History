@@ -1,81 +1,12 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+#pragma warning disable AA0247
 pageextension 12145 NoSeriesIT extends "No. Series"
 {
     layout
     {
-#if not CLEAN24
-#pragma warning disable AL0432
-        modify(StartDate)
-        {
-            trigger OnDrillDown()
-            var
-                NoSeriesIT: Codeunit "No. Series IT";
-            begin
-                NoSeriesIT.DrillDown(Rec);
-                CurrPage.Update(false);
-            end;
-        }
-        modify(StartNo)
-        {
-            trigger OnDrillDown()
-            var
-                NoSeriesIT: Codeunit "No. Series IT";
-            begin
-                NoSeriesIT.DrillDown(Rec);
-                CurrPage.Update(false);
-            end;
-        }
-        modify(EndNo)
-        {
-            trigger OnDrillDown()
-            var
-                NoSeriesIT: Codeunit "No. Series IT";
-            begin
-                NoSeriesIT.DrillDown(Rec);
-                CurrPage.Update(false);
-            end;
-        }
-        modify(LastDateUsed)
-        {
-            trigger OnDrillDown()
-            var
-                NoSeriesIT: Codeunit "No. Series IT";
-            begin
-                NoSeriesIT.DrillDown(Rec);
-                CurrPage.Update(false);
-            end;
-        }
-        modify(LastNoUsed)
-        {
-            trigger OnDrillDown()
-            var
-                NoSeriesIT: Codeunit "No. Series IT";
-            begin
-                NoSeriesIT.DrillDown(Rec);
-                CurrPage.Update(false);
-            end;
-        }
-        modify(WarningNo)
-        {
-            trigger OnDrillDown()
-            var
-                NoSeriesIT: Codeunit "No. Series IT";
-            begin
-                NoSeriesIT.DrillDown(Rec);
-                CurrPage.Update(false);
-            end;
-        }
-        modify(IncrementByNo)
-        {
-            trigger OnDrillDown()
-            var
-                NoSeriesIT: Codeunit "No. Series IT";
-            begin
-                NoSeriesIT.DrillDown(Rec);
-                CurrPage.Update(false);
-            end;
-        }
-#pragma warning restore AL0432
-#endif
         addafter(Code)
         {
             field("No. Series Type"; Rec."No. Series Type")
@@ -105,53 +36,4 @@ pageextension 12145 NoSeriesIT extends "No. Series"
         }
     }
 
-#if not CLEAN24
-    actions
-    {
-        modify(Lines)
-        {
-            Visible = UseLegacyNoSeriesLines;
-        }
-        addafter(Lines)
-        {
-            action(Lines_IT)
-            {
-                ObsoleteReason = 'The No. Series Line Sales and No. Series Line Purchase tables are obsolte. Use the No. Series Line table instead.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-                ApplicationArea = Basic, Suite;
-                Caption = 'Lines';
-                ToolTip = 'Open the Lines page to view the lines that are associated with the number series code.';
-                Visible = not UseLegacyNoSeriesLines;
-
-                trigger OnAction()
-                var
-                    NoSeriesIT: Codeunit "No. Series IT";
-                begin
-                    NoSeriesIT.ShowNoSeriesLines(Rec);
-                end;
-            }
-        }
-        addafter(Lines_Promoted)
-        {
-            actionref(Lines_Promoted_IT; Lines_IT)
-            {
-                ObsoleteReason = 'The No. Series Line Sales and No. Series Line Purchase tables are obsolte. Use the No. Series Line table instead.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-            }
-        }
-    }
-
-    var
-        UseLegacyNoSeriesLines: Boolean;
-
-    trigger OnOpenPage()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-    begin
-        GeneralLedgerSetup.Get();
-        UseLegacyNoSeriesLines := GeneralLedgerSetup."Use Legacy No. Series Lines";
-    end;
-#endif
 }

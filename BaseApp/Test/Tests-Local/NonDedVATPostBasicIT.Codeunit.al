@@ -11,7 +11,6 @@ codeunit 144250 "Non-Ded. VAT Post. Basic IT"
     var
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
         LibraryERM: Codeunit "Library - ERM";
         Assert: Codeunit Assert;
@@ -117,18 +116,6 @@ codeunit 144250 "Non-Ded. VAT Post. Basic IT"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Non-Ded. VAT Post. Basic IT");
     end;
 
-    local procedure CreatePurchaseInvoiceWithMultipleLine(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"; VATProductPostingGroup: Code[20])
-    var
-        PurchaseLine: Record "Purchase Line";
-        PurchaseLine2: Record "Purchase Line";
-    begin
-        CreatePurchaseInvoice(
-          PurchaseLine, VATPostingSetup."VAT Bus. Posting Group", '', '', PurchaseLine.Type::Item,
-          CreateItem(VATPostingSetup."VAT Prod. Posting Group"));
-        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-        CreatePurchaseLine(PurchaseLine2, PurchaseHeader, PurchaseLine2.Type::Item, CreateItem(VATProductPostingGroup));
-    end;
-
     local procedure CreatePurchaseInvoice(var PurchaseLine: Record "Purchase Line"; VATBusinessPostingGroup: Code[20]; PaymentTermsCode: Code[10]; CurrencyCode: Code[10]; Type: Enum "Purchase Line Type"; No: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
@@ -190,16 +177,6 @@ codeunit 144250 "Non-Ded. VAT Post. Basic IT"
         Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
         Vendor.Modify(true);
         exit(Vendor."No.");
-    end;
-
-    local procedure CreateItem(VATProdPostingGroup: Code[20]): Code[20]
-    var
-        Item: Record Item;
-    begin
-        LibraryInventory.CreateItem(Item);
-        Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
-        Item.Modify(true);
-        exit(Item."No.");
     end;
 
     local procedure CreateGLAccount(VATPostingSetup: Record "VAT Posting Setup"): Code[20]

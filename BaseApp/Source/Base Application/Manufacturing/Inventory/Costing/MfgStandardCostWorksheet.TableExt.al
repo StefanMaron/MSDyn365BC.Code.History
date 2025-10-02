@@ -6,7 +6,6 @@ namespace Microsoft.Manufacturing.StandardCost;
 
 using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Manufacturing.WorkCenter;
-using Microsoft.Inventory.Item;
 
 tableextension 99000802 "Mfg. Standard Cost Worksheet" extends "Standard Cost Worksheet"
 {
@@ -19,38 +18,6 @@ tableextension 99000802 "Mfg. Standard Cost Worksheet" extends "Standard Cost Wo
             if (Type = const("Work Center")) "Work Center";
         }
     }
-
-    procedure TransferManufCostsFromItem(var Item: Record Item)
-    begin
-        "Single-Lvl Material Cost" := Item."Single-Level Material Cost";
-        "New Single-Lvl Material Cost" := Item."Single-Level Material Cost";
-        "Single-Lvl Cap. Cost" := Item."Single-Level Capacity Cost";
-        "New Single-Lvl Cap. Cost" := Item."Single-Level Capacity Cost";
-        "Single-Lvl Subcontrd Cost" := Item."Single-Level Subcontrd. Cost";
-        "New Single-Lvl Subcontrd Cost" := Item."Single-Level Subcontrd. Cost";
-        "Single-Lvl Cap. Ovhd Cost" := Item."Single-Level Cap. Ovhd Cost";
-        "New Single-Lvl Cap. Ovhd Cost" := Item."Single-Level Cap. Ovhd Cost";
-        "Single-Lvl Mfg. Ovhd Cost" := Item."Single-Level Mfg. Ovhd Cost";
-        "New Single-Lvl Mfg. Ovhd Cost" := Item."Single-Level Mfg. Ovhd Cost";
-
-        "Rolled-up Material Cost" := Item."Rolled-up Material Cost";
-        "New Rolled-up Material Cost" := Item."Rolled-up Material Cost";
-        "Rolled-up Cap. Cost" := Item."Rolled-up Capacity Cost";
-        "New Rolled-up Cap. Cost" := Item."Rolled-up Capacity Cost";
-        "Rolled-up Subcontrd Cost" := Item."Rolled-up Subcontracted Cost";
-        "New Rolled-up Subcontrd Cost" := Item."Rolled-up Subcontracted Cost";
-        "Rolled-up Cap. Ovhd Cost" := Item."Rolled-up Cap. Overhead Cost";
-        "New Rolled-up Cap. Ovhd Cost" := Item."Rolled-up Cap. Overhead Cost";
-        "Rolled-up Mfg. Ovhd Cost" := Item."Rolled-up Mfg. Ovhd Cost";
-        "New Rolled-up Mfg. Ovhd Cost" := Item."Rolled-up Mfg. Ovhd Cost";
-
-        OnAfterTransferManufCostsFromItem(Rec, Item);
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferManufCostsFromItem(var StandardCostWorksheet: Record "Standard Cost Worksheet"; Item: Record Item)
-    begin
-    end;
 
     procedure GetWorkCenterCosts(var WorkCenter: Record "Work Center")
     begin

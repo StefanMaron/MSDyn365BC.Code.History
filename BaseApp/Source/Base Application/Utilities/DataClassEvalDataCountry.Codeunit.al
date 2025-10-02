@@ -20,7 +20,9 @@ using Microsoft.Inventory.Costing;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.GeneralLedger.Ledger;
+#if not CLEAN27
 using Microsoft.Manufacturing.Document;
+#endif
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Inventory.Item;
 using Microsoft.Foundation.PaymentTerms;
@@ -49,6 +51,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         ClassifyEmployeeRelative();
         ClassifyEmployeeQualification();
         ClassifyVATReportHeader();
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Alt. Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cause of Absence");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Compress Depreciation");
@@ -87,7 +90,9 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"GL Book Entry");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Register");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Reprint Info Fiscal Reports");
+#if not CLEAN27
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Subcontractor Prices");
+#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Goods Appearance");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Transport Reason Code");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Company Officials");

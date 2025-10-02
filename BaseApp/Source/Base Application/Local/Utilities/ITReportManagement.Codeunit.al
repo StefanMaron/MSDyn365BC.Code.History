@@ -1,12 +1,9 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Utilities;
 
-#if not CLEAN24
-using Microsoft.Foundation.NoSeries;
-#endif
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 
@@ -87,22 +84,4 @@ codeunit 12112 "IT - Report Management"
     begin
     end;
 
-#if not CLEAN24
-#pragma warning disable Al0432
-    [Obsolete('The No. Series module cannot have dependencies to Sales.', '24.0')]
-    [Eventsubscriber(ObjectType::Codeunit, Codeunit::NoSeriesManagement, 'OnObsoleteCheckSalesDocNoGaps', '', false, false)]
-    local procedure CheckObsoleteSalesDocNoGaps(MaxDate: Date)
-    begin
-        CheckSalesDocNoGaps(MaxDate, true, false)
-    end;
-
-    [Obsolete('The No. Series module cannot have dependencies to Purchases.', '24.0')]
-    [Eventsubscriber(ObjectType::Codeunit, Codeunit::NoSeriesManagement, 'OnObsoleteCheckPurchDocNoGaps', '', false, false)]
-    local procedure CheckObsoletePurchDocNoGaps(MaxDate: Date)
-    begin
-        CheckPurchDocNoGaps(MaxDate, true, false)
-    end;
-#pragma warning restore Al0432
-#endif
 }
-

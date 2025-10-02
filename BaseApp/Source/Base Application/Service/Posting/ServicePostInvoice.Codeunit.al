@@ -256,7 +256,7 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
         InvoicePostingBuffer."Global Dimension 2 Code" := ServiceLine."Shortcut Dimension 2 Code";
         InvoicePostingBuffer."Dimension Set ID" := ServiceLine."Dimension Set ID";
         InvoicePostingBuffer."Job No." := ServiceLine."Job No.";
-        InvoicePostingBuffer."VAT %" := ServiceLine."VAT %";
+        InvoicePostingBuffer."VAT %" := ServiceLine.GetVATPct();
         if VATPostingSetup.IsEUService(ServiceLine."VAT Bus. Posting Group", ServiceLine."VAT Prod. Posting Group") then begin
             InvoicePostingBuffer."Service Tariff No." := ServiceLine."Service Tariff No.";
             InvoicePostingBuffer."Transport Method" := ServiceLine."Transport Method";

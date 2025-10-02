@@ -41,6 +41,7 @@ codeunit 134393 "ERM Sales Subform"
         SalesLCYAmountErr: Label 'Sales LCY are not correct';
         MustMatchErr: Label '%1 and %2 must match.';
         InvoiceDiscPct: Label 'Invoice Disc. Pct.';
+        ItemTestDescriptionLbl: Label 'Test Description';
 
 #if not CLEAN26
     [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
@@ -3161,7 +3162,7 @@ codeunit 134393 "ERM Sales Subform"
         BlanketSalesOrder.SalesLines.New();
         BlanketOrderCheckCurrencyOnTotals(BlanketSalesOrder, Customer."Currency Code");
 
-        BlanketSalesOrder.SalesLines.Description.SetValue('Test Description');
+        BlanketSalesOrder.SalesLines.Description.SetValue(ItemTestDescriptionLbl);
         BlanketOrderCheckCurrencyOnTotals(BlanketSalesOrder, Customer."Currency Code");
     end;
 
@@ -3952,7 +3953,7 @@ codeunit 134393 "ERM Sales Subform"
         SalesReturnOrder.SalesLines.New();
         ReturnOrderCheckCurrencyOnTotals(SalesReturnOrder, Customer."Currency Code");
 
-        SalesReturnOrder.SalesLines.Description.SetValue('Test Description');
+        SalesReturnOrder.SalesLines.Description.SetValue(ItemTestDescriptionLbl);
         ReturnOrderCheckCurrencyOnTotals(SalesReturnOrder, Customer."Currency Code");
     end;
 
@@ -6671,6 +6672,7 @@ codeunit 134393 "ERM Sales Subform"
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
+        Item: Record Item;
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Subform");
         LibraryVariableStorage.Clear();
@@ -6688,6 +6690,9 @@ codeunit 134393 "ERM Sales Subform"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryInventory.CreateItem(Item);
+        Item.Description := ItemTestDescriptionLbl;
+        Item.Modify();
 
         LibrarySales.SetStockoutWarning(false);
         LibrarySales.SetCalcInvDiscount(true);

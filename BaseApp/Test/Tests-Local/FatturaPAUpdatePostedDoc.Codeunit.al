@@ -78,7 +78,7 @@ codeunit 144212 "FatturaPA Update Posted Doc."
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('PostedServInvoiceUpdatePageHandler')]
+    [HandlerFunctions('PostedServiceInvUpdatePageHandler')]
     procedure UpdatedFatturaDocumentTypeInPostedServiceInvoice()
     var
         ServInvoiceHeader: Record "Service Invoice Header";
@@ -167,10 +167,10 @@ codeunit 144212 "FatturaPA Update Posted Doc."
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure PostedServInvoiceUpdatePageHandler(var PostedServInvoiceUpdate: TestPage "Posted Serv. Invoice - Update")
+    procedure PostedServiceInvUpdatePageHandler(var PostedServiceInvUpdate: TestPage "Posted Service Inv. - Update")
     begin
-        PostedServInvoiceUpdate."Fattura Document Type".SetValue(LibraryVariableStorage.DequeueText());
-        PostedServInvoiceUpdate.OK().Invoke();
+        PostedServiceInvUpdate."Fattura Document Type".SetValue(LibraryVariableStorage.DequeueText());
+        PostedServiceInvUpdate.OK().Invoke();
     end;
 
     [ModalPageHandler]

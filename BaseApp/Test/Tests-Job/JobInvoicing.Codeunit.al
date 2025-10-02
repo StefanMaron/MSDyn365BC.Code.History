@@ -59,7 +59,7 @@ codeunit 136306 "Job Invoicing"
         DetailLevel: Option All,"Per Job","Per Job Task","Per Job Planning Line";
         LineDiscountPctErr: Label '%1 should be %2', Comment = '%1 = Field Caption, %2 = Field Value';
         WrongNoOfLinesLbl: Label 'Wrong number of lines created.';
-        SystemCreatedEntryErr: Label 'System Created Entry must not equal to %1', Comment = '%1= System Created Entry';
+        ValueFalseErr: Label 'Value must be equal to false';
 
     [Test]
     [HandlerFunctions('TransferToInvoiceHandler,MessageHandler')]
@@ -4082,7 +4082,7 @@ codeunit 136306 "Job Invoicing"
         // [THEN] Find the created Job Planning Line and "System-Created Entry" should be set false
         JobPlanningLine.SetRange("Job No.", TargetJobNo);
         JobPlanningLine.FindFirst();
-        Assert.IsFalse(JobPlanningLine."System-Created Entry", StrSubstNo(SystemCreatedEntryErr, JobPlanningLine."System-Created Entry"));
+        Assert.IsFalse(JobPlanningLine."System-Created Entry", ValueFalseErr);
     end;
 
     [Test]
@@ -4093,9 +4093,7 @@ codeunit 136306 "Job Invoicing"
         JobTask: Record "Job Task";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         Vendor: Record Vendor;
-        DocumentNo: Code[20];
     begin
         // [SCENARIO 580434] Error when posting a Purchase Credit Memo for 'Non-Inventory' item with Project No. selected
         Initialize();
@@ -4123,10 +4121,9 @@ codeunit 136306 "Job Invoicing"
         PurchaseLine.Modify(true);
 
         // [WHEN] Post Purchase Credit Memo
-        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] No error should come, as posting for Non-Inventory Item.
-        PurchCrMemoHdr.Get(DocumentNo);
     end;
 
     local procedure Initialize()

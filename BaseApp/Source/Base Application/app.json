@@ -4,7 +4,7 @@
   "publisher": "Microsoft",
   "description": "Provides business processes that are typical for small and mid-sized companies, such as sales and purchasing, and customer and vendor management, plus complex processes, such as assembly, manufacturing, service, and directed warehouse management. https://go.microsoft.com/fwlink/?LinkId=2205496",
   "brief": "Base Application (IT)",
-  "version": "26.5.38752.38819",
+  "version": "$(app_currentVersion)",
   "logo": "ExtensionLogo.png",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
   "EULA": "https://go.microsoft.com/fwlink/?linkid=2009120",
@@ -16,19 +16,29 @@
       "id": "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
       "name": "System Application",
       "publisher": "Microsoft",
-      "version": "26.5.0.0"
+      "version": "$(app_minimumVersion)"
     },
     {
       "id": "f3552374-a1f2-4356-848e-196002525837",
       "name": "Business Foundation",
       "publisher": "Microsoft",
-      "version": "26.5.0.0"
+      "version": "$(app_minimumVersion)"
     }
   ],
   "internalsVisibleTo": [
     {
       "id": "6992416f-3f39-4d3c-8242-3fff61350bea",
       "name": "Business Central Cloud Migration - Previous Release",
+      "publisher": "Microsoft"
+    },
+    {
+      "id": "4d6c453d-e61d-4872-b35d-6c731c0fd93e",
+      "name": "Manufacturing",
+      "publisher": "Microsoft"
+    },
+    {
+      "id": "2fd9cbd8-c94a-46d6-8274-ea6ccb244f12",
+      "name": "Service Management",
       "publisher": "Microsoft"
     },
     {
@@ -145,9 +155,19 @@
       "id": "0243a4ea-21b3-4fa8-ad70-9915a4400be0",
       "name": "Tests-Resource",
       "publisher": "Microsoft"
+    },
+    {
+      "id": "ebe4330a-f7c1-4d4f-b292-7c03251321c4",
+      "name": "Manufacturing Tests",
+      "publisher": "Microsoft"
+    },
+    {
+      "id": "a5972688-3d9f-44ff-b3f9-71f08bb98c2c",
+      "name": "Service Management Tests",
+      "publisher": "Microsoft"
     }
   ],
-  "platform": "26.0.0.0",
+  "platform": "$(app_platformVersion)",
   "idRanges": [
     {
       "from": 1,

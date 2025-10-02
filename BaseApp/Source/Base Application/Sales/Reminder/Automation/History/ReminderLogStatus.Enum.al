@@ -13,11 +13,14 @@ enum 6751 "Reminder Log Status"
     }
     value(1; "Running")
     {
+        Caption = 'Running';
     }
     value(2; Failed)
     {
+        Caption = 'Failed';
     }
     value(3; Completed)
     {
+        Caption = 'Completed';
     }
 }

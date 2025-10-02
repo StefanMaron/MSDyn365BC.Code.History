@@ -6692,9 +6692,6 @@
                     <GroupExpressions>
                       <GroupExpression>Group</GroupExpression>
                     </GroupExpressions>
-                    <PageBreak>
-                      <BreakLocation>Start</BreakLocation>
-                    </PageBreak>
                   </Group>
                   <SortExpressions>
                     <SortExpression>

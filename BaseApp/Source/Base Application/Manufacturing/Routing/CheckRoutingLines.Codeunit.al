@@ -421,12 +421,14 @@ codeunit 99000752 "Check Routing Lines"
                 end;
             until RtngLine.Next() = 0;
 
+#if not CLEAN27
         RtngLine.SetRange("WIP Item", true);
         if RtngLine.Find('-') then
             repeat
                 CheckRoutingLineWorkCenterFields(RtngLine);
             until RtngLine.Next() = 0;
         RtngLine.SetRange("WIP Item");
+#endif
 
         RtngLine.SetFilter("Next Operation No.", '%1', '');
 
@@ -497,7 +499,11 @@ codeunit 99000752 "Check Routing Lines"
 
         RtngLine.SetCurrentKey("Routing No.", "Version Code", "Sequence No. (Forward)");
         RtngLine.SetFilter("Next Operation No.", '<>%1', '');
+#if not CLEAN27
         RtngLine.SetRange("Previous Operation No.");
+#else
+        RtngLine.SetRange("Operation No.");
+#endif
 
         if RtngLine.Find('-') then
             repeat
@@ -511,6 +517,7 @@ codeunit 99000752 "Check Routing Lines"
             until RtngLine.Next() = 0;
     end;
 
+#if not CLEAN27
     local procedure CheckRoutingLineWorkCenterFields(var RoutingLine: Record "Routing Line")
     var
         WorkCenter: Record "Work Center";
@@ -527,6 +534,7 @@ codeunit 99000752 "Check Routing Lines"
         WorkCenter.Get(RoutingLine."Work Center No.");
         WorkCenter.TestField("Subcontractor No.");
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcPreviousOperations(var RoutingHeader: Record "Routing Header"; VersionCode: Code[20]; var IsHandled: Boolean)
@@ -538,10 +546,13 @@ codeunit 99000752 "Check Routing Lines"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('Preparation for replacement by Subcontracting app', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckRoutingLineWorkCenterFields(var RoutingLine: Record "Routing Line"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheck(var RoutingHeader: Record "Routing Header"; VersionCode: Code[20]; var IsHandled: Boolean)

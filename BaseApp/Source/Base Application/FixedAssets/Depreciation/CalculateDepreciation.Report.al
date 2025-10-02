@@ -53,7 +53,7 @@ report 5692 "Calculate Depreciation"
                 if DeprAmount <> 0 then
                     if not DeprBook."G/L Integration - Depreciation" or "Budgeted Asset" then begin
                         TempFAJnlLine."FA No." := "No.";
-                        TempFAJnlLine."Document No." := DocumentNo[1];
+                        TempFAJnlLine."Document No." := DocumentNo;
                         TempFAJnlLine."FA Posting Type" := TempFAJnlLine."FA Posting Type"::Depreciation;
                         TempFAJnlLine.Amount := DeprAmount;
                         TempFAJnlLine."No. of Depreciation Days" := NumberOfDays;
@@ -62,7 +62,7 @@ report 5692 "Calculate Depreciation"
                         TempFAJnlLine.Insert();
                     end else begin
                         TempGenJnlLine."Account No." := "No.";
-                        TempGenJnlLine."Document No." := DocumentNo[1];
+                        TempGenJnlLine."Document No." := DocumentNo;
                         TempGenJnlLine."FA Posting Type" := TempGenJnlLine."FA Posting Type"::Depreciation;
                         TempGenJnlLine.Amount := DeprAmount;
                         TempGenJnlLine."No. of Depreciation Days" := NumberOfDays;
@@ -74,11 +74,7 @@ report 5692 "Calculate Depreciation"
                 if Custom1Amount <> 0 then
                     if not DeprBook."G/L Integration - Custom 1" or "Budgeted Asset" then begin
                         TempFAJnlLine."FA No." := "No.";
-#if not CLEAN24
-                        TempFAJnlLine."Document No." := DocumentNo[2];
-#else
                         TempFAJnlLine."Document No." := DocumentNo2;
-#endif
                         TempFAJnlLine."FA Posting Type" := TempFAJnlLine."FA Posting Type"::"Custom 1";
                         TempFAJnlLine.Amount := Custom1Amount;
                         TempFAJnlLine."No. of Depreciation Days" := NumberOfDays;
@@ -87,11 +83,7 @@ report 5692 "Calculate Depreciation"
                         TempFAJnlLine.Insert();
                     end else begin
                         TempGenJnlLine."Account No." := "No.";
-#if not CLEAN24
-                        TempGenJnlLine."Document No." := DocumentNo[2];
-#else
                         TempGenJnlLine."Document No." := DocumentNo2;
-#endif
                         TempGenJnlLine."FA Posting Type" := TempGenJnlLine."FA Posting Type"::"Custom 1";
                         TempGenJnlLine.Amount := Custom1Amount;
                         TempGenJnlLine."No. of Depreciation Days" := NumberOfDays;
@@ -103,11 +95,7 @@ report 5692 "Calculate Depreciation"
                 if Custom2Amount <> 0 then
                     if not DeprBook."G/L Integration - Custom 2" or "Budgeted Asset" then begin
                         TempFAJnlLine."FA No." := "No.";
-#if not CLEAN24
-                        TempFAJnlLine."Document No." := DocumentNo[3];
-#else
                         TempFAJnlLine."Document No." := DocumentNo3;
-#endif
                         TempFAJnlLine."FA Posting Type" := TempFAJnlLine."FA Posting Type"::"Custom 2";
                         TempFAJnlLine.Amount := Custom2Amount;
                         TempFAJnlLine."No. of Depreciation Days" := NumberOfDays;
@@ -116,11 +104,7 @@ report 5692 "Calculate Depreciation"
                         TempFAJnlLine.Insert();
                     end else begin
                         TempGenJnlLine."Account No." := "No.";
-#if not CLEAN24
-                        TempGenJnlLine."Document No." := DocumentNo[3];
-#else
                         TempGenJnlLine."Document No." := DocumentNo3;
-#endif
                         TempGenJnlLine."FA Posting Type" := TempGenJnlLine."FA Posting Type"::"Custom 2";
                         TempGenJnlLine.Amount := Custom2Amount;
                         TempGenJnlLine."No. of Depreciation Days" := NumberOfDays;
@@ -151,6 +135,7 @@ report 5692 "Calculate Depreciation"
                 if TempFAJnlLine.Find('-') then
                     repeat
                         FAJnlLine.Init();
+                        OnPostFixedAssetOnAfterFAJnlLineInit(TempFAJnlLine, FAJnlLine, DocumentNo, AutoDocumentNo);
                         FAJnlLine."Line No." := 0;
                         FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
                         LineNo := LineNo + 1;
@@ -167,19 +152,11 @@ report 5692 "Calculate Depreciation"
                         else
                             FAJnlLine."Document No." := TempFAJnlLine."Document No.";
                         FAJnlLine."Posting No. Series" := NoSeries;
-#if not CLEAN24
-                        FAJnlLine.Description := PostingDescription[1];
+                        FAJnlLine.Description := PostingDescriptionTxt;
                         if FAJnlLine."FA Posting Type" = FAJnlLine."FA Posting Type"::"Custom 1" then
-                            FAJnlLine.Description := PostingDescription[2];
+                            FAJnlLine.Description := PostingDescriptionTxt2;
                         if FAJnlLine."FA Posting Type" = FAJnlLine."FA Posting Type"::"Custom 2" then
-                            FAJnlLine.Description := PostingDescription[3];
-#else
-                        FAJnlLine.Description := PostingDescription;
-                        if FAJnlLine."FA Posting Type" = FAJnlLine."FA Posting Type"::"Custom 1" then
-                            FAJnlLine.Description := PostingDescription2;
-                        if FAJnlLine."FA Posting Type" = FAJnlLine."FA Posting Type"::"Custom 2" then
-                            FAJnlLine.Description := PostingDescription3;
-#endif
+                            FAJnlLine.Description := PostingDescriptionTxt3;
                         FAJnlLine.Validate("Depreciation Book Code", DeprBookCode);
                         FAJnlLine.Validate(Amount, TempFAJnlLine.Amount);
                         FAJnlLine."No. of Depreciation Days" := TempFAJnlLine."No. of Depreciation Days";
@@ -208,7 +185,7 @@ report 5692 "Calculate Depreciation"
                 if TempGenJnlLine.Find('-') then
                     repeat
                         GenJnlLine.Init();
-                        OnBeforeGenJnlLineCreate(TempGenJnlLine, GenJnlLine, AutoDocumentNo);
+                        OnBeforeGenJnlLineCreate(TempGenJnlLine, GenJnlLine, DocumentNo, AutoDocumentNo);
                         GenJnlLine."Line No." := 0;
                         FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
                         LineNo := LineNo + 1;
@@ -221,19 +198,11 @@ report 5692 "Calculate Depreciation"
                         GenJnlLine."FA Posting Type" := TempGenJnlLine."FA Posting Type";
                         GenJnlLine."Account Type" := GenJnlLine."Account Type"::"Fixed Asset";
                         GenJnlLine.Validate("Account No.", TempGenJnlLine."Account No.");
-#if not CLEAN24
-                        GenJnlLine.Description := PostingDescription[1];
+                        GenJnlLine.Description := PostingDescriptionTxt;
                         if GenJnlLine."FA Posting Type" = GenJnlLine."FA Posting Type"::"Custom 1" then
-                            GenJnlLine.Description := PostingDescription[2];
+                            GenJnlLine.Description := PostingDescriptionTxt2;
                         if GenJnlLine."FA Posting Type" = GenJnlLine."FA Posting Type"::"Custom 2" then
-                            GenJnlLine.Description := PostingDescription[3];
-#else
-                        GenJnlLine.Description := PostingDescription;
-                        if GenJnlLine."FA Posting Type" = GenJnlLine."FA Posting Type"::"Custom 1" then
-                            GenJnlLine.Description := PostingDescription2;
-                        if GenJnlLine."FA Posting Type" = GenJnlLine."FA Posting Type"::"Custom 2" then
-                            GenJnlLine.Description := PostingDescription3;
-#endif
+                            GenJnlLine.Description := PostingDescriptionTxt3;
                         if UseAutomaticDocumentNo then
                             GenJnlLine."Document No." := AutoDocumentNo
                         else
@@ -351,58 +320,34 @@ report 5692 "Calculate Depreciation"
                     group("Normal Depreciation")
                     {
                         Caption = 'Normal Depreciation';
-                        field(DocumentNo; DocumentNo[1])
+                        field(DocumentNo; DocumentNo)
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Document No.';
                             ToolTip = 'Specifies, if you leave the field empty, the next available number on the resulting journal line. If a number series is not set up, enter the document number that you want assigned to the resulting journal line.';
                         }
-#if not CLEAN24
-                        field("PostingDescription[1]"; PostingDescription[1])
+                        field(PostingDescription; PostingDescriptionTxt)
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Posting Description';
                             ToolTip = 'Specifies the posting date to be used by the batch job as a filter.';
                         }
-#else
-                        field(PostingDescription; PostingDescription)
-                        {
-                            ApplicationArea = FixedAssets;
-                            Caption = 'Posting Description';
-                            ToolTip = 'Specifies the posting date to be used by the batch job as a filter.';
-                        }
-#endif
                     }
                     group("Anticipated Depreciation")
                     {
                         Caption = 'Anticipated Depreciation';
-#if not CLEAN24
-                        field(DocumentNoAnticipated; DocumentNo[2])
-                        {
-                            ApplicationArea = FixedAssets;
-                            Caption = 'Document No.';
-                            ToolTip = 'Specifies the related document.';
-                        }
-                        field("PostingDescription[2]"; PostingDescription[2])
-                        {
-                            ApplicationArea = FixedAssets;
-                            Caption = 'Posting Description';
-                            ToolTip = 'Specifies the description from the posted document.';
-                        }
-#else
                         field(DocumentNoAnticipated; DocumentNo2)
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Document No.';
                             ToolTip = 'Specifies the related document.';
                         }
-                        field(PostingDescription2; PostingDescription2)
+                        field(PostingDescription2; PostingDescriptionTxt2)
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Posting Description';
                             ToolTip = 'Specifies the description from the posted document.';
                         }
-#endif
                         field(ForcedPercent1; ForcedPercent1)
                         {
                             ApplicationArea = FixedAssets;
@@ -416,33 +361,18 @@ report 5692 "Calculate Depreciation"
                     group("Acc./Red. Depreciation")
                     {
                         Caption = 'Acc./Red. Depreciation';
-#if not CLEAN24
-                        field(DocumentNoAccRed; DocumentNo[3])
-                        {
-                            ApplicationArea = FixedAssets;
-                            Caption = 'Document No.';
-                            ToolTip = 'Specifies the related document.';
-                        }
-                        field("PostingDescription[3]"; PostingDescription[3])
-                        {
-                            ApplicationArea = FixedAssets;
-                            Caption = 'Posting Description';
-                            ToolTip = 'Specifies the description from the posted document.';
-                        }
-#else
                         field(DocumentNoAccRed; DocumentNo3)
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Document No.';
                             ToolTip = 'Specifies the related document.';
                         }
-                        field(PostingDescription3; PostingDescription3)
+                        field(PostingDescription3; PostingDescriptionTxt3)
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Posting Description';
                             ToolTip = 'Specifies the description from the posted document.';
                         }
-#endif
                         field(ForcedPercent2; ForcedPercent2)
                         {
                             ApplicationArea = FixedAssets;
@@ -601,12 +531,10 @@ report 5692 "Calculate Depreciation"
         GenJnlLineCreatedCount: Integer;
         DeprUntilDateModified: Boolean;
         SuppressCommit: Boolean;
-#if CLEAN24
         DocumentNo2: Code[20];
         DocumentNo3: Code[20];
-        PostingDescription2: Text[100];
-        PostingDescription3: Text[100];
-#endif
+        PostingDescriptionTxt2: Text[100];
+        PostingDescriptionTxt3: Text[100];
 
 #pragma warning disable AA0074
 #pragma warning disable AA0470
@@ -634,16 +562,17 @@ report 5692 "Calculate Depreciation"
         UseForceNoOfDays: Boolean;
         DaysInPeriod: Integer;
         PostingDate: Date;
-#if not CLEAN24
-        DocumentNo: array[3] of Code[20];
-        PostingDescription: array[3] of Text[100];
-#else
 #pragma warning disable AS0108
         DocumentNo: Code[20];
-        PostingDescription: Text[100];
+        PostingDescriptionTxt: Text[100];
 #pragma warning restore AS0108
-#endif
         BalAccount: Boolean;
+#if not CLEAN27
+#pragma warning disable AA0137,AA0204
+        [Obsolete('Not used. Use PostingDescriptionTxt instead.', '27.0')]
+        PostingDescription: array[3] of Text[100];
+#pragma warning restore AA0137,AA0204
+#endif
 
     procedure InitializeRequest(DeprBookCodeFrom: Code[10]; DeprUntilDateFrom: Date; UseForceNoOfDaysFrom: Boolean; DaysInPeriodFrom: Integer; PostingDateFrom: Date; DocumentNoFrom: Code[20]; PostingDescriptionFrom: Text[100]; BalAccountFrom: Boolean)
     begin
@@ -652,13 +581,8 @@ report 5692 "Calculate Depreciation"
         UseForceNoOfDays := UseForceNoOfDaysFrom;
         DaysInPeriod := DaysInPeriodFrom;
         PostingDate := PostingDateFrom;
-#if not CLEAN24
-        DocumentNo[1] := DocumentNoFrom;
-        PostingDescription[1] := PostingDescriptionFrom;
-#else
         DocumentNo := DocumentNoFrom;
-        PostingDescription := PostingDescriptionFrom;
-#endif
+        PostingDescriptionTxt := PostingDescriptionFrom;
         BalAccount := BalAccountFrom;
     end;
 
@@ -678,35 +602,16 @@ report 5692 "Calculate Depreciation"
     [Scope('OnPrem')]
     procedure TestDocumentNo()
     begin
-#if not CLEAN24
-        UseAutomaticDocumentNo :=
-          (DocumentNo[1] = '') and (DocumentNo[2] = '') and (DocumentNo[3] = '');
-#else
         UseAutomaticDocumentNo :=
           (DocumentNo = '') and (DocumentNo2 = '') and (DocumentNo3 = '');
-#endif
         if UseAutomaticDocumentNo then
             exit;
-        if DocumentNo[1] = '' then begin
+        if DocumentNo = '' then begin
             FAJnlLine."FA Posting Type" := FAJnlLine."FA Posting Type"::Depreciation;
             Error(
               Text1130000, FAJnlLine.FieldCaption("Document No."),
               FAJnlLine.FieldCaption("FA Posting Type"), FAJnlLine."FA Posting Type");
         end;
-#if not CLEAN24
-        if UseCustom1 and (DocumentNo[2] = '') then begin
-            FAJnlLine."FA Posting Type" := FAJnlLine."FA Posting Type"::"Custom 1";
-            Error(
-              Text1130000, FAJnlLine.FieldCaption("Document No."),
-              FAJnlLine.FieldCaption("FA Posting Type"), FAJnlLine."FA Posting Type");
-        end;
-        if UseCustom2 and (DocumentNo[3] = '') then begin
-            FAJnlLine."FA Posting Type" := FAJnlLine."FA Posting Type"::"Custom 2";
-            Error(
-              Text1130000, FAJnlLine.FieldCaption("Document No."),
-              FAJnlLine.FieldCaption("FA Posting Type"), FAJnlLine."FA Posting Type");
-        end;
-#else
         if UseCustom1 and (DocumentNo2 = '') then begin
             FAJnlLine."FA Posting Type" := FAJnlLine."FA Posting Type"::"Custom 1";
             Error(
@@ -719,7 +624,6 @@ report 5692 "Calculate Depreciation"
               Text1130000, FAJnlLine.FieldCaption("Document No."),
               FAJnlLine.FieldCaption("FA Posting Type"), FAJnlLine."FA Posting Type");
         end;
-#endif
     end;
 
     procedure SetSuppressCommit(NewSuppressCommmit: Boolean)
@@ -785,8 +689,12 @@ report 5692 "Calculate Depreciation"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGenJnlLineCreate(var TempGenJournalLine: Record "Gen. Journal Line" temporary; var GenJournalLine: Record "Gen. Journal Line"; var AutoDocumentNo: Code[20])
+    local procedure OnBeforeGenJnlLineCreate(var TempGenJournalLine: Record "Gen. Journal Line" temporary; var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; var AutoDocumentNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostFixedAssetOnAfterFAJnlLineInit(var TempFAJournalLine: Record "FA Journal Line" temporary; var FAJournalLine: Record "FA Journal Line"; DocumentNo: Code[20]; var AutoDocumentNo: Code[20])
     begin
     end;
 }
-

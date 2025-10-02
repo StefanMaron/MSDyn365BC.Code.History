@@ -146,11 +146,16 @@ page 99000863 "Planning Routing"
                     ToolTip = 'Specifies the number of items that are included in the same operation at the same time. The run time on routing lines is reduced proportionally to the lot size. For example, if the lot size is two pieces, the run time will be reduced by half.';
                     Visible = false;
                 }
+#if not CLEAN27
                 field("Expected Operation Cost Amt."; Rec."Expected Operation Cost Amt.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the expected amount.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif
             }
         }
         area(factboxes)

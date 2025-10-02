@@ -1009,19 +1009,6 @@
         CreateExchangeRateWithFixExchRateAmount(CurrencyCode, FirstStartingDate, 2 * RelExchRateAmount);
     end;
 
-    local procedure CreateExchangeRateWithFixRelationalAmount(CurrencyCode: Code[10]; StartingDate: Date; ExchangeRateAmount: Decimal)
-    var
-        CurrencyExchangeRate: Record "Currency Exchange Rate";
-    begin
-        // Take 1 to fix the Relational amounts for Exchange Rate.
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, StartingDate);
-        CurrencyExchangeRate.Validate("Exchange Rate Amount", ExchangeRateAmount);
-        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", 1);
-        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
-        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount");
-        CurrencyExchangeRate.Modify(true);
-    end;
-
     local procedure CreateExchangeRateWithFixExchRateAmount(CurrencyCode: Code[10]; StartingDate: Date; RelationalExchRateAmount: Decimal)
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
@@ -1278,19 +1265,6 @@
         GLEntry.FindFirst();
     end;
 
-    local procedure FindRelationalExchRateAmount(CurrencyCode: Code[10]; StartingDate: Date; StartingDate2: Date): Decimal
-    var
-        Currency: Record Currency;
-        CurrencyExchangeRate: Record "Currency Exchange Rate";
-        Amount: Decimal;
-    begin
-        Currency.Get(CurrencyCode);
-        CurrencyExchangeRate.Get(CurrencyCode, StartingDate);
-        Amount := CurrencyExchangeRate."Relational Exch. Rate Amount";
-        CurrencyExchangeRate.Get(CurrencyCode, StartingDate2);
-        exit(CurrencyExchangeRate."Relational Adjmt Exch Rate Amt" - Amount);
-    end;
-
     local procedure FindVendorLedgerEntryByDocType(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocType: Enum "Gen. Journal Document Type")
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
@@ -1346,14 +1320,6 @@
     begin
         // Using Currency Code for Document No. parameter.
         LibraryERM.RunExchRateAdjustmentForDocNo(Code, Code, EndDate);
-    end;
-
-    local procedure SelectGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
-    begin
-        // Select General Journal Batch and clear General Journal Lines to make sure that no line exist before creating
-        // General Journal Lines.
-        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
-        LibraryERM.ClearGenJournalLines(GenJournalBatch)
     end;
 
     local procedure UnapplyVendorEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
@@ -1463,23 +1429,6 @@
         GLEntry.TestField(Amount, 0);
     end;
 
-    local procedure CalculateGLEntryBaseAmount(GLAccountNo: Code[20]; Amount: Decimal): Decimal
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-        Currency: Record Currency;
-        GLAccount: Record "G/L Account";
-        VATAmount: Decimal;
-    begin
-        // function calculates VAT Base Amount based on VAT Posting Setup applied for input account
-        GLAccount.Get(GLAccountNo);
-        if VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group") then
-            VATAmount :=
-              Round(
-                Amount * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %"), Currency."Amount Rounding Precision",
-                Currency.VATRoundingDirection());
-        exit(Round(Amount - VATAmount, Currency."Amount Rounding Precision"));
-    end;
-
     local procedure CalcGainLossAmount(Amount: Decimal; AmountLCY: Decimal; CurrencyCode: Code[10]): Decimal
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
@@ -1535,4 +1484,3 @@
         Assert.ExpectedMessage(ReversalSuccessfullTxt, Message);
     end;
 }
-
