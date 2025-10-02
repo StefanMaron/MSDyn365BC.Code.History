@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Analysis;
 
 table 923 "Customer Sales Buffer"
@@ -31,16 +35,19 @@ table 923 "Customer Sales Buffer"
         {
             Caption = 'Balance Due (LCY)';
             DataClassification = SystemMetadata;
+            AutoFormatType = 1;
         }
         field(11; "Sales (LCY)"; Decimal)
         {
             Caption = 'Sales (LCY)';
             DataClassification = SystemMetadata;
+            AutoFormatType = 1;
         }
         field(12; "Profit (LCY)"; Decimal)
         {
             Caption = 'Profit (LCY)';
             DataClassification = SystemMetadata;
+            AutoFormatType = 1;
         }
     }
 

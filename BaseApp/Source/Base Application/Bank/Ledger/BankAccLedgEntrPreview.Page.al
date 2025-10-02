@@ -8,6 +8,11 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Preview;
 using System.Security.User;
 
+/// <summary>
+/// Preview page for bank account ledger entries before posting transactions.
+/// Displays temporary bank account ledger entries to show the expected results of posting operations
+/// without committing the data to the database, used in posting preview functionality.
+/// </summary>
 page 165 "Bank Acc. Ledg. Entr. Preview"
 {
     Caption = 'Bank Acc. Ledg. Entr. Preview';

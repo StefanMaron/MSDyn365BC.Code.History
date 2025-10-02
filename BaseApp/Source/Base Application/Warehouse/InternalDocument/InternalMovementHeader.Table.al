@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Warehouse.InternalDocument;
 
 using Microsoft.Foundation.NoSeries;
@@ -165,27 +169,14 @@ table 7346 "Internal Movement Header"
     end;
 
     trigger OnInsert()
-#if not CLEAN24
-    var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         InvtSetup.Get();
         if "No." = '' then begin
             InvtSetup.TestField("Internal Movement Nos.");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(InvtSetup."Internal Movement Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 "No. Series" := InvtSetup."Internal Movement Nos.";
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
                 "No." := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", InvtSetup."Internal Movement Nos.", 0D, "No.");
-            end;
-#endif
         end;
     end;
 
@@ -383,4 +374,3 @@ table 7346 "Internal Movement Header"
     begin
     end;
 }
-

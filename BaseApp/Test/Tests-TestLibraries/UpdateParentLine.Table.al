@@ -14,6 +14,8 @@ table 139142 "Update Parent Line"
         }
         field(3; Amount; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(4; Quantity; Integer)
         {
@@ -32,4 +34,3 @@ table 139142 "Update Parent Line"
     {
     }
 }
-

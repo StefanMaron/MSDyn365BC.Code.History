@@ -153,6 +153,8 @@ report 12 "VAT Statement"
 
     requestpage
     {
+        AboutTitle = 'About VAT Statement';
+        AboutText = 'The **VAT Statement** report provides a structured summary of VAT amounts based on your custom VAT Statement setup, including input and output VAT and totals. Use it for preparing official VAT filings by consolidating VAT posting data into a format suitable for submission to tax authorities.';
         SaveValues = true;
 
         layout

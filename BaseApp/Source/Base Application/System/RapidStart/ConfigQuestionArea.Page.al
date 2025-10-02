@@ -92,7 +92,7 @@ page 8611 "Config. Question Area"
                             repeat
                                 QuestionnaireMgt.UpdateQuestions(ConfigQuestionArea);
                             until ConfigQuestionArea.Next() = 0;
-                            Message(Text001);
+                            Message(QuestionsUpdatedMsg);
                         end;
                     end;
                 }
@@ -110,7 +110,7 @@ page 8611 "Config. Question Area"
                             repeat
                                 QuestionnaireMgt.ApplyAnswer(ConfigQuestionArea);
                             until ConfigQuestionArea.Next() = 0;
-                            Message(Text002);
+                            Message(AnswersAppliedMsg);
                         end;
                     end;
                 }
@@ -135,9 +135,7 @@ page 8611 "Config. Question Area"
     var
         ConfigQuestionArea: Record "Config. Question Area";
         QuestionnaireMgt: Codeunit "Questionnaire Management";
-#pragma warning disable AA0074
-        Text001: Label 'Questions have been updated.';
-        Text002: Label 'Answers have been applied.';
-#pragma warning restore AA0074
+        QuestionsUpdatedMsg: Label 'Questions have been updated.';
+        AnswersAppliedMsg: Label 'Answers have been applied.';
 }
 

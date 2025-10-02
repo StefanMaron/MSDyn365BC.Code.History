@@ -61,6 +61,7 @@ codeunit 64 "Sales-Get Shipment"
         Text003: Label 'Inserted lines             #1######';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
+        CannotCombineShptsDiffTaxLiableErr: Label 'You cannot combine shipments from orders which have different values of Tax Liable.';
 
     procedure CreateInvLines(var SalesShptLine2: Record "Sales Shipment Line")
     var
@@ -70,6 +71,7 @@ codeunit 64 "Sales-Get Shipment"
         PrepmtAmtToDeductRounding: Decimal;
         IsHandled: Boolean;
         OrderNoList: List of [Code[20]];
+        TaxLiable: Boolean;
     begin
         IsHandled := false;
         OnBeforeCreateInvLines(SalesShptLine2, SalesHeader, SalesLine, SalesShptHeader, IsHandled);
@@ -87,6 +89,7 @@ codeunit 64 "Sales-Get Shipment"
             OnCreateInvLinesOnAfterSalesShptLineSetFilters(SalesShptLine2, SalesHeader);
             SalesLine."Document Type" := SalesHeader."Document Type";
             SalesLine."Document No." := SalesHeader."No.";
+            TaxLiable := SalesShptLine2."Tax Liable";
             Window.Open(Text002 + Text003);
             OnBeforeInsertLines(SalesHeader);
 
@@ -112,6 +115,8 @@ codeunit 64 "Sales-Get Shipment"
                           SalesShptHeader.TableCaption(), SalesShptHeader."No.");
                         TransferLine := false;
                     end;
+                    if TaxLiable <> SalesShptLine2."Tax Liable" then
+                        Error(CannotCombineShptsDiffTaxLiableErr);
                     OnBeforeTransferLineToSalesDoc(SalesShptHeader, SalesShptLine2, SalesHeader, TransferLine);
                 end;
                 InsertInvoiceLineFromShipmentLine(SalesShptLine2, TransferLine, PrepmtAmtToDeductRounding);

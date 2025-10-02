@@ -26,6 +26,7 @@ codeunit 137120 "Non-inventory Item Costing"
         LibraryService: Codeunit "Library - Service";
         LibraryCosting: Codeunit "Library - Costing";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
         isInitialized: Boolean;
 
     [Test]
@@ -55,8 +56,9 @@ codeunit 137120 "Non-inventory Item Costing"
         LibraryInventory.CreateItem(Item);
         Item.Validate("Costing Method", Item."Costing Method"::Standard);
         Item.Validate("Standard Cost", 10);
-        Item.Validate(Inventory, 10000);
+        Item.Validate(Inventory, 10000); // Inserts item ledger entry
         Item.Modify(true);
+        SequenceNoMgt.ClearState();
 
         LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, Item."No.",
           LibraryAssembly.GetUnitOfMeasureCode("BOM Component Type"::Item, Item."No.", true),
@@ -108,8 +110,9 @@ codeunit 137120 "Non-inventory Item Costing"
         LibraryInventory.CreateItem(Item);
         Item.Validate("Costing Method", Item."Costing Method"::Standard);
         Item.Validate("Standard Cost", 10);
-        Item.Validate(Inventory, 10000);
+        Item.Validate(Inventory, 10000); // Inserts an Item Ledger Entry.
         Item.Modify(true);
+        SequenceNoMgt.ClearState();
         LibraryPatterns.POSTItemJournalLineWithApplication(
           ItemJournalBatch."Template Type"::Item, ItemLedgerEntry."Entry Type"::"Positive Adjmt.", Item, '', '',
           10, WorkDate(), 0, ItemLedgerEntry."Entry No.");
@@ -326,8 +329,9 @@ codeunit 137120 "Non-inventory Item Costing"
         LibraryInventory.CreateItem(Item);
         Item.Validate("Costing Method", Item."Costing Method"::Standard);
         Item.Validate("Standard Cost", 10);
-        Item.Validate(Inventory, 10000);
+        Item.Validate(Inventory, 10000); // Inserts Item Ledger Entry
         Item.Modify(true);
+        SequenceNoMgt.ClearState();
     end;
 
     [Scope('OnPrem')]

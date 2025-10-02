@@ -7,6 +7,15 @@ namespace Microsoft.Bank.Payment;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.FinanceCharge;
 
+/// <summary>
+/// Page 981 "Payment Registration" provides a worksheet interface for registering customer payments.
+/// This page allows users to quickly record received payments against outstanding customer documents,
+/// with features for automatic posting and balance account setup.
+/// </summary>
+/// <remarks>
+/// Source table: Payment Registration Buffer (temporary). Used for rapid payment entry and posting
+/// with integrated customer lookup and payment validation.
+/// </remarks>
 page 981 "Payment Registration"
 {
     ApplicationArea = Basic, Suite;

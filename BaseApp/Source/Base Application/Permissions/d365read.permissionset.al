@@ -7,7 +7,6 @@ using Microsoft.Projects.Project.Archive;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.TimeSheet;
 using Microsoft.CostAccounting.Setup;
-using Microsoft.Manufacturing.Reports;
 using Microsoft.Bank.Payment;
 using Microsoft.Foundation.Reporting;
 using Microsoft.EServices.EDocument;
@@ -45,9 +44,6 @@ using Microsoft.Assembly.Reports;
 using Microsoft.Assembly.Setup;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
-#if not CLEAN24
-using Microsoft.Bank.Deposit;
-#endif
 using Microsoft.Bank.DirectDebit;
 using Microsoft.Bank.Ledger;
 using Microsoft.Bank.PositivePay;
@@ -158,18 +154,6 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Capacity;
-using Microsoft.Manufacturing.Comment;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Family;
-using Microsoft.Manufacturing.Forecast;
-using Microsoft.Manufacturing.MachineCenter;
-using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Manufacturing.RoleCenters;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Setup;
-using Microsoft.Manufacturing.StandardCost;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
@@ -259,22 +243,6 @@ using Microsoft.API;
 using Microsoft.API.Upgrade;
 using Microsoft;
 
-using Microsoft.Service.Archive;
-using Microsoft.Service.Comment;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
-using Microsoft.Service.Email;
-using Microsoft.Service.History;
-using Microsoft.Service.Item;
-using Microsoft.Service.Ledger;
-using Microsoft.Service.Loaner;
-using Microsoft.Service.Maintenance;
-using Microsoft.Service.Posting;
-using Microsoft.Service.Pricing;
-using Microsoft.Service.Resources;
-using Microsoft.Service.RoleCenters;
-using Microsoft.Service.Setup;
-
 permissionset 1044 "D365 READ"
 {
     Access = Public;
@@ -289,9 +257,6 @@ permissionset 1044 "D365 READ"
                   tabledata AllObjWithCaption = R,
                   tabledata "Code Coverage" = R,
                   tabledata "Data Sensitivity" = R,
-#if not CLEAN24
-                  tabledata "Deposits Page Setup" = R,
-#endif
                   tabledata Device = R,
                   tabledata Drive = R,
                   tabledata "Event Subscription" = R,
@@ -349,6 +314,7 @@ permissionset 1044 "D365 READ"
                   tabledata "Alternative Address" = R,
                   tabledata "Alt. Customer Posting Group" = R,
                   tabledata "Alt. Vendor Posting Group" = R,
+                  tabledata "Alt. Employee Posting Group" = R,
                   tabledata "Analysis by Dim. Parameters" = R,
                   tabledata "Analysis by Dim. User Param." = R,
                   tabledata "Analysis Column" = R,
@@ -443,20 +409,13 @@ permissionset 1044 "D365 READ"
                   tabledata "Business Unit" = R,
                   tabledata "Business Unit Information" = R,
                   tabledata "Business Unit Setup" = R,
-                  tabledata "Calendar Absence Entry" = R,
-                  tabledata "Calendar Entry" = R,
-#if not CLEAN24
-                  tabledata "Calendar Event" = R,
-                  tabledata "Calendar Event User Config." = R,
-#endif
                   tabledata Campaign = R,
                   tabledata "Campaign Entry" = R,
                   tabledata "Campaign Status" = R,
                   tabledata "Campaign Target Group" = R,
                   tabledata "Cancelled Document" = R,
-                  tabledata "Capacity Constrained Resource" = R,
-                  tabledata "Capacity Ledger Entry" = R,
-                  tabledata "Capacity Unit of Measure" = R,
+                  tabledata Microsoft.Manufacturing.Capacity."Capacity Ledger Entry" = R,
+                  tabledata Microsoft.Manufacturing.Capacity."Capacity Unit of Measure" = R,
                   tabledata "Cash Flow Account" = R,
                   tabledata "Cash Flow Account Comment" = R,
                   tabledata "Cash Flow Availability Buffer" = R,
@@ -556,7 +515,6 @@ permissionset 1044 "D365 READ"
                   tabledata "Cost Journal Template" = R,
                   tabledata "Cost Object" = R,
                   tabledata "Cost Register" = R,
-                  tabledata "Cost Share Buffer" = R,
                   tabledata "Cost Type" = R,
                   tabledata "Country/Region" = R,
                   tabledata "Country/Region Translation" = R,
@@ -767,9 +725,6 @@ permissionset 1044 "D365 READ"
                   tabledata "Exchange Object" = R,
                   tabledata "Exchange Service Setup" = R,
                   tabledata "Exchange Sync" = R,
-#if not CLEAN24
-                  tabledata "Exp. Phys. Invt. Tracking" = R,
-#endif
                   tabledata "Exp. Invt. Order Tracking" = R,
                   tabledata "Experience Tier Buffer" = R,
                   tabledata "Experience Tier Setup" = R,
@@ -798,8 +753,6 @@ permissionset 1044 "D365 READ"
                   tabledata "FA Register" = R,
                   tabledata "FA Setup" = R,
                   tabledata "FA Subclass" = R,
-                  tabledata Family = R,
-                  tabledata "Family Line" = R,
                   tabledata "Field Buffer" = R,
                   tabledata "Field Monitoring Setup" = R,
                   tabledata "Filter Item Attributes Buffer" = R,
@@ -1042,26 +995,18 @@ permissionset 1044 "D365 READ"
                   tabledata "License Agreement" = R,
                   tabledata "Line Fee Note on Report Hist." = R,
                   tabledata "Line Number Buffer" = R,
-                  tabledata "Load Buffer" = R,
                   tabledata Location = R,
                   tabledata "Logged Segment" = R,
                   tabledata "Lot Bin Buffer" = R,
                   tabledata "Lot No. Information" = R,
-                  tabledata "Machine Center" = R,
                   tabledata "Mailing Group" = R,
                   tabledata "Main Asset Component" = R,
                   tabledata Maintenance = R,
                   tabledata "Maintenance Ledger Entry" = R,
                   tabledata "Maintenance Registration" = R,
-#if not CLEAN24
-                  tabledata "Man. Integration Field Mapping" = R,
-#endif
                   tabledata "Man. Integration Table Mapping" = R,
                   tabledata "Man. Int. Field Mapping" = R,
                   tabledata Manufacturer = R,
-                  tabledata "Manufacturing Comment Line" = R,
-                  tabledata "Manufacturing Cue" = R,
-                  tabledata "Manufacturing Setup" = R,
                   tabledata "Manufacturing User Template" = R,
                   tabledata "Marketing Setup" = R,
                   tabledata "Media Repository" = R,
@@ -1082,6 +1027,7 @@ permissionset 1044 "D365 READ"
                   tabledata "My Vendor" = RIM,
                   tabledata "Name/Value Buffer" = R,
                   tabledata "Named Forward Link" = R,
+                  tabledata "Nationality" = R,
                   tabledata "No. Series" = R,
                   tabledata "No. Series Line" = R,
                   tabledata "No. Series Relationship" = R,
@@ -1160,16 +1106,12 @@ permissionset 1044 "D365 READ"
                   tabledata "Phys. Invt. Order Line" = R,
                   tabledata "Phys. Invt. Record Header" = R,
                   tabledata "Phys. Invt. Record Line" = R,
-#if not CLEAN24
-                  tabledata "Phys. Invt. Tracking" = R,
-#endif
                   tabledata "Invt. Order Tracking" = R,
                   tabledata "Picture Entity" = R,
                   tabledata "Planning Assignment" = R,
                   tabledata "Planning Buffer" = R,
                   tabledata "Planning Component" = R,
                   tabledata "Planning Error Log" = R,
-                  tabledata "Planning Routing Line" = R,
                   tabledata "Positive Pay Detail" = R,
                   tabledata "Positive Pay Entry" = R,
                   tabledata "Positive Pay Entry Detail" = R,
@@ -1214,30 +1156,8 @@ permissionset 1044 "D365 READ"
                   tabledata "Price Source" = R,
                   tabledata "Price Worksheet Line" = R,
                   tabledata "Printer Selection" = R,
-                  tabledata "Prod. Order Capacity Need" = R,
-                  tabledata "Prod. Order Comment Line" = R,
-                  tabledata "Prod. Order Comp. Cmt Line" = R,
-                  tabledata "Prod. Order Component" = R,
-                  tabledata "Prod. Order Line" = R,
-                  tabledata "Prod. Order Routing Line" = R,
-                  tabledata "Prod. Order Routing Personnel" = R,
-                  tabledata "Prod. Order Routing Tool" = R,
-                  tabledata "Prod. Order Rtng Comment Line" = R,
-                  tabledata "Prod. Order Rtng Qlty Meas." = R,
-                  tabledata "Production BOM Comment Line" = R,
-                  tabledata "Production BOM Header" = R,
-                  tabledata "Production BOM Line" = R,
-                  tabledata "Production BOM Version" = R,
-                  tabledata "Production Forecast Entry" = R,
-                  tabledata "Production Forecast Name" = R,
-                  tabledata "Production Matrix  BOM Entry" = R,
-                  tabledata "Production Matrix BOM Line" = R,
-                  tabledata "Production Order" = R,
                   tabledata "Profile Questionnaire Header" = R,
                   tabledata "Profile Questionnaire Line" = R,
-#if not CLEAN24
-                  tabledata "Pstd. Exp. Phys. Invt. Track" = R,
-#endif
                   tabledata "Pstd.Exp.Invt.Order.Tracking" = R,
                   tabledata "Pstd. Phys. Invt. Order Hdr" = R,
                   tabledata "Pstd. Phys. Invt. Order Line" = R,
@@ -1278,7 +1198,6 @@ permissionset 1044 "D365 READ"
                   tabledata "Put-away Template Header" = R,
                   tabledata "Put-away Template Line" = R,
                   tabledata Qualification = R,
-                  tabledata "Quality Measure" = R,
                   tabledata "RapidStart Services Cue" = R,
                   tabledata Rating = R,
                   tabledata "RC Headlines User Data" = R,
@@ -1293,7 +1212,6 @@ permissionset 1044 "D365 READ"
                   tabledata "Record Set Tree" = R,
                   tabledata "Recorded Event Buffer" = R,
                   tabledata "Referenced XML Schema" = R,
-                  tabledata "Registered Absence" = R,
                   tabledata "Registered Invt. Movement Hdr." = R,
                   tabledata "Registered Invt. Movement Line" = R,
                   tabledata "Registered Whse. Activity Hdr." = R,
@@ -1365,14 +1283,6 @@ permissionset 1044 "D365 READ"
                   tabledata "Role Center Notifications" = R,
                   tabledata "Rounding Method" = R,
                   tabledata "Rounding Residual Buffer" = R,
-                  tabledata "Routing Comment Line" = R,
-                  tabledata "Routing Header" = R,
-                  tabledata "Routing Line" = R,
-                  tabledata "Routing Link" = R,
-                  tabledata "Routing Personnel" = R,
-                  tabledata "Routing Quality Measure" = R,
-                  tabledata "Routing Tool" = R,
-                  tabledata "Routing Version" = R,
                   tabledata "Sales & Receivables Setup" = R,
                   tabledata "Sales by Cust. Grp.Chart Setup" = R,
                   tabledata "Sales Comment Line" = R,
@@ -1417,7 +1327,6 @@ permissionset 1044 "D365 READ"
                   tabledata "Saved Segment Criteria" = R,
                   tabledata "Saved Segment Criteria Line" = R,
                   tabledata "SB Owner Cue" = R,
-                  tabledata Scrap = R,
                   tabledata "Segment Criteria Line" = R,
                   tabledata "Segment Header" = R,
                   tabledata "Segment History" = R,
@@ -1436,16 +1345,11 @@ permissionset 1044 "D365 READ"
                   tabledata "Shipment Method Translation" = R,
                   tabledata "Shipping Agent" = R,
                   tabledata "Shipping Agent Services" = R,
-                  tabledata "Shop Calendar" = R,
-                  tabledata "Shop Calendar Holiday" = R,
-                  tabledata "Shop Calendar Working Days" = R,
                   tabledata "Sorting Table" = R,
                   tabledata "Source Code" = R,
                   tabledata "Source Code Setup" = R,
                   tabledata "Special Equipment" = R,
                   tabledata "Standard Address" = R,
-                  tabledata "Standard Cost Worksheet" = R,
-                  tabledata "Standard Cost Worksheet Name" = R,
                   tabledata "Standard Customer Sales Code" = R,
                   tabledata "Standard General Journal" = R,
                   tabledata "Standard General Journal Line" = R,
@@ -1455,16 +1359,10 @@ permissionset 1044 "D365 READ"
                   tabledata "Standard Purchase Line" = R,
                   tabledata "Standard Sales Code" = R,
                   tabledata "Standard Sales Line" = R,
-                  tabledata "Standard Task" = R,
-                  tabledata "Standard Task Description" = R,
-                  tabledata "Standard Task Personnel" = R,
-                  tabledata "Standard Task Quality Measure" = R,
-                  tabledata "Standard Task Tool" = R,
                   tabledata "Standard Text" = R,
                   tabledata "Standard Vendor Purchase Code" = R,
                   tabledata "Stockkeeping Unit" = R,
                   tabledata "Stockkeeping Unit Comment Line" = R,
-                  tabledata Stop = R,
                   tabledata "Substitution Condition" = R,
                   tabledata "Support Contact Information" = R,
                   tabledata "SWIFT Code" = R,
@@ -1611,7 +1509,6 @@ permissionset 1044 "D365 READ"
                   tabledata "Web Source" = R,
                   tabledata "WF Event/Response Combination" = R,
                   tabledata "Where Used Base Calendar" = R,
-                  tabledata "Where-Used Line" = R,
                   tabledata "Whse. Cross-Dock Opportunity" = R,
                   tabledata "Whse. Internal Pick Header" = R,
                   tabledata "Whse. Internal Pick Line" = R,
@@ -1624,9 +1521,6 @@ permissionset 1044 "D365 READ"
                   tabledata "Whse. Worksheet Line" = R,
                   tabledata "Whse. Worksheet Name" = R,
                   tabledata "Whse. Worksheet Template" = R,
-                  tabledata "Work Center" = R,
-                  tabledata "Work Center Group" = R,
-                  tabledata "Work Shift" = R,
                   tabledata "Work Type" = R,
                   tabledata "Workflow - Record Change" = R,
                   tabledata "Workflow - Table Relation" = R,
@@ -1656,85 +1550,5 @@ permissionset 1044 "D365 READ"
                   tabledata "XML Schema" = R,
                   tabledata "XML Schema Element" = R,
                   tabledata "XML Schema Restriction" = R,
-                  tabledata Zone = R,
-
-                  // Service
-                  tabledata "Contract Change Log" = R,
-                  tabledata "Contract Gain/Loss Entry" = R,
-                  tabledata "Contract Group" = R,
-                  tabledata "Contract Trend Buffer" = R,
-                  tabledata "Contract/Service Discount" = R,
-                  tabledata "Fault Area" = R,
-                  tabledata "Fault Area/Symptom Code" = R,
-                  tabledata "Fault Code" = R,
-                  tabledata "Fault Reason Code" = R,
-                  tabledata "Fault/Resol. Cod. Relationship" = R,
-                  tabledata "Filed Service Contract Header" = R,
-                  tabledata "Filed Contract Line" = R,
-                  tabledata "Filed Serv. Contract Cmt. Line" = R,
-                  tabledata "Filed Contract Service Hour" = R,
-                  tabledata "Filed Contract/Serv. Discount" = R,
-                  tabledata Loaner = R,
-                  tabledata "Loaner Entry" = R,
-                  tabledata "Repair Status" = R,
-                  tabledata "Resolution Code" = R,
-                  tabledata "Resource Location" = R,
-                  tabledata "Resource Service Zone" = R,
-                  tabledata "Resource Skill" = R,
-                  tabledata "Serv. Price Adjustment Detail" = R,
-                  tabledata "Serv. Price Group Setup" = R,
-                  tabledata "Service Comment Line" = R,
-                  tabledata "Service Comment Line Archive" = R,
-                  tabledata "Service Contract Account Group" = R,
-                  tabledata "Service Contract Header" = R,
-                  tabledata "Service Contract Line" = R,
-                  tabledata "Service Contract Template" = R,
-                  tabledata "Service Cost" = R,
-                  tabledata "Service Cr.Memo Header" = R,
-                  tabledata "Service Cr.Memo Line" = R,
-                  tabledata "Service Cue" = R,
-                  tabledata "Service Document Log" = R,
-                  tabledata "Service Document Register" = R,
-                  tabledata "Service Email Queue" = R,
-                  tabledata "Service Header" = R,
-                  tabledata "Service Header Archive" = R,
-                  tabledata "Service Hour" = R,
-                  tabledata "Service Invoice Header" = R,
-                  tabledata "Service Invoice Line" = R,
-                  tabledata "Service Item" = R,
-                  tabledata "Service Item Component" = R,
-                  tabledata "Service Item Group" = R,
-                  tabledata "Service Item Line" = R,
-                  tabledata "Service Item Line Archive" = R,
-                  tabledata "Service Item Log" = R,
-                  tabledata "Service Item Trend Buffer" = R,
-                  tabledata "Service Ledger Entry" = R,
-                  tabledata "Service Line" = R,
-                  tabledata "Service Line Archive" = R,
-                  tabledata "Service Line Price Adjmt." = R,
-                  tabledata "Service Mgt. Setup" = R,
-                  tabledata "Service Order Allocation" = R,
-                  tabledata "Service Order Allocat. Archive" = R,
-                  tabledata "Service Order Posting Buffer" = R,
-                  tabledata "Service Order Type" = R,
-                  tabledata "Service Price Adjustment Group" = R,
-                  tabledata "Service Price Group" = R,
-                  tabledata "Service Register" = R,
-                  tabledata "Service Shelf" = R,
-                  tabledata "Service Shipment Buffer" = R,
-                  tabledata "Service Shipment Header" = R,
-                  tabledata "Service Shipment Item Line" = R,
-                  tabledata "Service Shipment Line" = R,
-                  tabledata "Service Status Priority Setup" = R,
-                  tabledata "Service Zone" = R,
-                  tabledata "Skill Code" = R,
-                  tabledata "Standard Service Code" = R,
-                  tabledata "Standard Service Item Gr. Code" = R,
-                  tabledata "Standard Service Line" = R,
-                  tabledata "Symptom Code" = R,
-                  tabledata "Troubleshooting Header" = R,
-                  tabledata "Troubleshooting Line" = R,
-                  tabledata "Troubleshooting Setup" = R,
-                  tabledata "Warranty Ledger Entry" = R,
-                  tabledata "Work-Hour Template" = R;
+                  tabledata Zone = R;
 }

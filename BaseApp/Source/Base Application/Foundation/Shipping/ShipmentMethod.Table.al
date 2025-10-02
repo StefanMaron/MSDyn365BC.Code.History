@@ -19,12 +19,6 @@ table 10 "Shipment Method"
         {
             Caption = 'Code';
             NotBlank = true;
-
-            trigger OnValidate()
-            begin
-                if ValidateShipmentMethod() then
-                    Message(Text10800);
-            end;
         }
         field(2; Description; Text[100])
         {
@@ -88,9 +82,6 @@ table 10 "Shipment Method"
         CRMSyncHelper.UpdateCDSOptionMapping(xRec.RecordId(), RecordId());
     end;
 
-    var
-        Text10800: Label 'The French Intrastat feature requires a Shipment Method Code of 3 letters and 1 number.';
-
     procedure TranslateDescription(var ShipmentMethod: Record "Shipment Method"; Language: Code[10])
     var
         ShipmentMethodTranslation: Record "Shipment Method Translation";
@@ -99,6 +90,8 @@ table 10 "Shipment Method"
             ShipmentMethod.Description := ShipmentMethodTranslation.Description;
     end;
 
+#if not CLEAN27
+    [Obsolete('Pending removal - the check is not relevant anymore.', '27.0')]
     [Scope('OnPrem')]
     procedure ValidateShipmentMethod(): Boolean
     var
@@ -113,7 +106,7 @@ table 10 "Shipment Method"
             exit(true);
         exit(false);
     end;
-
+#endif
     local procedure SetLastModifiedDateTime()
     begin
         "Last Modified Date Time" := CurrentDateTime;

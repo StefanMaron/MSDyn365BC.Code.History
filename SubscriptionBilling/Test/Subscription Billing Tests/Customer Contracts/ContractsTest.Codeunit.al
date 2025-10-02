@@ -12,9 +12,11 @@ using Microsoft.Utilities;
 using System.Globalization;
 using System.TestLibraries.Utilities;
 
+#pragma warning disable AA0210
 codeunit 148155 "Contracts Test"
 {
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
     Access = Internal;
 
@@ -1155,7 +1157,7 @@ codeunit 148155 "Contracts Test"
         ContractTestLibrary.UpdateItemUnitCostAndPrice(Item, LibraryRandom.RandDec(1000, 2), LibraryRandom.RandDec(1000, 2), true);
 
         SubContractsItemManagement.SetAllowInsertOfInvoicingItem(true);
-        
+
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
 
         // [THEN] Total Amount should be filled in Sales Invoice page
@@ -2368,3 +2370,4 @@ codeunit 148155 "Contracts Test"
 
     #endregion Handlers
 }
+#pragma warning restore AA0210

@@ -2698,13 +2698,6 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     end;
 
     [Normal]
-    local procedure VerifyDetldCustomerEntries(GenJournalLine: Record "Gen. Journal Line"; GenJournalLine2: Record "Gen. Journal Line"; Amount: Decimal; PaymentAmount: Decimal)
-    begin
-        VerifyAmountInLedgerEntries(GenJournalLine, Amount, -PaymentAmount);
-        VerifyAmountInLedgerEntries(GenJournalLine2, -PaymentAmount, PaymentAmount);
-    end;
-
-    [Normal]
     local procedure VerifyDetldCustomerLedgerEntry(GenJournalLine: Record "Gen. Journal Line"; EntryType: Enum "Detailed CV Ledger Entry Type"; Amount: Decimal)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -2749,23 +2742,6 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         DetailedCustLedgEntry.SetRange("Document Type", DocumentType);
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
         VerifyAmountInDetldCustomer(DetailedCustLedgEntry, EntryType, Amount);
-    end;
-
-    [Normal]
-    local procedure VerifyAmountInLedgerEntries(GenJournalLine: Record "Gen. Journal Line"; Amount: Decimal; PaymentAmount: Decimal)
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
-    begin
-        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Document Type", GenJournalLine."Document No.");
-        DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
-        DetailedCustLedgEntry.FindSet();
-        DetailedCustLedgEntry.TestField("Entry Type", DetailedCustLedgEntry."Entry Type"::"Initial Entry");
-        DetailedCustLedgEntry.TestField(Amount, Amount);
-
-        DetailedCustLedgEntry.Next();
-        DetailedCustLedgEntry.TestField("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
-        DetailedCustLedgEntry.TestField(Amount, PaymentAmount);
     end;
 
     [Normal]
@@ -2828,4 +2804,3 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         Response := ACTION::Yes
     end;
 }
-

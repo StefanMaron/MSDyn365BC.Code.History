@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.History;
 
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Inventory;
@@ -160,7 +164,7 @@ codeunit 5814 "Undo Return Shipment Line"
             Error(Text004);
 
         if ReturnShptLine.Type = ReturnShptLine.Type::Item then begin
-            ReturnShptLine.TestField("Prod. Order No.", '');
+            ReturnShptLine.TestProdOrder();
 
             UndoPostingMgt.TestReturnShptLine(ReturnShptLine);
             IsHandled := false;

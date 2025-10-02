@@ -4,7 +4,7 @@ codeunit 144058 "UT SEPA"
     //  9 - 12. Purpose of the test is to verify error of Table ID - 10866 (Payment Line).
     //      13. Purpose of the test is to verify trigger Modify on page ID - 10872 (Payment Line List).
     // 14 - 15. Purpose of the test is to verify OnValidate trigger of IBAN on Table ID - 10868, 10867 (Payment Header Archive, Payment Line Archive).
-    // 
+    //
     // Covers Test Cases for WI -  343904
     // ----------------------------------------------------------------------------------------------
     // Test Function Name                                                                      TFS ID
@@ -21,7 +21,7 @@ codeunit 144058 "UT SEPA"
     // OnDeletePaymentLineError                                                               216931
     // OnInsertPaymentLineError                                                               216929
     // OnModifyPaymentLineError                                                               216876
-    // 
+    //
     // Covers Test Cases for WI -  344437
     // ----------------------------------------------------------------------------------------------
     // Test Function Name                                                                      TFS ID
@@ -764,12 +764,6 @@ codeunit 144058 "UT SEPA"
         Assert.AreEqual(CurrentIBAN, CheckIBAN, WrongIBANErr);
     end;
 
-    local procedure VerifyNodeNameAndValue(XMLNode: DotNet XmlNode; NameExpected: Text; ValueExpected: Text)
-    begin
-        Assert.AreEqual(NameExpected, XMLNode.Name, StrSubstNo('%1 is absent', NameExpected));
-        Assert.AreEqual(ValueExpected, XMLNode.InnerXml, StrSubstNo('%1 value is wrong', ValueExpected));
-    end;
-
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PaymentLineModificationPageHandler(var PaymentLineModification: TestPage "Payment Line Modification")
@@ -802,4 +796,3 @@ codeunit 144058 "UT SEPA"
         Reply := StoredReply;
     end;
 }
-

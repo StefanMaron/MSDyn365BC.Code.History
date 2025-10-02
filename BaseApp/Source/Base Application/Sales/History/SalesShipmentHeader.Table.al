@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.History;
 
 using Microsoft.Bank.BankAccount;
@@ -59,7 +63,7 @@ table 110 "Sales Shipment Header"
         field(3; "No."; Code[20])
         {
             Caption = 'No.';
-                    }
+        }
         field(4; "Bill-to Customer No."; Code[20])
         {
             Caption = 'Bill-to Customer No.';
@@ -74,33 +78,34 @@ table 110 "Sales Shipment Header"
         field(5; "Bill-to Name"; Text[100])
         {
             Caption = 'Bill-to Name';
-                    }
+        }
         field(6; "Bill-to Name 2"; Text[50])
         {
             Caption = 'Bill-to Name 2';
-                    }
+            ToolTip = 'Specifies an additional part of the name of the customer that you send or sent the invoice or credit memo to.';
+        }
         field(7; "Bill-to Address"; Text[100])
         {
             Caption = 'Bill-to Address';
-                    }
+        }
         field(8; "Bill-to Address 2"; Text[50])
         {
             Caption = 'Bill-to Address 2';
-                    }
+        }
         field(9; "Bill-to City"; Text[30])
         {
             Caption = 'Bill-to City';
-                        TableRelation = "Post Code".City;
+            TableRelation = "Post Code".City;
             ValidateTableRelation = false;
         }
         field(10; "Bill-to Contact"; Text[100])
         {
             Caption = 'Bill-to Contact';
-                    }
+        }
         field(11; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
-                    }
+        }
         field(12; "Ship-to Code"; Code[10])
         {
             Caption = 'Ship-to Code';
@@ -109,29 +114,29 @@ table 110 "Sales Shipment Header"
         field(13; "Ship-to Name"; Text[100])
         {
             Caption = 'Ship-to Name';
-                    }
+        }
         field(14; "Ship-to Name 2"; Text[50])
         {
             Caption = 'Ship-to Name 2';
-                    }
+        }
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
-                    }
+        }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
-                    }
+        }
         field(17; "Ship-to City"; Text[30])
         {
             Caption = 'Ship-to City';
-                        TableRelation = "Post Code".City;
+            TableRelation = "Post Code".City;
             ValidateTableRelation = false;
         }
         field(18; "Ship-to Contact"; Text[100])
         {
             Caption = 'Ship-to Contact';
-                    }
+        }
         field(19; "Order Date"; Date)
         {
             Caption = 'Order Date';
@@ -147,7 +152,7 @@ table 110 "Sales Shipment Header"
         field(22; "Posting Description"; Text[100])
         {
             Caption = 'Posting Description';
-                    }
+        }
         field(23; "Payment Terms Code"; Code[10])
         {
             Caption = 'Payment Terms Code';
@@ -234,7 +239,7 @@ table 110 "Sales Shipment Header"
         field(42; "Format Region"; Text[80])
         {
             Caption = 'Format Region';
-                        TableRelation = "Language Selection"."Language Tag";
+            TableRelation = "Language Selection"."Language Tag";
         }
         field(43; "Salesperson Code"; Code[20])
         {
@@ -292,7 +297,7 @@ table 110 "Sales Shipment Header"
         field(70; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
-                    }
+        }
         field(73; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
@@ -325,29 +330,30 @@ table 110 "Sales Shipment Header"
         field(79; "Sell-to Customer Name"; Text[100])
         {
             Caption = 'Sell-to Customer Name';
-                    }
+        }
         field(80; "Sell-to Customer Name 2"; Text[50])
         {
             Caption = 'Sell-to Customer Name 2';
-                    }
+            ToolTip = 'Specifies an additional part of the name of the customer who will receive the products and be billed by default.';
+        }
         field(81; "Sell-to Address"; Text[100])
         {
             Caption = 'Sell-to Address';
-                    }
+        }
         field(82; "Sell-to Address 2"; Text[50])
         {
             Caption = 'Sell-to Address 2';
-                    }
+        }
         field(83; "Sell-to City"; Text[30])
         {
             Caption = 'Sell-to City';
-                        TableRelation = "Post Code".City;
+            TableRelation = "Post Code".City;
             ValidateTableRelation = false;
         }
         field(84; "Sell-to Contact"; Text[100])
         {
             Caption = 'Sell-to Contact';
-                    }
+        }
         field(85; "Bill-to Post Code"; Code[20])
         {
             Caption = 'Bill-to Post Code';
@@ -358,7 +364,7 @@ table 110 "Sales Shipment Header"
         {
             CaptionClass = '5,3,' + "Bill-to Country/Region Code";
             Caption = 'Bill-to County';
-                    }
+        }
         field(87; "Bill-to Country/Region Code"; Code[10])
         {
             Caption = 'Bill-to Country/Region Code';
@@ -374,7 +380,7 @@ table 110 "Sales Shipment Header"
         {
             CaptionClass = '5,2,' + "Sell-to Country/Region Code";
             Caption = 'Sell-to County';
-                    }
+        }
         field(90; "Sell-to Country/Region Code"; Code[10])
         {
             Caption = 'Sell-to Country/Region Code';
@@ -390,7 +396,7 @@ table 110 "Sales Shipment Header"
         {
             CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
-                    }
+        }
         field(93; "Ship-to Country/Region Code"; Code[10])
         {
             Caption = 'Ship-to Country/Region Code';
@@ -416,7 +422,7 @@ table 110 "Sales Shipment Header"
         field(100; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
-                    }
+        }
         field(101; "Area"; Code[10])
         {
             Caption = 'Area';
@@ -444,22 +450,16 @@ table 110 "Sales Shipment Header"
                     Validate("Shipping Agent Service Code", '');
             end;
         }
-#if not CLEAN24
-        field(106; "Package Tracking No."; Text[30])
-        {
-            Caption = 'Package Tracking No.';
-                        ObsoleteReason = 'Field length will be increased to 50.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-        }
-#else
+#if not CLEAN27
 #pragma warning disable AS0086
+#endif
         field(106; "Package Tracking No."; Text[50])
-        {
-            Caption = 'Package Tracking No.';
-                    }
+#if not CLEAN27
 #pragma warning restore AS0086
 #endif
+        {
+            Caption = 'Package Tracking No.';
+        }
         field(109; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
@@ -516,12 +516,12 @@ table 110 "Sales Shipment Header"
         field(171; "Sell-to Phone No."; Text[30])
         {
             Caption = 'Sell-to Phone No.';
-                        ExtendedDatatype = PhoneNo;
+            ExtendedDatatype = PhoneNo;
         }
         field(172; "Sell-to E-Mail"; Text[80])
         {
             Caption = 'Email';
-                        ExtendedDatatype = EMail;
+            ExtendedDatatype = EMail;
         }
         field(200; "Work Description"; BLOB)
         {
@@ -531,7 +531,7 @@ table 110 "Sales Shipment Header"
         field(210; "Ship-to Phone No."; Text[30])
         {
             Caption = 'Ship-to Phone No.';
-                        ExtendedDatatype = PhoneNo;
+            ExtendedDatatype = PhoneNo;
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -948,4 +948,3 @@ table 110 "Sales Shipment Header"
     begin
     end;
 }
-

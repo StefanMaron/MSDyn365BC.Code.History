@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Archive;
 
 using Microsoft.CRM.Contact;
@@ -38,6 +42,11 @@ page 6620 "Blanket Sales Order Archive"
                 field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
                     ApplicationArea = Suite;
+                }
+                field("Sell-to Customer Name 2"; Rec."Sell-to Customer Name 2")
+                {
+                    ApplicationArea = Suite;
+                    Visible = false;
                 }
                 field("Sell-to Address"; Rec."Sell-to Address")
                 {
@@ -156,6 +165,11 @@ page 6620 "Blanket Sales Order Archive"
                 field("Bill-to Name"; Rec."Bill-to Name")
                 {
                     ApplicationArea = Suite;
+                }
+                field("Bill-to Name 2"; Rec."Bill-to Name 2")
+                {
+                    ApplicationArea = Suite;
+                    Visible = false;
                 }
                 field("Bill-to Address"; Rec."Bill-to Address")
                 {

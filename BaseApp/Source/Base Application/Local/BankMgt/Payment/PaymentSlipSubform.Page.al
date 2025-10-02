@@ -380,7 +380,6 @@ page 10869 "Payment Slip Subform"
     local procedure SetDocumentID()
     var
         StatementLine: Record "Payment Line";
-        PostingStatement: Codeunit "Payment Management";
         No: Code[20];
     begin
         if Rec."Status No." <> 0 then begin
@@ -395,7 +394,7 @@ page 10869 "Payment Slip Subform"
             if StatementLine.Find('-') then begin
                 No := StatementLine."Document No.";
                 while StatementLine.Next() <> 0 do begin
-                    PostingStatement.IncrementNoText(No, 1);
+                    No := IncStr(No);
                     StatementLine."Document No." := No;
                     StatementLine.Modify();
                 end;

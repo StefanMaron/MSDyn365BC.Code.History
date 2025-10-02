@@ -52,8 +52,8 @@ table 377 "Object Translation"
         }
         field(6; "Object Name"; Text[30])
         {
-            CalcFormula = lookup(Object.Name where(Type = field("Object Type"),
-                                                    ID = field("Object ID")));
+            CalcFormula = lookup(AllObj."Object Name" where("Object Type" = field("Object Type"),
+                                                    "Object ID" = field("Object ID")));
             Caption = 'Object Name';
             Editable = false;
             FieldClass = FlowField;
@@ -85,4 +85,3 @@ table 377 "Object Translation"
         exit(TranslateObject("Object Type"::Table, ObjectID));
     end;
 }
-

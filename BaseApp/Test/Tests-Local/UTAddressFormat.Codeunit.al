@@ -4,7 +4,7 @@ codeunit 144004 "UT Address Format"
     // 3-4. Purpose of the test is to verify Post Code and City and Local Address Format on General Ledger Setup with and without blank line on Customer Address of Report ID - 206 Sales - Invoice.
     // 5-7. Purpose of this test to verify Country Region Code on Customer Card,Vendor Card and Contact Card.
     // 8. Purpose of this test to verify Country Region Code is deleted on Country/Region table.
-    // 
+    //
     // Covers Test Cases for WI - 344970
     // ----------------------------------------------------------------------------------------------------------------------------
     // Test Function Name                                                                                                   TFS ID
@@ -25,7 +25,6 @@ codeunit 144004 "UT Address Format"
 
     var
         Assert: Codeunit Assert;
-        LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         CountryRegionCodeErr: Label 'Country Region should not exist';
@@ -130,22 +129,6 @@ codeunit 144004 "UT Address Format"
         LibraryVariableStorage.Clear();
     end;
 
-    local procedure CreatePostedSalesInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header"; CountryRegionCode: Code[10])
-    var
-        Customer: Record Customer;
-    begin
-        CreateCustomerWithCountryRegion(Customer, CountryRegionCode);
-        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode();
-        SalesInvoiceHeader."Bill-to Customer No." := Customer."No.";
-        SalesInvoiceHeader."Bill-to Address" := Customer.Address;
-        SalesInvoiceHeader."Bill-to Address 2" := Customer."Address 2";
-        SalesInvoiceHeader."Bill-to City" := Customer.City;
-        SalesInvoiceHeader."Bill-to Post Code" := Customer."Post Code";
-        SalesInvoiceHeader."Bill-to County" := Customer.County;
-        SalesInvoiceHeader."Bill-to Country/Region Code" := Customer."Country/Region Code";
-        SalesInvoiceHeader.Insert();
-    end;
-
     local procedure CreateContactWithCountryRegion(var Contact: Record Contact; CountryRegionCode: Code[10])
     begin
         Contact."No." := LibraryUTUtility.GetNewCode();
@@ -191,21 +174,4 @@ codeunit 144004 "UT Address Format"
         CountryRegion.Insert();
         exit(CountryRegion.Code);
     end;
-
-    local procedure UpdateGeneralLedgerSetup(LocalAddressFormat: Option)
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-    begin
-        GeneralLedgerSetup.Get();
-        GeneralLedgerSetup."Local Address Format" := LocalAddressFormat;
-        GeneralLedgerSetup.Modify();
-    end;
-
-    local procedure VerifyPostCodeAndCityOnCustomerAddress(SalesInvoiceHeader: Record "Sales Invoice Header"; CustomerAddressCityAndPostCode: Text)
-    begin
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists(
-          CustomerAddressCityAndPostCode, SalesInvoiceHeader."Bill-to Post Code" + ' ' + SalesInvoiceHeader."Bill-to City");
-    end;
 }
-

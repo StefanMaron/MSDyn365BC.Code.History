@@ -47,7 +47,7 @@ codeunit 5842 "Cost Adjmt. Signals"
         AdjustCostItemDimensionTok: Label 'Item No.';
         AdjustCostDurationDimensionTok: Label 'Duration';
         AdjustCostRunIdDimensionTok: Label 'Run ID';
-        ResidualAmountsTelemetryMsg: Label 'Some data inconsistency in inventory valuation was detected.';
+        ResidualAmountsTelemetryMsg: Label 'Data inconsistency in inventory valuation was detected.';
 
     internal procedure RunAllTests()
     var

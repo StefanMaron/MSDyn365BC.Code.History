@@ -187,6 +187,8 @@ report 5060 "Campaign - Details"
 
     requestpage
     {
+        AboutTitle = 'About Campaign - Details';
+        AboutText = 'Get an overview of the information related to a campaign.';
 
         layout
         {

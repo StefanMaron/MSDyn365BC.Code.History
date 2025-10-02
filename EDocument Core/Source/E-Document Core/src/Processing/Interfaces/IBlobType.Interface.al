@@ -1,8 +1,4 @@
 #if not CLEAN26
-#pragma warning disable AS0072
-#pragma warning disable AS0018
-#pragma warning disable AS0004
-#pragma warning disable AS0115
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -37,8 +33,4 @@ interface IBlobType
     procedure GetStructuredDataConverter(): Interface IBlobToStructuredDataConverter
 
 }
-#pragma warning restore AS0115
-#pragma warning restore AS0004
-#pragma warning restore AS0018
-#pragma warning restore AS0072
 #endif

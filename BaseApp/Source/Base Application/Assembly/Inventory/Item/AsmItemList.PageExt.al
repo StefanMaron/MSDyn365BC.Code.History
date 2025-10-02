@@ -10,7 +10,7 @@ pageextension 905 "Asm. Item List" extends "Item List"
 {
     actions
     {
-        addbefore("Where-Used (Top Level)")
+        addbefore("Inventory - Sales Back Orders")
         {
             action("Assemble to Order - Sales")
             {

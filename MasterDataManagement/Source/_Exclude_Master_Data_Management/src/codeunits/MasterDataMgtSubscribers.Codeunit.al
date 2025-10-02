@@ -265,6 +265,15 @@ codeunit 7237 "Master Data Mgt. Subscribers"
             end;
         end;
 
+        if SourceFieldRef.Value() <> DestinationFieldRef.Value() then begin
+            DestinationRecordRef := DestinationFieldRef.Record();
+            DestinationRecCreatedAt := DestinationRecordRef.Field(DestinationRecordRef.SystemCreatedAtNo()).Value();
+            DestinationRecModifiedAt := DestinationRecordRef.Field(DestinationRecordRef.SystemModifiedAtNo()).Value();
+            if DestinationRecModifiedAt > DestinationRecCreatedAt then
+                if MasterDataMgtCoupling.FindRowFromRecordRef(DestinationRecordRef, MasterDataMgtCoupling) then
+                    ValueWillBeOverwritten := TypeHelper.CompareDateTime(DestinationRecModifiedAt, MasterDataMgtCoupling."Last Synch. Modified On") > 0;
+        end;
+
         if SourceFieldRef.Type = SourceFieldRef.Type::Media then
             if UpdateMedia(SourceFieldRef, DestinationFieldRef, DestinationFieldValue) then begin
                 NewValue := DestinationFieldValue;
@@ -275,15 +284,6 @@ codeunit 7237 "Master Data Mgt. Subscribers"
                 IsValueFound := true;
                 NeedsConversion := false;
             end;
-
-        if SourceFieldRef.Value() <> DestinationFieldRef.Value() then begin
-            DestinationRecordRef := DestinationFieldRef.Record();
-            DestinationRecCreatedAt := DestinationRecordRef.Field(DestinationRecordRef.SystemCreatedAtNo()).Value();
-            DestinationRecModifiedAt := DestinationRecordRef.Field(DestinationRecordRef.SystemModifiedAtNo()).Value();
-            if DestinationRecModifiedAt > DestinationRecCreatedAt then
-                if MasterDataMgtCoupling.FindRowFromRecordRef(DestinationRecordRef, MasterDataMgtCoupling) then
-                    ValueWillBeOverwritten := TypeHelper.CompareDateTime(DestinationRecModifiedAt, MasterDataMgtCoupling."Last Synch. Modified On") > 0;
-        end;
 
         if ValueWillBeOverwritten then begin
             MasterDataManagement.OnLocalRecordChangeOverwrite(SourceFieldRef, DestinationFieldRef, ThrowError, IsHandled);

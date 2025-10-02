@@ -1,3 +1,8 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
 namespace Microsoft.Integration.Shopify;
 
 using Microsoft.Inventory.Item;
@@ -110,7 +115,7 @@ codeunit 30163 "Shpfy Order Mapping"
                 JCustomer.Add('County', OrderHeader."Bill-to County");
                 JCustomer.Add('CountryCode', OrderHeader."Bill-to Country/Region Code");
                 OrderHeader."Bill-to Customer No." := CustomerMapping.DoMapping(OrderHeader."Customer Id", JCustomer, OrderHeader."Shop Code", CustomerTemplateCode, AllowCreateCustomer);
-                if (OrderHeader."Bill-to Customer No." = '') and (not Shop."Auto Create Unknown Customers") and (Shop."Default Customer No." <> '') then
+                if (OrderHeader."Bill-to Customer No." = '') and (Shop."Default Customer No." <> '') then
                     OrderHeader."Bill-to Customer No." := Shop."Default Customer No.";
 
                 if OrderHeader."Sell-to Customer No." = '' then
@@ -138,6 +143,7 @@ codeunit 30163 "Shpfy Order Mapping"
         CompanyMapping: Codeunit "Shpfy Company Mapping";
         CustomerTemplateCode: Code[20];
         IsHandled: Boolean;
+        MappedFromLocation: Boolean;
     begin
         CustomerTemplateCode := OrderHeader."Customer Templ. Code";
 
@@ -145,10 +151,15 @@ codeunit 30163 "Shpfy Order Mapping"
         if OrderHeader."Bill-to Customer No." = '' then begin
             OrderEvents.OnBeforeMapCompany(OrderHeader, IsHandled);
             if not IsHandled then begin
-                OrderHeader."Sell-to Customer No." := CompanyMapping.DoMapping(OrderHeader."Company Id", CustomerTemplateCode, AllowCreateCompany);
-                OrderHeader."Bill-to Customer No." := OrderHeader."Sell-to Customer No.";
+                if OrderHeader."Company Location Id" <> 0 then
+                    MappedFromLocation := MapSellToBillToCustomersFromCompanyLocation(OrderHeader);
 
-                if (OrderHeader."Bill-to Customer No." = '') and (not Shop."Auto Create Unknown Customers") and (Shop."Default Company No." <> '') then
+                if not MappedFromLocation then begin
+                    OrderHeader."Sell-to Customer No." := CompanyMapping.DoMapping(OrderHeader."Company Id", CustomerTemplateCode, AllowCreateCompany);
+                    OrderHeader."Bill-to Customer No." := OrderHeader."Sell-to Customer No.";
+                end;
+
+                if (OrderHeader."Bill-to Customer No." = '') and (Shop."Default Company No." <> '') then
                     OrderHeader."Bill-to Customer No." := Shop."Default Company No.";
                 if OrderHeader."Sell-to Customer No." = '' then
                     OrderHeader."Sell-to Customer No." := OrderHeader."Bill-to Customer No.";
@@ -281,6 +292,7 @@ codeunit 30163 "Shpfy Order Mapping"
                 OrderTransaction.SetAutoCalcFields("Payment Method");
                 OrderTransaction.SetRange("Shopify Order Id", OrderHeader."Shopify Order Id");
                 OrderTransaction.SetRange(Status, "Shpfy Transaction Status"::Success);
+                OrderTransaction.SetFilter(Type, '%1|%2', "Shpfy Transaction Type"::Sale, "Shpfy Transaction Type"::Capture);
                 if OrderTransaction.FindSet() then begin
                     repeat
                         if not PaymentMethods.Contains(OrderTransaction."Payment Method") then
@@ -296,5 +308,34 @@ codeunit 30163 "Shpfy Order Mapping"
             end;
             OrderEvents.OnAfterMapPaymentMethod(OrderHeader);
         end;
+    end;
+
+    local procedure MapSellToBillToCustomersFromCompanyLocation(var OrderHeader: Record "Shpfy Order Header"): Boolean
+    var
+        Company: Record "Shpfy Company";
+        CompanyLocation: Record "Shpfy Company Location";
+    begin
+        if not Company.Get(OrderHeader."Company Id") then
+            exit(false);
+
+        Company.CalcFields("Customer No.");
+
+        if not CompanyLocation.Get(OrderHeader."Company Location Id") then
+            exit(false);
+
+        if (Company."Customer No." <> '') and (CompanyLocation."Sell-to Customer No." = '') and (CompanyLocation."Bill-to Customer No." = '') then begin
+            OrderHeader."Sell-to Customer No." := Company."Customer No.";
+            OrderHeader."Bill-to Customer No." := Company."Customer No.";
+        end;
+        if (Company."Customer No." <> '') and (CompanyLocation."Sell-to Customer No." <> '') and (CompanyLocation."Bill-to Customer No." = '') then begin
+            OrderHeader."Sell-to Customer No." := CompanyLocation."Sell-to Customer No.";
+            OrderHeader."Bill-to Customer No." := CompanyLocation."Sell-to Customer No.";
+        end;
+        if (Company."Customer No." <> '') and (CompanyLocation."Sell-to Customer No." <> '') and (CompanyLocation."Bill-to Customer No." <> '') then begin
+            OrderHeader."Sell-to Customer No." := CompanyLocation."Sell-to Customer No.";
+            OrderHeader."Bill-to Customer No." := CompanyLocation."Bill-to Customer No.";
+        end;
+
+        exit((OrderHeader."Bill-to Customer No." <> '') and (OrderHeader."Sell-to Customer No." <> ''));
     end;
 }

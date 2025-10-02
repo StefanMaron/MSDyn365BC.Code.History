@@ -182,6 +182,7 @@ page 8002 "Extend Contract"
                 {
                     Caption = 'Quantity';
                     ToolTip = 'Specifies the quantity for the Subscription Item to be created.';
+                    AutoFormatType = 0;
 
                     trigger OnValidate()
                     begin
@@ -195,6 +196,8 @@ page 8002 "Extend Contract"
                     ToolTip = 'Specifies the cost price in customer currency for the selected item.';
                     DecimalPlaces = 2 : 5;
                     Editable = false;
+                    AutoFormatType = 2;
+                    AutoFormatExpression = '';
                 }
                 field(UnitPrice; UnitPrice)
                 {
@@ -202,6 +205,8 @@ page 8002 "Extend Contract"
                     ToolTip = 'Specifies the sales price for the selected item.';
                     DecimalPlaces = 2 : 5;
                     Editable = false;
+                    AutoFormatType = 2;
+                    AutoFormatExpression = CustomerContract."Currency Code";
                 }
                 field(ProvisionStartDate; ProvisionStartDate)
                 {
@@ -399,7 +404,7 @@ page 8002 "Extend Contract"
         OnAfterValidateItemNo(ItemNo);
     end;
 
-    local procedure ShowNotificationIfStandardSubscriptionPackageDoesNotContainUBBLine(ItemNo: Code[20])
+    local procedure ShowNotificationIfStandardSubscriptionPackageDoesNotContainUBBLine(InputItemNo: Code[20])
     var
         SubscriptionPackage: Record "Subscription Package";
         ItemSubscriptionPackage: Record "Item Subscription Package";
@@ -407,11 +412,11 @@ page 8002 "Extend Contract"
     begin
         if UsageDataSupplierNo = '' then
             exit;
-        SubscriptionPackage.FilterCodeOnPackageFilter(ItemSubscriptionPackage.GetAllStandardPackageFilterForItem(ItemNo, ''));
-        ShowNoStandardSubscriptionPackageNotification(SubscriptionPackage, StrSubstNo(NoUBBServiceCommitmentPackFoundMsg, ItemNo), GetNoUBBSubscriptionPackageFound2NotificationId());
+        SubscriptionPackage.FilterCodeOnPackageFilter(ItemSubscriptionPackage.GetAllStandardPackageFilterForItem(InputItemNo, ''));
+        ShowNoStandardSubscriptionPackageNotification(SubscriptionPackage, StrSubstNo(NoUBBServiceCommitmentPackFoundMsg, InputItemNo), GetNoUBBSubscriptionPackageFound2NotificationId());
     end;
 
-    local procedure ShowNotificationIfNoUBBSubscriptionPackageIsSelected(var TempSubscriptionPackage: Record "Subscription Package" temporary; ItemNo: Code[20])
+    local procedure ShowNotificationIfNoUBBSubscriptionPackageIsSelected(var TempSubscriptionPackage: Record "Subscription Package" temporary; InputItemNo: Code[20])
     var
         NoUBBServiceCommitmentPackFoundMsg: Label 'None of the selected Subscription Package are intended for usage-based billing.';
     begin
@@ -419,7 +424,7 @@ page 8002 "Extend Contract"
             exit;
         TempSubscriptionPackage.SetRange(Selected, true);
         if TempSubscriptionPackage.IsEmpty() then begin
-            ShowNotificationIfStandardSubscriptionPackageDoesNotContainUBBLine(ItemNo);
+            ShowNotificationIfStandardSubscriptionPackageDoesNotContainUBBLine(InputItemNo);
             exit;
         end;
         ShowNoStandardSubscriptionPackageNotification(TempSubscriptionPackage, NoUBBServiceCommitmentPackFoundMsg, GetNoUBBSubscriptionPackageFoundNotificationId());

@@ -307,6 +307,22 @@ table 5611 "Depreciation Book"
                     until FADeprBook.Next() = 0;
             end;
         }
+        field(10500; "Use Accounting Period"; Boolean)
+        {
+            Caption = 'Use Accounting Period';
+
+            trigger OnValidate()
+            var
+                FADeprBook: Record "FA Depreciation Book";
+            begin
+                if "Use Accounting Period" then begin
+                    FADeprBook.SetRange("Depreciation Book Code", Code);
+                    FADeprBook.SetFilter("Depreciation Method", '<> %1', FADeprBook."Depreciation Method"::"Straight-Line");
+                    if not FADeprBook.IsEmpty() then
+                        Error(MustBeStraightLineTxt, FieldCaption("Use Accounting Period"), true);
+                end;
+            end;
+        }
         field(10800; "Derogatory Calculation"; Code[10])
         {
             Caption = 'Derogatory Calculation';
@@ -441,6 +457,7 @@ table 5611 "Depreciation Book"
         FASetup: Record "FA Setup";
         FAJnlSetup: Record "FA Journal Setup";
         GLIntegration: array[13] of Boolean;
+        MustBeStraightLineTxt: Label 'You cannot set %1 to %2 because some Fixed Assets associated with this book\exists where Depreciation Method is other than Straight-Line.',Comment ='%1="Use Accounting Period" Field Caption %2="Use Accounting Period" Field Value';
         Text10800: Label 'The depreciation book %1 is an accounting book and cannot be set up as a derogatory depreciation book.';
         Text10801: Label 'The depreciation book %1 cannot be set up as derogatory for depreciation book %2.';
         Text10802: Label 'The depreciation book %1 is already set up in combination with derogatory depreciation book %2.';

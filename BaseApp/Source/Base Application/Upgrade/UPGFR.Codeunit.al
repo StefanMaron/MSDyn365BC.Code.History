@@ -1,4 +1,5 @@
-﻿codeunit 104101 "UPG.FR"
+#pragma warning disable AA0247
+codeunit 104101 "UPG.FR"
 {
     Subtype = Upgrade;
 

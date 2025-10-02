@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Warehouse.Worksheet;
 
 #pragma warning disable AL0659
@@ -12,8 +16,7 @@ enum 5772 "Warehouse Worksheet Document Type"
     value(2; "Shipment") { Caption = 'Shipment'; }
     value(3; "Internal Put-away") { Caption = 'Internal Put-away'; }
     value(4; "Internal Pick") { Caption = 'Internal Pick'; }
-    // Moved to enum extension "Mfg. Whse. Worksheet Doc. Type"
-    // value(5; "Production") { Caption = 'Production'; }
+    value(5; "Production") { Caption = 'Production'; }
     value(6; "Whse. Mov.-Worksheet") { Caption = 'Whse. Mov.-Worksheet'; }
     value(7; "Internal Movement") { Caption = 'Internal Movement'; }
     value(8; "Assembly") { Caption = 'Assembly'; }

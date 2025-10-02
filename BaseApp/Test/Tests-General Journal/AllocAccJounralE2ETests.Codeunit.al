@@ -125,7 +125,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         // [GIVEN] Create Allocation Account "X" with variable GL distributions
         AllocationAccount := CreateAllocationAccountWithVariableDistribution();
 
-        // [GIVEN] Create two G/L Accounts "X" and "Y" with direct posting 
+        // [GIVEN] Create two G/L Accounts "X" and "Y" with direct posting
         // [GIVEN] Create two G/L Accounts "M" and "N" with direct posting with negative balance
         // [GIVEN] Create and post General Journal line: Gen. Journal Batch "X", G/L Account "M", amount is negative
         // [GIVEN] Create and post General Journal line: Gen. Journal Batch "X", G/L Account "N", amount is negative
@@ -1338,7 +1338,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         // [GIVEN] Calculate Sum of Amount Value Variable to Create Balancing Line of General Journal.
         AmountValue[4] := AmountValue[1] + AmountValue[2] + AmountValue[3];
 
-        // [GIVEN] Create General Journal Line Four as Balancing Line.     
+        // [GIVEN] Create General Journal Line Four as Balancing Line.
         CreateLineOnGeneralJournal2(
             GenJournalLine[4],
             BankAccount."No.",
@@ -1429,27 +1429,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         CashReceiptJournalPage."Bal. Account No.".SetValue(BalancingAccountNo);
     end;
 
-    local procedure CreateLineOnPaymentJournal(var DocumentNumber: Code[10]; var PaymentJournalPage: TestPage "Payment Journal"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20];
-                                                                                                                                                  BalancingAccountType: Enum "Gen. Journal Account Type";
-                                                                                                                                                  BalancingAccountNo: Code[20])
-
-    begin
-        PaymentJournalPage.OpenEdit();
-#pragma warning disable AA0139
-        DocumentNumber := Any.AlphanumericText(10);
-#pragma warning restore AA0139
-        PaymentJournalPage."Document No.".SetValue(DocumentNumber);
-        PaymentJournalPage."Account Type".SetValue(AccountType);
-        PaymentJournalPage."Account No.".SetValue(AccountNo);
-        PaymentJournalPage.Description.SetValue(DocumentNumber);
-        PaymentJournalPage.Amount.SetValue(GetLineAmountToForceRounding());
-        PaymentJournalPage."Bal. Account Type".SetValue(BalancingAccountType);
-        PaymentJournalPage."Bal. Account No.".SetValue(BalancingAccountNo);
-    end;
-
-    local procedure CreateLineOnSalesJournal(var DocumentNumber: Code[10]; var SalesJournalPage: TestPage "Sales Journal"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20];
-                                                                                                                                            BalancingAccountType: Enum "Gen. Journal Account Type";
-                                                                                                                                            BalancingAccountNo: Code[20])
+    local procedure CreateLineOnSalesJournal(var DocumentNumber: Code[10]; var SalesJournalPage: TestPage "Sales Journal"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalancingAccountType: Enum "Gen. Journal Account Type"; BalancingAccountNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplateType: Enum "Gen. Journal Template Type";

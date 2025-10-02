@@ -1,9 +1,12 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Warehouse.Request;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Sales.Customer;
@@ -116,65 +119,6 @@ report 7304 "Get Outbound Source Documents"
                         CurrReport.Break();
                 end;
             }
-            dataitem("Production Order"; "Production Order")
-            {
-                DataItemLink = Status = field("Document Subtype"), "No." = field("Document No.");
-                DataItemTableView = sorting(Status, "No.") where(Status = const(Released));
-                dataitem("Prod. Order Component"; "Prod. Order Component")
-                {
-                    DataItemLink = Status = field(Status), "Prod. Order No." = field("No.");
-                    DataItemTableView = sorting(Status, "Prod. Order No.", "Prod. Order Line No.", "Line No.") where("Planning Level Code" = const(0));
-
-                    trigger OnAfterGetRecord()
-                    var
-                        ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
-                        ToBinCode: Code[20];
-                    begin
-                        if ("Flushing Method" = "Flushing Method"::"Pick + Forward") and ("Routing Link Code" = '') then
-                            CurrReport.Skip();
-
-                        this.GetLocation("Location Code");
-                        ToBinCode := "Bin Code";
-
-                        CalcFields("Pick Qty.");
-                        if "Expected Quantity" > "Qty. Picked" + "Pick Qty." then
-                            if ProdOrderWarehouseMgt.FromProdOrderCompLine(
-                                 PickWkshTemplate, PickWkshName, Location.Code, ToBinCode, "Prod. Order Component")
-                            then
-                                LineCreated := true;
-                    end;
-
-                    trigger OnPreDataItem()
-#if not CLEAN26
-                    var
-                        ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
-#endif
-                    begin
-#if not CLEAN26
-                        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
-                            SetFilter(
-                              "Flushing Method", '%1|%2|%3|%4',
-                              "Flushing Method"::Manual,
-                              "Flushing Method"::"Pick + Manual",
-                              "Flushing Method"::"Pick + Forward",
-                              "Flushing Method"::"Pick + Backward")
-                        else
-#endif
-                            SetFilter(
-                              "Flushing Method", '%1|%2|%3',
-                              "Flushing Method"::"Pick + Manual",
-                              "Flushing Method"::"Pick + Forward",
-                              "Flushing Method"::"Pick + Backward");
-                        SetRange("Location Code", "Whse. Pick Request"."Location Code");
-                    end;
-                }
-
-                trigger OnPreDataItem()
-                begin
-                    if "Whse. Pick Request"."Document Type" <> "Whse. Pick Request"."Document Type"::Production then
-                        CurrReport.Break();
-                end;
-            }
             dataitem("Assembly Header"; "Assembly Header")
             {
                 DataItemLink = "Document Type" = field("Document Subtype"), "No." = field("Document No.");
@@ -264,7 +208,7 @@ report 7304 "Get Outbound Source Documents"
     begin
         if not HideDialog then
             if not LineCreated then
-                Error(Text000);
+                Error(NoWorksheetLinesCreatedErr);
 
         Completed := true;
 
@@ -279,19 +223,18 @@ report 7304 "Get Outbound Source Documents"
     end;
 
     var
-        Location: Record Location;
         Cust: Record Customer;
         WhsePickWkshCreate: Codeunit "Whse. Worksheet-Create";
-        PickWkshTemplate: Code[10];
-        PickWkshName: Code[10];
         LocationCode: Code[10];
         Completed: Boolean;
-        LineCreated: Boolean;
         HideDialog: Boolean;
+        NoWorksheetLinesCreatedErr: Label 'There are no Warehouse Worksheet Lines created.';
 
-#pragma warning disable AA0074
-        Text000: Label 'There are no Warehouse Worksheet Lines created.';
-#pragma warning restore AA0074
+    protected var
+        Location: Record Location;
+        PickWkshTemplate: Code[10];
+        PickWkshName: Code[10];
+        LineCreated: Boolean;
 
     procedure SetHideDialog(NewHideDialog: Boolean)
     begin
@@ -310,7 +253,7 @@ report 7304 "Get Outbound Source Documents"
         LocationCode := LocationCode2;
     end;
 
-    local procedure GetLocation(LocationCode2: Code[10])
+    protected procedure GetLocation(LocationCode2: Code[10])
     begin
         if LocationCode2 = '' then
             Clear(Location)

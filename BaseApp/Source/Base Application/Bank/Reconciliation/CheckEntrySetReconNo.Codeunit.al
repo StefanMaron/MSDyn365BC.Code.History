@@ -19,11 +19,9 @@ codeunit 376 "Check Entry Set Recon.-No."
     var
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
         BLEMissmatchErr: Label 'Bank Ledger Entry has %1 %2, but Bank Reconciliation Line has %3.', Comment = '%1 - Either "Statement No." or "Statement Line No.", %2 - A number, %3 - a number';
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text000: Label 'cannot be %1';
+        CannotBeErr: Label 'cannot be %1';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
 
     procedure ToggleReconNo(var CheckLedgEntry: Record "Check Ledger Entry"; var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; ChangeAmount: Boolean)
     var
@@ -66,14 +64,14 @@ codeunit 376 "Check Entry Set Recon.-No."
             CheckLedgEntry."Statement Status"::"Check Entry Applied")
         then
             CheckLedgEntry.FieldError(
-              "Statement Status", StrSubstNo(Text000, CheckLedgEntry."Statement Status"));
+              "Statement Status", StrSubstNo(CannotBeErr, CheckLedgEntry."Statement Status"));
         CheckLedgEntry.TestField("Statement No.", '');
         CheckLedgEntry.TestField("Statement Line No.", 0);
         if not (CheckLedgEntry."Entry Status" in
                 [CheckLedgEntry."Entry Status"::Posted, CheckLedgEntry."Entry Status"::"Financially Voided"])
         then
             CheckLedgEntry.FieldError(
-              "Entry Status", StrSubstNo(Text000, CheckLedgEntry."Entry Status"));
+              "Entry Status", StrSubstNo(CannotBeErr, CheckLedgEntry."Entry Status"));
         CheckLedgEntry.TestField("Bank Account No.", BankAccReconLine."Bank Account No.");
         CheckLedgEntry."Statement Status" := CheckLedgEntry."Statement Status"::"Check Entry Applied";
         CheckLedgEntry."Statement No." := BankAccReconLine."Statement No.";
@@ -87,7 +85,7 @@ codeunit 376 "Check Entry Set Recon.-No."
             BankAccLedgEntry."Statement Status"::"Check Entry Applied")
         then
             BankAccLedgEntry.FieldError(
-              "Statement Status", StrSubstNo(Text000, BankAccLedgEntry."Statement Status"));
+              "Statement Status", StrSubstNo(CannotBeErr, BankAccLedgEntry."Statement Status"));
         BankAccLedgEntry.TestField("Statement No.", '');
         BankAccLedgEntry.TestField("Statement Line No.", 0);
         BankAccLedgEntry."Statement Status" :=

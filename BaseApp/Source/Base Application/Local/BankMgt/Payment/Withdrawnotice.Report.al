@@ -49,7 +49,6 @@ report 10870 "Withdraw notice"
         }
         dataitem(Customer; Customer)
         {
-            DataItemLinkReference = "Payment Lines1";
             DataItemTableView = sorting("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
@@ -509,4 +508,3 @@ report 10870 "Withdraw notice"
         exit("Payment Lines1"."Currency Code");
     end;
 }
-

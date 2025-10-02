@@ -11,25 +11,24 @@ using Microsoft.Sales.Customer;
 using System.Globalization;
 using System.Text;
 using Microsoft.Sales.FinanceCharge;
-#if not CLEAN25
+#if not CLEAN26
 using System.Environment.Configuration;
 #endif
 using System.Reflection;
 using Microsoft.Foundation.Reporting;
 using System.EMail;
-using System.IO;
 using System.Utilities;
 
 codeunit 1890 "Reminder Communication"
 {
 
     internal procedure NewReminderCommunicationEnabled(): Boolean
-#if not CLEAN25
+#if not CLEAN26
     var
         FeatureManagementFacade: Codeunit "Feature Management Facade";
 #endif
     begin
-#if not CLEAN25
+#if not CLEAN26
         exit(FeatureManagementFacade.IsEnabled(FeatureIdTok));
 #else
     exit(true);
@@ -91,7 +90,7 @@ codeunit 1890 "Reminder Communication"
             end;
         end;
 
-#if not CLEAN25
+#if not CLEAN26
         if not NewReminderCommunicationEnabled() then
             IntroduceBeginningTextFromReminderText(ReminderHeader, ReminderLevel, ReminderLine);
 #endif
@@ -138,13 +137,13 @@ codeunit 1890 "Reminder Communication"
             end;
         end;
 
-#if not CLEAN25
+#if not CLEAN26
         if not NewReminderCommunicationEnabled() then
             IntroduceEndingTextFromReminderText(ReminderHeader, ReminderLevel, ReminderLine);
 #endif
     end;
 
-#if not CLEAN25
+#if not CLEAN26
     [Obsolete('Reminder Text is being obsoleted. Use the new records Reminder Attachment Text and Reminder Email Text', '24.0')]
     local procedure IntroduceBeginningTextFromReminderText(var ReminderHeader: Record "Reminder Header"; var ReminderLevel: Record "Reminder Level"; var ReminderLine: Record "Reminder Line")
     var
@@ -408,7 +407,7 @@ codeunit 1890 "Reminder Communication"
             SubstituteRelatedValues(GreetingTxt, IssuedReminderHeader, IssuedReminderHeader.CalculateTotalIncludingVAT(), CopyStr(CompanyName, 1, 100));
             SubstituteRelatedValues(ClosingTxt, IssuedReminderHeader, IssuedReminderHeader.CalculateTotalIncludingVAT(), CopyStr(CompanyName, 1, 100));
         end;
-#if not CLEAN25
+#if not CLEAN26
         if not NewReminderCommunicationEnabled() then
             PopulateEmailTextFromReminderText(IssuedReminderHeader, CompanyInfo, GreetingTxt, AmtDueTxt, BodyTxt, ClosingTxt, DescriptionTxt, NNC_TotalInclVAT);
 #endif
@@ -469,7 +468,7 @@ codeunit 1890 "Reminder Communication"
             IssuedReminderHeader."Add. Fee per Line");
     end;
 
-#if not CLEAN25
+#if not CLEAN26
     local procedure PopulateEmailTextFromReminderText(var IssuedReminderHeader: Record "Issued Reminder Header"; var CompanyInfo: Record "Company Information"; var GreetingTxt: Text; var AmtDueTxt: Text; var BodyTxt: Text; var ClosingTxt: Text; var DescriptionTxt: Text; NNC_TotalInclVAT: Decimal)
     var
         ReminderEmailText: Record "Reminder Email Text";
@@ -888,7 +887,7 @@ codeunit 1890 "Reminder Communication"
     end;
 
     var
-#if not CLEAN25
+#if not CLEAN26
         FeatureIdTok: Label 'ReminderTermsCommunicationTexts', Locked = true;
 #endif
         ReplaceTextTok: Label '==ReplaceText==', Locked = true;
@@ -904,12 +903,10 @@ codeunit 1890 "Reminder Communication"
         ExtensionMismatchLanguagesBetweenTermsAndLevelsMsg: Label 'There are differences among selected languages on levels also, so you might want to review those as well.';
         MismatchLanguagesBetweenLevelsMsg: Label 'The languages for the communications for the reminder levels don''t match, which means that reminders won''t be personalized for some languages. Do you want to review the languages before leaving this page?';
 
-    [EventSubscriber(ObjectType::Table, Database::"Report Selections", 'OnReplaceHTMLText', '', true, true)]
-    local procedure OnReplaceHTMLText(ReportID: Integer; var FilePath: Text[250]; var RecordVariant: Variant; var IsHandled: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Report Selections", 'OnAfterDoSaveReportAsHTMLInTempBlob', '', true, true)]
+    local procedure OnReplaceHTMLText(ReportID: Integer; var TempBlob: Codeunit "Temp Blob"; var RecordVariant: Variant)
     var
         IssuedReminderHeader: Record "Issued Reminder Header";
-        FileManagement: Codeunit "File Management";
-        TempBlob: Codeunit "Temp Blob";
         TypeHelper: Codeunit "Type Helper";
         RecordReference: RecordRef;
         ReadStream: InStream;
@@ -917,8 +914,6 @@ codeunit 1890 "Reminder Communication"
         HtmlContent: Text;
         ReportIDExit: Boolean;
     begin
-        if IsHandled then
-            exit;
         if ReportID <> Report::Reminder then begin
             ReportIDExit := true;
             OnBeforeExitReportIDOnReplaceHTMLText(ReportID, RecordVariant, ReportIDExit);
@@ -933,7 +928,6 @@ codeunit 1890 "Reminder Communication"
             exit;
         IssuedReminderHeader.Copy(RecordVariant);
 
-        FileManagement.BLOBImportFromServerFile(TempBlob, FilePath);
         TempBlob.CreateInStream(ReadStream, TextEncoding::UTF8);
         TypeHelper.TryReadAsTextWithSeparator(ReadStream, TypeHelper.LFSeparator(), HtmlContent);
         Clear(ReadStream);
@@ -943,8 +937,6 @@ codeunit 1890 "Reminder Communication"
 
         TempBlob.CreateOutStream(WriteStream, TextEncoding::UTF8);
         WriteStream.WriteText(HtmlContent);
-        FileManagement.DeleteServerFile(FilePath);
-        FileManagement.BLOBExportToServerFile(TempBlob, FilePath);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document-Mailing", 'OnBeforeGetEmailSubject', '', true, true)]

@@ -6,6 +6,7 @@ namespace Microsoft.Finance.RoleCenters;
 
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.Reports;
+using Microsoft.Inventory.Reports;
 
 pageextension 99000780 "Mfg. Finance Manager RC" extends "Finance Manager Role Center"
 {
@@ -29,6 +30,16 @@ pageextension 99000780 "Mfg. Finance Manager RC" extends "Finance Manager Role C
                 Caption = 'Cost Shares Breakdown';
                 RunObject = report "Cost Shares Breakdown";
                 Tooltip = 'Run the Cost Shares Breakdown report.';
+            }
+        }
+        addafter("Inventory Valuation")
+        {
+            action("Inventory Valuation - WIP")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Production Order - WIP';
+                RunObject = report "Inventory Valuation - WIP";
+                Tooltip = 'Run the Production Order - WIP report.';
             }
         }
     }

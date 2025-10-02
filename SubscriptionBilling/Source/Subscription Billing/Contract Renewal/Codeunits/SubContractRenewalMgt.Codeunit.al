@@ -114,7 +114,7 @@ codeunit 8003 "Sub. Contract Renewal Mgt."
     local procedure DropContractRenewalLines(LinkedToCustomerContractNo: Code[20]): Boolean
     var
         ContractRenewalLine: Record "Sub. Contract Renewal Line";
-        DropExistingLinesQst: Label 'Existing Contract Renewal Lines for Contract %1 will be dropped.\Do you want to continue?';
+        DropExistingLinesQst: Label 'Existing Contract Renewal Lines for Contract %1 will be dropped.\Do you want to continue?', Comment = '%1 = Contract No.';
     begin
         ContractRenewalLine.Reset();
         ContractRenewalLine.SetRange("Linked to Sub. Contract No.", LinkedToCustomerContractNo);

@@ -76,6 +76,27 @@ codeunit 135952 "Reten. Pol. Upgrade Test"
         LibraryAssert.AreEqual(PostedWhseShipmentHeader.FieldNo("Posting Date"), RetentionPolicySetup."Date Field No.", 'Date Field No. is incorrect initialized');
     end;
 
+    [Test]
+    procedure TestDataExchRetentionPolicyUpdated()
+    var
+        RetentionPolicySetup: Record "Retention Policy Setup";
+        DataExch: Record "Data Exch.";
+    begin
+        Initialize();
+
+        // [GIVEN] The retention policy setup for Data Exch. is empty
+        RetentionPolicySetup.SetRange("Table Id", Database::"Data Exch.");
+        RetentionPolicySetup.DeleteAll();
+
+        // [WHEN] The retention policy setup for Data Exch. is created
+        Clear(RetentionPolicySetup);
+        RetentionPolicySetup.Validate("Table Id", Database::"Data Exch.");
+        RetentionPolicySetup.Insert(true);
+
+        // [THEN] The retention policy setup line for Data Exch. is created with the correct date field
+        LibraryAssert.AreEqual(DataExch.FieldNo(SystemCreatedAt), RetentionPolicySetup."Date Field No.", 'Date Field No. is incorrect initialized');
+    end;
+
     local procedure Initialize()
     begin
         if IsInitialized then

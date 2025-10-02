@@ -9,8 +9,7 @@ using Microsoft.Manufacturing.Document;
 
 report 99000788 "Prod. Order - Shortage List"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Manufacturing/Reports/ProdOrderShortageList.rdlc';
+    DefaultRenderingLayout = Word;
     ApplicationArea = Manufacturing;
     Caption = 'Prod. Order - Shortage List';
     UsageCategory = ReportsAndAnalysis;
@@ -22,12 +21,6 @@ report 99000788 "Prod. Order - Shortage List"
             DataItemTableView = sorting(Status, "No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = Status, "No.", "Date Filter";
-            column(TodayFormatted; Format(Today, 0, 4))
-            {
-            }
-            column(CompanyName; COMPANYPROPERTY.DisplayName())
-            {
-            }
             column(Status_ProdOrder; Status)
             {
                 IncludeCaption = false;
@@ -43,39 +36,86 @@ report 99000788 "Prod. Order - Shortage List"
             column(DueDate_ProdOrder; Format("Due Date"))
             {
             }
+#if not CLEAN27
+            column(TodayFormatted; Format(Today, 0, 4))
+            {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'RDLC Only layout column. To be removed along with the RDLC layout.';
+                ObsoleteTag = '27.0';
+            }
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
+            {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'RDLC Only layout column. To be removed along with the RDLC layout.';
+                ObsoleteTag = '27.0';
+            }
             column(ShortageListCaption; ShortageListCaptionLbl)
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'RDLC Only layout column. To be removed along with the RDLC layout.';
+                ObsoleteTag = '27.0';
             }
             column(PageNoCaption; PageNoCaptionLbl)
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'RDLC Only layout column. To be removed along with the RDLC layout.';
+                ObsoleteTag = '27.0';
             }
             column(DueDateCaption; DueDateCaptionLbl)
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'RDLC Only layout column. To be removed along with the RDLC layout.';
+                ObsoleteTag = '27.0';
             }
             column(NeededQtyCaption; NeededQtyCaptionLbl)
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'RDLC Only layout column. To be removed along with the RDLC layout.';
+                ObsoleteTag = '27.0';
             }
             column(CompItemScheduledNeedQtyCaption; CompItemScheduledNeedQtyCaptionLbl)
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'RDLC Only layout column. To be removed along with the RDLC layout.';
+                ObsoleteTag = '27.0';
             }
             column(CompItemInventoryCaption; CompItemInventoryCaptionLbl)
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'RDLC Only layout column. To be removed along with the RDLC layout.';
+                ObsoleteTag = '27.0';
             }
             column(RemainingQtyBaseCaption; RemainingQtyBaseCaptionLbl)
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'RDLC Only layout column. To be removed along with the RDLC layout.';
+                ObsoleteTag = '27.0';
             }
             column(RemQtyBaseCaption; RemQtyBaseCaptionLbl)
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'RDLC Only layout column. To be removed along with the RDLC layout.';
+                ObsoleteTag = '27.0';
             }
             column(ReceiptQtyCaption; ReceiptQtyCaptionLbl)
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'RDLC Only layout column. To be removed along with the RDLC layout.';
+                ObsoleteTag = '27.0';
             }
             column(QtyonPurchOrderCaption; QtyonPurchOrderCaptionLbl)
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'RDLC Only layout column. To be removed along with the RDLC layout.';
+                ObsoleteTag = '27.0';
             }
             column(QtyonSalesOrderCaption; QtyonSalesOrderCaptionLbl)
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'RDLC Only layout column. To be removed along with the RDLC layout.';
+                ObsoleteTag = '27.0';
             }
+#endif
             dataitem("Prod. Order Line"; "Prod. Order Line")
             {
                 DataItemLink = Status = field(Status), "Prod. Order No." = field("No.");
@@ -83,6 +123,7 @@ report 99000788 "Prod. Order - Shortage List"
                 PrintOnlyIfDetail = true;
                 column(LineNo_ProdOrderLine; "Line No.")
                 {
+                    IncludeCaption = true;
                 }
                 dataitem("Prod. Order Component"; "Prod. Order Component")
                 {
@@ -95,6 +136,7 @@ report 99000788 "Prod. Order - Shortage List"
                     column(CompItemSchdldNeedQty; CompItem."Qty. on Component Lines")
                     {
                         DecimalPlaces = 0 : 5;
+                        IncludeCaption = true;
                     }
                     column(NeededQuantity; NeededQty)
                     {
@@ -115,14 +157,17 @@ report 99000788 "Prod. Order - Shortage List"
                     column(CompItemSchdldRcptQty; CompItem."Scheduled Receipt (Qty.)")
                     {
                         DecimalPlaces = 0 : 5;
+                        IncludeCaption = true;
                     }
                     column(CompItemQtyonPurchOrder; CompItem."Qty. on Purch. Order")
                     {
                         DecimalPlaces = 0 : 5;
+                        IncludeCaption = true;
                     }
                     column(CompItemQtyonSalesOrder; CompItem."Qty. on Sales Order")
                     {
                         DecimalPlaces = 0 : 5;
+                        IncludeCaption = true;
                     }
                     column(RemQtyBase_ProdOrderComp; RemainingQty)
                     {
@@ -281,16 +326,90 @@ report 99000788 "Prod. Order - Shortage List"
 
         layout
         {
+            area(content)
+            {
+                group(Options)
+                {
+                    Visible = false;
+                    Caption = 'Options';
+                    field(PostingDateFilter; PostingDateFilter)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Posting Date Filter';
+                    }
+                }
+            }
         }
 
         actions
         {
         }
+
+        trigger OnQueryClosePage(CloseAction: Action): Boolean
+        begin
+            PostingDateFilter := "Production Order".GetFilter("Date Filter");
+        end;
+    }
+
+    rendering
+    {
+        layout(Word)
+        {
+            Caption = 'Prod. Order - Shortage List Word';
+            Type = Word;
+            LayoutFile = './Manufacturing/Reports/ProdOrderShortageList.docx';
+        }
+        layout(Excel)
+        {
+            Caption = 'Prod. Order - Shortage List Excel';
+            Type = Excel;
+            LayoutFile = './Manufacturing/Reports/ProdOrderShortageList.xlsx';
+        }
+#if not CLEAN27
+        layout(RDLC)
+        {
+            Caption = 'Prod. Order - Shortage List RDLC';
+            Type = RDLC;
+            LayoutFile = './Manufacturing/Reports/ProdOrderShortageList.rdlc';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The RDLC layout has been replaced by the Excel layout and will be removed in a future release.';
+            ObsoleteTag = '27.0';
+        }
+#endif
     }
 
     labels
     {
+        DataRetrieved = 'Data retrieved:';
+        ProdShtgList = 'Shortage List';
+        ProdShtgListPrint = 'Prod. Shtg. List (Print)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        ProdShtgListAnalysis = 'Prod. Shtg. List (Analysis)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        PostingDateFilterLabel = 'Posting Date Filter:';
+        // About the report labels
+        AboutTheReportLabel = 'About the report', MaxLength = 31, Comment = 'Excel worksheet name.';
+        EnvironmentLabel = 'Environment';
+        CompanyLabel = 'Company';
+        UserLabel = 'User';
+        RunOnLabel = 'Run on';
+        ReportNameLabel = 'Report name';
+        DocumentationLabel = 'Documentation';
         Status_ProdOrderCaption = 'Status';
+        StatusCaptionLbl = 'Status';
+        NoCaptionLbl = 'Production Order No.';
+        DescCaptionLbl = 'Description';
+        ItemNoCaptionLbl = 'Item No.';
+        ItemDescCaptionLbl = 'Item Description';
+        LineNoCaptionLbl = 'Line No.';
+        PageNoCaptionLbl = 'Page';
+        DueDateCaptionLbl = 'Due Date';
+        NeededQtyCaptionLbl = 'Needed Quantity';
+        CompItemScheduledNeedQtyCaptionLbl = 'Scheduled Need';
+        CompItemInventoryCaptionLbl = 'Quantity on Hand';
+        RemainingQtyBaseCaptionLbl = 'Qty. on Hand after Production';
+        RemQtyBaseCaptionLbl = 'Remaining Qty. (Base)';
+        ReceiptQtyCaptionLbl = 'Scheduled Receipt';
+        QtyonPurchOrderCaptionLbl = 'Qty. on Purch. Order';
+        QtyonSalesOrderCaptionLbl = 'Qty. on Sales Order';
     }
 
     var
@@ -298,6 +417,8 @@ report 99000788 "Prod. Order - Shortage List"
         RemainingQty: Decimal;
         NeededQty: Decimal;
         QtyOnHandAfterProd: Decimal;
+        PostingDateFilter: Text;
+#if not CLEAN27
         ShortageListCaptionLbl: Label 'Shortage List';
         PageNoCaptionLbl: Label 'Page';
         DueDateCaptionLbl: Label 'Due Date';
@@ -309,6 +430,7 @@ report 99000788 "Prod. Order - Shortage List"
         ReceiptQtyCaptionLbl: Label 'Scheduled Receipt';
         QtyonPurchOrderCaptionLbl: Label 'Qty. on Purch. Order';
         QtyonSalesOrderCaptionLbl: Label 'Qty. on Sales Order';
+#endif
 
     local procedure CalcProdOrderLineFields(var ProdOrderLineFields: Record "Prod. Order Line")
     var

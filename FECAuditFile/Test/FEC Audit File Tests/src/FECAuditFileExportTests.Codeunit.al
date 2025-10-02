@@ -1,6 +1,7 @@
 codeunit 148017 "FEC Audit File Export Tests"
 {
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
 
     trigger OnRun()
@@ -19,8 +20,6 @@ codeunit 148017 "FEC Audit File Export Tests"
         LibraryJournals: Codeunit "Library - Journals";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         IsInitialized: Boolean;
-        MissingStartingDateErr: Label 'Starting Date must have a value in Audit File Export Header';
-        MissingEndingDateErr: Label 'Ending Date must have a value in Audit File Export Header';
         NoEntriestoExportErr: Label 'There are no entries to export within the defined filter. The file was not created.';
         UnknownFieldErr: Label 'Unknown field No! Fld #%1.', Comment = '%1 - Field No.';
         WrongFieldErr: Label 'Wrong %1. Fld #%2.', Comment = '%1 - Field Name, %2 - Field No.';
@@ -171,23 +170,25 @@ codeunit 148017 "FEC Audit File Export Tests"
     [Test]
     procedure MissingStartingDateErrTest()
     var
+        AuditFileExportHeader: Record "Audit File Export Header";
         EndingDate: Date;
     begin
         Initialize();
         EndingDate := GetStartingDate();
         asserterror RunFECExport('', 0D, EndingDate, false);
-        Assert.ExpectedError(MissingStartingDateErr);
+        Assert.ExpectedTestFieldError(AuditFileExportHeader.FieldCaption("Starting Date"), '');
     end;
 
     [Test]
     procedure MissingEndingDateErrTest()
     var
+        AuditFileExportHeader: Record "Audit File Export Header";
         StartingDate: Date;
     begin
         Initialize();
         StartingDate := GetStartingDate();
         asserterror RunFECExport('', StartingDate, 0D, false);
-        Assert.ExpectedError(MissingEndingDateErr);
+        Assert.ExpectedTestFieldError(AuditFileExportHeader.FieldCaption("Ending Date"), '');
     end;
 
     [Test]
@@ -3310,7 +3311,7 @@ codeunit 148017 "FEC Audit File Export Tests"
         GLEntry.FindSet();
         repeat
             PopulateFieldsArray(iStream, FieldsValueArray);
-            VerifyGLEntryFieldValues(FieldsValueArray, GLEntry, GLRegister."No.", GLRegister.SystemCreatedAt);
+            VerifyGLEntryFieldValues(FieldsValueArray, GLEntry, GLRegister.SystemCreatedAt);
             if (GLEntry."G/L Account No." = GetPostingGLAccount(GLEntry)) or GetGLAccountFromAllowMultiplePosting(PartyNo, PartyName, GLEntry) then
                 VerifyLedgerFieldValues(FieldsValueArray, PartyNo, PartyName)
             else
@@ -3333,7 +3334,7 @@ codeunit 148017 "FEC Audit File Export Tests"
         GLEntry.FindSet();
         repeat
             PopulateFieldsArray(iStream, FieldsValueArray);
-            VerifyGLEntryFieldValues(FieldsValueArray, GLEntry, GLEntry."Transaction No.", GLRegister.SystemCreatedAt);
+            VerifyGLEntryFieldValues(FieldsValueArray, GLEntry, GLRegister.SystemCreatedAt);
             if GLEntry."G/L Account No." = GetPostingGLAccount(GLEntry) then
                 VerifyLedgerFieldValues(FieldsValueArray, PartyNo, PartyName)
             else
@@ -3355,7 +3356,7 @@ codeunit 148017 "FEC Audit File Export Tests"
         GLEntry.SetFilter("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
         PopulateFieldsArray(iStream, FieldsValueArray);
-        VerifyGLEntryFieldValues(FieldsValueArray, GLEntry, GLRegister."No.", GLRegister.SystemCreatedAt);
+        VerifyGLEntryFieldValues(FieldsValueArray, GLEntry, GLRegister.SystemCreatedAt);
         iStream.ReadText(LineToRead);
         Assert.AreEqual('', LineToRead, FilterErr); // Read the next line, empty string means there are no other entries and filter function work correctly.
     end;
@@ -3394,18 +3395,18 @@ codeunit 148017 "FEC Audit File Export Tests"
         if GLEntry.FindSet() then
             repeat
                 PopulateFieldsArray(iStream, FieldsValueArray);
-                VerifyGLEntryFieldValues(FieldsValueArray, GLEntry, GLRegister."No.", GLRegister.SystemCreatedAt);
+                VerifyGLEntryFieldValues(FieldsValueArray, GLEntry, GLRegister.SystemCreatedAt);
                 Assert.AreEqual(AppliedEntries, FieldsValueArray[14], GetErrorTextForAssertStmnt(14));
                 Assert.AreEqual(GetFormattedDate(AppliedDate), FieldsValueArray[15], GetErrorTextForAssertStmnt(15));
             until GLEntry.Next() = 0;
     end;
 
-    local procedure VerifyGLEntryFieldValues(FieldsValueArray: array[18] of Text[50]; GLEntry: Record "G/L Entry"; GLRegisterNo: Integer; GLRegisterCreationDate: DateTime)
+    local procedure VerifyGLEntryFieldValues(FieldsValueArray: array[18] of Text[50]; GLEntry: Record "G/L Entry"; GLRegisterCreationDate: DateTime)
     begin
         GLEntry.CalcFields("G/L Account Name");
         Assert.AreEqual(GLEntry."Source Code", FieldsValueArray[1], GetErrorTextForAssertStmnt(1));
         Assert.AreEqual(GetSourceCodeDesc(GLEntry."Source Code"), FieldsValueArray[2], GetErrorTextForAssertStmnt(2));
-        Assert.AreEqual(Format(GLRegisterNo), FieldsValueArray[3], GetErrorTextForAssertStmnt(3));
+        Assert.AreEqual(Format(GLEntry."Transaction No."), FieldsValueArray[3], GetErrorTextForAssertStmnt(3));
         Assert.AreEqual(GetFormattedDate(GLEntry."Posting Date"), FieldsValueArray[4], GetErrorTextForAssertStmnt(4));
         Assert.AreEqual(GLEntry."G/L Account No.", FieldsValueArray[5], GetErrorTextForAssertStmnt(5));
         Assert.AreEqual(GLEntry."G/L Account Name", FieldsValueArray[6], GetErrorTextForAssertStmnt(6));

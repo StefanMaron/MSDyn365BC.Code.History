@@ -24,7 +24,6 @@ codeunit 136504 "RES Time Sheet"
         IsInitialized: Boolean;
         PageVerify: Label 'The TestPage is already open.';
         TimeSheetNo: Code[20];
-        TimeSheetComment: Label '%1 Comments.';
         TimeSheetLineExist: Label 'Time Sheet Line has not be deleted';
 
     [Test]
@@ -1063,95 +1062,6 @@ codeunit 136504 "RES Time Sheet"
         LibraryJob.CreateJobTask(Job, JobTask);
     end;
 
-    local procedure CreateUserSetupAndResource(var Resource: Record Resource; var UserSetup: Record "User Setup")
-    begin
-        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
-        LibraryTimeSheet.CreateTimeSheetResource(Resource);
-        Resource.Validate("Time Sheet Owner User ID", UserSetup."User ID");
-        Resource.Validate("Time Sheet Approver User ID", UserSetup."User ID");
-        Resource.Modify(true);
-    end;
-
-    local procedure CreateUserSetupAndTimeSheet(var TimeSheetHeader: Record "Time Sheet Header")
-    var
-        UserSetup: Record "User Setup";
-        Resource: Record Resource;
-        ResourcesSetup: Record "Resources Setup";
-        AccountingPeriod: Record "Accounting Period";
-        Date: Record Date;
-        TimeSheetLine: Record "Time Sheet Line";
-    begin
-        // Function creates User Setup, Time Sheet Resource and Time Sheet.
-
-        // Create User Setup.
-        CreateUserSetupAndResource(Resource, UserSetup);
-        ResourcesSetup.Get();
-
-        // Find first open Accounting Period.
-        LibraryTimeSheet.GetAccountingPeriod(AccountingPeriod);
-
-        // Find first DOW after Accounting Period starting date.
-        Date.SetRange("Period Type", Date."Period Type"::Date);
-        Date.SetFilter("Period Start", '%1..', AccountingPeriod."Starting Date");
-        Date.SetRange("Period No.", ResourcesSetup."Time Sheet First Weekday" + 1);  // Here 1 is taken to get first working day of weekday.
-        Date.FindFirst();
-
-        // Create Time Sheet.
-        LibraryTimeSheet.RunCreateTimeSheetsReport(Date."Period Start", 1, Resource."No.");
-
-        // Find created Time Sheet.
-        FindTimeSheetHeader(TimeSheetHeader, Resource."No.");
-
-        LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Resource, '', '', '', '');  // Take Blank for Job No., Job Task No.,Service Ledger Entry No.,Blank for Cause Of Absence Code.
-        LibraryTimeSheet.CreateTimeSheetDetail(
-          TimeSheetLine, TimeSheetLine."Time Sheet Starting Date", LibraryRandom.RandDec(100, 2));  // Random values taken for Time Sheet Starting Date.
-    end;
-
-    local procedure OpenTimeSheetListAndEnterComments(TimeSheetHeaderNo: Code[20])
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetList: TestPage "Time Sheet List";
-        TimeSheetCommentSheet: TestPage "Time Sheet Comment Sheet";
-    begin
-        TimeSheetList.OpenView();
-        TimeSheetList.FILTER.SetFilter("No.", TimeSheetHeaderNo);
-        TimeSheetCommentSheet.Trap();
-        TimeSheetList.Comments.Invoke();
-        TimeSheetCommentSheet.Comment.SetValue(StrSubstNo(TimeSheetComment, TimeSheetHeader.TableCaption()));
-        TimeSheetList.Close();
-    end;
-
-    local procedure DeleteTimeSheetAndResource(No: Code[20]; ResourceNo: Code[20])
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-    begin
-        TimeSheetHeader.Get(No);
-        TimeSheetHeader.Delete(true);
-        Resource.Get(ResourceNo);
-        Resource.Delete(true);
-    end;
-
-    local procedure UpdateTimeSheetLine(No: Code[20])
-    var
-        TimeSheetLine: Record "Time Sheet Line";
-    begin
-        TimeSheetLine.SetRange("Time Sheet No.", No);
-        TimeSheetLine.FindFirst();
-        TimeSheetLine.Validate(Posted, true);
-        TimeSheetLine.Modify(true);
-    end;
-
-    local procedure ManagerTimeSheetApproval(TimeSheetHeaderNo: Code[20])
-    var
-        ManagerTimeSheet: TestPage "Manager Time Sheet";
-    begin
-        ManagerTimeSheet.OpenView();
-        ManagerTimeSheet.CurrTimeSheetNo.Value := TimeSheetHeaderNo;
-        ManagerTimeSheet.Approve.Invoke();
-        ManagerTimeSheet.OK().Invoke();
-    end;
-
     local procedure CreateJobJournalLine(var JobJournalLine: Record "Job Journal Line"; SourceCode: Code[10])
     var
         JobJournalBatch: Record "Job Journal Batch";
@@ -1292,45 +1202,6 @@ codeunit 136504 "RES Time Sheet"
         Resource.Delete(true);
     end;
 
-    local procedure VerifyCommentsOnTimeSheetHeader(TimeSheetHeaderNo: Code[20])
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetList: TestPage "Time Sheet List";
-        TimeSheetCommentSheet: TestPage "Time Sheet Comment Sheet";
-    begin
-        TimeSheetList.OpenView();
-        TimeSheetList.FILTER.SetFilter("No.", TimeSheetHeaderNo);
-        TimeSheetCommentSheet.Trap();
-        TimeSheetList.Comments.Invoke();
-        TimeSheetCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetHeader.TableCaption()));
-    end;
-
-    local procedure VerifyCommentsOnManagerTimeSheetHeader(TimeSheetHeaderNo: Code[20])
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        ManagerTimeSheetList: TestPage "Manager Time Sheet List";
-        TimeSheetCommentSheet: TestPage "Time Sheet Comment Sheet";
-    begin
-        ManagerTimeSheetList.OpenView();
-        ManagerTimeSheetList.FILTER.SetFilter("No.", TimeSheetHeaderNo);
-        TimeSheetCommentSheet.Trap();
-        ManagerTimeSheetList.Comments.Invoke();
-        TimeSheetCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetHeader.TableCaption()));
-    end;
-
-    local procedure VerifyCommentsOnManagerTimeSheetLine(TimeSheetHeaderNo: Code[20])
-    var
-        TimeSheetLine: Record "Time Sheet Line";
-        ManagerTimeSheet: TestPage "Manager Time Sheet";
-        TimeSheetCommentSheet: TestPage "Time Sheet Comment Sheet";
-    begin
-        ManagerTimeSheet.OpenView();
-        ManagerTimeSheet.CurrTimeSheetNo.Value := TimeSheetHeaderNo;
-        TimeSheetCommentSheet.Trap();
-        ManagerTimeSheet.LineComments.Invoke();
-        TimeSheetCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetLine.TableCaption()));
-    end;
-
     local procedure VerifyDimensionOfJobJournalLine(JobNo: Code[20]; ResourceNo: Code[20]; ExpectedDimValue: Code[20])
     var
         JobJournalLine: Record "Job Journal Line";
@@ -1416,4 +1287,3 @@ codeunit 136504 "RES Time Sheet"
         Reply := true;
     end;
 }
-

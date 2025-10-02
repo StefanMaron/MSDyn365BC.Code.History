@@ -5,7 +5,6 @@
 namespace Microsoft.Assembly.Test;
 
 using Microsoft.Inventory.BOM;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.BOM.Tree;
@@ -30,7 +29,6 @@ codeunit 137107 "SCM Kitting - Able To Make"
 
     var
         BOMBuffer: Record "BOM Buffer";
-        MfgSetup: Record "Manufacturing Setup";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -38,6 +36,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         LibraryTrees: Codeunit "Library - Trees";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryPlanning: Codeunit "Library - Planning";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryUtility: Codeunit "Library - Utility";
@@ -61,8 +60,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         isInitialized := true;
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        MfgSetup.Get();
-        UpdateMfgSetup('<1D>');
+        LibraryPlanning.SetDefaultSafetyLeadTime('<1D>');
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting - Able To Make");
     end;
@@ -74,7 +72,6 @@ codeunit 137107 "SCM Kitting - Able To Make"
         Location: Record Location;
         Item: Record Item;
         CalculateBOMTree: Codeunit "Calculate BOM Tree";
-        TreeType: Option " ",Availability,Cost;
         GenProdPostingGroup: Code[20];
         InventoryPostingGroup: Code[20];
         AbleToMake: Decimal;
@@ -110,7 +107,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
 
         // Exercise: Create the BOM tree.
         CalculateBOMTree.SetShowTotalAvailability(ShowTotalAvailability);
-        CalculateBOMTree.GenerateTreeForItems(Item, BOMBuffer, TreeType::Availability);
+        CalculateBOMTree.GenerateTreeForManyItems(Item, BOMBuffer, "BOM Tree Type"::Availability);
 
         // Verify: Navigate through the tree and check the results.
         VerifyTree(BOMBuffer, Item."No.", ShowTotalAvailability, BottleneckFactor, AbleToMake, 1, DirectAvailFactor, 0);
@@ -205,7 +202,6 @@ codeunit 137107 "SCM Kitting - Able To Make"
         AssemblyLine: Record "Assembly Line";
         ItemFilter: Record Item;
         CalculateBOMTree: Codeunit "Calculate BOM Tree";
-        TreeType: Option " ",Availability,Cost;
         InitialAbleToMake: Decimal;
         AbleToMake: Decimal;
         AssemblyQty: Decimal;
@@ -250,7 +246,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         ItemFilter.SetFilter("Location Filter", '%1', AssemblyHeader."Location Code");
         CalculateBOMTree.SetItemFilter(ItemFilter);
         CalculateBOMTree.SetShowTotalAvailability(ShowTotalAvailability);
-        CalculateBOMTree.GenerateTreeForAsm(AssemblyHeader, BOMBuffer, TreeType::Availability);
+        CalculateBOMTree.GenerateTreeForSource(AssemblyHeader, BOMBuffer, "BOM Tree Type"::Availability, "BOM Structure Show By"::Assembly, AssemblyHeader."Due Date");
 
         // Verify: Check the top item.
         VerifyTopItem(BOMBuffer, AssemblyHeader."Item No.", AssemblyQty, AbleToMake, ShowTotalAvailability);
@@ -383,7 +379,6 @@ codeunit 137107 "SCM Kitting - Able To Make"
         AssemblyLine: Record "Assembly Line";
         CalculateBOMTree: Codeunit "Calculate BOM Tree";
         AssemblyOrder: TestPage "Assembly Order";
-        TreeType: Option " ",Availability,Cost;
     begin
         SetupAbleToMake(BOMBuffer, false, false, SupplyType::Inventory, 1, true, '<0D>', 1, 1, 0.6);
         LibraryAssembly.CreateAssemblyHeader(
@@ -394,7 +389,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
 
         // Exercise.
         CalculateBOMTree.SetShowTotalAvailability(true);
-        CalculateBOMTree.GenerateTreeForAsm(AssemblyHeader, BOMBuffer, TreeType::Availability);
+        CalculateBOMTree.GenerateTreeForSource(AssemblyHeader, BOMBuffer, "BOM Tree Type"::Availability, "BOM Structure Show By"::Assembly, AssemblyHeader."Due Date");
 
         // Verify: BOM Level - Able to Make page.
         AssemblyOrder.OpenEdit();
@@ -416,7 +411,6 @@ codeunit 137107 "SCM Kitting - Able To Make"
         ProdOrderComponent: Record "Prod. Order Component";
         CalculateBOMTree: Codeunit "Calculate BOM Tree";
         ReleasedProductionOrder: TestPage "Released Production Order";
-        TreeType: Option " ",Availability,Cost;
         AbleToMake: Decimal;
         DueDateDelayDateFormula: DateFormula;
     begin
@@ -452,7 +446,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
 
         // Exercise.
         CalculateBOMTree.SetShowTotalAvailability(true);
-        CalculateBOMTree.GenerateTreeForProdLine(ProdOrderLine, BOMBuffer, TreeType::Availability);
+        CalculateBOMTree.GenerateTreeForSource(ProdOrderLine, BOMBuffer, "BOM Tree Type"::Availability, "BOM Structure Show By"::Production, ProdOrderLine."Due Date");
 
         // Verify: Check top item.
         VerifyTopItem(BOMBuffer, ProdOrderLine."Item No.", AbleToMake, 0, true);
@@ -501,7 +495,6 @@ codeunit 137107 "SCM Kitting - Able To Make"
         ItemY: Record Item;
         BOMComponent: Record "BOM Component";
         CalculateBOMTree: Codeunit "Calculate BOM Tree";
-        TreeType: Option " ",Availability,Cost;
         p1: Decimal;
         b1: Decimal;
         p2: Decimal;
@@ -568,7 +561,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         CalculateBOMTree.SetShowTotalAvailability(true);
         rootItem.SetRange("No.", rootItem."No.");
         rootItem.SetRange("Date Filter", 0D, WorkDate());
-        CalculateBOMTree.GenerateTreeForItems(rootItem, BOMBuffer, TreeType::Availability);
+        CalculateBOMTree.GenerateTreeForManyItems(rootItem, BOMBuffer, "BOM Tree Type"::Availability);
 
         // Verify: Able to make is a fraction of 1.
         VerifyNode(BOMBuffer, rootItem."No.", 0, 0.5, 1, 1);
@@ -576,21 +569,21 @@ codeunit 137107 "SCM Kitting - Able To Make"
         // Able to make 1 PCS of rootItem:
         LibraryTrees.CreateSupply(ItemX."No.", '', '', WorkDate(), SupplyType::Inventory, ItemXDemand / 2);
         LibraryTrees.CreateSupply(ItemY."No.", '', '', WorkDate(), SupplyType::Inventory, ItemYDemand / 2);
-        CalculateBOMTree.GenerateTreeForItems(rootItem, BOMBuffer, TreeType::Availability);
+        CalculateBOMTree.GenerateTreeForManyItems(rootItem, BOMBuffer, "BOM Tree Type"::Availability);
 
         // Verify: Able to make is 1.
         VerifyNode(BOMBuffer, rootItem."No.", 0, 1, 1, 1);
 
         // Able to make 1 PCS of rootItem, different supply for X and Y.
         LibraryTrees.CreateSupply(ItemX."No.", '', '', WorkDate(), SupplyType::Inventory, ItemXDemand);
-        CalculateBOMTree.GenerateTreeForItems(rootItem, BOMBuffer, TreeType::Availability);
+        CalculateBOMTree.GenerateTreeForManyItems(rootItem, BOMBuffer, "BOM Tree Type"::Availability);
 
         // Verify: Able to make is 1.
         VerifyNode(BOMBuffer, rootItem."No.", 0, 1, 1, 1);
 
         // Able to make more than 1 PCS of rootItem:
         LibraryTrees.CreateSupply(ItemY."No.", '', '', WorkDate(), SupplyType::Inventory, ItemYDemand);
-        CalculateBOMTree.GenerateTreeForItems(rootItem, BOMBuffer, TreeType::Availability);
+        CalculateBOMTree.GenerateTreeForManyItems(rootItem, BOMBuffer, "BOM Tree Type"::Availability);
 
         // Verify: Able to make is 1.
         VerifyNode(BOMBuffer, rootItem."No.", 0, 2, 1, 1);
@@ -607,8 +600,6 @@ codeunit 137107 "SCM Kitting - Able To Make"
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
         CalculateBOMTree: Codeunit "Calculate BOM Tree";
-        TreeType: Option " ",Availability,Cost;
-
     begin
         LibraryAssembly.CreateItem(RootItem, RootItem."Costing Method"::Standard, RootItem."Replenishment System"::Assembly, '', '');
         LibraryAssembly.CreateItem(InventoryItem, InventoryItem."Costing Method"::Standard, InventoryItem."Replenishment System"::Assembly, '', '');
@@ -627,7 +618,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         CalculateBOMTree.SetShowTotalAvailability(true);
         RootItem.SetRange("No.", RootItem."No.");
         RootItem.SetRange("Date Filter", 0D, WorkDate());
-        CalculateBOMTree.GenerateTreeForItems(RootItem, BOMBuffer, TreeType::Availability);
+        CalculateBOMTree.GenerateTreeForManyItems(RootItem, BOMBuffer, "BOM Tree Type"::Availability);
 
         // Verify: Inventory Item is bottleneck
         BOMBuffer.SetRange("No.", InventoryItem."No.");
@@ -647,7 +638,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
           "Positive Adjmt.", InventoryItem."No.", LibraryRandom.RandDec(10, 2));
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
-        CalculateBOMTree.GenerateTreeForItems(RootItem, BOMBuffer, TreeType::Availability);
+        CalculateBOMTree.GenerateTreeForManyItems(RootItem, BOMBuffer, "BOM Tree Type"::Availability);
 
         // Verify: Inventory Item is a bottleneck now
         BOMBuffer.SetRange("No.", InventoryItem."No.");
@@ -675,7 +666,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         AssemblyItemNo := CreateAssemblyComponent(ParentItem."No.");
 
         // Exercise: Fill the BOMBuffer for Parent Item.
-        CalculateBOMTree.GenerateTreeForItem(ParentItem, BOMBuffer, 0D, 0);
+        CalculateBOMTree.GenerateTreeForOneItem(ParentItem, BOMBuffer, 0D, "BOM Tree Type"::" ");
 
         // Verify: Check Assembly BOM Item exist in BOMBuffer
         VerifyItemInBomBuffer(AssemblyItemNo);
@@ -696,7 +687,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         AssemblyItemNo := CreateAssemblyComponent(ParentItem."No.");
 
         // Exercise: Fill the BOMBuffer for Parent Item.
-        CalculateBOMTree.GenerateTreeForItem(ParentItem, BOMBuffer, 0D, 0);
+        CalculateBOMTree.GenerateTreeForOneItem(ParentItem, BOMBuffer, 0D, "BOM Tree Type"::" ");
 
         // Verify: Check Assembly BOM Item does not exist in BOMBuffer
         VerifyItemNotInBomBuffer(AssemblyItemNo);
@@ -720,7 +711,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         UpdateParentItemWithProdBomNo(ParentItem, ProductionBOMHeader."No.");
 
         // Exercise:
-        CalculateBOMTree.GenerateTreeForItem(ParentItem, BOMBuffer, 0D, 0);
+        CalculateBOMTree.GenerateTreeForOneItem(ParentItem, BOMBuffer, 0D, "BOM Tree Type"::" ");
 
         // Verify: Check Production BOM Item does not exist in BOMBuffer
         VerifyItemNotInBomBuffer(Item."No.");
@@ -1033,18 +1024,6 @@ codeunit 137107 "SCM Kitting - Able To Make"
         BOMBuffer.SetRange(Type, BOMBuffer.Type::Item);
         BOMBuffer.SetRange("No.", ItemNo);
         Assert.IsTrue(BOMBuffer.IsEmpty, StrSubstNo(ItemNotExistErr, ItemNo))
-    end;
-
-    [Normal]
-    local procedure UpdateMfgSetup(MfgLeadTime: Text)
-    var
-        LeadTimeFormula: DateFormula;
-    begin
-        if Format(MfgSetup."Default Safety Lead Time") <> MfgLeadTime then begin
-            Evaluate(LeadTimeFormula, MfgLeadTime);
-            MfgSetup.Validate("Default Safety Lead Time", LeadTimeFormula);
-            MfgSetup.Modify(true);
-        end;
     end;
 
     local procedure UpdateParentItemWithProdBomNo(var ParentItem: Record Item; ProductionBOMHeaderNo: Code[20])

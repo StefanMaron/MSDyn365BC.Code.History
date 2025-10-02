@@ -8,7 +8,6 @@ using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
 using System.Environment.Configuration;
 using Microsoft.Inventory;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Assembly.Setup;
 using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Setup;
@@ -26,6 +25,7 @@ using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Availability;
 using Microsoft.Foundation.UOM;
 using Microsoft.Assembly.Posting;
+using Microsoft.Inventory.Setup;
 
 codeunit 137093 "SCM Kitting - D4"
 {
@@ -104,10 +104,10 @@ codeunit 137093 "SCM Kitting - D4"
 
     local procedure CalcSafeDate(Date: Date): Date
     var
-        MfgSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
-        MfgSetup.Get();
-        exit(CalcDate(MfgSetup."Default Safety Lead Time", Date));
+        InventorySetup.Get();
+        exit(CalcDate(InventorySetup."Default Safety Lead Time", Date));
     end;
 
     [Normal]

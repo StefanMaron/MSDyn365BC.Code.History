@@ -10,6 +10,11 @@ using Microsoft.Foundation.Enums;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
 
+/// <summary>
+/// Validates direct debit collection entries for SEPA compliance and data completeness.
+/// Performs comprehensive validation of customer information, mandate details, bank account data,
+/// and business rules before export to ensure SEPA standard compliance.
+/// </summary>
 codeunit 1233 "SEPA DD-Check Line"
 {
     TableNo = "Direct Debit Collection Entry";
@@ -169,11 +174,22 @@ codeunit 1233 "SEPA DD-Check Line"
         exit(not DirectDebitCollectionEntry.HasPaymentFileErrors());
     end;
 
+    /// <summary>
+    /// Integration event that allows customization of collection entry validation logic.
+    /// </summary>
+    /// <param name="DirectDebitCollectionEntry">The collection entry being validated</param>
+    /// <param name="IsHandled">Whether the event has been handled by subscribers</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCollectionEntry(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event that allows customization of customer partner type validation.
+    /// </summary>
+    /// <param name="Customer">The customer being validated</param>
+    /// <param name="DirectDebitCollectionEntry">The collection entry being processed</param>
+    /// <param name="IsHandled">Whether the event has been handled by subscribers</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCustomerPartnerType(Customer: Record Customer; DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var IsHandled: Boolean)
     begin

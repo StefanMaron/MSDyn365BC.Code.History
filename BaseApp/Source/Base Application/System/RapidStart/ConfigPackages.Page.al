@@ -170,7 +170,7 @@ page 8615 "Config. Packages"
                         Rec.TestField(Code);
 
                         ConfigPackageTable.SetRange("Package Code", Rec.Code);
-                        if ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text004, Rec.Code), true) then
+                        if ConfirmManagement.GetResponseOrDefault(StrSubstNo(ExportPackageQst, Rec.Code), true) then
                             ConfigExcelExchange.ExportExcelFromTables(ConfigPackageTable);
                     end;
                 }
@@ -246,7 +246,7 @@ page 8615 "Config. Packages"
                         ConfirmManagement: Codeunit "Confirm Management";
                         Canceled: Boolean;
                     begin
-                        if ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text002, Rec."Package Name"), true) then begin
+                        if ConfirmManagement.GetResponseOrDefault(StrSubstNo(ValidatePackageQst, Rec."Package Name"), true) then begin
                             ConfigPackageTable.SetRange("Package Code", Rec.Code);
                             ConfigProgressBar.Init(ConfigPackageTable.Count, 1, ValidatingTableRelationsMsg);
 
@@ -295,7 +295,7 @@ page 8615 "Config. Packages"
                         Rec.TestField(Code);
                         ConfigXMLExchange.SetAdvanced(true);
                         ConfigPackageTable.SetRange("Package Code", Rec.Code);
-                        if ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text004, Rec.Code), true) then
+                        if ConfirmManagement.GetResponseOrDefault(StrSubstNo(ExportPackageQst, Rec.Code), true) then
                             ConfigXMLExchange.ExportPackageXML(ConfigPackageTable, '');
                     end;
                 }
@@ -376,19 +376,11 @@ page 8615 "Config. Packages"
 
     var
         ConfigXMLExchange: Codeunit "Config. XML Exchange";
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text002: Label 'Validate package %1?';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0470
+        ValidatePackageQst: Label 'Validate package %1?';
         ApplyDataConfirmMsg: Label 'Apply data from package %1?';
+        ExportPackageQst: Label 'Export package %1?';
 #pragma warning restore AA0470
-#pragma warning disable AA0074
-#pragma warning disable AA0470
-        Text004: Label 'Export package %1?';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
         ValidatingTableRelationsMsg: Label 'Validating table relations';
         ValidationCanceledMsg: Label 'Validation canceled.';
         BackgroundSessionId: Integer;

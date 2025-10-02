@@ -15,6 +15,9 @@ codeunit 99000851 "Assembly Line-Planning"
 
     var
         AssemblyHeader: Record "Assembly Header";
+#if not CLEAN27
+        GetUnplannedDemand: Codeunit "Get Unplanned Demand";
+#endif
         AssemblyTxt: Label 'Assembly';
 
     [EventSubscriber(ObjectType::Table, Database::"Requisition Line", 'OnSetDemandTypeFromUnplannedDemand', '', false, false)]
@@ -115,5 +118,97 @@ codeunit 99000851 "Assembly Line-Planning"
     begin
         if RequisitionLine."Demand Type" = Database::"Assembly Line" then
             Text := Format(Enum::"Assembly Document Type".FromInteger(RequisitionLine."Demand Subtype"));
+    end;
+
+    // Codeunit "Get Unplanned Demand"
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Get Unplanned Demand", 'OnBeforeOpenWindow', '', false, false)]
+    local procedure OnBeforeOpenWindow(var RecordCounter: Integer)
+    var
+        AssemblyLine: Record "Assembly Line";
+    begin
+        AssemblyLine.SetRange("Document Type", AssemblyLine."Document Type"::Order);
+        RecordCounter += AssemblyLine.Count();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Get Unplanned Demand", 'OnAfterGetUnplanned', '', false, false)]
+    local procedure OnAfterGetUnplanned(var UnplannedDemand: Record "Unplanned Demand"; ItemFilter: TextBuilder; var sender: Codeunit "Get Unplanned Demand")
+    begin
+        GetUnplannedAssemblyLine(UnplannedDemand, ItemFilter, sender);
+    end;
+
+    local procedure GetUnplannedAssemblyLine(var UnplannedDemand: Record "Unplanned Demand"; ItemFilter: TextBuilder; var sender: Codeunit "Get Unplanned Demand")
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        DemandQtyBase: Decimal;
+    begin
+        OnBeforeGetUnplannedAsmLine(UnplannedDemand, AssemblyLine);
+#if not CLEAN27
+        GetUnplannedDemand.RunOnBeforeGetUnplannedAsmLine(UnplannedDemand, AssemblyLine);
+#endif
+        AssemblyLine.SetRange("Document Type", "Assembly Document Type"::Order);
+        AssemblyLine.SetFilter("No.", ItemFilter.ToText());
+        if AssemblyLine.FindSet() then
+            repeat
+                sender.UpdateWindow();
+                DemandQtyBase := GetAsmLineNeededQty(AssemblyLine);
+                if DemandQtyBase > 0 then begin
+                    if not ((AssemblyLine."Document Type".AsInteger() = UnplannedDemand."Demand SubType") and
+                            (AssemblyLine."Document No." = UnplannedDemand."Demand Order No."))
+                    then begin
+                        AssemblyHeader.Get(AssemblyLine."Document Type", AssemblyLine."Document No.");
+                        sender.InsertUnplannedDemand(
+                          UnplannedDemand, UnplannedDemand."Demand Type"::Assembly, AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyHeader.Status);
+                        OnGetUnplannedAsmLineOnAfterInsertUnplannedDemand(UnplannedDemand);
+#if not CLEAN27
+                        GetUnplannedDemand.RunOnGetUnplannedAsmLineOnAfterInsertUnplannedDemand(UnplannedDemand);
+#endif
+                    end;
+                    InsertAssemblyLine(UnplannedDemand, AssemblyLine, DemandQtyBase);
+                end;
+            until AssemblyLine.Next() = 0;
+    end;
+
+    local procedure GetAsmLineNeededQty(AssemblyLine: Record "Assembly Line"): Decimal
+    begin
+        if (AssemblyLine."No." = '') or (AssemblyLine.Type <> AssemblyLine.Type::Item) then
+            exit(0);
+
+        AssemblyLine.CalcFields("Reserved Qty. (Base)");
+        exit(-AssemblyLine.SignedXX(AssemblyLine."Remaining Quantity (Base)" - AssemblyLine."Reserved Qty. (Base)"));
+    end;
+
+    local procedure InsertAssemblyLine(var UnplannedDemand: Record "Unplanned Demand"; var AssemblyLine: Record "Assembly Line"; DemandQtyBase: Decimal)
+    var
+        UnplannedDemand2: Record "Unplanned Demand";
+    begin
+        UnplannedDemand2.Copy(UnplannedDemand);
+        UnplannedDemand.InitRecord(
+          AssemblyLine."Line No.", 0, AssemblyLine."No.", AssemblyLine.Description, AssemblyLine."Variant Code", AssemblyLine."Location Code",
+          AssemblyLine."Bin Code", AssemblyLine."Unit of Measure Code", AssemblyLine."Qty. per Unit of Measure",
+          DemandQtyBase, AssemblyLine."Due Date");
+        UnplannedDemand.Reserve := AssemblyLine.Reserve = AssemblyLine.Reserve::Always;
+        OnInsertAsmLineOnBeforeInsert(UnplannedDemand, AssemblyLine);
+#if not CLEAN27
+        GetUnplannedDemand.RunOnInsertAsmLineOnBeforeInsert(UnplannedDemand, AssemblyLine);
+#endif
+        UnplannedDemand.Insert();
+        UnplannedDemand.Copy(UnplannedDemand2);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetUnplannedAsmLine(var UnplannedDemand: Record "Unplanned Demand"; var AssemblyLine: Record "Assembly Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetUnplannedAsmLineOnAfterInsertUnplannedDemand(var UnplannedDemand: Record "Unplanned Demand")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertAsmLineOnBeforeInsert(var UnplannedDemand: Record "Unplanned Demand"; AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line")
+    begin
     end;
 }

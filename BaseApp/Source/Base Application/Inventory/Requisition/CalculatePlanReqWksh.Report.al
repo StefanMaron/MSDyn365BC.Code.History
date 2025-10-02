@@ -6,10 +6,9 @@ namespace Microsoft.Inventory.Requisition;
 
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Forecast;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Purchases.Vendor;
 
@@ -135,7 +134,7 @@ report 699 "Calculate Plan - Req. Wksh."
                     {
                         ApplicationArea = Planning;
                         Caption = 'Use Forecast';
-                        TableRelation = "Production Forecast Name".Name;
+                        TableRelation = Microsoft.Manufacturing.Forecast."Production Forecast Name".Name;
                         ToolTip = 'Specifies a forecast that should be included as demand when running the planning batch job.';
                     }
                     field(ExcludeForecastBefore; ExcludeForecastBefore)
@@ -174,7 +173,7 @@ report 699 "Calculate Plan - Req. Wksh."
         var
             PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         begin
-            InitializeFromMfgSetup();
+            InitializeFromSetup();
             ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
             ValidatePriceCalcMethod();
             OnAfterOnOpenPage(FromDate, ToDate);
@@ -187,7 +186,7 @@ report 699 "Calculate Plan - Req. Wksh."
 
     trigger OnPreReport()
     var
-        ProductionForecastEntry: Record "Production Forecast Entry";
+        ProductionForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -205,13 +204,13 @@ report 699 "Calculate Plan - Req. Wksh."
             Error(Text004);
 
         if (Item.GetFilter("Variant Filter") <> '') and
-           (MfgSetup."Current Production Forecast" <> '')
+           (InventorySetup."Current Demand Forecast" <> '')
         then begin
-            ProductionForecastEntry.SetRange("Production Forecast Name", MfgSetup."Current Production Forecast");
+            ProductionForecastEntry.SetRange("Production Forecast Name", InventorySetup."Current Demand Forecast");
             Item.CopyFilter("No.", ProductionForecastEntry."Item No.");
-            if MfgSetup."Use Forecast on Locations" then
+            if InventorySetup."Use Forecast on Locations" then
                 Item.CopyFilter("Location Filter", ProductionForecastEntry."Location Code");
-            if MfgSetup."Use Forecast on Variants" then
+            if InventorySetup."Use Forecast on Variants" then
                 Item.CopyFilter("Variant Filter", ProductionForecastEntry."Variant Code");
             if not ProductionForecastEntry.IsEmpty() then
                 Error(Text005);
@@ -226,7 +225,7 @@ report 699 "Calculate Plan - Req. Wksh."
 
     var
         ActionMessageEntry: Record "Action Message Entry";
-        PlanningAssignment: Record "Planning Assignment";
+        InventorySetup: Record "Inventory Setup";
         CurrWorksheetType: Option Requisition,Planning;
         PeriodLength: Integer;
         ReqWkshTemplateFilter: Code[50];
@@ -245,11 +244,15 @@ report 699 "Calculate Plan - Req. Wksh."
 #pragma warning restore AA0074
 
     protected var
-        MfgSetup: Record "Manufacturing Setup";
+#if not CLEAN27
+        [Obsolete('Replaced by record Inventory Setup', '27.0')]
+        MfgSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
+#endif
         SKU: Record "Stockkeeping Unit";
         ReqLine: Record "Requisition Line";
         ReqLineExtern: Record "Requisition Line";
         PurchReqLine: Record "Requisition Line";
+        PlanningAssignment: Record "Planning Assignment";
         InventoryProfileOffsetting: Codeunit "Inventory Profile Offsetting";
         Window: Dialog;
         CurrTemplateName: Code[10];
@@ -274,30 +277,44 @@ report 699 "Calculate Plan - Req. Wksh."
         ToDate := EndDate;
     end;
 
-    procedure InitializeFromMfgSetup()
+    procedure InitializeFromSetup()
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
+        OnBeforeInitializeFromSetup(UseForecast, IsHandled, InventorySetup);
+#if not CLEAN27
         OnBeforeInitializeFromMfgSetup(UseForecast, IsHandled, MfgSetup);
+#endif
         if IsHandled then
             exit;
 
-        MfgSetup.Get();
-        UseForecast := MfgSetup."Current Production Forecast";
+        InventorySetup.Get();
+        UseForecast := InventorySetup."Current Demand Forecast";
     end;
+
+#if not CLEAN27
+    [Obsolete('Replaced by procedure InitializeFromSetup()', '27.0')]
+    procedure InitializeFromMfgSetup()
+    begin
+        InitializeFromSetup();
+    end;
+#endif
 
     procedure SetParamAndCalculatePlanFromWorksheet()
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
+        OnBeforeSetParamAndCalculatePlanFromReqWorksheet(UseForecast, ExcludeForecastBefore, CurrWorksheetType, PriceCalculationMethod, Item, CurrTemplateName, CurrWorksheetName, FromDate, ToDate, RespectPlanningParm, IsHandled);
+#if not CLEAN27
         OnBeforeSetParamAndCalculatePlanFromWorksheet(UseForecast, ExcludeForecastBefore, CurrWorksheetType, PriceCalculationMethod, Item, MfgSetup, CurrTemplateName, CurrWorksheetName, FromDate, ToDate, RespectPlanningParm, IsHandled);
+#endif
         if IsHandled then
             exit;
 
         InventoryProfileOffsetting.SetParm(UseForecast, ExcludeForecastBefore, CurrWorksheetType, PriceCalculationMethod);
-        InventoryProfileOffsetting.CalculatePlanFromWorksheet(Item, MfgSetup, CurrTemplateName, CurrWorksheetName, FromDate, ToDate, true, RespectPlanningParm);
+        InventoryProfileOffsetting.CalculatePlanFromWorksheet(Item, CurrTemplateName, CurrWorksheetName, FromDate, ToDate, true, RespectPlanningParm);
     end;
 
     procedure ValidatePriceCalcMethod()
@@ -367,8 +384,16 @@ report 699 "Calculate Plan - Req. Wksh."
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('Replaced by OnBeforeSetParamAndCalculatePlanFromReqWorksheet', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetParamAndCalculatePlanFromWorksheet(UseForecast: Code[10]; ExcludeForecastBefore: Date; CurrWorksheetType: Option; PriceCalculationMethod: Enum "Price Calculation Method"; Item: Record Item; ManufacturingSetup: Record "Manufacturing Setup"; CurrTemplateName: Code[10]; CurrWorksheetName: Code[10]; FromDate: Date; ToDate: Date; RespectPlanningParm: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeSetParamAndCalculatePlanFromWorksheet(UseForecast: Code[10]; ExcludeForecastBefore: Date; CurrWorksheetType: Option; PriceCalculationMethod: Enum "Price Calculation Method"; Item: Record Item; ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup"; CurrTemplateName: Code[10]; CurrWorksheetName: Code[10]; FromDate: Date; ToDate: Date; RespectPlanningParm: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetParamAndCalculatePlanFromReqWorksheet(UseForecast: Code[10]; ExcludeForecastBefore: Date; CurrWorksheetType: Option; PriceCalculationMethod: Enum "Price Calculation Method"; Item: Record Item; CurrTemplateName: Code[10]; CurrWorksheetName: Code[10]; FromDate: Date; ToDate: Date; RespectPlanningParm: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -378,9 +403,17 @@ report 699 "Calculate Plan - Req. Wksh."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitializeFromMfgSetup(var UseForecast: Code[10]; var IsHandled: Boolean; var MfgSetup: Record "Manufacturing Setup")
+    local procedure OnBeforeInitializeFromSetup(var UseForecast: Code[10]; var IsHandled: Boolean; var InventorySetup: Record "Inventory Setup")
     begin
     end;
+
+#if not CLEAN27
+    [Obsolete('Replaced by event OnBeforeInitializeFromSetup', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitializeFromMfgSetup(var UseForecast: Code[10]; var IsHandled: Boolean; var MfgSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnPreReport(var CurrTemplateName: code[10]; var CurrWorksheetName: Code[10]; var RequistionLine: Record "Requisition Line"; var FromDate: Date; var ToDate: Date; var IsHandled: Boolean)

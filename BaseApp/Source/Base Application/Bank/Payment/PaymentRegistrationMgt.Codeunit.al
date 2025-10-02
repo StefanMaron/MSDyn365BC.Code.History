@@ -18,6 +18,16 @@ using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Reminder;
 using Microsoft.Utilities;
 
+/// <summary>
+/// Codeunit 980 "Payment Registration Mgt." manages payment registration functionality including posting, 
+/// document search, balance calculations, and preview operations. Handles the business logic for the
+/// payment registration workspace and integrates with general journal posting.
+/// </summary>
+/// <remarks>
+/// Supports both individual and lump payment posting modes. Provides document search capabilities
+/// with tolerance checking and balance validation. Includes extensibility through integration events
+/// for custom posting logic and document filtering.
+/// </remarks>
 codeunit 980 "Payment Registration Mgt."
 {
     EventSubscriberInstance = Manual;
@@ -56,6 +66,10 @@ codeunit 980 "Payment Registration Mgt."
         PreviewMode: Boolean;
         AsLumpPreviewContext: Boolean;
 
+    /// <summary>
+    /// Runs the payment registration setup wizard to configure payment registration defaults.
+    /// This procedure checks if setup is complete and guides users through configuration if needed.
+    /// </summary>
     procedure RunSetup()
     var
         PaymentRegistrationSetup: Record "Payment Registration Setup";
@@ -79,6 +93,12 @@ codeunit 980 "Payment Registration Mgt."
             Error('');
     end;
 
+    /// <summary>
+    /// Posts payment registration entries to the general ledger.
+    /// This procedure creates and posts general journal entries based on payment registration buffer data.
+    /// </summary>
+    /// <param name="TempPaymentRegistrationBuffer">The temporary payment registration buffer containing payment data to post.</param>
+    /// <param name="LumpPayment">Indicates whether this is a lump payment posting or individual payment posting.</param>
     [Scope('OnPrem')]
     procedure Post(var TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary; LumpPayment: Boolean)
     var
@@ -156,6 +176,12 @@ codeunit 980 "Payment Registration Mgt."
             GenJnlPostBatch.Preview(GenJournalLine);
     end;
 
+    /// <summary>
+    /// Confirms whether to close the payment registration page when there are unsaved payments.
+    /// This procedure checks for pending payments and prompts the user for confirmation before closing.
+    /// </summary>
+    /// <param name="PaymentRegistrationBuffer">The payment registration buffer to check for pending payments.</param>
+    /// <returns>True if the user confirms closing or there are no pending payments, false otherwise.</returns>
     procedure ConfirmClose(var PaymentRegistrationBuffer: Record "Payment Registration Buffer"): Boolean
     begin
         PaymentRegistrationBuffer.Reset();
@@ -166,6 +192,11 @@ codeunit 980 "Payment Registration Mgt."
         exit(true);
     end;
 
+    /// <summary>
+    /// Confirms and posts payment registrations after validation.
+    /// This procedure validates payment entries and posts them after user confirmation.
+    /// </summary>
+    /// <param name="PaymentRegistrationBuffer">The payment registration buffer containing payments to post.</param>
     procedure ConfirmPost(var PaymentRegistrationBuffer: Record "Payment Registration Buffer")
     var
         PaymentRegistrationBuffer2: Record "Payment Registration Buffer";
@@ -183,6 +214,14 @@ codeunit 980 "Payment Registration Mgt."
         PaymentRegistrationBuffer.CopyFilters(PaymentRegistrationBuffer2);
     end;
 
+    /// <summary>
+    /// Finds document records that match the specified search criteria.
+    /// This procedure searches for sales documents, reminders, and finance charge memos based on document number and amount filters.
+    /// </summary>
+    /// <param name="TempDocumentSearchResult">Temporary table to store the search results.</param>
+    /// <param name="DocNoFilter">Document number filter for the search.</param>
+    /// <param name="AmountFilter">Amount filter for the search.</param>
+    /// <param name="AmountTolerancePerc">Percentage tolerance for amount matching.</param>
     procedure FindRecords(var TempDocumentSearchResult: Record "Document Search Result" temporary; DocNoFilter: Code[20]; AmountFilter: Decimal; AmountTolerancePerc: Decimal)
     begin
         if not TempDocumentSearchResult.IsTemporary then
@@ -255,6 +294,11 @@ codeunit 980 "Payment Registration Mgt."
         end;
     end;
 
+    /// <summary>
+    /// Shows the detailed records for a selected document search result.
+    /// This procedure opens the appropriate page to display the full document details based on the search result type.
+    /// </summary>
+    /// <param name="TempDocumentSearchResult">The temporary document search result record to show details for.</param>
     procedure ShowRecords(var TempDocumentSearchResult: Record "Document Search Result" temporary)
     var
         ReminderHeader: Record "Reminder Header";
@@ -356,6 +400,16 @@ codeunit 980 "Payment Registration Mgt."
         end;
     end;
 
+    /// <summary>
+    /// Inserts a document search result record into the temporary search result table.
+    /// This procedure creates a new search result entry for documents found during payment registration searches.
+    /// </summary>
+    /// <param name="TempDocumentSearchResult">The temporary table to insert the search result into.</param>
+    /// <param name="DocNo">The document number of the found document.</param>
+    /// <param name="DocType">The document type identifier.</param>
+    /// <param name="TableID">The table ID of the source document.</param>
+    /// <param name="DocTypeDescription">A descriptive text for the document type.</param>
+    /// <param name="Amount">The amount associated with the found document.</param>
     procedure InsertDocSearchResult(var TempDocumentSearchResult: Record "Document Search Result" temporary; DocNo: Code[20]; DocType: Integer; TableID: Integer; DocTypeDescription: Text[50]; Amount: Decimal)
     begin
         if not TempDocumentSearchResult.Get(DocType, DocNo, TableID) then begin
@@ -369,6 +423,14 @@ codeunit 980 "Payment Registration Mgt."
         end;
     end;
 
+    /// <summary>
+    /// Sets tolerance limits for amount matching and returns formatted tolerance information.
+    /// This procedure calculates and displays tolerance ranges for payment amount matching.
+    /// </summary>
+    /// <param name="Amount">The base amount for tolerance calculation.</param>
+    /// <param name="AmountTolerance">The tolerance percentage to apply.</param>
+    /// <param name="ToleranceTxt">The tolerance text template to format.</param>
+    /// <returns>Formatted text showing the tolerance limits for the specified amount.</returns>
     procedure SetToleranceLimits(Amount: Decimal; AmountTolerance: Decimal; ToleranceTxt: Text): Text
     var
         GLSetup: Record "General Ledger Setup";
@@ -381,6 +443,14 @@ codeunit 980 "Payment Registration Mgt."
         exit('');
     end;
 
+    /// <summary>
+    /// Determines whether an amount is within the specified tolerance range of a filter amount.
+    /// This procedure is used for amount matching during document searches and payment registration.
+    /// </summary>
+    /// <param name="Amount">The amount to check against the tolerance range.</param>
+    /// <param name="FilterAmount">The base amount for tolerance calculation.</param>
+    /// <param name="TolerancePct">The tolerance percentage (0-100) to apply.</param>
+    /// <returns>True if the amount is within tolerance, false otherwise.</returns>
     procedure IsWithinTolerance(Amount: Decimal; FilterAmount: Decimal; TolerancePct: Decimal): Boolean
     begin
         if FilterAmount = 0 then
@@ -614,6 +684,11 @@ codeunit 980 "Payment Registration Mgt."
         Result := PaymentRegistrationMgt.Run(RecVar);
     end;
 
+    /// <summary>
+    /// Integration event raised after payment registration entries have been posted.
+    /// This event allows external extensions to perform additional processing after payments are posted.
+    /// </summary>
+    /// <param name="TempPaymentRegistrationBuffer">The temporary payment registration buffer containing the posted payment data.</param>
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnAfterPostPaymentRegistration(var TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary)
@@ -635,6 +710,11 @@ codeunit 980 "Payment Registration Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before posting payment registration entries.
+    /// This event allows external extensions to validate or modify payment data before posting.
+    /// </summary>
+    /// <param name="TempPaymentRegistrationBuffer">The temporary payment registration buffer containing the payment data to be posted.</param>
     [IntegrationEvent(false, false)]
     procedure OnBeforePost(var TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary)
     begin

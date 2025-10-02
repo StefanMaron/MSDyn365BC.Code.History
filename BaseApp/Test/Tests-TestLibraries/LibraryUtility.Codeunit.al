@@ -26,8 +26,13 @@ codeunit 131000 "Library - Utility"
         NoSeriesCode: Code[20];
     begin
         NoSeriesCode := NoSeries.Code + GenerateRandomCode(NoSeries.FieldNo(Code), DATABASE::"No. Series");
-        LibraryNoSeries.CreateNoSeries(NoSeriesCode, Default, Manual, DateOrder);
+        CreateNoSeries(NoSeriesCode, Default, Manual, DateOrder);
         NoSeries.Get(NoSeriesCode);
+    end;
+
+    procedure CreateNoSeries(NoSeriesCode: Code[20]; Default: Boolean; Manual: Boolean; DateOrder: Boolean)
+    begin
+        LibraryNoSeries.CreateNoSeries(NoSeriesCode, Default, Manual, DateOrder);
     end;
 
     procedure CreateNoSeriesLine(var NoSeriesLine: Record "No. Series Line"; SeriesCode: Code[20]; StartingNo: Code[20]; EndingNo: Code[20])
@@ -760,9 +765,9 @@ codeunit 131000 "Library - Utility"
 
     // Does the opposite of IncStr, i.e. decrements the last number in a string.
     // NOTE: Expects the string actually contains a number.
-    // NOTE: The implementation is not guaranteed to be correcet. Works for most common cases. 
+    // NOTE: The implementation is not guaranteed to be correcet. Works for most common cases.
     //  Verify the result like shown here:
-    //      decStr := DecStr(str); 
+    //      decStr := DecStr(str);
     //      Assert.AreEqual(str, IncStr(decStr)), 'DecStr not working.');
     procedure DecStr(str: Text): Text
     var

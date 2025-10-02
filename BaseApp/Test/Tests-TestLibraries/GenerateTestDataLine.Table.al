@@ -25,6 +25,7 @@ table 130150 "Generate Test Data Line"
         field(5; Progress; Decimal)
         {
             ExtendedDatatype = Ratio;
+            AutoFormatType = 0;
         }
         field(6; Status; Option)
         {
@@ -126,4 +127,3 @@ table 130150 "Generate Test Data Line"
                         Status := Status::Incomplete;
     end;
 }
-

@@ -1,6 +1,7 @@
 codeunit 139770 "Master Data Mgt. Setup Tests"
 {
     Subtype = Test;
+    RequiredTestIsolation = Disabled;
     TestPermissions = Disabled;
     EventSubscriberInstance = Manual;
 
@@ -127,10 +128,8 @@ codeunit 139770 "Master Data Mgt. Setup Tests"
 
         MasterDataManagementSetup.Validate("Is Enabled", false);
         BindSubscription(MasterDataMgtSetupTests);
-        BindSubscription(MasterDataMgtSynchTests);
         MasterDataManagementSetup.Modify(true);
         UnbindSubscription(MasterDataMgtSetupTests);
-        UnbindSubscription(MasterDataMgtSynchTests);
 
         // mappings are deleted, job queue entries are on hold, the coupling was kept
         JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Integration Synch. Job Runner");

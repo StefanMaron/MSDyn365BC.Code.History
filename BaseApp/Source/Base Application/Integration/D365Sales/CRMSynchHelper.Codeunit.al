@@ -682,6 +682,9 @@ codeunit 5342 "CRM Synch. Helper"
 
         Result := FindContactByAccountId(CompanyContact, AccountID, OutOfMapFilter);
 
+        if not Result then
+            OnFailedFindContactByAccountId(DestinationContactRecordRef, CompanyContact, AccountID, OutOfMapFilter, Result);
+
         DestinationContactRecordRef.SetTable(Contact);
         Contact."Company No." := CompanyContact."No.";
         Contact."Company Name" := CompanyContact.Name;
@@ -2180,6 +2183,11 @@ codeunit 5342 "CRM Synch. Helper"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFulfillSalesOrder(var SalesOrderId: Guid)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFailedFindContactByAccountId(DestinationContactRecordRef: RecordRef; var CompanyContact: Record Contact; AccountID: Guid; var OutOfMapFilter: Boolean; var Result: Boolean)
     begin
     end;
 }

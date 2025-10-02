@@ -154,7 +154,6 @@ codeunit 99000889 AvailabilityManagement
 
     procedure CalcCapableToPromise(var OrderPromisingLine: Record "Order Promising Line"; var OrderPromisingID: Code[20])
     var
-        CapableToPromise: Codeunit "Capable to Promise";
         LastValidLine: Integer;
         IsHandled: Boolean;
     begin
@@ -174,7 +173,7 @@ codeunit 99000889 AvailabilityManagement
                 CreateReservations(OrderPromisingLine);
             until OrderPromisingLine.Next() = 0;
 
-        CapableToPromise.ReassignRefOrderNos(OrderPromisingID);
+        OnAfterCalcCapableToPromise(OrderPromisingID);
     end;
 
     procedure CalcAvailableToPromise(var OrderPromisingLine: Record "Order Promising Line")
@@ -408,6 +407,11 @@ codeunit 99000889 AvailabilityManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcAvailableToPromiseLineOnAfterSetOriginalShipmentDate(var OrderPromisingLine: Record "Order Promising Line"; Item: Record Item; CompanyInformation: Record "Company Information"; var AvailableToPromise: Codeunit "Available to Promise")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcCapableToPromise(OrderPromisingID: Code[20]);
     begin
     end;
 }

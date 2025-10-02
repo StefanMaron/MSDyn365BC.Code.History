@@ -21,7 +21,7 @@ codeunit 1367 "Monitor Sensitive Field Data"
         Attributes: Dictionary of [Text, Text];
         IsAlwaysLoggedMonitorTableActive, IsMonitoredFieldActive : Boolean;
     begin
-        IsAlwaysLoggedMonitorTableActive := IsAlwaysLoggedMonitorTable(ChangeLogEntry, RecRef, FldRef);
+        IsAlwaysLoggedMonitorTableActive := IsAlwaysLoggedMonitorTable(ChangeLogEntry, RecRef, FldRef, IsAlwaysLoggedTable);
         IsMonitoredFieldActive := IsMonitoredField(TempChangeLogSetupField, RecRef, FldRef, IsMonitorEnabled);
 
         if IsAlwaysLoggedMonitorTableActive or IsMonitoredFieldActive then begin
@@ -100,13 +100,16 @@ codeunit 1367 "Monitor Sensitive Field Data"
         end;
     end;
 
-    local procedure IsAlwaysLoggedMonitorTable(var ChangeLogEntry: Record "Change Log Entry"; RecRef: RecordRef; FldRef: FieldRef): Boolean
+    local procedure IsAlwaysLoggedMonitorTable(var ChangeLogEntry: Record "Change Log Entry"; RecRef: RecordRef; FldRef: FieldRef; IsAlwaysLoggedTable: Boolean): Boolean
     var
         User: Record User;
         FieldMonitoringSetup: Record "Field Monitoring Setup";
         ChangeLogSetupField: Record "Change Log Setup (Field)";
         MonitorFieldNotification: Enum "Monitor Field Notification";
     begin
+        if IsAlwaysLoggedTable then
+            ChangeLogEntry."Field Log Entry Feature" := ChangeLogEntry."Field Log Entry Feature"::All;
+
         case RecRef.Number of
             Database::User:
                 if FldRef.Number = User.FieldNo("Contact Email") then

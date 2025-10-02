@@ -64,7 +64,6 @@ codeunit 137101 "SCM Kitting"
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryCosting: Codeunit "Library - Costing";
         LibraryERM: Codeunit "Library - ERM";
-        LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryResource: Codeunit "Library - Resource";
         LibrarySales: Codeunit "Library - Sales";
@@ -77,6 +76,7 @@ codeunit 137101 "SCM Kitting"
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryDimension: Codeunit "Library - Dimension";
+        LibraryPlanning: Codeunit "Library - Planning";
         isInitialized: Boolean;
         ItemNotBOMError: Label 'Item %1 is not a BOM.';
         ItemNotOnInventoryError: Label 'You have insufficient quantity of Item %1 on inventory.';
@@ -2736,11 +2736,8 @@ codeunit 137101 "SCM Kitting"
 #endif
 
     local procedure CalculateDateUsingDefaultSafetyLeadTime(): Date
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get();
-        exit(CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()));
+        exit(LibraryPlanning.SetSafetyWorkDate());
     end;
 
     local procedure CalculateStandardCostOnAssemblyBOM(var AssemblyBOM: TestPage "Assembly BOM"; ItemNo: Code[20])
@@ -2760,7 +2757,7 @@ codeunit 137101 "SCM Kitting"
         PostedAssemblyHeader.CalcActualCosts(ActualCosts);
         exit(ActualCosts[1] + ActualCosts[2] + ActualCosts[3] + ActualCosts[4] + ActualCosts[5]);
     end;
-
+#if not CLEAN25
     local procedure CopyAssemblyBOM(FromParentItemNo: Code[20]; ToParentItemNo: Code[20])
     var
         BOMComponent: Record "BOM Component";
@@ -2772,7 +2769,7 @@ codeunit 137101 "SCM Kitting"
               BOMComponent."Quantity per", true);  // Use Base Unit of Measure as True.
         until BOMComponent.Next() = 0;
     end;
-
+#endif
     local procedure CreateAndPostAssemblyOrder(var AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; AssemblyItemNo: Code[20]; Quantity: Decimal; HeaderQtyFactor: Integer; CompQtyFactor: Integer; UpdateAllComps: Boolean)
     begin
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, CalculateDateUsingDefaultSafetyLeadTime(), AssemblyItemNo, '', Quantity, '');
@@ -2953,15 +2950,6 @@ codeunit 137101 "SCM Kitting"
         AssemblyHeader.Validate("Document Type", AssemblyHeader."Document Type"::Order);
         AssemblyHeader.Validate("No.", AssemblyOrderNo);
         AssemblyHeader.Insert(true);
-    end;
-
-    local procedure CreateFiscalYearAndInventoryPeriod() PostingDate: Date
-    var
-        InventoryPeriod: Record "Inventory Period";
-    begin
-        LibraryFiscalYear.CreateFiscalYear();
-        PostingDate := LibraryFiscalYear.GetLastPostingDate(false);
-        LibraryInventory.CreateInventoryPeriod(InventoryPeriod, PostingDate);
     end;
 
     local procedure CreateInitialSetupForPostAsmOrdWithMultipleItems(var AssemblyHeader: Record "Assembly Header"; var AssemblyItem: Record Item)

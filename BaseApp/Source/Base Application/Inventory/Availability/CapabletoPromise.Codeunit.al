@@ -13,7 +13,6 @@ using Microsoft.Inventory;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Sales.Document;
 
 codeunit 99000886 "Capable to Promise"
@@ -399,57 +398,15 @@ codeunit 99000886 "Capable to Promise"
         exit(1);
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit ProdOrderAvailabilityMgt', '27.0')]
     procedure ReassignRefOrderNos(OrderPromisingID: Code[20])
     var
-        MfgSetup: Record "Manufacturing Setup";
-        RequisitionLine: Record "Requisition Line";
-        NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-#endif
-        NewRefOrderNo: Code[20];
-        LastRefOrderNo: Code[20];
-        IsHandled: Boolean;
+        ProdOrderAvailabilityMgt: Codeunit Microsoft.Manufacturing.Document."Prod. Order Availability Mgt.";
     begin
-        IsHandled := false;
-        OnBeforeReassignRefOrderNos(OrderPromisingID, IsHandled);
-        if IsHandled then
-            exit;
-
-        RequisitionLine.SetCurrentKey("Ref. Order Type", "Ref. Order Status", "Ref. Order No.", "Ref. Line No.");
-        RequisitionLine.SetRange("Order Promising ID", OrderPromisingID);
-        RequisitionLine.SetRange("Ref. Order Type", RequisitionLine."Ref. Order Type"::"Prod. Order");
-        RequisitionLine.SetRange("Ref. Order Status", RequisitionLine."Ref. Order Status"::Planned);
-        RequisitionLine.SetFilter("Ref. Order No.", '<>%1', '');
-        if not RequisitionLine.FindLast() then
-            exit;
-        LastRefOrderNo := RequisitionLine."Ref. Order No.";
-
-        MfgSetup.Get();
-        MfgSetup.TestField("Planned Order Nos.");
-
-        RequisitionLine.SetFilter("Ref. Order No.", '<>%1&<=%2', '', LastRefOrderNo);
-        RequisitionLine.Find('-');
-        repeat
-            RequisitionLine.SetRange("Ref. Order No.", RequisitionLine."Ref. Order No.");
-            RequisitionLine.FindLast();
-            NewRefOrderNo := '';
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(MfgSetup."Planned Order Nos.", RequisitionLine."No. Series", RequisitionLine."Due Date", NewRefOrderNo, RequisitionLine."No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
-                if not NoSeries.AreRelated(MfgSetup."Planned Order Nos.", RequisitionLine."No. Series") then
-                    RequisitionLine."No. Series" := MfgSetup."Planned Order Nos.";
-                NewRefOrderNo := NoSeries.GetNextNo(RequisitionLine."No. Series", RequisitionLine."Due Date");
-#if not CLEAN24
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(RequisitionLine."No. Series", MfgSetup."Planned Order Nos.", RequisitionLine."Due Date", NewRefOrderNo);
-            end;
-#endif
-            RequisitionLine.ModifyAll("Ref. Order No.", NewRefOrderNo);
-            OnReassignRefOrderNosOnAfterRequisitionLineModifyAll(RequisitionLine);
-            RequisitionLine.SetFilter("Ref. Order No.", '<>%1&<=%2', '', LastRefOrderNo);
-        until RequisitionLine.Next() = 0;
+        ProdOrderAvailabilityMgt.ReassignRefOrderNos(OrderPromisingID);
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReqLineInsert(var RequisitionLine: Record "Requisition Line")
@@ -491,14 +448,30 @@ codeunit 99000886 "Capable to Promise"
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnBeforeReassignRefOrderNos(OrderPromisingID: Code[20]; var IsHandled: Boolean);
+    begin
+        OnBeforeReassignRefOrderNos(OrderPromisingID, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit ProdOrderAvailabilityMgt', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReassignRefOrderNos(OrderPromisingID: Code[20]; var IsHandled: Boolean);
     begin
     end;
+#endif
 
+#if not CLEAN27
+    internal procedure RunOnReassignRefOrderNosOnAfterRequisitionLineModifyAll(var RequisitionLine: Record "Requisition Line");
+    begin
+        OnReassignRefOrderNosOnAfterRequisitionLineModifyAll(RequisitionLine);
+    end;
+
+    [Obsolete('Moved to codeunit ProdOrderAvailabilityMgt', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnReassignRefOrderNosOnAfterRequisitionLineModifyAll(var RequisitionLine: Record "Requisition Line");
     begin
     end;
+#endif
 }
 

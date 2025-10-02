@@ -47,7 +47,7 @@ page 6757 "Reminder Act. History Log"
                     Caption = 'Last record processed';
                     ToolTip = 'Specifies the last record processed by the action job. In case of an error this was the last record processed before the error occurred. If the job was successful, this was the last record processed by the job.';
                 }
-#if not CLEAN25
+#if not CLEAN26
                 field(TotalErrors; Rec."Total Errors")
                 {
                     ApplicationArea = All;
@@ -56,7 +56,9 @@ page 6757 "Reminder Act. History Log"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'This field is obsolete and should not be used.';
-                    ObsoleteTag = '25.0';
+#pragma warning disable AS0074
+                ObsoleteTag = '26.0';
+#pragma warning restore AS0074
                 }
 #endif
             }

@@ -11,6 +11,7 @@ using System.Environment;
 using System.Privacy;
 using System.Security.Encryption;
 using System.Threading;
+using System.Telemetry;
 
 table 7200 "CDS Connection Setup"
 {
@@ -70,6 +71,7 @@ table 7200 "CDS Connection Setup"
             trigger OnValidate()
             var
                 CRMConnectionSetup: Record "CRM Connection Setup";
+                AuditLog: Codeunit "Audit Log";
                 CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
                 CDSConnectionConsentLbl: Label 'CDS Connection Setup - consent has been provided by UserSecurityId %1.', Locked = true;
             begin
@@ -82,7 +84,7 @@ table 7200 "CDS Connection Setup"
                 end;
 
                 Session.LogMessage('0000CDS', CDSConnEnabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-                Session.LogAuditMessage(StrSubstNo(CDSConnectionConsentLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
+                AuditLog.LogAuditMessage(StrSubstNo(CDSConnectionConsentLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
 
                 if IsTemporary() then begin
                     CDSIntegrationImpl.CheckConnectionRequiredFields(Rec, false);

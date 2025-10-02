@@ -48,6 +48,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Bank Account Buffer");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payment Address");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Unreal. CV Ledg. Entry Buffer");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Alt. Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cause of Absence");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");

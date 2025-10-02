@@ -243,7 +243,8 @@ report 6080 "Serv. Pricing Profitability"
 
     requestpage
     {
-
+        AboutTitle = 'About Service Pricing Profitability';
+        AboutText = 'Analyze profits from your service pricing.';
         layout
         {
         }

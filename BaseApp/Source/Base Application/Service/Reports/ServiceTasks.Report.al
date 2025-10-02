@@ -105,7 +105,8 @@ report 5904 "Service Tasks"
 
     requestpage
     {
-
+        AboutTitle = 'About Service Tasks';
+        AboutText = 'Get an overview of service tasks.';
         layout
         {
         }

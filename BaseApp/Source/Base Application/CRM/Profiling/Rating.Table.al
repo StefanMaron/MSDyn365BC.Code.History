@@ -40,11 +40,11 @@ table 5111 Rating
         }
         field(5; Points; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Points';
             DecimalPlaces = 0 : 0;
         }
-#pragma warning disable AS0086
         field(6; "Profile Question Description"; Text[250])
         {
             CalcFormula = lookup("Profile Questionnaire Line".Description where("Profile Questionnaire Code" = field("Profile Questionnaire Code"),
@@ -53,7 +53,6 @@ table 5111 Rating
             Editable = false;
             FieldClass = FlowField;
         }
-#pragma warning restore AS0086
     }
 
     keys
@@ -121,4 +120,3 @@ table 5111 Rating
         end;
     end;
 }
-

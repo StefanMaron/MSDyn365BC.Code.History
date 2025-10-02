@@ -1,6 +1,6 @@
 codeunit 144015 "ERM FR Feature Bugs"
 {
-    // 
+    //
     //   1. Test to verify that Book Value is zero when the TAX Depreciation Book achieves the Depreciation End Date.
     //   2. Test to verify that Derogatory Amount is only visible in the TAX Depreciation Book.
     //   3. Test to verify that Derogatory Entries are considered only in the TAX Depreciation Book.
@@ -14,7 +14,7 @@ codeunit 144015 "ERM FR Feature Bugs"
     //  11. Test to verify VAT Prod. Posting Group on Purchase Line When changed through Vat Rate Change Setup Page.
     //  12. Test to verify Dimension on Payment Slip flow form Vendor.
     //  13. Test to verify Dimension on Payment Slip flow form Customer.
-    // 
+    //
     //   Covers Test Cases for WI - 344026
     //   ----------------------------------------------------------------------------------
     //   Test Function Name                                                       TFS ID
@@ -29,7 +29,7 @@ codeunit 144015 "ERM FR Feature Bugs"
     //   ShipmentInvoicedForPostedSalesInvoiceGetShipmentLine                     152142
     //   ShipmentInvoicedForMultiLinePostedSalesInvoice                           152141
     //   ShipmentInvoicedForSingleLinePostedSalesInvoice                          152140
-    // 
+    //
     //   Covers Test Cases for WI - 344431.
     //   ----------------------------------------------------------------------------------
     //   Test Function Name                                                       TFS ID
@@ -683,17 +683,6 @@ codeunit 144015 "ERM FR Feature Bugs"
         LibraryDimension.CreateDefaultDimensionVendor(DefaultDimension, Vendor."No.", Dimension.Code, '');
     end;
 
-    local procedure PostSalesInvoiceWithGetShipmentLine(var ShipmentNo: Code[20]): Code[20]
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-    begin
-        ShipmentNo := CreateShipmentAndSalesInvoice(SalesLine);
-        LibrarySales.GetShipmentLines(SalesLine);  // Invokes GetShipmentLinesPageHandler.
-        SalesHeader.Get(SalesLine."Document Type"::Invoice, SalesLine."Document No.");
-        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));  // Post as Ship and Invoice.
-    end;
-
     local procedure RunCalculateDepreciationReport(DepreciationBookCode: Code[10])
     begin
         LibraryVariableStorage.Enqueue(DepreciationBookCode);
@@ -824,4 +813,3 @@ codeunit 144015 "ERM FR Feature Bugs"
         Reply := false;
     end;
 }
-

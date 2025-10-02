@@ -187,6 +187,8 @@ report 5611 "FA Posting Group - Net Change"
 
     requestpage
     {
+        AboutTitle = 'About FA Posting Group - Net Change';
+        AboutText = 'Review the net change posted in the fixed asset ledger entries for a fixed asset (FA) posting group. If general ledger integration is active for a depreciation book, the amounts in the report should be the same as the net change in the general ledger accounts assigned to the fixed asset posting groups. You can use the report when you reconcile the fixed asset ledger and general ledger.';
         SaveValues = true;
 
         layout

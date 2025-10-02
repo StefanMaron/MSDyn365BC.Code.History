@@ -4,6 +4,16 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.PositivePay;
 
+/// <summary>
+/// Displays a list of positive pay entries showing upload history and summary information for bank accounts.
+/// This page provides users with an overview of all positive pay file uploads and their status.
+/// </summary>
+/// <remarks>
+/// The Positive Pay Entries page allows users to view the history of positive pay file uploads for bank accounts.
+/// Users can see upload dates, times, confirmation numbers, and summary statistics including check counts and amounts.
+/// The page provides navigation to detailed check information and supports re-exporting positive pay files if needed.
+/// All fields are read-only as this page serves as a historical record of uploads rather than data entry.
+/// </remarks>
 page 1231 "Positive Pay Entries"
 {
     Caption = 'Positive Pay Entries';

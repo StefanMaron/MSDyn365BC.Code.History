@@ -49,7 +49,6 @@ report 10868 "Draft notice"
         }
         dataitem(Vendor; Vendor)
         {
-            DataItemLinkReference = "Payment Lines1";
             DataItemTableView = sorting("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
@@ -496,4 +495,3 @@ report 10868 "Draft notice"
         exit("Payment Lines1"."Currency Code");
     end;
 }
-

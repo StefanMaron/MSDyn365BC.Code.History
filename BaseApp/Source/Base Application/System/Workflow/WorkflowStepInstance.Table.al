@@ -234,6 +234,7 @@ table 1504 "Workflow Step Instance"
         SkipRecord: Boolean;
         ComparisonValue: Text;
     begin
+        WorkflowTableRelationValue.ReadIsolation := ReadIsolation::ReadUncommitted;
         WorkflowTableRelationValue.SetRange("Workflow Step Instance ID", ID);
         WorkflowTableRelationValue.SetRange("Workflow Code", "Workflow Code");
         WorkflowTableRelationValue.SetRange("Workflow Step ID", "Workflow Step ID");
@@ -310,6 +311,7 @@ table 1504 "Workflow Step Instance"
 
     procedure FindWorkflowRules(var WorkflowRule: Record "Workflow Rule"): Boolean
     begin
+        WorkflowRule.ReadIsolation := ReadIsolation::ReadUncommitted;
         WorkflowRule.SetRange("Workflow Code", "Workflow Code");
         WorkflowRule.SetRange("Workflow Step ID", "Workflow Step ID");
         WorkflowRule.SetRange("Workflow Step Instance ID", ID);

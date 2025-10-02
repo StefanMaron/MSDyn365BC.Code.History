@@ -132,6 +132,8 @@ report 5063 "Segment - Contacts"
 
     requestpage
     {
+        AboutTitle = 'About Segment - Contacts';
+        AboutText = 'Review the distribution of contacts across segments.';
         SaveValues = true;
 
         layout
