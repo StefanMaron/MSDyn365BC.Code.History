@@ -41,6 +41,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Bank Pmt. Appl. Algorithm - NamedType LinesAreAppliedTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3178498301 - NamedType 1425599082" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Payment Discount Amount is incorrect in Detailed Cust. Ledger Entry.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Bank Pmt. Appl. Tolerance - NamedType PaymentDiscAmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4098524687 - NamedType 2336376477" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot delete this bank account because it is associated with one or more open ledger entries.]]></Val>

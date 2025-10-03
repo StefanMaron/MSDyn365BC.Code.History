@@ -100,6 +100,7 @@
         GlobalDimensionCodeErr: Label '%1 must be blank in %2.', Comment = '%1=Field Caption; %2 Page Caption.';
         SourceCurrencyErr: Label '%1 must be negative.', Comment = '%1=Field Caption.';
         PurchaseLineQtyErr: Label 'Purchase Line %1 must be equal to %2', Comment = '%1= Field ,%2= Value';
+        ItemFilterOnAnalysisViewCardMatchesCreatedItemErr: Label 'The created item should be selected in the analysis view card.';
 
     [Test]
     [Scope('OnPrem')]
@@ -9003,6 +9004,72 @@
         // [THEN] No error should appear and Warehouse Receipt should be posted successfully.
     end;
 
+    [Test]
+    [HandlerFunctions('ItemListOkModalPageHandler')]
+    procedure VerifyCreatedItemSelectedInPurchaseAnalysisViewCard()
+    var
+        Item: Record Item;
+        ItemAnalysisView: Record "Item Analysis View";
+        ItemNo: Code[20];
+        PurchaseAnalysisViewCard: TestPage "Purchase Analysis View Card";
+    begin
+        // [SCENARIO 601502] Verify created item is selected in purchase analysis view Card when ok is clicked on item lookup page.
+        Initialize();
+
+        // [GIVEN] Create a new item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Purchase Analysis View
+        LibraryERM.CreateItemAnalysisView(ItemAnalysisView, ItemAnalysisView."Analysis Area"::Purchase);
+
+        // [GIVEN] Open Purchase Analysis View Card.
+        PurchaseAnalysisViewCard.OpenView();
+        PurchaseAnalysisViewCard.GoToRecord(ItemAnalysisView);
+        LibraryVariableStorage.Enqueue(Item."No.");
+
+        // [WHEN] Set Item Filter via lookup and select the created item
+        PurchaseAnalysisViewCard."Item Filter".Lookup();
+        ItemNo := PurchaseAnalysisViewCard."Item Filter".Value();
+        PurchaseAnalysisViewCard.Close();
+
+        // [THEN] Verify the Item Filter on Purchase Analysis View Card matches the created item
+        Assert.AreEqual(Item."No.", ItemNo, ItemFilterOnAnalysisViewCardMatchesCreatedItemErr);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemListCancelModalPageHandler')]
+    procedure VerifyCreatedItemNotSelectedInPurchaseAnalysisViewCard()
+    var
+        Item: Record Item;
+        ItemAnalysisView: Record "Item Analysis View";
+        ItemNo: Code[20];
+        PurchaseAnalysisViewCard: TestPage "Purchase Analysis View Card";
+    begin
+        // [SCENARIO 601502] Verify created item is not selected in purchase analysis view card when cancel is clicked on item lookup page.
+        Initialize();
+
+        // [GIVEN] Create a new item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Purchase Analysis View
+        LibraryERM.CreateItemAnalysisView(ItemAnalysisView, ItemAnalysisView."Analysis Area"::Purchase);
+
+        // [GIVEN] Open Purchase Analysis View Card.
+        PurchaseAnalysisViewCard.OpenView();
+        PurchaseAnalysisViewCard.GoToRecord(ItemAnalysisView);
+        LibraryVariableStorage.Enqueue(Item."No.");
+
+        // [WHEN] Set Item Filter via lookup and select the created item
+        PurchaseAnalysisViewCard."Item Filter".Lookup();
+        ItemNo := PurchaseAnalysisViewCard."Item Filter".Value();
+        PurchaseAnalysisViewCard.Close();
+
+        // [THEN] Verify that the Item Filter on the Purchase Analysis View Card is cleared when canceled.
+        Assert.AreEqual('', ItemNo, ItemFilterOnAnalysisViewCardMatchesCreatedItemErr);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -12884,5 +12951,19 @@
     procedure PrintPurchaseOrderRequestPageHandler(var StandardPurchaseOrder: TestRequestPage "Standard Purchase - Order")
     begin
         Assert.IsTrue(StandardPurchaseOrder.LogInteraction.Enabled(), InteractionLogErr);
+    end;
+
+    [ModalPageHandler]
+    procedure ItemListOkModalPageHandler(var ItemList: TestPage "Item List")
+    begin
+        ItemList.Filter.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ItemList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ItemListCancelModalPageHandler(var ItemList: TestPage "Item List")
+    begin
+        ItemList.Filter.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ItemList.Cancel().Invoke();
     end;
 }

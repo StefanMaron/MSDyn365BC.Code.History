@@ -18,6 +18,7 @@ using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
+using System.Telemetry;
 using Microsoft.Sales.Posting;
 using Microsoft.Sales.Receivables;
 using Microsoft.Utilities;
@@ -32,13 +33,141 @@ using Microsoft.eServices.EDocument.IO.Peppol;
 using Microsoft.Purchases.Setup;
 using System.Utilities;
 
-codeunit 6103 "E-Document Subscription"
+codeunit 6103 "E-Document Subscribers"
 {
     Access = Internal;
     Permissions =
         tabledata "E-Document" = m;
 
-    // Release events
+    var
+        EDocExport: Codeunit "E-Doc. Export";
+        EDocumentHelper: Codeunit "E-Document Helper";
+        EDocumentProcessingPhase: Enum "E-Document Processing Phase";
+        DeleteDocumentQst: Label 'This document is linked to E-Document %1. Do you want to continue?', Comment = '%1 - E-Document Entry No.';
+        DocumentSendingProfileWithWorkflowErr: Label 'Workflow %1 defined for %2 in Document Sending Profile %3 is not found.', Comment = '%1 - The workflow code, %2 - Enum value set in Electronic Document, %3 - Document Sending Profile Code';
+
+
+
+    #region Draft page user edits 
+
+    [EventSubscriber(ObjectType::Page, Page::"E-Document Purchase Draft", OnAfterValidateEvent, "Vendor No.", false, false)]
+    local procedure OnAfterValidateDraftPageVendorNo(var Rec: Record "E-Document"; var xRec: Record "E-Document")
+    var
+        NullGuid: Guid;
+    begin
+        LogAfterValidate(Rec."Entry No", NullGuid, 'Vendor No.');
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"E-Doc. Purchase Draft Subform", OnAfterValidateEvent, "Line Type", false, false)]
+    local procedure OnAfterValidateDraftPageLineType(var Rec: Record "E-Document Purchase Line"; var xRec: Record "E-Document Purchase Line")
+    begin
+        if Rec."[BC] Purchase Line Type" = xRec."[BC] Purchase Line Type" then
+            exit;
+        LogAfterValidate(Rec."E-Document Entry No.", Rec.SystemId, 'Line Type');
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"E-Doc. Purchase Draft Subform", OnAfterValidateEvent, "No.", false, false)]
+    local procedure OnAfterValidateDraftPageNo(var Rec: Record "E-Document Purchase Line"; var xRec: Record "E-Document Purchase Line")
+    begin
+        if Rec."[BC] Purchase Type No." = xRec."[BC] Purchase Type No." then
+            exit;
+        LogAfterValidate(Rec."E-Document Entry No.", Rec.SystemId, 'No.');
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"E-Doc. Purchase Draft Subform", OnAfterValidateEvent, "Item Reference No.", false, false)]
+    local procedure OnAfterValidateDraftPageItemReferenceNo(var Rec: Record "E-Document Purchase Line"; var xRec: Record "E-Document Purchase Line")
+    begin
+        if Rec."[BC] Item Reference No." = xRec."[BC] Item Reference No." then
+            exit;
+        LogAfterValidate(Rec."E-Document Entry No.", Rec.SystemId, 'Item Reference No.');
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"E-Doc. Purchase Draft Subform", OnAfterValidateEvent, "Unit Of Measure", false, false)]
+    local procedure OnAfterValidateDraftPageUnitOfMeasure(var Rec: Record "E-Document Purchase Line"; var xRec: Record "E-Document Purchase Line")
+    begin
+        if Rec."[BC] Unit of Measure" = xRec."[BC] Unit of Measure" then
+            exit;
+        LogAfterValidate(Rec."E-Document Entry No.", Rec.SystemId, 'Unit Of Measure');
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"E-Doc. Purchase Draft Subform", OnAfterValidateEvent, "Variant Code", false, false)]
+    local procedure OnAfterValidateDraftPageVariantCode(var Rec: Record "E-Document Purchase Line"; var xRec: Record "E-Document Purchase Line")
+    begin
+        if Rec."[BC] Variant Code" = xRec."[BC] Variant Code" then
+            exit;
+        LogAfterValidate(Rec."E-Document Entry No.", Rec.SystemId, 'Variant Code');
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"E-Doc. Purchase Draft Subform", OnAfterValidateEvent, Quantity, false, false)]
+    local procedure OnAfterValidateDraftPageQuantity(var Rec: Record "E-Document Purchase Line"; var xRec: Record "E-Document Purchase Line")
+    begin
+        if Rec.Quantity = xRec.Quantity then
+            exit;
+        LogAfterValidate(Rec."E-Document Entry No.", Rec.SystemId, 'Quantity');
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"E-Doc. Purchase Draft Subform", OnAfterValidateEvent, "Direct Unit Cost", false, false)]
+    local procedure OnAfterValidateDraftPageDirectUnitCost(var Rec: Record "E-Document Purchase Line"; var xRec: Record "E-Document Purchase Line")
+    begin
+        if Rec."Unit Price" = xRec."Unit Price" then
+            exit;
+        LogAfterValidate(Rec."E-Document Entry No.", Rec.SystemId, 'Direct Unit Cost');
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"E-Doc. Purchase Draft Subform", OnAfterValidateEvent, "Total Discount", false, false)]
+    local procedure OnAfterValidateDraftPageTotalDiscount(var Rec: Record "E-Document Purchase Line"; var xRec: Record "E-Document Purchase Line")
+    begin
+        if Rec."Total Discount" = xRec."Total Discount" then
+            exit;
+        LogAfterValidate(Rec."E-Document Entry No.", Rec.SystemId, 'Total Discount');
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"E-Doc. Purchase Draft Subform", OnAfterValidateEvent, "Deferral Code", false, false)]
+    local procedure OnAfterValidateDraftPageDeferralCode(var Rec: Record "E-Document Purchase Line"; var xRec: Record "E-Document Purchase Line")
+    begin
+        if Rec."[BC] Deferral Code" = xRec."[BC] Deferral Code" then
+            exit;
+        LogAfterValidate(Rec."E-Document Entry No.", Rec.SystemId, 'Deferral Code');
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"E-Doc. Purchase Draft Subform", OnAfterValidateEvent, "Shortcut Dimension 1 Code", false, false)]
+    local procedure OnAfterValidateDraftPageShortcutDim1(var Rec: Record "E-Document Purchase Line"; var xRec: Record "E-Document Purchase Line")
+    begin
+        if Rec."[BC] Shortcut Dimension 1 Code" = xRec."[BC] Shortcut Dimension 1 Code" then
+            exit;
+        LogAfterValidate(Rec."E-Document Entry No.", Rec.SystemId, 'Shortcut Dimension 1 Code');
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"E-Doc. Purchase Draft Subform", OnAfterValidateEvent, "Shortcut Dimension 2 Code", false, false)]
+    local procedure OnAfterValidateDraftPageShortcutDim2(var Rec: Record "E-Document Purchase Line"; var xRec: Record "E-Document Purchase Line")
+    begin
+        if Rec."[BC] Shortcut Dimension 2 Code" = xRec."[BC] Shortcut Dimension 2 Code" then
+            exit;
+        LogAfterValidate(Rec."E-Document Entry No.", Rec.SystemId, 'Shortcut Dimension 2 Code');
+    end;
+
+    local procedure LogAfterValidate(EDocumentEntryNo: Integer; LineSystemId: Guid; FieldName: Text)
+    var
+        EDocument: Record "E-Document";
+        EDocImpSessionTelemetry: Codeunit "E-Doc. Imp. Session Telemetry";
+        Telemetry: Codeunit Telemetry;
+        TelemetryDimensions: Dictionary of [Text, Text];
+        DraftChangeTok: Label 'Draft Field Validation', Locked = true;
+    begin
+        EDocument.SetLoadFields("Entry No");
+        EDocument.ReadIsolation(IsolationLevel::ReadUncommitted);
+        if not EDocument.Get(EDocumentEntryNo) then
+            exit;
+        TelemetryDimensions.Add('Field', FieldName);
+        TelemetryDimensions.Add(EDocImpSessionTelemetry.GetEDocSystemIdTok(), EDocImpSessionTelemetry.CreateSystemIdText(EDocument.SystemId));
+        if not IsNullGuid(LineSystemId) then
+            TelemetryDimensions.Add(EDocImpSessionTelemetry.GetEDocLineSystemIdTok(), EDocImpSessionTelemetry.CreateSystemIdText(LineSystemId));
+        Telemetry.LogMessage('0000PYF', DraftChangeTok, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
+    end;
+
+    #endregion
+
+    #region Release events
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Sales Document", 'OnBeforeReleaseSalesDoc', '', false, false)]
     local procedure OnBeforeReleaseSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean; SkipCheckReleaseRestrictions: Boolean)
     begin
@@ -56,8 +185,9 @@ codeunit 6103 "E-Document Subscription"
     begin
         RunEDocumentCheck(ServiceHeader, EDocumentProcessingPhase::Release);
     end;
+    #endregion Release events
 
-    // Posting check events
+    #region Posting check events
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterCheckAndUpdate', '', false, false)]
     local procedure OnAfterCheckAndUpdateSales(var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; PreviewMode: Boolean)
     begin
@@ -87,8 +217,10 @@ codeunit 6103 "E-Document Subscription"
     begin
         RunEDocumentCheck(ReminderHeader, EDocumentProcessingPhase::Post);
     end;
+    #endregion Posting check events
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterPostSalesDoc', '', false, false)]
+    #region After posting events
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", OnAfterPostSalesDoc, '', false, false)]
     local procedure OnAfterPostSalesDoc(var SalesHeader: Record "Sales Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; SalesShptHdrNo: Code[20]; RetRcpHdrNo: Code[20]; SalesInvHdrNo: Code[20]; SalesCrMemoHdrNo: Code[20]; CommitIsSuppressed: Boolean; InvtPickPutaway: Boolean; var CustLedgerEntry: Record "Cust. Ledger Entry"; WhseShip: Boolean; WhseReceiv: Boolean; PreviewMode: Boolean)
     var
         SalesInvHeader: Record "Sales Invoice Header";
@@ -205,6 +337,8 @@ codeunit 6103 "E-Document Subscription"
         if IssuedReminderHeader.Get(IssuedReminderNo) then
             CreateEDocumentFromPostedDocument(IssuedReminderHeader, DocumentSendingProfile, Enum::"E-Document Type"::"Issued Reminder");
     end;
+
+    #endregion After posting events
 
     [EventSubscriber(ObjectType::Table, Database::"Document Sending Profile", 'OnCheckElectronicSendingEnabled', '', false, false)]
     local procedure OnCheckElectronicSendingEnabled(var ExchServiceEnabled: Boolean)
@@ -382,10 +516,4 @@ codeunit 6103 "E-Document Subscription"
         end;
     end;
 
-    var
-        EDocExport: Codeunit "E-Doc. Export";
-        EDocumentHelper: Codeunit "E-Document Helper";
-        EDocumentProcessingPhase: Enum "E-Document Processing Phase";
-        DeleteDocumentQst: Label 'This document is linked to E-Document %1. Do you want to continue?', Comment = '%1 - E-Document Entry No.';
-        DocumentSendingProfileWithWorkflowErr: Label 'Workflow %1 defined for %2 in Document Sending Profile %3 is not found.', Comment = '%1 - The workflow code, %2 - Enum value set in Electronic Document, %3 - Document Sending Profile Code';
 }

@@ -40,6 +40,7 @@ codeunit 137074 "SCM Capacity Requirements"
         ProdOrderNeedQtyErr: Label '%1 must be %2 in %3', Comment = '%1 = Prod. Order Need (Qty.), %2 = value, %3 = WorkCenterGroupLoadlines';
         Description2Err: Label 'Description must not be blank in %1.', Comment = '%1 = Table Caption.';
         EndingTimeErr: Label 'Ending Time must be equal to %1', Comment = '%1 = Ending Time';
+        UniCostCalculationErr: Label 'Unit Cost Calculation must be %1 in %2', Comment = '%1 = Field Value, %2 = Prod. Order Routing Line';
 
     [Test]
     [Scope('OnPrem')]
@@ -4798,6 +4799,106 @@ codeunit 137074 "SCM Capacity Requirements"
 
         // [THEN] Verify expected time should be same as Output quantity deducted from Production Order quantity, runtime is 1
         Assert.AreEqual(ExpectedTime, TotalQty - OutputQty, EndingTimeErr);
+    end;
+
+    [Test]
+    procedure ProductionOrderRoutingLineUnitCostCalculationMachineCenter()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        WorkCenter: Record "Work Center";
+        MachineCenter: Record "Machine Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
+        WorkCenterCode: Code[20];
+    begin
+        // [SCENARIO 593788] Production Order Routing Line has Unit Cost Calculation from the Machine Center after adding Machine Center to the Prod. Order Routing Line.
+        Initialize();
+
+        // [GIVEN] Create a Work Center.
+        CreateWorkCenter(WorkCenter);
+
+        // [GIVEN] Calculate Work Center Calendar.
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, WorkDate() - 30, WorkDate() + 30);
+
+        // [GIVEN] Create Macine Center with Calendar.
+        CreateMachineCenterWithCalendar(MachineCenter, WorkCenter);
+
+        // [GIVEN] Create Production Item  with single routing line and Work Center, SetupTime=0, runtime=1 and WaitTime=0
+        CreateProductionItemWithRouting(
+          Item,
+          LibraryRandom.RandIntInRange(0, 0),
+          LibraryRandom.RandIntInRange(1, 1),
+          LibraryRandom.RandIntInRange(0, 0),
+          LibraryRandom.RandIntInRange(0, 0),
+          WorkDate());
+
+        // [GIVEN] Create Work Center with Shop Calendar.
+        WorkCenterCode := CreateWorkCenterWithShopCalendar(CapacityUnitOfMeasure.Type::Minutes, CreateShopCalendar(), LibraryRandom.RandIntInRange(100, 100), LibraryRandom.RandIntInRange(1, 1), WorkDate());
+
+        // [GIVEN] Create a Production Item.
+        CreateItem(Item, Item."Replenishment System"::"Prod. Order");
+
+        // [GIVEN] Create Routing with Machine Center.
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Parallel);
+        CreateRoutingLineWithSendAhead(
+          RoutingLine,
+          RoutingHeader,
+          RoutingLine.Type::"Work Center",
+          WorkCenterCode,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          LibraryUtility.GenerateRandomText(5),
+          '',
+          '');
+
+        // [GIVEN] Update Routing Status and Assign Routing No. to Item.
+        UpdateStatusOnRoutingHeader(RoutingHeader, RoutingHeader.Status::Certified);
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
+
+        // [GIVEN] Create Production Order and releases it with given quantity and time.
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder,
+          ProductionOrder.Status::Released,
+          ProductionOrder."Source Type"::Item,
+          Item."No.",
+          LibraryRandom.RandIntInRange(5, 10));
+
+        // [GIVEN] Set Starting Date, Starting Time and Due Date to Production Order.
+        ProductionOrder.SetUpdateEndDate();
+        ProductionOrder.Validate("Starting Date", WorkDate());
+        ProductionOrder.Validate("Starting Time", Time());
+        ProductionOrder.Validate("Due Date", WorkDate() + 1);
+        ProductionOrder.Modify(true);
+
+        // [GIVEN] Refresh Production Order.
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [GIVEN] Find first Prod. Order Routing Line
+        FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
+
+        // [WHEN] Insert Prod. Order Routing Line, Validate Type and No. with Machine Center.
+        ProdOrderRoutingLine.Init();
+        ProdOrderRoutingLine.Validate("Operation No.", LibraryUtility.GenerateRandomText(3));
+        ProdOrderRoutingLine.Validate(Type, ProdOrderRoutingLine.Type::"Machine Center");
+        ProdOrderRoutingLine.Validate("No.", MachineCenter."No.");
+        ProdOrderRoutingLine.Insert();
+
+        // [THEN] Verify Unit Cost Calculation on Prod. Order Routing Line for Machine Center is Time.
+        Assert.AreEqual(
+          ProdOrderRoutingLine."Unit Cost Calculation"::Time,
+          ProdOrderRoutingLine."Unit Cost Calculation",
+          StrSubstNo(
+            UniCostCalculationErr,
+            ProdOrderRoutingLine."Unit Cost Calculation"::Time,
+            ProdOrderRoutingLine.Caption()));
     end;
 
     local procedure Initialize()

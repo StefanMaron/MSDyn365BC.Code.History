@@ -36,7 +36,7 @@ codeunit 134099 "Purchase Documents"
         UpdateManuallyMsg: Label 'You must update the existing purchase lines manually.';
         ConfirmZeroQuantityPostingMsg: Label 'One or more document lines with a value in the No. field do not have a quantity specified. \Do you want to continue?';
         PostedPurchaseInvoiceNotFoundLbl: Label 'Posted Purchase Invoice %1 not found', Comment = '%1 = Posted Purchase Invoice No.';
-
+        DocAmountFieldVisibleErr: Label 'The field %1 should be visible on the purchase invoice page.', Comment = '%1 = Field Caption';
 
     [Test]
     [HandlerFunctions('RecallNotificationHandler,SendNotificationHandler')]
@@ -1984,6 +1984,60 @@ codeunit 134099 "Purchase Documents"
         Assert.IsTrue(PurchInvHeader.Get(PostedPurchaseInvoiceNo), StrSubstNo(PostedPurchaseInvoiceNotFoundLbl, PostedPurchaseInvoiceNo));
     end;
 
+    [Test]
+    [HandlerFunctions('PurchaseInvoicePageHandler')]
+    procedure DocAmountTotalFieldVisibleOnPurchaseInvoiceWhenCreatedViaVendorListPage()
+    var
+        Vendor: Record Vendor;
+        VendorList: TestPage "Vendor List";
+    begin
+        // [SCENARIO 598788] Document Amount Total field is visible on Purchase Invoice when created via Vendor List Page.
+        Initialize();
+
+        // [GIVEN] Enable "Check Doc. Total Amounts" in Purchases & Payables Setup.
+        EnableDocumentTotalInPurchasePayablesSetup(true);
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Open the Vendor List.
+        VendorList.OpenEdit();
+        VendorList.GotoRecord(Vendor);
+
+        // [WHEN] Purchase Invoice is created from Vendor List.
+        VendorList.NewPurchaseInvoice.Invoke();
+
+        // [THEN] Verify "Doc. Amount Total" & "Doc. Amount Incl. VAT" field is visible on the Purchase Invoice page.
+        VendorList.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchaseInvoicePageHandler')]
+    procedure DocAmountTotalFieldVisibleOnPurchaseInvoiceWhenCreatedViaVendorCardPage()
+    var
+        Vendor: Record Vendor;
+        VendorCard: TestPage "Vendor Card";
+    begin
+        // [SCENARIO 598788] Document Amount Total field is visible on Purchase Invoice when created via Vendor Card Page.
+        Initialize();
+
+        // [GIVEN] Enable "Check Doc. Total Amounts" in Purchases & Payables Setup.
+        EnableDocumentTotalInPurchasePayablesSetup(true);
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Open the Vendor Card.
+        VendorCard.OpenEdit();
+        VendorCard.GotoRecord(Vendor);
+
+        // [WHEN] Purchase Invoice is created from Vendor Card.
+        VendorCard.NewPurchaseInvoice.Invoke();
+
+        // [THEN] Verify "Doc. Amount Total" & "Doc. Amount Incl. VAT" field is visible on the Purchase Invoice page.
+        VendorCard.Close();
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -2277,6 +2331,15 @@ codeunit 134099 "Purchase Documents"
         exit(Currency.Code);
     end;
 
+    local procedure EnableDocumentTotalInPurchasePayablesSetup(Enable: Boolean)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Check Doc. Total Amounts", Enable);
+        PurchasesPayablesSetup.Modify(true);
+    end;
+
     [RecallNotificationHandler]
     [Scope('OnPrem')]
     procedure RecallNotificationHandler(var Notification: Notification): Boolean
@@ -2374,5 +2437,12 @@ codeunit 134099 "Purchase Documents"
         PurchaseStatistics.SubForm.Last();
         PurchaseStatistics.SubForm."VAT Amount".SetValue(
           PurchaseStatistics.SubForm."VAT Amount".AsDecimal() + LibraryVariableStorage.DequeueDecimal()); // increase VAT amount with the given value.
+    end;
+
+    [PageHandler]
+    procedure PurchaseInvoicePageHandler(var PurchaseInvoice: TestPage "Purchase Invoice")
+    begin
+        Assert.IsTrue(PurchaseInvoice.DocAmountVAT.Visible(), StrSubstNo(DocAmountFieldVisibleErr, PurchaseInvoice.DocAmountVAT.Caption()));
+        Assert.IsTrue(PurchaseInvoice.DocAmount.Visible(), StrSubstNo(DocAmountFieldVisibleErr, PurchaseInvoice.DocAmount.Caption()));
     end;
 }
