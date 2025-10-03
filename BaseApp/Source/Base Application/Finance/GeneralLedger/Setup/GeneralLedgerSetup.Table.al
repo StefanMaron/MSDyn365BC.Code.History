@@ -875,6 +875,10 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Hide Company Bank Account';
         }
+        field(193; "Check Source Curr. Consistency"; Boolean)
+        {
+            Caption = 'Check Source Curr. Consistency';
+        }
         field(11003; "Currency Code For EURO"; Code[10])
         {
             Caption = 'Currency Code For EURO';

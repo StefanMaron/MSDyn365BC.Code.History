@@ -3338,6 +3338,46 @@ codeunit 134331 "ERM Purchase Payables"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler')]
+    procedure VerifyAmountFieldsOnPurchaseOrderArchives()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ArchiveManagement: Codeunit ArchiveManagement;
+        PurchOrderArchives: TestPage "Purchase Order Archives";
+        ExpectedAmount: Decimal;
+        ExpectedAmountInclVAT: Decimal;
+    begin
+        // [SCENARIO 598893] Verify Amount and "Amount Including VAT" on Purchase Order Archives page
+        Initialize();
+
+        // [GIVEN] Create a Purchase Order with one item line (quantity 2) and a deterministic unit cost
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 2);
+
+        // [GIVEN] Make unit cost deterministic so amounts are predictable
+        PurchaseLine.Validate("Direct Unit Cost", 10.00);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Ensure header flow fields are calculated
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+        PurchaseHeader.CalcFields("Amount", "Amount Including VAT");
+        ExpectedAmount := PurchaseHeader.Amount;
+        ExpectedAmountInclVAT := PurchaseHeader."Amount Including VAT";
+
+        // [WHEN] Archive the purchase order (simulate invoking Archive Document + confirm as in recording)
+        ArchiveManagement.ArchivePurchDocument(PurchaseHeader);
+
+        // [WHEN] Open Purchase Order Archives and filter to our document
+        PurchOrderArchives.OpenView();
+        PurchOrderArchives.Filter.SetFilter("No.", PurchaseHeader."No.");
+
+        // [THEN] The Archives page shows the same Amount and Amount Including VAT as original header
+        PurchOrderArchives.Amount.AssertEquals(ExpectedAmount);
+        PurchOrderArchives."Amount Including VAT".AssertEquals(ExpectedAmountInclVAT);
+    end;
+
     local procedure Initialize()
     var
         PriceListLine: Record "Price List Line";
