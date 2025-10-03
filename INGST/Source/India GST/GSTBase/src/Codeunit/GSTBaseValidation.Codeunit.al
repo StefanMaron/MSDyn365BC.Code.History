@@ -306,10 +306,17 @@ codeunit 18001 "GST Base Validation"
                 Rec."GST Base Amount" := Abs(Rec."GST Base Amount") * SignFactor;
                 Rec."GST Amount" := Abs(Rec."GST Amount") * SignFactor;
             end
-            else begin
-                Rec."GST Base Amount" := Rec."GST Base Amount";
-                Rec."GST Amount" := Rec."GST Amount";
-            end;
+            else
+                case Rec."Document Type" of
+                    Rec."Document Type"::"Credit Memo":
+                        begin
+                            Rec."GST Base Amount" := Abs(Rec."GST Base Amount");
+                            Rec."GST Amount" := Abs(Rec."GST Amount");
+                        end
+                    else
+                        Rec."GST Base Amount" := Rec."GST Base Amount";
+                        Rec."GST Amount" := Rec."GST Amount";
+                end;
 
         if Rec."Document Type" = Rec."Document Type"::"Credit Memo" then
             Rec.Quantity := Abs(Rec.Quantity)
@@ -1246,7 +1253,12 @@ codeunit 18001 "GST Base Validation"
     var
         PurchaseLine: Record "Purchase Line";
         CalculateTax: Codeunit "Calculate Tax";
+        IsHandled: Boolean;
     begin
+        OnBeforeCallTaxEngineOnPurchHeader(PurchaseHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         if PurchaseLine.FindSet() then
@@ -1456,4 +1468,8 @@ codeunit 18001 "GST Base Validation"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCallTaxEngineOnPurchHeader(PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
 }
