@@ -6003,6 +6003,53 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine[4].TestField("Document No.", NewDocNo);
     end;
 
+    [Test]
+    procedure VendorNameFieldPopulatesOnlyForVendorAccountType()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GLAccount: Record "G/L Account";
+        Vendor: Record Vendor;
+        PurchaseJournal: TestPage "Purchase Journal";
+    begin
+        // [SCENARIO 599505] Purchase Journal page validates vendor name field based on account type
+        Initialize();
+
+        // [GIVEN] Create a vendor with random name
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Name := LibraryRandom.RandText(20);
+        Vendor.Modify(true);
+
+        // [GIVEN] Create Purchase Journal Template and Batch
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryJournals.SelectGenJournalTemplate(GenJournalTemplate.Type::Purchases, Page::"Purchase Journal"));
+
+        // [WHEN] Open Purchase Journal page and perform actions as per YAML recording
+        PurchaseJournal.OpenEdit();
+        PurchaseJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+
+        // [GIVEN] Set Document Type to Invoice and Document No. to random value
+        PurchaseJournal."Document Type".SetValue("Gen. Journal Document Type"::Invoice);
+        PurchaseJournal."Document No.".SetValue(LibraryRandom.RandText(10));
+
+        // [GIVEN] Set Account Type to Vendor and Account No. to Vendor."No."
+        PurchaseJournal."Account Type".SetValue("Gen. Journal Account Type"::Vendor);
+        PurchaseJournal."Account No.".SetValue(Vendor."No.");
+
+        // [THEN] Verify Vendor Name page field is populated with Vendor.Name
+        PurchaseJournal."<Vendor Name>".AssertEquals(Vendor.Name);
+
+        // [WHEN] Set Account Type to G/L Account and Account No. to a new G/L Account."No."
+        PurchaseJournal."Account Type".SetValue("Gen. Journal Account Type"::"G/L Account");
+        LibraryERM.CreateGLAccount(GLAccount);
+        PurchaseJournal."Account No.".SetValue(GLAccount."No.");
+
+        // [THEN] Verify Vendor Name field should be empty for G/L Account
+        PurchaseJournal."<Vendor Name>".AssertEquals('');
+
+        // [CLEANUP] Close Purchase Journal page
+        PurchaseJournal.Close();
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();

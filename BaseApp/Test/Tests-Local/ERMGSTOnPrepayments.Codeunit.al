@@ -972,6 +972,44 @@ codeunit 141026 "ERM GST On Prepayments"
         PurchLine.TestField("Prepmt. Line Amount", Round(PurchLine."Line Amount" * PurchLine."Prepayment %" / 100));
     end;
 
+    [Test]
+    procedure VendorFixedAssetPurchaseOrderGSTEntryValidation()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        FixedAssetNo: Code[20];
+        VendorNo: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [GST Purchase Entry]
+        // [SCENARIO 598568] Ensure Document Line Code and Description are populated for GST Purchase Entries after posting a purchase invoice for a fixed asset.
+        Initialize();
+        GeneralLedgerSetup.Get();
+        UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true);  // TRUE for Enable GST, GST Reports and Full GST On Prepayment.
+
+        // [GIVEN] Create General Posting Setup, Vendor, and Fixed Asset
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        VendorNo := CreateVendor(GeneralPostingSetup."Gen. Bus. Posting Group", 0);
+        FixedAssetNo := CreateFixedAsset(GeneralPostingSetup."Gen. Prod. Posting Group");
+
+        // [GIVEN] Create Purchase Order with Vendor and Fixed Asset
+        CreatePurchaseOrder(
+            PurchaseHeader, VendorNo, PurchaseLine.Type::"Fixed Asset", FixedAssetNo, 0);
+        FindPurchaseLine(PurchaseLine, PurchaseHeader."No.");
+
+        // [WHEN] Post the Purchase Order Invoice
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Validate GST Purchase Entry fields
+        ValidateGSTPurchaseEntryFields(DocumentNo);
+
+        // Tear Down.
+        UpdateLocalFunctionalitiesOnGeneralLedgerSetup(
+          GeneralLedgerSetup."Enable GST (Australia)", GeneralLedgerSetup."GST Report", GeneralLedgerSetup."Full GST on Prepayment");
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -1514,6 +1552,31 @@ codeunit 141026 "ERM GST On Prepayments"
         VATAmountLine.TestField("VAT Base", VATBase);
         VATAmountLine.TestField("VAT Amount", VATAmount);
         VATAmountLine.TestField("Amount Including VAT", AmountIncludingVAT);
+    end;
+
+    local procedure UpdateLocalFunctionalitiesOnGeneralLedgerSetup(EnableGST: Boolean; GSTReport: Boolean; FullGSTOnPrepayment: Boolean)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Enable GST (Australia)", EnableGST);
+        GeneralLedgerSetup.Validate("GST Report", GSTReport);
+        GeneralLedgerSetup.Validate("Full GST on Prepayment", FullGSTOnPrepayment);
+        GeneralLedgerSetup.Modify(true);
+    end;
+
+    local procedure ValidateGSTPurchaseEntryFields(DocumentNo: Code[20])
+    var
+        GSTPurchaseEntry: Record "GST Purchase Entry";
+    begin
+        GSTPurchaseEntry.SetRange("Document No.", DocumentNo);
+        if GSTPurchaseEntry.FindSet() then
+            repeat
+                GSTPurchaseEntry.TestField("Document Line Code");
+                GSTPurchaseEntry.TestField("Document Line Description");
+            until GSTPurchaseEntry.Next() = 0
+        else
+            Error('No GST Purchase Entries found for document %1', DocumentNo);
     end;
 
     [RequestPageHandler]

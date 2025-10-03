@@ -698,6 +698,52 @@ codeunit 134786 "Test Invty. Doc. Pst Preview"
         Assert.AreNotEqual(0, ValueEntry."Cost Amount (Actual)", ValueEntryCostAmountErr);
     end;
 
+    [Test]
+    [HandlerFunctions('CalcPhysOrderLinesRequestPageHandler,CalculateQuantityExpectedStrMenuHandler,ConfirmHandlerTRUE,MessageHandler')]
+    procedure PostandPrintPhysicalInvtOrderwithRecording()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        Item: Record Item;
+        InventorySetup: Record "Inventory Setup";
+        Location: Record Location;
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+    begin
+        // [SCENARIO 597832] When post and print the Physical Inventory Order the error: The report couldn’t be generated, because it was empty.
+        Initialize();
+
+        //[GIVEN] Delete the Number Series for Physical Inventory Order and Posted Physical Inventory Order 
+        InventorySetup.Get();
+        InventorySetup."Phys. Invt. Order Nos." := '';
+        InventorySetup."Posted Phys. Invt. Order Nos." := '';
+        InventorySetup.Modify();
+
+        // [GIVEN] Create Phys Inventory Order Header.
+        PhysInvtOrderHeader."No." := LibraryUtility.GenerateRandomCode(PhysInvtOrderHeader.FieldNo("No."), DATABASE::"Phys. Invt. Order Header");
+
+        // [GIVEN] Create Physical Inventory Order with for one Item without item tracking.
+        CreatePhysInventoryOrderWithFinishedRecording(PhysInvtOrderHeader, Item, Location, LibraryRandom.RandIntInRange(3, 10), LibraryRandom.RandIntInRange(1, 3));
+
+        // [GIVEN] Finish Phys. Inventory Order.
+        Codeunit.Run(Codeunit::"Phys. Invt. Order-Finish (Y/N)", PhysInvtOrderHeader);
+
+        // [GIVEN] Find the Physical Order Line.
+        PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
+        PhysInvtOrderLine.FindFirst();
+
+        // [GIVEN] Create General Posting Setup.
+        CreateGeneralPostingSetup(PhysInvtOrderLine."Gen. Bus. Posting Group", PhysInvtOrderLine."Gen. Prod. Posting Group");
+
+        //[GIVEN] Validate Inventory Adjmt. Account in General Posting Setup.
+        GeneralPostingSetup.Get(PhysInvtOrderLine."Gen. Bus. Posting Group", PhysInvtOrderLine."Gen. Prod. Posting Group");
+        GeneralPostingSetup.Validate("Inventory Adjmt. Account", LibraryERM.CreateGLAccountNo());
+        GeneralPostingSetup.Modify(true);
+        Commit();
+
+        // [THEN] Post and Print should executed without any error
+        CODEUNIT.Run(CODEUNIT::"Phys. Invt. Order-Post + Print", PhysInvtOrderHeader);
+    end;
+
     local procedure Initialize()
     var
         ItemJournalLine: Record "Item Journal Line";
