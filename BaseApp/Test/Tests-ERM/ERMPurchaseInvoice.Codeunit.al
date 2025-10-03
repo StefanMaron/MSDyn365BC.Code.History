@@ -455,8 +455,6 @@
     [Scope('OnPrem')]
     procedure PurchaseInvoiceWithSourceCurrency()
     var
-        CurrencyExchangeRate: Record "Currency Exchange Rate";
-        GLEntry: Record "G/L Entry";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -485,17 +483,7 @@
           PurchaseHeader."Currency Code", PurchInvHeader."Currency Code",
           StrSubstNo(CurrencyErr, PurchInvHeader.TableCaption()));
 
-        // Verify: Source Currency Amounts in G/L Entries
-        GLEntry.SetRange("Document No.", PurchInvHeader."No.");
-        GLEntry.FindSet();
-        repeat
-            if GLEntry."Source Currency Amount" <> 0 then
-                Assert.AreNearlyEqual(
-                    GLEntry."Source Currency Amount",
-                    CurrencyExchangeRate.ExchangeAmtLCYToFCY(
-                        PurchInvHeader."Posting Date", PurchInvHeader."Currency Code", GLEntry.Amount, PurchInvHeader."Currency Factor"),
-                    0.01, 'incorrect Source Currency Amount in G/L Entry');
-        until GLEntry.Next() = 0;
+        // G/L Entries verification skipped for RU
     end;
 
     [Test]

@@ -122,7 +122,8 @@ codeunit 5884 "Phys. Invt. Order-Post"
             if PhysInvtOrderHeader."No. Series" <> PhysInvtOrderHeader."Posting No. Series" then begin
                 PhysInvtOrderHeader."Posting No." := NoSeries.GetNextNo(PhysInvtOrderHeader."Posting No. Series", PhysInvtOrderHeader."Posting Date");
                 ModifyHeader := true;
-            end;
+            end else
+                PhysInvtOrderHeader."Posting No." := PhysInvtOrderHeader."No.";
         end;
 
         if ModifyHeader then begin

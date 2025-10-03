@@ -35,6 +35,7 @@ codeunit 74 "Purch.-Get Receipt"
 #pragma warning restore AA0074
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
+        TempPurchaseLine: Record "Purchase Line" temporary;
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         PurchRcptLine: Record "Purch. Rcpt. Line";
         UOMMgt: Codeunit "Unit of Measure Management";
@@ -52,6 +53,8 @@ codeunit 74 "Purch.-Get Receipt"
         IsHandled := false;
         OnBeforeCreateInvLines(PurchRcptLine2, TransferLine, IsHandled);
         if not IsHandled then begin
+            TempPurchaseLine.DeleteAll();
+
             PurchRcptLine2.SetFilter("Qty. Rcd. Not Invoiced", '<>0');
             OnCreateInvLinesOnBeforeFind(PurchRcptLine2, PurchHeader);
             if PurchRcptLine2.Find('-') then begin
@@ -97,6 +100,8 @@ codeunit 74 "Purch.-Get Receipt"
                 until PurchRcptLine2.Next() = 0;
 
                 UpdateItemChargeLines();
+
+                AdjustPrepmtAmtToDeductRoundingOrderLineWise(PrepmtAmtToDeductRounding, PurchHeader);
 
                 if PurchLine.Find() then;
 
@@ -349,6 +354,8 @@ codeunit 74 "Purch.-Get Receipt"
                 Fraction := (PurchRcptline.Quantity - PurchRcptLine."Quantity Invoiced") / (PurchOrderLine.Quantity - PurchOrderLine."Quantity Invoiced");
                 FractionAmount := Fraction * (PurchOrderLine."Prepmt. Amt. Inv." - PurchOrderLine."Prepmt Amt Deducted");
                 RoundingAmount += PurchaseLine."Prepmt Amt to Deduct" - FractionAmount;
+                if (PurchaseLine."Prepmt Amt to Deduct" - FractionAmount) <> 0 then
+                    InsertTempPurchaseLine(PurchRcptLine, PurchOrderLine, PurchaseLine, FractionAmount);
             end else
                 RoundingAmount := 0;
         end;
@@ -449,6 +456,40 @@ codeunit 74 "Purch.-Get Receipt"
         DocumentAttachment.SetRange("Document Type", DocumentAttachment."Document Type"::Order);
         DocumentAttachment.SetRange("No.", DocNo);
         exit(not DocumentAttachment.IsEmpty());
+    end;
+
+    local procedure InsertTempPurchaseLine(PurchRcptLine: Record "Purch. Rcpt. Line"; PurchOrderLine: Record "Purchase Line"; PurchaseLine: Record "Purchase Line"; FractionAmount: Decimal)
+    begin
+        if not TempPurchaseLine.Get(TempPurchaseLine."Document Type"::Order, PurchRcptLine."Order No.", PurchRcptLine."Order Line No.") then begin
+            TempPurchaseLine := PurchOrderLine;
+            TempPurchaseLine.Amount := PurchaseLine."Prepmt Amt to Deduct" - FractionAmount;
+            TempPurchaseLine."Receipt No." := PurchRcptLine."Document No.";
+            TempPurchaseLine."Receipt Line No." := PurchRcptLine."Line No.";
+            TempPurchaseLine.Insert();
+        end else begin
+            TempPurchaseLine.Amount += PurchaseLine."Prepmt Amt to Deduct" - FractionAmount;
+            TempPurchaseLine."Receipt No." := PurchRcptLine."Document No.";
+            TempPurchaseLine."Receipt Line No." := PurchRcptLine."Line No.";
+            TempPurchaseLine.Modify();
+        end;
+    end;
+
+    local procedure AdjustPrepmtAmtToDeductRoundingOrderLineWise(var PrepmtAmtToDeductRounding: Decimal; PurchaseHeader: Record "Purchase Header")
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        TempPurchaseLine.Reset();
+        if TempPurchaseLine.FindSet() then
+            repeat
+                PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+                PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+                PurchaseLine.SetRange("Receipt No.", TempPurchaseLine."Receipt No.");
+                PurchaseLine.SetRange("Receipt Line No.", TempPurchaseLine."Receipt Line No.");
+                if PurchaseLine.FindFirst() then begin
+                    AdjustPrepmtAmtToDeductRounding(PurchaseLine, TempPurchaseLine.Amount);
+                    PrepmtAmtToDeductRounding -= TempPurchaseLine.Amount;
+                end;
+            until TempPurchaseLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

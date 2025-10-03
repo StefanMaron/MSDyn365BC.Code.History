@@ -1252,6 +1252,7 @@ codeunit 134987 "ERM Financial Reports III"
 
         Assert.IsTrue(RowNo >= 0, TotalAmountDiscountedMustBeAvailableErr);
     end;
+
     [Test]
     [HandlerFunctions('GenJnlTemplateListHandler,MessageHandler,PrintCheckWithReprintReqPageHandler,SuggestVendorPaymentsNewDocPerLineRequestPageHandler')]
     procedure ReprintCheckUsingOneCheckPerVendorPerDoc()
@@ -1293,6 +1294,76 @@ codeunit 134987 "ERM Financial Reports III"
 
         // [THEN] Four Check lines should be printed 
         VerifyNoOfCheckLinesPrinted(GenJournalBatch, 4);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyVendorEntriesModalPageHandler,VendorPrePaymentJournalHandler,GenJnlTemplateListHandler')]
+    procedure PrintVendorPrePaymentJournalWithPmtDisc()
+    var
+        PaymentTerms: Record "Payment Terms";
+        PurchaseHeader: Record "Purchase Header";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        PaymentJournal: TestPage "Payment Journal";
+        RemainingPmtDiscPossible: Decimal;
+        VendorNo: Code[20];
+        GLAccountNo: Code[20];
+        RowNo: Integer;
+    begin
+        // [SCENARIO 556952] Verify values on Vendor Pre-Payment Journal for Payment Discount.
+        Initialize();
+
+        // [GIVEN] Create Payment Term with Discount % 2
+        libraryerm.CreatePaymentTermsDiscount(PaymentTerms, false);
+
+        // [GIVEN] Create New Vendor with that Payment Term
+        VendorNo := CreateVendorWithPaymentTerms(PaymentTerms.Code);
+        LibraryVariableStorage.Enqueue(VendorNo);
+
+        // [GIVEN] Create New G/L Account
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
+
+        // [GIVEN] Post Purchase Invoice with G/L Account and Workdate as 07042025.
+        WorkDate(DMY2Date(7, 4, 2025));
+        PostPurchaseDocumentWithAmount(
+          PurchaseHeader."Document Type"::Invoice, VendorNo,
+          GLAccountNo, LibraryRandom.RandDec(10, 2), 1);
+
+        // [GIVEN] Post Purchase Invoice with G/L Account and Workdate as 04062025.
+        WorkDate(DMY2Date(4, 6, 2025));
+        PostPurchaseDocumentWithAmount(
+          PurchaseHeader."Document Type"::Invoice, VendorNo,
+          GLAccountNo, LibraryRandom.RandDec(10, 2), 1);
+
+        // [GIVEN] Create Payment Journal line for Vendor.
+        CreateGenJournalLine(
+            GenJournalLine, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor, VendorNo, 0,
+            GenJournalLine."Bank Payment Type"::"Computer Check");
+        GenJournalLine.Modify();
+
+        // [GIVEN] Open Payment Journal and Apply Entries.
+        PaymentJournal.OpenEdit();
+        PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
+        PaymentJournal.ApplyEntries.Invoke();
+
+        // [WHEN] Run report 317 "Vendor Pre-Payment Journal"
+        Clear(LibraryReportDataset);
+        RunVendorPrePaymentJournal(GenJournalLine);
+
+        // [THEN] Verify the Payment Discount amount
+        VendorLedgerEntry.Reset();
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetFilter("Pmt. Discount Date", '>=%1', GenJournalLine."Posting Date");
+        if VendorLedgerEntry.FindSet() then
+            repeat
+                RemainingPmtDiscPossible += VendorLedgerEntry."Remaining Pmt. Disc. Possible";
+            until VendorLedgerEntry.Next() = 0;
+
+        LibraryReportDataset.LoadDataSetFile();
+        RowNo := LibraryReportDataset.FindRow('TotalAmountDiscounted', abs(RemainingPmtDiscPossible));
+
+        Assert.IsTrue(RowNo >= 0, TotalAmountDiscountedMustBeAvailableErr);
     end;
 
     local procedure Initialize()
@@ -2117,5 +2188,15 @@ codeunit 134987 "ERM Financial Reports III"
     procedure GenJnlTemplateListHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
     begin
         GeneralJournalTemplateList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyVendorEntriesModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
+    begin
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.Next();
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.OK().Invoke();
     end;
 }

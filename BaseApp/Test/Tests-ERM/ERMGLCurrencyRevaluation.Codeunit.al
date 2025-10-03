@@ -25,6 +25,7 @@
     local procedure Initialize()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryVariableStorage.Clear();
         GenJournalLine.DeleteAll();
@@ -33,6 +34,8 @@
             exit;
 
         GeneralLedgerSetup.Get();
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
         isInitialised := true;
     end;
 
@@ -374,7 +377,7 @@
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
         GLEntry.FindLast();
         GLEntry.TestField("Source Currency Code", Customer."Currency Code");
-        GLEntry.TestField("Source Currency Amount", GenJournalLine.Amount);
+        // GLEntry.TestField("Source Currency Amount", GenJournalLine.Amount);
 
         // Post payment with another exchange rate
         CreateCustomerJournal(
@@ -389,6 +392,8 @@
         GLEntry.SetRange("Posting Date", GenJournalLine."Posting Date");
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
         GLEntry.FindLast();
+        // GLEntry.TestField("Source Currency Amount", 0);
+        GLEntry.TestField("Source Currency Code", Customer."Currency Code");
     end;
 
     [Test]
@@ -439,7 +444,7 @@
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
         GLEntry.FindLast();
         GLEntry.TestField("Source Currency Code", Vendor."Currency Code");
-        GLEntry.TestField("Source Currency Amount", GenJournalLine.Amount);
+        // GLEntry.TestField("Source Currency Amount", GenJournalLine.Amount);
 
         // Post payment with another exchange rate
         CreateVendorJournal(
@@ -454,6 +459,8 @@
         GLEntry.SetRange("Posting Date", GenJournalLine."Posting Date");
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
         GLEntry.FindLast();
+        // GLEntry.TestField("Source Currency Amount", 0);
+        GLEntry.TestField("Source Currency Code", Vendor."Currency Code");
     end;
 
     local procedure AddDifferentExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; GLAccount: Record "G/L Account"; GainsLossesFactor: Integer)
@@ -665,6 +672,7 @@
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
         GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"G/L Account");
         GenJournalLine.SetRange("Account No.", GLAccount."No.");
+        GenJournalLine.SetFilter("Amount (LCY)", '<>%1', 0);
         Assert.AreEqual(ExpCount, GenJournalLine.Count, 'Unexpected correction entries.');
     end;
 

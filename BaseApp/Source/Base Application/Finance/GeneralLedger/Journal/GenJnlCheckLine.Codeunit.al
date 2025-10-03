@@ -22,7 +22,6 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
-using System.Environment.Configuration;
 using System.Security.User;
 using System.Utilities;
 
@@ -46,10 +45,10 @@ codeunit 11 "Gen. Jnl.-Check Line"
         TempErrorMessage: Record "Error Message" temporary;
         DimMgt: Codeunit DimensionManagement;
         CostAccMgt: Codeunit "Cost Account Mgt";
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+        ApplicationAreaMgmt: Codeunit System.Environment.Configuration."Application Area Mgmt.";
         ErrorMessageMgt: Codeunit "Error Message Management";
-#if not CLEAN24
-        FeatureKeyManagement: Codeunit "Feature Key Management";
+#if not CLEAN25
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
 #endif
         SkipFiscalYearCheck: Boolean;
         GenJnlTemplateFound: Boolean;
@@ -57,61 +56,24 @@ codeunit 11 "Gen. Jnl.-Check Line"
         LogErrorMode: Boolean;
         IsBatchMode: Boolean;
         IgnoreJournalTemplNameMandatoryCheck: Boolean;
+        IsDeferralPostingAllowed: Boolean;
 
 #pragma warning disable AA0074
         Text000: Label 'can only be a closing date for G/L entries';
-#pragma warning restore AA0074
-#pragma warning disable AA0074
         Text001: Label 'is not within your range of allowed posting dates';
-#pragma warning restore AA0074
-#pragma warning disable AA0074
 #pragma warning disable AA0470
         Text002: Label '%1 or %2 must be G/L Account or Bank Account.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text003: Label 'must have the same sign as %1';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text004: Label 'You must not specify %1 when %2 is %3.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text005: Label '%1 + %2 must be %3.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text006: Label '%1 + %2 must be -%3.';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
         Text007: Label 'must be positive';
-#pragma warning restore AA0074
-#pragma warning disable AA0074
         Text008: Label 'must be negative';
-#pragma warning restore AA0074
-#pragma warning disable AA0074
 #pragma warning disable AA0470
         Text009: Label 'must have a different sign than %1';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text010: Label '%1 %2 and %3 %4 is not allowed.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text011: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text012: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
@@ -126,8 +88,6 @@ codeunit 11 "Gen. Jnl.-Check Line"
         GLAccSourceCurrencyDoesNotAllowedErr: Label 'The currency code %1 on general journal line does not allowed for posting to G/L account %2.', Comment = '%1 - currency code, %2 - G/L Account No.';
 #pragma warning disable AA0074
         Text12400: Label 'Include in Other VAT Entry and Additional VAT Ledger List are forbidden together.';
-#pragma warning restore AA0074
-#pragma warning disable AA0074
         Text12401: Label 'is not within agreement range of allowed posting dates.';
 #pragma warning restore AA0074
 
@@ -253,7 +213,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
         if not OverrideDimErr then
             CheckDimensions(GenJnlLine);
 
-#if not CLEAN24
+#if not CLEAN25
         if FeatureKeyManagement.IsGLCurrencyRevaluationEnabled() then
 #endif
         CheckCurrencyCode(GenJnlLine);
@@ -476,6 +436,11 @@ codeunit 11 "Gen. Jnl.-Check Line"
         if not IgnoreJournalTemplNameMandatoryCheck then
             if GLSetup."Journal Templ. Name Mandatory" then
                 GenJnlLine.TestField("Journal Template Name", ErrorInfo.Create());
+        if IsDeferralPostingAllowed then begin
+            if DeferralPostingDateNotAllowed(GenJnlLine."Posting Date") then
+                GenJnlLine.FieldError("Posting Date", ErrorInfo.Create(Text001, true));
+            DateCheckDone := true
+        end;
         OnBeforeDateNotAllowed(GenJnlLine, DateCheckDone);
         if not DateCheckDone then
             if DateNotAllowed(GenJnlLine."Posting Date", GenJnlLine."Journal Template Name") then
@@ -1300,6 +1265,11 @@ codeunit 11 "Gen. Jnl.-Check Line"
     begin
         exit((GenJnlLine."Gen. Posting Type" <> GenJnlLine."Gen. Posting Type"::" ") or
             (GenJnlLine."Bal. Gen. Posting Type" <> GenJnlLine."Bal. Gen. Posting Type"::" "));
+    end;
+
+    procedure CheckDeferralPostingAllowed(DeferralPostingAllowed: Boolean)
+    begin
+        IsDeferralPostingAllowed := DeferralPostingAllowed;
     end;
 
     [IntegrationEvent(true, false)]
