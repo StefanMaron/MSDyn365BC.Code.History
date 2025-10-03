@@ -6971,6 +6971,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Order - NamedType ConfirmEmptyEmailQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3999279336 - NamedType 2294662597" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The quantity to undo might differ from the original shipment because the invoice was cancelled. Do you want to proceed with the undo?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Order - NamedType ConfirmMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3999279336 - NamedType 2902331735" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Contact should be editable when customer is selected.]]></Val>
