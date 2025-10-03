@@ -40,7 +40,7 @@ codeunit 5815 "Undo Sales Shipment Line"
             exit;
 
         if not UndoSalesShptLineParams."Hide Dialog" then
-            if not Confirm(Text000) then
+            if not Confirm(HandleConfirmMessage(Rec)) then
                 exit;
 
         SalesShipmentLine.Copy(Rec);
@@ -65,7 +65,7 @@ codeunit 5815 "Undo Sales Shipment Line"
         NextLineNo: Integer;
 
 #pragma warning disable AA0074
-        Text000: Label 'Do you really want to undo the selected Shipment lines?';
+        UndoShipmentLinesQst: Label 'Do you really want to undo the selected Shipment lines?';
         Text001: Label 'Undo quantity posting...';
         Text002: Label 'There is not enough space to insert correction lines.';
         Text003: Label 'Checking lines...';
@@ -78,6 +78,7 @@ codeunit 5815 "Undo Sales Shipment Line"
         Text059: Label '%1 %2 %3', Comment = '%1 = SalesShipmentLine."Document No.". %2 = SalesShipmentLine.FIELDCAPTION("Line No."). %3 = SalesShipmentLine."Line No.". This is used in a progress window.';
 #pragma warning restore AA0074
         AlreadyReversedErr: Label 'This shipment has already been reversed.';
+        InvoiceCancelledQst: Label 'The quantity to undo might differ from the original shipment because the invoice was cancelled. Do you want to proceed with the undo?';
 
     procedure SetHideDialog(NewHideDialog: Boolean)
     begin
@@ -580,6 +581,23 @@ codeunit 5815 "Undo Sales Shipment Line"
             InventoryAdjustmentHandler.SetJobUpdateProperties(true);
             InventoryAdjustmentHandler.MakeInventoryAdjustment(true, InventorySetup."Automatic Cost Posting");
         end;
+    end;
+
+    local procedure IsCancelledSalesInvoice(OrderNo: Code[20]): Boolean
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        SalesInvoiceHeader.SetRange("Order No.", OrderNo);
+        SalesInvoiceHeader.SetRange(Cancelled, true);
+        exit(not SalesInvoiceHeader.IsEmpty());
+    end;
+
+    local procedure HandleConfirmMessage(SalesShipmentLine2: Record "Sales Shipment Line"): Text
+    begin
+        if IsCancelledSalesInvoice(SalesShipmentLine2."Order No.") then
+            exit(InvoiceCancelledQst);
+
+        exit(UndoShipmentLinesQst);
     end;
 
     [IntegrationEvent(false, false)]
