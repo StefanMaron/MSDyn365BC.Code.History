@@ -5085,6 +5085,73 @@
         LibrarySales.PostSalesDocument(SalesHeader[2], true, true);
     end;
 
+    [Test]
+    procedure PurchaseInvoiceIsPostedWithPrepayment()
+    var
+        Vendor: Record Vendor;
+        GeneralPostingSetup: Record "General Posting Setup";
+        Item: Record Item;
+        PurchHeader: array[2] of Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PrepaymentPct: Decimal;
+        DirectUnitCost: Decimal;
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 592384] "You cannot post the document of type Order with the number XX before all related prepayment invoices are posted." error if you make a Partial Receipt on Prepaid Invoice and then additional Prepayment Amount prevents the posting of the main P.O.
+        Initialize();
+
+        // [GIVEN] Create a VAT Posting Setup.
+        CreateVATPostingSetup(VATPostingSetup, LibraryRandom.RandIntInRange(0, 0));
+
+        // [GIVEN] Create a General Posting Setup and update Purchase Prepayment Account.
+        CreateGeneralPostingSetupforPurchPrePayment(GeneralPostingSetup, VATPostingSetup);
+
+        // [GIVEN] Create a Vendor
+        Vendor.Get(LibraryPurchase.CreateVendorWithBusPostingGroups(GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
+
+        // [GIVEN] Create a Item No with Posting Setup.
+        Item.Get(LibraryInventory.CreateItemNoWithPostingSetup(GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group"));
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchHeader[1], PurchHeader[1]."Document Type"::Order, Vendor."No.");
+        PurchHeader[1].Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchHeader[1].Modify();
+
+        // [GIVEN] Create Purchase Lines with four same Items.
+        Quantity := 10000;
+        DirectUnitCost := 4.11;
+        PrepaymentPct := 30;
+        CreateFourPurchaseLines(PurchLine, PurchHeader[1], Item, DirectUnitCost, Quantity, PrepaymentPct);
+
+        // [GIVEN] Post Purch Prepayment Invoice.
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchHeader[1]);
+
+        // [GIVEN] Update Qty. to Receive on Purchase Line with 7008
+        UpdatePurchaseLineQtytoReceive(PurchHeader[1], 7008);
+
+        // [GIVEN] Post Purchase with Receive
+        LibraryPurchase.PostPurchaseDocument(PurchHeader[1], true, false);
+
+        // [GIVEN] Cretae Purchase Invoice.
+        LibraryPurchase.CreatePurchHeader(PurchHeader[2], PurchHeader[2]."Document Type"::Invoice, Vendor."No.");
+
+        // [GIVEN] Get Receipt Lines for Purchase Invoice
+        GetPurchaseReceiptLines(PurchHeader[2]);
+
+        // [GIVEN] Post Purchase Invoice.
+        PostPurchaseDocument(PurchHeader[2], true, true);
+
+        // [GIVEN] Reopen the Purchase Order Document
+        LibraryPurchase.ReopenPurchaseDocument(PurchHeader[1]);
+
+        // [WHEN] Release the Purchase Order Document
+        LibraryPurchase.ReleasePurchaseDocument(PurchHeader[1]);
+
+        // [THEN] Verify Purchase Order gets posted without an error.
+        PostPurchaseDocument(PurchHeader[1], true, true);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6794,6 +6861,53 @@
         SalesLine.FindFirst();
         SalesLine.Validate("Qty. to Ship", QtyToShip);
         SalesLine.Modify(true);
+    end;
+
+    local procedure CreateGeneralPostingSetupforPurchPrePayment(var GeneralPostingSetup: Record "General Posting Setup"; var VATPostingSetup: Record "VAT Posting Setup")
+    var
+        GLAccount: Record "G/L Account";
+        GenPostingType: Enum "General Posting Type";
+    begin
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        LibraryERM.SetGeneralPostingSetupPrepAccounts(GeneralPostingSetup);
+        GeneralPostingSetup.Modify(true);
+
+        GLAccount.Get(GeneralPostingSetup."Purch. Prepayments Account");
+        LibraryERM.UpdatePurchPrepmtAccountVATGroup(GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        LibraryERM.UpdateGLAccountWithPostingSetup(GLAccount, GenPostingType::Purchase, GeneralPostingSetup, VATPostingSetup);
+    end;
+
+    local procedure CreateFourPurchaseLines(
+        var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header";
+        Item: Record Item; DirectUnitCost: Decimal;
+        Quantity: Decimal; PrepaymentPct: Decimal)
+    var
+        i: Integer;
+    begin
+        for i := 1 to 4 do begin
+            LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine, PurchaseHeader, Item."No.", DirectUnitCost, Quantity);
+            PurchaseLine.Validate("Prepayment %", PrepaymentPct);
+            PurchaseLine.Modify(true);
+        end;
+    end;
+
+    local procedure UpdatePurchaseLineQtytoReceive(PurchaseHeader: Record "Purchase Header"; QtytoReceive: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        if PurchaseLine.FindSet() then
+            repeat
+                PurchaseLine.Validate("Qty. to Receive", QtytoReceive);
+                PurchaseLine.Modify(true);
+            until PurchaseLine.Next() = 0;
+    end;
+
+    local procedure PostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; Receive: Boolean; Invoice: Boolean): Code[20]
+    begin
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify(true);
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, Receive, Invoice));
     end;
 
     [PageHandler]

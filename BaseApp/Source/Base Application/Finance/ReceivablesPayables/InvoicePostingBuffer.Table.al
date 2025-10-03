@@ -705,7 +705,7 @@ table 55 "Invoice Posting Buffer"
         if IsHandled then
             exit;
 
-        if CopyLineDescrToGLEntry and (Type = type::"G/L Account") then begin
+        if CopyLineDescrToGLEntry and (Type in [Type::"G/L Account", Type::"Fixed Asset"]) then begin
             "Entry Description" := LineDescription;
             "Fixed Asset Line No." := LineNo;
         end else

@@ -28,6 +28,7 @@ codeunit 912 "Calculate Assembly Cost"
         TempPriceListLine: Record "Price List Line" temporary;
         CostCalcMgt: Codeunit "Cost Calculation Management";
         UOMMgt: Codeunit "Unit of Measure Management";
+        CalculateStandardCost: Codeunit Microsoft.Manufacturing.StandardCost."Calculate Standard Cost";
         Window: Dialog;
         MaxLevel: Integer;
         NextPriceListLineNo: Integer;
@@ -142,6 +143,7 @@ codeunit 912 "Calculate Assembly Cost"
         Item.Get(ItemNo);
         IsHandled := false;
         OnBeforeCalcItem(Item, IsHandled);
+        CalculateStandardCost.RunOnBeforeCalcItem(Item, true, IsHandled);
         if IsHandled then
             exit;
 
@@ -184,6 +186,7 @@ codeunit 912 "Calculate Assembly Cost"
 
         Item2.Copy(Item);
         OnBeforeCalcItems(Item2);
+        CalculateStandardCost.RunOnBeforeCalcItems(Item);
 
         NoOfRecords := Item.Count();
         if ShowDialog then
@@ -241,7 +244,7 @@ codeunit 912 "Calculate Assembly Cost"
             Item."Single-Level Cap. Ovhd Cost" := 0;
             Item."Single-Level Subcontrd. Cost" := 0;
             OnCalcAssemblyItemOnAfterInitItemCost(Item);
-
+            CalculateStandardCost.RunOnCalcAssemblyItemOnAfterInitItemCost(Item);
             repeat
                 case BOMComp.Type of
                     BOMComp.Type::Item:
@@ -265,6 +268,7 @@ codeunit 912 "Calculate Assembly Cost"
                                     Item."Single-Level Material Cost" += ComponentQuantity * CompItem."Unit Cost"
                                 end;
                             OnCalcAssemblyItemOnAfterCalcItemCost(Item, CompItem, BOMComp, ComponentQuantity);
+                            CalculateStandardCost.RunOnCalcAssemblyItemOnAfterCalcItemCost(Item, CompItem, BOMComp, ComponentQuantity);
                         end;
                     BOMComp.Type::Resource:
                         begin
@@ -314,6 +318,7 @@ codeunit 912 "Calculate Assembly Cost"
                 GLSetup."Unit-Amount Rounding Precision");
 
             OnCalcAssemblyItemOnAfterCalcItemRolledupCost(Item);
+            CalculateStandardCost.RunOnCalcAssemblyItemOnAfterCalcItemRolledupCost(Item);
 
             Item."Standard Cost" :=
               Round(
@@ -333,6 +338,7 @@ codeunit 912 "Calculate Assembly Cost"
                 GLSetup."Unit-Amount Rounding Precision");
 
             OnCalcAssemblyItemOnAfterCalcSingleLevelCost(Item);
+            CalculateStandardCost.RunOnCalcAssemblyItemOnAfterCalcSingleLevelCost(Item);
 
             Item."Last Unit Cost Calc. Date" := CalculationDate;
 
@@ -377,6 +383,7 @@ codeunit 912 "Calculate Assembly Cost"
     begin
         IsHandled := false;
         OnBeforeDoCalcAssemblyItemPrice(Item, Level, MaxLevel, CalcMultiLevel, IsHandled);
+        CalculateStandardCost.RunOnBeforeDoCalcAssemblyItemPrice(Item, Level, MaxLevel, CalcMultiLevel, IsHandled);
         if IsHandled then
             exit;
 
@@ -391,6 +398,7 @@ codeunit 912 "Calculate Assembly Cost"
 
         BOMComp.SetRange("Parent Item No.", Item."No.");
         OnDoCalcAssemblyItemPriceOnAfterSetBOMCompFilters(Item, BOMComp);
+        CalculateStandardCost.RunOnDoCalcAssemblyItemPriceOnAfterSetBOMCompFilters(Item, BOMComp);
         if BOMComp.Find('-') then begin
             repeat
                 case BOMComp.Type of
@@ -438,6 +446,7 @@ codeunit 912 "Calculate Assembly Cost"
         end;
 
         OnAfterGetItem(Item, StdCostWkshName, IsInBuffer);
+        CalculateStandardCost.RunOnAfterGetItem(Item, StdCostWkshName, IsInBuffer);
     end;
 
     local procedure GetResCost(ResourceNo: Code[20]; var PriceListLine: Record "Price List Line")

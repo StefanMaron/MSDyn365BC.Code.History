@@ -884,6 +884,10 @@ table 98 "General Ledger Setup"
                       FieldCaption("BAS Group Company"), "BAS Group Company");
             end;
         }
+        field(193; "Check Source Curr. Consistency"; Boolean)
+        {
+            Caption = 'Check Source Curr. Consistency';
+        }
         field(11601; "BAS Group Company"; Boolean)
         {
             Caption = 'BAS Group Company';

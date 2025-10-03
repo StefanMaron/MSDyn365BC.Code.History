@@ -804,6 +804,10 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
                                 end;
                         end;
                 end;
+                if TempInvoicePostingBufferGST.Type = TempInvoicePostingBufferGST.Type::"Fixed Asset" then begin
+                    GSTPurchEntry."Document Line Code" := TempInvoicePostingBufferGST."G/L Account";
+                    GSTPurchEntry."Document Line Description" := TempInvoicePostingBufferGST."Entry Description";
+                end;
                 GSTPurchEntry."Document Line No." := TempInvoicePostingBufferGST."Fixed Asset Line No.";
                 GSTPurchEntry."Document Line Type" := TempInvoicePostingBufferGST.Type;
                 GSTPurchEntry."Vendor No." := PurchHeader."Buy-from Vendor No.";
