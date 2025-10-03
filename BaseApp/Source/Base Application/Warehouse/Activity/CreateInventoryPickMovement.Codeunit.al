@@ -1009,6 +1009,9 @@ codeunit 7322 "Create Inventory Pick/Movement"
                             if NewWarehouseActivityLine.TrackingExists() then
                                 UpdateExpirationDate(NewWarehouseActivityLine, EntriesExist);
 
+                            if IsInvtMovement and not IsBlankInvtMovement and not TempTrackingSpecification.Correction then
+                                CheckBinContentWithToAssemblyBinCode(ITQtyToPickBase, NewWarehouseActivityLine);
+
                             OnCreatePickOrMoveLineFromHandlingSpec(NewWarehouseActivityLine, TempTrackingSpecification, EntriesExist);
 
                             if CurrLocation."Bin Mandatory" then begin
@@ -1169,8 +1172,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
         if IsBlankInvtMovement then begin
             // inventory movement without source document, created from Internal Movement
-            if ShouldSetBinCodeForBlankInvtMovement(NewWarehouseActivityLine) then
-                FromBinContent.SetRange("Bin Code", FromBinCode);
+            if not CurrLocation."Pick According to FEFO" then
+                FromBinContent.SetRange("Bin Code", FromBinCode)
+            else
+                if ShouldSetBinCodeForBlankInvtMovement(NewWarehouseActivityLine) then
+                    FromBinContent.SetRange("Bin Code", FromBinCode);
             FromBinContent.SetRange(Default);
         end;
 
@@ -1218,6 +1224,31 @@ codeunit 7322 "Create Inventory Pick/Movement"
                 end;
             until (FromBinContent.Next() = 0) or (RemQtyToPickBase = 0);
         OnAfterInsertPickOrMoveBinWhseActLine(NewWarehouseActivityLine, CurrWarehouseActivityHeader, RemQtyToPickBase)
+    end;
+
+    procedure CheckBinContentWithToAssemblyBinCode(var ITQtyToPickBase: Decimal; NewWarehouseActivityLine: Record "Warehouse Activity Line")
+    var
+        Location: Record Location;
+        FromBinContent: Record "Bin Content";
+    begin
+        if ITQtyToPickBase <= 0 then
+            exit;
+
+        if not Location.Get(NewWarehouseActivityLine."Location Code") then
+            exit;
+
+        FromBinContent.SetLoadFields("Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code", "Quantity (Base)");
+        FromBinContent.SetRange("Location Code", NewWarehouseActivityLine."Location Code");
+        FromBinContent.SetRange("Bin Code", Location."To-Assembly Bin Code");
+        FromBinContent.SetRange("Item No.", NewWarehouseActivityLine."Item No.");
+        FromBinContent.SetRange("Variant Code", NewWarehouseActivityLine."Variant Code");
+        FromBinContent.SetRange("Unit of Measure Code", NewWarehouseActivityLine."Unit of Measure Code");
+        if FromBinContent.FindSet() then
+            repeat
+                FromBinContent.CalcFields("Quantity (Base)");
+                if FromBinContent."Quantity (Base)" <= ITQtyToPickBase then
+                    ITQtyToPickBase -= FromBinContent."Quantity (Base)";
+            until FromBinContent.Next() = 0;
     end;
 
     procedure InsertShelfWhseActivLine(NewWarehouseActivityLine: Record "Warehouse Activity Line"; var RemQtyToPickBase: Decimal; WhseItemTrackingSetup: Record "Item Tracking Setup")

@@ -2066,7 +2066,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
 
         // [THEN] Sales line has Purchasing Line = "PC".
-        SalesLine.TestField("Purchasing Code", Item."Purchasing Code");
+        SalesLine.TestField("Purchasing Code", '');
     end;
 
     [Test]

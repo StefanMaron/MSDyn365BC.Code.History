@@ -53,6 +53,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         HasErrorsErr: Label 'The file export has one or more errors.\\For each line to be exported, resolve the errors displayed to the right and then try to export again.';
         EuroCurrErr: Label 'Only transactions in euro (EUR) are allowed, because the %1 bank account is set up to use the %2 export format.', Comment = '%1= bank account No, %2 export format; Example: Only transactions in euro (EUR) are allowed, because the GIRO bank account is set up to use the SEPACT export format.';
         ErrorTextsExistErr: Label 'Error texts entries has to be deleted, from %1 table.', Comment = '%1 = Payment Jnl. Export Error Text';
+        NodeErr: Label 'Wrong number of PmtInf nodes.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1759,6 +1760,74 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         LibraryXMLRead.VerifyNodeAbsenceInSubtree('InitgPty', 'PstlAdr');
     end;
 
+    [Test]
+    procedure TestXMLDocGroupingForNonEuroPaymentTransaction()
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        TempBlob: Codeunit "Temp Blob";
+        XMLDOMManagement: Codeunit "XML DOM Management";
+        XMLDoc: DotNet XmlDocument;
+        XMLDocNode: DotNet XmlNode;
+        XMLNodes: DotNet XmlNodeList;
+        XMLNode: DotNet XmlNode;
+        OutStr: OutStream;
+        InStr: InStream;
+        TransferDate: Date;
+        ExpectedNoOfGroups: Integer;
+        NoOfPmtsPerGroup: Integer;
+        NoOfPmtInf: Integer;
+        i: Integer;
+    begin
+        // [SCENARIO 596199] Verify Export Non-Euro payment Transaction in SEPA Format should use 'SHAR' default for 'ChrgBr' tag and 
+        // Grouping of payments in XML document.  
+        Init();
+
+        // [GIVEN] "Allow Non-Euro Export" is set to TRUE in General Ledger Setup.
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("SEPA Non-Euro Export", true);
+        GeneralLedgerSetup.Modify();
+
+        // [WHEN] Create Gen. Journal Lines with Non-Euro Currency.
+        ExpectedNoOfGroups := 4;
+        NoOfPmtsPerGroup := 5;
+        CreateGenJnlLinesDiffDateNonEuro(GenJnlLine, ExpectedNoOfGroups, NoOfPmtsPerGroup);
+        GenJnlLine.FindFirst();
+        TransferDate := GenJnlLine."Posting Date";
+
+        // [WHEN] Export General Jornal Line using XmlPort "SEPA CT pain.001.001.09".
+        TempBlob.CreateOutStream(OutStr);
+        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID(), OutStr, GenJnlLine);
+        TempBlob.CreateInStream(InStr);
+        XMLDOMManagement.LoadXMLDocumentFromInStream(InStr, XMLDoc);
+        XMLDocNode := XMLDoc.DocumentElement;
+        if not XMLDocNode.HasChildNodes then
+            Error(XMLNoChildrenErr);
+
+        // [THEN] Verify Grouping of payments in XML document.
+        XMLNode := XMLDocNode.FirstChild;
+        Assert.AreEqual('CstmrCdtTrfInitn', XMLNode.Name, 'CstmrCdtTrfInitn');
+        XMLNodes := XMLNode.ChildNodes;
+        for i := 0 to XMLNodes.Count - 1 do begin
+            XMLNode := XMLNodes.ItemOf(i);
+            case XMLNode.Name of
+                'GrpHdr':
+                    ValidateGrpHdr(XMLNode, GenJnlLine);
+                'PmtInf':
+                    begin
+                        NoOfPmtInf += 1;
+                        ValidatePmtInfForNonEuroPayment(XMLNode, NoOfPmtsPerGroup, NoOfPmtsPerGroup * DefaultLineAmount, TransferDate);
+                        TransferDate += 1;
+                    end;
+                else
+                    Error(XMLUnknownElementErr, XMLNode.Name);
+            end;
+        end;
+
+        // [THEN] Verify number of 'PmtInf' nodes are as expected.
+        Assert.AreEqual(ExpectedNoOfGroups, NoOfPmtInf, NodeErr);
+    end;
+
     local procedure Init()
     var
         NoSeries: Record "No. Series";
@@ -2357,6 +2426,75 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         BankExportImportSetupRec.SetRange("Processing XMLport ID", XMLPORT::"SEPA CT pain.001.001.09");
         BankExportImportSetupRec.FindFirst();
         exit(BankExportImportSetupRec.Code);
+    end;
+
+    local procedure ValidatePmtInfForNonEuroPayment(var XMLParentNode: DotNet XmlNode; ExpectedNoOfCdtTrfTxInf: Integer; ExpectedCtrlSum: Decimal; ExpectedDate: Date)
+    var
+        XMLNodes: DotNet XmlNodeList;
+        XMLNode: DotNet XmlNode;
+        ReqdExctnDtXMLNodes: DotNet XmlNodeList;
+        DtXMLNode: DotNet XMLNode;
+        ActualDate: Date;
+        NoOfCdtTrfTxInf: Integer;
+        i: Integer;
+        CtrlSum: Decimal;
+        NbOfTxs: Integer;
+    begin
+        XMLNodes := XMLParentNode.ChildNodes;
+        for i := 0 to XMLNodes.Count - 1 do begin
+            XMLNode := XMLNodes.ItemOf(i);
+            case XMLNode.Name of
+                'PmtInfId', 'BtchBookg', 'PmtTpInf', 'Dbtr', 'DbtrAcct', 'DbtrAgt', 'CdtrAgt', 'FinInstnId', 'BICFI', 'AnyBIC':
+                    ;
+                'PmtMtd':
+                    Assert.AreEqual('TRF', XMLNode.InnerXml, 'PmtMtd');
+                'ChrgBr':
+                    Assert.AreEqual('SHAR', XMLNode.InnerXml, 'ChrgBr');
+                'CtrlSum':
+                    begin
+                        Evaluate(CtrlSum, XMLNode.InnerXml, 9);
+                        Assert.AreEqual(ExpectedCtrlSum, CtrlSum, 'CtrlSum');
+                    end;
+                'NbOfTxs':
+                    begin
+                        Evaluate(NbOfTxs, XMLNode.InnerXml, 9);
+                        Assert.AreEqual(ExpectedNoOfCdtTrfTxInf, NbOfTxs, 'NbOfTxs');
+                    end;
+                'ReqdExctnDt':
+                    begin
+                        ReqdExctnDtXMLNodes := XmlNode.ChildNodes;
+                        DtXMLNode := ReqdExctnDtXMLNodes.ItemOf(0);
+                        Evaluate(ActualDate, DtXMLNode.InnerXml, 9);
+                        Assert.AreEqual(ExpectedDate, ActualDate, 'ReqdExctnDt/Dt');
+                    end;
+                'CdtTrfTxInf':
+                    NoOfCdtTrfTxInf += 1;
+                else
+                    Error(XMLUnknownElementErr, XMLNode.Name);
+            end;
+        end;
+        Assert.AreEqual(ExpectedNoOfCdtTrfTxInf, NoOfCdtTrfTxInf, 'Wrong number of DrctDbtTxInf nodes.');
+    end;
+
+    local procedure CreateGenJnlLinesDiffDateNonEuro(var GenJnlLine: Record "Gen. Journal Line"; NoOfGroups: Integer; NoOfPmtsPerGroup: Integer)
+    var
+        VendorBankAcc: Record "Vendor Bank Account";
+        i: Integer;
+        PostingDate: Date;
+    begin
+        VendorBankAcc.SetRange("Vendor No.", Vendor."No.");
+        if VendorBankAcc.FindFirst() then;
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        CreateGenJnlLineForAccType(
+            GenJnlLine, GenJournalBatch, GenJnlLine."Account Type"::Vendor, Vendor."No.", VendorBankAcc.Code, EURCode);
+        PostingDate := GenJnlLine."Posting Date";
+        for i := 1 to NoOfGroups * NoOfPmtsPerGroup - 1 do begin
+            GenJnlLine."Line No." += 10000;
+            GenJnlLine.Validate("Posting Date", PostingDate + i div NoOfPmtsPerGroup);
+            GenJnlLine.Insert();
+        end;
+        GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
+        GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
     end;
 
     [RequestPageHandler]
