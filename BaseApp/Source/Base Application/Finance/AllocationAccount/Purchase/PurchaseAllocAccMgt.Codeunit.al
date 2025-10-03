@@ -94,6 +94,7 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
                 Error(InvalidAccountTypeForInheritFromParentErr, PurchaseLine.Type);
         end;
 
+        IsInheritFromParent := true;
         AllocationLine.Reset();
         AllocationLine.SetView(CurrentFilters);
     end;
@@ -531,12 +532,21 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
     end;
 
     local procedure MoveAmounts(var PurchaseLine: Record "Purchase Line"; var AllocationPurchaseLine: Record "Purchase Line"; var AllocationLine: Record "Allocation Line"; var AllocationAccount: Record "Allocation Account")
+    var
+        AllocationAccountMgt: Codeunit "Allocation Account Mgt.";
+        AmountRoundingPrecision: Decimal;
     begin
         PurchaseLine."Unit Cost" := AllocationPurchaseLine."Unit Cost";
 
         if AllocationAccount."Document Lines Split" = AllocationAccount."Document Lines Split"::"Split Amount" then begin
-            PurchaseLine.Validate("Direct Unit Cost", GetUnitPrice(PurchaseLine, AllocationLine.Amount));
-            PurchaseLine."Line Amount" := AllocationLine.Amount;
+            if IsInheritFromParent then begin
+                PurchaseLine.Validate("Direct Unit Cost", GetUnitPrice(PurchaseLine, AllocationLine.Amount));
+                PurchaseLine."Line Amount" := AllocationLine.Amount;
+            end else begin
+                AmountRoundingPrecision := AllocationAccountMgt.GetCurrencyRoundingPrecision(PurchaseLine."Currency Code");
+                PurchaseLine.Validate("Direct Unit Cost", Round(AllocationLine.Amount / PurchaseLine.Quantity, AmountRoundingPrecision));
+                PurchaseLine.Validate("Line Amount", AllocationLine.Amount);
+            end;
         end else begin
             PurchaseLine.Validate("Direct Unit Cost", AllocationPurchaseLine."Direct Unit Cost");
             PurchaseLine."Line Amount" := AllocationPurchaseLine."Line Amount";
@@ -760,6 +770,7 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
     end;
 
     var
+        IsInheritFromParent: Boolean;
         AllocationAccountMustOnlyDistributeToGLAccountsErr: Label 'The allocation account must contain G/L accounts as distribution accounts.';
         CannotGetAllocationAccountFromLineErr: Label 'Cannot get allocation account from Purchase line %1.', Comment = '%1 - Line No., it is an integer that identifies the line e.g. 10000, 200000.';
         NoLinesGeneratedLbl: Label 'No allocation account lines were generated for Purchase line %1.', Comment = '%1 - Unique identification of the line.';
