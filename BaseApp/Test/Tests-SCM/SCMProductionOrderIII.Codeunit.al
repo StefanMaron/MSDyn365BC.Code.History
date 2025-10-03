@@ -72,6 +72,7 @@
         RtngLineBinCodeErr: Label 'Wrong %1 in %2.', Comment = '%1: Field(To-Production Bin Code), %2: TableCaption(Prod. Order Routing Line)';
         QuantityImbalanceErr: Label 'out of balance';
         InvalidPrecisionErr: Label 'field to be incorrect';
+        ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
         ReservationEntryMustExistErr: Label '%1 must exist.', Comment = '%1 is Table Caption';
 
     [Test]
@@ -5403,6 +5404,38 @@
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure RegisterPartialPutAwayAfterSortingWhseActivityLine()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        QtyToHandle: Decimal;
+        WareHouseActionType: Enum "Warehouse Action Type";
+    begin
+        // [SCENARIO 598381] Regiter partial Whse Put-away successfully when sorting set on Qty. to Handle
+        Initialize();
+
+        // [GIVEN] Create an Item
+        CreateItem(Item);
+
+        // [GIVEN] Create Whse. Receipt form Purchase Order
+        CreateWhseReceiptFromPurchaseOrder(PurchaseHeader, Item."No.", LocationWhite.Code, LibraryRandom.RandInt(20));
+
+        // [GIVEN] Post Warehouse Receipt
+        PostWarehouseReceipt(PurchaseHeader."No.");
+
+        // [WHEN] Update Qty. to Handle, sort the Wharehouse Activity Line on Qty. to Handle and register Warehouse Activity
+        QtyToHandle := LibraryRandom.RandInt(5);
+        UpdateQuantityToHandleAndRegisterWarehouseActivity(PurchaseHeader."No.", WarehouseActivityHeader.Type::"Put-away", QtyToHandle);
+
+        // [THEN] Verify registered Warehouse Activity Lines
+        VerifyRegisteredWhseActivityLine(PurchaseHeader."No.", WarehouseActivityHeader.Type::"Put-away", WareHouseActionType::Take, QtyToHandle);
+        VerifyRegisteredWhseActivityLine(PurchaseHeader."No.", WarehouseActivityHeader.Type::"Put-away", WareHouseActionType::Place, QtyToHandle);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");
@@ -7699,6 +7732,37 @@
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(SerialNo);
         LibraryVariableStorage.Enqueue(Quantity);
+    end;
+
+    local procedure VerifyRegisteredWhseActivityLine(SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type"; QtyToHandle: Decimal)
+    var
+        RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
+    begin
+        FindRegisteredWhseActivityLine(RegisteredWhseActivityLine, SourceNo, ActionType, ActivityType);
+        Assert.IsTrue((QtyToHandle = RegisteredWhseActivityLine.Quantity),
+        StrSubstNo(ValueMustBeEqualErr, RegisteredWhseActivityLine.FieldCaption(Quantity), RegisteredWhseActivityLine.Quantity, RegisteredWhseActivityLine.TableCaption()));
+    end;
+
+    local procedure UpdateQuantityToHandleAndRegisterWarehouseActivity(SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; QtyToHandle: Decimal)
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        PutAwayPage: TestPage "Warehouse Put-away";
+    begin
+        WarehouseActivityLine.SetCurrentKey("Qty. to Handle");
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.FindSet();
+        repeat
+            WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
+            WarehouseActivityLine.Modify(true);
+        until WarehouseActivityLine.Next() = 0;
+
+        WarehouseActivityLine.SetAscending("Qty. to Handle", true);
+
+        PutAwayPage.OpenEdit();
+        PutAwayPage.FILTER.SetFilter("No.", WarehouseActivityLine."No.");
+        PutAwayPage.WhseActivityLines.GoToRecord(WarehouseActivityLine);
+        PutAwayPage."&Register Put-away".Invoke();
     end;
 
     [MessageHandler]
