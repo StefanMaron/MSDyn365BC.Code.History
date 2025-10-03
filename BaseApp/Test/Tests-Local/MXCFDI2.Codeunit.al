@@ -15,6 +15,7 @@ codeunit 144002 "MX CFDI 2"
         LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryJournals: Codeunit "Library - Journals";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
@@ -28,6 +29,7 @@ codeunit 144002 "MX CFDI 2"
         ResponseOption: Option Success,Error;
         EInvSendAction: Option "Request Stamp",Send,"Request Stamp and Send",Cancel;
         NamespaceCFD4Txt: Label 'http://www.sat.gob.mx/cfd/4';
+        NamespacePagos20: Label 'http://www.sat.gob.mx/Pagos20';
         SchemaLocationCFD4Txt: Label 'http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd';
         NamespaceCCE20Txt: Label 'http://www.sat.gob.mx/ComercioExterior20';
         OptionNotSupportedErr: Label 'Option not supported by test function.';
@@ -86,6 +88,116 @@ codeunit 144002 "MX CFDI 2"
         InitXMLReaderForSalesDocumentCCE(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce20:ComercioExterior', 'CertificadoOrigen', '1');
         LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce20:ComercioExterior', 'NumCertificadoOrigen', CertificateOfOriginNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure BaseDRAndImporteDRWhenInvoiceInFCYAndPartialPaymentInLCY()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CurrencyCode: Code[10];
+        PostedInvoiceNo: Code[20];
+        PaymentDocNo: Code[20];
+        InvoiceDate: Date;
+        InvAmountExclVAT: Decimal;
+        InvAmountInclVAT: Decimal;
+        PaymentExchRateAmt: Decimal;
+        PaymentAmount: Decimal;
+        PaymentAmountLCY: Decimal;
+        PaymentVATBase: Decimal;
+        PaymentVATAmount: Decimal;
+    begin
+        // [SCENARIO 581460] BaseDR and ImporteDR attribute values when invoice is in FCY and partial payment is done in LCY.
+        Initialize();
+
+        // [GIVEN] Currency AAA with Exchange Rate 20 at Work Date - 10 days and Exchange Rate 25 at Work Date.
+        InvoiceDate := WorkDate() - 10;
+        PaymentExchRateAmt := 1 / 25;
+        CurrencyCode := LibraryERM.CreateCurrencyWithGLAccountSetup();
+        LibraryERM.CreateExchangeRate(CurrencyCode, InvoiceDate, 1 / 20, 1 / 20);
+        LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate(), PaymentExchRateAmt, PaymentExchRateAmt);
+
+        // [GIVEN] Posted Sales Invoice with Amount 1000 in AAA currency with Posting Date = Work Date - 10 days. VAT is 20%, Amount Including VAT is 1200.
+        CreateSalesHeaderForCustomer(SalesHeader, Enum::"Sales Document Type"::Invoice, CreateCustomer());
+        UpdatePostingDateOnSalesHeader(SalesHeader, InvoiceDate);
+        UpdateCurrencyCodeOnSalesHeader(SalesHeader, CurrencyCode);
+        CreateSalesLineItem(SalesLine, SalesHeader, CreateItem(), 1, 20);
+        SalesLine.Validate("Unit Price", 1000);
+        SalesLine.Modify(true);
+        SalesHeader.CalcFields(Amount, "Amount Including VAT");
+        InvAmountExclVAT := SalesHeader.Amount;
+        InvAmountInclVAT := SalesHeader."Amount Including VAT";
+        PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [GIVEN] Posted Customer Payment with Amount LCY = 300 * 25 = 7500 in local currency with Posting Date = Work Date.
+        PaymentAmount := 300;
+        PaymentAmountLCY := PaymentAmount / PaymentExchRateAmt;
+        PaymentDocNo := CreateAndPostPayment(SalesHeader."Sell-to Customer No.", -PaymentAmountLCY, '', PostedInvoiceNo);
+
+        // [WHEN] Request Stamp Customer Payment.
+        RequestStamp(Database::"Cust. Ledger Entry", PaymentDocNo, ResponseOption::Success, EInvSendAction::"Request Stamp");
+
+        // [THEN] BaseDR attribute contains VAT Base for payment with value (300 / 1200) * 1000 = 250.00
+        // [THEN] ImporteDR attribute contains VAT Amount for payment with value (300 / 1200) * 200 = 50.00
+        PaymentVATBase := Round(PaymentAmount / InvAmountInclVAT * InvAmountExclVAT);
+        PaymentVATAmount := Round(PaymentAmount / InvAmountInclVAT * (InvAmountInclVAT - InvAmountExclVAT));
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, PaymentDocNo);
+        CustLedgerEntry.CalcFields("Original Document XML");
+        InitXMLReaderForPayment(CustLedgerEntry);
+        LibraryXPathXMLReader.VerifyAttributeValue(
+            'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:DoctoRelacionado/pago20:ImpuestosDR/pago20:TrasladosDR/pago20:TrasladoDR', 'BaseDR', FormatDecimal(PaymentVATBase, 2));
+        LibraryXPathXMLReader.VerifyAttributeValue(
+            'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:DoctoRelacionado/pago20:ImpuestosDR/pago20:TrasladosDR/pago20:TrasladoDR', 'ImporteDR', FormatDecimal(PaymentVATAmount, 2));
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure BaseDRAndImporteDRWhenInvoiceAndPartialPaymentInLCY()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        PostedInvoiceNo: Code[20];
+        PaymentDocNo: Code[20];
+        InvAmountExclVAT: Decimal;
+        InvAmountInclVAT: Decimal;
+        PaymentAmount: Decimal;
+        PaymentVATBase: Decimal;
+        PaymentVATAmount: Decimal;
+    begin
+        // [SCENARIO 581460] BaseDR and ImporteDR attribute values when invoice and partial payment are in LCY.
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with Amount 1000 in local currency. VAT is 20%, Amount Including VAT is 1200.
+        CreateSalesHeaderForCustomer(SalesHeader, Enum::"Sales Document Type"::Invoice, CreateCustomer());
+        CreateSalesLineItem(SalesLine, SalesHeader, CreateItem(), 1, 20);
+        SalesLine.Validate("Unit Price", 1000);
+        SalesLine.Modify(true);
+        SalesHeader.CalcFields(Amount, "Amount Including VAT");
+        InvAmountExclVAT := SalesHeader.Amount;
+        InvAmountInclVAT := SalesHeader."Amount Including VAT";
+        PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [GIVEN] Posted Customer Payment with Amount 300 in local currency.
+        PaymentAmount := 300;
+        PaymentDocNo := CreateAndPostPayment(SalesHeader."Sell-to Customer No.", -PaymentAmount, '', PostedInvoiceNo);
+
+        // [WHEN] Request Stamp Customer Payment.
+        RequestStamp(Database::"Cust. Ledger Entry", PaymentDocNo, ResponseOption::Success, EInvSendAction::"Request Stamp");
+
+        // [THEN] BaseDR attribute contains VAT Base for payment with value (300 / 1200) * 1000 = 250.00
+        // [THEN] ImporteDR attribute contains VAT Amount for payment with value (300 / 1200) * 200 = 50.00
+        PaymentVATBase := Round(PaymentAmount / InvAmountInclVAT * InvAmountExclVAT);
+        PaymentVATAmount := Round(PaymentAmount / InvAmountInclVAT * (InvAmountInclVAT - InvAmountExclVAT));
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, PaymentDocNo);
+        CustLedgerEntry.CalcFields("Original Document XML");
+        InitXMLReaderForPayment(CustLedgerEntry);
+        LibraryXPathXMLReader.VerifyAttributeValue(
+            'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:DoctoRelacionado/pago20:ImpuestosDR/pago20:TrasladosDR/pago20:TrasladoDR', 'BaseDR', FormatDecimal(PaymentVATBase, 2));
+        LibraryXPathXMLReader.VerifyAttributeValue(
+            'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:DoctoRelacionado/pago20:ImpuestosDR/pago20:TrasladosDR/pago20:TrasladoDR', 'ImporteDR', FormatDecimal(PaymentVATAmount, 2));
     end;
 
     local procedure Initialize()
@@ -168,6 +280,21 @@ codeunit 144002 "MX CFDI 2"
         SalesLine.Modify(true);
     end;
 
+    local procedure CreateAndPostPayment(CustomerNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10]; AppliesToDocNo: Code[20]): Code[20]
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, CustomerNo, Amount);
+        GenJournalLine.Validate("Payment Method Code", PaymentMethodCodeGlobal);
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Document Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", AppliesToDocNo);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        exit(GenJournalLine."Document No.");
+    end;
+
     local procedure CreateVATPostingSetup(VATBusPostingGroup: Code[20]; VATPct: Decimal): Code[20]
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
@@ -235,6 +362,11 @@ codeunit 144002 "MX CFDI 2"
         exit(SATAddress.Id);
     end;
 
+    local procedure FormatDecimal(InputValue: Decimal; DecimalPlaces: Integer): Text
+    begin
+        exit(Format(Abs(InputValue), 0, '<Precision,' + Format(DecimalPlaces) + ':' + Format(DecimalPlaces) + '><Standard Format,1>'));
+    end;
+
     local procedure GetCountryRegion(): Code[10]
     var
         CountryRegion: Record "Country/Region";
@@ -254,6 +386,17 @@ codeunit 144002 "MX CFDI 2"
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
         LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', NamespaceCFD4Txt);
         LibraryXPathXMLReader.AddAdditionalNamespace('cce20', NamespaceCCE20Txt);
+    end;
+
+    local procedure InitXMLReaderForPayment(CustLedgerEntry: Record "Cust. Ledger Entry")
+    var
+        TempBlob: Codeunit "Temp Blob";
+    begin
+        TempBlob.FromRecord(CustLedgerEntry, CustLedgerEntry.FieldNo("Original Document XML"));
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', NamespaceCFD4Txt);
+        LibraryXPathXMLReader.AddAdditionalNamespace('pago20', NamespacePagos20);
     end;
 
     local procedure RequestStamp(TableNo: Integer; PostedDocumentNo: Code[20]; Response: Option; DocAction: Option)
@@ -431,6 +574,18 @@ codeunit 144002 "MX CFDI 2"
         SalesHeader."SAT Address ID" := CreateSATAddress();
         SalesHeader.Modify(true);
         UpdateLocationForCartaPorte(SalesHeader."Location Code");
+    end;
+
+    local procedure UpdateCurrencyCodeOnSalesHeader(var SalesHeader: Record "Sales Header"; CurrencyCode: Code[10])
+    begin
+        SalesHeader.Validate("Currency Code", CurrencyCode);
+        SalesHeader.Modify(true);
+    end;
+
+    local procedure UpdatePostingDateOnSalesHeader(var SalesHeader: Record "Sales Header"; PostingDate: Date)
+    begin
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Modify(true);
     end;
 
     local procedure UpdateForeingTradeOnSalesLine(SalesLine: Record "Sales Line")

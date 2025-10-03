@@ -11,10 +11,6 @@ using Microsoft.Foundation.Navigate;
 using Microsoft.Inventory.Item;
 using System.Diagnostics;
 using System.Security.User;
-#if not CLEAN24
-using System.Environment.Configuration;
-using System.Environment;
-#endif
 
 page 20 "General Ledger Entries"
 {
@@ -154,7 +150,7 @@ page 20 "General Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the source currency code for general ledger entries.';
-#if not CLEAN24
+#if not CLEAN25
                     Visible = SourceCurrencyVisible;
 #endif
                 }
@@ -163,7 +159,7 @@ page 20 "General Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the source currency amount for general ledger entries.';
-#if not CLEAN24
+#if not CLEAN25
                     Visible = SourceCurrencyVisible;
 #endif
                 }
@@ -172,7 +168,7 @@ page 20 "General Ledger Entries"
                     ApplicationArea = VAT;
                     Editable = false;
                     ToolTip = 'Specifies the source currency VAT amount for general ledger entries.';
-#if not CLEAN24
+#if not CLEAN25
                     Visible = SourceCurrencyVisible;
 #endif
                 }
@@ -181,7 +177,7 @@ page 20 "General Ledger Entries"
                     ApplicationArea = VAT;
                     Editable = false;
                     ToolTip = 'Specifies the amount in source currency of the transaction for which VAT is not applied, due to the type of goods or services purchased.';
-#if not CLEAN24
+#if not CLEAN25
                     Visible = SourceCurrencyVisible;
 #endif
                 }
@@ -766,7 +762,7 @@ page 20 "General Ledger Entries"
         AmountVisible: Boolean;
         DebitCreditVisible: Boolean;
         IsVATDateEnabled: Boolean;
-#if not CLEAN24
+#if not CLEAN25
         SourceCurrencyVisible: Boolean;
 #endif
 
@@ -809,15 +805,15 @@ page 20 "General Ledger Entries"
     local procedure SetControlVisibility()
     var
         GLSetup: Record "General Ledger Setup";
-#if not CLEAN24
-        ClientTypeManagement: Codeunit "Client Type Management";
-        FeatureKeyManagement: Codeunit "Feature Key Management";
+#if not CLEAN25
+        ClientTypeManagement: Codeunit System.Environment."Client Type Management";
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
 #endif
     begin
         GLSetup.Get();
         AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
-#if not CLEAN24
+#if not CLEAN25
         if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::SOAP, CLIENTTYPE::OData, CLIENTTYPE::ODataV4, ClientType::Api]
         then
             SourceCurrencyVisible := false

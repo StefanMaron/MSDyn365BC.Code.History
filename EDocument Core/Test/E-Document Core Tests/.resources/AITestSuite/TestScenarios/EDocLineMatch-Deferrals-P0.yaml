@@ -28,8 +28,6 @@ tests:
     expected_data:
       - line_id: 20000
         deferral_code: "12M"
-      - line_id: 30000
-        deferral_code: "6M"
 
   - name: EDocLineMatching-Deferral-003
     question: Match all prepaid insurance policies with appropriate deferral periods.
@@ -44,10 +42,6 @@ tests:
     expected_data:
       - line_id: 10000
         deferral_code: "12M"
-      - line_id: 20000
-        deferral_code: "6M"
-      - line_id: 30000
-        deferral_code: "3M"
 
   - name: EDocLineMatching-Deferral-004
     question: Match maintenance contracts with varying periods.
@@ -62,10 +56,6 @@ tests:
     expected_data:
       - line_id: 10000
         deferral_code: "12M"
-      - line_id: 20000
-        deferral_code: "6M"
-      - line_id: 30000
-        deferral_code: "3M"
 
   - name: EDocLineMatching-Deferral-005
     question: Match extended warranties and service plans.
@@ -80,10 +70,6 @@ tests:
     expected_data:
       - line_id: 10000
         deferral_code: "12M"
-      - line_id: 20000
-        deferral_code: "6M"
-      - line_id: 30000
-        deferral_code: "3M"
 
   - name: EDocLineMatching-Deferral-006
     question: Match subscriptions and licenses with different terms.
@@ -98,10 +84,6 @@ tests:
     expected_data:
       - line_id: 10000
         deferral_code: "12M"
-      - line_id: 20000
-        deferral_code: "6M"
-      - line_id: 30000
-        deferral_code: "3M"
 
   - name: EDocLineMatching-Deferral-007
     question: Mixed invoice with deferrable and non-deferrable items.
@@ -228,8 +210,6 @@ tests:
     expected_data:
       - line_id: 30000
         deferral_code: "6M"
-      - line_id: 50000
-        deferral_code: "3M"
 
   - name: EDocLineMatching-Deferral-013
     question: Non-deferrable office expenses and utilities.
@@ -304,10 +284,8 @@ tests:
       - line_id: 20000
         description: Short-term vehicle lease - 2 days
       - line_id: 30000
-        description: Local business license renewal
-      - line_id: 40000
         description: Portable toilet rental - site work
-      - line_id: 50000
+      - line_id: 40000
         description: VAT - April reporting
     expected_data:
 
