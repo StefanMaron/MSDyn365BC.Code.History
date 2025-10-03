@@ -2373,30 +2373,32 @@ table 18 Customer
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         SalesLine: Record "Sales Line";
-        SalesOutstandingAmountFromShipment: Decimal;
+        SalesInvoiceOutstandingAmountLCYForInvoicingShippedOrders: Decimal;
         InvoicedPrepmtAmountLCY: Decimal;
         RetRcdNotInvAmountLCY: Decimal;
         AdditionalAmountLCY: Decimal;
         IsHandled: Boolean;
         TotalAmountLCY: Decimal;
-        ShippedFromOrderLCY: Decimal;
-        ShippedOutstandingInvoicesLCY: Decimal;
     begin
         IsHandled := false;
         OnBeforeGetTotalAmountLCYCommon(Rec, AdditionalAmountLCY, IsHandled);
         if IsHandled then
             exit(AdditionalAmountLCY);
 
-        SalesOutstandingAmountFromShipment := SalesLine.OutstandingInvoiceAmountFromShipment("No.");
+        // Sum up "Outstanding Amount (LCY)" of sales invoices for invoicing shipped orders. This amount is already included in "Shipped Not Invoiced (LCY)", and should be subtracted from outstanding invoices.
+        SalesInvoiceOutstandingAmountLCYForInvoicingShippedOrders := SalesLine.OutstandingInvoiceAmountFromShipment("No.");
+
         InvoicedPrepmtAmountLCY := GetInvoicedPrepmtAmountLCY();
         RetRcdNotInvAmountLCY := GetReturnRcdNotInvAmountLCY();
-        ShippedFromOrderLCY := GetShippedFromOrderLCYAmountLCY();
-        ShippedOutstandingInvoicesLCY := GetShippedOutstandingInvoicesAmountLCY();
 
         TotalAmountLCY :=
-            "Balance (LCY)" + "Outstanding Orders (LCY)" + ("Shipped Not Invoiced (LCY)" - ShippedFromOrderLCY) +
-            ("Outstanding Invoices (LCY)" - ShippedOutstandingInvoicesLCY) + SalesOutstandingAmountFromShipment -
-            InvoicedPrepmtAmountLCY - RetRcdNotInvAmountLCY + AdditionalAmountLCY;
+            "Balance (LCY)"
+            + "Outstanding Orders (LCY)"
+            + "Shipped Not Invoiced (LCY)"
+            + "Outstanding Invoices (LCY)" - SalesInvoiceOutstandingAmountLCYForInvoicingShippedOrders
+            - InvoicedPrepmtAmountLCY
+            - RetRcdNotInvAmountLCY
+            + AdditionalAmountLCY;
 
         OnAfterGetTotalAmountLCYCommon(Rec, TotalAmountLCY);
         exit(TotalAmountLCY);
@@ -3507,14 +3509,20 @@ table 18 Customer
     var
         SalesShippedNotInvoicedLCY: Query "Sales Shipped Not Invoiced LCY";
         ShippedFromOrderLCY: Decimal;
+        SalesOrderNo: Code[20];
     begin
+        SalesOrderNo := '';
         ShippedFromOrderLCY := 0;
         SalesShippedNotInvoicedLCY.SetRange(BillToCustomerNo, "No.");
         SalesShippedNotInvoicedLCY.SetFilter(OrderNo, '<>%1', '');
         SalesShippedNotInvoicedLCY.SetFilter(OrderLineNo, '<>%1', 0);
         if SalesShippedNotInvoicedLCY.Open() then
-            while SalesShippedNotInvoicedLCY.Read() do
-                ShippedFromOrderLCY += SalesShippedNotInvoicedLCY.ShippedNotInvoicedLCY;
+            while SalesShippedNotInvoicedLCY.Read() do begin
+                if SalesShippedNotInvoicedLCY.OrderNo <> SalesOrderNo then
+                    ShippedFromOrderLCY += SalesShippedNotInvoicedLCY.ShippedNotInvoicedLCY;
+
+                SalesOrderNo := SalesShippedNotInvoicedLCY.OrderNo;
+            end;
         exit(ShippedFromOrderLCY);
     end;
 

@@ -256,6 +256,11 @@ codeunit 7324 "Whse.-Activity-Post"
         if not (Location."Require Pick" and Location."Require Receive") then
             exit;
 
+        Item.Setloadfields("Order Tracking Policy");
+        Item.Get(WarehouseActivityLine."Item No.");
+        if (Item."Order Tracking Policy" = Item."Order Tracking Policy"::None) then
+            exit;
+
         WarehouseActivityLine2.CopyFilters(WarehouseActivityLine);
         WarehouseActivityLine2.SetFilter("Activity Type", '%1|%2', WarehouseActivityLine2."Activity Type"::"Invt. Pick", WarehouseActivityLine2."Activity Type"::"Invt. Put-away");
         if WarehouseActivityLine2.FindSet() then

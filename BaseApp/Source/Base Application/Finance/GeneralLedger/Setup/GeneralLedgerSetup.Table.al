@@ -872,6 +872,10 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Hide Company Bank Account';
         }
+        field(193; "Check Source Curr. Consistency"; Boolean)
+        {
+            Caption = 'Check Source Curr. Consistency';
+        }
         field(10600; "Application always Allowed"; Boolean)
         {
             Caption = 'Application always Allowed';
