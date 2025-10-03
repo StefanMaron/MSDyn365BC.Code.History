@@ -2363,11 +2363,14 @@ table 83 "Item Journal Line"
         OnCreateDimOnBeforeUpdateGlobalDimFromDimSetID(Rec, xRec, CurrFieldNo, OldDimSetID, DefaultDimSource, InheritFromDimSetID, InheritFromTableNo);
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
-        if "Entry Type" = "Entry Type"::Transfer then begin
-            "New Dimension Set ID" := "Dimension Set ID";
-            "New Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
-            "New Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
-        end;
+        if "Entry Type" = "Entry Type"::Transfer then
+            if Rec."New Location Code" <> '' then
+                CreateNewDimFromDefaultDim(Rec.FieldNo("New Location Code"))
+            else begin
+                "New Dimension Set ID" := "Dimension Set ID";
+                "New Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
+                "New Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
+            end;
     end;
 
     /// <summary>

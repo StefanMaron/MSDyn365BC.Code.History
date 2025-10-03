@@ -12,10 +12,6 @@ using Microsoft.Foundation.Comment;
 using Microsoft.Foundation.ExtendedText;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
-#if not CLEAN24
-using System.Environment.Configuration;
-using System.Environment;
-#endif
 using System.IO;
 
 page 17 "G/L Account Card"
@@ -234,7 +230,7 @@ page 17 "G/L Account Card"
             group(Revaluation)
             {
                 Caption = 'Revaluation';
-#if not CLEAN24
+#if not CLEAN25
                 Visible = SourceCurrencyVisible;
 #endif
                 field("Source Currency Posting"; Rec."Source Currency Posting")
@@ -242,7 +238,7 @@ page 17 "G/L Account Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Source Currency Posting';
                     ToolTip = 'Specifies how the system will validate posting of entries containing currencies. Blank will allow all currencies to be posted to the account. Same Code will only allow the currency specified in Source Currency Code. Multiple currencies will allow only posting of currencies selected in Source currency code. Local currency only allow posting without a Currency code.';
-#if not CLEAN24
+#if not CLEAN25
                     Visible = SourceCurrencyVisible;
 #endif
                 }
@@ -251,7 +247,7 @@ page 17 "G/L Account Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Source Currency Code';
                     ToolTip = 'Specifies the source currency code which can be posted to this account, if Source Currency Posting is set as Same Code.';
-#if not CLEAN24
+#if not CLEAN25
                     Visible = SourceCurrencyVisible;
 #endif
                 }
@@ -260,7 +256,7 @@ page 17 "G/L Account Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Source Currency Revaluation';
                     ToolTip = 'Specifies if source currency revaluation should be done for this account.';
-#if not CLEAN24
+#if not CLEAN25
                     Visible = SourceCurrencyVisible;
 #endif
                 }
@@ -269,7 +265,7 @@ page 17 "G/L Account Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Unrealized Revaluation';
                     ToolTip = 'Specifies if revaluation should be posted to currency realized or unrealized gains and losses accounts.';
-#if not CLEAN24
+#if not CLEAN25
                     Visible = SourceCurrencyVisible;
 #endif
                 }
@@ -339,7 +335,7 @@ page 17 "G/L Account Card"
                               "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
                               "Global Dimension 2 Filter" = field("Global Dimension 2 Filter"),
                               "Date Filter" = field("Date Filter");
-#if not CLEAN24
+#if not CLEAN25
                 Visible = SourceCurrencyVisible;
 #endif
             }
@@ -721,7 +717,7 @@ page 17 "G/L Account Card"
 
     var
         ExtendedPriceEnabled: Boolean;
-#if not CLEAN24
+#if not CLEAN25
         SourceCurrencyVisible: Boolean;
 #endif
         SubCategoryDescription: Text[80];
@@ -735,15 +731,15 @@ page 17 "G/L Account Card"
     local procedure SetControlVisibility()
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-#if not CLEAN24
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-        ClientTypeManagement: Codeunit "Client Type Management";
+#if not CLEAN25
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+        ClientTypeManagement: Codeunit System.Environment."Client Type Management";
 #endif
     begin
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
-#if not CLEAN24
+#if not CLEAN25
         if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::SOAP, CLIENTTYPE::OData, CLIENTTYPE::ODataV4, ClientType::Api]
-then
+        then
             SourceCurrencyVisible := false
         else
             SourceCurrencyVisible := FeatureKeyManagement.IsGLCurrencyRevaluationEnabled();

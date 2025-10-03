@@ -885,6 +885,10 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Hide Company Bank Account';
         }
+        field(193; "Check Source Curr. Consistency"; Boolean)
+        {
+            Caption = 'Check Source Curr. Consistency';
+        }
         field(10800; "Posting Allowed From"; Date)
         {
             CalcFormula = min("Accounting Period"."Starting Date" where("Fiscally Closed" = filter(false)));
