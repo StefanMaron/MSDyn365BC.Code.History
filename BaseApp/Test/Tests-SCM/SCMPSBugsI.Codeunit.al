@@ -42,6 +42,8 @@ codeunit 137035 "SCM PS Bugs-I"
         UpdateInterruptedErr: Label 'The update has been interrupted to respect the warning.';
         OustandingPickLineExistsErr: Label 'You cannot finish production order no. %1 because there is an outstanding pick for one or more components.';
         QuantityErr: Label 'Quantity update should be possible in %1.', Comment = '%1= Table Name.';
+        MainItemErr: Label 'New planning worksheet line is not created for main item';
+        CompoItemErr: Label 'New planning worksheet line is not created for component item';
 
     [Test]
     [Scope('OnPrem')]
@@ -1222,11 +1224,99 @@ codeunit 137035 "SCM PS Bugs-I"
 
         // [THEN] Quantity should be able to updated when Item is Non-Inventory.
         Assert.AreEqual(
-            Quantity, 
-            PlanningComponent.Quantity, 
+            Quantity,
+            PlanningComponent.Quantity,
             StrSubstNo(
-                QuantityErr, 
+                QuantityErr,
                 PlanningComponent.TableName()));
+    end;
+
+    [Test]
+    [HandlerFunctions('SKURequestPageHandler')]
+    procedure CheckPlanningWorksheetPlanComponentwhenStockkeepingUnitsSetup()
+    var
+        CompItem: Record Item;
+        Location: Record Location;
+        MainItem: Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionBOMHeader: Record "Production BOM Header";
+        Requisitionline: Record "Requisition Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Itemcard: TestPage "Item Card";
+        SKUCardPage: TestPage "Stockkeeping Unit Card";
+        ActualCount: Integer;
+    begin
+        // [SCENARIO 579977] Check Planning Worksheet Plan Component when Stockkeeping Units Setup for Items.
+        Initialize();
+
+        // [GIVEN] Set Manufacturing Setup for Dynamic Low-Level Code and Inventory Setup for ombined MPS/MRP Calculation.
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Dynamic Low-Level Code", true);
+        ManufacturingSetup.Validate("Combined MPS/MRP Calculation", true);
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create Item with Replenishment System as Production Order.
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Create Location.
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Create Stockkeeping Unit for Item and Location.
+        Commit();
+        LibraryVariableStorage.Enqueue(Location.Code);
+        ItemCard.OpenView();
+        ItemCard.GotoRecord(CompItem);
+        ItemCard."&Create Stockkeeping Unit".Invoke();
+        ItemCard.OK().Invoke();
+
+        // [GIVEN] Modify Stockkeeping Unit for Item.
+        SKUCardPage.OpenView();
+        SKUCardPage.Filter.SetFilter("Item No.", CompItem."No.");
+        SKUCardPage.Filter.SetFilter("Location Code", Location."Code");
+        SKUCardPage."Replenishment System".SetValue("Replenishment System"::Purchase);
+        SKUCardPage."Reordering Policy".SetValue("Reordering Policy"::"Order");
+        SKUCardPage.Close();
+
+        // [GIVEN] Create BOM for the item.
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", 1);
+
+        // [GIVEN] Create Main Item with Replenishment System as Production Order.
+        LibraryInventory.CreateItem(MainItem);
+
+        // [GIVEN] Create Stockkeeping Unit for Main Item and Location.
+        Commit();
+        LibraryVariableStorage.Enqueue(Location.Code);
+        ItemCard.OpenView();
+        ItemCard.GotoRecord(MainItem);
+        ItemCard."&Create Stockkeeping Unit".Invoke();
+        ItemCard.OK().Invoke();
+
+        // [GIVEN] Modify Stockkeeping Unit Created for Main Item.
+        SKUCardPage.OpenView();
+        SKUCardPage.Filter.SetFilter("Item No.", MainItem."No.");
+        SKUCardPage.Filter.SetFilter("Location Code", Location."Code");
+        SKUCardPage."Replenishment System".SetValue("Replenishment System"::"Prod. Order");
+        SKUCardPage."Reordering Policy".SetValue("Reordering Policy"::"Lot-for-Lot");
+        SKUCardPage."Manufacturing Policy".SetValue("Manufacturing Policy"::"Make-to-Stock");
+        SKUCardPage."Production BOM No.".SetValue(ProductionBOMHeader."No.");
+        SKUCardPage.Close();
+
+        // [WHEN] Create Sales order for Item and Location.
+        Librarysales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', MainItem."No.", 10, Location."Code", WorkDate());
+
+        // [WHEN] Calculate regenerative plan in planning worksheet update Planning Worksheet.
+        CalculateRegenerativePlanningWorksheet(CompItem, MainItem, WorkDate(), CalcDate('<1Y>', WorkDate()), true, false);
+
+        // [THEN] Verify Actual Count Match with Expected Result for Main Item Planning Worksheet Line.
+        CountPlanningWorksheetLine(Requisitionline, ActualCount, MainItem."No.", Location."Code");
+        Assert.AreEqual(1, ActualCount, MainItemErr);
+
+        // [THEN] Verify Actual Count Match with Expected Result for Component Item Planning Worksheet Line.
+        CountPlanningWorksheetLine(Requisitionline, ActualCount, CompItem."No.", Location."Code");
+        Assert.AreEqual(1, ActualCount, CompoItemErr);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -2035,6 +2125,32 @@ codeunit 137035 "SCM PS Bugs-I"
           ErrMessageCostNotSame);
     end;
 
+    local procedure CountPlanningWorksheetLine(Requisitionline: Record "Requisition Line"; var ActualCount: Integer; ItemNo: Code[20]; LocationCode: Code[10])
+    begin
+        Clear(ActualCount);
+        Requisitionline.Reset();
+        Requisitionline.SetRange("No.", ItemNo);
+        Requisitionline.SetRange("Location Code", LocationCode);
+        if Requisitionline.FindSet() then
+            ActualCount := Requisitionline.Count;
+    end;
+
+    local procedure CalculateRegenerativePlanningWorksheet(var CompItemRec: Record Item; var MainItemRec: Record Item; OrderDate: Date; ToDate: Date; RespectPlanningParameters: Boolean; Regenerative: Boolean)
+    var
+        TmpItemRec: Record Item;
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        CalculatePlanPlanWksh: Report "Calculate Plan - Plan. Wksh.";
+    begin
+        LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);  // Find Requisition Worksheet Name to Calculate Plan.
+        Commit();
+        CalculatePlanPlanWksh.InitializeRequest(OrderDate, ToDate, RespectPlanningParameters, true, true, '', 0D, false);
+        CalculatePlanPlanWksh.SetTemplAndWorksheet(RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name, Regenerative);
+        TmpItemRec.SetFilter("No.", '%1..%2', CompItemRec."No.", MainItemRec."No.");
+        CalculatePlanPlanWksh.SetTableView(TmpItemRec);
+        CalculatePlanPlanWksh.UseRequestPage(false);
+        CalculatePlanPlanWksh.RunModal();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -2115,6 +2231,16 @@ codeunit 137035 "SCM PS Bugs-I"
         ProductionOrder: Record "Production Order";
     begin
         LibraryReportDataset.RunReportAndLoad(Report::"Prod. Order - List", ProductionOrder, '');
+    end;
+
+    [RequestPageHandler]
+    procedure SKURequestPageHandler(var CreateStockkeepingUnit: TestRequestPage "Create Stockkeeping Unit")
+    var
+        LocationCode: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(LocationCode);
+        CreateStockkeepingUnit.Item.SetFilter("Location Filter", LocationCode);
+        CreateStockkeepingUnit.OK().Invoke();
     end;
 }
 
