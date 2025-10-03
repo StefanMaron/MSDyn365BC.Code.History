@@ -198,6 +198,7 @@ report 597 "G/L Currency Revaluation"
         GenJnlLine."Source Currency Code" := Currency.Code;
         GenJnlLine."Amount (LCY)" := RevaluationAmount;
         GenJnlLine.Validate(Amount, RevaluationAmount);
+        GenJnlLine."Zero Src. Curr. Amount" := true;
         GenJnlLine.Insert();
     end;
 

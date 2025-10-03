@@ -49,6 +49,7 @@
         DerivedTransLineErr: Label 'Expected no Derived Transfer Line i.e. line with "Derived From Line No." equal to original transfer line.';
         IncorrectSNUndoneErr: Label 'The Serial No. of the item on the transfer shipment line that was undone was different from the SN on the corresponding transfer line.';
         ApplToItemEntryErr: Label '%1 must be %2 in %3.', Comment = '%1 is Appl-to Item Entry, %2 is Item Ledger Entry No. and %3 is Transfer Line';
+        VariantCodeMandatoryErr: Label '%1 must have a value in %2: Document No.=%3, Line No.=%4. It cannot be zero or empty.', Comment = '%1:Field Caption, %2: TableCaption, %3:Document No, %4: Line No.';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -3988,6 +3989,48 @@
         asserterror LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
     end;
 
+    [Test]
+    procedure ReleaseTransferOrderWhenVariantMandatory()
+    var
+        InTransitLocation: Record Location;
+        Item: Record Item;
+        ItemVariant: array[2] of Record "Item Variant";
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+    begin
+        // [SCENARIO 601487] Release Transfer Order when Variant Mandatory in Inventory Setup.
+        Initialize();
+
+        // [GIVEN] Create From/To Locations and InTransit Location
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(FromLocation);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
+        LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
+
+        // [GIVEN] Create Item and two Variants
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemVariant(ItemVariant[1], Item."No.");
+        LibraryInventory.CreateItemVariant(ItemVariant[2], Item."No.");
+
+        // [GIVEN] Set Inventory Setup to require variant if exists
+        SetVariantMandatoryInInventorySetup();
+
+        // [GIVEN] Create Transfer Order and Line.
+        LibraryInventory.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandIntInRange(10, 100));
+
+        // [WHEN] Try to release the transfer order
+        asserterror LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
+
+        // [THEN] Assert error matches expected label
+        Assert.ExpectedError(
+            StrSubstNo(
+                VariantCodeMandatoryErr,
+                TransferLine.FieldCaption("Variant Code"), TransferLine.TableCaption(),
+                TransferLine."Document No.", TransferLine."Line No."));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5560,6 +5603,15 @@
                 WarehouseActivityLine.Validate("Qty. to Handle", LibraryRandom.RandInt(0));
                 WarehouseActivityLine.Modify(true);
             until WarehouseActivityLine.Next() = 0;
+    end;
+
+    local procedure SetVariantMandatoryInInventorySetup()
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Variant Mandatory if Exists", true);
+        InventorySetup.Modify(true);
     end;
 
     [MessageHandler]

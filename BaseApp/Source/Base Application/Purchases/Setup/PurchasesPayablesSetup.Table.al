@@ -504,7 +504,8 @@ table 312 "Purchases & Payables Setup"
     begin
         // Only invoices and credit memos are checked for document total amounts
         if (PurchaseHeader."Document Type" <> PurchaseHeader."Document Type"::Invoice) and
-           (PurchaseHeader."Document Type" <> PurchaseHeader."Document Type"::"Credit Memo") then
+           (PurchaseHeader."Document Type" <> PurchaseHeader."Document Type"::"Credit Memo") and
+           (PurchaseHeader."No." <> '') then
             exit(false);
         // If the system is setup to check the document totals, we will check it regardless of the extensions
         if Rec."Check Doc. Total Amounts" then
