@@ -14,6 +14,7 @@ using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
 using Microsoft.Bank.Payment;
 using Microsoft.Bank.Reconciliation;
+using Microsoft.Bank.Statement;
 using Microsoft.EServices.EDocument;
 using Microsoft.EServices.OnlineMap;
 using Microsoft.Finance.Currency;
@@ -122,6 +123,14 @@ codeunit 104000 "Upgrade - BaseApp"
         ServiceBlockedAlreadySetLbl: Label 'CopyItemSalesBlockedToServiceBlocked skipped. %1 already set for at least one record in table %2.', Comment = '%1 = Field Caption, %2 = Table Caption', Locked = true;
         XGenericSEPA09Txt: Label 'Generic SEPA09';
         XGenericSEPADesc09Txt: Label 'SEPA CT pain.001.001.09', Locked = true;
+        SEPACAMTMappingBankAccRecLineLbl: Label 'SEPA CAMT to Bank Acc. Reconciliation Line', Comment = 'SEPA CAMT is ISO standard name, should not be translated. Bank Acc. Reconciliation Line is the name of table 274 - use its translated caption here.', MaxLength = 250;
+        SEPACAMTMappingGenJnlLineLbl: Label 'SEPA CAMT to Gen. Journal Line', Comment = 'SEPA CAMT is ISO standard name, should not be translated. Gen. Journal Line is the name of table 81 - use its translated caption here.', MaxLength = 250;
+        SEPACAMTMappingCBGStatementLineLbl: Label 'SEPA CAMT to CBG Statement Line', Comment = 'SEPA CAMT is ISO standard name, should not be translated. CBG Statement Line is the name of table 11401 - use its translated caption here.', MaxLength = 250;
+        SEPACAMT05300108Lbl: Label 'SEPA CAMT 053.001.08', Locked = true;
+        FailedToInsertBankExportImportSetupErr: Label 'Failed to import bank import setup %1.', Comment = '%1 - SEPA CAMT 053.001.08';
+        FailedToInsertBankExportImportSetupTxt: Label 'Failed to import bank import setup %1.', Locked = true;
+        UpdatingSEPACAMT05300108SetupDoneTxt: Label 'Updated setup %1.', Locked = true;
+        SEPACAMT05300108BankStatementsLbl: Label 'SEPA CAMT 053.001.08 Bank Statements', MaxLength = 100;
 
     trigger OnCheckPreconditionsPerDatabase()
     begin
@@ -314,6 +323,269 @@ codeunit 104000 "Upgrade - BaseApp"
 
         if not ExportProtocol.Insert() then
             ExportProtocol.Modify();
+    end;
+
+    procedure UpdateSEPACAMT05300108DataExchDefLabels()
+    var
+        TransformationRule: Record "Transformation Rule";
+        DataExchMapping: Record "Data Exch. Mapping";
+        DataExchFieldMapping: Record "Data Exch. Field Mapping";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        DataExchMapping.SetRange("Data Exch. Def Code", SEPACAMT05300108NL());
+        DataExchMapping.SetRange("Table ID", Database::"Bank Acc. Reconciliation Line");
+        DataExchMapping.ModifyAll(Name, SEPACAMTMappingBankAccRecLineLbl);
+        DataExchMapping.SetRange("Table ID", Database::"Gen. Journal Line");
+        DataExchMapping.ModifyAll(Name, SEPACAMTMappingGenJnlLineLbl);
+        DataExchMapping.SetRange("Table ID", Database::"CBG Statement Line");
+        DataExchMapping.ModifyAll(Name, SEPACAMTMappingCBGStatementLineLbl);
+        DataExchFieldMapping.SetRange("Data Exch. Def Code", SEPACAMT05300108NL());
+        DataExchFieldMapping.SetRange("Table ID", Database::"Bank Acc. Reconciliation Line");
+        DataExchFieldMapping.SetRange("Field ID", BankAccReconciliationLine.FieldNo("Transaction ID"));
+        if TransformationRule.Get(TransformationRule.GetDeleteNOTPROVIDEDCode()) then
+            DataExchFieldMapping.ModifyAll("Transformation Rule", TransformationRule.GetDeleteNOTPROVIDEDCode());
+    end;
+
+    internal procedure UpgradeSEPACAMT05300108()
+    var
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+        DataExchDef: Record "Data Exch. Def";
+        CompanyInitialize: Codeunit "Company-Initialize";
+        ImportType: Option "TableData","Table",Form,"Report",,"Codeunit","XMLport",MenuSuite,"Page";
+    begin
+        if not DataExchDef.Get(SEPACAMT05300108NL()) then begin
+            ImportDataExchangeDefinition();
+            UpdateSEPACAMT05300108DataExchDefLabels();
+        end;
+
+        if not BankExportImportSetup.Get(SEPACAMT05300108()) then begin
+            CompanyInitialize.InsertBankExportImportSetup(SEPACAMT05300108(), SEPACAMT05300108Lbl, BankExportImportSetup.Direction::Import, Codeunit::"Exp. Launcher Gen. Jnl.", 0, 0);
+            if BankExportImportSetup.Get(SEPACAMT05300108()) then begin
+                BankExportImportSetup.Validate("Data Exch. Def. Code", SEPACAMT05300108NL());
+                BankExportImportSetup.Validate("Preserve Non-Latin Characters", true);
+                BankExportImportSetup.Modify();
+            end else begin
+                Session.LogMessage('0000Q78', StrSubstNo(FailedToInsertBankExportImportSetupTxt, SEPACAMT05300108()), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'AL SaaS Upgrade');
+                Error(FailedToInsertBankExportImportSetupErr, SEPACAMT05300108());
+            end;
+            CreateImportProtocol(SEPACAMT05300108NL(), ImportType::Codeunit, Codeunit::"Import SEPA CAMT", SEPACAMT05300108BankStatementsLbl, true);
+        end;
+        Session.LogMessage('0000QA8', StrSubstNo(UpdatingSEPACAMT05300108SetupDoneTxt, SEPACAMT05300108()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'AL SaaS Upgrade');
+    end;
+
+    local procedure ImportDataExchangeDefinition()
+    var
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OutStream: OutStream;
+    begin
+        TempBlob.CreateOutStream(OutStream, TextEncoding::UTF8);
+        TempBlob.CreateInStream(InStream, TextEncoding::UTF8);
+        OutStream.WriteText('<?xml version="1.0" encoding="UTF-8" standalone="no"?>');
+        OutStream.WriteText('<root>');
+        OutStream.WriteText('  <DataExchDef Code="SEPA CAMT 053-08-NL" Name="SEPA CAMT 053.001.08" Type="0" ExternalDataHandlingCodeunit="1240" FileType="0" ReadingWritingCodeunit="1200">');
+        OutStream.WriteText('    <DataExchLineDef Code="SEPA CAMT 053-08-NL" Name="camt.053.001.08.xsd" ColumnCount="0" DataLineTag="/Document/BkToCstmrStmt/Stmt/Ntry" Namespace="urn:iso:std:iso:20022:tech:xsd:camt.053.001.08">');   
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="1" Name="Stmt/Id" Show="false" DataType="0" Description="ID" Path="/Document/BkToCstmrStmt/Stmt/Id" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="2" Name="Stmt/CreDtTm" Show="true" DataType="1" Description="CreDtTm" Path="/Document/BkToCstmrStmt/Stmt/CreDtTm" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="3" Name="Stmt/Bal/Tp/CdOrPrtry/Cd" Show="true" DataType="0" Description="Cd" Path="/Document/BkToCstmrStmt/Stmt/Bal/Tp/CdOrPrtry/Cd" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="4" Name="Stmt/Bal/Amt" Show="true" DataType="2" Description="Amt" Path="/Document/BkToCstmrStmt/Stmt/Bal/Amt" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="5" Name="Stmt/Acct/Id/IBAN" Show="false" DataType="0" Description="IBAN" Path="/Document/BkToCstmrStmt/Stmt/Acct/Id/IBAN" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="6" Name="Stmt/Acct/Id/Othr/Id" Show="false" DataType="0" Description="BankAccount" Path="/Document/BkToCstmrStmt/Stmt/Acct/Id/Othr/Id" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="7" Name="Stmt/Bal/Amt[@Ccy]" Show="true" DataType="0" Description="Ccy" Path="/Document/BkToCstmrStmt/Stmt/Bal/Amt[@Ccy]" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="8" Name="Stmt/Bal/CdtDbtInd" Show="true" DataType="2" Description="CdtDbtInd" Path="/Document/BkToCstmrStmt/Stmt/Bal/CdtDbtInd" NegativeSignIdentifier="DBIT" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="9" Name="Stmt/Ntry/Amt" Show="true" DataType="2" Description="Amt" Path="/Document/BkToCstmrStmt/Stmt/Ntry/Amt" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="10" Name="Stmt/Ntry/Amt[@Ccy]" Show="true" DataType="0" Description="Ccy" Path="/Document/BkToCstmrStmt/Stmt/Ntry/Amt[@Ccy]" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="11" Name="Stmt/Ntry/CdtDbtInd" Show="true" DataType="2" Description="CdtDbtInd" Path="/Document/BkToCstmrStmt/Stmt/Ntry/CdtDbtInd" NegativeSignIdentifier="DBIT" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="12" Name="Stmt/Ntry/BookgDt/DtTm" Show="true" DataType="1" Description="DtTm" Path="/Document/BkToCstmrStmt/Stmt/Ntry/BookgDt/DtTm" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="13" Name="Stmt/Ntry/ValDt/Dt" Show="true" DataType="1" Description="Dt" Path="/Document/BkToCstmrStmt/Stmt/Ntry/ValDt/Dt" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="14" Name="Stmt/Ntry/AcctSvcrRef" Show="true" DataType="0" Description="AcctSvcrRef" Path="/Document/BkToCstmrStmt/Stmt/Ntry/AcctSvcrRef" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="15" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/Nm" Show="true" DataType="0" Description="Nm" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/Nm" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="16" Name="Stmt/Ntry/NtryDtls/TxDtls/RmtInf/Ustrd" Show="true" DataType="0" Description="Ustrd" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RmtInf/Ustrd" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="17" Name="Stmt/Ntry/AddtlNtryInf" Show="true" DataType="0" Description="AddtlNtryInf" Path="/Document/BkToCstmrStmt/Stmt/Ntry/AddtlNtryInf" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="18" Name="Stmt/Ntry/BookgDt/Dt" Show="false" DataType="1" Description="BookgDt/Dt" Path="/Document/BkToCstmrStmt/Stmt/Ntry/BookgDt/Dt" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="19" Name="Stmt/Ntry/ValDt/DtTm" Show="false" DataType="1" Description="ValDt/DtTm" Path="/Document/BkToCstmrStmt/Stmt/Ntry/ValDt/DtTm" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="20" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/DbtrAcct/Id/IBAN" Show="true" DataType="0" Description="IBAN" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/DbtrAcct/Id/IBAN" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="21" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/DbtrAcct/Id/Othr/Id" Show="true" DataType="0" Description="Id" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/DbtrAcct/Id/Othr/Id" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="22" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/AdrLine" Show="true" DataType="0" Description="AdrLine" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/AdrLine" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="23" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/TwnNm" Show="true" DataType="0" Description="TwnNm" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/TwnNm" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="24" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/Nm" Show="true" DataType="0" Description="Nm" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/Nm" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="25" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/IBAN" Show="true" DataType="0" Description="IBAN" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/IBAN" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="26" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/Othr/Id" Show="true" DataType="0" Description="Id" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/Othr/Id" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="27" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/AdrLine" Show="true" DataType="0" Description="AdrLine" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/AdrLine" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="28" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/TwnNm" Show="true" DataType="0" Description="TwnNm" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/TwnNm" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="29" Name="Stmt/Ntry/NtryDtls/TxDtls/Refs/EndToEndId" Show="true" DataType="0" Description="EndToEndId" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/Refs/EndToEndId" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="30" Name="Stmt/Ntry/NtryDtls/TxDtls/RmtInf/Strd/CdtrRefInf/Ref" Show="true" DataType="0" Description="StrdRef" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RmtInf/Strd/CdtrRefInf/Ref" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="32" Name="Stmt/Ntry/NtryDtls/TxDtls/Refs/UETR" Show="true" DataType="0" Description="UETR" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/Refs/UETR" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="33" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/BldgNm" Show="true" DataType="0" Description="BldgNm" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/BldgNm" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="34" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/StrtNm" Show="true" DataType="0" Description="StrtNm" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/StrtNm" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="35" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/BldgNm" Show="true" DataType="0" Description="BldgNm" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/BldgNm" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="36" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/StrtNm" Show="true" DataType="0" Description="StrtNm" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/StrtNm" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="37" Name="Stmt/Ntry/NtryDtls/TxDtls/RmtInf/Strd/RfrdDocInf/Nb" Show="true" DataType="0" Description="Nb" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RmtInf/Strd/RfrdDocInf/Nb" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="38" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/BldgNb" Show="true" DataType="0" Description="BldgNb" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/BldgNb" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="39" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/Flr" Show="true" DataType="0" Description="Flr" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/Flr" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="40" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/BldgNb" Show="true" DataType="0" Description="BldgNb" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/BldgNb" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="41" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/Flr" Show="true" DataType="0" Description="Flr" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/Flr" />');
+        OutStream.WriteText('      <DataExchMapping TableId="81" Name="SEPA CAMT to Gen. Journal Line" MappingCodeunit="1260" DataExchNoFieldID="1220" DataExchLineFieldID="1223">');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="9" FieldID="13" Multiplier="-1.00" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="11" FieldID="13" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="12" FieldID="5" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="15" FieldID="1221" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="16" FieldID="8" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="17" FieldID="1222" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="18" FieldID="5" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="30" FieldID="8" Optional="true" />');
+        OutStream.WriteText('      </DataExchMapping>');
+        OutStream.WriteText('      <DataExchMapping TableId="274" Name="SEPA CAMT to Bank Acc. Reconciliation Line" MappingCodeunit="1261" DataExchNoFieldID="17" DataExchLineFieldID="18">');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="9" FieldID="7" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="11" FieldID="7" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="12" FieldID="5" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="13" FieldID="12" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="15" FieldID="15" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="16" FieldID="23" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="17" FieldID="16" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="18" FieldID="5" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="19" FieldID="12" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="20" FieldID="24" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="21" FieldID="24" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="22" FieldID="25" Optional="true" Priority="1" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="23" FieldID="26" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="24" FieldID="15" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="25" FieldID="24" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="26" FieldID="24" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="27" FieldID="25" Optional="true" Priority="1" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="28" FieldID="26" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="29" FieldID="70" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="32" FieldID="70" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="33" FieldID="25" Optional="true" Priority="2" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="34" FieldID="25" Optional="true" Priority="5" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="35" FieldID="25" Optional="true" Priority="2" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="36" FieldID="25" Optional="true" Priority="5" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="37" FieldID="4" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="38" FieldID="25" Optional="true" Priority="4" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="39" FieldID="25" Optional="true" Priority="3" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="40" FieldID="25" Optional="true" Priority="4" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="41" FieldID="25" Optional="true" Priority="3" />');
+        OutStream.WriteText('      </DataExchMapping>');
+        OutStream.WriteText('      <DataExchMapping TableId="11401" Name="SEPA CAMT to CBG Statement Line" MappingCodeunit="11405" DataExchNoFieldID="11401" DataExchLineFieldID="11402" PreMappingCodeunit="11406" PostMappingCodeunit="11407">');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="9" FieldID="20" Multiplier="-1.00" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="11" FieldID="20" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="12" FieldID="10" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="18" FieldID="10" Optional="true" />');
+        OutStream.WriteText('      </DataExchMapping>');
+        OutStream.WriteText('    </DataExchLineDef>');
+        OutStream.WriteText('    <DataExchLineDef Code="SEPA CAMT TX" Name="camt.053.001.08.xsd" ColumnCount="0" DataLineTag="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls" Namespace="urn:iso:std:iso:20022:tech:xsd:camt.053.001.08">');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="9" Name="Stmt/Ntry/Amt" Show="false" DataType="2" Description="Amt" Path="/Document/BkToCstmrStmt/Stmt/Ntry/Amt" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="12" Name="Stmt/Ntry/BookgDt/DtTm" Show="true" DataType="1" Description="DtTm" Path="/Document/BkToCstmrStmt/Stmt/Ntry/BookgDt/DtTm" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="13" Name="Stmt/Ntry/ValDt/Dt" Show="true" DataType="1" Description="Dt" Path="/Document/BkToCstmrStmt/Stmt/Ntry/ValDt/Dt" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="14" Name="Stmt/Ntry/AcctSvcrRef" Show="true" DataType="0" Description="AcctSvcrRef" Path="/Document/BkToCstmrStmt/Stmt/Ntry/AcctSvcrRef" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="15" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/Nm" Show="true" DataType="0" Description="Nm" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/Nm" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="16" Name="Stmt/Ntry/NtryDtls/TxDtls/RmtInf/Ustrd" Show="true" DataType="0" Description="Ustrd" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RmtInf/Ustrd" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="17" Name="Stmt/Ntry/AddtlNtryInf" Show="true" DataType="0" Description="AddtlNtryInf" Path="/Document/BkToCstmrStmt/Stmt/Ntry/AddtlNtryInf" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="18" Name="Stmt/Ntry/BookgDt/Dt" Show="false" DataType="1" Description="BookgDt/Dt" Path="/Document/BkToCstmrStmt/Stmt/Ntry/BookgDt/Dt" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="19" Name="Stmt/Ntry/ValDt/DtTm" Show="false" DataType="1" Description="ValDt/DtTm" Path="/Document/BkToCstmrStmt/Stmt/Ntry/ValDt/DtTm" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="20" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/DbtrAcct/Id/IBAN" Show="true" DataType="0" Description="IBAN" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/DbtrAcct/Id/IBAN" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="21" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/DbtrAcct/Id/Othr/Id" Show="true" DataType="0" Description="Id" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/DbtrAcct/Id/Othr/Id" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="22" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/AdrLine" Show="true" DataType="0" Description="AdrLine" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/AdrLine" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="23" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/TwnNm" Show="true" DataType="0" Description="TwnNm" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/TwnNm" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="24" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/Nm" Show="true" DataType="0" Description="Nm" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/Nm" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="25" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/IBAN" Show="true" DataType="0" Description="IBAN" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/IBAN" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="26" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/Othr/Id" Show="true" DataType="0" Description="Id" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/CdtrAcct/Id/Othr/Id" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="27" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/AdrLine" Show="true" DataType="0" Description="AdrLine" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/AdrLine" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="28" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/TwnNm" Show="true" DataType="0" Description="TwnNm" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/TwnNm" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="29" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/Nm" Show="false" DataType="0" Description="Nm" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/Nm" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="30" Name="Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/Amt" Show="true" DataType="2" Description="Amt" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/TxAmt/Amt" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="31" Name="Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt" Show="true" DataType="2" Description="Amt" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/AmtDtls/InstdAmt/Amt" TextPaddingRequired="false" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="32" Name="Stmt/Bal/Amt[@Ccy]" Show="false" DataType="0" Description="Ccy" Path="/Document/BkToCstmrStmt/Stmt/Bal/Amt[@Ccy]" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="33" Name="Stmt/Ntry/CdtDbtInd" Show="true" DataType="2" Description="CdtDbtInd" Path="/Document/BkToCstmrStmt/Stmt/Ntry/CdtDbtInd" NegativeSignIdentifier="DBIT" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="34" Name="Stmt/Ntry/NtryDtls/TxDtls/Refs/EndToEndId" Show="true" DataType="0" Description="EndToEndId" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/Refs/EndToEndId" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="35" Name="Stmt/Ntry/NtryDtls/TxDtls/Refs/UETR" Show="true" DataType="0" Description="UETR" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/Refs/UETR" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="36" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/BldgNm" Show="true" DataType="0" Description="BldgNm" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/BldgNm" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="37" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/StrtNm" Show="true" DataType="0" Description="StrtNm" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/StrtNm" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="38" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/BldgNm" Show="true" DataType="0" Description="BldgNm" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/BldgNm" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="39" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/StrtNm" Show="true" DataType="0" Description="StrtNm" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/StrtNm" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="40" Name="Stmt/Ntry/NtryDtls/TxDtls/RmtInf/Strd/RfrdDocInf/Nb" Show="true" DataType="0" Description="Nb" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RmtInf/Strd/RfrdDocInf/Nb" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="41" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/BldgNb" Show="true" DataType="0" Description="BldgNb" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/BldgNb" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="42" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/Flr" Show="true" DataType="0" Description="Flr" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Cdtr/Pty/PstlAdr/Flr" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="43" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/BldgNb" Show="true" DataType="0" Description="BldgNb" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/BldgNb" />');
+        OutStream.WriteText('      <DataExchColumnDef ColumnNo="44" Name="Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/Flr" Show="true" DataType="0" Description="Flr" Path="/Document/BkToCstmrStmt/Stmt/Ntry/NtryDtls/TxDtls/RltdPties/Dbtr/Pty/PstlAdr/Flr" />');
+        OutStream.WriteText('      <DataExchMapping TableId="81" Name="SEPA CAMT TX to Gen. Journal Line" MappingCodeunit="1260" DataExchNoFieldID="1220" DataExchLineFieldID="1223">');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="9" FieldID="13" Optional="true" Multiplier="-1.00" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="12" FieldID="5" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="15" FieldID="1221" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="16" FieldID="8" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="17" FieldID="1222" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="18" FieldID="5" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="30" FieldID="13" Optional="true" Multiplier="-1.00" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="31" FieldID="13" Optional="true" Multiplier="-1.00" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="33" FieldID="13" Optional="true" />');
+        OutStream.WriteText('      </DataExchMapping>');
+        OutStream.WriteText('      <DataExchMapping TableId="274" Name="SEPA CAMT TX to Bank Acc. Reconciliation Line" MappingCodeunit="1261" DataExchNoFieldID="17" DataExchLineFieldID="18">');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="9" FieldID="7" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="12" FieldID="5" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="13" FieldID="12" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="15" FieldID="15" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="16" FieldID="23" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="17" FieldID="16" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="18" FieldID="5" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="19" FieldID="12" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="20" FieldID="24" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="21" FieldID="24" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="22" FieldID="25" Optional="true" Priority="1" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="23" FieldID="26" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="24" FieldID="15" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="25" FieldID="24" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="26" FieldID="24" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="27" FieldID="25" Optional="true" Priority="1" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="28" FieldID="26" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="29" FieldID="15" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="30" FieldID="7" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="31" FieldID="7" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="33" FieldID="7" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="34" FieldID="70" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="35" FieldID="70" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="36" FieldID="25" Optional="true" Priority="2" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="37" FieldID="25" Optional="true" Priority="5" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="38" FieldID="25" Optional="true" Priority="2" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="39" FieldID="25" Optional="true" Priority="5" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="40" FieldID="4" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="41" FieldID="25" Optional="true" Priority="4" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="42" FieldID="25" Optional="true" Priority="3" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="43" FieldID="25" Optional="true" Priority="4" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="44" FieldID="25" Optional="true" Priority="3" />');
+        OutStream.WriteText('      </DataExchMapping>');
+        OutStream.WriteText('      <DataExchMapping TableId="11401" Name="SEPA CAMT TX to CBG Statement Line" MappingCodeunit="11405" DataExchNoFieldID="11401" DataExchLineFieldID="11402" PostMappingCodeunit="11407">');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="9" FieldID="20" Optional="true" Multiplier="-1.00" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="12" FieldID="10" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="18" FieldID="10" Optional="true" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="30" FieldID="20" Optional="true" Multiplier="-1.00" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="31" FieldID="20" Optional="true" Multiplier="-1.00" />');
+        OutStream.WriteText('        <DataExchFieldMapping ColumnNo="33" FieldID="20" Optional="true" />');
+        OutStream.WriteText('      </DataExchMapping>');
+        OutStream.WriteText('    </DataExchLineDef>');
+        OutStream.WriteText('  </DataExchDef>');
+        OutStream.WriteText('</root>');
+        XMLPORT.Import(XMLPORT::"Imp / Exp Data Exch Def & Map", InStream);
+    end;
+
+    local procedure CreateImportProtocol(Code: Code[20]; ImportType: Option; ImportID: Integer; Description: Text[100]; AutomaticReconciliation: Boolean)
+    var
+        ImportProtocol: Record "Import Protocol";
+        Exists: Boolean;
+    begin
+        if ImportProtocol.Get(Code) then
+            Exists := true;
+
+        ImportProtocol.Init();
+        ImportProtocol.Validate(Code, Code);
+        ImportProtocol.Validate("Import Type", ImportType);
+        ImportProtocol.Validate("Import ID", ImportID);
+        ImportProtocol.Validate(Description, Description);
+        ImportProtocol.Validate("Automatic Reconciliation", AutomaticReconciliation);
+
+        if Exists then
+            ImportProtocol.Modify(true)
+        else
+            ImportProtocol.Insert(true);
     end;
 
     internal procedure UpgradeWordTemplateTables()
@@ -3870,4 +4142,13 @@ codeunit 104000 "Upgrade - BaseApp"
     begin
     end;
 
+    local procedure SEPACAMT05300108(): Code[20]
+    begin
+        exit('SEPA CAMT 053-08');
+    end;
+
+    local procedure SEPACAMT05300108NL(): Code[20]
+    begin
+        exit('SEPA CAMT 053-08-NL');
+    end;
 }
