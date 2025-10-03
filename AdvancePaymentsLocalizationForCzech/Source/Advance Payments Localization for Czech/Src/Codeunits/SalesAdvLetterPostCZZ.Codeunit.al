@@ -83,6 +83,7 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
         GenJournalLine.Correction := true;
         GenJournalLine.Amount := -Amount;
         GenJournalLine."Amount (LCY)" := -AmountLCY;
+        GenJournalLine."Source Currency Amount" := -Amount;
         if not AdvancePostingParametersCZZ."Temporary Entries Only" then begin
             CustLedgerEntry.SetApplication(SalesAdvLetterHeaderCZZ."Advance Letter Code", '');
             GenJournalLine."Applies-to ID" := CustLedgerEntry."Applies-to ID";
@@ -107,6 +108,7 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
         GenJournalLine."Use Advance G/L Account CZZ" := true;
         GenJournalLine.Amount := Amount;
         GenJournalLine."Amount (LCY)" := AmountLCY;
+        GenJournalLine."Source Currency Amount" := Amount;
         if not AdvancePostingParametersCZZ."Temporary Entries Only" then begin
             OnPostAdvancePaymentOnBeforePostAdvancePayment(SalesAdvLetterHeaderCZZ, PostedGenJournalLine, AdvancePostingParametersCZZ, GenJnlPostLine, GenJournalLine);
 #if not CLEAN24
@@ -198,6 +200,7 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
             SalesAdvLetterEntryCZZ."Currency Code", SalesAdvLetterEntryCZZ."Currency Factor");
         GenJournalLine.Amount := -SalesAdvLetterEntryCZZ.Amount;
         GenJournalLine."Amount (LCY)" := -SalesAdvLetterEntryCZZ."Amount (LCY)";
+        GenJournalLine."Source Currency Amount" := -SalesAdvLetterEntryCZZ.Amount;
         if not AdvancePostingParametersCZZ."Temporary Entries Only" then begin
             CustLedgerEntryAdv.SetApplication('', SalesAdvLetterHeaderCZZ."No.");
             GenJournalLine."Applies-to ID" := CustLedgerEntryAdv."Applies-to ID";
@@ -228,6 +231,7 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
             SalesAdvLetterEntryCZZ."Currency Code", SalesAdvLetterEntryCZZ."Currency Factor");
         GenJournalLine.Amount := SalesAdvLetterEntryCZZ.Amount;
         GenJournalLine."Amount (LCY)" := SalesAdvLetterEntryCZZ."Amount (LCY)";
+        GenJournalLine."Source Currency Amount" := SalesAdvLetterEntryCZZ.Amount;
         if not AdvancePostingParametersCZZ."Temporary Entries Only" then begin
             CustLedgerEntryPay.SetApplication('', '');
             GenJournalLine."Applies-to ID" := CustLedgerEntryPay."Applies-to ID";
@@ -342,6 +346,8 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
                 GenJournalLine."Account No." := VATPostingSetup.GetSalesAdvLetterAccountCZZ();
                 AdvancePostingBufferCZZ.ReverseAmounts();
                 GenJournalLine.CopyFromAdvancePostingBufferAmountsCZZ(AdvancePostingBufferCZZ);
+                GenJournalLine."Source Curr. VAT Amount" := 0;
+                GenJournalLine."Source Curr. VAT Base Amount" := 0;
                 if not AdvancePostingParametersCZZ."Temporary Entries Only" and not AdvancePostingBufferCZZ."Auxiliary Entry" then begin
                     OnPostAdvancePaymentVATOnBeforePostBalance(
                         SalesAdvLetterHeaderCZZ, SalesAdvLetterEntryCZZ, AdvancePostingBufferCZZ,
@@ -421,6 +427,8 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
         InitGenJournalLine(SalesAdvLetterHeaderCZZ, SalesAdvLetterEntryCZZ, AdvancePostingParametersCZZ2, GenJournalLine);
         GenJournalLine."Account No." := VATPostingSetup.GetSalesAdvLetterAccountCZZ();
         GenJournalLine.CopyFromAdvancePostingBufferAmountsCZZ(AdvancePostingBufferCZZ);
+        GenJournalLine."Source Curr. VAT Amount" := 0;
+        GenJournalLine."Source Curr. VAT Base Amount" := 0;
         if not AdvancePostingParametersCZZ."Temporary Entries Only" and not AdvancePostingBufferCZZ."Auxiliary Entry" then begin
             OnPostAdvancePaymentVATUnlinkingOnBeforePostBalance(
                 SalesAdvLetterHeaderCZZ, SalesAdvLetterEntryCZZ, AdvancePostingBufferCZZ,
@@ -722,6 +730,8 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
             InitGenJournalLine(SalesAdvLetterHeaderCZZ, SalesAdvLetterEntryCZZ, AdvancePostingParametersCZZ2, GenJournalLine);
             GenJournalLine."Account No." := VATPostingSetup.GetSalesAdvLetterAccountCZZ();
             GenJournalLine.CopyFromAdvancePostingBufferAmountsCZZ(AdvancePostingBufferCZZ);
+            GenJournalLine."Source Curr. VAT Amount" := 0;
+            GenJournalLine."Source Curr. VAT Base Amount" := 0;
             if not AdvancePostingParametersCZZ."Temporary Entries Only" and not AdvancePostingBufferCZZ."Auxiliary Entry" then begin
                 OnPostAdvanceCreditMemoVATOnBeforePostBalance(
                     SalesAdvLetterHeaderCZZ, SalesAdvLetterEntryCZZ, AdvancePostingBufferCZZ,
@@ -915,6 +925,8 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
         GenJournalLine."Account No." := VATPostingSetup.GetSalesAdvLetterAccountCZZ();
         GenJournalLine.Correction := true;
         GenJournalLine.CopyFromAdvancePostingBufferAmountsCZZ(AdvancePostingBufferCZZ);
+        GenJournalLine."Source Curr. VAT Amount" := 0;
+        GenJournalLine."Source Curr. VAT Base Amount" := 0;
         if not AdvancePostingParametersCZZ."Temporary Entries Only" and not AdvancePostingBufferCZZ."Auxiliary Entry" then begin
             OnPostAdvanceLetterEntryVATUsageUnapplyingOnBeforePostBalance(
                 SalesAdvLetterHeaderCZZ, SalesAdvLetterEntryCZZ, AdvancePostingBufferCZZ,
@@ -965,6 +977,7 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
             SalesAdvLetterEntryCZZ."Currency Code", SalesAdvLetterEntryCZZ."Currency Factor");
         GenJournalLine.Amount := -SalesAdvLetterEntryCZZ.Amount;
         GenJournalLine."Amount (LCY)" := -SalesAdvLetterEntryCZZ."Amount (LCY)";
+        GenJournalLine."Source Currency Amount" := -SalesAdvLetterEntryCZZ.Amount;
         if not AdvancePostingParametersCZZ."Temporary Entries Only" then begin
             CustLedgerEntry.SetApplication('', '');
             GenJournalLine."Applies-to ID" := CustLedgerEntry."Applies-to ID";
@@ -995,6 +1008,7 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
             SalesAdvLetterEntryCZZ."Currency Code", SalesAdvLetterEntryCZZ."Currency Factor");
         GenJournalLine.Amount := SalesAdvLetterEntryCZZ.Amount;
         GenJournalLine."Amount (LCY)" := SalesAdvLetterEntryCZZ."Amount (LCY)";
+        GenJournalLine."Source Currency Amount" := SalesAdvLetterEntryCZZ.Amount;
         if not AdvancePostingParametersCZZ."Temporary Entries Only" then begin
             CustLedgerEntryInv."Advance Letter No. CZZ" := '';
             CustLedgerEntryInv.SetApplication('', '');
@@ -1120,6 +1134,7 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
                 AdvancePostingParametersCZZ."Currency Code", AdvancePostingParametersCZZ."Currency Factor");
             GenJournalLine.Amount := RemainingAmount;
             GenJournalLine."Amount (LCY)" := Round(RemainingAmount / GenJournalLine."Currency Factor");
+            GenJournalLine."Source Currency Amount" := RemainingAmount;
             if not AdvancePostingParametersCZZ."Temporary Entries Only" then begin
                 CustLedgerEntry.SetApplication('', SalesAdvLetterEntryCZZ."Sales Adv. Letter No.");
                 GenJournalLine."Applies-to ID" := CustLedgerEntry."Applies-to ID";
@@ -1174,6 +1189,7 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
                 AdvancePostingParametersCZZ."Currency Code", AdvancePostingParametersCZZ."Currency Factor");
             GenJournalLine.Amount := -RemainingAmount;
             GenJournalLine."Amount (LCY)" := -Round(RemainingAmount / GenJournalLine."Currency Factor");
+            GenJournalLine."Source Currency Amount" := -RemainingAmount;
             GenJournalLine."Variable Symbol CZL" := SalesAdvLetterHeaderCZZ."Variable Symbol";
             if not AdvancePostingParametersCZZ."Temporary Entries Only" then begin
                 OnPostAdvanceLetterEntryClosingOnBeforePostBalance(
@@ -1241,6 +1257,7 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
         GenJournalLine.Correction := true;
         GenJournalLine.Amount := -ReverseAmount;
         GenJournalLine."Amount (LCY)" := -ReverseAmountLCY;
+        GenJournalLine."Source Currency Amount" := -ReverseAmount;
         if not AdvancePostingParametersCZZ."Temporary Entries Only" then begin
             CustLedgerEntry.SetApplication(SalesAdvLetterHeaderCZZ."Advance Letter Code", '');
             GenJournalLine."Applies-to ID" := CustLedgerEntry."Applies-to ID";
@@ -1266,6 +1283,7 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
         GenJournalLine."Use Advance G/L Account CZZ" := true;
         GenJournalLine.Amount := ReverseAmount;
         GenJournalLine."Amount (LCY)" := ReverseAmountLCY;
+        GenJournalLine."Source Currency Amount" := ReverseAmount;
 
         CustLedgerEntry2.Get(SalesAdvLetterEntryCZZ."Cust. Ledger Entry No.");
         if not AdvancePostingParametersCZZ."Temporary Entries Only" then begin
@@ -1444,6 +1462,8 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
             InitGenJournalLine(SalesAdvLetterHeaderCZZ, SalesAdvLetterEntryCZZ, AdvancePostingParametersCZZ2, GenJournalLine);
             GenJournalLine."Account No." := VATPostingSetup.GetSalesAdvLetterAccountCZZ();
             GenJournalLine.CopyFromAdvancePostingBufferAmountsCZZ(AdvancePostingBufferCZZ);
+            GenJournalLine."Source Curr. VAT Amount" := 0;
+            GenJournalLine."Source Curr. VAT Base Amount" := 0;
             if not AdvancePostingParametersCZZ."Temporary Entries Only" and not AdvancePostingBufferCZZ."Auxiliary Entry" then begin
                 OnReverseAdvancePaymentVATOnBeforePostBalance(
                     SalesAdvLetterHeaderCZZ, SalesAdvLetterEntryCZZ, VATPostingSetup,
@@ -1533,6 +1553,7 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
             GenJournalLine.Correction := Correction;
             GenJournalLine."Account No." := VATPostingSetup.GetSalesAdvLetterAccountCZZ();
             GenJournalLine.Validate(Amount, Amount - VATAmount);
+            GenJournalLine."Source Currency Code" := '';
             if not AdvancePostingParametersCZZ."Temporary Entries Only" then begin
                 OnPostExchangeRateOnBeforePostVATBase(
                     SalesAdvLetterHeaderCZZ, SalesAdvLetterEntryCZZ, VATPostingSetup, Amount, VATAmount,
@@ -1554,6 +1575,7 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
             else
                 GenJournalLine."Account No." := CurrencyGlob.GetRealizedGainsAccount();
             GenJournalLine.Validate(Amount, VATAmount);
+            GenJournalLine."Source Currency Code" := '';
             if not AdvancePostingParametersCZZ."Temporary Entries Only" then begin
                 OnPostExchangeRateOnBeforePostVATAmount(
                     SalesAdvLetterHeaderCZZ, SalesAdvLetterEntryCZZ, VATPostingSetup, Amount, VATAmount,
@@ -1569,6 +1591,7 @@ codeunit 31143 "Sales Adv. Letter-Post CZZ"
             GenJournalLine.Correction := Correction;
             GenJournalLine."Account No." := VATPostingSetup.GetSalesAdvLetterAccountCZZ();
             GenJournalLine.Validate(Amount, -Amount);
+            GenJournalLine."Source Currency Code" := '';
             if not AdvancePostingParametersCZZ."Temporary Entries Only" then begin
                 OnPostExchangeRateOnBeforePostBalance(
                     SalesAdvLetterHeaderCZZ, SalesAdvLetterEntryCZZ, VATPostingSetup, Amount, VATAmount,

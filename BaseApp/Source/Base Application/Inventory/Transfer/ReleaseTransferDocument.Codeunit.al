@@ -119,7 +119,7 @@ codeunit 5708 "Release Transfer Document"
         if IsHandled then
             exit;
 
-        TransLine.SetLoadFields("Document No.", Quantity, "Item No.");
+        TransLine.SetLoadFields("Document No.", Quantity, "Item No.", "Variant Code");
         TransLine.SetRange("Document No.", TransHeader."No.");
         TransLine.SetFilter(Quantity, '<>0');
         if TransLine.IsEmpty() then
@@ -131,6 +131,8 @@ codeunit 5708 "Release Transfer Document"
                 Item.Get(TransLine."Item No.");
                 if Item.IsInventoriableType() then
                     TransLine.TestField("Unit of Measure Code");
+                if Item.IsVariantMandatory() then
+                    TransLine.TestField("Variant Code");
             until TransLine.Next() = 0;
         TransLine.SetFilter("Item No.", '');
     end;

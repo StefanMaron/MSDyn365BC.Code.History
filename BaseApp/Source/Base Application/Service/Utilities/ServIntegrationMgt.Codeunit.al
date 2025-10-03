@@ -83,13 +83,17 @@ codeunit 6450 "Serv. Integration Mgt."
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         ServiceLine: Record "Service Line";
-        ServOutstandingAmountFromShipment: Decimal;
+        ServiceInvoiceOutstandingAmountLCYForInvoicingShippedOrders: Decimal;
     begin
-        ServOutstandingAmountFromShipment := ServiceLine.OutstandingInvoiceAmountFromShipment(Customer."No.");
         Customer.CalcFields("Outstanding Serv. Orders (LCY)", "Serv Shipped Not Invoiced(LCY)", "Outstanding Serv.Invoices(LCY)");
+
+        // Sum up "Outstanding Amount (LCY)" of service invoices for invoicing shipped orders. This amount is already included in "Service Shipped Not Invoiced (LCY)", and should be subtracted from outstanding invoices.
+        ServiceInvoiceOutstandingAmountLCYForInvoicingShippedOrders := ServiceLine.OutstandingInvoiceAmountFromShipment(Customer."No.");
+
         TotalAmountLCY +=
-            Customer."Outstanding Serv. Orders (LCY)" + Customer."Serv Shipped Not Invoiced(LCY)" + Customer."Outstanding Serv.Invoices(LCY)" -
-            ServOutstandingAmountFromShipment;
+            Customer."Outstanding Serv. Orders (LCY)"
+            + Customer."Serv Shipped Not Invoiced(LCY)"
+            + Customer."Outstanding Serv.Invoices(LCY)" - ServiceInvoiceOutstandingAmountLCYForInvoicingShippedOrders;
     end;
 
     // Table Cust. Ledger Entry

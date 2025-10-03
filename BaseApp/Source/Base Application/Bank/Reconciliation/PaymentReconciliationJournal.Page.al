@@ -640,8 +640,7 @@ page 1290 "Payment Reconciliation Journal"
                         AppliedPaymentEntry.SetRange("Statement Type", Rec."Statement Type");
                         AppliedPaymentEntry.SetRange("Bank Account No.", Rec."Bank Account No.");
                         AppliedPaymentEntry.SetRange("Statement No.", Rec."Statement No.");
-                        AppliedPaymentEntry.SetRange("Match Confidence", AppliedPaymentEntry."Match Confidence"::Accepted);
-                        AppliedPaymentEntry.SetRange("Match Confidence", AppliedPaymentEntry."Match Confidence"::Manual);
+                        AppliedPaymentEntry.SetFilter("Match Confidence", '%1|%2', AppliedPaymentEntry."Match Confidence"::Accepted, AppliedPaymentEntry."Match Confidence"::Manual);
 
                         if AppliedPaymentEntry.Count > 0 then
                             Overwrite := ConfirmManagement.GetResponseOrDefault(OverwriteExistingMatchesTxt, false)
