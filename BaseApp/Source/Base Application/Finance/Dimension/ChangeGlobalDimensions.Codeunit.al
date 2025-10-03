@@ -364,6 +364,7 @@ codeunit 483 "Change Global Dimensions"
             CurrentRecNo := ChangeGlobalDimLogEntry."Completed Records";
             StartedFromRecord := CurrentRecNo;
             ChangeGlobalDimLogEntry."Total Records" := RecRef.Count();
+            OnChangeDimsOnTableOnBeforeCalcRecordsWithinCommit(ChangeGlobalDimLogEntry, ChangeGlobalDimLogMgt, ChangeGlobalDimHeader, Completed, StartedFromRecord, RecRef);
             RecordsWithinCommit := CalcRecordsWithinCommit(ChangeGlobalDimLogEntry."Total Records");
             if RecRef.FindSet(true) then begin
                 HasDependentTable := FindDependentTables(DependentChangeGlobalDimLogEntry, ChangeGlobalDimLogEntry, DependentRecRef);
@@ -847,6 +848,11 @@ codeunit 483 "Change Global Dimensions"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillTableData(var ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnChangeDimsOnTableOnBeforeCalcRecordsWithinCommit(var ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; var ChangeGlobalDimLogMgt: Codeunit "Change Global Dim. Log Mgt."; var ChangeGlobalDimHeader: Record "Change Global Dim. Header"; var Completed: Boolean; var StartedFromRecord: Integer; var RecRef: RecordRef)
     begin
     end;
 

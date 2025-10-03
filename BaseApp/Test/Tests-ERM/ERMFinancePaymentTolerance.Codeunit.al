@@ -23,6 +23,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         isInitialized: Boolean;
         AmountError: Label '%1 and %2 must be same.';
         ConfirmMessageForPayment: Label 'Do you want to change all open entries for every customer and vendor that are not blocked?';
+        SuccessPostingMsg: Label 'The journal lines were successfully posted.';
 
     [Normal]
     local procedure Initialize()
@@ -2284,6 +2285,55 @@ codeunit 134024 "ERM Finance Payment Tolerance"
           DetailedCustLedgEntry."Entry Type"::"Payment Discount Tolerance", -CustLedgerEntry."Original Pmt. Disc. Possible");
     end;
 
+    [Test]
+    [HandlerFunctions('ToleranceWarningPageHandler,ConfirmHandlerTrue,SuccessMessageHandler')]
+    procedure CashReceiptGenJournalLineErrorCheckWhenPaymentDiscountToleranceWarningOnPayment()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        Customer: Record Customer;
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalLine2: Record "Gen. Journal Line";
+        PaymentTerms: Record "Payment Terms";
+        CashReceiptJournal: TestPage "Cash Receipt Journal";
+        Amount: Decimal;
+    begin
+        // [SCENARIO ] When selecting "Post as Payment Discount Tolerance" in the Cash Receipt Journal, the system incorrectly suggests the full invoice amount instead of applying the 5% discount — leading to overposting instead of discount deduction.
+        Initialize();
+
+        // [GIVEN] Create Setups for Application under General Ledger Setup
+        UpdatePmtToleranceFieldsInGeneralLedgerSetup();
+
+        // [GIVEN] Set the payment term code to 1M due date calculation, 8D discount date calculation and 5% discount.
+        CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(8), LibraryRandom.RandDec(5, 2));
+
+        // [GIVEN] Create Customer and attach Payment Terms
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Payment Terms Code", PaymentTerms.Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Post a Sales Invoice
+        Amount := LibraryRandom.RandDecInDecimalRange(100, 100, 0);  // Taking Random value for Amount.
+        CreateGenJournalLine(GenJournalLine, Customer."No.", '', GenJournalLine."Document Type"::Invoice, Amount, CalcDate('<-1Y>', WorkDate()));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Create a Payment Entry and apply to the Invoice
+        CreateGenJournalLine(GenJournalLine2, Customer."No.", '', GenJournalLine2."Document Type"::Payment, 0,
+          CalcDate('<1D>', CalcDate(PaymentTerms."Discount Date Calculation", CalcDate('<-1Y>', WorkDate()))));
+
+        // [WHEN] Apply Payment Entry to the Invoice And Post the Gen. Journal Line
+        FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Account No.", CustLedgerEntry."Document Type"::Invoice);
+
+        // [WHEN] Open and modify Cash Receipt Journal page
+        CashReceiptJournal.Trap();
+        Page.Run(Page::"Cash Receipt Journal", GenJournalLine2);
+        CashReceiptJournal."Applies-to Doc. Type".SetValue(GenJournalLine2."Applies-to Doc. Type"::Invoice);
+        CashReceiptJournal."Applies-to Doc. No.".SetValue(CustLedgerEntry."Document No.");
+        CashReceiptJournal.Amount.SetValue(-(Amount + LibraryRandom.RandDecInRange(10, 20, 2)));
+
+        // [THEN] Verify posting error on posting the Cash Receipt Journal Line
+        CashReceiptJournal.Post.Invoke();
+    end;
+
     [Normal]
     local procedure AmountToApplyInCustomerLedger(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
@@ -2810,6 +2860,12 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         Reply := not (Question = ConfirmMessageForPayment);
     end;
 
+    [ConfirmHandler]
+    procedure ConfirmHandlerTrue(QuestionText: Text[1024]; var Relpy: Boolean)
+    begin
+        Relpy := true;
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PaymentToleranceWarning(var PaymentToleranceWarning: Page "Payment Tolerance Warning"; var Response: Action)
@@ -2826,6 +2882,12 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         // Modal Page Handler for Payment Discount Tolerance Warning.
         PaymentDiscToleranceWarning.InitializeNewPostingAction(0);
         Response := ACTION::Yes
+    end;
+
+    [MessageHandler]
+    procedure SuccessMessageHandler(Msg: Text[1024])
+    begin
+        Assert.ExpectedMessage(SuccessPostingMsg, Msg);
     end;
 }
 
