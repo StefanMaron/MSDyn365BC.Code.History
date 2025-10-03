@@ -872,6 +872,10 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Hide Company Bank Account';
         }
+        field(193; "Check Source Curr. Consistency"; Boolean)
+        {
+            Caption = 'Check Source Curr. Consistency';
+        }
         field(11400; "Local SEPA Instr. Priority"; Boolean)
         {
             Caption = 'Local SEPA Instr. Priority';
