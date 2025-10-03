@@ -17,7 +17,7 @@ codeunit 265 "Feature Key Management"
 #if not CLEAN24
         PhysInvtOrderPackageTrackingTxt: Label 'PhysInvtOrderPackageTracking', Locked = true;
 #endif
-#if not CLEAN24
+#if not CLEAN25
         GLCurrencyRevaluationTxt: Label 'GLCurrencyRevaluation', Locked = true;
 #endif
 #if not CLEAN26
@@ -44,7 +44,7 @@ codeunit 265 "Feature Key Management"
     end;
 #endif
 
-#if not CLEAN24
+#if not CLEAN25
     procedure IsGLCurrencyRevaluationEnabled(): Boolean
     begin
         exit(FeatureManagementFacade.IsEnabled(GetGLCurrencyRevaluationFeatureKey()));
@@ -124,7 +124,7 @@ codeunit 265 "Feature Key Management"
     end;
 #endif
 
-#if not CLEAN24
+#if not CLEAN25
     local procedure GetGLCurrencyRevaluationFeatureKey(): Text[50]
     begin
         exit(GLCurrencyRevaluationTxt);
@@ -146,7 +146,7 @@ codeunit 265 "Feature Key Management"
     begin
         // Log feature uptake
         case FeatureKey.ID of
-#if not CLEAN24
+#if not CLEAN25
             GLCurrencyRevaluationTxt:
                 FeatureTelemetry.LogUptake('0000JRR', GLCurrencyRevaluationTxt, Enum::System.Telemetry."Feature Uptake Status"::Discovered);
 #endif

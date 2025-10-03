@@ -879,9 +879,6 @@ codeunit 90 "Purch.-Post"
         if IsHandled then
             exit;
 
-        if PreviewMode then
-            exit;
-
         GetPurchSetup();
         if not PurchSetup.ShouldDocumentTotalAmountsBeChecked(PurchHeader) then
             exit;

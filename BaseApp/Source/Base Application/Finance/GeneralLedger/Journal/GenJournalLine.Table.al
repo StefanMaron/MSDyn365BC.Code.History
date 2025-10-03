@@ -2104,6 +2104,11 @@ table 81 "Gen. Journal Line"
                 InitVATDateIfEmpty();
             end;
         }
+        field(129; "Zero Src. Curr. Amount"; Boolean)
+        {
+            Caption = 'Zero Source Currency Amount';
+            Editable = false;
+        }
         field(130; "IC Account Type"; Enum "IC Journal Account Type")
         {
             Caption = 'IC Account Type';
