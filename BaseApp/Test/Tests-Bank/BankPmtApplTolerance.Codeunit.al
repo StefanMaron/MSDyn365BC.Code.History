@@ -19,6 +19,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
+        PaymentDiscAmountErr: Label 'Payment Discount Amount is incorrect in Detailed Cust. Ledger Entry.';
 
     [Test]
     [HandlerFunctions('MessageHandler,PmtTolWarningModalPageHandler,ConfirmHandler')]
@@ -1570,6 +1571,77 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // Verification done in PmtTolWarningAssertDocModalPageHandler
     end;
 
+    [Test]
+    [HandlerFunctions('PmtDiscTolWarningModalPageHandler,ApplyCustomerEntriesModalPageHandler,GeneralJournalTemplateListModalPageHandler')]
+    procedure PreDeductedPmtDiscAmountRemainsUnchanged()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        Customer: Record Customer;
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        PaymentTerms: Record "Payment Terms";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CashReceiptJournal: TestPage "Cash Receipt Journal";
+        InvoiceNo: Code[20];
+        PaymentAmount: Decimal;
+    begin
+        // [SCENARIO 596009] When manually pre-deducting payment discount and applying payment within discount period,
+        // the amount to apply should remain unchanged
+        Initialize();
+
+        // [GIVEN] Set up General Ledger Setup with Payment Discount Tolerance Warning and Payment Tolerance Warning enabled, "Pmt. Disc. Tolerance Posting" = 4 days
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Pmt. Disc. Tolerance Warning" := true;
+        GeneralLedgerSetup."Payment Tolerance Warning" := true;
+        Evaluate(GeneralLedgerSetup."Payment Discount Grace Period", '<4D>');
+        GeneralLedgerSetup.Validate("Payment Discount Grace Period", GeneralLedgerSetup."Payment Discount Grace Period");
+        GeneralLedgerSetup.Modify(true);
+
+        // [GIVEN] Create Payment Terms.
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
+
+        // [GIVEN] Create Customer with the Payment Terms.
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Payment Terms Code", PaymentTerms.Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Create and Post Sales Invoice.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
+        SalesLine.Modify(true);
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        CustLedgerEntry.SetAutoCalcFields(Amount);
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
+        CustLedgerEntry.SetRange("Document No.", InvoiceNo);
+        CustLedgerEntry.FindFirst();
+        PaymentAmount := CustLedgerEntry.Amount - CustLedgerEntry."Remaining Pmt. Disc. Possible";
+
+
+        // [GIVEN] Create Cash Receipt Journal Line with Amount = Invoice Amount - Discount Amount.
+        CreateCashReceiptJnlLineWithBankAcc(GenJournalLine, Customer."No.", PaymentAmount);
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+        LibraryVariableStorage.Enqueue(true); // Set "Yes" on "Payment Tolerance Warning" page
+        Commit();
+
+        // [GIVEN] Open Cash Receipt Journal and Apply Entries.
+        CashReceiptJournal.OpenEdit();
+        CashReceiptJournal."Apply Entries".Invoke();
+        GenJournalLine.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
+        GenJournalLine.TestField(Amount, -PaymentAmount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        LibraryLowerPermissions.SetAccountReceivables();
+
+        // [THEN] Verify Payment Discount is recorded correctly.
+        DetailedCustLedgEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::"Payment Discount Tolerance");
+        DetailedCustLedgEntry.FindFirst();
+        Assert.AreEqual(-CustLedgerEntry."Remaining Pmt. Disc. Possible", DetailedCustLedgEntry.Amount, PaymentDiscAmountErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1855,6 +1927,25 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         AppliedPmtEntry.TestField("Applied Pmt. Discount", AppliedPmtDiscount);
     end;
 
+    local procedure CreateCashReceiptJnlLineWithBankAcc(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; Amount: Decimal)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        BankAccount: Record "Bank Account";
+    begin
+        LibraryERM.CreateBankAccount(BankAccount);
+
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::"Cash Receipts");
+        GenJournalTemplate.Modify(true);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, AccountNo,
+            GenJournalLine."Bal. Account Type"::"Bank Account", BankAccount."No.", -Amount);
+        GenJournalLine.Validate("Posting Date", WorkDate() + 3);
+        GenJournalLine.Modify(true);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PmtTolWarningModalPageHandler(var PaymentToleranceWarning: TestPage "Payment Tolerance Warning")
@@ -1925,6 +2016,22 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
     begin
         PostPmtsAndRecBankAcc.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GeneralJournalTemplateListModalPageHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
+    begin
+        GeneralJournalTemplateList.GotoKey(LibraryVariableStorage.DequeueText());
+        GeneralJournalTemplateList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
+    begin
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries.OK().Invoke();
     end;
 }
 

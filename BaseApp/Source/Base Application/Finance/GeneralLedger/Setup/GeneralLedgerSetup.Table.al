@@ -874,6 +874,10 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Hide Company Bank Account';
         }
+        field(193; "Check Source Curr. Consistency"; Boolean)
+        {
+            Caption = 'Check Source Curr. Consistency';
+        }
         field(11315; "VAT Statement Template Name"; Code[10])
         {
             Caption = 'VAT Statement Template Name';

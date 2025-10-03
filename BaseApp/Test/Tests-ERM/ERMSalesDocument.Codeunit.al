@@ -14,6 +14,8 @@
 
     var
         Assert: Codeunit Assert;
+        LibraryAssembly: Codeunit "Library - Assembly";
+        LibraryKitting: Codeunit "Library - Kitting";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERM: Codeunit "Library - ERM";
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
@@ -33,6 +35,7 @@
         LibraryTemplates: Codeunit "Library - Templates";
         LibraryDimension: Codeunit "Library - Dimension";
         isInitialized: Boolean;
+        ItemTrackingMode: Option " ",AssignLotNo,SelectEntries,AssignSerialNo,ApplyFromItemEntry,AssignAutoSerialNo,AssignAutoLotAndSerialNo,AssignManualLotNo,AssignManualTwoLotNo,AssignTwoLotNo,SelectEntriesForMultipleLines,UpdateQty,PartialAssignManualTwoLotNo;
         VATAmountError: Label 'VAT %1 must be %2 in %3.';
         FieldError: Label '%1 must be %2 in %3.';
         DiscountError: Label 'Discount Amount must be equal to %1.';
@@ -4870,6 +4873,157 @@
         Assert.AreEqual(NewItemCode, Item2."No.", StrSubstNo(CannotRenameItemErr, Item2.FieldCaption("No."), Item2.TableCaption()));
     end;
 
+    [Test]
+    procedure ReservationQuantityReflectsWrongQuantityOnTheSaleOrderLineWithAlternateUOM()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        UnitOfMeasure: array[2] of Record "Unit of Measure";
+        ItemUnitOfMeasure: array[2] of Record "Item Unit of Measure";
+        ReservationEntry: Record "Reservation Entry";
+        SalesLine: Record "Sales Line";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO 581623] Incorrect reservation quantity reflects 1.00001 quantity on the Sales order line with alternate UOM even though Base Unit of Measure reflects rounding to 1
+
+        Initialize();
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Reserve, Item.Reserve::Always);
+        Item.Modify();
+
+        // [GIVEN] Create Unit Of Measure Code 1.
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[1]);
+
+        // [GIVEN] Create Item Unit Of Measure 1.
+        LibraryInventory.CreateItemUnitOfMeasure(
+            ItemUnitOfMeasure[1],
+            Item."No.",
+            UnitOfMeasure[1].Code,
+            72);
+
+        // [GIVEN] Create and Post Item Joutnal Line.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 4);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 19);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 49);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        //[GIVEN] Create Sales Order
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer());
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item,
+          Item."No.", 1);
+        SalesLine.Validate(Reserve, SalesLine.Reserve::Always);
+        SalesLine.modify();
+        AutoReserveSalesLine(SalesLine);
+        SalesLine.CalcFields("Reserved Quantity");
+
+        //[WHEN] Update Unit Of Measure Code on Sales Line
+        SalesLine.Validate("Unit of Measure Code", UnitOfMeasure[1].Code);
+        SalesLine.modify();
+        AutoReserveSalesLine(SalesLine);
+
+        //[THEN] Check Reserve Quantity must be equal to sales line quantity
+        ReservationEntry.SetLoadFields("Source Type", "Source Subtype", "Source ID", "Source Ref. No.", Quantity);
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
+        ReservationEntry.SetRange("Source ID", SalesLine."Document No.");
+        ReservationEntry.SetRange("Source Ref. No.", SalesLine."Line No.");
+        ReservationEntry.SetRange("Source Subtype", 1);
+        ReservationEntry.CalcSums(Quantity);
+        Assert.AreEqual(SalesLine.Quantity, Abs(ReservationEntry.Quantity), '');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandlerValidateMessage')]
+    [Scope('OnPrem')]
+    procedure CheckQuantityBaseMustNotBe0InBinContentErrorShouldNotAppearWhenPostInventoryPick()
+    var
+        AssemblyItem: Record Item;
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        Bin: Record Bin;
+        BinContent: Record "Bin Content";
+        Customer: Record Customer;
+        ItemComponent: Record Item;
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+        MyNotifications: Record "My Notifications";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        InstructionMgt: Codeunit "Instruction Mgt.";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        SerialNo: Code[50];
+        DueDate: Date;
+    begin
+        // [SCENARIO 592151] Check "Quantity (Base) must not be 0 in Bin Content" error should not appear when post Inventory Pick for Assembly Item.
+        Initialize();
+
+        MyNotifications.Disable(InstructionMgt.GetPostingAfterWorkingDateNotificationId());
+        DueDate := WorkDate();
+        // [GIVEN] Create Location with required pick
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, false);
+
+        // [GIVEN] Create Bin in Location
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location."Default Bin Code" := Bin.Code;
+        Location.Modify(true);
+
+        // [GIVEN] Create Warehouse Employee with default location
+        CreateDefaultWarehouseEmployee(Location);
+
+        // [GIVEN] Create Assembly Item And Component Item and set as Assembly BOM
+        LibraryInventory.CreateItem(AssemblyItem);
+        AssemblyItem.Validate("Replenishment System", AssemblyItem."Replenishment System"::Assembly);
+        AssemblyItem.Validate("Assembly Policy", Enum::"Assembly Policy"::"Assemble-to-Order");
+        AssemblyItem.Validate("Item Tracking Code", 'SNALL');
+        AssemblyItem.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        AssemblyItem.Modify(true);
+        CreateAssemblyBomComponent(ItemComponent, AssemblyItem."No.");
+
+        //[GIVEN] Bin Content for Assembly Item
+        LibraryWarehouse.CreateBinContent(
+             BinContent, Location.Code, Bin."Zone Code", Bin.Code, AssemblyItem."No.", '', AssemblyItem."Base Unit of Measure");
+
+        // [GIVEN] Create and Post Item Journal with and without Variant Code.
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+         ItemJournalLine, ItemJournalBatch."Journal Template Name",
+         ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemComponent."No.", LibraryRandom.RandDecInRange(10, 20, 2));
+        ItemJournalLine."Location Code" := Location.Code;
+        ItemJournalLine."Bin Code" := Bin.Code;
+        ItemJournalLine.Modify();
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [GIVEN] Create Customer
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Item Tracking Line for Assembly Order
+        AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(DueDate, AssemblyItem."No.", 1));
+        AssemblyHeader."Location Code" := Location.Code;
+        AssemblyHeader.Modify(true);
+
+        // [GIVEN] Create an Assembly Line for an Item
+        CreateAssemblyLine(AssemblyHeader, AssemblyLine, Enum::"BOM Component Type"::Item, ItemComponent."No.", 1, ItemComponent."Base Unit of Measure");
+        SerialNo := 'TEST';
+        EnqueueValuesForItemTrackingLines(SerialNo, 1);
+
+        // [GIVEN] Create Sales order and create and post Inventory Pick
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::SelectEntries);
+        NotificationLifecycleMgt.RecallAllNotifications();
+        CreateSalesHeader(SalesHeader, WorkDate());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, AssemblyHeader."Item No.", AssemblyHeader.Quantity);
+        SalesLine."Location Code" := Location.Code;
+        SalesLine.Modify(true);
+
+        // [THEN] Check that the Inventory Pick is created and Post successfully
+        CreateInventoryPickOnSalesLine(SalesLine, Bin.Code);
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -6684,6 +6838,131 @@
         ItemChargeAssignmentSales.FindFirst();
     end;
 
+    local procedure CreateInventoryPickOnSalesLine(var SalesLine: Record "Sales Line"; BinCode: Code[20]): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        PickCreated: Label 'Number of Invt. Pick activities created: 1 out of a total of 1.';
+    begin
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryVariableStorage.Enqueue(PickCreated);
+        LibraryWarehouse.CreateInvtPutPickMovement(SalesHeader."Document Type", SalesHeader."No.", false, true, false);
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, SalesHeader."No.", WarehouseActivityLine."Activity Type"::"Invt. Pick", SalesLine."Location Code",
+          WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.Validate("Qty. to Handle", WarehouseActivityLine.Quantity);
+        WarehouseActivityLine.Validate("Serial No.", 'TEST');
+        WarehouseActivityLine.Validate("Bin Code", BinCode);
+        WarehouseActivityLine.Modify(true);
+
+        //Post Inventory Pick
+        WarehouseActivityHeader.SetRange("No.", WarehouseActivityLine."No.");
+        WarehouseActivityHeader.FindFirst();
+    end;
+
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; ActionType: Enum "Warehouse Action Type")
+    begin
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Location Code", LocationCode);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        WarehouseActivityLine.FindFirst();
+    end;
+
+    local procedure EnqueueValuesForItemTrackingLines(LotNo: Code[50]; Qty: Decimal)
+    begin
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignSerialNo);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+    end;
+
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; ShipmentDate: Date)
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        SalesHeader.Validate("Order Date", ShipmentDate);
+        SalesHeader.Validate("Shipment Date", ShipmentDate);
+        SalesHeader.Modify(true);
+    end;
+
+    local procedure CreateAssemblyLine(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; Type: Enum "BOM Component Type"; No: Code[20]; Quantity: Decimal; UoM: Code[10])
+    var
+        RecRef: RecordRef;
+    begin
+        if No <> '' then begin
+            LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, Type, No, UoM, Quantity, 1, '');
+            exit;
+        end;
+        Clear(AssemblyLine);
+        AssemblyLine."Document Type" := AssemblyHeader."Document Type";
+        AssemblyLine."Document No." := AssemblyHeader."No.";
+        RecRef.GetTable(AssemblyLine);
+        AssemblyLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, AssemblyLine.FieldNo("Line No.")));
+        AssemblyLine.Insert(true);
+        AssemblyLine.Validate(Type, Type);
+        AssemblyLine.Modify(true);
+    end;
+
+    local procedure CreateAssemblyBomComponent(var Item: Record Item; ParentItemNo: Code[20])
+    var
+        BomComponent: Record "BOM Component";
+        BomRecordRef: RecordRef;
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(10, 2));
+        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
+        Item.Modify(true);
+
+        BomComponent.Init();
+        BomComponent.Validate(BomComponent."Parent Item No.", ParentItemNo);
+        BomRecordRef.GetTable(BomComponent);
+        BomComponent.Validate(BomComponent."Line No.", LibraryUtility.GetNewLineNo(BomRecordRef, BomComponent.FieldNo(BomComponent."Line No.")));
+        BomComponent.Validate(BomComponent.Type, BomComponent.Type::Item);
+        BomComponent.Validate(BomComponent."No.", Item."No.");
+        BomComponent.Validate(BomComponent."Quantity per", LibraryRandom.RandInt(10));
+        BomComponent.Insert(true);
+    end;
+
+    local procedure CreateDefaultWarehouseEmployee(var NewDefaultLocation: Record Location)
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        WarehouseEmployee.SetRange(Default, true);
+        if WarehouseEmployee.FindFirst() then begin
+            if WarehouseEmployee."Location Code" <> NewDefaultLocation.Code then begin
+                WarehouseEmployee.Delete(true);
+                LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, NewDefaultLocation.Code, true);
+            end;
+        end
+        else
+            LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, NewDefaultLocation.Code, true);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure EnterQtyToCreate(var EnterQtyToCreate: TestPage "Enter Quantity to Create")
+    begin
+        EnterQtyToCreate.OK().Invoke();
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandlerValidateMessage(Message: Text[1024])
+    var
+        ExpectedMessage: Variant;
+    begin
+        LibraryVariableStorage.Enqueue(ExpectedMessage);
+        LibraryVariableStorage.Dequeue(ExpectedMessage);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmDueDateBeforeWorkDate(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := LibraryVariableStorage.DequeueBoolean();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -6805,6 +7084,15 @@
         AnalysisColumn.SetRange("Analysis Column Template", AnalysisColumnTemplateName);
         AnalysisColumn.FindFirst();
         LibraryVariableStorage.Enqueue(AnalysisColumn."Column Header");
+    end;
+
+    local procedure AutoReserveSalesLine(SalesLine: Record "Sales Line")
+    var
+        ReservMgt: Codeunit "Reservation Management";
+        FullAutoReservation: Boolean;
+    begin
+        ReservMgt.SetReservSource(SalesLine);
+        ReservMgt.AutoReserve(FullAutoReservation, '', SalesLine."Shipment Date", SalesLine.Quantity, SalesLine."Quantity (Base)");
     end;
 
     [PageHandler]

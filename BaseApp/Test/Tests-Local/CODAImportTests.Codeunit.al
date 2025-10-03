@@ -820,6 +820,125 @@ codeunit 144015 "CODA Import Tests"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,RequestPageHandlerPostCODAStatementLines,ConfirmHandler,PostedSalesInvUpdateUpdateOKModalPageHandler,GeneralJournalTemplateListModalPageHandler')]
+    procedure FinancialJournalCreatedProcessCODAStmtWithMultipleInvoices()
+    var
+        BankAccount: Record "Bank Account";
+        CustomerBankAccount: Record "Customer Bank Account";
+        CodaStatement: Record "CODA Statement";
+        CodaStatementLine: Record "CODA Statement Line";
+        TransactionCoding: Record "Transaction Coding";
+        GenJournalLine: Record "Gen. Journal Line";
+        FinancialJournalPage: TestPage "Financial Journal";
+        StatementMessage: Text;
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 598558] Process CODA statement lines with multiple invoices and lines transferred to Financial Journal
+
+        // [GIVEN] Create New Transaction Coding.
+        TransactionCoding.DeleteAll();
+        InsertTransactionCoding(1, 50, 0, TransactionCoding."Globalisation Code"::Detail, TransactionCoding."Account Type"::Customer, '');
+        DeleteAllCODALines();
+        BankAccount.DeleteAll();
+        GenJournalLine.DeleteAll();
+
+        // [GIVEN] Create Bank Account and Set IBAN according to CODA file.
+        UpdateCompanyInformation('0430018420');
+        CreateBankAccount(BankAccount, 'KBC', '300', '737010689443');
+        CreateGeneralJournalTemplate(BankAccount."No.", 'Financial', 'Bank Account');
+        BankAccount.Validate("SWIFT Code", 'BBRUBEBB');
+        BankAccount.Validate("Version Code", '2');
+        BankAccount.Validate(IBAN, 'BE04310075819431');
+        BankAccount.Modify(true);
+
+        // [GIVEN] Create Customer Bank Account and Set IBAN according to CODA file.
+        LibraryCODAHelper.CreateCustomerBankAccount(CustomerBankAccount);
+        CustomerBankAccount.Validate(IBAN, 'BE14001021457183');
+        CustomerBankAccount.Modify(true);
+
+        // [GIVEN] Run the Processing only report to import the sample data files.
+        RunImportCodaStatementReport(BankAccount);
+
+        // [GIVEN] Create and Post Sales Invoice.
+        CreateAndPostSalesDocumentSpecificAmount(CustomerBankAccount."Customer No.", 11547.83);
+        EnqueueMultipleValues();
+
+        // [WHEN] Process CODA statement line via CODA Statement.
+        OpenCodaStatementPageAndProcessCodaStmtLines(BankAccount."No.");
+
+        // [THEN] Verify that the CODA statement line status is "Applied.".
+        CodaStatementLine.SetRange("Bank Account No.", BankAccount."No.");
+        CodaStatementLine.SetFilter("Application Status", '%1|%2', CodaStatementLine."Application Status"::Applied, CodaStatementLine."Application Status"::"Partly applied");
+        Assert.IsTrue(CodaStatementLine.FindFirst(), CodaStatementEmptyErr);
+
+        // [GIVEN] Find the statement message and Delete CODA Statement.
+        StatementMessage := CodaStatementLine."Statement Message";
+        StatementMessage := CopyStr(StatementMessage, 1, StrPos(StatementMessage, ' ') - 1);
+        CodaStatement.Get(CodaStatementLine."Bank Account No.", CodaStatementLine."Statement No.");
+        CodaStatement.Delete(true);
+
+        // [GIVEN] Create and Post Sales Invoice.
+        DocumentNo := CreateAndPostSalesDocument(CustomerBankAccount."Customer No.");
+        LibraryVariableStorage.Enqueue(StatementMessage);
+
+        // [GIVEN] Open Posted Sales Invoice Page and Update Payment Reference No.
+        OpenPostedSalesInvoiceAndUpdatePaymentReference(DocumentNo);
+        EnqueueMultipleValues();
+
+        // [GIVEN] Run the Processing only report to import the sample data files.
+        RunImportCodaStatementReport(BankAccount);
+        Commit();
+
+        // [WHEN] Process CODA statement line via CODA Statement.
+        OpenCodaStatementPageAndProcessCodaStmtLines(BankAccount."No.");
+        LibraryVariableStorage.AssertEmpty();
+
+        // DELETE ALL UNAPPLIED CODA STATEMENTS;
+        CodaStatementLine.SetRange("Application Status", CodaStatementLine."Application Status"::" ");
+        CodaStatementLine.DeleteAll();
+
+        OpenCodaStatementPageAndTransferToGeneralLedger(BankAccount."No.");
+
+        // [THEN] General journal line created with Amount = "X"
+        FinancialJournalPage.OpenEdit();
+        Assert.AreEqual('KBC', FinancialJournalPage."Bal. Account No.".Value, 'Balance Account No');
+        Assert.AreEqual('Customer', FinancialJournalPage."Account Type".Value, 'Account Type');
+        Assert.AreEqual(Format(-21.07), FinancialJournalPage.Amount.Value, 'Amount');
+        FinancialJournalPage.Close();
+    end;
+
+    local procedure OpenCodaStatementPageAndTransferToGeneralLedger(BankAccountNo: Code[20])
+    var
+        CODAStatementPage: TestPage "CODA Statement";
+    begin
+        CODAStatementPage.OpenEdit();
+        CODAStatementPage.Filter.SetFilter("Bank Account No.", BankAccountNo);
+        CODAStatementPage."Transfer to General Ledger".Invoke(); // Transfer to general ledger
+        CODAStatementPage.Close();
+    end;
+
+    local procedure CreateAndPostSalesDocumentSpecificAmount(CustomerNo: Code[20]; Amount: Decimal): Code[20]
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DocumentNo: Code[20];
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        LibraryInventory.CreateItem(Item);
+        VATPostingSetup.Get(SalesHeader."VAT Bus. Posting Group", Item."VAT Prod. Posting Group");
+        VATPostingSetup.Validate("VAT %", 0);
+        VATPostingSetup.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        SalesLine.Validate("Unit Price", Amount);
+        SalesLine.Modify(true);
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        exit(DocumentNo);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RequestPageHandlerPostCODAStatementLines(var PostCODAStatementLines: TestRequestPage "Post CODA Stmt. Lines")
@@ -851,7 +970,7 @@ codeunit 144015 "CODA Import Tests"
     [Scope('OnPrem')]
     procedure GeneralJournalTemplateListModalPageHandler(var GeneralJournalTemplateListPage: TestPage "General Journal Template List")
     begin
-        GeneralJournalTemplateListPage.FILTER.SetFilter(Name, 'KBC');
+        GeneralJournalTemplateListPage.Filter.SetFilter(Name, 'KBC');
         GeneralJournalTemplateListPage.OK().Invoke();
     end;
 

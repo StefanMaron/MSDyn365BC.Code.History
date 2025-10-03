@@ -1970,6 +1970,8 @@ table 246 "Requisition Line"
             GetItem();
             Description := Item.Description;
             "Description 2" := Item."Description 2";
+            if Item."Purch. Unit of Measure" = '' then
+                "Unit of Measure Code" := Item."Base Unit of Measure";
             OnUpdateDescriptionFromItem(Rec, Item);
         end else begin
             ItemVariantLocal.Get("No.", "Variant Code");
