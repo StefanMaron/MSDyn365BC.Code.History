@@ -30,6 +30,7 @@
         NoRecordsErr: Label 'There are no preview records to show.';
         RecordRestrictedTxt: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Customer 10000 for this action.';
         PostingPreviewNoTok: Label '***', Locked = true;
+        CheckTotalAmountPurchLinesErr: Label '%1 (%2) is not equal to total of lines (%3)', Comment = '%1 = FieldCaption of Doc. Amount Incl. VAT; %2 - Doc. Amount Incl. VAT; %3 - Amount Including VAT ';
         IsInitialized: Boolean;
 
     [Test]
@@ -42,6 +43,7 @@
     begin
         // [SCENARIO] Posting preview of Purchase Invoice opens G/L Posting Preview with the navigatable entries to be posted.
         Initialize();
+        SetCheckDocTotalAmounts(false);
         LibraryERM.SetEnableDataCheck(false);
 
         // Initialize purchase header
@@ -111,6 +113,7 @@
     begin
         // [SCENARIO] Posting preview of Purchase Credit Memo opens G/L Posting Preview with the navigatable entries to be posted.
         Initialize();
+        SetCheckDocTotalAmounts(false);
         // Initialize purchase header
         ExpectedCost := LibraryRandom.RandInt(100);
         ExpectedQuantity := LibraryRandom.RandInt(10);
@@ -277,6 +280,7 @@
         // [SCENARIO] Posting preview of Purchase Invoice List Order opens G/L Posting Preview with the navigatable entries to be posted.
         // Initialize the purchase header
         Initialize();
+        SetCheckDocTotalAmounts(false);
         ExpectedCost := LibraryRandom.RandInt(100);
         ExpectedQuantity := LibraryRandom.RandInt(10);
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, ExpectedCost, ExpectedQuantity);
@@ -338,6 +342,7 @@
     begin
         // [SCENARIO] Posting preview of Purchase Credit Memo List Order opens G/L Posting Preview with the navigatable entries to be posted.
         Initialize();
+        SetCheckDocTotalAmounts(false);
         // Initialize purchase header
         ExpectedCost := LibraryRandom.RandInt(100);
         ExpectedQuantity := LibraryRandom.RandInt(10);
@@ -742,6 +747,7 @@
         // [SCENARIO 379797] Stan can preview posting of Purchase Invoice when invoice discount is specified for the invoice
         Initialize();
 
+        SetCheckDocTotalAmounts(false);
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice,
           '', '', LibraryRandom.RandIntInRange(5, 10), '', WorkDate());
@@ -775,6 +781,7 @@
     begin
         // [SCENARIO 354973] "Extended G/L Posting Preview" page shows Vendor related entries
         Initialize();
+        SetCheckDocTotalAmounts(false);
 
         // [GIVEN] Set GLSetup."Posting Preview Type" = Extended
         UpdateGLSetupPostingPreviewType("Posting Preview Type"::Extended);
@@ -1194,6 +1201,53 @@
         UnBindSubscription(TestPurchasePreview);
     end;
 
+    [Test]
+    [HandlerFunctions('GLPostingPreviewHandler')]
+    procedure PurchaseInvoiceTotalDocumentAmountWorksProperlyDuringPreviewPosting()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        ErrorMessages: TestPage "Error Messages";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [SCENARIO 579030] Verify that the 'Check Document Amount' functionality on the Purchase Invoice works correctly with Preview Posting. 
+        Initialize();
+
+        // [GIVEN] Set 'Doc. Total Amounts' to true in the Purchases & Payables Setup.
+        SetCheckDocTotalAmounts(true);
+
+        // [GIVEN] Create a Purchase Invoice.
+        CreatePurchaseHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
+            LibraryRandom.RandIntInRange(100, 200), LibraryRandom.RandIntInRange(10, 20));
+        PurchaseHeader.CalcFields("Amount Including VAT");
+        ErrorMessages.Trap();
+
+        // [GIVEN] Open Purchase Invoice Page.
+        OpenPurchaseInvoicePage(PurchaseInvoice, PurchaseHeader);
+
+        // [WHEN] 'Set Doc. Amount Incl. VAT' field in the Purchase Invoice was set to 0, and the 'Preview Posting' action was executed..
+        PurchaseInvoice.Preview.Invoke();
+
+        // [THEN] Verify an error message was displayed: 'Document Amount should match with Amount Including VAT' when the 'Preview Posting' action was invoked.
+        ErrorMessages.Description.AssertEquals(
+            StrSubstNo(
+                CheckTotalAmountPurchLinesErr,
+                PurchaseHeader.FieldCaption("Doc. Amount Incl. VAT"),
+                PurchaseHeader."Doc. Amount Incl. VAT", PurchaseHeader."Amount Including VAT"));
+        PurchaseInvoice.Close();
+
+        // [GIVEN] Set the value of the 'Doc. Amount Incl. VAT' field in Purchase Invoice.
+        PurchaseHeader.Validate("Doc. Amount Incl. VAT", PurchaseHeader."Amount Including VAT");
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Open Purchase Invoice Page & Invoke the Preview Posting.
+        OpenPurchaseInvoicePage(PurchaseInvoice, PurchaseHeader);
+        PurchaseInvoice.Preview.Invoke();
+        PurchaseInvoice.Close();
+
+        // [THEN] The system did not display any error message.
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1505,6 +1559,22 @@
         ExtendedGLPostingPreview.VATEntriesPreviewHierarchical.Base.AssertEquals(TotalBaseAmount[2]);
     end;
 
+    local procedure SetCheckDocTotalAmounts(CheckTotals: Boolean)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Check Doc. Total Amounts", CheckTotals);
+        PurchasesPayablesSetup.Modify(true);
+    end;
+
+    local procedure OpenPurchaseInvoicePage(var PurchaseInvoice: TestPage "Purchase Invoice"; PurchaseHeader: Record "Purchase Header")
+    begin
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader."No.");
+        Commit();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -1533,6 +1603,11 @@
         DetailedVendEntriesPreview.Next();
         Assert.IsTrue(
           DetailedVendEntriesPreview.Amount.AsDecimal() <> 0, 'Application does not exist');
+    end;
+
+    [PageHandler]
+    procedure GLPostingPreviewHandler(var GLPostingPreview: TestPage "G/L Posting Preview")
+    begin
     end;
 }
 

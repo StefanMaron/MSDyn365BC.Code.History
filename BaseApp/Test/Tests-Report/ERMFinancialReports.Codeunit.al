@@ -1585,7 +1585,94 @@ codeunit 134982 "ERM Financial Reports"
         GLEntry.FindLast();
         Assert.AreNotEqual(0, GLEntry."Source Currency Amount", SourceCurrencyCodeErr);
     end;
-  
+
+    [Test]
+    [HandlerFunctions('RHReconcileCustandVendAccs')]
+    procedure ReconcileCustVendAccounts_MultiplePostingGroups()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        CustomerPostingGroup: array[2] of Record "Customer Posting Group";
+        Customer: Record Customer;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: array[3] of Record "G/L Account";
+        ReconcileCustAndVendAccs: Report "Reconcile Cust. and Vend. Accs";
+        Amount1, Amount2 : Decimal;
+        WorkdateTxt: Text[30];
+    begin
+        // [SCENARIO 601857] Report Reconcile Customer and Vendor Accounts shows wrong amounts when multiple posting groups are used
+        Initialize();
+
+        // [GIVEN] Enable Allow Multiple Posting Groups
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Allow Multiple Posting Groups", true);
+        SalesReceivablesSetup.Modify(true);
+
+        // [GIVEN] Create two Customer Posting Groups with different Receivables Accounts
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup[1]);
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup[2]);
+        LibrarySales.CreateAltCustomerPostingGroup(CustomerPostingGroup[1].Code, CustomerPostingGroup[2].Code);
+
+        // [GIVEN] Create a customer with one of the posting groups and enable multiple posting groups
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Customer Posting Group", CustomerPostingGroup[1].Code);
+        Customer.Validate("Allow Multiple Posting Groups", true);
+        Customer.Modify(true);
+
+        // [GIVEN] Create General Journal Batch
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Post payment 1 with first posting group
+        Amount1 := -1 * LibraryRandom.RandDec(1000, 2);
+        LibraryERM.CreateGLAccount(GLAccount[1]);
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine,
+            GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Customer,
+            Customer."No.",
+            GenJournalLine."Bal. Account Type"::"G/L Account",
+            GLAccount[1]."No.",
+            Amount1);
+        GenJournalLine.Validate("Posting Group", CustomerPostingGroup[1].Code);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Post payment 2 with second posting group
+        Amount2 := -1 * LibraryRandom.RandDec(2000, 2);
+        LibraryERM.CreateGLAccount(GLAccount[2]);
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine,
+            GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Customer,
+            Customer."No.",
+            GenJournalLine."Bal. Account Type"::"G/L Account",
+            GLAccount[2]."No.",
+            Amount2);
+        GenJournalLine.Validate("Posting Group", CustomerPostingGroup[2].Code);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Run the Reconcile Cust. And Vend. Accounts report with DateFilter as Workdate
+        WorkdateTxt := Format(WorkDate());
+        Clear(ReconcileCustAndVendAccs);
+        GLAccount[3].SetRange("Date Filter", WorkDate());
+        GLAccount[3].FindFirst();
+        ReconcileCustAndVendAccs.SetTableView(GLAccount[3]);
+        Commit();
+        ReconcileCustAndVendAccs.Run();
+
+        // [THEN] Verify: Amounts are distributed to correct G/L accounts
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('No_GLAccount', CustomerPostingGroup[1]."Receivables Account");
+        LibraryReportDataset.AssertElementWithValueExists('No_GLAccount', CustomerPostingGroup[2]."Receivables Account");
+        LibraryReportDataset.AssertElementWithValueExists('Amount', Amount1);
+        LibraryReportDataset.AssertElementWithValueExists('Amount', Amount2);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

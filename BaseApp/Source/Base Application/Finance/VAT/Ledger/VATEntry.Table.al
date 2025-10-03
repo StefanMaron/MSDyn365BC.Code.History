@@ -851,6 +851,7 @@ table 254 "VAT Entry"
         }
         key(Key12100; Type, Closed, "Tax Liable", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Operation Occurred Date", "VAT Period")
         {
+            SumIndexFields = Base, Amount, "Additional-Currency Base", "Additional-Currency Amount";
         }
     }
 
