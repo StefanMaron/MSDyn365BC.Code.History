@@ -1018,6 +1018,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
             exit;
         if not CurrGenJnlTemplate."Unlink Inc. Doc On Posting" then
             exit;
+        GenJnlLine.GET(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name", GenJnlLine."Line No.");
         GenJnlLine."Incoming Document Entry No." := 0;
         GenJnlLine.Modify();
     end;
