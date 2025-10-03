@@ -38,7 +38,7 @@ page 7156 "Purchase Analysis View Card"
                         ItemList: Page "Item List";
                     begin
                         ItemList.LookupMode(true);
-                        if not (ItemList.RunModal() = ACTION::LookupOK) then begin
+                        if ItemList.RunModal() = Action::LookupOK then begin
                             Text := ItemList.GetSelectionFilter();
                             exit(true);
                         end;
@@ -54,7 +54,7 @@ page 7156 "Purchase Analysis View Card"
                         LocList: Page "Location List";
                     begin
                         LocList.LookupMode(true);
-                        if LocList.RunModal() = ACTION::LookupOK then begin
+                        if LocList.RunModal() = Action::LookupOK then begin
                             Text := LocList.GetSelectionFilter();
                             exit(true);
                         end;

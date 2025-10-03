@@ -1,4 +1,4 @@
-namespace Microsoft.Finance.GeneralLedger.Setup;
+﻿namespace Microsoft.Finance.GeneralLedger.Setup;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Analysis;
@@ -618,6 +618,7 @@ table 98 "General Ledger Setup"
             ObsoleteReason = 'Financial Reporting is replacing Account Schedules for financial statements';
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
+
             trigger OnValidate()
             begin
                 Error(AccSchedObsoleteErr);
@@ -862,7 +863,7 @@ table 98 "General Ledger Setup"
             TableRelation = "G/L Account Category";
             Caption = 'Account Receivables G/L Account Category';
         }
-	    field(191; "App. Dimension Posting"; Enum "Exch. Rate Adjmt. Dimensions")
+        field(191; "App. Dimension Posting"; Enum "Exch. Rate Adjmt. Dimensions")
         {
             Caption = 'Dimension Posting';
             DataClassification = CustomerContent;
@@ -870,6 +871,10 @@ table 98 "General Ledger Setup"
         field(192; "Hide Company Bank Account"; Boolean)
         {
             Caption = 'Hide Company Bank Account';
+        }
+        field(193; "Check Source Curr. Consistency"; Boolean)
+        {
+            Caption = 'Check Source Curr. Consistency';
         }
         field(10500; "Threshold applies"; Boolean)
         {

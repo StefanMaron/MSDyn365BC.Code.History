@@ -3706,7 +3706,30 @@ codeunit 80 "Sales-Post"
         OnGetSalesLinesOnAfterFillTempLines(SalesHeader, TempSalesLineGlobal);
         if (QtyType = QtyType::Invoicing) and IncludePrepayments then
             CreatePrepaymentLines(SalesHeader, false);
-        SumSalesLines2(SalesHeader, NewSalesLine, TempSalesLineGlobal, QtyType, true, false, TotalAdjCostLCY, IncludePrepayments);
+        SumSalesLines2(SalesHeader, NewSalesLine, TempSalesLineGlobal, QtyType, true, false, TotalAdjCostLCY, IncludePrepayments, false);
+
+        OnAfterGetSalesLines(SalesHeader, TempSalesLineGlobal, NewSalesLine);
+    end;
+
+    /// <summary>
+    /// Collects and divides amounts of the sales lines for the specified sales header and stores them in the NewSalesLine record set.
+    /// Collected lines will have the amounts divided by quantity the same way as they are divided during the posting process, depending on the selected QtyType.
+    /// </summary>
+    /// <param name="SalesHeader">The sales header of the document.</param>
+    /// <param name="NewSalesLine">Return Variable: The NewSalesLine record set to store the collected sales lines in. This should be a temporary variable as new records will be inserted.</param>
+    /// <param name="QtyType">The QtyType to use when dividing the amounts by quantity. General = Quantity, Invoicing = Qty. to Invoice, Shipping = Qty. to Ship.</param>
+    /// <param name="IncludePrepayments">A flag indicating whether prepayments should be included in the collected lines. Only applies if QtyType is set to Invoicing.</param>
+    /// <param name="CalledFromStatistics">A flag indicating whether the procedure is called from statistics.</param>
+    procedure GetSalesLines(var SalesHeader: Record "Sales Header"; var NewSalesLine: Record "Sales Line"; QtyType: Option General,Invoicing,Shipping; IncludePrepayments: Boolean; CalledFromStatistics: Boolean)
+    var
+        TotalAdjCostLCY: Decimal;
+    begin
+        OnBeforeGetSalesLines(SalesHeader, NewSalesLine, QtyType, IncludePrepayments);
+        FillTempLines(SalesHeader, TempSalesLineGlobal);
+        OnGetSalesLinesOnAfterFillTempLines(SalesHeader, TempSalesLineGlobal);
+        if (QtyType = QtyType::Invoicing) and IncludePrepayments then
+            CreatePrepaymentLines(SalesHeader, false);
+        SumSalesLines2(SalesHeader, NewSalesLine, TempSalesLineGlobal, QtyType, true, false, TotalAdjCostLCY, IncludePrepayments, CalledFromStatistics);
 
         OnAfterGetSalesLines(SalesHeader, TempSalesLineGlobal, NewSalesLine);
     end;
@@ -3804,7 +3827,47 @@ codeunit 80 "Sales-Post"
         SalesLine: Record "Sales Line";
     begin
         OnBeforeSumSalesLinesTemp(SalesHeader, OldSalesLine);
-        SumSalesLines2(SalesHeader, SalesLine, OldSalesLine, QtyType, false, true, TotalAdjCostLCY, IncludePrepayments);
+        SumSalesLines2(SalesHeader, SalesLine, OldSalesLine, QtyType, false, true, TotalAdjCostLCY, IncludePrepayments, false);
+        ProfitLCY := TotalSalesLineLCY.Amount - TotalSalesLineLCY."Unit Cost (LCY)";
+        if TotalSalesLineLCY.Amount = 0 then
+            ProfitPct := 0
+        else
+            ProfitPct := Round(ProfitLCY / TotalSalesLineLCY.Amount * 100, 0.1);
+        VATAmount := TotalSalesLine."Amount Including VAT" - TotalSalesLine.Amount;
+        OnSumSalesLinesTempOnAfterVatAmountSet(VATAmount, TotalSalesLine);
+        if TotalSalesLine."VAT %" = 0 then
+            VATAmountText := VATAmountTxt
+        else
+            VATAmountText := StrSubstNo(VATRateTxt, TotalSalesLine.GetVATPct());
+        NewTotalSalesLine := TotalSalesLine;
+        NewTotalSalesLineLCY := TotalSalesLineLCY;
+    end;
+
+    /// <summary>
+    /// Sums the sales lines for the specified sales header (within the filters that are already set on OldSalesLine) and stores the results in the NewTotalSalesLine and NewTotalSalesLineLCY record variables.
+    /// The amounts will be divided by quantity the same way as they are divided during the posting process, depending on the selected QtyType.
+    /// </summary>
+    /// <remarks>
+    /// OldSalesLine can be a temporary variable
+    /// </remarks>
+    /// <param name="SalesHeader">The sales header of the document.</param>
+    /// <param name="OldSalesLine">The sales lines to sum.</param>
+    /// <param name="QtyType">The QtyType to use when dividing the amounts by quantity. General = Quantity, Invoicing = Qty. to Invoice, Shipping = Qty. to Ship.</param>
+    /// <param name="NewTotalSalesLine">Return Variable: The NewTotalSalesLine record to store the summed amounts in.</param>
+    /// <param name="NewTotalSalesLineLCY">Return Variable: The NewTotalSalesLineLCY record to store the summed amounts in LCY in.</param>
+    /// <param name="VATAmount">Return Variable: The total VAT amount.</param>
+    /// <param name="VATAmountText">Return Variable: The text to display for the VAT amount. This will include the VAT rate if the VAT rate is the same for all lines.</param>
+    /// <param name="ProfitLCY">Return Variable: The total profit in LCY.</param>
+    /// <param name="ProfitPct">Return Variable: The total profit percentage.</param>
+    /// <param name="TotalAdjCostLCY">Return Variable: The total adjusted cost in LCY.</param>
+    /// <param name="IncludePrepayments">A flag indicating whether prepayments should be included when calculating Line Amounts.</param>
+    /// <param name="CalledFromStatistics">A flag indicating whether the procedure is called from statistics.</param>
+    procedure SumSalesLinesTemp(var SalesHeader: Record "Sales Header"; var OldSalesLine: Record "Sales Line"; QtyType: Option General,Invoicing,Shipping; var NewTotalSalesLine: Record "Sales Line"; var NewTotalSalesLineLCY: Record "Sales Line"; var VATAmount: Decimal; var VATAmountText: Text[30]; var ProfitLCY: Decimal; var ProfitPct: Decimal; var TotalAdjCostLCY: Decimal; IncludePrepayments: Boolean; CalledfromStatistics: Boolean)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        OnBeforeSumSalesLinesTemp(SalesHeader, OldSalesLine);
+        SumSalesLines2(SalesHeader, SalesLine, OldSalesLine, QtyType, false, true, TotalAdjCostLCY, IncludePrepayments, CalledfromStatistics);
         ProfitLCY := TotalSalesLineLCY.Amount - TotalSalesLineLCY."Unit Cost (LCY)";
         if TotalSalesLineLCY.Amount = 0 then
             ProfitPct := 0
@@ -3822,10 +3885,10 @@ codeunit 80 "Sales-Post"
 
     local procedure SumSalesLines2(SalesHeader: Record "Sales Header"; var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line"; QtyType: Option General,Invoicing,Shipping; InsertSalesLine: Boolean; CalcAdCostLCY: Boolean; var TotalAdjCostLCY: Decimal)
     begin
-        SumSalesLines2(SalesHeader, NewSalesLine, OldSalesLine, QtyType, InsertSalesLine, CalcAdCostLCY, TotalAdjCostLCY, true);
+        SumSalesLines2(SalesHeader, NewSalesLine, OldSalesLine, QtyType, InsertSalesLine, CalcAdCostLCY, TotalAdjCostLCY, true, false);
     end;
 
-    local procedure SumSalesLines2(SalesHeader: Record "Sales Header"; var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line"; QtyType: Option General,Invoicing,Shipping; InsertSalesLine: Boolean; CalcAdCostLCY: Boolean; var TotalAdjCostLCY: Decimal; IncludePrepayments: Boolean)
+    local procedure SumSalesLines2(SalesHeader: Record "Sales Header"; var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line"; QtyType: Option General,Invoicing,Shipping; InsertSalesLine: Boolean; CalcAdCostLCY: Boolean; var TotalAdjCostLCY: Decimal; IncludePrepayments: Boolean; CalledfromStatistics: Boolean)
     var
         SalesLine: Record "Sales Line";
         TempVATAmountLine: Record "VAT Amount Line" temporary;
@@ -3857,7 +3920,7 @@ codeunit 80 "Sales-Post"
             repeat
                 if not RoundingLineInserted then
                     SalesLine := OldSalesLine;
-                SalesLineQty := GetSalesLineQty(SalesHeader, SalesLine, QtyType);
+                SalesLineQty := GetSalesLineQty(SalesHeader, SalesLine, QtyType, CalledfromStatistics);
                 IsHandled := false;
                 OnSumSalesLines2OnBeforeDivideAmount(
                     OldSalesLine, IsHandled, SalesHeader, SalesLine, QtyType, SalesLineQty, TempVATAmountLine, TempVATAmountLineRemainder,
@@ -3907,10 +3970,14 @@ codeunit 80 "Sales-Post"
         OnAfterSumSalesLines2(SalesHeader, OldSalesLine, NewSalesLine);
     end;
 
-    local procedure GetSalesLineQty(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing,Shipping) SalesLineQty: Decimal;
+    local procedure GetSalesLineQty(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing,Shipping; CalledFromStatistics: Boolean) SalesLineQty: Decimal;
     var
         IsHandled: Boolean;
     begin
+
+        if CalledFromStatistics and IsInvoiceRoundingLine(SalesHeader, SalesLine) then
+            exit;
+
         IsHandled := false;
         OnBeforeGetSalesLineQty(SalesLine, QtyType, SalesLineQty, IsHandled);
         if IsHandled then
@@ -8797,6 +8864,20 @@ codeunit 80 "Sales-Post"
             JobArchiveManagement.AutoArchiveJob(Job);
     end;
 
+    local procedure IsInvoiceRoundingLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"): Boolean
+    var
+        CustomerPostingGroup: Record "Customer Posting Group";
+    begin
+        if SalesLine.Type <> SalesLine.Type::"G/L Account" then
+            exit(false);
+
+        CustomerPostingGroup.Get(SalesHeader."Customer Posting Group");
+        if SalesLine."No." = CustomerPostingGroup."Invoice Rounding Account" then
+            exit(true);
+
+        exit(false);
+    end;
+    
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostLines(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; var TempWhseShptHeader: Record "Warehouse Shipment Header" temporary; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
     begin

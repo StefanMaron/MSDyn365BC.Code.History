@@ -297,6 +297,12 @@ page 118 "General Ledger Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies whether Business Central validates the data you enter in documents and journals while you type. For documents, you can turn on the check and messages will be shown in the Document Check FactBox. For journals, messages are always shown in the Journal Check FactBox.';
                 }
+                field(CheckSourceCurrencyConsistency; Rec."Check Source Curr. Consistency")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies whether Business Central validates the total of general ledger entries source currency amount during posting.';
+                }
             }
             group(Control1900309501)
             {

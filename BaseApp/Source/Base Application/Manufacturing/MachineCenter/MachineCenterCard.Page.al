@@ -72,7 +72,7 @@ page 99000760 "Machine Center Card"
                 {
                     ApplicationArea = Manufacturing;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the cost of one unit of the selected item or resource.';
+                    ToolTip = 'Specifies the direct unit cost of the machine center at one unit of measure. The basis of the direct unit cost is the usage quantity per time interval set in the Unit of Measure Code field in the assigned Work Center. The calculation is based on the amount of time used.';
                 }
                 field("Indirect Cost %"; Rec."Indirect Cost %")
                 {
