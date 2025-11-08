@@ -1968,7 +1968,13 @@ codeunit 99000774 "Calculate Routing Line"
         CalendarEndTime: Time;
         CalcFactor: Integer;
         ModifyCalendar: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcAvailQtyBase(CalendarEntry, TimeType, AvQtyBase, IsHandled);
+        if IsHandled then
+            exit(AvQtyBase);
+
         if IsForward then begin
             CalendarStartTime := CalendarEntry."Starting Time";
             CalendarEndTime := CalendarEntry."Ending Time";
@@ -2525,5 +2531,12 @@ codeunit 99000774 "Calculate Routing Line"
     local procedure OnCalcRoutingLineForwardOnAfterCalcRemainNeedQty(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; WorkCenter: Record "Work Center"; var RemainNeedQty: Decimal)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcAvailQtyBase(CalendarEntry: Record "Calendar Entry"; RoutingTimeType: Enum "Routing Time Type"; var AvQtyBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
 }
+
+
 
