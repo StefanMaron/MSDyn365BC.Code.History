@@ -18,12 +18,14 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         OptionValue: Integer;
         isInitialized: Boolean;
         AmountError: Label '%1 and %2 must be same.';
         ConfirmMessageForPayment: Label 'Do you want to change all open entries for every customer and vendor that are not blocked?';
         SuccessPostingMsg: Label 'The journal lines were successfully posted.';
+        AppliedError: Label 'Customer ledger entries are not applied correctly';
 
     [Normal]
     local procedure Initialize()
@@ -2334,6 +2336,59 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         CashReceiptJournal.Post.Invoke();
     end;
 
+    [Test]
+    [HandlerFunctions('GeneralJournalTemplateListModalPageHandler,ApplyCustomerEntriesPageHandlerWithDocumentNo,PmtDiscTolWarningModalPageHandler,PmtTolWarningModalPageHandler')]
+    procedure CashReceiptGenJournalLineErrorCheckWhenPaymentDiscountToleranceWarningOnPaymentWithMultipleApply()
+    var
+        Customer: Record Customer;
+        GeneralJournalLine: array[3] of Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        PaymentTerms: Record "Payment Terms";
+        DocumentNo: array[2] of Code[20];
+        PaymentDocNo: Code[20];
+        Amount: Decimal;
+    begin
+        // [SCENARIO 602838] When a single Payment line in the Cash Receipt Journals page is applied against multiple Entries, each with a discount, the post fails with error: An error occurred and the transaction is stopped.
+        Initialize();
+
+        // [GIVEN] Create Setups for Application under General Ledger Setup.
+        UpdatePmtToleranceFieldsInGeneralLedgerSetup();
+
+        // [GIVEN] Set the payment term code to 1M due date calculation.
+        CreatePaymentTerms(PaymentTerms, 0, 0);
+
+        // [GIVEN] Create Customer and attach Payment Terms
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Payment Terms Code", PaymentTerms.Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Create two Sales Invoices.
+        Amount := LibraryRandom.RandDecInDecimalRange(4500, 4500, 0);
+        CreateGeneralJournalBatch(GenJournalBatch);
+        CreateSalesinvoices(GeneralJournalLine, GenJournalBatch, Customer."No.", CalcDate('<-1Y>', WorkDate()), Amount, DocumentNo);
+
+        // [GIVEN] Create a Cash Receipt Journal Line with Amount to cover both Invoices.
+        CreateCashRecGenJournalLine(GeneralJournalLine[3], GenJournalTemplate.Type::"Cash Receipts", GeneralJournalLine[3]."Account Type"::Customer,
+          Customer."No.", -9000);
+        GeneralJournalLine[3].Validate("Posting Date", CalcDate('<1D>', CalcDate(PaymentTerms."Discount Date Calculation", CalcDate('<-1Y>', WorkDate()))));
+        GeneralJournalLine[3].Modify(true);
+        LibraryVariableStorage.Enqueue(GeneralJournalLine[3]."Journal Template Name");
+
+        // [GIVEN] Choice is Set to applies id.
+        IsSetAppliesToID(true, DocumentNo);
+        PaymentDocNo := GeneralJournalLine[3]."Document No.";
+
+        // [WHEN] Open Apply Entries Page for Application.
+        OpenCashRcptPage(GeneralJournalLine[3]."Document No.", GeneralJournalLine[3]."Document Type");
+
+        // [WHEN] Apply both Invoices to the Payment Line and Post the Gen. Journal Line.
+        LibraryERM.PostGeneralJnlLine(GeneralJournalLine[3]);
+
+        // [THEN] Verify the Payment Entry is applied to both Invoices.
+        VerifyCustLdgrEntryApplied(PaymentDocNo);
+    end;
+
     [Normal]
     local procedure AmountToApplyInCustomerLedger(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
@@ -2853,6 +2908,106 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         GeneralLedgerSetup.Modify(true);
     end;
 
+    local procedure verifyCustLdgrEntryApplied(PaymentDocNo: Code[20])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        EntryNo: Integer;
+    begin
+        CustLedgerEntry.SetRange("Document No.", PaymentDocNo);
+        CustLedgerEntry.FindFirst();
+        EntryNo := CustLedgerEntry."Entry No.";
+        CustLedgerEntry.Reset();
+        CustLedgerEntry.SetRange("Closed by Entry No.", EntryNo);
+        CustLedgerEntry.FindSet();
+        Assert.AreEqual(2, CustLedgerEntry.Count(), AppliedError);
+    end;
+
+    local procedure OpenCashRcptPage(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type") Amount: Decimal
+    var
+        CashReceiptJournal: TestPage "Cash Receipt Journal";
+    begin
+        CashReceiptJournal.OpenEdit();
+        CashReceiptJournal.FILTER.SetFilter("Document No.", DocumentNo);
+        CashReceiptJournal.FILTER.SetFilter("Document Type", Format(DocumentType));
+        LibraryVariableStorage.Enqueue(true);
+        CashReceiptJournal."Apply Entries".Invoke();
+        Amount := LibraryRandom.RandDec(10, 2);
+        CashReceiptJournal.OK().Invoke();
+    end;
+
+    local procedure IsSetAppliesToID(SetAppliesToIDValue: Boolean; DocumentNo: array[2] of Code[20])
+    var
+        i: Integer;
+    begin
+        LibraryVariableStorage.Enqueue(SetAppliesToIDValue);
+        for i := 1 to 2 do
+            LibraryVariableStorage.Enqueue(DocumentNo[i]);
+    end;
+
+    local procedure CreateSalesinvoices(GeneralJournalLine: array[2] of Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch";
+      CustomerNo: Code[20]; PostingDate: Date; Amount: Decimal; var DocumentNo: array[2] of Code[20])
+    var
+        i: Integer;
+        DocumentNoCode: Code[20];
+    begin
+        for i := 1 to 2 do begin
+            CreateSalesJournalLines(GeneralJournalLine[i], GenJournalBatch, CustomerNo, PostingDate, Amount, DocumentNoCode);
+            DocumentNo[i] := DocumentNoCode;
+        end;
+        PostJournalBatch(GenJournalBatch);
+    end;
+
+    local procedure CreateSalesJournalLines(var GeneralJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch";
+      CustomerNo: Code[20]; PostingDate: Date; Amount: Decimal; var DocumentNo: Code[20])
+    begin
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(GeneralJournalLine, GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name, GeneralJournalLine."Document Type"::Invoice, GeneralJournalLine."Account Type"::Customer,
+            CustomerNo, GeneralJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), Amount);
+        if DocumentNo <> '' then
+            GeneralJournalLine.Validate("Document No.", IncStr(DocumentNo));
+        GeneralJournalLine.Validate("Posting Date", PostingDate);
+        GeneralJournalLine.Modify(true);
+        DocumentNo := GeneralJournalLine."Document No.";
+    end;
+
+    local procedure PostJournalBatch(GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        GenJournalLine.SetFilter("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.FindFirst();
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure CreateCashRecGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; TemplateType: Enum "Gen. Journal Template Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        CreateGeneralJournalBatch(GenJournalBatch, TemplateType);
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Payment, AccountType, AccountNo, Amount);
+    end;
+
+    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; TemplateType: Enum "Gen. Journal Template Type")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        BankAccount: Record "Bank Account";
+    begin
+        CreateGeneralJournalTemplate(GenJournalTemplate, TemplateType);
+        LibraryERM.FindBankAccount(BankAccount);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
+        GenJournalBatch.Validate("Bal. Account No.", BankAccount."No.");
+        GenJournalBatch.Modify(true);
+    end;
+
+    local procedure CreateGeneralJournalTemplate(var GenJournalTemplate: Record "Gen. Journal Template"; TemplateType: Enum "Gen. Journal Template Type")
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate(Type, TemplateType);
+        GenJournalTemplate.Modify(true);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -2882,6 +3037,51 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         // Modal Page Handler for Payment Discount Tolerance Warning.
         PaymentDiscToleranceWarning.InitializeNewPostingAction(0);
         Response := ACTION::Yes
+    end;
+
+    [ModalPageHandler]
+    procedure PmtDiscTolWarningModalPageHandler(var PaymentDiscToleranceWarning: TestPage "Payment Disc Tolerance Warning")
+    begin
+        PaymentDiscToleranceWarning.Posting.SetValue(1);
+        PaymentDiscToleranceWarning.Yes().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure PmtTolWarningModalPageHandler(var PmtTolWarning: TestPage "Payment Tolerance Warning")
+    begin
+        PmtTolWarning.Posting.SetValue(1);
+        PmtTolWarning.Yes().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ApplyCustomerEntriesPageHandlerWithDocumentNo(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
+    var
+        SetAppliesToIDValue: Variant;
+        SetAppliesToID: Boolean;
+        DocumentNo: array[8] of Variant;
+        AmountToApply: Decimal;
+        i: Integer;
+    begin
+        LibraryVariableStorage.Dequeue(SetAppliesToIDValue);
+        SetAppliesToID := SetAppliesToIDValue;
+        if SetAppliesToID then
+            for i := 1 to 2 do begin
+                LibraryVariableStorage.Dequeue(DocumentNo[i]);
+                ApplyCustomerEntries.Filter.SetFilter("Document No.", DocumentNo[i]);
+                ApplyCustomerEntries."Set Applies-to ID".Invoke();
+                AmountToApply := ApplyCustomerEntries."Amount to Apply".AsDecimal();
+                ApplyCustomerEntries.AppliedAmount.SetValue(AmountToApply);
+                ApplyCustomerEntries."Remaining Pmt. Disc. Possible".SetValue(67.36);
+                ApplyCustomerEntries."Max. Payment Tolerance".SetValue(100);
+            end;
+        ApplyCustomerEntries.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure GeneralJournalTemplateListModalPageHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
+    begin
+        GeneralJournalTemplateList.GotoKey(LibraryVariableStorage.DequeueText());
+        GeneralJournalTemplateList.OK().Invoke();
     end;
 
     [MessageHandler]

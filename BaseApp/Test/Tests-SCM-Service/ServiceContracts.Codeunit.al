@@ -3609,6 +3609,48 @@ codeunit 136102 "Service Contracts"
         CheckChangeCustomerNo(ServiceContractHeader, ContactBusinessRelation."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,ServContrctTemplateListHandler')]
+    [Scope('OnPrem')]
+    procedure PersonContactLinkedViaCompanyValidation()
+    var
+        Contact: Record Contact;
+        CompanyContact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        Customer: Record Customer;
+        ServiceContractHeader: Record "Service Contract Header";
+    begin
+        // [SCENARIO 603351] Person contact linked to customer via Company No. should be valid in Service Contract
+        Initialize();
+
+        // [GIVEN] Create a Company contact
+        LibraryMarketing.CreateCompanyContact(CompanyContact);
+
+        // [GIVEN] Create a customer
+        LibrarySales.CreateCustomer(Customer);
+        ContactBusinessRelation.Init();
+        ContactBusinessRelation."Contact No." := CompanyContact."No.";
+        ContactBusinessRelation."Business Relation Code" := 'CUST';
+        ContactBusinessRelation."Link to Table" := ContactBusinessRelation."Link to Table"::Customer;
+        ContactBusinessRelation."No." := Customer."No.";
+        ContactBusinessRelation.Insert();
+
+        // [GIVEN] Create a Person contact under the Company
+        LibraryMarketing.CreatePersonContact(Contact);
+        Contact.Validate("Company No.", CompanyContact."No.");
+        Contact.Modify(true);
+
+        // [GIVEN] Create a Service Contract for the customer
+        LibraryService.CreateServiceContractHeader(
+            ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
+
+        // [WHEN] Assign the Person contact to the Service Contract
+        ServiceContractHeader.Validate("Contact No.", Contact."No.");
+
+        // [THEN] No error should occur and Contact No. should be set
+        ServiceContractHeader.TestField("Contact No.", Contact."No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

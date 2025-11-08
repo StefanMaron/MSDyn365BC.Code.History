@@ -3960,6 +3960,99 @@
                 TransferLine."Document No.", TransferLine."Line No."));
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure ForwardingCostToUndoTransferShipment()
+    var
+        Item: Record Item;
+        ItemCharge: Record "Item Charge";
+        LocationA, LocationB, InTransitLocation : Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemChargePurchaseLine: Record "Purchase Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ItemLedgerEntry, OriginalTransferShipmentILE, UndoTransferShipmentILE : Record "Item Ledger Entry";
+        Qty: Decimal;
+        ItemUnitCost, ItemChargeUnitCost : Decimal;
+    begin
+        // [SCENARIO 592047] Cost forwarding to undo transfer shipment - verify that item ledger entry for undo has the same cost as original transfer shipment.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(5, 10);
+        ItemUnitCost := LibraryRandom.RandDecInRange(10, 100, 2);
+        ItemChargeUnitCost := LibraryRandom.RandDecInRange(100, 500, 2);
+
+        // [GIVEN] Locations A, B, and In-Transit are set up
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationA);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationB);
+        LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
+
+        // [GIVEN] An item and item charge are created
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemCharge(ItemCharge);
+
+        // [GIVEN] Purchase order for item and item charge to location A
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("Location Code", LocationA.Code);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine, PurchaseHeader, Item."No.", Qty, ItemUnitCost);
+        LibraryPurchase.CreatePurchaseLine(ItemChargePurchaseLine, PurchaseHeader, ItemChargePurchaseLine.Type::"Charge (Item)", ItemCharge."No.", 1);
+        ItemChargePurchaseLine.Validate("Direct Unit Cost", ItemChargeUnitCost);
+        ItemChargePurchaseLine.Modify(true);
+        LibraryInventory.CreateItemChargeAssignPurchase(
+          ItemChargeAssignmentPurch, ItemChargePurchaseLine, ItemChargeAssignmentPurch."Applies-to Doc. Type"::Order, PurchaseLine."Document No.",
+          PurchaseLine."Line No.", PurchaseLine."No.");
+
+        // [GIVEN] Purchase order is posted
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] First cost adjustment is run
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [GIVEN] Transfer order is created from location A to location B
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationA.Code, LocationB.Code, InTransitLocation.Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", Qty);
+
+        // [GIVEN] Transfer shipment is posted
+        LibraryInventory.PostTransferHeader(TransferHeader, true, false);
+
+        // [GIVEN] Second cost adjustment is run after transfer shipment
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [GIVEN] Find and store the original transfer shipment item ledger entry for cost comparison
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Transfer);
+        ItemLedgerEntry.SetRange("Location Code", LocationA.Code);
+        ItemLedgerEntry.SetRange(Positive, false);
+        ItemLedgerEntry.FindFirst();
+        OriginalTransferShipmentILE := ItemLedgerEntry;
+
+        // [WHEN] Transfer shipment is undone.
+        LibraryInventory.UndoTransferShipments(TransferHeader."No.");
+
+        // [THEN] Final cost adjustment is run after undo.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] Find the undo transfer shipment item ledger entry.
+        ItemLedgerEntry.Reset();
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Transfer);
+        ItemLedgerEntry.SetRange("Location Code", LocationA.Code);
+        ItemLedgerEntry.SetRange(Positive, true);
+        ItemLedgerEntry.SetRange(Correction, true);
+        ItemLedgerEntry.FindFirst();
+        UndoTransferShipmentILE := ItemLedgerEntry;
+
+        // [THEN] Verify that the undo transfer shipment has the same cost as the original transfer shipment
+        OriginalTransferShipmentILE.CalcFields("Cost Amount (Actual)");
+        UndoTransferShipmentILE.CalcFields("Cost Amount (Actual)");
+        Assert.AreEqual(
+            -OriginalTransferShipmentILE."Cost Amount (Actual)",
+            UndoTransferShipmentILE."Cost Amount (Actual)",
+            'The cost amount of the undo transfer shipment entry should match the original transfer shipment entry (with opposite sign)');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

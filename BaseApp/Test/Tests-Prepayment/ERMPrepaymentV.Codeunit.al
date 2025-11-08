@@ -36,6 +36,7 @@
         GenProdPostingGroupErr: Label '%1 is not set for the %2 G/L account with no. %3.', Comment = '%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.';
         PrepaymentInvoicesNotPaidErr: Label 'You cannot get lines until you have posted all related prepayment invoices to mark the prepayment as paid.';
         LineAmountMustMatchErr: Label 'Line Amount must match.';
+        YourReferenceMustBeTheSameErr: Label 'Your reference must be the same in customer ledger entry as in sales order';
 
 #if not CLEAN26
     [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
@@ -5108,6 +5109,55 @@
         PostPurchaseDocument(PurchHeader[1], true, true);
     end;
 
+    [Test]
+    procedure CheckYourReferanceforSalesOrderPrepayment()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeaderNo: Code[20];
+    begin
+        // [SCENARIO 606403] Your Reference field is not transferred from the Prepayment Invoice to the Customer Ledger Entries.
+        Initialize();
+
+        // [GIVEN] Find VAT Posting Setup.
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+
+        // [GIVEN] Create a Customer and Validate VAT Bus. Posting Group.
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Modify(true);
+
+        // [GIVEN] Create a Sales Header and Validate Prepayment Percentage.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("Prepayment %", LibraryRandom.RandIntInRange(30, 30));
+        SalesHeader.Validate("Your Reference", LibraryRandom.RandText(10));
+        SalesHeader.Modify(true);
+        SalesHeaderNo := SalesHeader."No.";
+
+        // [GIVEN] Create a Sales Line.
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Item,
+            LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(10, 15));
+
+        //[GIVEN] Validate Unit Price in Sales Line.
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 1));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Update Sales Prepayment Account Vat Group.
+        LibraryERM.UpdateSalesPrepmtAccountVATGroup(
+            SalesLine."Gen. Bus. Posting Group",
+            SalesLine."Gen. Prod. Posting Group",
+            SalesLine."VAT Prod. Posting Group");
+
+        //[GIVEN] Post Sales Prepayment Invoice.
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [WHEN] Verify "Your Reference" in Customer Ledger Entry is equal to "Your Reference" in Sales Header.
+        VerifyYourReferenceValue(SalesHeader, SalesHeaderNo);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6822,6 +6872,19 @@
         PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, Receive, Invoice));
+    end;
+
+    local procedure VerifyYourReferenceValue(var SalesHeader: Record "Sales Header"; SalesHeaderNo: Code[20])
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CustomerLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        SalesInvoiceHeader.SetRange("Prepayment Order No.", SalesHeaderNo);
+        if SalesInvoiceHeader.FindFirst() then;
+        CustomerLedgerEntry.SetRange("Document No.", SalesInvoiceHeader."No.");
+        if CustomerLedgerEntry.FindFirst() then;
+
+        Assert.AreEqual(SalesHeader."Your Reference", CustomerLedgerEntry."Your Reference", YourReferenceMustBeTheSameErr);
     end;
 
     [PageHandler]

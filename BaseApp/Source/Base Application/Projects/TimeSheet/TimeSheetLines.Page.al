@@ -358,7 +358,6 @@ page 949 "Time Sheet Lines"
 
     var
         GlobalTimeSheetHeader: Record "Time Sheet Header";
-        TempTimeSheetLine: Record "Time Sheet Line" temporary;
         TimeSheetManagement: Codeunit "Time Sheet Management";
         CellData: array[32] of Decimal;
         LineTotal: Decimal;
@@ -480,6 +479,7 @@ page 949 "Time Sheet Lines"
     local procedure IsFirstDocLine(): Boolean
     var
         TimeSheetLine: Record "Time Sheet Line";
+        TempTimeSheetLine: Record "Time Sheet Line" temporary;
         TimeSheetLineArchive: Record "Time Sheet Line Archive";
     begin
         TempTimeSheetLine.Reset();
