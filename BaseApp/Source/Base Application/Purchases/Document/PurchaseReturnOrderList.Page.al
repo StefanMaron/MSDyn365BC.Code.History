@@ -31,6 +31,8 @@ page 9311 "Purchase Return Order List"
     DataCaptionFields = "Buy-from Vendor No.";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Purchase Return Orders';
+    AboutText = 'Create and manage purchase return orders to process returns to vendors, reverse posted costs, specify return reasons, and generate replacement orders when needed.';
     QueryCategory = 'Purchase Return Orders';
     RefreshOnActivate = true;
     SourceTable = "Purchase Header";

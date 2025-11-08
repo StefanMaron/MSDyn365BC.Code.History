@@ -3591,6 +3591,66 @@ codeunit 137063 "SCM Manufacturing 7.0"
         Assert.RecordIsNotEmpty(ProdOrderComponent);
     end;
 
+    [Test]
+    [HandlerFunctions('ChangeStatusOnProdOrderToFinished,ErrorMessageHandler')]
+    procedure ChangeProductionOrderStatusWithoutVariantCode()
+    var
+        ProductionOrder: array[4] of Record "Production Order";
+        Item: array[4] of Record Item;
+        ItemVariant: array[2] of Record "Item Variant";
+        ProductionBOMHeader: array[2] of Record "Production BOM Header";
+        ReleasedProductionOrders: TestPage "Released Production Orders";
+    begin
+        // [SCENARIO 598660] Changing the Status of Released Production Orders to Finished from the List of Released Production Orders will stop the process when Variant Code is missing.
+        Initialize();
+
+        // [GIVEN] Create Multiple Items.
+        CreateMultipleItem(Item);
+
+        // [GIVEN] Update "Variant Mandatory if Exists" on Item "X".
+        Item[1].Validate("Variant Mandatory if Exists", Item[1]."Variant Mandatory if Exists"::Yes);
+        Item[1].Modify(true);
+
+        // [GIVEN] Create Production BOM and Certify them.
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader[1], Item[3]."No.", LibraryRandom.RandInt(1));
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader[2], Item[4]."No.", LibraryRandom.RandInt(1));
+
+        // [GIVEN] Create Multiple Production Item for Item "X" and "Y".
+        MakeMultipleProductionItem(Item, ProductionBOMHeader);
+
+        // [GIVEN] Create Item Variants for Item "X".
+        LibraryInventory.CreateItemVariant(ItemVariant[1], Item[1]."No.");
+        LibraryInventory.CreateItemVariant(ItemVariant[2], Item[1]."No.");
+
+        // [GIVEN] Create Production Order "X".
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder[1], ProductionOrder[1].Status::Released,
+            ProductionOrder[1]."Source Type"::Item, Item[1]."No.", LibraryRandom.RandInt(5));
+
+        // [GIVEN] Refresh Production Order "X".
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder[1], false, true, true, true, false);
+
+        // [GIVEN] Create Production Order "Y".
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder[2], ProductionOrder[2].Status::Released,
+            ProductionOrder[2]."Source Type"::Item, Item[2]."No.", LibraryRandom.RandInt(5));
+
+        // [GIVEN] Refresh Production Order "Y".
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder[2], false, true, true, true, false);
+
+        // [GIVEN] Open Change Production Order Status and Select "X" Production Order.
+        ReleasedProductionOrders.OpenEdit();
+        ReleasedProductionOrders.GoToRecord(ProductionOrder[1]);
+
+        // [WHEN] Invoke Change Status.
+        ReleasedProductionOrders."Change &Status".Invoke();
+
+        // [THEN] Selected Production Order should not be processed and Error message should be shown.
+        ProductionOrder[3].SetRange("No.", ProductionOrder[1]."No.");
+        ProductionOrder[3].FindFirst();
+        Assert.RecordIsNotEmpty(ProductionOrder[1]);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5865,6 +5925,21 @@ codeunit 137063 "SCM Manufacturing 7.0"
     procedure ProductionBOMPageHandler(var ProductionBOM: TestPage "Production BOM")
     begin
         ProductionBOM."No.".AssertEquals(LibraryVariableStorage.DequeueText());
+    end;
+
+    [ModalPageHandler]
+    procedure ChangeStatusOnProdOrderToFinished(var ChangeStatusonProductionOrder: TestPage "Change Status on Prod. Order")
+    var
+        ProductionOrder: Record "Production Order";
+    begin
+        ChangeStatusonProductionOrder.FirmPlannedStatus.SetValue(ProductionOrder.Status::Finished);
+        ChangeStatusonProductionOrder.Yes().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ErrorMessageHandler(var ErrorMessage: TestPage "Error Messages")
+    begin
+        ErrorMessage.OK().Invoke();
     end;
 
     [ConfirmHandler]

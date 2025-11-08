@@ -17,6 +17,8 @@ page 518 "Purchase Lines"
     Editable = false;
     LinksAllowed = false;
     PageType = List;
+    AboutTitle = 'About Purchase Lines';
+    AboutText = 'Track and manage purchase lines associated with projects, including details on vendors, quantities, costs, and expected receipt dates to ensure project supply needs are met and monitored.';
     SourceTable = "Purchase Line";
     UsageCategory = Lists;
 

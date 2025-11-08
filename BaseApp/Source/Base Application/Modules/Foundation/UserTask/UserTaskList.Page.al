@@ -16,6 +16,8 @@ page 1170 "User Task List"
     ModifyAllowed = false;
     ODataKeyFields = ID;
     PageType = List;
+    AboutTitle = 'About User Tasks';
+    AboutText = 'Organize, assign, and track tasks for individuals or groups, set priorities and deadlines, link tasks to relevant pages or reports, and monitor progress until completion.';
     RefreshOnActivate = true;
     SourceTable = "User Task";
     UsageCategory = Lists;

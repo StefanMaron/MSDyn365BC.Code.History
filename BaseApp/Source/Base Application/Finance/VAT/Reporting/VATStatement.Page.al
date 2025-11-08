@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -14,6 +14,8 @@ page 317 "VAT Statement"
     Caption = 'VAT Statements';
     MultipleNewLines = true;
     PageType = Worksheet;
+    AboutTitle = 'About VAT Statements';
+    AboutText = 'Define and manage VAT statement formats to calculate VAT settlement amounts for specific periods, customize statement lines by posting groups and totaling types, and ensure compliance with official VAT reporting requirements.';
     SaveValues = true;
     SourceTable = "VAT Statement Line";
     UsageCategory = Tasks;

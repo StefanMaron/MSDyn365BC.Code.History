@@ -493,6 +493,7 @@ page 5771 "Whse. Put-away Subform"
         end
         else
             WhseActivLine.Copy(Rec);
+        WhseActivLine.SetCurrentKey("Activity Type", "No.", "Sorting Sequence No.");
         WhseActivLine.FilterGroup(3);
         WhseActivLine.SetRange(Breakbulk);
         WhseActivLine.FilterGroup(0);

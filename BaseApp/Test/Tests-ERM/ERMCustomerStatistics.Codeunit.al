@@ -1082,6 +1082,56 @@ codeunit 134389 "ERM Customer Statistics"
         SalesLine.OpenItemTrackingLines();
     end;
 
+    [Test]
+    procedure CheckCustomerCardStatisticsTotalLCYValueWhenThereIsMoreThanOneShipment()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustomerList: TestPage "Customer List";
+        CustomerStatistics: TestPage "Customer Statistics";
+        Index: Integer;
+    begin
+        // [SCENARIO 597753] Total (LCY) field on Customer Statistics is incorrectly calculated in case of more than one Shipment per Sales Order.
+        Initialize();
+
+        // [GIVEN] Created New Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Created New Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Created Item Inventory By Posting Item Journal With Qty 3.
+        CreateItemInventory(Item, 3);
+
+        // [WHEN] Created New Sales Order With Qty 3
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.", WorkDate());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 3);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 0));
+        SalesLine.Modify(true);
+
+        // [WHEN] "SO" Post invoked with "Shipped" selected 3 times for each qty 1.        
+        for Index := 1 to 3 do begin
+            SalesLine.Validate("Qty. to Ship", 1);
+            SalesLine.Modify(true);
+            LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+            // [GIVEN] Find the Sales Line again after each Post.
+            SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        end;
+
+        // [GIVEN] When All 3 Shipments are done, Open "Customer Statistics"
+        CustomerList.OpenView();
+        CustomerList.FILTER.SetFilter("No.", Customer."No.");
+        CustomerStatistics.Trap();
+        CustomerList.Statistics.Invoke();
+
+        // [THEN] Check Customer Card Statistics "Shipped Not Invoiced (LCY)" is Equal To SalesLine."Amount Including VAT" and Accordingly updated value of Total.
+        Assert.AreEqual(SalesLine."Amount Including VAT", CustomerStatistics."Shipped Not Invoiced (LCY)".AsDecimal(), CustomerCardFactboxTotalErr);
+        Assert.AreEqual(CustomerStatistics.GetTotalAmountLCY.AsDecimal(), Customer.GetTotalAmountLCY(), CustomerCardFactboxTotalErr);
+    end;
+
     local procedure Initialize()
     var
         Currency: Record Currency;

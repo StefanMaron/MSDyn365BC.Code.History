@@ -8,6 +8,8 @@ page 654 "Requests to Approve"
     Caption = 'Requests to Approve';
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Requests to Approve';
+    AboutText = 'Review, approve, reject, or delegate pending approval requests to efficiently manage and track document approvals within your organization.';
     RefreshOnActivate = true;
     SourceTable = "Approval Entry";
     SourceTableView = sorting("Approver ID", Status, "Due Date", "Date-Time Sent for Approval")
