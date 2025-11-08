@@ -505,6 +505,49 @@ codeunit 134372 "ERM Order Invoicing"
     end;
 
     [Test]
+    [HandlerFunctions('GetReceiptLinesPageHandler')]
+    procedure GetReceiptLinesCopiesDescFromReceipt()
+    var
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseOrderLine: Record "Purchase Line";
+        PurchaseInvoiceLine: Record "Purchase Line";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        ReceiptNo: Code[20];
+        DescriptionFromReceipt: Text[100];
+        Description2FromReceipt: Text[50];
+    begin
+        // [FEATURE] [Purchase Order] [Purchase Receipt] [Purchase Invoice] [Get Receipt Lines]
+        // [SCENARIO] Get Receipt Lines action on Purchase Invoice copies item desription from the receipt lines and not from the Purchase Order Line"
+
+        Initialize();
+
+        // [GIVEN] A purchase order
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Create a purchase line and partially receive
+        ReceiptNo := CreatePurchaseLinePostPartialReceiptOrShpmt(PurchaseHeaderOrder, PurchaseOrderLine);
+        PurchaseOrderLine.Find();
+        DescriptionFromReceipt := PurchaseOrderLine.Description;
+        Description2FromReceipt := PurchaseOrderLine."Description 2";
+
+        // [GIVEN] Change the Description and Description 2 on Purchase Order Line
+        PurchaseOrderLine.Description := CopyStr(LibraryRandom.RandText(100), 1, 100);
+        PurchaseOrderLine."Description 2" := CopyStr(LibraryRandom.RandText(50), 1, 50);
+        PurchaseOrderLine.Modify(true);
+
+        // [WHEN] Create a purchase invoice, use "Get Receipt Lines" to add lines from the posted receipt
+        CreatePurchInvoiceGetReceiptLines(PurchaseHeaderInvoice, PurchaseHeaderOrder."Buy-from Vendor No.", ReceiptNo);
+
+        // [THEN] The purchase invoice line descriptions are copied from the receipt lines and not from current order line
+        PurchaseInvoiceLine.SetRange("Document No.", PurchaseHeaderInvoice."No.");
+        PurchaseInvoiceLine.SetRange("Document Type", PurchaseHeaderInvoice."Document Type");
+        PurchaseInvoiceLine.SetRange(Type, PurchaseInvoiceLine.Type::"G/L Account");
+        PurchaseInvoiceLine.FindFirst();
+        PurchaseInvoiceLine.TestField(Description, DescriptionFromReceipt);
+        PurchaseInvoiceLine.TestField("Description 2", Description2FromReceipt);
+    end;
+
+    [Test]
     procedure GetPurchRetOrderCrMemosMultipleLinesInOneCreditMemo()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -811,6 +854,11 @@ codeunit 134372 "ERM Order Invoicing"
     local procedure CreatePurchaseLinePostPartialReceiptOrShpmt(var PurchaseHeader: Record "Purchase Header"): Code[20]
     var
         PurchaseLine: Record "Purchase Line";
+    begin
+        exit(CreatePurchaseLinePostPartialReceiptOrShpmt(PurchaseHeader, PurchaseLine));
+    end;
+
+    local procedure CreatePurchaseLinePostPartialReceiptOrShpmt(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"): Code[20]
     begin
         if PurchaseHeader.Status <> PurchaseHeader.Status::Open then
             LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);

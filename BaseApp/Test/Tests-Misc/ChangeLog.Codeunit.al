@@ -2053,7 +2053,7 @@ codeunit 139031 "Change Log"
         ChangeLogEntry.SetRange("Table No.", LocalTableNo);
         ChangeLogEntry.SetRange("Type of Change", ChangeLogEntry."Type of Change"::Insertion);
         ChangeLogEntry.SetRange("User ID", UserId);
-        ChangeLogEntry.SetRange("Primary Key", RecRef.GetPosition(false));
+        ChangeLogEntry.SetRange("Primary Key", CopyStr(RecRef.GetPosition(false), 1, MaxStrLen(ChangeLogEntry."Primary Key")));
         ChangeLogEntry.SetRange("Field No.", TenantWebService.FieldNo("Service Name"));
 
         Assert.RecordCount(ChangeLogEntry, 1);

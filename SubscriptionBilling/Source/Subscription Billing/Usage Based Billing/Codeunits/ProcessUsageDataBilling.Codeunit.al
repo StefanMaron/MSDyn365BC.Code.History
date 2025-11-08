@@ -17,7 +17,7 @@ codeunit 8026 "Process Usage Data Billing"
         CalculateCustomerUsageDataBillingPriceProcedureNameLbl: Label 'CalculateCustomerUsageDataBillingPrice', Locked = true;
         CodeunitObjectLbl: Label 'Codeunit', Locked = true;
         CurrentCodeunitNameLbl: Label 'Process Usage Data Billing', Locked = true;
-        NoContractFoundInUsageDataBillingErr: Label 'No contract (for Subscription %1) found for processing step %2.';
+        NoContractFoundInUsageDataBillingErr: Label 'No contract (for Subscription %1) found for processing step %2.', Comment = '%1=Subscription Header No., %2=Processing Step';
 
     trigger OnRun()
     begin
@@ -235,12 +235,13 @@ codeunit 8026 "Process Usage Data Billing"
         ServiceCommitmentUnitCostLCY: Decimal;
         RoundingPrecision: Decimal;
         ServiceCommitmentUpdated: Boolean;
+        BillingReferenceDateChanged: Boolean;
     begin
         if UnitPrice = 0 then
             exit;
         SetCurrency(Currency, ServiceCommitment."Currency Code");
 
-        ServiceCommitment.UnitPriceAndCostForPeriod(ServiceCommitment."Billing Rhythm", LastUsageDataBilling."Charge Start Date", LastUsageDataBilling."Charge End Date", ServiceCommitmentUnitPrice, ServiceCommitmentUnitCost, ServiceCommitmentUnitCostLCY);
+        ServiceCommitment.UnitPriceAndCostForPeriod(ServiceCommitment."Billing Rhythm", LastUsageDataBilling."Charge Start Date", LastUsageDataBilling."Charge End Date", ServiceCommitmentUnitPrice, ServiceCommitmentUnitCost, ServiceCommitmentUnitCostLCY, BillingReferenceDateChanged);
 
         SetRoundingPrecision(RoundingPrecision, UnitPrice, Currency);
         if Round(ServiceCommitmentUnitPrice, RoundingPrecision) <> UnitPrice then begin
