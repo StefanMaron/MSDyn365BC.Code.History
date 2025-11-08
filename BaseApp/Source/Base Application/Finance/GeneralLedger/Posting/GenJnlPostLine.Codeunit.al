@@ -86,6 +86,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         TempVATEntry: Record "VAT Entry" temporary;
         TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
         TempCustLedgEntry: Record "Cust. Ledger Entry" temporary;
+        TempVATPostingSetup: Record "VAT Posting Setup" temporary;
         SourceCodeSetup: Record "Source Code Setup";
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
@@ -4267,6 +4268,45 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     local procedure CustUnrealizedVAT(GenJnlLine: Record "Gen. Journal Line"; var CustLedgEntry2: Record "Cust. Ledger Entry"; SettledAmount: Decimal; GainLossLCY: Decimal; CurrencyFactor: Decimal; PostingDate: Date)
     var
+        IsHandled: Boolean;
+        ShouldConsiderVATPostingGrouping: Boolean;
+        IsLCYTransaction: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCustUnrealizedVAT(GenJnlLine, CustLedgEntry2, SettledAmount, IsHandled);
+        if IsHandled then
+            exit;
+        IsLCYTransaction := (GenJnlLine."Currency Code" = '') and (CustLedgEntry2."Currency Code" = '');
+        TempVATPostingSetup.Reset();
+        CustLedgEntry2.CalcFields("Amount (LCY)", "Original Amt. (LCY)");
+        ShouldConsiderVATPostingGrouping := not TempVATPostingSetup.IsEmpty();
+        if (not ShouldConsiderVATPostingGrouping) and IsLCYTransaction then
+            case CustLedgEntry2."Document Type" of
+                CustLedgEntry2."Document Type"::"Credit Memo", CustLedgEntry2."Document Type"::Invoice:
+                    CustLedgEntry2.GetDocumentVATPostingSetup(TempVATPostingSetup, GenJnlLine);
+            end;
+
+        if not ShouldConsiderVATPostingGrouping then
+            if not TempVATPostingSetup.IsEmpty() then begin
+                if (GenJnlLine."Document Type" = GenJnlLine."Document Type"::"Credit Memo") and (CustLedgEntry2."Document Type" = CustLedgEntry2."Document Type"::Invoice) then
+                    ShouldConsiderVATPostingGrouping := true;
+                if (GenJnlLine."Document Type" = GenJnlLine."Document Type"::Invoice) and (CustLedgEntry2."Document Type" = CustLedgEntry2."Document Type"::Invoice) then
+                    ShouldConsiderVATPostingGrouping := true;
+            end;
+
+        if not ShouldConsiderVATPostingGrouping then
+            CustUnrealizedVAT(false, TempVATPostingSetup, GenJnlLine, CustLedgEntry2, SettledAmount, GainLossLCY, CurrencyFactor, PostingDate)
+        else
+            if TempVATPostingSetup.FindSet() then
+                repeat
+                    CustUnrealizedVAT(true, TempVATPostingSetup, GenJnlLine, CustLedgEntry2, SettledAmount, GainLossLCY, CurrencyFactor, PostingDate);
+                until TempVATPostingSetup.Next() = 0;
+
+        InsertSummarizedVAT(GenJnlLine);
+    end;
+
+    local procedure CustUnrealizedVAT(ShouldConsiderVATPostingGrouping: Boolean; TempVATPostingSetup: Record "VAT Posting Setup" temporary; GenJnlLine: Record "Gen. Journal Line"; var CustLedgEntry2: Record "Cust. Ledger Entry"; SettledAmount: Decimal; GainLossLCY: Decimal; CurrencyFactor: Decimal; PostingDate: Date)
+    var
         VATEntry2: Record "VAT Entry";
         TaxJurisdiction: Record "Tax Jurisdiction";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -4295,20 +4335,16 @@ codeunit 12 "Gen. Jnl.-Post Line"
         VATAmountCash: Decimal;
         VATBaseCash: Decimal;
     begin
-        IsHandled := false;
-        OnBeforeCustUnrealizedVAT(GenJnlLine, CustLedgEntry2, SettledAmount, IsHandled);
-        if IsHandled then
-            exit;
-
-        CustLedgEntry2.CalcFields("Amount (LCY)", "Original Amt. (LCY)");
-
         PaidAmount := CustLedgEntry2."Amount (LCY)" - CustLedgEntry2."Remaining Amt. (LCY)";
         OnCustUnrealizedVATOnAfterCalcPaidAmount(GenJnlLine, CustLedgEntry2, SettledAmount, PaidAmount);
         VATEntry2.ReadIsolation := IsolationLevel::ReadUncommitted;
         VATEntry2.Reset();
         VATEntry2.SetCurrentKey("Transaction No.");
         VATEntry2.SetRange("Transaction No.", CustLedgEntry2."Transaction No.");
-
+        if ShouldConsiderVATPostingGrouping then begin
+            VATEntry2.SetRange("VAT Bus. Posting Group", TempVATPostingSetup."VAT Bus. Posting Group");
+            VATEntry2.SetRange("VAT Prod. Posting Group", TempVATPostingSetup."VAT Prod. Posting Group");
+        end;
         OnCustUnrealizedVATOnAfterSetFilterForVATEntry2(VATEntry2);
 
         if VATEntry2.FindSet() then
@@ -4329,14 +4365,24 @@ codeunit 12 "Gen. Jnl.-Post Line"
                     LastConnectionNo := VATEntry2."Sales Tax Connection No.";
                 end;
 
-                VATPart :=
-                  VATEntry2.GetUnrealizedVATPart(
-                    Round(SettledAmount / CustLedgEntry2.GetAdjustedCurrencyFactor()),
-                    PaidAmount,
-                    CustLedgEntry2."Amount (LCY)",
-                    TotalUnrealVATAmountFirst,
-                    TotalUnrealVATAmountLast,
-                    CustLedgEntry2."Original Amt. (LCY)");
+                if ShouldConsiderVATPostingGrouping then
+                    VATPart :=
+                        VATEntry2.GetUnrealizedVATPart(
+                        Round(SettledAmount / CustLedgEntry2.GetAdjustedCurrencyFactor()),
+                        PaidAmount,
+                        CustLedgEntry2.GetInvoicePartAmountByVAT(CustLedgEntry2."Document Type", GenJnlLine, TempVATPostingSetup."VAT Bus. Posting Group", TempVATPostingSetup."VAT Prod. Posting Group"),
+                        TotalUnrealVATAmountFirst,
+                        TotalUnrealVATAmountLast,
+                        CustLedgEntry2."Original Amt. (LCY)")
+                else
+                    VATPart :=
+                        VATEntry2.GetUnrealizedVATPart(
+                            Round(SettledAmount / CustLedgEntry2.GetAdjustedCurrencyFactor()),
+                            PaidAmount,
+                            CustLedgEntry2."Amount (LCY)",
+                            TotalUnrealVATAmountFirst,
+                            TotalUnrealVATAmountLast,
+                            CustLedgEntry2."Original Amt. (LCY)");
 
                 OnCustUnrealizedVATOnAfterVATPartCalculation(
                   GenJnlLine, CustLedgEntry2, PaidAmount, TotalUnrealVATAmountFirst, TotalUnrealVATAmountLast, SettledAmount, VATEntry2);
@@ -4475,8 +4521,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
                       RealizedVATAmount, RealizedVATBase, RealizedVATAmountAddCurr, RealizedVATBaseAddCurr);
                 end;
             until VATEntry2.Next() = 0;
-
-            InsertSummarizedVAT(GenJnlLine);
         end;
     end;
 
