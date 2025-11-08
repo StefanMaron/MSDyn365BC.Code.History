@@ -32,8 +32,11 @@ codeunit 1330 "Instruction Mgt."
         AutomaticLineItemsDialogNotificationTxt: Label 'Discover line items in Outlook add-in';
         AutomaticLineItemsDialogNotificationDescriptionTxt: Label 'Scan the email body for potential line items when you create documents in the Outlook add-in.';
         ClosingUnreleasedOrdersNotificationTxt: Label 'Warn about unreleased orders.';
+        ClosingProductionBOMRoutingsNotificationTxt: Label 'Warn about non-certified production BOMs and Routings';
         ClosingUnreleasedOrdersNotificationDescriptionTxt: Label 'Show a warning when you close an order that requires warehouse handling but has not been released.';
+        ClosingNoncertifiedProductionBOMRoutingNotificationDescriptionTxt: Label 'Show a warning when you close an non-certified production BOMs or routing.';
         ClosingUnreleasedOrdersConfirmQst: Label 'The document has not been released.\Are you sure you want to exit?';
+        ClosingNoncertifiedProductionBOMRoutingConfirmQst: Label 'The Production BOM or routing has not been certified. Are you sure you want to exit?';
         DefaultDimPrioritiesMissingTxt: Label 'Notify user about missing Default Dimension Priorities.';
         DefaultDimPrioritiesMissingDescriptionTxt: Label 'Show notification when Default Dimension Priorities are not defined, and then header dimension will have priority over lines default dimensions.';
 
@@ -50,6 +53,11 @@ codeunit 1330 "Instruction Mgt."
     procedure ShowConfirmUnreleased(): Boolean
     begin
         exit(ShowConfirm(ClosingUnreleasedOrdersConfirmQst, ClosingUnreleasedOrdersCode()));
+    end;
+
+    procedure ShowConfirmNonCertified(): Boolean
+    begin
+        exit(ShowConfirm(ClosingNoncertifiedProductionBOMRoutingConfirmQst, ClosingNonCertifiedProductionBOMROUTINGCode()));
     end;
 
     procedure DisableMessageForCurrentUser(InstructionType: Code[50])
@@ -140,6 +148,11 @@ codeunit 1330 "Instruction Mgt."
         exit('CLOSINGUNRELEASEDORDERS');
     end;
 
+    procedure ClosingNonCertifiedProductionBOMROUTINGCode(): Code[50]
+    begin
+        exit('CLOSINGNONCERTIFIEDPRODUCTIONBOMORROUTING');
+    end;
+
     procedure DefaultDimPrioritiesCode(): Code[50]
     begin
         exit('DEFAULTDIMPRIORITIES');
@@ -201,6 +214,11 @@ codeunit 1330 "Instruction Mgt."
     procedure GetAutomaticLineItemsDialogNotificationId(): Guid
     begin
         exit('7FFD2619-BCEF-48F1-B5D1-469DCE5E6631');
+    end;
+
+    procedure GetClosingProductionBOMNotificationId(): Guid
+    begin
+        exit('FD2DAEAA-71CA-48D6-BEBA-E3BF3509D7FA');
     end;
 
     procedure InsertDefaultUnpostedDoucumentNotification()
@@ -272,6 +290,10 @@ codeunit 1330 "Instruction Mgt."
           DefaultDimPrioritiesMissingTxt,
           DefaultDimPrioritiesMissingDescriptionTxt,
           IsEnabled(DefaultDimPrioritiesCode()));
+        MyNotifications.InsertDefault(GetClosingProductionBOMNotificationId(),
+          ClosingProductionBOMRoutingsNotificationTxt,
+          ClosingNoncertifiedProductionBOMRoutingNotificationDescriptionTxt,
+          IsEnabled(ClosingNonCertifiedProductionBOMROUTINGCode()));
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"My Notifications", 'OnAfterIsNotificationEnabled', '', false, false)]
@@ -319,6 +341,11 @@ codeunit 1330 "Instruction Mgt."
                     EnableMessageForCurrentUser(DefaultDimPrioritiesCode())
                 else
                     DisableMessageForCurrentUser(DefaultDimPrioritiesCode());
+            GetClosingProductionBOMNotificationId():
+                if NewEnabledState then
+                    EnableMessageForCurrentUser(ClosingNonCertifiedProductionBOMROUTINGCode())
+                else
+                    DisableMessageForCurrentUser(ClosingNonCertifiedProductionBOMROUTINGCode());
         end;
     end;
 

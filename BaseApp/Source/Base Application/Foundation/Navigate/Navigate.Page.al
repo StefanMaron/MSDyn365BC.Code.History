@@ -2007,6 +2007,7 @@ page 344 Navigate
             if PostingDateFilter <> '' then
                 PurchaseHeader.SetFilter("Posting Date", PostingDateFilter);
             PurchaseHeader.SetRange("Document Type", PurchDocType);
+            OnFindUnpostedPurchaseDocsOnAfterSetFilters(PurchaseHeader);
             Rec.InsertIntoDocEntry(Database::"Purchase Header", PurchDocType, DocTableName, PurchaseHeader.Count);
         end;
     end;
@@ -2570,6 +2571,11 @@ page 344 Navigate
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterSetTrackingFiltersOnBeforeFindTrackingRecords(var ItemTrackingFilters: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindUnpostedPurchaseDocsOnAfterSetFilters(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 }

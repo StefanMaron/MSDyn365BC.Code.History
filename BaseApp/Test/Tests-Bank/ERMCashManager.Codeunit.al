@@ -97,6 +97,7 @@ codeunit 134500 "ERM Cash Manager"
         Initialize();
         LibraryERM.FindCurrency(Currency);
         GeneralLederSetup.get();
+        GeneralLederSetup."LCY Code" := '';       // to avoid error on updating LCY Code
         GeneralLederSetup.Validate("LCY Code", Currency.Code);
         GeneralLederSetup.Modify();
         CreateBankAccountWithCurrency(BankAccount, '');

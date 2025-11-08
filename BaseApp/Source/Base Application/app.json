@@ -165,6 +165,11 @@
       "id": "a5972688-3d9f-44ff-b3f9-71f08bb98c2c",
       "name": "Service Management Tests",
       "publisher": "Microsoft"
+    },
+    {
+      "id": "23b1772f-b823-4e87-2339-9ff7cbb2364b",
+      "name": "Sales Order Agent Test",
+      "publisher": "Microsoft"
     }
   ],
   "platform": "$(app_platformVersion)",

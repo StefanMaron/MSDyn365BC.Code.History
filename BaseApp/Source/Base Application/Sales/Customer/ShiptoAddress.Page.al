@@ -225,6 +225,8 @@ page 300 "Ship-to Address"
         Rec.City := Customer.City;
         Rec.County := Customer.County;
         Rec."Post Code" := Customer."Post Code";
+        Rec."Phone No." := Customer."Phone No.";
+        Rec."E-Mail" := Customer."E-Mail";
         Rec.Validate(Contact, Customer.Contact);
 
         OnAfterOnNewRecord(Customer, Rec);

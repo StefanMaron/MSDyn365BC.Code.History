@@ -149,7 +149,7 @@ report 94 "Close Income Statement"
                                 GenJnlLine."Shortcut Dimension 2 Code" := '';
                                 if ClosePerGlobalDim2 then
                                     GenJnlLine."Shortcut Dimension 2 Code" := GlobalDimVal2;
-                                OnPostDataItemOnAfterGenJnlLineDimUpdated(GenJnlLine, ClosePerGlobalDim1, ClosePerGlobalDim2);
+                                OnPostDataItemOnAfterGenJnlLineDimUpdated(GenJnlLine, ClosePerGlobalDim1, ClosePerGlobalDim2, TempEntryNoAmountBuffer);
 
                                 if PostToRetainedEarningsAcc = PostToRetainedEarningsAcc::Details then begin
                                     GenJnlLine."Bal. Account Type" := GenJnlLine."Bal. Account Type"::"G/L Account";
@@ -552,7 +552,6 @@ report 94 "Close Income Statement"
         EntryCount: Integer;
         LastWindowUpdateDateTime: DateTime;
         NoFiscalYearsErr: Label 'No closed fiscal year exists.';
-        PostToRetainedEarningsAcc: Option Balance,Details;
 
     protected var
         GenJnlLine: Record "Gen. Journal Line";
@@ -563,6 +562,7 @@ report 94 "Close Income Statement"
         DocNo: Code[20];
         PostingDescription: Text[100];
         ClosePerBusUnit: Boolean;
+        PostToRetainedEarningsAcc: Option Balance,Details;
 
     local procedure ValidateEndDate(RealMode: Boolean) Result: Boolean
     var
@@ -772,7 +772,7 @@ report 94 "Close Income Statement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostDataItemOnAfterGenJnlLineDimUpdated(var GenJnlLine: Record "Gen. Journal Line"; ClosePerGlobalDim1: Boolean; ClosePerGlobalDim2: Boolean)
+    local procedure OnPostDataItemOnAfterGenJnlLineDimUpdated(var GenJnlLine: Record "Gen. Journal Line"; ClosePerGlobalDim1: Boolean; ClosePerGlobalDim2: Boolean; var TempEntryNoAmountBuffer: Record "Entry No. Amount Buffer" temporary)
     begin
     end;
 

@@ -107,7 +107,7 @@ codeunit 5770 "Whse.-Service Release"
             WarehouseRequest."Document Status" := ServiceHeader."Release Status"::"Released to Ship".AsInteger();
             WarehouseRequest."Location Code" := ServiceLine."Location Code";
             WarehouseRequest."Destination Type" := WarehouseRequest."Destination Type"::Customer;
-            WarehouseRequest."Destination No." := ServiceHeader."Bill-to Customer No.";
+            WarehouseRequest."Destination No." := ServiceHeader."Customer No.";
             WarehouseRequest."External Document No." := ServiceHeader."External Document No.";
             WarehouseRequest."Shipment Date" := ServiceLine.GetShipmentDate();
             WarehouseRequest."Shipment Method Code" := ServiceHeader."Shipment Method Code";

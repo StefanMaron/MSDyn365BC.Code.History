@@ -4695,6 +4695,41 @@ codeunit 134386 "ERM Sales Documents II"
         // [THEN] Verify Company No. and Company Name after create new from "Sell-to Contact No." lookup.
     end;
 
+    [HandlerFunctions('ShipToAddressListModalPageHandler')]
+    [Test]
+    procedure EmailAndPhoneNoUpdateWhenCreateNewShipToAddressFromCustomerCard()
+    var
+        Customer: Record Customer;
+        ShipToAdd: Record "Ship-to Address";
+        CustomerCard: TestPage "Customer Card";
+    begin
+        // [SCENARIO 603179] Email and Phone No. update when create new Ship-to Address from Customer Card
+
+        Initialize();
+
+        // [GIVEN] Customer with address details
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Address := LibraryUtility.GenerateGUID();
+        Customer."E-Mail" := LibraryUtility.GenerateGUID();
+        Customer."Phone No." := LibraryUtility.GenerateGUID();
+        Customer.Modify();
+
+        // When: Create a new Ship-to Address from Customer Card
+        CustomerCard.OpenEdit();
+        CustomerCard.Filter.SetFilter("No.", Customer."No.");
+        CustomerCard."Ship-to Code".Lookup();
+        ShipToAdd.Init();
+        ShipToAdd."Customer No." := Customer."No.";
+        ShipToAdd.Code := LibraryUtility.GenerateRandomCode(ShipToAdd.FieldNo(Code), DATABASE::"Ship-to Address");
+        ShipToAdd."Phone No." := Customer."Phone No.";
+        ShipToAdd."E-Mail" := Customer."E-Mail";
+        ShipToAdd.Insert();
+
+        // Then: Email and Phone No. in Ship-to Address should be same as in Customer
+        Assert.AreEqual(ShipToAdd."Phone No.", Customer."Phone No.", '');
+        Assert.AreEqual(ShipToAdd."E-Mail", Customer."E-Mail", '');
+    end;
+
     local procedure Initialize()
     var
         ICSetup: Record "IC Setup";
@@ -6811,5 +6846,11 @@ codeunit 134386 "ERM Sales Documents II"
     begin
         ContactList.FILTER.SetFilter("Company No.", LibraryVariableStorage.DequeueText());
         ContactList.New();
+    end;
+
+    [ModalPageHandler]
+    procedure ShipToAddressListModalPageHandler(var ShipToAddList: TestPage "Ship-to Address List")
+    begin
+        ShipToAddList.New();
     end;
 }

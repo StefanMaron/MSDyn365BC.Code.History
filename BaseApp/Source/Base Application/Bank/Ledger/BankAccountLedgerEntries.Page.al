@@ -29,6 +29,8 @@ page 372 "Bank Account Ledger Entries"
     Editable = false;
     InsertAllowed = false;
     PageType = List;
+    AboutTitle = 'About Bank Account Ledger Entries';
+    AboutText = 'View and match detailed bank account ledger entries including amounts, document details, and running balances to bank statement lines for accurate bank reconciliation and financial tracking.';
     SourceTable = "Bank Account Ledger Entry";
     SourceTableView = sorting("Bank Account No.", "Posting Date")
                       order(descending);

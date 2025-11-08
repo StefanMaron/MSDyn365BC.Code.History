@@ -22,6 +22,7 @@
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryJob: Codeunit "Library - Job";
         ERMUpdateCurrencySales: Codeunit "ERM Update Currency - Sales";
+        LibraryJournals: Codeunit "Library - Journals";
         isInitialized: Boolean;
         AmountError: Label '%1 must be %2 in \\%3 %4=%5.';
         UnitPriceError: Label '%1 must be %2 in %3.';
@@ -29,32 +30,7 @@
         IncorrectValueErr: Label 'Incorrect value %1 for field %2.';
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
         ChangeCurrencyMsg: Label 'The %1 in the %2 will be changed from %3 to %4.\\Do you want to continue?';
-
-    local procedure Initialize()
-    var
-        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
-    begin
-        LibraryVariableStorage.Clear();
-        LibrarySetupStorage.Restore();
-
-        // Lazy Setup.
-        if isInitialized then
-            exit;
-        LibraryERMCountryData.CreateVATData();
-        LibraryERMCountryData.UpdateGeneralLedgerSetup();
-        LibraryERMCountryData.CreateGeneralPostingSetupData();
-        LibraryERMCountryData.UpdateLocalPostingSetup();
-        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
-        SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
-        SalesReceivablesSetup.Modify();
-
-        isInitialized := true;
-        Commit();
-
-        LibrarySetupStorage.SaveGeneralLedgerSetup();
-    end;
+        CannotUpdateLCYCodeErr: Label 'You cannot update the local currency code because there are posted general ledger entries.';
 
     [Test]
     [HandlerFunctions('CurrencyExchangeRateSendNotificationHandler')]
@@ -996,6 +972,134 @@
         // [THEN] Confirm message appeared: "The Currency Code will be changed from C2 to C1".
         Assert.ExpectedMessage(ExpectedMsg, LibraryVariableStorage.DequeueText());
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure UpdateNonEmptyLCYCodeOnGenLedgerSetupWhenNoGLEntries()
+    var
+        GLEntry: Record "G/L Entry";
+        Currency: Record Currency;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        // [FEATURE] [General Ledger Setup]
+        // [SCENARIO 568346] Update "LCY Code" from non-empty value in General Ledger Setup when there are no G/L Entries.
+        Initialize();
+
+        // [GIVEN] There are no G/L Entries.
+        GLEntry.DeleteAll();
+
+        // [GIVEN] "LCY Code" is AAA in General Ledger Setup.
+        LibraryERM.CreateCurrency(Currency);
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("LCY Code", Currency.Code);
+        GeneralLedgerSetup.Modify();
+
+        // [WHEN] Update "LCY Code" to BBB in General Ledger Setup.
+        LibraryERM.CreateCurrency(Currency);
+        GeneralLedgerSetup.Validate("LCY Code", Currency.Code);
+        GeneralLedgerSetup.Modify();
+
+        // [THEN] "LCY Code" in General Ledger Setup is updated.
+        GeneralLedgerSetup.Get();
+        Assert.AreEqual(Currency.Code, GeneralLedgerSetup."LCY Code", '');
+    end;
+
+    [Test]
+    procedure UpdateEmptyLCYCodeOnGenLedgerSetupWhenGLEntries()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        Currency: Record Currency;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        // [FEATURE] [General Ledger Setup]
+        // [SCENARIO 568346] Update "LCY Code" from empty value in General Ledger Setup when there are G/L Entries.
+        Initialize();
+
+        // [GIVEN] "LCY Code" is empty in General Ledger Setup.
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."LCY Code" := '';
+        GeneralLedgerSetup.Modify();
+
+        // [GIVEN] There are G/L Entries.
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, Enum::"Gen. Journal Document Type"::" ",
+            Enum::"Gen. Journal Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
+            Enum::"Gen. Journal Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 100);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Update "LCY Code" in General Ledger Setup.
+        LibraryERM.CreateCurrency(Currency);
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("LCY Code", Currency.Code);
+        GeneralLedgerSetup.Modify();
+
+        // [THEN] "LCY Code" in General Ledger Setup is updated.
+        GeneralLedgerSetup.Get();
+        Assert.AreEqual(Currency.Code, GeneralLedgerSetup."LCY Code", '');
+    end;
+
+    [Test]
+    procedure UpdateNonEmptyLCYCodeOnGenLedgerSetupWhenGLEntries()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        Currency: Record Currency;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        // [FEATURE] [General Ledger Setup]
+        // [SCENARIO 568346] Update "LCY Code" from non-empty value in General Ledger Setup when there are G/L Entries.
+        Initialize();
+
+        // [GIVEN] "LCY Code" has non-empty value in General Ledger Setup.
+        LibraryERM.CreateCurrency(Currency);
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."LCY Code" := Currency.Code;
+        GeneralLedgerSetup.Modify();
+
+        // [GIVEN] There are G/L Entries.
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, Enum::"Gen. Journal Document Type"::" ",
+            Enum::"Gen. Journal Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
+            Enum::"Gen. Journal Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 100);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Update "LCY Code" in General Ledger Setup.
+        LibraryERM.CreateCurrency(Currency);
+        GeneralLedgerSetup.Get();
+        asserterror GeneralLedgerSetup.Validate("LCY Code", Currency.Code);
+
+        // [THEN] "LCY Code" in General Ledger Setup is not updated and error is thrown.
+        Assert.ExpectedError(CannotUpdateLCYCodeErr);
+        Assert.ExpectedErrorCode('Dialog');
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
+
+        // Lazy Setup.
+        if isInitialized then
+            exit;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateLocalPostingSetup();
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify();
+
+        isInitialized := true;
+        Commit();
+
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
     end;
 
     local procedure ApplyInvoice(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type")

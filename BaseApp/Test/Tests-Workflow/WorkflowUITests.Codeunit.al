@@ -17,7 +17,6 @@ codeunit 134316 "Workflow UI Tests"
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
         Assert: Codeunit Assert;
-        UIElementDoesNotHaveCorrectStateErr: Label 'The UI Element does not have the correct stat according to the type of the workflow';
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
@@ -27,10 +26,13 @@ codeunit 134316 "Workflow UI Tests"
         LibraryERM: Codeunit "Library - ERM";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         SelectedEventDesc: Text;
+        UIElementDoesNotHaveCorrectStateErr: Label 'The UI Element does not have the correct stat according to the type of the workflow';
         WorkflowExistsAsTemplateErr: Label 'The record already exists, as a workflow template.';
         ShowMessageTestMsg: Label 'Test Message';
         FieldShouldBeVisibleErr: Label 'The field should be visible';
         ValuesAreNotTheSameErr: Label 'The values are not the same';
+        ApprovalDetailsOneValTxt: Label '%1; %2 changed from %3 to %4', Comment = '%1 = Record Id, %2 = Field Caption, %3 = Old Value, %4 = New Value';
+        ApprovalDetailsTwoValTxt: Label '%1; %2 changed from %3 to %4; %5 changed from %6 to %7', Comment = '%1 = Record Id, %2 = Field Caption 1, %3 = Old Value 1, %4 = New Value 1, %5 = Field Caption 2, %6 = Old Value 2, %7 = New Value 2';
 
     [Test]
     [Scope('OnPrem')]
@@ -642,6 +644,7 @@ codeunit 134316 "Workflow UI Tests"
         RequeststoApprove: TestPage "Requests to Approve";
         WorkflowInstanceId: Guid;
         OldValue: Decimal;
+        NewValue: Decimal;
         ApprovalDetails: Text;
     begin
         // [FEATURE] [UT]
@@ -656,23 +659,19 @@ codeunit 134316 "Workflow UI Tests"
 
         LibrarySales.CreateCustomer(Customer);
 
-        CreateApprovalEntry(ApprovalEntry, Customer.RecordId, UserId, WorkflowInstanceId);
-        CreateRecordChange(WorkflowRecordChange, Customer.RecordId,
-          Customer.FieldNo("Credit Limit (LCY)"), Format(OldValue, 0, 9), WorkflowInstanceId);
+        CreateApprovalEntry(ApprovalEntry, Customer.RecordId, CopyStr(UserId(), 1, 50), WorkflowInstanceId);
+        CreateRecordChange(WorkflowRecordChange, Customer.RecordId, Customer.FieldNo("Credit Limit (LCY)"), Format(OldValue, 0, 9), WorkflowInstanceId);
 
         RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
+        NewValue := Customer."Credit Limit (LCY)";
 
-        ApprovalDetails := StrSubstNo('%1; %2 changed from %3 to %4', Customer.RecordId,
-            Customer.FieldCaption("Credit Limit (LCY)"), Format(OldValue, 0, 1), Customer."Credit Limit (LCY)");
+        ApprovalDetails := StrSubstNo(ApprovalDetailsOneValTxt, Customer.RecordId, Customer.FieldCaption("Credit Limit (LCY)"), Format(OldValue, 0, 9), Format(NewValue, 0, 9));
         Assert.AreEqual(ApprovalDetails, RequeststoApprove.Details.Value, 'Record details seem to be wrong');
 
-        Assert.AreEqual(Customer.FieldCaption("Credit Limit (LCY)"), RequeststoApprove.Change.Field.Value,
-          'Field caption is not displayed correctly');
-        Assert.AreEqual(Format(OldValue), Format(RequeststoApprove.Change.OldValue.Value),
-          'Old value is not displayed correctly');
-        Assert.AreEqual(Format(Customer."Credit Limit (LCY)"), Format(RequeststoApprove.Change.NewValue.Value),
-          'New value is not displayed correctly');
+        Assert.AreEqual(Customer.FieldCaption("Credit Limit (LCY)"), RequeststoApprove.Change.Field.Value, 'Field caption is not displayed correctly');
+        Assert.AreEqual(Format(OldValue, 0, 9), Format(RequeststoApprove.Change.OldValue.Value, 0, 9), 'Old value is not displayed correctly');
+        Assert.AreEqual(Format(NewValue, 0, 9), Format(RequeststoApprove.Change.NewValue.Value, 0, 9), 'New value is not displayed correctly');
     end;
 
     [Test]
@@ -686,6 +685,8 @@ codeunit 134316 "Workflow UI Tests"
         WorkflowInstanceId: Guid;
         OldValue1: Decimal;
         OldValue2: Decimal;
+        NewValue1: Decimal;
+        NewValue2: Decimal;
         ApprovalDetails: Text;
     begin
         // [FEATURE] [UT]
@@ -701,35 +702,27 @@ codeunit 134316 "Workflow UI Tests"
 
         Customer.FindFirst();
         CreateApprovalEntry(ApprovalEntry, Customer.RecordId, UserId, WorkflowInstanceId);
-        CreateRecordChange(WorkflowRecordChange, Customer.RecordId,
-          Customer.FieldNo("Credit Limit (LCY)"), Format(OldValue1, 0, 9), WorkflowInstanceId);
-        CreateRecordChange(WorkflowRecordChange, Customer.RecordId,
-          Customer.FieldNo("Credit Amount (LCY)"), Format(OldValue2, 0, 9), WorkflowInstanceId);
+        CreateRecordChange(WorkflowRecordChange, Customer.RecordId, Customer.FieldNo("Credit Limit (LCY)"), Format(OldValue1, 0, 9), WorkflowInstanceId);
+        CreateRecordChange(WorkflowRecordChange, Customer.RecordId, Customer.FieldNo("Credit Amount (LCY)"), Format(OldValue2, 0, 9), WorkflowInstanceId);
 
         RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
 
-        ApprovalDetails := StrSubstNo('%1; %2 changed from %3 to %4; %5 changed from %6 to %7',
-            Customer.RecordId, Customer.FieldCaption("Credit Limit (LCY)"), Format(OldValue1, 0, 1),
-            Format(Customer."Credit Limit (LCY)", 0, 1), Customer.FieldCaption("Credit Amount (LCY)"),
-            Format(OldValue2, 0, 1), Format(Customer."Credit Amount (LCY)", 0, 1));
+        NewValue1 := Customer."Credit Limit (LCY)";
+        NewValue2 := Customer."Credit Amount (LCY)";
+
+        ApprovalDetails := StrSubstNo(ApprovalDetailsTwoValTxt, Customer.RecordId, Customer.FieldCaption("Credit Limit (LCY)"), Format(OldValue1, 0, 9), Format(NewValue1, 0, 9), Customer.FieldCaption("Credit Amount (LCY)"), Format(OldValue2, 0, 9), Format(NewValue2, 0, 9));
         Assert.AreEqual(ApprovalDetails, RequeststoApprove.Details.Value, 'Record details seem to be wrong');
 
-        Assert.AreEqual(Customer.FieldCaption("Credit Limit (LCY)"), Format(RequeststoApprove.Change.Field.Value, 0, 1),
-          'Field caption is not displayed correctly');
-        Assert.AreEqual(Format(OldValue1, 0, 1), Format(RequeststoApprove.Change.OldValue.Value, 0, 1),
-          'Old value is not displayed correctly');
-        Assert.AreEqual(Format(Customer."Credit Limit (LCY)", 0, 1), RequeststoApprove.Change.NewValue.Value,
-          'New value is not displayed correctly');
+        Assert.AreEqual(Customer.FieldCaption("Credit Limit (LCY)"), Format(RequeststoApprove.Change.Field.Value, 0, 1), 'Field caption is not displayed correctly');
+        Assert.AreEqual(Format(OldValue1, 0, 9), Format(RequeststoApprove.Change.OldValue.Value, 0, 9), 'Old value is not displayed correctly');
+        Assert.AreEqual(Format(NewValue1, 0, 9), Format(RequeststoApprove.Change.NewValue.Value, 0, 9), 'New value is not displayed correctly');
 
         RequeststoApprove.Change.Next();
 
-        Assert.AreEqual(Customer.FieldCaption("Credit Amount (LCY)"), RequeststoApprove.Change.Field.Value,
-          'Field caption is not displayed correctly');
-        Assert.AreEqual(Format(OldValue2, 0, 1), Format(RequeststoApprove.Change.OldValue.Value, 0, 1),
-          'Old value is not displayed correctly');
-        Assert.AreEqual(Format(Customer."Credit Amount (LCY)"), RequeststoApprove.Change.NewValue.Value,
-          'New value is not displayed correctly');
+        Assert.AreEqual(Customer.FieldCaption("Credit Amount (LCY)"), RequeststoApprove.Change.Field.Value, 'Field caption is not displayed correctly');
+        Assert.AreEqual(Format(OldValue2, 0, 9), Format(RequeststoApprove.Change.OldValue.Value, 0, 9), 'Old value is not displayed correctly');
+        Assert.AreEqual(Format(NewValue2, 0, 9), Format(RequeststoApprove.Change.NewValue.Value, 0, 9), 'New value is not displayed correctly');
     end;
 
     [Test]
@@ -758,12 +751,9 @@ codeunit 134316 "Workflow UI Tests"
         RequeststoApprove.Comment.AssertEquals(true);
         Assert.AreEqual(Format(Customer.RecordId, 0, 1), RequeststoApprove.Details.Value, 'Record details seem to be wrong');
 
-        Assert.AreEqual('', RequeststoApprove.Change.Field.Value,
-          'Field caption is not displayed correctly');
-        Assert.AreEqual('', RequeststoApprove.Change.OldValue.Value,
-          'Old value is not displayed correctly');
-        Assert.AreEqual('', RequeststoApprove.Change.NewValue.Value,
-          'New value is not displayed correctly');
+        Assert.AreEqual('', RequeststoApprove.Change.Field.Value, 'Field caption is not displayed correctly');
+        Assert.AreEqual('', RequeststoApprove.Change.OldValue.Value, 'Old value is not displayed correctly');
+        Assert.AreEqual('', RequeststoApprove.Change.NewValue.Value, 'New value is not displayed correctly');
     end;
 
     [Test]
@@ -833,16 +823,14 @@ codeunit 134316 "Workflow UI Tests"
         LibrarySales.CreateCustomer(Customer);
         CreateApprovalEntry(ApprovalEntry1, Customer.RecordId, UserId, WorkflowInstanceId);
         CreateApprovalComment(ApprovalCommentLine1, ApprovalEntry1, Comment1);
-        CreateRecordChange(WorkflowRecordChange, Customer.RecordId,
-          Customer.FieldNo("Credit Limit (LCY)"), Format(OldValue, 0, 9), WorkflowInstanceId);
+        CreateRecordChange(WorkflowRecordChange, Customer.RecordId, Customer.FieldNo("Credit Limit (LCY)"), Format(OldValue, 0, 9), WorkflowInstanceId);
 
         Comment2 := CreateGuid();
         WorkflowInstanceId := CreateGuid();
         LibrarySales.CreateCustomer(Customer);
         CreateApprovalEntry(ApprovalEntry2, Customer.RecordId, UserId, WorkflowInstanceId);
         CreateApprovalComment(ApprovalCommentLine2, ApprovalEntry2, Comment2);
-        CreateRecordChange(WorkflowRecordChange, Customer.RecordId,
-          Customer.FieldNo("Credit Limit (LCY)"), Format(OldValue, 0, 9), WorkflowInstanceId);
+        CreateRecordChange(WorkflowRecordChange, Customer.RecordId, Customer.FieldNo("Credit Limit (LCY)"), Format(OldValue, 0, 9), WorkflowInstanceId);
 
         RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry1);
@@ -889,15 +877,13 @@ codeunit 134316 "Workflow UI Tests"
         LibrarySales.CreateCustomer(Customer);
         CreateApprovalEntry(ApprovalEntry1, Customer.RecordId, UserId, WorkflowInstanceId);
         CreateApprovalComment(ApprovalCommentLine1, ApprovalEntry1, Comment1);
-        CreateRecordChange(WorkflowRecordChange, Customer.RecordId,
-          Customer.FieldNo("Credit Limit (LCY)"), Format(OldValue, 0, 9), WorkflowInstanceId);
+        CreateRecordChange(WorkflowRecordChange, Customer.RecordId, Customer.FieldNo("Credit Limit (LCY)"), Format(OldValue, 0, 9), WorkflowInstanceId);
 
         Comment2 := CreateGuid();
         WorkflowInstanceId := CreateGuid();
         CreateApprovalEntry(ApprovalEntry2, Customer.RecordId, UserId, WorkflowInstanceId);
         CreateApprovalComment(ApprovalCommentLine2, ApprovalEntry2, Comment2);
-        CreateRecordChange(WorkflowRecordChange, Customer.RecordId,
-          Customer.FieldNo("Credit Limit (LCY)"), Format(OldValue, 0, 9), WorkflowInstanceId);
+        CreateRecordChange(WorkflowRecordChange, Customer.RecordId, Customer.FieldNo("Credit Limit (LCY)"), Format(OldValue, 0, 9), WorkflowInstanceId);
 
         RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry1);
@@ -948,8 +934,7 @@ codeunit 134316 "Workflow UI Tests"
         RequeststoApprove.Close();
 
         CreateApprovalComment(ApprovalCommentLine, ApprovalEntry, Comment);
-        CreateRecordChange(WorkflowRecordChange, Customer.RecordId,
-          Customer.FieldNo("Credit Limit (LCY)"), Format(OldValue, 0, 9), WorkflowInstanceId);
+        CreateRecordChange(WorkflowRecordChange, Customer.RecordId, Customer.FieldNo("Credit Limit (LCY)"), Format(OldValue, 0, 9), WorkflowInstanceId);
 
         RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
@@ -982,10 +967,8 @@ codeunit 134316 "Workflow UI Tests"
         LibraryDocumentApprovals.CreateUserSetup(UserSetup, UserName, '');
         // [GIVEN] A workflow with the CreateNotificationEntry response.
         LibraryWorkflow.CreateWorkflow(Workflow);
-        EntryPointEventStepId :=
-            LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
-        ResponseStepId :=
-            LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(), EntryPointEventStepId);
+        EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
+        ResponseStepId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(), EntryPointEventStepId);
         LibraryWorkflow.InsertNotificationArgument(ResponseStepId, '', 0, '');
 
         WorkflowStepResponse.Get(Workflow.Code, ResponseStepId);
@@ -1065,7 +1048,7 @@ codeunit 134316 "Workflow UI Tests"
 
         WorkflowResponseOptions.OK().Invoke();
 
-        // [THEN] WorkflowStepArgument, where "Notify Sender" is 'Yes', "Notification User ID" is blank 
+        // [THEN] WorkflowStepArgument, where "Notify Sender" is 'Yes', "Notification User ID" is blank
         WorkflowStepArgument.Find();
         WorkflowStepArgument.Testfield("Notify Sender");
         WorkflowStepArgument.TestField("Notification User ID", '');
@@ -1090,10 +1073,8 @@ codeunit 134316 "Workflow UI Tests"
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
-        EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
-        ResponseStepId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode(),
-            EntryPointEventStepId);
+        EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
+        ResponseStepId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode(), EntryPointEventStepId);
         LibraryWorkflow.InsertMessageArgument(ResponseStepId, '');
 
         WorkflowStepResponse.Get(Workflow.Code, ResponseStepId);
@@ -1199,10 +1180,8 @@ codeunit 134316 "Workflow UI Tests"
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
-        EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
-        ResponseStepId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocCode(),
-            EntryPointEventStepId);
+        EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
+        ResponseStepId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocCode(), EntryPointEventStepId);
         LibraryWorkflow.InsertPmtLineCreationArgument(ResponseStepId, '', '');
 
         LibraryPurchase.SelectPmtJnlBatch(GenJournalBatch);
@@ -1247,12 +1226,9 @@ codeunit 134316 "Workflow UI Tests"
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
-        EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
-        ResponseStepId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateApprovalRequestsCode(),
-            EntryPointEventStepId);
-        LibraryWorkflow.InsertApprovalArgument(ResponseStepId, WorkflowStepArgument."Approver Type"::Approver,
-          WorkflowStepArgument."Approver Limit Type"::"Approver Chain", '', true);
+        EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
+        ResponseStepId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateApprovalRequestsCode(), EntryPointEventStepId);
+        LibraryWorkflow.InsertApprovalArgument(ResponseStepId, WorkflowStepArgument."Approver Type"::Approver, WorkflowStepArgument."Approver Limit Type"::"Approver Chain", '', true);
 
         WorkflowStepResponse.Get(Workflow.Code, ResponseStepId);
         WorkflowStepArgument.Get(WorkflowStepResponse.Argument);
@@ -1290,7 +1266,7 @@ codeunit 134316 "Workflow UI Tests"
     var
         Workflow: Record Workflow;
         IncomingDocument: Record "Incoming Document";
-        WorkflowEventHandling: Codeunit "Workflow Event Handling";
+        WorkflowEventHandling2: Codeunit "Workflow Event Handling";
         LibraryIncomingDocuments: Codeunit "Library - Incoming Documents";
         WorkflowPage: TestPage Workflow;
     begin
@@ -1302,7 +1278,7 @@ codeunit 134316 "Workflow UI Tests"
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
-        LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode());
+        LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling2.RunWorkflowOnAfterInsertIncomingDocumentCode());
         LibraryWorkflow.EnableWorkflow(Workflow);
         LibraryIncomingDocuments.InitIncomingDocuments();
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
@@ -1348,7 +1324,7 @@ codeunit 134316 "Workflow UI Tests"
         Workflow: Record Workflow;
         WorkflowManagement: Codeunit "Workflow Management";
         WorkflowSetup: Codeunit "Workflow Setup";
-        WorkflowEventHandling: Codeunit "Workflow Event Handling";
+        WorkflowEventHandling2: Codeunit "Workflow Event Handling";
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Calling the workflow management codeunit function NavigateToWorkflows will open the correct page with one workflow.
@@ -1362,10 +1338,8 @@ codeunit 134316 "Workflow UI Tests"
         LibraryVariableStorage.Enqueue(Workflow.Code);
 
         // Exercise
-        Assert.IsTrue(WorkflowManagement.EnabledWorkflowExist(DATABASE::Customer,
-            WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode()),
-          'Workflows should exist');
-        WorkflowManagement.NavigateToWorkflows(DATABASE::Customer, WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode());
+        Assert.IsTrue(WorkflowManagement.EnabledWorkflowExist(DATABASE::Customer, WorkflowEventHandling2.RunWorkflowOnSendCustomerForApprovalCode()), 'Workflows should exist');
+        WorkflowManagement.NavigateToWorkflows(DATABASE::Customer, WorkflowEventHandling2.RunWorkflowOnSendCustomerForApprovalCode());
 
         // Verify - Verification is done in the modal page handler
     end;
@@ -1392,11 +1366,8 @@ codeunit 134316 "Workflow UI Tests"
         LibraryVariableStorage.Enqueue(2);
 
         // Exercise
-        Assert.IsFalse(WorkflowManagement.EnabledWorkflowExist(DATABASE::Customer,
-            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode()),
-          'Workflows should exist');
-        WorkflowManagement.NavigateToWorkflows(DATABASE::"Purchase Header",
-          WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode());
+        Assert.IsFalse(WorkflowManagement.EnabledWorkflowExist(DATABASE::Customer, WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode()), 'Workflows should exist');
+        WorkflowManagement.NavigateToWorkflows(DATABASE::"Purchase Header", WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode());
 
         // Verify - Verification is done in the page handler
     end;
@@ -1499,14 +1470,7 @@ codeunit 134316 "Workflow UI Tests"
         LibraryERM.CreateCurrency(Currency);
         Amount := LibraryRandom.RandDec(1000, 2);
         AmountLCY := LibraryRandom.RandDec(1000, 2);
-        CreateApprovalEntryWithAmountsAndCurrencyCode(
-          ApprovalEntry,
-          Currency.RecordId,
-          UserId,
-          CreateGuid(),
-          Amount,
-          AmountLCY,
-          Currency.Code);
+        CreateApprovalEntryWithAmountsAndCurrencyCode(ApprovalEntry, Currency.RecordId, UserId, CreateGuid(), Amount, AmountLCY, Currency.Code);
 
         // [WHEN] Open Page "Requests to Approve"
         RequeststoApprove.OpenView();
@@ -1561,14 +1525,7 @@ codeunit 134316 "Workflow UI Tests"
         LibraryERM.CreateCurrency(Currency);
         Amount := LibraryRandom.RandDec(1000, 2);
         AmountLCY := LibraryRandom.RandDec(1000, 2);
-        CreateApprovalEntryWithAmountsAndCurrencyCode(
-          ApprovalEntry,
-          Currency.RecordId,
-          UserId,
-          CreateGuid(),
-          Amount,
-          AmountLCY,
-          Currency.Code);
+        CreateApprovalEntryWithAmountsAndCurrencyCode(ApprovalEntry, Currency.RecordId, UserId, CreateGuid(), Amount, AmountLCY, Currency.Code);
 
         // [WHEN] Open Page "Approval Request Entries"
         ApprovalRequestEntries.OpenView();
@@ -1893,7 +1850,7 @@ codeunit 134316 "Workflow UI Tests"
         ApprovalEntry."Table ID" := RecRef.Number;
         ApprovalEntry.Status := ApprovalEntry.Status::Open;
         ApprovalEntry."Approver ID" := ApproverId;
-        ApprovalEntry."Sender ID" := UserId;
+        ApprovalEntry."Sender ID" := CopyStr(UserId(), 1, MaxStrLen(ApprovalEntry."Sender ID"));
         ApprovalEntry."Record ID to Approve" := RecId;
         ApprovalEntry."Workflow Step Instance ID" := WorkflowInstanceId;
         ApprovalEntry.Amount := Amount;
@@ -1935,7 +1892,7 @@ codeunit 134316 "Workflow UI Tests"
         ApprovalCommentLine."Workflow Step Instance ID" := ApprovalEntry."Workflow Step Instance ID";
         ApprovalCommentLine.Comment := Comment;
         ApprovalCommentLine."Record ID to Approve" := ApprovalEntry."Record ID to Approve";
-        ApprovalCommentLine."User ID" := UserId;
+        ApprovalCommentLine."User ID" := CopyStr(UserId(), 1, MaxStrLen(ApprovalCommentLine."User ID"));
         ApprovalCommentLine."Entry No." := ApprovalEntry."Entry No.";
         ApprovalCommentLine.Insert();
     end;
@@ -1957,4 +1914,3 @@ codeunit 134316 "Workflow UI Tests"
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
     end;
 }
-

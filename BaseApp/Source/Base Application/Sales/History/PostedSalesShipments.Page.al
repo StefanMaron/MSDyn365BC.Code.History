@@ -17,6 +17,8 @@ page 142 "Posted Sales Shipments"
     CardPageID = "Posted Sales Shipment";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Posted Sales Shipments';
+    AboutText = 'View and manage posted sales shipments, track package delivery status using shipping agent and service details, and update shipment information such as package tracking numbers for completed sales orders.';
     SourceTable = "Sales Shipment Header";
     SourceTableView = sorting("Posting Date")
                       order(descending);

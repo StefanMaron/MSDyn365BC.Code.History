@@ -28,7 +28,10 @@ codeunit 5763 "Whse.-Post Shipment"
     TableNo = "Warehouse Shipment Line";
 
     trigger OnRun()
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
+        SequenceNoMgt.SetPreviewMode(WhsePostParameters."Preview Posting");
         OnBeforeRun(Rec, WhsePostParameters."Suppress Commit", WhsePostParameters."Preview Posting");
 
         WhseShptLine.Copy(Rec);
@@ -86,11 +89,13 @@ codeunit 5763 "Whse.-Post Shipment"
 #endif
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         NoSeries: Codeunit "No. Series";
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
 #if not CLEAN25
         SourceRecRef: RecordRef;
 #endif
         IsHandled: Boolean;
     begin
+        SequenceNoMgt.SetPreviewMode(WhsePostParameters."Preview Posting");
         WhseShptLine.SetCurrentKey(WhseShptLine."No.");
         WhseShptLine.SetRange("No.", WhseShptLine."No.");
         IsHandled := false;
@@ -511,7 +516,7 @@ codeunit 5763 "Whse.-Post Shipment"
             OnPostWhseJnlLineOnAfterSplitWhseJnlLine(TempWhseJnlLine, PostedWhseShptLine, TempTrackingSpecification, TempWhseJnlLine2);
             if TempWhseJnlLine2.Find('-') then
                 repeat
-                    WhseJnlRegisterLine.Run(TempWhseJnlLine2); 
+                    WhseJnlRegisterLine.Run(TempWhseJnlLine2);
                 until TempWhseJnlLine2.Next() = 0;
         end;
 

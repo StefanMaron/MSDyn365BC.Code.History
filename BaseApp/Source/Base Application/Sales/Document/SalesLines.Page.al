@@ -17,6 +17,8 @@ page 516 "Sales Lines"
     Editable = false;
     LinksAllowed = false;
     PageType = List;
+    AboutTitle = 'About Sales Lines';
+    AboutText = 'View and manage individual sales document lines, including details such as items or services, quantities, prices, discounts, and shipment information, with access to related posted and unposted entries for orders, invoices, shipments, returns, and credit memos.';
     SourceTable = "Sales Line";
     UsageCategory = Lists;
 

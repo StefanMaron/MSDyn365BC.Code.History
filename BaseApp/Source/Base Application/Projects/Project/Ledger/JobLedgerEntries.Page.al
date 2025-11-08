@@ -19,6 +19,8 @@ page 92 "Job Ledger Entries"
     DataCaptionFields = "Job No.";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Project Ledger Entries';
+    AboutText = 'Review all financial and usage entries posted to projects, including details on costs, prices, quantities, and dimensions, to track project progress and analyze performance. View links to project planning lines and monitor adjustments for accurate project accounting.';
     SourceTable = "Job Ledger Entry";
     SourceTableView = sorting("Job No.", "Posting Date")
                       order(descending);
