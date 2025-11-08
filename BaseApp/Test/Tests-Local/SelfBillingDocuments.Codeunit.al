@@ -558,6 +558,39 @@ codeunit 144206 "Self-Billing Documents"
         VerifyFatturaVendorNoInformation(TempBlob, Vendor);
     end;
 
+    [Test]
+    procedure ExportSelfBillingDocumentWithCorrectCedentePrestatoreAndCessionarioCommittente()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VATEntry: Record "VAT Entry";
+        Vendor: Record Vendor;
+        ExportSelfBillingDocuments: Codeunit "Export Self-Billing Documents";
+        TempBlob: Codeunit "Temp Blob";
+        ClientFileName: Text[250];
+    begin
+        // [SCENARIO 603844] Self-Billing Document export shows correct CedentePrestatore (vendor) and CessionarioCommittente (company) information.
+        Initialize();
+
+        // [GIVEN] Create new Fattura Vendor.
+        MockFatturaVendor(Vendor);
+
+        // [GIVEN] Create Purchase Document with Reverse Charge VAT and post it.
+        CreatePurchDocument(PurchaseHeader);
+        FindSalesVATEntryAdjacentToPurchase(VATEntry, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+        VATEntry.Validate("Fattura Vendor No.", Vendor."No.");
+        VATEntry.Modify(true);
+
+        // [GIVEN] Set All necessary permisitions to export Self-Billing Document.
+        LibraryLowerPermissions.SetAccountPayables();
+        LibraryLowerPermissions.AddLocal();
+
+        // [WHEN] Export posted Self-Billing Document to XML
+        ExportSelfBillingDocuments.RunWithStreamSave(TempBlob, ClientFileName, VATEntry, VATEntry);
+
+        // [THEN] CedentePrestatore contains vendor information and CessionarioCommittente contains company information
+        VerifyCorrectCedenteAndCessionarioInformation(TempBlob, Vendor);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -928,6 +961,30 @@ codeunit 144206 "Self-Billing Documents"
         AssertElementValue(TempXMLBuffer, 'CAP', '00000');
         AssertElementValue(TempXMLBuffer, 'Comune', Vendor.City);
         AssertElementValue(TempXMLBuffer, 'Nazione', Vendor."Country/Region Code");
+    end;
+
+    local procedure VerifyCorrectCedenteAndCessionarioInformation(TempBlob: Codeunit "Temp Blob"; Vendor: Record Vendor)
+    var
+        CompanyInformation: Record "Company Information";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+    begin
+        CompanyInformation.Get();
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
+
+        // Verify CedentePrestatore contains vendor information
+        TempXMLBuffer.FindNodesByXPath(
+          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/CedentePrestatore/DatiAnagrafici/IdFiscaleIVA');
+        AssertElementValue(TempXMLBuffer, 'IdPaese', Vendor."Country/Region Code");
+        AssertElementValue(TempXMLBuffer, 'IdCodice', Vendor."VAT Registration No.");
+        TempXMLBuffer.Reset();
+        TempXMLBuffer.Next(); // Anagrafica
+        AssertElementValue(TempXMLBuffer, 'Denominazione', Vendor.Name);
+
+        // Verify CessionarioCommittente contains company information
+        TempXMLBuffer.FindNodesByXPath(
+            TempXMLBuffer, '/p:FatturaElettronica/CessionarioCommittente/DatiAnagrafici/Anagrafica');
+        TempXMLBuffer.Reset();
+        AssertElementValue(TempXMLBuffer, 'Denominazione', CompanyInformation.Name);
     end;
 
     [ConfirmHandler]

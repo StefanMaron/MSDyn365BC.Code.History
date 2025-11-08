@@ -7423,6 +7423,39 @@ codeunit 137079 "SCM Production Order III"
         VerifyRegisteredWhseActivityLine(PurchaseHeader."No.", WarehouseActivityHeader.Type::"Put-away", WareHouseActionType::Place, QtyToHandle);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandlerWithoutValidation')]
+    procedure VerifyReverseItemLedgerEntryShouldBeCreatedForConsumptionWithSamePostedValue()
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ItemLedgerEntries: TestPage "Item Ledger Entries";
+    begin
+        // [SCENARIO 591598] Reversal of production consumption in alternative UoM - verify reverted quantity
+        Initialize();
+
+        // [GIVEN] Create Production Order With Component.
+        CreateProdOrderAddNewComponentAndCreateConsumptionLineWithDifferentUOM(ProdOrderComponent, 1);
+
+        // [GIVEN] Post Consumption Journal Line for this Component.
+        LibraryInventory.PostItemJournalLine(ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+
+        // [GIVEN] OpenEdit Item Ledger Entries.
+        ItemLedgerEntries.OpenEdit();
+        ItemLedgerEntries.Filter.SetFilter("Document No.", ProdOrderComponent."Prod. Order No.");
+        ItemLedgerEntries.Filter.SetFilter("Entry Type", Format(ItemLedgerEntry."Entry Type"::Consumption));
+
+        // [WHEN] Invoke "Reverse" action.
+        ItemLedgerEntries.Reverse.Invoke();
+
+        // [THEN] Verify Reverse Entry should be created of Item Ledger Entry.
+        FindLastItemLedgerEntry(ItemLedgerEntry, "Inventory Order Type"::Production, ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.", "Item Ledger Entry Type"::Consumption);
+        Assert.AreEqual(
+            -ItemLedgerEntries.Quantity.AsDecimal(),
+            ItemLedgerEntry.Quantity,
+            StrSubstNo(ValueMustBeEqualErr, ItemLedgerEntry.FieldCaption(Quantity), -ItemLedgerEntries.Quantity.AsInteger(), ItemLedgerEntry.TableCaption()));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");
@@ -8487,6 +8520,34 @@ codeunit 137079 "SCM Production Order III"
         CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), Location.Code, '');
 
         CreateProdOrderComponent(ProductionOrder, ProdOrderComponent, CompLineQtyPer);
+        CreateAndPostItemJournalLine(ProdOrderComponent."Item No.", LibraryRandom.RandIntInRange(10, 100), '', '');
+
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name, ItemJournalLine."Entry Type"::Consumption,
+          ProdOrderComponent."Item No.", LibraryRandom.RandInt(10));
+        ItemJournalLine.Validate("Order No.", ProductionOrder."No.");
+        ItemJournalLine.Modify(true);
+    end;
+
+    local procedure CreateProdOrderAddNewComponentAndCreateConsumptionLineWithDifferentUOM(var ProdOrderComponent: Record "Prod. Order Component"; CompLineQtyPer: Decimal)
+    var
+        Location: Record Location;
+        ProductionOrder: Record "Production Order";
+        Item: Record Item;
+        ChildItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        QuantityPer: Decimal;
+    begin
+        QuantityPer := 0.005;
+        LibraryWarehouse.CreateLocation(Location);
+        CreateItemsSetup(Item, ChildItem, LibraryRandom.RandInt(10));
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), Location.Code, '');
+
+        CreateProdOrderComponent(ProductionOrder, ProdOrderComponent, CompLineQtyPer);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, ProdOrderComponent."Item No.", QuantityPer);
+        ProdOrderComponent.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        ProdOrderComponent.Modify();
         CreateAndPostItemJournalLine(ProdOrderComponent."Item No.", LibraryRandom.RandIntInRange(10, 100), '', '');
 
         LibraryInventory.CreateItemJournalLine(

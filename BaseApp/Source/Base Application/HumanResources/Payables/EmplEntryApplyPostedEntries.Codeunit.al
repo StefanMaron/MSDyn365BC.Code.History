@@ -11,6 +11,7 @@ using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.Period;
 
 codeunit 224 "EmplEntry-Apply Posted Entries"
@@ -23,7 +24,9 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
     trigger OnRun()
     var
         ApplyUnapplyParameters: Record "Apply Unapply Parameters";
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
+        SequenceNoMgt.SetPreviewMode(PreviewMode);
         if PreviewMode then
             case RunOptionPreviewContext of
                 RunOptionPreview::Apply:

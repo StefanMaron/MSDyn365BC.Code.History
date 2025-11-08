@@ -301,6 +301,9 @@ codeunit 80 "Sales-Post"
         CustLedgEntry: Record "Cust. Ledger Entry";
         TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary;
         DisableAggregateTableUpdate: Codeunit "Disable Aggregate Table Update";
+        UpdateAnalysisView: Codeunit "Update Analysis View";
+        UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
         EverythingInvoiced: Boolean;
         SavedPreviewMode: Boolean;
         SavedSuppressCommit: Boolean;
@@ -308,6 +311,7 @@ codeunit 80 "Sales-Post"
         SavedHideProgressWindow: Boolean;
         IsHandled: Boolean;
     begin
+        SequenceNoMgt.SetPreviewMode(PreviewMode);
         IsHandled := false;
         OnBeforePostSalesDoc(SalesHeader2, SuppressCommit, PreviewMode, HideProgressWindow, IsHandled, CalledBy);
         if IsHandled then
@@ -369,10 +373,9 @@ codeunit 80 "Sales-Post"
 
         if not (InvtPickPutaway or SuppressCommit or PreviewMode) then begin
             Commit();
-            UpdateAnalysisViewAfterPosting();
-        end else
-            if DateOrderSeriesUsed then
-                UpdateAnalysisViewAfterPosting();
+            UpdateAnalysisView.UpdateAll(0, true);
+            UpdateItemAnalysisView.UpdateAll(0, true);
+        end;
 
         OnAfterPostSalesDoc(
           SalesHeader2, GenJnlPostLine, SalesShptHeader."No.", ReturnRcptHeader."No.",
@@ -10621,15 +10624,6 @@ codeunit 80 "Sales-Post"
            (SalesHeader."Applies-to Doc. No." <> '')
         then
             exit(true);
-    end;
-
-    local procedure UpdateAnalysisViewAfterPosting()
-    var
-        UpdateAnalysisView: Codeunit "Update Analysis View";
-        UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
-    begin
-        UpdateAnalysisView.UpdateAll(0, true);
-        UpdateItemAnalysisView.UpdateAll(0, true);
     end;
 
     local procedure AssignPostedDocumentNo(var PostedDocumentNo: Code[20]; DocumentNo: Code[20])

@@ -23,16 +23,16 @@ codeunit 104151 "UPG.IT Detailed Ledger Entries"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTags: Codeunit "Upgrade Tag Def - Country";
+        VendorLedgerEntryDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTags.GetFixRemainingAmountVLEUpgradeTag()) then
             exit;
 
-        if VendorLedgerEntry.FindSet() then
-            repeat
-                DetailedVendorLedgEntry.SetRange("Vendor Ledger Entry No.", VendorLedgerEntry."Entry No.");
-                DetailedVendorLedgEntry.ModifyAll("Original Document No.", VendorLedgerEntry."Document No.");
-                DetailedVendorLedgEntry.ModifyAll("Original Document Type", VendorLedgerEntry."Document Type");
-            until VendorLedgerEntry.Next() = 0;
+        VendorLedgerEntryDataTransfer.SetTables(Database::"Vendor Ledger Entry", Database::"Detailed Vendor Ledg. Entry");
+        VendorLedgerEntryDataTransfer.AddJoin(VendorLedgerEntry.FieldNo("Entry No."), DetailedVendorLedgEntry.FieldNo("Vendor Ledger Entry No."));
+        VendorLedgerEntryDataTransfer.AddFieldValue(VendorLedgerEntry.FieldNo("Document No."), DetailedVendorLedgEntry.FieldNo("Original Document No."));
+        VendorLedgerEntryDataTransfer.AddFieldValue(VendorLedgerEntry.FieldNo("Document Type"), DetailedVendorLedgEntry.FieldNo("Original Document Type"));
+        VendorLedgerEntryDataTransfer.CopyFields();
 
         UpgradeTag.SetUpgradeTag(UpgradeTags.GetFixRemainingAmountVLEUpgradeTag());
     end;
@@ -43,16 +43,16 @@ codeunit 104151 "UPG.IT Detailed Ledger Entries"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTags: Codeunit "Upgrade Tag Def - Country";
+        CustLedgerEntryDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTags.GetFixRemainingAmountCLEUpgradeTag()) then
             exit;
 
-        if CustLedgerEntry.FindSet() then
-            repeat
-                DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
-                DetailedCustLedgEntry.ModifyAll("Original Document No.", CustLedgerEntry."Document No.");
-                DetailedCustLedgEntry.ModifyAll("Original Document Type", CustLedgerEntry."Document Type");
-            until CustLedgerEntry.Next() = 0;
+        CustLedgerEntryDataTransfer.SetTables(Database::"Cust. Ledger Entry", Database::"Detailed Cust. Ledg. Entry");
+        CustLedgerEntryDataTransfer.AddJoin(CustLedgerEntry.FieldNo("Entry No."), DetailedCustLedgEntry.FieldNo("Cust. Ledger Entry No."));
+        CustLedgerEntryDataTransfer.AddFieldValue(CustLedgerEntry.FieldNo("Document No."), DetailedCustLedgEntry.FieldNo("Original Document No."));
+        CustLedgerEntryDataTransfer.AddFieldValue(CustLedgerEntry.FieldNo("Document Type"), DetailedCustLedgEntry.FieldNo("Original Document Type"));
+        CustLedgerEntryDataTransfer.CopyFields();
 
         UpgradeTag.SetUpgradeTag(UpgradeTags.GetFixRemainingAmountCLEUpgradeTag());
     end;

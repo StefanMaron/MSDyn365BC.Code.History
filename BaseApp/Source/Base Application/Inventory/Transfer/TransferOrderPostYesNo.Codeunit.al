@@ -5,6 +5,7 @@
 namespace Microsoft.Inventory.Transfer;
 
 using Microsoft.Finance.GeneralLedger.Preview;
+using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Setup;
 
 codeunit 5706 "TransferOrder-Post (Yes/No)"
@@ -13,7 +14,10 @@ codeunit 5706 "TransferOrder-Post (Yes/No)"
     EventSubscriberInstance = Manual;
 
     trigger OnRun()
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
+        SequenceNoMgt.SetPreviewMode(PreviewMode);
         TransHeader.Copy(Rec);
         Code();
         Rec := TransHeader;
