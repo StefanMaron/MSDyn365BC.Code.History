@@ -223,6 +223,133 @@ codeunit 137011 "SCM Revaluation-II"
     end;
 
     [Test]
+    procedure StdPurchTwiceRevalTwiceNegativeEntryNo()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        InventoryPostingGroup: Code[20];
+        ItemNo: Code[20];
+        LocationCode: Code[10];
+        Qty: Decimal;
+        InvQty: Decimal;
+        OldUnitCost: Decimal;
+        NewUnitCost: Decimal;
+        OldUnitCost2: Decimal;
+        NewUnitCost2: Decimal;
+    begin
+        // Same test as StdPurchTwiceRevalTwice, but one set of item ledger entries have negative entry nos (from a committted preview)
+        // Setup: Update Inventory Setup, Create Item and Purchase Order and Post Purchase Order as Receive.
+        Initialize();
+
+        UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
+
+        LocationCode := CreateLocationCode(InventoryPostingGroup);
+        ItemNo := CreateItem("Costing Method"::Standard, InventoryPostingGroup);
+        Qty := LibraryRandom.RandInt(10) + 50;
+        CreatePurchaseOrder(PurchaseHeader, ItemNo, '', Qty, LocationCode, false);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // Exercise: Run Adjust Cost Item Entries, Create Revaluation Journal, Calculate Inventory Value.
+        LibraryCosting.AdjustCostItemEntries(ItemNo, '');
+        CreateRevaluationJournal(ItemJournalLine);
+        Item.Get(ItemNo);
+        CalcInventoryValue(Item, ItemJournalLine);
+
+        // Verify: Verify that Revalued Inventory is equal to Calculated Inventory.
+        VerifyRevaluedInventory(Item);
+
+        // Exercise: Update Revalued Unit Cost and Post Item Journal Line.
+        // Run Adjust Cost Item Entries, Create Revaluation Journal, Calculate Inventory Value.
+        OldUnitCost := Item."Standard Cost";
+        NewUnitCost :=
+          UpdateRevaluedUnitCost(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name", Item."No.", OldUnitCost);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        CreatePurchaseOrder(PurchaseHeader2, ItemNo, '', LibraryRandom.RandInt(10), LocationCode, false);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, true, false);
+
+        NegateEntryNoOnLastItemRegister();
+
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+        InvQty := Qty - 10;
+        PurchaseOrderInvoiceLessQty(PurchaseHeader."No.", InvQty);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+        CreateRevaluationJournal(ItemJournalLine);
+        Item.Get(ItemNo);
+        CalcInventoryValue(Item, ItemJournalLine);
+
+        // Verify: Verify that Revalued Inventory is equal to Calculated Inventory.
+        VerifyRevaluedInventory(Item);
+
+        // Exercise: Update Revalued Unit Cost and Post Item Journal Line.
+        OldUnitCost2 := Item."Standard Cost";
+        NewUnitCost2 :=
+          UpdateRevaluedUnitCost(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name", Item."No.", OldUnitCost);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        LibraryCosting.AdjustCostItemEntries(ItemNo, '');
+
+        // Verify: Verify Value Entries. check that without Sales Order.
+        VerifyValueEntryRevalNoSales(Item."No.", OldUnitCost, NewUnitCost - OldUnitCost, NewUnitCost2 - OldUnitCost2, Qty, InvQty);
+    end;
+
+    local procedure NegateEntryNoOnLastItemRegister()
+    var
+        ItemRegister: Record "Item Register";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemLedgerEntry2: Record "Item Ledger Entry";
+        ValueEntry: Record "Value Entry";
+        ValueEntry2: Record "Value Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
+    begin
+        ItemRegister.FindLast();
+        ItemLedgerEntry.SetRange("Entry No.", ItemRegister."From Entry No.", ItemRegister."To Entry No.");
+        if ItemLedgerEntry.FindSet(true) then
+            repeat
+                ItemLedgerEntry2 := ItemLedgerEntry;
+                ItemLedgerEntry2."Entry No." -= 2000000000;
+                ItemLedgerEntry2."Item Register No." -= 2000000000;
+                if ItemLedgerEntry2."Applies-to Entry" > 0 then
+                    ItemLedgerEntry2."Applies-to Entry" -= 2000000000;
+                ItemLedgerEntry.Delete();
+                ItemLedgerEntry2.Insert();
+                ItemApplicationEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
+                ItemApplicationEntry.ModifyAll("Item Ledger Entry No.", ItemLedgerEntry2."Entry No.");
+                ItemApplicationEntry.SetRange("Item Ledger Entry No.");
+                ItemApplicationEntry.SetRange("Inbound Item Entry No.", ItemLedgerEntry."Entry No.");
+                ItemApplicationEntry.ModifyAll("Inbound Item Entry No.", ItemLedgerEntry2."Entry No.");
+                ItemApplicationEntry.SetRange("Inbound Item Entry No.");
+                ItemApplicationEntry.SetRange("Outbound Item Entry No.", ItemLedgerEntry."Entry No.");
+                ItemApplicationEntry.ModifyAll("Outbound Item Entry No.", ItemLedgerEntry2."Entry No.");
+                ItemApplicationEntry.SetRange("Outbound Item Entry No.");
+                ItemApplicationEntry.SetRange("Transferred-from Entry No.", ItemLedgerEntry."Entry No.");
+                ItemApplicationEntry.ModifyAll("Transferred-from Entry No.", ItemLedgerEntry2."Entry No.");
+                ItemApplicationEntry.SetRange("Transferred-from Entry No.");
+            until ItemLedgerEntry.Next() = 0;
+
+        ValueEntry.SetRange("Entry No.", ItemRegister."From Value Entry No.", ItemRegister."To Value Entry No.");
+        if ValueEntry.FindSet(true) then
+            repeat
+                ValueEntry2 := ValueEntry;
+                ValueEntry2."Entry No." -= 2000000000;
+                ValueEntry2."Item Ledger Entry No." -= 2000000000;
+                ValueEntry2."Item Register No." -= 2000000000;
+                if ValueEntry2."Applies-to Entry" > 0 then
+                    ValueEntry2."Applies-to Entry" -= 2000000000;
+                ValueEntry.Delete();
+                ValueEntry2.Insert();
+            until ValueEntry.Next() = 0;
+
+        ItemRegister.Delete();
+        ItemRegister."No." -= 2000000000;
+        ItemRegister."From Entry No." -= 2000000000;
+        ItemRegister."To Entry No." -= 2000000000;
+        ItemRegister."From Value Entry No." -= 2000000000;
+        ItemRegister."To Value Entry No." -= 2000000000;
+        ItemRegister.Insert();
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure StdPurchRevalTwiceSales()
     var
@@ -433,6 +560,125 @@ codeunit 137011 "SCM Revaluation-II"
         CreateAndRefreshRelProdOrder(ProductionOrder, ProductionItemNo, LibraryRandom.RandInt(9) + 1, LocationCode);
         ProductionOrderNo := ProductionOrder."No.";
         PostProductionJournal(ProductionOrder);
+
+        // Exercise: Run Adjust Cost Item Entries, Create Revaluation Journal, Calculate Inventory Value for Finished Item.
+        LibraryCosting.AdjustCostItemEntries(ProductionItemNo, '');
+        CreateRevaluationJournal(ItemJournalLine);
+        Item.Get(ProductionItemNo);
+        CalcInventoryValue(Item, ItemJournalLine);
+
+        // Verify: Verify that Revalued Inventory is equal to Calculated Inventory for Finished Item.
+        VerifyRevaluedInventory(Item);
+
+        // Exercise: Post Revaluation Journal for Finished Item.
+        OldUnitCost3 := Item."Standard Cost";
+        NewUnitCost3 :=
+          UpdateRevaluedUnitCost(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name", Item."No.", OldUnitCost3);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // Verify: Item Cost with revalued cost for Finished Item.
+        VerifyItemCost(ProductionItemNo, NewUnitCost3);
+
+        // Exercise: Finish Production Order and Run Adjust Cost Item Entries.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
+        LibraryCosting.AdjustCostItemEntries('', '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
+
+        // Verify: Verify Value Entries.
+        VerifyValueEntryComponentItem(Qty, ItemNo, OldUnitCost, NewUnitCost, OldUnitCost - NewUnitCost);
+        VerifyValueEntryComponentItem(Qty, ItemNo2, OldUnitCost2, NewUnitCost2, OldUnitCost2 - NewUnitCost2);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,CalculateStdCostMenuHandler,ProdJournalPageHandler')]
+    procedure StdPurchRevalProductionNegativeEntryNo()
+    var
+        Item: Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ItemJournalLine: Record "Item Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        ProductionOrder: Record "Production Order";
+        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+        LocationCode: Code[10];
+        InventoryPostingGroup: Code[20];
+        ItemNo: Code[20];
+        ItemNo2: Code[20];
+        ProductionItemNo: Code[20];
+        RoutingNo: Code[10];
+        Qty: Decimal;
+        OldUnitCost: Decimal;
+        NewUnitCost: Decimal;
+        OldUnitCost2: Decimal;
+        NewUnitCost2: Decimal;
+        OldUnitCost3: Decimal;
+        NewUnitCost3: Decimal;
+    begin
+        // Covers TFS_TC_ID = 6209,4006
+        // Setup: Update Manufacturing Setup and Inventory Setup.
+        Initialize();
+
+        LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
+        UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
+
+        // Create Work Center and Machine Center with required Flushing method and Create Routing.
+        CreateRoutingSetup(RoutingNo);
+
+        // Create child Items with the required Costing method and the parent Item with Routing No. and Production BOM No.
+        LocationCode := CreateLocationCode(InventoryPostingGroup);
+        ItemNo := CreateItem(Item."Costing Method"::Standard, InventoryPostingGroup);
+        ItemNo2 := CreateItem(Item."Costing Method"::Standard, InventoryPostingGroup);
+        CreateProdItemWithBOM(Item, Item."Costing Method"::Standard, ItemNo, ItemNo2, InventoryPostingGroup, RoutingNo);
+        ProductionItemNo := Item."No.";
+        Clear(Item);
+
+        // Calculate Standard Cost for the parent Item.
+        CalculateStandardCost.CalcItem(ProductionItemNo, false);
+        Qty := LibraryRandom.RandInt(10) + 50;
+        CreatePurchaseOrder(PurchaseHeader, ItemNo, ItemNo2, Qty, LocationCode, true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // Exercise: Run Adjust Cost Item Entries, Create Revaluation Journal, Calculate Inventory Value for component Item 1.
+        LibraryCosting.AdjustCostItemEntries(ItemNo, '');
+        CreateRevaluationJournal(ItemJournalLine);
+        Item.Get(ItemNo);
+        CalcInventoryValue(Item, ItemJournalLine);
+
+        // Verify: Verify that Revalued Inventory is equal to Calculated Inventory for component Item 1.
+        VerifyRevaluedInventory(Item);
+
+        // Exercise: Update Revalued Unit Cost and Post Item Journal Line for component Item 1.
+        OldUnitCost := Item."Standard Cost";
+        NewUnitCost :=
+          UpdateRevaluedUnitCost(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name", Item."No.", OldUnitCost);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // Verify: Item Cost with revalued cost for component Item 1.
+        VerifyItemCost(ItemNo, NewUnitCost);
+
+        // Exercise: Run Adjust Cost Item Entries, Create Revaluation Journal, Calculate Inventory Value for component Item 2.
+        LibraryCosting.AdjustCostItemEntries(ItemNo2, '');
+        CreateRevaluationJournal(ItemJournalLine);
+        Item.Get(ItemNo2);
+        CalcInventoryValue(Item, ItemJournalLine);
+
+        // Verify: Verify that Revalued Inventory is equal to Calculated Inventory for component Item 2.
+        VerifyRevaluedInventory(Item);
+
+        // Exercise: Update Revalued Unit Cost and Post Item Journal Line for component Item 2.
+        OldUnitCost2 := Item."Standard Cost";
+        NewUnitCost2 :=
+          UpdateRevaluedUnitCost(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name", Item."No.", OldUnitCost2);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // Verify: Item Cost with revalued cost for component Item 2.
+        VerifyItemCost(ItemNo2, NewUnitCost2);
+
+        // Create and Refresh Production Order and Post Production Journal.
+        CreateAndRefreshRelProdOrder(ProductionOrder, ProductionItemNo, LibraryRandom.RandInt(9) + 1, LocationCode);
+        ProductionOrderNo := ProductionOrder."No.";
+        PostProductionJournal(ProductionOrder);
+
+        NegateEntryNoOnLastItemRegister();
 
         // Exercise: Run Adjust Cost Item Entries, Create Revaluation Journal, Calculate Inventory Value for Finished Item.
         LibraryCosting.AdjustCostItemEntries(ProductionItemNo, '');
