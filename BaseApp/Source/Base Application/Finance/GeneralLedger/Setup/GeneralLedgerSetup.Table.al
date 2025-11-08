@@ -394,7 +394,12 @@ table 98 "General Ledger Setup"
             trigger OnValidate()
             var
                 Currency: Record Currency;
+                GLEntry: Record "G/L Entry";
             begin
+                if (Rec."LCY Code" <> xRec."LCY Code") and (xRec."LCY Code" <> '') then
+                    if not GLEntry.IsEmpty() then
+                        Error(CannotUpdateLCYCodeErr);
+
                 if "Local Currency Symbol" = '' then
                     "Local Currency Symbol" := Currency.ResolveCurrencySymbol("LCY Code");
 
@@ -889,6 +894,11 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Check Source Curr. Consistency';
         }
+        field(194; "Acc. Payables Category"; Integer)
+        {
+            TableRelation = "G/L Account Category";
+            Caption = 'Account Payables G/L Account Category';
+        }
         field(10800; "Posting Allowed From"; Date)
         {
             CalcFormula = min("Accounting Period"."Starting Date" where("Fiscally Closed" = filter(false)));
@@ -996,6 +1006,7 @@ table 98 "General Ledger Setup"
         VATDateFeatureUsageMsg: Label 'VAT Reporting Date Usage is changed', Locked = true;
         PostingRangeErr: Label '%1 must be within the allowed posting range: %2..%3', Comment = '%1 is Field Caption,%2 is Posting Allowed From,%3 is Posting Allowed To';
         PrivacyStatementAckErr: Label 'Enabling requires privacy statement acknowledgement.';
+        CannotUpdateLCYCodeErr: Label 'You cannot update the local currency code because there are posted general ledger entries.';
 
     procedure CheckDecimalPlacesFormat(var DecimalPlaces: Text[5])
     var

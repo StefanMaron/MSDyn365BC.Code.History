@@ -13,6 +13,8 @@ page 8615 "Config. Packages"
     CardPageID = "Config. Package Card";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Configuration Packages';
+    AboutText = 'Import, export, and validate company setup and master data using configuration packages, with support for mapping tables and fields, preparing data in Excel, and managing data migration processes to ensure data integrity.';
     SourceTable = "Config. Package";
     UsageCategory = Lists;
 

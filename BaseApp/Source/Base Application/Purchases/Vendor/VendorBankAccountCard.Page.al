@@ -88,6 +88,7 @@ page 425 "Vendor Bank Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bank branch.';
+                    MaskType = Concealed;
                 }
                 field("Agency Code"; Rec."Agency Code")
                 {
@@ -98,6 +99,7 @@ page 425 "Vendor Bank Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
+                    MaskType = Concealed;
                 }
                 field("RIB Key"; Rec."RIB Key")
                 {
@@ -138,11 +140,13 @@ page 425 "Vendor Bank Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the SWIFT code (international bank identifier code) of the bank where the vendor has the account.';
+                    MaskType = Concealed;
                 }
                 field(IBAN; Rec.IBAN)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
+                    MaskType = Concealed;
                 }
                 field("Bank Clearing Standard"; Rec."Bank Clearing Standard")
                 {

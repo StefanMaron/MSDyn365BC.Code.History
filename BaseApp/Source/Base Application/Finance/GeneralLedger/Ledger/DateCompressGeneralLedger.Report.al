@@ -32,6 +32,9 @@ report 98 "Date Compress General Ledger"
             DataItemTableView = sorting("G/L Account No.", "Posting Date");
 
             trigger OnAfterGetRecord()
+            var
+                SummarizedGLEntryCount: Integer;
+                SkippedEntryNos: Dictionary of [Integer, Boolean];
             begin
                 GLEntry2 := "G/L Entry";
                 GLEntry2.SetCurrentKey("G/L Account No.", "Posting Date");
@@ -75,18 +78,25 @@ report 98 "Date Compress General Ledger"
 
                     InitNewEntry(NewGLEntry);
 
-                    DimBufMgt.CollectDimEntryNo(
-                      TempSelectedDim, GLEntry2."Dimension Set ID", GLEntry2."Entry No.",
-                      0, false, DimEntryNo);
+                    SummarizedGLEntryCount := 0;
+                    Clear(SkippedEntryNos);
+                    DimBufMgt.CollectDimEntryNo(TempSelectedDim, GLEntry2."Dimension Set ID", GLEntry2."Entry No.", 0, false, DimEntryNo);
                     ComprDimEntryNo := DimEntryNo;
-                    SummarizeEntry(NewGLEntry, GLEntry2);
+                    SummarizeEntry(NewGLEntry, GLEntry2, false, SummarizedGLEntryCount);
                     while GLEntry2.Next() <> 0 do begin
-                        DimBufMgt.CollectDimEntryNo(
-                          TempSelectedDim, GLEntry2."Dimension Set ID", GLEntry2."Entry No.",
-                          ComprDimEntryNo, true, DimEntryNo);
+                        DimBufMgt.CollectDimEntryNo(TempSelectedDim, GLEntry2."Dimension Set ID", GLEntry2."Entry No.", ComprDimEntryNo, true, DimEntryNo);
                         if DimEntryNo = ComprDimEntryNo then
-                            SummarizeEntry(NewGLEntry, GLEntry2);
+                            SummarizeEntry(NewGLEntry, GLEntry2, false, SummarizedGLEntryCount)
+                        else
+                            SkippedEntryNos.Add(GLEntry2."Entry No.", false);
+
+                        GLEntry2.SetLoadFields(
+                            Amount, "Additional-Currency Amount",
+                            "Dimension Set ID", "Source Currency Amount", "VAT Amount", "Source Currency VAT Amount", "Debit Amount", "Credit Amount",
+                            "Add.-Currency Debit Amount", "Add.-Currency Credit Amount", Quantity);
                     end;
+
+                    DeleteCompressedEntries(GLEntry2, SkippedEntryNos, SummarizedGLEntryCount);
 
                     InsertNewEntry(NewGLEntry, ComprDimEntryNo);
 
@@ -94,7 +104,12 @@ report 98 "Date Compress General Ledger"
 
                     GLEntry2.CopyFilters("G/L Entry");
                     GLEntry2.SetFilter("Posting Date", DateComprMgt.GetDateFilter(GLEntry2."Posting Date", EntrdDateComprReg, true));
-                until not GLEntry2.Find('-');
+                    GLEntry2.SetLoadFields(
+                        "Posting Date", "G/L Account No.", "Gen. Posting Type", "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", "Document Type", "Document No.",
+                        "Job No.", "Business Unit Code", "Global Dimension 1 Code", "Global Dimension 2 Code", "Journal Templ. Name", Amount, "Additional-Currency Amount",
+                        "Dimension Set ID", "Source Currency Amount", "VAT Amount", "Source Currency VAT Amount", "Debit Amount", "Credit Amount",
+                        "Add.-Currency Debit Amount", "Add.-Currency Credit Amount", Quantity, "User ID");
+                until not GLEntry2.FindFirst();
 
                 if DateComprReg."No. Records Deleted" >= NoOfDeleted + 10 then begin
                     NoOfDeleted := DateComprReg."No. Records Deleted";
@@ -119,7 +134,7 @@ report 98 "Date Compress General Ledger"
                 GLSetup: Record "General Ledger Setup";
             begin
                 if EntrdDateComprReg."Ending Date" = 0D then
-                    Error(Text003, EntrdDateComprReg.FieldCaption("Ending Date"));
+                    Error(EndDateMustBeSetErr, EntrdDateComprReg.FieldCaption("Ending Date"));
 
                 if AnalysisView.FindFirst() then begin
                     AnalysisView.CheckDimensionsAreRetained(3, REPORT::"Date Compress General Ledger", false);
@@ -129,24 +144,21 @@ report 98 "Date Compress General Ledger"
                 end;
 
                 Window.Open(
-                  Text004 +
-                  Text005 +
-                  Text006 +
-                  Text007 +
-                  Text008);
+                  DateCompressTxt +
+                  CurrGLAccountNoTxt +
+                  CurrPostingDateTxt +
+                  NewEntriesCountTxt +
+                  DelEntriesCountTxt);
 
                 SourceCodeSetup.Get();
                 SourceCodeSetup.TestField("Compress G/L");
 
-                SelectedDim.GetSelectedDim(
-                  UserId, 3, REPORT::"Date Compress General Ledger", '', TempSelectedDim);
+                SelectedDim.GetSelectedDim(UserId, 3, REPORT::"Date Compress General Ledger", '', TempSelectedDim);
                 GLSetup.Get();
                 DateComprRetainFields."Retain Global Dimension 1" :=
-                  TempSelectedDim.Get(
-                    UserId, 3, REPORT::"Date Compress General Ledger", '', GLSetup."Global Dimension 1 Code");
+                    TempSelectedDim.Get(UserId, 3, REPORT::"Date Compress General Ledger", '', GLSetup."Global Dimension 1 Code");
                 DateComprRetainFields."Retain Global Dimension 2" :=
-                  TempSelectedDim.Get(
-                    UserId, 3, REPORT::"Date Compress General Ledger", '', GLSetup."Global Dimension 2 Code");
+                    TempSelectedDim.Get(UserId, 3, REPORT::"Date Compress General Ledger", '', GLSetup."Global Dimension 2 Code");
 
                 NewGLEntry.LockTable();
                 GLReg.LockTable();
@@ -314,7 +326,7 @@ report 98 "Date Compress General Ledger"
     var
         DateCompression: Codeunit "Date Compression";
     begin
-        DimSelectionBuf.CompareDimText(3, REPORT::"Date Compress General Ledger", '', RetainDimText, Text010);
+        DimSelectionBuf.CompareDimText(3, REPORT::"Date Compress General Ledger", '', RetainDimText, DimTextFieldNameTxt);
 
         DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
         LogStartTelemetryMessage();
@@ -354,23 +366,19 @@ report 98 "Date Compress General Ledger"
         DataArchiveProviderExists: Boolean;
         SkipAnalysisViewUpdateCheck: Boolean;
 
-#pragma warning disable AA0074
-#pragma warning disable AA0470
-        Text003: Label '%1 must be specified.';
-#pragma warning restore AA0470
-        Text004: Label 'Date compressing G/L entries...\\';
-#pragma warning disable AA0470
-        Text005: Label 'G/L Account No.      #1##########\';
-        Text006: Label 'Date                 #2######\\';
-        Text007: Label 'No. of new entries   #3######\';
-        Text008: Label 'No. of entries del.  #4######';
-#pragma warning restore AA0470
-        Text009: Label 'Date Compressed';
-        Text010: Label 'Retain Dimensions';
-#pragma warning restore AA0074
+        EndDateMustBeSetErr: Label '%1 must be specified.', Comment = '%1 - Ending Date field caption';
+        DateCompressTxt: Label 'Date compressing G/L entries...\\';
+        CurrGLAccountNoTxt: Label 'G/L Account No.      #1##########\', Comment = '#1 - Current G/L Account No.';
+        CurrPostingDateTxt: Label 'Date                 #2######\\', Comment = '#2 - Current Posting Date';
+        NewEntriesCountTxt: Label 'No. of new entries   #3######\', Comment = '#3 - Number of new G/L entries';
+        DelEntriesCountTxt: Label 'No. of entries del.  #4######', Comment = '#4 - Number of deleted G/L entries';
+        PostingDescrTxt: Label 'Date Compressed';
+        DimTextFieldNameTxt: Label 'Retain Dimensions';
         CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
+        EntryCountMismatchErr: Label 'Count of filtered G/L Entries (%1) does not match the number of summarized entries (%2).', Comment = '%1 - number of filtered G/L Entries, %2 - number of summarized entries';
+        PostingDateOutsideRangeErr: Label 'Posting Date filter (%1..%2) is outside the specified range (%3..%4).', Comment = '%1 - min posting date, %2 - max posting date, %3 - starting date, %4 - ending date';
 
     local procedure InitRegisters()
     begin
@@ -447,28 +455,28 @@ report 98 "Date Compress General Ledger"
         end;
     end;
 
-    local procedure SummarizeEntry(var NewGLEntry: Record "G/L Entry"; GLEntry: Record "G/L Entry")
+    local procedure SummarizeEntry(var NewGLEntry: Record "G/L Entry"; GLEntry: Record "G/L Entry"; DeleteGLEntry: Boolean; var SummarizedGLEntryCount: Integer)
     var
         GLItemLedgRelation: Record "G/L - Item Ledger Relation";
         GLEntryVatEntrylink: Record "G/L Entry - VAT Entry Link";
         GLEntryVatEntrylink2: Record "G/L Entry - VAT Entry Link";
     begin
-        NewGLEntry.Amount := NewGLEntry.Amount + GLEntry.Amount;
-        NewGLEntry."Source Currency Amount" := NewGLEntry."Source Currency Amount" + GLEntry."Source Currency Amount";
-        NewGLEntry."VAT Amount" := NewGLEntry."VAT Amount" + GLEntry."VAT Amount";
-        NewGLEntry."Source Currency VAT Amount" := NewGLEntry."Source Currency VAT Amount" + GLEntry."Source Currency VAT Amount";
-        NewGLEntry."Debit Amount" := NewGLEntry."Debit Amount" + GLEntry."Debit Amount";
-        NewGLEntry."Credit Amount" := NewGLEntry."Credit Amount" + GLEntry."Credit Amount";
-        NewGLEntry."Additional-Currency Amount" :=
-          NewGLEntry."Additional-Currency Amount" + GLEntry."Additional-Currency Amount";
-        NewGLEntry."Add.-Currency Debit Amount" :=
-          NewGLEntry."Add.-Currency Debit Amount" + GLEntry."Add.-Currency Debit Amount";
-        NewGLEntry."Add.-Currency Credit Amount" :=
-          NewGLEntry."Add.-Currency Credit Amount" + GLEntry."Add.-Currency Credit Amount";
+        NewGLEntry.Amount += GLEntry.Amount;
+        NewGLEntry."Source Currency Amount" += GLEntry."Source Currency Amount";
+        NewGLEntry."VAT Amount" += GLEntry."VAT Amount";
+        NewGLEntry."Source Currency VAT Amount" += GLEntry."Source Currency VAT Amount";
+        NewGLEntry."Debit Amount" += GLEntry."Debit Amount";
+        NewGLEntry."Credit Amount" += GLEntry."Credit Amount";
+        NewGLEntry."Additional-Currency Amount" += GLEntry."Additional-Currency Amount";
+        NewGLEntry."Add.-Currency Debit Amount" += GLEntry."Add.-Currency Debit Amount";
+        NewGLEntry."Add.-Currency Credit Amount" += GLEntry."Add.-Currency Credit Amount";
         if DateComprRetainFields."Retain Quantity" then
-            NewGLEntry.Quantity := NewGLEntry.Quantity + GLEntry.Quantity;
+            NewGLEntry.Quantity += GLEntry.Quantity;
+
         OnSummarizeEntryOnBeforeGLEntryDelete(NewGLEntry, GLEntry);
-        GLEntry.Delete();
+        if DeleteGLEntry then
+            GLEntry.Delete();
+        SummarizedGLEntryCount += 1;
 
         GLItemLedgRelation.SetRange("G/L Entry No.", GLEntry."Entry No.");
         GLItemLedgRelation.DeleteAll();
@@ -485,7 +493,27 @@ report 98 "Date Compress General Ledger"
         Window.Update(4, DateComprReg."No. Records Deleted");
         if UseDataArchive then
             DataArchive.SaveRecord(GLEntry);
+    end;
 
+    local procedure DeleteCompressedEntries(var GLEntry: Record "G/L Entry"; SkippedEntryNos: Dictionary of [Integer, Boolean]; SummarizedGLEntryCount: Integer)
+    begin
+        if SkippedEntryNos.Count() > 0 then begin
+            // remove one by one if some entries were not summarized due to different non-global dimensions
+            if GLEntry.FindSet() then
+                repeat
+                    if not SkippedEntryNos.ContainsKey(GLEntry."Entry No.") then
+                        GLEntry.Delete();
+                until GLEntry.Next() = 0;
+        end else begin
+            // remove all at once if all entries were summarized
+            if GLEntry.Count() <> SummarizedGLEntryCount then
+                Error(EntryCountMismatchErr, GLEntry.Count(), SummarizedGLEntryCount);
+            if (GLEntry.GetRangeMin("Posting Date") < EntrdDateComprReg."Starting Date") or (GLEntry.GetRangeMax("Posting Date") > EntrdDateComprReg."Ending Date") then
+                Error(PostingDateOutsideRangeErr,
+                    Format(GLEntry.GetRangeMin("Posting Date")), Format(GLEntry.GetRangeMax("Posting Date")),
+                    Format(EntrdDateComprReg."Starting Date"), Format(EntrdDateComprReg."Ending Date"));
+            GLEntry.DeleteAll();
+        end;
     end;
 
     procedure ComprCollectedEntries()
@@ -494,13 +522,14 @@ report 98 "Date Compress General Ledger"
         OldDimEntryNo: Integer;
         Found: Boolean;
         GLEntryNo: Integer;
+        DummyCount: Integer;
     begin
         OldDimEntryNo := 0;
         if DimBufMgt.FindFirstDimEntryNo(DimEntryNo, GLEntryNo) then begin
             InitNewEntry(NewGLEntry);
             repeat
                 GLEntry.Get(GLEntryNo);
-                SummarizeEntry(NewGLEntry, GLEntry);
+                SummarizeEntry(NewGLEntry, GLEntry, true, DummyCount);
                 OldDimEntryNo := DimEntryNo;
                 Found := DimBufMgt.NextDimEntryNo(DimEntryNo, GLEntryNo);
                 if (OldDimEntryNo <> DimEntryNo) or not Found then begin
@@ -572,7 +601,7 @@ report 98 "Date Compress General Ledger"
         if EntrdDateComprReg."Ending Date" = 0D then
             EntrdDateComprReg."Ending Date" := DateCompression.CalcMaxEndDate();
         if EntrdGLEntry.Description = '' then
-            EntrdGLEntry.Description := Text009;
+            EntrdGLEntry.Description := PostingDescrTxt;
 
         DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
         UseDataArchive := DataArchiveProviderExists;

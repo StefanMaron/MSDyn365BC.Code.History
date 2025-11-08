@@ -14,6 +14,8 @@ page 5730 "Item Categories"
     CardPageID = "Item Category Card";
     InsertAllowed = false;
     PageType = List;
+    AboutTitle = 'About Item Categories';
+    AboutText = 'Organize and manage item categories to group items for easier sorting and overview, assign attributes to categories, and ensure consistent classification of items across your inventory.';
     RefreshOnActivate = true;
     ShowFilter = false;
     SourceTable = "Item Category";

@@ -240,7 +240,7 @@ codeunit 5995 "Service Warehouse Mgt."
         else
             WarehouseShipmentLine."Shipment Date" := WarehouseShipmentHeader."Shipment Date";
         WarehouseShipmentLine."Destination Type" := WarehouseShipmentLine."Destination Type"::Customer;
-        WarehouseShipmentLine."Destination No." := ServiceLine."Bill-to Customer No.";
+        WarehouseShipmentLine."Destination No." := ServiceLine."Customer No.";
         WarehouseShipmentLine."Shipping Advice" := ServiceHeader."Shipping Advice";
         if WarehouseShipmentLine."Location Code" = WarehouseShipmentHeader."Location Code" then
             WarehouseShipmentLine."Bin Code" := WarehouseShipmentHeader."Bin Code";

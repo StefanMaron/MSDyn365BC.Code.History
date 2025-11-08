@@ -77,6 +77,7 @@ page 423 "Customer Bank Account Card"
                 field("Bank Branch No."; Rec."Bank Branch No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    MaskType = Concealed;
                 }
                 field("Agency Code"; Rec."Agency Code")
                 {
@@ -86,6 +87,7 @@ page 423 "Customer Bank Account Card"
                 field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    MaskType = Concealed;
                 }
                 field("RIB Key"; Rec."RIB Key")
                 {
@@ -121,10 +123,12 @@ page 423 "Customer Bank Account Card"
                 field("SWIFT Code"; Rec."SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;
+                    MaskType = Concealed;
                 }
                 field(IBAN; Rec.IBAN)
                 {
                     ApplicationArea = Basic, Suite;
+                    MaskType = Concealed;
                 }
                 field("Bank Clearing Standard"; Rec."Bank Clearing Standard")
                 {

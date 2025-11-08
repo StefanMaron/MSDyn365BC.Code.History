@@ -524,7 +524,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
             WhseReg.InsertRecord();
         end else begin
             if ((WhseEntryNo < WhseReg."From Entry No.") and (WhseEntryNo <> 0)) or
-               ((WhseReg."From Entry No." = 0) and (WhseEntryNo > 0))
+               ((WhseReg."From Entry No." = 0) and (WhseEntryNo <> 0))
             then
                 WhseReg."From Entry No." := WhseEntryNo;
             if WhseEntryNo > WhseReg."To Entry No." then
