@@ -844,6 +844,7 @@ page 42 "Sales Order"
                             var
                                 Customer: Record Customer;
                             begin
+                                OnBeforeLookupBillToName(Customer, Rec);
                                 if Customer.SelectCustomer(Customer) then begin
                                     xRec := Rec;
                                     Rec."Bill-to Name" := Customer.Name;
@@ -3105,6 +3106,11 @@ page 42 "Sales Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnQueryClosePageOnBeforeConfirmCloseUnposted(var DocumentIsPosted: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupBillToName(var Customer: Record Customer; SalesHeader: Record "Sales Header")
     begin
     end;
 }

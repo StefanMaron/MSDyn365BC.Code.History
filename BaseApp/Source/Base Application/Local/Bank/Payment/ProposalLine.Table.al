@@ -578,7 +578,7 @@ table 11000000 "Proposal Line"
                     if "Foreign Currency" = "Currency Code" then
                         "Foreign Amount" := Amount
                     else
-                        "Foreign Amount" := 0;
+                        "Foreign Amount" := GetAmountInDocumentCurrency(Rec);
             end;
         }
         field(11401; "Foreign Amount"; Decimal)
@@ -857,6 +857,27 @@ table 11000000 "Proposal Line"
           DimManagement.EditDimensionSet(
             "Header Dimension Set ID", StrSubstNo('%1 %2', "Our Bank No.", "Line No."),
             HeaderGlobalDim1, HeaderGlobalDim2);
+    end;
+
+    local procedure GetCurrencyAmountRoundingPrecision(FCYCode: Code[10]): Decimal
+    var
+        Currency: Record Currency;
+    begin
+        Currency.Initialize(FCYCode);
+        exit(Currency."Amount Rounding Precision");
+    end;
+
+    local procedure GetAmountInDocumentCurrency(ProposalLine: Record "Proposal Line"): Decimal
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        if ProposalLine."Foreign Currency" = ProposalLine."Currency Code" then
+            exit(ProposalLine.Amount);
+
+        exit(Round(
+            CurrencyExchangeRate.ExchangeAmtFCYToFCY(
+                ProposalLine."Transaction Date", ProposalLine."Currency Code", ProposalLine."Foreign Currency", ProposalLine.Amount),
+                GetCurrencyAmountRoundingPrecision(ProposalLine."Foreign Currency")))
     end;
 }
 
