@@ -86,6 +86,7 @@ table 8064 "Billing Line Archive"
         field(39; "Service Object Quantity"; Decimal)
         {
             Caption = 'Quantity';
+            AutoFormatType = 0;
         }
         field(50; "Billing from"; Date)
         {
@@ -99,7 +100,8 @@ table 8064 "Billing Line Archive"
         {
             Caption = 'Amount';
             BlankZero = true;
-            AutoFormatType = 2;
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(53; "Billing Rhythm"; DateFormula)
         {
@@ -120,6 +122,7 @@ table 8064 "Billing Line Archive"
         field(57; "Unit Price"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = Rec."Currency Code";
             Caption = 'Price';
         }
         field(58; "Discount %"; Decimal)
@@ -129,6 +132,7 @@ table 8064 "Billing Line Archive"
             MaxValue = 100;
             BlankZero = true;
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(60; "Correction Document Type"; Enum "Rec. Billing Document Type")
         {
@@ -155,6 +159,11 @@ table 8064 "Billing Line Archive"
             else
             if (Partner = const(Vendor), "Document Type" = const("Credit Memo")) "Purchase Line"."Line No." where("Document Type" = const("Credit Memo"), "Document No." = field("Document No."));
         }
+        field(63; "Billing Reference Date Changed"; Boolean)
+        {
+            Caption = 'Billing Reference Date Changed';
+            ToolTip = 'Specifies whether the billing period has been adjusted manually. This is taken into account by the period calculation and may have an effect on the creation of future billing proposals.';
+        }
         field(100; "Billing Template Code"; Code[20])
         {
             Caption = 'Code';
@@ -175,6 +184,7 @@ table 8064 "Billing Line Archive"
         field(103; "Unit Cost (LCY)"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost (LCY)';
         }
     }

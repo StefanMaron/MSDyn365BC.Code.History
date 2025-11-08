@@ -11,7 +11,9 @@ codeunit 139883 "E-Doc Process Test"
         LibraryEDoc: Codeunit "Library - E-Document";
         EDocImplState: Codeunit "E-Doc. Impl. State";
         LibraryLowerPermission: Codeunit "Library - Lower Permissions";
+        LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryRandom: Codeunit "Library - Random";
         IsInitialized: Boolean;
 
 
@@ -487,6 +489,48 @@ codeunit 139883 "E-Doc Process Test"
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.FindFirst();
         Assert.AreNotEqual(Location.Code, PurchaseLine."Location Code", 'The location code should not be set on the purchase line.');
+    end;
+
+    [Test]
+    procedure ItemReferenceFieldAccepts50Characters()
+    var
+        EDocument: Record "E-Document";
+        Vendor2: Record Vendor;
+        Item: Record Item;
+        ItemCard: TestPage "Item Card";
+        ItemReferenceEntries: TestPage "Item Reference Entries";
+        LongItemReferenceNo: Code[50];
+    begin
+        // [SCENARIO 592862] Item Reference No. field should accept 50 characters to match standard BC Item Reference table
+        Initialize(Enum::"Service Integration"::"Mock");
+        LibraryEDoc.CreateInboundEDocument(EDocument, EDocumentService);
+
+        // [GIVEN] A vendor and item with a 50-character item reference number
+        Vendor2."No." := LibraryRandom.RandText(10);
+        Vendor2."VAT Registration No." := LibraryRandom.RandText(16);
+        Vendor2.Insert();
+
+        // [WHEN] Creating an item reference with a 50-character reference number
+        LongItemReferenceNo := LibraryRandom.RandText(50);
+        LibraryInventory.CreateItem(Item);
+        ItemCard.OpenView();
+        ItemCard.GoToRecord(Item);
+        ItemReferenceEntries.Trap();
+        ItemCard."Item Re&ferences".Invoke();
+        ItemReferenceEntries.New();
+        ItemReferenceEntries."Reference Type".SetValue("Item Reference Type"::Vendor);
+        ItemReferenceEntries."Reference Type No.".SetValue(Vendor2."No.");
+        ItemReferenceEntries."Reference No.".SetValue(LongItemReferenceNo);
+        ItemReferenceEntries.Close();
+
+        // [THEN] Verify that the item reference number was modified and saved correctly 
+        ItemReferenceEntries.Trap();
+        ItemCard."Item Re&ferences".Invoke();
+        ItemReferenceEntries.First();
+        ItemReferenceEntries."Reference No.".AssertEquals(LongItemReferenceNo);
+        ItemReferenceEntries."Reference No.".SetValue(LibraryRandom.RandText(50));
+        ItemReferenceEntries.Close();
+        ItemCard.Close();
     end;
 
     local procedure Initialize(Integration: Enum "Service Integration")

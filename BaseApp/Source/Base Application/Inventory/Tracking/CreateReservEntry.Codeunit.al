@@ -59,6 +59,7 @@ codeunit 99000830 "Create Reserv. Entry"
         FirstSplit: Boolean;
         IsHandled: Boolean;
     begin
+        OnBeforeCreateEntry(ItemNo, VariantCode, LocationCode, Description, ExpectedReceiptDate, ShipmentDate, TransferredFromEntryNo, Status);
         TempTrkgSpec1.Reset();
         TempTrkgSpec2.Reset();
         TempTrkgSpec1.DeleteAll();
@@ -216,6 +217,7 @@ codeunit 99000830 "Create Reserv. Entry"
     var
         ReservationStatus: Enum "Reservation Status";
     begin
+        OnBeforeCreateReservEntry(ItemNo, VariantCode, LocationCode, Description, ExpectedReceiptDate, ShipmentDate);
         CreateEntry(ItemNo, VariantCode, LocationCode, Description, ExpectedReceiptDate, ShipmentDate, 0, ReservationStatus::Reservation);
     end;
 
@@ -1337,5 +1339,14 @@ codeunit 99000830 "Create Reserv. Entry"
     local procedure OnCheckSourceTypeSubtype(var ReservationEntry: Record "Reservation Entry"; var IsError: Boolean)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateEntry(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; Description: Text[100]; ExpectedReceiptDate: Date; ShipmentDate: Date; TransferredFromEntryNo: Integer; Status: Enum "Reservation Status")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateReservEntry(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; Description: Text[100]; ExpectedReceiptDate: Date; ShipmentDate: Date)
+    begin
+    end;
+}
