@@ -34,6 +34,7 @@ codeunit 31252 "Data Class. Eval. Handler CZA"
         AssemblyHeader: Record "Assembly Header";
         AssemblyLine: Record "Assembly Line";
         AssemblySetup: Record "Assembly Setup";
+        CopyItemBuffer: Record "Copy Item Buffer";
         CapacityLedgerEntry: Record "Capacity Ledger Entry";
         DataExchFieldMapping: Record "Data Exch. Field Mapping";
         DefaultDimension: Record "Default Dimension";
@@ -67,6 +68,7 @@ codeunit 31252 "Data Class. Eval. Handler CZA"
         DataClassificationMgt.SetFieldToNormal(Database::"Assembly Line", AssemblyLine.FieldNo("Gen. Bus. Posting Group CZA"));
         DataClassificationMgt.SetFieldToNormal(Database::"Assembly Setup", AssemblySetup.FieldNo("Default Gen.Bus.Post. Grp. CZA"));
         DataClassificationMgt.SetFieldToNormal(Database::"Capacity Ledger Entry", CapacityLedgerEntry.FieldNo("User ID CZA"));
+        DataClassificationMgt.SetFieldToNormal(Database::"Copy Item Buffer", CopyItemBuffer.FieldNo("Auto Create Dimension CZA"));
         DataClassificationMgt.SetFieldToNormal(Database::"Data Exch. Field Mapping", DataExchFieldMapping.FieldNo("Date Formula CZA"));
         DataClassificationMgt.SetFieldToNormal(Database::"Default Dimension", DefaultDimension.FieldNo("Automatic Create CZA"));
         DataClassificationMgt.SetFieldToNormal(Database::"Default Dimension", DefaultDimension.FieldNo("Dim. Description Field ID CZA"));
