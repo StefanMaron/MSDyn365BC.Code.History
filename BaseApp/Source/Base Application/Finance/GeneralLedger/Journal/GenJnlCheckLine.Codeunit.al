@@ -1064,6 +1064,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
     var
         GLAccountSourceCurrency: Record "G/L Account Source Currency";
     begin
+        GLSetup.Get();
         case GLAccount."Source Currency Posting" of
             GLAccount."Source Currency Posting"::"Same Currency":
                 if (CurrencyCode <> GLAccount."Source Currency Code") and

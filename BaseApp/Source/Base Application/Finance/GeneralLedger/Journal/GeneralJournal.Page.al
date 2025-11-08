@@ -64,7 +64,8 @@ page 39 "General Journal"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        CurrPage.SaveRecord();
+                        if (Rec."Journal Batch Name" = CurrentJnlBatchName) and not Rec.EmptyLine() then
+                            CurrPage.SaveRecord();
                         GenJnlManagement.LookupName(CurrentJnlBatchName, Rec);
                         SetControlAppearanceFromBatch();
                         // Set simple view when batch is changed

@@ -2714,6 +2714,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Finance Payment Tolerance - NamedType AmountError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2570714987 - NamedType 2457594967" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Customer ledger entries are not applied correctly]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Finance Payment Tolerance - NamedType AppliedError)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2570714987 - NamedType 2309547244" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Do you want to change all open entries for every customer and vendor that are not blocked?]]></Val>
@@ -3711,6 +3720,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value, %3 = Table Caption]D;]A;(LookupHint=Codeunit ERM Invoice and Reminder - NamedType ValueMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3781175034 - Method 864429118 - NamedType 3208721729" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There are no communication texts for this reminder level. Do you want to create a new communication text for your current language?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Invoice and Reminder - Method AddTextforLanguageInReminderLevelCommunication - NamedType NoCommunicationErrorQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3781175034 - Method 864429118 - NamedType 2956118536" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The languages for the communications for the reminder terms and levels don't match, which means that reminders won't be personalized for some languages. Do you want to review the languages in level 1?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Invoice and Reminder - Method AddTextforLanguageInReminderLevelCommunication - NamedType LanguageCommunicationQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3781175034 - Method 2822655962 - NamedType 662338954" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
