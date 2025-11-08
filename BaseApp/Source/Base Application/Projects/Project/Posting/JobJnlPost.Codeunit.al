@@ -2,6 +2,7 @@ namespace Microsoft.Projects.Project.Posting;
 
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Preview;
+using Microsoft.Foundation.NoSeries;
 using Microsoft.Projects.Project.Journal;
 
 codeunit 1021 "Job Jnl.-Post"
@@ -10,7 +11,10 @@ codeunit 1021 "Job Jnl.-Post"
     EventSubscriberInstance = Manual;
 
     trigger OnRun()
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
+        SequenceNoMgt.SetPreviewMode(PreviewMode);
         JobJnlLine.Copy(Rec);
         Code();
         Rec.Copy(JobJnlLine);

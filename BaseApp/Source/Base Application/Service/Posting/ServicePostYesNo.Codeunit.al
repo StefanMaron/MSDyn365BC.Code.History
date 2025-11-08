@@ -5,6 +5,7 @@
 namespace Microsoft.Service.Posting;
 
 using Microsoft.Finance.GeneralLedger.Preview;
+using Microsoft.Foundation.NoSeries;
 using Microsoft.Service.Document;
 using Microsoft.Utilities;
 
@@ -14,7 +15,10 @@ codeunit 5981 "Service-Post (Yes/No)"
     TableNo = "Service Line";
 
     trigger OnRun()
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
+        SequenceNoMgt.SetPreviewMode(PreviewMode);
         Code(Rec, GlobalServiceHeader);
     end;
 

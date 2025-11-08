@@ -524,6 +524,40 @@ codeunit 136502 "UT Time Sheets Posting"
     end;
 #endif
 
+    [Test]
+    [HandlerFunctions('TimesheetLinesPageHandler')]
+    procedure TestTimeSheetLinePageOpen()
+    var
+        TimeSheetHeader: Record "Time Sheet Header";
+        TimeSheetLine: Record "Time Sheet Line";
+        TimesheetNo: Code[20];
+    begin
+        // [SCENARIO 602503]Error message 'The record in table Time Shee line already exists' when filtering in Time Sheet Lines
+        Initialize();
+
+        // [GIVEN] Create Time Sheet
+        LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
+        TimesheetNo := TimeSheetHeader."No.";
+
+        // [GIVEN] Create Time Sheet Line with type Resource
+        LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Resource, '', '', '', '');
+
+        // [GIVEN] Create time sheet detail for first day
+        LibraryTimeSheet.CreateTimeSheetDetail(TimeSheetLine, TimeSheetHeader."Starting Date", 1);
+        // [GIVEN] Create time sheet detail for second day
+        LibraryTimeSheet.CreateTimeSheetDetail(TimeSheetLine, TimeSheetHeader."Starting Date" + 1, 2);
+
+        // [GIVEN] Submit Time Sheet Lines 
+        TimeSheetApprovalMgt.Submit(TimeSheetLine);
+
+        // [GIVEN] Approve Time Sheet Lines
+        TimeSheetApprovalMgt.Approve(TimeSheetLine);
+
+        // [THEN] Page Time Sheet Lines open without error
+        TimeSheetLine.SetRange("Time Sheet No.", TimesheetNo);
+        PAGE.Run(PAGE::"Time Sheet Lines", TimeSheetLine);
+    end;
+
     local procedure Initialize()
     var
         UserSetup: Record "User Setup";
@@ -662,6 +696,13 @@ codeunit 136502 "UT Time Sheets Posting"
     procedure HndlConfirm(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure TimesheetLinesPageHandler(var TimesheetLines: TestPage "Time Sheet Lines")
+    begin
+
     end;
 }
 

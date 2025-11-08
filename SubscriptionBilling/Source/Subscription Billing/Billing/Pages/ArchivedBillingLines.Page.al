@@ -65,6 +65,10 @@ page 8073 "Archived Billing Lines"
                 {
                     ToolTip = 'Specifies the date to which the Subscription Line is billed.';
                 }
+                field("Billing Reference Date Changed"; Rec."Billing Reference Date Changed")
+                {
+                    Visible = false;
+                }
                 field("Service Amount"; Rec.Amount)
                 {
                     ToolTip = 'Specifies the amount for the Subscription Line including discount.';
@@ -95,15 +99,15 @@ page 8073 "Archived Billing Lines"
                 }
                 field("Document Type"; Rec."Document Type")
                 {
-                    ToolTip = 'Shows the document type of the document created for posting.';
+                    ToolTip = 'Specifies the document type of the document created for posting.';
                 }
                 field("Document No."; Rec."Document No.")
                 {
-                    ToolTip = 'Shows the document number of the document created for posting.';
+                    ToolTip = 'Specifies the document number of the document created for posting.';
                 }
                 field("Document Line No."; Rec."Document Line No.")
                 {
-                    ToolTip = 'Shows the document line number of the document, it was posted in.';
+                    ToolTip = 'Specifies the document line number of the document, it was posted in.';
                 }
                 field("Service Start Date"; Rec."Subscription Line Start Date")
                 {
@@ -139,7 +143,7 @@ page 8073 "Archived Billing Lines"
                 }
                 field("User ID"; Rec."User ID")
                 {
-                    ToolTip = 'Shows the user who created the line.';
+                    ToolTip = 'Specifies the user who created the line.';
                     Visible = false;
                 }
             }
