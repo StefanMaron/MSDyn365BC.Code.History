@@ -1203,7 +1203,7 @@ page 26 "Vendor Card"
                 Caption = 'Purchase Invoice';
                 Image = NewPurchaseInvoice;
                 RunObject = Page "Purchase Invoice";
-                RunPageLink = "Buy-from Vendor No." = field("No.");
+                RunPageLink = "Buy-from Vendor No." = field("No."), "Document Type" = const(Invoice);
                 RunPageMode = Create;
                 ToolTip = 'Create a new purchase invoice for items or services.';
                 Visible = not IsOfficeAddin;

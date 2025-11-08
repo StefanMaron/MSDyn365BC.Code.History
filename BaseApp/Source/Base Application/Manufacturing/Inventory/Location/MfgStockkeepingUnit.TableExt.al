@@ -8,6 +8,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
+using Microsoft.Manufacturing.Setup;
 
 tableextension 99000759 "Mfg. Stockkeeping Unit" extends "Stockkeeping Unit"
 {
@@ -62,6 +63,27 @@ tableextension 99000759 "Mfg. Stockkeeping Unit" extends "Stockkeeping Unit"
             Caption = 'Production BOM No.';
             DataClassification = CustomerContent;
             TableRelation = "Production BOM Header";
+            trigger OnValidate()
+            var
+                Item: Record Item;
+                ItemUnitOfMeasure: Record "Item Unit of Measure";
+                MfgSetup: Record "Manufacturing Setup";
+                ProdBOMHeader: Record "Production BOM Header";
+                CalculateLowLevelCode: Codeunit "Calculate Low-Level Code";
+            begin
+                if ("Production BOM No." <> '') and ("Production BOM No." <> xRec."Production BOM No.") then begin
+                    ProdBOMHeader.Get("Production BOM No.");
+                    ItemUnitOfMeasure.Get("Item No.", ProdBOMHeader."Unit of Measure Code");
+                    if ProdBOMHeader.Status = ProdBOMHeader.Status::Certified then begin
+                        MfgSetup.Get();
+                        Item.Get("Item No.");
+                        if MfgSetup."Dynamic Low-Level Code" then begin
+                            Item."Low-Level Code" := CalculateLowLevelCode.CalcLevels(1, Item."No.", 0, 0);
+                            CalculateLowLevelCode.SetRecursiveLevelsOnBOM(ProdBOMHeader, Item."Low-Level Code" + 1, false);
+                        end;
+                    end;
+                end;
+            end;
         }
         field(99000765; "Planned Order Receipt (Qty.)"; Decimal)
         {

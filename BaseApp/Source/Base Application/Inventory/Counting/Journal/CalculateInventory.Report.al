@@ -483,6 +483,7 @@ report 790 "Calculate Inventory"
 
                 ItemLedgEntry.Reset();
                 ItemLedgEntry.SetCurrentKey("Item No.", "Entry No.");
+                ItemLedgEntry.SetLoadFields("Entry No.");
                 ItemLedgEntry.SetRange("Item No.", ItemNo);
                 if ItemLedgEntry.FindLast() then
                     ItemJnlLine."Last Item Ledger Entry No." := ItemLedgEntry."Entry No."

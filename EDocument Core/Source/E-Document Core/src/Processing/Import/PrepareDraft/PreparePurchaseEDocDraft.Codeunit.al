@@ -61,24 +61,31 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
 
         // If we can't find a vendor 
         EDocImpSessionTelemetry.SetBool('Vendor', EDocumentPurchaseHeader."[BC] Vendor No." <> '');
-        if EDocumentPurchaseHeader."[BC] Vendor No." = '' then
-            exit;
+        if EDocumentPurchaseHeader."[BC] Vendor No." <> '' then begin
 
-        // Get all purchase lines for the document
+            // Get all purchase lines for the document
+            EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocument."Entry No");
+
+            // Apply basic unit of measure and text-to-account resolution first
+            if EDocumentPurchaseLine.FindSet() then
+                repeat
+                    UnitOfMeasure := IUnitOfMeasureProvider.GetUnitOfMeasure(EDocument, EDocumentPurchaseLine."Line No.", EDocumentPurchaseLine."Unit of Measure");
+                    EDocumentPurchaseLine."[BC] Unit of Measure" := UnitOfMeasure.Code;
+                    IPurchaseLineProvider.GetPurchaseLine(EDocumentPurchaseLine);
+                    EDocumentPurchaseLine.Modify();
+                until EDocumentPurchaseLine.Next() = 0;
+
+            // Apply all Copilot-powered matching techniques to the lines
+            CopilotLineMatching(EDocument."Entry No");
+        end;
+
+        // Log telemetry and activity sessions
+        Clear(EDocumentPurchaseLine);
         EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocument."Entry No");
-
-        // Apply basic unit of measure and text-to-account resolution first
         if EDocumentPurchaseLine.FindSet() then
             repeat
-                UnitOfMeasure := IUnitOfMeasureProvider.GetUnitOfMeasure(EDocument, EDocumentPurchaseLine."Line No.", EDocumentPurchaseLine."Unit of Measure");
-                EDocumentPurchaseLine."[BC] Unit of Measure" := UnitOfMeasure.Code;
-                IPurchaseLineProvider.GetPurchaseLine(EDocumentPurchaseLine);
-                EDocumentPurchaseLine.Modify();
+                EDocImpSessionTelemetry.SetLine(EDocumentPurchaseLine.SystemId);
             until EDocumentPurchaseLine.Next() = 0;
-
-        // Apply all Copilot-powered matching techniques to the lines
-        if EDocumentPurchaseHeader."[BC] Vendor No." <> '' then
-            CopilotLineMatching(EDocument."Entry No", EDocumentPurchaseHeader."[BC] Vendor No.");
 
         // Log all accumulated activity session changes at the end
         LogAllActivitySessionChanges(EDocActivityLogSession);
@@ -100,49 +107,30 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
         ActivityLog: Codeunit "Activity Log Builder";
         ActivityLogList: List of [Codeunit "Activity Log Builder"];
         Found: Boolean;
-        i: Integer;
     begin
+        Clear(ActivityLogList);
         EDocActivityLogSession.GetAll(ActivityLogName, ActivityLogList, Found);
-        if Found then
-            for i := 1 to ActivityLogList.Count() do begin
-                ActivityLog := ActivityLogList.Get(i);
-                ActivityLog.Log();
-            end;
+        foreach ActivityLog in ActivityLogList do
+            ActivityLog.Log();
     end;
 
-    local procedure CopilotLineMatching(EDocumentEntryNo: Integer; VendorNo: Code[20])
+    local procedure CopilotLineMatching(EDocumentEntryNo: Integer)
     var
         EDocumentPurchaseLine: Record "E-Document Purchase Line";
-        EDocPurchaseLineHistory: Record "E-Doc. Purchase Line History";
-        EDocHistoricalMatchingSetup: Record "EDoc Historical Matching Setup";
-        EDocSetup : Record "E-Documents Setup";
-        EDocPurchaseHistMapping: Codeunit "E-Doc. Purchase Hist. Mapping";
     begin
-        EDocHistoricalMatchingSetup.GetSetup();
         EDocumentPurchaseLine.SetLoadFields("E-Document Entry No.", "[BC] Purchase Type No.", "[BC] Deferral Code");
         EDocumentPurchaseLine.ReadIsolation(IsolationLevel::ReadCommitted);
 
-        // Step 1: Apply historical pattern matching (both basic AL and advanced LLM)
+        // Step 1: Apply historical pattern matching
         EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocumentEntryNo);
         EDocumentPurchaseLine.SetRange("[BC] Purchase Type No.", '');
         EDocumentPurchaseLine.SetRange("[BC] Item Reference No.", '');
 
 
-        if EDocSetup.IsEDocHistoricalMatchingWithLLMActive() then begin
-            // Use new advanced LLM-based historical matching
-            if not EDocumentPurchaseLine.IsEmpty() then begin
-                Commit();
-                Codeunit.Run(Codeunit::"E-Doc. Historical Matching", EDocumentPurchaseLine);
-            end;
-        end else
-            // Fall back to basic AL historical matching for each line
-            if EDocumentPurchaseLine.FindSet() then
-                repeat
-                    if EDocPurchaseHistMapping.FindRelatedPurchaseLineInHistory(VendorNo, EDocumentPurchaseLine, EDocPurchaseLineHistory) then begin
-                        EDocPurchaseHistMapping.UpdateMissingLineValuesFromHistory(EDocPurchaseLineHistory, EDocumentPurchaseLine, '');
-                        EDocumentPurchaseLine.Modify();
-                    end;
-                until EDocumentPurchaseLine.Next() = 0;
+        if not EDocumentPurchaseLine.IsEmpty() then begin
+            Commit();
+            Codeunit.Run(Codeunit::"E-Doc. Historical Matching", EDocumentPurchaseLine);
+        end;
 
         // Step 2: Apply line-to-account matching for remaining lines with no purchase type
         Clear(EDocumentPurchaseLine);

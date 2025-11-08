@@ -14,6 +14,7 @@ codeunit 134933 "Net Cust/Vend Balances Test"
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
         DescriptionMsg: Label 'Net customer/vendor balances %1 %2', Comment = '%1 %2';
@@ -22,6 +23,7 @@ codeunit 134933 "Net Cust/Vend Balances Test"
         DocumentNoErr: Label 'Please enter the Document No.';
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
+        AmountShouldBeEqualErr: Label 'Amount should be equal.';
         DuplicateLineExistsErr: Label 'There is the duplicate journal line in journal template name %2, journal batch name %3, document number %1 applied to %4 %5.',
             Comment = '%1 - document no., %2 - template name, %3 - batch name, %4 - document type, %5 - document no.';
 
@@ -1101,6 +1103,96 @@ codeunit 134933 "Net Cust/Vend Balances Test"
         CustLedgerEntry.TestField("On Hold", '');
     end;
 
+    [Test]
+    [HandlerFunctions('NetCustomerVendorBalancesRequestPageHandler,MessageHandler')]
+    procedure VerifyPaymentJournalWhenCustomerWasBlockedAndNetCustomerVendorBalancesUsed()
+    var
+        Customer: array[3] of Record Customer;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        Vendor: array[3] of Record Vendor;
+        PaymentJournal: TestPage "Payment Journal";
+        CurrentJnlBatchName: Code[10];
+        VendorNo: Text;
+        CustomerAmount, VendorAmount : Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 598414] Verify Payment Journal Line When Customer Was Blocked And Net Customer/Vendor Balances Used.
+        Initialize();
+
+        // [GIVEN] Create a General Journal Batch.
+        CreateJournalBatch(
+            GenJournalBatch, LibraryERM.SelectGenJnlTemplate(),
+            GenJournalBatch."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting());
+
+        // [GIVEN] Set Customer and Vendor Amount.
+        CustomerAmount := LibraryRandom.RandIntInRange(100, 500);
+        VendorAmount := LibraryRandom.RandIntInRange(1000, 2000);
+
+        for i := 1 to 3 do begin
+            // [GIVEN] Create Linked Customer and Vendor
+            CreateLinkedCustomerVendor(Customer[i], Vendor[i]);
+
+            // [GIVEN] Create General Journal Line for Customer.
+            LibraryERM.CreateGeneralJnlLine(
+                GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+                GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer,
+                Customer[i]."No.", CustomerAmount);
+
+            // [GIVEN] Create General Journal Line for Vendor.
+            LibraryERM.CreateGeneralJnlLine(
+                GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+                GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor,
+                Vendor[i]."No.", -VendorAmount);
+
+            // [GIVEN] Set "External Document No.".
+            GenJournalLine.Validate("External Document No.",
+                LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("External Document No."), Database::"Gen. Journal Line"));
+            GenJournalLine.Modify(true);
+        end;
+
+        // [GIVEN] Post General Journal.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Enqueue Vendor No.
+        VendorNo := Vendor[1]."No." + '|' + Vendor[2]."No." + '|' + Vendor[3]."No.";
+        LibraryVariableStorage.Enqueue(VendorNo);
+
+        // [GIVEN] Open Payment Journal.
+        OpenPaymentJournal(PaymentJournal);
+
+        // [WHEN] Run "Net Customer/Vendor Balances" action
+        PaymentJournal.NetCustomerVendorBalances.Invoke();
+
+        // [THEN] Store Current Journal Batch Name.
+        CurrentJnlBatchName := PaymentJournal.CurrentJnlBatchName.Value;
+        PaymentJournal.OK().Invoke();
+
+        // [THEN] Verify Amount in payment journal.
+        VerifyAmountInGeneralJournalLine(GenJournalLine, CurrentJnlBatchName, Vendor[1]."No.", CustomerAmount, VendorAmount);
+
+        // [GIVEN] Block the Customer 2.
+        Customer[2].Validate(Blocked, Customer[2].Blocked::All);
+        Customer[2].Modify(true);
+
+        // [GIVEN] Delete the existing General Journal Lines. 
+        DeleteGeneralJournalLine(GenJournalLine);
+        LibraryVariableStorage.Enqueue(VendorNo);
+
+        // [GIVEN] Open Payment Journal.
+        OpenPaymentJournal(PaymentJournal);
+
+        // [WHEN] Run "Net Customer/Vendor Balances" action
+        PaymentJournal.NetCustomerVendorBalances.Invoke();
+
+        // [THEN] Verify Amount in General Journal Line.
+        VerifyAmountInGeneralJournalLine(GenJournalLine, CurrentJnlBatchName, Vendor[3]."No.", CustomerAmount, VendorAmount);
+
+        // [THEN] Post General Journal.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Net Cust/Vend Balances Test");
@@ -1213,6 +1305,40 @@ codeunit 134933 "Net Cust/Vend Balances Test"
         Commit();
     end;
 
+    local procedure CreateJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; JournalTemplateName: Code[10]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20])
+    begin
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, JournalTemplateName);
+        GenJournalBatch.Validate("Bal. Account Type", BalAccountType);
+        GenJournalBatch.Validate("Bal. Account No.", BalAccountNo);
+        GenJournalBatch.Modify(true);
+    end;
+
+    local procedure OpenPaymentJournal(var PaymentJournal: TestPage "Payment Journal")
+    begin
+        KeepOnePaymentTemplate();
+        PaymentJournal.OpenEdit();
+    end;
+
+    local procedure VerifyAmountInGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; CurrentJnlBatchName: Code[10]; VendorNo: Code[20]; CustomerAmount: Decimal; VendorAmount: Decimal)
+    begin
+        GenJournalLine.SetRange("Journal Batch Name", CurrentJnlBatchName);
+        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
+        GenJournalLine.SetRange("Account No.", VendorNo);
+        GenJournalLine.FindFirst();
+        if CustomerAmount > VendorAmount then
+            Assert.AreEqual(GenJournalLine.Amount, ABS(VendorAmount), AmountShouldBeEqualErr)
+        else
+            Assert.AreEqual(GenJournalLine.Amount, ABS(CustomerAmount), AmountShouldBeEqualErr);
+    end;
+
+    local procedure DeleteGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+        GenJournalLine.Reset();
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine.DeleteAll(true);
+    end;
+
     [RequestPageHandler]
     procedure NetCustomerVendorBalancesModalHandler(var NetCustomerVendorBalances: TestRequestPage "Net Customer/Vendor Balances")
     begin
@@ -1229,6 +1355,18 @@ codeunit 134933 "Net Cust/Vend Balances Test"
         LibraryVariableStorage.Enqueue(NetCustomerVendorBalances.Vendor.GetFilter("No."));
     end;
 
+    [RequestPageHandler]
+    procedure NetCustomerVendorBalancesRequestPageHandler(var NetCustomerVendorBalances: TestRequestPage "Net Customer/Vendor Balances")
+    var
+        VendorNo: Variant;
+    begin
+        VendorNo := LibraryVariableStorage.DequeueText();
+        NetCustomerVendorBalances."Posting Date".SetValue(WorkDate());
+        NetCustomerVendorBalances."Document No.".SetValue('TEST-001');
+        NetCustomerVendorBalances.Vendor.SetFilter("No.", VendorNo);
+        NetCustomerVendorBalances.OK().Invoke();
+    end;
+
     [ConfirmHandler]
     procedure ConfirmNoHandler(Question: Text[1024]; Var Reply: Boolean)
     begin
@@ -1241,4 +1379,8 @@ codeunit 134933 "Net Cust/Vend Balances Test"
         Reply := true;
     end;
 
+    [MessageHandler]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+    end;
 }

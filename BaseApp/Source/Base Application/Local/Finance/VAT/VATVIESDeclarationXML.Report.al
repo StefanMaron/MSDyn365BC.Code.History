@@ -417,6 +417,8 @@ report 11108 "VAT - VIES Declaration XML"
 
     [Scope('OnPrem')]
     procedure WriteXMLHeader()
+    var
+        IdentificationKeyTextL: Text;
     begin
         GesamtrueckDone := false;
 
@@ -428,8 +430,10 @@ report 11108 "VAT - VIES Declaration XML"
         XMLFile.Write('<ERKLAERUNGS_UEBERMITTLUNG>');
         XMLFile.Write('<INFO_DATEN>');
         XMLFile.Write('<ART_IDENTIFIKATIONSBEGRIFF>FASTNR</ART_IDENTIFIKATIONSBEGRIFF>');
-        XMLFile.Write(StrSubstNo('<IDENTIFIKATIONSBEGRIFF>%1%2</IDENTIFIKATIONSBEGRIFF>',
-            CompanyInfo."Tax Office Number", DelChr(CompanyInfo."Registration No.", '=', '-/ ')));
+        IdentificationKeyTextL := StrSubstNo('<IDENTIFIKATIONSBEGRIFF>%1%2</IDENTIFIKATIONSBEGRIFF>',
+                    CompanyInfo."Tax Office Number", DelChr(CompanyInfo."Registration No.", '=', '-/ '));
+        OnWriteXMLHeaderOnBeforeWriteIdentificationKey(CompanyInfo, IdentificationKeyTextL);
+        XMLFile.Write(IdentificationKeyTextL);
         XMLFile.Write(StrSubstNo('<PAKET_NR>%1</PAKET_NR>', PaketNr));
         XMLFile.Write(StrSubstNo('<DATUM_ERSTELLUNG type="datum">%1</DATUM_ERSTELLUNG>', Format(Today, 10, '<YEAR4>-<MONTH,2>-<DAY,2>')));
         XMLFile.Write(StrSubstNo('<UHRZEIT_ERSTELLUNG type="uhrzeit">%1</UHRZEIT_ERSTELLUNG>',
@@ -508,6 +512,11 @@ report 11108 "VAT - VIES Declaration XML"
     procedure SetFileName(NewFileName: Text)
     begin
         FileName := NewFileName;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnWriteXMLHeaderOnBeforeWriteIdentificationKey(var CompanyInfo: Record "Company Information"; var IdentificationKeyText: Text)
+    begin
     end;
 }
 

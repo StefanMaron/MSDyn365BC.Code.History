@@ -84,7 +84,7 @@ codeunit 136352 "UT T Job Task Line"
         // Verify that "Job Task Type" cannot be modified, when the Job WIP Entry exist for the Job.
         MockWIPEntry(JobTask."Job No.");
         JobTask."Job Task Type" := JobTask."Job Task Type"::"End-Total";
-        asserterror JobTask.Modify();
+        asserterror JobTask.Modify(true);
         Assert.ExpectedError(CannotModifyJobTaskErr);
 
         TearDown();
@@ -107,7 +107,7 @@ codeunit 136352 "UT T Job Task Line"
         // Verify that "WIP-Total" cannot be modified, when the Job WIP Entry exist for the Job.
         MockWIPEntry(JobTask."Job No.");
         JobTask."WIP-Total" := JobTask."WIP-Total"::Total;
-        asserterror JobTask.Modify();
+        asserterror JobTask.Modify(true);
         Assert.ExpectedError(CannotModifyJobTaskErr);
 
         TearDown();
@@ -130,7 +130,7 @@ codeunit 136352 "UT T Job Task Line"
         // Verify that "Job Posting Group" cannot be modified, when the Job WIP Entry exist for the Job.
         MockWIPEntry(JobTask."Job No.");
         JobTask."Job Posting Group" := LibraryUtility.GenerateGUID();
-        asserterror JobTask.Modify();
+        asserterror JobTask.Modify(true);
         Assert.ExpectedError(CannotModifyJobTaskErr);
 
         TearDown();
@@ -153,7 +153,7 @@ codeunit 136352 "UT T Job Task Line"
         // Verify that "WIP Method" cannot be modified, when the Job WIP Entry exist for the Job.
         MockWIPEntry(JobTask."Job No.");
         JobTask."WIP Method" := LibraryUtility.GenerateGUID();
-        asserterror JobTask.Modify();
+        asserterror JobTask.Modify(true);
         Assert.ExpectedError(CannotModifyJobTaskErr);
 
         TearDown();
@@ -176,7 +176,7 @@ codeunit 136352 "UT T Job Task Line"
         // Verify that "Totaling" cannot be modified, when the Job WIP Entry exist for the Job.
         MockWIPEntry(JobTask."Job No.");
         JobTask.Totaling := LibraryUtility.GenerateGUID();
-        asserterror JobTask.Modify();
+        asserterror JobTask.Modify(true);
         Assert.ExpectedError(CannotModifyJobTaskErr);
 
         TearDown();

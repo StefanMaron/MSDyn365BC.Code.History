@@ -27,6 +27,8 @@ page 9318 "Service Orders"
     DataCaptionFields = "Customer No.";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Service Orders';
+    AboutText = 'Create, track, and manage service orders for customer repairs and maintenance, including scheduling, item allocation, and monitoring order status, invoicing, and shipping details. View customer information, check item availability, and analyze service order statistics to ensure efficient service delivery.';
     SourceTable = "Service Header";
     SourceTableView = where("Document Type" = const(Order));
     UsageCategory = Lists;

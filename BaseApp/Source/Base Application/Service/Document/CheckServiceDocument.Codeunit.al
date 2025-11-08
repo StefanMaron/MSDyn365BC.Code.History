@@ -29,10 +29,10 @@ codeunit 9065 "Check Service Document"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Item, 'OnAfterCheckDocuments', '', false, false)]
-    local procedure ItemOnBeforeCheckDocuments(Item: Record Item; CurrentFieldNo: Integer);
+    local procedure ItemOnBeforeCheckDocuments(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text);
     begin
-        CheckServiceLines(Item, CurrentFieldNo, Item.FieldNo(Type), Item.FieldCaption(Type));
-        CheckServiceContractLines(Item, CurrentFieldNo, Item.FieldNo(Type), Item.FieldCaption(Type));
+        CheckServiceLines(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
+        CheckServiceContractLines(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
     end;
 
     internal procedure CheckServiceLines(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)

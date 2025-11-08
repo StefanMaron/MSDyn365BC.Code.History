@@ -41,6 +41,7 @@ codeunit 137210 "SCM Copy Production BOM"
         ProdBOMNo: Code[20];
         CountError: Label 'Version Count Must Match.';
         OverHeadCostErr: Label 'Overhead Cost must be %1 in %2.', Comment = '%1= Field Value, %2= FieldCaption.';
+        ManufacturingOverhead: Label 'Expected Overhead = %1, but Statistics shows = %2', Comment = '%1=Expected Overhead, %2=Overhead from Statistics page.';
 
     [Normal]
     local procedure Initialize()
@@ -607,6 +608,86 @@ codeunit 137210 "SCM Copy Production BOM"
                 OverHeadCostErr,
                 ExpectedMfgOverheadCost,
                 ProductionOrderStatistics.MfgOverhead_ExpectedCost.Caption()));
+    end;
+
+    [Test]
+    procedure FirmedProdOrderStatisticsCheckOverhead()
+    var
+        ParentItem: Record Item;
+        RawItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        FirmedProductionOrder: TestPage "Firm Planned Prod. Order";
+        ProductionOrderStatistics: TestPage "Production Order Statistics";
+        MfgOverheadExpectedCost: Decimal;
+        MfgOverheadExpectedCost1: Decimal;
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 593018] Manufacturing overhead is wrong in the production order statistics page (99000816) and report (99000791).
+        Initialize();
+
+        // [GIVEN] Create Raw Item with specified Unit Cost
+        CreateItem(RawItem, 0, 0);
+        RawItem.Validate(Type, RawItem.Type::Inventory);
+        RawItem.Validate("Unit Cost", LibraryRandom.RandIntInRange(100, 100));
+        RawItem.Modify(true);
+
+        // [GIVEN] Create Production BOM and add Raw Item with Qty = 1
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, RawItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, RawItem."No.", 1);
+        ProductionBOMHeader.Validate("Unit of Measure Code", RawItem."Base Unit of Measure");
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+
+        // [GIVEN] Create Parent Item with Indirect Cost % and link to BOM
+        CreateItem(ParentItem, 0, 0); // No direct cost or overhead
+        ParentItem.Validate("Indirect Cost %", LibraryRandom.RandIntInRange(10, 10));
+        ParentItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ParentItem.Modify(true);
+
+        // [GIVEN] Create Firm Planned Production Order for Parent Item
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", ProductionOrder."Source Type"::Item, '', 0);
+
+        // [GIVEN] Store Quantity in Variable.
+        Quantity := LibraryRandom.RandIntInRange(20, 20);
+
+        // [GIVEN] Create line only (do NOT populate header)
+        LibraryManufacturing.CreateProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", ParentItem."No.", '', '', Quantity);
+
+        // [WHEN] Refresh Prod Order with Lines = false (header only)
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, false, true, true, false);
+
+        MfgOverheadExpectedCost := (RawItem."Unit Cost" * ParentItem."Indirect Cost %" / 100 * Quantity);
+
+        // [GIVEN] Create Firm Planned Production Order for Parent Item
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", ProductionOrder."Source Type"::Item, '', 0);
+
+        // [GIVEN] Create multiple lines (do NOT populate header)
+        LibraryManufacturing.CreateProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", ParentItem."No.", '', '', LibraryRandom.RandIntInRange(10, 10));
+        LibraryManufacturing.CreateProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", ParentItem."No.", '', '', LibraryRandom.RandIntInRange(10, 10));
+
+        // [WHEN] Refresh Prod Order with Lines = false (header only)
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, false, true, true, false);
+
+        // [WHEN] Open Firmed Prod Order Statistics page
+        FirmedProductionOrder.OpenEdit();
+        FirmedProductionOrder.GoToRecord(ProductionOrder);
+        ProductionOrderStatistics.Trap();
+        FirmedProductionOrder.Statistics.Invoke();
+
+        // [THEN] Get Mfg Overhead Expected Cost
+        Evaluate(MfgOverheadExpectedCost1, ProductionOrderStatistics.MfgOverhead_ExpectedCost.Value());
+
+        // [ASSERT] Overhead in statistics equals expected overhead
+        Assert.AreEqual(
+            MfgOverheadExpectedCost,
+            MfgOverheadExpectedCost1,
+            StrSubstNo(ManufacturingOverhead,
+                Format(MfgOverheadExpectedCost),
+                Format(MfgOverheadExpectedCost1)));
+                
     end;
 
     [Normal]

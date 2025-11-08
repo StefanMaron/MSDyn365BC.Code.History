@@ -62,6 +62,8 @@ codeunit 137056 "SCM Warehouse-V"
         AdjmtBinCodeMustHaveValueErr: Label 'Adjustment Bin Code must have a value in Location';
         WrongNeededQtyErr: Label 'Incorrect %1 in %2.', Comment = '%1: FieldCaption(Qty. Needed), %2: TableCaption(Whse. Cross-Dock Opportunity)';
         CrossDockQtyExceedsCrossDockQtyErr: Label 'The sum of the Qty. to Cross-Dock and Qty. Cross-Docked (Base) fields must not exceed the value in the Qty. to Cross-Dock field on the warehouse receipt line.';
+        DescriptionContainDateErr: Label 'In %1 field %2 does not conatin any date', Comment = '%1 - Table Caption, %2 - Field Caption';
+        ShipmentNoLbl: Label 'Shipment No. %1:', Comment = '%1 - Sales Shipment No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -3492,6 +3494,82 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseEntry.TestField("Whse. Document Type", WarehouseEntry."Whse. Document Type"::" ");
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure CheckDocDateAndPostingDateSameWhenLinkDocTopPostingDateAndCommentLineShowsOnlySalesShipmentNumberNotDate()
+    var
+        Bin: array[2] of Record Bin;
+        Customer: Record Customer;
+        Item: Record Item;
+        Location: Record Location;
+        SalesHeader: array[2] of Record "Sales Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        ShipmentNo: Code[20];
+    begin
+        // [SCENARIO 599965] Verify that when 'Link Document Date to Posting Date' is enabled in Sales & Receivables Setup then Document Date and Posting Date remain the same. Also confirm that when using the Get Shipment Line function, the added comment line shows only the Sales Shipment Number without any date.
+        Initialize();
+
+        // [GIVEN] Set Link Doc. Date To Posting Date true in Sales & Receivables Setup.
+        SetLinkDocToPostingDate();
+
+        // [GIVEN] Create Customer
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Location with Bin.
+        CreateLocationWithBin(Location, Bin[1]);
+
+        // [GIVEN] Create second Bin.
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, '', '', '');
+
+        // [GIVEN] Update the Inventory Posting Setup in Location.
+        LibraryInventory.UpdateInventoryPostingSetup(Location);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Create a new Item & Update the Item inventory Setup.
+        LibraryInventory.CreateItem(Item);
+        UpdateItemInventory(Item."No.", Location.Code, Bin[2].Code, LibraryRandom.RandIntInRange(100, 200), false);
+
+        // [GIVEN] Create Sales Order with multiple line.
+        CreateSalesOrderWithMultipleLine(SalesHeader[1], Customer."No.", Location.Code, Item."No.");
+
+        // [GIVEN] Update the work date before processing the shipment.
+        WorkDate := CalcDate('<10D>', WorkDate());
+
+        // [GIVEN] Release the Sales order.
+        LibrarySales.ReleaseSalesDocument(SalesHeader[1]);
+
+        // [GIVEN] Create the Warehouse Shipment.
+        CreateAndReleaseWhseShipment(SalesHeader[1], WarehouseShipmentHeader);
+        FindWhseShipmentNo(WarehouseShipmentLine, WarehouseShipmentLine."Source Document"::"Sales Order", SalesHeader[1]."No.");
+
+        // [GIVEN] Create the Pick document.
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+        FindWarehouseActivityNo(WarehouseActivityLine, SalesHeader[1]."No.", WarehouseActivityLine."Activity Type"::Pick);
+
+        // [GIVEN] Register the Warehouse Activity.
+        RegisterWarehouseActivity(SalesHeader[1]."No.", WarehouseActivityLine."Activity Type"::Pick);
+
+        // [WHEN] Ship the warehouse shipment document.
+        PostWarehouseShipment(SalesHeader[1]."No.", WarehouseShipmentLine."Source Document"::"Sales Order");
+
+        // [THEN] Verify that Document Date and Posting Date are same when 'Link Document Date to Posting Date' is enabled in the Sales & Receivables Setup.
+        ShipmentNo := VerifyDocumentDateAndPostingDateSame(SalesHeader[1]."No.");
+
+        // [GIVEN] Create a Sales Header and set the Document Type to Invoice.
+        LibrarySales.CreateSalesHeader(SalesHeader[2], SalesHeader[2]."Document Type"::Invoice, Customer."No.");
+        LibraryVariableStorage.Enqueue(SalesHeader[1]."No.");
+
+        // [WHEN] When getting Sales Shipment Lines in a sales invoice.
+        GetSalesShipmentLines(SalesHeader[2]);
+
+        // [THEN] Comment line displays only the shipment number not the date.
+        VerifyCommentLineDescriptionHasOnlyShipmentNo(SalesHeader[2]."No.", ShipmentNo);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure CreateLocationSetup()
     var
         WarehouseEmployee: Record "Warehouse Employee";
@@ -5770,6 +5848,80 @@ codeunit 137056 "SCM Warehouse-V"
             ItemTrackingCodeRec.Validate("Use Expiration Dates", true);
             ItemTrackingCodeRec.Modify();
         end;
+    end;
+
+    local procedure SetLinkDocToPostingDate()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify(true);
+    end;
+
+    local procedure CreateLocationWithBin(var Location: Record Location; var Bin: Record Bin)
+    begin
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        Location.Validate("Shipment Bin Code", Bin.Code);
+        Location.Modify(true);
+    end;
+
+    local procedure CreateSalesOrderWithMultipleLine(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; LocationCode: Code[20]; ItemNo: Code[20])
+    var
+        SalesLine: array[2] of Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        SalesHeader.Validate("Location Code", LocationCode);
+        SalesHeader.Modify(true);
+
+        LibrarySales.CreateSalesLine(SalesLine[1], SalesHeader, SalesLine[1].Type::Item, ItemNo, LibraryRandom.RandDec(100, 2));
+        SalesLine[1].Validate("Unit Price", LibraryRandom.RandIntInRange(10000, 20000));
+        SalesLine[1].Validate(SalesLine[1]."Shipment Date", WorkDate(CalcDate('<7D>', WorkDate())));
+        SalesLine[1].Modify(true);
+
+        LibrarySales.CreateSalesLine(SalesLine[2], SalesHeader, SalesLine[2].Type::Item, ItemNo, LibraryRandom.RandIntInRange(5, 10));
+        SalesLine[2].Validate("Unit Price", SalesLine[1]."Unit Price");
+        SalesLine[2].Modify(true);
+    end;
+
+    local procedure VerifyDocumentDateAndPostingDateSame(SalesOrderNo: Code[20]): Code[20]
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+    begin
+        SalesShipmentHeader.SetRange("Order No.", SalesOrderNo);
+        SalesShipmentHeader.FindFirst();
+        Assert.AreEqual(SalesShipmentHeader."Posting Date", SalesShipmentHeader."Document Date", 'equal');
+
+        exit(SalesShipmentHeader."No.");
+    end;
+
+    local procedure GetSalesShipmentLines(var SalesHeader: Record "Sales Header")
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        SalesGetShpt: Codeunit "Sales-Get Shipment";
+    begin
+        SalesShipmentHeader.SetRange("Order No.", LibraryVariableStorage.DequeueText());
+        SalesShipmentHeader.FindFirst();
+        SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
+        SalesGetShpt.SetSalesHeader(SalesHeader);
+        SalesGetShpt.CreateInvLines(SalesShipmentLine);
+    end;
+
+    local procedure VerifyCommentLineDescriptionHasOnlyShipmentNo(DocumentNo: Code[20]; ShipmentNo: Code[20])
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
+        SalesLine.SetRange("Document No.", DocumentNo);
+        SalesLine.SetRange(Type, SalesLine.Type::" ");
+        SalesLine.SetRange("No.", '');
+        SalesLine.FindFirst();
+        Assert.AreEqual(
+            SalesLine.Description, StrSubstNo(ShipmentNoLbl, ShipmentNo),
+            StrSubstNo(
+                DescriptionContainDateErr, SalesLine.TableCaption(), SalesLine.FieldCaption(Description)));
     end;
 }
 

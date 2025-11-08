@@ -198,6 +198,7 @@ page 381 "Apply Bank Acc. Ledger Entries"
                         CheckLedgerEntry.SetRange("Bank Account No.", BankAccount."No.");
                         CheckLedgerEntry.SetRange("Entry Status", CheckLedgerEntry."Entry Status"::Posted);
                         CheckLedgerEntry.SetFilter("Statement Status", '<>%1', CheckLedgerEntry."Statement Status"::Closed);
+                        CheckLedgerEntry.SetFilter("Posting Date", '<=%1', BankAccReconciliation."Statement Date");
                         CheckLedgerEntry.FilterGroup(0);
                         if not CheckLedgerEntry.IsEmpty() then
                             Page.Run(Page::"Check Ledger Entries", CheckLedgerEntry);
@@ -396,9 +397,28 @@ page 381 "Apply Bank Acc. Ledger Entries"
         if BankAccount.Get(Rec."Bank Account No.") then begin
             BankAccount.CalcFields(Balance, "Total on Checks");
             Balance := BankAccount.Balance;
-            CheckBalance := BankAccount."Total on Checks";
+            CheckBalance := CalcOutstandingChecks(BankAccReconciliation."Statement Date");
             BalanceToReconcile := CalcBalanceToReconcile();
         end;
+    end;
+
+    local procedure CalcOutstandingChecks(StatementEndingDate: Date): Decimal
+    var
+        CheckLedgerEntry: Record "Check Ledger Entry";
+        TotalOutstanding: Decimal;
+    begin
+        if BankAccount."No." = '' then
+            exit(0);
+
+        CheckLedgerEntry.SetLoadFields("Bank Account No.", "Entry Status", "Statement Status", "Posting Date");
+        CheckLedgerEntry.SetRange("Bank Account No.", BankAccount."No.");
+        CheckLedgerEntry.SetRange("Entry Status", CheckLedgerEntry."Entry Status"::Posted);
+        CheckLedgerEntry.SetFilter("Statement Status", '<>%1', CheckLedgerEntry."Statement Status"::Closed);
+        CheckLedgerEntry.SetFilter("Posting Date", '<=%1', StatementEndingDate);
+        CheckLedgerEntry.CalcSums(Amount);
+        TotalOutstanding := CheckLedgerEntry.Amount;
+
+        exit(TotalOutstanding);
     end;
 
     local procedure CalcBalanceToReconcile(): Decimal

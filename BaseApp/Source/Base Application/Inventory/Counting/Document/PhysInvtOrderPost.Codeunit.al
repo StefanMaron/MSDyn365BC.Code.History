@@ -35,7 +35,10 @@ codeunit 5884 "Phys. Invt. Order-Post"
     TableNo = "Phys. Invt. Order Header";
 
     trigger OnRun()
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
+        SequenceNoMgt.SetPreviewMode(PreviewMode);
         PhysInvtOrderHeader.Copy(Rec);
         Code();
         Rec := PhysInvtOrderHeader;
