@@ -27,6 +27,7 @@ codeunit 137010 "SCM Revaluation"
         ErrorGeneratedMustBeSame: Label 'Error Generated Must Be Same';
         UndoReceiptErrorMessage: Label 'You cannot undo line %1, because a revaluation has already been posted.';
         ReturnReceiptAlreadyReversedErr: Label 'This return receipt has already been reversed.';
+        DimensionValueErr: Label 'Dimension value should be match';
 
     [Test]
     [Scope('OnPrem')]
@@ -350,6 +351,84 @@ codeunit 137010 "SCM Revaluation"
         // Verify Value Entry.
         VerifyValueEntry(
           TempPurchaseLine, TempSalesLine, Item."No.", OldUnitCost, NewUnitCost, OldUnitCost - NewUnitCost, false, true, false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LocationDefaultsDimensionsOnItemRevaluation()
+    var
+        DefaultDimension: Record "Default Dimension";
+        Dimension: array[2] of Record Dimension;
+        DimensionSetEntry: Record "Dimension Set Entry";
+        DimensionValue: array[2] of Record "Dimension Value";
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        SalesHeader: Record "Sales Header";
+        LibraryDimension: Codeunit "Library - Dimension";
+        AreaDimCode: Code[20];
+        AreaDimValueCode: Code[20];
+        BusinessGroupDimCode: Code[20];
+        BusinessGroupDimValueCode: Code[20];
+        LocationCode: Code[10];
+        ItemNo: Code[20];
+        i: Integer;
+    begin
+        // [SCENARIO 603936] Location dimensions should defaulting into Item Revaluation Journal when Calculate Inventory Value.
+        Initialize();
+
+        // [GIVEN] Create Dimensions.
+        LibraryDimension.CreateDimension(Dimension[1]);
+        LibraryDimension.CreateDimension(Dimension[2]);
+        AreaDimCode := Dimension[1].Code;
+        BusinessGroupDimCode := Dimension[2].Code;
+
+        // [GIVEN] Create Dimension Values.
+        LibraryDimension.CreateDimensionValue(DimensionValue[1], AreaDimCode);
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], BusinessGroupDimCode);
+        AreaDimValueCode := DimensionValue[1].Code;
+        BusinessGroupDimValueCode := DimensionValue[2].Code;
+
+        // [GIVEN] Create Location with default dimensions.
+        LocationCode := CreateRequiredSetup();
+        LibraryDimension.CreateDefaultDimension(DefaultDimension, Database::Location, LocationCode, BusinessGroupDimCode, BusinessGroupDimValueCode);
+        DefaultDimension."Value Posting" := DefaultDimension."Value Posting"::"Code Mandatory";
+        DefaultDimension.Modify();
+
+        // [GIVEN] Create Item with default dimensions.
+        ItemNo := CreateItem(InventoryPostingGroup);
+        Item.Get(ItemNo);
+        LibraryDimension.CreateDefaultDimension(DefaultDimension, Database::Item, ItemNo, AreaDimCode, AreaDimValueCode);
+        DefaultDimension."Value Posting" := DefaultDimension."Value Posting"::"Code Mandatory";
+        DefaultDimension.Modify();
+
+        // [GIVEN] Create and post Purchase Order.
+        for i := 1 to 2 do begin
+            CreatePurchaseOrder(PurchaseHeader[i], PurchaseHeader[i]."Document Type"::Order, ItemNo, LocationCode, false, false);
+            LibraryPurchase.PostPurchaseDocument(PurchaseHeader[i], true, true);
+        end;
+
+        // [GIVEN] Create and post Sales Order.
+        CreateSalesDocument(SalesHeader, ItemNo, LocationCode, "Sales Document Type"::Order, LibraryRandom.RandInt(50), false);
+        PostSalesDocument("Sales Document Type"::Order, SalesHeader."No.", true, true, false);
+
+        // [WHEN] Run Calculate Inventory Value with Calculate Per: Item and By Location.
+        CreateRevalutionJournalByLocation(Item, ItemJournalLine, LocationCode);
+
+        ItemJournalLine.SetRange("Item No.", Item."No.");
+        ItemJournalLine.SetRange("Location Code", LocationCode);
+        ItemJournalLine.FindFirst();
+
+        // [THEN] Verify Item dimension (AREA) is present.
+        DimensionSetEntry.SetRange("Dimension Set ID", ItemJournalLine."Dimension Set ID");
+        DimensionSetEntry.SetRange("Dimension Code", AreaDimCode);
+        DimensionSetEntry.FindFirst();
+        Assert.AreEqual(AreaDimValueCode, DimensionSetEntry."Dimension Value Code", DimensionValueErr);
+
+        // [THEN] Verify Location dimension (BUSINESSGROUP) is present.
+        DimensionSetEntry.SetRange("Dimension Code", BusinessGroupDimCode);
+        DimensionSetEntry.FindFirst();
+        Assert.AreEqual(BusinessGroupDimValueCode, DimensionSetEntry."Dimension Value Code", DimensionValueErr);
     end;
 
     local procedure Initialize()
@@ -726,6 +805,27 @@ codeunit 137010 "SCM Revaluation"
         Assert.AreEqual(
           ReturnReceiptAlreadyReversedErr, GetLastErrorText,
           ErrorGeneratedMustBeSame);
+    end;
+
+    local procedure CreateRevalutionJournalByLocation(var Item: Record Item; var ItemJournalLine: Record "Item Journal Line"; LocationCode: Code[10])
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        CalculateInventoryValue: Report "Calculate Inventory Value";
+    begin
+        CreateItemJournalBatch(ItemJournalBatch);
+        ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
+        CalculateInventoryValue.SetParameters(
+            WorkDate(), ItemJournalLine."Document No.", true, "Inventory Value Calc. Per"::Item,
+            true, false, false, "Inventory Value Calc. Base"::" ", false); // ByLocation = true
+        Commit();
+        
+        CalculateInventoryValue.UseRequestPage(false);
+        CalculateInventoryValue.SetItemJnlLine(ItemJournalLine);
+        Item.SetRange("No.", Item."No.");
+        Item.SetRange("Location Filter", LocationCode); // Filter to specific location
+        CalculateInventoryValue.SetTableView(Item);
+        CalculateInventoryValue.RunModal();
     end;
 
     [ConfirmHandler]

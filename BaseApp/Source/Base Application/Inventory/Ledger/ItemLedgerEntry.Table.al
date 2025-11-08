@@ -1137,6 +1137,21 @@ table 32 "Item Ledger Entry"
             ItemLedgerEntryTypesUsed.Set(ItemLedgerEntryTypes.Entry_Type, true);
     end;
 
+/// <summary>
+/// Returns true if EntryNo parameter and Rec."Entry No." both are positive or negative.
+/// Used in scenarios where we posting preview entries are negative
+/// </summary>
+/// <param name="EntryNo">The entry no. of the entry we are comparing to</param>
+/// <returns>Boolean</returns>
+    internal procedure EntryNoHasSameSign(EntryNo: integer): Boolean
+    begin
+        if (Rec."Entry No." >= 0) and (EntryNo >= 0) then
+            exit(true);
+        if (Rec."Entry No." < 0) and (EntryNo < 0) then
+            exit(true);
+        exit(false);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterClearTrackingFilter(var ItemLedgerEntry: Record "Item Ledger Entry")
     begin

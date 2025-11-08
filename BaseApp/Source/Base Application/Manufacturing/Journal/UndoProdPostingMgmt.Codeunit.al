@@ -301,6 +301,11 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         if not IsHandled then
             ItemJnlLine.Validate(Quantity, -Abs(ItemLedgerEntry.Quantity));
 
+        if ItemJnlLine."Unit of Measure Code" = ItemLedgerEntry."Unit of Measure Code" then begin
+            ItemJnlLine."Quantity (Base)" := ItemLedgerEntry.Quantity;
+            ItemJnlLine."Invoiced Qty. (Base)" := ItemLedgerEntry.Quantity;
+        end;
+
         if ItemLedgerEntry.TrackingExists() then
             CreateConsumptionReservationEntry(ItemJnlLine, ItemLedgerEntry)
         else
