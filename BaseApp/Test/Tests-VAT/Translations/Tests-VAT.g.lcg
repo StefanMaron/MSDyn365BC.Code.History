@@ -635,6 +635,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT Report Reopen Release - NamedType StatusSubmittedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1308444269 - NamedType 3106873411" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Attached Documents List must be enabled.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT Return - NamedType AttachedDocumentsListErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1308444269 - NamedType 423143266" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The report has been successfully generated.]]></Val>

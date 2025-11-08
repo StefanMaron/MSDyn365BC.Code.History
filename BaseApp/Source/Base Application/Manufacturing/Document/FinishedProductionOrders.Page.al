@@ -20,6 +20,8 @@ page 9327 "Finished Production Orders"
     CardPageID = "Finished Production Order";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Finished Production Orders';
+    AboutText = 'Manage and review production orders that have been completed, with options to reopen finished orders for corrections to inventory or cost transactions when necessary, ensuring accurate production and financial records.';
     SourceTable = "Production Order";
     SourceTableView = where(Status = const(Finished));
     UsageCategory = History;

@@ -6,7 +6,7 @@ namespace Microsoft.Manufacturing.ProductionBOM;
 
 using Microsoft.Foundation.Attachment;
 using Microsoft.Manufacturing.Comment;
-using System.Utilities;
+using Microsoft.Utilities;
 
 page 99000786 "Production BOM"
 {
@@ -309,6 +309,8 @@ page 99000786 "Production BOM"
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        InstructionMgt: Codeunit "Instruction Mgt.";
     begin
         if not CurrPage.Editable() then
             exit(true);
@@ -325,22 +327,29 @@ page 99000786 "Production BOM"
         if not Rec.ProductionBOMLinesExist() then
             exit(true);
 
-        if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(CertifyQst, CurrPage.Caption), false) then
-            exit(false);
+        if ShowNonCertifiedNotification() then
+            if not InstructionMgt.ShowConfirmNonCertified() then
+                exit(false);
 
         exit(true);
     end;
 
     var
-        ConfirmManagement: Codeunit "Confirm Management";
         ActiveVersionCode: Code[20];
-        CertifyQst: Label 'The %1 has not been certified. Are you sure you want to exit?', Comment = '%1 = page caption (Production BOM)';
 
     local procedure RefreshActiveVersionCode()
     var
         VersionManagement: Codeunit VersionManagement;
     begin
         ActiveVersionCode := VersionManagement.GetBOMVersion(Rec."No.", WorkDate(), true);
+    end;
+
+    local procedure ShowNonCertifiedNotification(): Boolean
+    begin
+        if Rec.Status <> Rec.Status::Certified then
+            exit(true)
+        else
+            exit(false);
     end;
 
     [IntegrationEvent(false, false)]

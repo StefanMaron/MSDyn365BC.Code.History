@@ -14,6 +14,7 @@ codeunit 391 "Shipment Header - Edit"
         SalesShptHeader := Rec;
         SalesShptHeader.LockTable();
         SalesShptHeader.Find();
+        OnRunOnBeforeAssignValues(SalesShptHeader, Rec);
         SalesShptHeader."Shipping Agent Code" := Rec."Shipping Agent Code";
         SalesShptHeader."Shipping Agent Service Code" := Rec."Shipping Agent Service Code";
         SalesShptHeader."Package Tracking No." := Rec."Package Tracking No.";
@@ -35,6 +36,11 @@ codeunit 391 "Shipment Header - Edit"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterSalesShptHeaderEdit(var SalesShptHeader: Record "Sales Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeAssignValues(var SalesShipmentHeader: Record "Sales Shipment Header"; SalesShipmentHeaderRec: Record "Sales Shipment Header")
     begin
     end;
 }

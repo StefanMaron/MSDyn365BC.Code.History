@@ -32,6 +32,8 @@ page 5052 "Contact List"
     DataCaptionFields = "Company No.";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Contacts';
+    AboutText = 'Manage and organize business relationships by storing contact details for people and companies, linking them to customers, vendors, employees, or bank accounts, and tracking communication and interaction history for efficient relationship management.';
     SourceTable = Contact;
     SourceTableView = sorting("Company Name", "Company No.", Type, Name);
     UsageCategory = Lists;

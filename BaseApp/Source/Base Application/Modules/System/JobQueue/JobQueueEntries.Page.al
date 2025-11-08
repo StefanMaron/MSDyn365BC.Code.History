@@ -11,6 +11,8 @@ page 672 "Job Queue Entries"
     Caption = 'Job Queue Entries';
     CardPageID = "Job Queue Entry Card";
     PageType = List;
+    AboutTitle = 'About Job Queue Entries';
+    AboutText = 'Schedule, monitor, and manage automated jobs for reports and codeunits, including setting run parameters, recurrence patterns, priorities, and tracking job status or errors.';
     SourceTable = "Job Queue Entry";
     SourceTableView = sorting("Entry No.");
     UsageCategory = Lists;

@@ -93,6 +93,7 @@ using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
 using System.Device;
+using Microsoft.Purchases.Analysis;
 using Microsoft.Purchases.Comment;
 using Microsoft.Purchases.Archive;
 using Microsoft.Purchases.Pricing;
@@ -668,5 +669,9 @@ permissionset 208 "D365 Basic - Edit"
                   tabledata "XML Buffer" = IMD,
                   tabledata "XML Schema" = IMD,
                   tabledata "XML Schema Element" = IMD,
-                  tabledata "XML Schema Restriction" = IMD;
+                  tabledata "XML Schema Restriction" = IMD,
+                  tabledata "Acc. Payable Performance Chart" = IMD,
+                  tabledata "Account Payable Cue" = IMD,
+                  tabledata "Top Vendors By Purchase" = IMD,
+                  tabledata "Purch. by Vend.Grp.Chart Setup" = IMD;
 }
