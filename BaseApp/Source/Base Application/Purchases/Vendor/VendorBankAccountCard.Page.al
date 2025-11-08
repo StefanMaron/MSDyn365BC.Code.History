@@ -123,12 +123,14 @@ page 425 "Vendor Bank Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bank branch.';
+                    MaskType = Concealed;
                 }
                 field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = BankAccountNoEnable;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
+                    MaskType = Concealed;
 
                     trigger OnValidate()
                     begin
@@ -139,6 +141,7 @@ page 425 "Vendor Bank Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
+                    MaskType = Concealed;
                 }
                 field("Fax No."; Rec."Fax No.")
                 {
@@ -181,6 +184,7 @@ page 425 "Vendor Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     Enabled = SWIFTCodeEnable;
                     ToolTip = 'Specifies the SWIFT code (international bank identifier code) of the bank where the vendor has the account.';
+                    MaskType = Concealed;
 
                     trigger OnValidate()
                     begin
@@ -259,6 +263,7 @@ page 425 "Vendor Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     Enabled = IBANEnable;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
+                    MaskType = Concealed;
 
                     trigger OnValidate()
                     begin

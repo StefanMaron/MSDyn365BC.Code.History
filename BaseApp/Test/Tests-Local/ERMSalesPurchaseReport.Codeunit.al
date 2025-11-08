@@ -124,6 +124,8 @@ codeunit 142060 "ERM Sales/Purchase Report"
         SalesToCustomerCaption: Label 'SalesToCust';
         SalesToCustomerControlCaption: Label 'SalesToCust_Control1160023';
         VendFilterCaption: Label 'VendFilter';
+        DescriptionContainDateErr: Label 'In %1 field %2 does not conatin any date', Comment = '%1 - Table Caption, %2 - Field Caption';
+        ShipmentNoLbl: Label 'Shipment No. %1:', Comment = '%1 - Sales Shipment No.';
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         isInitialized: Boolean;
         No_SalesShipmentLine_XPathTok: Label '/ReportDataSet/DataItems/DataItem/DataItems/DataItem/DataItems/DataItem/DataItems/DataItem/Columns/Column[@name=''No_SalesShptLine'']';
@@ -726,6 +728,43 @@ codeunit 142060 "ERM Sales/Purchase Report"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure CommentLineShowsOnlySalesShipmentNumberNotDateWhenUsingGetShipmentLine()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: array[2] of Record "Sales Header";
+        ShipmentNo: Code[20];
+    begin
+        // [SCENARIO 599207] Verify that when the Get Shipment Line function is used in a Sales Invoice, the comment line description contains only the shipment number and not the date.
+        Initialize();
+        WorkDate := Today();
+
+        // [GIVEN] Create Customer and Item
+        CreateCustomerAndItem(Customer, Item);
+
+        // [GIVEN] Create Sales Order with multiple line.
+        CreateSalesOrderWithMultipleLine(SalesHeader[1], Customer."No.", Item."No.");
+
+        // [GIVEN] Update the work date before processing the shipment.
+        WorkDate := CalcDate('<10D>', WorkDate());
+
+        // [GIVEN] Ship the Sales Order.
+        ShipmentNo := LibrarySales.PostSalesDocument(SalesHeader[1], true, false);
+
+        // [GIVEN] Create a Sales Header and set the Document Type to Invoice.
+        LibrarySales.CreateSalesHeader(SalesHeader[2], SalesHeader[2]."Document Type"::Invoice, Customer."No.");
+        LibraryVariableStorage.Enqueue(SalesHeader[1]."No.");
+
+        // [WHEN] When getting Sales Shipment Lines in a sales invoice.
+        GetSalesShipmentLines(SalesHeader[2]);
+
+        // [THEN] Comment line displays only the shipment number not the date.
+        VerifyCommentLineDescriptionHasOnlyShipmentNo(SalesHeader[2]."No.", ShipmentNo);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1122,6 +1161,55 @@ codeunit 142060 "ERM Sales/Purchase Report"
         LibraryXPathXMLReader.Initialize(LibraryVariableStorage.DequeueText(), '');
         LibraryXPathXMLReader.VerifyNodeCountByXPath('/ReportDataSet/DataItems/DataItem', 1);
         LibraryXPathXMLReader.VerifyNodeValueByXPath(OrderNo_StandardSalesInvoice_XPathTok, SalesHeader."No.");
+    end;
+
+    local procedure CreateCustomerAndItem(var Customer: Record Customer; var Item: Record Item)
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibraryInventory.CreateItem(Item);
+    end;
+
+    local procedure CreateSalesOrderWithMultipleLine(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; ItemNo: Code[20])
+    var
+        SalesLine: array[2] of Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine[1], SalesHeader, SalesLine[1].Type::Item, ItemNo, LibraryRandom.RandDec(100, 2));
+        SalesLine[1].Validate("Unit Price", LibraryRandom.RandIntInRange(10000, 20000));
+        SalesLine[1].Validate(SalesLine[1]."Shipment Date", WorkDate(CalcDate('<7D>', WorkDate())));
+        SalesLine[1].Modify(true);
+
+        LibrarySales.CreateSalesLine(SalesLine[2], SalesHeader, SalesLine[2].Type::Item, ItemNo, LibraryRandom.RandIntInRange(5, 10));
+        SalesLine[2].Validate("Unit Price", SalesLine[1]."Unit Price");
+        SalesLine[2].Modify(true);
+    end;
+
+    local procedure GetSalesShipmentLines(var SalesHeader: Record "Sales Header")
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        SalesGetShpt: Codeunit "Sales-Get Shipment";
+    begin
+        SalesShipmentHeader.SetRange("Order No.", LibraryVariableStorage.DequeueText());
+        SalesShipmentHeader.FindFirst();
+        SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
+        SalesGetShpt.SetSalesHeader(SalesHeader);
+        SalesGetShpt.CreateInvLines(SalesShipmentLine);
+    end;
+
+    local procedure VerifyCommentLineDescriptionHasOnlyShipmentNo(DocumentNo: Code[20]; ShipmentNo: Code[20])
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
+        SalesLine.SetRange("Document No.", DocumentNo);
+        SalesLine.SetRange(Type, SalesLine.Type::" ");
+        SalesLine.SetRange("No.", '');
+        SalesLine.FindFirst();
+        Assert.AreEqual(
+            SalesLine.Description, StrSubstNo(ShipmentNoLbl, ShipmentNo),
+            StrSubstNo(
+                DescriptionContainDateErr, SalesLine.TableCaption(), SalesLine.FieldCaption(Description)));
     end;
 
     [RequestPageHandler]

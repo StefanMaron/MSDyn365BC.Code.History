@@ -284,6 +284,8 @@ codeunit 44 ReportManagement
             LayoutAppID := ReportLayoutList."Application ID";
             Success := true;
         end;
+
+        OnAfterSelectReportLayoutUI(ObjectID, LayoutName, LayoutAppID, Success);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'GetFilename', '', false, false)]
@@ -297,6 +299,11 @@ codeunit 44 ReportManagement
 
     [IntegrationEvent(false, false)]
     procedure OnSelectReportLayout(var ReportLayoutList: Record "Report Layout List"; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSelectReportLayoutUI(ObjectID: Integer; var LayoutName: Text; var LayoutAppID: Guid; Success: Boolean)
     begin
     end;
 

@@ -25,6 +25,8 @@ page 20 "General Ledger Entries"
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = List;
+    AboutTitle = 'About General Ledger Entries';
+    AboutText = 'Review, filter, and analyze all posted general ledger entries to track financial transactions, reconcile accounts, investigate discrepancies, and support accurate financial reporting.';
     Permissions = TableData "G/L Entry" = m;
     SourceTable = "G/L Entry";
     SourceTableView = sorting("G/L Account No.", "Posting Date")
@@ -192,9 +194,11 @@ page 20 "General Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies the foreign currency amount for G/L entries.';
                     Visible = not SourceCurrencyVisible;
+#pragma warning disable AS0072
                     ObsoleteReason = 'Replaced by W1 field Source Currency Amount';
                     ObsoleteState = Pending;
                     ObsoleteTag = '24.0';
+#pragma warning restore AS0072
                 }
 #endif
                 field("Debit Amount"; Rec."Debit Amount")

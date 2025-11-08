@@ -857,7 +857,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                     AvailableQty := Item."Net Change" - Item."Reserved Qty. on Inventory";
                     OnCheckItemAvailabilityOnAfterSetAvailableQty(TempSKU, ItemJnlLine2, AvailableQty);
 
-                    if (Item."Reserved Qty. on Inventory" > 0) and (AvailableQty < Abs(QtyinItemJnlLine)) then
+                    if (Item."Reserved Qty. on Inventory" > 0) and (AvailableQty < Abs(QtyinItemJnlLine)) and not InvtSetup."Prevent Negative Inventory" then
                         if not ConfirmManagement.GetResponseOrDefault(
                             StrSubstNo(
                                 Text010, TempSKU.FieldCaption("Item No."), TempSKU."Item No.", TempSKU.FieldCaption("Location Code"),
@@ -981,35 +981,35 @@ codeunit 23 "Item Jnl.-Post Batch"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnAfterInsertItemLedgEntry', '', false, false)]
     local procedure OnAfterInsertItemLedgEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line"; var ItemLedgEntryNo: Integer; var ValueEntryNo: Integer; var ItemApplnEntryNo: Integer; GlobalValueEntry: Record "Value Entry"; TransferItem: Boolean; var InventoryPostingToGL: Codeunit "Inventory Posting To G/L"; var OldItemLedgerEntry: Record "Item Ledger Entry")
     begin
-        if ItemLedgerEntry."Item Register No." > ItemRegNo then
+        if ItemLedgerEntry."Item Register No." <> 0 then
             ItemRegNo := ItemLedgerEntry."Item Register No.";
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnAfterInsertValueEntry', '', false, false)]
     local procedure OnAfterInsertValueEntry(var ValueEntry: Record "Value Entry"; ItemJournalLine: Record "Item Journal Line"; var ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntryNo: Integer)
     begin
-        if ValueEntry."Item Register No." > ItemRegNo then
+        if ValueEntry."Item Register No." <> 0 then
             ItemRegNo := ValueEntry."Item Register No.";
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnAfterInsertPhysInventoryEntry', '', false, false)]
     local procedure OnAfterInsertPhysInventoryEntry(var PhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
     begin
-        if PhysInventoryLedgerEntry."Item Register No." > ItemRegNo then
+        if PhysInventoryLedgerEntry."Item Register No." <> 0 then
             ItemRegNo := PhysInventoryLedgerEntry."Item Register No.";
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnAfterInsertCapLedgEntry', '', false, false)]
     local procedure OnAfterInsertCapLedgEntry(var CapLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
     begin
-        if CapLedgEntry."Item Register No." > ItemRegNo then
+        if CapLedgEntry."Item Register No." <> 0 then
             ItemRegNo := CapLedgEntry."Item Register No.";
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Jnl.-Register Line", 'OnAfterInsertWhseEntry', '', false, false)]
     local procedure OnAfterInsertWhseEntry(var WarehouseEntry: Record "Warehouse Entry"; var WarehouseJournalLine: Record "Warehouse Journal Line")
     begin
-        if WarehouseEntry."Warehouse Register No." > WhseRegNo then
+        if WarehouseEntry."Warehouse Register No." <> 0 then
             WhseRegNo := WarehouseEntry."Warehouse Register No.";
     end;
 

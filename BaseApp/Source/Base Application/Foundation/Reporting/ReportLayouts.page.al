@@ -21,6 +21,8 @@ page 9660 "Report Layouts"
     ModifyAllowed = false;
     DeleteAllowed = true;
     AdditionalSearchTerms = 'Custom Report Layouts, Report Layout Selection';
+    AboutTitle = 'About Report Layouts';
+    AboutText = 'Manage (create, export/import, delete) layouts for reports. Set the default layouts used on report request pages or troubleshoot layout issues with the validation action.';
     PageType = List;
     SourceTable = "Report Layout List";
     SourceTableView = sorting("Report ID", "Layout Format");

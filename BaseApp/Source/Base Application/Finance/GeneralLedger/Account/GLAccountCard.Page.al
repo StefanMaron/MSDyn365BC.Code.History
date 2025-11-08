@@ -150,9 +150,11 @@ page 17 "G/L Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the foreign currency code.';
+#pragma warning disable AS0072
                     ObsoleteReason = 'Replaced by W1 field Account Currency Code';
                     ObsoleteState = Pending;
                     ObsoleteTag = '24.0';
+#pragma warning restore AS0072
                     Visible = not SourceCurrencyVisible;
                 }
 #endif

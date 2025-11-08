@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -43,6 +43,8 @@ page 256 "Payment Journal"
     DataCaptionExpression = Rec.DataCaption();
     DelayedInsert = true;
     PageType = Worksheet;
+    AboutTitle = 'About Payment Journals';
+    AboutText = 'Record and process payments to vendors and refunds to customers, apply payments to invoices or credit memos, and manage payment methods including printing checks and exporting electronic payment files.';
     SaveValues = true;
     SourceTable = "Gen. Journal Line";
     UsageCategory = Tasks;

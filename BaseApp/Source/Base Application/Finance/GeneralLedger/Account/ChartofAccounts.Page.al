@@ -177,18 +177,22 @@ page 16 "Chart of Accounts"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the foreign currency code.';
+#pragma warning disable AS0072
                     ObsoleteReason = 'Replaced by W1 field Account Currency Code';
                     ObsoleteState = Pending;
                     ObsoleteTag = '24.0';
+#pragma warning restore AS0072
                     Visible = not SourceCurrencyVisible;
                 }
                 field("Balance (FCY)"; Rec."Balance (FCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the foreign currency balance in the G/L account.';
+#pragma warning disable AS0072
                     ObsoleteReason = 'Replaced by W1 field Balance FCY';
                     ObsoleteState = Pending;
                     ObsoleteTag = '24.0';
+#pragma warning restore AS0072
                     Visible = not SourceCurrencyVisible;
                 }
 #endif

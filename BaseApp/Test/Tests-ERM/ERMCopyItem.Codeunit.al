@@ -36,6 +36,7 @@ codeunit 134462 "ERM Copy Item"
         TargetItemNoTxt: Label 'Target Item No.';
         UnincrementableStringErr: Label 'The value in the %1 field must have a number so that we can assign the next number in the series.', Comment = '%1 = New Field Name';
         CustomerNameErr: Label 'Invalid Customer Name';
+        CostAdjustedTrueErr: Label 'Cost is Adjusted should be TRUE for new copied item';
 
     [Test]
     [HandlerFunctions('CopyItemPageHandler')]
@@ -1620,6 +1621,36 @@ codeunit 134462 "ERM Copy Item"
         Assert.RecordIsNotEmpty(PurchaseLine);
     end;
 
+    [Test]
+    [HandlerFunctions('CopyItemPageHandler')]
+    [Scope('OnPrem')]
+    procedure CopyItemCostIsAdjustedSetToTrue()
+    var
+        SourceItem: Record Item;
+        TargetItem: Record Item;
+        CopyItemBuffer: Record "Copy Item Buffer";
+    begin
+        // [FEATURE] Copy Item [Cost is Adjusted = True]
+        // [SCENARIO] When copying an item, the new item should have 'Cost is Adjusted' = TRUE regardless of source item value
+        Initialize();
+
+        // [GIVEN] Create item with 'Cost is Adjusted' = FALSE (simulating an item with unadjusted cost)
+        LibraryInventory.CreateItem(SourceItem);
+        SourceItem."Cost is Adjusted" := false;
+        SourceItem.Modify();
+
+        // [WHEN] Copy the item
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID();
+        CopyItemBuffer."Units of Measure" := true;
+        EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
+        CopyItem(SourceItem."No.");
+
+        // [THEN] The new item has 'Cost is Adjusted' = TRUE
+        TargetItem.Get(CopyItemBuffer."Target Item No.");
+        Assert.IsTrue(TargetItem."Cost is Adjusted", CostAdjustedTrueErr);
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2203,4 +2234,3 @@ codeunit 134462 "ERM Copy Item"
         CopyItem.OK().Invoke();
     end;
 }
-

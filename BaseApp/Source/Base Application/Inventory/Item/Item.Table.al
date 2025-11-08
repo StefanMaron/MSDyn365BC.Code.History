@@ -3097,6 +3097,11 @@ table 27 Item
     end;
 
     procedure CheckDocuments(CurrentFieldNo: Integer)
+    begin
+        CheckDocuments(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
+    end;
+
+    procedure CheckDocuments(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
         IsHandled: Boolean;
     begin
@@ -3108,7 +3113,7 @@ table 27 Item
         if IsHandled then
             exit;
 
-        OnAfterCheckDocuments(Rec, xRec, CurrentFieldNo);
+        OnAfterCheckDocuments(Rec, xRec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
     end;
 
     procedure GetCannotChangeItemWithExistingDocumentLinesErr(): Text
@@ -3915,7 +3920,7 @@ table 27 Item
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckDocuments(var Item: Record Item; var xItem: Record Item; var CurrentFieldNo: Integer)
+    local procedure OnAfterCheckDocuments(var Item: Record Item; var xItem: Record Item; var CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     begin
     end;
 

@@ -20,6 +20,8 @@ page 5096 "Task List"
     DataCaptionExpression = GetCaption();
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Task List';
+    AboutText = 'Manage and track tasks across multiple companies by assigning, prioritizing, sorting, and updating the status of work items for yourself and others, with options to link tasks to contacts, teams, campaigns, and opportunities.';
     SourceTable = "To-do";
     UsageCategory = Lists;
 

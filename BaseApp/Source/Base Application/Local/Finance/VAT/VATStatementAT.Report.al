@@ -747,11 +747,15 @@ report 11110 "VAT Statement AT"
     end;
 
     local procedure WriteXMLInfoData()
+    var
+        IdentificationKeyTextL: Text;
     begin
         XMLFile.Write('<INFO_DATEN>');
         XMLFile.Write('<ART_IDENTIFIKATIONSBEGRIFF>FASTNR</ART_IDENTIFIKATIONSBEGRIFF>');
-        XMLFile.Write(StrSubstNo('<IDENTIFIKATIONSBEGRIFF>%1%2</IDENTIFIKATIONSBEGRIFF>',
-            Companyinfo."Tax Office Number", DelChr(Companyinfo."Registration No.", '=', '-/ ')));
+        IdentificationKeyTextL := StrSubstNo('<IDENTIFIKATIONSBEGRIFF>%1%2</IDENTIFIKATIONSBEGRIFF>',
+                   Companyinfo."Tax Office Number", DelChr(Companyinfo."Registration No.", '=', '-/ '));
+        OnWriteXMLInfoDataOnBeforeWriteIdentificationKey(CompanyInfo, IdentificationKeyTextL);
+        XMLFile.Write(IdentificationKeyTextL);
         XMLFile.Write('<PAKET_NR>999999999</PAKET_NR>');
         XMLFile.Write(StrSubstNo('<DATUM_ERSTELLUNG type="datum">%1</DATUM_ERSTELLUNG>',
             Format(Today, 10, '<YEAR4>-<MONTH,2>-<DAY,2>')));
@@ -885,6 +889,11 @@ report 11110 "VAT Statement AT"
     begin
         TestFdfFileName := NewTestFdfFileName;
         TestXmlFileName := NewTestXmlFileName;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnWriteXMLInfoDataOnBeforeWriteIdentificationKey(CompanyInfo: Record "Company Information"; var IdentificationKeyTextL: Text)
+    begin
     end;
 }
 

@@ -37,6 +37,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesVatAccountIsMissingTxt: Label 'Sales VAT Account is missing in VAT Posting Setup.';
         DueDateMustBeUpdatedTxt: Label 'Due Date must be updated';
         TaxAmountErr: Label 'Tax Amount must be equal to %1', Comment = '%1= Expected Tax Amount';
+        SalesStatisticsQtyErr: Label 'Sales Statistics Quantity must be equal to %1', Comment = '%1= Expected Quantity';
 
     local procedure Initialize()
     var
@@ -1656,6 +1657,41 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
 
         // [THEN] Verify the Total tax amount should be same as on Sales Invoice Page
         Assert.AreEqual(ExpectedTaxAmount, GLEntry.Amount, StrSubstNo(TaxAmountErr, ExpectedTaxAmount));
+    end;
+
+    [Test]
+    procedure SalesInvoiceStatisticShowsCorrectQuantityWithInvoiceRounding()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoice: TestPage "Sales Invoice";
+        SalesStatistics: TestPage "Sales Statistics";
+    begin
+        // [SCENARIO 580156] Sales Invoice Statistic shows wrong quantity when invoice rounding is used.
+        Initialize();
+
+        // [GIVEN] Set Inv. Rounding Precision (LCY) as 0.05 in General Ledger Setup.
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Inv. Rounding Precision (LCY)", 0.05);
+        GeneralLedgerSetup.Modify(true);
+
+        // [GIVEN] Create SalesHeader.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Create Sales Line with Quantity as 1 and Unit Price Excl VAT as 1190.11.
+        LibrarySales.CreateSalesLineWithUnitPrice(SalesLine, SalesHeader, LibraryInventory.CreateItemNo(), 1190.11, 1);
+
+        // [WHEN] Open Sales Statistics page from Sales Invoice page.
+        SalesInvoice.OpenEdit();
+        SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesStatistics.Trap();
+        SalesInvoice.SalesStatistics.Invoke();
+
+        // [THEN] Verify Sales Invoice Statistics show Quantity as 1.
+        Assert.AreEqual(1,
+            SalesStatistics."TotalSalesLine.Quantity".AsDecimal(),
+            StrSubstNo(SalesStatisticsQtyErr, 1));
     end;
 
     local procedure CreateCustomerWithDiscount(var Customer: Record Customer; DiscPct: Decimal; minAmount: Decimal)

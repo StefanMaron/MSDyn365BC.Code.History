@@ -651,7 +651,7 @@ table 111 "Sales Shipment Line"
         CurrencyRead: Boolean;
 #pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text92000: Label 'Shipment No. %1 of %2:';
+        Text92000: Label 'Shipment No. %1:';
 #pragma warning restore AA0470
         Text001: Label 'The program cannot find this Sales line.';
 #pragma warning restore AA0074
@@ -728,7 +728,7 @@ table 111 "Sales Shipment Line"
             SalesLine."Document No." := TempSalesLine."Document No.";
             SalesShptHeader.Get("Document No.");
             TranslationHelper.SetGlobalLanguageByCode(SalesInvHeader."Language Code");
-            SalesLine.Description := StrSubstNo(Text92000, "Document No.", SalesShptHeader."Shipment Date");
+            SalesLine.Description := StrSubstNo(Text92000, "Document No.");
             TranslationHelper.RestoreGlobalLanguage();
             IsHandled := false;
             OnBeforeInsertInvLineFromShptLineBeforeInsertTextLine(Rec, SalesLine, NextLineNo, IsHandled, TempSalesLine, SalesInvHeader);

@@ -14,6 +14,8 @@ page 953 "Manager Time Sheet List"
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = List;
+    AboutTitle = 'About Manager Time Sheets';
+    AboutText = 'Review, approve, or reject submitted time sheets for resources, with options to manage individual lines and track hours by status. Reopen approved time sheets if needed, and monitor comments and status details for each entry.';
     CardPageID = "Time Sheet Card";
     RefreshOnActivate = true;
     SourceTable = "Time Sheet Header";

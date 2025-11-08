@@ -28,6 +28,7 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
         ProcessingMsg: Label 'Processing vendors #1########## @2@@@@@@@@@@@@@', Comment = '#1 - vendor code, @2 - processing bar';
         DuplicateLineExistsErr: Label 'There is the duplicate journal line in journal template name %2, journal batch name %3, document number %1 applied to %4 %5.',
             Comment = '%1 - document no., %2 - template name, %3 - batch name, %4 - document type, %5 - document no.';
+        CustomerBlockedErr: Label 'Customer %1 is blocked', Comment = '%1 - customer no.';
 
     procedure NetCustVendBalances(var Vendor: Record Vendor; NewNetBalancesParameters: Record "Net Balances Parameters")
     var
@@ -63,8 +64,10 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
             Customer.Reset();
             Customer.SetLoadFields(Blocked);
             Customer.Get(CustomerNo);
-            Customer.TestField(Blocked, Customer.Blocked::" ");
-            exit(true);
+            if Customer.Blocked = Customer.Blocked::" " then
+                exit(true)
+            else
+                Message(CustomerBlockedErr, Customer."No.");
         end;
     end;
 

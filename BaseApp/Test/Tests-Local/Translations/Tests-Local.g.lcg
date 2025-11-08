@@ -446,6 +446,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales/Purchase Report - NamedType CurrencyString)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3711915420 - NamedType 1628908321" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[In %1 field %2 does not conatin any date]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Table Caption, %2 - Field Caption]D;]A;(LookupHint=Codeunit ERM Sales/Purchase Report - NamedType DescriptionContainDateErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3711915420 - NamedType 2392829959" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[VAT Entry: %1: %2]]></Val>
@@ -642,6 +651,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales/Purchase Report - NamedType SalesToCustomerControlCaption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3711915420 - NamedType 3983004501" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Shipment No. %1:]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Sales Shipment No.]D;]A;(LookupHint=Codeunit ERM Sales/Purchase Report - NamedType ShipmentNoLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3711915420 - NamedType 2685598817" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

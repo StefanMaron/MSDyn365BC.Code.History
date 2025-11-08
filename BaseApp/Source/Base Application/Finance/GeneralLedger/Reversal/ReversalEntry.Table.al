@@ -221,11 +221,15 @@ table 179 "Reversal Entry"
             Caption = 'Amount (FCY)';
             ObsoleteReason = 'Replaced by W1 field Source Currency Amount';
 #if CLEAN25
+#pragma warning disable AS0072
             ObsoleteState = Removed;
             ObsoleteTag = '27.0';
+#pragma warning restore AS0072
 #else
+#pragma warning disable AS0072
             ObsoleteState = Pending;
             ObsoleteTag = '24.0';
+#pragma warning restore AS0072
 #endif
         }
 #endif

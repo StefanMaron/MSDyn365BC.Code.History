@@ -213,8 +213,10 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
                         BalAccType := '';
 
 #if not CLEAN25
-                    "Amount (FCY)" := "Source Currency Amount";
-                    "G/L Account"."Currency Code" := "Source Currency Code";
+                    if ("Source Currency Amount" <> 0) and ("Amount (FCY)" = 0) then
+                        "Amount (FCY)" := "Source Currency Amount";
+                    if ("Source Currency Code" <> '') and ("G/L Account"."Currency Code" = '') then
+                        "G/L Account"."Currency Code" := "Source Currency Code";
                     FcyAcyAmt := "Amount (FCY)";
                     FcyAcyBalance := FcyAcyBalance + "Amount (FCY)";
                     Exrate := CalcExrate("Amount (FCY)", Amount, "G/L Account"."Currency Code");
@@ -223,6 +225,7 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
                     FcyAcyBalance := FcyAcyBalance + "Source Currency Amount";
                     Exrate := CalcExrate("Source Currency Amount", Amount, "G/L Account"."Source Currency Code");
 #endif
+                    OnAfterOnAfterGetRecord("G/L Account", "G/L Entry", FcyAcyAmt, FcyAcyBalance, Exrate);
                 end;
 
                 trigger OnPreDataItem()
@@ -392,10 +395,8 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
             }
 
             trigger OnAfterGetRecord()
-#if CLEAN25
             var
                 GLAccountSourceCurrency: Record "G/L Account Source Currency";
-#endif
             begin
                 if NewPagePerAcc then
                     NewPagePerAccNo := NewPagePerAccNo + 1;
@@ -404,18 +405,22 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
 
                 if StartDate > 0D then begin
                     SetRange("Date Filter", 0D, ClosingDate(StartDate - 1));
+
 #if not CLEAN25
-                    CalcFields("Net Change", "Movement (FCY)", "Additional-Currency Net Change");
-                    GlBalance := "Net Change";
-                    FcyAcyBalance := "Movement (FCY)";
-#else
-                    CalcFields("Net Change", "Additional-Currency Net Change");
-                    GlBalance := "Net Change";
-                    GLAccountSourceCurrency."G/L Account No." := "No.";
-                    GLAccountSourceCurrency."Currency Code" := "Gen. Journal Line"."Currency Code";
-                    GLAccountSourceCurrency.SetFilter("Date Filter", GlJourDateFilter);
-                    GLAccountSourceCurrency.CalcFields("Source Curr. Balance at Date");
-                    FcyAcyBalance := GLAccountSourceCurrency."Source Currency Net Change";
+                    if not FeatureKeyManagement.IsGLCurrencyRevaluationEnabled() then begin
+                        CalcFields("Net Change", "Movement (FCY)");
+                        GlBalance := "Net Change";
+                        FcyAcyBalance := "Movement (FCY)";
+                    end else begin
+#endif
+                        CalcFields("Net Change");
+                        GlBalance := "Net Change";
+                        GLAccountSourceCurrency.Get("No.", "Source Currency Code");
+                        GLAccountSourceCurrency.SetRange("Date Filter", 0D, ClosingDate(StartDate - 1));
+                        GLAccountSourceCurrency.CalcFields("Source Curr. Balance at Date");
+                        FcyAcyBalance := GLAccountSourceCurrency."Source Curr. Balance at Date";
+#if not CLEAN25
+                    end;
 #endif
                     SetFilter("Date Filter", GlJourDateFilter);
                 end;
@@ -575,6 +580,9 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
         GLSetup: Record "General Ledger Setup";
         GenJourLine2: Record "Gen. Journal Line";
         GlJourName: Record "Gen. Journal Batch";
+#if not CLEAN25
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+#endif
         Text000: Label 'Start Balance on ';
         Text001: Label 'Period: ';
         Text002: Label 'Layout Foreign Currency';
@@ -666,6 +674,11 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
 
         GenJourLine2.SetRange("Bal. Account No.");
         GenJourLine2.SetRange("Bal. Account Type");
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnAfterOnAfterGetRecord(var GLAccount: Record "G/L Account"; var GLEntry: Record "G/L Entry"; var FcyAcyAmt: Decimal; var FcyAcyBalance: Decimal; var Exrate: Decimal)
+    begin
     end;
 }
 
