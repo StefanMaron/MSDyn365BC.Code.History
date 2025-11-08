@@ -1269,7 +1269,8 @@ table 77 "Report Selections"
                                             Database::"Sales Invoice Header",
                                             Database::"Sales Cr.Memo Header",
                                             Database::"Sales Shipment Header",
-                                            Database::"Return Receipt Header"];
+                                            Database::"Return Receipt Header",
+                                            Database::"Issued Reminder Header"];
 
         OnAfterIsCustomerAccount(DocumentTableId, IsCustomer);
     end;
@@ -1521,7 +1522,10 @@ table 77 "Report Selections"
         // Related Source - Customer or vendor receiving the document
         TableId := GetAccountTableId(DocumentRecord.Number());
         if TableId = Database::Customer then begin
-            FieldName := 'Sell-to Customer No.';
+            if DocumentRecord.Number() = Database::"Issued Reminder Header" then
+                FieldName := 'Customer No.'
+            else
+                FieldName := 'Sell-to Customer No.';
             OnSendEmailDirectlyOnAfterSetFieldName(DocumentRecord.Number(), FieldName);
             if DataTypeManagement.FindfieldByName(DocumentRecord, FieldRef, FieldName) and Customer.Get(Format(FieldRef.Value())) then begin
                 SourceTableIDs.Add(Database::Customer);

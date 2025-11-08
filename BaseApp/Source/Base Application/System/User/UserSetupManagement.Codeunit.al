@@ -416,6 +416,9 @@ codeunit 5700 "User Setup Management"
         if (AllowPostingFrom = 0D) and (AllowPostingTo = 0D) then
             exit(IsPostingDateValidWithSetup(PostingDate, SetupRecordID));
 
+        if (AllowPostingFrom <= PostingDate) and (AllowPostingTo = 0D) then
+            exit(true);
+
         if (PostingDate < AllowPostingFrom) or (PostingDate > AllowPostingTo) then
             exit(false);
 

@@ -48,7 +48,7 @@ codeunit 6111 "Vendor Data Migration Facade"
     begin
     end;
 
-    procedure CreateVendorIfNeeded(VendorNoToSet: Code[20]; VendorNameToSet: Text[50]): Boolean
+    procedure CreateVendorIfNeeded(VendorNoToSet: Code[20]; VendorNameToSet: Text[100]): Boolean
     var
         Vendor: Record Vendor;
     begin

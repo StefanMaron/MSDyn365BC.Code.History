@@ -25,6 +25,7 @@ codeunit 134096 "ERM VAT Return"
         IfEmptyErr: Label '''%1'' in ''%2'' must not be blank.', Comment = '%1=caption of a field, %2=key of record';
         GeneratedMsg: Label 'The report has been successfully generated.';
         SubmittedMsg: Label 'The report has been successfully submitted.';
+        AttachedDocumentsListErr: Label 'Attached Documents List must be enabled.';
 
     [Test]
     [HandlerFunctions('SuggestLinesRPH')]
@@ -694,6 +695,49 @@ codeunit 134096 "ERM VAT Return"
         LibraryLowerPermissions.SetOutsideO365Scope();
     end;
 
+    [Test]
+    procedure EnsureVATReturnPeriodDocumentAttachmentMgmtSupport()
+    var
+        DocumentAttachment: Record "Document Attachment";
+        VATReportHeader: Record "VAT Report Header";
+        VATReturnPeriod: Record "VAT Return Period";
+        RecordRef: RecordRef;
+        VATReportList: TestPage "VAT Report List";
+        VATReport: TestPage "VAT Report";
+    begin
+        // [SCENARIO 597641] Ensure VAT Return Period supports Documents in Attached Documents List FactBox.
+        // [GIVEN] Initialized VAT Return Period.
+        VATReturnPeriod.Init();
+        VATReturnPeriod."No." := LibraryUtility.GenerateGUID();
+        VATReturnPeriod.Status := VATReturnPeriod.Status::Open;
+        VATReturnPeriod."Start Date" := DMY2Date(1, 1, Date2DMY(WorkDate(), 3));
+        VATReturnPeriod."End Date" := DMY2Date(31, 3, Date2DMY(WorkDate(), 3));
+        VATReturnPeriod."Due Date" := WorkDate();
+        VATReturnPeriod.Insert();
+
+        // [GIVEN] Open VAT Report List page and create VAT Report for the VAT Return Period.
+        LibraryLowerPermissions.SetO365BusFull();
+        VATReport.OpenNew();
+        VATReport.Status.SetValue(VATReportHeader.Status::Open);
+
+        // [GIVEN] Set VAT Return Period No. in VAT Report page and save the record.
+        VATReportHeader.SetRange("No.", VATReport."No.".Value());
+        VATReportHeader.FindFirst();
+
+        // [GIVEN] Open VAT Report List page and go to the created VAT Report record.
+        VATReportList.OpenEdit();
+        VATReportList.GoToRecord(VATReportHeader);
+
+        // [GIVEN] Document Attachment record for VAT Return Period.
+        RecordRef.GetTable(VATReportHeader);
+
+        // [GIVEN] Create and attach document to VAT Report Header.
+        CreateDocumentAttachment(DocumentAttachment, RecordRef, 'foo.jpeg');
+
+        // [THEN] Verify that Document Attachment record is created.
+        Assert.IsTrue(VATReportList."Attached Documents List".Enabled(), AttachedDocumentsListErr);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -901,6 +945,28 @@ codeunit 134096 "ERM VAT Return"
         VATStatementReportLine.FindFirst();
         VATStatementReportLine.TestField(Base, ExpectedBase);
         VATStatementReportLine.TestField(Amount, ExpectedAmount);
+    end;
+
+    local procedure CreateDocumentAttachment(var DocumentAttachment: Record "Document Attachment"; RecRef: RecordRef; FileName: Text)
+    var
+        TempBlob: Codeunit "Temp Blob";
+    begin
+        DocumentAttachment.Init();
+        CreateTempBLOBWithImageOfType(TempBlob);
+        DocumentAttachment.SaveAttachment(RecRef, FileName, TempBlob);
+        Clear(DocumentAttachment);
+    end;
+
+    local procedure CreateTempBLOBWithImageOfType(var TempBlob: Codeunit "Temp Blob")
+    var
+        ImageFormat: DotNet ImageFormat;
+        Bitmap: DotNet Bitmap;
+        InStr: InStream;
+    begin
+        TempBlob.CreateInStream(InStr);
+        Bitmap := Bitmap.Bitmap(1, 1);
+        Bitmap.Save(InStr, ImageFormat.Jpeg);
+        Bitmap.Dispose();
     end;
 
     [RequestPageHandler]

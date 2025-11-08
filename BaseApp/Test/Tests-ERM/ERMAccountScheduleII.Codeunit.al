@@ -2266,6 +2266,67 @@
         // Handled in AccScheduleOverviewWithShowAllEnabledPageHandler
     end;
 
+    [Test]
+    procedure VerifyFinancialReportEmptyCellForNoEntry()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AccScheduleName: Record "Acc. Schedule Name";
+        ColumnLayout: Record "Column Layout";
+        ColumnLayoutName: Record "Column Layout Name";
+        FinancialReport: Record "Financial Report";
+        GLAccount: array[5] of Record "G/L Account";
+        i: Integer;
+        GLAccountNo: Code[20];
+    begin
+        // [SCENARIO 599027] verify exported Excel file G/L Account That Has No Entry shows empty cell.
+        Initialize();
+
+        // [GIVEN] Create 5 G/L Accounts and post entries to 4 of them.
+        for i := 1 to 5 do begin
+            GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
+            GLAccount[i].Get(GLAccountNo);
+            GLAccount[i].Validate("Income/Balance", GLAccount[i]."Income/Balance"::"Balance Sheet");
+            GLAccount[i].Modify(true);
+            if i <= 4 then
+                CreateAndPostGLEntry(GLAccount[i]."No.", LibraryRandom.RandDecInRange(1000, 10000, 2));
+        end;
+
+        // [GIVEN] Create Row Definition "RowDef" with created G/L Accounts
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+
+        // Create Account Schedule Lines for each G/L Account
+        for i := 1 to 5 do
+            CreateAccScheduleLineWithGLAcc(AccScheduleLine, AccScheduleName.Name, GLAccount[i]."No.", AccScheduleLine.Show::"If Any Column Not Zero");
+
+        // [GIVEN] Create Column Definition "ColumnDef" with Balance column
+        LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
+        CreateColumnLayoutLine(ColumnLayout, ColumnLayoutName.Name, ColumnLayout."Column Type"::"Balance at Date", '');
+        ColumnLayout.Validate("Column Header", 'Balance');
+        ColumnLayout.Modify(true);
+
+        // [GIVEN] Link Row and Column definitions to Financial Report
+        FinancialReport.Get(AccScheduleName.Name);
+        FinancialReport.Validate("Financial Report Row Group", AccScheduleName.Name);
+        FinancialReport.Validate("Financial Report Column Group", ColumnLayoutName.Name);
+        FinancialReport.Modify(true);
+
+        // [WHEN] View Financial Report
+        LibraryVariableStorage.Enqueue(FinancialReport.Name);
+        for i := 1 to 5 do
+            LibraryVariableStorage.Enqueue(GLAccount[i]."No.");
+
+        // [WHEN] Run Financial Report created and Excel export available.
+        LibraryReportValidation.SetFileName(AccScheduleName.Name);
+        AccScheduleLine.Reset();
+        AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
+        AccScheduleLine.SetRange("Date Filter", CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
+        RunExportAccSchedule(AccScheduleLine, AccScheduleName);
+
+        // [THEN] Verify exported Excel file GL Account That Has No Entry shows empty cell.
+        LibraryReportValidation.OpenExcelFile();
+        LibraryReportValidation.VerifyCellValue(11, 1, '');
+    end;
+
     local procedure Initialize()
     var
         FinancialReportMgt: Codeunit "Financial Report Mgt.";
@@ -2707,6 +2768,18 @@
         FinancialReports.OpenEdit();
         FinancialReports.FILTER.SetFilter(Name, Name);
         FinancialReports.Overview.Invoke();
+    end;
+
+    local procedure CreateAndPostGLEntry(GLAccountNo: Code[20]; Amount: Decimal)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", GLAccountNo, Amount);
+        GenJournalLine.Validate("Posting Date", WorkDate());
+        GenJournalLine.Modify(true);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     [RequestPageHandler]
