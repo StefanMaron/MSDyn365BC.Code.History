@@ -1,4 +1,12 @@
 {
+  "settings": {
+    "search.exclude": {
+      "**.xlf": true
+    },
+    "al.enableCodeActions": false,
+    "al.enableCodeAnalysis": false,
+    "allint.enabled": false
+  },
   "folders": [
     {
       "path": "./AuditFileExport/Test/Audit File Export Tests"
@@ -342,13 +350,5 @@
     {
       "path": "./ReviewGLEntries/Test/_Exclude_Review_General_Ledger_Entries_Tests"
     }
-  ],
-  "settings": {
-    "al.enableCodeActions": false,
-    "allint.enabled": false,
-    "al.enableCodeAnalysis": false,
-    "search.exclude": {
-      "**.xlf": true
-    }
-  }
+  ]
 }
