@@ -114,6 +114,7 @@ using Microsoft.Projects.Resources.Pricing;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.Resources.Setup;
 using Microsoft.Projects.TimeSheet;
+using Microsoft.Purchases.Analysis;
 using Microsoft.Purchases.Archive;
 using Microsoft.Purchases.Comment;
 using Microsoft.Purchases.Document;
@@ -680,7 +681,7 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Recorded Event Buffer" = RIMD,
                   tabledata "Referenced XML Schema" = RIMD,
                   tabledata "Registered Invt. Movement Hdr." = RimD,
-                  tabledata "Registered Invt. Movement Line" = Rimd,
+                  tabledata "Registered Invt. Movement Line" = RimD,
                   tabledata "Relationship Mgmt. Cue" = RIMD,
                   tabledata Relative = RIMD,
                   tabledata "Reminder Terms Translation" = RIMD,
@@ -820,6 +821,10 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "XML Schema Element" = RIMD,
                   tabledata "XML Schema Restriction" = RIMD,
                   tabledata "Report Settings Override" = Rimd,
+                  tabledata "Acc. Payable Performance Chart" = RIMD,
+                  tabledata "Account Payable Cue" = RIMD,
+                  tabledata "Top Vendors By Purchase" = RIMD,
+                  tabledata "Purch. by Vend.Grp.Chart Setup" = RIMD,
 
                   //Extension management
                   tabledata "Application Dependency" = Rimd,

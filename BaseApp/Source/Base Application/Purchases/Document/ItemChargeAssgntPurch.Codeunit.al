@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -53,7 +53,14 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         FromItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Enum "Purchase Applies-to Document Type";
         FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100];
         QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertItemChargeAssignmentWithValuesTo(FromItemChargeAssgntPurch, ItemChargeAssgntPurch, ApplToDocType, FromApplToDocNo, FromApplToDocLineNo, FromItemNo, FromDescription, NextLineNo, QtyToAssign, AmountToAssign, IsHandled);
+        if IsHandled then
+            exit;
+
         NextLineNo := NextLineNo + 10000;
 
         ItemChargeAssgntPurch."Document No." := FromItemChargeAssgntPurch."Document No.";
@@ -1107,6 +1114,11 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeSuggestAssgnt(var PurchaseLine: Record "Purchase Line"; var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; TotalQtyToHandle: Decimal; TotalAmtToHandle: Decimal; var Selection: Integer; var SelectionTxt: Text; var SuggestItemChargeMenuTxt: Text; var SuggestItemChargeMessageTxt: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertItemChargeAssignmentWithValuesTo(var FromItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; var ApplToDocType: Enum "Purchase Applies-to Document Type"; var FromApplToDocNo: Code[20]; var FromApplToDocLineNo: Integer; var FromItemNo: Code[20]; var FromDescription: Text[100]; var NextLineNo: Integer; var QtyToAssign: Decimal; var AmountToAssign: Decimal; var IsHandled: Boolean)
     begin
     end;
 

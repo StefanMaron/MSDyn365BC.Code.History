@@ -41,6 +41,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Copy Production BOM - NamedType ErrBomVersionIsCertified)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4197415477 - NamedType 2708495530" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected Overhead = %1, but Statistics shows = %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Expected Overhead, %2=Overhead from Statistics page.]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Copy Production BOM - NamedType ManufacturingOverhead)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4197415477 - NamedType 1020197956" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Overhead Cost must be %1 in %2.]]></Val>

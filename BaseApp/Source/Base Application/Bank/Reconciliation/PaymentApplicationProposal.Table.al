@@ -429,6 +429,7 @@ table 1293 "Payment Application Proposal"
         AppliedPaymentEntry: Record "Applied Payment Entry";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         MatchBankPayments: Codeunit "Match Bank Payments";
+        ShowMessage: Boolean;
     begin
         AppliedPaymentEntry.TransferFields(Rec);
         BankAccReconciliationLine.Get(
@@ -453,8 +454,12 @@ table 1293 "Payment Application Proposal"
         "Applied Amt. Incl. Discount" := "Applied Amount" - "Applied Pmt. Discount";
         Modify(true);
 
-        if BankAccReconciliationLine."Transaction Date" < "Posting Date" then
-            Message(StrSubstNo(TransactionDateIsBeforePostingDateMsg, BankAccReconciliationLine."Transaction Date", "Posting Date"));
+        if BankAccReconciliationLine."Transaction Date" < "Posting Date" then begin
+            ShowMessage := true;
+            OnApplyOnBeforeShowMessage(BankAccReconciliationLine, "Posting Date", ShowMessage);
+            if ShowMessage then
+                Message(StrSubstNo(TransactionDateIsBeforePostingDateMsg, BankAccReconciliationLine."Transaction Date", "Posting Date"));
+        end;
     end;
 
     procedure GetRemainingAmountAfterPostingValue(): Decimal
@@ -848,6 +853,11 @@ table 1293 "Payment Application Proposal"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateRemainingAmount(var PaymentApplicationProposal: Record "Payment Application Proposal"; BankAccount: Record "Bank Account"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyOnBeforeShowMessage(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; PostingDate: Date; var ShowMessage: Boolean)
     begin
     end;
 }

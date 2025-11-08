@@ -455,7 +455,7 @@ codeunit 99000822 "Mfg. Item Jnl.-Post Line"
         else
             ValuedQty := CalcCapQty(ItemJnlLine);
 
-        if Item.Get(ItemJnlLine."Item No.") then
+        if GetItem(ItemJnlLine."Item No.", false) then
             if not sender.GetCalledFromAdjustment() then
                 Item.TestField("Inventory Value Zero", false);
 
@@ -593,6 +593,24 @@ codeunit 99000822 "Mfg. Item Jnl.-Post Line"
 #if not CLEAN27
         sender.RunOnAfterPostOutput(GlobalItemLedgerEntry, ProdOrderLine, ItemJnlLine);
 #endif
+    end;
+
+    local procedure GetItem(ItemNo: Code[20]; ForceGetItem: Boolean): Boolean
+    var
+        HasGotItem: Boolean;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetItem(Item, ItemNo, ForceGetItem, HasGotItem, IsHandled);
+        if IsHandled then
+            exit(HasGotItem);
+
+        Item.ReadIsolation(IsolationLevel::ReadUncommitted);
+        if not ForceGetItem then
+            exit(Item.Get(ItemNo));
+
+        Item.Get(ItemNo);
+        exit(true);
     end;
 
     local procedure PostOutputForProdOrder(
@@ -1404,6 +1422,11 @@ codeunit 99000822 "Mfg. Item Jnl.-Post Line"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetItem(var Item: Record Item; ItemNo: Code[20]; ForceGetItem: Boolean; var HasGotItem: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnCodeOnAfterCalcQtyPerUnitOfMeasure', '', true, true)]
     local procedure OnCodeOnAfterCalcQtyPerUnitOfMeasure(var ItemJnlLine: Record "Item Journal Line")
     begin
@@ -1500,5 +1523,23 @@ codeunit 99000822 "Mfg. Item Jnl.-Post Line"
     begin
         if ItemJournalLine.Subcontracting then
             CapLedgEntry."Completely Invoiced" := CapLedgEntry."Invoiced Quantity" = CapLedgEntry."Output Quantity"
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnAfterGetUpdatedAppliedQtyForConsumption', '', true, true)]
+    local procedure OnAfterGetUpdatedAppliedQtyForConsumption(OldItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; ReservationEntry2: Record "Reservation Entry"; SourceType: Integer; var AppliedQty: Decimal)
+    begin
+        if SourceType = Database::"Prod. Order Component" then begin
+            if (ReservationEntry2."Source ID" <> ItemLedgerEntry."Order No.") then begin
+                AppliedQty := 0;
+                exit;
+            end;
+
+            if ReservationEntry2."Source Ref. No." <> ItemLedgerEntry."Prod. Order Comp. Line No." then begin
+                AppliedQty := 0;
+                exit;
+            end;
+
+            AppliedQty := -Abs(OldItemLedgerEntry."Reserved Quantity")
+        end;
     end;
 }

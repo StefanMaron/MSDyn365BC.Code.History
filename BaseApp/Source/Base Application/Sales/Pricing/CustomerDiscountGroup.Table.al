@@ -6,6 +6,7 @@ namespace Microsoft.Sales.Pricing;
 
 using Microsoft.Pricing.PriceList;
 using Microsoft.Pricing.Source;
+using Microsoft.Sales.Customer;
 
 table 340 "Customer Discount Group"
 {
@@ -48,5 +49,18 @@ table 340 "Customer Discount Group"
         PriceSource.Validate("Source Type", PriceSource."Source Type"::"Customer Disc. Group");
         PriceSource.Validate("Source No.", Code);
     end;
+
+    trigger OnDelete()
+    var
+        Customer: Record Customer;
+    begin
+        Customer.SetRange("Customer Disc. Group", Rec.Code);
+        if not Customer.IsEmpty() then
+            Error(CustDiscountGroupDeleteErr, Rec.Code);
+    end;
+
+    var
+        CustDiscountGroupDeleteErr: Label 'You cannot delete the Customer Discount Group %1 because it is used in Customer.', Comment = '%1= Customer Discount Group Code.';
+
 }
 

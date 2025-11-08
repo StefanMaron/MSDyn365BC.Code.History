@@ -19,6 +19,8 @@ page 6520 "Item Tracing"
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = Worksheet;
+    AboutTitle = 'About Item Tracing';
+    AboutText = 'Trace the complete history and movement of item-tracked inventory by serial, lot, or package number, viewing all related posted transactions from origin to usage or vice versa to support quality control, compliance, and recall management.';
     SourceTable = "Item Tracing Buffer";
     SourceTableTemporary = true;
     UsageCategory = Tasks;

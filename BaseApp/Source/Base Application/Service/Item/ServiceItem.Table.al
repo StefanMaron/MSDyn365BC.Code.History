@@ -134,7 +134,8 @@ table 5940 "Service Item"
                             "Response Time (Hours)" := ServItemGr."Default Response Time (Hours)";
                     end;
                 end;
-                Modify();
+                if not IsNullGuid(Rec.SystemId) then
+                    Modify();
             end;
         }
         field(4; Description; Text[100])
@@ -326,7 +327,8 @@ table 5940 "Service Item"
                 end;
 
                 ServLogMgt.ServItemItemNoChange(Rec, xRec);
-                Modify();
+                if not IsNullGuid(Rec.SystemId) then
+                    Modify();
             end;
         }
         field(11; "Unit of Measure Code"; Code[10])
@@ -1267,6 +1269,9 @@ table 5940 "Service Item"
         IsHandled := false;
         OnBeforeServItemLinesExistErr(Rec, CopyStr(ChangedFieldName, 1, 100), IsHandled);
         if IsHandled then
+            exit;
+
+        if IsNullGuid(Rec.SystemId) then
             exit;
 
         if ServItemLinesExist() then

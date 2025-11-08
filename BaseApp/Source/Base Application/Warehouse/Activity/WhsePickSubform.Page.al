@@ -560,6 +560,7 @@ page 5780 "Whse. Pick Subform"
             exit;
 
         WhseActivLine.Copy(Rec);
+        WhseActivLine.SetCurrentKey("Activity Type", "No.", "Sorting Sequence No.");
         WhseActivLine.FilterGroup(3);
         WhseActivLine.SetRange(Breakbulk);
         WhseActivLine.FilterGroup(0);

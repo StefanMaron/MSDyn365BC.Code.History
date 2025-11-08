@@ -491,6 +491,33 @@ codeunit 134887 "ERM G/L Currency Revaluation"
         GLEntry.TestField("Source Currency Code", Vendor."Currency Code");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckPostingLCYAmountOnGLAccountWithSameCurrencySetup()
+    var
+        GLAccount: Record "G/L Account";
+        BalGLAccount: Record "G/L Account";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        Initialize();
+
+        // Setup.
+        LibraryERM.CreateGLAccount(BalGLAccount);
+        BalGLAccount."Direct Posting" := true;
+        BalGLAccount.Modify();
+
+        CreateAccountWithSameSourceCurrencySetup(GLAccount);
+        GLAccount.Validate("Account Type", GLAccount."Account Type"::Posting);
+        GLAccount.Validate("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
+        GLAccount.Modify(true);
+
+        CreateFCYJournal(
+            GenJournalLine, GLAccount."No.", WorkDate(), GenJournalLine."Bal. Account Type"::"G/L Account", BalGLAccount."No.", '');
+
+        // Exercise.
+        asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
     local procedure AddDifferentExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; GLAccount: Record "G/L Account"; GainsLossesFactor: Integer)
     begin
         CurrencyExchangeRate.SetRange("Currency Code", GLAccount."Source Currency Code");
