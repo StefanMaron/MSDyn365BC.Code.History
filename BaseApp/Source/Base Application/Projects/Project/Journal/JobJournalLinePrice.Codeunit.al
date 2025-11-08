@@ -228,7 +228,7 @@ codeunit 7023 "Job Journal Line - Price" implements "Line With Price"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetPrice(JobJournalLine, PriceListLine, AmountType, IsHandled);
+        OnBeforeSetPrice(JobJournalLine, PriceListLine, AmountType, IsHandled, CurrPriceType);
         if IsHandled then
             exit;
 
@@ -318,7 +318,7 @@ codeunit 7023 "Job Journal Line - Price" implements "Line With Price"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetPrice(var JobJournalLine: Record "Job Journal Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; var IsHandled: Boolean)
+    local procedure OnBeforeSetPrice(var JobJournalLine: Record "Job Journal Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; var IsHandled: Boolean; CurrPriceType: Enum "Price Type")
     begin
     end;
 }

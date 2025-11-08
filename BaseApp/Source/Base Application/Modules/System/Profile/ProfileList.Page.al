@@ -12,6 +12,8 @@ page 9171 "Profile List"
     CardPageID = "Profile Card";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Profiles (Roles)';
+    AboutText = 'Create and manage user profiles that define business roles, control user access, and customize page layouts to ensure users have a tailored and efficient experience in Business Central.';
     RefreshOnActivate = true;
     SourceTable = "All Profile";
     UsageCategory = Lists;

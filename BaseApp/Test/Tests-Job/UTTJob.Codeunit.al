@@ -29,6 +29,7 @@ codeunit 136350 "UT T Job"
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryRandom: Codeunit "Library - Random";
         LibraryMarketing: Codeunit "Library - Marketing";
+        LibraryPlanning: Codeunit "Library - Planning";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryWarehouse: Codeunit "Library - Warehouse";
@@ -2278,6 +2279,82 @@ codeunit 136350 "UT T Job"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('MakeSupplyOrdersPageHandler')]
+    procedure PreventDeletionOfProjectPlanningLineLinkedToPurchaseReceipt()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        RequisitionLine: Record "Requisition Line";
+        ValidationError: Label 'You cannot delete this Project Planning Line because a Purchase Receipt %1 exists for it.';
+    begin
+        // [SCENARIO 608656] Error posting Purchase Invoice that was already received for Project Planning Line, which we allow you to delete: The Project Planning Line does not exist. Identification fields and values: Project No.='xxx ',Project Task No.='123'
+        Initialize();
+
+        //[GIVEN] Create Vendor
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // Create Item with Replenishment Method = Purchase
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
+        Item.Validate("Vendor No.", Vendor."No.");
+        Item.Modify(true);
+
+        //[GIVEN] Create Project (Job)
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Apply Usage Link", true);
+        Job.Modify(true);
+
+        //[GIVEN] Create Project Task
+        LibraryJob.CreateJobTask(Job, JobTask);
+        JobTask.Validate("Job No.", Job."No.");
+        JobTask.Validate("Job Task Type", JobTask."Job Task Type"::Posting);
+        JobTask.Modify(true);
+
+        //[GIVEN] Create Planning Line
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate(Type, JobPlanningLine.Type::Item);
+        JobPlanningLine.Validate("No.", Item."No.");
+        JobPlanningLine.Validate("Planning Date", WorkDate());
+        JobPlanningLine.Validate(Quantity, 2);
+        JobPlanningLine.Modify(true);
+
+        //[GIVEN] Calculate and Create Purchase Order from Project Demand
+        LibraryPlanning.CalculateOrderPlanJob(RequisitionLine);
+        MakeSupplyOrdersActiveOrderForPurchase(JobPlanningLine."Job No.");
+
+        // [GIVEN] Find the Purchase Order.
+        PurchaseLine.SetRange("Job No.", JobPlanningLine."Job No.");
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.FindFirst();
+
+        // [GIVEN] Validate Amount Including VAT and Qty. to Receive in Purchase Line.
+        PurchaseLine.Validate(PurchaseLine."Amount Including VAT", LibraryRandom.RandDec(10, 2));
+        PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Find the Purchase Header.
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+
+        // [WHEN] Recive the Purchase Order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        PurchRcptLine.SetRange("Job No.", JobPlanningLine."Job No.");
+        PurchRcptLine.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
+        PurchRcptLine.SetRange("Job Planning Line No.", JobPlanningLine."Line No.");
+        PurchRcptLine.FindFirst();
+
+        //[THEN] Check Project Planning Line should not deleted
+        JobPlanningLine.Get(Job."No.", JobTask."Job Task No.", JobPlanningLine."Line No.");
+        asserterror JobPlanningLine.Delete(true);
+        Assert.ExpectedError(StrSubstNo(ValidationError, PurchRcptLine."Document No."));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2671,6 +2748,34 @@ codeunit 136350 "UT T Job"
         JobPlanningLine.Modify(true);
     end;
 
+    local procedure MakeSupplyOrdersActiveOrderForPurchase(DemandOrderNo: Code[20])
+    var
+        ManufacturingUserTemplate: Record "Manufacturing User Template";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        RequisitionLine.SetRange("Demand Order No.", DemandOrderNo);
+        RequisitionLine.FindFirst();
+        MakeSupplyOrders(
+          RequisitionLine, ManufacturingUserTemplate."Make Orders"::"The Active Order",
+          ManufacturingUserTemplate."Create Purchase Order"::"Make Purch. Orders");
+    end;
+
+    local procedure MakeSupplyOrders(var RequisitionLine: Record "Requisition Line"; MakeOrders: Option; CreateProductionOrder: Enum "Planning Create Prod. Order")
+    var
+        ManufacturingUserTemplate: Record "Manufacturing User Template";
+    begin
+        GetManufacturingUserTemplate(ManufacturingUserTemplate, MakeOrders, CreateProductionOrder);
+        LibraryPlanning.MakeSupplyOrders(ManufacturingUserTemplate, RequisitionLine);
+    end;
+
+    local procedure GetManufacturingUserTemplate(var ManufacturingUserTemplate: Record "Manufacturing User Template"; MakeOrder: Option; CreateProductionOrder: Enum "Planning Create Prod. Order")
+    begin
+        if not ManufacturingUserTemplate.Get(UserId) then
+            LibraryPlanning.CreateManufUserTemplate(
+              ManufacturingUserTemplate, UserId, MakeOrder, ManufacturingUserTemplate."Create Purchase Order"::"Make Purch. Orders",
+              CreateProductionOrder, ManufacturingUserTemplate."Create Transfer Order"::"Make Trans. Orders");
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Job", 'OnAfterModifyEvent', '', false, false)]
     local procedure InsertNameValueBufferOnJobModify(var Rec: Record Job; var xRec: Record Job; RunTrigger: Boolean)
     var
@@ -2789,6 +2894,12 @@ codeunit 136350 "UT T Job"
     begin
         //[THEN] Check Purch. Order From Sales Order Page have Record.
         PurchOrderFromSalesOrder."No.".AssertEquals(LibraryVariableStorage.DequeueText());
+    end;
+
+    [ModalPageHandler]
+    procedure MakeSupplyOrdersPageHandler(var MakeSupplyOrders: Page "Make Supply Orders"; var Response: Action)
+    begin
+        Response := ACTION::LookupOK;
     end;
 
     [MessageHandler]

@@ -25,6 +25,8 @@ page 981 "Payment Registration"
     InsertAllowed = false;
     LinksAllowed = false;
     PageType = Worksheet;
+    AboutTitle = 'About Register Customer Payments';
+    AboutText = 'Register and post customer payments against sales documents, track received amounts and dates, and update customer, general ledger, and bank ledger entries for full or partial payments.';
     SourceTable = "Payment Registration Buffer";
     SourceTableTemporary = true;
     UsageCategory = Tasks;

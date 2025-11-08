@@ -747,6 +747,86 @@ codeunit 134907 "ERM Invoice and Reminder"
         ReminderTermSetupPage.ReminderLevelSetup.CustomerCommunications.Invoke();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrueFalse,ReminderLevelCommunicationPageHandler,ReminderRequestPageHandler,LanguagesPageHandlerNLD')]
+    procedure AddTextforLanguageInReminderLevelCommunication()
+    var
+        ReminderTerms: Record "Reminder Terms";
+        ReminderLevel: Record "Reminder Level";
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReminderHeader: Record "Reminder Header";
+        IssuedReminderHeader: Record "Issued Reminder Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        IssuedReminder: TestPage "Issued Reminder";
+        ReminderTermSetupPage: TestPage "Reminder Terms Setup";
+        PostedDocumentNo: Code[20];
+        ReminderNo: Code[20];
+    begin
+        // [SCENARIO 602665] Issue with the new feature for reminder texts where the configured body text is not included in the XML for report 117 (Reminder)
+        Initialize();
+
+        // [GIVEN] Create Reminder Term with levels
+        LibraryErm.CreateReminderTerms(ReminderTerms);
+        LibraryErm.CreateReminderLevel(ReminderLevel, ReminderTerms.Code);
+        Evaluate(ReminderLevel."Grace Period", '2D');
+        Evaluate(ReminderLevel."Due Date Calculation", '7D');
+        ReminderLevel.Modify(true);
+
+        // [WHEN] Open Reminder Term Setup page and add text for language
+        ReminderTermSetupPage.OpenEdit();
+        ReminderTermSetupPage.GoToRecord(ReminderTerms);
+        ReminderTermSetupPage.ReminderLevelSetup.First();
+
+        // [GIVEN] Add text for language NL in Reminder Level Communication.
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(false);
+        ReminderTermSetupPage.ReminderLevelSetup.CustomerCommunications.Invoke();
+        ReminderTermSetupPage.Close();
+
+        // [GIVEN] Create Customer with Reminder Terms and Language Code = NL
+        CustLedgerEntry.DeleteAll();
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Reminder Terms Code", ReminderTerms.Code);
+        Customer.Validate("Language Code", 'NLD');
+        Customer.Modify(true);
+
+        // [GIVEN] Create and Post Sales Invoice for Customer
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, LibraryRandom.RandDec(1000, 2), LibraryRandom.RandDec(1000, 2));
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Create Reminder with future posting date to make invoice overdue
+        CreateReminderHeader(ReminderHeader, Customer."No.");
+        ReminderHeader.Validate("Posting Date", CalcDate('<30D>', WorkDate()));
+        ReminderHeader.Validate("Document Date", CalcDate('<30D>', WorkDate()));
+        ReminderHeader.Modify(true);
+
+        // [WHEN] Suggest Reminder Lines for Posted Invoice
+        CreateReminderLine(ReminderHeader."No.", PostedDocumentNo);
+
+        // [WHEN] Issue Reminder for Customer
+        ReminderNo := ReminderHeader."No.";
+        IssueReminder(ReminderNo);
+
+        // [THEN] Verify Issued Reminder exists
+        IssuedReminderHeader.SetRange("Customer No.", Customer."No.");
+        IssuedReminderHeader.FindFirst();
+
+        // [WHEN] Verify Reminder can be printed/sent with text for language NL
+        IssuedReminder.OpenView();
+        IssuedReminder.GoToRecord(IssuedReminderHeader);
+        IssuedReminder."&Print".Invoke();
+        IssuedReminder.Close();
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('AmtDueText', StrSubstNo(AmtDueLbl, Format(IssuedReminderHeader."Due Date", 0, '<Day,2>-<Month,2>-<Year,2>')));
+    end;
+
     local procedure Initialize()
     var
         FeatureKey: Record "Feature Key";
@@ -1310,6 +1390,13 @@ codeunit 134907 "ERM Invoice and Reminder"
     procedure LanguagesPageHandler(var Languages: TestPage "Languages")
     begin
         Languages.Filter.SetFilter("Code", 'ENG');
+        Languages.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure LanguagesPageHandlerNLD(var Languages: TestPage "Languages")
+    begin
+        Languages.Filter.SetFilter("Code", 'NLD');
         Languages.OK().Invoke();
     end;
 }

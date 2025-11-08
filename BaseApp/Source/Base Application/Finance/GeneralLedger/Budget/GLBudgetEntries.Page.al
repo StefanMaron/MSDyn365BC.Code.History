@@ -19,6 +19,8 @@ page 120 "G/L Budget Entries"
     DataCaptionFields = "G/L Account No.", "Budget Name";
     DelayedInsert = true;
     PageType = List;
+    AboutTitle = 'About G/L Budget Entries';
+    AboutText = 'Enter and manage budgeted amounts for specific general ledger accounts, periods, and dimensions within a selected G/L budget to support financial planning and analysis.';
     SourceTable = "G/L Budget Entry";
     UsageCategory = History;
 

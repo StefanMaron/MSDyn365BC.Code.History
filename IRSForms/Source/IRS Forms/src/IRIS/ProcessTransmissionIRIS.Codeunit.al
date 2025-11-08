@@ -45,6 +45,7 @@ codeunit 10056 "Process Transmission IRIS"
         UnexpectedStatusErr: Label 'Unexpected status: %1', Comment = '%1 - status text returned by IRIS';
         UnableToParseResponseErr: Label 'Could not parse the response from IRIS.', Locked = true;
         UnableToParseResponseUserErr: Label 'Could not get the transmission status from the response returned by IRIS. Use the Download Acknowledgment Content action on the Transmission History page to download the response content and check the errors.';
+        CannotUpdateRejectedTransmissionErr: Label 'Updating rejected transmissions is not allowed. \Send the replacement transmission until it is no longer rejected.';
 
     procedure CheckOriginal(var Transmission: Record "Transmission IRIS")
     begin
@@ -343,6 +344,8 @@ codeunit 10056 "Process Transmission IRIS"
 
         OAuthClient.RequestTransmStatusOrAcknowledgement(GetStatusRequestContentBlob, AcknowledgContentBlob, HttpStatusCode);
 
+        if ReceiptID = '' then
+            ReceiptID := ProcessResponse.GetReceiptIDFromAcknowledgXmlResponse(AcknowledgContentBlob);
         if not TransmissionLog.FindRecordByUTID(UniqueTransmissionId) then
             if TransmissionLog.FindLastRecByReceiptID(ReceiptID) then;
 
@@ -483,35 +486,41 @@ codeunit 10056 "Process Transmission IRIS"
         if not TempErrorInfo.FindSet() then
             exit;
 
+        // remove previous record related errors
         repeat
-            // remove previous record related errors
             if TempErrorInfo."Entity Type" = Enum::"Entity Type IRIS"::RecordType then begin
                 ErrorInfo.SetRange("Entity Type", TempErrorInfo."Entity Type");
                 ErrorInfo.SetRange("Submission ID", TempErrorInfo."Submission ID");
                 ErrorInfo.SetRange("Record ID", TempErrorInfo."Record ID");
                 ErrorInfo.DeleteAll(true);
             end;
-            ErrorInfo.Reset();
-
-            // find related IRS 1099 Form Document
-            FormDocID := 0;
-            IRS1099FormDocHeader.SetRange("IRIS Transmission Document ID", TransmissionDocumentID);
-            IRS1099FormDocHeader.SetRange("IRIS Submission ID", TempErrorInfo."Submission ID");
-            IRS1099FormDocHeader.SetRange("IRIS Record ID", TempErrorInfo."Record ID");
-            if IRS1099FormDocHeader.FindFirst() then
-                FormDocID := IRS1099FormDocHeader.ID;
-
-            ErrorInfo.LockTable();
-            ErrorInfo.InitRecord();     // assign new Line ID
-            LineID := ErrorInfo."Line ID";
-
-            ErrorInfo := TempErrorInfo;
-            ErrorInfo."Line ID" := LineID;
-            ErrorInfo."Transmission Document ID" := TransmissionDocumentID;
-            ErrorInfo."Unique Transmission ID" := UniqueTransmissionId;
-            ErrorInfo."IRS 1099 Form Doc. ID" := FormDocID;
-            ErrorInfo.Insert(true);
         until TempErrorInfo.Next() = 0;
+        ErrorInfo.Reset();
+
+        // add new errors
+        TempErrorInfo.Reset();
+        TempErrorInfo.SetFilter("Error Code", '<>%1', '');
+        if TempErrorInfo.FindSet() then
+            repeat
+                // find related IRS 1099 Form Document
+                FormDocID := 0;
+                IRS1099FormDocHeader.SetRange("IRIS Transmission Document ID", TransmissionDocumentID);
+                IRS1099FormDocHeader.SetRange("IRIS Submission ID", TempErrorInfo."Submission ID");
+                IRS1099FormDocHeader.SetRange("IRIS Record ID", TempErrorInfo."Record ID");
+                if IRS1099FormDocHeader.FindFirst() then
+                    FormDocID := IRS1099FormDocHeader.ID;
+
+                ErrorInfo.LockTable();
+                ErrorInfo.InitRecord();     // assign new Line ID
+                LineID := ErrorInfo."Line ID";
+
+                ErrorInfo := TempErrorInfo;
+                ErrorInfo."Line ID" := LineID;
+                ErrorInfo."Transmission Document ID" := TransmissionDocumentID;
+                ErrorInfo."Unique Transmission ID" := UniqueTransmissionId;
+                ErrorInfo."IRS 1099 Form Doc. ID" := FormDocID;
+                ErrorInfo.Insert(true);
+            until TempErrorInfo.Next() = 0;
     end;
 
     procedure FilterErrorInformation(var ErrorInformation: Record "Error Information IRIS"; TransmissionDocumentID: Integer; SubmissionId: Text[20]; RecordId: Text[20])
@@ -636,6 +645,9 @@ codeunit 10056 "Process Transmission IRIS"
         FormDocsCreated: Boolean;
         UpdateMessage: Text;
     begin
+        if Transmission.Status = Enum::"Transmission Status IRIS"::Rejected then
+            Error(CannotUpdateRejectedTransmissionErr);
+
         // add existing released form documents first
         AddedDocsCount := AddReleasedFormDocsToTransmission(Transmission);
         if AddedDocsCount > 0 then

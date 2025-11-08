@@ -1084,6 +1084,7 @@ table 5409 "Prod. Order Routing Line"
             "Direct Unit Cost" := MachineCenter."Direct Unit Cost";
             "Indirect Cost %" := MachineCenter."Indirect Cost %";
             "Overhead Rate" := MachineCenter."Overhead Rate";
+            "Unit Cost Calculation" := "Unit Cost Calculation"::Time;
             FillDefaultLocationAndBins();
         end;
         OnAfterMachineCtrTransferFields(Rec, WorkCenter, MachineCenter);

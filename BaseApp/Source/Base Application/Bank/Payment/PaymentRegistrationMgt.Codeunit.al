@@ -34,7 +34,10 @@ codeunit 980 "Payment Registration Mgt."
     TableNo = "Payment Registration Buffer";
 
     trigger OnRun()
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
+        SequenceNoMgt.SetPreviewMode(PreviewMode);
         if PreviewMode then
             RunPreview(Rec, AsLumpPreviewContext);
     end;

@@ -117,6 +117,7 @@ codeunit 90 "Purch.-Post"
         InventorySetup: Record "Inventory Setup";
         ErrorContextElementProcessLines: Codeunit "Error Context Element";
         ErrorContextElementPostLine: Codeunit "Error Context Element";
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
         ZeroPurchLineRecID: RecordId;
         EverythingInvoiced: Boolean;
         SavedPreviewMode: Boolean;
@@ -128,6 +129,7 @@ codeunit 90 "Purch.-Post"
         SalesTaxCalculationOverridden: Boolean;
         IsHandled: Boolean;
     begin
+        SequenceNoMgt.SetPreviewMode(PreviewMode);
         IsHandled := false;
         OnBeforePostPurchaseDoc(PurchaseHeader2, PreviewMode, SuppressCommit, HideProgressWindow, ItemJnlPostLine, IsHandled);
         if IsHandled then

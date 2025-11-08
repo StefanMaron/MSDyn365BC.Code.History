@@ -113,6 +113,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EMail Custom Report Layout - NamedType TargetEmailAddressErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2771255747 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Amount FieldCaption, %2 = Amount Value, %3 = Record TableCaption]D;]A;(LookupHint=Codeunit ERM Cash Basis - NamedType AmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 784540059 - NamedType 3396004736" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Amount must be equal.]]></Val>
@@ -3578,6 +3587,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT PAG Vendor 1099 - NamedType CodeDIV01B)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 72376396 - NamedType 2266468480" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Formatted amount should contain "%1" in NoText[2]5D;]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[Cents Value]D;]A;(LookupHint=Codeunit UT REP Check - NamedType AndCentsInNoText2Msg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 72376396 - NamedType 3215752075" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[CheckNoText]]></Val>
@@ -3594,6 +3612,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Check - NamedType DialogErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 72376396 - NamedType 2259140023" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[FormatNoText should succeed for amount %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[Amount]D;]A;(LookupHint=Codeunit UT REP Check - NamedType FormatNoTextSuccessMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 72376396 - NamedType 1069577936" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -130,28 +130,30 @@ report 29 "Export Acc. Sched. to Excel"
                     repeat
                         RecNo := RecNo + 1;
                         Window.Update(1, Round(RecNo / TotalRecNo * 10000, 1));
-                        RowNo := RowNo + 1;
-                        ColumnNo := 1;
-                        EnterCell(
-                          RowNo, ColumnNo, AccSchedLine."Row No.",
-                          AccSchedLine.Bold, AccSchedLine.Italic, AccSchedLine.Underline, AccSchedLine."Double Underline",
-                          '0', TempExcelBuffer."Cell Type"::Text);
-                        ColumnNo := 2;
+                        if ShouldIncludeRow() then begin
+                            RowNo := RowNo + 1;
+                            ColumnNo := 1;
+                            EnterCell(
+                              RowNo, ColumnNo, AccSchedLine."Row No.",
+                              AccSchedLine.Bold, AccSchedLine.Italic, AccSchedLine.Underline, AccSchedLine."Double Underline",
+                              '0', TempExcelBuffer."Cell Type"::Text);
+                            ColumnNo := 2;
                         if IncludeRow(AccSchedLine) then
                             EnterCell(
                               RowNo, ColumnNo, AccSchedLine.Description,
                               AccSchedLine.Bold, AccSchedLine.Italic, AccSchedLine.Underline, AccSchedLine."Double Underline",
                               '', TempExcelBuffer."Cell Type"::Text);
-                        if ColumnLayout.Find('-') then
-                            repeat
-                                CalcColumnValue();
-                                ColumnNo := ColumnNo + 1;
+                            if ColumnLayout.Find('-') then
+                                repeat
+                                    CalcColumnValue();
+                                    ColumnNo := ColumnNo + 1;
                                 if IncludeRow(AccSchedLine) then
                                     EnterCell(
                                       RowNo, ColumnNo, MatrixMgt.FormatAmount(ColumnValue, ColumnLayout."Rounding Factor", UseAmtsInAddCurr),
                                       AccSchedLine.Bold, AccSchedLine.Italic, AccSchedLine.Underline, AccSchedLine."Double Underline",
                                       '', TempExcelBuffer."Cell Type"::Number)
-                            until ColumnLayout.Next() = 0;
+                                until ColumnLayout.Next() = 0;
+                        end;
                     until AccSchedLine.Next() = 0;
                 end;
 
@@ -414,6 +416,23 @@ report 29 "Export Acc. Sched. to Excel"
         if SheetName = '' then
             exit(false);
 
+        exit(true);
+    end;
+
+    local procedure ShouldIncludeRow(): Boolean
+    var
+        HasNonZeroColumn: Boolean;
+    begin
+        if AccSchedLine.Show = AccSchedLine.Show::"If Any Column Not Zero" then begin
+            HasNonZeroColumn := false;
+            if ColumnLayout.Find('-') then
+                repeat
+                    CalcColumnValue();
+                    if ColumnValue <> 0 then
+                        exit(true);
+                until ColumnLayout.Next() = 0;
+            exit(HasNonZeroColumn);
+        end;
         exit(true);
     end;
 

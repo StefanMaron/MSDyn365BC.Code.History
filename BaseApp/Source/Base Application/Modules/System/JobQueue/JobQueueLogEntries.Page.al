@@ -7,6 +7,8 @@ page 674 "Job Queue Log Entries"
     Editable = false;
     LinksAllowed = false;
     PageType = List;
+    AboutTitle = 'About Job Queue Log Entries';
+    AboutText = 'Monitor the execution status, details, and error messages of scheduled job queue entries to track processing outcomes and diagnose issues in automated tasks.';
     SourceTable = "Job Queue Log Entry";
     SourceTableView = sorting("Start Date/Time", ID)
                       order(descending);

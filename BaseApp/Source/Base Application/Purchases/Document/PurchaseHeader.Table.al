@@ -2969,7 +2969,7 @@ table 38 "Purchase Header"
 #pragma warning disable AA0470
         LinesNotUpdatedMsg: Label 'You have changed %1 on the purchase header, but it has not been changed on the existing purchase lines.', Comment = 'You have changed Posting Date on the purchase header, but it has not been changed on the existing purchase lines.';
 #pragma warning restore AA0470
-        LinesNotUpdatedDateMsg: Label 'You have changed the %1 on the purchase order, which might affect the prices and discounts on the purchase order lines.', Comment = '%1: OrderDate';
+        LinesNotUpdatedDateMsg: Label 'You have changed the %1 on the purchase header, which might affect the prices and discounts on the purchase lines.', Comment = '%1: OrderDate';
 #pragma warning disable AA0074
         Text020: Label 'You must update the existing purchase lines manually.';
 #pragma warning restore AA0074

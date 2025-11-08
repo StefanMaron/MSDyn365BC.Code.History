@@ -29,6 +29,8 @@ page 77 "Resource List"
     CardPageID = "Resource Card";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Resources';
+    AboutText = 'Manage and organize project resources, including people and machines, by defining their availability, costs, pricing, and work schedules to support accurate project planning and allocation.';
     QueryCategory = 'Resource List';
     SourceTable = Resource;
     UsageCategory = Lists;

@@ -53,6 +53,33 @@ codeunit 10047 "Process Response IRIS"
         exit(true);
     end;
 
+    procedure GetReceiptIDFromAcknowledgXmlResponse(AcknowledgContentBlob: Codeunit "Temp Blob") ReceiptID: Text[100]
+    var
+        XmlDoc: XmlDocument;
+        NamespaceManager: XmlNamespaceManager;
+        CurrXmlNode: XmlNode;
+        AckText: Text;
+        XPath: Text;
+    begin
+        ReceiptID := '';
+
+        AckText := Helper.WriteTempBlobToText(AcknowledgContentBlob);
+        if AckText = '' then
+            exit('');
+
+        XmlDocument.ReadFrom(AckText, XmlDoc);
+
+        NamespaceManager.NameTable(XmlDoc.NameTable());
+        NamespaceManager.AddNamespace(AckNamespacePrefixTxt, AckNamespaceUriTxt);
+
+        // Receipt ID may or may not be present in the Acknowledgement response
+        XPath := Helper.AddPrefixToXPath('//ResultGrp/TransmissionResultGrp/ReceiptId', AckNamespacePrefixTxt);
+        if XmlDoc.SelectSingleNode(XPath, NamespaceManager, CurrXmlNode) then
+            ReceiptID := CopyStr(CurrXmlNode.AsXmlElement().InnerText(), 1, MaxStrLen(ReceiptID));
+
+        exit(ReceiptID);
+    end;
+
     procedure ParseGetStatusXmlResponse(AcknowledgContentBlob: Codeunit "Temp Blob"; var UniqueTransmissionId: Text[100]; var TransmissionStatus: Text): Boolean
     var
         TempDummyErrorInfo: Record "Error Information IRIS" temporary;
@@ -211,9 +238,12 @@ codeunit 10047 "Process Response IRIS"
         // Record Errors
         XPath := Helper.AddPrefixToXPath('ErrorInformationGrp', AckNamespacePrefixTxt);
         if RecordResultGrpNode.SelectNodes(XPath, NamespaceManager, CurrNodeList) then
-            foreach CurrXmlNode in CurrNodeList do
-                if ParseErrorInfoGroup(CurrXmlNode, NamespaceManager, ErrorCode, ErrorMessage, ErrorValue, XmlElementPath) then
-                    CreateErrorInfoTempRec(TempErrorInfo, Enum::"Entity Type IRIS"::RecordType, SubmissionId, RecordIdValue, ErrorCode, ErrorMessage, ErrorValue, XmlElementPath);
+            if CurrNodeList.Count() = 0 then
+                CreateErrorInfoTempRec(TempErrorInfo, Enum::"Entity Type IRIS"::RecordType, SubmissionId, RecordIdValue, '', '', '', '')    // record was processed by IRS without errors
+            else
+                foreach CurrXmlNode in CurrNodeList do
+                    if ParseErrorInfoGroup(CurrXmlNode, NamespaceManager, ErrorCode, ErrorMessage, ErrorValue, XmlElementPath) then
+                        CreateErrorInfoTempRec(TempErrorInfo, Enum::"Entity Type IRIS"::RecordType, SubmissionId, RecordIdValue, ErrorCode, ErrorMessage, ErrorValue, XmlElementPath);
     end;
 
     local procedure ParseErrorInfoGroup(ErrorInfoGrpNode: XmlNode; NamespaceManager: XmlNamespaceManager; var ErrorCode: Text; var ErrorMessage: Text; var ErrorValue: Text; var XmlElementPath: Text): Boolean

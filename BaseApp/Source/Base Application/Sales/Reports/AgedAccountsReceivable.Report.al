@@ -243,6 +243,7 @@ report 120 "Aged Accounts Receivable"
                     begin
                         if AgingBy = AgingBy::"Posting Date" then begin
                             SetRange("Posting Date", 0D, EndingDate);
+                            SetRange("Date Filter", 0D, EndingDate);
                             SetAutoCalcFields("Remaining Amt. (LCY)");
                             SetFilter("Remaining Amt. (LCY)", '<>0');
                         end;

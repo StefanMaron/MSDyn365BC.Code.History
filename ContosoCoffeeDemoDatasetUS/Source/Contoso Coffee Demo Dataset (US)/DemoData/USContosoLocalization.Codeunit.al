@@ -76,6 +76,8 @@ codeunit 11465 "US Contoso Localization"
                 end;
             Enum::"Contoso Demo Data Level"::"Master Data":
                 begin
+                    Codeunit.Run(Codeunit::"Create Acc. Schedule Name US");
+                    Codeunit.Run(Codeunit::"Create Financial Report US");
                     Codeunit.Run(Codeunit::"Create Acc. Schedule Line US");
                     Codeunit.Run(Codeunit::"Create Column Layout US");
                     Codeunit.Run(Codeunit::"Create Curr Exchange Rate US");
@@ -123,17 +125,10 @@ codeunit 11465 "US Contoso Localization"
     end;
 
     local procedure InventoryModule(ContosoDemoDataLevel: Enum "Contoso Demo Data Level")
-    var
-        CreateInventoryPostingSetupUS: Codeunit "Create InventoryPostingSetupUS";
     begin
         case ContosoDemoDataLevel of
-            Enum::"Contoso Demo Data Level"::"Setup Data":
-                Codeunit.Run(Codeunit::"Create InventoryPostingSetupUS");
             Enum::"Contoso Demo Data Level"::"Master Data":
-                begin
-                    Codeunit.Run(Codeunit::"Create Location US");
-                    CreateInventoryPostingSetupUS.UpdateInventoryPosting();
-                end;
+                Codeunit.Run(Codeunit::"Create Location US");
         end;
     end;
 

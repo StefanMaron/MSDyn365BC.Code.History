@@ -7391,6 +7391,71 @@ codeunit 137079 "SCM Production Order III"
             StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption("Scrap Quantity"), -CapacityLedgerEntry1."Scrap Quantity", CapacityLedgerEntry.TableCaption()));
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandlerWithoutValidation')]
+    procedure VerifyReverseItemLedgerEntryShouldBeCreatedForConsumptionWithSamePostedValue()
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ItemLedgerEntries: TestPage "Item Ledger Entries";
+    begin
+        // [SCENARIO 591598] Reversal of production consumption in alternative UoM - verify reverted quantity
+        Initialize();
+
+        // [GIVEN] Create Production Order With Component.
+        CreateProdOrderAddNewComponentAndCreateConsumptionLineWithDifferentUOM(ProdOrderComponent, 1);
+
+        // [GIVEN] Post Consumption Journal Line for this Component.
+        LibraryInventory.PostItemJournalLine(ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+
+        // [GIVEN] OpenEdit Item Ledger Entries.
+        ItemLedgerEntries.OpenEdit();
+        ItemLedgerEntries.Filter.SetFilter("Document No.", ProdOrderComponent."Prod. Order No.");
+        ItemLedgerEntries.Filter.SetFilter("Entry Type", Format(ItemLedgerEntry."Entry Type"::Consumption));
+
+        // [WHEN] Invoke "Reverse" action.
+        ItemLedgerEntries.Reverse.Invoke();
+
+        // [THEN] Verify Reverse Entry should be created of Item Ledger Entry.
+        FindLastItemLedgerEntry(ItemLedgerEntry, "Inventory Order Type"::Production, ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.", "Item Ledger Entry Type"::Consumption);
+        Assert.AreEqual(
+            -ItemLedgerEntries.Quantity.AsDecimal(),
+            ItemLedgerEntry.Quantity,
+            StrSubstNo(ValueMustBeEqualErr, ItemLedgerEntry.FieldCaption(Quantity), -ItemLedgerEntries.Quantity.AsInteger(), ItemLedgerEntry.TableCaption()));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure RegisterPartialPutAwayAfterSortingWhseActivityLine()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        QtyToHandle: Decimal;
+        WareHouseActionType: Enum "Warehouse Action Type";
+    begin
+        // [SCENARIO 598381] Regiter partial Whse Put-away successfully when sorting set on Qty. to Handle
+        Initialize();
+
+        // [GIVEN] Create an Item
+        CreateItem(Item);
+
+        // [GIVEN] Create Whse. Receipt form Purchase Order
+        CreateWhseReceiptFromPurchaseOrder(PurchaseHeader, Item."No.", LocationWhite.Code, LibraryRandom.RandInt(20));
+
+        // [GIVEN] Post Warehouse Receipt
+        PostWarehouseReceipt(PurchaseHeader."No.");
+
+        // [WHEN] Update Qty. to Handle, sort the Wharehouse Activity Line on Qty. to Handle and register Warehouse Activity
+        QtyToHandle := LibraryRandom.RandInt(5);
+        UpdateQuantityToHandleAndRegisterWarehouseActivity(PurchaseHeader."No.", WarehouseActivityHeader.Type::"Put-away", QtyToHandle);
+
+        // [THEN] Verify registered Warehouse Activity Lines
+        VerifyRegisteredWhseActivityLine(PurchaseHeader."No.", WarehouseActivityHeader.Type::"Put-away", WareHouseActionType::Take, QtyToHandle);
+        VerifyRegisteredWhseActivityLine(PurchaseHeader."No.", WarehouseActivityHeader.Type::"Put-away", WareHouseActionType::Place, QtyToHandle);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");
@@ -8448,6 +8513,34 @@ codeunit 137079 "SCM Production Order III"
         CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), Location.Code, '');
 
         CreateProdOrderComponent(ProductionOrder, ProdOrderComponent, CompLineQtyPer);
+        CreateAndPostItemJournalLine(ProdOrderComponent."Item No.", LibraryRandom.RandIntInRange(10, 100), '', '');
+
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name, ItemJournalLine."Entry Type"::Consumption,
+          ProdOrderComponent."Item No.", LibraryRandom.RandInt(10));
+        ItemJournalLine.Validate("Order No.", ProductionOrder."No.");
+        ItemJournalLine.Modify(true);
+    end;
+
+    local procedure CreateProdOrderAddNewComponentAndCreateConsumptionLineWithDifferentUOM(var ProdOrderComponent: Record "Prod. Order Component"; CompLineQtyPer: Decimal)
+    var
+        Location: Record Location;
+        ProductionOrder: Record "Production Order";
+        Item: Record Item;
+        ChildItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        QuantityPer: Decimal;
+    begin
+        QuantityPer := 0.005;
+        LibraryWarehouse.CreateLocation(Location);
+        CreateItemsSetup(Item, ChildItem, LibraryRandom.RandInt(10));
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), Location.Code, '');
+
+        CreateProdOrderComponent(ProductionOrder, ProdOrderComponent, CompLineQtyPer);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, ProdOrderComponent."Item No.", QuantityPer);
+        ProdOrderComponent.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        ProdOrderComponent.Modify();
         CreateAndPostItemJournalLine(ProdOrderComponent."Item No.", LibraryRandom.RandIntInRange(10, 100), '', '');
 
         LibraryInventory.CreateItemJournalLine(
@@ -10063,6 +10156,37 @@ codeunit 137079 "SCM Production Order III"
         LibraryVariableStorage.Enqueue(SerialNo);
         LibraryVariableStorage.Enqueue(Quantity);
         ProdOrderComponent.OpenItemTrackingLines();
+    end;
+
+    local procedure VerifyRegisteredWhseActivityLine(SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type"; QtyToHandle: Decimal)
+    var
+        RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
+    begin
+        FindRegisteredWhseActivityLine(RegisteredWhseActivityLine, SourceNo, ActionType, ActivityType);
+        Assert.IsTrue((QtyToHandle = RegisteredWhseActivityLine.Quantity),
+        StrSubstNo(ValueMustBeEqualErr, RegisteredWhseActivityLine.FieldCaption(Quantity), RegisteredWhseActivityLine.Quantity, RegisteredWhseActivityLine.TableCaption()));
+    end;
+
+    local procedure UpdateQuantityToHandleAndRegisterWarehouseActivity(SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; QtyToHandle: Decimal)
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        PutAwayPage: TestPage "Warehouse Put-away";
+    begin
+        WarehouseActivityLine.SetCurrentKey("Qty. to Handle");
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.FindSet();
+        repeat
+            WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
+            WarehouseActivityLine.Modify(true);
+        until WarehouseActivityLine.Next() = 0;
+
+        WarehouseActivityLine.SetAscending("Qty. to Handle", true);
+
+        PutAwayPage.OpenEdit();
+        PutAwayPage.FILTER.SetFilter("No.", WarehouseActivityLine."No.");
+        PutAwayPage.WhseActivityLines.GoToRecord(WarehouseActivityLine);
+        PutAwayPage."&Register Put-away".Invoke();
     end;
 
     [MessageHandler]

@@ -132,6 +132,7 @@ using Microsoft.Projects.Resources.Pricing;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.Resources.Setup;
 using Microsoft.Projects.RoleCenters;
+using Microsoft.Purchases.Analysis;
 using Microsoft.Purchases.Archive;
 using Microsoft.Purchases.Comment;
 using Microsoft.Purchases.Document;
@@ -762,6 +763,7 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Organizational Level" = RIMD,
                   tabledata "Overdue Approval Entry" = Rimd,
                   tabledata "Payable Employee Ledger Entry" = RIMD,
+                  tabledata "Acc. Payable Performance Chart" = RIMD,
                   tabledata "Payable Vendor Ledger Entry" = RIMD,
                   tabledata "Payment Application Proposal" = RIMD,
                   tabledata "Vendor Payment Buffer" = RIMD,
@@ -806,6 +808,7 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Printer Selection" = RIMD,
                   tabledata "Profile Questionnaire Header" = RIMD,
                   tabledata "Profile Questionnaire Line" = RIMD,
+                  tabledata "Purch. by Vend.Grp.Chart Setup" = RIMD,
                   tabledata "Purch. Comment Line" = RIMD,
                   tabledata "Purch. Comment Line Archive" = RIMD,
                   tabledata "Purch. Cr. Memo Entity Buffer" = RIMD,
@@ -1106,5 +1109,6 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "XML Buffer" = RIMD,
                   tabledata "XML Schema" = RIMD,
                   tabledata "XML Schema Element" = RIMD,
-                  tabledata "XML Schema Restriction" = RIMD;
+                  tabledata "XML Schema Restriction" = RIMD,
+                  tabledata "Account Payable Cue" = RIMD;
 }
