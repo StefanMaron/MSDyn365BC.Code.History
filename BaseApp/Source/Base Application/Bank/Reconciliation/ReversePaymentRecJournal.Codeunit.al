@@ -875,7 +875,15 @@ codeunit 386 "Reverse Payment Rec. Journal"
     local procedure EntryIsReversable(JournalBatchName: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; AmountToApply: Decimal; AppliesToDocNo: Code[20]; AppliesToID: Code[50]; SourceCode: Code[10]): Boolean
     var
         SourceCodeSetup: Record "Source Code Setup";
+        Result: Boolean;
+        IsHandled: Boolean;
     begin
+
+        IsHandled := false;
+        OnBeforeEntryIsReversable(JournalBatchName, DocumentType, AmountToApply, AppliesToDocNo, AppliesToID, SourceCode, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if SourceCodeSetup.Get() then;
         // We allow reversing entries created from normal journals, e.g.: Payment Journal, Cash Receipt, ...
         // These entries have by default a "Journal Batch Name" associated.
@@ -935,6 +943,11 @@ codeunit 386 "Reverse Payment Rec. Journal"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateCopyPaymentRecJournal(var PostedPaymentReconHdr: Record "Posted Payment Recon. Hdr"; var BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeEntryIsReversable(JournalBatchName: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; AmountToApply: Decimal; AppliesToDocNo: Code[20]; AppliesToID: Code[50]; SourceCode: Code[10]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

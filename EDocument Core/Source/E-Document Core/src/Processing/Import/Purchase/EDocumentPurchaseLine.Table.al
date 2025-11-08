@@ -66,6 +66,7 @@ table 6101 "E-Document Purchase Line"
             Caption = 'Quantity';
             ToolTip = 'Specifies the quantity.';
             Editable = false;
+            DecimalPlaces = 0 : 5;
         }
         field(7; "Unit of Measure"; Text[50])
         {
@@ -74,18 +75,25 @@ table 6101 "E-Document Purchase Line"
         }
         field(8; "Unit Price"; Decimal)
         {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 2;
             Caption = 'Unit Price';
             ToolTip = 'Specifies the direct unit cost.';
             Editable = false;
         }
         field(9; "Sub Total"; Decimal)
         {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 2;
             Caption = 'Sub Total';
+            ToolTip = 'Specifies the line subtotal.';
         }
         field(10; "Total Discount"; Decimal)
         {
             Caption = 'Total Discount';
             ToolTip = 'Specifies the line discount.';
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 2;
         }
         field(11; "VAT Rate"; Decimal)
         {
@@ -158,7 +166,9 @@ table 6101 "E-Document Purchase Line"
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
                                                           Blocked = const(false));
         }
-        field(107; "[BC] Item Reference No."; Code[20])
+#pragma warning disable AS0086
+        field(107; "[BC] Item Reference No."; Code[50])
+#pragma warning restore AS0086
         {
             Caption = 'Item Reference No.';
             ToolTip = 'Specifies the item reference number.';

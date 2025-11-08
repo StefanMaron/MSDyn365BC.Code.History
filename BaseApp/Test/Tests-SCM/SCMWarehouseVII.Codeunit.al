@@ -23,6 +23,7 @@ codeunit 137159 "SCM Warehouse VII"
         ItemJournalTemplate: Record "Item Journal Template";
         JobJournalTemplate: Record "Job Journal Template";
         JobJournalBatch: Record "Job Journal Batch";
+        LibraryAssembly: Codeunit "Library - Assembly";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
@@ -70,6 +71,7 @@ codeunit 137159 "SCM Warehouse VII"
         CrossDockQtyIsNotCalculatedMsg: Label 'Cross-dock quantity is not calculated';
         JobIsNotFoundErr: Label 'Job is not found.';
         PickQtyAndQtyPickedMustMatchErr: Label 'PickQty and Qty. Picked must match.';
+        RegInvtMovementHdrDoesNotExistErr: Label 'Registered Invt. Movement Hdr. does not exist.';
         RegisterWhseMessageLbl: Label 'The journal lines were successfully registered.You are now';
         ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
         ILEMustNotBeFoundMoreThanErr: Label 'Item Ledger Entry must not be found more than %1', Comment = 'Count of Item Ledger Entry';
@@ -2704,6 +2706,119 @@ codeunit 137159 "SCM Warehouse VII"
                 LibraryRandom.RandIntInRange(1, 1)));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ItemTrkingLinesPageHandler,CreateInvtPutAwayPickMvmtPageHandler,DummyMessageHandler')]
+    procedure InvtMvmtIsRegisteredEvenIfQtyInAOIsMoreThanInBinContent()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        Bin: array[3] of Record Bin;
+        Item: array[3] of Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        Location: Record Location;
+        RegisteredInvtMovementHdr: Record "Registered Invt. Movement Hdr.";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        UnitOfMeasure: Record "Unit of Measure";
+        AssemblyOrder: TestPage "Assembly Order";
+        LotNo: array[2] of Code[50];
+    begin
+        // [SCENARIO 574710] Registered Invt. Movement is created even if Quanity in Item Tracking of Assembly Line 
+        // is more than that in the Bin Content of a particular Lot No.
+        Initialize();
+
+        // [GIVEN] Create a Location.
+        CreateLocation(Location);
+
+        // [GIVEN] Create three Bins.
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, Bin[1].Code, '', '');
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, Bin[2].Code, '', '');
+        LibraryWarehouse.CreateBin(Bin[3], Location.Code, Bin[3].Code, '', '');
+
+        // [GIVEN] Validate "To-Assembly Bin Code", "From-Assembly Bin Code" and 
+        // "Asm.-to-Order Shpt. Bin Code" in Location. 
+        Location.Validate("To-Assembly Bin Code", Bin[1].Code);
+        Location.Validate("From-Assembly Bin Code", Bin[2].Code);
+        Location.Validate("Asm.-to-Order Shpt. Bin Code", Bin[2].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create Item [1] and Validate "Replenishment System".
+        LibraryInventory.CreateItem(Item[1]);
+        Item[1].Validate("Replenishment System", Item[1]."Replenishment System"::Assembly);
+        Item[1].Modify(true);
+
+        // [GIVEN] Create Item Tracking Code and Validate "Use Expiration Dates".
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+        ItemTrackingCode.Validate("Use Expiration Dates", true);
+        ItemTrackingCode.Modify(true);
+
+        // [GIVEN] Create Item [2] and Validate "Item Tracking Code".
+        LibraryInventory.CreateItem(Item[2]);
+        Item[2].Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item[2].Modify(true);
+
+        // [GIVEN] Create Item [3] and Validate "Item Tracking Code".
+        LibraryInventory.CreateItem(Item[3]);
+        Item[3].Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item[3].Modify(true);
+
+        // [GIVEN] Create Unit of Measure.
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        // [GIVEN] Create Item Unit of Measure.
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item[3]."No.", UnitOfMeasure.Code, LibraryRandom.RandIntInRange(2, 2));
+
+        // [GIVEN] Create two Assembly BOM Components.
+        CreateAssemblyBomComponent(Item[2], Item[1]."No.");
+        CreateAssemblyBomComponent(Item[3], Item[1]."No.");
+
+        // [GIVEN] Create and Post Item Journal Lines.
+        CreateAndPostItemJournalLines(Item[2], Item[3], Location, Bin[3], Bin[1], LotNo[1], LotNo[2]);
+
+        // [GIVEN] Create an Assembly Header.
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), Item[1]."No.", Location.Code, LibraryRandom.RandIntInRange(1, 1), '');
+
+        // [GIVEN] Find Assembly Line.
+        AssemblyLine.SetRange("No.", Item[2]."No.");
+        AssemblyLine.FindFirst();
+
+        // [GIVEN] Open Item Tracking Lines.
+        LibraryVariableStorage.Enqueue(LotNo[1]);
+        LibraryVariableStorage.Enqueue(AssemblyLine.Quantity);
+        AssemblyLine.OpenItemTrackingLines();
+
+        // [GIVEN] Find Assembly Line.
+        AssemblyLine.SetRange("No.", Item[3]."No.");
+        AssemblyLine.FindFirst();
+
+        // [GIVEN] Open Item Tracking Lines.
+        LibraryVariableStorage.Enqueue(LotNo[2]);
+        LibraryVariableStorage.Enqueue(AssemblyLine.Quantity);
+        AssemblyLine.OpenItemTrackingLines();
+
+        // [GIVEN] Run Create Inventory Movement action from Assembly Order page.
+        AssemblyOrder.OpenEdit();
+        AssemblyOrder.GoToRecord(AssemblyHeader);
+        AssemblyOrder."Create Inventor&y Movement".Invoke();
+
+        // [GIVEN] Find Warehouse Activity Header.
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindFirst();
+
+        // [GIVEN] Auto Fill Qty in Inventory Activity.
+        LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Register Warehouse Activity.
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [WHEN] Find Registered Whse. Activity Hdr.
+        RegisteredInvtMovementHdr.SetRange("Location Code", Location.Code);
+
+        // [THEN] Registered Invt. Movement Hdr. is found.
+        Assert.IsFalse(RegisteredInvtMovementHdr.IsEmpty(), RegInvtMovementHdrDoesNotExistErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4957,6 +5072,100 @@ codeunit 137159 "SCM Warehouse VII"
         ItemTrackingLines.OK().Invoke();
     end;
 
+    local procedure CreateLocation(var Location: Record Location)
+    begin
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Require Put-away", true);
+        Location.Validate("Require Pick", true);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Prod. Consump. Whse. Handling", Location."Prod. Consump. Whse. Handling"::"Inventory Pick/Movement");
+        Location.Validate("Prod. Output Whse. Handling", Location."Prod. Output Whse. Handling"::"Inventory Put-away");
+        Location.Validate("Asm. Consump. Whse. Handling", Location."Asm. Consump. Whse. Handling"::"Inventory Movement");
+        Location.Validate("Job Consump. Whse. Handling", Location."Job Consump. Whse. Handling"::"Inventory Pick");
+        Location.Validate("Pick According to FEFO", true);
+        Location.Modify(true);
+    end;
+
+    local procedure CreateAndPostItemJournalLines(Item: Record Item; Item2: Record Item; Location: Record Location; Bin: Record Bin; Bin2: Record Bin; var LotNo: Code[50]; var LotNo2: Code[50])
+    var
+        ItemJournalLine: array[4] of Record "Item Journal Line";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        LibraryInventory.CreateItemJournalTemplate(ItemJournalTemplate);
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine[1], ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+            ItemJournalLine[1]."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandIntInRange(30, 30));
+        ItemJournalLine[1].Validate("Location Code", Location.Code);
+        ItemJournalLine[1].Validate("Bin Code", Bin.Code);
+        ItemJournalLine[1].Modify(true);
+
+        LotNo := LibraryUtility.GenerateRandomCode20(Item.FieldNo("Lot Nos."), Database::Item);
+
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandIntInRange(30, 30));
+        ItemJournalLine[1].OpenItemTrackingLines(false);
+
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine[2], ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+            ItemJournalLine[2]."Entry Type"::"Positive Adjmt.", Item2."No.", LibraryRandom.RandIntInRange(20, 20));
+        ItemJournalLine[2].Validate("Location Code", Location.Code);
+        ItemJournalLine[2].Validate("Bin Code", Bin.Code);
+        ItemJournalLine[2].Modify(true);
+
+        LotNo2 := LibraryUtility.GenerateRandomCode20(Item.FieldNo("Lot Nos."), Database::Item);
+
+        LibraryVariableStorage.Enqueue(LotNo2);
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandIntInRange(20, 20));
+        ItemJournalLine[2].OpenItemTrackingLines(false);
+
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine[3], ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+            ItemJournalLine[3]."Entry Type"::"Positive Adjmt.", Item2."No.", LibraryRandom.RandIntInRange(4, 4));
+        ItemJournalLine[3].Validate("Location Code", Location.Code);
+        ItemJournalLine[3].Validate("Bin Code", Bin2.Code);
+        ItemJournalLine[3].Modify(true);
+
+        LibraryVariableStorage.Enqueue(LotNo2);
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandIntInRange(4, 4));
+        ItemJournalLine[3].OpenItemTrackingLines(false);
+
+        ItemUnitOfMeasure.SetRange("Item No.", Item2."No.");
+        ItemUnitOfMeasure.SetRange("Qty. per Unit of Measure", LibraryRandom.RandIntInRange(2, 2));
+        ItemUnitOfMeasure.FindFirst();
+
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine[4], ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+            ItemJournalLine[4]."Entry Type"::"Positive Adjmt.", Item2."No.", LibraryRandom.RandIntInRange(3, 3));
+        ItemJournalLine[4].Validate("Location Code", Location.Code);
+        ItemJournalLine[4].Validate("Bin Code", Bin2.Code);
+        ItemJournalLine[4].Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        ItemJournalLine[4].Modify(true);
+
+        LibraryVariableStorage.Enqueue(LotNo2);
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandIntInRange(6, 6));
+        ItemJournalLine[4].OpenItemTrackingLines(false);
+
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateAssemblyBomComponent(var Item: Record Item; ParentItemNo: Code[20])
+    var
+        BomComponent: Record "BOM Component";
+        BomRecordRef: RecordRef;
+    begin
+        BomComponent.Init();
+        BomComponent.Validate(BomComponent."Parent Item No.", ParentItemNo);
+        BomRecordRef.GetTable(BomComponent);
+        BomComponent.Validate(BomComponent."Line No.", LibraryUtility.GetNewLineNo(BomRecordRef, BomComponent.FieldNo(BomComponent."Line No.")));
+        BomComponent.Validate(BomComponent.Type, BomComponent.Type::Item);
+        BomComponent.Validate(BomComponent."No.", Item."No.");
+        BomComponent.Validate(BomComponent."Quantity per", LibraryRandom.RandIntInRange(30, 30));
+        BomComponent.Insert(true);
+    end;
+
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingLinesHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
@@ -5230,6 +5439,14 @@ codeunit 137159 "SCM Warehouse VII"
         CalculatePlanPlanWksh.OK().Invoke();
     end;
 
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CreateInvtPutAwayPickMvmtPageHandler(var CreateInvtPutAwayPickMvmt: TestRequestPage "Create Invt Put-away/Pick/Mvmt")
+    begin
+        CreateInvtPutAwayPickMvmt.CInvtMvmt.SetValue(true);
+        CreateInvtPutAwayPickMvmt.OK().Invoke();
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingLinesPageHandlerTrackingOption(var ItemTrackingLines: TestPage "Item Tracking Lines")
@@ -5247,6 +5464,16 @@ codeunit 137159 "SCM Warehouse VII"
                 ItemTrackingLines."Expiration Date".AssertEquals(LibraryVariableStorage.DequeueDate());
         end;
 
+        ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrkingLinesPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+    begin
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
         ItemTrackingLines.OK().Invoke();
     end;
 }

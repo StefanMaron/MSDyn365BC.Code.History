@@ -61,6 +61,7 @@ codeunit 2677 "Gen. Journal Alloc. Acc. Mgt."
             AllocationLine.Quantity := AllocAccManualOverride.Quantity;
             AllocationLine."Dimension Set ID" := AllocAccManualOverride."Dimension Set ID";
             AllocationLine.Amount := AllocAccManualOverride.Amount;
+            OnLoadManualAllocationLinesOnBeforeInsertAllocationLine(AllocAccManualOverride, AllocationLine);
             AllocationLine.Insert();
         until AllocAccManualOverride.Next() = 0;
     end;
@@ -614,4 +615,9 @@ codeunit 2677 "Gen. Journal Alloc. Acc. Mgt."
         AllocationAccountsCannotBeUsedOnThisPageErr: Label 'Allocation accounts cannot be used on this page.';
         GenJnlLineCount: Integer;
         SumAmountLCY: Decimal;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLoadManualAllocationLinesOnBeforeInsertAllocationLine(var AllocAccManualOverride: Record "Alloc. Acc. Manual Override"; var AllocationLine: Record "Allocation Line")
+    begin
+    end;
 }

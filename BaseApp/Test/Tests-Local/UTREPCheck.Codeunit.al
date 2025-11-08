@@ -22,9 +22,11 @@ codeunit 141002 "UT REP Check"
         WrongCheckAmountErr: Label 'Check Amount value is incorrect';
         LibraryWorkflow: Codeunit "Library - Workflow";
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
+        LibraryUtility: Codeunit "Library - Utility";
         RecordNotFoundErr: Label '%1 was not found.', Comment = 'Gen. Journal Line was not found.';
         RestrictionRecordFoundErr: Label 'Restricted Record for %1 was found.', Comment = 'Restricted Record for Gen. Journal Line: GENERAL,GUAAAAABEE,20000 was found.';
-        LibraryUtility: Codeunit "Library - Utility";
+        FormatNoTextSuccessMsg: Label 'FormatNoText should succeed for amount %1.', Comment = 'Amount';
+        AndCentsInNoText2Msg: Label 'Formatted amount should contain "%1" in NoText[2]', Comment = 'Cents Value';
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -2321,6 +2323,40 @@ codeunit 141002 "UT REP Check"
         // [THEN] Check number caption and Document Number on Report - Check (Stub/Check/Stub).
         GenJournalLine.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
         VerifyCheckCaptionAndNumber(GenJournalLine."Document No.", CheckTextCap);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FormatNoTextUSAmountInWordsKeepsAndCentsTogether()
+    var
+        CheckTranslationManagement: Report "Check Translation Management";
+        Currency: Record Currency;
+        NoText: array[2] of Text[80];
+        Amount: Decimal;
+        LanguageCode: Integer;
+        Result: Boolean;
+    begin
+        // [FEATURE] [Check printing] [Amount in Words]
+        // [SCENARIO 608968] Check print out in US Amount 177,777.76 should format correctly with "AND 76/100" staying together with Currency
+        Initialize();
+
+        // [GIVEN] Create currency "XXX" with description
+        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1));
+        Currency.Description := Currency.Code;
+        Currency.Modify();
+
+        // [GIVEN] Amount = 177,777.76 (the specific amount from the bug report)
+        Amount := 177777.76;
+        LanguageCode := 1033; // English (US)
+
+        // [WHEN] Formatting the amount to text using FormatNoText method
+        Result := CheckTranslationManagement.FormatNoText(NoText, Amount, LanguageCode, Currency.Code);
+
+        // [THEN] The formatting operation should succeed for the given amount
+        Assert.IsTrue(Result, StrSubstNo(FormatNoTextSuccessMsg, Amount));
+
+        // [THEN] Verify "AND 76/100" appears only in NoText[2] with currency and not split in NoText[1]
+        Assert.IsTrue((StrPos(NoText[1], 'AND 76/100') = 0) and (StrPos(NoText[2], 'AND 76/100 ' + Currency.Description) > 0), StrSubstNo(AndCentsInNoText2Msg, 'AND 76/100'));
     end;
 
     local procedure Initialize()

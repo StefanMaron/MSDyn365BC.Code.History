@@ -516,6 +516,7 @@ report 10400 "Check Translation Management"
         Hundreds: Integer;
         Exponent: Integer;
         NoTextIndex: Integer;
+        CentsAndCurrency: Text[40];
     begin
         NoTextIndex := 1;
         NoText[1] := Text104;
@@ -546,13 +547,11 @@ report 10400 "Check Translation Management"
             end;
 
         if LanguageCode = CAEnglishLanguageCode then begin
-            AddToNoText(NoText, NoTextIndex, PrintExponent, Currency.Description, ' ');
-            AddToNoText(NoText, NoTextIndex, PrintExponent, AndText, ' ');
-            exit(AddToNoText(NoText, NoTextIndex, PrintExponent, Format(No * 100) + CentsText, ' '));
+            CentsAndCurrency := Currency.Description + ' ' + AndText + ' ' + Format(No * 100) + CentsText;
+            exit(AddToNoText(NoText, NoTextIndex, PrintExponent, CentsAndCurrency, ' '));
         end;
-        AddToNoText(NoText, NoTextIndex, PrintExponent, AndText, ' ');
-        AddToNoText(NoText, NoTextIndex, PrintExponent, Format(No * 100) + CentsText, ' ');
-        exit(AddToNoText(NoText, NoTextIndex, PrintExponent, Currency.Description, ' '));
+        CentsAndCurrency := AndText + ' ' + Format(No * 100) + CentsText + ' ' + Currency.Description;
+        exit(AddToNoText(NoText, NoTextIndex, PrintExponent, CentsAndCurrency, ' '));
     end;
 
     local procedure FormatNoTextESM(var NoText: array[2] of Text[80]; No: Decimal): Boolean

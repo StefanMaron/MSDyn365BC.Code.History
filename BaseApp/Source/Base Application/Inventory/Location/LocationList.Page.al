@@ -19,6 +19,8 @@ page 15 "Location List"
     CardPageID = "Location Card";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Locations';
+    AboutText = 'Set up and manage warehouses and other storage locations, configure inventory policies and bin settings, and track item availability and transfers between locations.';
     SourceTable = Location;
     UsageCategory = Administration;
 

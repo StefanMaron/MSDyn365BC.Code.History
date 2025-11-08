@@ -181,6 +181,7 @@ table 1205 "Credit Transfer Register"
 
         if ExportFile(TempBlob) then begin
             Status := Status::"File Re-exported";
+            OnReexportOnBeforeModify(Rec, TempBlob, ExportToServerFile);
             Modify();
         end;
     end;
@@ -230,6 +231,17 @@ table 1205 "Credit Transfer Register"
     /// <param name="IsHandled">Set to true to skip standard export processing</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeExportFile(var TempBlob: Codeunit "Temp Blob"; var CreditTransferRegister: Record "Credit Transfer Register"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    /// <summary>
+    /// Integration event raised before modifying the credit transfer register after re-export.
+    /// </summary>
+    /// <param name="CreditTransferRegister">Credit transfer register being modified</param>
+    /// <param name="TempBlob">Temp BLOB containing file content to export</param>
+    /// <param name="ExportToServerFile">Indicates if export is to server file</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnReexportOnBeforeModify(var CreditTransferRegister: Record "Credit Transfer Register"; var TempBlob: Codeunit "Temp Blob"; var ExportToServerFile: Boolean)
     begin
     end;
 }

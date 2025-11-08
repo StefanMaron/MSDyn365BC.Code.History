@@ -601,7 +601,7 @@ report 5899 "Calculate Inventory Value"
         ItemJournalLine.Validate("Item No.", ItemNo2);
         ItemJournalLine."Reason Code" := ItemJnlBatch."Reason Code";
         ItemJournalLine."Variant Code" := VariantCode2;
-        ItemJournalLine."Location Code" := LocationCode2;
+        ItemJournalLine.Validate("Location Code", LocationCode2);
         ItemJournalLine."Source Code" := SourceCodeSetup."Revaluation Journal";
 
         OnAfterInitItemJnlLine(ItemJournalLine, ItemJnlBatch);

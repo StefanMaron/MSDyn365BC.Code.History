@@ -45,7 +45,7 @@ codeunit 5815 "Undo Sales Shipment Line"
             exit;
 
         if not UndoSalesShptLineParams."Hide Dialog" then
-            if not Confirm(Text000) then
+            if not Confirm(HandleConfirmMessage(Rec)) then
                 exit;
 
         SalesShipmentLine.Copy(Rec);
@@ -71,7 +71,7 @@ codeunit 5815 "Undo Sales Shipment Line"
         NextLineNo: Integer;
 
 #pragma warning disable AA0074
-        Text000: Label 'Do you really want to undo the selected Shipment lines?';
+        UndoShipmentLinesQst: Label 'Do you really want to undo the selected Shipment lines?';
         Text001: Label 'Undo quantity posting...';
         Text002: Label 'There is not enough space to insert correction lines.';
         Text003: Label 'Checking lines...';
@@ -85,6 +85,7 @@ codeunit 5815 "Undo Sales Shipment Line"
 #pragma warning restore AA0074
         AlreadyReversedErr: Label 'This shipment has already been reversed.';
         NoLinesToReverseErr: Label 'There are no lines with quantity to reverse.';
+        InvoiceCancelledQst: Label 'The quantity to undo might differ from the original shipment because the invoice was cancelled. Do you want to proceed with the undo?';
 
     procedure SetHideDialog(NewHideDialog: Boolean)
     begin
@@ -585,6 +586,23 @@ codeunit 5815 "Undo Sales Shipment Line"
     begin
         InventoryAdjustmentHandler.SetJobUpdateProperties(true);
         InventoryAdjustmentHandler.MakeAutomaticInventoryAdjustment(ItemsToAdjust);
+    end;
+
+    local procedure IsCancelledSalesInvoice(OrderNo: Code[20]): Boolean
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        SalesInvoiceHeader.SetRange("Order No.", OrderNo);
+        SalesInvoiceHeader.SetRange(Cancelled, true);
+        exit(not SalesInvoiceHeader.IsEmpty());
+    end;
+
+    local procedure HandleConfirmMessage(SalesShipmentLine2: Record "Sales Shipment Line"): Text
+    begin
+        if IsCancelledSalesInvoice(SalesShipmentLine2."Order No.") then
+            exit(InvoiceCancelledQst);
+
+        exit(UndoShipmentLinesQst);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnSetItemAdjmtPropertiesOnBeforeCheckModifyItem', '', false, false)]

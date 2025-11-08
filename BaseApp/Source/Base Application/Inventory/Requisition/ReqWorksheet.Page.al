@@ -30,6 +30,8 @@ page 291 "Req. Worksheet"
     DelayedInsert = true;
     LinksAllowed = false;
     PageType = Worksheet;
+    AboutTitle = 'About Requisition Worksheets';
+    AboutText = 'Plan and manage item replenishment by reviewing, editing, and processing purchase and transfer order suggestions, including automatic supply planning, special orders, and drop shipments to balance inventory with demand.';
     SaveValues = true;
     SourceTable = "Requisition Line";
     UsageCategory = Tasks;

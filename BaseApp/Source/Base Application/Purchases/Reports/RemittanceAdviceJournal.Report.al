@@ -466,7 +466,6 @@ report 399 "Remittance Advice - Journal"
     var
         GLSetup: Record "General Ledger Setup";
         Vend: Record Vendor;
-        TempVend: Record Vendor temporary;
         CurrExchRate: Record "Currency Exchange Rate";
         Currency: Record Currency;
         VendLedgEntry3: Record "Vendor Ledger Entry";
@@ -500,6 +499,7 @@ report 399 "Remittance Advice - Journal"
     protected var
         CompanyInfo: Record "Company Information";
         TempAppliedVendLedgEntry: Record "Vendor Ledger Entry" temporary;
+        TempVend: Record Vendor temporary;
         VendorAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
         PaidAmount: Decimal;
