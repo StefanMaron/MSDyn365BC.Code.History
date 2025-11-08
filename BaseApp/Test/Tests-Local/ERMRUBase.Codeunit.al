@@ -185,6 +185,7 @@ codeunit 144001 "ERM RU - Base"
         LibraryERM.CreateCurrency(Currency);
 
         GLSetup.Get();
+        GLSetup."LCY Code" := '';        // to avoid error on updating LCY Code
         GLSetup.Validate("LCY Code", Currency.Code);
         GLSetup.Modify();
 
@@ -205,6 +206,7 @@ codeunit 144001 "ERM RU - Base"
         LibraryERM.CreateCurrency(Currency);
 
         GLSetup.Get();
+        GLSetup."LCY Code" := '';        // to avoid error on updating LCY Code
         GLSetup.Validate("LCY Code", LibraryERM.CreateCurrencyWithRandomExchRates());
         GLSetup.Modify();
 

@@ -1006,6 +1006,24 @@ page 132 "Posted Sales Invoice"
                     end;
                 }
             }
+            action(SendCustom)
+            {
+
+                ApplicationArea = Basic, Suite;
+                Caption = 'Send';
+                Ellipsis = true;
+                Image = SendToMultiple;
+                ToolTip = 'Prepare to send the document according to the customer''s sending profile, such as attached to an email. The Send document to window opens first so you can confirm or select a sending profile.';
+
+                trigger OnAction()
+                var
+                    SalesInvHeader: Record "Sales Invoice Header";
+                begin
+                    SalesInvHeader := Rec;
+                    CurrPage.SetSelectionFilter(SalesInvHeader);
+                    SalesInvHeader.SendRecords();
+                end;
+            }
             action(Print)
             {
                 ApplicationArea = Basic, Suite;

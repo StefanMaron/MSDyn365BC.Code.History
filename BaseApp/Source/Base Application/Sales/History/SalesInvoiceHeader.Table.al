@@ -994,6 +994,19 @@ table 112 "Sales Invoice Header"
         Rec.TestField("No. Printed");
     end;
 
+    procedure SendRecords()
+    var
+        DocumentSendingProfile: Record "Document Sending Profile";
+        DummyReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
+        DocumentTypeTxt: Text[50];
+    begin
+        DocumentTypeTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
+        DocumentSendingProfile.SendCustomerRecords(
+              DummyReportSelections.Usage::"S.Invoice".AsInteger(), Rec, DocumentTypeTxt, "Bill-to Customer No.", "No.",
+              FieldNo("Bill-to Customer No."), FieldNo("No."));
+    end;
+
     procedure SendRecords(ShowRequestPage: Boolean; SendAsEmail: Boolean)
     var
         DocumentPrint: Codeunit "Document-Print";

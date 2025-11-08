@@ -4402,29 +4402,13 @@ table 81 "Gen. Journal Line"
     procedure UpdateLineBalance()
     var
         VATAllocation: Record "VAT Allocation Line";
+        IsHandled: Boolean;
     begin
-        "Debit Amount" := 0;
-        "Credit Amount" := 0;
+        IsHandled := false;
+        OnUpdateLineBalanceOnBeforeUpdateAmounts(Rec, IsHandled);
+        if not IsHandled then
+            UpdateAmounts();
 
-        if ((Amount > 0) and (not Correction)) or
-           ((Amount < 0) and Correction)
-        then
-            "Debit Amount" := Amount
-        else
-            if Amount <> 0 then
-                "Credit Amount" := -Amount;
-
-        if "Currency Code" = '' then
-            "Amount (LCY)" := Amount;
-        if (("Amount (LCY)" > 0) and (not Correction)) or
-           (("Amount (LCY)" < 0) and Correction)
-        then begin
-            "Debit Amount (LCY)" := "Amount (LCY)";
-            "Credit Amount (LCY)" := 0
-        end else begin
-            "Debit Amount (LCY)" := 0;
-            "Credit Amount (LCY)" := -"Amount (LCY)";
-        end;
         case true of
             ("Account No." <> '') and ("Bal. Account No." <> ''):
                 "Balance (LCY)" := 0;
@@ -4449,6 +4433,38 @@ table 81 "Gen. Journal Line"
 
         if ("Deferral Code" <> '') and (Amount <> xRec.Amount) and ((Amount <> 0) and (xRec.Amount <> 0)) then
             Validate("Deferral Code");
+    end;
+
+    /// <summary>
+    /// Updates the debit and credit amounts based on the current line's amount and correction status.
+    /// </summary>
+    procedure UpdateAmounts()
+    begin
+        "Debit Amount" := 0;
+        "Credit Amount" := 0;
+
+        if ((Amount > 0) and (not Correction)) or
+           ((Amount < 0) and Correction)
+        then
+            "Debit Amount" := Amount
+        else
+            if Amount <> 0 then
+                "Credit Amount" := -Amount;
+
+        if "Currency Code" = '' then
+            "Amount (LCY)" := Amount;
+
+        if "Currency Code" = '' then
+            "Amount (LCY)" := Amount;
+        if (("Amount (LCY)" > 0) and (not Correction)) or
+           (("Amount (LCY)" < 0) and Correction)
+        then begin
+            "Debit Amount (LCY)" := "Amount (LCY)";
+            "Credit Amount (LCY)" := 0
+        end else begin
+            "Debit Amount (LCY)" := 0;
+            "Credit Amount (LCY)" := -"Amount (LCY)";
+        end;
     end;
 
     /// <summary>
@@ -6310,7 +6326,13 @@ table 81 "Gen. Journal Line"
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
         CurrencyFactor: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeConvertAmtFCYToLCYForSourceCurrency(Rec, Amount, IsHandled);
+        if IsHandled then
+            exit(Amount);
+
         if (Amount = 0) or ("Source Currency Code" = '') then
             exit(Amount);
 
@@ -8797,7 +8819,13 @@ table 81 "Gen. Journal Line"
         Employee: Record Employee;
         BankAccount: Record "Bank Account";
         ICPartner: Record "IC Partner";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetAccCurrencyCode(Rec, CurrencyCode, IsHandled);
+        if IsHandled then
+            exit(CurrencyCode);
+
         if ("Account No." = '') or ("Currency Code" = '') then
             exit;
 
@@ -13076,6 +13104,21 @@ table 81 "Gen. Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetFAAddCurrExchRateOnBeforeFADeprBookTestField(var FADeprBook: Record "FA Depreciation Book"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateLineBalanceOnBeforeUpdateAmounts(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConvertAmtFCYToLCYForSourceCurrency(var Rec: Record "Gen. Journal Line"; var Amount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetAccCurrencyCode(var GenJnlLine: Record "Gen. Journal Line"; var CurrencyCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 }

@@ -16,6 +16,8 @@ page 5 Currencies
     Caption = 'Currencies';
     CardPageID = "Currency Card";
     PageType = List;
+    AboutTitle = 'About Currencies';
+    AboutText = 'Set up and manage currency codes, exchange rates, rounding rules, and related general ledger accounts to support transactions and financial reporting in multiple currencies.';
     SourceTable = Currency;
     UsageCategory = Administration;
 

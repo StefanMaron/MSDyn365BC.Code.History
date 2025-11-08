@@ -12,6 +12,8 @@ page 314 "General Posting Setup"
     DataCaptionFields = "Gen. Bus. Posting Group", "Gen. Prod. Posting Group";
     Editable = true;
     PageType = List;
+    AboutTitle = 'About General Posting Setup';
+    AboutText = 'Configure how sales, purchases, and inventory transactions are posted to general ledger accounts by defining combinations of general business and product posting groups. Map customers, vendors, items, and resources to the correct accounts to ensure accurate financial reporting.';
     SourceTable = "General Posting Setup";
     UsageCategory = Administration;
 

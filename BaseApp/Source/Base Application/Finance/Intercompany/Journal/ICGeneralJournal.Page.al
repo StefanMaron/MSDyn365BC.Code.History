@@ -29,6 +29,8 @@ page 610 "IC General Journal"
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
+    AboutTitle = 'About Intercompany General Journal';
+    AboutText = 'Record and post intercompany transactions by entering journal lines that specify accounts, amounts, document details, and partner information, enabling accurate allocation of costs and balances between intercompany partners.';
     SaveValues = true;
     SourceTable = "Gen. Journal Line";
     UsageCategory = Tasks;

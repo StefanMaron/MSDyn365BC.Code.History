@@ -14,8 +14,8 @@ codeunit 5321 "Exchange Web Services Server"
     var
         Service: DotNet ExchangeServiceWrapper;
         ProdEndpointTxt: Label 'https://outlook.office365.com/EWS/Exchange.asmx', Locked = true;
-        ExpiredTokenErr: Label 'Trying to reconnect. Please close and reopen the add-in. Error from the service: %1', Comment = '%1 = the error message from the service.';
         CategoryTxt: Label 'AL EWS Server', Locked = true;
+        ExpiredTokenErr: Label 'Trying to reconnect. Please close and reopen the add-in. Error from the service: %1', Comment = '%1 = the error message from the service.';
         ExpiredTokenTxt: Label 'Expired token.', Locked = true;
         InvalidCredentialsTxt: Label 'Invalid credentials.', Locked = true;
         InitializedTxt: Label 'Service has been initialized.', Locked = true;

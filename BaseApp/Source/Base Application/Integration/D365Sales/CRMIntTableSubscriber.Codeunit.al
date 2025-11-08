@@ -764,6 +764,19 @@ codeunit 5341 "CRM Int. Table. Subscriber"
             ChangeSalesOrderStateCode(DestinationRecordRef, CRMSalesorder.StateCode::Submitted);
     end;
 
+    local procedure SubmitOrInvoiceSalesOrder(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
+    var
+        SalesHeader: Record "Sales Header";
+        CRMSalesorder: Record "CRM Salesorder";
+        CRMSalesDocumentPostingMgt: Codeunit "CRM Sales Document Posting Mgt";
+    begin
+        SourceRecordRef.SetTable(SalesHeader);
+        if CRMSalesDocumentPostingMgt.IsSalesOrderFullyInvoiced(SalesHeader) then
+            ChangeSalesOrderStateCode(DestinationRecordRef, CRMSalesorder.StateCode::Invoiced)
+        else
+            ChangeSalesOrderStateCode(DestinationRecordRef, CRMSalesorder.StateCode::Submitted);
+    end;
+
     local procedure ChangeValidateSalesOrderStatus(var SourceRecordRef: RecordRef; NewStatus: Enum "Sales Document Status")
     var
         SalesHeader: Record "Sales Header";
@@ -827,7 +840,6 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     procedure OnAfterModifyRecord(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
-        CRMSalesOrder: Record "CRM Salesorder";
     begin
         case GetSourceDestCode(SourceRecordRef, DestinationRecordRef) of
 #if not CLEAN25
@@ -841,7 +853,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                     ResetCRMSalesorderdetailFromSalesOrderLine(SourceRecordRef, DestinationRecordRef);
                     SetCRMSalesOrderStateCode(SourceRecordRef, DestinationRecordRef);
                 end else
-                    ChangeSalesOrderStateCode(DestinationRecordRef, CRMSalesOrder.StateCode::Submitted);
+                    SubmitOrInvoiceSalesOrder(SourceRecordRef, DestinationRecordRef);
             'CRM Salesorder-Sales Header':
                 if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then begin
                     ResetSalesOrderLineFromCRMSalesorderdetail(SourceRecordRef, DestinationRecordRef);

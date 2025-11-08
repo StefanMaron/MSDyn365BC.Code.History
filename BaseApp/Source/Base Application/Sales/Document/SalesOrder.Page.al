@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -888,6 +888,7 @@ page 42 "Sales Order"
                             var
                                 Customer: Record Customer;
                             begin
+                                OnBeforeLookupBillToName(Customer, Rec);
                                 Selected.SetTable(Customer);
                                 if Rec."Bill-to Customer No." <> Customer."No." then begin
                                     Rec.Validate("Bill-to Customer No.", Customer."No.");
@@ -3224,6 +3225,11 @@ page 42 "Sales Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnQueryClosePageOnBeforeConfirmCloseUnposted(var DocumentIsPosted: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupBillToName(var Customer: Record Customer; SalesHeader: Record "Sales Header")
     begin
     end;
 }

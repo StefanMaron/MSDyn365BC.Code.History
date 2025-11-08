@@ -16,6 +16,8 @@ page 5076 "Interaction Log Entries"
     Caption = 'Interaction Log Entries';
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Interaction Log Entries';
+    AboutText = 'View, track, and manage all recorded interactions with contacts and segments, including email exchanges, attachments, and related sales opportunities; monitor interaction status, cancel or delete entries, and analyze details such as evaluation, cost, and duration for each communication.';
     SourceTable = "Interaction Log Entry";
     SourceTableView = where(Postponed = const(false));
     UsageCategory = History;

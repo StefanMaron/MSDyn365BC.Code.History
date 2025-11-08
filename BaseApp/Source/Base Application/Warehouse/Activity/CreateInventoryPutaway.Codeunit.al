@@ -251,6 +251,7 @@ codeunit 7321 "Create Inventory Put-away"
                         RemQtyToPutAway := PurchaseLine."Qty. to Receive"
                     else
                         RemQtyToPutAway := -PurchaseLine."Return Qty. to Ship";
+                    OnCreatePutAwayLinesFromPurchaseOnAfterSetRemQtyToPutAway(PurchaseHeader, PurchaseLine, CurrWarehouseActivityHeader, RemQtyToPutAway);
 
                     FindReservationFromPurchaseLine(PurchaseLine);
 
@@ -391,6 +392,8 @@ codeunit 7321 "Create Inventory Put-away"
                     else
                         RemQtyToPutAway := SalesLine."Return Qty. to Receive";
 
+                    OnCreatePutAwayLinesFromSalesOnAfterSetRemQtyToPutAway(SalesHeader, SalesLine, CurrWarehouseActivityHeader, RemQtyToPutAway);
+
                     FindReservationFromSalesLine(SalesLine);
 
                     if CurrLocation."Bin Mandatory" then
@@ -521,6 +524,7 @@ codeunit 7321 "Create Inventory Put-away"
                     GetLocation(TransferLine."Transfer-to Code");
 
                     RemQtyToPutAway := TransferLine."Qty. to Receive";
+                    OnCreatePutAwayLinesFromTransferOnAfterSetRemQtyToPutAway(TransferHeader, TransferLine, CurrWarehouseActivityHeader, RemQtyToPutAway);
 
                     FindReservationFromTransferLine(TransferLine);
 
@@ -1531,6 +1535,11 @@ codeunit 7321 "Create Inventory Put-away"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePutAwayLinesFromSalesOnAfterSetRemQtyToPutAway(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var RemQtyToPutAway: Decimal)
+    begin
+    end;
+
 #if not CLEAN27
     internal procedure RunOnCreatePutawayForProdOrderLine(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var RemQtyToPutAway: Decimal)
     begin
@@ -1569,6 +1578,16 @@ codeunit 7321 "Create Inventory Put-away"
 
     [InternalEvent(false, false)]
     local procedure OnCreateWarehouseActivityLineOnSetSourceDocument(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceType: Integer)
+    begin
+    end;
+
+    [InternalEvent(false, false)]
+    local procedure OnCreatePutAwayLinesFromTransferOnAfterSetRemQtyToPutAway(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var RemQtyToPutAway: Decimal)
+    begin
+    end;
+
+    [InternalEvent(false, false)]
+    local procedure OnCreatePutAwayLinesFromPurchaseOnAfterSetRemQtyToPutAway(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var RemQtyToPutAway: Decimal)
     begin
     end;
 }

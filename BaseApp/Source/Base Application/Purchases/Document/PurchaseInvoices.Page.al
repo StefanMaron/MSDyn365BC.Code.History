@@ -29,6 +29,8 @@ page 9308 "Purchase Invoices"
     DataCaptionFields = "Buy-from Vendor No.";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Purchase Invoices';
+    AboutText = 'Create, manage, and post purchase invoices to record vendor bills, track accounts payable, apply discounts, and update inventory and financial records for received items or services.';
     QueryCategory = 'Purchase Invoices';
     RefreshOnActivate = true;
     SourceTable = "Purchase Header";

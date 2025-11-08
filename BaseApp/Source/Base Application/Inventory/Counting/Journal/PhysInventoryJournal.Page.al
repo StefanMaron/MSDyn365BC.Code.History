@@ -30,6 +30,8 @@ page 392 "Phys. Inventory Journal"
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
+    AboutTitle = 'About Physical Inventory Journals';
+    AboutText = 'Record and adjust physical inventory counts, reconcile calculated and actual stock quantities, and post updates to ensure inventory records accurately reflect on-hand items, including support for cycle counting and periodic inventory checks.';
     SaveValues = true;
     SourceTable = "Item Journal Line";
     UsageCategory = Tasks;

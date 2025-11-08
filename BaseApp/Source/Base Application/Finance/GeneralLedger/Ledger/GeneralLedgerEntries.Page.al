@@ -25,6 +25,8 @@ page 20 "General Ledger Entries"
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = List;
+    AboutTitle = 'About General Ledger Entries';
+    AboutText = 'Review, filter, and analyze all posted general ledger entries to track financial transactions, reconcile accounts, investigate discrepancies, and support accurate financial reporting.';
     Permissions = TableData "G/L Entry" = m;
     SourceTable = "G/L Entry";
     SourceTableView = sorting("G/L Account No.", "Posting Date")

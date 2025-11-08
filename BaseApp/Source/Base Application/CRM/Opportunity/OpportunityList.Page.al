@@ -24,6 +24,8 @@ page 5123 "Opportunity List"
     DataCaptionExpression = Caption();
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Opportunities';
+    AboutText = 'Track, create, and manage sales opportunities by linking them to contacts, salespeople, campaigns, and sales documents, updating their progress through sales cycle stages, and recording outcomes such as won or lost with associated values and reasons.';
     SourceTable = Opportunity;
     UsageCategory = Lists;
 

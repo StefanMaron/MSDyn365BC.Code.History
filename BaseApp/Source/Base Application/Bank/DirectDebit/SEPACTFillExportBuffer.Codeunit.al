@@ -139,7 +139,10 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
 
             PaymentExportData.Validate(PaymentExportData."SEPA Instruction Priority", PaymentExportData."SEPA Instruction Priority"::NORMAL);
             PaymentExportData.Validate(PaymentExportData."SEPA Payment Method", PaymentExportData."SEPA Payment Method"::TRF);
-            PaymentExportData.Validate(PaymentExportData."SEPA Charge Bearer", PaymentExportData."SEPA Charge Bearer"::SLEV);
+            if GeneralLedgerSetup."SEPA Non-Euro Export" then
+                PaymentExportData.Validate(PaymentExportData."SEPA Charge Bearer", PaymentExportData."SEPA Charge Bearer"::SHAR)
+            else
+                PaymentExportData.Validate(PaymentExportData."SEPA Charge Bearer", PaymentExportData."SEPA Charge Bearer"::SLEV);
             PaymentExportData."SEPA Batch Booking" := false;
             PaymentExportData.SetCreditTransferIDs(MessageID);
 

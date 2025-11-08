@@ -9,6 +9,7 @@ using Microsoft.Finance.GeneralLedger.Preview;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.FixedAssets.Ledger;
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.NoSeries;
 using System.Utilities;
 
 codeunit 231 "Gen. Jnl.-Post"
@@ -19,7 +20,9 @@ codeunit 231 "Gen. Jnl.-Post"
     trigger OnRun()
     var
         GenJnlLine: Record "Gen. Journal Line";
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
+        SequenceNoMgt.SetPreviewMode(PreviewMode);
         GenJnlLine.Copy(Rec);
         Code(GenJnlLine);
         Rec.Copy(GenJnlLine);
