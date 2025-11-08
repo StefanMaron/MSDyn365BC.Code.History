@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -1081,6 +1081,8 @@ table 5870 "BOM Buffer"
               "Rolled-up Mfg. Ovhd Cost") *
              "Indirect Cost %" / 100) +
             ("Overhead Rate" * LotSize);
+
+        OnBeforeRoundUnitAmtForRolledUpMfgOvhdCost(Rec);
         "Rolled-up Mfg. Ovhd Cost" := RoundUnitAmt("Rolled-up Mfg. Ovhd Cost", 1);
     end;
 
@@ -1543,6 +1545,11 @@ table 5870 "BOM Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRoundUnitAmt(Amt: Decimal; ShareOfCost: Decimal; var IsHandled: Boolean; var ReturnValue: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRoundUnitAmtForRolledUpMfgOvhdCost(var BOMBuffer: Record "BOM Buffer")
     begin
     end;
 }
