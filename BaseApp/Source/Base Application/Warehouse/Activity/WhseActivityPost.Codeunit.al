@@ -6,6 +6,7 @@ namespace Microsoft.Warehouse.Activity;
 
 using Microsoft.Finance.GeneralLedger.Preview;
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.Inventory.Item;
 #if not CLEAN27
 using Microsoft.Inventory.Journal;
 #endif
@@ -244,11 +245,17 @@ codeunit 7324 "Whse.-Activity-Post"
 
     local procedure CheckQuantityInBinContentForTracking(var WarehouseActivityLine: Record "Warehouse Activity Line")
     var
+        Item: Record Item;
         WarehouseActivityLine2: Record "Warehouse Activity Line";
         TempWhseJnlLine: Record "Warehouse Journal Line" temporary;
         WMSMgt: Codeunit "WMS Management";
     begin
         if not (Location."Require Pick" and Location."Require Receive") then
+            exit;
+
+        Item.SetLoadFields("Order Tracking Policy");
+        Item.Get(WarehouseActivityLine."Item No.");
+        if (Item."Order Tracking Policy" = Item."Order Tracking Policy"::None) then
             exit;
 
         WarehouseActivityLine2.CopyFilters(WarehouseActivityLine);

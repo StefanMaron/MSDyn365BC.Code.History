@@ -13,6 +13,7 @@ using Microsoft.Finance.GeneralLedger.Preview;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.Period;
 
 codeunit 226 "CustEntry-Apply Posted Entries"
@@ -24,7 +25,9 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     trigger OnRun()
     var
         ApplyUnapplyParameters: Record "Apply Unapply Parameters";
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
+        SequenceNoMgt.SetPreviewMode(PreviewMode);
         if PreviewMode then
             case RunOptionPreviewContext of
                 RunOptionPreview::Apply:
@@ -397,6 +400,8 @@ codeunit 226 "CustEntry-Apply Posted Entries"
 
         if PreviewMode then
             GenJnlPostPreview.ThrowError();
+
+        OnPostUnApplyCustomerCommitOnAfterPreviewMode(CustLedgEntry);
 
         if CommitChanges then
             Commit();
@@ -790,6 +795,11 @@ codeunit 226 "CustEntry-Apply Posted Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostUnApplyCustomerCommitOnBeforeFilterDtldCustLedgEntry(DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostUnApplyCustomerCommitOnAfterPreviewMode(CustLedgerEntry: Record "Cust. Ledger Entry");
     begin
     end;
 }

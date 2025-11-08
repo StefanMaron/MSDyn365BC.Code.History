@@ -398,7 +398,7 @@ codeunit 1311 "Activities Mgt."
     begin
         if not SetGLAccountsFilterForARAccounts(GLAccount) then
             Page.Run(Page::"General Ledger Setup");
-        GLAccount.SetFilter("Business Unit Filter", ' = %1', '');
+        GLAccount.SetRange("Business Unit Filter", '');
         Page.Run(Page::"Chart of Accounts", GLAccount);
     end;
 
@@ -520,6 +520,52 @@ codeunit 1311 "Activities Mgt."
 
         exit(FilterTextBuilder.ToText());
     end;
+
+    internal procedure CalcAPAccountsBalance() TotalBalance: Decimal
+    var
+        GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
+    begin
+        TotalBalance := 0;
+
+        if not this.SetGLAccountsFilterForAPAccounts(GLAccount) then
+            exit(0);
+
+        GLEntry.SetFilter("G/L Account No.", CreateFilterForGLAccounts(GLAccount));
+        GLEntry.SetFilter("Business Unit Code", '');
+        GLEntry.CalcSums(Amount);
+        exit(GLEntry.Amount);
+    end;
+
+    internal procedure DrillDownCalcAPAccountsBalances()
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        if not SetGLAccountsFilterForAPAccounts(GLAccount) then
+            Page.Run(Page::"General Ledger Setup");
+        GLAccount.SetRange("Business Unit Filter", '');
+        Page.Run(Page::"Chart of Accounts", GLAccount);
+    end;
+
+    local procedure SetGLAccountsFilterForAPAccounts(var GLAccount: Record "G/L Account"): Boolean
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLAccountCategory: Record "G/L Account Category";
+    begin
+        if not GeneralLedgerSetup.Get() then
+            exit(false);
+
+        GLAccountCategory.SetLoadFields("Entry No.");
+        if not GLAccountCategory.Get(GeneralLedgerSetup."Acc. Payables Category") then
+            exit(false);
+
+        GLAccount.SetRange("Account Type", Enum::"G/L Account Category"::Liabilities);
+        GLAccount.SetRange("Account Subcategory Entry No.", GLAccountCategory."Entry No.");
+        GLAccount.SetRange("Account Type", GLAccount."Account Type"::"Posting");
+
+        exit(true);
+    end;
+
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetFilterOverduePurchaseInvoice(var VendorLedgerEntry: Record "Vendor Ledger Entry"; CalledFromWebService: Boolean)

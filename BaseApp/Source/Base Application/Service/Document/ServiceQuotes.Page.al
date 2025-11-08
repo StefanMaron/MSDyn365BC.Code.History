@@ -18,6 +18,8 @@ page 9317 "Service Quotes"
     DataCaptionFields = "Customer No.";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Service Quotes';
+    AboutText = 'Create and manage preliminary service quotes by entering customer details, service order types, and estimated costs, with the option to convert quotes into service orders for billing and fulfillment.';
     SourceTable = "Service Header";
     SourceTableView = where("Document Type" = const(Quote));
     UsageCategory = Lists;

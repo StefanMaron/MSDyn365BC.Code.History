@@ -1,3 +1,4 @@
+#if not CLEAN28
 // // ------------------------------------------------------------------------------------------------
 // // Copyright (c) Microsoft Corporation. All rights reserved.
 // // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -11,6 +12,9 @@ page 9644 "Column Picker Part"
     PageType = ListPart;
     ApplicationArea = All;
     SourceTable = "Page Table Field";
+    ObsoleteState = Pending;
+    ObsoleteTag = '28.0';
+    ObsoleteReason = 'The Analysis View module is being moved to be part of the Business Central platform.';
     Caption = 'Choose the columns to insert';
     AboutTitle = 'About the column Picker part';
     AboutText = 'Use this page to add columns from the list of available fields for the selected page or the source table if no page is selected. Choose the fields you want to insert and click ''OK'' to include them in the analysis view.';
@@ -37,7 +41,7 @@ page 9644 "Column Picker Part"
                     AboutText = 'Displays the list of card and list pages that have the selected table as source. Select a page to view the fields available for that page.';
                     Editable = true;
                     Visible = AreTherePagesAvailable;
-                    InstructionalText = 'Select a page, or leave blank for all fields';
+                    InstructionalText = 'Select a page, or leave blank for all table fields';
                     LookupPageId = "List and Card page picker";
                     TableRelation = "Page Metadata" where(SourceTable = field("Table No"));
 
@@ -50,6 +54,14 @@ page 9644 "Column Picker Part"
 
                         SourcePageName := PageMetadata.Caption;
                         CurrPage.Update();
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        if SourcePageName = '' then begin
+                            ColumnPickerHelper.FilterRelatedFieldsForEmptyPage(Rec);
+                            CurrPage.Update();
+                        end;
                     end;
                 }
 
@@ -71,12 +83,17 @@ page 9644 "Column Picker Part"
                     field(Name; Rec.Name)
                     {
                         ApplicationArea = All;
-                        ToolTip = 'Specifies the table field id.';
+                        ToolTip = 'Specifies the table field name.';
+
+                        trigger OnDrillDown()
+                        begin
+                            // Prevent default drill down action
+                        end;
                     }
                     field("Field ID"; Rec."Table Field Id")
                     {
                         ApplicationArea = All;
-                        ToolTip = 'Specifies the field name.';
+                        ToolTip = 'Specifies the field id.';
                     }
                     field(Example; Example)
                     {
@@ -115,3 +132,4 @@ page 9644 "Column Picker Part"
         Example: Text;
         AreTherePagesAvailable: Boolean;
 }
+#endif

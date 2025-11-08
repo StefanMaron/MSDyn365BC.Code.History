@@ -12,6 +12,8 @@ page 5407 "Prod. Order Comp. Line List"
     Caption = 'Prod. Order Comp. Lines';
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Production Order Component Lines';
+    AboutText = 'View and manage the materials required for production orders, including component quantities, locations, due dates, and consumption status, to track progress and ensure timely availability of resources for manufacturing.';
     SourceTable = "Prod. Order Component";
     UsageCategory = Lists;
 

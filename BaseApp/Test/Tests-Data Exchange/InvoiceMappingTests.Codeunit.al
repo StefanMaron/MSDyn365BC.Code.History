@@ -806,6 +806,7 @@ codeunit 139158 "Invoice Mapping Tests"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."LCY Code" := '';    // to avoid error on updating LCY Code
         GeneralLedgerSetup.Validate("LCY Code", CurrencyCode);
         GeneralLedgerSetup.Modify(true);
     end;

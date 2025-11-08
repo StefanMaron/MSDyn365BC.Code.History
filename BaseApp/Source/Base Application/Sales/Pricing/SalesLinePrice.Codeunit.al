@@ -206,7 +206,8 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
             CurrPriceType::Purchase:
                 PriceSourceList.Add(Enum::"Price Source Type"::"All Vendors");
         end;
-        PriceSourceList.AddJobAsSources(SalesLine."Job No.", SalesLine."Job Task No.");
+        if SalesLine."Document Type" = SalesLine."Document Type"::Invoice then
+            PriceSourceList.AddJobAsSources(SalesLine."Job No.", SalesLine."Job Task No.");
         OnAfterAddSources(SalesHeader, SalesLine, CurrPriceType, PriceSourceList);
     end;
 

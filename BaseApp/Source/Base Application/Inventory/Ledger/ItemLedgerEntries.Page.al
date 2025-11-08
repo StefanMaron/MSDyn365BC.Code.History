@@ -23,6 +23,8 @@ page 38 "Item Ledger Entries"
     DataCaptionFields = "Item No.";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Item Ledger Entries';
+    AboutText = 'Track inventory transactions and quantity changes for items, review detailed posting and cost information.';
     SourceTable = "Item Ledger Entry";
     SourceTableView = sorting("Entry No.")
                       order(descending);
