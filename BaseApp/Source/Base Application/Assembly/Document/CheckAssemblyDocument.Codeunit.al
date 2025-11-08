@@ -11,10 +11,10 @@ codeunit 9131 "Check Assembly Document"
     TableNo = "Assembly Header";
 
     [EventSubscriber(ObjectType::Table, Database::Item, 'OnAfterCheckDocuments', '', false, false)]
-    local procedure ItemOnBeforeCheckDocuments(Item: Record Item; CurrentFieldNo: Integer);
+    local procedure ItemOnBeforeCheckDocuments(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text);
     begin
-        CheckAssemblyHeaders(Item, CurrentFieldNo, Item.FieldNo(Type), Item.FieldCaption(Type));
-        CheckAssemblyLines(Item, CurrentFieldNo, Item.FieldNo(Type), Item.FieldCaption(Type));
+        CheckAssemblyHeaders(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
+        CheckAssemblyLines(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
     end;
 
     internal procedure CheckAssemblyHeaders(var Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)

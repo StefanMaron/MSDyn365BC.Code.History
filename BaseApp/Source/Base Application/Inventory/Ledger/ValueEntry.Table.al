@@ -872,6 +872,21 @@ table 5802 "Value Entry"
         exit(false);
     end;
 
+/// <summary>
+/// Returns true if EntryNo parameter and Rec."Entry No." both are positive or negative.
+/// Used in scenarios where we posting preview entries are negative
+/// </summary>
+/// <param name="EntryNo">The entry no. of the entry we are comparing to</param>
+/// <returns>Boolean</returns>
+    internal procedure EntryNoHasSameSign(EntryNo: integer): Boolean
+    begin
+        if (Rec."Entry No." >= 0) and (EntryNo >= 0) then
+            exit(true);
+        if (Rec."Entry No." < 0) and (EntryNo < 0) then
+            exit(true);
+        exit(false);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckApplyLocationVariantFilters(var RecValueEntry: Record "Value Entry"; AccountingPeriod: Record "Accounting Period"; ValueEntry: Record "Value Entry"; var IsHandled: Boolean; Item: Record Item; CostCalcIsChanged: Boolean; var QtyFactor: Decimal; FromDate: Date; ToDate: Date)
     begin

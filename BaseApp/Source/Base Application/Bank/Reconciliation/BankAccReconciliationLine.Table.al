@@ -415,6 +415,7 @@ table 274 "Bank Acc. Reconciliation Line"
         Rec."Account No." := PostedPaymentReconLine."Account No.";
         Rec."Transaction Text" := PostedPaymentReconLine.Description;
         Rec."Transaction ID" := CopyStr(PostedPaymentReconLine."Transaction ID", 1, MaxStrLen(Rec."Transaction ID"));
+        OnAfterTransferFromPostedPaymentReconLine(Rec, PostedPaymentReconLine);
     end;
 
     procedure GetPaymentFile(var DataExchField: Record "Data Exch. Field"): Boolean
@@ -1211,6 +1212,7 @@ table 274 "Bank Acc. Reconciliation Line"
 
                 RemainingAmountAfterPosting += CurrRemAmtAfterPosting - AppliedPmtEntry."Applied Amount";
                 DifferenceStatementAmtToApplEntryAmount -= CurrRemAmtAfterPosting - AppliedPmtEntry."Applied Pmt. Discount";
+                OnGetAppliedPmtDataOnAfterLoopIteration(Rec, AppliedPmtEntry);
             until AppliedPmtEntry.Next() = 0;
         end;
 
@@ -1510,6 +1512,16 @@ table 274 "Bank Acc. Reconciliation Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowDimensions(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetAppliedPmtDataOnAfterLoopIteration(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AppliedPmtEntry: Record "Applied Payment Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferFromPostedPaymentReconLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; PostedPaymentReconLine: Record "Posted Payment Recon. Line")
     begin
     end;
 }

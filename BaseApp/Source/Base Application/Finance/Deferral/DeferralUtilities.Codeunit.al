@@ -133,6 +133,8 @@ codeunit 1720 "Deferral Utilities"
                 CalculateDaysPerPeriod(DeferralHeader, DeferralLine, DeferralTemplate);
             CalcMethod::"User-Defined":
                 CalculateUserDefined(DeferralHeader, DeferralLine, DeferralTemplate);
+            else
+                OnCreateDeferralScheduleOnCalcMethodElse(CalcMethod, DeferralHeader, DeferralLine, DeferralTemplate);
         end;
 
         if RedistributeDeferralSchedule then
@@ -1992,6 +1994,11 @@ codeunit 1720 "Deferral Utilities"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRoundDeferralAmount(var DeferralHeader: Record "Deferral Header"; CurrencyCode: Code[10]; CurrencyFactor: Decimal; PostingDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateDeferralScheduleOnCalcMethodElse(CalcMethod: Enum "Deferral Calculation Method"; DeferralHeader: Record "Deferral Header"; var DeferralLine: Record "Deferral Line"; DeferralTemplate: Record "Deferral Template")
     begin
     end;
 }

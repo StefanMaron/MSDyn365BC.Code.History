@@ -8,7 +8,7 @@ using Microsoft.Foundation.Attachment;
 using Microsoft.Manufacturing.Comment;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Reports;
-using System.Utilities;
+using Microsoft.Utilities;
 
 page 99000766 Routing
 {
@@ -253,7 +253,7 @@ page 99000766 Routing
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
-        ConfirmManagement: Codeunit "Confirm Management";
+        InstructionMgt: Codeunit "Instruction Mgt.";
         Result: Boolean;
         IsHandled: Boolean;
     begin
@@ -275,15 +275,15 @@ page 99000766 Routing
         if not Rec.RoutingLinesExist() then
             exit(true);
 
-        if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(CertifyQst, CurrPage.Caption), false) then
-            exit(false);
+        if ShowNonCertifiedNotification() then
+            if not InstructionMgt.ShowConfirmNonCertified() then
+                exit(false);
 
         exit(true);
     end;
 
     var
         ActiveVersionCode: Code[20];
-        CertifyQst: Label 'The %1 has not been certified. Are you sure you want to exit?', Comment = '%1 = page caption (Production BOM)';
 
     local procedure LastDateModifiedOnAfterValidate()
     begin
@@ -295,6 +295,14 @@ page 99000766 Routing
         VersionManagement: Codeunit VersionManagement;
     begin
         ActiveVersionCode := VersionManagement.GetRtngVersion(Rec."No.", WorkDate(), true);
+    end;
+
+    local procedure ShowNonCertifiedNotification(): Boolean
+    begin
+        if Rec.Status <> Rec.Status::Certified then
+            exit(true)
+        else
+            exit(false);
     end;
 
     [IntegrationEvent(false, false)]

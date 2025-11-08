@@ -23,6 +23,8 @@ page 374 "Check Ledger Entries"
     Editable = false;
     InsertAllowed = false;
     PageType = List;
+    AboutTitle = 'About Check Ledger Entries';
+    AboutText = 'View, manage, and void check payments for bank accounts, including tracking check details, amounts, statuses, and related transactions within the check ledger.';
     SourceTable = "Check Ledger Entry";
     SourceTableView = sorting("Bank Account No.", "Check Date")
                       order(descending);

@@ -3961,6 +3961,48 @@
         // [THEN] Amount Excl. Prepayment is equal to Amount Excl. VAT - Prepayment Amount Excl. VAT in SalesOrderStatisticsHandler.
     end;
 
+    [Test]
+    procedure CannotReleaseSalesOrderAfterPostingPrepmtInvoiceAndPrepmtCrMemo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 604175] Stan cannot release the sales order after posting prepayment invoice and prepayment credit memo.
+
+        InitSalesPrepaymentScenario(SalesHeader, SalesLine, false, 100, '');
+        // [GIVEN] Posted Prepayment Invoice
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+        // [GIVEN] Posted Prepayment Credit Memo
+        LibrarySales.PostSalesPrepaymentCrMemo(SalesHeader);
+        // [WHEN] Release Sales Order
+        asserterror LibrarySales.ReleaseSalesDocument(SalesHeader);
+        // [THEN] Error message 'There are unposted prepayment amounts' is thrown
+        Assert.ExpectedError('There are unposted prepayment amounts');
+    end;
+
+    [Test]
+    procedure CannotReleasePurchaseOrderAfterPostingPrepmtInvoiceAndPrepmtCrMemo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 604175] Stan cannot release the purchase order after posting prepayment invoice and prepayment credit memo.
+
+        InitPurchasePrepaymentScenario(PurchaseHeader, PurchaseLine, false, 100, '');
+        // [GIVEN] Posted Prepayment Invoice
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+        PurchaseHeader."Vendor Cr. Memo No." := LibraryUtility.GenerateGUID();
+        PurchaseHeader.Modify(true);
+        // [GIVEN] Posted Prepayment Credit Memo
+        LibraryPurchase.PostPurchasePrepaymentCrMemo(PurchaseHeader);
+        // [WHEN] Release Purchase Order
+        asserterror LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        // [THEN] Error message 'There are unposted prepayment amounts' is thrown
+        Assert.ExpectedError('There are unposted prepayment amounts');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

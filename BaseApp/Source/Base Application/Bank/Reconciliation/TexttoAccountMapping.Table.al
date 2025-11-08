@@ -173,6 +173,7 @@ table 1251 "Text-to-Account Mapping"
                             "Credit Acc. No." := BankAccReconciliationLine."Account No.";
                         end;
                 end;
+                OnInsertRecFromBankAccReconciliationLineOnBeforeInsert(Rec, BankAccReconciliationLine);
 
                 if "Mapping Text" <> '' then
                     Insert();
@@ -347,6 +348,11 @@ table 1251 "Text-to-Account Mapping"
         TextToAccountMapping.SetRange("Vendor No.", VendorNo);
         TextToAccountMapping.SetFilter("Mapping Text", '%1', '@' + DelChr(LineDescription, '=', FilterInvalidCharTxt));
         exit(TextToAccountMapping.FindFirst());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertRecFromBankAccReconciliationLineOnBeforeInsert(var TextToAccountMapping: Record "Text-to-Account Mapping"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    begin
     end;
 }
 

@@ -14,6 +14,8 @@ page 1294 "Pmt. Reconciliation Journals"
     Caption = 'Payment Reconciliation Journals';
     InsertAllowed = false;
     PageType = List;
+    AboutTitle = 'About Payment Reconciliation Journals';
+    AboutText = 'Register and reconcile incoming and outgoing payments by importing bank statements, automatically matching transactions to open customer, vendor, and bank ledger entries, and reviewing or adjusting matches before posting to close entries and update bank account balances.';
     SourceTable = "Bank Acc. Reconciliation";
     SourceTableView = where("Statement Type" = const("Payment Application"));
     UsageCategory = Lists;
