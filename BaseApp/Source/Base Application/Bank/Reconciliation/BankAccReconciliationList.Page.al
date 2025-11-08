@@ -11,6 +11,8 @@ page 388 "Bank Acc. Reconciliation List"
     CardPageID = "Bank Acc. Reconciliation";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Bank Account Reconciliations';
+    AboutText = 'Reconcile bank accounts by matching imported bank statement lines with internal ledger entries, using automated suggestions and manual review to ensure your cash records are accurate and up-to-date.';
     SourceTable = "Bank Acc. Reconciliation";
     SourceTableView = where("Statement Type" = const("Bank Reconciliation"));
     UsageCategory = Lists;

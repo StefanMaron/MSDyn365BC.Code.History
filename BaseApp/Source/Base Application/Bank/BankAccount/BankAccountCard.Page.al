@@ -70,6 +70,7 @@ page 370 "Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Bank Branch No.';
                     ToolTip = 'Specifies a number of the bank branch.';
+                    MaskType = Concealed;
                 }
                 field("Bank Account No."; Rec."Bank Account No.")
                 {
@@ -77,6 +78,7 @@ page 370 "Bank Account Card"
                     Caption = 'Bank Account No.';
                     Importance = Promoted;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
+                    MaskType = Concealed;
                 }
                 field("Search Name"; Rec."Search Name")
                 {
@@ -329,6 +331,7 @@ page 370 "Bank Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
+                    MaskType = Concealed;
                 }
                 field("Last Statement No."; Rec."Last Statement No.")
                 {
@@ -435,6 +438,7 @@ page 370 "Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
+                    MaskType = Concealed;
                 }
                 field("Interbank Clearing Code"; Rec."Interbank Clearing Code")
                 {

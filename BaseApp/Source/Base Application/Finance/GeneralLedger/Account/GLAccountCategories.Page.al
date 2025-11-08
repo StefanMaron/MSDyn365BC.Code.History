@@ -16,6 +16,8 @@ page 790 "G/L Account Categories"
     Caption = 'G/L Account Categories';
     InsertAllowed = false;
     PageType = List;
+    AboutTitle = 'About G/L Account Categories';
+    AboutText = 'Organize general ledger accounts into customizable categories and subcategories to structure financial statements, assign accounts for reporting, and generate up-to-date financial reports such as the Balance Sheet and Income Statement.';
     RefreshOnActivate = true;
     ShowFilter = false;
     SourceTable = "G/L Account Category";

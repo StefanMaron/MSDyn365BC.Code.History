@@ -420,7 +420,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                     CreatePickOrMoveLine(
                       NewWarehouseActivityLine, RemQtyToPickBase, SalesLine."Outstanding Qty. (Base)", SalesLine."Reserved Quantity" <> 0);
                     OnCreatePickOrMoveFromSalesOnAfterCreatePickOrMoveLine(NewWarehouseActivityLine, SalesLine, CurrWarehouseActivityHeader, ShowError, AutoCreation, LineCreated);
-
+                    CorrectQtyRounding(SalesLine, CurrWarehouseActivityHeader);
                     if SalesHeader."Shipping Advice" = SalesHeader."Shipping Advice"::Complete then begin
                         if RemQtyToPickBase < 0 then begin
                             if AutoCreation then begin
@@ -820,6 +820,9 @@ codeunit 7322 "Create Inventory Pick/Movement"
                             if NewWarehouseActivityLine.TrackingExists() then
                                 UpdateExpirationDate(NewWarehouseActivityLine, EntriesExist);
 
+                            if IsInvtMovement and not IsBlankInvtMovement and not TempTrackingSpecification.Correction then
+                                CheckBinContentWithToAssemblyBinCode(ITQtyToPickBase, NewWarehouseActivityLine);
+
                             OnCreatePickOrMoveLineFromHandlingSpec(NewWarehouseActivityLine, TempTrackingSpecification, EntriesExist);
 
                             if CurrLocation."Bin Mandatory" then begin
@@ -980,8 +983,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
         if IsBlankInvtMovement then begin
             // inventory movement without source document, created from Internal Movement
-            if ShouldSetBinCodeForBlankInvtMovement(NewWarehouseActivityLine) then
-                FromBinContent.SetRange("Bin Code", FromBinCode);
+            if not CurrLocation."Pick According to FEFO" then
+                FromBinContent.SetRange("Bin Code", FromBinCode)
+            else
+                if ShouldSetBinCodeForBlankInvtMovement(NewWarehouseActivityLine) then
+                    FromBinContent.SetRange("Bin Code", FromBinCode);
             FromBinContent.SetRange(Default);
         end;
 
@@ -1029,6 +1035,31 @@ codeunit 7322 "Create Inventory Pick/Movement"
                 end;
             until (FromBinContent.Next() = 0) or (RemQtyToPickBase = 0);
         OnAfterInsertPickOrMoveBinWhseActLine(NewWarehouseActivityLine, CurrWarehouseActivityHeader, RemQtyToPickBase)
+    end;
+
+    procedure CheckBinContentWithToAssemblyBinCode(var ITQtyToPickBase: Decimal; NewWarehouseActivityLine: Record "Warehouse Activity Line")
+    var
+        Location: Record Location;
+        FromBinContent: Record "Bin Content";
+    begin
+        if ITQtyToPickBase <= 0 then
+            exit;
+
+        if not Location.Get(NewWarehouseActivityLine."Location Code") then
+            exit;
+
+        FromBinContent.SetLoadFields("Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code", "Quantity (Base)");
+        FromBinContent.SetRange("Location Code", NewWarehouseActivityLine."Location Code");
+        FromBinContent.SetRange("Bin Code", Location."To-Assembly Bin Code");
+        FromBinContent.SetRange("Item No.", NewWarehouseActivityLine."Item No.");
+        FromBinContent.SetRange("Variant Code", NewWarehouseActivityLine."Variant Code");
+        FromBinContent.SetRange("Unit of Measure Code", NewWarehouseActivityLine."Unit of Measure Code");
+        if FromBinContent.FindSet() then
+            repeat
+                FromBinContent.CalcFields("Quantity (Base)");
+                if FromBinContent."Quantity (Base)" <= ITQtyToPickBase then
+                    ITQtyToPickBase -= FromBinContent."Quantity (Base)";
+            until FromBinContent.Next() = 0;
     end;
 
     procedure InsertShelfWhseActivLine(NewWarehouseActivityLine: Record "Warehouse Activity Line"; var RemQtyToPickBase: Decimal; WhseItemTrackingSetup: Record "Item Tracking Setup")
@@ -2282,6 +2313,36 @@ codeunit 7322 "Create Inventory Pick/Movement"
             exit(true);
     end;
 
+    local procedure CorrectQtyRounding(SalesLine: Record "Sales Line"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    var
+        WareHouseActivityLine: Record "Warehouse Activity Line";
+        TotalQtyPicked: Decimal;
+        TotalQtyOutstanding: Decimal;
+        TotalPickedQuantityCalculated: Decimal;
+        TotalQtyOutStandingCalculated: Decimal;
+    begin
+        if WarehouseActivityHeader.Type <> WarehouseActivityHeader.Type::"Invt. Pick" then
+            exit;
+
+        WareHouseActivityLine.SetSource(Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", 0);
+        WareHouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
+        WareHouseActivityLine.CalcSums(Quantity, "Qty. (Base)", "Qty. Outstanding", "Qty. Outstanding (Base)");
+        TotalQtyPicked := WareHouseActivityLine.Quantity;
+        TotalQtyOutstanding := WareHouseActivityLine."Qty. Outstanding";
+        TotalPickedQuantityCalculated := Round(WareHouseActivityLine."Qty. (Base)" / SalesLine."Qty. per Unit of Measure", 0.00001);
+        TotalQtyOutStandingCalculated := Round(WareHouseActivityLine."Qty. Outstanding (Base)" / SalesLine."Qty. per Unit of Measure", 0.00001);
+        if TotalQtyPicked = TotalPickedQuantityCalculated then
+            exit;
+
+        if Abs(TotalPickedQuantityCalculated - TotalQtyPicked) > SalesLine."Qty. Rounding Precision" then
+            exit;
+
+        WareHouseActivityLine.FindLast();
+        WareHouseActivityLine.Quantity += (TotalPickedQuantityCalculated - TotalQtyPicked);
+        WareHouseActivityLine."Qty. Outstanding" += (TotalQtyOutStandingCalculated - TotalQtyOutstanding);
+        WareHouseActivityLine.Modify();
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAutoCreatePickOrMove(var WarehouseRequest: Record "Warehouse Request"; LineCreated: Boolean; var WarehouseActivityHeader: Record "Warehouse Activity Header"; Location: Record Location; HideDialog: Boolean)
     begin
@@ -2610,13 +2671,10 @@ codeunit 7322 "Create Inventory Pick/Movement"
     begin
     end;
 
-    // revert event parameter name back to 26.x name
-#pragma warning disable AS0025
     [IntegrationEvent(false, false)]
     local procedure OnCheckSourceDocForWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var WhseActivHeader: Record "Warehouse Activity Header"; CheckLineExist: Boolean; var Result: Boolean; var IsHandled: Boolean; IsInvtMovement: Boolean; var WarehouseSourceFilter: Record "Warehouse Source Filter"; ApplyAdditionalSourceDocFilters: Boolean; var SourceDocRecordVar: Variant)
     begin
     end;
-#pragma warning restore AS0025
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateInvtMvntWithoutSourceOnAfterTransferFields(var WarehouseActivityLine: Record "Warehouse Activity Line"; InternalMovementLine: Record "Internal Movement Line")
@@ -2628,13 +2686,10 @@ codeunit 7322 "Create Inventory Pick/Movement"
     begin
     end;
 
-    // revert event parameter name back to 26.x name
-#pragma warning disable AS0025
     [IntegrationEvent(true, false)]
     local procedure OnAutoCreatePickOrMoveFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var LineCreated: Boolean; var WhseActivityHeader: Record "Warehouse Activity Header"; Location: Record Location; HideDialog: Boolean; var CompleteShipment: Boolean; CheckLineExist: Boolean; IsInvtMovement: Boolean; var WarehouseSourceFilter: Record "Warehouse Source Filter"; ApplyAdditionalSourceDocFilters: Boolean; ReservedFromStock: Enum "Reservation From Stock"; var SourceDocRecVar: Variant);
     begin
     end;
-#pragma warning restore AS0025
 
     [IntegrationEvent(true, false)]
     local procedure OnCreatePickOrMoveFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var LineCreated: Boolean; var WhseActivityHeader: Record "Warehouse Activity Header"; Location: Record Location; HideDialog: Boolean; var CompleteShipment: Boolean; CheckLineExist: Boolean; IsInvtMovement: Boolean; var WarehouseSourceFilter: Record "Warehouse Source Filter"; ApplySourceFilters: Boolean; ReservedFromStock: Enum "Reservation From Stock"; var SourceDocRecVar: Variant)

@@ -74,6 +74,7 @@
         CorrectPostedSalesInvoiceErr: Label 'Cancelled must be %1 for %2', Comment = '%1= Value ,%2=Table Name';
         SalesLineQtyErr: Label 'Sales Line %1 must be equal to %2', Comment = '%1= Field ,%2= Value';
         OptionString: Option PostedReturnReceipt,PostedInvoices,PostedShipments,PostedCrMemo;
+        ConfirmMsg: Label 'The quantity to undo might differ from the original shipment because the invoice was cancelled. Do you want to proceed with the undo?';
 
     [Test]
     [Scope('OnPrem')]
@@ -5903,6 +5904,124 @@
         VerifySalesOrderQuantityforManualSalesCreditMemo(SalesHeader."No.", 10);
     end;
 
+    [Test]
+    procedure AddingAllowPostingDateFromInGeneralJournalTemplatePostWarehouseShipments()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        InventorySetup: Record "Inventory Setup";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemNo: Code[20];
+    begin
+        // [SCENARIO 597612] Adding Allow Posting Date from in General Journal Template allows Posting Warehouse Shipment.
+        Initialize();
+
+        // [GIVEN] Get Inventory Setup.
+        InventorySetup.GetRecordOnce();
+
+        // [GIVEN] Set Allow Posting Date From in General Journal Template.
+        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate("Allow Posting Date From", Today() - 1);
+        GenJournalTemplate.Modify(true);
+
+        // [GIVEN] Set Inventory Cost Journal Template in Inventory Setup.
+        InventorySetup.Validate("Invt. Cost Jnl. Template Name", GenJournalTemplate.Name);
+        InventorySetup.Modify(true);
+
+        // [GIVEN] Sales order with Sales Line having Location with "Require Shipment" set to TRUE
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Posting Date", Today());
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Create an Item.
+        ItemNo := LibraryInventory.CreateItemNo();
+
+        // [GIVEN] Create Sales Line.
+        LibrarySales.CreateSalesLine(
+            SalesLine,
+            SalesHeader,
+            SalesLine.Type::Item,
+            ItemNo,
+            LibraryRandom.RandInt(10));
+
+        // [GIVEN] Create Location with "Require Shipment" set to TRUE
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Create and Post Positive Adjustment for the Item in the Location.
+        CreateItemJournalLinePositiveAdjustment(ItemNo, LibraryRandom.RandIntInRange(10, 20), Location.Code);
+
+        // [GIVEN] Release Sales Order and Create Warehouse Shipment.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] Created and registered pick for an Item from Sales Line.
+        CreateAndRegisterPick(ItemNo, Location.Code);
+
+        // [THEN] Post Warehouse Shipment without any error.
+        PostWarehouseShipmentLine(SalesHeader."No.", SalesLine."Line No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerMessage')]
+    procedure MessageAddedUndoShipmentCreatesNegativeLineSalesShipmentWhenUndoneCancelledSalesInvoice()
+    var
+        // SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesShipmentLine: array[2] of Record "Sales Shipment Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        SalesGetShipment: Codeunit "Sales-Get Shipment";
+    begin
+        // [SCENARIO 579539] Message Added when Undo Shipment creates negative lines in Sales Shipment when already undone via cancelled Sales Invoice.
+        Initialize();
+
+        // [GIVEN] Find VATPostingSetup with Normal VAT Calculation Type.
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        // UpdateDefaultQtyToShip(SalesReceivablesSetup."Default Quantity to Ship"::Blank);
+
+        // [GIVEN] Create and Post Sales Order with partial shipment and invoice.
+        CreateSalesDocument(
+            SalesHeader[1],
+            SalesLine,
+            SalesHeader[1]."Document Type"::Order,
+            CreateCustomer(),
+            CreateItem(VATPostingSetup."VAT Prod. Posting Group"));
+        SalesLine.Validate("Qty. to Ship", SalesLine.Quantity);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Post Sales Order with Shipment.
+        LibrarySales.PostSalesDocument(SalesHeader[1], true, false);
+
+        // [GIVEN] Find Sales Shipment Line created from posted Sales Order with Shipment.
+        SalesShipmentLine[1].SetRange("Order No.", SalesHeader[1]."No.");
+
+        // [GIVEN] Create Sales Invoice Header.
+        LibrarySales.CreateSalesHeader(SalesHeader[2], SalesHeader[2]."Document Type"::Invoice, SalesHeader[1]."Sell-to Customer No.");
+
+        // [GIVEN] Create Sales Line using Get Shipment.
+        SalesGetShipment.SetSalesHeader(SalesHeader[2]);
+        SalesGetShipment.CreateInvLines(SalesShipmentLine[1]);
+
+        // [GIVEN] Post Sales Order with Invoice.
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader[2], false, true));
+
+        // [GIVEN] Cancel Posted Sales Invoice.
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+
+        // [GIVEN] Find Sales Shipment Line created from posted Sales Order with Shipment.
+        SalesShipmentLine[2].SetRange("Sell-to Customer No.", SalesHeader[1]."Sell-to Customer No.");
+        SalesShipmentLine[2].SetRange("No.", SalesLine."No.");
+        SalesShipmentLine[2].FindFirst();
+
+        // [THEN] New Confrimation Message is shown when Undo Shipment creates negative lines in Sales Shipment.
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine[2]);
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -7782,6 +7901,13 @@
     begin
         Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
         Reply := LibraryVariableStorage.DequeueBoolean();
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerMessage(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.ExpectedMessage(ConfirmMsg, Question);
+        Reply := true;
     end;
 
     [StrMenuHandler]
