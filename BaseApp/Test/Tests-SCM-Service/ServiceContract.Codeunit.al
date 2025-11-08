@@ -34,6 +34,7 @@ codeunit 136100 "Service Contract"
         NoOfServiceLinesNotSameErr: Label 'No of Service Lines is not the same after copy contract Act: %1 Exp: %2.';
         OnlyOneInvoiceExpectedErr: Label 'Only one invoice expected - Actual: %1.';
         InvoiceCreatedForUnbalancedErr: Label 'Invioce created for unbalanced Service Contract.';
+        ChangeStatusErr: Label 'The Service Contract is expected to remain open after selecting "No" in the confirmation dialog';
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
@@ -516,7 +517,7 @@ codeunit 136100 "Service Contract"
 
         // [GIVEN] Signed and Locked Service Contract with "Starting Date" = 11.06.2016, "Invoice Period" = Year, "Service Period" = 1Y,
         // [GIVEN] Prepaid = TRUE, "Contract Lines On Invoice" = TRUE and "Line Amount" = 1200
-        LineAmount := CreateSingAndLockServiceContract(ServiceContractHeader);
+        LineAmount := CreateSignAndLockServiceContract(ServiceContractHeader);
         // [GIVEN] Set WorkDate := 01.07.2016
         WorkDate := CalcDate('<CM+1D>', WorkDate());
 
@@ -759,6 +760,33 @@ codeunit 136100 "Service Contract"
 
         // TearDown
         WorkDate := CurrentWorkDate;
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmDialogNewLine,ContractTemplateHandler,MessageHandler')]
+    procedure CheckServiceContractLockStatus()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractHeader2: Record "Service Contract Header";
+        LineAmount: Decimal;
+    begin
+        // [SCENARIO 607847] Service Contract relocking with new lines issue.
+        Initialize();
+
+        // [GIVEN] Signed & Locked Service Contract
+        LineAmount := CreateSignAndLockServiceContract(ServiceContractHeader);
+
+        // [WHEN] Reopen the contract, add new line.
+        OpenServContract(ServiceContractHeader."Contract No.");
+        CreateServiceContractLine(
+            ServiceContractHeader, CreateServiceItem(ServiceContractHeader."Customer No."));
+
+        // [WHEN] Lock the contract, Selection of "No" in Confirm dialog.
+        LockServContract(ServiceContractHeader."Contract No.");
+
+        // [THEN] Contract successfully Stay Open after Selection of "No" in Confirm dialog. 
+        ServiceContractHeader2.Get(ServiceContractHeader."Contract Type", ServiceContractHeader."Contract No.");
+        Assert.AreEqual(ServiceContractHeader2."Change Status"::Open, ServiceContractHeader2."Change Status", ChangeStatusErr);
     end;
 
     local procedure Initialize()
@@ -1086,7 +1114,7 @@ codeunit 136100 "Service Contract"
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
     end;
 
-    local procedure CreateSingAndLockServiceContract(var ServiceContractHeader: Record "Service Contract Header") LineAmount: Decimal
+    local procedure CreateSignAndLockServiceContract(var ServiceContractHeader: Record "Service Contract Header") LineAmount: Decimal
     begin
         CreateServiceContractHeader(ServiceContractHeader, LibrarySales.CreateCustomerNo());
         UpdateServiceContractHeader(
@@ -1393,6 +1421,23 @@ codeunit 136100 "Service Contract"
     procedure ConfirmDialogHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmDialogNewLine(Question: Text[1024]; var Reply: Boolean)
+    begin
+        case ConfirmType of
+            ConfirmType::Create:
+                Assert.IsTrue(StrPos(Question, 'Do you want to create') > 0, 'Wrong confirm for create');
+            ConfirmType::Sign:
+                begin
+                    ConfirmType := ConfirmType::Invoice;
+                    Assert.IsTrue(StrPos(Question, 'Do you want to sign') > 0, 'Wrong confirm for sign');
+                end;
+        end;
+        Reply := true;
+        if StrPos(Question, 'New lines have been added') > 0 then
+            Reply := false;
     end;
 
     [ModalPageHandler]
