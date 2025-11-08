@@ -4,7 +4,7 @@
   "publisher": "Microsoft",
   "brief": "E-Document Format for Factura-E.",
   "description": "E-Document Format for Factura-E is a customization for Spanish business requirements. This app supports Factura-E format for working with E-documents app.",
-  "version": "25.12.40060.0",
+  "version": "25.13.41687.0",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
   "EULA": "https://go.microsoft.com/fwlink/?linkid=2009120",
   "help": "https://go.microsoft.com/fwlink/?linkid=2299409",
@@ -16,7 +16,7 @@
       "id": "e1d97edc-c239-46b4-8d84-6368bdf67c8b",
       "name": "E-Document Core",
       "publisher": "Microsoft",
-      "version": "25.12.0.0"
+      "version": "25.13.0.0"
     }
   ],
   "features": [
@@ -24,7 +24,7 @@
   ],
   "screenshots": [],
   "platform": "25.2.0.0",
-  "application": "25.12.0.0",
+  "application": "25.13.0.0",
   "idRanges": [
     {
       "from": 10772,
