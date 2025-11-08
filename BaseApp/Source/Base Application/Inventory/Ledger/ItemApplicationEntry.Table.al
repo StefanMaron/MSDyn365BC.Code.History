@@ -212,7 +212,7 @@ table 339 "Item Application Entry"
     begin
         ItemApplicationEntries.SetRange(Inbound_Item_Entry_No, InbndItemLedgEntryNo);
         ItemApplicationEntries.SetFilter(Item_Ledger_Entry_No, '<>%1', InbndItemLedgEntryNo);
-        ItemApplicationEntries.SetFilter(Outbound_Item_Entry_No, '>0');
+        ItemApplicationEntries.SetFilter(Outbound_Item_Entry_No, '<>0');
         if IsCostApplication then
             ItemApplicationEntries.SetRange(Cost_Application, true);
         if FilterOnOnlyCostNotAdjusted then

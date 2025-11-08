@@ -338,6 +338,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM G/L Account WhereUsed APAC - NamedType InvalidTableCaptionErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3679693579 - NamedType 578208368" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Field Name, %2= Expected Value, %3= Table Name]D;]A;(LookupHint=Codeunit ERM GST APAC - NamedType FADescriptionErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3679693579 - NamedType 146662279" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[line count]]></Val>

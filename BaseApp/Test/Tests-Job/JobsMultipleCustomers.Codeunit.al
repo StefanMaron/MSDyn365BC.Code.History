@@ -1836,6 +1836,46 @@ codeunit 136323 "Jobs - Multiple Customers"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure ProjectDimensionsInheritedWithMultipleCustomers()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        Customer: Record Customer;
+        JobTaskDimension: Record "Job Task Dimension";
+        ProjectDimensionValue: Record "Dimension Value";
+        CustomerDimensionValue: Record "Dimension Value";
+    begin
+        // [SCENARIO 573363] Custom dimension values should be inherited from Project to Task when Task Billing Method = Multiple customers
+        Initialize();
+
+        // [GIVEN] Set Multiple Customers on Project Setup
+        SetMultiupleCustomersOnProjectSetup();
+
+        // [GIVEN] Create a customer with a default dimension
+        CreateCustomerwithDimension(Customer, CustomerDimensionValue);
+
+        // [GIVEN] Create a project with a different custom dimension and Task Billing Method = Multiple customers
+        LibraryJob.CreateJob(Job, Customer."No.");
+        CreateJobWithProjectDimension(Job, ProjectDimensionValue);
+
+        // [WHEN] Create a job task
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [THEN] Verify job task should have both project dimensions and customer dimensions
+        JobTaskDimension.Reset();
+        JobTaskDimension.SetRange("Job No.", JobTask."Job No.");
+        JobTaskDimension.SetRange("Job Task No.", JobTask."Job Task No.");
+        JobTaskDimension.SetRange("Dimension Code", ProjectDimensionValue."Dimension Code");
+        JobTaskDimension.FindFirst();
+        Assert.AreEqual(ProjectDimensionValue.Code, JobTaskDimension."Dimension Value Code", 'Project dimension value should match');
+
+        // Verify customer dimension is also present
+        JobTaskDimension.SetRange("Dimension Code", CustomerDimensionValue."Dimension Code");
+        JobTaskDimension.FindFirst();
+        Assert.AreEqual(CustomerDimensionValue.Code, JobTaskDimension."Dimension Value Code", 'Customer dimension value should match');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Jobs - Multiple Customers");
@@ -2001,6 +2041,16 @@ codeunit 136323 "Jobs - Multiple Customers"
         Qty := LibraryRandom.RandInt(10);
         for i := 1 to ArrayLen(JobTasks) do
             CreateJobPlanningLineWithQtyToTransferToInvoice(JobPlanningLine, JobTasks[i], Qty, Qty);
+    end;
+
+    local procedure CreateJobWithProjectDimension(var Job: Record Job; var ProjectDimensionValue: Record "Dimension Value")
+    var
+        DefaultDimension: Record "Default Dimension";
+        Dimension: Record Dimension;
+    begin
+        LibraryDimension.CreateDimension(Dimension);
+        LibraryDimension.CreateDimensionValue(ProjectDimensionValue, Dimension.Code);
+        LibraryDimension.CreateDefaultDimension(DefaultDimension, Database::Job, Job."No.", ProjectDimensionValue."Dimension Code", ProjectDimensionValue.Code);
     end;
 
     [RequestPageHandler]

@@ -93,9 +93,13 @@ codeunit 99000836 "Transfer Line-Reserve"
                 Quantity, QuantityBase, ForReservationEntry);
             CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
         end;
-        CreateReservEntry.CreateReservEntry(
-          TransferLine."Item No.", TransferLine."Variant Code", FromTrackingSpecification."Location Code",
-          Description, ExpectedReceiptDate, ShipmentDate, 0);
+
+        IsHandled := false;
+        OnCreateReservationOnAfterCreateReservEntryFrom(TransferLine, FromTrackingSpecification, ExpectedReceiptDate, Description, ShipmentDate, IsHandled);
+        if not IsHandled then
+            CreateReservEntry.CreateReservEntry(
+                TransferLine."Item No.", TransferLine."Variant Code", FromTrackingSpecification."Location Code",
+                Description, ExpectedReceiptDate, ShipmentDate, 0);
 
         FromTrackingSpecification."Source Type" := 0;
 
@@ -1190,6 +1194,11 @@ codeunit 99000836 "Transfer Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateReservationOnBeforeCheckSourceType(var TransferLine: Record "Transfer Line"; FromTrackingSpecification: Record "Tracking Specification"; var SkipCheck: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateReservationOnAfterCreateReservEntryFrom(var TransferLine: Record "Transfer Line"; var FromTrackingSpecification: Record "Tracking Specification"; ExpectedReceiptDate: Date; Description: Text[100]; ShipmentDate: Date; var IsHandled: Boolean)
     begin
     end;
 }

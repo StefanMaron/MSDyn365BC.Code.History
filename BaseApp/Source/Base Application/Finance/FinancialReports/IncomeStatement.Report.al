@@ -276,6 +276,8 @@ report 28025 "Income Statement"
 
     requestpage
     {
+        AboutTitle = 'About Income Statement';
+        AboutText = 'The **Income Statement** report is a key finance report with data and layout based on a financial report definition. You can change the financial report definition used for the report on the *General Ledger Setup* page under the *Reporting* section.';
 
         layout
         {

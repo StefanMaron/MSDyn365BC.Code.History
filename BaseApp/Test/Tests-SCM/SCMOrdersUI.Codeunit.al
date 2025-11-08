@@ -1304,6 +1304,81 @@ codeunit 137929 "SCM Orders UI"
         TransferOrder.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('ReservationFromCurrentLinePageHandler')]
+    procedure ProdOrderComponentReservationWithWarehousePick()
+    var
+        Location: Record Location;
+        Bin: array[5] of Record Bin;
+        Item: array[2] of Record Item;
+        ProdItem: Record Item;
+        ProductionOrder: array[2] of Record "Production Order";
+        ProductionBOMHeader: Record "Production BOM Header";
+        NoOfBins: Integer;
+        Qty: Decimal;
+    begin
+        // [SCENARIO 598638] Component reservation should work for second production order when first has warehouse pick created
+        Initialize();
+
+        // [GIVEN] Location with Require Pick, Bin Mandatory, and warehouse employee
+        CreateLocationWithRequirePick(Location);
+
+        // [GIVEN] Five bins created for the location
+        for NoOfBins := 1 to 5 do
+            LibraryWarehouse.CreateBin(Bin[NoOfBins], Location.Code, '', '', '');
+
+        // [GIVEN] Set special bin roles for the location.
+        Location.Validate("Shipment Bin Code", Bin[1].Code);
+        Location.Validate("To-Production Bin Code", Bin[2].Code);
+        Location.Validate("From-Production Bin Code", Bin[3].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create Warehouse Employee for the Location.
+        CreateWarehouseEmployee(Location.Code);
+
+        // [GIVEN] Two Component items with Manual flushing and one Production item.
+        CreateComponentItem(Item[1], "Flushing Method"::Manual);
+        CreateComponentItem(Item[2], "Flushing Method"::Manual);
+        CreateProductionItem(ProdItem, "Manufacturing Policy"::"Make-to-Stock", "Flushing Method"::Manual);
+
+        // [GIVEN] Production BOM with both components
+        CreateProductionBOMWithComponents(ProductionBOMHeader, Item[1]."No.", Item[2]."No.");
+
+        // [GIVEN] Assign Production BOM to Production item.
+        UpdateItemProductionBOM(ProdItem, ProductionBOMHeader."No.");
+
+        // [GIVEN] Post inventory for both components in the bin
+        Qty := LibraryRandom.RandIntInRange(100, 200);
+
+        // [GIVEN] Post inventory for both Components in the Bin.
+        PostItemInventoryInBin(Item[1]."No.", Location.Code, Bin[4].Code, '', Qty);
+        PostItemInventoryInBin(Item[2]."No.", Location.Code, Bin[4].Code, '', Qty);
+
+        // [GIVEN] Create and refresh first production order
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder[1], ProductionOrder[1].Status::Released, ProductionOrder[1]."Source Type"::Item, ProdItem."No.", LibraryRandom.RandIntInRange(1, 1));
+        ProductionOrder[1].Validate("Location Code", Location.Code);
+        ProductionOrder[1].Modify(true);
+
+        // [GIVEN] Refresh first Production order to create Component lines.
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder[1], false, true, true, true, false);
+
+        // [GIVEN] Reserve components for first production order
+        ReserveProductionOrderComponents(ProductionOrder[1]);
+
+        // [GIVEN] Create warehouse pick for first production order
+        CreateWarehousePickFromProdOrder(ProductionOrder[1]);
+
+        // [GIVEN] Create and refresh second production order
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder[2], ProductionOrder[2].Status::Released, ProductionOrder[2]."Source Type"::Item, ProdItem."No.", LibraryRandom.RandIntInRange(1, 1));
+        ProductionOrder[2].Validate("Location Code", Location.Code);
+        ProductionOrder[2].Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder[2], false, true, true, true, false);
+
+        // [WHEN] Try to reserve components for second production order
+        // [THEN] Reservation should succeed without error
+        ReserveProductionOrderComponents(ProductionOrder[2]);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Orders UI");
@@ -1521,6 +1596,93 @@ codeunit 137929 "SCM Orders UI"
         Bin.Modify(true);
     end;
 
+    local procedure CreateLocationWithRequirePick(var Location: Record Location)
+    begin
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
+        Location.Validate("Require Receive", true);
+        Location.Validate("Require Shipment", true);
+        Location.Validate("Require Pick", true);
+        Location.Validate("Prod. Consump. Whse. Handling", Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)");
+        Location.Modify(true);
+    end;
+
+    local procedure CreateWarehouseEmployee(LocationCode: Code[10])
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationCode, false);
+    end;
+
+    local procedure CreateComponentItem(var Item: Record Item; FlushingMethod: Enum "Flushing Method")
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Flushing Method", FlushingMethod);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateProductionItem(var Item: Record Item; ManufacturingPolicy: Enum "Manufacturing Policy"; FlushingMethod: Enum "Flushing Method")
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Manufacturing Policy", ManufacturingPolicy);
+        Item.Validate("Flushing Method", FlushingMethod);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateProductionBOMWithComponents(var ProductionBOMHeader: Record "Production BOM Header"; Component1No: Code[20]; Component2No: Code[20])
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+        Item: Record Item;
+    begin
+        Item.Get(Component1No);
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Component1No, 50);
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Component2No, 50);
+
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+    end;
+
+    local procedure UpdateItemProductionBOM(var Item: Record Item; ProductionBOMNo: Code[20])
+    begin
+        Item.Validate("Production BOM No.", ProductionBOMNo);
+        Item.Modify(true);
+    end;
+
+    local procedure PostItemInventoryInBin(ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; VariantCode: Code[10]; Quantity: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, LocationCode, BinCode, Quantity);
+        if VariantCode <> '' then
+            ItemJournalLine.Validate("Variant Code", VariantCode);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure ReserveProductionOrderComponents(var ProductionOrder: Record "Production Order")
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProdOrderComponents: TestPage "Prod. Order Components";
+    begin
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        if ProdOrderComponent.FindSet() then
+            repeat
+                Clear(ProdOrderComponents);
+                ProdOrderComponents.OpenEdit();
+                ProdOrderComponents.GoToRecord(ProdOrderComponent);
+                ProdOrderComponents.Reserve.Invoke();
+            until ProdOrderComponent.Next() = 0;
+    end;
+
+    local procedure CreateWarehousePickFromProdOrder(var ProductionOrder: Record "Production Order")
+    begin
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WarehousePickModalPageHandlerWithAutofillQty(var WarehousePick: TestPage "Warehouse Pick")
@@ -1662,6 +1824,13 @@ codeunit 137929 "SCM Orders UI"
         repeat
             LibraryVariableStorage.Enqueue(Format(BinContentsList."Item No."));
         until not BinContentsList.Next();
+    end;
+
+    [ModalPageHandler]
+    procedure ReservationFromCurrentLinePageHandler(var Reservation: TestPage Reservation)
+    begin
+        Reservation."Reserve from Current Line".Invoke();
+        Reservation.OK().Invoke();
     end;
 }
 

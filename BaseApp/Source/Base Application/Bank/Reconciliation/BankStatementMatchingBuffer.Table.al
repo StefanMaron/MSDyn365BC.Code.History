@@ -116,6 +116,7 @@ table 1250 "Bank Statement Matching Buffer"
         BankStatementMatchingBuffer."Account No." := AccountNo;
         BankStatementMatchingBuffer."Account Type" := AccountType;
         BankStatementMatchingBuffer.Quality := NewQuality;
+        OnAddMatchCandidateOnAfterAssignBankStatementMatchingBufferValues(Rec, BankStatementMatchingBuffer);
         if Get(LineNo, EntryNo, AccountType, AccountNo) then begin
             Rec := BankStatementMatchingBuffer;
             Modify();
@@ -142,12 +143,23 @@ table 1250 "Bank Statement Matching Buffer"
             "One to Many Match" := true;
             "No. of Entries" := 1;
             "Related Party Matched" := RelatedPartyMatched;
+            OnInsertOrUpdateOneToManyRuleOnBeforeInsert(Rec, TempLedgerEntryMatchingBuffer);
             Insert();
         end else
             "No. of Entries" += 1;
 
         "Total Remaining Amount" += RemainingAmount;
         Modify(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddMatchCandidateOnAfterAssignBankStatementMatchingBufferValues(var BankStatementMatchingBuffer: Record "Bank Statement Matching Buffer"; var BankStatementMatchingBuffer2: Record "Bank Statement Matching Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOrUpdateOneToManyRuleOnBeforeInsert(var BankStatementMatchingBuffer: Record "Bank Statement Matching Buffer"; TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary)
+    begin
     end;
 }
 

@@ -14,6 +14,8 @@ page 5832 "Capacity Ledger Entries"
     Caption = 'Capacity Ledger Entries';
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Capacity Ledger Entries';
+    AboutText = 'Track and analyze posted capacity usage for work centers and machine centers, including labor and machine time, quantities, output, scrap, run time, setup time, and costs, to monitor activities such as maintenance and non-production tasks.';
     SourceTable = "Capacity Ledger Entry";
     SourceTableView = sorting("Entry No.")
                       order(descending);

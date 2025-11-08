@@ -27,6 +27,8 @@ page 1020 "Job G/L Journal"
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
+    AboutTitle = 'About Project G/L Journals';
+    AboutText = 'Record and post extraordinary or one-time project expenses directly to the relevant project and task, specifying amounts, accounts, dimensions, and VAT details to ensure accurate allocation in the general ledger.';
     SaveValues = true;
     SourceTable = "Gen. Journal Line";
     UsageCategory = Tasks;

@@ -779,6 +779,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Match General Jnl Lines UT - NamedType WrongNearnessErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1186821029 - NamedType 3288267845" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Amount should be equal.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Net Cust/Vend Balances Test - NamedType AmountShouldBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1186821029 - NamedType 280663545" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Net customer/vendor balances %1 %2]]></Val>
