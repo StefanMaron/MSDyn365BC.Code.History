@@ -115,6 +115,7 @@ codeunit 134899 "Test Sequence No. Mgt."
     end;
 
     [Test]
+    [HandlerFunctions('ErrorMassagesHandler')]
     procedure VerifyPreviewSequenceName()
     begin
         PreviewPosting();
@@ -128,7 +129,13 @@ codeunit 134899 "Test Sequence No. Mgt."
     begin
         BindSubscription(NoSequencePreviewTest);
         asserterror GenJnlPostPreview.Preview(NoSequencePreviewTest, JobQueueEntry);
-        Assert.AreEqual('', GetLastErrorText(), 'Unexpected error from preview');
         UnBindSubscription(NoSequencePreviewTest);
     end;
+
+    [PageHandler]
+    procedure ErrorMassagesHandler(var ErrorMessages: TestPage "Error Messages")
+    begin
+        ErrorMessages.OK().Invoke();
+    end;
+
 }

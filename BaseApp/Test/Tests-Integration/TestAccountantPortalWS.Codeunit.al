@@ -134,7 +134,7 @@ codeunit 134765 TestAccountantPortalWS
         Initialize();
 
         // [GIVEN] Local Currency not set in General Ledger Setup
-        GeneralLedgerSetup.Validate("LCY Code", '');
+        GeneralLedgerSetup."LCY Code" := '';
         GeneralLedgerSetup.Validate("Local Currency Symbol", '');
         GeneralLedgerSetup.Modify(true);
 

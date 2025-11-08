@@ -15,9 +15,7 @@ codeunit 6638 "Sales-Get Return Receipts"
     var
         IsHandled: Boolean;
     begin
-        SalesHeader.Get(Rec."Document Type", Rec."Document No.");
-        SalesHeader.TestField("Document Type", SalesHeader."Document Type"::"Credit Memo");
-        SalesHeader.TestField(Status, SalesHeader.Status::Open);
+        CheckHeader(Rec);
 
         ReturnRcptLine.SetCurrentKey("Bill-to Customer No.");
         ReturnRcptLine.SetRange("Bill-to Customer No.", SalesHeader."Bill-to Customer No.");
@@ -112,9 +110,29 @@ codeunit 6638 "Sales-Get Return Receipts"
     end;
 
     procedure SetSalesHeader(var SalesHeader2: Record "Sales Header")
+    var
+        IsHandled: Boolean;
     begin
-        SalesHeader.Get(SalesHeader2."Document Type", SalesHeader2."No.");
+        IsHandled := false;
+        OnSetSalesHeaderOnBeforeTestIsCreditMemo(SalesHeader, IsHandled);
+        if not IsHandled then begin
+            SalesHeader.Get(SalesHeader2."Document Type", SalesHeader2."No.");
+            SalesHeader.TestField("Document Type", SalesHeader."Document Type"::"Credit Memo");
+        end;
+    end;
+
+    local procedure CheckHeader(SalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckHeader(SalesHeader, SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         SalesHeader.TestField("Document Type", SalesHeader."Document Type"::"Credit Memo");
+        SalesHeader.TestField(Status, SalesHeader.Status::Open);
     end;
 
     local procedure CheckReturnReceiptBillToCustomerNo(ReturnReceiptHeader: Record "Return Receipt Header"; SalesHeader2: Record "Sales Header"; ReturnReceiptLine: Record "Return Receipt Line")
@@ -285,6 +303,16 @@ codeunit 6638 "Sales-Get Return Receipts"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckReturnReceiptBillToCustomerNo(ReturnReceiptHeader: Record "Return Receipt Header"; SalesHeader: Record "Sales Header"; var ReturnReceiptLine: Record "Return Receipt Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckHeader(var SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetSalesHeaderOnBeforeTestIsCreditMemo(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -301,6 +301,8 @@ codeunit 144021 "UT REP ACCPER - Fixed Asset"
         LibraryReportDataset.AssertElementWithValueExists('TotalBookValue_1_', Amount);
     end;
 
+#if not CLEAN27
+    [Obsolete('Not used anymore', '28.0')]
     [Test]
     [HandlerFunctions('FAProjectedValWithProjectedDisposalReqPageHandler')]
 
@@ -311,7 +313,7 @@ codeunit 144021 "UT REP ACCPER - Fixed Asset"
         RunFAProjectedValAfterPostFAGLJnlWithProjectedDisposal(true);  // Projected Disposal as True.
     end;
 
-#if not CLEAN27
+    [Obsolete('Not used anymore', '28.0')]
     [Test]
     [HandlerFunctions('FAProjectedValWithProjectedDisposalReqPageHandler')]
 

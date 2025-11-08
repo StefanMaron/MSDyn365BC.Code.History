@@ -2970,6 +2970,84 @@ codeunit 136108 "Service Posting - Invoice"
         Assert.AreEqual(WorkDescription, ServiceCrMemoHeader.GetWorkDescription(), '');
     end;
 
+    [Test]
+    procedure TestYourReferenceTransferredToCustomerLedgerEntryFromInvoice()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        YourReference: Text[35];
+    begin
+        // [SCENARIO] Verify "Your Reference" is transferred from Service Invoice to Customer Ledger Entry
+        Initialize();
+
+        // [GIVEN] Create Service Invoice with "Your Reference" field populated
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        YourReference := CopyStr(LibraryRandom.RandText(MaxStrLen(ServiceHeader."Your Reference")),
+            1, MaxStrLen(ServiceHeader."Your Reference"));
+        ServiceHeader."Your Reference" := YourReference;
+        ServiceHeader.Modify(true);
+
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
+        ServiceLine.Validate(Quantity, 1);
+        ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        ServiceLine.Modify(true);
+
+        // [WHEN] Post the Service Invoice
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [THEN] Verify "Your Reference" is transferred to Customer Ledger Entry
+        FindServiceInvoiceHeader(ServiceInvoiceHeader, ServiceHeader."No.");
+
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
+        CustLedgerEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
+        CustLedgerEntry.SetRange("Customer No.", ServiceHeader."Bill-to Customer No.");
+        CustLedgerEntry.FindFirst();
+
+        Assert.AreEqual(YourReference, CustLedgerEntry."Your Reference",
+            'Your Reference should be transferred from Service Header to Customer Ledger Entry');
+    end;
+
+    [Test]
+    procedure TestYourReferenceTransferredToCustomerLedgerEntryFromCreditMemo()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        YourReference: Text[35];
+    begin
+        // [SCENARIO] Verify "Your Reference" is transferred from Service Credit Memo to Customer Ledger Entry
+        Initialize();
+
+        // [GIVEN] Create Service Credit Memo with "Your Reference" field populated
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo());
+        YourReference := CopyStr(LibraryRandom.RandText(MaxStrLen(ServiceHeader."Your Reference")),
+            1, MaxStrLen(ServiceHeader."Your Reference"));
+        ServiceHeader."Your Reference" := YourReference;
+        ServiceHeader.Modify(true);
+
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
+        ServiceLine.Validate(Quantity, 1);
+        ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        ServiceLine.Modify(true);
+
+        // [WHEN] Post the Service Credit Memo
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [THEN] Verify "Your Reference" is transferred to Customer Ledger Entry
+        FindServiceCreditMemoHeader(ServiceCrMemoHeader, ServiceHeader."No.");
+
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::"Credit Memo");
+        CustLedgerEntry.SetRange("Document No.", ServiceCrMemoHeader."No.");
+        CustLedgerEntry.SetRange("Customer No.", ServiceHeader."Bill-to Customer No.");
+        CustLedgerEntry.FindFirst();
+
+        Assert.AreEqual(YourReference, CustLedgerEntry."Your Reference",
+            'Your Reference should be transferred from Service Credit Memo to Customer Ledger Entry');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

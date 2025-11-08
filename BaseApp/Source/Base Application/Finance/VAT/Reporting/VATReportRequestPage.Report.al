@@ -251,7 +251,7 @@ report 742 "VAT Report Request Page"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeVATStatementLineFindSet(VATStatementLine: Record "VAT Statement Line"; VATReportHeader: Record "VAT Report Header")
+    local procedure OnBeforeVATStatementLineFindSet(var VATStatementLine: Record "VAT Statement Line"; VATReportHeader: Record "VAT Report Header")
     begin
     end;
 
@@ -263,7 +263,7 @@ report 742 "VAT Report Request Page"
 #if not CLEAN27
     [Obsolete('Moved to GovTalk app', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeVATStatementLineFindSet2(VATStatementLine: Record "VAT Statement Line"; VATReportHeader: Record "VAT Report Header"; var IsHandled: Boolean)
+    local procedure OnBeforeVATStatementLineFindSet2(var VATStatementLine: Record "VAT Statement Line"; VATReportHeader: Record "VAT Report Header"; var IsHandled: Boolean)
     begin
     end;
 

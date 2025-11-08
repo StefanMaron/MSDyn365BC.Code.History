@@ -35,9 +35,9 @@ codeunit 9069 "Check Sales Document Line"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Item, 'OnAfterCheckDocuments', '', false, false)]
-    local procedure ItemOnBeforeCheckDocuments(Item: Record Item; CurrentFieldNo: Integer);
+    local procedure ItemOnBeforeCheckDocuments(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text);
     begin
-        CheckSalesLines(Item, CurrentFieldNo, Item.FieldNo(Type), Item.FieldCaption(Type));
+        CheckSalesLines(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
     end;
 
     internal procedure CheckSalesLines(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)

@@ -33,6 +33,7 @@ using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Pricing;
 using Microsoft.Utilities;
@@ -1407,6 +1408,8 @@ table 1003 "Job Planning Line"
     begin
         ConfirmDeletion();
 
+        PreventDeleteIfPurchaseExists(Rec);
+
         ValidateModification(true, 0);
         CheckRelatedJobPlanningLineInvoice();
 
@@ -1541,6 +1544,7 @@ table 1003 "Job Planning Line"
         DifferentQtyToAssembleErr: Label ' must be equal to %1.', Comment = 'Qty. to Assemble must be equal to Quantity, %1 = Quantity';
         CannotBeMoreErr: Label 'cannot be more than %1', Comment = '%1 = Quantity';
         ConfirmDeleteQst: Label '%1 = %2 is greater than %3 = %4. If you delete the %5, the items will remain in the operation area until you put them away.\Any related item tracking information defined during the pick process will be deleted.\Do you still want to delete the %5?', Comment = '%1 = FieldCaption("Qty. Picked"), %2 = "Qty. Picked", %3 = FieldCaption("Qty. Posted"), %4 = "Qty. Posted", %5 = TableCaption';
+        PurchRcptLineExistErr: Label 'You cannot delete this Project Planning Line because a Purchase Receipt %1 exists for it.', Comment = 'Purchase Receipt Line already exist for the Job Planning Line';
 
     protected var
         Job: Record Job;
@@ -3364,6 +3368,20 @@ table 1003 "Job Planning Line"
         PurchaseLine.SetRange("Job No.", "Job No.");
         PurchaseLine.SetRange("Job Task No.", "Job Task No.");
         PurchaseLine.SetRange("Job Planning Line No.", "Line No.");
+    end;
+
+    local procedure PreventDeleteIfPurchaseExists(var JobPlanningLine: Record "Job Planning Line")
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+    begin
+        // Check if any Purchase Receipt Line exists for this Project Planning Line
+        PurchRcptLine.SetLoadFields("Document No.");
+        PurchRcptLine.SetCurrentKey("Job No.", "Job Task No.", "Job Planning Line No.");
+        PurchRcptLine.SetRange("Job No.", JobPlanningLine."Job No.");
+        PurchRcptLine.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
+        PurchRcptLine.SetRange("Job Planning Line No.", JobPlanningLine."Line No.");
+        if PurchRcptLine.FindFirst() then
+            Error(PurchRcptLineExistErr, PurchRcptLine."Document No.");
     end;
 
     local procedure FindOrCreateRecordByNo(SourceNo: Code[20]): Code[20]

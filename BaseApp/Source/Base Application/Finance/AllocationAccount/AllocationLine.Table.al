@@ -197,6 +197,7 @@ table 2672 "Allocation Line"
             AllocAccManualOverride."Global Dimension 1 Code" := AllocationLine."Global Dimension 1 Code";
             AllocAccManualOverride."Global Dimension 2 Code" := AllocationLine."Global Dimension 2 Code";
             AllocAccManualOverride.Quantity := AllocationLine.Quantity;
+            OnSaveChangesToAllocationLinesOnBeforeAllocAccManualOverrideInsert(AllocAccManualOverride, AllocationLine);
             AllocAccManualOverride.Insert();
         until AllocationLine.Next() = 0;
 
@@ -252,6 +253,11 @@ table 2672 "Allocation Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetOrGenerateAllocationLines(ParentTableId: Integer; ParentSystemId: Guid; var AllocationLine: Record "Allocation Line"; var AmountToAllocate: Decimal; var PostingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSaveChangesToAllocationLinesOnBeforeAllocAccManualOverrideInsert(var AllocAccManualOverride: Record "Alloc. Acc. Manual Override"; var AllocationLine: Record "Allocation Line")
     begin
     end;
 

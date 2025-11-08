@@ -13,6 +13,8 @@ page 663 "Approval User Setup"
     ApplicationArea = Basic, Suite;
     Caption = 'Approval User Setup';
     PageType = List;
+    AboutTitle = 'About Approval User Setup';
+    AboutText = 'Configure approval roles, limits, substitutes, and notification settings for users involved in approval workflows to control who can approve sales, purchases, and requests, and under what conditions.';
     RefreshOnActivate = true;
     SourceTable = "User Setup";
     UsageCategory = Administration;

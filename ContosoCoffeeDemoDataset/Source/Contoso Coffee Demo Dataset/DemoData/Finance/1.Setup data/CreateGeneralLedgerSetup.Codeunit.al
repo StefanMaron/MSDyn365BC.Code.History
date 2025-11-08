@@ -33,6 +33,7 @@ codeunit 5230 "Create General Ledger Setup"
         GeneralLedgerSetup.Validate("Inv. Rounding Precision (LCY)", InvoiceRoundingPrecisionLCY);
         GeneralLedgerSetup.Validate("Local Cont. Addr. Format", LocalContAddrFormat);
         GeneralLedgerSetup.Validate("Bank Account Nos.", BankAccountNo);
+        GeneralLedgerSetup."LCY Code" := '';        // to avoid error on updating LCY Code
         GeneralLedgerSetup.Validate("LCY Code", LCYCode);
         GeneralLedgerSetup.Validate("Enable Data Check", DataCheck);
         GeneralLedgerSetup.Validate("Acc. Receivables Category", AccReceivablesCategory);

@@ -11,6 +11,9 @@ using Microsoft.Shared.Report;
 pageextension 10580 "Report Layouts GB" extends "Report Layouts"
 {
 
+    ObsoleteTag = '28.0';
+    ObsoleteReason = 'The functionality is enforced.';
+    ObsoleteState = Pending;
     trigger OnOpenPage()
     var
         ReportsGB: Codeunit "Reports GB";

@@ -460,6 +460,11 @@ page 118 "General Ledger Setup"
                     ApplicationArea = All;
                     Tooltip = 'Specifies the G/L Account Category that will be used for the Account Receivables accounts.';
                 }
+                field("Acc. Payables Category"; Rec."Acc. Payables Category")
+                {
+                    ApplicationArea = Suite;
+                    Tooltip = 'Specifies the G/L Account Category that will be used for the Account Payables accounts.';
+                }
             }
             group(Application)
             {

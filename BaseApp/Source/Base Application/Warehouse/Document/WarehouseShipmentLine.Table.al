@@ -599,6 +599,7 @@ table 7321 "Warehouse Shipment Line"
         if FindLast() then;
 
         Init();
+        OnInitNewLineOnAfterInit(Rec);
         SetIgnoreErrors();
         "Line No." := "Line No." + 10000;
     end;
@@ -1391,6 +1392,11 @@ table 7321 "Warehouse Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLockTable(var Rec: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitNewLineOnAfterInit(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
     end;
 }

@@ -28,6 +28,8 @@ page 9309 "Purchase Credit Memos"
     DataCaptionFields = "Buy-from Vendor No.";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Purchase Credit Memos';
+    AboutText = 'Create, manage, and post purchase credit memos to process vendor returns, allowances, or cancellations, reverse charges from purchase invoices, and adjust inventory and vendor balances for accurate financial reconciliation.';
     QueryCategory = 'Purchase Credit Memos';
     RefreshOnActivate = true;
     SourceTable = "Purchase Header";

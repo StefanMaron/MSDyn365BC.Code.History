@@ -16,6 +16,7 @@ using Microsoft.FixedAssets.Ledger;
 using Microsoft.Foundation.Enums;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
+using Microsoft.Purchases.Vendor;
 using Microsoft.Foundation.Company;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Project.Job;
@@ -951,6 +952,8 @@ codeunit 6201 "Non-Ded. VAT Impl."
         GeneralLedgerSetup.GetRecordOnce();
         UpdateNonDeductibleAmounts(GenJournalLine."Non-Deductible VAT Base ACY", GenJournalLine."Non-Deductible VAT Amount ACY", BaseAmountACY, VATAmountACY, GetNonDedVATPctFromGenJournalLine(GenJournalLine), GeneralLedgerSetup."Amount Rounding Precision");
         AdjustVATAmounts(VATAmountACY, BaseAmountACY, GenJournalLine."Non-Deductible VAT Amount ACY", GenJournalLine."Non-Deductible VAT Base ACY");
+        if IsNormalVATInvoiceForVendor(GenJournalLine) then
+            UpdateNonDeductibleAmounts(GenJournalLine."Non-Deductible VAT Base LCY", GenJournalLine."Non-Deductible VAT Amount LCY", BaseAmount, VATAmount, GetNonDedVATPctFromGenJournalLine(GenJournalLine), GeneralLedgerSetup."Amount Rounding Precision");
         AdjustVATAmounts(VATAmount, BaseAmount, GenJournalLine."Non-Deductible VAT Amount LCY", GenJournalLine."Non-Deductible VAT Base LCY");
     end;
 
@@ -1150,6 +1153,17 @@ codeunit 6201 "Non-Ded. VAT Impl."
         if GeneralLedgerSetup."Amount Rounding Precision" > DocAmountRoundingPrecision then
             exit(GeneralLedgerSetup."Amount Rounding Precision");
         exit(DocAmountRoundingPrecision);
+    end;
+
+    local procedure IsNormalVATInvoiceForVendor(GenJournalLine: Record "Gen. Journal Line"): Boolean
+    var
+        Vendor: Record Vendor;
+    begin
+        if (GenJournalLine."Document Type" = GenJournalLine."Document Type"::Invoice) and
+            (GenJournalLine."VAT Calculation Type" = GenJournalLine."VAT Calculation Type"::"Normal VAT") and
+            (Vendor.Get(GenJournalLine."Bill-to/Pay-to No.") and (Vendor."Prices Including VAT")) then
+            exit(true);
+        exit(false);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnCompanyInitialize', '', false, false)]

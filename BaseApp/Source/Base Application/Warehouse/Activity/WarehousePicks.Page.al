@@ -15,6 +15,8 @@ page 9313 "Warehouse Picks"
     CardPageID = "Warehouse Pick";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Warehouse Picks';
+    AboutText = 'Manage and optimize the picking of items for warehouse shipments by viewing assigned picks, following detailed pick and place instructions, and sorting or splitting pick lines to streamline warehouse operations.';
     SourceTable = "Warehouse Activity Header";
     SourceTableView = where(Type = const(Pick));
     UsageCategory = Lists;

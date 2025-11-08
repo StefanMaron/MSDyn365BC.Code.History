@@ -41,6 +41,10 @@ codeunit 5990 "Serv. Item Reference Mgt."
                 if ItemReference.Description <> '' then begin
                     ServiceLine.Description := ItemReference.Description;
                     ServiceLine."Description 2" := ItemReference."Description 2";
+                end
+                else begin
+                    FillDescription(ServiceLine);
+                    ServiceLine.GetItemTranslation();
                 end;
                 ServiceLine."Item Reference Type No." := ItemReference."Reference Type No.";
                 OnAfterServiceItemReferenceFound(ServiceLine, ItemReference);
@@ -48,17 +52,7 @@ codeunit 5990 "Serv. Item Reference Mgt."
                 ServiceLine."Item Reference No." := '';
                 ServiceLine."Item Reference Type" := "Item Reference Type"::" ";
                 ServiceLine."Item Reference Type No." := '';
-                if ServiceLine."Variant Code" <> '' then begin
-                    ItemVariant.Get(ServiceLine."No.", ServiceLine."Variant Code");
-                    ServiceLine.Description := ItemVariant.Description;
-                    ServiceLine."Description 2" := ItemVariant."Description 2";
-                    OnEnterServiceItemReferenceOnAfterFillDescriptionFromItemVariant(ServiceLine, ItemVariant);
-                end else begin
-                    Item.Get(ServiceLine."No.");
-                    ServiceLine.Description := Item.Description;
-                    ServiceLine."Description 2" := Item."Description 2";
-                    OnEnterServiceItemReferenceOnAfterFillDescriptionFromItem(ServiceLine, Item);
-                end;
+                FillDescription(ServiceLine);
                 ServiceLine.GetItemTranslation();
                 OnAfterServiceItemItemRefNotFound(ServiceLine, ItemVariant);
             end;
@@ -489,6 +483,11 @@ codeunit 5990 "Serv. Item Reference Mgt."
         ServiceLine."Item Reference Type No." := ReturnedItemReference."Reference Type No.";
         ServiceLine."Item Reference No." := ReturnedItemReference."Reference No.";
 
+        if (ServiceLine."Item Reference No." = '') and (ServiceLine."Variant Code" <> '') then begin
+            FillDescription(ServiceLine);
+            ServiceLine.GetItemTranslation();
+        end;
+
         if (ReturnedItemReference.Description <> '') or (ReturnedItemReference."Description 2" <> '') then begin
             ServiceLine.Description := ReturnedItemReference.Description;
             ServiceLine."Description 2" := ReturnedItemReference."Description 2";
@@ -497,6 +496,21 @@ codeunit 5990 "Serv. Item Reference Mgt."
         ServiceLine.UpdateUnitPrice(ServiceLine.FieldNo("Item Reference No."));
 
         OnAfterValidateServiceReferenceNo(ServiceLine, ItemReference2, ReturnedItemReference);
+    end;
+
+    local procedure FillDescription(var ServiceLine: Record "Service Line")
+    begin
+        if ServiceLine."Variant Code" <> '' then begin
+            ItemVariant.Get(ServiceLine."No.", ServiceLine."Variant Code");
+            ServiceLine.Description := ItemVariant.Description;
+            ServiceLine."Description 2" := ItemVariant."Description 2";
+            OnEnterServiceItemReferenceOnAfterFillDescriptionFromItemVariant(ServiceLine, ItemVariant);
+        end else begin
+            Item.Get(ServiceLine."No.");
+            ServiceLine.Description := Item.Description;
+            ServiceLine."Description 2" := Item."Description 2";
+            OnEnterServiceItemReferenceOnAfterFillDescriptionFromItem(ServiceLine, Item);
+        end;
     end;
 
     [IntegrationEvent(false, false)]
