@@ -35,6 +35,7 @@ report 497 "Batch Post Purchase Invoices"
                 PurchaseBatchPostMgt.SetParameter(Enum::"Batch Posting Parameter Type"::"VAT Date", VATDateReq);
                 PurchaseBatchPostMgt.RunBatch("Purchase Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, false, true);
 
+                OnAfterOnPreDataItemPurchaseHeader("Purchase Header", PurchaseBatchPostMgt);
                 CurrReport.Break();
             end;
         }
@@ -189,6 +190,11 @@ report 497 "Batch Post Purchase Invoices"
     begin
         if ReplaceVATDateReq then
             VATDateReq := PostingDateReq;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnPreDataItemPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; var PurchaseBatchPostMgt: Codeunit "Purchase Batch Post Mgt.")
+    begin
     end;
 }
 

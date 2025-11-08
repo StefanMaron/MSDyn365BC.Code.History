@@ -2096,6 +2096,7 @@ codeunit 134263 "Test Bank Payment Application"
         GLSetup: Record "General Ledger Setup";
     begin
         GLSetup.Get();
+        GLSetup."LCY Code" := '';       // to avoid error on updating LCY Code
         GLSetup.Validate("LCY Code", CurrencyCode);
         GLSetup.Modify(true);
     end;
@@ -2119,6 +2120,88 @@ codeunit 134263 "Test Bank Payment Application"
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+    end;
+
+    [Test]
+    [HandlerFunctions('BankAccReconciliationPageHandler')]
+    procedure OutstandingChecksRespectStatementDate()
+    var
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccount: Record "Bank Account";
+        CheckLedgerEntry: Record "Check Ledger Entry";
+        Vendor: Record Vendor;
+        VendLedgEntry: Record "Vendor Ledger Entry";
+        PaymentJournalLine: Record "Gen. Journal Line";
+        PaymentJournalBatch: Record "Gen. Journal Batch";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+        Amount: Decimal;
+        OutstandingTotal: Decimal;
+    begin
+        // [600826 SCENARIO] Outstanding Checks should only show checks with Posting Date on or before Statement Date
+        Initialize();
+
+        // [GIVEN] Set Work Date 
+        WorkDate := CalcDate('<+2M>', WorkDate());
+
+        // [GIVEN] Create Vendor and Payment Journal Batch
+        LibraryPurch.CreateVendor(Vendor);
+        CreatePaymentGenJournalBatch(PaymentJournalBatch);
+        PaymentJournalBatch.Validate("Bal. Account Type", PaymentJournalBatch."Bal. Account Type"::"Bank Account");
+        LibraryERM.CreateBankAccount(BankAccount);
+        PaymentJournalBatch.Validate("Bal. Account No.", BankAccount."No.");
+        PaymentJournalBatch.Validate("Copy VAT Setup to Jnl. Lines", true);
+        PaymentJournalBatch.Modify(true);
+
+        // [GIVEN] Use a random amount for payment
+        Amount := LibraryRandom.RandDecInRange(1000, 5000, 2);
+
+        // [GIVEN] Create a new purchase invoice for this payment line using the above created Vendor
+        CreatePurchInvoiceAndPost(Vendor, VendLedgEntry, '');
+
+        // [GIVEN] Create Payment Journal Line in selected batch
+        LibraryJournals.CreateGenJournalLine2(
+            PaymentJournalLine,
+            PaymentJournalBatch."Journal Template Name",
+            PaymentJournalBatch.Name,
+            PaymentJournalLine."Document Type"::Payment,
+            PaymentJournalLine."Account Type"::Vendor,
+            Vendor."No.",
+            PaymentJournalLine."Bal. Account Type"::"Bank Account",
+            PaymentJournalBatch."Bal. Account No.",
+            Amount);
+        PaymentJournalLine.Validate("Posting Date", WorkDate());
+        PaymentJournalLine.validate("Applies-to Doc. Type", PaymentJournalLine."Applies-to Doc. Type"::Invoice);
+        PaymentJournalLine.Validate("Applies-to Doc. No.", VendLedgEntry."Document No.");
+        PaymentJournalLine.Validate("Bank Payment Type", PaymentJournalLine."Bank Payment Type"::"manual check");
+        PaymentJournalLine.Modify(true);
+
+        // [WHEN] Post the Payment Journal
+        LibraryERM.PostGeneralJnlLine(PaymentJournalLine);
+
+        // [GIVEN] Change Work Date back to today
+        WorkDate := WorkDate();
+
+        // [GIVEN] Create Bank Account Reconciliation for bank account and Statement Date 
+        LibraryERM.CreateBankAccReconciliation(BankAccRecon, BankAccount."No.", BankAccRecon."Statement Type"::"Bank Reconciliation");
+        BankAccRecon.Validate("Statement Date", WorkDate());
+        BankAccRecon.Modify(true);
+
+        // [THEN] Review Outstanding Checks
+        CheckLedgerEntry.SetLoadFields("Bank Account No.", "Entry Status", "Statement Status", "Posting Date");
+        CheckLedgerEntry.SetRange("Bank Account No.", BankAccount."No.");
+        CheckLedgerEntry.SetRange("Entry Status", CheckLedgerEntry."Entry Status"::Posted);
+        CheckLedgerEntry.SetFilter("Statement Status", '<>%1', CheckLedgerEntry."Statement Status"::Closed);
+        CheckLedgerEntry.SetFilter("Posting Date", '<=%1', BankAccRecon."Statement Date");
+        CheckLedgerEntry.CalcSums(Amount);
+        OutstandingTotal := CheckLedgerEntry.Amount;
+
+        // [THEN] Open page 381 'Apply Bank Acc. Ledger Entries' and check 'Total on Outstanding Checks'
+        BankAccReconciliationPage.OpenEdit();
+        BankAccReconciliationPage.GoToRecord(BankAccRecon);
+        BankAccReconciliationPage.ApplyBankLedgerEntries.CheckBalance.Drilldown();
+
+        // [ASSERT] Outstanding checks only include checks posted on or before Statement Date
+        Assert.AreEqual(Format(OutstandingTotal), BankAccReconciliationPage.ApplyBankLedgerEntries.CheckBalance.Value, 'Outstanding checks include payments posted after statement date');
     end;
 
     [ConfirmHandler]
@@ -2169,5 +2252,10 @@ codeunit 134263 "Test Bank Payment Application"
         Page.OK().Invoke();
     end;
 
+    [PageHandler]
+    procedure BankAccReconciliationPageHandler(var CheckLedgerEntriesPage: TestPage "Check Ledger Entries")
+    begin
+        CheckLedgerEntriesPage.OK().Invoke();
+    end;
 }
 

@@ -17,6 +17,8 @@ page 427 "Payment Methods"
     ApplicationArea = Basic, Suite;
     Caption = 'Payment Methods';
     PageType = List;
+    AboutTitle = 'About Payment Methods';
+    AboutText = 'Define and manage payment methods such as bank, cash, check, or direct debit for customers and vendors, specifying default options and related payment terms for use in sales and purchase transactions.';
     SourceTable = "Payment Method";
     UsageCategory = Administration;
 

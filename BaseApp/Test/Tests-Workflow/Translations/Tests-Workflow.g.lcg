@@ -2210,6 +2210,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Trigger/Event Tests - NamedType PositiveErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2467357662 - NamedType 1085752926" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1; %2 changed from %3 to %4]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Record Id, %2 = Field Caption, %3 = Old Value, %4 = New Value]D;]A;(LookupHint=Codeunit Workflow UI Tests - NamedType ApprovalDetailsOneValTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2467357662 - NamedType 2851991518" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1; %2 changed from %3 to %4; %5 changed from %6 to %7]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Record Id, %2 = Field Caption 1, %3 = Old Value 1, %4 = New Value 1, %5 = Field Caption 2, %6 = Old Value 2, %7 = New Value 2]D;]A;(LookupHint=Codeunit Workflow UI Tests - NamedType ApprovalDetailsTwoValTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2467357662 - NamedType 2689946489" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The field should be visible]]></Val>

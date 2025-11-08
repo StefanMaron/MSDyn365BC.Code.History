@@ -157,7 +157,7 @@ report 94 "Close Income Statement"
                                     GenJnlLine."Shortcut Dimension 1 Code" := GlobalDimVal1;
                                 if ClosePerGlobalDim2 then
                                     GenJnlLine."Shortcut Dimension 2 Code" := GlobalDimVal2;
-                                OnPostDataItemOnAfterGenJnlLineDimUpdated(GenJnlLine, ClosePerGlobalDim1, ClosePerGlobalDim2);
+                                OnPostDataItemOnAfterGenJnlLineDimUpdated(GenJnlLine, ClosePerGlobalDim1, ClosePerGlobalDim2, TempEntryNoAmountBuffer);
 
                                 HandleGenJnlLine();
                                 UpdateBalAcc();
@@ -543,6 +543,7 @@ report 94 "Close Income Statement"
         PostingDescription: Text[100];
         ClosePerBusUnit: Boolean;
 
+
     local procedure ValidateEndDate(RealMode: Boolean) Result: Boolean
     var
         OK: Boolean;
@@ -820,7 +821,7 @@ report 94 "Close Income Statement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostDataItemOnAfterGenJnlLineDimUpdated(var GenJnlLine: Record "Gen. Journal Line"; ClosePerGlobalDim1: Boolean; ClosePerGlobalDim2: Boolean)
+    local procedure OnPostDataItemOnAfterGenJnlLineDimUpdated(var GenJnlLine: Record "Gen. Journal Line"; ClosePerGlobalDim1: Boolean; ClosePerGlobalDim2: Boolean; var TempEntryNoAmountBuffer: Record "Entry No. Amount Buffer" temporary)
     begin
     end;
 

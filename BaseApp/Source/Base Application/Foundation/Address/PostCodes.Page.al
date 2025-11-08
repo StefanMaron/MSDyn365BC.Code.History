@@ -9,6 +9,8 @@ page 367 "Post Codes"
     ApplicationArea = Basic, Suite;
     Caption = 'Post Codes';
     PageType = List;
+    AboutTitle = 'About Post Codes';
+    AboutText = 'Maintain and view postal codes along with related city, county, country/region, and time zone information to ensure accurate address details across your business records.';
     PopulateAllFields = true;
     SourceTable = "Post Code";
     UsageCategory = Administration;

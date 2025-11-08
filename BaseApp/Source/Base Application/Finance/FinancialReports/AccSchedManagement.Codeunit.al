@@ -417,7 +417,7 @@ codeunit 8 AccSchedManagement
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCalcCell(AccSchedLine, ColumnLayout, CalcAddCurr, Result, IsHandled);
+        OnBeforeCalcCell(AccSchedLine, ColumnLayout, CalcAddCurr, Result, IsHandled, Recalculate);
         if not IsHandled then begin
             if ColumnLayout."Show in ACY" then
                 CalcAddCurr := true;
@@ -2673,7 +2673,7 @@ codeunit 8 AccSchedManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcCell(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean; var Result: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeCalcCell(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean; var Result: Decimal; var IsHandled: Boolean; var Recalculate: Boolean)
     begin
     end;
 

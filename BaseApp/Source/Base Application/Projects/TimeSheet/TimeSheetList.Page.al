@@ -13,6 +13,8 @@ page 951 "Time Sheet List"
     AdditionalSearchTerms = 'Timesheets';
     InsertAllowed = false;
     PageType = List;
+    AboutTitle = 'About Time Sheets';
+    AboutText = 'Track and manage time spent on projects, tasks, or absences by creating, submitting, and approving time sheets for resources, helping monitor progress and control costs.';
     CardPageID = "Time Sheet Card";
     SourceTable = "Time Sheet Header";
     SourceTableView = sorting("Resource No.", "Starting Date") order(descending);

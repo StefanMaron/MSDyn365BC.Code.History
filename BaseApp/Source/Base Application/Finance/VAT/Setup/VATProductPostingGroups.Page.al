@@ -9,6 +9,8 @@ page 471 "VAT Product Posting Groups"
     ApplicationArea = Basic, Suite;
     Caption = 'VAT Product Posting Groups';
     PageType = List;
+    AboutTitle = 'About VAT Product Posting Groups';
+    AboutText = 'Define VAT product posting groups to control how VAT is calculated and posted for different items and resources, using codes that specify applicable VAT rates for purchases and sales.';
     SourceTable = "VAT Product Posting Group";
     UsageCategory = Administration;
 

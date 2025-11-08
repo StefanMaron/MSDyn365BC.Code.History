@@ -16,6 +16,8 @@ page 436 "Reminder List"
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = List;
+    AboutTitle = 'About Reminders';
+    AboutText = 'Create and manage reminders for customers with overdue payments, including customizing reminder texts, adding finance charges, and issuing reminders by print or email to support timely collections.';
     SourceTable = "Reminder Header";
     UsageCategory = Lists;
 

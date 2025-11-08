@@ -114,6 +114,13 @@ codeunit 104000 "Upgrade - BaseApp"
         ProductionOrderLbl: Label 'PRODUCTION', Locked = true;
         ProductionOrderTxt: Label 'Production Order', Locked = true;
         JobConsumpWhseHandlingUnexpectedValueLbl: Label 'UpgradeJobConsumpWhseHandlingForDirectedPutAwayAndPickLocation skipped. %1 set to different value than %2 for at least one record in table %3 with %4 enabled.', Comment = '%1 = "Job Consump. Whse. Handling" field caption, %2 = "Job Consump. Whse. Handling" expected value, %3 = "Location" table caption, %4 = "Directed Put-away and Pick" field caption', Locked = true;
+        SEPACAMTMappingBankAccRecLineLbl: Label 'SEPA CAMT to Bank Acc. Reconciliation Line', Comment = 'SEPA CAMT is ISO standard name, should not be translated. Bank Acc. Reconciliation Line is the name of table 274 - use its translated caption here.', MaxLength = 250;
+        SEPACAMTMappingGenJnlLineLbl: Label 'SEPA CAMT to Gen. Journal Line', Comment = 'SEPA CAMT is ISO standard name, should not be translated. Gen. Journal Line is the name of table 81 - use its translated caption here.', MaxLength = 250;
+        DataExchangeDefinitionsFolderLbl: Label 'DataExchangeDefinitions', Locked = true;
+        SEPACAMT05300108Lbl: Label 'SEPA CAMT 053.001.08', Locked = true;
+        FailedToInsertBankExportImportSetupErr: Label 'Failed to import bank import setup %1.', Comment = '%1 - SEPA CAMT 053.001.08';
+        FailedToInsertBankExportImportSetupTxt: Label 'Failed to import bank import setup %1.', Locked = true;
+        UpdatingSEPACAMT05300108SetupDoneTxt: Label 'Updated setup %1.', Locked = true;
 
     trigger OnCheckPreconditionsPerDatabase()
     begin
@@ -295,6 +302,60 @@ codeunit 104000 "Upgrade - BaseApp"
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetBankExportImportSetupSEPACT09UpgradeTag());
     end;
+
+    procedure UpdateSEPACAMT05300108DataExchDefLabels()
+    var
+        TransformationRule: Record "Transformation Rule";
+        DataExchMapping: Record "Data Exch. Mapping";
+        DataExchFieldMapping: Record "Data Exch. Field Mapping";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        DataExchMapping.SetRange("Data Exch. Def Code", SEPACAMT05300108());
+        DataExchMapping.SetRange("Table ID", Database::"Bank Acc. Reconciliation Line");
+        DataExchMapping.ModifyAll(Name, SEPACAMTMappingBankAccRecLineLbl);
+        DataExchMapping.SetRange("Table ID", Database::"Gen. Journal Line");
+        DataExchMapping.ModifyAll(Name, SEPACAMTMappingGenJnlLineLbl);
+        DataExchFieldMapping.SetRange("Data Exch. Def Code", SEPACAMT05300108());
+        DataExchFieldMapping.SetRange("Table ID", Database::"Bank Acc. Reconciliation Line");
+        DataExchFieldMapping.SetRange("Field ID", BankAccReconciliationLine.FieldNo("Transaction ID"));
+        if TransformationRule.Get(TransformationRule.GetDeleteNOTPROVIDEDCode()) then
+            DataExchFieldMapping.ModifyAll("Transformation Rule", TransformationRule.GetDeleteNOTPROVIDEDCode());
+    end;
+
+    internal procedure UpgradeSEPACAMT05300108()
+    var
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+        DataExchDef: Record "Data Exch. Def";
+        CompanyInitialize: Codeunit "Company-Initialize";
+    begin
+        if not DataExchDef.Get(SEPACAMT05300108()) then begin
+            ImportDataExchangeDefinition(DataExchangeDefinitionsFolderLbl + '/' + SEPACAMT05300108() + '.xml');
+            UpdateSEPACAMT05300108DataExchDefLabels();
+        end;
+
+        if not BankExportImportSetup.Get(SEPACAMT05300108()) then begin
+            CompanyInitialize.InsertBankExportImportSetup(SEPACAMT05300108(), SEPACAMT05300108Lbl, BankExportImportSetup.Direction::Import, Codeunit::"Exp. Launcher Gen. Jnl.", 0, 0);
+            if BankExportImportSetup.Get(SEPACAMT05300108()) then begin
+                BankExportImportSetup.Validate("Data Exch. Def. Code", SEPACAMT05300108());
+                BankExportImportSetup.Validate("Preserve Non-Latin Characters", true);
+                BankExportImportSetup.Modify();
+            end else begin
+                Session.LogMessage('0000Q78', StrSubstNo(FailedToInsertBankExportImportSetupTxt, SEPACAMT05300108()), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'AL SaaS Upgrade');
+                Error(FailedToInsertBankExportImportSetupErr, SEPACAMT05300108());
+            end;
+        end;
+        Session.LogMessage('0000QA8', StrSubstNo(UpdatingSEPACAMT05300108SetupDoneTxt, SEPACAMT05300108()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'AL SaaS Upgrade');
+    end;
+
+    local procedure ImportDataExchangeDefinition(FileName: Text)
+    var
+        InStream: InStream;
+    begin
+        NavApp.GetResource(FileName, InStream);
+
+        XMLPORT.Import(XMLPORT::"Imp / Exp Data Exch Def & Map", InStream);
+    end;
+
 
     internal procedure UpgradeWordTemplateTables()
     var
@@ -3766,4 +3827,10 @@ codeunit 104000 "Upgrade - BaseApp"
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetICTransactionSourceTypeUpgradeTag());
     end;
+
+    local procedure SEPACAMT05300108(): Code[20]
+    begin
+        exit('SEPA CAMT 053-08');
+    end;
+
 }

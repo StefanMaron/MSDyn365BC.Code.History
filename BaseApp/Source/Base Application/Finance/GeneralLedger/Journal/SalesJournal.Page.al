@@ -37,6 +37,8 @@ page 253 "Sales Journal"
     DataCaptionExpression = Rec.DataCaption();
     DelayedInsert = true;
     PageType = Worksheet;
+    AboutTitle = 'About Sales Journals';
+    AboutText = 'Record and post sales-related transactions such as invoices, payments, and credit memos, manage account allocations, and apply VAT and dimensions for accurate financial reporting.';
     SaveValues = true;
     SourceTable = "Gen. Journal Line";
     UsageCategory = Tasks;

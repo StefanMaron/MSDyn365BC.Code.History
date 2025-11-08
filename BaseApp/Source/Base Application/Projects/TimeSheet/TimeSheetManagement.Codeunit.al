@@ -172,7 +172,12 @@ codeunit 950 "Time Sheet Management"
     procedure CheckAccPeriod(Date: Date)
     var
         AccountingPeriod: Record "Accounting Period";
+        IsHandled: Boolean;
     begin
+        OnBeforeCheckAccPeriod(Date, IsHandled);
+        if IsHandled then
+            exit;
+
         if AccountingPeriod.IsEmpty() then
             exit;
         AccountingPeriod.SetFilter("Starting Date", '..%1', Date);
@@ -1407,6 +1412,11 @@ codeunit 950 "Time Sheet Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyTimeSheetLineArchiveOnBeforeToTimeSheetLineInsert(var ToTimeSheetLine: Record "Time Sheet Line"; FromTimeSheetLineArchive: Record "Time Sheet Line Archive")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAccPeriod(Date: Date; var IsHandled: Boolean)
     begin
     end;
 }

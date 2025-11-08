@@ -19,6 +19,8 @@ page 5974 "Posted Service Shipments"
     CardPageID = "Posted Service Shipment";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Posted Service Shipments';
+    AboutText = 'View and manage posted service shipments, including shipment details, customer information, and service order data, with options to undo consumption on shipment lines when necessary.';
     SourceTable = "Service Shipment Header";
     SourceTableView = sorting("Posting Date")
                       order(descending);

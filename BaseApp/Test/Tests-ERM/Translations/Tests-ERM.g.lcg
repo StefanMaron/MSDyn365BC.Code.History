@@ -1418,6 +1418,15 @@
       <Cmt Name="Dev"><![CDATA[%3, %5-%9 - numbers, %1,%4 - text value, %2 - date]D;]A;(LookupHint=Codeunit ERM Consolidation - NamedType TransactionLineTok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 937765622 - NamedType 1473101328" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Cost is Adjusted should be TRUE for new copied item]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Copy Item - NamedType CostAdjustedTrueErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 937765622 - NamedType 3305540346" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Invalid Customer Name]]></Val>
@@ -2345,6 +2354,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Finance Payment Tolerance - NamedType AmountError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2570714987 - NamedType 2457594967" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Customer ledger entries are not applied correctly]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Finance Payment Tolerance - NamedType AppliedError)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2570714987 - NamedType 2309547244" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Do you want to change all open entries for every customer and vendor that are not blocked?]]></Val>
@@ -2352,6 +2370,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Finance Payment Tolerance - NamedType ConfirmMessageForPayment)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2570714987 - NamedType 2522364550" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The journal lines were successfully posted.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Finance Payment Tolerance - NamedType SuccessPostingMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 690839558 - NamedType 2712487636" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5747,6 +5774,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Invoice Aggregate UT - NamedType SalesAccountIsMissingTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1819602085 - NamedType 4035020056" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Sales Statistics Quantity must be equal to %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Expected Quantity]D;]A;(LookupHint=Codeunit ERM Sales Invoice Aggregate UT - NamedType SalesStatisticsQtyErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1819602085 - NamedType 3144324600" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Sales VAT Account is missing in VAT Posting Setup.]]></Val>
@@ -6557,6 +6593,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Test SEPA Credit Transfers - NamedType NameTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 744599786 - NamedType 2317280191" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Wrong number of PmtInf nodes.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Test SEPA Credit Transfers - NamedType NodeErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 744599786 - NamedType 2917107642" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong Payment Information ID in Payment Export Data.]]></Val>
@@ -6816,6 +6861,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Update Currency - Sales - NamedType AmountError)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1518474819 - NamedType 1423349410" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot update the local currency code because there are posted general ledger entries.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Update Currency - Sales - NamedType CannotUpdateLCYCodeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1518474819 - NamedType 2756964596" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -8645,6 +8699,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price Lists UI - NamedType CreateNewTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1304875132 - NamedType 1806668446" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The field Customer Disc. Group of table Sales Line contains a value (%1) that cannot be found in the related table (Customer Discount Group).]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Customer Discount Group Code.]D;]A;(LookupHint=Codeunit Price Lists UI - NamedType CustDiscountGroupCodeDeleteErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1304875132 - NamedType 3801816553" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot delete the Customer Discount Group %1 because it is used in Customer.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Customer Discount Group Code.]D;]A;(LookupHint=Codeunit Price Lists UI - NamedType CustDiscountGroupDeleteErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1304875132 - NamedType 1483249232" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[This page is used by a feature that is not enabled.]]></Val>
@@ -9014,6 +9086,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Purchase Documents - NamedType ConfirmZeroQuantityPostingMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1217376489 - NamedType 541667039" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The field %1 should be visible on the purchase invoice page.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption]D;]A;(LookupHint=Codeunit Purchase Documents - NamedType DocAmountFieldVisibleErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1217376489 - NamedType 3957240406" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Posted Purchase Invoice %1 not found]]></Val>
@@ -9034,7 +9115,7 @@
   </Item>
   <Item ItemId=";Codeunit 1217376489 - NamedType 454677184" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You have changed the %1 on the purchase order, which might affect the prices and discounts on the purchase order lines.]]></Val>
+      <Val><![CDATA[You have changed the %1 on the purchase header, which might affect the prices and discounts on the purchase lines.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -9426,6 +9507,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Reminder - Add. Line fee - NamedType ReminderLineMustNotExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2624800184 - NamedType 3556119636" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Email related record not found]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Reminder Automation Tests - NamedType EmailRelatedRecordNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2624800184 - NamedType 3559511364" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

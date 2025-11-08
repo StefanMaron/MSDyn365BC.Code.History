@@ -78,6 +78,7 @@ page 423 "Customer Bank Account Card"
                 field("Transit No."; Rec."Transit No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    MaskType = Concealed;
                 }
             }
             group(Communication)
@@ -130,15 +131,18 @@ page 423 "Customer Bank Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bank branch.';
+                    MaskType = Concealed;
                 }
                 field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
+                    MaskType = Concealed;
                 }
                 field(IBAN; Rec.IBAN)
                 {
                     ApplicationArea = Basic, Suite;
+                    MaskType = Concealed;
                 }
                 field("SWIFT Code"; Rec."SWIFT Code")
                 {

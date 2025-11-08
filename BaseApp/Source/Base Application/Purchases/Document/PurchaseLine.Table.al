@@ -1702,7 +1702,7 @@ table 39 "Purchase Line"
                 GetPurchHeader();
                 "Line Amount" := Round("Line Amount", Currency."Amount Rounding Precision");
                 MaxLineAmount := Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision");
-                OnValidateLineAmountOnAfterCalcMaxLineAmount(Rec, MaxLineAmount);
+                OnValidateLineAmountOnAfterCalcMaxLineAmount(Rec, MaxLineAmount, Currency);
 
                 CheckLineAmount(MaxLineAmount);
 
@@ -3929,7 +3929,6 @@ table 39 "Purchase Line"
         PurchHeader: Record "Purchase Header";
         PurchLine2: Record "Purchase Line";
         GLAcc: Record "G/L Account";
-        Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
         VATPostingSetup: Record "VAT Posting Setup";
         GenBusPostingGrp: Record "Gen. Business Posting Group";
@@ -4041,6 +4040,7 @@ table 39 "Purchase Line"
         InvoiceOrOrderDocTypeErr: Label '%1 must be either %2 or %3.', Comment = '%1 - Document Type; %2, %3 - Purchase Document Type, Invoice or Order';
 
     protected var
+        Currency: Record Currency;
         HideValidationDialog: Boolean;
         StatusCheckSuspended: Boolean;
         SkipTaxCalculation: Boolean;
@@ -10929,7 +10929,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateLineAmountOnAfterCalcMaxLineAmount(var PurchaseLine: Record "Purchase Line"; var MaxLineAmount: Decimal)
+    local procedure OnValidateLineAmountOnAfterCalcMaxLineAmount(var PurchaseLine: Record "Purchase Line"; var MaxLineAmount: Decimal; var Currency: Record Currency)
     begin
     end;
 

@@ -71,6 +71,7 @@
         ReservationFromStockErr: Label 'Reservation from Stock must be %1 in %2.', Comment = '%1= Field Value, %2 =Table Caption.';
         PurchasingCodeOnSalesInvoiceErr: Label 'The Purchasing Code should be blank for item %1 on the sales invoice because it is used only for the drop shipment process.', Comment = '%1= Item No.';
         ShipToAddressErr: Label 'Ship-to Address on Return Order should be company address';
+        DropShipmentErr: Label 'The Drop Shipment field should be blank for item %1 on the sales invoice.', Comment = '%1= Item No.';
 
 #if not CLEAN25
     [Test]
@@ -3409,11 +3410,17 @@
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
 
         // [WHEN] A sales line with the document type 'Invoice' was inserted using an item that has a Purchasing Code.
-        asserterror LibrarySales.CreateSalesLine(
+        LibrarySales.CreateSalesLine(
             SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
 
-        // [THEN] An error occurred because a sales line with the document type 'Invoice' was inserted using an item that has a Purchasing Code.
-        Assert.ExpectedError(StrSubstNo(PurchasingCodeOnSalesInvoiceErr, Item."No."));
+        // [THEN] Ensure that the Purchasing Code field in the Sales Line is blank.
+        Assert.AreEqual('', SalesLine."Purchasing Code", StrSubstNo(PurchasingCodeOnSalesInvoiceErr, SalesLine."No."));
+
+        // [THEN] Ensure that the Drop Shipment field in the Sales Line is false.
+        Assert.IsFalse(SalesLine."Drop Shipment", StrSubstNo(DropShipmentErr, SalesLine."No."));
+
+        // [THEN] Post the Sales Document.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
     [Test]

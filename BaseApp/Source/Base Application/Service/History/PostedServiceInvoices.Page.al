@@ -16,6 +16,8 @@ page 5977 "Posted Service Invoices"
     CardPageID = "Posted Service Invoice";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Posted Service Invoices';
+    AboutText = 'Review posted service invoices, print invoice documents, and analyze key details such as amounts, VAT, customer information, and payment status for completed service transactions.';
     SourceTable = "Service Invoice Header";
     SourceTableView = sorting("Posting Date")
                       order(descending);

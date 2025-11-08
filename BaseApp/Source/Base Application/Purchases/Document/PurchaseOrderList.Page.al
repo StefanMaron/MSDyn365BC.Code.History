@@ -34,6 +34,8 @@ page 9307 "Purchase Order List"
     DataCaptionFields = "Buy-from Vendor No.";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Purchase Orders';
+    AboutText = 'Create, track, and manage purchase orders for goods and services, including vendor details, order lines, amounts, discounts, and order status. Monitor the progress of each order from creation through receipt and posting to ensure accurate procurement and financial processing.';
     QueryCategory = 'Purchase Order List';
     RefreshOnActivate = true;
     SourceTable = "Purchase Header";

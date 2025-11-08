@@ -1809,6 +1809,36 @@ codeunit 134391 "ERM Sales Batch Posting"
         VerifyPostedSalesInvoicePaymentDiscount(SalesHeader."No.", PostingDate[2], PaymentTerms."Discount %");
     end;
 
+    [Test]
+    [HandlerFunctions('RequestPageHandlerBatchPostSalesOrderShipmentCompleted,MessageHandler')]
+    procedure VerifySalesOrderStatusBatchPostSaleOrderWithReplacePostingDateAndCurrencyCodeandWithoutShipment()
+    var
+        Currency: Record Currency;
+        SalesHeader: Record "Sales Header";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+    begin
+        // [SCENARIO 595901] Unshipped 'Open' Sales Orders Incorrectly Changing to 'Released' Status During Batch Post with Foreign Currency
+        Initialize();
+
+        // [GIVEN] Set Post with Job queue on Sales & Receivables Setup
+        LibrarySales.SetPostWithJobQueue(true);
+
+        // [GIVEN] Bind subscription and do not handle Job queue event as true
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+
+        // [GIVEN] Create Release Sales Order with Currency Code.
+        CreateSalesDocumentWithCurrency(SalesHeader, Currency, SalesHeader."Document Type"::Order, false);
+
+        // [WHEN] Run Post Batch with Replace Posting Date, Replace Document Date & Replace VAT Date options.
+        RunBatchPostSales(SalesHeader."Document Type", SalesHeader."No.", SalesHeader."Posting Date" + 10, false);
+        asserterror LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader.RecordId);
+
+        // [THEN] An Error Message appear and verify Sales Header Status as Open.
+        Assert.ExpectedError(NothingToPostErr);
+        SalesHeader.TestField(Status, SalesHeader.Status::Open);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

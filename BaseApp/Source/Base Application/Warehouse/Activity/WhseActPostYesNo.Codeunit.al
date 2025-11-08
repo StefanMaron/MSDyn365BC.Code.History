@@ -6,6 +6,7 @@ namespace Microsoft.Warehouse.Activity;
 
 using Microsoft.Finance.GeneralLedger.Preview;
 using Microsoft.Finance.ReceivablesPayables;
+using Microsoft.Foundation.NoSeries;
 
 codeunit 7323 "Whse.-Act.-Post (Yes/No)"
 {
@@ -13,7 +14,10 @@ codeunit 7323 "Whse.-Act.-Post (Yes/No)"
     EventSubscriberInstance = Manual;
 
     trigger OnRun()
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
+        SequenceNoMgt.SetPreviewMode(IsPreview);
         WhseActivLine.Copy(Rec);
         Code();
         Rec.Copy(WhseActivLine);

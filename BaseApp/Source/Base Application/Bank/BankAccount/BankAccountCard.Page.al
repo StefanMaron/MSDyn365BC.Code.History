@@ -75,6 +75,7 @@ page 370 "Bank Account Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies a number of the bank branch.';
                     Visible = false;
+                    MaskType = Concealed;
                 }
                 field("Bank Account No."; Rec."Bank Account No.")
                 {
@@ -83,6 +84,7 @@ page 370 "Bank Account Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                     Visible = false;
+                    MaskType = Concealed;
                 }
                 field("Search Name"; Rec."Search Name")
                 {
@@ -340,6 +342,7 @@ page 370 "Bank Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
+                    MaskType = Concealed;
                 }
                 field("Last Statement No."; Rec."Last Statement No.")
                 {
