@@ -5072,6 +5072,30 @@
         CreateInventoryPickOnSalesLine(SalesLine, Bin.Code);
     end;
 
+    [Test]
+    procedure PageReminderTermsIsOpenedWhenOpeningReminderTermsFromCustomerCard()
+    var
+        Customer: Record Customer;
+        ReminderTerms: Record "Reminder Terms";
+        CustomerCardPage: TestPage "Customer Card";
+        ReminderTermList: TestPage "Reminder Terms List";
+    begin
+        // [SCENARIO 609480] The old page Reminder Terms is opened when opening the reminder terms from the customer card
+        Initialize();
+
+        //[GIVEN] Create Customer and reminder terms
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreateReminderTerms(ReminderTerms);
+
+        // [WHEN] Open Customer Card page and click on "Reminder Terms Code" 
+        CustomerCardPage.OpenEdit();
+        CustomerCardPage.Filter.SetFilter("No.", Customer."No.");
+        ReminderTermList.Trap();
+        CustomerCardPage."Reminder Terms Code".SetValue(ReminderTerms.Code);
+
+        //[THEN] Check Reminder terms List page open when click on Reminder Term Code on Customer Card
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
