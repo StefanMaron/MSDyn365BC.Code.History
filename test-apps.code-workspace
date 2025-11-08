@@ -312,7 +312,7 @@
     "search.exclude": {
       "**.xlf": true
     },
-    "al.enableCodeAnalysis": false,
-    "allint.enabled": false
+    "allint.enabled": false,
+    "al.enableCodeAnalysis": false
   }
 }
