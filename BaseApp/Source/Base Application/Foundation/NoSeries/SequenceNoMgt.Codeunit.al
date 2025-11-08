@@ -8,16 +8,29 @@ codeunit 9500 "Sequence No. Mgt."
 {
     SingleInstance = true;
     InherentPermissions = X;
+    Permissions = tabledata "Sequence No. Preview State" = rid;
 
     var
         GlobalPreviewMode: Boolean;
-        GlobalPreviewModeTag: Text;
+        GlobalPreviewModeID: Integer;
         LastSeqNoChecked: List of [Integer];
         SeqNameLbl: Label 'TableSeq%1', Comment = '%1 - Table No.', Locked = true;
         PreviewSeqNameLbl: Label 'PreviewTableSeq%1', Comment = '%1 - Table No.', Locked = true;
 
     /// <summary>
     /// Returns the next NumberSequence value for a given table ID.
+    /// Clears allocations and other internal states
+    /// </summary>
+    procedure ClearState()
+    begin
+        ClearAll(); // may not work for SingleInstance codeunits....
+        Clear(GlobalPreviewMode);
+        Clear(GlobalPreviewModeID);
+        Clear(LastSeqNoChecked);
+    end;
+
+    /// <summary>
+    /// Returns the next buffered NumberSequence value for a given table ID.
     /// if the sequence does not exist, it will be created.
     /// </summary>
     /// <param name="TableNo">The ID of the table being checked</param>
@@ -184,32 +197,49 @@ codeunit 9500 "Sequence No. Mgt."
 
     // An error during preview may mean that the PreviewMode variable doesn't get reset after preview, so we need to rely on transactional consistency
     local procedure IsPreviewMode(): Boolean
+    var
+        SequenceNoPreviewState: Record "Sequence No. Preview State";
     begin
         if not GlobalPreviewMode then
             exit(false);
-        if GlobalPreviewModeTag <> '' then
-            if NumberSequence.Exists(GlobalPreviewModeTag) then
+        if GlobalPreviewModeID <> 0 then
+            if SequenceNoPreviewState.Get(GlobalPreviewModeID) then  // double-check
                 exit(true);
         GlobalPreviewMode := false;
-        GlobalPreviewModeTag := '';
+        GlobalPreviewModeID := 0;
     end;
 
     internal procedure StartPreviewMode()
+    var
+        SequenceNoPreviewState: Record "Sequence No. Preview State";
     begin
         if GlobalPreviewMode then // missing cleanup from previous preview?
             StopPreviewMode();
+        SequenceNoPreviewState.ID := 0;
+        SequenceNoPreviewState.Insert();
+        SequenceNoPreviewState.Consistent(false); // make sure we cannot commit the transaction
         GlobalPreviewMode := true;
-        GlobalPreviewModeTag := 'Preview_' + Format(CreateGuid(), 20, 3);
-        CreateSequence(GlobalPreviewModeTag, 1); // Preview is in a transaction that does not allow commits and will be rolled back.
+        GlobalPreviewModeID := SequenceNoPreviewState.ID;
     end;
 
     internal procedure StopPreviewMode()
+    var
+        SequenceNoPreviewState: Record "Sequence No. Preview State";
     begin
         GlobalPreviewMode := false;
-        if GlobalPreviewModeTag <> '' then
-            if NumberSequence.Exists(GlobalPreviewModeTag) then
-                NumberSequence.Delete(GlobalPreviewModeTag);
-        GlobalPreviewModeTag := '';
+        if GlobalPreviewModeID <> 0 then
+            if SequenceNoPreviewState.Get(GlobalPreviewModeID) then
+                SequenceNoPreviewState.Delete();
+        GlobalPreviewModeID := 0;
+        SequenceNoPreviewState.Consistent(true); // make sure we can commit the transaction
+    end;
+
+    internal procedure SetPreviewMode(NewPreviewMode: Boolean)
+    begin
+        if NewPreviewMode then
+            StartPreviewMode()
+        else
+            StopPreviewMode();
     end;
 
     [IntegrationEvent(false, false)]

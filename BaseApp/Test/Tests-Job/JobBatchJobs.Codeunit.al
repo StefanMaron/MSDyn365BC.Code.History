@@ -58,6 +58,7 @@
         XDefaultJobWIPEndNoTxt: Label 'WIP9999999';
         XJobWIPDescriptionTxt: Label 'PROJECT-WIP';
         LineDiscountErr: Label 'Value in Line Discount % must not be removed.';
+        PostingDateErr: Label 'Posting Date should be updated.';
 
     [Test]
     [HandlerFunctions('ChangeJobDatesHandler')]
@@ -1524,6 +1525,62 @@
         Assert.AreNotEqual(0, PurchaseLine."Line Discount %", LineDiscountErr);
     end;
 
+    [Test]
+    [HandlerFunctions('JobTransferToSalesInvoiceHandlers,MessageHandler,ConfirmHandlerTrue')]
+    procedure PostingWhenExchangeRatesChangeInSalesFromProjectPlanningLine()
+    var
+        Currency: Record Currency;
+        Customer: Record Customer;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        JobCreateInvoices: Codeunit "Job Create-Invoice";
+        PostingDate: Date;
+    begin
+        // [SCENARIO 597632] The Posting when exchange rates change in sales documents created from Project Planning Line.
+        Initialize();
+
+        // [GIVEN] Create a currency.
+        LibraryERM.CreateCurrency(Currency);
+
+        // [GIVEN] Create exchange rates for the currency for today and one month from today.
+        CreateCurrencyExchangeRate(Currency.Code, WorkDate());
+        CreateCurrencyExchangeRate(Currency.Code, CalcDate('<+1M>', WorkDate()));
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Job with Currency.
+        LibraryJob.CreateJob(Job, Customer."No.");
+        Job.Validate("Invoice Currency Code", Currency.Code);
+        Job.Modify(true);
+
+        // [GIVEN] Create a Job task.
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Create a Job Planning Line with Quantity, Unit Price and Currency Factor.
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.ItemType(), JobTask, JobPlanningLine);
+        JobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(10));
+        JobPlanningLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        JobPlanningLine.Modify(true);
+
+        // [GIVEN] Create Sales Invoice from Job Planning Line.
+        Commit();
+        JobCreateInvoices.CreateSalesInvoice(JobPlanningLine, false);
+
+        // [GIVEN] Find the created Sales Header.
+        FindSalesHeaderFromJobPlanningLine(JobPlanningLine, SalesHeader);
+
+        // [GIVEN] Change Posting Date on Sales Header to one month from today.
+        PostingDate := CalcDate('<+1M>', SalesHeader."Posting Date");
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Modify(true);
+
+        // [THEN] Verify that the Posting Date is updated without any error.
+        Assert.AreEqual(PostingDate, SalesHeader."Posting Date", PostingDateErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Job Batch Jobs");
@@ -2439,6 +2496,27 @@
         VerifyValuesOnSalesLineForInvoice(SalesHeader."No.", JobPlanningLine);
     end;
 
+    local procedure CreateCurrencyExchangeRate(CurrencyCode: Code[10]; ExchangeRateDate: Date)
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, ExchangeRateDate);
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", LibraryRandom.RandDec(1000, 2));
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", LibraryRandom.RandDec(1000, 2));
+        CurrencyExchangeRate.Modify(true);
+    end;
+
+    local procedure FindSalesHeaderFromJobPlanningLine(JobPlanningLine: Record "Job Planning Line"; var SalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
+        SalesLine.SetRange("Job No.", JobPlanningLine."Job No.");
+        SalesLine.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
+        SalesLine.FindFirst();
+        SalesHeader.Get(SalesHeader."Document Type"::Invoice, SalesLine."Document No.");
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerFalse(Question: Text[1024]; var Reply: Boolean)
@@ -2540,6 +2618,14 @@
     procedure JobCreateSalesInvoiceHandler(var JobCreateSalesInvoice: TestRequestPage "Job Create Sales Invoice")
     begin
         JobCreateSalesInvoice.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure JobTransferToSalesInvoiceHandlers(var JobTransferToSalesInvoice: TestRequestPage "Job Transfer to Sales Invoice")
+    begin
+        JobTransferToSalesInvoice.CreateNewInvoice.SetValue(true);
+        JobTransferToSalesInvoice.PostingDate.SetValue(WorkDate());
+        JobTransferToSalesInvoice.OK().Invoke();
     end;
 
     [ModalPageHandler]

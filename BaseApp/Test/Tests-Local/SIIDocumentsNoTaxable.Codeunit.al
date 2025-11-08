@@ -2507,7 +2507,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [THEN] XML file has a sii:ImporteTAIReglasLocalizacion node with the VAT amount
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesNoTaxLocalTok, '',
-          SIIXMLCreator.FormatNumber(GetVATAmountFromCustLedgEntry(CustLedgerEntry)));
+          SIIXMLCreator.FormatNumber(GetVATBaseAmountFromCustLedgEntry(CustLedgerEntry)));
     end;
 
     [Test]
@@ -2530,7 +2530,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [THEN] XML file has a sii:ImporteTAIReglasLocalizacion node with the VAT amount
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesNoTaxLocalTok, '',
-          SIIXMLCreator.FormatNumber(GetVATAmountFromCustLedgEntry(CustLedgerEntry)));
+          SIIXMLCreator.FormatNumber(GetVATBaseAmountFromCustLedgEntry(CustLedgerEntry)));
     end;
 
     [Test]
@@ -2555,7 +2555,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [THEN] XML file has a sii:ImporteTAIReglasLocalizacion node with the VAT amount
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesNoTaxLocalTok, '',
-          SIIXMLCreator.FormatNumber(GetVATAmountFromCustLedgEntry(CustLedgerEntry)));
+          SIIXMLCreator.FormatNumber(GetVATBaseAmountFromCustLedgEntry(CustLedgerEntry)));
     end;
 
     [Test]
@@ -3193,15 +3193,16 @@ codeunit 147524 "SII Documents No Taxable"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure GetVATAmountFromCustLedgEntry(CustLedgEntry: Record "Cust. Ledger Entry"): Decimal
+    local procedure GetVATBaseAmountFromCustLedgEntry(CustLedgEntry: Record "Cust. Ledger Entry"): Decimal
     var
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("Document Type", CustLedgEntry."Document Type");
         VATEntry.SetRange("Document No.", CustLedgEntry."Document No.");
         VATEntry.SetRange("Posting Date", CustLedgEntry."Posting Date");
+        VATEntry.SetRange("One Stop Shop Reporting", true);
         VATEntry.FindFirst();
-        exit(VATEntry.Amount);
+        exit(Abs(VATEntry.Base));
     end;
 
     local procedure SetIncludeImporteTotalInSIISetup()

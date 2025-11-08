@@ -50,6 +50,7 @@ codeunit 900 "Assembly-Post"
         AssemblyHeader: Record "Assembly Header";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
         SavedSuppressCommit: Boolean;
         SavedPreviewMode: Boolean;
     begin
@@ -63,6 +64,7 @@ codeunit 900 "Assembly-Post"
         ClearAll();
         SuppressCommit := SavedSuppressCommit;
         PreviewMode := SavedPreviewMode;
+        SequenceNoMgt.SetPreviewMode(PreviewMode);
 
         AssemblyHeader := Rec;
 

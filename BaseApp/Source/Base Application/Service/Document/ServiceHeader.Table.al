@@ -968,6 +968,8 @@ table 5900 "Service Header"
                     CopyAppliestoFieldsFromCustLedgerEntry(CustLedgEntry);
                 end;
                 Clear(ServApplyCustEntries);
+                
+                OnAfterLookupAppliesToDocNo(Rec, CustLedgEntry);
             end;
 
             trigger OnValidate()
@@ -6616,6 +6618,11 @@ table 5900 "Service Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAllLineDimOnAfterServiceLineModify(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupAppliesToDocNo(var ServiceHeader: Record "Service Header"; var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }

@@ -306,6 +306,7 @@ codeunit 80 "Sales-Post"
         DisableAggregateTableUpdate: Codeunit "Disable Aggregate Table Update";
         UpdateAnalysisView: Codeunit "Update Analysis View";
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
         EverythingInvoiced: Boolean;
         SavedPreviewMode: Boolean;
         SavedSuppressCommit: Boolean;
@@ -313,6 +314,7 @@ codeunit 80 "Sales-Post"
         SavedHideProgressWindow: Boolean;
         IsHandled: Boolean;
     begin
+        SequenceNoMgt.SetPreviewMode(PreviewMode);
         IsHandled := false;
         OnBeforePostSalesDoc(SalesHeader2, SuppressCommit, PreviewMode, HideProgressWindow, IsHandled, CalledBy);
         if IsHandled then
