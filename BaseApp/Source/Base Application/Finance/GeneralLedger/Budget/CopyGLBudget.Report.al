@@ -200,6 +200,7 @@ report 96 "Copy G/L Budget"
                     if FromGLAccountNo <> '' then
                         FromGLEntry.SetFilter("G/L Account No.", FromGLAccountNo);
                     FromGLEntry.SetFilter("Posting Date", FromDate);
+                    OnOnPostReportOnAfterSetFromGLEntryFilters(FromGLEntry);
                     if FromGLEntry.Find('-') then
                         repeat
                             ProcessRecord(
@@ -216,6 +217,7 @@ report 96 "Copy G/L Budget"
                         FromGLBudgetEntry.SetFilter(Date, FromDate);
                     if FromGLBudgetEntry.FindLast() then
                         FromGLBudgetEntry.SetFilter("Entry No.", '<=%1', FromGLBudgetEntry."Entry No.");
+                    OnOnPostReportOnAfterSetFromGLBudgetEntryFilters(FromGLBudgetEntry);
                     FromGLBudgetEntry.SetCurrentKey("Budget Name", "G/L Account No.", Description, Date);
                     if FromGLBudgetEntry.FindSet() then
                         repeat
@@ -653,6 +655,16 @@ report 96 "Copy G/L Budget"
 
     [IntegrationEvent(false, false)]
     procedure OnInsertGLBudgetEntryOnBeforeToGLBudgetEntryInsert(var ToGLBudgetEntry: Record "G/L Budget Entry"; ToDateCompression: Option "None",Day,Week,Month,Quarter,Year,Period)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnPostReportOnAfterSetFromGLEntryFilters(var FromGLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnPostReportOnAfterSetFromGLBudgetEntryFilters(var FromGLBudgetEntry: Record "G/L Budget Entry")
     begin
     end;
 }

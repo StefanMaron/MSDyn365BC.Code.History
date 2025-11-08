@@ -221,6 +221,10 @@ codeunit 7314 "Warehouse Availability Mgt."
 
         QtyPicked := Item."Qty. Picked";
         OnAfterCalcQtyPicked(Item, QtyPicked, Location);
+
+        // If all inventory is reserved, then only the qty on non-dedicated bins is available
+        if (Item.Inventory - Abs(ReservedQtyOnInventory) = 0) and (QtyOnDedicatedBins > 0) then
+            exit(Item.Inventory - QtyReceivedNotAvail - QtyAssgndtoPick - QtyPicked + QtyShipped - QtyOnDedicatedBins);
         // The reserved qty might exceed the qty available in warehouse and thereby
         // having reserved from the qty not yet put-away
         if (Item.Inventory - QtyReceivedNotAvail - QtyAssgndtoPick - QtyPicked + QtyShipped - QtyOnDedicatedBins) <
@@ -792,7 +796,7 @@ codeunit 7314 "Warehouse Availability Mgt."
     begin
         IsHandled := false;
         Quantity := 0;
-        OnBeforeCalcQtyRegisteredPick(SourceType, SourceSubType, SourceID, SourceProdOrderLine, SourceRefNo, Quantity, IsHandled);
+        OnBeforeCalcQtyRegisteredPick(SourceType, SourceSubType, SourceID, SourceRefNo, SourceProdOrderLine, Quantity, IsHandled);
         if IsHandled then
             exit(Quantity);
 

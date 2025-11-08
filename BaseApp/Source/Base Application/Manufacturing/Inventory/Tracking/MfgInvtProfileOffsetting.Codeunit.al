@@ -278,6 +278,7 @@ codeunit 99000869 "Mfg. Invt. Profile Offsetting"
                 InventoryProfileOffsetting.RunOnAfterGetRoutingFromProdOrder(ReqLine);
 #endif
             end;
+        OnAfterGetRouting(ReqLine);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Inventory Profile Offsetting", 'OnFillTempSKUForLocation', '', true, true)]
@@ -362,6 +363,11 @@ codeunit 99000869 "Mfg. Invt. Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransProdOrderToProfileOnBeforeInsertSupplyInvtProfile(var InventoryProfile: Record "Inventory Profile"; ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRouting(var RequisitionLine: Record "Requisition Line")
     begin
     end;
 }

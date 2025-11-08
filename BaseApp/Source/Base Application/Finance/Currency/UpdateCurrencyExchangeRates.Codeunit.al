@@ -72,9 +72,8 @@ codeunit 1281 "Update Currency Exchange Rates"
         Handled: Boolean;
     begin
         Clear(TempBlobResponse);
+        OnBeforeGetCurrencyExchangeData(CurrExchRateUpdateSetup, ResponseInStream, SourceName, Handled, TempBlobResponse);
         TempBlobResponse.CreateInStream(ResponseInStream);
-
-        OnBeforeGetCurrencyExchangeData(CurrExchRateUpdateSetup, ResponseInStream, SourceName, Handled);
         if Handled then
             exit;
 
@@ -167,8 +166,13 @@ codeunit 1281 "Update Currency Exchange Rates"
         Error(ErrorText);
     end;
 
+    /// <summary>
+    /// Event is raised before getting currency exchange data from web service.
+    /// </summary>
+    /// <param name="ResponseInStream">Do not use - InStream is empty and not writable. Use TempBlobResponse parameter instead.</param>
+    /// <param name="TempBlobResponse">TempBlob to write the currency exchange data to. Use CreateOutStream() to get OutStream for writing.</param>
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetCurrencyExchangeData(var CurrExchRateUpdateSetup: Record "Curr. Exch. Rate Update Setup"; var ResponseInStream: InStream; var SourceName: Text; var Handled: Boolean)
+    local procedure OnBeforeGetCurrencyExchangeData(var CurrExchRateUpdateSetup: Record "Curr. Exch. Rate Update Setup"; var ResponseInStream: InStream; var SourceName: Text; var Handled: Boolean; var TempBlobResponse: Codeunit "Temp Blob")
     begin
     end;
 

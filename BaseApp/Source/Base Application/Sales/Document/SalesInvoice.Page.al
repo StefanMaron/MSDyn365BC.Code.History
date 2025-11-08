@@ -906,6 +906,7 @@ page 43 "Sales Invoice"
                             var
                                 Customer: Record Customer;
                             begin
+                                OnBeforeLookupBillToName(Customer, Rec);
                                 if Customer.SelectCustomer(Customer) then begin
                                     xRec := Rec;
                                     Rec."Bill-to Name" := Customer.Name;
@@ -2299,6 +2300,8 @@ page 43 "Sales Invoice"
                         SalesHeader.Insert(true);
                         PAGE.Run(PAGE::"Sales Invoice", SalesHeader);
                     end;
+                else
+                    OnPostDocumentOnElseCaseNavigateAfterPosting(SalesHeader, PostingCodeunitID, Navigate);
             end;
     end;
 
@@ -2480,6 +2483,16 @@ page 43 "Sales Invoice"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeOnQueryClosePage(var SalesHeader: Record "Sales Header"; DocumentIsPosted: Boolean; CloseAction: Action; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupBillToName(var Customer: Record Customer; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDocumentOnElseCaseNavigateAfterPosting(var SalesHeader: Record "Sales Header"; PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")
     begin
     end;
 }

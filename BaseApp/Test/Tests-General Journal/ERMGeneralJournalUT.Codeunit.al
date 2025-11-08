@@ -6000,6 +6000,119 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine[4].TestField("Document No.", NewDocNo);
     end;
 
+    [Test]
+    procedure VendorNameFieldPopulatesOnlyForVendorAccountType()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GLAccount: Record "G/L Account";
+        Vendor: Record Vendor;
+        PurchaseJournal: TestPage "Purchase Journal";
+    begin
+        // [SCENARIO 599505] Purchase Journal page validates vendor name field based on account type
+        Initialize();
+
+        // [GIVEN] Create a vendor with random name
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Name := LibraryRandom.RandText(20);
+        Vendor.Modify(true);
+
+        // [GIVEN] Create Purchase Journal Template and Batch
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryJournals.SelectGenJournalTemplate(GenJournalTemplate.Type::Purchases, Page::"Purchase Journal"));
+
+        // [WHEN] Open Purchase Journal page and perform actions as per YAML recording
+        PurchaseJournal.OpenEdit();
+        PurchaseJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+
+        // [GIVEN] Set Document Type to Invoice and Document No. to random value
+        PurchaseJournal."Document Type".SetValue("Gen. Journal Document Type"::Invoice);
+        PurchaseJournal."Document No.".SetValue(LibraryRandom.RandText(10));
+
+        // [GIVEN] Set Account Type to Vendor and Account No. to Vendor."No."
+        PurchaseJournal."Account Type".SetValue("Gen. Journal Account Type"::Vendor);
+        PurchaseJournal."Account No.".SetValue(Vendor."No.");
+
+        // [THEN] Verify Vendor Name page field is populated with Vendor.Name
+        PurchaseJournal."<Vendor Name>".AssertEquals(Vendor.Name);
+
+        // [WHEN] Set Account Type to G/L Account and Account No. to a new G/L Account."No."
+        PurchaseJournal."Account Type".SetValue("Gen. Journal Account Type"::"G/L Account");
+        LibraryERM.CreateGLAccount(GLAccount);
+        PurchaseJournal."Account No.".SetValue(GLAccount."No.");
+
+        // [THEN] Verify Vendor Name field should be empty for G/L Account
+        PurchaseJournal."<Vendor Name>".AssertEquals('');
+
+        // [CLEANUP] Close Purchase Journal page
+        PurchaseJournal.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('GenJournalTemplateListModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure BatchNameLookup_SaveRecord_OnlyWhenNotEmptyLine()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch1: Record "Gen. Journal Batch";
+        GenJournalBatch2: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        TestPageGeneralJournal: TestPage "General Journal";
+        BatchName1: Code[10];
+        BatchName2: Code[10];
+        InitialAmount: Decimal;
+    begin
+        // [SCENARIO 609699] Batch Name lookup and switching batches works correctly with empty lines in General Journal
+        Initialize();
+
+        // [GIVEN] Create one template with two batches (same template to avoid template switch issues)
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch1, GenJournalTemplate.Name);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch2, GenJournalTemplate.Name);
+        BatchName1 := GenJournalBatch1.Name;
+        BatchName2 := GenJournalBatch2.Name;
+
+        // [GIVEN] Create a journal line with data in first batch
+        InitialAmount := LibraryRandom.RandDec(1000, 2);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalTemplate.Name, GenJournalBatch1.Name,
+            GenJournalLine."Document Type"::Invoice,
+            GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+            InitialAmount);
+
+        // [GIVEN] Setup modal handlers - store template name for template selection modal
+        LibraryVariableStorage.Enqueue(GenJournalTemplate.Name);
+        // Store batch name for batch selection modal (if needed)
+        LibraryVariableStorage.Enqueue(BatchName1);
+
+        // [WHEN] Open the General Journal page with the first batch
+        TestPageGeneralJournal.OpenEdit();
+        // The modal handlers will automatically select template and batch
+
+        // [THEN] Verify the line data is displayed
+        Assert.AreEqual(InitialAmount, TestPageGeneralJournal.Amount.AsDecimal(), 'Amount should be displayed when batch has data');
+
+        // [WHEN] Change to a different batch directly
+        TestPageGeneralJournal.CurrentJnlBatchName.SetValue(BatchName2);
+
+        // [THEN] Verify the page shows empty lines for the new batch
+        Assert.AreEqual(0, TestPageGeneralJournal.Amount.AsDecimal(), 'Amount should be 0 when switching to empty batch');
+
+        // [WHEN] Switch back to the original batch with data
+        TestPageGeneralJournal.CurrentJnlBatchName.SetValue(BatchName1);
+
+        // [THEN] Verify the original data is still preserved
+        Assert.AreEqual(InitialAmount, TestPageGeneralJournal.Amount.AsDecimal(), 'Original data should be preserved when switching back');
+
+        // [WHEN] Delete all lines and switch batches
+        GenJournalLine.DeleteAll();
+        TestPageGeneralJournal.CurrentJnlBatchName.SetValue(BatchName2);
+
+        // [THEN] Verify no error occurs when switching from empty batch
+        Assert.AreEqual(BatchName2, TestPageGeneralJournal.CurrentJnlBatchName.Value(),
+            'Should be able to switch from empty batch without error');
+        TestPageGeneralJournal.Close();
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -7065,6 +7178,32 @@ codeunit 134920 "ERM General Journal UT"
     procedure YesConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GenJournalTemplateListModalPageHandler(var GenJournalTemplateList: TestPage "General Journal Template List")
+    var
+        TemplateName: Text;
+    begin
+        // Get the template name from storage and find it
+        TemplateName := LibraryVariableStorage.DequeueText();
+        GenJournalTemplateList.FILTER.SetFilter(Name, TemplateName);
+        GenJournalTemplateList.First();
+        GenJournalTemplateList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GeneralJournalBatchesModalPageHandler(var GeneralJournalBatches: TestPage "General Journal Batches")
+    var
+        BatchName: Text;
+    begin
+        // Get the batch name from storage and find it
+        BatchName := LibraryVariableStorage.DequeueText();
+        GeneralJournalBatches.FILTER.SetFilter(Name, BatchName);
+        GeneralJournalBatches.First();
+        GeneralJournalBatches.OK().Invoke();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Mail Management", 'OnBeforeIsEnabled', '', false, false)]

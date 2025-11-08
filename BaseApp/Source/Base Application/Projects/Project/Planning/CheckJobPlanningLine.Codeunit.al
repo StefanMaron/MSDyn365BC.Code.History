@@ -10,9 +10,9 @@ codeunit 9135 "Check Job Planning Line"
 {
 
     [EventSubscriber(ObjectType::Table, Database::Item, 'OnAfterCheckDocuments', '', false, false)]
-    local procedure ItemOnBeforeCheckDocuments(Item: Record Item; CurrentFieldNo: Integer);
+    local procedure ItemOnBeforeCheckDocuments(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text);
     begin
-        CheckJobPlanningLines(Item, CurrentFieldNo, Item.FieldNo(Type), Item.FieldCaption(Type));
+        CheckJobPlanningLines(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
     end;
 
     procedure CheckJobPlanningLines(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)

@@ -589,7 +589,7 @@ table 18 Customer
             Caption = 'Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;
-            ToolTip = 'Specifies the payment amount that the customer owes for completed sales. This value is also known as the customer''s balance.';
+            ToolTip = 'Specifies the total amount the customer owes you, or you owe them, based on all sales and credits for the customer. A positive amount means they owe you, and a negative amount means you owe them. The amount isn''t necessarily due today though. The customer''s payment terms determine due dates. Select the amount to explore the ledger entries behind it.';
         }
         field(60; "Net Change"; Decimal)
         {
@@ -687,10 +687,10 @@ table 18 Customer
                                                                                  "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
                                                                                  "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
                                                                                  "Currency Code" = field("Currency Filter")));
-            Caption = 'Balance Due (LCY)';
+            Caption = 'Overdue Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;
-            ToolTip = 'Specifies payments from the customer that are overdue per today''s date.';
+            ToolTip = 'Specifies the total amount that''s due from the customer as of today. Consider using reminders to minimize late payments and optimize cashflow.';
         }
         field(69; Payments; Decimal)
         {
@@ -1071,7 +1071,7 @@ table 18 Customer
             trigger OnLookup()
             var
                 ReminderTermsRecord: Record "Reminder Terms";
-                ReminderTerms: Page "Reminder Terms";
+                ReminderTerms: Page "Reminder Terms List";
             begin
                 ReminderTerms.LookupMode(true);
                 if ReminderTerms.RunModal() <> ACTION::LookupOK then
@@ -3716,14 +3716,20 @@ table 18 Customer
     var
         SalesShippedNotInvoicedLCY: Query "Sales Shipped Not Invoiced LCY";
         ShippedFromOrderLCY: Decimal;
+        SalesOrderNo: Code[20];
     begin
+        SalesOrderNo := '';
         ShippedFromOrderLCY := 0;
         SalesShippedNotInvoicedLCY.SetRange(BillToCustomerNo, "No.");
         SalesShippedNotInvoicedLCY.SetFilter(OrderNo, '<>%1', '');
         SalesShippedNotInvoicedLCY.SetFilter(OrderLineNo, '<>%1', 0);
         if SalesShippedNotInvoicedLCY.Open() then
-            while SalesShippedNotInvoicedLCY.Read() do
-                ShippedFromOrderLCY += SalesShippedNotInvoicedLCY.ShippedNotInvoicedLCY;
+            while SalesShippedNotInvoicedLCY.Read() do begin
+                if SalesShippedNotInvoicedLCY.OrderNo <> SalesOrderNo then
+                    ShippedFromOrderLCY += SalesShippedNotInvoicedLCY.ShippedNotInvoicedLCY;
+
+                SalesOrderNo := SalesShippedNotInvoicedLCY.OrderNo;
+            end;
         exit(ShippedFromOrderLCY);
     end;
 

@@ -1238,6 +1238,85 @@ codeunit 134897 "ERM Source Currency"
         Assert.AreEqual(0, SCYBalance, TotalSCYAmountNotZeroErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceWithChangedCurrencyFactor()
+    var
+        Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
+        SalesHeader: Record "Sales Header";
+        GLEntry: Record "G/L Entry";
+        PostedSalesInvoiceNo: Code[20];
+        Factor: Decimal;
+    begin
+        Initialize();
+
+        // [GIVEN] Create customer with currency code
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Currency Code", CreateCurrency());
+        Customer.Modify();
+
+        // [GIVEN] A Sales Invoice for currency with exchange rate from the setup
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, Customer."No.");
+        Factor := SalesHeader."Currency Factor";
+
+        // [GIVEN] Increase Currency Factor twice
+        SalesHeader.Validate("Currency Factor", Factor * 2);
+        SalesHeader.Modify();
+
+        // [WHEN] Posting a Sales Invoice with updated Currency Factor
+        PostedSalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        GetGLEntries(GLEntry, PostedSalesInvoiceNo, GLEntry."Document Type"::Invoice);
+        CustomerPostingGroup.Get(Customer."Customer Posting Group");
+
+        repeat
+            case GLEntry."G/L Account No." of
+                CustomerPostingGroup.GetReceivablesAccount():
+                    Assert.AreEqual(Factor * 2, GLEntry.Amount / GLEntry."Source Currency Amount", 'Incorrect currency factor');
+            end;
+        until GLEntry.Next() = 0;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceWithChangedCurrencyFactor()
+    var
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+        PurchaseHeader: Record "Purchase Header";
+        GLEntry: Record "G/L Entry";
+        PostedPurchaseInvoiceNo: Code[20];
+        Factor: Decimal;
+    begin
+        Initialize();
+
+        // [GIVEN] Create customer with currency code
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Currency Code", CreateCurrency());
+        Vendor.Modify();
+
+        // [GIVEN] A Sales Invoice for currency with exchange rate from the setup
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, Vendor."No.");
+        Factor := PurchaseHeader."Currency Factor";
+
+        // [GIVEN] Increase Currency Factor twice
+        PurchaseHeader.Validate("Currency Factor", Factor * 2);
+        PurchaseHeader.Modify();
+
+        // [WHEN] Posting a Sales Invoice with updated Currency Factor
+        PostedPurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        GetGLEntries(GLEntry, PostedPurchaseInvoiceNo, GLEntry."Document Type"::Invoice);
+        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
+
+        repeat
+            case GLEntry."G/L Account No." of
+                VendorPostingGroup.GetPayablesAccount():
+                    Assert.AreEqual(Factor * 2, GLEntry.Amount / GLEntry."Source Currency Amount", 'Incorrect currency factor');
+            end;
+        until GLEntry.Next() = 0;
+    end;
 
     local procedure CreatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; GLAccountNo: Code[20]; WithForeignCurrency: Boolean)
     var

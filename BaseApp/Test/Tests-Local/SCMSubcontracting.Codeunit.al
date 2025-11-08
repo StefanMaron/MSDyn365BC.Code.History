@@ -87,6 +87,7 @@ codeunit 144081 "SCM Subcontracting"
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
+        LibraryPlanning: Codeunit "Library - Planning";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
@@ -1058,6 +1059,74 @@ codeunit 144081 "SCM Subcontracting"
             StrSubstNo(ValueMustBeEqualErr, ItemLedgerEntry.FieldCaption(Quantity), -ItemLedgerEntries.Quantity.AsInteger(), ItemLedgerEntry.TableCaption()));
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure CalculateSubcontractsWithBlockedAndNonBlockedItems()
+    var
+        ChildItem: Record Item;
+        Item: array[5] of Record Item;
+        ProductionBOMHeader: array[5] of Record "Production BOM Header";
+        RequisitionLine: Record "Requisition Line";
+        ReqWkshName: Record "Requisition Wksh. Name";
+        RoutingHeader: array[5] of Record "Routing Header";
+        Vendor: Record Vendor;
+        CalculateSubcontracts: Report "Calculate Subcontracts";
+        WorkCenterNo: Code[20];
+        i: Integer;
+    begin
+        // [SCENARIO 601443] Ensure that the process does not stop when a blocked item occurs, and the remaining non-blocked items are process in the Subcontracting Worksheet.
+        Initialize();
+
+        // [GIVEN] Create subcontractor vendor
+        CreateSubcontractorVendor(Vendor);
+
+        // [GIVEN] Create Child Item.
+        LibraryInventory.CreateItem(ChildItem);
+
+        // [GIVEN] Create work center with subcontractor.
+        WorkCenterNo := CreateSubcontractingWorkCenter(Vendor."No.");
+
+        for i := 1 to LibraryRandom.RandIntInRange(3, 5) do begin
+            // [GIVEN] Create a new Production BOM.
+            CreateProductionBOM(ProductionBOMHeader[i], ChildItem);
+
+            // [GIVEN] Create Routing and Certified.
+            CreateRoutingWithWorkCenter(RoutingHeader[i], WorkCenterNo);
+
+            // [GIVEN] Create Manufacturing Item.
+            CreateItemManufacturing(Item[i], ProductionBOMHeader[i]."No.", RoutingHeader[i]."No.");
+
+            // [GIVEN] Create Released Production Order
+            CreateReleasedProductionOrder(Item[i]."No.", '');
+        end;
+
+        // [GIVEN] Block Item 1 and Item 3 but keep Item 2 unblocked.
+        BlockedItem(Item[1]);
+        BlockedItem(Item[3]);
+
+        // [GIVEN] Setup requisition worksheet
+        GetReqWkshTemplateAndBatch(ReqWkshName);
+        RequisitionLine.Init();
+        RequisitionLine.Validate("Worksheet Template Name", ReqWkshName."Worksheet Template Name");
+        RequisitionLine.Validate("Journal Batch Name", ReqWkshName.Name);
+
+        // [WHEN] Run Calculate Subcontracts report.
+        CalculateSubcontracts.SetWkShLine(RequisitionLine);
+        CalculateSubcontracts.UseRequestPage(false);
+        CalculateSubcontracts.Run();
+
+        // [THEN] Verify: Check that requisition line was created for non-blocked item
+        RequisitionLine.SetRange("Worksheet Template Name", ReqWkshName."Worksheet Template Name");
+        RequisitionLine.SetRange("Journal Batch Name", ReqWkshName.Name);
+        RequisitionLine.SetRange("No.", Item[2]."No.");
+        Assert.IsFalse(RequisitionLine.IsEmpty(), 'Requisition line should be created for non-blocked item');
+
+        // [THEN] Verify: Check that no requisition line was created for blocked item
+        RequisitionLine.SetRange("No.");
+        RequisitionLine.SetFilter("No.", '%1|%2', Item[1]."No.", Item[3]."No.");
+        Assert.IsTrue(RequisitionLine.IsEmpty(), 'No requisition line should be created for blocked item');
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -2000,6 +2069,52 @@ codeunit 144081 "SCM Subcontracting"
         LibraryInventory.ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch);
         ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
+    end;
+
+    local procedure CreateSubcontractorVendor(var Vendor: Record Vendor)
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate(Subcontractor, true);
+        Vendor.Modify(true);
+    end;
+
+    local procedure CreateProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; ChildItem: Record Item)
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryInventory.CreateItem(ChildItem);
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ChildItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ChildItem."No.", 1);
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+    end;
+
+    local procedure CreateRoutingWithWorkCenter(var RoutingHeader: Record "Routing Header"; WorkCenterNo: Code[20])
+    var
+        RoutingLine: Record "Routing Line";
+    begin
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(
+            RoutingHeader, RoutingLine, '', LibraryUtility.GenerateGUID(), RoutingLine.Type::"Work Center", WorkCenterNo);
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+    end;
+
+    local procedure BlockedItem(var Item: Record Item)
+    begin
+        Item.Validate(Blocked, true);
+        Item.Modify(true);
+    end;
+
+    local procedure GetReqWkshTemplateAndBatch(var ReqWkshName: Record "Requisition Wksh. Name")
+    var
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+    begin
+        ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"For. Labor");
+        ReqWkshTemplate.FindFirst();
+
+        LibraryPlanning.CreateRequisitionWkshName(ReqWkshName, ReqWkshTemplate.Name);
     end;
 
     [RequestPageHandler]

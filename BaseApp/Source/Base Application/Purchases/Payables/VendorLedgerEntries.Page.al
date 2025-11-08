@@ -28,6 +28,8 @@ page 29 "Vendor Ledger Entries"
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = List;
+    AboutTitle = 'About Vendor Ledger Entries';
+    AboutText = 'Track all financial transactions with vendors, including invoices, payments, credit memos, and refunds, to monitor outstanding balances, payment status, and detailed entry information for each vendor account.';
     Permissions = TableData "Vendor Ledger Entry" = m;
     SourceTable = "Vendor Ledger Entry";
     SourceTableView = sorting("Vendor No.", "Posting Date") order(descending);

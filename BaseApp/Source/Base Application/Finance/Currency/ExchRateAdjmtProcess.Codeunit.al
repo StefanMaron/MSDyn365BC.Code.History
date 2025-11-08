@@ -19,6 +19,7 @@ using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Enums;
+using Microsoft.Foundation.NoSeries;
 using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
@@ -43,7 +44,11 @@ codeunit 699 "Exch. Rate Adjmt. Process"
     TableNo = "Exch. Rate Adjmt. Parameters";
 
     trigger OnRun()
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+
     begin
+        SequenceNoMgt.SetPreviewMode(Rec."Preview Posting");
         ExchRateAdjmtParameters.Copy(Rec);
 
         SourceCodeSetup.Get();
@@ -308,6 +313,8 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         Window.Open(AdjustingVATEntriesTxt + VATEntryProgressBarTxt);
 
         VATEntryNoTotal := VATEntry.Count();
+        if VATEntryNoTotal = 0 then
+            exit;
         SetVATEntryFilters(VATEntry, ExchRateAdjmtParameters."Start Date", ExchRateAdjmtParameters."End Date");
         if VATPostingSetup.FindSet() then
             repeat

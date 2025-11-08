@@ -25,11 +25,17 @@ codeunit 104153 "UPG Per. VAT Settl. Entry IT"
     var
         PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry";
         PeriodicSettlVATEntry: Record "Periodic VAT Settlement Entry";
+        FeatureKey: Record "Feature Key";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTags: Codeunit "Upgrade Tag Def - Country";
         DataTransfer: DataTransfer;
+        ITCalcAndPostPerActivityCodeTok: Label 'ITCalcAndPostPerActivityCode', Locked = true, Comment = 'Tag for the feature ITCalcAndPostPerActivityCode';
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTags.GetPeriodicVATSettlementEntryUpgradeTag()) then
+            exit;
+
+        // Upgrade only if there are no feature key for ITCalcAndPostPerActivityCode  
+        if FeatureKey.Get(ITCalcAndPostPerActivityCodeTok) then
             exit;
 
         DataTransfer.SetTables(Database::"Periodic Settlement VAT Entry", Database::"Periodic VAT Settlement Entry");
@@ -63,9 +69,15 @@ codeunit 104153 "UPG Per. VAT Settl. Entry IT"
         DataTransfer.AddFieldValue(PeriodicSettlementVATEntry.FieldNo("Credit VAT Compensation"), PeriodicSettlVATEntry.FieldNo("Credit VAT Compensation"));
         DataTransfer.AddFieldValue(PeriodicSettlementVATEntry.FieldNo("Special Credit"), PeriodicSettlVATEntry.FieldNo("Special Credit"));
 
+        OnUpgradePeriodicVATSettlementEntryOnBeforeCopyRows(PeriodicSettlementVATEntry, PeriodicSettlVATEntry, DataTransfer);
         DataTransfer.CopyRows();
 
         UpgradeTag.SetUpgradeTag(UpgradeTags.GetPeriodicVATSettlementEntryUpgradeTag());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpgradePeriodicVATSettlementEntryOnBeforeCopyRows(var PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry"; var PeriodicSettlVATEntry: Record "Periodic VAT Settlement Entry"; var DataTransfer: DataTransfer)
+    begin
     end;
 }
 #endif

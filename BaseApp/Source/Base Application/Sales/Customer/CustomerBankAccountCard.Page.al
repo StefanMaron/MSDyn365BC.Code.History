@@ -76,14 +76,17 @@ page 423 "Customer Bank Account Card"
                 field("Bank Branch No."; Rec."Bank Branch No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    MaskType = Concealed;
                 }
                 field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    MaskType = Concealed;
                 }
                 field("Transit No."; Rec."Transit No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    MaskType = Concealed;
                 }
                 field(ABI; Rec.ABI)
                 {
@@ -120,10 +123,12 @@ page 423 "Customer Bank Account Card"
                 field("SWIFT Code"; Rec."SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;
+                    MaskType = Concealed;
                 }
                 field(IBAN; Rec.IBAN)
                 {
                     ApplicationArea = Basic, Suite;
+                    MaskType = Concealed;
                 }
                 field(BBAN; Rec.BBAN)
                 {

@@ -23,6 +23,8 @@ page 14 "Salespersons/Purchasers"
     CardPageID = "Salesperson/Purchaser Card";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Salespeople/Purchasers';
+    AboutText = 'Set up and manage salespeople and purchasers by assigning codes, tracking contact details, calculating commissions, and linking them to customers, vendors, and opportunities for performance analysis and reporting in sales and purchasing processes.';
     SourceTable = "Salesperson/Purchaser";
     UsageCategory = Lists;
 

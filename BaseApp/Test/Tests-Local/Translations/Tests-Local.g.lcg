@@ -212,6 +212,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Auto Payment - NamedType CustomerBlockedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3748939737 - NamedType 1242699252" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Field Caption,%2=Field Value,%3=Table Caption]D;]A;(LookupHint=Codeunit ERM Auto Payment - NamedType CustomerLedgerEntryErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3748939737 - NamedType 1988796911" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1|%2]]></Val>

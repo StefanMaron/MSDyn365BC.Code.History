@@ -24,6 +24,8 @@ page 116 "G/L Registers"
     Caption = 'G/L Registers';
     Editable = false;
     PageType = List;
+    AboutTitle = 'About G/L Registers';
+    AboutText = 'Review posted general ledger transactions, track posting details such as user and source, and access related entry information for audit, reconciliation, and financial analysis purposes.';
     SourceTable = "G/L Register";
     SourceTableView = sorting("No.")
                       order(descending);

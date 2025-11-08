@@ -14,6 +14,8 @@ page 5752 "Posted Transfer Shipments"
     CardPageID = "Posted Transfer Shipment";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Posted Transfer Shipments';
+    AboutText = 'Review posted transfer shipments to track and manage item movements between locations, access shipment details, and analyze related transactions for completed transfer orders.';
     SourceTable = "Transfer Shipment Header";
     SourceTableView = sorting("Posting Date")
                       order(descending);

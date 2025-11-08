@@ -1276,6 +1276,7 @@ codeunit 22 "Item Jnl.-Post Line"
         ReservEntry: Record "Reservation Entry";
         ReservEntry2: Record "Reservation Entry";
         AppliesFromItemLedgEntry: Record "Item Ledger Entry";
+        EntryFindMethod: Text[1];
         AppliedQty: Decimal;
         FirstReservation: Boolean;
         FirstApplication: Boolean;
@@ -1390,7 +1391,7 @@ codeunit 22 "Item Jnl.-Post Line"
                     end else
                         exit;
                 end else
-                    if FindOpenItemLedgEntryToApply(ItemLedgEntry2, ItemLedgEntry, FirstApplication) then
+                    if FindOpenItemLedgEntryToApply(ItemLedgEntry2, ItemLedgEntry, FirstApplication, EntryFindMethod) then
                         OldItemLedgEntry.Copy(ItemLedgEntry2)
                     else
                         exit;
@@ -1410,9 +1411,12 @@ codeunit 22 "Item Jnl.-Post Line"
 
                 OnApplyItemLedgEntryOnAfterCalcAppliedQty(OldItemLedgEntry, ItemLedgEntry, AppliedQty);
 
-                if ItemLedgEntry."Entry Type" = ItemLedgEntry."Entry Type"::Transfer then
-                    if (OldItemLedgEntry."Entry No." > ItemLedgEntry."Entry No.") and (ItemLedgEntry."Entry No." >= 0) and not ItemLedgEntry.Positive then
+                if (ItemLedgEntry."Entry Type" = ItemLedgEntry."Entry Type"::Transfer) and not ItemLedgEntry.Positive then
+                    if OldItemLedgEntry.EntryNoHasSameSign(ItemLedgEntry."Entry No.") and (OldItemLedgEntry."Entry No." > ItemLedgEntry."Entry No.") and (ItemLedgEntry."Entry No." >= 0) and not ItemLedgEntry.Positive or
+                        not OldItemLedgEntry.EntryNoHasSameSign(ItemLedgEntry."Entry No.") and ((OldItemLedgEntry.SystemId > ItemLedgEntry.SystemId) and not IsNullGuid(ItemLedgEntry.SystemId) or IsNullGuid(OldItemLedgEntry.SystemId)) // Preview?
+                    then
                         AppliedQty := 0;
+
                 if (OldItemLedgEntry."Order Type" = OldItemLedgEntry."Order Type"::Production) and
                    (OldItemLedgEntry."Order No." <> '')
                 then
@@ -1678,15 +1682,25 @@ codeunit 22 "Item Jnl.-Post Line"
                   ItemLedgEntry."Entry Type", OldItemLedgEntry."Entry Type", OldItemLedgEntry."Item No.", OldItemLedgEntry."Order No.");
     end;
 
-    local procedure FindOpenItemLedgEntryToApply(var OpenItemLedgEntry: Record "Item Ledger Entry"; ItemLedgEntry: Record "Item Ledger Entry"; var FirstApplication: Boolean): Boolean
+    local procedure FindOpenItemLedgEntryToApply(var OpenItemLedgEntry: Record "Item Ledger Entry"; ItemLedgEntry: Record "Item Ledger Entry"; var FirstApplication: Boolean; var EntryFindMethod: Text[1]): Boolean
     begin
         if FirstApplication then begin
             FirstApplication := false;
             ApplyItemLedgEntrySetFilters(OpenItemLedgEntry, ItemLedgEntry, GlobalItemTrackingCode);
-            OpenItemLedgEntry.Ascending(Item."Costing Method" <> Item."Costing Method"::LIFO);
-            exit(OpenItemLedgEntry.FindSet());
+
+            if Item."Costing Method" = Item."Costing Method"::LIFO then
+                EntryFindMethod := '+'
+            else
+                EntryFindMethod := '-';
+
+            exit(OpenItemLedgEntry.Find(EntryFindMethod));
         end else
-            exit(OpenItemLedgEntry.Next() <> 0);
+            case EntryFindMethod of
+                '-':
+                    exit(OpenItemLedgEntry.Next() <> 0);
+                '+':
+                    exit(OpenItemLedgEntry.Next(-1) <> 0);
+            end;
     end;
 
     local procedure TestFirstApplyItemLedgerEntryTracking(ItemLedgEntry: Record "Item Ledger Entry"; OldItemLedgEntry: Record "Item Ledger Entry"; ItemTrackingCode: Record "Item Tracking Code");
@@ -1736,7 +1750,7 @@ codeunit 22 "Item Jnl.-Post Line"
 
     local procedure InitValueEntryNo()
     begin
-        if ValueEntryNo > 0 then
+        if ValueEntryNo <> 0 then
             exit;
         if not InvtSetup.UseLegacyPosting() then
             exit;
@@ -2040,27 +2054,27 @@ codeunit 22 "Item Jnl.-Post Line"
             ItemReg.Insert();
         end else begin
             if ((ItemLedgEntryNo < ItemReg."From Entry No.") and (ItemLedgEntryNo <> 0)) or
-               ((ItemReg."From Entry No." = 0) and (ItemLedgEntryNo > 0))
+               ((ItemReg."From Entry No." = 0) and (ItemLedgEntryNo <> 0))
             then
                 ItemReg."From Entry No." := ItemLedgEntryNo;
             if ItemLedgEntryNo > ItemReg."To Entry No." then
                 ItemReg."To Entry No." := ItemLedgEntryNo;
 
             if ((PhysInvtEntryNo < ItemReg."From Phys. Inventory Entry No.") and (PhysInvtEntryNo <> 0)) or
-               ((ItemReg."From Phys. Inventory Entry No." = 0) and (PhysInvtEntryNo > 0))
+               ((ItemReg."From Phys. Inventory Entry No." = 0) and (PhysInvtEntryNo <> 0))
             then
                 ItemReg."From Phys. Inventory Entry No." := PhysInvtEntryNo;
             if PhysInvtEntryNo > ItemReg."To Phys. Inventory Entry No." then
                 ItemReg."To Phys. Inventory Entry No." := PhysInvtEntryNo;
 
             if ((ValueEntryNo < ItemReg."From Value Entry No.") and (ValueEntryNo <> 0)) or
-               ((ItemReg."From Value Entry No." = 0) and (ValueEntryNo > 0))
+               ((ItemReg."From Value Entry No." = 0) and (ValueEntryNo <> 0))
             then
                 ItemReg."From Value Entry No." := ValueEntryNo;
             if ValueEntryNo > ItemReg."To Value Entry No." then
                 ItemReg."To Value Entry No." := ValueEntryNo;
             if ((CapLedgEntryNo < ItemReg."From Capacity Entry No.") and (CapLedgEntryNo <> 0)) or
-               ((ItemReg."From Capacity Entry No." = 0) and (CapLedgEntryNo > 0))
+               ((ItemReg."From Capacity Entry No." = 0) and (CapLedgEntryNo <> 0))
             then
                 ItemReg."From Capacity Entry No." := CapLedgEntryNo;
             if CapLedgEntryNo > ItemReg."To Capacity Entry No." then
@@ -4237,6 +4251,7 @@ codeunit 22 "Item Jnl.-Post Line"
         OnUndoQuantityPostingOnBeforeInsertApplEntry(NewItemLedgEntry, OldItemLedgEntry, GlobalItemLedgEntry);
         if NewItemLedgEntry.Positive then begin
             UpdateOrigAppliedFromEntry(OldItemLedgEntry."Entry No.");
+            OldItemLedgEntry.SetAppliedEntryToAdjust(true);
             InsertApplEntry(
               NewItemLedgEntry."Entry No.", NewItemLedgEntry."Entry No.",
               OldItemLedgEntry."Entry No.", 0, NewItemLedgEntry."Posting Date",
@@ -4941,23 +4956,22 @@ codeunit 22 "Item Jnl.-Post Line"
         ValueEntry2.SetRange("Item Ledger Entry No.", ValueEntry."Item Ledger Entry No.");
         if GlobalItemLedgEntry.Quantity <> GlobalItemLedgEntry."Invoiced Quantity" then begin
             ValueEntry2.SetRange("Entry Type", ValueEntry2."Entry Type"::"Direct Cost");
-            ValueEntry2.SetFilter("Entry No.", '<%1', ValueEntry."Entry No.");
+            if ValueEntry."Entry No." >= 0 then
+                ValueEntry2.SetFilter("Entry No.", '<%1', ValueEntry."Entry No.")
+            else
+                if not IsNullGuid(ValueEntry.SystemID) then
+                    ValueEntry2.SetFilter(SystemID, '<%1', ValueEntry.SystemID);  // Preview?
             ValueEntry2.SetRange("Item Charge No.", '');
-            if ValueEntry2.FindSet() then
-                repeat
-                    OldExpectedQty := OldExpectedQty - ValueEntry2."Invoiced Quantity";
-                until ValueEntry2.Next() = 0;
-
+            ValueEntry2.CalcSums("Invoiced Quantity");
+            OldExpectedQty -= ValueEntry2."Invoiced Quantity";
             RevExpCostToBalance := Round(RevExpCostToBalance * InvdQty / OldExpectedQty, GLSetup."Amount Rounding Precision");
             RevExpCostToBalanceACY := Round(RevExpCostToBalanceACY * InvdQty / OldExpectedQty, Currency."Amount Rounding Precision");
         end else begin
             ValueEntry2.SetRange("Entry Type", ValueEntry2."Entry Type"::Revaluation);
             ValueEntry2.SetRange("Applies-to Entry", ValueEntry."Entry No.");
-            if ValueEntry2.FindSet() then
-                repeat
-                    RevExpCostToBalance := RevExpCostToBalance - ValueEntry2."Cost Amount (Expected)";
-                    RevExpCostToBalanceACY := RevExpCostToBalanceACY - ValueEntry2."Cost Amount (Expected) (ACY)";
-                until ValueEntry2.Next() = 0;
+            ValueEntry2.CalcSums("Cost Amount (Expected)", "Cost Amount (Expected) (ACY)");
+            RevExpCostToBalance -= ValueEntry2."Cost Amount (Expected)";
+            RevExpCostToBalanceACY -= ValueEntry2."Cost Amount (Expected) (ACY)";
         end;
     end;
 
@@ -5648,7 +5662,7 @@ codeunit 22 "Item Jnl.-Post Line"
         if (ItemLedgerEntry."Remaining Quantity" + OldItemLedgerEntry."Remaining Quantity") > 0 then
             exit(0);
 
-        exit(GetUpdatedAppliedQtyForConsumption(OldItemLedgerEntry));
+        exit(GetUpdatedAppliedQtyForConsumption(OldItemLedgerEntry, ItemLedgerEntry));
     end;
 
     procedure RunOnPublishPostingInventoryToGL()
@@ -5669,7 +5683,7 @@ codeunit 22 "Item Jnl.-Post Line"
         exit(JobPlanningLineReserve.FindReservEntry(JobPlanningLine, ReservationEntry));
     end;
 
-    local procedure GetUpdatedAppliedQtyForConsumption(OldItemLedgerEntry: Record "Item Ledger Entry"): Decimal
+    local procedure GetUpdatedAppliedQtyForConsumption(OldItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry") AppliedQty: Decimal
     var
         ReservationEntry: Record "Reservation Entry";
         ReservationEntry2: Record "Reservation Entry";
@@ -5687,10 +5701,12 @@ codeunit 22 "Item Jnl.-Post Line"
 
         case SourceType of
             Database::"Sales Line":
-                exit(-Abs(OldItemLedgerEntry."Remaining Quantity" - OldItemLedgerEntry."Reserved Quantity"));
+                AppliedQty := -Abs(OldItemLedgerEntry."Remaining Quantity" - OldItemLedgerEntry."Reserved Quantity");
             else
-                exit(-Abs(OldItemLedgerEntry."Reserved Quantity"));
+                AppliedQty := -Abs(OldItemLedgerEntry."Reserved Quantity");
         end;
+
+        OnAfterGetUpdatedAppliedQtyForConsumption(OldItemLedgerEntry, ItemLedgerEntry, ReservationEntry2, SourceType, AppliedQty);
     end;
 
     procedure PostDeferredValueEntriesToGL(PostponedValueEntries: List of [Integer])
@@ -5707,7 +5723,7 @@ codeunit 22 "Item Jnl.-Post Line"
         if GuiAllowed then
             Window.Open(PostToGlLbl);
         FromEntryNo := 2100000000;
-        ToEntryNo := 0;
+        ToEntryNo := -2100000000;
         // to find the range of postponed value entries
         foreach EntryNo in PostponedValueEntries do begin
             if EntryNo < FromEntryNo then
@@ -8446,6 +8462,11 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [InternalEvent(true)]
     local procedure OnCorrectOutputValuationDateOnCheckProduction(ItemLedgerEntry: Record "Item Ledger Entry"; var TempValueEntry: Record "Value Entry" temporary; var ValuationDate: Date; var ShouldExit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetUpdatedAppliedQtyForConsumption(OldItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; ReservationEntry2: Record "Reservation Entry"; SourceType: Integer; var AppliedQty: Decimal)
     begin
     end;
 }

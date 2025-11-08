@@ -1949,9 +1949,7 @@ report 317 "Vendor Pre-Payment Journal"
             OppositeSignAmount := TotalAmount[Sign::Negative]
         else
             OppositeSignAmount := TotalAmount[Sign::Positive];
-        if (IsPostingDateBeforePmtDate or AcceptedPmtTolerance) and
-           (Abs(AmountPaid + AmountPmtTolerance - RemPmtDiscPossible) <= Abs(AmountDue - OppositeSignAmount))
-        then
+        if IsPostingDateBeforePmtDate or AcceptedPmtTolerance then
             if IsPostingDateBeforePmtDate then
                 AmountDiscounted := -RemPmtDiscPossible
             else

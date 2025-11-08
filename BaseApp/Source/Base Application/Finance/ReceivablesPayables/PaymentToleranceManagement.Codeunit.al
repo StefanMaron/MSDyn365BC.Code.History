@@ -976,6 +976,8 @@ codeunit 426 "Payment Tolerance Management"
         AcceptedTolAmount: Decimal;
         AcceptedEntryTolAmount: Decimal;
         TotalAmount: Decimal;
+        OneToManyApplication: Boolean;
+        RemainingPmtToleranceToAccept: Decimal;
     begin
         AppliedCustLedgEntry.SetCurrentKey("Customer No.", Open, Positive);
         AppliedCustLedgEntry.SetRange("Customer No.", CustledgEntry."Customer No.");
@@ -1007,12 +1009,17 @@ codeunit 426 "Payment Tolerance Management"
                 TotalAmount := TotalAmount + AppliedCustLedgEntry.Amount;
             until AppliedCustLedgEntry.Next() = 0;
 
-        AppliedCustLedgEntry.LockTable();
+        AppliedCustLedgEntry.ReadIsolation(IsolationLevel::UpdLock);
         AppliedCustLedgEntry.SetLoadFields();
-        AppliedCustLedgEntry.SetCurrentKey("Max. Payment Tolerance");
 
         AcceptedTolAmount := Amount + AppliedAmount;
         Number := AppliedCustLedgEntry.Count();
+        if Number <> 1 then begin
+            OneToManyApplication := true;
+            AppliedCustLedgEntry.SetAutoCalcFields(Amount);
+            AppliedCustLedgEntry.SetCurrentKey(Amount);
+            AppliedCustLedgEntry.SetAscending(Amount, false);
+        end;
 
         if AppliedCustLedgEntry.FindSet(true) then
             repeat
@@ -1026,7 +1033,6 @@ codeunit 426 "Payment Tolerance Management"
                     if AppliedCustLedgEntry."Currency Code" <> Currency.Code then
                         Currency.Get(AppliedCustLedgEntry."Currency Code");
                 if Number <> 1 then begin
-                    AppliedCustLedgEntry.CalcFields(Amount);
                     if CustledgEntry."Currency Code" <> AppliedCustLedgEntry."Currency Code" then
                         AppliedCustLedgEntry.Amount :=
                           CurrExchRate.ExchangeAmount(
@@ -1041,6 +1047,10 @@ codeunit 426 "Payment Tolerance Management"
                       Amount + AppliedAmount, AcceptedEntryTolAmount);
                 end else begin
                     AcceptedEntryTolAmount := AcceptedTolAmount;
+                    if OneToManyApplication then begin
+                        AcceptedEntryTolAmount := GetMinTolAmountByAbsValue(AcceptedEntryTolAmount, AppliedCustLedgEntry."Max. Payment Tolerance");
+                        RemainingPmtToleranceToAccept := AcceptedTolAmount - AcceptedEntryTolAmount;
+                    end;
                     AppliedCustLedgEntry."Accepted Payment Tolerance" := RetAccPmtTol(CustledgEntry."Applies-to Doc. No.",
                       Amount + AppliedAmount, AcceptedEntryTolAmount);
                 end;
@@ -1049,6 +1059,20 @@ codeunit 426 "Payment Tolerance Management"
                 AppliedCustLedgEntry.Modify();
                 Number := Number - 1;
             until AppliedCustLedgEntry.Next() = 0;
+
+        if RemainingPmtToleranceToAccept <> 0 then
+            if AppliedCustLedgEntry.FindSet(true) then
+                repeat
+                    if RemainingPmtToleranceToAccept < (AppliedCustLedgEntry."Max. Payment Tolerance" - AppliedCustLedgEntry."Accepted Payment Tolerance") then begin
+                        AppliedCustLedgEntry."Accepted Payment Tolerance" += RemainingPmtToleranceToAccept;
+                        AppliedCustLedgEntry.Modify();
+                        RemainingPmtToleranceToAccept := 0
+                    end else begin
+                        RemainingPmtToleranceToAccept -= (AppliedCustLedgEntry."Max. Payment Tolerance" - AppliedCustLedgEntry."Accepted Payment Tolerance");
+                        AppliedCustLedgEntry."Accepted Payment Tolerance" := AppliedCustLedgEntry."Max. Payment Tolerance";
+                        AppliedCustLedgEntry.Modify()
+                    end;
+                until (AppliedCustLedgEntry.Next() = 0) or (RemainingPmtToleranceToAccept = 0);
 
         if not SuppressCommit then
             Commit();
@@ -1063,6 +1087,8 @@ codeunit 426 "Payment Tolerance Management"
         AcceptedTolAmount: Decimal;
         AcceptedEntryTolAmount: Decimal;
         TotalAmount: Decimal;
+        OneToManyApplication: Boolean;
+        RemainingPmtToleranceToAccept: Decimal;
     begin
         AppliedVendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive);
         AppliedVendLedgEntry.SetRange("Vendor No.", VendLedgEntry."Vendor No.");
@@ -1094,11 +1120,17 @@ codeunit 426 "Payment Tolerance Management"
                 TotalAmount := TotalAmount + AppliedVendLedgEntry.Amount;
             until AppliedVendLedgEntry.Next() = 0;
 
-        AppliedVendLedgEntry.LockTable();
+        AppliedVendLedgEntry.ReadIsolation(IsolationLevel::UpdLock);
         AppliedVendLedgEntry.SetLoadFields();
 
         AcceptedTolAmount := Amount + AppliedAmount;
         Number := AppliedVendLedgEntry.Count();
+        if Number <> 1 then begin
+            OneToManyApplication := true;
+            AppliedVendLedgEntry.SetAutoCalcFields(Amount);
+            AppliedVendLedgEntry.SetCurrentKey(Amount);
+            AppliedVendLedgEntry.SetAscending(Amount, false);
+        end;
 
         if AppliedVendLedgEntry.FindSet(true) then
             repeat
@@ -1118,7 +1150,6 @@ codeunit 426 "Payment Tolerance Management"
                         AppliedVendLedgEntry."Currency Code",
                         VendLedgEntry."Currency Code", VendLedgEntry."Posting Date");
                 if Number <> 1 then begin
-                    AppliedVendLedgEntry.CalcFields(Amount);
                     if VendLedgEntry."Currency Code" <> AppliedVendLedgEntry."Currency Code" then
                         AppliedVendLedgEntry.Amount :=
                           CurrExchRate.ExchangeAmount(
@@ -1133,6 +1164,10 @@ codeunit 426 "Payment Tolerance Management"
                       Amount + AppliedAmount, AcceptedEntryTolAmount);
                 end else begin
                     AcceptedEntryTolAmount := AcceptedTolAmount;
+                    if OneToManyApplication then begin
+                        AcceptedEntryTolAmount := GetMinTolAmountByAbsValue(AcceptedEntryTolAmount, AppliedVendLedgEntry."Max. Payment Tolerance");
+                        RemainingPmtToleranceToAccept := AcceptedTolAmount - AcceptedEntryTolAmount;
+                    end;
                     AppliedVendLedgEntry."Accepted Payment Tolerance" := RetAccPmtTol(VendLedgEntry."Applies-to Doc. No.",
                       Amount + AppliedAmount, AcceptedEntryTolAmount);
                 end;
@@ -1142,6 +1177,20 @@ codeunit 426 "Payment Tolerance Management"
                 Number := Number - 1;
             until AppliedVendLedgEntry.Next() = 0;
 
+        if RemainingPmtToleranceToAccept <> 0 then
+            if AppliedVendLedgEntry.FindSet(true) then
+                repeat
+                    if RemainingPmtToleranceToAccept < (AppliedVendLedgEntry."Max. Payment Tolerance" - AppliedVendLedgEntry."Accepted Payment Tolerance") then begin
+                        AppliedVendLedgEntry."Accepted Payment Tolerance" += RemainingPmtToleranceToAccept;
+                        AppliedVendLedgEntry.Modify();
+                        RemainingPmtToleranceToAccept := 0
+                    end else begin
+                        RemainingPmtToleranceToAccept -= (AppliedVendLedgEntry."Max. Payment Tolerance" - AppliedVendLedgEntry."Accepted Payment Tolerance");
+                        AppliedVendLedgEntry."Accepted Payment Tolerance" := AppliedVendLedgEntry."Max. Payment Tolerance";
+                        AppliedVendLedgEntry.Modify()
+                    end;
+                until (AppliedVendLedgEntry.Next() = 0) or (RemainingPmtToleranceToAccept = 0);
+
         if not SuppressCommit then
             Commit();
     end;
@@ -1149,72 +1198,47 @@ codeunit 426 "Payment Tolerance Management"
     local procedure DelCustPmtTolAcc(CustledgEntry: Record "Cust. Ledger Entry"; CustEntryApplID: Code[50])
     var
         AppliedCustLedgEntry: Record "Cust. Ledger Entry";
+        PmtTolHasBeenModified: Boolean;
     begin
-        if CustledgEntry."Applies-to Doc. No." <> '' then begin
-            AppliedCustLedgEntry.SetCurrentKey("Customer No.", Open, Positive);
-            AppliedCustLedgEntry.SetRange("Customer No.", CustledgEntry."Customer No.");
-            AppliedCustLedgEntry.SetRange(Open, true);
-            AppliedCustLedgEntry.SetRange("Document No.", CustledgEntry."Applies-to Doc. No.");
-            AppliedCustLedgEntry.LockTable();
-            if AppliedCustLedgEntry.Find('-') then begin
-                AppliedCustLedgEntry."Accepted Payment Tolerance" := 0;
-                AppliedCustLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
-                AppliedCustLedgEntry.Modify();
-                if not SuppressCommit then
-                    Commit();
-            end;
-        end;
-
-        if CustEntryApplID <> '' then begin
-            AppliedCustLedgEntry.SetCurrentKey("Customer No.", Open, Positive);
-            AppliedCustLedgEntry.SetRange("Customer No.", CustledgEntry."Customer No.");
-            AppliedCustLedgEntry.SetRange(Open, true);
-            AppliedCustLedgEntry.SetRange("Applies-to ID", CustEntryApplID);
-            AppliedCustLedgEntry.LockTable();
-            if AppliedCustLedgEntry.Find('-') then begin
-                repeat
+        AppliedCustLedgEntry.SetCurrentKey("Customer No.", Open, Positive);
+        AppliedCustLedgEntry.SetRange("Customer No.", CustledgEntry."Customer No.");
+        AppliedCustLedgEntry.SetRange(Open, true);
+        AppliedCustLedgEntry.ReadIsolation(IsolationLevel::UpdLock);
+        AppliedCustLedgEntry.SetLoadFields("Document No.", "Applies-to ID", "Accepted Payment Tolerance", "Accepted Pmt. Disc. Tolerance");
+        if AppliedCustLedgEntry.Find('-') then
+            repeat
+                if (AppliedCustLedgEntry."Applies-to ID" = CustEntryApplID) or (AppliedCustLedgEntry."Document No." = CustledgEntry."Applies-to Doc. No.") then begin
                     AppliedCustLedgEntry."Accepted Payment Tolerance" := 0;
                     AppliedCustLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
                     AppliedCustLedgEntry.Modify();
-                until AppliedCustLedgEntry.Next() = 0;
-                if not SuppressCommit then
-                    Commit();
-            end;
-        end;
+                    PmtTolHasBeenModified := true;
+                end;
+            until AppliedCustLedgEntry.Next() = 0;
+        if PmtTolHasBeenModified and (not SuppressCommit) then
+            Commit();
     end;
 
     local procedure DelVendPmtTolAcc(VendLedgEntry: Record "Vendor Ledger Entry"; VendEntryApplID: Code[50])
     var
         AppliedVendLedgEntry: Record "Vendor Ledger Entry";
+        PmtTolHasBeenModified: Boolean;
     begin
-        if VendLedgEntry."Applies-to Doc. No." <> '' then begin
-            AppliedVendLedgEntry.SetCurrentKey("Document No.");
-            AppliedVendLedgEntry.SetRange("Vendor No.", VendLedgEntry."Vendor No.");
-            AppliedVendLedgEntry.SetRange(Open, true);
-            AppliedVendLedgEntry.SetRange("Document No.", VendLedgEntry."Applies-to Doc. No.");
-            AppliedVendLedgEntry.LockTable();
-            if AppliedVendLedgEntry.FindFirst() then begin
-                AppliedVendLedgEntry."Accepted Payment Tolerance" := 0;
-                AppliedVendLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
-                AppliedVendLedgEntry.Modify();
-                if not SuppressCommit then
-                    Commit();
-            end;
-        end;
-
-        if VendEntryApplID <> '' then begin
-            AppliedVendLedgEntry.SetCurrentKey("Vendor No.", "Applies-to ID", Open, Positive, "Due Date");
-            AppliedVendLedgEntry.SetRange("Vendor No.", VendLedgEntry."Vendor No.");
-            AppliedVendLedgEntry.SetRange(Open, true);
-            AppliedVendLedgEntry.SetRange("Applies-to ID", VendEntryApplID);
-            AppliedVendLedgEntry.LockTable();
-            if not AppliedVendLedgEntry.IsEmpty() then begin
-                AppliedVendLedgEntry.ModifyAll("Accepted Payment Tolerance", 0);
-                AppliedVendLedgEntry.ModifyAll("Accepted Pmt. Disc. Tolerance", false);
-                if not SuppressCommit then
-                    Commit();
-            end;
-        end;
+        AppliedVendLedgEntry.SetCurrentKey("Vendor No.", "Applies-to ID", Open, Positive, "Due Date");
+        AppliedVendLedgEntry.SetRange("Vendor No.", VendLedgEntry."Vendor No.");
+        AppliedVendLedgEntry.SetRange(Open, true);
+        AppliedVendLedgEntry.ReadIsolation(IsolationLevel::UpdLock);
+        AppliedVendLedgEntry.SetLoadFields("Document No.", "Applies-to ID", "Accepted Payment Tolerance", "Accepted Pmt. Disc. Tolerance");
+        if AppliedVendLedgEntry.FindSet() then
+            repeat
+                if (AppliedVendLedgEntry."Applies-to ID" = VendEntryApplID) or (AppliedVendLedgEntry."Document No." = VendLedgEntry."Applies-to Doc. No.") then begin
+                    AppliedVendLedgEntry."Accepted Payment Tolerance" := 0;
+                    AppliedVendLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
+                    AppliedVendLedgEntry.Modify();
+                    PmtTolHasBeenModified := true;
+                end;
+            until AppliedVendLedgEntry.Next() = 0;
+        if PmtTolHasBeenModified and (not SuppressCommit) then
+            Commit();
     end;
 
     procedure CalcGracePeriodCVLedgEntry(PmtTolGracePeriode: DateFormula)
@@ -1224,68 +1248,62 @@ codeunit 426 "Payment Tolerance Management"
         Vendor: Record Vendor;
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        Customer.SetCurrentKey("No.");
-        CustLedgEntry.LockTable();
-        Customer.LockTable();
-        if Customer.Find('-') then
+        CustLedgEntry.ReadIsolation(IsolationLevel::UpdLock);
+        Customer.SetLoadFields("No.", "Block Payment Tolerance");
+        Customer.ReadIsolation(IsolationLevel::UpdLock);
+        CustLedgEntry.SetCurrentKey("Customer No.", Open);
+        CustLedgEntry.SetRange(Open, true);
+        CustLedgEntry.SetLoadFields("Customer No.", "Document Type", "Pmt. Discount Date", "Document Date", "Pmt. Disc. Tolerance Date");
+        OnCalcGracePeriodCVLedgEntryOnAfterCustLedgEntrySetFilters(CustLedgEntry);
+        if CustLedgEntry.Find('-') then
             repeat
-                if not Customer."Block Payment Tolerance" then begin
-                    CustLedgEntry.SetCurrentKey("Customer No.", Open);
-                    CustLedgEntry.SetRange("Customer No.", Customer."No.");
-                    CustLedgEntry.SetRange(Open, true);
-                    CustLedgEntry.SetFilter("Document Type", '%1|%2',
-                      CustLedgEntry."Document Type"::Invoice,
-                      CustLedgEntry."Document Type"::"Credit Memo");
-                    OnCalcGracePeriodCVLedgEntryOnAfterCustLedgEntrySetFilters(CustLedgEntry);
+                if not (CustLedgEntry."Document Type" in [CustLedgEntry."Document Type"::Invoice, CustLedgEntry."Document Type"::"Credit Memo"]) then
+                    continue;
+                if Customer."No." <> CustLedgEntry."Customer No." then
+                    Customer.Get(CustLedgEntry."Customer No.");
+                if Customer."Block Payment Tolerance" then
+                    continue;
+                if CustLedgEntry."Pmt. Discount Date" <> 0D then begin
+                    if CustLedgEntry."Pmt. Discount Date" <> CustLedgEntry."Document Date" then
+                        CustLedgEntry."Pmt. Disc. Tolerance Date" :=
+                            CalcDate(PmtTolGracePeriode, CustLedgEntry."Pmt. Discount Date")
+                    else
+                        CustLedgEntry."Pmt. Disc. Tolerance Date" :=
+                            CustLedgEntry."Pmt. Discount Date";
+                end else
+                    CustLedgEntry."Pmt. Disc. Tolerance Date" := 0D;
+                OnCalcGracePeriodCVLedgEntryOnBeforeCustLedgEntryModify(CustLedgEntry, PmtTolGracePeriode);
+                CustLedgEntry.Modify();
+            until CustLedgEntry.Next() = 0;
 
-                    if CustLedgEntry.Find('-') then
-                        repeat
-                            if CustLedgEntry."Pmt. Discount Date" <> 0D then begin
-                                if CustLedgEntry."Pmt. Discount Date" <> CustLedgEntry."Document Date" then
-                                    CustLedgEntry."Pmt. Disc. Tolerance Date" :=
-                                      CalcDate(PmtTolGracePeriode, CustLedgEntry."Pmt. Discount Date")
-                                else
-                                    CustLedgEntry."Pmt. Disc. Tolerance Date" :=
-                                      CustLedgEntry."Pmt. Discount Date";
-                            end else
-                                CustLedgEntry."Pmt. Disc. Tolerance Date" := 0D;
-                            OnCalcGracePeriodCVLedgEntryOnBeforeCustLedgEntryModify(CustLedgEntry, PmtTolGracePeriode);
-                            CustLedgEntry.Modify();
-                        until CustLedgEntry.Next() = 0;
-                end;
-            until Customer.Next() = 0;
-
-        Vendor.SetCurrentKey("No.");
-        VendLedgEntry.LockTable();
-        Vendor.LockTable();
-        if Vendor.Find('-') then
+        VendLedgEntry.ReadIsolation(IsolationLevel::UpdLock);
+        Vendor.SetLoadFields("No.", "Block Payment Tolerance");
+        Vendor.ReadIsolation(IsolationLevel::UpdLock);
+        VendLedgEntry.SetCurrentKey("Vendor No.", Open);
+        VendLedgEntry.SetRange(Open, true);
+        VendLedgEntry.SetLoadFields("Vendor No.", "Document Type", "Pmt. Discount Date", "Pmt. Disc. Tolerance Date", "Document Date");
+        if VendLedgEntry.Find('-') then
             repeat
-                if not Vendor."Block Payment Tolerance" then begin
-                    VendLedgEntry.SetCurrentKey("Vendor No.", Open);
-                    VendLedgEntry.SetRange("Vendor No.", Vendor."No.");
-                    VendLedgEntry.SetRange(Open, true);
-                    VendLedgEntry.SetFilter("Document Type", '%1|%2',
-                      VendLedgEntry."Document Type"::Invoice,
-                      VendLedgEntry."Document Type"::"Credit Memo");
-
-                    if VendLedgEntry.Find('-') then
-                        repeat
-                            if VendLedgEntry."Pmt. Discount Date" <> 0D then begin
-                                if VendLedgEntry."Pmt. Disc. Tolerance Date" <>
-                                   VendLedgEntry."Document Date"
-                                then
-                                    VendLedgEntry."Pmt. Disc. Tolerance Date" :=
-                                      CalcDate(PmtTolGracePeriode, VendLedgEntry."Pmt. Discount Date")
-                                else
-                                    VendLedgEntry."Pmt. Disc. Tolerance Date" :=
-                                      VendLedgEntry."Pmt. Discount Date";
-                            end else
-                                VendLedgEntry."Pmt. Disc. Tolerance Date" := 0D;
-                            OnCalcGracePeriodCVLedgEntryOnBeforeVendLedgEntryModify(VendLedgEntry, PmtTolGracePeriode);
-                            VendLedgEntry.Modify();
-                        until VendLedgEntry.Next() = 0;
-                end;
-            until Vendor.Next() = 0;
+                if not (VendLedgEntry."Document Type" in [VendLedgEntry."Document Type"::Invoice, VendLedgEntry."Document Type"::"Credit Memo"]) then
+                    continue;
+                if Vendor."No." <> VendLedgEntry."VEndor No." then
+                    Vendor.Get(VendLedgEntry."Vendor No.");
+                if Vendor."Block Payment Tolerance" then
+                    continue;
+                if VendLedgEntry."Pmt. Discount Date" <> 0D then begin
+                    if VendLedgEntry."Pmt. Disc. Tolerance Date" <>
+                        VendLedgEntry."Document Date"
+                    then
+                        VendLedgEntry."Pmt. Disc. Tolerance Date" :=
+                            CalcDate(PmtTolGracePeriode, VendLedgEntry."Pmt. Discount Date")
+                    else
+                        VendLedgEntry."Pmt. Disc. Tolerance Date" :=
+                            VendLedgEntry."Pmt. Discount Date";
+                end else
+                    VendLedgEntry."Pmt. Disc. Tolerance Date" := 0D;
+                OnCalcGracePeriodCVLedgEntryOnBeforeVendLedgEntryModify(VendLedgEntry, PmtTolGracePeriode);
+                VendLedgEntry.Modify();
+            until VendLedgEntry.Next() = 0;
     end;
 
     procedure CalcTolCustLedgEntry(Customer: Record Customer)
@@ -1299,7 +1317,8 @@ codeunit 426 "Payment Tolerance Management"
         CustLedgEntry.SetCurrentKey("Customer No.", Open);
         CustLedgEntry.SetRange("Customer No.", Customer."No.");
         CustLedgEntry.SetRange(Open, true);
-        CustLedgEntry.LockTable();
+        CustLedgEntry.ReadIsolation(IsolationLevel::UpdLock);
+        CustLedgEntry.SetLoadFields("Document Type", "Posting Date", "Pmt. Discount Date", "Currency Code", "Max. Payment Tolerance", Amount, "Amount (LCY)");
         if not CustLedgEntry.Find('-') then
             exit;
         repeat
@@ -1363,7 +1382,8 @@ codeunit 426 "Payment Tolerance Management"
         CustLedgEntry.SetCurrentKey("Customer No.", Open);
         CustLedgEntry.SetRange("Customer No.", Customer."No.");
         CustLedgEntry.SetRange(Open, true);
-        CustLedgEntry.LockTable();
+        CustLedgEntry.ReadIsolation(IsolationLevel::UpdLock);
+        CustLedgEntry.SetLoadFields("Pmt. Disc. Tolerance Date", "Max. Payment Tolerance");
         if not CustLedgEntry.Find('-') then
             exit;
         repeat
@@ -1384,7 +1404,8 @@ codeunit 426 "Payment Tolerance Management"
         VendLedgEntry.SetCurrentKey("Vendor No.", Open);
         VendLedgEntry.SetRange("Vendor No.", Vendor."No.");
         VendLedgEntry.SetRange(Open, true);
-        VendLedgEntry.LockTable();
+        VendLedgEntry.ReadIsolation(IsolationLevel::UpdLock);
+        VendLedgEntry.SetLoadFields("Document Type", "Posting Date", "Pmt. Discount Date", "Currency Code", "Max. Payment Tolerance", Amount, "Amount (LCY)");
         if not VendLedgEntry.Find('-') then
             exit;
         repeat
@@ -1444,7 +1465,8 @@ codeunit 426 "Payment Tolerance Management"
         VendLedgEntry.SetCurrentKey("Vendor No.", Open);
         VendLedgEntry.SetRange("Vendor No.", Vendor."No.");
         VendLedgEntry.SetRange(Open, true);
-        VendLedgEntry.LockTable();
+        VendLedgEntry.ReadIsolation(IsolationLevel::UpdLock);
+        VendLedgEntry.SetLoadFields("Pmt. Disc. Tolerance Date", "Max. Payment Tolerance");
         if not VendLedgEntry.Find('-') then
             exit;
         repeat
@@ -1471,13 +1493,15 @@ codeunit 426 "Payment Tolerance Management"
             AppliedCustLedgEntry.SetCurrentKey("Customer No.", Open, Positive);
             AppliedCustLedgEntry.SetRange("Customer No.", GenJnlLine."Account No.");
             AppliedCustLedgEntry.SetRange(Open, true);
-            AppliedCustLedgEntry.SetRange("Document No.", DocumentNo);
-            AppliedCustLedgEntry.LockTable();
+            AppliedCustLedgEntry.ReadIsolation(IsolationLevel::UpdLock);
+            AppliedCustLedgEntry.SetLoadFields("Document No.", "Accepted Payment Tolerance", "Accepted Pmt. Disc. Tolerance");
             if AppliedCustLedgEntry.FindSet() then begin
                 repeat
-                    AppliedCustLedgEntry."Accepted Payment Tolerance" := 0;
-                    AppliedCustLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
-                    AppliedCustLedgEntry.Modify();
+                    if AppliedCustLedgEntry."Document No." = DocumentNo then begin
+                        AppliedCustLedgEntry."Accepted Payment Tolerance" := 0;
+                        AppliedCustLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
+                        AppliedCustLedgEntry.Modify();
+                    end;
                 until AppliedCustLedgEntry.Next() = 0;
                 if not SuppressCommit then
                     Commit();
@@ -1487,13 +1511,15 @@ codeunit 426 "Payment Tolerance Management"
                 AppliedVendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive);
                 AppliedVendLedgEntry.SetRange("Vendor No.", GenJnlLine."Account No.");
                 AppliedVendLedgEntry.SetRange(Open, true);
-                AppliedVendLedgEntry.SetRange("Document No.", DocumentNo);
-                AppliedVendLedgEntry.LockTable();
+                AppliedVendLedgEntry.ReadIsolation(IsolationLevel::UpdLock);
+                AppliedVendLedgEntry.SetLoadFields("Document No.", "Accepted Payment Tolerance", "Accepted Pmt. Disc. Tolerance");
                 if AppliedVendLedgEntry.FindSet() then begin
                     repeat
-                        AppliedVendLedgEntry."Accepted Payment Tolerance" := 0;
-                        AppliedVendLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
-                        AppliedVendLedgEntry.Modify();
+                        if AppliedVendLedgEntry."Document No." = DocumentNo then begin
+                            AppliedVendLedgEntry."Accepted Payment Tolerance" := 0;
+                            AppliedVendLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
+                            AppliedVendLedgEntry.Modify();
+                        end;
                     until AppliedVendLedgEntry.Next() = 0;
                     if not SuppressCommit then
                         Commit();
@@ -1524,21 +1550,22 @@ codeunit 426 "Payment Tolerance Management"
             AppliedCustLedgEntry.SetCurrentKey("Customer No.", Open, Positive);
             AppliedCustLedgEntry.SetRange("Customer No.", CustledgEntry."Customer No.");
             AppliedCustLedgEntry.SetRange(Open, true);
-            AppliedCustLedgEntry.SetRange("Applies-to ID", CustEntryApplID);
-            if CustledgEntry."Document Type" = CustledgEntry."Document Type"::Payment then
-                AppliedCustLedgEntry.SetRange("Document Type", AppliedCustLedgEntry."Document Type"::Invoice);
-            if CustledgEntry."Document Type" = CustledgEntry."Document Type"::Refund then
-                AppliedCustLedgEntry.SetRange("Document Type", AppliedCustLedgEntry."Document Type"::"Credit Memo");
-
-            AppliedCustLedgEntry.LockTable();
-
-            if AppliedCustLedgEntry.FindLast() then begin
-                AppliedCustLedgEntry."Accepted Payment Tolerance" := 0;
-                AppliedCustLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
-                AppliedCustLedgEntry.Modify();
-                if not SuppressCommit then
-                    Commit();
-            end;
+            AppliedCustLedgEntry.ReadIsolation(IsolationLevel::UpdLock);
+            AppliedCustLedgEntry.SetLoadFields("Applies-to ID", "Document Type", "Accepted Payment Tolerance", "Accepted Pmt. Disc. Tolerance");
+            if AppliedCustLedgEntry.FindSet() then
+                repeat
+                    if (CustledgEntry."Document Type" = CustledgEntry."Document Type"::Payment) and (AppliedCustLedgEntry."Document Type" <> AppliedCustLedgEntry."Document Type"::Invoice) then
+                        continue;
+                    if (CustledgEntry."Document Type" = CustledgEntry."Document Type"::Refund) and (AppliedCustLedgEntry."Document Type" <> AppliedCustLedgEntry."Document Type"::"Credit Memo") then
+                        continue;
+                    if AppliedCustLedgEntry."Applies-to ID" = CustEntryApplID then begin
+                        AppliedCustLedgEntry."Accepted Payment Tolerance" := 0;
+                        AppliedCustLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
+                        AppliedCustLedgEntry.Modify();
+                        if not SuppressCommit then
+                            Commit();
+                    end;
+                until AppliedCustLedgEntry.Next() = 0;
         end;
     end;
 
@@ -1550,21 +1577,22 @@ codeunit 426 "Payment Tolerance Management"
             AppliedVendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive);
             AppliedVendLedgEntry.SetRange("Vendor No.", VendLedgEntry."Vendor No.");
             AppliedVendLedgEntry.SetRange(Open, true);
-            AppliedVendLedgEntry.SetRange("Applies-to ID", VendEntryApplID);
-            if VendLedgEntry."Document Type" = VendLedgEntry."Document Type"::Payment then
-                AppliedVendLedgEntry.SetRange("Document Type", AppliedVendLedgEntry."Document Type"::Invoice);
-            if VendLedgEntry."Document Type" = VendLedgEntry."Document Type"::Refund then
-                AppliedVendLedgEntry.SetRange("Document Type", AppliedVendLedgEntry."Document Type"::"Credit Memo");
-
-            AppliedVendLedgEntry.LockTable();
-
-            if AppliedVendLedgEntry.FindLast() then begin
-                AppliedVendLedgEntry."Accepted Payment Tolerance" := 0;
-                AppliedVendLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
-                AppliedVendLedgEntry.Modify();
-                if not SuppressCommit then
-                    Commit();
-            end;
+            AppliedVendLedgEntry.ReadIsolation(IsolationLevel::UpdLock);
+            AppliedVendLedgEntry.SetLoadFields("Applies-to ID", "Document Type", "Accepted Payment Tolerance", "Accepted Pmt. Disc. Tolerance");
+            if AppliedVendLedgEntry.FindLast() then
+                repeat
+                    if (VendLedgEntry."Document Type" = VendLedgEntry."Document Type"::Payment) and (AppliedVendLedgEntry."Document Type" <> AppliedVendLedgEntry."Document Type"::Invoice) then
+                        continue;
+                    if (VendLedgEntry."Document Type" = VendLedgEntry."Document Type"::Refund) and (AppliedVendLedgEntry."Document Type" <> AppliedVendLedgEntry."Document Type"::"Credit Memo") then
+                        continue;
+                    if AppliedVendLedgEntry."Applies-to ID" = VendEntryApplID then begin
+                        AppliedVendLedgEntry."Accepted Payment Tolerance" := 0;
+                        AppliedVendLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
+                        AppliedVendLedgEntry.Modify();
+                        if not SuppressCommit then
+                            Commit();
+                    end;
+                until AppliedVendLedgEntry.Next() = 0;
         end;
     end;
 
@@ -2111,11 +2139,14 @@ codeunit 426 "Payment Tolerance Management"
                                 NewCustLedgEntry."Posting Date");
                         AppliedAmount := AppliedAmount + AppliedCustLedgEntry."Remaining Pmt. Disc. Possible";
                         AmountToApply := AmountToApply + AppliedCustLedgEntry."Remaining Pmt. Disc. Possible";
-                    end else begin
-                        NewCustLedgEntry.Amount += AppliedCustLedgEntry."Remaining Pmt. Disc. Possible";
-                        UpdateGenJournalLineAmount(NewCustLedgEntry.Amount);
-                        AdjustRemainingAmount(NewCustLedgEntry, AppliedCustLedgEntry."Remaining Amount");
-                    end;
+                    end else
+                        if (AppliedCustLedgEntry."Remaining Pmt. Disc. Possible" - AppliedCustLedgEntry."Remaining Amount") <> NewCustLedgEntry.Amount then begin
+                            NewCustLedgEntry.Amount += AppliedCustLedgEntry."Remaining Pmt. Disc. Possible";
+                            UpdateGenJournalLineAmount(NewCustLedgEntry.Amount);
+                            AdjustRemainingAmount(NewCustLedgEntry, AppliedCustLedgEntry."Remaining Amount");
+                            if not SuppressCommit then
+                                Commit();
+                        end;
                 end else begin
                     DelCustPmtTolAcc(NewCustLedgEntry, GenJnlLineApplID);
                     exit(false);
@@ -2279,10 +2310,14 @@ codeunit 426 "Payment Tolerance Management"
         if (GenJnlLineGlobal."Journal Template Name" = '') or (GenJnlLineGlobal."Journal Batch Name" = '') then
             exit;
 
-        GenJnlLine.Get(
+        if not GenJnlLine.Get(
             GenJnlLineGlobal."Journal Template Name",
             GenJnlLineGlobal."Journal Batch Name",
-            GenJnlLineGlobal."Line No.");
+            GenJnlLineGlobal."Line No.") then
+            exit;
+
+        if (GenJnlLine."Applies-to ID" = '') then
+            exit;
 
         GenJnlLine.Amount := NewAmount;
 
@@ -2349,7 +2384,7 @@ codeunit 426 "Payment Tolerance Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckCalcPmtDisc(NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; ApplnRoundingPrecision: Decimal; CheckFilter: Boolean; CheckAmount: Boolean; var Handled: Boolean; var Result: Boolean)
+    local procedure OnBeforeCheckCalcPmtDisc(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; ApplnRoundingPrecision: Decimal; CheckFilter: Boolean; CheckAmount: Boolean; var Handled: Boolean; var Result: Boolean)
     begin
     end;
 

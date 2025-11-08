@@ -365,22 +365,24 @@ report 99001015 "Calculate Subcontracts"
                     repeat
 #if not CLEAN27
                         Item.Get(ProdOrderLine."Item No.");
-                        if Item.Blocked then begin
-                            Message(Text1130000, TempProdOrderRoutingLine."Prod. Order No.", ProdOrderLine."Item No.");
-                            CurrReport.Skip();
+                        if Item.Blocked then
+                            Message(Text1130000, TempProdOrderRoutingLine."Prod. Order No.", ProdOrderLine."Item No.")
+                        else begin
+#endif
+                            BaseQtyToPurch :=
+                                MfgCostCalcMgt.CalcQtyAdjdForRoutingScrap(
+                                    MfgCostCalcMgt.CalcQtyAdjdForBOMScrap(
+                                        ProdOrderLine."Quantity (Base)", ProdOrderLine."Scrap %"),
+                                        TempProdOrderRoutingLine."Scrap Factor % (Accumulated)", TempProdOrderRoutingLine."Fixed Scrap Qty. (Accum.)") -
+                                (MfgCostCalcMgt.CalcOutputQtyBaseOnPurchOrder(ProdOrderLine, TempProdOrderRoutingLine) +
+                                 MfgCostCalcMgt.CalcActOutputQtyBase(ProdOrderLine, TempProdOrderRoutingLine));
+                            QtyToPurch := Round(BaseQtyToPurch / ProdOrderLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
+                            OnAfterCalcQtyToPurch(ProdOrderLine, QtyToPurch);
+                            if QtyToPurch > 0 then
+                                InsertReqWkshLine(TempProdOrderRoutingLine);
+#if not CLEAN27
                         end;
 #endif
-                        BaseQtyToPurch :=
-                            MfgCostCalcMgt.CalcQtyAdjdForRoutingScrap(
-                                MfgCostCalcMgt.CalcQtyAdjdForBOMScrap(
-                                    ProdOrderLine."Quantity (Base)", ProdOrderLine."Scrap %"),
-                                    TempProdOrderRoutingLine."Scrap Factor % (Accumulated)", TempProdOrderRoutingLine."Fixed Scrap Qty. (Accum.)") -
-                            (MfgCostCalcMgt.CalcOutputQtyBaseOnPurchOrder(ProdOrderLine, TempProdOrderRoutingLine) +
-                             MfgCostCalcMgt.CalcActOutputQtyBase(ProdOrderLine, TempProdOrderRoutingLine));
-                        QtyToPurch := Round(BaseQtyToPurch / ProdOrderLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
-                        OnAfterCalcQtyToPurch(ProdOrderLine, QtyToPurch);
-                        if QtyToPurch > 0 then
-                            InsertReqWkshLine(TempProdOrderRoutingLine);
                     until ProdOrderLine.Next() = 0;
                 end;
             until TempProdOrderRoutingLine.Next() = 0;

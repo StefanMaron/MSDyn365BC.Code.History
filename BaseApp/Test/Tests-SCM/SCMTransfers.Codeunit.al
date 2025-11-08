@@ -49,6 +49,7 @@
         DerivedTransLineErr: Label 'Expected no Derived Transfer Line i.e. line with "Derived From Line No." equal to original transfer line.';
         IncorrectSNUndoneErr: Label 'The Serial No. of the item on the transfer shipment line that was undone was different from the SN on the corresponding transfer line.';
         ApplToItemEntryErr: Label '%1 must be %2 in %3.', Comment = '%1 is Appl-to Item Entry, %2 is Item Ledger Entry No. and %3 is Transfer Line';
+        VariantCodeMandatoryErr: Label '%1 must have a value in %2: Document No.=%3, Line No.=%4. It cannot be zero or empty.', Comment = '%1:Field Caption, %2: TableCaption, %3:Document No, %4: Line No.';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -4003,6 +4004,141 @@
         asserterror LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure ForwardingCostToUndoTransferShipment()
+    var
+        Item: Record Item;
+        ItemCharge: Record "Item Charge";
+        LocationA, LocationB, InTransitLocation : Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemChargePurchaseLine: Record "Purchase Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ItemLedgerEntry, OriginalTransferShipmentILE, UndoTransferShipmentILE : Record "Item Ledger Entry";
+        Qty: Decimal;
+        ItemUnitCost, ItemChargeUnitCost : Decimal;
+    begin
+        // [SCENARIO 592047] Cost forwarding to undo transfer shipment - verify that item ledger entry for undo has the same cost as original transfer shipment.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(5, 10);
+        ItemUnitCost := LibraryRandom.RandDecInRange(10, 100, 2);
+        ItemChargeUnitCost := LibraryRandom.RandDecInRange(100, 500, 2);
+
+        // [GIVEN] Locations A, B, and In-Transit are set up
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationA);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationB);
+        LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
+
+        // [GIVEN] An item and item charge are created
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemCharge(ItemCharge);
+
+        // [GIVEN] Purchase order for item and item charge to location A
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("Location Code", LocationA.Code);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine, PurchaseHeader, Item."No.", Qty, ItemUnitCost);
+        LibraryPurchase.CreatePurchaseLine(ItemChargePurchaseLine, PurchaseHeader, ItemChargePurchaseLine.Type::"Charge (Item)", ItemCharge."No.", 1);
+        ItemChargePurchaseLine.Validate("Direct Unit Cost", ItemChargeUnitCost);
+        ItemChargePurchaseLine.Modify(true);
+        LibraryInventory.CreateItemChargeAssignPurchase(
+          ItemChargeAssignmentPurch, ItemChargePurchaseLine, ItemChargeAssignmentPurch."Applies-to Doc. Type"::Order, PurchaseLine."Document No.",
+          PurchaseLine."Line No.", PurchaseLine."No.");
+
+        // [GIVEN] Purchase order is posted
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] First cost adjustment is run
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [GIVEN] Transfer order is created from location A to location B
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationA.Code, LocationB.Code, InTransitLocation.Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", Qty);
+
+        // [GIVEN] Transfer shipment is posted
+        LibraryInventory.PostTransferHeader(TransferHeader, true, false);
+
+        // [GIVEN] Second cost adjustment is run after transfer shipment
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [GIVEN] Find and store the original transfer shipment item ledger entry for cost comparison
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Transfer);
+        ItemLedgerEntry.SetRange("Location Code", LocationA.Code);
+        ItemLedgerEntry.SetRange(Positive, false);
+        ItemLedgerEntry.FindFirst();
+        OriginalTransferShipmentILE := ItemLedgerEntry;
+
+        // [WHEN] Transfer shipment is undone.
+        LibraryInventory.UndoTransferShipments(TransferHeader."No.");
+
+        // [THEN] Final cost adjustment is run after undo.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] Find the undo transfer shipment item ledger entry.
+        ItemLedgerEntry.Reset();
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Transfer);
+        ItemLedgerEntry.SetRange("Location Code", LocationA.Code);
+        ItemLedgerEntry.SetRange(Positive, true);
+        ItemLedgerEntry.SetRange(Correction, true);
+        ItemLedgerEntry.FindFirst();
+        UndoTransferShipmentILE := ItemLedgerEntry;
+
+        // [THEN] Verify that the undo transfer shipment has the same cost as the original transfer shipment
+        OriginalTransferShipmentILE.CalcFields("Cost Amount (Actual)");
+        UndoTransferShipmentILE.CalcFields("Cost Amount (Actual)");
+        Assert.AreEqual(
+            -OriginalTransferShipmentILE."Cost Amount (Actual)",
+            UndoTransferShipmentILE."Cost Amount (Actual)",
+            'The cost amount of the undo transfer shipment entry should match the original transfer shipment entry (with opposite sign)');
+    end;
+
+    [Test]
+    procedure ReleaseTransferOrderWhenVariantMandatory()
+    var
+        InTransitLocation: Record Location;
+        Item: Record Item;
+        ItemVariant: array[2] of Record "Item Variant";
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+    begin
+        // [SCENARIO 601487] Release Transfer Order when Variant Mandatory in Inventory Setup.
+        Initialize();
+
+        // [GIVEN] Create From/To Locations and InTransit Location
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(FromLocation);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
+        LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
+
+        // [GIVEN] Create Item and two Variants
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemVariant(ItemVariant[1], Item."No.");
+        LibraryInventory.CreateItemVariant(ItemVariant[2], Item."No.");
+
+        // [GIVEN] Set Inventory Setup to require variant if exists
+        SetVariantMandatoryInInventorySetup();
+
+        // [GIVEN] Create Transfer Order and Line.
+        LibraryInventory.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandIntInRange(10, 100));
+
+        // [WHEN] Try to release the transfer order
+        asserterror LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
+
+        // [THEN] Assert error matches expected label
+        Assert.ExpectedError(
+            StrSubstNo(
+                VariantCodeMandatoryErr,
+                TransferLine.FieldCaption("Variant Code"), TransferLine.TableCaption(),
+                TransferLine."Document No.", TransferLine."Line No."));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5575,6 +5711,15 @@
                 WarehouseActivityLine.Validate("Qty. to Handle", LibraryRandom.RandInt(0));
                 WarehouseActivityLine.Modify(true);
             until WarehouseActivityLine.Next() = 0;
+    end;
+
+    local procedure SetVariantMandatoryInInventorySetup()
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Variant Mandatory if Exists", true);
+        InventorySetup.Modify(true);
     end;
 
     [MessageHandler]

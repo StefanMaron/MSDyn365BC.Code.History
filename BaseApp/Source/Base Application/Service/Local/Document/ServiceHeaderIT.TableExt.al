@@ -519,6 +519,8 @@ tableextension 12152 "Service Header IT" extends "Service Header"
         if (ServiceLineToIgnore."Document No." = "No.") and (ServiceLineToIgnore."Document Type" = "Document Type") then
             SplitServiceLine.SetFilter("Line No.", '<>%1', ServiceLineToIgnore."Line No.");
 
+        OnAddSplitVATLinesIgnoringALineOnAfterSetSplitServiceLineFilters(SplitServiceLine, Rec);
+
         if not SplitServiceLine.FindSet() then
             exit;
 
@@ -641,5 +643,10 @@ tableextension 12152 "Service Header IT" extends "Service Header"
         ServiceLine.SetRange("Document Type", "Document Type");
         ServiceLine.SetRange("Document No.", "No.");
         exit(not ServiceLine.IsEmpty())
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddSplitVATLinesIgnoringALineOnAfterSetSplitServiceLineFilters(var SplitServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
+    begin
     end;
 }

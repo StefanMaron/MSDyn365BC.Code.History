@@ -6,6 +6,7 @@ namespace Microsoft.Service.Test;
 
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Sales.Customer;
 using Microsoft.Service.Document;
 using System.TestLibraries.Utilities;
 
@@ -21,10 +22,11 @@ codeunit 134467 "Service Item Reference"
 
     var
         Assert: Codeunit Assert;
-        LibrarySales: Codeunit "Library - Sales";
-        LibraryService: Codeunit "Library - Service";
+        LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemReference: Codeunit "Library - Item Reference";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryService: Codeunit "Library - Service";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -32,6 +34,7 @@ codeunit 134467 "Service Item Reference"
         DialogCodeErr: Label 'Dialog';
         isInitialized: Boolean;
         ItemRefNotExistsErr: Label 'There are no items with reference %1.', Comment = '%1 - item reference number';
+        DescriptionMustBeSameErr: Label 'Description must be same.';
 
     [Test]
     [HandlerFunctions('ItemReferenceListModalPageHandler')]
@@ -1521,6 +1524,147 @@ codeunit 134467 "Service Item Reference"
         Assert.ExpectedError(StrSubstNo(ItemRefNotExistsErr, ItemReferenceNo));
     end;
 
+    [Test]
+    procedure VerifyDescriptionInServiceLineWhenBothItemReferenceAndItemVariantUsed()
+    var
+        Item: array[2] of Record Item;
+        ItemReference: array[2] of Record "Item Reference";
+        ItemVariant: array[2] of Record "Item Variant";
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: array[2] of Record "Service Line";
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO 608458] Verify that the item description in the Service Line is prioritized correctly when both Item Reference and Item Variant are used. 
+        Initialize();
+
+        // [GIVEN] Create a new customer.
+        CustomerNo := LibrarySales.CreateCustomerNo();
+
+        // [GIVEN] Create first Item with Item Variant and Item Reference.
+        CreateItemWithItemVariantAndItemReference(Item[1], ItemVariant[1], ItemReference[1], CustomerNo);
+
+        // [GIVEN] Set description value in first Item Reference.
+        if ItemReference[1].Description = '' then begin
+            ItemReference[1].Validate(Description, ItemReference[1]."Reference No.");
+            ItemReference[1].Modify(true);
+        end;
+
+        // [GIVEN] Create second Item with Item Variant and Item Reference.
+        CreateItemWithItemVariantAndItemReference(Item[2], ItemVariant[2], ItemReference[2], CustomerNo);
+
+        // [GIVEN] Create Serice Header and Service Item Line with document type Invoice.
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CustomerNo);
+        Libraryservice.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
+
+        // [GIVEN] Create Two Service Lines.
+        LibraryService.CreateServiceLine(ServiceLine[1], ServiceHeader, ServiceLine[1].Type::Item, Item[1]."No.");
+        LibraryService.CreateServiceLine(ServiceLine[2], ServiceHeader, ServiceLine[2].Type::Item, Item[2]."No.");
+
+        // [WHEN] Both Item Variant and Item Reference have description values and their values are set in the Service Line.
+        ModifyServiceLine(ServiceLine[1], ItemVariant[1].Code, ItemReference[1]."Reference No.");
+
+        // [THEN] Ensure that the Service Line description is the same as the Item Reference description.
+        Assert.AreEqual(ServiceLine[1].Description, ItemReference[1].Description, DescriptionMustBeSameErr);
+
+        // [WHEN] Both Item Variant and Item Reference have description values, but only the Item Variant value is set in the Service Line.
+        ModifyServiceLine(ServiceLine[1], ItemVariant[1].Code, '');
+
+        // [THEN] Ensure that the Service Line description is the same as the Item Variant description.
+        Assert.AreEqual(ServiceLine[1].Description, ItemVariant[1].Description, DescriptionMustBeSameErr);
+
+        // [WHEN] Both Item Variant and Item Reference have description values, but both values are set blank in the Service Line.
+        ModifyServiceLine(ServiceLine[1], '', '');
+
+        // [THEN] Ensure that the Service Line description is the same as the Item description.
+        Assert.AreEqual(ServiceLine[1].Description, Item[1].Description, DescriptionMustBeSameErr);
+
+        // [WHEN] Item Variant has a description value, but Item Reference has a blank description. However, both values are set in the Service Line.
+        ModifyServiceLine(ServiceLine[2], ItemVariant[2].Code, ItemReference[2]."Reference No.");
+
+        // [THEN] Ensure that the Service Line description is the same as the Item Variant description.
+        Assert.AreEqual(ServiceLine[2].Description, ItemVariant[2].Description, DescriptionMustBeSameErr);
+
+        // [WHEN] Item Variant and Item Reference values are set blank in the Service Line.
+        ModifyServiceLine(ServiceLine[2], '', '');
+
+        // [THEN] Ensure that the Service Line description is the same as the Item description.
+        Assert.AreEqual(ServiceLine[2].Description, Item[2].Description, DescriptionMustBeSameErr);
+    end;
+
+    [Test]
+    procedure VerifyDescriptionInServiceLineWhenItemReferenceAndItemVariantAndItemTranslationUsed()
+    var
+        Customer: Record Customer;
+        Item: array[2] of Record Item;
+        ItemReference: array[2] of Record "Item Reference";
+        ItemTranslation: array[2] of Record "Item Translation";
+        ItemVariant: array[2] of Record "Item Variant";
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: array[2] of Record "Service Line";
+    begin
+        // [SCENARIO 608458] Verify that the Item description in the Service line is prioritized correctly when Item Reference,Item Variant and Item Translation are used. 
+        Initialize();
+
+        // [GIVEN] Create a new Customer and set Languague code.
+        CreateCustomerWithLanguage(Customer);
+
+        // [GIVEN] Create first Item with Item Variant and Item Reference.
+        CreateItemWithItemVariantAndItemReference(Item[1], ItemVariant[1], ItemReference[1], Customer."No.");
+
+        // [GIVEN] Set description value in first Item Reference.
+        if ItemReference[1].Description = '' then begin
+            ItemReference[1].Validate(Description, ItemReference[1]."Reference No.");
+            ItemReference[1].Modify(true);
+        end;
+
+        // [GIVEN] Create second Item with Item Variant and Item Reference.
+        CreateItemWithItemVariantAndItemReference(Item[2], ItemVariant[2], ItemReference[2], Customer."No.");
+
+        // [GIVEN] Create Multiple Item Translation.
+        CreateItemTranslation(ItemTranslation[1], Item[1]."No.", Customer."Language Code", ItemVariant[1].Code);
+        CreateItemTranslation(ItemTranslation[2], Item[2]."No.", Customer."Language Code", ItemVariant[2].Code);
+
+        // [GIVEN] Create Serice Header and Service Item Line with document type Invoice.
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+        Libraryservice.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
+
+        // [GIVEN] Create Two Service Lines.
+        LibraryService.CreateServiceLine(ServiceLine[1], ServiceHeader, ServiceLine[1].Type::Item, Item[1]."No.");
+        LibraryService.CreateServiceLine(ServiceLine[2], ServiceHeader, ServiceLine[2].Type::Item, Item[2]."No.");
+
+        //  [WHEN] Both Item Variant and Item Reference have description values and their values are set in the Service line.
+        ModifyServiceLine(ServiceLine[1], ItemVariant[1].Code, ItemReference[1]."Reference No.");
+
+        // [THEN] Ensure that the Service Line description is the same as the Item Reference description.
+        Assert.AreEqual(ServiceLine[1].Description, ItemReference[1].Description, DescriptionMustBeSameErr);
+
+        // [WHEN] Both Item Variant and Item Reference have description values, but only the Item Variant value is set in the Service line.
+        ModifyServiceLine(ServiceLine[1], ItemVariant[1].Code, '');
+
+        // [THEN] Ensure that the Service Line description is the same as the Item Translation description.
+        Assert.AreEqual(ServiceLine[1].Description, ItemTranslation[1].Description, DescriptionMustBeSameErr);
+
+        // [WHEN] Both Item Variant and Item Reference have description values, but both values are set blank in the Service line.
+        ModifyServiceLine(ServiceLine[1], '', '');
+
+        // [THEN] Ensure that the Service Line description is the same as the Item description.
+        Assert.AreEqual(ServiceLine[1].Description, Item[1].Description, DescriptionMustBeSameErr);
+
+        // [WHEN] Item Variant has a description value, but Item Reference has a blank description. However, both values are set in the Service line.
+        ModifyServiceLine(ServiceLine[2], ItemVariant[2].Code, ItemReference[2]."Reference No.");
+
+        // [THEN] Ensure that the Service Line description is the same as the Item Translation description.
+        Assert.AreEqual(ServiceLine[2].Description, ItemTranslation[2].Description, DescriptionMustBeSameErr);
+
+        // [WHEN] Item Variant and Item Reference values are set blank in the Service line.
+        ModifyServiceLine(ServiceLine[2], '', '');
+
+        // [THEN] Ensure that the Service Line description is the same as the Item description.
+        Assert.AreEqual(ServiceLine[2].Description, Item[2].Description, DescriptionMustBeSameErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Service Item Reference");
@@ -1559,6 +1703,41 @@ codeunit 134467 "Service Item Reference"
         LibraryVariableStorage.Enqueue(ItemReference."Reference Type");
         LibraryVariableStorage.Enqueue(ItemReference."Reference Type No.");
         LibraryVariableStorage.Enqueue(ItemReference."Item No.");
+    end;
+
+    local procedure CreateCustomerWithLanguage(var Customer: Record Customer)
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Language Code", LibraryERM.GetAnyLanguageDifferentFromCurrent());
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateItemWithItemVariantAndItemReference(var Item: Record Item; var ItemVariant: Record "Item Variant"; var ItemReference: Record "Item Reference"; CustomerNo: Code[20])
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Description, Item."No.");
+        Item.Modify(true);
+
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        LibraryItemReference.CreateItemReference(ItemReference, Item."No.", ItemVariant.Code, '', "Item Reference Type"::Customer, CustomerNo, LibraryUtility.GenerateRandomCode(ItemReference.FieldNo("Reference No."), Database::"Item Reference"));
+    end;
+
+    local procedure ModifyServiceLine(var ServiceLine: Record "Service Line"; VariantCode: Code[20]; ItemReferenceNo: Code[50])
+    begin
+        ServiceLine.Validate("Variant Code", VariantCode);
+        ServiceLine.Validate("Item Reference No.", ItemReferenceNo);
+        ServiceLine.Modify(true);
+    end;
+
+    local procedure CreateItemTranslation(var ItemTranslation: Record "Item Translation"; ItemNo: Code[20]; LanguageCode: Code[10]; VariantCode: Code[10])
+    begin
+        ItemTranslation.Init();
+        ItemTranslation.Validate("Item No.", ItemNo);
+        ItemTranslation.Validate("Language Code", LanguageCode);
+        ItemTranslation.Validate("Variant Code", VariantCode);
+        ItemTranslation.Validate(Description, LibraryUtility.GenerateGUID());
+        ItemTranslation.Validate("Description 2", LibraryUtility.GenerateGUID());
+        ItemTranslation.Insert(true);
     end;
 
     [ModalPageHandler]

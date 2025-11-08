@@ -130,6 +130,7 @@ codeunit 144050 "ERM Auto Payment"
         ContactNoSeriesErr: Label 'No. Series should be assigned from selected Series from Assist Edit.';
         AnalysisViewErr: Label 'Last Entry No. must be %1 in %2.', Comment = '%1= Field Value ,%2= Table Name.';
         DocumentOccurrenceErr: Label 'The %1 field value is not equal to the expected value %2 in the %3 table.';
+        CustomerLedgerEntryErr: Label '%1 must be %2 in %3.', Comment = '%1=Field Caption,%2=Field Value,%3=Table Caption';
 
     [Test]
     [HandlerFunctions('BankSheetPrintRequestPageHandler')]
@@ -1535,6 +1536,70 @@ codeunit 144050 "ERM Auto Payment"
 
         // [THEN] Verify Document Occurrence for Vendor Ledger Entry
         VerifyDocumentOccurrenceVendorLedgerEntry(VendorNo, VendorBillHeader."Vendor Bill List No.");
+    end;
+
+    [Test]
+    procedure TheBankReceiptAndAllowIssueUpdatedPaymentMethodCodeInCustomerLedgerEntries()
+    var
+        Bill: Record Bill;
+        Customer: Record Customer;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        Item: Record Item;
+        PaymentMethod: Record "Payment Method";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 597830] The 'Bank Receipt' and 'Allow Issue' are updated when changing the Payment Method Code from the Customer Ledger Entries.
+        Initialize();
+
+        // [GIVEN] Create Payment Method with Bill Code.
+        PaymentMethod.Get(FindPaymentMethodAndBill());
+
+        // [GIVEN] Update Bill with "Allow Issue" = true and "Bank Receipt" = true.
+        Bill.Get(PaymentMethod."Bill Code");
+        Bill.Validate("Allow Issue", true);
+        Bill.Validate("Bank Receipt", true);
+        Bill.Modify(true);
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create a Sales Header for the Customer.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [GIVEN] Creare Sales Line with Item.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(5));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Post Sales Document.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+
+        // [GIVEN] Customer Ledger Entry created for the Customer.
+        CustLedgerEntry.SetRange("Customer No.", Customer."No.");
+        CustLedgerEntry.FindFirst();
+
+        // [WHEN] Update Payment Method Code in Customer Ledger Entry.
+        CustLedgerEntry.Validate("Payment Method Code", PaymentMethod.Code);
+        CustLedgerEntry.Modify(true);
+        CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgerEntry);
+
+        // [THEN] The "Allow Issue" and "Bank Receipt" fields are true in the Customer Ledger Entry.
+        Assert.IsTrue(
+            CustLedgerEntry."Allow Issue",
+            StrSubstNo(
+                CustomerLedgerEntryErr,
+                CustLedgerEntry."Allow Issue",
+                true,
+                CustLedgerEntry.TableName()));
+        Assert.IsTrue(
+            CustLedgerEntry."Bank Receipt",
+            StrSubstNo(
+                CustomerLedgerEntryErr,
+                CustLedgerEntry."Bank Receipt",
+                true,
+                CustLedgerEntry.TableName()));
     end;
 
     local procedure Initialize()

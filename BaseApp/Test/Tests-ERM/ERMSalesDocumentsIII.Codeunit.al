@@ -5701,7 +5701,7 @@ codeunit 134387 "ERM Sales Documents III"
         SalesShipmentLine.InsertInvLineFromShptLine(SalesLine);
 
         // [THEN] Created Sales Line in Invoice has Date "X" in the comment
-        VerifyCommentLineDescriptionHasDate(SalesHeader."Document Type", SalesHeader."No.", SalesShipmentLine."Shipment Date")
+        VerifyCommentLineDescriptionHasNoDate(SalesHeader."Document Type", SalesHeader."No.", SalesShipmentLine."Document No.")
     end;
 
     [Test]
@@ -7465,7 +7465,7 @@ codeunit 134387 "ERM Sales Documents III"
         ItemLedgerEntry.TestField("Return Reason Code", ReturnReasonCode);
     end;
 
-    local procedure VerifyCommentLineDescriptionHasDate(DocType: Enum "Sales Document Type"; DocNo: Code[20]; ExpectedDate: Date)
+    local procedure VerifyCommentLineDescriptionHasNoDate(DocType: Enum "Sales Document Type"; DocNo: Code[20]; ShipmentNo: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -7474,7 +7474,7 @@ codeunit 134387 "ERM Sales Documents III"
         SalesLine.SetRange(Type, SalesLine.Type::" ");
         SalesLine.SetRange("No.", '');
         SalesLine.FindFirst();
-        Assert.IsSubstring(SalesLine.Description, Format(ExpectedDate));
+        Assert.IsSubstring(SalesLine.Description, ShipmentNo);
     end;
 
     local procedure VerifyGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)

@@ -10,9 +10,9 @@ codeunit 9136 "Check BOM Component"
 {
 
     [EventSubscriber(ObjectType::Table, Database::Item, 'OnAfterCheckDocuments', '', false, false)]
-    local procedure ItemOnBeforeCheckDocuments(Item: Record Item; CurrentFieldNo: Integer);
+    local procedure ItemOnBeforeCheckDocuments(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text);
     begin
-        CheckBOMComponents(Item, CurrentFieldNo, Item.FieldNo(Type), Item.FieldCaption(Type));
+        CheckBOMComponents(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
     end;
 
     internal procedure CheckBOMComponents(var Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
