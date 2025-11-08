@@ -118,7 +118,7 @@ codeunit 11000002 "CBG Journal Telebank Interface"
         end;
     end;
 
-    local procedure CalcPaymentHistoryLineAmount(PaymentHistoryLine: Record "Payment History Line") Amount: Decimal
+    procedure CalcPaymentHistoryLineAmount(PaymentHistoryLine: Record "Payment History Line") Amount: Decimal
     var
         DetailLine: Record "Detail Line";
         CustLedgerEntry: Record "Cust. Ledger Entry";

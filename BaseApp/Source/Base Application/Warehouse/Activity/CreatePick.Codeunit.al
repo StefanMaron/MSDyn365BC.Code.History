@@ -4779,7 +4779,7 @@ codeunit 7312 "Create Pick"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateTempLineOnAfterSetQtyAvailableBaseForDirectedPutAwayAndPick(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; UnitofMeasureCode: Code[10]; QtyAvailableBase: Decimal; var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary)
+    local procedure OnCreateTempLineOnAfterSetQtyAvailableBaseForDirectedPutAwayAndPick(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; UnitofMeasureCode: Code[10]; var QtyAvailableBase: Decimal; var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary)
     begin
     end;
 

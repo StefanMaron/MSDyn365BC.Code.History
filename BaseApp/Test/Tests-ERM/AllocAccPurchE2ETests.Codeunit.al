@@ -1175,6 +1175,78 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
         Assert.AreEqual(AmountIncludingVAT, PurchInvLine."Amount Including VAT", AmountMustBeEqualErr);
     end;
 
+    [Test]
+    procedure TestAllocationAccountWithPricesIncludingVAT()
+    var
+        FirstDestinationGLAccount: Record "G/L Account";
+        SecondDestinationGLAccount: Record "G/L Account";
+        AllocationAccount: Record "Allocation Account";
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: array[2] of Record "VAT Product Posting Group";
+        VATPostingSetup: array[2] of Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorNo: Code[20];
+        AllocationAmount: Decimal;
+        ExpectedVATExclusiveAmount1: Decimal;
+        ExpectedVATExclusiveAmount2: Decimal;
+        ExpectedVATAmount1: Decimal;
+        ExpectedVATAmount2: Decimal;
+    begin
+        // [SCENARIO 603705] Purchase Invoice with Allocation Account and Prices Incl. VAT leads to incorrect VAT and G/L Entries.
+        Initialize();
+
+        // [GIVEN] Create two destination G/L accounts with different VAT setups
+        // First account with 19% VAT
+        LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup[1]);
+        CreateVATPostingSetupWithSalesPurchAcc(VATPostingSetup[1], VATBusinessPostingGroup.Code, VATProductPostingGroup[1].Code, VATPostingSetup[1]."VAT Calculation Type"::"Normal VAT", 19);
+        FirstDestinationGLAccount.Get(
+            LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup[1], "General Posting Type"::Purchase));
+
+        // Second account with 0% VAT 
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup[2]);
+        CreateVATPostingSetupWithSalesPurchAcc(VATPostingSetup[2], VATBusinessPostingGroup.Code, VATProductPostingGroup[2].Code, VATPostingSetup[2]."VAT Calculation Type"::"Normal VAT", 0);
+        SecondDestinationGLAccount.Get(
+            LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup[2], "General Posting Type"::Purchase));
+
+        // [GIVEN] Create a fixed allocation account with 77% to first account (with VAT) and 23% to second account (no VAT)
+        CreateFixedAllocationAccountWithTwoDistributions(AllocationAccount,
+            FirstDestinationGLAccount."No.", 77, SecondDestinationGLAccount."No.", 23);
+
+        // [GIVEN] Create a vendor and purchase invoice with "Prices Including VAT" = true
+        VendorNo := LibraryPurchase.CreateVendorWithBusPostingGroups(
+            GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup[1]."VAT Bus. Posting Group");
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        PurchaseHeader.Validate("Prices Including VAT", true);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create a purchase line with allocation account for €52.45 (VAT-inclusive)
+        AllocationAmount := 52.45;
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Allocation Account",
+            AllocationAccount."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", AllocationAmount);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Generate allocation lines from the allocation account line
+        CreateLinesFromAllocationAccountLine(PurchaseLine);
+
+        // [THEN] Verify the generated purchase lines have correct VAT calculations
+        // Expected: 77% should have VAT base of €33.94 + €6.45 VAT = €40.39 VAT-inclusive
+        // Expected: 23% should have VAT base of €12.06 + €0.00 VAT = €12.06 VAT-inclusive
+        ExpectedVATExclusiveAmount1 := Round(AllocationAmount * 0.77 / 1.19, 0.01); // €33.94
+        ExpectedVATAmount1 := Round(ExpectedVATExclusiveAmount1 * 0.19, 0.01); // €6.45
+        ExpectedVATExclusiveAmount2 := Round(AllocationAmount * 0.23, 0.01); // €12.06 (no VAT)
+        ExpectedVATAmount2 := 0;
+
+        VerifyGeneratedAllocationLines(PurchaseHeader, FirstDestinationGLAccount."No.",
+            ExpectedVATExclusiveAmount1, ExpectedVATAmount1);
+        VerifyGeneratedAllocationLines(PurchaseHeader, SecondDestinationGLAccount."No.",
+            ExpectedVATExclusiveAmount2, ExpectedVATAmount2);
+    end;
+
     local procedure CreateAllocationAccountwithVariableGLDistributionsAndInheritFromParent(
         var AllocationAccount: Record "Allocation Account";
         FirstDimensionValue: Record "Dimension Value";
@@ -1657,6 +1729,74 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
         RedistributeAccAllocations.Next();
         RedistributeAccAllocations.Quantity.SetValue(1 - GetOverrideQuantity() * 2);
         RedistributeAccAllocations.Dimensions.Invoke();
+    end;
+
+    local procedure CreateVATPostingSetupWithSalesPurchAcc(var VATPostingSetup: Record "VAT Posting Setup"; VATBusinessPostingGroup: Code[20]; VATProductPostingGroup: Code[20]; VATCalculationType: Enum "Tax Calculation Type"; VATRate: Decimal)
+    begin
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup, VATProductPostingGroup);
+        VATPostingSetup.Validate("VAT Calculation Type", VATCalculationType);
+        VATPostingSetup.Validate("VAT %", VATRate);
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+    end;
+
+    local procedure CreateFixedAllocationAccountWithTwoDistributions(var AllocationAccount: Record "Allocation Account"; FirstAccountNo: Code[20]; FirstPercentage: Decimal; SecondAccountNo: Code[20]; SecondPercentage: Decimal)
+    var
+        AllocAccountDistribution: Record "Alloc. Account Distribution";
+    begin
+        // Create allocation account like the existing tests do
+        AllocationAccount."No." := Format(LibraryRandom.RandText(5));
+        AllocationAccount."Account Type" := AllocationAccount."Account Type"::Fixed;
+        AllocationAccount."Document Lines Split" := AllocationAccount."Document Lines Split"::"Split Amount";
+        AllocationAccount.Name := Any.AlphabeticText(MaxStrLen(AllocationAccount.Name));
+        AllocationAccount.Insert(true);
+
+        // Create first distribution line
+        AllocAccountDistribution."Allocation Account No." := AllocationAccount."No.";
+        AllocAccountDistribution."Line No." := 10000;
+        AllocAccountDistribution."Destination Account Type" := AllocAccountDistribution."Destination Account Type"::"G/L Account";
+        AllocAccountDistribution."Destination Account Number" := FirstAccountNo;
+        AllocAccountDistribution.Share := FirstPercentage;
+        AllocAccountDistribution.Insert(true);
+
+        // Create second distribution line
+        Clear(AllocAccountDistribution);
+        AllocAccountDistribution."Allocation Account No." := AllocationAccount."No.";
+        AllocAccountDistribution."Line No." := 20000;
+        AllocAccountDistribution."Destination Account Type" := AllocAccountDistribution."Destination Account Type"::"G/L Account";
+        AllocAccountDistribution."Destination Account Number" := SecondAccountNo;
+        AllocAccountDistribution.Share := SecondPercentage;
+        AllocAccountDistribution.Insert(true);
+    end;
+
+    local procedure CreateLinesFromAllocationAccountLine(var AllocationAccountPurchaseLine: Record "Purchase Line")
+    var
+        PurchaseAllocAccMgt: Codeunit "Purchase Alloc. Acc. Mgt.";
+    begin
+        PurchaseAllocAccMgt.CreateLinesFromAllocationAccountLine(AllocationAccountPurchaseLine);
+    end;
+
+    local procedure VerifyGeneratedAllocationLines(var PurchaseHeader: Record "Purchase Header"; AccountNo: Code[20]; ExpectedAmount: Decimal; ExpectedVATAmount: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+        ExpectedAmountIncludingVAT: Decimal;
+    begin
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange("No.", AccountNo);
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::"G/L Account");
+        Assert.RecordIsNotEmpty(PurchaseLine);
+        PurchaseLine.FindFirst();
+
+        ExpectedAmountIncludingVAT := ExpectedAmount + ExpectedVATAmount;
+
+        // Verify VAT-exclusive amount (Line Amount)
+        Assert.AreNearlyEqual(ExpectedAmountIncludingVAT, PurchaseLine."Line Amount", 0.01,
+            StrSubstNo('Line Amount should be %1 but was %2 for account %3', ExpectedAmount, PurchaseLine."Line Amount", AccountNo));
+
+        // Verify VAT-inclusive amount
+        Assert.AreNearlyEqual(ExpectedAmountIncludingVAT, PurchaseLine."Amount Including VAT", 0.01,
+            StrSubstNo('Amount Including VAT should be %1 but was %2 for account %3', ExpectedAmountIncludingVAT, PurchaseLine."Amount Including VAT", AccountNo));
     end;
 }
 #pragma warning restore AA0210

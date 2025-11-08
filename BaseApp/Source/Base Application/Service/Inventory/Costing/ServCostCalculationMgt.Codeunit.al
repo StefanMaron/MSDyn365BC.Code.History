@@ -17,7 +17,13 @@ codeunit 6476 "Serv. Cost Calculation Mgt."
     procedure CalcServCrMemoLineCostLCY(ServCrMemoLine: Record "Service Cr.Memo Line") AdjCostLCY: Decimal
     var
         ValueEntry: Record "Value Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcServCrMemoLineCostLCY(ServCrMemoLine, AdjCostLCY, IsHandled);
+        if IsHandled then
+            exit(AdjCostLCY);
+
         if ServCrMemoLine.Quantity = 0 then
             exit(0);
 
@@ -131,7 +137,13 @@ codeunit 6476 "Serv. Cost Calculation Mgt."
     procedure CalcServInvLineCostLCY(ServInvLine: Record "Service Invoice Line") AdjCostLCY: Decimal
     var
         ValueEntry: Record "Value Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcServInvLineCostLCY(ServInvLine, AdjCostLCY, IsHandled);
+        if IsHandled then
+            exit(AdjCostLCY);
+
         if ServInvLine.Quantity = 0 then
             exit(0);
 
@@ -142,4 +154,13 @@ codeunit 6476 "Serv. Cost Calculation Mgt."
             AdjCostLCY := ServInvLine.Quantity * ServInvLine."Unit Cost (LCY)";
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcServCrMemoLineCostLCY(ServiceCrMemoLine: Record "Service Cr.Memo Line"; var AdjCostLCY: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcServInvLineCostLCY(ServiceInvoiceLine: Record "Service Invoice Line"; var AdjCostLCY: Decimal; var IsHandled: Boolean)
+    begin
+    end;
 }

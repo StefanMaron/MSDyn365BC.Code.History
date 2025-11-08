@@ -12,6 +12,8 @@ page 658 "Approval Entries"
     Caption = 'Approval Entries';
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Approval Entries';
+    AboutText = 'Track, review, and manage all documents pending approval, monitor approval status and workflow details, and add comments or take action on purchase and sales approval requests.';
     SourceTable = "Approval Entry";
     SourceTableView = sorting("Table ID", "Document Type", "Document No.", "Date-Time Sent for Approval")
                       order(ascending);

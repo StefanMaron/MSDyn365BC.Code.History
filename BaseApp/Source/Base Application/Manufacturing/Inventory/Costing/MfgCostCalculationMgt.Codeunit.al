@@ -305,9 +305,12 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
         ExpSubDirCost := ExpSubDirCost + Round(ExpSubDirCostRtng * ShareOfTotalCapCost);
         ExpCapOvhdCost := ExpCapOvhdCost + Round(ExpCapOvhdCostRtng * ShareOfTotalCapCost);
         ExpMfgDirCost := ExpMatCost + ExpCapDirCost + ExpSubDirCost + ExpCapOvhdCost;
-        ExpOvhdCost := ExpMfgOvhdCost + ProdOrderLine."Overhead Rate" * ProdOrderLine."Quantity (Base)";
-        ExpMfgOvhdCost := ExpOvhdCost +
-          Round(CostCalculationMgt.CalcOvhdCost(ExpMfgDirCost, ProdOrderLine."Indirect Cost %", 0, 0));
+        ExpOvhdCost := ExpMfgOvhdCost;
+        if ExpMfgDirCost = 0 then
+            ExpMfgOvhdCost := ExpOvhdCost +
+              Round(CostCalculationMgt.CalcOvhdCost(ExpMfgDirCost, ProdOrderLine."Indirect Cost %", ProdOrderLine."Overhead Rate", ProdOrderLine."Quantity (Base)"))
+        else
+            ExpMfgOvhdCost := Round(CostCalculationMgt.CalcOvhdCost(ExpMfgDirCost, ProdOrderLine."Indirect Cost %", ProdOrderLine."Overhead Rate", ProdOrderLine."Quantity (Base)"));
 
         OnAfterCalcProdOrderLineExpCost(ProdOrderLine, ShareOfTotalCapCost, ExpMatCost, ExpCapDirCost, ExpSubDirCost, ExpCapOvhdCost, ExpMfgOvhdCost);
 #if not CLEAN26
@@ -807,6 +810,8 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
             UnitCostCalculation::Units:
                 CostTime := CalcQtyAdjdForRoutingScrap(MfgItemQtyBase, ScrapFactorPctAccum, FixedScrapQtyAccum);
         end;
+
+        OnAfterCalculateCostTime(MfgItemQtyBase, ScrapFactorPctAccum, FixedScrapQtyAccum, UnitCostCalculation, CostTime);
     end;
 
     procedure FindRoutingLine(var RoutingLine: Record "Routing Line"; ProdBOMLine: Record "Production BOM Line"; CalculationDate: Date; RoutingNo: Code[20]) RecFound: Boolean
@@ -1002,6 +1007,11 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcQtyAdjdForRoutingScrap(Qty: Decimal; ScrapFactorPctAccum: Decimal; FixedScrapQtyAccum: Decimal; var QtyAdjdForRoutingScrap: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateCostTime(MfgItemQtyBase: Decimal; ScrapFactorPctAccum: Decimal; FixedScrapQtyAccum: Decimal; UnitCostCalculationType: Enum "Unit Cost Calculation Type"; var CostTime: Decimal)
     begin
     end;
 }

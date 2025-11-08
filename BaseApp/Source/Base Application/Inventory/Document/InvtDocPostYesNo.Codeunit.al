@@ -5,6 +5,7 @@
 namespace Microsoft.Inventory.Document;
 
 using Microsoft.Finance.GeneralLedger.Preview;
+using Microsoft.Foundation.NoSeries;
 
 codeunit 5853 "Invt. Doc.-Post (Yes/No)"
 {
@@ -12,7 +13,10 @@ codeunit 5853 "Invt. Doc.-Post (Yes/No)"
     EventSubscriberInstance = Manual;
 
     trigger OnRun()
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
+        SequenceNoMgt.SetPreviewMode(PreviewMode);
         InvtDocHeader.Copy(Rec);
         Code();
         Rec := InvtDocHeader;

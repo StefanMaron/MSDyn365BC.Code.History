@@ -514,6 +514,7 @@ table 11000003 "Detail Line"
 
                     Prop.Get("Our Bank", "Connect Lines");
                     Prop.Validate(Amount, "Detail line".Amount + Amount);
+                    Prop.Validate("Foreign Amount", GetAmountInDocumentCurrency(Prop));
                     if "Detail line".FindFirst() then begin
                         if (Date < "Detail line".Date) and (Date <> 0D) then
                             Prop."Transaction Date" := Date
@@ -641,6 +642,25 @@ table 11000003 "Detail Line"
     procedure IsDifferentSign(FirstAmount: Decimal; SecondAmount: Decimal): Boolean
     begin
         exit(((FirstAmount < 0) and (SecondAmount > 0)) or ((FirstAmount > 0) and (SecondAmount < 0)));
+    end;
+
+    local procedure GetCurrencyAmountRoundingPrecision(FCYCode: Code[10]): Decimal
+    var
+        Currency: Record Currency;
+    begin
+        Currency.Initialize(FCYCode);
+        exit(Currency."Amount Rounding Precision");
+    end;
+
+    local procedure GetAmountInDocumentCurrency(ProposalLine: Record "Proposal Line"): Decimal
+    begin
+        if ProposalLine."Foreign Currency" = ProposalLine."Currency Code" then
+            exit(ProposalLine.Amount);
+
+        exit(Round(
+            CurrencyExchangeRate.ExchangeAmtFCYToFCY(
+                ProposalLine."Transaction Date", ProposalLine."Currency Code", ProposalLine."Foreign Currency", ProposalLine.Amount),
+                GetCurrencyAmountRoundingPrecision(ProposalLine."Foreign Currency")))
     end;
 
     [IntegrationEvent(false, false)]

@@ -912,6 +912,7 @@ codeunit 144005 "ERM Tax Authority"
     local procedure UpdateLCYCodeGLSetup(var GeneralLedgerSetup: Record "General Ledger Setup")
     begin
         GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."LCY Code" := '';        // to avoid error on updating LCY Code
         GeneralLedgerSetup.Validate("LCY Code", LibraryUtility.GenerateGUID());
         GeneralLedgerSetup.Modify(true);
     end;

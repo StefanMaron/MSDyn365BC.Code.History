@@ -18,6 +18,8 @@ page 7339 "Warehouse Shipment List"
     DataCaptionFields = "No.";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Warehouse Shipments';
+    AboutText = 'Create, organize, and post outbound warehouse shipments by selecting source documents, assigning locations and users, managing picking activities, and tracking shipment status and delivery details.';
     SourceTable = "Warehouse Shipment Header";
     UsageCategory = Lists;
 
@@ -105,6 +107,12 @@ page 7339 "Warehouse Shipment List"
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
+                    Visible = false;
+                }
+                field("Completely Picked"; Rec."Completely Picked")
+                {
+                    ApplicationArea = Warehouse;
+                    ToolTip = 'Specifies whether all items on the warehouse shipment have been completely picked.';
                     Visible = false;
                 }
             }

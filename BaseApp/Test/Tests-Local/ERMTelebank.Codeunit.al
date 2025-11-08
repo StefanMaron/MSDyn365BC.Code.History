@@ -117,6 +117,7 @@ codeunit 144037 "ERM Telebank"
         WrongValueReturnedErr: Label 'Function returned wrong value';
         ExceedsMaximumLimitErr: Label '%1 exceeds the maximum limit, %2 must be entered. The default value is ''goods''.';
         WrongShortcutDimensionErr: Label 'Wrong Shortcut Dimension Code in Proposal Line.';
+        ForeignAmountRecalculatedCorrectlyErr: Label 'Foreign Amount should be recalculated correctly.';
         IsInitialized: Boolean;
 
     [Test]
@@ -1337,6 +1338,100 @@ codeunit 144037 "ERM Telebank"
         Assert.AreEqual(IdentificationNo, ProposalLine.Identification, 'Identification code was not set manually');
     end;
 
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandlerSetValueDate,MessageHandler')]
+    procedure ForeignAmountRecalculatedCorrectlyAfterDetailLineDeletion()
+    var
+        Currency: Record Currency;
+        ProposalLine: Record "Proposal Line";
+        PurchaseHeader: Record "Purchase Header";
+        Vendor: Record Vendor;
+        i: Integer;
+        AmountInDocumentCurrency: Decimal;
+    begin
+        // [SCENARIO 603120] When a Detail Line is deleted from Telebank Proposal, the Foreign Amount on the Proposal Line is recalculated correctly based on the Exchange Rate.
+        Initialize();
+
+        // [GIVEN] Create New Currency with Exchange Rate.
+        Currency.Get(
+            LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandDecInRange(2, 100, 2), LibraryRandom.RandInt(3)));
+
+        // [GIVEN] Create Vendor and Vendor Bank Account with the created Currency.
+        CreateVendorAndVendorBankAccount(Vendor, Currency.Code);
+
+        // [GIVEN] Create and Post two Purchase Invoices.
+        for i := 1 to 2 do begin
+            CreatePurchaseInvoiceWithAmountAndCurrency(
+                PurchaseHeader, Vendor."No.", LibraryRandom.RandDecInRange(1000, 2000, 2),
+                LibraryRandom.RandInt(10), LibraryRandom.RandInt(20), Vendor."Currency Code");
+            LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        end;
+
+        // [GIVEN] Run Report Get Proposal Entries.
+        RunReportGetProposalEntries(Vendor."No.");
+
+        // [WHEN] Delete one Detail Line for the Vendor.
+        DeleteDetailLine(Vendor."No.");
+
+        // [GIVEN] Find Proposal Line for the Vendor.
+        FindProposalLine(ProposalLine, Vendor."No.");
+
+        // [THEN] Verify Foreign Amount on Proposal Line is recalculated correctly based on the Exchange Rate.
+        AmountInDocumentCurrency := CalculateForeignAmount(ProposalLine, Currency);
+        Assert.AreEqual(ProposalLine."Foreign Amount", AmountInDocumentCurrency, ForeignAmountRecalculatedCorrectlyErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandlerSetValueDate,MessageHandler')]
+    procedure VerifyForeignAmountWhenForeignCurrencyChangedInProposalLine()
+    var
+        Currency: Record Currency;
+        ProposalLine: Record "Proposal Line";
+        PurchaseHeader: Record "Purchase Header";
+        Vendor: Record Vendor;
+        i: Integer;
+        AmountInDocumentCurrency: Decimal;
+    begin
+        // [SCENARIO 603120] When Foreign Currency is changed in Proposal Line, the Foreign Amount on the Proposal Line is recalculated correctly.
+        Initialize();
+
+        // [GIVEN] Create New Currency with Exchange Rate.
+        Currency.Get(
+            LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandDecInRange(2, 100, 2), LibraryRandom.RandInt(3)));
+
+        // [GIVEN] Create Vendor and Vendor Bank Account with the created Currency.
+        CreateVendorAndVendorBankAccount(Vendor, Currency.Code);
+
+        // [GIVEN] Create and Post two Purchase Invoices.
+        for i := 1 to 2 do begin
+            CreatePurchaseInvoiceWithAmountAndCurrency(
+                PurchaseHeader, Vendor."No.", LibraryRandom.RandDecInRange(1000, 2000, 2),
+                LibraryRandom.RandInt(10), LibraryRandom.RandInt(20), Vendor."Currency Code");
+            LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        end;
+
+        // [GIVEN] Run Report Get Proposal Entries.
+        RunReportGetProposalEntries(Vendor."No.");
+
+        // [GIVEN] Find Proposal Line for the Vendor.
+        FindProposalLine(ProposalLine, Vendor."No.");
+
+        // [WHEN] Set the Foreign Currency field in the proposal line to blank.
+        ProposalLine.Validate("Foreign Currency", '');
+        ProposalLine.Modify(true);
+
+        // [THEN] Verify Foreign Amount on Proposal Line shows 0.
+        Assert.AreEqual(ProposalLine."Amount (LCY)", ProposalLine."Foreign Amount", ForeignAmountRecalculatedCorrectlyErr);
+
+        // [WHEN] Change the Foreign Currency in the Proposal Line back to the Vendor Currency.
+        ProposalLine.Validate("Foreign Currency", Vendor."Currency Code");
+        ProposalLine.Modify(true);
+
+        // [THEN] Verify Foreign Amount on Proposal Line is recalculated correctly.
+        AmountInDocumentCurrency := CalculateForeignAmount(ProposalLine, Currency);
+        Assert.AreEqual(ProposalLine."Foreign Amount", AmountInDocumentCurrency, ForeignAmountRecalculatedCorrectlyErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Telebank");
@@ -2418,6 +2513,51 @@ codeunit 144037 "ERM Telebank"
         DefaultDimension.SetRange("Dimension Code", GLSetup."Shortcut Dimension 2 Code");
         DefaultDimension.FindFirst();
         Assert.AreEqual(DefaultDimension."Dimension Value Code", ProposalLine."Shortcut Dimension 2 Code", WrongShortcutDimensionErr);
+    end;
+
+    local procedure CreateVendorAndVendorBankAccount(var Vendor: Record Vendor; CurrencyCode: Code[10])
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+        VendorNo: Code[20];
+    begin
+        VendorNo := CreateVendorWithBankAccount('');
+        Vendor.Get(VendorNo);
+        Vendor.Validate("Currency Code", CurrencyCode);
+        Vendor.Modify(true);
+
+        VendorBankAccount.SetRange("Vendor No.", VendorNo);
+        VendorBankAccount.FindFirst();
+        VendorBankAccount.Validate("Currency Code", Vendor."Currency Code");
+        VendorBankAccount.Modify(true);
+    end;
+
+    local procedure DeleteDetailLine(VendorNo: Code[20])
+    var
+        DetailLine: Record "Detail Line";
+    begin
+        DetailLine.SetRange("Account Type", DetailLine."Account Type"::Vendor);
+        DetailLine.SetRange("Status", DetailLine.Status::Proposal);
+        DetailLine.SetRange("Account No.", VendorNo);
+        DetailLine.FindFirst();
+        DetailLine.Delete(true);
+        Commit();
+    end;
+
+    local procedure FindProposalLine(var ProposalLine: Record "Proposal Line"; VendorNo: Code[20])
+    begin
+        ProposalLine.SetRange("Account Type", ProposalLine."Account Type"::Vendor);
+        ProposalLine.SetRange("Account No.", VendorNo);
+        ProposalLine.FindFirst();
+    end;
+
+    local procedure CalculateForeignAmount(ProposalLine: Record "Proposal Line"; Currency: Record Currency): Decimal
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        exit(Round(
+            CurrencyExchangeRate.ExchangeAmtFCYToFCY(
+                ProposalLine."Transaction Date", ProposalLine."Currency Code",
+                ProposalLine."Foreign Currency", ProposalLine.Amount), Currency."Amount Rounding Precision"));
     end;
 
     [RequestPageHandler]

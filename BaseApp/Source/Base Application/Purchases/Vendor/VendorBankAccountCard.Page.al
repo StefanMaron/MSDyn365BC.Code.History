@@ -88,16 +88,19 @@ page 425 "Vendor Bank Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bank branch.';
+                    MaskType = Concealed;
                 }
                 field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
+                    MaskType = Concealed;
                 }
                 field("Transit No."; Rec."Transit No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
+                    MaskType = Concealed;
                 }
             }
             group(Communication)
@@ -128,11 +131,13 @@ page 425 "Vendor Bank Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the SWIFT code (international bank identifier code) of the bank where the vendor has the account.';
+                    MaskType = Concealed;
                 }
                 field(IBAN; Rec.IBAN)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
+                    MaskType = Concealed;
                 }
             }
             group("Account Holder")

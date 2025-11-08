@@ -319,6 +319,7 @@ page 5200 "Employee Card"
                     ApplicationArea = BasicHR;
                     Importance = Promoted;
                     ToolTip = 'Specifies the social security number of the employee.';
+                    MaskType = Concealed;
                 }
                 field("Union Code"; Rec."Union Code")
                 {
@@ -365,11 +366,13 @@ page 5200 "Employee Card"
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies a number of the bank branch.';
+                    MaskType = Concealed;
                 }
                 field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
+                    MaskType = Concealed;
                 }
                 field("Bank Name"; Rec."Bank Name")
                 {
@@ -383,11 +386,13 @@ page 5200 "Employee Card"
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
+                    MaskType = Concealed;
                 }
                 field("SWIFT Code"; Rec."SWIFT Code")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the SWIFT code (international bank identifier code) of the bank where the employee has the account.';
+                    MaskType = Concealed;
                 }
             }
             group("Payroll")

@@ -14,6 +14,8 @@ page 6509 "Serial No. Information List"
     ApplicationArea = ItemTracking;
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Serial No. Information List';
+    AboutText = 'View and manage detailed information for item serial numbers, including descriptions, comments, blocked status, and inventory quantities to support tracking, quality assurance, and compliance needs.';
     SourceTable = "Serial No. Information";
     UsageCategory = Lists;
 

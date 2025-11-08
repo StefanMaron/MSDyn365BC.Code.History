@@ -27,6 +27,8 @@ page 25 "Customer Ledger Entries"
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = List;
+    AboutTitle = 'About Customer Ledger Entries';
+    AboutText = 'View and manage all financial transactions posted to customer accounts, including invoices, payments, credit memos, and refunds, and apply payments or credits to close outstanding entries and keep customer balances up-to-date.';
     Permissions = TableData "Cust. Ledger Entry" = m;
     SourceTable = "Cust. Ledger Entry";
     SourceTableView = sorting("Customer No.", "Posting Date") order(descending);

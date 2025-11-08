@@ -323,6 +323,7 @@ page 1190 "Create Payment"
                 GenJnlLine.Validate("Journal Batch Name", JournalBatchName);
                 LastLineNo += 10000;
                 GenJnlLine."Line No." := LastLineNo;
+                OnCopyTempPaymentBufferToGenJournalLinesOnBeforeAssignDocumentType(GenJnlLine, TempVendorPaymentBuffer);
                 if TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type" = TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Invoice then
                     GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment
                 else
@@ -532,6 +533,11 @@ page 1190 "Create Payment"
 
     [IntegrationEvent(false, false)]
     local procedure OnMakeGenJnlLinesOnAfterSetFilterTempVendorPymBuffer(var TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary; VendorLedgerEntry: Record "Vendor Ledger Entry"; Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyTempPaymentBufferToGenJournalLinesOnBeforeAssignDocumentType(var GenJournalLine: Record "Gen. Journal Line"; TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary)
     begin
     end;
 }
