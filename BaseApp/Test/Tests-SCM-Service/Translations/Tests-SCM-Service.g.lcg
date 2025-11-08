@@ -158,6 +158,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Batch Jobs - NamedType ToDateError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1511989657 - NamedType 222016273" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Service Contract is expected to remain open after selecting "No" in the confirmation dialog]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Contract - NamedType ChangeStatusErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1511989657 - NamedType 2580110498" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Invioce created for unbalanced Service Contract.]]></Val>

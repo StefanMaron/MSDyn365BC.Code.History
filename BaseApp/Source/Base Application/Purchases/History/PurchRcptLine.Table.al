@@ -860,8 +860,9 @@ table 121 "Purch. Rcpt. Line"
                     PurchLine.Validate("Deferral Code");
                 if not IsHandled then
                     PurchLine.Validate(Quantity, Quantity - "Quantity Invoiced");
+                PurchLine.Validate(Description, Description);
+                PurchLine.Validate("Description 2", "Description 2");
                 CalcBaseQuantities(PurchLine, "Quantity (Base)" / Quantity);
-
                 OnInsertInvLineFromRcptLineOnAfterCalcQuantities(PurchLine, PurchOrderLine);
 
                 IsHandled := false;

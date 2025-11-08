@@ -445,6 +445,7 @@ codeunit 99000773 "Calculate Prod. Order"
                 end;
             Clear(CalculateRoutingLine);
             CalculateRoutingLine.CalculateRoutingLine(ProdOrderRoutingLine, Direction, CalcStartEndDate);
+            OnCalculateRoutingFromActualOnAfterCalculateRoutingLine(ProdOrderRoutingLine);
             CalcStartEndDate := true;
         until ProdOrderRoutingLine.Next() = 0;
     end;
@@ -1273,6 +1274,11 @@ codeunit 99000773 "Calculate Prod. Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindProdOrderRoutingLine(var ProdOrderLine: Record "Prod. Order Line"; var ProductionBOMLine: Record "Production BOM Line"; var IsHandled: Boolean; var ReqQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateRoutingFromActualOnAfterCalculateRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
     begin
     end;
 }
