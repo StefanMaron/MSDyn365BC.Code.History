@@ -472,130 +472,88 @@ report 33 "Reconcile Cust. and Vend. Accs"
 
     local procedure CalcCustAccAmount(PostingGr: Code[20]): Decimal
     var
-        Cust: Record Customer;
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         CustAccAmount: Decimal;
     begin
-        Cust.SetCurrentKey("Customer Posting Group");
-        Cust.SetRange("Customer Posting Group", PostingGr);
-
-        if Cust.Find('-') then
-            repeat
-                DtldCustLedgEntry.SetCurrentKey("Customer No.", "Posting Date");
-                DtldCustLedgEntry.SetRange("Customer No.", Cust."No.");
-                "G/L Account".CopyFilter("Date Filter", DtldCustLedgEntry."Posting Date");
-                DtldCustLedgEntry.CalcSums("Amount (LCY)");
-                CustAccAmount := CustAccAmount + DtldCustLedgEntry."Amount (LCY)";
-            until Cust.Next() = 0;
+        DtldCustLedgEntry.SetCurrentKey("Posting Group", "Posting Date");
+        DtldCustLedgEntry.SetRange("Posting Group", PostingGr);
+        "G/L Account".CopyFilter("Date Filter", DtldCustLedgEntry."Posting Date");
+        DtldCustLedgEntry.CalcSums("Amount (LCY)");
+        CustAccAmount := CustAccAmount + DtldCustLedgEntry."Amount (LCY)";
 
         exit(CustAccAmount);
     end;
 
     local procedure CalcCustCreditAmount(PostingGr: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"): Decimal
     var
-        Cust: Record Customer;
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         CustCreditAmount: Decimal;
     begin
-        Cust.SetCurrentKey("Customer Posting Group");
-        Cust.SetRange("Customer Posting Group", PostingGr);
-
-        if Cust.Find('-') then
-            repeat
-                DtldCustLedgEntry.SetCurrentKey("Customer No.", "Posting Date", "Entry Type");
-                DtldCustLedgEntry.SetRange("Customer No.", Cust."No.");
-                DtldCustLedgEntry.SetRange("Entry Type", EntryType);
-                "G/L Account".CopyFilter("Date Filter", DtldCustLedgEntry."Posting Date");
-                DtldCustLedgEntry.CalcSums("Credit Amount (LCY)");
-                CustCreditAmount := CustCreditAmount + DtldCustLedgEntry."Credit Amount (LCY)";
-            until Cust.Next() = 0;
+        DtldCustLedgEntry.SetCurrentKey("Posting Group", "Posting Date", "Entry Type");
+        DtldCustLedgEntry.SetRange("Posting Group", PostingGr);
+        DtldCustLedgEntry.SetRange("Entry Type", EntryType);
+        "G/L Account".CopyFilter("Date Filter", DtldCustLedgEntry."Posting Date");
+        DtldCustLedgEntry.CalcSums("Credit Amount (LCY)");
+        CustCreditAmount := CustCreditAmount + DtldCustLedgEntry."Credit Amount (LCY)";
 
         exit(CustCreditAmount);
     end;
 
     local procedure CalcCustDebitAmount(PostingGr: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"): Decimal
     var
-        Cust: Record Customer;
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         CustDebitAmount: Decimal;
     begin
-        Cust.SetCurrentKey("Customer Posting Group");
-        Cust.SetRange("Customer Posting Group", PostingGr);
-
-        if Cust.Find('-') then
-            repeat
-                DtldCustLedgEntry.SetCurrentKey("Customer No.", "Posting Date", "Entry Type");
-                DtldCustLedgEntry.SetRange("Customer No.", Cust."No.");
-                DtldCustLedgEntry.SetRange("Entry Type", EntryType);
-                "G/L Account".CopyFilter("Date Filter", DtldCustLedgEntry."Posting Date");
-                DtldCustLedgEntry.CalcSums("Debit Amount (LCY)");
-                CustDebitAmount := CustDebitAmount + DtldCustLedgEntry."Debit Amount (LCY)";
-            until Cust.Next() = 0;
+        DtldCustLedgEntry.SetCurrentKey("Posting Group", "Posting Date", "Entry Type");
+        DtldCustLedgEntry.SetRange("Posting Group", PostingGr);
+        DtldCustLedgEntry.SetRange("Entry Type", EntryType);
+        "G/L Account".CopyFilter("Date Filter", DtldCustLedgEntry."Posting Date");
+        DtldCustLedgEntry.CalcSums("Debit Amount (LCY)");
+        CustDebitAmount := CustDebitAmount + DtldCustLedgEntry."Debit Amount (LCY)";
 
         exit(-CustDebitAmount);
     end;
 
     local procedure CalcVendAccAmount(PostingGr: Code[20]): Decimal
     var
-        Vend: Record Vendor;
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
         VendAccAmount: Decimal;
     begin
-        Vend.SetCurrentKey("Vendor Posting Group");
-        Vend.SetRange("Vendor Posting Group", PostingGr);
-
-        if Vend.Find('-') then
-            repeat
-                DtldVendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date");
-                DtldVendLedgEntry.SetRange("Vendor No.", Vend."No.");
-                "G/L Account".CopyFilter("Date Filter", DtldVendLedgEntry."Posting Date");
-                DtldVendLedgEntry.CalcSums("Amount (LCY)");
-                VendAccAmount := VendAccAmount + DtldVendLedgEntry."Amount (LCY)";
-            until Vend.Next() = 0;
+        DtldVendLedgEntry.SetCurrentKey("Posting Group", "Posting Date");
+        DtldVendLedgEntry.SetRange("Posting Group", PostingGr);
+        "G/L Account".CopyFilter("Date Filter", DtldVendLedgEntry."Posting Date");
+        DtldVendLedgEntry.CalcSums("Amount (LCY)");
+        VendAccAmount := VendAccAmount + DtldVendLedgEntry."Amount (LCY)";
 
         exit(VendAccAmount);
     end;
 
     local procedure CalcVendCreditAmount(PostingGr: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"): Decimal
     var
-        Vend: Record Vendor;
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
         VendCreditAmount: Decimal;
     begin
-        Vend.SetCurrentKey("Vendor Posting Group");
-        Vend.SetRange("Vendor Posting Group", PostingGr);
-
-        if Vend.Find('-') then
-            repeat
-                DtldVendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date", "Entry Type");
-                DtldVendLedgEntry.SetRange("Vendor No.", Vend."No.");
-                DtldVendLedgEntry.SetRange("Entry Type", EntryType);
-                "G/L Account".CopyFilter("Date Filter", DtldVendLedgEntry."Posting Date");
-                DtldVendLedgEntry.CalcSums("Credit Amount (LCY)");
-                VendCreditAmount := VendCreditAmount + DtldVendLedgEntry."Credit Amount (LCY)";
-            until Vend.Next() = 0;
+        DtldVendLedgEntry.SetCurrentKey("Posting Group", "Posting Date", "Entry Type");
+        DtldVendLedgEntry.SetRange("Posting Group", PostingGr);
+        DtldVendLedgEntry.SetRange("Entry Type", EntryType);
+        "G/L Account".CopyFilter("Date Filter", DtldVendLedgEntry."Posting Date");
+        DtldVendLedgEntry.CalcSums("Credit Amount (LCY)");
+        VendCreditAmount := VendCreditAmount + DtldVendLedgEntry."Credit Amount (LCY)";
 
         exit(VendCreditAmount);
     end;
 
     local procedure CalcVendDebitAmount(PostingGr: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"): Decimal
     var
-        Vend: Record Vendor;
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
         VendDebitAmount: Decimal;
     begin
-        Vend.SetCurrentKey("Vendor Posting Group");
-        Vend.SetRange("Vendor Posting Group", PostingGr);
-
-        if Vend.Find('-') then
-            repeat
-                DtldVendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date", "Entry Type");
-                DtldVendLedgEntry.SetRange("Vendor No.", Vend."No.");
-                DtldVendLedgEntry.SetRange("Entry Type", EntryType);
-                "G/L Account".CopyFilter("Date Filter", DtldVendLedgEntry."Posting Date");
-                DtldVendLedgEntry.CalcSums("Debit Amount (LCY)");
-                VendDebitAmount := VendDebitAmount + DtldVendLedgEntry."Debit Amount (LCY)";
-            until Vend.Next() = 0;
+        DtldVendLedgEntry.SetCurrentKey("Posting Group", "Posting Date", "Entry Type");
+        DtldVendLedgEntry.SetRange("Posting Group", PostingGr);
+        DtldVendLedgEntry.SetRange("Entry Type", EntryType);
+        "G/L Account".CopyFilter("Date Filter", DtldVendLedgEntry."Posting Date");
+        DtldVendLedgEntry.CalcSums("Debit Amount (LCY)");
+        VendDebitAmount := VendDebitAmount + DtldVendLedgEntry."Debit Amount (LCY)";
 
         exit(-VendDebitAmount);
     end;

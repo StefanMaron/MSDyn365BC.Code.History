@@ -28,6 +28,8 @@ page 99000852 "Planning Worksheet"
     DelayedInsert = true;
     MultipleNewLines = true;
     PageType = Worksheet;
+    AboutTitle = 'About Planning Worksheets';
+    AboutText = 'Plan and manage supply orders for purchasing, assembly, or production by reviewing, adjusting, and prioritizing demand, then generating purchase, production, assembly, or transfer orders directly from proposed planning lines.';
     SaveValues = true;
     SourceTable = "Requisition Line";
     SourceTableView = where(Type = const(Item));

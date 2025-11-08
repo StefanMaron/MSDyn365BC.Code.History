@@ -16,11 +16,11 @@ codeunit 9132 "Check Prod. Order Document"
         CannotDeleteItemIfCertifiedProdBOMLineExistsErr: Label 'You cannot delete %1 %2 because there are one or more certified Production BOM that include this item.', Comment = '%1 - Tablecaption, %2 - No.';
 
     [EventSubscriber(ObjectType::Table, Database::Item, 'OnAfterCheckDocuments', '', false, false)]
-    local procedure ItemOnBeforeCheckDocuments(Item: Record Item; CurrentFieldNo: Integer);
+    local procedure ItemOnBeforeCheckDocuments(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text);
     begin
-        CheckProdOrderLines(Item, CurrentFieldNo, Item.FieldNo(Type), Item.FieldCaption(Type));
-        CheckProdOrderComponents(Item, CurrentFieldNo, Item.FieldNo(Type), Item.FieldCaption(Type));
-        CheckProdBOMLines(Item, CurrentFieldNo, Item.FieldNo(Type), Item.FieldCaption(Type));
+        CheckProdOrderLines(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
+        CheckProdOrderComponents(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
+        CheckProdBOMLines(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
     end;
 
     internal procedure CheckProdOrderLines(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)

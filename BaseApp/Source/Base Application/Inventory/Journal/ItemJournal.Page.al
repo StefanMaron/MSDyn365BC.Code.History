@@ -31,6 +31,8 @@ page 40 "Item Journal"
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
+    AboutTitle = 'About Item Journals';
+    AboutText = 'Record and post inventory adjustments, including detailed item tracking with serial, lot, and package information, to update inventory levels and values.';
     SaveValues = true;
     SourceTable = "Item Journal Line";
     UsageCategory = Tasks;

@@ -14,6 +14,8 @@ page 5753 "Posted Transfer Receipts"
     CardPageID = "Posted Transfer Receipt";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Posted Transfer Receipts';
+    AboutText = 'Review posted transfer receipts to track completed inventory transfers between locations, including shipment and receipt dates, transfer order details, and related logistics information.';
     SourceTable = "Transfer Receipt Header";
     SourceTableView = sorting("Posting Date")
                       order(descending);

@@ -60,6 +60,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
         LogErrorMode: Boolean;
         IsBatchMode: Boolean;
         IgnoreJournalTemplNameMandatoryCheck: Boolean;
+        IsDeferralPostingAllowed: Boolean;
 
 #pragma warning disable AA0074
         Text000: Label 'can only be a closing date for G/L entries';
@@ -414,6 +415,11 @@ codeunit 11 "Gen. Jnl.-Check Line"
         if not IgnoreJournalTemplNameMandatoryCheck then
             if GLSetup."Journal Templ. Name Mandatory" then
                 GenJnlLine.TestField("Journal Template Name", ErrorInfo.Create());
+        if IsDeferralPostingAllowed then begin
+            if DeferralPostingDateNotAllowed(GenJnlLine."Posting Date") then
+                GenJnlLine.FieldError("Posting Date", ErrorInfo.Create(Text001, true));
+            DateCheckDone := true
+        end;
         OnBeforeDateNotAllowed(GenJnlLine, DateCheckDone);
         if not DateCheckDone then
             if DateNotAllowed(GenJnlLine."Posting Date", GenJnlLine."Journal Template Name") then
@@ -1058,6 +1064,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
     var
         GLAccountSourceCurrency: Record "G/L Account Source Currency";
     begin
+        GLSetup.Get();
         case GLAccount."Source Currency Posting" of
             GLAccount."Source Currency Posting"::"Same Currency":
                 if (CurrencyCode <> GLAccount."Source Currency Code") and
@@ -1161,6 +1168,11 @@ codeunit 11 "Gen. Jnl.-Check Line"
     begin
         exit((GenJnlLine."Gen. Posting Type" <> GenJnlLine."Gen. Posting Type"::" ") or
             (GenJnlLine."Bal. Gen. Posting Type" <> GenJnlLine."Bal. Gen. Posting Type"::" "));
+    end;
+
+    procedure CheckDeferralPostingAllowed(DeferralPostingAllowed: Boolean)
+    begin
+        IsDeferralPostingAllowed := DeferralPostingAllowed;
     end;
 
     [IntegrationEvent(true, false)]

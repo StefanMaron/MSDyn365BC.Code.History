@@ -22,6 +22,8 @@ page 5201 "Employee List"
     CardPageID = "Employee Card";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Employees';
+    AboutText = 'Manage employee records, update personal and job details, track absences, and enter information for sustainability and governance reporting.';
     SourceTable = Employee;
     UsageCategory = Lists;
 

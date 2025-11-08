@@ -39,12 +39,7 @@ codeunit 5891 "Feature-GLCurrencyRevaluation" implements "Feature Data Update"
     end;
 
     procedure AfterUpdate(FeatureDataUpdateStatus: Record "Feature Data Update Status")
-    var
-        UpdateFeatureDataUpdateStatus: Record "Feature Data Update Status";
     begin
-        UpdateFeatureDataUpdateStatus.SetRange("Feature Key", FeatureDataUpdateStatus."Feature Key");
-        UpdateFeatureDataUpdateStatus.SetFilter("Company Name", '<>%1', FeatureDataUpdateStatus."Company Name");
-        UpdateFeatureDataUpdateStatus.ModifyAll("Feature Status", FeatureDataUpdateStatus."Feature Status");  // Data is not per company
     end;
 
     procedure UpdateData(FeatureDataUpdateStatus: Record "Feature Data Update Status")
@@ -100,7 +95,7 @@ codeunit 5891 "Feature-GLCurrencyRevaluation" implements "Feature Data Update"
         if RecordCount = 0 then
             exit;
         TempDocumentEntry.Init();
-        TempDocumentEntry."Entry No." += 1;
+        TempDocumentEntry."Entry No." := TableID;
         TempDocumentEntry."Table ID" := TableID;
         TempDocumentEntry."Table Name" := CopyStr(TableName, 1, MaxStrLen(TempDocumentEntry."Table Name"));
         TempDocumentEntry."No. of Records" := RecordCount;

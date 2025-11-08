@@ -296,7 +296,7 @@ codeunit 6108 "E-Document Processing"
         RecordRef: RecordRef;
         EDocumentType: Enum "E-Document Type";
     begin
-        if not RecordVariant.IsRecord() then
+        if not (RecordVariant.IsRecord() or RecordVariant.IsRecordRef()) then
             exit(Enum::"E-Document Type"::None);
 
         TypeHelper.CopyRecVariantToRecRef(RecordVariant, RecordRef);

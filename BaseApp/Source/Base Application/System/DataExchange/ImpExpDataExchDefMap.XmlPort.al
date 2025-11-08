@@ -419,6 +419,16 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                         currXMLport.Skip();
                                 end;
                             }
+                            fieldattribute(Priority; "Data Exch. Field Mapping".Priority)
+                            {
+                                Occurrence = Optional;
+
+                                trigger OnBeforePassField()
+                                begin
+                                    if "Data Exch. Field Mapping".Priority = 0 then
+                                        currXMLport.Skip();
+                                end;
+                            }
                             fieldattribute(UseDefaultValue; "Data Exch. Field Mapping"."Use Default Value")
                             {
                                 Occurrence = Optional;

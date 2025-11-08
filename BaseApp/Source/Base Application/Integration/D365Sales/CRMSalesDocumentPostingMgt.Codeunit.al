@@ -147,7 +147,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
             until SalesHeaderOrder.Next() = 0;
     end;
 
-    local procedure IsSalesOrderFullyInvoiced(SalesHeader: Record "Sales Header"): Boolean
+    internal procedure IsSalesOrderFullyInvoiced(SalesHeader: Record "Sales Header"): Boolean
     var
         SalesLine: Record "Sales Line";
     begin
