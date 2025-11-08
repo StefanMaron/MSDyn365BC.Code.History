@@ -73,7 +73,6 @@ codeunit 19 "Gen. Jnl.-Post Preview"
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         ErrorMessageMgt.PushContext(ErrorContextElement, RecVar, 0, PreviewModeErr);
         OnAfterBindSubscription(PostingPreviewEventHandler);
-        SequenceNoMgt.StartPreviewMode();
 
         RunResult := RunPreview(Subscriber, RecVar);
 

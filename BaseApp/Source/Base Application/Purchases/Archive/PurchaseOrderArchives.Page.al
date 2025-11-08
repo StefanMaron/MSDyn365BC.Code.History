@@ -15,6 +15,8 @@ page 9347 "Purchase Order Archives"
     CardPageID = "Purchase Order Archive";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Purchase Order Archives';
+    AboutText = 'Review archived versions of purchase orders, including historical details, vendor information, and attached incoming documents, to track changes and access supporting files for audit or reference purposes.';
     SourceTable = "Purchase Header Archive";
     SourceTableView = where("Document Type" = const(Order));
     UsageCategory = History;
@@ -197,6 +199,16 @@ page 9347 "Purchase Order Archives"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies information about sales quotes, purchase quotes, or orders in earlier versions of the document.';
                     Visible = false;
+                }
+                field(Amount; Rec.Amount)
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the total amount for the archived purchase document.';
+                }
+                field("Amount Including VAT"; Rec."Amount Including VAT")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the total amount including VAT for the archived purchase document.';
                 }
                 field("Document Date"; Rec."Document Date")
                 {

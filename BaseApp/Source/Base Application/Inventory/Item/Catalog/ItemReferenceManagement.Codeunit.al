@@ -52,8 +52,10 @@ codeunit 5720 "Item Reference Management"
                 if GlobalItemReference.Description <> '' then begin
                     SalesLine2.Description := GlobalItemReference.Description;
                     SalesLine2."Description 2" := GlobalItemReference."Description 2";
-                end else
+                end else begin
                     FillSalesDescription(SalesLine2);
+                    SalesLine2.GetItemTranslation();
+                end;
 
                 SalesLine2."Item Reference Type No." := GlobalItemReference."Reference Type No.";
                 OnAfterSalesItemReferenceFound(SalesLine2, GlobalItemReference, SalesLineBeforeChanges);
@@ -150,8 +152,10 @@ codeunit 5720 "Item Reference Management"
                 if ShouldAssignDescription then begin
                     PurchLine2.Description := GlobalItemReference.Description;
                     PurchLine2."Description 2" := GlobalItemReference."Description 2";
-                end else
+                end else begin
                     FillDescription(PurchLine2);
+                    PurchLine2.GetItemTranslation();
+                end;
 
                 OnAfterPurchItemReferenceFound(PurchLine2, GlobalItemReference);
             end else begin
@@ -642,8 +646,10 @@ codeunit 5720 "Item Reference Management"
         SalesLine."Item Reference Type No." := ReturnedItemReference."Reference Type No.";
         SalesLine."Item Reference No." := ReturnedItemReference."Reference No.";
 
-        if (SalesLine."Item Reference No." = '') and (SalesLine."Variant Code" <> '') then
+        if (SalesLine."Item Reference No." = '') and (SalesLine."Variant Code" <> '') then begin
             FillSalesDescription(SalesLine);
+            SalesLine.GetItemTranslation();
+        end;
 
         if (ReturnedItemReference.Description <> '') or (ReturnedItemReference."Description 2" <> '') then begin
             SalesLine.Description := ReturnedItemReference.Description;
@@ -728,8 +734,10 @@ codeunit 5720 "Item Reference Management"
             PurchaseLine."Item Reference Type No." := ReturnedItemReference."Reference Type No.";
             PurchaseLine."Item Reference No." := ReturnedItemReference."Reference No.";
 
-            if (PurchaseLine."Item Reference No." = '') and (PurchaseLine."Variant Code" <> '') then
+            if (PurchaseLine."Item Reference No." = '') and (PurchaseLine."Variant Code" <> '') then begin
                 FillDescription(PurchaseLine);
+                PurchaseLine.GetItemTranslation();
+            end;
 
             if (ReturnedItemReference.Description <> '') or (ReturnedItemReference."Description 2" <> '') then begin
                 PurchaseLine.Description := ReturnedItemReference.Description;

@@ -2770,6 +2770,7 @@
     procedure SetLCYCode(LCYCode: Code[10])
     begin
         GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."LCY Code" := '';        // to avoid error on updating LCY Code
         GeneralLedgerSetup.Validate("LCY Code", LCYCode);
         GeneralLedgerSetup.Modify(true);
     end;

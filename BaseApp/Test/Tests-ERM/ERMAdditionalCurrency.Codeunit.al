@@ -1192,6 +1192,38 @@ codeunit 134043 "ERM Additional Currency"
             StrSubstNo(AmountLCYError, GenJournalLine."Amount (LCY)"));
     end;
 
+    [Test]
+    [HandlerFunctions('StatisticsMessageHandler')]
+    procedure NoVATEntryAddCurrExchRateAdjust()
+    var
+        Currency: Record Currency;
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        VATEntry: Record "VAT Entry";
+        PostingDate: Date;
+    begin
+        // [SCENARIO 598998] "Attempted to divide by zero" error during Exchange Rates Adjustment if the company has no Tax/VAT Entries.
+        Initialize();
+        VATEntry.DeleteAll();
+
+        // [GIVEN] Currency FCY with exchange rates.
+        PostingDate := WorkDate();
+        CreateCurrencyWithExchangeRates(Currency, 1, PostingDate);
+
+        // [GIVEN] General Ledger Setup "Additional Reporting Currency" = "FCY"
+        LibraryERM.SetAddReportingCurrency(Currency.Code);
+
+        // [GIVEN] General Ledger Setup "VAT Exchange Rate Adjustment" := Adjust Additional-Currency Amount
+        UpdateGenLedgerVATExchRateAdjustment(
+            GeneralLedgerSetup."VAT Exchange Rate Adjustment"::"Adjust Additional-Currency Amount");
+
+        // [THEN] Run Adjust Exchange Rate with Adjust G/L Account and without other Adjustments
+        CurrencyExchangeRate.Get(Currency.code, LibraryERM.FindEarliestDateForExhRate());
+
+        // [THEN] Report should executed without any error
+        RunAdjustExchangeRates(CurrencyExchangeRate, Currency.Code);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -17,6 +17,8 @@ page 615 "IC Inbox Transactions"
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Worksheet;
+    AboutTitle = 'About Intercompany Inbox Transactions';
+    AboutText = 'Review, filter, and process incoming intercompany transactions from partner companies, choosing to accept, reject, or cancel each item and automatically create related documents or journal entries upon acceptance.';
     SourceTable = "IC Inbox Transaction";
     UsageCategory = Tasks;
 

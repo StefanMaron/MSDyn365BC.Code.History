@@ -10,6 +10,8 @@ page 595 "Change Log Entries"
     Caption = 'Change Log Entries';
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Change Log Entries';
+    AboutText = 'Track, review, and analyze all changes made to tables and fields in Business Central, including details of who made each change, when it occurred, the type of change, and the old and new values, to support efficient monitoring and auditing of system activity.';
     SourceTable = "Change Log Entry";
     SourceTableView = where("Field Log Entry Feature" = filter("Change Log" | All));
     UsageCategory = Lists;

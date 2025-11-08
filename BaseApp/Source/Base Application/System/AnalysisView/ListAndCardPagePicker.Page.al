@@ -1,3 +1,4 @@
+#if not CLEAN28
 // // ------------------------------------------------------------------------------------------------
 // // Copyright (c) Microsoft Corporation. All rights reserved.
 // // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -13,6 +14,9 @@ page 9641 "List and Card page picker"
     ApplicationArea = All;
     UsageCategory = Lists;
     SourceTable = "Page Metadata";
+    ObsoleteState = Pending;
+    ObsoleteTag = '28.0';
+    ObsoleteReason = 'The Analysis View module is being moved to be part of the Business Central platform.';
     Caption = 'Choose a source page';
     Editable = false;
     ShowFilter = false;
@@ -78,3 +82,4 @@ page 9641 "List and Card page picker"
         AppName: Text[250];
         AppPublisher: Text[250];
 }
+#endif

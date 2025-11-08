@@ -49,7 +49,7 @@ codeunit 6112 "Customer Data Migration Facade"
     begin
     end;
 
-    procedure CreateCustomerIfNeeded(CustomerNoToSet: Code[20]; CustomerNameToSet: Text[50]): Boolean
+    procedure CreateCustomerIfNeeded(CustomerNoToSet: Code[20]; CustomerNameToSet: Text[100]): Boolean
     var
         Customer: Record Customer;
     begin

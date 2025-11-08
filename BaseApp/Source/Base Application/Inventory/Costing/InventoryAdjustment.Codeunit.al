@@ -1062,7 +1062,8 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
                 OutbndValueEntry.SetFilter("Item Ledger Entry Quantity", '<>0');
                 OutbndValueEntry.FindFirst();
                 exit(
-                  (OutbndValueEntry."Entry No." > InbndValueEntry."Entry No.") or
+                  OutbndValueEntry.EntryNoHasSameSign(InbndValueEntry."Entry No.") and ((OutbndValueEntry."Entry No." > InbndValueEntry."Entry No.")) or
+                  not OutbndValueEntry.EntryNoHasSameSign(InbndValueEntry."Entry No.") and ((OutbndValueEntry.SystemId > InbndValueEntry.SystemId) or (OutbndValueEntry.SystemCreatedAt > InbndValueEntry.SystemCreatedAt)) or
                   (OutbndValueEntry.GetValuationDate() > InbndValueEntry."Valuation Date") or
                   (OutbndValueEntry."Entry No." = 0));
             end;
@@ -2426,12 +2427,12 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
         ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
         ValueEntry.SetRange("Item Charge No.", '');
-        ValueEntry.SetLoadFields(
-          "Cost Amount (Expected)", "Cost Amount (Expected) (ACY)", "Cost Amount (Actual)", "Cost Amount (Actual) (ACY)", "Invoiced Quantity");
+        ValueEntry.SetLoadFields("Invoiced Quantity");
         if ValueEntry.FindSet() then
             repeat
                 InvdQty := InvdQty + ValueEntry."Invoiced Quantity";
-                if ValueEntry."Entry No." < TransValueEntry."Entry No." then
+                if ValueEntry.EntryNoHasSameSign(TransValueEntry."Entry No.") and (ValueEntry."Entry No." < TransValueEntry."Entry No.") or
+                   not ValueEntry.EntryNoHasSameSign(TransValueEntry."Entry No.") and ((ValueEntry.SystemId < TransValueEntry.SystemId) or IsNullGuid(TransValueEntry.SystemId)) then
                     OrigInvdQty := OrigInvdQty + ValueEntry."Invoiced Quantity";
             until ValueEntry.Next() = 0;
 
@@ -3002,7 +3003,6 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
     end;
 
     // Extension interface for local procedures
-
     procedure CallInitializeAdjmt()
     begin
         InitializeAdjmt();

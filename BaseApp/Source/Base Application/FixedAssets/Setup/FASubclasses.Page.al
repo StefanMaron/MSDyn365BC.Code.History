@@ -10,6 +10,8 @@ page 5616 "FA Subclasses"
     ApplicationArea = FixedAssets;
     Caption = 'FA Subclasses';
     PageType = List;
+    AboutTitle = 'About FA Subclasses';
+    AboutText = 'Create and manage fixed asset subclass codes to organize assets into specific categories, such as buildings, vehicles, furniture, or machinery, under top-level fixed asset classes.';
     SourceTable = "FA Subclass";
     UsageCategory = Administration;
 

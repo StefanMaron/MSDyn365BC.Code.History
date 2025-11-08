@@ -2285,7 +2285,7 @@ codeunit 136145 "Service Contracts II"
         LibraryVariableStorage.Clear();
         DeleteObjectOptionsIfNeeded();
         LibrarySetupStorage.Restore();
-        WorkDate(Today());
+        WorkDate(CalcDate('<CM+1D+2W>', Today()));
 
         if IsInitialized then
             exit;

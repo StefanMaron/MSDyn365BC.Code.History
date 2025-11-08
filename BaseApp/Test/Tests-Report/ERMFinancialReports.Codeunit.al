@@ -43,6 +43,19 @@ codeunit 134982 "ERM Financial Reports"
         JournalLineCreatedMsg: Label 'The journal lines have successfully been created.';
         SourceCurrencyCodeErr: Label 'Source Currency Amount should not be zero after reversing and closing income statement.';
         CurrentSaveValuesId: Integer;
+        G_L_Register_NoLbl: Label 'G_L_Register_No';
+        G_L_Entry_Document_NoLbl: Label 'G_L_Entry_Document_No';
+        G_L_Entry_G_L_Account_NoLbl: Label 'G_L_Entry_G_L_Account_No';
+        G_L_Register_From_Entry_NoLbl: Label 'G_L_Register_From_Entry_No';
+        G_L_Register_To_Entry_NoLbl: Label 'G_L_Register_To_Entry_No';
+        G_L_Entry_Document_TypeLbl: Label 'G_L_Entry_Document_Type';
+        G_L_Entry_AmountLbl: Label 'G_L_Entry_Amount';
+        G_L_Entry_Entry_NoLbl: Label 'G_L_Entry_Entry_No';
+        G_L_Entry_Source_CodeLbl: Label 'G_L_Entry_Source_Code';
+        G_L_Entry_Source_NoLbl: Label 'G_L_Entry_Source_No';
+        G_L_Entry_System_Created_EntryLbl: Label 'G_L_Entry_System_Created_Entry';
+        G_L_Entry_Posting_DateLbl: Label 'G_L_Entry_Posting_Date';
+        G_L_Entry_Document_DateLbl: Label 'G_L_Entry_Document_Date';
 
     [Test]
     [HandlerFunctions('RHDetailTrialBalance')]
@@ -1498,6 +1511,119 @@ codeunit 134982 "ERM Financial Reports"
         Assert.AreNotEqual(0, GLEntry."Source Currency Amount", SourceCurrencyCodeErr);
     end;
 
+    [Test]
+    [HandlerFunctions('RHReconcileCustandVendAccs')]
+    procedure ReconcileCustVendAccounts_MultiplePostingGroups()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        CustomerPostingGroup: array[2] of Record "Customer Posting Group";
+        Customer: Record Customer;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: array[3] of Record "G/L Account";
+        ReconcileCustAndVendAccs: Report "Reconcile Cust. and Vend. Accs";
+        Amount1, Amount2 : Decimal;
+        WorkdateTxt: Text[30];
+    begin
+        // [SCENARIO 601857] Report Reconcile Customer and Vendor Accounts shows wrong amounts when multiple posting groups are used
+        Initialize();
+
+        // [GIVEN] Enable Allow Multiple Posting Groups
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Allow Multiple Posting Groups", true);
+        SalesReceivablesSetup.Modify(true);
+
+        // [GIVEN] Create two Customer Posting Groups with different Receivables Accounts
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup[1]);
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup[2]);
+        LibrarySales.CreateAltCustomerPostingGroup(CustomerPostingGroup[1].Code, CustomerPostingGroup[2].Code);
+
+        // [GIVEN] Create a customer with one of the posting groups and enable multiple posting groups
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Customer Posting Group", CustomerPostingGroup[1].Code);
+        Customer.Validate("Allow Multiple Posting Groups", true);
+        Customer.Modify(true);
+
+        // [GIVEN] Create General Journal Batch
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Post payment 1 with first posting group
+        Amount1 := -1 * LibraryRandom.RandDec(1000, 2);
+        LibraryERM.CreateGLAccount(GLAccount[1]);
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine,
+            GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Customer,
+            Customer."No.",
+            GenJournalLine."Bal. Account Type"::"G/L Account",
+            GLAccount[1]."No.",
+            Amount1);
+        GenJournalLine.Validate("Posting Group", CustomerPostingGroup[1].Code);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Post payment 2 with second posting group
+        Amount2 := -1 * LibraryRandom.RandDec(2000, 2);
+        LibraryERM.CreateGLAccount(GLAccount[2]);
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine,
+            GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Customer,
+            Customer."No.",
+            GenJournalLine."Bal. Account Type"::"G/L Account",
+            GLAccount[2]."No.",
+            Amount2);
+        GenJournalLine.Validate("Posting Group", CustomerPostingGroup[2].Code);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Run the Reconcile Cust. And Vend. Accounts report with DateFilter as Workdate
+        WorkdateTxt := Format(WorkDate());
+        Clear(ReconcileCustAndVendAccs);
+        GLAccount[3].SetRange("Date Filter", WorkDate());
+        GLAccount[3].FindFirst();
+        ReconcileCustAndVendAccs.SetTableView(GLAccount[3]);
+        Commit();
+        ReconcileCustAndVendAccs.Run();
+
+        // [THEN] Verify: Amounts are distributed to correct G/L accounts
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('No_GLAccount', CustomerPostingGroup[1]."Receivables Account");
+        LibraryReportDataset.AssertElementWithValueExists('No_GLAccount', CustomerPostingGroup[2]."Receivables Account");
+        LibraryReportDataset.AssertElementWithValueExists('Amount', Amount1);
+        LibraryReportDataset.AssertElementWithValueExists('Amount', Amount2);
+    end;
+
+    [Test]
+    [HandlerFunctions('AuditTrailReportRequestPageHandler')]
+    procedure VerifyAuditTrailReportShowsGLEntries()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GLRegister: Record "G/L Register";
+    begin
+        // [SCENARIO 565665] Verify Audit Trail report dataset contains G/L Entries.
+        Initialize();
+
+        // [GIVEN] Create and Post General Journal Line.
+        CreateAndPostGenLine(GenJournalLine);
+
+        // [GIVEN] Find "G/L Register".
+        GLRegister.FindLast();
+
+        // [GIVEN] Save the transaction.
+        Commit();
+
+        // [WHEN] Run Audit Trail report.
+        RunAuditTrailReport(GLRegister."No.");
+
+        // [THEN] Verify Audit Trail report dataset contains  G/L Entry.
+        VerifyAuditTrailReport(GenJournalLine, GLRegister);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2437,6 +2563,43 @@ codeunit 134982 "ERM Financial Reports"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
+    local procedure RunAuditTrailReport(RegisterNo: Integer)
+    var
+        GLRegister: Record "G/L Register";
+        AuditTrailReport: Report "Audit Trail";
+    begin
+        GLRegister.SetRange("No.", RegisterNo);
+        AuditTrailReport.SetTableView(GLRegister);
+        AuditTrailReport.Run();
+    end;
+
+    local procedure VerifyAuditTrailReport(GenJournalLine: Record "Gen. Journal Line"; GLRegister: Record "G/L Register")
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(G_L_Register_NoLbl, GLRegister."No.");
+        LibraryReportDataset.SetRange(G_L_Entry_Document_NoLbl, GenJournalLine."Document No.");
+        if LibraryReportDataset.GetNextRow() then begin
+            GLEntry.Get(GLRegister."From Entry No.");
+
+            LibraryReportDataset.AssertCurrentRowValueEquals(G_L_Entry_Document_NoLbl, GenJournalLine."Document No.");
+            LibraryReportDataset.AssertCurrentRowValueEquals(G_L_Entry_G_L_Account_NoLbl, GenJournalLine."Account No.");
+            LibraryReportDataset.AssertCurrentRowValueEquals(G_L_Register_From_Entry_NoLbl, GLRegister."From Entry No.");
+            LibraryReportDataset.AssertCurrentRowValueEquals(G_L_Register_To_Entry_NoLbl, GLRegister."To Entry No.");
+            LibraryReportDataset.AssertCurrentRowValueEquals(G_L_Entry_Document_TypeLbl, Format(GenJournalLine."Document Type"));
+            LibraryReportDataset.AssertCurrentRowValueEquals(G_L_Entry_G_L_Account_NoLbl, Format(GLEntry."G/L Account No."));
+            LibraryReportDataset.AssertCurrentRowValueEquals(G_L_Entry_AmountLbl, GLEntry.Amount);
+            LibraryReportDataset.AssertCurrentRowValueEquals(G_L_Entry_Entry_NoLbl, GLEntry."Entry No.");
+            LibraryReportDataset.AssertCurrentRowValueEquals(G_L_Entry_Source_CodeLbl, GLEntry."Source Code");
+            LibraryReportDataset.AssertCurrentRowValueEquals(G_L_Entry_Source_NoLbl, GLEntry."Source No.");
+            LibraryReportDataset.AssertCurrentRowValueEquals(G_L_Entry_System_Created_EntryLbl, GLEntry."System-Created Entry");
+            LibraryReportDataset.AssertCurrentRowValueEquals(G_L_Entry_Posting_DateLbl, Format(GLEntry."Posting Date"));
+            LibraryReportDataset.AssertCurrentRowValueEquals(G_L_Entry_Document_DateLbl, Format(GLEntry."Document Date"));
+        end else
+            Error(ReportErr, GenJournalLine.FieldCaption("Document No."), GenJournalLine."Document No.");
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -2698,5 +2861,11 @@ codeunit 134982 "ERM Financial Reports"
         CloseIncomeStatement.DocumentNo.SetValue(LibraryVariableStorage.DequeueText()); // Document No.
         CloseIncomeStatement.RetainedEarningsAcc.SetValue(''); // Retained Earnings Acc.
         CloseIncomeStatement.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure AuditTrailReportRequestPageHandler(var AuditTrail: TestRequestPage "Audit Trail")
+    begin
+        AuditTrail.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
