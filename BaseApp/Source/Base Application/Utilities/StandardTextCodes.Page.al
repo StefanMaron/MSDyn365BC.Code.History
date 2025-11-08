@@ -11,6 +11,8 @@ page 8 "Standard Text Codes"
     ApplicationArea = Basic, Suite;
     Caption = 'Standard Text Codes';
     PageType = List;
+    AboutTitle = 'About Standard Text Codes';
+    AboutText = 'Maintain reusable codes and descriptions for standard text entries that can be quickly inserted into documents and communications throughout Business Central.';
     SourceTable = "Standard Text";
     UsageCategory = Administration;
 

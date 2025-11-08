@@ -1916,7 +1916,7 @@ table 37 "Sales Line"
                     FieldError("Prepmt. Line Amount", StrSubstNo(Text045, "Line Amount"));
                 if "System-Created Entry" and not IsServiceChargeLine() then
                     FieldError("Prepmt. Line Amount", StrSubstNo(Text045, 0));
-                Validate("Prepayment %", "Prepmt. Line Amount" * 100 / CalculateOutstandingAmountExclTax());
+                Validate("Prepayment %", "Prepmt. Line Amount" * 100 / Round(CalculateOutstandingAmountExclTax(), Currency."Amount Rounding Precision"));
             end;
         }
         field(111; "Prepmt. Amt. Inv."; Decimal)
@@ -3768,7 +3768,6 @@ table 37 "Sales Line"
         CannotChangePrepmtAmtDiffVAtPctErr: Label 'You cannot change the prepayment amount because the prepayment invoice has been posted with a different VAT percentage. Please check the settings on the prepayment G/L account.';
         NonInvReserveTypeErr: Label 'Non-inventory and service items must have the reserve type Never. The current reserve type for item %1 is %2.', Comment = '%1 is Item No., %2 is Reserve';
         ChangeExtendedTextErr: Label 'You cannot change %1 for Extended Text Line.', Comment = '%1= Field Caption';
-        PurchasingCodeOnSalesInvoiceErr: Label 'The Purchasing Code should be blank for item %1 on the sales invoice because it is used only for the drop shipment process.', Comment = '%1= Item No.';
 
     protected var
         HideValidationDialog: Boolean;
@@ -4148,8 +4147,7 @@ table 37 "Sales Line"
         else
             "Unit of Measure Code" := Item."Base Unit of Measure";
 
-        CheckPurchasingCodeForInvoice();
-        if "Document Type" in ["Document Type"::Quote, "Document Type"::Order, "Document Type"::Invoice, "Document Type"::"Blanket Order"] then
+        if "Document Type" in ["Document Type"::Quote, "Document Type"::Order, "Document Type"::"Blanket Order"] then
             Validate("Purchasing Code", Item."Purchasing Code");
         OnAfterCopyFromItem(Rec, Item, CurrFieldNo, xRec);
 
@@ -4821,6 +4819,8 @@ table 37 "Sales Line"
     var
         PriceCalculation: Interface "Price Calculation";
     begin
+        if Rec.Type = Rec.Type::" " then
+            exit(false);
         GetPriceCalculationHandler(PriceType::Sale, SalesHeader, PriceCalculation);
         exit(PriceCalculation.IsPriceExists(ShowAll));
     end;
@@ -4984,7 +4984,7 @@ table 37 "Sales Line"
         if Rec.Quantity = 0 then
             exit(0);
         QuantityNotInvoiced := (Rec.Quantity - Rec."Quantity Invoiced");
-        OutstandingAmount := round(((Rec."Line Amount" - Rec."Inv. Discount Amount") * QuantityNotInvoiced) / Rec.Quantity, Currency."Amount Rounding Precision");
+        OutstandingAmount := (Rec."Line Amount" - Rec."Inv. Discount Amount") * QuantityNotInvoiced / Rec.Quantity;
         exit(OutstandingAmount);
     end;
 
@@ -7773,6 +7773,9 @@ table 37 "Sales Line"
         if "Job Contract Entry No." = 0 then
             exit;
 
+        if CurrFieldNo = 0 then
+            exit;
+
         JobPostLine.TestSalesLine(Rec);
     end;
 
@@ -8991,7 +8994,7 @@ table 37 "Sales Line"
         "Currency Code" := SalesHeader."Currency Code";
         InitHeaderLocactionCode(SalesHeader);
         "Customer Price Group" := SalesHeader."Customer Price Group";
-        "Customer Disc. Group" := SalesHeader."Customer Disc. Group";
+        Validate("Customer Disc. Group", SalesHeader."Customer Disc. Group");
         "Allow Line Disc." := SalesHeader."Allow Line Disc.";
         "Transaction Type" := SalesHeader."Transaction Type";
         "Transport Method" := SalesHeader."Transport Method";
@@ -10290,23 +10293,6 @@ table 37 "Sales Line"
     local procedure CheckReceiptOrderStatus()
     begin
         OnCheckReceiptOrderStatus(Rec);
-    end;
-
-    local procedure CheckPurchasingCodeForInvoice()
-    var
-        Item: Record Item;
-        Purchasing: Record Purchasing;
-    begin
-        if (Rec."Document Type" <> Rec."Document Type"::Invoice) or (Rec.Type <> Rec.Type::Item) then
-            exit;
-
-        Item := GetItem();
-        if Item."Purchasing Code" = '' then
-            exit;
-
-        Purchasing.Get(Item."Purchasing Code");
-        if Purchasing."Drop Shipment" then
-            Error(PurchasingCodeOnSalesInvoiceErr, Rec."No.");
     end;
 
     [IntegrationEvent(false, false)]

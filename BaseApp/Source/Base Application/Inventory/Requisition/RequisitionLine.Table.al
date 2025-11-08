@@ -1772,7 +1772,11 @@ table 246 "Requisition Line"
         ItemReference: Record "Item Reference";
         ItemTranslation: Record "Item Translation";
         Vendor: Record Vendor;
+        IsHandled: Boolean;
     begin
+        OnBeforeUpdateItemReferenceDescription(Rec, IsHandled);
+        if IsHandled then
+            exit;
         if not ItemReference.FindItemDescription(
                 Description, "Description 2", "No.", "Variant Code", "Unit of Measure Code",
                 Rec."Order Date", Enum::"Item Reference Type"::Vendor, "Vendor No.")
@@ -3993,6 +3997,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDim(var RequisitionLine: Record "Requisition Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateItemReferenceDescription(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 }

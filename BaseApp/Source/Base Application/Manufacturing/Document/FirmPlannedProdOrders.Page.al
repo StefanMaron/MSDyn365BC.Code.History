@@ -18,6 +18,8 @@ page 9325 "Firm Planned Prod. Orders"
     CardPageID = "Firm Planned Prod. Order";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Firm Planned Production Orders';
+    AboutText = 'Create and manage firm planned production orders by specifying items, quantities, due dates, and production routing, while reviewing start and end times and reserving components to support detailed production planning.';
     SourceTable = "Production Order";
     SourceTableView = where(Status = const("Firm Planned"));
     UsageCategory = Lists;

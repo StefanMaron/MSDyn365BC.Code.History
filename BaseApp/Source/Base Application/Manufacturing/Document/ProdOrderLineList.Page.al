@@ -12,6 +12,8 @@ page 5406 "Prod. Order Line List"
     Caption = 'Prod. Order Line List';
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Production Order Line List';
+    AboutText = 'Review and manage individual production order lines, including item details, quantities, status, scheduling dates, costs, and related production BOM information for each step in the manufacturing process.';
     SourceTable = "Prod. Order Line";
     ApplicationArea = Manufacturing;
     UsageCategory = Lists;

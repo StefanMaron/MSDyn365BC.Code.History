@@ -7,6 +7,8 @@ page 119 "User Setup"
     ApplicationArea = Basic, Suite;
     Caption = 'User Setup';
     PageType = List;
+    AboutTitle = 'About User Setup';
+    AboutText = 'Configure user permissions, posting policies, and responsibility centers to control access to documents and functional areas such as sales, purchases, and service management. Set approval limits, posting date ranges, and administrative roles to tailor user activities and visibility according to business requirements.';
     SourceTable = "User Setup";
     UsageCategory = Administration;
 

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -217,6 +217,7 @@ codeunit 1605 "PEPPOL Management"
         Base64Convert: Codeunit "Base64 Convert";
         TempBlob: Codeunit "Temp Blob";
         FileNameTok: Label '%1_%2.pdf', Comment = '1: Document Type, 2: Document No', Locked = true;
+        IsHandled: Boolean;
     begin
         AdditionalDocumentReferenceID := '';
         AdditionalDocRefDocumentType := '';
@@ -224,6 +225,10 @@ codeunit 1605 "PEPPOL Management"
         MimeCode := '';
         EmbeddedDocumentBinaryObject := '';
         Filename := '';
+
+        OnBeforeGeneratePDFAttachmentAsAdditionalDocRef(SalesHeader, AdditionalDocumentReferenceID, AdditionalDocRefDocumentType, URI, MimeCode, Filename, EmbeddedDocumentBinaryObject, IsHandled);
+        if IsHandled then
+            exit;
 
         if not GeneratePDFAsTempBlob(SalesHeader, TempBlob) then
             exit;
@@ -1988,4 +1993,10 @@ codeunit 1605 "PEPPOL Management"
     local procedure OnAfterGetBuyerReference(SalesHeader: Record "Sales Header"; var BuyerReference: Text)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGeneratePDFAttachmentAsAdditionalDocRef(SalesHeader: Record "Sales Header"; var AdditionalDocumentReferenceID: Text; var AdditionalDocRefDocumentType: Text; var URI: Text; var MimeCode: Text; var Filename: Text; var EmbeddedDocumentBinaryObject: Text; var IsHandled: Boolean)
+    begin
+    end;
 }
+

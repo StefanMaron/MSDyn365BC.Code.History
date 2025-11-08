@@ -209,6 +209,7 @@ report 99000754 "Rolled-up Cost Shares"
                         ProdBOMLine[Index].Type::Item:
                             begin
                                 CompItem.Get(ProdBOMLine[Index]."No.");
+                                OnOnAfterGetRecordOnBOMLoopOnAfterGetCompItem(MfgItem, ProdBOMLine, CompItem, Index);
                                 if CompItem.IsMfgItem() and (CompItem."Production BOM No." <> '') then begin
                                     ProdBOMHeader.Get(CompItem."Production BOM No.");
                                     if ProdBOMHeader.Status = ProdBOMHeader.Status::Closed then
@@ -407,6 +408,11 @@ report 99000754 "Rolled-up Cost Shares"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnPreReport(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnAfterGetRecordOnBOMLoopOnAfterGetCompItem(var MfgItem: Record Item; var ProductionBOMLine: array[99] of Record "Production BOM Line"; var CompItem: Record Item; Index: Integer)
     begin
     end;
 }

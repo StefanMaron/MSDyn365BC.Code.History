@@ -22,6 +22,8 @@ report 155 "Statement of Cashflows"
 
     requestpage
     {
+        AboutTitle = 'About Statement of Cashflows';
+        AboutText = 'The **Statement of Cashflows** report is a key finance report with data and layout based on a financial report definition. You can change the financial report definition used for the report on the *General Ledger Setup* page under the *Reporting* section.';
 
         layout
         {

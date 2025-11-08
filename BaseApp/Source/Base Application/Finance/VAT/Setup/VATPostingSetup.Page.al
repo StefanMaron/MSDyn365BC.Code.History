@@ -14,6 +14,8 @@ page 472 "VAT Posting Setup"
     DataCaptionFields = "VAT Bus. Posting Group", "VAT Prod. Posting Group";
     Editable = true;
     PageType = List;
+    AboutTitle = 'About VAT Posting Setup';
+    AboutText = 'Configure how VAT is calculated and posted for different combinations of business and product groups, including VAT rates, calculation types, non-deductible VAT, and related general ledger accounts for sales and purchases.';
     SourceTable = "VAT Posting Setup";
     UsageCategory = Administration;
 

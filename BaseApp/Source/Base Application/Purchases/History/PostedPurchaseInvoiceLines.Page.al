@@ -13,6 +13,8 @@ page 529 "Posted Purchase Invoice Lines"
     Caption = 'Posted Purchase Invoice Lines';
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Posted Purchase Invoice Lines';
+    AboutText = 'Review detailed lines from posted purchase invoices, including item, cost, quantity, discounts, VAT, and related dimensions, to analyze and track individual purchase transactions and their financial impact.';
     SourceTable = "Purch. Inv. Line";
     UsageCategory = History;
 

@@ -17,6 +17,8 @@ page 9324 "Planned Production Orders"
     CardPageID = "Planned Production Order";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Planned Production Orders';
+    AboutText = 'Plan and manage new production order demand by reviewing supply suggestions, analyzing component availability, calculating production plans, and creating supply orders to efficiently fulfill manufacturing requirements.';
     SourceTable = "Production Order";
     SourceTableView = where(Status = const(Planned));
     UsageCategory = Lists;

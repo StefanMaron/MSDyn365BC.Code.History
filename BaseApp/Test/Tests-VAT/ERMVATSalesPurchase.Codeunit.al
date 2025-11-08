@@ -2031,8 +2031,6 @@
         SalesPost.GetSalesLines(SalesHeader, TempSalesLine, 0);
         SalesLine.CalcVATAmountLines(0, SalesHeader, TempSalesLine, TempVATAmountLine);
 
-        // [THEN] Negative VAT Amount line is created for invoice rounding with VAT Base = -0.02 and VAT Amount = 0
-        VerifyVATAmountLine(TempVATAmountLine, false, AmountInclVATRnd - AmountInclVAT, 0);
         // [THEN] Positive VAT Amount is created for the order with VAT Base = 3408 and VAT Amount = 262.42
         VerifyVATAmountLine(TempVATAmountLine, true, SalesAmount, AmountInclVAT - SalesAmount);
     end;

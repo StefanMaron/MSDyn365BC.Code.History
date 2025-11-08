@@ -11,6 +11,8 @@ page 5735 "Item Reference List"
     ApplicationArea = Basic, Suite;
     Caption = 'Item Reference List';
     PageType = List;
+    AboutTitle = 'About Item Reference List';
+    AboutText = 'Manage item references by linking your item numbers to customer, vendor, or bar code identifiers, enabling accurate cross-referencing and streamlined entry on sales and purchase documents.';
     SourceTable = "Item Reference";
     UsageCategory = Lists;
 

@@ -2110,7 +2110,13 @@ table 210 "Job Journal Line"
     var
         JobPlanningLine: Record "Job Planning Line";
         JobJournalLine: Record "Job Journal Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateJobPlanningLineLink(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         JobJournalLine.SetRange("Job No.", "Job No.");
         JobJournalLine.SetRange("Job Task No.", "Job Task No.");
         JobJournalLine.SetRange("Job Planning Line No.", "Job Planning Line No.");
@@ -2818,5 +2824,9 @@ table 210 "Job Journal Line"
     local procedure OnAfterRenumberDocNoOnLines(var DocNo: Code[20]; var JobJnlLine2: Record "Job Journal Line")
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    internal procedure OnBeforeValidateJobPlanningLineLink(var JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean);
+    begin
+    end;
+}

@@ -22,6 +22,8 @@ page 190 "Incoming Documents"
     DataCaptionFields = Description;
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Incoming Documents';
+    AboutText = 'Record, review, and process external business documents such as invoices and receipts, manage OCR tasks, attach files to transactions, and track approval workflows to streamline document handling and integration with financial entries.';
     RefreshOnActivate = true;
     SourceTable = "Incoming Document";
     UsageCategory = Lists;

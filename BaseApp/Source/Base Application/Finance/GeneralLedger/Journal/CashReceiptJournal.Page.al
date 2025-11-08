@@ -30,6 +30,8 @@ page 255 "Cash Receipt Journal"
     DataCaptionExpression = Rec.DataCaption();
     DelayedInsert = true;
     PageType = Worksheet;
+    AboutTitle = 'About Cash Receipt Journals';
+    AboutText = 'Record and post incoming payments by entering cash receipt transactions, applying payments to customer, vendor, bank, or general ledger accounts, and ensuring accurate allocation and reconciliation of funds.';
     SaveValues = true;
     SourceTable = "Gen. Journal Line";
     UsageCategory = Tasks;

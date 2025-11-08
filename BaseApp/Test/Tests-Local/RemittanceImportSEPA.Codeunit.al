@@ -1293,6 +1293,7 @@ codeunit 144136 "Remittance - Import SEPA"
         GLSetup: Record "General Ledger Setup";
     begin
         GLSetup.Get();
+        GLSetup."LCY Code" := '';        // to avoid error on updating LCY Code
         GLSetup.Validate("LCY Code", NewLCYCode);
         GLSetup.Modify();
     end;
