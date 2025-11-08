@@ -386,6 +386,7 @@ codeunit 1890 "Reminder Communication"
     procedure PopulateEmailText(var IssuedReminderHeader: Record "Issued Reminder Header"; var CompanyInfo: Record "Company Information"; var GreetingTxt: Text; var AmtDueTxt: Text; var BodyTxt: Text; var ClosingTxt: Text; var DescriptionTxt: Text; NNC_TotalInclVAT: Decimal)
     var
         ReminderEmailText: Record "Reminder Email Text";
+        MailManagement: Codeunit "Mail Management";
     begin
         if NewReminderCommunicationEnabled() then begin
             AmtDueTxt := '';
@@ -399,6 +400,12 @@ codeunit 1890 "Reminder Communication"
             if GetReminderEmailText(IssuedReminderHeader, ReminderEmailText) then begin
                 GreetingTxt := ReminderEmailText.Greeting;
                 ClosingTxt := ReminderEmailText.Closing;
+                if Format(IssuedReminderHeader."Due Date") <> '' then
+                    if not MailManagement.IsHandlingGetEmailBody() then begin
+                        SelectEmailBodyText(ReminderEmailText, IssuedReminderHeader, AmtDueTxt);
+                        AmtDueTxt := StripHtmlTags(AmtDueTxt);
+                        SubstituteRelatedValues(AmtDueTxt, IssuedReminderHeader, IssuedReminderHeader.CalculateTotalIncludingVAT(), CopyStr(CompanyName, 1, 100));
+                    end;
             end else begin
                 GreetingTxt := ReminderEmailText.GetDefaultGreetingLbl();
                 if Format(IssuedReminderHeader."Due Date") <> '' then
@@ -885,6 +892,25 @@ codeunit 1890 "Reminder Communication"
             exit(true);
 
         exit(false);
+    end;
+
+    local procedure StripHtmlTags(HtmlText: Text): Text
+    var
+        Regex: Codeunit Regex;
+        TypeHelper: Codeunit "Type Helper";
+    begin
+        // Remove HTML tags using regex (more accurate than string manipulation)
+        HtmlText := Regex.Replace(HtmlText, '<.*?>', '');
+
+        // Decode HTML entities using framework utility
+        HtmlText := TypeHelper.HtmlDecode(HtmlText);
+
+        // Clean up whitespace
+        HtmlText := HtmlText.Trim();
+        while HtmlText.Contains('  ') do
+            HtmlText := HtmlText.Replace('  ', ' ');
+
+        exit(HtmlText);
     end;
 
     var

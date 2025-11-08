@@ -421,7 +421,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                     CreatePickOrMoveLine(
                       NewWarehouseActivityLine, RemQtyToPickBase, SalesLine."Outstanding Qty. (Base)", SalesLine."Reserved Quantity" <> 0);
                     OnCreatePickOrMoveFromSalesOnAfterCreatePickOrMoveLine(NewWarehouseActivityLine, SalesLine, CurrWarehouseActivityHeader, ShowError, AutoCreation, LineCreated);
-
+                    CorrectQtyRounding(SalesLine, CurrWarehouseActivityHeader);
                     if SalesHeader."Shipping Advice" = SalesHeader."Shipping Advice"::Complete then begin
                         if RemQtyToPickBase < 0 then begin
                             if AutoCreation then begin
@@ -2507,6 +2507,36 @@ codeunit 7322 "Create Inventory Pick/Movement"
         Item2.Get(ItemNo);
         if Item2.ItemTrackingCodeUseExpirationDates() then
             exit(true);
+    end;
+
+    local procedure CorrectQtyRounding(SalesLine: Record "Sales Line"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    var
+        WareHouseActivityLine: Record "Warehouse Activity Line";
+        TotalQtyPicked: Decimal;
+        TotalQtyOutstanding: Decimal;
+        TotalPickedQuantityCalculated: Decimal;
+        TotalQtyOutStandingCalculated: Decimal;
+    begin
+        if WarehouseActivityHeader.Type <> WarehouseActivityHeader.Type::"Invt. Pick" then
+            exit;
+
+        WareHouseActivityLine.SetSource(Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", 0);
+        WareHouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
+        WareHouseActivityLine.CalcSums(Quantity, "Qty. (Base)", "Qty. Outstanding", "Qty. Outstanding (Base)");
+        TotalQtyPicked := WareHouseActivityLine.Quantity;
+        TotalQtyOutstanding := WareHouseActivityLine."Qty. Outstanding";
+        TotalPickedQuantityCalculated := Round(WareHouseActivityLine."Qty. (Base)" / SalesLine."Qty. per Unit of Measure", 0.00001);
+        TotalQtyOutStandingCalculated := Round(WareHouseActivityLine."Qty. Outstanding (Base)" / SalesLine."Qty. per Unit of Measure", 0.00001);
+        if TotalQtyPicked = TotalPickedQuantityCalculated then
+            exit;
+
+        if Abs(TotalPickedQuantityCalculated - TotalQtyPicked) > SalesLine."Qty. Rounding Precision" then
+            exit;
+
+        WareHouseActivityLine.FindLast();
+        WareHouseActivityLine.Quantity += (TotalPickedQuantityCalculated - TotalQtyPicked);
+        WareHouseActivityLine."Qty. Outstanding" += (TotalQtyOutStandingCalculated - TotalQtyOutstanding);
+        WareHouseActivityLine.Modify();
     end;
 
     [IntegrationEvent(false, false)]

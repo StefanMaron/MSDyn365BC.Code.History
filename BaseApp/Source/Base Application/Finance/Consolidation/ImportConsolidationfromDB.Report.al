@@ -415,7 +415,9 @@ report 90 "Import Consolidation from DB"
         ParentCurrencyCode := ConsolidationProcess."Parent Currency Code";
         BusinessUnitCode := BusUnitInConsProcess."Business Unit Code";
         SkipDateConfirm := true;
-        SkipRunningTrialBalanceAfter := true
+        SkipRunningTrialBalanceAfter := true;
+        if ColumnDim = '' then
+            ColumnDim := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Import Consolidation from DB", '');
     end;
 
     local procedure SetDefaultParameters()
