@@ -6,6 +6,7 @@ namespace Microsoft.Sales.Reminder;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Setup;
+using Microsoft.Sales.History;
 
 tableextension 11741 "Issued Reminder Header CZL" extends "Issued Reminder Header"
 {
@@ -86,4 +87,11 @@ tableextension 11741 "Issued Reminder Header CZL" extends "Issued Reminder Heade
             DataClassification = CustomerContent;
         }
     }
+
+    trigger OnBeforeDelete()
+    var
+        PostSalesDelete: Codeunit "PostSales-Delete";
+    begin
+        PostSalesDelete.IsDocumentDeletionAllowed(Rec."Posting Date");
+    end;
 }

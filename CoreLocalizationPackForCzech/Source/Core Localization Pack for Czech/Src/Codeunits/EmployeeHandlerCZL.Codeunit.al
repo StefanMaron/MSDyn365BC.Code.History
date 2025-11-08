@@ -17,6 +17,9 @@ codeunit 11750 "Employee Handler CZL"
     var
         CompanyOfficialCZL: Record "Company Official CZL";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if (Rec."First Name" <> xRec."First Name") or
            (Rec."Middle Name" <> xRec."Middle Name") or
            (Rec."Last Name" <> xRec."Last Name") or
@@ -65,6 +68,9 @@ codeunit 11750 "Employee Handler CZL"
     var
         CompanyOfficialCZL: Record "Company Official CZL";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         CompanyOfficialCZL.SetRange("Employee No.", Rec."No.");
         CompanyOfficialCZL.ModifyAll("Employee No.", '', true);
     end;
