@@ -223,7 +223,7 @@ report 492 "Copy Purchase Document"
 
         OnPreReportOnBeforeCopyPurchaseDoc(CopyDocMgt, CurrReport.UseRequestPage(), IncludeHeader, RecalculateLines);
 
-        CopyDocMgt.CopyPurchDoc(FromDocType, FromDocNo, PurchHeader, true);
+        CopyDocMgt.CopyPurchDoc(FromDocType, FromDocNo, PurchHeader, IsPostedDocument());
 
         if ReplacePostDate or ReplaceDocDate then begin
             if ReplacePostDate then
@@ -577,6 +577,17 @@ report 492 "Copy Purchase Document"
         RecalculateLines :=
           (FromDocType in [FromDocType::"Posted Receipt", FromDocType::"Posted Return Shipment"]) or not IncludeHeader;
         OnAfterValidateIncludeHeader(RecalculateLines, IncludeHeader);
+    end;
+
+    local procedure IsPostedDocument(): Boolean
+    begin
+        case FromDocType of
+            "Purchase Document Type From"::"Posted Receipt",
+            "Purchase Document Type From"::"Posted Invoice",
+            "Purchase Document Type From"::"Posted Return Shipment",
+            "Purchase Document Type From"::"Posted Credit Memo":
+                exit(true);
+        end;
     end;
 
     procedure SetParameters(NewFromDocType: Enum "Purchase Document Type From"; NewFromDocNo: Code[20]; NewIncludeHeader: Boolean; NewRecalcLines: Boolean)

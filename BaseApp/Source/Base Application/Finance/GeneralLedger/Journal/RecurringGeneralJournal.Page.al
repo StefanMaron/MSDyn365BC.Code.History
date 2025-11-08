@@ -27,6 +27,8 @@ page 283 "Recurring General Journal"
     DataCaptionExpression = Rec.DataCaption();
     DelayedInsert = true;
     PageType = Worksheet;
+    AboutTitle = 'About Recurring General Journals';
+    AboutText = 'Automate and manage recurring general journal entries for transactions such as rent, subscriptions, or accruals by defining posting frequency, allocation rules, expiration dates, and reversal methods to streamline regular financial processes.';
     SaveValues = true;
     SourceTable = "Gen. Journal Line";
     UsageCategory = Tasks;

@@ -56,7 +56,7 @@ codeunit 1510 "Notification Management"
                     repeat
                         InsertOverdueEntry(ApprovalEntry, OverdueApprovalEntry);
                         IsHandled := false;
-                        OnCreateOverdueNotificationsOnBeforeCreateNotificationEntry(UserSetup, ApprovalEntry, OverdueApprovalEntry, IsHandled);
+                        OnCreateOverdueNotificationsOnBeforeCreateNotificationEntry(UserSetup, ApprovalEntry, OverdueApprovalEntry, WorkflowStepArgument, IsHandled);
                         if not IsHandled then
                             NotificationEntry.CreateNotificationEntry(NotificationEntry.Type::Overdue,
                               UserSetup."User ID", OverdueApprovalEntry, WorkflowStepArgument."Link Target Page",
@@ -289,7 +289,7 @@ codeunit 1510 "Notification Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateOverdueNotificationsOnBeforeCreateNotificationEntry(UserSetup: Record "User Setup"; ApprovalEntry: Record "Approval Entry"; var OverdueApprovalEntry: Record "Overdue Approval Entry"; var IsHandled: Boolean)
+    local procedure OnCreateOverdueNotificationsOnBeforeCreateNotificationEntry(UserSetup: Record "User Setup"; ApprovalEntry: Record "Approval Entry"; var OverdueApprovalEntry: Record "Overdue Approval Entry"; WorkflowStepArgument: Record "Workflow Step Argument"; var IsHandled: Boolean)
     begin
     end;
 }

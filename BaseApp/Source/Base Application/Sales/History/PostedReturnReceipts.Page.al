@@ -14,6 +14,8 @@ page 6662 "Posted Return Receipts"
     CardPageID = "Posted Return Receipt";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Posted Return Receipt';
+    AboutText = 'View and manage posted sales return receipts, track package shipments, and combine receipts to create sales credit memos for efficient processing and invoicing of returned items.';
     SourceTable = "Return Receipt Header";
     SourceTableView = sorting("Posting Date")
                       order(descending);

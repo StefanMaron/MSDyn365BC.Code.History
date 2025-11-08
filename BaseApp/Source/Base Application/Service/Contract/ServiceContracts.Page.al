@@ -20,6 +20,8 @@ page 9321 "Service Contracts"
     CardPageID = "Service Contract";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Service Contracts';
+    AboutText = 'Manage service contracts with customers, including creating, updating, and evaluating agreements, adjusting service pricing and discounts, tracking service hours, and handling contract status, billing, and automatic credit memos for removed contract lines.';
     SourceTable = "Service Contract Header";
     SourceTableView = where("Contract Type" = const(Contract));
     UsageCategory = Lists;

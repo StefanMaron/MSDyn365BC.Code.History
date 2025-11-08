@@ -447,7 +447,7 @@ report 513 "Move IC Trans. to Partner Comp"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnICOutboxTransactionOnAfterGetRecordOnBeforeCase(var ICPartnerCode: Code[20]; ICOutboxTransaction: Record "IC Outbox Transaction"; TempICInboxTransaction: Record "IC Inbox Transaction" temporary; ICSetup: Record "IC Setup"; var IsHandled: Boolean);
+    local procedure OnICOutboxTransactionOnAfterGetRecordOnBeforeCase(var ICPartnerCode: Code[20]; ICOutboxTransaction: Record "IC Outbox Transaction"; var TempICInboxTransaction: Record "IC Inbox Transaction" temporary; ICSetup: Record "IC Setup"; var IsHandled: Boolean);
     begin
     end;
 

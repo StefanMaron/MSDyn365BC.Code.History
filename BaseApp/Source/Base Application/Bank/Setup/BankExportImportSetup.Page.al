@@ -4,6 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Setup;
 
+using Microsoft.Upgrade;
+
 /// <summary>
 /// Configuration page for setting up bank file import/export formats and processing rules.
 /// Provides interface for managing electronic banking data exchange definitions and processing logic.
@@ -101,6 +103,55 @@ page 1200 "Bank Export/Import Setup"
 
     actions
     {
+        area(Processing)
+        {
+            action(SEPACAMT5300108)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'SEPA CAMT 053.001.08', Locked = true;
+                Enabled = true;
+                Image = SetupLines;
+                ToolTip = 'Sets up a bank import format for SEPA CAMT 053.001.08 files';
+
+                trigger OnAction()
+                begin
+                    UpgradeSEPACAMT05300108();
+                end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Category4)
+            {
+                Caption = 'Setup';
+
+                actionref(SEPACAMT5300108_Promoted; SEPACAMT5300108)
+                {
+                }
+            }
+        }
     }
+
+    var
+        ProceedWithSetupSEPACAMTQst: Label 'Do you want to set up the %1 bank import format?', Comment = '%1 - SEPA CAMT 053.001.08';
+        SetupCompletedMsg: Label 'Setup of data exchange definition and bank import setup  %1 is completed.', Comment = '%1 - SEPA CAMT 053.001.08';
+
+    local procedure UpgradeSEPACAMT05300108()
+    var
+        UpgradeBaseApp: Codeunit "Upgrade - BaseApp";
+    begin
+        if not Confirm(StrSubstNo(ProceedWithSetupSEPACAMTQst, SEPACAMT05300108())) then
+            exit;
+
+        UpgradeBaseApp.UpgradeSEPACAMT05300108();
+
+        CurrPage.Update();
+        Message(SetupCompletedMsg, SEPACAMT05300108());
+    end;
+
+    local procedure SEPACAMT05300108(): Code[20]
+    begin
+        exit('SEPA CAMT 053-08');
+    end;
 }
 

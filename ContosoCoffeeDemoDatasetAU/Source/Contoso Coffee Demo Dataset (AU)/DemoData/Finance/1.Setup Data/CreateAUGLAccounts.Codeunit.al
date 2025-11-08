@@ -183,6 +183,7 @@ codeunit 17107 "Create AU GL Accounts"
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.InvAdjmtInterimName(), '2275');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.InvAdjmtInterimRawMatName(), '2279');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.InvAdjmtInterimRetailName(), '2280');
+        ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.VATPayableName(), '2305');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.PersonnelRelatedItemsName(), '2360');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.WithholdingTaxesPayableName(), '2370');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.SupplementaryTaxesPayableName(), '2375');
@@ -378,7 +379,6 @@ codeunit 17107 "Create AU GL Accounts"
         ContosoGLAccount.AddAccountForLocalization(PayrollDeductionsName(), '2270');
         ContosoGLAccount.AddAccountForLocalization(TradeAndOtherPayablesName(), '2274');
         ContosoGLAccount.AddAccountForLocalization(TaxesPayablesName(), '2300');
-        ContosoGLAccount.AddAccountForLocalization(GstPayableName(), '2305');
         ContosoGLAccount.AddAccountForLocalization(GstReceivableName(), '2310');
         ContosoGLAccount.AddAccountForLocalization(GstClearingName(), '2320');
         ContosoGLAccount.AddAccountForLocalization(GstReconName(), '2330');
@@ -471,7 +471,6 @@ codeunit 17107 "Create AU GL Accounts"
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.CoalTaxName(), '');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.CO2TaxName(), '');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.WaterTaxName(), '');
-        ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.VATPayableName(), '');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.VATTotalName(), '');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.SalesRetailEUName(), '');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.SalesRawMaterialsEUName(), '');
@@ -559,7 +558,6 @@ codeunit 17107 "Create AU GL Accounts"
         ContosoGLAccount.InsertGLAccount(PayrollDeductions(), PayrollDeductionsName(), Enum::"G/L Account Income/Balance"::"Balance Sheet", Enum::"G/L Account Category"::Liabilities, Enum::"G/L Account Type"::Posting, '', '', 0, '', Enum::"General Posting Type"::" ", '', '', true, false, false);
         ContosoGLAccount.InsertGLAccount(TradeAndOtherPayables(), TradeAndOtherPayablesName(), Enum::"G/L Account Income/Balance"::"Balance Sheet", Enum::"G/L Account Category"::Liabilities, Enum::"G/L Account Type"::"End-Total", '', '', 0, TradeAndOtherPayables() + '..' + TradeAndOtherPayables(), Enum::"General Posting Type"::" ", '', '', false, false, false);
         ContosoGLAccount.InsertGLAccount(TaxesPayables(), TaxesPayablesName(), Enum::"G/L Account Income/Balance"::"Balance Sheet", Enum::"G/L Account Category"::Liabilities, Enum::"G/L Account Type"::"Begin-Total", '', '', 0, '', Enum::"General Posting Type"::" ", '', '', false, false, false);
-        ContosoGLAccount.InsertGLAccount(GstPayable(), GstPayableName(), Enum::"G/L Account Income/Balance"::"Balance Sheet", Enum::"G/L Account Category"::Liabilities, Enum::"G/L Account Type"::Posting, '', '', 0, '', Enum::"General Posting Type"::" ", '', '', true, false, false);
         ContosoGLAccount.InsertGLAccount(GstReceivable(), GstReceivableName(), Enum::"G/L Account Income/Balance"::"Balance Sheet", Enum::"G/L Account Category"::Liabilities, Enum::"G/L Account Type"::Posting, '', '', 0, '', Enum::"General Posting Type"::" ", '', '', true, false, false);
         ContosoGLAccount.InsertGLAccount(GstClearing(), GstClearingName(), Enum::"G/L Account Income/Balance"::"Balance Sheet", Enum::"G/L Account Category"::Liabilities, Enum::"G/L Account Type"::Posting, '', '', 0, '', Enum::"General Posting Type"::" ", '', '', true, false, false);
         ContosoGLAccount.InsertGLAccount(GstRecon(), GstReconName(), Enum::"G/L Account Income/Balance"::"Balance Sheet", Enum::"G/L Account Category"::Liabilities, Enum::"G/L Account Type"::Posting, '', '', 0, '', Enum::"General Posting Type"::" ", '', '', true, false, false);
@@ -602,7 +600,7 @@ codeunit 17107 "Create AU GL Accounts"
         ContosoGLAccount.InsertGLAccount(CapOverheadVariance(), CapOverheadVarianceName(), Enum::"G/L Account Income/Balance"::"Income Statement", Enum::"G/L Account Category"::"Cost of Goods Sold", Enum::"G/L Account Type"::Posting, '', '', 0, '', Enum::"General Posting Type"::" ", '', '', true, false, false);
         ContosoGLAccount.InsertGLAccount(MfgOverheadVariance(), MfgOverheadVarianceName(), Enum::"G/L Account Income/Balance"::"Income Statement", Enum::"G/L Account Category"::"Cost of Goods Sold", Enum::"G/L Account Type"::Posting, '', '', 0, '', Enum::"General Posting Type"::" ", '', '', true, false, false);
         ContosoGLAccount.InsertGLAccount(TotalVariance(), TotalVarianceName(), Enum::"G/L Account Income/Balance"::"Income Statement", Enum::"G/L Account Category"::"Cost of Goods Sold", Enum::"G/L Account Type"::"End-Total", '', '', 0, Variance() + '..' + TotalVariance(), Enum::"General Posting Type"::" ", '', '', false, false, false);
-        ContosoGLAccount.InsertGLAccount(FreightExpensesRawMat(), FreightExpensesRawMatName(), Enum::"G/L Account Income/Balance"::"Income Statement", Enum::"G/L Account Category"::Expense, Enum::"G/L Account Type"::Posting, '', '', 0, '', Enum::"General Posting Type"::" ", '', '', true, false, false);
+        ContosoGLAccount.InsertGLAccount(FreightExpensesRawMat(), FreightExpensesRawMatName(), Enum::"G/L Account Income/Balance"::"Income Statement", Enum::"G/L Account Category"::Expense, Enum::"G/L Account Type"::Posting, '', CreatePostingGroups.ZeroPostingGroup(), 0, '', Enum::"General Posting Type"::Purchase, '', '', true, false, false);
         ContosoGLAccount.InsertGLAccount(AnnualLeaveExpenses(), AnnualLeaveExpensesName(), Enum::"G/L Account Income/Balance"::"Income Statement", Enum::"G/L Account Category"::Expense, Enum::"G/L Account Type"::Posting, '', '', 0, '', Enum::"General Posting Type"::" ", '', '', true, false, false);
         ContosoGLAccount.InsertGLAccount(Ebitda(), EbitdaName(), Enum::"G/L Account Income/Balance"::"Income Statement", Enum::"G/L Account Category"::Expense, Enum::"G/L Account Type"::Total, '', '', 0, '', Enum::"General Posting Type"::" ", '', '', false, false, false);
         ContosoGLAccount.InsertGLAccount(PurchaseWhtAdjustments(), PurchaseWhtAdjustmentsName(), Enum::"G/L Account Income/Balance"::"Income Statement", Enum::"G/L Account Category"::Expense, Enum::"G/L Account Type"::Posting, '', '', 0, '', Enum::"General Posting Type"::Purchase, '', '', true, false, false);
@@ -1213,16 +1211,19 @@ codeunit 17107 "Create AU GL Accounts"
         exit(TaxesPayablesTok);
     end;
 
+#if not CLEAN28
+    [Obsolete('Use W1 VATPayable method instead', '28.0')]
     procedure GstPayable(): Code[20]
     begin
         exit(ContosoGLAccount.GetAccountNo(GstPayableName()));
     end;
 
+    [Obsolete('Use W1 VATPayableName method instead', '28.0')]
     procedure GstPayableName(): Text[100]
     begin
         exit(GstPayableTok);
     end;
-
+#endif
     procedure GstReceivable(): Code[20]
     begin
         exit(ContosoGLAccount.GetAccountNo(GstReceivableName()));
@@ -1829,7 +1830,9 @@ codeunit 17107 "Create AU GL Accounts"
         PayrollClearingTok: Label 'Payroll clearing', MaxLength = 100;
         PayrollDeductionsTok: Label 'Payroll Deductions', MaxLength = 100;
         TaxesPayablesTok: Label 'Taxes Payables', MaxLength = 100;
+#if not CLEAN28
         GstPayableTok: Label 'GST Payable', MaxLength = 100;
+#endif
         GstReceivableTok: Label 'GST Receivable', MaxLength = 100;
         GstClearingTok: Label 'GST Clearing', MaxLength = 100;
         GstReconTok: Label 'GST Recon', MaxLength = 100;

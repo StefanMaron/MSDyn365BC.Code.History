@@ -16,6 +16,8 @@ page 7332 "Warehouse Receipts"
     DataCaptionFields = "No.";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Warehouse Receipts';
+    AboutText = 'Manage and post the receipt of items from purchase orders and other source documents, adjust received quantities, assign bins and locations, and track the status of warehouse receipts to update inventory records.';
     SourceTable = "Warehouse Receipt Header";
     UsageCategory = Lists;
 

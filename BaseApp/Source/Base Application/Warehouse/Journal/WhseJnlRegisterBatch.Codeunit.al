@@ -598,7 +598,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Jnl.-Register Line", 'OnAfterInsertWhseEntry', '', false, false)]
     local procedure OnAfterInsertWhseEntry(var WarehouseEntry: Record "Warehouse Entry"; var WarehouseJournalLine: Record "Warehouse Journal Line")
     begin
-        if WarehouseEntry."Warehouse Register No." > WhseRegNo then
+        if WarehouseEntry."Warehouse Register No." <> 0 then
             WhseRegNo := WarehouseEntry."Warehouse Register No.";
     end;
 

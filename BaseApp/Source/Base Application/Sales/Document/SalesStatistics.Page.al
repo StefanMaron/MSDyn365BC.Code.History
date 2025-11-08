@@ -491,12 +491,12 @@ page 160 "Sales Statistics"
         Clear(TotalSalesLineLCY);
         Clear(SalesPost);
 
-        SalesPost.GetSalesLines(Rec, TempSalesLine, 0);
+        SalesPost.GetSalesLines(Rec, TempSalesLine, 0, true, true);
         OnCalculateTotalsOnAfterGetSalesLines(Rec, TempSalesLine);
         Clear(SalesPost);
         SalesPost.SumSalesLinesTemp(
           Rec, TempSalesLine, 0, TotalSalesLine, TotalSalesLineLCY,
-          VATAmount, VATAmountText, ProfitLCY, ProfitPct, TotalAdjCostLCY);
+          VATAmount, VATAmountText, ProfitLCY, ProfitPct, TotalAdjCostLCY, true, true);
 
         AdjProfitLCY := TotalSalesLineLCY.Amount - TotalAdjCostLCY;
         if TotalSalesLineLCY.Amount <> 0 then

@@ -9,14 +9,15 @@ codeunit 134463 "ERM Item Reference Sales"
     end;
 
     var
-        LibrarySales: Codeunit "Library - Sales";
+        Assert: Codeunit Assert;
+        LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemReference: Codeunit "Library - Item Reference";
         LibraryRandom: Codeunit "Library - Random";
-        LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        LibraryUtility: Codeunit "Library - Utility";
+        LibrarySales: Codeunit "Library - Sales";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        Assert: Codeunit Assert;
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         ItemRefNotExistsErr: Label 'There are no items with reference %1.';
         DialogCodeErr: Label 'Dialog';
         ItemReferenceMgt: Codeunit "Item Reference Management";
@@ -1578,6 +1579,81 @@ codeunit 134463 "ERM Item Reference Sales"
         Assert.AreEqual(SalesLine[2].Description, Item[2].Description, DescriptionMustBeSameErr);
     end;
 
+    [Test]
+    procedure VerifyDescriptionInSalesLineWhenItemReferenceAndItemVariantAndItemTranslationUsed()
+    var
+        Customer: Record Customer;
+        Item: array[2] of Record Item;
+        ItemReference: array[2] of Record "Item Reference";
+        ItemTranslation: array[2] of Record "Item Translation";
+        ItemVariant: array[2] of Record "Item Variant";
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        LanguageCode: Code[10];
+    begin
+        // [SCENARIO 574832] Verify that the Item description in the Sales line is prioritized correctly when Item Reference,Item Variant and Item Translation are used. 
+        Initialize();
+
+        // [GIVEN] Create a new Customer ansd set Languague code.
+        LanguageCode := LibraryERM.GetAnyLanguageDifferentFromCurrent();
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Language Code", LanguageCode);
+        Customer.Modify(true);
+
+        // [GIVEN] Create first Item with Item Variant and Item Reference.
+        CreateItemWithItemVariantAndItemReference(Item[1], ItemVariant[1], ItemReference[1], Customer."No.");
+
+        // [GIVEN] Set description value in first Item Reference.
+        if ItemReference[1].Description = '' then begin
+            ItemReference[1].Validate(Description, ItemReference[1]."Reference No.");
+            ItemReference[1].Modify(true);
+        end;
+
+        // [GIVEN] Create second Item with Item Variant and Item Reference.
+        CreateItemWithItemVariantAndItemReference(Item[2], ItemVariant[2], ItemReference[2], Customer."No.");
+
+        // [GIVEN] Create Multiple Item Translation.
+        CreateItemTranslation(ItemTranslation[1], Item[1]."No.", LanguageCode, ItemVariant[1].Code);
+        CreateItemTranslation(ItemTranslation[2], Item[2]."No.", LanguageCode, ItemVariant[2].Code);
+
+        // [GIVEN] Create Sales Header with document type Invoice.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+
+        // [GIVEN] Create Two Sales Lines.
+        CreateSalesLine(SalesLine[1], SalesHeader, Item[1]."No.");
+        CreateSalesLine(SalesLine[2], SalesHeader, Item[2]."No.");
+
+        // [WHEN] Both Item Variant and Item Reference have description values and their values are set in the Sales line.
+        ModifySalesLine(SalesLine[1], ItemVariant[1].Code, ItemReference[1]."Reference No.");
+
+        // [THEN] Ensure that the Sales Line description is the same as the Item Reference description.
+        Assert.AreEqual(SalesLine[1].Description, ItemReference[1].Description, DescriptionMustBeSameErr);
+
+        // [WHEN] Both Item Variant and Item Reference have description values, but only the Item Variant value is set in the Sales line.
+        ModifySalesLine(SalesLine[1], ItemVariant[1].Code, '');
+
+        // [THEN] Ensure that the Sales Line description is the same as the Item Translation description.
+        Assert.AreEqual(SalesLine[1].Description, ItemTranslation[1].Description, DescriptionMustBeSameErr);
+
+        // [WHEN] Both Item Variant and Item Reference have description values, but both values are set blank in the Sales line.
+        ModifySalesLine(SalesLine[1], '', '');
+
+        // [THEN] Ensure that the Sales Line description is the same as the Item description.
+        Assert.AreEqual(SalesLine[1].Description, Item[1].Description, DescriptionMustBeSameErr);
+
+        // [WHEN] Item Variant has a description value, but Item Reference has a blank description. However, both values are set in the Sales line.
+        ModifySalesLine(SalesLine[2], ItemVariant[2].Code, ItemReference[2]."Reference No.");
+
+        // [THEN] Ensure that the Sales Line description is the same as the Item Translation description.
+        Assert.AreEqual(SalesLine[2].Description, ItemTranslation[2].Description, DescriptionMustBeSameErr);
+
+        // [WHEN] Item Variant and Item Reference values are set blank in the Sales line.
+        ModifySalesLine(SalesLine[2], '', '');
+
+        // [THEN] Ensure that the Sales Line description is the same as the Item description.
+        Assert.AreEqual(SalesLine[2].Description, Item[2].Description, DescriptionMustBeSameErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Item Reference Sales");
@@ -1639,6 +1715,17 @@ codeunit 134463 "ERM Item Reference Sales"
         SalesLine.Validate("Variant Code", VariantCode);
         SalesLine.Validate("Item Reference No.", ItemReferenceNo);
         SalesLine.Modify(true);
+    end;
+
+    local procedure CreateItemTranslation(var ItemTranslation: Record "Item Translation"; ItemNo: Code[20]; LanguageCode: Code[10]; VariantCode: Code[10])
+    begin
+        ItemTranslation.Init();
+        ItemTranslation.Validate("Item No.", ItemNo);
+        ItemTranslation.Validate("Language Code", LanguageCode);
+        ItemTranslation.Validate("Variant Code", VariantCode);
+        ItemTranslation.Validate(Description, LibraryUtility.GenerateGUID());
+        ItemTranslation.Validate("Description 2", LibraryUtility.GenerateGUID());
+        ItemTranslation.Insert(true);
     end;
 
     [ModalPageHandler]

@@ -23,6 +23,8 @@ page 902 "Assembly Orders"
     DataCaptionFields = "No.";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Assembly Orders';
+    AboutText = 'Manage and track assembly orders to connect sales demand with assembly supply, specifying items to assemble, required quantities, and component availability based on the assembly BOM, with options for partial output posting and direct linkage to sales orders.';
     RefreshOnActivate = true;
     SourceTable = "Assembly Header";
     SourceTableView = where("Document Type" = filter(Order));

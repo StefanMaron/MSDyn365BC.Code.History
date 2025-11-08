@@ -385,7 +385,12 @@ table 98 "General Ledger Setup"
             trigger OnValidate()
             var
                 Currency: Record Currency;
+                GLEntry: Record "G/L Entry";
             begin
+                if (Rec."LCY Code" <> xRec."LCY Code") and (xRec."LCY Code" <> '') then
+                    if not GLEntry.IsEmpty() then
+                        Error(CannotUpdateLCYCodeErr);
+
                 if "Local Currency Symbol" = '' then
                     "Local Currency Symbol" := Currency.ResolveCurrencySymbol("LCY Code");
 
@@ -871,6 +876,15 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Hide Company Bank Account';
         }
+        field(193; "Check Source Curr. Consistency"; Boolean)
+        {
+            Caption = 'Check Source Curr. Consistency';
+        }
+        field(194; "Acc. Payables Category"; Integer)
+        {
+            TableRelation = "G/L Account Category";
+            Caption = 'Account Payables G/L Account Category';
+        }
         field(11600; "BAS to be Lodged as a Group"; Boolean)
         {
             Caption = 'BAS to be Lodged as a Group';
@@ -883,10 +897,6 @@ table 98 "General Ledger Setup"
                       FieldCaption("BAS to be Lodged as a Group"), xRec."BAS to be Lodged as a Group",
                       FieldCaption("BAS Group Company"), "BAS Group Company");
             end;
-        }
-        field(193; "Check Source Curr. Consistency"; Boolean)
-        {
-            Caption = 'Check Source Curr. Consistency';
         }
         field(11601; "BAS Group Company"; Boolean)
         {
@@ -1077,6 +1087,7 @@ table 98 "General Ledger Setup"
         VATPeriodControlUsageMsg: Label 'Control VAT Period is changed', Locked = true;
         VATDateFeatureUsageMsg: Label 'VAT Reporting Date Usage is changed', Locked = true;
         PrivacyStatementAckErr: Label 'Enabling requires privacy statement acknowledgement.';
+        CannotUpdateLCYCodeErr: Label 'You cannot update the local currency code because there are posted general ledger entries.';
 
     procedure CheckDecimalPlacesFormat(var DecimalPlaces: Text[5])
     var

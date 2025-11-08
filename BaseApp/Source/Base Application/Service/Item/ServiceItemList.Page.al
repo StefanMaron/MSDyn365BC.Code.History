@@ -27,6 +27,8 @@ page 5981 "Service Item List"
     CardPageID = "Service Item Card";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Service Items';
+    AboutText = 'Register and manage equipment or items that require service, track ownership, warranty periods, and service history, and link service items to inventory, contracts, and related documents for efficient service operations.';
     RefreshOnActivate = true;
     SourceTable = "Service Item";
     UsageCategory = Lists;

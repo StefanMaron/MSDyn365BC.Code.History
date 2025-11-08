@@ -844,6 +844,53 @@ codeunit 134979 "Reminder Automation Tests"
         ReminderTermSetupPage.ReminderLevelSetup.CustomerCommunications.Invoke();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ModalEmailEditorHandler,CancelMailSendingStrMenuHandler')]
+    procedure SendIssuedReminderByEmailAndEntryCreatedInEmailRelatedRecords()
+    var
+        Customer: Record Customer;
+        IssuedReminderHeader: Record "Issued Reminder Header";
+        ReminderTerms: Record "Reminder Terms";
+        ReminderHeader: Record "Reminder Header";
+        LanguageCode: Code[10];
+        FileName: Text;
+    begin
+        // [SCENARIO 591799] Issued reminder emails are not logged in sent e-mail history of a customer
+        Initialize();
+
+        // [WHEN] A connector is installed and an account is added
+        InstallConnectorAndAddAccount();
+
+        // [GIVEN] Create reminder term with levels
+        CreateReminderTermsWithLevels(ReminderTerms, GetDefaultDueDatePeriodForReminderLevel(), Any.IntegerInRange(2, 5));
+
+        // [GIVEN] Create reminder attachment text, file name = XXX, language code = Y
+        LanguageCode := LibraryERM.GetAnyLanguageDifferentFromCurrent();
+        CreateReminderAttachmentText(ReminderTerms, LanguageCode);
+
+        // [GIVEN] Create a customer X with overdue entries
+        CreateCustomerWithOverdueEntries(Customer, ReminderTerms, Any.IntegerInRange(2, 5));
+
+        // [GIVEN] Set language code Y for customer X
+        Customer."Language Code" := LanguageCode;
+        Customer.Modify();
+        FileName := LibraryVariableStorage.DequeueText();
+        LibraryVariableStorage.Enqueue(Customer."No.");
+        LibraryVariableStorage.Enqueue(FileName);
+
+        // [GIVEN] Create and issue reminder for customer X 
+        CreateAndIssueReminder(ReminderHeader, Customer."No.");
+
+        // [WHEN] Run action "Send by mail" on issued reminder
+        IssuedReminderHeader.SetRange("Pre-Assigned No.", ReminderHeader."No.");
+        IssuedReminderHeader.FindFirst();
+        CustomReportSelectionPrint(IssuedReminderHeader, Enum::"Report Selection Usage"::Reminder, 1);
+
+        // [THEN] Verified in ModalEmailEditorHandler page
+        LibraryVariableStorage.Clear();
+    end;
+
     local procedure CreateReminderAttachmentText(ReminderTerms: Record "Reminder Terms"; LanguageCode: Code[10])
     var
         ReminderLevel: Record "Reminder Level";
@@ -1179,6 +1226,57 @@ codeunit 134979 "Reminder Automation Tests"
         end;
     end;
 
+    local procedure InstallConnectorAndAddAccount()
+    var
+        TempAccount: Record "Email Account" temporary;
+        ConnectorMock: Codeunit "Connector Mock";
+        EmailScenarioMock: Codeunit "Email Scenario Mock";
+    begin
+        ConnectorMock.Initialize();
+        ConnectorMock.AddAccount(TempAccount);
+        EmailScenarioMock.DeleteAllMappings();
+        EmailScenarioMock.AddMapping(Enum::"Email Scenario"::Default, TempAccount."Account Id", TempAccount.Connector);
+    end;
+
+    local procedure CustomReportSelectionPrint(Document: Variant; ReportUsage: Enum "Report Selection Usage"; CustomerNoFieldNo: Integer)
+    var
+        ReportSelections: Record "Report Selections";
+        TempReportSelections: Record "Report Selections" temporary;
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+        CustomerNo: Code[20];
+    begin
+        RecRef.GetTable(Document);
+        FieldRef := RecRef.Field(CustomerNoFieldNo);
+        CustomerNo := CopyStr(Format(FieldRef.Value), 1, MaxStrLen(CustomerNo));
+
+        RecRef.SetRecFilter();
+        RecRef.SetTable(Document);
+
+        ReportSelections.FindEmailAttachmentUsageForCust(ReportUsage, CustomerNo, TempReportSelections);
+        ReportSelections.SendEmailToCust(ReportUsage.AsInteger(), Document, '', '', true, CustomerNo);
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure CancelMailSendingStrMenuHandler(Options: Text; var Choice: Integer; Instruction: Text)
+    begin
+        Choice := 1; //Save as Draft //Discard email	
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ModalEmailEditorHandler(var EmailEditor: TestPage "Email Editor")
+    var
+        Customer: Record Customer;
+        EmailRelatedRecord: Record "Email Related Record";
+    begin
+        Customer.Get(LibraryVariableStorage.DequeueText());
+        EmailRelatedRecord.SetRange("Table Id", Database::Customer);
+        EmailRelatedRecord.SetRange("System Id", Customer.SystemId);
+        Assert.IsTrue(EmailRelatedRecord.FindFirst(), EmailRelatedRecordNotFoundErr);
+    end;
+
     [ModalPageHandler()]
     procedure CreateRemindersSetupModalPageHandler(var CreateRemindersSetup: TestPage "Create Reminders Setup")
     begin
@@ -1271,4 +1369,5 @@ codeunit 134979 "Reminder Automation Tests"
         Any: Codeunit Any;
         IsInitialized: Boolean;
         FiltersAreNotSavedErr: Label 'Filters are not saved';
+        EmailRelatedRecordNotFoundErr: Label 'Email related record not found';
 }

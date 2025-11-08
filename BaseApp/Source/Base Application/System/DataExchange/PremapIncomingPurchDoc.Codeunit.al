@@ -423,6 +423,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
         IncomingDocument.Validate("Vendor Bank Account No.",
           CopyStr(TextValue, 1, MaxStrLen(IncomingDocument."Vendor Bank Account No.")));
 
+        OnAfterSetIncomingDocumentPersistHeaderData(EntryNo, RecordNo, IncomingDocument);
         IncomingDocument.Modify();
     end;
 
@@ -1447,6 +1448,11 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindGLAccountForLineOnBeforeFindAppropriateGLAccount(IntermediateDataImport: Record "Intermediate Data Import"; var GLAccountNo: Code[20]; EntryNo: Integer; HeaderRecordNo: Integer; RecordNo: Integer; VendorNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetIncomingDocumentPersistHeaderData(EntryNo: Integer; RecordNo: Integer; var IncomingDocument: Record "Incoming Document")
     begin
     end;
 }
