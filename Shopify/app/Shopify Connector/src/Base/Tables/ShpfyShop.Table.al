@@ -1011,14 +1011,14 @@ table 30102 "Shpfy Shop"
         JItem: JsonToken;
     begin
         CommunicationMgt.SetShop(Rec);
-        JResponse := CommunicationMgt.ExecuteGraphQL('{"query":"query { shop { name plan { displayName partnerDevelopment shopifyPlus } } }"}');
+        JResponse := CommunicationMgt.ExecuteGraphQL('{"query":"query { shop { name plan { publicDisplayName partnerDevelopment shopifyPlus } } }"}');
         if JResponse.SelectToken('$.data.shop.plan', JItem) then
             if JItem.IsObject then begin
                 if JsonHelper.GetValueAsBoolean(JItem, 'shopifyPlus') then
                     exit(true);
                 if JsonHelper.GetValueAsBoolean(JItem, 'partnerDevelopment') then
                     exit(true);
-                if JsonHelper.GetValueAsText(JItem, 'displayName') = 'Plus Trial' then
+                if JsonHelper.GetValueAsText(JItem, 'publicDisplayName') = 'Plus Trial' then
                     exit(true);
             end;
     end;
