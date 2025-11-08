@@ -792,7 +792,7 @@ codeunit 7314 "Warehouse Availability Mgt."
     begin
         IsHandled := false;
         Quantity := 0;
-        OnBeforeCalcQtyRegisteredPick(SourceType, SourceSubType, SourceID, SourceProdOrderLine, SourceRefNo, Quantity, IsHandled);
+        OnBeforeCalcQtyRegisteredPick(SourceType, SourceSubType, SourceID, SourceRefNo, SourceProdOrderLine, Quantity, IsHandled);
         if IsHandled then
             exit(Quantity);
 

@@ -1773,11 +1773,12 @@ table 8059 "Subscription Line"
     var
         UnitCost: Decimal;
         UnitCostLCY: Decimal;
+        BillingReferenceDateChanged: Boolean;
     begin
-        Rec.UnitPriceAndCostForPeriod(Rec."Billing Rhythm", ChargePeriodStart, ChargePeriodEnd, UnitPrice, UnitCost, UnitCostLCY);
+        Rec.UnitPriceAndCostForPeriod(Rec."Billing Rhythm", ChargePeriodStart, ChargePeriodEnd, UnitPrice, UnitCost, UnitCostLCY, BillingReferenceDateChanged);
     end;
 
-    internal procedure UnitPriceAndCostForPeriod(BillingRhythm: DateFormula; ChargePeriodStart: Date; ChargePeriodEnd: Date; var UnitPrice: Decimal; var UnitCost: Decimal; var UnitCostLCY: Decimal)
+    internal procedure UnitPriceAndCostForPeriod(BillingRhythm: DateFormula; ChargePeriodStart: Date; ChargePeriodEnd: Date; var UnitPrice: Decimal; var UnitCost: Decimal; var UnitCostLCY: Decimal; var BillingReferenceDateChanged: Boolean)
     var
         PeriodFormula: DateFormula;
         BillingPeriodRatio: Decimal;
@@ -1804,6 +1805,7 @@ table 8059 "Subscription Line"
             DayPrice := PeriodPrice / FollowUpPeriodDays;
             DayUnitCost := PeriodUnitCost / FollowUpPeriodDays;
             DayUnitCostLCY := PeriodUnitCostLCY / FollowUpPeriodDays;
+            BillingReferenceDateChanged := true;
         end;
         UnitPrice := PeriodPrice * Periods + DayPrice * FollowUpDays;
         UnitCost := PeriodUnitCost * Periods + DayUnitCost * FollowUpDays;
@@ -1861,7 +1863,7 @@ table 8059 "Subscription Line"
                 NextToDate := CalcDate(PeriodFormula, FromDate) - 1;
             Rec."Period Calculation"::"Align to End of Month":
                 begin
-                    DistanceToEndOfMonth := CalcDate('<CM>', Rec."Subscription Line Start Date") - Rec."Subscription Line Start Date";
+                    DistanceToEndOfMonth := CalcDate('<CM>', GetBillingReferenceDate()) - GetBillingReferenceDate();
                     if DistanceToEndOfMonth > 2 then
                         NextToDate := CalcDate(PeriodFormula, FromDate) - 1
                     else begin
@@ -1870,6 +1872,27 @@ table 8059 "Subscription Line"
                         NextToDate := LastDateInLastMonth - DistanceToEndOfMonth - 1;
                     end;
                 end;
+        end;
+    end;
+
+    local procedure GetBillingReferenceDate() BillingReferenceDate: Date
+    var
+        BillingLine: Record "Billing Line";
+        BillingLineArchive: Record "Billing Line Archive";
+    begin
+        BillingReferenceDate := Rec."Subscription Line Start Date";
+
+        BillingLine.SetRange("Subscription Header No.", "Subscription Header No.");
+        BillingLine.SetRange("Subscription Line Entry No.", "Entry No.");
+        BillingLine.SetRange("Billing Reference Date Changed", true);
+        if BillingLine.FindLast() then
+            exit(BillingLine."Billing to" + 1)
+        else begin
+            BillingLineArchive.SetRange("Subscription Header No.", "Subscription Header No.");
+            BillingLineArchive.SetRange("Subscription Line Entry No.", "Entry No.");
+            BillingLineArchive.SetRange("Billing Reference Date Changed", true);
+            if BillingLineArchive.FindLast() then
+                exit(BillingLineArchive."Billing to" + 1);
         end;
     end;
 
