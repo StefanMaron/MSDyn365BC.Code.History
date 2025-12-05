@@ -2073,13 +2073,13 @@ codeunit 134984 "ERM Sales Report III"
         LibraryReportDataset.AssertCurrentRowValueEquals('DocumentNo', SalesLine[1]."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Quantity', Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('LineAmount', Format(SalesLine[1]."Line Amount"));
-        VATAmount := SalesLine[1]."Amount Including VAT" - SalesLine[1].Amount;
+        VATAmount := Round(SalesLine[1].Amount * SalesLine[1]."VAT %" / 100 * SalesLine[1]."Qty. to Invoice" / SalesLine[1].Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount', Format(VATAmount));
 
         Assert.IsTrue(LibraryReportDataset.GetNextRow(), Rep1302DatasetErr);
         LibraryReportDataset.AssertCurrentRowValueEquals('Quantity', Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('LineAmount', Format(SalesLine[2]."Line Amount"));
-        VATAmount := SalesLine[2]."Amount Including VAT" - SalesLine[2].Amount;
+        VATAmount := Round(SalesLine[2].Amount * SalesLine[2]."VAT %" / 100 * SalesLine[2]."Qty. to Invoice" / SalesLine[2].Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount', Format(VATAmount));
     end;
 
@@ -3046,6 +3046,49 @@ codeunit 134984 "ERM Sales Report III"
 
         //[THEN] Check These  Entries should be there.
         LibraryReportDataset.AssertElementWithValueNotExist('CLEPostingDate', WorkDate());
+    end;
+
+    [Test]
+    [HandlerFunctions('ProFormaInvoiceXML_RPH')]
+    [Scope('OnPrem')]
+    procedure VerifyTaxAmountOnPartialQuantityStandardSalesProFormaInv()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Quantity: Decimal;
+        UnitPrice: Decimal;
+        AmountInclVAT: Decimal;
+        VATAmount: Decimal;
+        ItemNo: Code[20];
+    begin
+        // [SCENARIO 608883] Verify the VAT Amount on the Pro Forma Invoice should be according to qty to ship
+        Initialize();
+
+        // [GIVEN] Create Sales Header
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        Quantity := LibraryRandom.RandInt(10);
+        ItemNo := LibraryInventory.CreateItemNo();
+
+        // [WHEN] Create first Sales Line
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+
+        // [GIVEN] Create "Amount Inc. VAT" with prescision = 0.001, which will be round down. The 2*"Amount Inc. VAT" will be rounded up.
+        AmountInclVAT := LibraryRandom.RandDecInDecimalRange(50, 100, 2) + LibraryRandom.RandDecInDecimalRange(0.003, 0.004, 3);
+        UnitPrice := AmountInclVAT / (1 + SalesLine."VAT %" / 100) / Quantity;
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Modify(true);
+
+        // [WHEN] Print "Pro Forma Invoice" report
+        RunStandardSalesProFormaInv(SalesLine."Document No.");
+
+        // [THEN] The fields VATAmount evaluates correctly
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), Rep1302DatasetErr);
+        if SalesHeader."Currency Code" = '' then
+            VATAmount := Round(
+                                SalesLine.Amount * SalesLine."VAT %" / 100 * SalesLine."Qty. to Invoice" / SalesLine.Quantity, 0.01);
+
+        LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount', Format(VATAmount));
     end;
 
     local procedure Initialize()
@@ -4636,7 +4679,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         Item.Get(SalesLine."No.");
         LineAmount := Round(SalesLine.Amount * SalesLine."Qty. to Invoice" / SalesLine.Quantity);
-        VATAmount := SalesLine."Amount Including VAT" - SalesLine.Amount;
+        VATAmount := Round(SalesLine.Amount * SalesLine."VAT %" / 100 * SalesLine."Qty. to Invoice" / SalesLine.Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('ItemDescription', SalesLine."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('CountryOfManufacturing', Item."Country/Region of Origin Code");
         LibraryReportDataset.AssertCurrentRowValueEquals('Tariff', Item."Tariff No.");
@@ -4904,6 +4947,7 @@ codeunit 134984 "ERM Sales Report III"
         Item.Modify(true);
     end;
 
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure DocumentEntriesReqPageHandler(var DocumentEntries: TestRequestPage "Document Entries")
@@ -5165,6 +5209,13 @@ codeunit 134984 "ERM Sales Report III"
         AgedAccountsReceivable.AgedAsOf.SetValue(LibraryVariableStorage.DequeueDate());
         AgedAccountsReceivable.PrintDetails.SetValue(true);
         AgedAccountsReceivable.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure StandardSalesProFormaInvRequestPageHandler(var StandardSalesProFormaInv: TestRequestPage "Standard Sales - Pro Forma Inv")
+    begin
+        StandardSalesProFormaInv.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

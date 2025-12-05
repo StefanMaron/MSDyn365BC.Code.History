@@ -261,6 +261,7 @@ table 175 "Standard Vendor Purchase Code"
             PurchaseHeader."Document Type"::"Credit Memo":
                 SetFilter("Insert Rec. Lines On Cr. Memos", '<>%1', "Insert Rec. Lines On Cr. Memos"::Manual);
         end;
+        OnAfterSetFilterByAutomaticAndAlwaysAskCodes(Rec, PurchaseHeader);
     end;
 
     procedure IsInsertRecurringLinesOnDocumentAutomatic(PurchaseHeader: Record "Purchase Header"): Boolean
@@ -322,6 +323,11 @@ table 175 "Standard Vendor Purchase Code"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertPurchLinesOnBeforeApplyStdVendPurchCodes(var StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code"; var IsHandled: Boolean; var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFilterByAutomaticAndAlwaysAskCodes(var StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code"; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 }

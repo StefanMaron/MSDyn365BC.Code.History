@@ -1510,6 +1510,60 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         FindLastItemLedgerEntry(ItemLedgerEntry, CompItem."No.", Location.Code, false);
     end;
 
+    [Test]
+    procedure PostTimeOnlyProductionJournalWithWarehousePutaway()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+        ProdOrderLine: Record "Prod. Order Line";
+        ProductionOrder: Record "Production Order";
+        PutawayTemplateHeader: Record "Put-away Template Header";
+        PutawayTemplateLine: Record "Put-away Template Line";
+        ProductionJournalMgt: Codeunit "Production Journal Mgt";
+    begin
+        // [SCENARIO 609902] Posting time-only production journal (Setup Time/Run Time with zero output qty) succeeds with Warehouse Put-away.
+        Initialize();
+
+        // [GIVEN] Create Location with bins and "Prod. Output Whse. Handling" = "Warehouse Put-away".
+        LibraryWarehouse.CreatePutAwayTemplateHeader(PutAwayTemplateHeader);
+        LibraryWarehouse.CreatePutAwayTemplateLine(PutAwayTemplateHeader, PutAwayTemplateLine, true, false, false, false, false, false);
+        CreateLocationSetupWithBins(Location, false, false, false, false, true, 2, false);
+        Location.Validate("Directed Put-away and Pick", true);
+        Location.Validate("Prod. Output Whse. Handling", Location."Prod. Output Whse. Handling"::"Warehouse Put-away");
+        Location.Validate("Put-away Template Code", PutawayTemplateHeader.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create a production item with no components.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Modify(true);
+
+        // [GIVEN] Create Released Production Order for the item.
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, "Production Order Status"::Released, "Prod. Order Source Type"::Item, Item."No.", 10);
+        ProductionOrder.Validate("Location Code", Location.Code);
+        ProductionOrder.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [GIVEN] Create production journal lines.
+        FindFirstProdOrderLine(ProdOrderLine, ProductionOrder);
+        ProductionJournalMgt.InitSetupValues();
+        ProductionJournalMgt.SetTemplateAndBatchName();
+        ProductionJournalMgt.CreateJnlLines(ProductionOrder, ProdOrderLine."Line No.");
+        ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
+        ItemJournalLine.SetRange("Document No.", ProductionOrder."No.");
+        ItemJournalLine.FindFirst();
+
+        // [GIVEN] Set Output Quantity to 0 and Setup Time to a non-zero value.
+        ItemJournalLine.Validate("Output Quantity", 0);
+        ItemJournalLine.Validate("Setup Time", 10);
+        ItemJournalLine.Modify(true);
+
+        // [WHEN] Post the production journal.
+        // [THEN] Posting succeeds without "There is nothing to create" error.
+        CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

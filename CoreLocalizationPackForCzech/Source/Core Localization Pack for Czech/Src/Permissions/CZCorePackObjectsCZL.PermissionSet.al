@@ -338,6 +338,7 @@ permissionset 11732 "CZ Core Pack - Objects CZL"
                   table "VAT Ctrl. Report Section CZL" = X,
                   table "VAT LCY Correction Buffer CZL" = X,
                   table "VAT Period CZL" = X,
+                  table "VAT Report Entry Link CZL" = X,
                   table "VAT Stmt. Report Line Data CZL" = X,
                   table "VAT Statement Attachment CZL" = X,
                   table "VAT Statement Comment Line CZL" = X,

@@ -196,7 +196,8 @@ codeunit 11710 "Data Class. Eval. Handler CZL"
         DataClassificationMgt.SetTableFieldsToNormal(Database::"VAT Ctrl. Report Header CZL");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"VAT Ctrl. Report Line CZL");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"VAT Ctrl. Report Section CZL");
-        DataClassificationMgt.SetTableFieldsToNormal(Database::"VAT Period CZL");
+        DataClassificationMgt.SetTableFieldsToNormal(Database::"VAT Period CZL");     
+        DataClassificationMgt.SetTableFieldsToNormal(Database::"VAT Report Entry Link CZL");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"VAT Statement Attachment CZL");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"VAT Statement Comment Line CZL");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"VAT Stmt. Report Line Data CZL");
