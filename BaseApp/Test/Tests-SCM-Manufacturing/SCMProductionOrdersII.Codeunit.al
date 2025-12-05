@@ -135,6 +135,7 @@ codeunit 137072 "SCM Production Orders II"
         ThereIsNothingToCreateErr: Label 'There is nothing to create.';
         CostAmtNonInvtblMustNotBeZeroErr: Label '%1 must not be 0 in %2', Comment = '%1 = Cost Amount (Non-Invtbl.) Caption, %2 = Item Ledger Entry Table';
         LotNoMustBeEqualErr: Label '%1 must be equal to %2 in %3', Comment = '%1 = Lot No. Caption, %2 = Expected Lot No., %3 = Warehouse Activity Line Table';
+        ProdOrderLineErr: Label 'A Production Order must have two lines for a variant-based BOM structure.';
 
     [Test]
     [Scope('OnPrem')]
@@ -7242,6 +7243,80 @@ codeunit 137072 "SCM Production Orders II"
                         StrSubstNo(LotNoMustBeEqualErr, WarehouseActivityLine.FieldCaption("Lot No."), LotNo, WarehouseActivityLine.TableCaption));
     end;
 
+    [Test]
+    procedure VerifyProdOrderWithVariantBasedBOMStructure()
+    var
+        ComponentItem: Record Item;
+        ItemVariant: Record "Item Variant";
+        ItemVariant2: Record "Item Variant";
+        MainItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ReqLine: Record "Requisition Line";
+        SalesHeader: Record "Sales Header";
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        StockkeepingUnit2: Record "Stockkeeping Unit";
+        NewProdOrderChoice: Option " ",Planned,"Firm Planned","Firm Planned & Print","Copy to Req. Wksh";
+    begin
+        // [SCENARIO 608781] Create production order with variant-based BOM structure and verify production lines,
+        Initialize();
+
+        // [GIVEN] Create component item with Lot-for-Lot reordering policy
+        LibraryInventory.CreateItem(ComponentItem);
+        ComponentItem.Validate("Reordering Policy", ComponentItem."Reordering Policy"::"Lot-for-Lot");
+        ComponentItem.Validate("Replenishment System", ComponentItem."Replenishment System"::"Purchase");
+        ComponentItem.Validate("Flushing Method", ComponentItem."Flushing Method"::Manual);
+        ComponentItem.Modify(true);
+
+        // [GIVEN] Create main item with Make-to-Order manufacturing policy
+        LibraryInventory.CreateItem(MainItem);
+        MainItem.Validate("Manufacturing Policy", MainItem."Manufacturing Policy"::"Make-to-Order");
+        MainItem.Validate("Replenishment System", MainItem."Replenishment System"::"Prod. Order");
+        MainItem.Validate("Reordering Policy", MainItem."Reordering Policy"::Order);
+        MainItem.Validate("Flushing Method", MainItem."Flushing Method"::Manual);
+        MainItem.Modify(true);
+
+        // [GIVEN] Create PINK and VIOLET variants for main item
+        LibraryInventory.CreateItemVariant(ItemVariant, MainItem."No.");
+        ItemVariant.Validate(Description, 'PINK');
+        ItemVariant.Modify(true);
+        LibraryInventory.CreateItemVariant(ItemVariant2, MainItem."No.");
+        ItemVariant2.Validate(Description, 'VIOLET');
+        ItemVariant2.Modify(true);
+
+        // [GIVEN] Create Stockkeeping Units for both variants
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, '', MainItem."No.", ItemVariant.Code);
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit2, '', MainItem."No.", ItemVariant2.Code);
+
+        // [GIVEN] Create Production BOM for PINK variant with component item
+        CreateProductionBOMAndCertify(
+            ProductionBOMHeader, MainItem."Base Unit of Measure", ProductionBOMLine.Type::Item, ComponentItem."No.", 1, 'PINK', '');
+        StockkeepingUnit.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        StockkeepingUnit.Modify(true);
+
+        // [GIVEN] Create Production BOM for VIOLET variant with main item and PINK variant
+        CreateProductionBOMAndCertify(
+            ProductionBOMHeader, MainItem."Base Unit of Measure", ProductionBOMLine.Type::Item, MainItem."No.", 1, 'VIOLET', ItemVariant.Code);
+        StockkeepingUnit2.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        StockkeepingUnit2.Modify(true);
+
+        // [GIVEN] Create Sales Order with VIOLET variant
+        CreateSalesOrder(SalesHeader, MainItem."No.", 1, ItemVariant2.Code);
+
+        // [GIVEN] Calculate regenerative plan in planning worksheet update Planning Worksheet.
+        CalculatePlanOnPlanningWorksheet(MainItem, WorkDate(), CalcDate('<1Y>', WorkDate()), false, false);
+
+        // [GIVEN] Set "Accept Action Message" on all Requisition lines.
+        UpdatePlanningWorkSheetwithVendor(ReqLine, MainItem."No.", ItemVariant2.Code);
+
+        // [WHEN] Running Carry Out Action Message For Requisition lines "Action Message"::Cancel.
+        ReqLine.SetRange("Action Message", ReqLine."Action Message"::New);
+        LibraryPlanning.CarryOutPlanWksh(ReqLine, NewProdOrderChoice::"Firm Planned", 0, 0, 0, '', '', '', '');
+
+        // [THEN] Verify Firm Planned Production Order has two lines
+        VerifyProductionOrderLines(MainItem."No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -9315,7 +9390,7 @@ codeunit 137072 "SCM Production Orders II"
         Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
         Item.Modify(true);
     end;
-    
+
     local procedure CreateBin(var Bin: array[5] of Record Bin; LocationCode: Code[10])
     var
         i: Integer;
@@ -9337,6 +9412,83 @@ codeunit 137072 "SCM Production Orders II"
             ItemJournalLine.OpenItemTrackingLines(false);  // Invokes ItemTrackingPageHandler.
         end;
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure VerifyProductionOrderLines(MainItemNo: Code[20])
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        ProdOrderLine.SetRange("Item No.", MainItemNo);
+        if ProdOrderLine.FindSet() then;
+        Assert.AreEqual(2, ProdOrderLine.Count(), ProdOrderLineErr);
+    end;
+
+    local procedure CalculatePlanOnPlanningWorksheet(var ItemRec: Record Item; OrderDate: Date; ToDate: Date; RespectPlanningParameters: Boolean; Regenerative: Boolean)
+    var
+        TmpItemRec: Record Item;
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        CalculatePlanPlanWksh: Report "Calculate Plan - Plan. Wksh.";
+    begin
+        LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);  // Find Requisition Worksheet Name to Calculate Plan.
+        Commit();
+        CalculatePlanPlanWksh.InitializeRequest(OrderDate, ToDate, RespectPlanningParameters, true, true, '', 0D, false);
+        CalculatePlanPlanWksh.SetTemplAndWorksheet(RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name, Regenerative);
+        if ItemRec.HasFilter then
+            TmpItemRec.CopyFilters(ItemRec)
+        else begin
+            ItemRec.Get(ItemRec."No.");
+            TmpItemRec.SetRange("No.", ItemRec."No.");
+        end;
+        CalculatePlanPlanWksh.SetTableView(TmpItemRec);
+        CalculatePlanPlanWksh.UseRequestPage(false);
+        CalculatePlanPlanWksh.RunModal();
+    end;
+
+    local procedure UpdatePlanningWorkSheetwithVendor(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20]; VariantCode: Code[10])
+    begin
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", ItemNo);
+        RequisitionLine.FindSet();
+        repeat
+            RequisitionLine."Variant Code" := VariantCode;
+            RequisitionLine.Validate("Accept Action Message", true);
+            RequisitionLine.Modify(true);
+        until RequisitionLine.Next() = 0;
+    end;
+
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Quantity: Decimal; VariantCode: Code[10])
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
+        SalesLine.Validate("Variant Code", VariantCode);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreateProductionBOMAndCertify(var ProductionBOMHeader: Record "Production BOM Header"; BaseUnitOfMeasure: Code[10]; Type: Enum "Production BOM Line Type"; No: Code[20]; QuantityPer: Integer; Description: Text[10]; VariantCode: Code[10])
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        CreateProductionBOM(ProductionBOMHeader, ProductionBOMLine, BaseUnitOfMeasure, Type, No, QuantityPer);
+        ProductionBOMHeader.Validate(Description, Description);
+        ProductionBOMHeader.Modify(true);
+        ProductionBOMLine.Validate("Variant Code", VariantCode);
+        ProductionBOMLine.Modify(true);
+        UpdateProductionBOMHeaderStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+    end;
+
+    local procedure CreateProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; var ProductionBOMLine: Record "Production BOM Line"; BaseUnitOfMeasure: Code[10]; Type: Enum "Production BOM Line Type"; No: Code[20]; QuantityPer: Integer)
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, BaseUnitOfMeasure);
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', Type, No, QuantityPer);
+    end;
+
+    local procedure UpdateProductionBOMHeaderStatus(var ProductionBOMHeader: Record "Production BOM Header"; Status: Enum "BOM Status")
+    begin
+        ProductionBOMHeader.Validate(Status, Status);
+        ProductionBOMHeader.Modify(true);
     end;
 
     [ModalPageHandler]
