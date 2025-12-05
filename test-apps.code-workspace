@@ -1,11 +1,11 @@
 {
   "settings": {
+    "al.enableCodeActions": false,
     "search.exclude": {
       "**.xlf": true
     },
-    "al.enableCodeActions": false,
-    "al.enableCodeAnalysis": false,
-    "allint.enabled": false
+    "allint.enabled": false,
+    "al.enableCodeAnalysis": false
   },
   "folders": [
     {
@@ -220,6 +220,9 @@
     },
     {
       "path": "./EDocumentConnectors/Continia/Test/E-Document Connector - Continia Tests"
+    },
+    {
+      "path": "./EDocumentConnectors/FORNAV/Test/E-Document Connector - FORNAV Tests"
     },
     {
       "path": "./APIV2/Test/_Exclude_APIV2_ Tests"

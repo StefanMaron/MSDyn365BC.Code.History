@@ -11,6 +11,7 @@ page 2591 "Dimension Correction Draft"
 {
     PageType = ListPlus;
     SourceTable = "Dimension Correction";
+    SourceTableView = where(completed = const(false));
     DataCaptionExpression = Rec.Description;
     Caption = 'Draft Dimension Correction';
 
@@ -288,6 +289,7 @@ page 2591 "Dimension Correction Draft"
     trigger OnAfterGetCurrRecord()
     begin
         CurrPage.SelectedGLEntries.Page.SetDimensionCorrectionEntryNo(Rec."Entry No.");
+        CurrPage.SelectedGLEntries.Page.Update(false);
         Rec.GetValidateDimensionChangesText(ValidationStatusTxt);
         ValidationStatusVisible := (ValidationStatusTxt <> '') and (Rec.Status <> Rec.Status::Failed);
         IsErrorActionEnabled := ValidationStatusVisible and (not IsNullGuid(Rec."Validation Errors Register ID"));

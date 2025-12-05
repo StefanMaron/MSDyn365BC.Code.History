@@ -108,8 +108,6 @@ codeunit 10058 "IRS 1099 Upgrade"
         end;
         Telemetry.LogMessage('0000PZN', 'Creating new IRS Reporting Period', Verbosity::Normal, DataClassification::SystemMetadata);
         IRS1099TransferFromBaseApp.CreateReportingPeriod(IRSReportingPeriod, ReportingYear);
-        Telemetry.LogMessage('0000PZO', 'Transferring IRS 1099 setup', Verbosity::Normal, DataClassification::SystemMetadata);
-        IRS1099TransferFromBaseApp.TransferIRS1099Setup(IRSReportingPeriod, ReportingYear);
         exit(true);
     end;
 
