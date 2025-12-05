@@ -10,15 +10,15 @@ codeunit 134400 "ERM Incoming Documents"
 
     var
         Assert: Codeunit Assert;
-        LibraryPurchase: Codeunit "Library - Purchase";
-        LibrarySales: Codeunit "Library - Sales";
         LibraryERM: Codeunit "Library - ERM";
         LibraryIncomingDocuments: Codeunit "Library - Incoming Documents";
-        LibraryJournals: Codeunit "Library - Journals";
-        LibraryUtility: Codeunit "Library - Utility";
-        LibraryRandom: Codeunit "Library - Random";
-        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryJournals: Codeunit "Library - Journals";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryRandom: Codeunit "Library - Random";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         OnlyOneDefaultAttachmentErr: Label 'There can only be one default attachment.';
         MainAttachErr: Label 'There can only be one main attachment.';
         ReplaceMainAttachmentQst: Label 'Are you sure you want to replace the attached file?';
@@ -31,6 +31,9 @@ codeunit 134400 "ERM Incoming Documents"
         EmptyLinkToRelatedRecordErr: Label 'Link to related record is empty.';
         CannotReplaceMainAttachmentErr: Label 'Cannot replace the main attachment because the document has already been sent to OCR.';
         TotalsMismatchErr: Label 'The invoice cannot be posted because the total is different from the total on the related incoming document.';
+        EmailNotSentErr: Label ' The email was not sent to the customer.';
+        NoAttachmentsErr: Label 'The email has no attachments.';
+        NoOfAttachmentsSameErr: Label 'The number of attachments must be the same.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2589,6 +2592,68 @@ codeunit 134400 "ERM Incoming Documents"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('SalesInvHandler,IncomingDocumentsLookupHandler')]
+    procedure AttachIncomingDocumentsNotCalledForReminders()
+    var
+        Customer: Record Customer;
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        IssuedReminderHeader: Record "Issued Reminder Header";
+        SalesHeader: Record "Sales Header";
+        SendEmailMock: Codeunit "Send Email Mock";
+        IssuedReminder: TestPage "Issued Reminder";
+        DocumentNo: Code[20];
+        FileName: Text;
+    begin
+        // [GIVEN] Delete existing sales header 
+        SalesHeader.SetFilter("Incoming Document Entry No.", '<>0');
+        SalesHeader.DeleteAll();
+
+        // [GIVEN] Create Customer with Reminder Terms.
+        CreateCustomerWithReminderTerms(Customer);
+
+        // [GIVEN] Create a new Incoming Document.
+        CreateNewIncomingDocument(IncomingDocument);
+
+        // [GIVEN] Attach file on Incoming Document.
+        IncomingDocument.Release();
+        IncomingDocument.Modify(true);
+        FileName := CreateDummyFile('xml');
+        ImportAttachToIncomingDoc(IncomingDocumentAttachment, FileName);
+
+        // [WHEN] Create a new Sales Invoice from Incoming Document.
+        IncomingDocument.CreateSalesInvoice();  // Opens page 43 "Sales Invoice"
+        IncomingDocument.Modify(true);
+        IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Sales Invoice");
+
+        // [THEN] Verify new Sales Invoice was created.
+        SalesHeader.FindFirst();
+        SalesHeader.TestField("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesHeader.TestField("Incoming Document Entry No.", IncomingDocument."Entry No.");
+
+        // [GIVEN] Open the Sales Invoice and attach the Incoming Document to it.
+        OpenSalesInvoiceAndAssignIncomingDoc(IncomingDocument."Entry No.", Customer."No.");
+
+        // [GIVEN] Create a Sales Line and post the existing Sales Invoice.
+        DocumentNo := CreateSalesLineAndPost(SalesHeader);
+
+        // [GIVEN] Create a new Issued Reminder.
+        CreateIssuedReminder(IssuedReminderHeader, Customer."No.", DocumentNo);
+
+        // [WHEN] Send Email from Issued Reminder Page. 
+        BindSubscription(SendEmailMock);
+        SendEmailMock.AddSupportedScenario(Enum::"Email Scenario"::Reminder);
+        IssuedReminder.OpenEdit();
+        IssuedReminder.GoToRecord(IssuedReminderHeader);
+        IssuedReminder."Send by &Email".Invoke();
+        Commit();
+        UnbindSubscription(SendEmailMock);
+
+        // [THEN] Verify the number of attachments in the sent email from the Issued Reminder page.
+        VerifyReminderMailWithAttachmentSentForCustomer(Customer, SendEmailMock);
+    end;
+
     local procedure SetPaymentTypeJournalTemplate(var GenJournalLine: Record "Gen. Journal Line")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -2741,6 +2806,87 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument.Description := Description;
         IncomingDocument.Processed := ProcessedState;
         IncomingDocument.Modify();
+    end;
+
+    local procedure CreateCustomerWithReminderTerms(var Customer: Record Customer)
+    var
+        ReminderLevel: Record "Reminder Level";
+        ReminderTerms: Record "Reminder Terms";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreateReminderTerms(ReminderTerms);
+        LibraryERM.CreateReminderLevel(ReminderLevel, ReminderTerms.Code);
+        Evaluate(ReminderLevel."Grace Period", '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
+        ReminderLevel.Validate("Additional Fee (LCY)", LibraryRandom.RandInt(10));
+        ReminderLevel.Validate("Calculate Interest", true);
+        ReminderLevel.Modify(true);
+
+        Customer.Validate("Reminder Terms Code", ReminderTerms.Code);
+        Customer.Modify(true);
+    end;
+
+    local procedure OpenSalesInvoiceAndAssignIncomingDoc(EntryNo: Integer; CustomerNo: Code[20])
+    var
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        SalesInvoice.OpenEdit();
+        SalesInvoice.Filter.SetFilter("Incoming Document Entry No.", Format(EntryNo));
+        SalesInvoice."Sell-to Customer No.".SetValue(CustomerNo);
+        SalesInvoice.SelectIncomingDoc.Invoke();
+        SalesInvoice.Close();
+    end;
+
+    local procedure CreateSalesLineAndPost(var SalesHeader: Record "Sales Header"): Code[20]
+    var
+        SalesLine: Record "Sales Line";
+        DocumentNo: Code[20];
+    begin
+        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Item,
+            LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(1000, 2000));
+        SalesLine.Modify(true);
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        exit(DocumentNo);
+    end;
+
+    local procedure CreateIssuedReminder(var IssuedReminderHeader: Record "Issued Reminder Header"; CustomerNo: Code[20]; DocumentNo: Code[20])
+    var
+        ReminderHeader: Record "Reminder Header";
+        ReminderLine: Record "Reminder Line";
+        ReminderIssue: Codeunit "Reminder-Issue";
+        ReminderHeaderNo: Code[20];
+    begin
+        LibraryERM.CreateReminderHeader(ReminderHeader);
+        ReminderHeader.Validate("Customer No.", CustomerNo);
+        ReminderHeader.Modify(true);
+
+        LibraryERM.CreateReminderLine(ReminderLine, ReminderHeader."No.", ReminderLine.Type::"Customer Ledger Entry");
+        ReminderLine.Validate("Document No.", DocumentNo);
+        ReminderLine.Modify(true);
+        ReminderHeaderNo := ReminderHeader."No.";
+        ReminderIssue.Set(ReminderHeader, false, ReminderHeader."Document Date");
+        LibraryERM.RunReminderIssue(ReminderIssue);
+
+        IssuedReminderHeader.SetRange("Pre-Assigned No.", ReminderHeaderNo);
+        IssuedReminderHeader.FindFirst();
+        IssuedReminderHeader.Rename(DocumentNo);
+    end;
+
+    local procedure VerifyReminderMailWithAttachmentSentForCustomer(var Customer: Record Customer; SendEmailMock: Codeunit "Send Email Mock")
+    var
+        TempEmailItemSent: Record "Email Item" temporary;
+        TempBlobList: Codeunit "Temp Blob List";
+        AttachmentNames: List of [Text];
+    begin
+        SendEmailMock.GetEmailsSent(TempEmailItemSent);
+        TempEmailItemSent.SetRange("Send to", Customer."E-Mail");
+        Assert.IsTrue(TempEmailItemSent.FindFirst(), EmailNotSentErr);
+        Assert.IsTrue(TempEmailItemSent.HasAttachments(), NoAttachmentsErr);
+        TempEmailItemSent.GetAttachments(TempBlobList, AttachmentNames);
+        Assert.AreEqual(1, TempBlobList.Count(), NoOfAttachmentsSameErr);
     end;
 }
 
