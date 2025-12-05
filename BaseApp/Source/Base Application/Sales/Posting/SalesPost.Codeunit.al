@@ -70,6 +70,7 @@ using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Setup;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.Availability;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.History;
@@ -2546,7 +2547,7 @@ codeunit 80 "Sales-Post"
         OnBeforeCheckItemTrackingQuantity(SalesLine, IsHandled);
         if IsHandled then
             exit;
-
+        SyncSurPlusItemTracking(SalesHeader, SalesLine);
         case SalesHeader."Document Type" of
             SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Invoice:
                 TrackingSpecification.CheckItemTrackingQuantity(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", SalesLine."Qty. to Ship (Base)", SalesLine."Qty. to Invoice (Base)", SalesHeader.Ship, SalesHeader.Invoice);
@@ -10590,6 +10591,52 @@ codeunit 80 "Sales-Post"
             PostedDocumentNo := PostingPreviewNoTok + Format(Random(999999), 0, PostingPreviewNoFormatTxt)
         else
             PostedDocumentNo := DocumentNo;
+    end;
+
+    local procedure SyncSurPlusItemTracking(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
+    var
+        Location2: Record Location;
+        ReservEntry: Record "Reservation Entry";
+        TempTrackingSpecification2: Record "Tracking Specification" temporary;
+        TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary;
+        WarehouseAvailabilityMgt: Codeunit "Warehouse Availability Mgt.";
+        QtyReservedForCurrLine: Decimal;
+        SurplusQtyToHandle: Decimal;
+    begin
+        if not SalesHeader.Ship then
+            exit;
+        if not (SalesHeader."Document Type" in [SalesHeader."Document Type"::Invoice, SalesHeader."Document Type"::Order]) then
+            exit;
+
+        if (SalesLine."Location Code" = '') or
+           not Location2.Get(SalesLine."Location Code") or
+           not Location2."Require Shipment"
+        then
+            exit;
+
+        TempTrackingSpecification2.SetSourceFromSalesLine(SalesLine);
+        QtyReservedForCurrLine := Abs(WarehouseAvailabilityMgt.CalcLineReservedQtyOnInvt(
+            TempTrackingSpecification2."Source Type", TempTrackingSpecification2."Source Subtype", TempTrackingSpecification2."Source ID", TempTrackingSpecification2."Source Ref. No.",
+            0, false, TempWarehouseActivityLine));
+
+        if QtyReservedForCurrLine = 0 then
+            exit;
+
+        ReservEntry.SetSourceFilter(
+                                 TempTrackingSpecification2."Source Type", TempTrackingSpecification2."Source Subtype",
+                                 TempTrackingSpecification2."Source ID", TempTrackingSpecification2."Source Ref. No.", true);
+        ReservEntry.SetSourceFilter('', TempTrackingSpecification2."Source Prod. Order Line");
+        ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Surplus);
+        if not ReservEntry.FindSet() then
+            exit;
+
+        ReservEntry.CalcSums("Qty. to Handle (Base)");
+        SurplusQtyToHandle := Abs(ReservEntry."Qty. to Handle (Base)");
+        if (QtyReservedForCurrLine + SurplusQtyToHandle) < SalesLine."Qty. to Ship (Base)" then
+            exit;
+
+        ReservEntry.ModifyAll("Qty. to Handle (Base)", 0);
+        ReservEntry.ModifyAll("Qty. to Invoice (Base)", 0);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforePostValueEntryToGL', '', false, false)]
