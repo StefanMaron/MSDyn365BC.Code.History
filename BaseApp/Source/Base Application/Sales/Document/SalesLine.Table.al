@@ -363,7 +363,7 @@ table 37 "Sales Line"
                         DeleteChargeChargeAssgnt("Document Type", "Document No.", "Line No.");
                 end;
 
-                UpdateItemReference();
+                UpdateItemReference(FieldNo("No."));
 
                 UpdateUnitPriceByField(FieldNo("No."));
 
@@ -2452,7 +2452,7 @@ table 37 "Sales Line"
                     SalesWarehouseMgt.SalesLineVerifyChange(Rec, xRec);
                 end;
 
-                UpdateItemReference();
+                UpdateItemReference(FieldNo("Variant Code"));
 
                 UpdateUnitPriceByField(FieldNo("Variant Code"));
             end;
@@ -4957,7 +4957,7 @@ table 37 "Sales Line"
             if CurrFieldNo = FieldNo("Prepayment %") then
                 if "System-Created Entry" and not IsServiceChargeLine() then
                     FieldError("Prepmt. Line Amount", StrSubstNo(Text045, 0));
-            if "System-Created Entry" and not IsServiceChargeLine() then
+            if "System-Created Entry" and not IsServiceChargeLine() and (CurrFieldNo <> 0) then
                 "Prepayment %" := 0;
             GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
             if GenPostingSetup."Sales Prepayments Account" <> '' then begin
@@ -6390,7 +6390,7 @@ table 37 "Sales Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeDeleteItemChargeAssignment(DocType, DocNo, DocLineNo, IsHandled);
+        OnBeforeDeleteItemChargeAssignment(DocType, DocNo, DocLineNo, IsHandled, CurrFieldNo);
         if not IsHandled then begin
             ItemChargeAssgntSales.SetRange("Applies-to Doc. Type", DocType);
             ItemChargeAssgntSales.SetRange("Applies-to Doc. No.", DocNo);
@@ -7341,8 +7341,15 @@ table 37 "Sales Line"
             "Document No.", '', 0, "Line No."));
     end;
 
-    local procedure UpdateItemReference()
+    local procedure UpdateItemReference(CalledByFieldNo: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateItemReference(Rec, xRec, CalledByFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemReferenceMgt.EnterSalesItemReference(Rec);
         UpdateICPartner();
 
@@ -7358,7 +7365,7 @@ table 37 "Sales Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetDefaultBin(Rec, IsHandled);
+        OnBeforeGetDefaultBin(Rec, IsHandled, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -7609,7 +7616,7 @@ table 37 "Sales Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckApplFromItemLedgEntry(Rec, xRec, ItemLedgEntry, IsHandled);
+        OnBeforeCheckApplFromItemLedgEntry(Rec, xRec, ItemLedgEntry, IsHandled, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -10671,7 +10678,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckApplFromItemLedgEntry(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckApplFromItemLedgEntry(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -10736,7 +10743,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetDefaultBin(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeGetDefaultBin(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -11167,6 +11174,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateDates(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateItemReference(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CalledByFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -12248,7 +12260,7 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteItemChargeAssignment(DocType: Enum "Sales Document Type"; DocNo: Code[20];
-                                                                    DocLineNo: Integer; var IsHandled: Boolean)
+                                                                    DocLineNo: Integer; var IsHandled: Boolean; CurrentFieldNo: Integer)
     begin
     end;
 

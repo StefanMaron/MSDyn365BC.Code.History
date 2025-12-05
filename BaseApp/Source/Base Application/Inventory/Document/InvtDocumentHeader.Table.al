@@ -411,6 +411,8 @@ table 5850 "Invt. Document Header"
                     DefaultDimSource, SourceCodeSetup."Invt. Shipment", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
         end;
 
+        OnCreateDimOnBeforeUpdateLines(Rec, xRec, CurrFieldNo, OldDimSetID, DefaultDimSource);
+
         if (OldDimSetID <> "Dimension Set ID") and DocLinesExist() then begin
             Modify();
             UpdateAllLineDim("Dimension Set ID", OldDimSetID);
@@ -568,6 +570,11 @@ table 5850 "Invt. Document Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsert(var InvtDocumentHeader: Record "Invt. Document Header"; xInvtDocumentHeader: Record "Invt. Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateDimOnBeforeUpdateLines(var InvtDocumentHeader: Record "Invt. Document Header"; xInvtDocumentHeader: Record "Invt. Document Header"; CurrentFieldNo: Integer; OldDimSetID: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 }
