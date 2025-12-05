@@ -785,7 +785,15 @@ codeunit 99000830 "Create Reserv. Entry"
                         if TempTrkgSpec1.FindLast() then
                             NextState := NextState::Split
                         else
-                            NextState := NextState::Error;
+                            if TempTrkgSpec2."Quantity (Base)" < 0 then begin
+                                TempTrkgSpec1.SetRange("Serial No.");
+                                TempTrkgSpec1.SetRange("Lot No.");
+                                if TempTrkgSpec1.FindLast() then
+                                    NextState := NextState::Split
+                                else
+                                    NextState := NextState::SetFilter2
+                            end else
+                                NextState := NextState::Error;
                     end;
                 NextState::SetFilter2:
                     begin
