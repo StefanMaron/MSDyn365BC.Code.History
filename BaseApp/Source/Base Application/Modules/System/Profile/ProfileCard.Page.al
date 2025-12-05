@@ -1,5 +1,6 @@
 ﻿namespace System.Environment.Configuration;
 
+using System.Agents;
 using System.Environment;
 using System.Reflection;
 
@@ -277,6 +278,13 @@ page 9170 "Profile Card"
     trigger OnInit()
     begin
         IsWebClient := ClientTypeManagement.GetCurrentClientType() = ClientType::Web;
+    end;
+
+    trigger OnOpenPage()
+    var
+        AgentUtilities: Codeunit "Agent Utilities";
+    begin
+        AgentUtilities.BlockPageFromBeingOpenedByAgent();
     end;
 
     trigger OnAfterGetCurrRecord()

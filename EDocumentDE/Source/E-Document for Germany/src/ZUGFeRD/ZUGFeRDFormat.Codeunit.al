@@ -8,9 +8,12 @@ using System.Utilities;
 using Microsoft.eServices.EDocument.IO.Peppol;
 using Microsoft.Foundation.Company;
 using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Purchases.Document;
 using Microsoft.eServices.EDocument;
+using Microsoft.Service.Document;
+using Microsoft.Service.History;
 using System.IO;
 
 codeunit 13920 "ZUGFeRD Format" implements "E-Document"
@@ -134,6 +137,16 @@ codeunit 13920 "ZUGFeRD Format" implements "E-Document"
             exit;
 
         if not EDocumentService."Buyer Reference Mandatory" then
+            exit;
+
+        if not (SourceDocumentHeader.Number in
+            [Database::"Sales Header",
+            Database::"Sales Invoice Header",
+            Database::"Sales Cr.Memo Header",
+            Database::"Service Header",
+            Database::"Service Invoice Header",
+            Database::"Service Cr.Memo Header"])
+        then
             exit;
 
         case EDocumentService."Buyer Reference" of

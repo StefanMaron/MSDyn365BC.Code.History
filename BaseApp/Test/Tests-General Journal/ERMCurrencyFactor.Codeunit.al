@@ -415,6 +415,102 @@ codeunit 134077 "ERM Currency Factor"
         CurrencyExchangeRate.Insert();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCalcAmountSrcCurrRoundingPrecisionInitialization()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        CurrencyCode: Code[10];
+        GLAccountNo: Code[20];
+        Amount: Decimal;
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 610864] Verify that CalcAmountSrcCurr properly initializes LocalAmountRoundingPrecision to avoid "value of ROUND parameter 2 is outside of the permitted range" error
+
+        // [GIVEN] A currency with proper rounding precision
+        Initialize();
+        CurrencyCode := CreateCurrency();
+        GLAccountNo := CreateGLAccountWithVATSetup(VATPostingSetup, GeneralPostingSetup);
+        Amount := LibraryRandom.RandDecInRange(100, 1000, 2);
+        DocumentNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] A General Journal Line with Source Currency Code and VAT to trigger CalcAmountSrcCurr
+        CreateGeneralJournalBatch(GenJournalBatch);
+
+        // Set up the journal batch to use a balancing account
+        GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"G/L Account";
+        GenJournalBatch."Bal. Account No." := LibraryERM.CreateGLAccountNo();
+        GenJournalBatch.Modify(true);
+
+        // Create journal line with VAT and source currency - the balancing account will handle the balance automatically
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine,
+            GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Invoice,
+            GenJournalLine."Account Type"::"G/L Account",
+            GLAccountNo,
+            Amount);
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Validate("Source Currency Code", CurrencyCode);
+        GenJournalLine.Validate("Gen. Posting Type", GenJournalLine."Gen. Posting Type"::Purchase);
+        GenJournalLine.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        GenJournalLine.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GenJournalLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GenJournalLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GenJournalLine.Modify(true);
+
+        // [WHEN] Posting the journal line which will trigger CalcAmountSrcCurr during VAT posting
+        // [THEN] No error should occur during CalcAmountSrcCurr rounding operations (LocalAmountRoundingPrecision should be initialized from GetSourceCurrency)
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure CreateGLAccountWithVATSetup(var VATPostingSetup: Record "VAT Posting Setup"; var GeneralPostingSetup: Record "General Posting Setup"): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        GenJournalTemplate.SetRange(Recurring, false);
+        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::General);
+        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate("Force Doc. Balance", false);
+        GenJournalTemplate.Modify(true);
+
+        // Create General Posting Groups
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+        LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
+        LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
+
+        // Create VAT Posting Groups
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Validate("VAT %", LibraryRandom.RandIntInRange(10, 25));
+
+        // Set up required VAT accounts
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+        GLAccount.Validate("Gen. Posting Type", GLAccount."Gen. Posting Type"::Purchase);
+        GLAccount.Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
+        GLAccount.Validate("Gen. Prod. Posting Group", GenProductPostingGroup.Code);
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+
+        exit(GLAccount."No.");
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustEntryPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")

@@ -667,7 +667,8 @@ codeunit 260 "Document-Mailing"
                     AttachmentNames.Set(1, Name);
             end;
             EmailSubject := GetEmailSubject(PostedDocNo, EmailDocName, ReportUsage);
-            TempEmailItem.AttachIncomingDocuments(PostedDocNo);
+            if IsSalesDocumentReportUsage(ReportUsage) then
+                TempEmailItem.AttachIncomingDocuments(PostedDocNo);
         end;
 
         TempEmailItem.Subject := EmailSubject;
@@ -702,6 +703,25 @@ codeunit 260 "Document-Mailing"
             OnAfterEmailSent(TempEmailItem, PostedDocNo, ReportUsage, EmailSentSuccesfully);
             exit(EmailSentSuccesfully);
         end;
+    end;
+
+    local procedure IsSalesDocumentReportUsage(ReportUsage: Integer): Boolean
+    var
+        ReportSelectionUsage: Enum "Report Selection Usage";
+    begin
+        if not Enum::"Report Selection Usage".Ordinals().Contains(ReportUsage) then
+            exit(false);
+
+        ReportSelectionUsage := Enum::"Report Selection Usage".FromInteger(ReportUsage);
+        exit(ReportSelectionUsage in [
+            ReportSelectionUsage::"S.Quote",
+            ReportSelectionUsage::"S.Order",
+            ReportSelectionUsage::"S.Invoice",
+            ReportSelectionUsage::"S.Cr.Memo",
+            ReportSelectionUsage::"S.Blanket",
+            ReportSelectionUsage::"S.Return",
+            ReportSelectionUsage::"S.Shipment",
+            ReportSelectionUsage::"S.Ret.Rcpt."]);
     end;
 
     [IntegrationEvent(false, false)]
