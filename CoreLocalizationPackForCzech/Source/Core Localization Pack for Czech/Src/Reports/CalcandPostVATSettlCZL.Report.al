@@ -517,35 +517,32 @@ report 11971 "Calc. and Post VAT Settl. CZL"
                             "VAT Posting Setup"."VAT Calculation Type"::"Reverse Charge VAT",
                             "VAT Posting Setup"."VAT Calculation Type"::"Full VAT":
                                 begin
-                                    VATEntry.SetCurrentKey(
-                                      Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group",
-                                      "Gen. Bus. Posting Group", "Gen. Prod. Posting Group",
-                                      "EU 3-Party Trade");
+                                    VATEntry.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date");
                                     if FindFirstEntry then begin
-                                        if VATEntry.IsEmpty() then
+                                        if not VATEntry.Find('-') then
                                             repeat
                                                 VATType := IncrementGenPostingType(VATType);
                                                 VATEntry.SetRange(Type, VATType);
-                                            until (VATType = VATEntry.Type::Settlement) or not VATEntry.IsEmpty();
+                                            until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                         FindFirstEntry := false;
                                     end else
                                         if VATEntry.Next() = 0 then
                                             repeat
                                                 VATType := IncrementGenPostingType(VATType);
                                                 VATEntry.SetRange(Type, VATType);
-                                            until (VATType = VATEntry.Type::Settlement) or not VATEntry.IsEmpty();
+                                            until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                     if IsNotSettlement(VATType) then
-                                        VATEntry.FindLast();
+                                        VATEntry.Find('+');
                                 end;
                             "VAT Posting Setup"."VAT Calculation Type"::"Sales Tax":
                                 begin
                                     VATEntry.SetCurrentKey(Type, Closed, "Tax Jurisdiction Code", "Use Tax", "VAT Reporting Date");
                                     if FindFirstEntry then begin
-                                        if VATEntry.IsEmpty() then
+                                        if not VATEntry.Find('-') then
                                             repeat
                                                 VATType := IncrementGenPostingType(VATType);
                                                 VATEntry.SetRange(Type, VATType);
-                                            until (VATType = VATEntry.Type::Settlement) or not VATEntry.IsEmpty();
+                                            until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                         FindFirstEntry := false;
                                     end else begin
                                         VATEntry.SetRange("Tax Jurisdiction Code");
@@ -554,12 +551,12 @@ report 11971 "Calc. and Post VAT Settl. CZL"
                                             repeat
                                                 VATType := IncrementGenPostingType(VATType);
                                                 VATEntry.SetRange(Type, VATType);
-                                            until (VATType = VATEntry.Type::Settlement) or not VATEntry.IsEmpty();
+                                            until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                     end;
                                     if IsNotSettlement(VATType) then begin
                                         VATEntry.SetRange("Tax Jurisdiction Code", VATEntry."Tax Jurisdiction Code");
                                         VATEntry.SetRange("Use Tax", VATEntry."Use Tax");
-                                        VATEntry.FindLast();
+                                        VATEntry.Find('+');
                                     end;
                                 end;
                         end;

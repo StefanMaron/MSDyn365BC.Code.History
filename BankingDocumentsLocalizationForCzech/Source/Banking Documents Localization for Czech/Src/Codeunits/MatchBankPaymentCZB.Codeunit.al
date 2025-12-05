@@ -206,7 +206,7 @@ codeunit 31362 "Match Bank Payment CZB"
                             GenJournalLine.SetSuppressCommit(true);
                             GenJournalLine.Validate("Applies-to Doc. No.", TempMatchBankPaymentBufferCZB."Document No.");
                         end;
-                        if BankAccount."Dimension from Apply Entry CZB" then
+                        if BankAccount."Dimension from Apply Entry CZB" and not SearchRuleLineCZB."Match Related Party Only" then
                             GenJournalLine.Validate("Dimension Set ID", TempMatchBankPaymentBufferCZB."Dimension Set ID");
                         if GenJournalLine."Currency Code" <> OriginalGenJournalLine."Currency Code" then
                             GenJournalLine.Validate("Currency Code", OriginalGenJournalLine."Currency Code");
