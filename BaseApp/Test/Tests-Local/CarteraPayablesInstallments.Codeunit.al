@@ -10,16 +10,20 @@ codeunit 147314 "Cartera Payables Installments"
 
     var
         Assert: Codeunit Assert;
+        Library340347Declaration: Codeunit "Library - 340 347 Declaration";
         LibraryCarteraPayables: Codeunit "Library - Cartera Payables";
+        LibraryCarteraReceivables: Codeunit "Library - Cartera Receivables";
         LibraryPurchase: Codeunit "Library - Purchase";
         CountMismatchErr: Label 'Number of %1 does not match %2.', Comment = '%1=TableCaption;%2=FieldCaption';
         LibraryCarteraCommon: Codeunit "Library - Cartera Common";
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
+        LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryJournals: Codeunit "Library - Journals";
         LocalCurrencyCode: Code[10];
         RemainingAmountLCYstatsErr: Label 'Remaining Amount (LCY) stats. must be %1 in %2.', Comment = '%1= Field Value, %2=Table Name.';
+        DueDateModifiedErr: Label '%1 must be False in %2.', Comment = '%1= Field Caption; %2= Table Name';
 
     [Test]
     [HandlerFunctions('ApplyVendorEntriesPageHandler,PostApplicationPageHandler,MessageHandler')]
@@ -484,6 +488,113 @@ codeunit 147314 "Cartera Payables Installments"
             RemainingAmountLCYstatsErr,
             RemainingAmountLCYStats,
             VendorLedgerEntry[1].TableName()));
+    end;
+
+    [Test]
+    procedure DueDateModifiedIsNotChangedUponDueDateModifedtoSameDateOnSalesOrder()
+    var
+        PaymentMethod: Record "Payment Method";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        PaymentTerms: Record "Payment Terms";
+        VATPostingSetup: Record "VAT Posting Setup";
+        OldDueDate: Date;
+    begin
+        // [SCENARIO 611821] Due Date Modified is not changed upon Due Date modified to same date.
+        Initialize();
+
+        // [GIVEN] Create Customer with Payment Method with Create Bills = Yes and Payment Terms with multiple installments.
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+        LibraryCarteraPayables.CreateMultipleInstallments(PaymentTerms.Code, LibraryRandom.RandIntInRange(2, 3));
+
+        // [GIVEN] Create VAT Posting Setup.
+        Library340347Declaration.CreateVATPostingSetup(VATPostingSetup, true, true);
+
+        // [GIVEN] Create Bill to Cartera Payment Method.
+        LibraryCarteraReceivables.CreateBillToCarteraPaymentMethod(PaymentMethod);
+
+        // [GIVEN] Create Customer with Bill to Cartera Payment Method and set to Customer.
+        Library340347Declaration.CreateCustomer(Customer, VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Validate("Payment Method Code", PaymentMethod.Code);
+        Customer.Validate("Payment Terms Code", PaymentTerms.Code);
+        Customer.Modify(true);
+
+        // [WHEN] Create Sales Order for the Customer.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Document Date", WorkDate());
+        SalesHeader.Validate("Posting Date", WorkDate());
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Store Due Date to the same date.
+        OldDueDate := SalesHeader."Due Date";
+
+        // [WHEN] Set different Due Date and then set it back to the original date.
+        SalesHeader.Validate("Due Date", SalesHeader."Due Date" + LibraryRandom.RandIntInRange(2, 3));
+        SalesHeader.Modify(true);
+        SalesHeader.Validate("Due Date", OldDueDate);
+        SalesHeader.Modify(true);
+
+        // [THEN] Due Date Modified must remain False.
+        Assert.IsFalse(
+          SalesHeader."Due Date Modified",
+          StrSubstNo(
+            DueDateModifiedErr,
+            SalesHeader.FieldCaption("Due Date Modified"),
+            SalesHeader.TableName()));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DueDateModifiedIsNotChangedUponDueDateModifedtoSameDateOnPurchaseOrder()
+    var
+        PaymentMethod: Record "Payment Method";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PaymentTerms: Record "Payment Terms";
+        VATPostingSetup: Record "VAT Posting Setup";
+        OldDueDate: Date;
+    begin
+        //[SCENARIO 611821] Due Date Modified should not be changed when setting the same date back.
+        Initialize();
+
+        // [GIVEN] Create Payment Terms with multiple installments for Vendor.
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+        LibraryCarteraPayables.CreateMultipleInstallments(PaymentTerms.Code, LibraryRandom.RandIntInRange(2, 3));
+
+        // [GIVEN] Create VAT Posting Setup.
+        Library340347Declaration.CreateVATPostingSetup(VATPostingSetup, true, true);
+
+        // [GIVEN] Create Bill to Cartera Payment Method for payables
+        LibraryCarteraPayables.CreateBillToCarteraPaymentMethod(PaymentMethod);
+
+        // [GIVEN] Create Vendor and set Payment Method and Payment Terms
+        LibraryCarteraPayables.CreateCarteraVendorUseBillToCarteraPayment(Vendor, LocalCurrencyCode);
+        Vendor.Validate("Payment Method Code", PaymentMethod.Code);
+        Vendor.Validate("Payment Terms Code", PaymentTerms.Code);
+        Vendor.Modify(true);
+
+        // [WHEN] Create Purchase Order for the Vendor
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        PurchaseHeader.Validate("Document Date", WorkDate());
+        PurchaseHeader.Validate("Posting Date", WorkDate());
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Store Due Date
+        OldDueDate := PurchaseHeader."Due Date";
+
+        // [WHEN] Set different Due Date and then set it back to the original date.
+        PurchaseHeader.Validate("Due Date", PurchaseHeader."Due Date" + LibraryRandom.RandIntInRange(2, 3));
+        PurchaseHeader.Modify(true);
+        PurchaseHeader.Validate("Due Date", OldDueDate);
+        PurchaseHeader.Modify(true);
+
+        // [THEN] Due Date Modified must remain False.
+        Assert.IsFalse(
+          PurchaseHeader."Due Date Modified",
+          StrSubstNo(
+            DueDateModifiedErr,
+            PurchaseHeader.FieldCaption("Due Date Modified"),
+            PurchaseHeader.TableName()));
     end;
 
     local procedure Initialize()

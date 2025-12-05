@@ -410,6 +410,15 @@
       <Cmt Name="Dev"><![CDATA[%1=TableCaption;%2=FieldCaption]D;]A;(LookupHint=Codeunit Cartera Payables Installments - NamedType CountMismatchErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2132286949 - NamedType 553415696" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be False in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Field Caption; %2= Table Name]D;]A;(LookupHint=Codeunit Cartera Payables Installments - NamedType DueDateModifiedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2132286949 - NamedType 2710320230" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Remaining Amount (LCY) stats. must be %1 in %2.]]></Val>

@@ -37,7 +37,7 @@ report 94 "Close Income Statement"
             dataitem("G/L Entry"; "G/L Entry")
             {
                 DataItemLink = "G/L Account No." = field("No.");
-                DataItemTableView = sorting("G/L Account No.", "Posting Date");
+                DataItemTableView = sorting("G/L Account No.", "Posting Date") where(Amount = filter(<> 0));
 
                 trigger OnAfterGetRecord()
                 var
