@@ -77,6 +77,13 @@ codeunit 5056 "CustCont-Update"
             Contact.DoModify(OldContact);
             Contact.Modify(true);
 
+            if (Cust."Contact Type" = Cust."Contact Type"::Person) and
+                          (Cust."Primary Contact No." = Contact."No.")
+                       then begin
+                Cust.Validate(Contact, Contact.Name);
+                Cust.Modify();
+            end;
+
             Cust.Get(Cust."No.");
         end;
 
@@ -130,8 +137,8 @@ codeunit 5056 "CustCont-Update"
             Contact."No." := '';
             Contact."No. Series" := '';
             MarketingSetup.TestField("Contact Nos.");
-                Contact."No. Series" := MarketingSetup."Contact Nos.";
-                Contact."No." := NoSeries.GetNextNo(Contact."No. Series");
+            Contact."No. Series" := MarketingSetup."Contact Nos.";
+            Contact."No." := NoSeries.GetNextNo(Contact."No. Series");
         end;
         Contact.Type := Cust."Contact Type";
         Contact.SetSkipDefault();
@@ -147,6 +154,9 @@ codeunit 5056 "CustCont-Update"
         ContactBusinessRelation."No." := Cust."No.";
         OnInsertNewContactOnBeforeContBusRelInsert(ContactBusinessRelation, Contact, Cust);
         ContactBusinessRelation.Insert(true);
+
+        if Cust."Contact Type" = Cust."Contact Type"::Person then
+            Cust.Validate("Primary Contact No.", Contact."No.");
     end;
 
     procedure InsertNewContactPerson(var Cust: Record Customer; LocalCall: Boolean)

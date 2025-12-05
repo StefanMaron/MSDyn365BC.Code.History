@@ -113,6 +113,7 @@ table 5408 "Prod. Ord. Line Tracking Buff."
         "Serial No." := ItemLedgerEntry."Serial No.";
         "Lot No." := ItemLedgerEntry."Lot No.";
         "Package No." := ItemLedgerEntry."Package No.";
+        OnAfterCopyTrackingFromItemLedgerEntry(Rec, ItemLedgerEntry);
     end;
 
     internal procedure SetTrackingFilterFromItemLedgerEntry(ItemLedgerEntry: Record "Item Ledger Entry")
@@ -120,5 +121,10 @@ table 5408 "Prod. Ord. Line Tracking Buff."
         SetRange("Serial No.", ItemLedgerEntry."Serial No.");
         SetRange("Lot No.", ItemLedgerEntry."Lot No.");
         SetRange("Package No.", ItemLedgerEntry."Package No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromItemLedgerEntry(var ProdOrdLineTrackingBuff: Record "Prod. Ord. Line Tracking Buff."; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
     end;
 }
