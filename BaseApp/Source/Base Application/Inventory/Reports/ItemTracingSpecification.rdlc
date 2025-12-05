@@ -681,6 +681,7 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="BodyText1">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -708,6 +709,7 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="BodyText2">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -737,6 +739,7 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="BodyText3">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -794,6 +797,7 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="BodyText5">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -852,6 +856,7 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="BodyText7">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -881,6 +886,7 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="BodyText8">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -938,6 +944,7 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="BodyText11">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -968,6 +975,7 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="BodyText21">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -998,6 +1006,7 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="BodyText31">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -1028,6 +1037,7 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="BodyText41">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -1058,6 +1068,7 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="BodyText51">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -1088,6 +1099,7 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="BodyText61">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
