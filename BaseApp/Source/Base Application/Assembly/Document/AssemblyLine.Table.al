@@ -1378,6 +1378,7 @@ table 901 "Assembly Line"
 
     procedure CalcBOMQuantity(LineType: Enum "BOM Component Type"; QtyPer: Decimal; HeaderQty: Decimal; HeaderQtyPerUOM: Decimal; LineResourceUsageType: Option): Decimal
     var
+        UOMMgt: Codeunit "Unit of Measure Management";
         IsHandled: Boolean;
         ReturnBOMQuantity: Decimal;
     begin
@@ -1390,8 +1391,13 @@ table 901 "Assembly Line"
         if FixedUsage(LineType, LineResourceUsageType) then
             exit(QtyPer);
 
-        if "Qty. Rounding Precision" <> 0 then
-            exit(Round(QtyPer * HeaderQty * HeaderQtyPerUOM, "Qty. Rounding Precision"));
+        if QtyPer = 0 then
+            exit(0);
+
+        CheckingRoundingPrecision();
+
+        if ("Qty. Rounding Precision" <> 0) then
+            exit(UOMMgt.RoundToItemRndPrecision(QtyPer * HeaderQty * HeaderQtyPerUOM, "Qty. Rounding Precision"));
         exit(QtyPer * HeaderQty * HeaderQtyPerUOM);
     end;
 
@@ -2100,6 +2106,33 @@ table 901 "Assembly Line"
     procedure GetSuspendDeletionCheck(): Boolean
     begin
         exit(CalledFromHeader);
+    end;
+
+    local procedure CheckingRoundingPrecision()
+    var
+        Item2: Record Item;
+        UOMMgt: Codeunit "Unit of Measure Management";
+        UOMQtyRoundPrecision: Decimal;
+    begin
+        if (Rec.Type <> Rec.Type::Item) or (Rec."No." = '') then
+            exit;
+
+        if not Item2.Get(Rec."No.") or (Rec."Unit of Measure Code" = '') then
+            exit;
+
+        UOMQtyRoundPrecision := UOMMgt.GetQtyRoundingPrecision(Item2, Rec."Unit of Measure Code");
+
+        if (Item2."Rounding Precision" = 0) or (UOMQtyRoundPrecision = 0) then
+            exit;
+
+        if Item2."Base Unit of Measure" <> Rec."Unit of Measure Code" then begin
+            Rec."Qty. Rounding Precision" := UOMQtyRoundPrecision;
+            Rec."Qty. Rounding Precision (Base)" := Item2."Rounding Precision";
+            exit;
+        end;
+
+        Rec."Qty. Rounding Precision" := Item2."Rounding Precision";
+        Rec."Qty. Rounding Precision (Base)" := Item2."Rounding Precision";
     end;
 
     [IntegrationEvent(false, false)]

@@ -519,23 +519,11 @@ report 81 "Import Budget from Excel"
                                         begin
                                             if TempLocalBudgetBuf."G/L Account No." <> '' then begin
                                                 BudgetBuf := TempLocalBudgetBuf;
-                                                if GLBudgetEntry.GetFilter("Global Dimension 1 Code") <> '' then
-                                                    Evaluate(BudgetBuf."Dimension Value Code 1", GLBudgetEntry.GetFilter("Global Dimension 1 Code"));
-                                                if GLBudgetEntry.GetFilter("Global Dimension 2 Code") <> '' then
-                                                    Evaluate(BudgetBuf."Dimension Value Code 2", GLBudgetEntry.GetFilter("Global Dimension 2 Code"));
-                                                if GLBudgetEntry.GetFilter("Budget Dimension 1 Code") <> '' then
-                                                    Evaluate(BudgetBuf."Dimension Value Code 3", GLBudgetEntry.GetFilter("Budget Dimension 1 Code"));
-                                                if GLBudgetEntry.GetFilter("Budget Dimension 2 Code") <> '' then
-                                                    Evaluate(BudgetBuf."Dimension Value Code 4", GLBudgetEntry.GetFilter("Budget Dimension 2 Code"));
-                                                if GLBudgetEntry.GetFilter("Budget Dimension 3 Code") <> '' then
-                                                    Evaluate(BudgetBuf."Dimension Value Code 5", GLBudgetEntry.GetFilter("Budget Dimension 3 Code"));
-                                                if GLBudgetEntry.GetFilter("Budget Dimension 4 Code") <> '' then
-                                                    Evaluate(BudgetBuf."Dimension Value Code 6", GLBudgetEntry.GetFilter("Budget Dimension 4 Code"));
-                                                if GLBudgetEntry.GetFilter("Business Unit Code") <> '' then
-                                                    Evaluate(BudgetBuf."Dimension Value Code 7", GLBudgetEntry.GetFilter("Business Unit Code"));
+                                                ApplyFilteredDimensionsToBudgetBuf(BudgetBuf, CountDim);
+
                                                 Evaluate(BudgetBuf.Date, TempExcelBuf."Cell Value as Text");
                                                 Evaluate(BudgetBuf.Amount, TempGlobalExcelBuf."Cell Value as Text");
-                                                
+
                                                 IsHandled := false;
                                                 OnAnalyzeDataOnBeforeInsertBudgetBuf(BudgetBuf, IsHandled);
                                                 if not IsHandled then
@@ -544,9 +532,9 @@ report 81 "Import Budget from Excel"
                                                     else begin
                                                         IsHandled := false;
                                                         OnAnalyzeDataOnBeforeCombinationMustBeUniqueError(BudgetBuf, IsHandled);
-                                                    if not IsHandled then
-                                                        Error(Text023 + Text024 + Format(BudgetBuf.RecordId()));
-                                                end;
+                                                        if not IsHandled then
+                                                            Error(Text023 + Text024 + Format(BudgetBuf.RecordId()));
+                                                    end;
                                             end;
                                             OnAnalyzeDataOnAfterCaseText014(BudgetBuf);
                                         end;
@@ -686,6 +674,103 @@ report 81 "Import Budget from Excel"
     begin
         ServerFileName := NewFileName;
     end;
+
+    local procedure ApplyFilteredDimensionsToBudgetBuf(var BudgetBuffer: Record "Budget Buffer"; var CurrentDimCount: Integer)
+    var
+    begin
+        // Process each possible filtered dimension
+        ProcessFilteredDimension(GlobalDim1Code, GLBudgetEntry.GetFilter("Global Dimension 1 Code"), BudgetBuffer, CurrentDimCount);
+        ProcessFilteredDimension(GlobalDim2Code, GLBudgetEntry.GetFilter("Global Dimension 2 Code"), BudgetBuffer, CurrentDimCount);
+        ProcessFilteredDimension(BudgetDim1Code, GLBudgetEntry.GetFilter("Budget Dimension 1 Code"), BudgetBuffer, CurrentDimCount);
+        ProcessFilteredDimension(BudgetDim2Code, GLBudgetEntry.GetFilter("Budget Dimension 2 Code"), BudgetBuffer, CurrentDimCount);
+        ProcessFilteredDimension(BudgetDim3Code, GLBudgetEntry.GetFilter("Budget Dimension 3 Code"), BudgetBuffer, CurrentDimCount);
+        ProcessFilteredDimension(BudgetDim4Code, GLBudgetEntry.GetFilter("Budget Dimension 4 Code"), BudgetBuffer, CurrentDimCount);
+        ProcessFilteredDimension(BusUnitDimCode, GLBudgetEntry.GetFilter("Business Unit Code"), BudgetBuffer, CurrentDimCount);
+    end;
+
+    local procedure ProcessFilteredDimension(DimCodeToCheck: Code[20]; FilterValue: Text; var BudgetBuffer: Record "Budget Buffer"; var CurrentDimCount: Integer)
+    var
+        i: Integer;
+        DimAlreadyInArray: Boolean;
+        NextSlot: Integer;
+        ExistingSlot: Integer;
+    begin
+        if FilterValue = '' then
+            exit;
+
+        if DimCodeToCheck = '' then
+            exit;
+        // Check if this dimension is already in the DimCode array
+        DimAlreadyInArray := false;
+        ExistingSlot := 0;
+        for i := 1 to CurrentDimCount do
+            if DimCode[i] = DimCodeToCheck then begin
+                DimAlreadyInArray := true;
+                ExistingSlot := i;
+                break;
+            end;
+        if DimAlreadyInArray then begin
+            // Only set the value if the BudgetBuffer slot is empty (not from Excel columns)
+            if GetBudgetBufferDimensionValue(BudgetBuffer, ExistingSlot) = '' then
+                SetBudgetBufferDimensionValue(BudgetBuffer, ExistingSlot, FilterValue);
+        end else
+            // If not in array, add it to the next available slot
+            if CurrentDimCount < 8 then begin
+                CurrentDimCount := CurrentDimCount + 1;
+                NextSlot := CurrentDimCount;
+                DimCode[NextSlot] := DimCodeToCheck;
+                SetBudgetBufferDimensionValue(BudgetBuffer, NextSlot, FilterValue);
+            end;
+
+    end;
+
+    local procedure GetBudgetBufferDimensionValue(var BudgetBuffer: Record "Budget Buffer"; SlotIndex: Integer): Code[20]
+    begin
+        case SlotIndex of
+            1:
+                exit(BudgetBuffer."Dimension Value Code 1");
+            2:
+                exit(BudgetBuffer."Dimension Value Code 2");
+            3:
+                exit(BudgetBuffer."Dimension Value Code 3");
+            4:
+                exit(BudgetBuffer."Dimension Value Code 4");
+            5:
+                exit(BudgetBuffer."Dimension Value Code 5");
+            6:
+                exit(BudgetBuffer."Dimension Value Code 6");
+            7:
+                exit(BudgetBuffer."Dimension Value Code 7");
+            8:
+                exit(BudgetBuffer."Dimension Value Code 8");
+        end;
+    end;
+
+    local procedure SetBudgetBufferDimensionValue(var BudgetBuffer: Record "Budget Buffer"; SlotIndex: Integer; FilterValue: Text)
+    begin
+        case SlotIndex of
+            1:
+                Evaluate(BudgetBuffer."Dimension Value Code 1", FilterValue);
+            2:
+                Evaluate(BudgetBuffer."Dimension Value Code 2", FilterValue);
+            3:
+                Evaluate(BudgetBuffer."Dimension Value Code 3", FilterValue);
+            4:
+                Evaluate(BudgetBuffer."Dimension Value Code 4", FilterValue);
+            5:
+                Evaluate(BudgetBuffer."Dimension Value Code 5", FilterValue);
+            6:
+                Evaluate(BudgetBuffer."Dimension Value Code 6", FilterValue);
+            7:
+                Evaluate(BudgetBuffer."Dimension Value Code 7", FilterValue);
+            8:
+                Evaluate(BudgetBuffer."Dimension Value Code 8", FilterValue);
+        end;
+    end;
+
+
+
+
 
     [IntegrationEvent(false, false)]
     local procedure OnAnalyzeDataOnBeforeGLBudgetEntrySetFilters(var GLBudgetEntry: Record "G/L Budget Entry"; var ExcelBuf: Record "Excel Buffer"; DimCode3: Code[20]; var IsHandled: Boolean);

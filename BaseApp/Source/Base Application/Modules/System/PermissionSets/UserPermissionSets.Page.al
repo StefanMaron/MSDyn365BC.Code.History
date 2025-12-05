@@ -1,5 +1,6 @@
 namespace System.Security.User;
 
+using System.Agents;
 using System.Security.AccessControl;
 
 page 9808 "User Permission Sets"
@@ -78,6 +79,13 @@ page 9808 "User Permission Sets"
             }
         }
     }
+
+    trigger OnOpenPage()
+    var
+        AgentUtilities: Codeunit "Agent Utilities";
+    begin
+        AgentUtilities.BlockPageFromBeingOpenedByAgent();
+    end;
 
     trigger OnAfterGetRecord()
     begin

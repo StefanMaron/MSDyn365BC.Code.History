@@ -201,7 +201,7 @@ table 36 "Sales Header"
 
                 UpdateShipToCodeFromCust();
                 IsHandled := false;
-                OnValidateSellToCustomerNoOnBeforeValidateLocationCode(Rec, Customer, IsHandled, xRec);
+                OnValidateSellToCustomerNoOnBeforeValidateLocationCode(Rec, Customer, IsHandled, xRec, LocationCode);
                 if not IsHandled then
                     LocationCode := "Location Code";
 
@@ -4590,6 +4590,7 @@ table 36 "Sales Header"
                 if not ConfirmKeepExistingDimensions(OldDimSetID) then begin
                     "Dimension Set ID" := OldDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(Rec."Dimension Set ID", Rec."Shortcut Dimension 1 Code", Rec."Shortcut Dimension 2 Code");
+                    OnCreateDimOnKeepDimensionsOnAfterUpdateGlobalDim(Rec, xRec, CurrFieldNo, OldDimSetID);
                 end;
 
         if (OldDimSetID <> "Dimension Set ID") and SalesLinesExist() then begin
@@ -10357,6 +10358,11 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateDimOnKeepDimensionsOnAfterUpdateGlobalDim(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; FieldNo: Integer; OldDimSetID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateSalesLineOnAfterAssignType(var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary)
     begin
     end;
@@ -11015,7 +11021,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateSellToCustomerNoOnBeforeValidateLocationCode(var SalesHeader: Record "Sales Header"; var Cust: Record Customer; var IsHandled: Boolean; xSalesHeader: Record "Sales Header")
+    local procedure OnValidateSellToCustomerNoOnBeforeValidateLocationCode(var SalesHeader: Record "Sales Header"; var Cust: Record Customer; var IsHandled: Boolean; xSalesHeader: Record "Sales Header"; var LocationCode: Code[10])
     begin
     end;
 
