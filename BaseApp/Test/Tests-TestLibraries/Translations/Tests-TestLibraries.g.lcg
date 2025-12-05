@@ -5981,6 +5981,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - XPath XML Reader - NamedType DeclarationVersionErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2857060485 - NamedType 836097596" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ns]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - XPath XML Reader - NamedType DefaultNamespacePrefixTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2857060485 - NamedType 3736114791" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 attribute is missing from the node %2.]]></Val>
@@ -6024,6 +6033,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - XPath XML Reader - NamedType NodeNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2857060485 - NamedType 3563112257" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Node %1 should not exist in the subtree]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - node name to search for]D;]A;(LookupHint=Codeunit Library - XPath XML Reader - NamedType NodeShouldNotExistInSubtreeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2857060485 - NamedType 4147519688" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

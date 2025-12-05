@@ -942,6 +942,8 @@ codeunit 134429 "ERM Test SEPA DD 08"
                       NoOfPmtsPerGroup, NoOfPmtsPerGroup * DefaultLineAmount,
                       DirectDebitCollectionEntry."Transfer Date",
                       GetCreditorNo(DirectDebitCollection."To Bank Account No."), UstrdText);
+                'InitgPty':
+                     ValidateInitgPty(XMLNode);
                 else
                     Error(XMLUnknownElementErr, XMLNode.Name);
             end;
@@ -1998,6 +2000,19 @@ codeunit 134429 "ERM Test SEPA DD 08"
             end;
         end;
         Assert.AreEqual(ExpectedNoOfDrctDbtTxInf, NoOfDrctDbtTxInf, 'Wrong number of DrctDbtTxInf nodes.');
+    end;
+
+    local procedure ValidateInitgPty(var XMLParentNode: DotNet XmlNode)
+    var
+        XMLNodes: DotNet XmlNodeList;
+        XMLNode: DotNet XmlNode;
+        i: Integer;
+    begin
+        XMLNodes := XMLParentNode.ChildNodes;
+        for i := 0 to XMLNodes.Count - 1 do begin
+            XMLNode := XMLNodes.ItemOf(i);
+            Assert.AreNotEqual(XMLNode.Name, 'PstlAdr', '');
+        end;
     end;
 
     local procedure ValidateDrctDbtTxInf(var XMLParentNode: DotNet XmlNode; UstrdText: Text)

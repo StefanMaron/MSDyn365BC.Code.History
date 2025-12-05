@@ -665,6 +665,59 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
 #endif
     end;
 
+#if not CLEAN27
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestFeatureDataUpdateMigratesPeriodicSettlementVATEntry()
+    var
+        Company: Record Company;
+#if not CLEAN27
+        PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry";
+#else
+        PeriodicSettlementVATEntry: Record "Periodic VAT Settlement Entry";
+#endif
+        PeriodicSettlVATEntry: Record "Periodic VAT Settlement Entry";
+        FeatureDataUpdateStatus: Record "Feature Data Update Status";
+#if not CLEAN27
+        VATSettlActCodeFeatDataUpd: Codeunit "VATSettl ActCode FeatDataUpd";
+#endif
+        VATPeriod: Code[10];
+    begin
+        // [SCENARIO 609287] Unable to activate feature "Feature Update: Enable generation of per Activity Code VAT Settlements in Italy" if there are multiple companies with same VAT period in the .Periodic VAT settlement list
+        Initialize();
+
+        // [GIVEN] Clear previous Periodic VAT Settlement Entries
+        if Company.FindSet() then
+            repeat
+                PeriodicSettlementVATEntry.ChangeCompany(Company.Name);
+                PeriodicSettlementVATEntry.DeleteAll();
+                PeriodicSettlVATEntry.ChangeCompany(Company.Name);
+                PeriodicSettlVATEntry.DeleteAll();
+            until Company.Next() = 0;
+
+        // [GIVEN] Create Periodic Settlement VAT Entry without Activity Code
+        VATPeriod := '2025/01';
+        PeriodicSettlementVATEntry.Init();
+        PeriodicSettlementVATEntry."VAT Period" := VATPeriod;
+        PeriodicSettlementVATEntry."VAT Settlement" := 1000;
+        PeriodicSettlementVATEntry."Prior Period Input VAT" := 500;
+        PeriodicSettlementVATEntry."Prior Period Output VAT" := 200;
+        PeriodicSettlementVATEntry.Description := 'Test Entry';
+        PeriodicSettlementVATEntry.Insert(true);
+
+        // [WHEN] The feature data update is executed
+        FeatureDataUpdateStatus.Init();
+        FeatureDataUpdateStatus."Feature Key" := 'VATSettlementPerActivityCode';
+        FeatureDataUpdateStatus."Company Name" := CompanyName();
+        VATSettlActCodeFeatDataUpd.UpdateData(FeatureDataUpdateStatus);
+
+        // [THEN] The data should be migrated to Periodic VAT Settlement Entry
+        PeriodicSettlVATEntry.SetRange("VAT Period", VATPeriod);
+        PeriodicSettlVATEntry.SetRange("Activity Code", '');
+        Assert.IsTrue(PeriodicSettlVATEntry.FindFirst(), 'Periodic VAT Settlement Entry should be created');
+    end;
+#endif
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();

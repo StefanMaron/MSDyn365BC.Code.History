@@ -6170,6 +6170,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Order Planning - I - NamedType LineCountError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1023565518 - NamedType 3495023613" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Requisition quantity not qual to expected quantity of %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Requisition Line Expected Quantity]D;]A;(LookupHint=Codeunit SCM Order Planning - I - NamedType RequisitionLineQtyErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1023565518 - NamedType 2811019982" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unit of Measure Code on Requisition Line doesn't equal to the Purch. Unit of Measure of Item]]></Val>
@@ -7610,6 +7619,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Plan-Req. Wksht - NamedType DateConflictWithExistingReservationsErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 901776604 - NamedType 1912214012" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Comment should match expected value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Plan-Req. Wksht - NamedType ExpectedCommentErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 901776604 - NamedType 918030026" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Firm Planned Prod. Order line with Due Date %1 is not correct.]]></Val>
@@ -7689,6 +7707,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Plan-Req. Wksht - NamedType PostingProductionJournalTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 901776604 - NamedType 3705653498" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Production Order Component comment should exist]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Plan-Req. Wksht - NamedType ProdOrderComponentCommentErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 901776604 - NamedType 3471433997" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -11649,6 +11676,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse - Shipping - NamedType NumberOfLineEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2728740681 - NamedType 1371028805" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Qty. Outstanding (Base) should be greater than zero]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse - Shipping - NamedType OutstandingQtyErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2728740681 - NamedType 2469428639" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

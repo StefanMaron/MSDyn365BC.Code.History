@@ -1535,6 +1535,15 @@
       <Cmt Name="Dev"><![CDATA[%1: Purchase Order No., %2: Sales Order No.]D;]A;(LookupHint=Codeunit ERM Copy Purch/Sales Doc - NamedType AddrChangedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 556740976 - NamedType 2954007190" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Field Name, %2= Field Value, %3= Table name.]D;]A;(LookupHint=Codeunit ERM Copy Purch/Sales Doc - NamedType CostAmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 556740976 - NamedType 3116341442" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[G/L Entry with zero amount is posted.]]></Val>
@@ -2586,6 +2595,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM G/L Currency Revaluation - NamedType CurrUpdateBalAccErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 306780767 - NamedType 714223528" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 does not set correctly.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM G/L Currency Revaluation - NamedType JournalErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 306780767 - NamedType 2236746637" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -9102,6 +9120,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Reminder Automation Tests - NamedType FiltersAreNotSavedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2624800184 - NamedType 2855966592" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Attachment language does not match global language]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Reminder Automation Tests - NamedType LanguageDoesNotMatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2624800184 - NamedType 777839130" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No Reminder Level found for the created Reminder Terms]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Reminder Automation Tests - NamedType ReminderLevelNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1475444133 - NamedType 1063273132" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

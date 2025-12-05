@@ -69,6 +69,7 @@ using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Setup;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.Availability;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.History;
@@ -1191,7 +1192,13 @@ codeunit 80 "Sales-Post"
     local procedure SetInvoiceOrderNo(SalesLine: Record "Sales Line"; var SalesInvLine: Record "Sales Invoice Line")
     var
         SalesShptLine: Record "Sales Shipment Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetInvoiceOrderNo(SalesLine, SalesInvLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if SalesLine."Document Type" = SalesLine."Document Type"::Order then begin
             SalesInvLine."Order No." := SalesLine."Document No.";
             SalesInvLine."Order Line No." := SalesLine."Line No.";
@@ -2537,7 +2544,7 @@ codeunit 80 "Sales-Post"
         OnBeforeCheckItemTrackingQuantity(SalesLine, IsHandled);
         if IsHandled then
             exit;
-
+        SyncSurPlusItemTracking(SalesHeader, SalesLine);
         case SalesHeader."Document Type" of
             SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Invoice:
                 TrackingSpecification.CheckItemTrackingQuantity(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", SalesLine."Qty. to Ship (Base)", SalesLine."Qty. to Invoice (Base)", SalesHeader.Ship, SalesHeader.Invoice);
@@ -8601,7 +8608,13 @@ codeunit 80 "Sales-Post"
     local procedure PostUpdateOrderNo(var SalesInvoiceHeader: Record "Sales Invoice Header")
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostUpdateOrderNo(SalesInvoiceHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if SalesInvoiceHeader."No." = '' then
             exit;
 
@@ -8974,7 +8987,13 @@ codeunit 80 "Sales-Post"
         Job: Record Job;
         SalesLine: Record "Sales Line";
         JobArchiveManagement: Codeunit "Job Archive Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeArchiveRelatedJob(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetFilter("Job No.", '<>%1', '');
@@ -9870,7 +9889,7 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidatePostingAndDocumentDate(var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean)
+    local procedure OnBeforeValidatePostingAndDocumentDate(var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -10069,8 +10088,12 @@ codeunit 80 "Sales-Post"
         ReplacePostingDate: Boolean;
         ReplaceDocumentDate: Boolean;
         ReplaceVATDate: Boolean;
+        IsHandled: Boolean;
     begin
-        OnBeforeValidatePostingAndDocumentDate(SalesHeader, SuppressCommit);
+        IsHandled := false;
+        OnBeforeValidatePostingAndDocumentDate(SalesHeader, SuppressCommit, IsHandled);
+        if IsHandled then
+            exit;
 
         PostingDateExists :=
           BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, Enum::"Batch Posting Parameter Type"::"Replace Posting Date", ReplacePostingDate) and
@@ -10148,7 +10171,13 @@ codeunit 80 "Sales-Post"
     var
         FindEmailParameter: Record "Email Parameter";
         RenameEmailParameter: Record "Email Parameter";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateEmailParameters(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if SalesHeader."Last Posting No." = '' then
             exit;
         FindEmailParameter.SetRange("Document No", SalesHeader."No.");
@@ -10419,6 +10448,52 @@ codeunit 80 "Sales-Post"
             PostedDocumentNo := PostingPreviewNoTok + Format(Random(999999), 0, PostingPreviewNoFormatTxt)
         else
             PostedDocumentNo := DocumentNo;
+    end;
+
+    local procedure SyncSurPlusItemTracking(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
+    var
+        Location2: Record Location;
+        ReservEntry: Record "Reservation Entry";
+        TempTrackingSpecification2: Record "Tracking Specification" temporary;
+        TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary;
+        WarehouseAvailabilityMgt: Codeunit "Warehouse Availability Mgt.";
+        QtyReservedForCurrLine: Decimal;
+        SurplusQtyToHandle: Decimal;
+    begin
+        if not SalesHeader.Ship then
+            exit;
+        if not (SalesHeader."Document Type" in [SalesHeader."Document Type"::Invoice, SalesHeader."Document Type"::Order]) then
+            exit;
+
+        if (SalesLine."Location Code" = '') or
+           not Location2.Get(SalesLine."Location Code") or
+           not Location2."Require Shipment"
+        then
+            exit;
+
+        TempTrackingSpecification2.SetSourceFromSalesLine(SalesLine);
+        QtyReservedForCurrLine := Abs(WarehouseAvailabilityMgt.CalcLineReservedQtyOnInvt(
+            TempTrackingSpecification2."Source Type", TempTrackingSpecification2."Source Subtype", TempTrackingSpecification2."Source ID", TempTrackingSpecification2."Source Ref. No.",
+            0, false, TempWarehouseActivityLine));
+
+        if QtyReservedForCurrLine = 0 then
+            exit;
+
+        ReservEntry.SetSourceFilter(
+                                 TempTrackingSpecification2."Source Type", TempTrackingSpecification2."Source Subtype",
+                                 TempTrackingSpecification2."Source ID", TempTrackingSpecification2."Source Ref. No.", true);
+        ReservEntry.SetSourceFilter('', TempTrackingSpecification2."Source Prod. Order Line");
+        ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Surplus);
+        if not ReservEntry.FindSet() then
+            exit;
+
+        ReservEntry.CalcSums("Qty. to Handle (Base)");
+        SurplusQtyToHandle := Abs(ReservEntry."Qty. to Handle (Base)");
+        if (QtyReservedForCurrLine + SurplusQtyToHandle) < SalesLine."Qty. to Ship (Base)" then
+            exit;
+
+        ReservEntry.ModifyAll("Qty. to Handle (Base)", 0);
+        ReservEntry.ModifyAll("Qty. to Invoice (Base)", 0);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforePostValueEntryToGL', '', false, false)]
@@ -12060,6 +12135,26 @@ codeunit 80 "Sales-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreatePrepaymentLineForCreditMemoOnBeforeGetSalesPrepmtAccount(var GLAccount: Record "G/L Account"; var SalesInvoiceLine: Record "Sales Invoice Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateEmailParameters(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostUpdateOrderNo(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetInvoiceOrderNo(SalesLine: Record "Sales Line"; var SalesInvLine: Record "Sales Invoice Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeArchiveRelatedJob(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }

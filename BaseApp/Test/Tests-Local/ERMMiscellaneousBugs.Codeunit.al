@@ -1536,6 +1536,40 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         VerifyGlEntryDimensions(BankAccount."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('ShowComputedWithholdContributionMultipleCloseHandler')]
+    [Scope('OnPrem')]
+    procedure WithholdingTaxPageCanBeClosedMultipleTimes()
+    var
+        WithholdingTax: Record "Withholding Tax";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        // [SCENARIO 610443] Show Computed Withh. Contrib. page can be opened and closed multiple times without concurrency error
+        Initialize();
+
+        // [GIVEN] A payment journal line with vendor that has withholding tax code configured
+        WithholdingTax.DeleteAll();
+        FindGenJournalBatch(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor, CreateVendorWithholdCode(), 150);
+        GenJournalLine.Modify(true);
+
+        // [GIVEN] Payment Journal page is opened and navigated to the journal batch
+        PaymentJournal.OpenEdit();
+        PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
+
+        // [WHEN] Show Computed Withh. Contrib. page is opened and closed twice consecutively
+        PaymentJournal.WithhTaxSocSec.Invoke();
+        PaymentJournal.WithhTaxSocSec.Invoke();
+
+        PaymentJournal.Close();
+
+        // [THEN] Both open/close cycles complete successfully without concurrency error
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -2979,6 +3013,13 @@ codeunit 144105 "ERM Miscellaneous Bugs"
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ShowComputedWithholdContributionModalPageHandler(var ShowComputedWithhContrib: TestPage "Show Computed Withh. Contrib.")
+    begin
+        ShowComputedWithhContrib.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ShowComputedWithholdContributionMultipleCloseHandler(var ShowComputedWithhContrib: TestPage "Show Computed Withh. Contrib.")
     begin
         ShowComputedWithhContrib.OK().Invoke();
     end;

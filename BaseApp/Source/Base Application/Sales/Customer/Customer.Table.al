@@ -1465,7 +1465,8 @@ table 18 Customer
                 if "Primary Contact No." <> '' then begin
                     Cont.Get("Primary Contact No.");
 
-                    CheckCustomerContactRelation(Cont);
+                    if Rec."Contact Type" = Rec."Contact Type"::Company then
+                        CheckCustomerContactRelation(Cont);
 
                     if Cont.Type = Cont.Type::Person then begin
                         Contact := Cont.Name;

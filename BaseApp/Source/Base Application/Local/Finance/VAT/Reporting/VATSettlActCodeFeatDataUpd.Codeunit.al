@@ -101,6 +101,7 @@ codeunit 12136 "VATSettl ActCode FeatDataUpd" implements "Feature Data Update"
         if Company.FindSet() then
             repeat
                 PeriodicSettlementVATEntry.ChangeCompany(Company.Name);
+                PeriodicSettlVATEntry.ChangeCompany(Company.Name);
                 if PeriodicSettlementVATEntry.FindSet() then
                     repeat
                         PeriodicSettlVATEntry."VAT Period" := PeriodicSettlementVATEntry."VAT Period";

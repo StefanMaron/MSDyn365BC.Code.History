@@ -1192,8 +1192,12 @@ codeunit 22 "Item Jnl.-Post Line"
                 TouchItemEntryCost(ItemLedgEntry2, false);
                 ItemLedgEntry2.Modify();
                 EnsureValueEntryLoaded(ValueEntry, ItemLedgEntry2);
-                GetValuationDate(ValueEntry, ItemLedgEntry);
-                UpdateLinkedValuationDate(ValueEntry."Valuation Date", GlobalItemLedgEntry."Entry No.", GlobalItemLedgEntry.Positive);
+                IsHandled := false;
+                OnReApplyOnBeforeUpdateLinkedValuationDate(ValueEntry, IsHandled);
+                if not IsHandled then begin
+                    GetValuationDate(ValueEntry, ItemLedgEntry);
+                    UpdateLinkedValuationDate(ValueEntry."Valuation Date", GlobalItemLedgEntry."Entry No.", GlobalItemLedgEntry.Positive);
+                end;
             end;
 
             if ItemApplnEntry.Fixed() and (ItemApplnEntry.CostReceiver() <> 0) then
@@ -1209,8 +1213,12 @@ codeunit 22 "Item Jnl.-Post Line"
             TouchItemEntryCost(ItemLedgEntry, false);
             ItemLedgEntry.Modify();
             EnsureValueEntryLoaded(ValueEntry, ItemLedgEntry);
-            GetValuationDate(ValueEntry, ItemLedgEntry);
-            UpdateLinkedValuationDate(ValueEntry."Valuation Date", GlobalItemLedgEntry."Entry No.", GlobalItemLedgEntry.Positive);
+            IsHandled := false;
+            OnReApplyOnBeforeUpdateLinkedValuationDate(ValueEntry, IsHandled);
+            if not IsHandled then begin
+                GetValuationDate(ValueEntry, ItemLedgEntry);
+                UpdateLinkedValuationDate(ValueEntry."Valuation Date", GlobalItemLedgEntry."Entry No.", GlobalItemLedgEntry.Positive);
+            end;
         end;
     end;
 
@@ -1282,11 +1290,11 @@ codeunit 22 "Item Jnl.-Post Line"
         FirstApplication: Boolean;
         StartApplication: Boolean;
         UseReservationApplication: Boolean;
-        Handled: Boolean;
+        IsHandled: Boolean;
         SkipReservationCheck: Boolean;
     begin
-        OnBeforeApplyItemLedgEntry(ItemLedgEntry, OldItemLedgEntry, ValueEntry, CausedByTransfer, Handled, ItemJnlLine, ItemApplnEntryNo);
-        if Handled then
+        OnBeforeApplyItemLedgEntry(ItemLedgEntry, OldItemLedgEntry, ValueEntry, CausedByTransfer, IsHandled, ItemJnlLine, ItemApplnEntryNo);
+        if IsHandled then
             exit;
 
         if (ItemLedgEntry."Remaining Quantity" = 0) or
@@ -1316,9 +1324,9 @@ codeunit 22 "Item Jnl.-Post Line"
                     and (ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::"Negative Adjmt.")
                     and (ItemJnlLine."Job No." <> '');
 
-                Handled := false;
-                OnApplyItemLedgEntryOnBeforeFirstReservationSetFilters(ItemJnlLine, StartApplication, FirstReservation, Handled);
-                if not Handled then
+                IsHandled := false;
+                OnApplyItemLedgEntryOnBeforeFirstReservationSetFilters(ItemJnlLine, StartApplication, FirstReservation, IsHandled);
+                if not IsHandled then
                     if FirstReservation then begin
                         FirstReservation := false;
                         ReservEntry.Reset();
@@ -1340,9 +1348,9 @@ codeunit 22 "Item Jnl.-Post Line"
                 if not SkipReservationCheck then
                     UseReservationApplication := FindReservationEntryWithAdditionalCheckForAssemblyItem(ReservEntry);
 
-                Handled := false;
-                OnApplyItemLedgEntryOnBeforeCloseSurplusTrackingEntry(ItemJnlLine, StartApplication, UseReservationApplication, Handled);
-                if not Handled then
+                IsHandled := false;
+                OnApplyItemLedgEntryOnBeforeCloseSurplusTrackingEntry(ItemJnlLine, StartApplication, UseReservationApplication, IsHandled);
+                if not IsHandled then
                     if not UseReservationApplication then begin // No reservations exist
                         ReservEntry.SetRange(
                           "Reservation Status", ReservEntry."Reservation Status"::Tracking,
@@ -1483,7 +1491,10 @@ codeunit 22 "Item Jnl.-Post Line"
                 AutoTrack(OldItemLedgEntry, true);
 
                 EnsureValueEntryLoaded(ValueEntry, ItemLedgEntry);
-                GetValuationDate(ValueEntry, OldItemLedgEntry);
+                IsHandled := false;
+                OnApplyItemLedgEntryOnBeforeGetValuationDate(ValueEntry, IsHandled);
+                if not IsHandled then
+                    GetValuationDate(ValueEntry, OldItemLedgEntry);
 
                 if (ItemLedgEntry."Entry Type" = ItemLedgEntry."Entry Type"::Transfer) and
                    (AppliedQty < 0) and
@@ -1520,16 +1531,19 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     local procedure AssemblyReservationEntryMismatchWithItemJnlLine(var ReservEntry: Record "Reservation Entry"): Boolean
-    var
+   var
         ReservEntry2: Record "Reservation Entry";
+        ItemRec: Record Item;
     begin
         ReservEntry2.SetLoadFields("Source Type", "Source Subtype");
         ReservEntry2.Get(ReservEntry."Entry No.", not ReservEntry.Positive);
-        if (ReservEntry2."Source Type" = Database::"Assembly Header") and (ReservEntry2."Source Subtype" = 1)
-             and (not ItemJnlLine."Assemble to Order") then
-            exit(true);
+        if ItemRec.Get(ReservEntry2."Item No.") then
+            if not (ItemRec."Assembly Policy" = ItemRec."Assembly Policy"::"Assemble-to-Stock") then
+                if (ReservEntry2."Source Type" = Database::"Assembly Header") and (ReservEntry2."Source Subtype" = 1)
+                      and (not ItemJnlLine."Assemble to Order") then
+                    exit(true);
     end;
-
+    
     local procedure UpdateReservationEntryForNonInventoriableItem()
     var
         ReservationEntry: Record "Reservation Entry";
@@ -2550,6 +2564,7 @@ codeunit 22 "Item Jnl.-Post Line"
                     (ValueEntry."Entry Type" = ItemJnlLine."Value Entry Type"::"Direct Cost")
                 then begin
                     CalcPurchCorrShares(OverheadAmount, OverheadAmountACY, VarianceAmount, VarianceAmountACY);
+                    SetCostAmountAndCostAmountFCYOnSameCostPerUnit(ItemJnlLine, CostAmt, CostAmtACY);
                     OnAfterCalcPurchCorrShares(
                         ValueEntry, ItemJnlLine, OverheadAmount, OverheadAmountACY, VarianceAmount, VarianceAmountACY);
                 end;
@@ -2961,8 +2976,11 @@ codeunit 22 "Item Jnl.-Post Line"
                  ValueEntry."Entry Type"::"Indirect Cost",
                  ValueEntry."Entry Type"::Rounding])
         then begin
-            if ValueEntry.Inventoriable and (not ItemJnlLine.Adjustment or (ItemLedgEntry."Entry Type" = ItemLedgEntry."Entry Type"::"Assembly Output")) then
-                UpdateAvgCostAdjmtBuffer(ItemLedgEntry, ValueEntry."Valuation Date");
+            IsHandled := false;
+            OnUpdateItemLedgEntryOnBeforeUpdateAvgCostAdjmtBuffer(ItemLedgEntry, ValueEntry."Valuation Date", IsHandled);
+            if not IsHandled then
+                if ValueEntry.Inventoriable and (not ItemJnlLine.Adjustment or (ItemLedgEntry."Entry Type" = ItemLedgEntry."Entry Type"::"Assembly Output")) then
+                    UpdateAvgCostAdjmtBuffer(ItemLedgEntry, ValueEntry."Valuation Date");
 
             if (ItemLedgEntry.Positive or ItemLedgEntry."Job Purchase") and
                (ItemLedgEntry.Quantity <> ItemLedgEntry."Remaining Quantity") and not ItemLedgEntry."Applied Entry to Adjust" and
@@ -3202,6 +3220,11 @@ codeunit 22 "Item Jnl.-Post Line"
         OldValueEntry: Record "Value Entry";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetValuationDate(OldItemLedgEntry, OldValueEntry."Valuation Date", IsHandled);
+        if IsHandled then
+            exit;
+
         OldValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type", "Entry No.");
         OldValueEntry.SetRange("Item Ledger Entry No.", OldItemLedgEntry."Entry No.");
         OldValueEntry.SetRange("Entry Type", OldValueEntry."Entry Type"::Revaluation);
@@ -3889,6 +3912,7 @@ codeunit 22 "Item Jnl.-Post Line"
             ItemJnlLine2 := TempSplitItemJnlLine;
             ItemJnlLine2."Line No." := JnlLineNo;
             TempSplitItemJnlLine.Delete();
+            OnSplitItemJnlLineOnAfterDeleteTempSplitItemJnlLine(ItemJnlLine2, CalledFromAdjustment);
             exit(true);
         end;
         if ItemJnlLine."Phys. Inventory" then
@@ -7527,6 +7551,37 @@ codeunit 22 "Item Jnl.-Post Line"
         end;
     end;
 
+    local procedure CheckCostPerUnitInValueEntry(ItemJournalLine: Record "Item Journal Line"): Boolean
+    var
+        OldValueEntry: Record "Value Entry";
+    begin
+        if ItemJournalLine."Source Currency Code" = '' then
+            exit;
+
+        if not (ItemJournalLine."Document Type" in [ItemJournalLine."Document Type"::"Purchase Credit Memo", ItemJournalLine."Document Type"::"Purchase Return Shipment"]) then
+            exit;
+
+        OldValueEntry.SetLoadFields("Cost per Unit", "Valued Quantity", "Discount Amount");
+        OldValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type", "Item Ledger Entry Type");
+        OldValueEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
+        OldValueEntry.SetRange("Item Ledger Entry No.", ItemJournalLine."Applies-to Entry");
+        OldValueEntry.SetRange("Entry Type", OldValueEntry."Entry Type"::"Direct Cost");
+        OldValueEntry.SetRange("Item Ledger Entry Type", OldValueEntry."Item Ledger Entry Type"::Purchase);
+        if OldValueEntry.FindFirst() then
+            exit(OldValueEntry."Cost per Unit" = ItemJournalLine."Unit Cost");
+
+        exit(false);
+    end;
+
+    local procedure SetCostAmountAndCostAmountFCYOnSameCostPerUnit(ItemJournalLine: Record "Item Journal Line"; var CostAmt: Decimal; var CostAmtACY: Decimal)
+    begin
+        if not CheckCostPerUnitInValueEntry(ItemJournalLine) then
+            exit;
+
+        CostAmt := ItemJnlLine.Amount;
+        CostAmtACY := ItemJnlLine."Amount (ACY)";
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sequence No. Mgt.", 'OnPreviewableLedgerEntry', '', false, false)]
     local procedure OnPreviewableLedgerEntry(TableNo: Integer; var IsPreviewable: Boolean)
     begin
@@ -7845,6 +7900,11 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnSplitItemJnlLineOnBeforePostItemJnlLine(var TempTrackingSpecification: Record "Tracking Specification"; var GlobalItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSplitItemJnlLineOnAfterDeleteTempSplitItemJnlLine(ItemJournalLine: Record "Item Journal Line"; CalledFromAdjustment: Boolean)
     begin
     end;
 
@@ -8467,6 +8527,26 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetUpdatedAppliedQtyForConsumption(OldItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; ReservationEntry2: Record "Reservation Entry"; SourceType: Integer; var AppliedQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReApplyOnBeforeUpdateLinkedValuationDate(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyItemLedgEntryOnBeforeGetValuationDate(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateItemLedgEntryOnBeforeUpdateAvgCostAdjmtBuffer(ItemLedgerEntry: Record "Item Ledger Entry"; ValuationDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetValuationDate(OldItemLedgerEntry: Record "Item Ledger Entry"; OldValuationDate: Date; var IsHandled: Boolean)
     begin
     end;
 }

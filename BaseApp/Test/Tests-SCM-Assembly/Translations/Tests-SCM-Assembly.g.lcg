@@ -5,6 +5,15 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 2210915646 - NamedType 1634092386" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Availability warning should be false after adding sufficient stock.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Assembly Availability - NamedType AvailabilityWarningErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2210915646 - NamedType 2834627364" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[is before work date]]></Val>
@@ -471,6 +480,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Assembly Reservation I - NamedType WrongReservedQtyErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 237793734 - Method 4091925825 - NamedType 2026071488" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Reserved item %1 is not on inventory.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Assembly Reservation I - Method TestAssemblyToStockWithSalesOrder - NamedType ReservedItemErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4215128246 - NamedType 3919762249" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

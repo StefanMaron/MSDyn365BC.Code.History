@@ -1301,6 +1301,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - Entry Type]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Order III - NamedType CannotHandleEntryTypeErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 191131963 - NamedType 1894214123" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot reverse %1 No. %2 because the entry has already been involved in a reversal.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Table Caption, %2 = Entry No.]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Order III - NamedType CannotReverseCapacityLedgerEntryErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 191131963 - NamedType 3634478829" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 %2 is the last operation of Production Order %3. Reversal of this operation can only be performed from the %4.]]></Val>
@@ -1695,6 +1704,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders - NamedType CaptionErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1635960933 - NamedType 2912046475" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Production order is not completely picked after pick processing.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders - NamedType CompletelyPickedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1635960933 - NamedType 1570625924" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2307,6 +2325,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders II - NamedType PostingProductionJournalTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3590079757 - NamedType 4217839288" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Production Order should have two lines for variant-based BOM structure.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders II - NamedType ProdOrderLineErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3590079757 - NamedType 1658987969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

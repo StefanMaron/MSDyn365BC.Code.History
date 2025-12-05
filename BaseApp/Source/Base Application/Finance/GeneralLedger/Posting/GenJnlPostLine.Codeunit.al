@@ -3286,16 +3286,23 @@ codeunit 12 "Gen. Jnl.-Post Line"
     local procedure CalcAmountSrcCurr(var GenJnlLine: Record "Gen. Journal Line"; AmountLCY: Decimal): Decimal
     var
         SrcCurrencyFactor: Decimal;
+        LocalAmountRoundingPrecision: Decimal;
     begin
         if GenJnlLine."Currency Factor" = 0 then
             SrcCurrencyFactor := CurrExchRate.ExchangeRate(GenJnlLine."Posting Date", GenJnlLine."Source Currency Code")
         else
             SrcCurrencyFactor := GenJnlLine."Currency Factor";
 
+        // Ensure AmountRoundingPrecision is initialized when called externally
+        if AmountRoundingPrecision = 0 then
+            LocalAmountRoundingPrecision := GetSourceCurrency(GenJnlLine."Source Currency Code")
+        else
+            LocalAmountRoundingPrecision := AmountRoundingPrecision;
+
         exit(
           Round(
             CurrExchRate.ExchangeAmtLCYToFCY(
-                GenJnlLine."Posting Date", GenJnlLine."Source Currency Code", AmountLCY, SrcCurrencyFactor), AmountRoundingPrecision));
+                GenJnlLine."Posting Date", GenJnlLine."Source Currency Code", AmountLCY, SrcCurrencyFactor), LocalAmountRoundingPrecision));
     end;
 
     local procedure InsertPmtDiscVATForVATEntry(GenJnlLine: Record "Gen. Journal Line"; var TempVATEntry: Record "VAT Entry" temporary; VATEntry2: Record "VAT Entry"; VATEntryModifier: Integer; VATAmount: Decimal; VATAmountAddCurr: Decimal; VATBase: Decimal; VATBaseAddCurr: Decimal; NonDedVATAmount: Decimal; NonDedVATAmountAddCurr: Decimal; NonDedVATBase: Decimal; NonDedVATBaseAddCurr: Decimal; PmtDiscFactorLCY: Decimal; PmtDiscFactorAddCurr: Decimal)

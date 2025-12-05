@@ -1554,6 +1554,8 @@ table 5409 "Prod. Order Routing Line"
                     end else
                         ErrorOnPrevious := false;
 
+                    OnCheckPreviousAndNextOnBeforeInsertTempRemainingProdOrderRtngLine(Rec, ProdOrderRoutingLine, TempDeletedProdOrderRoutingLine, ErrorOnNext, ErrorOnPrevious);
+
                     if ErrorOnNext or ErrorOnPrevious then begin
                         TempRemainingProdOrderRoutingLine := ProdOrderRoutingLine;
                         TempRemainingProdOrderRoutingLine.Insert();
@@ -2113,6 +2115,11 @@ table 5409 "Prod. Order Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeNextOperationExist(var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckPreviousAndNextOnBeforeInsertTempRemainingProdOrderRtngLine(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderRoutingLineFiltered: Record "Prod. Order Routing Line"; var TempDeletedProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary; var ErrorOnNext: Boolean; var ErrorOnPrevious: Boolean)
     begin
     end;
 }

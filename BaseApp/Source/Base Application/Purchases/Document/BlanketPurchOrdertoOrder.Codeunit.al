@@ -38,7 +38,7 @@ codeunit 97 "Blanket Purch. Order to Order"
         Rec.CheckForBlockedLines();
 
         IsHandled := false;
-        OnRunOnBeforeQtyToReceiveIsZero(Rec, IsHandled);
+        OnRunOnBeforeQtyToReceiveIsZero(Rec, IsHandled, Vend);
         if not IsHandled then
             if Rec.QtyToReceiveIsZero() then
                 Error(Text002);
@@ -466,7 +466,7 @@ codeunit 97 "Blanket Purch. Order to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnBeforeQtyToReceiveIsZero(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    local procedure OnRunOnBeforeQtyToReceiveIsZero(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; var Vendor: Record "Vendor")
     begin
     end;
 }

@@ -135,6 +135,7 @@ codeunit 137079 "SCM Production Order III"
         ReservationEntryMustExistErr: Label '%1 must exist.', Comment = '%1 is Table Caption';
         ItemMustBeEqualErr: Label '%1 must be equal to %2 for Item No. %3 in the %4.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Item No., %4 = Table Caption';
         CannotReverseLastOperationErr: Label '%1 %2 is the last operation of Production Order %3. Reversal of this operation can only be performed from the %4.', Comment = '%1 - Field Caption, %2 - Entry No., %3 - Production Order No., %4 - Item Ledger Entry table caption';
+        CannotReverseCapacityLedgerEntryErr: Label 'You cannot reverse %1 No. %2 because the entry has already been involved in a reversal.', Comment = '%1 = Table Caption, %2 = Entry No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -7412,7 +7413,7 @@ codeunit 137079 "SCM Production Order III"
         ItemLedgerEntries.OpenEdit();
         ItemLedgerEntries.Filter.SetFilter("Document No.", ProdOrderComponent."Prod. Order No.");
         ItemLedgerEntries.Filter.SetFilter("Entry Type", Format(ItemLedgerEntry."Entry Type"::Consumption));
-
+    
         // [WHEN] Invoke "Reverse" action.
         ItemLedgerEntries.Reverse.Invoke();
 
@@ -7422,6 +7423,243 @@ codeunit 137079 "SCM Production Order III"
             -ItemLedgerEntries.Quantity.AsDecimal(),
             ItemLedgerEntry.Quantity,
             StrSubstNo(ValueMustBeEqualErr, ItemLedgerEntry.FieldCaption(Quantity), -ItemLedgerEntries.Quantity.AsInteger(), ItemLedgerEntry.TableCaption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandlerWithoutValidation')]
+    procedure VerifyReverseCapacityLedgerEntryShouldBeCreatedWhenReverseIsExecuted()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        CapacityLedgerEntry: Record "Capacity Ledger Entry";
+        CapacityLedgerEntry1: Record "Capacity Ledger Entry";
+        CapacityLedgerEntries: TestPage "Capacity Ledger Entries";
+    begin
+        // [SCENARIO 574825] Verify that the "Reversed", "Reversed Entry No.", and "Reversed by Entry No." fields in the Capacity Ledger Entry are correctly updated when the Reverse Production Order Transaction action is executed.
+        Initialize();
+
+        // [GIVEN] Create item with routing.
+        Item.Get(CreateItemSerialRoutingSeveralLines(LibraryRandom.RandIntInRange(3, 10)));
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), '', '');
+
+        // [GIVEN] Create and Post Output Journal.
+        CreateAndPostOutputJournalWithRunTimeAndUnitCost(ProductionOrder."No.", ProductionOrder.Quantity, 0, 0, LibraryRandom.RandDec(10, 2), 0, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Find Capacity Ledger Entry.
+        CapacityLedgerEntry.SetRange("Order Type", CapacityLedgerEntry."Order Type"::Production);
+        CapacityLedgerEntry.SetRange("Order No.", ProductionOrder."No.");
+        CapacityLedgerEntry.FindFirst();
+
+        // [GIVEN] OpenEdit Capacity Ledger Entries.
+        CapacityLedgerEntries.OpenEdit();
+        CapacityLedgerEntries.Filter.SetFilter("Entry No.", Format(CapacityLedgerEntry."Entry No."));
+
+        // [WHEN] Invoke "Reverse" action.
+        CapacityLedgerEntries.Reverse.Invoke();
+
+        // [THEN] Verify Reversed, "Reversed Entry No.", "Reversed by Entry No." fields in the capacity ledger entry when Reverse production order transaction action is executed.
+        CapacityLedgerEntry1.Get(CapacityLedgerEntries."Entry No.".AsInteger());
+        FindLastCapacityLedgerEntry(CapacityLedgerEntry, "Inventory Order Type"::Production, CapacityLedgerEntry1."Order No.", CapacityLedgerEntry1."Order Line No.");
+        Assert.AreEqual(
+            CapacityLedgerEntry1."Entry No.",
+            CapacityLedgerEntry."Reversed Entry No.",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption("Reversed Entry No."), CapacityLedgerEntry1."Entry No.", CapacityLedgerEntry.TableCaption()));
+        Assert.AreEqual(
+            0,
+            CapacityLedgerEntry."Reversed by Entry No.",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption("Reversed by Entry No."), 0, CapacityLedgerEntry.TableCaption()));
+        Assert.AreEqual(
+            true,
+            CapacityLedgerEntry.Reversed,
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption(Reversed), true, CapacityLedgerEntry.TableCaption()));
+        Assert.AreEqual(
+            CapacityLedgerEntry1.Description,
+            CapacityLedgerEntry.Description,
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption(Description), CapacityLedgerEntry1.Description, CapacityLedgerEntry.TableCaption()));
+        Assert.AreEqual(
+            0,
+            CapacityLedgerEntry1."Reversed Entry No.",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption("Reversed Entry No."), 0, CapacityLedgerEntry.TableCaption()));
+        Assert.AreEqual(
+            CapacityLedgerEntry."Entry No.",
+            CapacityLedgerEntry1."Reversed by Entry No.",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption("Reversed by Entry No."), CapacityLedgerEntry."Entry No.", CapacityLedgerEntry.TableCaption()));
+        Assert.AreEqual(
+            true,
+            CapacityLedgerEntry1.Reversed,
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption(Reversed), true, CapacityLedgerEntry.TableCaption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandlerWithoutValidation')]
+    procedure VerifyReverseCapacityLedgerEntryCannotBeReversedMultipleTime()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        CapacityLedgerEntry: Record "Capacity Ledger Entry";
+        CapacityLedgerEntries: TestPage "Capacity Ledger Entries";
+    begin
+        // [SCENARIO 574825] Verify that a Capacity Ledger Entry cannot be reversed more than once.
+        Initialize();
+
+        // [GIVEN] Create item with routing.
+        Item.Get(CreateItemSerialRoutingSeveralLines(LibraryRandom.RandIntInRange(3, 10)));
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), '', '');
+
+        // [GIVEN] Create and Post Output Journal.
+        CreateAndPostOutputJournalWithRunTimeAndUnitCost(ProductionOrder."No.", ProductionOrder.Quantity, 0, 0, LibraryRandom.RandDec(10, 2), 0, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Find Capacity Ledger Entry.
+        CapacityLedgerEntry.SetRange("Order Type", CapacityLedgerEntry."Order Type"::Production);
+        CapacityLedgerEntry.SetRange("Order No.", ProductionOrder."No.");
+        CapacityLedgerEntry.FindFirst();
+
+        // [GIVEN] OpenEdit Capacity Ledger Entries.
+        CapacityLedgerEntries.OpenEdit();
+        CapacityLedgerEntries.Filter.SetFilter("Entry No.", Format(CapacityLedgerEntry."Entry No."));
+
+        // [GIVEN] Invoke "Reverse" action.
+        CapacityLedgerEntries.Reverse.Invoke();
+
+        // [WHEN] Invoke "Reverse" action.
+        asserterror CapacityLedgerEntries.Reverse.Invoke();
+
+        // [THEN] Verify that a Capacity Ledger Entry cannot be reversed more than once.
+        Assert.ExpectedError(StrSubstNo(CannotReverseCapacityLedgerEntryErr, CapacityLedgerEntry.TableCaption(), CapacityLedgerEntry."Entry No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandlerWithoutValidation')]
+    procedure VerifyReverseCapacityLedgerEntryShouldBeUpdatedWhenReverseIsExecutedFromItemLedgerEntries()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        CapacityLedgerEntry: array[2] of Record "Capacity Ledger Entry";
+        ItemLedgerEntry: array[2] of Record "Item Ledger Entry";
+        CapacityLedgerEntry1: Record "Capacity Ledger Entry";
+        ItemLedgerEntries: TestPage "Item Ledger Entries";
+    begin
+        // [SCENARIO 560186] Verify a reverse entry should be created and updated for the last operation of the capacity ledger entry when the reverse action is executed from Item Ledger Entries.
+        Initialize();
+
+        // [GIVEN] Create item with routing.
+        Item.Get(CreateItemSerialRoutingSeveralLines(LibraryRandom.RandIntInRange(3, 10)));
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandIntInRange(10, 20), '', '');
+
+        // [GIVEN] Find Production Order Line.
+        FindProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
+
+        // [GIVEN] Create and Post Output Journal.
+        CreateAndPostOutputJournalWithOutputQuantityAndUnitCost(
+            ProductionOrder."No.",
+            ProductionOrder.Quantity - 1,
+            ProductionOrder.Quantity - 1,
+            LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Find Last Capacity Ledger Entry.
+        FindLastCapacityLedgerEntry(CapacityLedgerEntry[1], "Inventory Order Type"::Production, ProductionOrder."No.", ProdOrderLine."Line No.");
+
+        // [GIVEN] Find Last Item Ledger Entry.
+        FindLastItemLedgerEntry(ItemLedgerEntry[1], "Inventory Order Type"::Production, ProductionOrder."No.", ProdOrderLine."Line No.", "Item Ledger Entry Type"::Output);
+
+        // [GIVEN] Create and Post Output Journal.
+        CreateAndPostOutputJournalWithOutputQuantityAndUnitCost(
+            ProductionOrder."No.",
+            ProductionOrder.Quantity + LibraryRandom.RandInt(10),
+            ProductionOrder.Quantity + LibraryRandom.RandInt(10),
+            LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Find Last Capacity Ledger Entry.
+        FindLastCapacityLedgerEntry(CapacityLedgerEntry[2], "Inventory Order Type"::Production, ProductionOrder."No.", ProdOrderLine."Line No.");
+
+        // [GIVEN] Find Last Item Ledger Entry.
+        FindLastItemLedgerEntry(ItemLedgerEntry[2], "Inventory Order Type"::Production, ProductionOrder."No.", ProdOrderLine."Line No.", "Item Ledger Entry Type"::Output);
+
+        // [GIVEN] OpenEdit Capacity Ledger Entries.
+        ItemLedgerEntries.OpenEdit();
+        ItemLedgerEntries.Filter.SetFilter("Entry No.", Format(ItemLedgerEntry[1]."Entry No."));
+
+        // [WHEN] Invoke "Reverse" action.
+        ItemLedgerEntries.Reverse.Invoke();
+        ItemLedgerEntries.Close();
+
+        // [THEN] Verify Reverse production order transaction action in the capacity ledger entry.
+        FindLastCapacityLedgerEntry(CapacityLedgerEntry1, "Inventory Order Type"::Production, ProductionOrder."No.", ProdOrderLine."Line No.");
+        CapacityLedgerEntry[1].Get(CapacityLedgerEntry[1]."Entry No.");
+        Assert.AreEqual(
+            CapacityLedgerEntry[1]."Entry No.",
+            CapacityLedgerEntry1."Reversed Entry No.",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry[1].FieldCaption("Reversed Entry No."), CapacityLedgerEntry[1]."Entry No.", CapacityLedgerEntry[1].TableCaption()));
+        Assert.AreEqual(
+            0,
+            CapacityLedgerEntry1."Reversed by Entry No.",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry1.FieldCaption("Reversed by Entry No."), 0, CapacityLedgerEntry1.TableCaption()));
+        Assert.AreEqual(
+            true,
+            CapacityLedgerEntry1.Reversed,
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry1.FieldCaption(Reversed), true, CapacityLedgerEntry1.TableCaption()));
+        Assert.AreEqual(
+            CapacityLedgerEntry[1].Description,
+            CapacityLedgerEntry1.Description,
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry1.FieldCaption(Description), CapacityLedgerEntry[1].Description, CapacityLedgerEntry1.TableCaption()));
+        Assert.AreEqual(
+            0,
+            CapacityLedgerEntry[1]."Reversed Entry No.",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry[1].FieldCaption("Reversed Entry No."), 0, CapacityLedgerEntry[1].TableCaption()));
+        Assert.AreEqual(
+            CapacityLedgerEntry1."Entry No.",
+            CapacityLedgerEntry[1]."Reversed by Entry No.",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry1.FieldCaption("Reversed by Entry No."), CapacityLedgerEntry1."Entry No.", CapacityLedgerEntry1.TableCaption()));
+        Assert.AreEqual(
+            true,
+            CapacityLedgerEntry[1].Reversed,
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry[1].FieldCaption(Reversed), true, CapacityLedgerEntry[1].TableCaption()));
+
+        // [GIVEN] OpenEdit Capacity Ledger Entries.
+        ItemLedgerEntries.OpenEdit();
+        ItemLedgerEntries.Filter.SetFilter("Entry No.", Format(ItemLedgerEntry[2]."Entry No."));
+
+        // [WHEN] Invoke "Reverse" action.
+        ItemLedgerEntries.Reverse.Invoke();
+
+        // [THEN] Verify Reverse production order transaction action in the capacity ledger entry.
+        FindLastCapacityLedgerEntry(CapacityLedgerEntry1, "Inventory Order Type"::Production, ProductionOrder."No.", ProdOrderLine."Line No.");
+        CapacityLedgerEntry[2].Get(CapacityLedgerEntry[2]."Entry No.");
+        Assert.AreEqual(
+            CapacityLedgerEntry[2]."Entry No.",
+            CapacityLedgerEntry1."Reversed Entry No.",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry[1].FieldCaption("Reversed Entry No."), CapacityLedgerEntry[2]."Entry No.", CapacityLedgerEntry[1].TableCaption()));
+        Assert.AreEqual(
+            0,
+            CapacityLedgerEntry1."Reversed by Entry No.",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry1.FieldCaption("Reversed by Entry No."), 0, CapacityLedgerEntry1.TableCaption()));
+        Assert.AreEqual(
+            true,
+            CapacityLedgerEntry1.Reversed,
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry1.FieldCaption(Reversed), true, CapacityLedgerEntry1.TableCaption()));
+        Assert.AreEqual(
+            CapacityLedgerEntry[2].Description,
+            CapacityLedgerEntry1.Description,
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry1.FieldCaption(Description), CapacityLedgerEntry[2].Description, CapacityLedgerEntry1.TableCaption()));
+        Assert.AreEqual(
+            0,
+            CapacityLedgerEntry[2]."Reversed Entry No.",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry[1].FieldCaption("Reversed Entry No."), 0, CapacityLedgerEntry[1].TableCaption()));
+        Assert.AreEqual(
+            CapacityLedgerEntry1."Entry No.",
+            CapacityLedgerEntry[2]."Reversed by Entry No.",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry1.FieldCaption("Reversed by Entry No."), CapacityLedgerEntry1."Entry No.", CapacityLedgerEntry1.TableCaption()));
+        Assert.AreEqual(
+            true,
+            CapacityLedgerEntry[2].Reversed,
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry[1].FieldCaption(Reversed), true, CapacityLedgerEntry[1].TableCaption()));
     end;
 
     [Test]

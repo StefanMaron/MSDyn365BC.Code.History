@@ -98,6 +98,7 @@
         SourceCurrencyErr: Label '%1 must be negative.', Comment = '%1=Field Caption.';
         PurchaseLineQtyErr: Label 'Purchase Line %1 must be equal to %2', Comment = '%1= Field ,%2= Value';
         ItemFilterOnAnalysisViewCardMatchesCreatedItemErr: Label 'The created item should be selected in the analysis view card.';
+        OptionString: Option PostedReturnReceipt,PostedInvoices,PostedShipments,PostedCrMemo;
 
     [Test]
     [Scope('OnPrem')]
@@ -8992,6 +8993,55 @@
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PostedPurchaseDocumentLinesHandler')]
+    procedure VerifyManuallyCreatedPurchaseCrMemoUpdateExistingPurchaseOrder()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        PurchCreditMemo: TestPage "Purchase Credit Memo";
+    begin
+        // [SCENARIO 578769] Verify manually created Purchase Credit Memo with get posted document lines to reverse should update the existing Purchase Order.
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+
+        // [GIVEN] Create Purchase Line with Quanity as 10.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(10, 10));
+
+        // [GIVEN] Update Qty To Receive in Purchase Line.
+        PurchaseLine.Validate("Qty. to Receive", LibraryRandom.RandIntInRange(5, 5));
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Post the Purchase Order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create Purchase Credit Memo
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader2, PurchaseHeader2."Document Type"::"Credit Memo", Vendor."No.");
+
+        // [GIVEN] Run Get Document Lines to Reverse and copy from posted purchase invoice
+        GetPostedDocumentLines(PurchaseHeader2."No.", OptionString::PostedInvoices);
+        FindPurchaseLine(PurchaseLine, PurchaseHeader2."Document Type", PurchaseHeader2."No.", PurchaseLine.Type::Item);
+
+        // [WHEN] Post the Credit Memo
+        PurchCreditMemo.OpenView();
+        PurchCreditMemo.GotoRecord(PurchaseHeader2);
+        PurchCreditMemo.Post.Invoke();
+
+        // [THEN] Verify Purchase Order Qty. to Receive and Qty. to Invoice are updated as 10 in the Purchase line.
+        VerifyPurchaseOrderQuantityforManualPurchaseCreditMemo(PurchaseHeader."No.", 10);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -12437,6 +12487,39 @@
         WarehouseReceiptLine.Modify(true);
     end;
 
+    local procedure GetPostedDocumentLines(No: Code[20]; OptionStr: Option)
+    var
+        PurchCreditMemo: TestPage "Purchase Credit Memo";
+    begin
+        LibraryVariableStorage.Enqueue(OptionStr);
+        PurchCreditMemo.OpenEdit();
+        PurchCreditMemo.FILTER.SetFilter("No.", No);
+        PurchCreditMemo.GetPostedDocumentLinesToReverse.Invoke();
+    end;
+
+    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; Type: Enum "Purchase Line Type")
+    begin
+        PurchaseLine.SetRange("Document Type", DocumentType);
+        PurchaseLine.SetRange("Document No.", DocumentNo);
+        PurchaseLine.SetRange(Type, Type);
+        PurchaseLine.FindFirst();
+    end;
+
+    local procedure VerifyPurchaseOrderQuantityforManualPurchaseCreditMemo(PurchaseHeaderNo: Code[20]; ExpectedQuantity: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.SetRange("Document No.", PurchaseHeaderNo);
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.FindSet();
+        repeat
+            Assert.AreEqual(ExpectedQuantity, PurchaseLine."Qty. to Receive", StrSubstNo(
+                PurchaseLineQtyErr, PurchaseLine.FieldName("Qty. to Receive"), ExpectedQuantity));
+            Assert.AreEqual(ExpectedQuantity, PurchaseLine."Qty. to Invoice", StrSubstNo(
+                PurchaseLineQtyErr, PurchaseLine.FieldName("Qty. to Invoice"), ExpectedQuantity));
+        until PurchaseLine.Next() = 0;
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure StandardVendorPurchCodesHndlr(var StandardVendorPurchaseCodes: TestPage "Standard Vendor Purchase Codes")
@@ -12872,5 +12955,23 @@
     begin
         ItemList.Filter.SetFilter("No.", LibraryVariableStorage.DequeueText());
         ItemList.Cancel().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure PostedPurchaseDocumentLinesHandler(var PostedPurchaseDocumentLines: TestPage "Posted Purchase Document Lines")
+    var
+        DocumentType: Option "Posted Shipments","Posted Invoices","Posted Return Receipts","Posted Cr. Memos";
+    begin
+        case LibraryVariableStorage.DequeueInteger() of
+            OptionString::PostedReturnReceipt:
+                PostedPurchaseDocumentLines.PostedReceiptsBtn.SetValue(Format(DocumentType::"Posted Return Receipts"));
+            OptionString::PostedInvoices:
+                PostedPurchaseDocumentLines.PostedReceiptsBtn.SetValue(Format(DocumentType::"Posted Invoices"));
+            OptionString::PostedShipments:
+                PostedPurchaseDocumentLines.PostedReceiptsBtn.SetValue(Format(DocumentType::"Posted Shipments"));
+            OptionString::PostedCrMemo:
+                PostedPurchaseDocumentLines.PostedReceiptsBtn.SetValue(Format(DocumentType::"Posted Cr. Memos"));
+        end;
+        PostedPurchaseDocumentLines.OK().Invoke();
     end;
 }

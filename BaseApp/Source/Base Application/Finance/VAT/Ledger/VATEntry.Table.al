@@ -1222,6 +1222,7 @@ table 254 "VAT Entry"
         GLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link";
         VATEntryEdit: Codeunit "VAT Entry - Edit";
     begin
+        GLEntryVATEntryLink.SetCurrentKey("VAT Entry No.");
         GLEntryVATEntryLink.SetRange("VAT Entry No.", "Entry No.");
         if not GLEntryVATEntryLink.FindFirst() then begin
             if not AddMissingGLEntryVATEntryLink(VATEntry, GLEntry, GLEntryVATEntryLink) then
