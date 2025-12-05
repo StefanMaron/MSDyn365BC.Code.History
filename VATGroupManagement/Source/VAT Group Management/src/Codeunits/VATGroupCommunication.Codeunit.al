@@ -8,6 +8,7 @@ using Microsoft.Finance.VAT.Reporting;
 using System.Azure.KeyVault;
 using System.Environment;
 using System.Security.Authentication;
+using System.Reflection;
 using System.Telemetry;
 #if not CLEAN25
 using System.Text;
@@ -344,16 +345,20 @@ codeunit 4700 "VAT Group Communication"
     end;
 
     internal procedure PrepareURI(Endpoint: Text) Result: Text
+    var
+        TypeHelper: Codeunit "Type Helper";
+        GroupRepCompanyName: Text;
     begin
         CheckLoadVATReportSetup();
         Result := VATReportSetup."Group Representative API URL";
+        GroupRepCompanyName := VATReportSetup."Group Representative Company";
         case VATReportSetup."VAT Group BC Version" of
             VATReportSetup."VAT Group BC Version"::BC:
-                Result += StrSubstNo(URLAppendixCompanyLbl, VATReportSetup."Group Representative Company");
+                Result += StrSubstNo(URLAppendixCompanyLbl, TypeHelper.UriEscapeDataString(GroupRepCompanyName));
             VATReportSetup."VAT Group BC Version"::NAV2018:
-                Result += StrSubstNo(URLAppendixCompany2018Lbl, VATReportSetup."Group Representative Company");
+                Result += StrSubstNo(URLAppendixCompany2018Lbl, TypeHelper.UriEscapeDataString(GroupRepCompanyName));
             VATReportSetup."VAT Group BC Version"::NAV2017:
-                Result += StrSubstNo(URLAppendixCompany2017Lbl, VATReportSetup."Group Representative Company");
+                Result += StrSubstNo(URLAppendixCompany2017Lbl, TypeHelper.UriEscapeDataString(GroupRepCompanyName));
         end;
         Result += Endpoint;
     end;
