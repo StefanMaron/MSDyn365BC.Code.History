@@ -2634,6 +2634,7 @@ table 5767 "Warehouse Activity Line"
     begin
         "Serial No." := '';
         "Lot No." := '';
+        "Expiration Date" := 0D;
 
         OnAfterClearTracking(Rec);
     end;

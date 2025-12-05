@@ -1165,6 +1165,8 @@ table 5740 "Transfer Header"
         if (OldDimSetID <> "Dimension Set ID") and (OldDimSetID <> 0) then
             DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
+        OnCreateDimOnBeforeUpdateLines(Rec, xRec, CurrFieldNo, OldDimSetID, DefaultDimSource);
+
         if (OldDimSetID <> "Dimension Set ID") and TransferLinesExist() then begin
             Modify();
             UpdateAllLineDim("Dimension Set ID", OldDimSetID);
@@ -1835,6 +1837,11 @@ table 5740 "Transfer Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePerformManualRelease(var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateDimOnBeforeUpdateLines(var TransferHeader: Record "Transfer Header"; xTransferHeader: Record "Transfer Header"; CurrentFieldNo: Integer; OldDimSetID: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 }

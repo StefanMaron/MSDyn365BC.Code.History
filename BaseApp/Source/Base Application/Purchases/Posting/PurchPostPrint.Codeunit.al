@@ -226,7 +226,7 @@ codeunit 92 "Purch.-Post + Print"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterConfirmPost(PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    local procedure OnAfterConfirmPost(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 

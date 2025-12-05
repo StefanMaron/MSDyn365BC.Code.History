@@ -2294,7 +2294,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     local procedure ShouldSetBinCodeForBlankInvtMovement(NewWarehouseActivityLine: Record "Warehouse Activity Line"): Boolean
     begin
-        if CheckItemTrackingCodeUseExpirationDates(NewWarehouseActivityLine."Item No.") then
+        if CheckItemTrackingCodeUseExpirationDates(NewWarehouseActivityLine."Item No.") and (NewWarehouseActivityLine."Expiration Date" <> 0D) then
             exit(false);
 
         exit(true);
