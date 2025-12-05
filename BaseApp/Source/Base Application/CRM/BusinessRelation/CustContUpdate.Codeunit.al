@@ -77,6 +77,13 @@ codeunit 5056 "CustCont-Update"
             Contact.DoModify(OldContact);
             Contact.Modify(true);
 
+            if (Cust."Contact Type" = Cust."Contact Type"::Person) and
+                          (Cust."Primary Contact No." = Contact."No.")
+                       then begin
+                Cust.Validate(Contact, Contact.Name);
+                Cust.Modify();
+            end;
+
             Cust.Get(Cust."No.");
         end;
 
@@ -137,8 +144,8 @@ codeunit 5056 "CustCont-Update"
             NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(MarketingSetup."Contact Nos.", '', 0D, Contact."No.", Contact."No. Series", IsHandled);
             if not IsHandled then begin
 #endif
-                Contact."No. Series" := MarketingSetup."Contact Nos.";
-                Contact."No." := NoSeries.GetNextNo(Contact."No. Series");
+            Contact."No. Series" := MarketingSetup."Contact Nos.";
+            Contact."No." := NoSeries.GetNextNo(Contact."No. Series");
 #if not CLEAN24
                 NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(Contact."No. Series", MarketingSetup."Contact Nos.", 0D, Contact."No.");
             end;
@@ -158,6 +165,9 @@ codeunit 5056 "CustCont-Update"
         ContactBusinessRelation."No." := Cust."No.";
         OnInsertNewContactOnBeforeContBusRelInsert(ContactBusinessRelation, Contact, Cust);
         ContactBusinessRelation.Insert(true);
+
+        if Cust."Contact Type" = Cust."Contact Type"::Person then
+            Cust.Validate("Primary Contact No.", Contact."No.");
     end;
 
     procedure InsertNewContactPerson(var Cust: Record Customer; LocalCall: Boolean)
