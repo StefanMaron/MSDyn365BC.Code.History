@@ -229,6 +229,12 @@ table 271 "Bank Account Ledger Entry"
             Caption = 'Reversed Entry No.';
             TableRelation = "Bank Account Ledger Entry";
         }
+        field(67; "Statement Date"; Date)
+        {
+            FieldClass = FlowField;
+            CalcFormula = lookup("Bank Acc. Reconciliation"."Statement Date" where("Statement No." = field("Statement No."),
+                                                                                     "Bank Account No." = field("Bank Account No.")));
+        }
         field(70; "Check Ledger Entries"; Integer)
         {
             CalcFormula = count("Check Ledger Entry" where("Bank Account Ledger Entry No." = field("Entry No.")));
@@ -345,6 +351,10 @@ table 271 "Bank Account Ledger Entry"
         }
         key(key10; "Statement No.", "Statement Line No.")
         {
+        }
+        key(Key13; "Bank Account No.", "Posting Date", "Statement No.", "Closed at Date", "Statement Status", Reversed, Open)
+        {
+            SumIndexFields = Amount;
         }
     }
 
