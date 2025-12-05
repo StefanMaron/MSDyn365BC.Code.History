@@ -7,6 +7,7 @@ page 2588 "Dimension Correction"
 {
     PageType = ListPlus;
     SourceTable = "Dimension Correction";
+    SourceTableView = where(Completed = const(true));
     DataCaptionExpression = Rec.Description;
     Caption = 'Dimension Correction';
 
@@ -328,6 +329,7 @@ page 2588 "Dimension Correction"
     begin
         DimensionCorrectionMgt.ShowNotificationUpdateCashFlowAccounting();
         CurrPage.SelectedGLEntries.Page.SetDimensionCorrectionEntryNo(Rec."Entry No.");
+        CurrPage.SelectedGLEntries.Page.Update(false);
         Rec.GetValidateDimensionChangesText(ValidationStatusTxt);
         ValidationStatusVisible := (ValidationStatusTxt <> '') and (not (Rec.Status in [Rec.Status::Failed, Rec.Status::"Undo Completed"]));
         IsErrorActionEnabled := ValidationStatusVisible and (not IsNullGuid(Rec."Validation Errors Register ID"));

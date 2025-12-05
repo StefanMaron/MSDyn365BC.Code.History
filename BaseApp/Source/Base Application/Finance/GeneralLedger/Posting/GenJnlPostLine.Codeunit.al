@@ -9783,10 +9783,12 @@ codeunit 12 "Gen. Jnl.-Post Line"
     [Scope('OnPrem')]
     procedure UnapplyWHTEntry(GenJnlLine: Record "Gen. Journal Line"; TransactionType: Option; CVNo: Code[20]; TransactionNo: Integer; VoidCheck: Boolean)
     var
+        InvoicedWHTEntry: Record "WHT Entry";
         WHTEntry: Record "WHT Entry";
         NewWHTEntry: Record "WHT Entry";
         UnrealizedWHTEntry: Record "WHT Entry";
         WHTPostingSetup: Record "WHT Posting Setup";
+        UnApplyWHTEntries: Record "WHT Entry";
         Vend: Record Vendor;
         Source: Option;
     begin
@@ -9855,6 +9857,18 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 WHTEntry."Original Document No." := NewWHTEntry."Document No.";
                 WHTEntry.Modify();
             until WHTEntry.Next() = 0;
+
+        UnApplyWHTEntries.SetLoadFields("Applies-to Entry No.");
+        UnApplyWHTEntries.SetCurrentKey("Document Type", "Document No.");
+        UnApplyWHTEntries.SetRange("Document Type", UnApplyWHTEntries."Document Type"::"Credit Memo");
+        UnApplyWHTEntries.SetRange("Document No.", GenJnlLine."Document No.");
+        UnApplyWHTEntries.SetRange("Bill-to/Pay-to No.", CVNo);
+        if UnApplyWHTEntries.FindFirst() then
+            if InvoicedWHTEntry.Get(UnApplyWHTEntries."Applies-to Entry No.") then begin
+                InvoicedWHTEntry."Remaining Unrealized Amount" := InvoicedWHTEntry."Unrealized Amount";
+                InvoicedWHTEntry."Remaining Unrealized Base" := InvoicedWHTEntry."Unrealized Base";
+                InvoicedWHTEntry.Modify(true);
+            end;
     end;
 
     [Scope('OnPrem')]

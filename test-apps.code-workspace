@@ -331,9 +331,9 @@
   "settings": {
     "allint.enabled": false,
     "al.enableCodeAnalysis": false,
+    "al.enableCodeActions": false,
     "search.exclude": {
       "**.xlf": true
-    },
-    "al.enableCodeActions": false
+    }
   }
 }

@@ -1880,6 +1880,9 @@ codeunit 28040 WHTManagement
         WHTPostingSetup.Get(WHTBusPostGrp, WHTProdPostGrp);
         WHTRevenueType := WHTPostingSetup."Revenue Type";
         Amount := -GenJnlLine.Amount;
+        if GenJnlLine."Bal. VAT %" <> 0 then
+            Amount := GenJnlLine."Bal. VAT Base Amount";
+
         AbsorbBase := -GenJnlLine."WHT Absorb Base";
         if AbsorbBase <> 0 then
             AmountVAT := AbsorbBase
