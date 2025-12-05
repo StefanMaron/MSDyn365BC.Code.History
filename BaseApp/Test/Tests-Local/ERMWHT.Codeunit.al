@@ -1796,6 +1796,123 @@ codeunit 141012 "ERM WHT"
         Assert.RecordIsEmpty(LastWHTEntry);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure WHTEntryOnPostedPurchaseInvoiceJournalWithWHT()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATEntry: Record "VAT Entry";
+        WHTPostingSetup: Record "WHT Posting Setup";
+        WHTEntry: Record "WHT Entry";
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO] 599209 -Test to verify after Posting Purchase Invoice Journal with WHT, WHT Entry - Unrealized Base Amount is correctly calculated.
+        Initialize();
+
+        // [GIVEN] WHT Posting Setup has been created
+        LibraryAPACLocalization.CreateWHTPostingSetupWithPayableGLAccounts(WHTPostingSetup);
+
+        // [GIVEN] Create Purchase Invoice Journal with WHT .
+        UpdateGeneralLedgerSetup(false, true, false);  // False - Enable GST, Round Amount for WHT Calc and True as Enable WHT.
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        FindWHTPostingSetup(WHTPostingSetup);
+        VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+        CreateGeneralJournalLineWithCurrency(
+         GenJournalLine, WHTPostingSetup, GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Invoice,
+         VendorNo, '', '', -1000);
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        GenJournalLine.validate("Bal. Account No.", CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"));
+        GenJournalLine.validate("Bal. VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GenJournalLine.validate("Bal. VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GenJournalLine.validate("Bal. Gen. Posting Type", GenJournalLine."Bal. Gen. Posting Type"::Purchase);
+        GenJournalLine.Modify();
+
+        // [WHEN] Post Purchase Invoice Journal with WHT.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Verify WHT Entry - Unrealized Base, VAT Entry - Base.
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+        VATEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        VATEntry.Findlast();
+        WHTEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        WHTEntry.Findlast();
+        Assert.AreEqual(VATEntry.Base, WHTEntry."Unrealized Base", 'Not equal');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure WHTRemainingAmountAfterCreditMemoUnapplication()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        WHTPostingSetup: Record "WHT Posting Setup";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        WHTEntry: Record "WHT Entry";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustomerNo: Code[20];
+        ExpectedRemainingAmount: Decimal;
+        ExpectedRemainingBase: Decimal;
+    begin
+        // [SCENARIO 608687] Unapplying Customer Ledger Entry restores WHT entry remaining amounts after credit memo application.
+        Initialize();
+
+        // [GIVEN] WHT is enabled and setup configured
+        UpdateGeneralLedgerSetup(false, true, false);
+
+        // [GIVEN] Find WHT Posting Setup and VAT Posting Setup.
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        FindWHTPostingSetup(WHTPostingSetup);
+
+        // [GIVEN] Create Customer with VAT Business Posting Group.
+        CustomerNo := CreateCustomer(VATPostingSetup."VAT Bus. Posting Group");
+
+        // [GIVEN] Posted Sales Invoice with WHT Posting Group.
+        SalesInvoiceHeader.Get(
+          CreateAndPostSalesDocumentWithWHT(
+            SalesLine,
+            WHTPostingSetup,
+            SalesHeader."Document Type"::Invoice,
+            CustomerNo,
+            CreateGLAccount(
+              VATPostingSetup."VAT Prod. Posting Group")));
+
+        // [GIVEN] Store original WHT remaining amounts for later verification.
+        WHTEntry.SetRange("Document No.", SalesInvoiceHeader."No.");
+        WHTEntry.FindFirst();
+        ExpectedRemainingAmount := WHTEntry."Remaining Unrealized Amount";
+        ExpectedRemainingBase := WHTEntry."Remaining Unrealized Base";
+
+        // [GIVEN] Create and Post Corrective Credit Memo.
+        CreateCorrectiveCreditMemoAndOpenSalesCreditMemoPageAndPost(SalesInvoiceHeader);
+
+        // [WHEN] Unapply Credit memo from Invoice.
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::"Credit Memo");
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.findFirst();
+        LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
+
+        // [THEN] Verify WHT remaining amounts are restored to original values.
+        WHTEntry.SetRange("Document No.", SalesInvoiceHeader."No.");
+        WHTEntry.FindFirst();
+        Assert.AreEqual(
+          ExpectedRemainingAmount,
+          WHTEntry."Remaining Unrealized Amount",
+          StrSubstNo(
+            AmountErr,
+            WHTEntry.FieldCaption("Remaining Unrealized Amount"),
+            ExpectedRemainingAmount));
+
+        Assert.AreEqual(
+          ExpectedRemainingBase,
+          WHTEntry."Remaining Unrealized Base",
+          StrSubstNo(
+            AmountErr,
+            WHTEntry.FieldCaption("Remaining Unrealized Base"),
+            ExpectedRemainingBase));
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -2731,6 +2848,18 @@ codeunit 141012 "ERM WHT"
         VerifyAmountOnGLEntry(InvoiceNo, PurchAccountNo[1], PurchaseLine[1]."Line Amount");
         VerifyAmountOnGLEntry(InvoiceNo, PurchAccountNo[2], PurchaseLine[2]."Line Amount");
         VerifyAmountAndBaseOnWHTEntry(InvoiceNo, WHTAmount, PurchaseLine[1]."Line Amount");
+    end;
+
+    local procedure CreateCorrectiveCreditMemoAndOpenSalesCreditMemoPageAndPost(SalesInvoiceHeader: Record "Sales Invoice Header")
+    var
+        SalesHeader: Record "Sales Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvoiceHeader, SalesHeader);
+        SalesCreditMemo.OpenEdit();
+        SalesCreditMemo.GoToRecord(SalesHeader);
+        SalesCreditMemo.Post.Invoke();
     end;
 
     [ModalPageHandler]

@@ -362,7 +362,7 @@ codeunit 99000855 "Planning-Get Parameters"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetPlanningParameters(PlanningParameters: Record "Planning Parameters"; xPlanningParameters: Record "Planning Parameters");
+    local procedure OnAfterSetPlanningParameters(var PlanningParameters: Record "Planning Parameters"; xPlanningParameters: Record "Planning Parameters");
     begin
     end;
 
