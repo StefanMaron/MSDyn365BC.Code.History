@@ -302,6 +302,7 @@ report 11506 "SR Item Acc Sheet Inv. Value"
         if ItemLedgerEntry."Invoiced Quantity" <> 0 then begin
             PricePerUnit := ItemLedgerEntry."Sales Amount (Actual)" / ItemLedgerEntry."Invoiced Quantity";
             CostPerUnit := ItemLedgerEntry."Cost Amount (Actual)" / ItemLedgerEntry."Invoiced Quantity";
+            OnCalcValuesOnAfterCalcPriceAndCostPerUnit(ItemLedgerEntry, PricePerUnit, CostPerUnit);
         end;
         // Value posted
         ValuePosted := 0;
@@ -319,6 +320,11 @@ report 11506 "SR Item Acc Sheet Inv. Value"
 
         TotalValuePosted := TotalValuePosted + ValuePosted;
         TotalValueAdjusted := TotalValueAdjusted + ItemLedgerEntry."Cost Amount (Actual)";
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcValuesOnAfterCalcPriceAndCostPerUnit(var ItemLedgerEntry: Record "Item Ledger Entry"; var PricePerUnit: Decimal; var CostPerUnit: Decimal)
+    begin
     end;
 }
 

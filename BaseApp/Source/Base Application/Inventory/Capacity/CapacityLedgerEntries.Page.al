@@ -108,6 +108,27 @@ page 5832 "Capacity Ledger Entries"
                     ToolTip = 'Specifies the overhead cost in the additional reporting currency.';
                     Visible = false;
                 }
+                field(Reversed; Rec.Reversed)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies if the entry has been part of a reverse transaction.';
+                    Visible = false;
+                }
+                field("Reversed by Entry No."; Rec."Reversed by Entry No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the number of the correcting entry that replaced the original entry in the reverse transaction.';
+                    Visible = false;
+                }
+                field("Reversed Entry No."; Rec."Reversed Entry No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the number of the original entry that was undone by the reverse transaction.';
+                    Visible = false;
+                }
                 field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;

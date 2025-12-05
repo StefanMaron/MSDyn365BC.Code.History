@@ -341,6 +341,7 @@ table 172 "Standard Customer Sales Code"
             SalesHeader."Document Type"::"Credit Memo":
                 SetFilter("Insert Rec. Lines On Cr. Memos", '<>%1', "Insert Rec. Lines On Cr. Memos"::Manual);
         end;
+        OnAfterSetFilterByAutomaticAndAlwaysAskCodes(Rec, SalesHeader);
     end;
 
     procedure IsInsertRecurringLinesOnDocumentAutomatic(SalesHeader: Record "Sales Header"): Boolean
@@ -457,6 +458,11 @@ table 172 "Standard Customer Sales Code"
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyStdCodesToSalesLinesOnAfterValidateType(var SalesLine: Record "Sales Line"; var StandardSalesLine: Record "Standard Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFilterByAutomaticAndAlwaysAskCodes(var StandardCustomerSalesCode: Record "Standard Customer Sales Code"; SalesHeader: Record "Sales Header")
     begin
     end;
 }

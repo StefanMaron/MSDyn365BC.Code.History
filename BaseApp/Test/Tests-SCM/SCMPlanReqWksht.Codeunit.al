@@ -64,6 +64,8 @@
         BOMLineCommnetAndFirmProdOrderBOMLineCommentMustMatchErr: Label 'BOM Line Comment and Firm Prod. Order BOM Line Comment must match.';
         PostingProductionJournalQst: Label 'Do you want to post the journal lines?';
         PostingProductionJournalTxt: Label 'The journal lines were successfully posted';
+        ProdOrderComponentCommentErr: Label 'Production Order Component comment should exist';
+        ExpectedCommentErr: Label 'Comment should match expected value';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -5287,6 +5289,65 @@
         Assert.IsTrue(RequisitionLine.IsEmpty, StrSubstNo(RequisitionLineMustNotExistTxt, ProdItem."No."));
     end;
 
+    [Test]
+    procedure ProductionBOMCommentInheritanceToOrderComponents()
+    var
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ParentProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMVersion: Record "Production BOM Version";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SubordinateProductionBOMHeader: Record "Production BOM Header";
+        TestItem: Record Item;
+        ParentBOMItemComment: Text[80];
+        SubOrdinateBOMItemComment: Text[80];
+        VersionCode: Code[20];
+    begin
+        // [SCENARIO 574066] Comments not copied from Production BOM Line to Prod. Order Component
+        Initialize();
+
+        // [GIVEN] Generate random comments and version code
+        ParentBOMItemComment := CopyStr(LibraryUtility.GenerateRandomText(80), 1, 80);
+        SubOrdinateBOMItemComment := CopyStr(LibraryUtility.GenerateRandomText(80), 1, 80);
+        VersionCode := LibraryUtility.GenerateRandomCode(ProductionBOMVersion.FieldNo("Version Code"), Database::"Production BOM Version");
+
+        // [GIVEN] Create parent Production BOM with Item line and Production BOM line
+        CreateParentProductionBOMWithComments(ParentProductionBOMHeader, SubordinateProductionBOMHeader);
+
+        // [GIVEN] Add comment to Item line in parent Production BOM
+        AddCommentToProductionBOMLine(ParentProductionBOMHeader."No.", '', 10000, ParentBOMItemComment);
+
+        // [GIVEN] Create new version of subordinate Production BOM with version code 0001
+        CreateSubordinateProductionBOMVersion(SubordinateProductionBOMHeader, ProductionBOMVersion, VersionCode);
+
+        // [GIVEN] Add comment to first Item line in subordinate BOM version
+        AddCommentToProductionBOMLine(SubordinateProductionBOMHeader."No.", VersionCode, 10000, SubOrdinateBOMItemComment);
+
+        // [GIVEN] Certify the subordinate Production BOM version
+        CertifyProductionBOMVersion(ProductionBOMVersion);
+
+        // [GIVEN] Configure test item with Production BOM and Routing
+        CreateTestItemWithProductionBOM(TestItem, ParentProductionBOMHeader."No.");
+
+        // [GIVEN] Create and release Sales Order for test item
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, TestItem);
+
+        // [WHEN] Run Calculate Regenerative Plan and execute Carry Out Action Message
+        RunRegenerativePlanningAndCarryOut(TestItem, SalesLine."Shipment Date");
+
+        // [WHEN] Find the created Production Order
+        FindProductionOrderForItem(ProductionOrder, TestItem."No.");
+
+        // [THEN] Verify first component has parent BOM comment
+        FindProdOrderComponentByIndex(ProdOrderComponent, ProductionOrder."No.", 1);
+        VerifyProdOrderComponentComment(ProdOrderComponent, ParentBOMItemComment);
+
+        // [THEN] Verify second component has subordinate BOM comment  
+        FindProdOrderComponentByIndex(ProdOrderComponent, ProductionOrder."No.", 2);
+        VerifyProdOrderComponentComment(ProdOrderComponent, SubOrdinateBOMItemComment);
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -6877,7 +6938,7 @@ ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name
         var UnitOfMeasure: Record "Unit of Measure";
         var ItemUnitOfMeasure: Record "Item Unit of Measure";
         ReplenishmentSystem: Enum "Replenishment System";
-                                 ReorderPolicy: Enum "Reordering Policy")
+        ReorderPolicy: Enum "Reordering Policy")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         GeneralPostingSetup: Record "General Posting Setup";
@@ -7192,6 +7253,144 @@ ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name
     begin
         LibraryVariableStorage.Dequeue(QueuedMsg);
         Assert.IsTrue(AreSameMessages(Message, QueuedMsg), Message);
+    end;
+
+    local procedure CreateParentProductionBOMWithComments(var ParentProductionBOMHeader: Record "Production BOM Header"; var SubordinateProductionBOMHeader: Record "Production BOM Header")
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+        Item: Record Item;
+    begin
+        // Create subordinate Production BOM first
+        LibraryInventory.CreateItem(Item);
+        LibraryManufacturing.CreateProductionBOMHeader(SubordinateProductionBOMHeader, Item."Base Unit of Measure");
+        LibraryInventory.CreateItem(Item);
+        LibraryManufacturing.CreateProductionBOMLine(SubordinateProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item."No.", 1);
+        LibraryManufacturing.UpdateProductionBOMStatus(SubordinateProductionBOMHeader, SubordinateProductionBOMHeader.Status::Certified);
+
+        // Create parent Production BOM
+        LibraryManufacturing.CreateProductionBOMHeader(ParentProductionBOMHeader, Item."Base Unit of Measure");
+        LibraryInventory.CreateItem(Item);
+        LibraryManufacturing.CreateProductionBOMLine(ParentProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item."No.", 1);
+        LibraryManufacturing.CreateProductionBOMLine(ParentProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::"Production BOM", SubordinateProductionBOMHeader."No.", 1);
+        LibraryManufacturing.UpdateProductionBOMStatus(ParentProductionBOMHeader, ParentProductionBOMHeader.Status::Certified);
+    end;
+
+    local procedure AddCommentToProductionBOMLine(ProductionBOMNo: Code[20]; VersionCode: Code[20]; LineNo: Integer; CommentText: Text[80])
+    var
+        ProductionBOMCommentLine: Record "Production BOM Comment Line";
+    begin
+        ProductionBOMCommentLine.Init();
+        ProductionBOMCommentLine."Production BOM No." := ProductionBOMNo;
+        ProductionBOMCommentLine."Version Code" := VersionCode;
+        ProductionBOMCommentLine."BOM Line No." := LineNo;
+        ProductionBOMCommentLine."Line No." := 10000;
+        ProductionBOMCommentLine.Comment := CommentText;
+        ProductionBOMCommentLine.Insert(true);
+    end;
+
+    local procedure CreateSubordinateProductionBOMVersion(var ProductionBOMHeader: Record "Production BOM Header"; var ProductionBOMVersion: Record "Production BOM Version"; VersionCode: Code[20])
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+        Item: Record Item;
+    begin
+        LibraryManufacturing.CreateProductionBOMVersion(ProductionBOMVersion, ProductionBOMHeader."No.", VersionCode, ProductionBOMHeader."Unit of Measure Code");
+        ProductionBOMVersion."Unit of Measure Code" := ProductionBOMHeader."Unit of Measure Code";
+        ProductionBOMVersion.Modify(true);
+
+        // Copy BOM structure
+        LibraryInventory.CreateItem(Item);
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, VersionCode, ProductionBOMLine.Type::Item, Item."No.", 1);
+    end;
+
+    local procedure CertifyProductionBOMVersion(var ProductionBOMVersion: Record "Production BOM Version")
+    begin
+        ProductionBOMVersion.Status := ProductionBOMVersion.Status::Certified;
+        ProductionBOMVersion.Modify(true);
+    end;
+
+    local procedure CreateTestItemWithProductionBOM(var Item: Record Item; ProductionBOMNo: Code[20])
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        WorkCenter: Record "Work Center";
+        RoutingNo: Code[20];
+    begin
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+        RoutingNo := CreateRoutingWithWorkCenter(WorkCenter."No.", 10, 2, 0);
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        CreateItemWithReorderPolicy(Item, UnitOfMeasure, ItemUnitOfMeasure, Item."Replenishment System"::"Prod. Order", Item."Reordering Policy"::Order);
+        Item."Production BOM No." := ProductionBOMNo;
+        Item.Validate("Routing No.", RoutingNo);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateAndReleaseSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Item: Record Item)
+    var
+        Customer: Record Customer;
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        VATPostingSetup.SetRange("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
+        VATPostingSetup.FindFirst();
+
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Modify(true);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
+    local procedure RunRegenerativePlanningAndCarryOut(Item: Record Item; DueDate: Date)
+    var
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, LibraryPlanning.SelectRequisitionTemplateName());
+
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), DueDate);
+
+        RequisitionLine.SetRange("No.", Item."No.");
+        RequisitionLine.FindFirst();
+        RequisitionLine.Validate("Accept Action Message", true);
+        RequisitionLine.Modify(true);
+
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
+    end;
+
+    local procedure FindProductionOrderForItem(var ProductionOrder: Record "Production Order"; ItemNo: Code[20])
+    begin
+        ProductionOrder.SetRange(Status, ProductionOrder.Status::"Firm Planned");
+        ProductionOrder.SetRange("Source No.", ItemNo);
+        ProductionOrder.FindFirst();
+    end;
+
+    local procedure FindProdOrderComponentByIndex(var ProdOrderComponent: Record "Prod. Order Component"; ProductionOrderNo: Code[20]; ComponentIndex: Integer)
+    begin
+        ProdOrderComponent.SetRange(Status, ProdOrderComponent.Status::"Firm Planned");
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrderNo);
+        case ComponentIndex of
+            1:
+                ProdOrderComponent.FindFirst();
+            2:
+                begin
+                    ProdOrderComponent.FindFirst();
+                    ProdOrderComponent.Next();
+                end;
+        end;
+    end;
+
+    local procedure VerifyProdOrderComponentComment(ProdOrderComponent: Record "Prod. Order Component"; ExpectedComment: Text[80])
+    var
+        ProdOrderCompCmtLine: Record "Prod. Order Comp. Cmt Line";
+    begin
+        ProdOrderCompCmtLine.SetRange(Status, ProdOrderComponent.Status);
+        ProdOrderCompCmtLine.SetRange("Prod. Order No.", ProdOrderComponent."Prod. Order No.");
+        ProdOrderCompCmtLine.SetRange("Prod. Order Line No.", ProdOrderComponent."Prod. Order Line No.");
+        ProdOrderCompCmtLine.SetRange("Prod. Order BOM Line No.", ProdOrderComponent."Line No.");
+
+        Assert.IsTrue(ProdOrderCompCmtLine.FindFirst(), ProdOrderComponentCommentErr);
+        Assert.AreEqual(ExpectedComment, ProdOrderCompCmtLine.Comment, ExpectedCommentErr);
     end;
 
     [MessageHandler]

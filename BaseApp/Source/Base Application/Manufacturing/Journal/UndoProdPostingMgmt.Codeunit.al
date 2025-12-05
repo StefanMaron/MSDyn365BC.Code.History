@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Journal;
 
+using Microsoft.Finance.GeneralLedger.Reversal;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
@@ -91,6 +92,7 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         StopTime: Decimal;
         ScrapValue: Decimal;
         IsHandled: Boolean;
+        CapacityLedgerEntryNo: Integer;
     begin
         ProductionOrder.SetLoadFields(Status, "No.");
         if not ProductionOrder.Get(ProductionOrder.Status::Released, ItemLedgerEntry."Order No.") then
@@ -113,8 +115,9 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         ItemJnlLine."Dimension Set ID" := ItemLedgerEntry."Dimension Set ID";
         ItemJnlLine."Shortcut Dimension 1 Code" := ItemLedgerEntry."Global Dimension 1 Code";
         ItemJnlLine."Shortcut Dimension 2 Code" := ItemLedgerEntry."Global Dimension 2 Code";
-        GetLastOperationInformation(ItemLedgerEntry, OperationNo, SetupTime, RunTime, StopTime, ScrapValue);
+        GetLastOperationInformation(ItemLedgerEntry, CapacityLedgerEntryNo, OperationNo, SetupTime, RunTime, StopTime, ScrapValue);
         if OperationNo <> '' then begin
+            ItemJnlLine.Validate("Rev. Capacity Ledger Entry No.", CapacityLedgerEntryNo);
             ItemJnlLine.Validate("Operation No.", OperationNo);
             ItemJnlLine.Validate("Setup Time", -SetupTime);
             ItemJnlLine.Validate("Run Time", -RunTime);
@@ -170,6 +173,7 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         ItemJnlLine."Shortcut Dimension 2 Code" := CapacityLedgEntry."Global Dimension 2 Code";
         ItemJnlLine.Validate(Description, CapacityLedgEntry.Description);
 
+        ItemJnlLine.Validate("Rev. Capacity Ledger Entry No.", CapacityLedgEntry."Entry No.");
         ItemJnlLine.Validate("Setup Time", -Abs(CapacityLedgEntry."Setup Time"));
         ItemJnlLine.Validate("Run Time", -Abs(CapacityLedgEntry."Run Time"));
         ItemJnlLine.Validate("Stop Time", -Abs(CapacityLedgEntry."Stop Time"));
@@ -205,7 +209,7 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         exit(not ProdOrderRoutingLine.IsEmpty());
     end;
 
-    local procedure GetLastOperationInformation(ItemLedgEntry: Record "Item Ledger Entry"; var OperationNo: Code[20]; var SetupTime: Decimal; var RunTime: Decimal; var StopTime: Decimal; var ScrapValue: Decimal)
+    local procedure GetLastOperationInformation(ItemLedgEntry: Record "Item Ledger Entry"; var CapacityLedgerEntryNo: Integer; var OperationNo: Code[20]; var SetupTime: Decimal; var RunTime: Decimal; var StopTime: Decimal; var ScrapValue: Decimal)
     var
         ProdOrderLine: Record "Prod. Order Line";
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
@@ -234,6 +238,7 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
 
         CapacityLedgEntry.SetRange("Output Quantity");
         if CapacityLedgEntry.FindFirst() then begin
+            CapacityLedgerEntryNo := CapacityLedgEntry."Entry No.";
             SetupTime := CapacityLedgEntry."Setup Time";
             RunTime := CapacityLedgEntry."Run Time";
             StopTime := CapacityLedgEntry."Stop Time";
@@ -388,6 +393,7 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         ProductionOrder: Record "Production Order";
+        ReversalEntry: Record "Reversal Entry";
     begin
         CapacityLedgerEntry.TestField("Order Type", CapacityLedgerEntry."Order Type"::Production);
         if CapacityLedgerEntry.Quantity < 0 then
@@ -395,6 +401,9 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
 
         ProductionOrder.SetLoadFields(Status, "No.");
         ProductionOrder.Get(ProductionOrder.Status::Released, CapacityLedgerEntry."Order No.");
+
+        if CapacityLedgerEntry.Reversed then
+            ReversalEntry.AlreadyReversedEntry(CapacityLedgerEntry.TableCaption(), CapacityLedgerEntry."Entry No.");
 
         if CapacityLedgerEntry.Subcontracting then
             Error(SubContractingErr);
