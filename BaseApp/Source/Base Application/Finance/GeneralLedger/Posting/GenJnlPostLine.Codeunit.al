@@ -7600,11 +7600,15 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     local procedure VATEntryAdjustForPropDeduction(GenJnlLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup")
+    var
+        OriginalBase: Decimal;
     begin
         if IsPropDeduction(VATEntry.Amount, GenJnlLine, VATPostingSetup) then begin
             // Amount are already adjusted
+            OriginalBase := VATEntry.Base;
             VATEntry.Base := NorwegianVATTools.AdjustForPropDeduction(VATEntry.Base, GenJnlLine, VATPostingSetup);
             VATEntry."Additional-Currency Base" := CalcLCYToAddCurr(VATEntry.Base);
+            VATEntry."Base Before Pmt. Disc." := OriginalBase;
         end;
     end;
 
