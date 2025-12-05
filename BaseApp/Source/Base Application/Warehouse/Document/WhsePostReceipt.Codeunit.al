@@ -898,6 +898,7 @@ codeunit 5760 "Whse.-Post Receipt"
         WhsePutAwayRequest: Record "Whse. Put-away Request";
         PostedWhseReceiptHeaderNo: Code[20];
         DeleteWhseRcptLine: Boolean;
+        IsHandled: Boolean;
     begin
         OnBeforePostUpdateWhseDocuments(WarehouseReceiptHeader);
         if TempWarehouseReceiptLine.Find('-') then begin
@@ -926,8 +927,12 @@ codeunit 5760 "Whse.-Post Receipt"
             WarehouseReceiptHeader."Document Status" := WarehouseReceiptHeader.GetHeaderStatus(0);
             WarehouseReceiptHeader.Modify();
         end else begin
-            WarehouseReceiptHeader.DeleteRelatedLines(false);
-            WarehouseReceiptHeader.Delete();
+            IsHandled := false;
+            OnPostUpdateWhseDocumentsOnBeforeWhseRcptHeaderDelete(WarehouseReceiptHeader, IsHandled);
+            if not IsHandled then begin
+                WarehouseReceiptHeader.DeleteRelatedLines(false);
+                WarehouseReceiptHeader.Delete();
+            end;
             OnPostUpdateWhseDocumentsOnAfterWhseRcptHeaderDelete(WarehouseReceiptHeader);
         end;
 
@@ -1968,6 +1973,11 @@ codeunit 5760 "Whse.-Post Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostUpdateWhseDocumentsOnBeforeWhseRcptLineModify(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var WhseRcptLineBuf: Record "Warehouse Receipt Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostUpdateWhseDocumentsOnBeforeWhseRcptHeaderDelete(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var IsHandled: Boolean)
     begin
     end;
 

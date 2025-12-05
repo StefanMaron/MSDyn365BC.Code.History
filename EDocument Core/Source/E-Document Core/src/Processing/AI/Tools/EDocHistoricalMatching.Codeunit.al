@@ -26,6 +26,7 @@ codeunit 6177 "E-Doc. Historical Matching" implements "AOAI Function", IEDocAISy
         TempEDocLineMatchBuffer: Record "EDoc Line Match Buffer" temporary;
         TempHistoricalMatchBuffer: Record "EDoc Historical Match Buffer" temporary;
         EDocSimilarDescriptions: Codeunit "E-Doc. Similar Descriptions";
+        Telemetry: Codeunit Telemetry;
         EDocumentNo: Integer;
         HistoricalDataLoadFailedErr: Label 'Failed to load historical data for e-document line %1. Error: %2', Comment = '%1 = E-Document System Id, %2 = Error message', Locked = true;
         AIHistoricalDataLoadEventTok: Label 'Historical Data Load', Locked = true;
@@ -130,6 +131,9 @@ codeunit 6177 "E-Doc. Historical Matching" implements "AOAI Function", IEDocAISy
         VendorNo: Code[20];
         EDocSystemId: Guid;
         ErrorMessage: Text;
+        CouldNotFindHeaderErr: Label 'Could not find E-Document Purchase Header for E-Document Entry No. %1', Comment = '%1 = E-Document Entry No.', Locked = true;
+        NoUnmatchedLinesErr: Label 'No unmatched E-Document Purchase Lines found for E-Document Entry No. %1', Comment = '%1 = E-Document Entry No.', Locked = true;
+        HistoricalTempTableIsEmptyErr: Label 'No historical purchase invoice lines found for E-Document Entry No. %1', Comment = '%1 = E-Document Entry No.', Locked = true;
     begin
         if not EDocumentPurchaseLine.FindFirst() then
             exit(false);
@@ -138,14 +142,18 @@ codeunit 6177 "E-Doc. Historical Matching" implements "AOAI Function", IEDocAISy
 
         // Get vendor from header
         EDocumentPurchaseHeader.SetRange("E-Document Entry No.", EDocumentPurchaseLine."E-Document Entry No.");
-        if not EDocumentPurchaseHeader.FindFirst() then
+        if not EDocumentPurchaseHeader.FindFirst() then begin
+            Telemetry.LogMessage('0000QLD', StrSubstNo(CouldNotFindHeaderErr, EDocumentPurchaseLine."E-Document Entry No."), Verbosity::Normal, DataClassification::SystemMetadata);
             exit(false);
+        end;
         VendorNo := EDocumentPurchaseHeader."[BC] Vendor No.";
 
         // Ensure we only process unmatched lines
         EDocumentPurchaseLine.SetRange("[BC] Purchase Type No.", '');
-        if not EDocumentPurchaseLine.FindSet() then
+        if not EDocumentPurchaseLine.FindSet() then begin
+            Telemetry.LogMessage('0000QLE', StrSubstNo(NoUnmatchedLinesErr, EDocumentPurchaseLine."E-Document Entry No."), Verbosity::Normal, DataClassification::SystemMetadata);
             exit(false);
+        end;
 
         // Load historical data with error handling
         if not LoadHistoricalDataIntoTempTable(TempPurchInvLine, VendorNo, HistoricalMatchingConfig) then begin
@@ -153,8 +161,10 @@ codeunit 6177 "E-Doc. Historical Matching" implements "AOAI Function", IEDocAISy
             FeatureTelemetry.LogError('0000PUQ', GetFeatureName(), AIHistoricalDataLoadEventTok, StrSubstNo(HistoricalDataLoadFailedErr, EDocSystemId, ErrorMessage), GetLastErrorCallStack());
             exit(false);
         end;
-        if TempPurchInvLine.IsEmpty() then
+        if TempPurchInvLine.IsEmpty() then begin
+            Telemetry.LogMessage('0000QLF', StrSubstNo(HistoricalTempTableIsEmptyErr, EDocumentPurchaseLine."E-Document Entry No."), Verbosity::Normal, DataClassification::SystemMetadata);
             exit(false);
+        end;
 
         // Collect potential matches
         Clear(TempHistoricalMatchBuffer);
@@ -232,6 +242,7 @@ codeunit 6177 "E-Doc. Historical Matching" implements "AOAI Function", IEDocAISy
         SimilarDescriptions: List of [Text];
         Description: Text;
     begin
+        Telemetry.LogMessage('0000QLG', 'Processing similar descriptions for E-Document Line No. ' + Format(EDocumentPurchaseLine."Line No."), Verbosity::Verbose, DataClassification::SystemMetadata);
         // Get similar descriptions using the simplified API
         SimilarDescriptions := EDocSimilarDescriptions.GetSimilarDescriptions(EDocumentPurchaseLine.Description);
 
@@ -251,6 +262,7 @@ codeunit 6177 "E-Doc. Historical Matching" implements "AOAI Function", IEDocAISy
         MatchCount: Integer;
         MatchReasonLbl: Label 'Matched on %1: %2', Comment = '%1 = Match Type, %2 = Search Value', Locked = true;
     begin
+        Telemetry.LogMessage('0000QLH', 'Searching and adding matches for ' + MatchType + ' for E-Document Line No. ' + Format(EDocumentPurchaseLine."Line No."), Verbosity::Verbose, DataClassification::SystemMetadata);
         if SearchValue = '' then
             exit;
 
@@ -269,6 +281,7 @@ codeunit 6177 "E-Doc. Historical Matching" implements "AOAI Function", IEDocAISy
                 TempPurchInvLine.SetFilter(Description, '%1', '@*' + SearchValue + '*');
         end;
 
+        Telemetry.LogMessage('0000QLI', 'Executing search for ' + MatchType + ' with value "' + SearchValue + '" for E-Document Line No. ' + Format(EDocumentPurchaseLine."Line No."), Verbosity::Verbose, DataClassification::SystemMetadata);
         if TempPurchInvLine.FindSet() then
             repeat
                 if not IsSimilarHistoricalRecordTracked(EDocumentPurchaseLine."Line No.", TempPurchInvLine) then
@@ -286,6 +299,7 @@ codeunit 6177 "E-Doc. Historical Matching" implements "AOAI Function", IEDocAISy
                         MatchCount += 1;
                     end;
             until (TempPurchInvLine.Next() = 0) or (MatchCount >= 5);
+        Telemetry.LogMessage('0000QLJ', 'Found and added ' + Format(MatchCount) + ' matches for ' + MatchType + ' for E-Document Line No. ' + Format(EDocumentPurchaseLine."Line No."), Verbosity::Verbose, DataClassification::SystemMetadata);
     end;
 
     local procedure IsSimilarHistoricalRecordTracked(LineNo: Integer; var PurchInvLine: Record "Purch. Inv. Line"): Boolean
@@ -564,15 +578,22 @@ codeunit 6177 "E-Doc. Historical Matching" implements "AOAI Function", IEDocAISy
     #endregion "AOAI Function" interface implementation
 
     #region "E-Document AI System" interface implementation
-    procedure GetSystemPrompt(): SecretText
+    procedure GetSystemPrompt(UserLanguage: Text): SecretText
     var
         AzureKeyVault: Codeunit "Azure Key Vault";
-        PromptSecretText: SecretText;
-        PromptSecretNameTok: Label 'EDocHistoricalMatching-SystemPrompt', Locked = true;
+        SecurityPromptSecretText, CompletePromptSecretText : SecretText;
+        EDocHistoricalMatchingPromptText: Text;
+        EDocHistoricalMatchingPromptTok: Label 'Prompts/EDocHistoricalMatching-SystemPrompt.md', Locked = true;
+        SecurityPromptTok: Label 'EDocHistoricalMatching-SecurityPrompt', Locked = true;
     begin
-        if not AzureKeyVault.GetAzureKeyVaultSecret(PromptSecretNameTok, PromptSecretText) then
-            PromptSecretText := SecretStrSubstNo('');
-        exit(PromptSecretText);
+        EDocHistoricalMatchingPromptText := NavApp.GetResourceAsText(EDocHistoricalMatchingPromptTok, TextEncoding::UTF8);
+        if AzureKeyVault.GetAzureKeyVaultSecret(SecurityPromptTok, SecurityPromptSecretText) then
+            CompletePromptSecretText := SecretText.SecretStrSubstNo(EDocHistoricalMatchingPromptText, SecurityPromptSecretText, UserLanguage)
+        else begin
+            Session.LogMessage('0000QQ0', 'Failed to retrieve security prompt', Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', GetFeatureName());
+            CompletePromptSecretText := SecretStrSubstNo('');
+        end;
+        exit(CompletePromptSecretText);
     end;
 
     procedure GetTools(): List of [Interface "AOAI Function"]

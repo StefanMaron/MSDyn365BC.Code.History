@@ -666,6 +666,35 @@ codeunit 134626 "Person and Company Contacts"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PersonCustomerCreationSetsDefaultContact()
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+    begin
+        // [SCENARIO 612274] When Customer of type Person is created, the default contact created is set as the 'Primary Contact No on the Customer.
+        Initialize();
+        LibraryLowerPermissions.SetO365BusFull();
+
+        // [WHEN] Customer "C" of type Person is created
+        CreateCustomer(Customer, Customer."Contact Type"::Person);
+
+        // [THEN] Contact and Business Relation are created for Customer
+        AssertContactBusinessRelationExists(ContactBusinessRelation, Customer."Primary Contact No.");
+
+        // [WHEN] Name on the Customer is set or modified
+        Contact.Get(ContactBusinessRelation."Contact No.");
+        Customer.Validate("Contact Type", Customer."Contact Type"::Person);
+        Customer.Validate(Name, LibraryUtility.GenerateRandomText(50));
+        Customer.Modify(true);
+
+        // [GIVEN] A Contact "CONT1" is automatically updated with the same Name as the Customer
+        Customer.TestField("Primary Contact No.");
+        Customer.TestField(Contact, Customer.Name);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Person and Company Contacts");
@@ -756,6 +785,18 @@ codeunit 134626 "Person and Company Contacts"
         MarketingSetup.Get();
         ContactBusinessRelation.Get(Contact."No.", MarketingSetup."Bus. Rel. Code for Customers");
         Customer.Get(ContactBusinessRelation."No.");
+    end;
+
+    procedure CreateCustomer(var Customer: Record Customer; ContactType: Enum "Contact Type")
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        LibraryUtility.UpdateSetupNoSeriesCode(
+          DATABASE::"Sales & Receivables Setup", SalesReceivablesSetup.FieldNo("Customer Nos."));
+
+        Clear(Customer);
+        Customer.Validate("Contact Type", ContactType);
+        Customer.Insert(true);
     end;
 
     [ModalPageHandler]
