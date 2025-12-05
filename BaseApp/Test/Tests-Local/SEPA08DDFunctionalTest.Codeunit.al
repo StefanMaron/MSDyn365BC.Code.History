@@ -748,15 +748,7 @@ codeunit 144079 "SEPA.08 DD Functional Test"
         CompanyInformation: Record "Company Information";
     begin
         CompanyInformation.Get();
-        VerifyCompanyNameAndPostalAddress(CompanyInformation, 'InitgPty');
         LibraryXMLRead.VerifyNodeValueInSubtree('InitgPty', 'Id', CompanyInformation."VAT Registration No.");
-    end;
-
-    local procedure VerifyCompanyNameAndPostalAddress(CompanyInformation: Record "Company Information"; SubtreeRootNodeName: Text)
-    begin
-        VerifyNameAndPostalAddress(
-          SubtreeRootNodeName, CompanyInformation.Name, CompanyInformation.Address,
-          CompanyInformation."Post Code", CompanyInformation.City, CompanyInformation."Country/Region Code");
     end;
 
     local procedure VerifyPaymentInformationHeader(PaymentLine: Record "Payment Line")

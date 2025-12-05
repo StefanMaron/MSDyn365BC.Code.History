@@ -115,6 +115,49 @@ codeunit 144011 "ERM Bank Account FR"
                 PaymentLine.TableName()));
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PaymentClassListPageHandler')]
+    procedure LastNoUsedUpdatesOnPaymentSlipLinesEnteredManuallyWhenPosting()
+    var
+        PaymentHeader: Record "Payment Header";
+        PaymentLine: Record "Payment Line";
+        PaymentClass: Record "Payment Class";
+        NoSeriesMgt: Codeunit "No. Series";
+        PaymentSlip: TestPage "Payment Slip";
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 603695] The Last No. Used in No. Series Line does update when the Payment Slip Lines are entered manually when posting.
+        VendorNo := CreateVendor();
+
+        // [GIVEN] Create a Payment Header.
+        CreatePaymentHeader(PaymentHeader, PaymentClass.Suggestions::Vendor);
+
+        // [GIVEN] Create two Payment Lines for the Payment Header.
+        CreatePaymentLine(PaymentHeader, PaymentLine."Account Type"::Vendor, VendorNo);
+        CreatePaymentLine(PaymentHeader, PaymentLine."Account Type"::Vendor, VendorNo);
+
+        // [GIVEN] Find and store Last No. Used before Posting.
+        PaymentLine.SetRange("No.", PaymentHeader."No.");
+        PaymentLine.FindLast();
+
+        // [WHEN] Open Payment Slip and Post.
+        PaymentSlip.OpenEdit();
+        PaymentSlip.FILTER.SetFilter("No.", PaymentHeader."No.");
+        PaymentSlip.Post.Invoke();
+
+        // [GIVEN] Find Payment Class.
+        PaymentClass.Get(PaymentHeader."Payment Class");
+
+        // [THEN] Document No. in Payment Line must be same as Last No. Used.
+        Assert.AreEqual(
+            NoSeriesMgt.GetLastNoUsed(PaymentClass."Line No. Series"),
+            PaymentLine."Document No.",
+            StrSubstNo(
+                DocumentNoErr,
+                PaymentLine."Document No.",
+                PaymentLine.TableName()));
+    end;
+
     local procedure PaymentSlipPost(var PaymentHeader: Record "Payment Header"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Suggestions: Option)
     var
         PaymentSlip: TestPage "Payment Slip";

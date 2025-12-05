@@ -1276,6 +1276,7 @@ codeunit 408 DimensionManagement
     begin
         DefaultDimObjectNoWithoutGlobalDimsList(TempAllObjWithCaption);
         DefaultDimObjectNoWithGlobalDimsList(TempAllObjWithCaption);
+        OnAfterDefaultDimObjectNoList(TempAllObjWithCaption);
     end;
 
     procedure DefaultDimObjectNoWithGlobalDimsList(var TempAllObjWithCaption: Record AllObjWithCaption temporary)
@@ -3416,6 +3417,11 @@ codeunit 408 DimensionManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterEditDimensionSet(var DimSetID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDefaultDimObjectNoList(var TempAllObjWithCaption: Record AllObjWithCaption temporary)
     begin
     end;
 }

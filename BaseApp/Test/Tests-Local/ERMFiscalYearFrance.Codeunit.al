@@ -229,6 +229,35 @@ codeunit 144074 "ERM Fiscal Year France"
         asserterror UserSetup.Validate("Allow Posting To", GetFirstAccountingPeriodDate(true));
     end;
 
+    [Test]
+    procedure AllowPostingFromAndToFieldInUserSetuSetBlank()
+    var
+        AccountingPeriod: Record "Accounting Period";
+        UserSetup: array[2] of Record "User Setup";
+    begin
+        // [SCENARIO 610095] Allow Posting From and To field in User Setup can be set blank.
+        Initialize();
+
+        // [GIVEN] Create a fiscal year.
+        CreateAccountingPeriods();
+
+        FindNewFiscalYear(AccountingPeriod);
+
+        // [GIVEN] Create User Setup 
+        LibraryTimeSheet.CreateUserSetup(UserSetup[1], false);
+
+        // [GIVEN] Set Allow Posting From to first Accounting Period Date date.
+        UserSetup[1].Validate("Allow Posting From", AccountingPeriod."Starting Date");
+        UserSetup[1].Modify(true);
+
+        // [GIVEN] Get the same User Setup record in another variable.
+        UserSetup[2].Get(UserSetup[1]."User ID");
+
+        // [THEN] Validate Allow Posting From to blank date.
+        UserSetup[1].Validate("Allow Posting From", 0D);
+        UserSetup[1].Modify(true);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();

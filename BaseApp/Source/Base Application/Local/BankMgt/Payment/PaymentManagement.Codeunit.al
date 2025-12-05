@@ -195,6 +195,7 @@ codeunit 10860 "Payment Management"
                             PaymentLine."Acc. No. Last Entry Credit" := EntryNoAccountCredit;
                             PaymentLine."P. Group Last Entry Credit" := EntryPostGroupCredit;
                             PaymentLine.Validate("Status No.", Step."Next Status");
+                            UpdateLastNoSeries();
                             PaymentLine.Posted := true;
                             PaymentLine.Modify();
                         until PaymentLine.Next() = 0;
@@ -272,8 +273,8 @@ codeunit 10860 "Payment Management"
             Process.Get(FromPaymentLine."Payment Class");
             if PayNum = '' then begin
                 i := 10000;
-                    ToBord."No. Series" := Step."Header Nos. Series";
-                    ToBord."No." := NoSeries.GetNextNo(ToBord."No. Series");
+                ToBord."No. Series" := Step."Header Nos. Series";
+                ToBord."No." := NoSeries.GetNextNo(ToBord."No. Series");
                 ToBord."Payment Class" := FromPaymentLine."Payment Class";
                 ToBord."Status No." := Step."Next Status";
                 PaymentStatus.Get(ToBord."Payment Class", ToBord."Status No.");
@@ -474,6 +475,18 @@ codeunit 10860 "Payment Management"
                 if VendorPostingGroup."Payables Account" = '' then
                     Error(Text014, PostingGroup);
             end;
+    end;
+
+    local procedure UpdateLastNoSeries()
+    var
+        NoSeriesPaymentClass: Record "Payment Class";
+        NoSeries: Codeunit "No. Series";
+    begin
+        NoSeriesPaymentClass.SetLoadFields("Line No. Series");
+        NoSeriesPaymentClass.Get(PaymentHeader."Payment Class");
+        if NoSeriesPaymentClass."Line No. Series" <> '' then
+           if PaymentLine."Document No." = NoSeries.PeekNextNo(NoSeriesPaymentClass."Line No. Series", PaymentLine."Posting Date") then
+              NoSeries.GetNextNo(NoSeriesPaymentClass."Line No. Series", PaymentLine."Posting Date");
     end;
 
     [Scope('OnPrem')]

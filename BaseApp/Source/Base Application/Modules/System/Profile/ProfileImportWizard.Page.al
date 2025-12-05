@@ -1,5 +1,6 @@
 ﻿namespace System.Environment.Configuration;
 
+using System.Agents;
 using System.IO;
 using System.Apps;
 using System.Tooling;
@@ -186,7 +187,11 @@ page 9199 "Profile Import Wizard"
     }
 
     trigger OnOpenPage();
+    var
+        AgentUtilities: Codeunit "Agent Utilities";
     begin
+        AgentUtilities.BlockPageFromBeingOpenedByAgent();
+
         Rec.Init();
 
         Rec.Insert();
@@ -337,7 +342,6 @@ page 9199 "Profile Import Wizard"
 
         DoneActionEnabled := false;
         BackActionEnabled := false;
-        BackupActionVisible := true;
         ImportProfilePackageActionVisible := true;
     end;
 
@@ -366,7 +370,6 @@ page 9199 "Profile Import Wizard"
         Step3Visible := false;
 
         ImportActionVisible := false;
-        BackupActionVisible := false;
         ImportProfilePackageActionVisible := false;
     end;
 
@@ -392,7 +395,6 @@ page 9199 "Profile Import Wizard"
         Step3Visible: Boolean;
         ImportActionVisible: Boolean;
         ApplicationName: Text;
-        BackupActionVisible: Boolean;
         ImportProfilePackageActionVisible: Boolean;
         DiagnosticsNotificationIDTxt: Label 'f942c4ea-6509-4068-9f87-f38520ffffb2', Locked = true;
         Action: Enum "Creation Type";

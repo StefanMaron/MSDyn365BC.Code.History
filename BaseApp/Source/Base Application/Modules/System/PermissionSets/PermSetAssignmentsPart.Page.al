@@ -1,5 +1,6 @@
 namespace System.Security.AccessControl;
 
+using System.Agents;
 using System.Security.User;
 
 page 9876 "Perm. Set Assignments Part"
@@ -72,7 +73,11 @@ page 9876 "Perm. Set Assignments Part"
     }
 
     trigger OnOpenPage()
+    var
+        AgentUtilities: Codeunit "Agent Utilities";
     begin
+        AgentUtilities.BlockPageFromBeingOpenedByAgent();
+
         FilterOutSpecialUsers(Rec);
     end;
 
