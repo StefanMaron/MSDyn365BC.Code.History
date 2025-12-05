@@ -1,5 +1,6 @@
 namespace System.Security.User;
 
+using System.Agents;
 using System.Azure.Identity;
 using System.Email;
 using System.Environment;
@@ -381,10 +382,12 @@ page 9800 Users
 
     trigger OnOpenPage()
     var
+        AgentUtilities: Codeunit "Agent Utilities";
         UserSelection: Codeunit "User Selection";
     begin
         NoUserExists := Rec.IsEmpty();
         UserSelection.HideExternalUsers(Rec);
+        AgentUtilities.BlockPageFromBeingOpenedByAgent();
     end;
 
     local procedure ValidateSid()

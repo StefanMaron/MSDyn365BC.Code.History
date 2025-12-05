@@ -115,6 +115,7 @@ table 99000758 "Machine Center"
                 ProdOrderRtngLine: Record "Prod. Order Routing Line";
                 ProdOrderCapNeed: Record "Prod. Order Capacity Need";
                 PlanningRtngLine: Record "Planning Routing Line";
+                SkipValidateLocationCode: Boolean;
             begin
                 if "Work Center No." = xRec."Work Center No." then
                     exit;
@@ -128,7 +129,10 @@ table 99000758 "Machine Center"
                     "Move Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
                     OnWorkCenterNoOnValidateOnAfterCopyFromWorkCenter(Rec, WorkCenter);
                 end;
-                Validate("Location Code", WorkCenter."Location Code");
+                SkipValidateLocationCode := false;
+                OnValidateWorkCenterNoOnBeforeValidateLocationCode(Rec, WorkCenter, SkipValidateLocationCode);
+                if not SkipValidateLocationCode then
+                    Validate("Location Code", WorkCenter."Location Code");
 
                 CalendarEntry.SetCurrentKey("Capacity Type", "No.");
                 CalendarEntry.SetRange("Capacity Type", CalendarEntry."Capacity Type"::"Machine Center");
@@ -815,6 +819,11 @@ table 99000758 "Machine Center"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePostCode(var MachineCenter: Record "Machine Center"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateWorkCenterNoOnBeforeValidateLocationCode(var MachineCenter: Record "Machine Center"; WorkCenter: Record "Work Center"; var SkipValidateLocationCode: Boolean)
     begin
     end;
 }

@@ -204,6 +204,7 @@ codeunit 5986 "Serv-Amounts Mgt."
         CurrExchRate: Record "Currency Exchange Rate";
         NoVAT: Boolean;
         UseDate: Date;
+        IsHandled: Boolean;
     begin
         OnBeforeRoundAmount(ServiceHeader, ServiceLine, ServLineQty);
 
@@ -220,67 +221,71 @@ codeunit 5986 "Serv-Amounts Mgt."
         TempServiceLine := ServiceLine;
         ServiceLineACY := ServiceLine;
 
-        if ServiceHeader."Currency Code" <> '' then begin
-            if (ServiceLine."Document Type" in [ServiceLine."Document Type"::Quote]) and
-               (ServiceHeader."Posting Date" = 0D)
-            then
-                UseDate := WorkDate()
-            else
-                UseDate := ServiceHeader."Posting Date";
+        IsHandled := false;
+        OnRoundAmountOnBeforeCalculateLCYAmounts(TempServiceLine, ServiceLineACY, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, ServiceLine, IsHandled);
+        if not IsHandled then begin
+            if ServiceHeader."Currency Code" <> '' then begin
+                if (ServiceLine."Document Type" in [ServiceLine."Document Type"::Quote]) and
+                (ServiceHeader."Posting Date" = 0D)
+                then
+                    UseDate := WorkDate()
+                else
+                    UseDate := ServiceHeader."Posting Date";
 
-            NoVAT := ServiceLine.Amount = ServiceLine."Amount Including VAT";
-            ServiceLine."Amount Including VAT" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  UseDate, ServiceHeader."Currency Code",
-                  TotalServiceLine."Amount Including VAT", ServiceHeader."Currency Factor")) -
-              TotalServiceLineLCY."Amount Including VAT";
-            if NoVAT then
-                ServiceLine.Amount := ServiceLine."Amount Including VAT"
-            else
-                ServiceLine.Amount :=
-                  Round(
+                NoVAT := ServiceLine.Amount = ServiceLine."Amount Including VAT";
+                ServiceLine."Amount Including VAT" :=
+                Round(
                     CurrExchRate.ExchangeAmtFCYToLCY(
-                      UseDate, ServiceHeader."Currency Code",
-                      TotalServiceLine.Amount, ServiceHeader."Currency Factor")) -
-                  TotalServiceLineLCY.Amount;
-            ServiceLine."Line Amount" :=
-              Round(
+                    UseDate, ServiceHeader."Currency Code",
+                    TotalServiceLine."Amount Including VAT", ServiceHeader."Currency Factor")) -
+                TotalServiceLineLCY."Amount Including VAT";
+                if NoVAT then
+                    ServiceLine.Amount := ServiceLine."Amount Including VAT"
+                else
+                    ServiceLine.Amount :=
+                    Round(
+                        CurrExchRate.ExchangeAmtFCYToLCY(
+                        UseDate, ServiceHeader."Currency Code",
+                        TotalServiceLine.Amount, ServiceHeader."Currency Factor")) -
+                    TotalServiceLineLCY.Amount;
+                ServiceLine."Line Amount" :=
+                Round(
+                    CurrExchRate.ExchangeAmtFCYToLCY(
+                    UseDate, ServiceHeader."Currency Code",
+                    TotalServiceLine."Line Amount", ServiceHeader."Currency Factor")) -
+                TotalServiceLineLCY."Line Amount";
+                ServiceLine."Line Discount Amount" :=
+                Round(
+                    CurrExchRate.ExchangeAmtFCYToLCY(
+                    UseDate, ServiceHeader."Currency Code",
+                    TotalServiceLine."Line Discount Amount", ServiceHeader."Currency Factor")) -
+                TotalServiceLineLCY."Line Discount Amount";
+                ServiceLine."Inv. Discount Amount" :=
+                Round(
+                    CurrExchRate.ExchangeAmtFCYToLCY(
+                    UseDate, ServiceHeader."Currency Code",
+                    TotalServiceLine."Inv. Discount Amount", ServiceHeader."Currency Factor")) -
+                TotalServiceLineLCY."Inv. Discount Amount";
+                ServiceLine."VAT Difference" :=
+                Round(
+                    CurrExchRate.ExchangeAmtFCYToLCY(
+                    UseDate, ServiceHeader."Currency Code",
+                    TotalServiceLine."VAT Difference", ServiceHeader."Currency Factor")) -
+                TotalServiceLineLCY."VAT Difference";
+                ServiceLine."Pmt. Discount Amount" :=
+                Round(
+                    CurrExchRate.ExchangeAmtFCYToLCY(
+                    UseDate, ServiceHeader."Currency Code",
+                    TotalServiceLine."Pmt. Discount Amount", ServiceHeader."Currency Factor")) -
+                TotalServiceLineLCY."Pmt. Discount Amount";
+            end;
+            ServiceLine."VAT Base Amount" :=
+            Round(
                 CurrExchRate.ExchangeAmtFCYToLCY(
-                  UseDate, ServiceHeader."Currency Code",
-                  TotalServiceLine."Line Amount", ServiceHeader."Currency Factor")) -
-              TotalServiceLineLCY."Line Amount";
-            ServiceLine."Line Discount Amount" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  UseDate, ServiceHeader."Currency Code",
-                  TotalServiceLine."Line Discount Amount", ServiceHeader."Currency Factor")) -
-              TotalServiceLineLCY."Line Discount Amount";
-            ServiceLine."Inv. Discount Amount" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  UseDate, ServiceHeader."Currency Code",
-                  TotalServiceLine."Inv. Discount Amount", ServiceHeader."Currency Factor")) -
-              TotalServiceLineLCY."Inv. Discount Amount";
-            ServiceLine."VAT Difference" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  UseDate, ServiceHeader."Currency Code",
-                  TotalServiceLine."VAT Difference", ServiceHeader."Currency Factor")) -
-              TotalServiceLineLCY."VAT Difference";
-            ServiceLine."Pmt. Discount Amount" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  UseDate, ServiceHeader."Currency Code",
-                  TotalServiceLine."Pmt. Discount Amount", ServiceHeader."Currency Factor")) -
-              TotalServiceLineLCY."Pmt. Discount Amount";
+                UseDate, ServiceHeader."Currency Code",
+                TotalServiceLine."VAT Base Amount", ServiceHeader."Currency Factor")) -
+            TotalServiceLineLCY."VAT Base Amount";
         end;
-        ServiceLine."VAT Base Amount" :=
-          Round(
-            CurrExchRate.ExchangeAmtFCYToLCY(
-              UseDate, ServiceHeader."Currency Code",
-              TotalServiceLine."VAT Base Amount", ServiceHeader."Currency Factor")) -
-          TotalServiceLineLCY."VAT Base Amount";
 
         OnRoundAmountOnBeforeIncrAmount(ServiceLine, TotalServiceLine, TotalServiceLineLCY, UseDate, NoVAT);
         IncrAmount(ServiceLine, TotalServiceLineLCY, ServiceHeader."Prices Including VAT");
@@ -681,6 +686,11 @@ codeunit 5986 "Serv-Amounts Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnRoundAmountOnBeforeIncrAmount(var ServiceLine: Record "Service Line"; TotalServiceLine: Record "Service Line"; TotalServiceLineLCY: Record "Service Line"; UseDate: Date; NoVAT: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRoundAmountOnBeforeCalculateLCYAmounts(var TempServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header"; TotalServiceLine: Record "Service Line"; TotalServiceLineLCY: Record "Service Line"; var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 

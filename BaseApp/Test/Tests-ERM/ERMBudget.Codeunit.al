@@ -2486,6 +2486,47 @@ codeunit 134922 "ERM Budget"
         LibraryReportDataset.AssertElementWithValueExists('GLBudgetedAmount1', EntryAmount);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler,ExportBudgetToExcelWithDimRequestPageHandler')]
+    procedure GLBudgetImportFromExcelWithFilteredDimensionsNotInColumns()
+    var
+        DimensionValue: array[6] of Record "Dimension Value";
+        GLBudgetName: Record "G/L Budget Name";
+        GLBudgetEntry: Record "G/L Budget Entry";
+        GLAccount: Record "G/L Account";
+        FileName: Text;
+        EntryAmount: Integer;
+    begin
+        // [SCENARIO 612883] Importing G/L budgets from Excel works correctly when a filter is specified for one of the dimensions
+        Initialize();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+
+        // [GIVEN] Budget with Global and Budget Dimensions
+        CreateGlobalAndBudgetDimensionsWithDimensionsValues(DimensionValue);
+        CreateGLBudgetWithDimensionsArray(GLBudgetName, DimensionValue);
+
+        // [GIVEN] Budget having Budget Entry with Amount "100" and Dimension Values "DV"
+        LibraryERM.CreateGLAccount(GLAccount);
+        EntryAmount := LibraryRandom.RandInt(10);
+        CreateGLBudgetEntryWithDimensionsAndAmount(GLBudgetEntry, GLBudgetName, GLAccount."No.", DimensionValue, EntryAmount);
+
+        // [GIVEN] Budget exported to Excel File with filters on Budget Dimension 3 and Budget Dimension 4
+        LibraryReportValidation.SetFileName(GLBudgetName.Name);
+        FileName := LibraryReportValidation.GetFileName();
+        Commit();
+        ExportBudgetWithDimensionFiltersToExcel(GLBudgetName, DimensionValue, FileName);
+
+        // [GIVEN] Budget Entry's Amount "100" modified to "150"
+        GLBudgetEntry.Validate(Amount, EntryAmount + LibraryRandom.RandInt(10));
+        GLBudgetEntry.Modify(true);
+
+        // [WHEN] Budget is imported back from File
+        RunImportBudgetFromExcel(GLBudgetName.Name, 0, FileName, false);
+
+        // [THEN] Budget Entry Amount is equal to "100" and has Dimension Values equal to "DV"
+        VerifyGLBudgetAmountAndDimensions(GLBudgetName, WorkDate(), GLAccount."No.", EntryAmount, DimensionValue);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
