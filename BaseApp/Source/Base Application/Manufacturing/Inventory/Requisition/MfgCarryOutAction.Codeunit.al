@@ -30,6 +30,7 @@ codeunit 99000818 "Mfg. Carry Out Action"
         ReqLineReserve: Codeunit "Req. Line-Reserve";
         PrintOrder: Boolean;
         CouldNotChangeSupplyTxt: Label 'The supply type could not be changed in order %1, order line %2.', Comment = '%1 - Production Order No. or Assembly Header No. or Purchase Header No., %2 - Production Order Line or Assembly Line No. or Purchase Line No.';
+        ProdBomErr: Label 'The maximum number of BOM levels %1, was exceeded. The process stopped at %2 %3.', Comment = '%1 = max number of levels; %2 = BOM Type; %3 = BOM No.';
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Carry Out Action", 'OnTrySourceTypeForProduction', '', false, false)]
     local procedure OnTrySourceType(var RequisitionLine: Record "Requisition Line"; TryChoice: Option; TryWkshTempl: Code[10]; TryWkshName: Code[10]; var ProductionExist: Boolean; var TempDocumentEntry: Record "Document Entry" temporary; sender: Codeunit "Carry Out Action")
@@ -146,6 +147,8 @@ codeunit 99000818 "Mfg. Carry Out Action"
         ManufacturingSetup: Record "Manufacturing Setup";
         Item: Record Item;
         ProductionOrder: Record "Production Order";
+        CreateProdOrderLines: Codeunit "Create Prod. Order Lines";
+        Direction: Option Forward,Backward;
         HeaderExist: Boolean;
         IsHandled: Boolean;
     begin
@@ -233,6 +236,9 @@ codeunit 99000818 "Mfg. Carry Out Action"
             InsertTempProdOrder(RequisitionLine, ProductionOrder, TempDocumentEntry);
         end;
         InsertProdOrderLine(RequisitionLine, ProductionOrder, Item);
+
+        if CheckProductionOrderForStructure(ProductionOrder) then
+            CreateProdOrderLines.CheckStructure(ProductionOrder.Status.AsInteger(), ProductionOrder."No.", Direction::Backward, true, false);
 
         OnAfterInsertProdOrder(ProductionOrder, ProdOrderChoice.AsInteger(), RequisitionLine);
 #if not CLEAN27
@@ -628,37 +634,81 @@ codeunit 99000818 "Mfg. Carry Out Action"
 
     local procedure CopyProdBOMComments(ProdOrderComponent: Record "Prod. Order Component")
     var
-        ProductionBOMCommentLine: Record "Production BOM Comment Line";
         ProductionBOMHeader: Record "Production BOM Header";
         ProdOrderLine: Record "Prod. Order Line";
-        ProdOrderCompCmtLine: Record "Prod. Order Comp. Cmt Line";
-        ProductionBOMLine: Record "Production BOM Line";
-        VersionManagement: Codeunit VersionManagement;
-        ActiveVersionCode: Code[20];
     begin
         ProdOrderLine.Get(ProdOrderComponent.Status, ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.");
 
         if not ProductionBOMHeader.Get(ProdOrderLine."Production BOM No.") then
             exit;
 
-        ActiveVersionCode := VersionManagement.GetBOMVersion(ProductionBOMHeader."No.", WorkDate(), true);
+        ProcessProductionBOMCommentsByType(ProductionBOMHeader."No.", ProdOrderComponent, 0);
+    end;
 
-        ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
+    local procedure ProcessProductionBOMCommentsByType(ProductionBOMNo: Code[20]; ProdOrderComponent: Record "Prod. Order Component"; LoopCount: Integer)
+    begin
+        CopyItemTypeBOMComments(ProductionBOMNo, ProdOrderComponent);
+        CopyNestedBOMComments(ProductionBOMNo, ProdOrderComponent, LoopCount + 1);
+    end;
+
+    local procedure CopyItemTypeBOMComments(ProductionBOMNo: Code[20]; ProdOrderComponent: Record "Prod. Order Component")
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionBOMCommentLine: Record "Production BOM Comment Line";
+        VersionManagement: Codeunit VersionManagement;
+        ActiveVersionCode: Code[20];
+    begin
+        ActiveVersionCode := VersionManagement.GetBOMVersion(ProductionBOMNo, WorkDate(), true);
+
+        ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
         ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::Item);
         ProductionBOMLine.SetRange("No.", ProdOrderComponent."Item No.");
         ProductionBOMLine.SetRange(Position, ProdOrderComponent.Position);
+        ProductionBOMLine.SetRange("Version Code", ActiveVersionCode);
         if ProductionBOMLine.FindSet() then
             repeat
-                ProductionBOMCommentLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
+                ProductionBOMCommentLine.SetRange("Production BOM No.", ProductionBOMNo);
                 ProductionBOMCommentLine.SetRange("BOM Line No.", ProductionBOMLine."Line No.");
-                ProductionBOMCommentLine.SetRange("Version Code", ActiveVersionCode);
+                ProductionBOMCommentLine.SetRange("Version Code", ProductionBOMLine."Version Code");
                 if ProductionBOMCommentLine.FindSet() then
                     repeat
-                        ProdOrderCompCmtLine.CopyFromProdBOMComponent(ProductionBOMCommentLine, ProdOrderComponent);
-                        if not ProdOrderCompCmtLine.Insert() then
-                            ProdOrderCompCmtLine.Modify();
+                        InsertComponentCommentFromBOM(ProductionBOMCommentLine, ProdOrderComponent);
                     until ProductionBOMCommentLine.Next() = 0;
             until ProductionBOMLine.Next() = 0;
+    end;
+
+    local procedure CopyNestedBOMComments(ProductionBOMNo: Code[20]; ProdOrderComponent: Record "Prod. Order Component"; LoopCount: Integer)
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        VersionManagement: Codeunit VersionManagement;
+        ActiveVersionCode: Code[20];
+    begin
+        if not ProductionBOMHeader.Get(ProductionBOMNo) then
+            exit;
+
+        if LoopCount > 50 then
+            Error(ProdBomErr, 50, ProductionBOMLine.Type::"Production BOM", ProductionBOMNo);
+
+        ActiveVersionCode := VersionManagement.GetBOMVersion(ProductionBOMHeader."No.", WorkDate(), true);
+
+        ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
+        ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::"Production BOM");
+        ProductionBOMLine.SetRange(Position, ProdOrderComponent.Position);
+        ProductionBOMLine.SetRange("Version Code", ActiveVersionCode);
+        if ProductionBOMLine.FindSet() then
+            repeat
+                ProcessProductionBOMCommentsByType(ProductionBOMLine."No.", ProdOrderComponent, LoopCount);
+            until ProductionBOMLine.Next() = 0;
+    end;
+
+    local procedure InsertComponentCommentFromBOM(ProductionBOMCommentLine: Record "Production BOM Comment Line"; ProdOrderComponent: Record "Prod. Order Component")
+    var
+        ProdOrderCompCmtLine: Record "Prod. Order Comp. Cmt Line";
+    begin
+        ProdOrderCompCmtLine.CopyFromProdBOMComponent(ProductionBOMCommentLine, ProdOrderComponent);
+        if not ProdOrderCompCmtLine.Insert() then
+            ProdOrderCompCmtLine.Modify();
     end;
 
     local procedure InsertTempProdOrder(var RequisitionLine: Record "Requisition Line"; var NewProductionOrder: Record "Production Order"; var TempDocumentEntry: Record "Document Entry" temporary)
@@ -700,6 +750,22 @@ codeunit 99000818 "Mfg. Carry Out Action"
             TempDocumentEntry.SetRange("Ref. Document No.", RequisitionLine."Ref. Order No.");
             exit(TempDocumentEntry.FindFirst());
         end;
+    end;
+
+    local procedure CheckProductionOrderForStructure(ProductionOrder: Record "Production Order"): Boolean
+    var
+        Item: Record Item;
+    begin
+        if not Item.Get(ProductionOrder."Source No.") then
+            exit(false);
+
+        if ProductionOrder."Variant Code" = '' then
+            exit(false);
+
+        if (Item."Replenishment System" = Item."Replenishment System"::"Prod. Order") and
+            (Item."Manufacturing Policy" = Item."Manufacturing Policy"::"Make-to-Order") and
+            (Item."Reordering Policy" = Item."Reordering Policy"::Order) then
+            exit(true);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Carry Out Action", 'OnAfterCarryOutToReqWksh', '', false, false)]

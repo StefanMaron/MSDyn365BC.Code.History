@@ -126,8 +126,14 @@ codeunit 2675 "Allocation Account Mgt."
         DimensionManagement: Codeunit DimensionManagement;
         DimensionSetIDArr: array[10] of Integer;
     begin
-        if AllocationLine."Dimension Set ID" = 0 then
+        if AllocationLine."Dimension Set ID" = 0 then begin
+            if ExistingSetID <> 0 then begin
+                AllocationLine."Dimension Set ID" := ExistingSetID;
+                DimensionManagement.UpdateGlobalDimFromDimSetID(
+                  AllocationLine."Dimension Set ID", AllocationLine."Global Dimension 1 Code", AllocationLine."Global Dimension 2 Code");
+            end;
             exit;
+        end;
 
         if ExistingSetID = AllocationLine."Dimension Set ID" then
             exit;

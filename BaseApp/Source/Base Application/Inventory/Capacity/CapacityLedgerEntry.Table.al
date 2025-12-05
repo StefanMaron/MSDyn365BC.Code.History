@@ -166,6 +166,25 @@ table 5832 "Capacity Ledger Entry"
         {
             Caption = 'Subcontracting';
         }
+        field(87; Reversed; Boolean)
+        {
+            Caption = 'Reversed';
+            DataClassification = CustomerContent;
+        }
+        field(88; "Reversed by Entry No."; Integer)
+        {
+            BlankZero = true;
+            Caption = 'Reversed by Entry No.';
+            DataClassification = CustomerContent;
+            TableRelation = "Capacity Ledger Entry";
+        }
+        field(89; "Reversed Entry No."; Integer)
+        {
+            BlankZero = true;
+            Caption = 'Reversed Entry No.';
+            DataClassification = CustomerContent;
+            TableRelation = "Capacity Ledger Entry";
+        }
         field(90; "Order Type"; Enum "Inventory Order Type")
         {
             Caption = 'Order Type';

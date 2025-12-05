@@ -949,6 +949,8 @@ table 5851 "Invt. Document Line"
             DefaultDimSource, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
             InvtDocHeader."Dimension Set ID", DATABASE::"Invt. Document Header");
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterCreateDim(Rec, CurrFieldNo, xRec, DefaultDimSource);
     end;
 
     procedure ShowDimensions()
@@ -1248,6 +1250,11 @@ table 5851 "Invt. Document Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOpenItemTrackingLines(var InvtDocumentLine: Record "Invt. Document Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var InvtDocumentLine: Record "Invt. Document Line"; CurrentFieldNo: Integer; xInvtDocumentLine: Record "Invt. Document Line"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 }

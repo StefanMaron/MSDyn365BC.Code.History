@@ -3856,6 +3856,8 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(4302); // "Agent Message Template"
         SetTableFieldsToNormal(4315); // "Developer Agent"
         SetFieldToCompanyConfidential(4315, 2); // Instructions
+        SetTableFieldsToNormal(4316); // "Custom Agent Instructions Log"
+        SetFieldToCompanyConfidential(4316, 3); // Instructions
 
         // No-code agent 
         SetTableFieldsToNormal(4387); // No-Code Agent Setup
