@@ -125,14 +125,21 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
     /// </summary>
     /// <param name="PurchInvLine"></param>
     /// <param name="EDocumentPurchaseLine"></param>
-    procedure UpdateMissingLineValuesFromHistory(PurchInvLine: Record "Purch. Inv. Line"; var EDocumentPurchaseLine: Record "E-Document Purchase Line"; ExplanationTxt: Text[250]; MatchConfidence: Text)
+    procedure UpdateMissingLineValuesFromHistory(PurchInvLine: Record "Purch. Inv. Line"; var EDocumentPurchaseLine: Record "E-Document Purchase Line"; CustomExplanationTxt: Text[250]; MatchConfidence: Text)
     var
         PurchInvHeader: Record "Purch. Inv. Header";
         DeferralTemplate: Record "Deferral Template";
         UnitOfMeasure: Record "Unit of Measure";
         EDocActivityLogSession: Codeunit "E-Doc. Activity Log Session";
         DeferralActivityLog, AccountNumberActivityLog : Codeunit "Activity Log Builder";
+        ExplanationTxt: Label 'Line value was retrieved from posted purchase invoice history. See source for details.';
+        CurrentExplanationTxt: Text[250];
     begin
+        if CustomExplanationTxt <> '' then
+            CurrentExplanationTxt := CopyStr(CustomExplanationTxt, 1, MaxStrLen(CurrentExplanationTxt))
+        else
+            CurrentExplanationTxt := ExplanationTxt;
+
         PurchInvHeader.SetRange("No.", PurchInvLine."Document No.");
         if not PurchInvHeader.FindFirst() then
             exit;
@@ -143,7 +150,7 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
         if EDocumentPurchaseLine."[BC] Deferral Code" = '' then
             if DeferralTemplate.Get(PurchInvLine."Deferral Code") then begin // we only assign if it's a valid deferral template
                 EDocumentPurchaseLine."[BC] Deferral Code" := PurchInvLine."Deferral Code";
-                SetActivityLog(EDocumentPurchaseLine.SystemId, EDocumentPurchaseLine.FieldNo("[BC] Deferral Code"), PurchInvHeader, ExplanationTxt, DeferralActivityLog, EDocActivityLogSession.DeferralTok(), MatchConfidence);
+                SetActivityLog(EDocumentPurchaseLine.SystemId, EDocumentPurchaseLine.FieldNo("[BC] Deferral Code"), PurchInvHeader, CurrentExplanationTxt, DeferralActivityLog, EDocActivityLogSession.DeferralTok(), MatchConfidence);
             end;
         if EDocumentPurchaseLine."[BC] Shortcut Dimension 1 Code" = '' then
             EDocumentPurchaseLine."[BC] Shortcut Dimension 1 Code" := PurchInvLine."Shortcut Dimension 1 Code";
@@ -165,7 +172,7 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
             end;
             // If we assigned something in this if-branch, we set the activity log
             if (EDocumentPurchaseLine."[BC] Purchase Line Type" <> "Purchase Line Type"::" ") or (EDocumentPurchaseLine."[BC] Purchase Type No." <> '') then
-                SetActivityLog(EDocumentPurchaseLine.SystemId, EDocumentPurchaseLine.FieldNo("[BC] Purchase Type No."), PurchInvHeader, ExplanationTxt, AccountNumberActivityLog, EDocActivityLogSession.AccountNumberTok(), MatchConfidence);
+                SetActivityLog(EDocumentPurchaseLine.SystemId, EDocumentPurchaseLine.FieldNo("[BC] Purchase Type No."), PurchInvHeader, CurrentExplanationTxt, AccountNumberActivityLog, EDocActivityLogSession.AccountNumberTok(), MatchConfidence);
         end;
     end;
 
@@ -281,6 +288,7 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
         Vendor: Record Vendor;
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
         EDocumentVendorAssignmentHistory: Record "E-Doc. Vendor Assign. History";
+        Exists: Boolean;
     begin
         if IsNullGuid(PurchInvHeader.SystemId) then
             exit;
@@ -292,12 +300,26 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
             exit;
         if not EDocumentPurchaseHeader.GetBySystemId(EDocRecordLink."Source SystemId") then
             exit;
+
+        EDocumentVendorAssignmentHistory.SetRange("Vendor VAT Id", EDocumentPurchaseHeader."Vendor VAT Id");
+        EDocumentVendorAssignmentHistory.SetRange("Vendor GLN", EDocumentPurchaseHeader."Vendor GLN");
+        EDocumentVendorAssignmentHistory.SetRange("Vendor Company Name", EDocumentPurchaseHeader."Vendor Company Name");
+        EDocumentVendorAssignmentHistory.SetRange("Vendor Address", EDocumentPurchaseHeader."Vendor Address");
+        Exists := EDocumentVendorAssignmentHistory.FindFirst();
+
         EDocumentVendorAssignmentHistory."Vendor Company Name" := EDocumentPurchaseHeader."Vendor Company Name";
         EDocumentVendorAssignmentHistory."Vendor Address" := EDocumentPurchaseHeader."Vendor Address";
         EDocumentVendorAssignmentHistory."Vendor VAT Id" := EDocumentPurchaseHeader."Vendor VAT Id";
         EDocumentVendorAssignmentHistory."Vendor GLN" := EDocumentPurchaseHeader."Vendor GLN";
         EDocumentVendorAssignmentHistory."Purch. Inv. Header SystemId" := PurchInvHeader.SystemId;
-        EDocumentVendorAssignmentHistory.Insert();
+
+        // Update the purch inv header system id, if all other fields are the same. 
+        // Otherwise insert new record.
+        if Exists then
+            EDocumentVendorAssignmentHistory.Modify()
+        else
+            if EDocumentVendorAssignmentHistory.Insert() then;
+
         EDocRecordLink.DeleteAll();
     end;
 
