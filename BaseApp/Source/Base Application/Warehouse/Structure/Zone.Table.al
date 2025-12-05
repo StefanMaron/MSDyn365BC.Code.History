@@ -93,7 +93,13 @@ table 7300 Zone
         Bin.SetCurrentKey("Location Code", "Zone Code");
         Bin.SetRange("Location Code", "Location Code");
         Bin.SetRange("Zone Code", Code);
+        OnDeleteOnBeforeDeleteAllBin(Rec, Bin);
         Bin.DeleteAll(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnBeforeDeleteAllBin(var Zone: Record Zone; var Bin: Record Bin)
+    begin
     end;
 }
 

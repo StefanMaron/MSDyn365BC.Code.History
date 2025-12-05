@@ -88,6 +88,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
         SingleWarehouseReceiptCreatedMsg: Label '%1 %2 has been created.';
         MultipleWarehouseReceiptsCreatedMsg: Label '%1 warehouse receipts have been created.';
         WhseShipmentIsRequiredErr: Label 'Warehouse Shipment is required for Line No.';
+        OutstandingQtyErr: Label 'Qty. Outstanding (Base) should be greater than zero';
 
     [Test]
     [HandlerFunctions('WhseItemTrackingLinesHandler,ItemTrackingPageHandler,ItemTrackingSummaryPageHandler,WhseSourceCreateDocumentHandler,MessageHandler')]
@@ -3897,6 +3898,72 @@ codeunit 137151 "SCM Warehouse - Shipping"
         Assert.ExpectedError(WhseShipmentIsRequiredErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,ItemTrackingSummaryPageHandler')]
+    procedure WarehouseShipmentLotTrackingUpdateAfterPickRegistration()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        LotNos: array[3] of Code[10];
+        Quantity: array[3] of Decimal;
+    begin
+        // [SCENARIO 592123] Warehouse Shipment Item Tracking Lines should update after Pick Registration with partial quantities
+        Initialize();
+
+        // [GIVEN] Create Location without bins and warehouse employee
+        CreateAndUpdateLocation(Location, false, true, false, true, false);
+
+        // [GIVEN] Create Warehouse Employee
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Create Item with Lot Tracking
+        CreateItemWithItemTrackingCode(Item, false, true, '', LibraryUtility.GetGlobalNoSeriesCode(), false);
+
+        // [GIVEN] Post positive adjustment with three lots: LOT001, LOT002, LOT003
+        CreateInventoryForMultipleLotItem(Item, Location.Code, LotNos, Quantity);
+
+        // [GIVEN] Create Sales Order for total quantity 
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
+            Customer."No.", Item."No.", Quantity[1] + Quantity[2] + Quantity[3], Location.Code, WorkDate());
+
+        // [GIVEN] Assign lot tracking to sales line
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Select Entries");
+        SalesLine.OpenItemTrackingLines();
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create warehouse shipment
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        FindWarehouseShipmentLine(WarehouseShipmentLine, WarehouseShipmentLine."Source Document"::"Sales Order", SalesHeader."No.");
+        WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
+
+        // [GIVEN] Create and modify pick with partial quantities: LOT001(3), LOT002(1), LOT003(1)
+        LibraryWarehouse.CreateWhsePick(WarehouseShipmentHeader);
+
+        // Modify pick quantities to partial quantity for each lot
+        UpdateWarehouseActivityLineQtyToHandleForMultipleLots(SalesHeader."No.", WarehouseActivityHeader.Type::Pick, Item."No.", LotNos, Quantity);
+
+        // [WHEN] Register the pick
+        RegisterWarehouseActivity(WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.", WarehouseActivityHeader.Type::Pick);
+
+        // [THEN] Warehouse shipment should post successfully
+        PostWarehouseShipment(WarehouseShipmentLine."Source Document"::"Sales Order", SalesHeader."No.");
+
+        // [THEN] Qty. Outstanding (Base) on Warehouse Shipment Line should be greater than 0
+        WarehouseShipmentLine.FindLast();
+        Assert.IsTrue(WarehouseShipmentLine."Qty. Outstanding (Base)" > 0, OutstandingQtyErr);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6368,6 +6435,34 @@ codeunit 137151 "SCM Warehouse - Shipping"
         SurplusQty := ReservationEntry."Qty. to Handle (Base)";
         Assert.AreEqual(ExpectedReservedQuantityForLotNo, ReservedQty, QuantityMustBeEqualErr);
         Assert.AreEqual(ExpectedSurplusQuantityForLotNo, SurplusQty, QuantityMustBeEqualErr);
+    end;
+
+    local procedure UpdateWarehouseActivityLineQtyToHandleForMultipleLots(DocNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; ItemNo: Code[20]; var LotNos: array[3] of Code[10]; var Quantity: array[3] of Decimal)
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        i: Integer;
+    begin
+        FindWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", DocNo, ActivityType);
+
+        // Modify pick quantities to partial quantity for each lot
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        for i := 1 to ArrayLen(LotNos) do begin
+            WarehouseActivityLine.SetRange("Lot No.", LotNos[i]);
+            WarehouseActivityLine.FindFirst();
+            WarehouseActivityLine.Validate("Qty. to Handle", Quantity[i] - i);
+            WarehouseActivityLine.Modify(true);
+        end;
+    end;
+
+    local procedure CreateInventoryForMultipleLotItem(Item: Record Item; LocationCode: Code[10]; var LotNos: array[3] of Code[10]; var Quantity: array[3] of Decimal)
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(LotNos) do begin
+            LotNos[i] := LibraryUtility.GenerateGUID();
+            Quantity[i] := LibraryRandom.RandInt(20 * i);
+            CreateAndPostItemJournalLineWithLotNoEnqueued(Item."No.", Quantity[i], LocationCode, '', LotNos[i]);
+        end;
     end;
 
     [ModalPageHandler]

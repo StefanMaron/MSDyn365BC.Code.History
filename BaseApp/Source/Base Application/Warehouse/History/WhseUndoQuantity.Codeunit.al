@@ -58,6 +58,7 @@ codeunit 7320 "Whse. Undo Quantity"
                 ItemJnlLine.Quantity := Abs(WarehouseEntry.Quantity);
                 ItemJnlLine."Quantity (Base)" := Abs(WarehouseEntry."Qty. (Base)");
                 ItemJnlLine."Qty. per Unit of Measure" := WarehouseEntry."Qty. per Unit of Measure";
+                OnInsertTempWhseJnlLineOnBeforeCreateWhseJnlLine(ItemJnlLine);
                 WMSManagement.CreateWhseJnlLine(ItemJnlLine, 0, TempWhseJnlLine, false);
                 TempWhseJnlLine.SetSource(SourceType, SourceSubType, SourceNo, SourceLineNo, 0);
                 TempWhseJnlLine."Source Document" :=
@@ -620,6 +621,11 @@ codeunit 7320 "Whse. Undo Quantity"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsShipmentLine(UndoType: Integer; var IsShipment: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTempWhseJnlLineOnBeforeCreateWhseJnlLine(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 }

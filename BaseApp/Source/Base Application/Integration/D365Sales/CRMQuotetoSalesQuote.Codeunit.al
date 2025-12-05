@@ -409,13 +409,13 @@ codeunit 5348 "CRM Quote to Sales Quote"
         then
             exit;
 
-        SalesHeader.Validate("Bill-to Address", Format(CRMQuote.BillTo_Line1, MaxStrLen(SalesHeader."Bill-to Address")));
-        SalesHeader.Validate("Bill-to Address 2", Format(CRMQuote.BillTo_Line2, MaxStrLen(SalesHeader."Bill-to Address 2")));
-        SalesHeader.Validate("Bill-to City", Format(CRMQuote.BillTo_City, MaxStrLen(SalesHeader."Bill-to City")));
-        SalesHeader.Validate("Bill-to Post Code", Format(CRMQuote.BillTo_PostalCode, MaxStrLen(SalesHeader."Bill-to Post Code")));
+        SalesHeader.Validate("Bill-to Address", CopyStr(CRMQuote.BillTo_Line1, 1, MaxStrLen(SalesHeader."Bill-to Address")));
+        SalesHeader.Validate("Bill-to Address 2", CopyStr(CRMQuote.BillTo_Line2, 1, MaxStrLen(SalesHeader."Bill-to Address 2")));
+        SalesHeader.Validate("Bill-to City", CopyStr(CRMQuote.BillTo_City, 1, MaxStrLen(SalesHeader."Bill-to City")));
+        SalesHeader.Validate("Bill-to Post Code", CopyStr(CRMQuote.BillTo_PostalCode, 1, MaxStrLen(SalesHeader."Bill-to Post Code")));
         SalesHeader.Validate(
-          "Bill-to Country/Region Code", Format(CRMQuote.BillTo_Country, MaxStrLen(SalesHeader."Bill-to Country/Region Code")));
-        SalesHeader.Validate("Bill-to County", Format(CRMQuote.BillTo_StateOrProvince, MaxStrLen(SalesHeader."Bill-to County")));
+          "Bill-to Country/Region Code", CopyStr(CRMQuote.BillTo_Country, 1, MaxStrLen(SalesHeader."Bill-to Country/Region Code")));
+        SalesHeader.Validate("Bill-to County", CopyStr(CRMQuote.BillTo_StateOrProvince, 1, MaxStrLen(SalesHeader."Bill-to County")));
     end;
 
     local procedure InitNewSalesLine(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
@@ -564,13 +564,13 @@ codeunit 5348 "CRM Quote to Sales Quote"
         then
             exit;
 
-        SalesHeader.Validate("Ship-to Address", Format(CRMQuote.ShipTo_Line1, MaxStrLen(SalesHeader."Ship-to Address")));
-        SalesHeader.Validate("Ship-to Address 2", Format(CRMQuote.ShipTo_Line2, MaxStrLen(SalesHeader."Ship-to Address 2")));
-        SalesHeader.Validate("Ship-to City", Format(CRMQuote.ShipTo_City, MaxStrLen(SalesHeader."Ship-to City")));
-        SalesHeader.Validate("Ship-to Post Code", Format(CRMQuote.ShipTo_PostalCode, MaxStrLen(SalesHeader."Ship-to Post Code")));
+        SalesHeader.Validate("Ship-to Address", CopyStr(CRMQuote.ShipTo_Line1, 1, MaxStrLen(SalesHeader."Ship-to Address")));
+        SalesHeader.Validate("Ship-to Address 2", CopyStr(CRMQuote.ShipTo_Line2, 1, MaxStrLen(SalesHeader."Ship-to Address 2")));
+        SalesHeader.Validate("Ship-to City", CopyStr(CRMQuote.ShipTo_City, 1, MaxStrLen(SalesHeader."Ship-to City")));
+        SalesHeader.Validate("Ship-to Post Code", CopyStr(CRMQuote.ShipTo_PostalCode, 1, MaxStrLen(SalesHeader."Ship-to Post Code")));
         SalesHeader.Validate(
-          "Ship-to Country/Region Code", Format(CRMQuote.ShipTo_Country, MaxStrLen(SalesHeader."Ship-to Country/Region Code")));
-        SalesHeader.Validate("Ship-to County", Format(CRMQuote.ShipTo_StateOrProvince, MaxStrLen(SalesHeader."Ship-to County")));
+          "Ship-to Country/Region Code", CopyStr(CRMQuote.ShipTo_Country, 1, MaxStrLen(SalesHeader."Ship-to Country/Region Code")));
+        SalesHeader.Validate("Ship-to County", CopyStr(CRMQuote.ShipTo_StateOrProvince, 1, MaxStrLen(SalesHeader."Ship-to County")));
         OnAfterCopyShipToInformationIfNotEmpty(CRMQuote, SalesHeader);
     end;
 
