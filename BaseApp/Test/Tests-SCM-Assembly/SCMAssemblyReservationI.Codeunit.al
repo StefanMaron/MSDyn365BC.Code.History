@@ -582,6 +582,54 @@ codeunit 137916 "SCM Assembly Reservation I"
                 ReservationEntry[2].TableName()));
     end;
 
+    [Test]
+    [HandlerFunctions('ReservationPage,AvailAssemblyHeadersDrillDownQtyHandler,ReservationEntriesPageHandler')]
+    procedure TestAssemblyToStockWithSalesOrder()
+    var
+        SalesLine: Record "Sales Line";
+        SalesHeader: Record "Sales Header";
+        AssemblyHeader: Record "Assembly Header";
+        AsmItem: Record Item;
+        CompItem: Record Item;
+        BOMComponent: Record "BOM Component";
+        ItemJournalLine: Record "Item Journal Line";
+        ReservedItemErr: Label 'Reserved item %1 is not on inventory.';
+    begin
+        // 598435 -[SCENARIO] Orphan reservation entries, when Sales order is posted before Assembly order
+        Initialize();
+
+        // [GIVEN] Create Assembly to Stock item and its component
+        CreateItem(AsmItem);
+        AsmItem.Validate("Assembly Policy", AsmItem."Assembly Policy"::"Assemble-to-Stock");
+        AsmItem.Modify(true);
+
+        LibraryInventory.CreateItem(CompItem);
+        LibraryInventory.CreateBOMComponent(
+          BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
+
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, CompItem."No.", '', '', 10);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create Assembly Order for AsmItem
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, AsmItem."No.", '', 1, '');
+
+        // [GIVEN] Create Sales Order for AsmItem
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        SalesHeader.Validate("Shipment Date", WorkDate2);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, AsmItem."No.", 1);
+
+        // [GIVEN] Reserve Sales Line
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+        SalesLine.ShowReservation();
+
+        // [WHEN] Post sales order
+        asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Verify Reserved item is not on inventory error
+        Assert.ExpectedError(StrSubstNo(ReservedItemErr, AsmItem."No."));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

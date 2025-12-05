@@ -96,8 +96,10 @@ codeunit 137908 "SCM Assembly Order"
     end;
 
     local procedure CalculateAssemblyLineQty(AssemblyHeader: Record "Assembly Header"; BOMComponent: Record "BOM Component"; ItemUOM: Record "Item Unit of Measure"): Decimal;
+    var
+        UOMMgt: Codeunit "Unit of Measure Management";
     begin
-        exit(Round(AssemblyHeader.Quantity * BOMComponent."Quantity per", ItemUOM."Qty. Rounding Precision"));
+        exit(UOMMgt.RoundToItemRndPrecision(AssemblyHeader.Quantity * BOMComponent."Quantity per", ItemUOM."Qty. Rounding Precision"));
     end;
 
     local procedure MatchTxt(AssemblyLine: Record "Assembly Line"; ExpectedQuantity: Decimal): Text
@@ -2375,6 +2377,8 @@ codeunit 137908 "SCM Assembly Order"
 
         // [VERIFY] Assembly Line Quantity when Rounding Precision was not 0.
         Assert.AreEqual(ExpectedQuantity, AssemblyLine.Quantity, MustMatchTxt);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -2475,6 +2479,99 @@ codeunit 137908 "SCM Assembly Order"
         Assert.Equal('', AssemblyLine."Bin Code");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('MessageHandler')]
+    procedure RoundingBaseUOMItemQuantityOnAssemblyOrder()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        BOMComponent: Record "BOM Component";
+        CompItem: array[2] of Record Item;
+        Item2: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        UOMMgt: Codeunit "Unit of Measure Management";
+        CompItemQtyPer: array[2] of Decimal;
+        ExpectedQuantity: Decimal;
+        MustMatchTxt: Text;
+    begin
+        // [SCENARIO 563279] Rounding of Base UOM correct in Assembly order 
+        Initialize();
+
+        // [GIVEN] Create an UOM.
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+
+        // [GIVEN] Create two QtyPer with decimal quantity per, one is less than 0.5 and another is more than 0.5
+        CompItemQtyPer[1] := LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 2);
+        CompItemQtyPer[2] := LibraryRandom.RandDecInDecimalRange(0.5, 0.9, 2);
+
+        // [GIVEN] Create two Component Items with Replenishment System Purchase and rounding precision 1
+        CreateItemWithRoundingPrecision(CompItem[1], CompItem[1]."Replenishment System"::Purchase, 1, 0.01);
+        CreateItemWithRoundingPrecision(CompItem[2], CompItem[2]."Replenishment System"::Purchase, 0.01, 1);
+
+        // [GIVEN] Create another Item.
+        LibraryInventory.CreateItem(Item2);
+
+        // [GIVEN] Create 2 Bom Components.
+        LibraryInventory.CreateBOMComponent(
+            BOMComponent,
+            Item2."No.",
+            BOMComponent.Type::Item,
+            CompItem[1]."No.",
+            CompItemQtyPer[1],
+            CompItem[1]."Base Unit of Measure");
+        LibraryInventory.CreateBOMComponent(
+            BOMComponent,
+            Item2."No.",
+            BOMComponent.Type::Item,
+            CompItem[2]."No.",
+            CompItemQtyPer[2],
+            CompItem[2]."Base Unit of Measure");
+
+        //[GIVEN] Create an Assembly Header Without Line.
+        CreateAssemblyOrderWithoutLines(AssemblyHeader, WorkDate(), Item2."No.");
+
+        // [GIVEN] Validate the quantity on Assembly Order
+        AssemblyHeader.Validate(Quantity, LibraryRandom.RandDec(100, 2));
+        AssemblyHeader.Modify(true);
+
+        // [GIVEN] Find Assembly Line for first Component Item
+        AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
+        AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
+        AssemblyLine.FindSet();
+
+        ItemUOM.Get(CompItem[1]."No.", CompItem[1]."Base Unit of Measure");
+        FindItemUnitOfMeasure(CompItem[1], ItemUOM);
+
+        // [THEN] Calculate Expected Assembly Order Quantity.
+        ExpectedQuantity := UOMMgt.RoundToItemRndPrecision(
+            AssemblyHeader.Quantity * CompItemQtyPer[1], CompItem[1]."Rounding Precision");
+
+        // [THEN]  Calculate Expected Text.
+        MustMatchTxt := MatchTxt(AssemblyLine, ExpectedQuantity);
+
+        // [VERIFY] Assembly Line Quantity when Rounding Precision was not 0.
+        Assert.AreEqual(ExpectedQuantity, AssemblyLine.Quantity, MustMatchTxt);
+
+        // [GIVEN] Get next Assembly Line for second Component Item
+        AssemblyLine.Next();
+        FindItemUnitOfMeasure(CompItem[2], ItemUOM);
+
+        // [THEN] Calculate Expected Assembly Order Quantity.
+        ExpectedQuantity := UOMMgt.RoundToItemRndPrecision(
+            AssemblyHeader.Quantity * CompItemQtyPer[2], CompItem[2]."Rounding Precision");
+
+        // [THEN]  Calculate Expected Text.
+        MustMatchTxt := MatchTxt(AssemblyLine, ExpectedQuantity);
+
+        // [VERIFY] Assembly Line Quantity when Rounding Precision was not 0.
+        Assert.AreEqual(ExpectedQuantity, AssemblyLine.Quantity, MustMatchTxt);
+
+        // Cleanup
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
     local procedure OpenAssemblyAvailabilityPage(DocumentNo: Code[20])
     var
         AssemblyOrder: TestPage "Assembly Order";
@@ -2483,6 +2580,21 @@ codeunit 137908 "SCM Assembly Order"
         AssemblyOrder.FILTER.SetFilter("No.", DocumentNo);
         AssemblyOrder.ShowAvailability.Invoke();
         AssemblyOrder.OK().Invoke();
+    end;
+
+    local procedure CreateItemWithRoundingPrecision(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; ItemRoundingPrecision: Decimal; UOMRoundingPrecision: Decimal)
+    var
+        ItemUOM: Record "Item Unit of Measure";
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Critical, true);
+        Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Validate("Rounding Precision", ItemRoundingPrecision);
+        Item.Modify(true);
+
+        ItemUOM.Get(Item."No.", Item."Base Unit of Measure");
+        ItemUOM.Validate("Qty. Rounding Precision", UOMRoundingPrecision);
+        ItemUOM.Modify();
     end;
 
     [MessageHandler]

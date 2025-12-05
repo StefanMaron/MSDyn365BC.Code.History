@@ -208,6 +208,9 @@
       "path": "./EDocumentConnectors/Continia/Test/E-Document Connector - Continia Tests"
     },
     {
+      "path": "./EDocumentConnectors/FORNAV/Test/E-Document Connector - FORNAV Tests"
+    },
+    {
       "path": "./Email - SMTP API/Test Library/Email - SMTP API Test Library"
     },
     {
@@ -347,11 +350,11 @@
     }
   ],
   "settings": {
-    "al.enableCodeAnalysis": false,
-    "allint.enabled": false,
     "search.exclude": {
       "**.xlf": true
     },
+    "al.enableCodeAnalysis": false,
+    "allint.enabled": false,
     "al.enableCodeActions": false
   }
 }

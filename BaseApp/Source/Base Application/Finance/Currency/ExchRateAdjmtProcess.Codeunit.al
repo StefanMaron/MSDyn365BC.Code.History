@@ -910,9 +910,18 @@ codeunit 699 "Exch. Rate Adjmt. Process"
     local procedure InsertExchRateAdjmtReg(AdjustAccType: Enum "Exch. Rate Adjmt. Account Type"; PostingGrCode: Code[20]; CurrencyCode: Code[10])
     var
         ExchRateAdjmtLedgEntry: Record "Exch. Rate Adjmt. Ledg. Entry";
+        TotalAdjustedAmount: Decimal;
     begin
         if TempCurrencyToAdjust.Code <> CurrencyCode then
             TempCurrencyToAdjust.Get(CurrencyCode);
+
+        // Calculate the total adjusted amount from ledger entries
+        TotalAdjustedAmount := 0;
+        TempExchRateAdjmtLedgEntry.Reset();
+        if TempExchRateAdjmtLedgEntry.FindFirst() then
+            repeat
+                TotalAdjustedAmount += TempExchRateAdjmtLedgEntry."Adjustment Amount";
+            until TempExchRateAdjmtLedgEntry.Next() = 0;
 
         ExchRateAdjmtReg."No." := ExchRateAdjmtReg."No." + 1;
         ExchRateAdjmtReg."Creation Date" := ExchRateAdjmtParameters."Posting Date";
@@ -922,7 +931,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         ExchRateAdjmtReg."Currency Factor" := TempCurrencyToAdjust."Currency Factor";
         ExchRateAdjmtReg."Adjusted Base" := TempExchRateAdjmtBuffer."Adjmt. Base";
         ExchRateAdjmtReg."Adjusted Base (LCY)" := TempExchRateAdjmtBuffer."Adjmt. Base (LCY)";
-        ExchRateAdjmtReg."Adjusted Amt. (LCY)" := TempExchRateAdjmtBuffer."Adjmt. Amount";
+        ExchRateAdjmtReg."Adjusted Amt. (LCY)" := TotalAdjustedAmount;
         ExchRateAdjmtReg.Insert();
 
         TempExchRateAdjmtLedgEntry.Reset();
