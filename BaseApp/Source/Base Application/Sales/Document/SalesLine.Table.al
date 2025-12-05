@@ -4972,7 +4972,7 @@ table 37 "Sales Line"
             if CurrFieldNo = FieldNo("Prepayment %") then
                 if "System-Created Entry" and not IsServiceChargeLine() then
                     FieldError("Prepmt. Line Amount", StrSubstNo(Text045, 0));
-            if "System-Created Entry" and not IsServiceChargeLine() then
+            if "System-Created Entry" and not IsServiceChargeLine() and (CurrFieldNo <> 0) then
                 "Prepayment %" := 0;
             VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
             VATPostingSetup.TestField("VAT Calculation Type", "VAT Calculation Type");

@@ -797,6 +797,7 @@ codeunit 7307 "Whse.-Activity-Register"
           ProdCompLine."Qty. Picked" = ProdCompLine."Expected Quantity";
         OnBeforeProdCompLineModify(ProdCompLine, WhseActivityLine);
         ProdCompLine.Modify();
+        UpdateCompletelyPickedProdOrderComponent(WhseActivityLine);
         OnAfterProdCompLineModify(ProdCompLine);
     end;
 
@@ -2382,6 +2383,27 @@ codeunit 7307 "Whse.-Activity-Register"
         QtyToPick += ReservationEntry."Quantity (Base)"
     end;
 
+    local procedure UpdateCompletelyPickedProdOrderComponent(WarehouseActivityLine: Record "Warehouse Activity Line")
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+        Item: Record Item;
+    begin
+        ProdOrderComponent.SetRange("Prod. Order No.", WarehouseActivityLine."Source No.");
+        ProdOrderComponent.SetRange(Status, ProdOrderComponent.Status::Released);
+        ProdOrderComponent.SetRange("Completely Picked", false);
+        ProdOrderComponent.SetLoadFields("Item No.", "Flushing Method", "Completely Picked");
+        if ProdOrderComponent.FindSet() then
+            repeat
+                ProdOrderComponent.CalcFields("Pick Qty.");
+                Item.SetLoadFields("No.", Type);
+                if Item.Get(ProdOrderComponent."Item No.") then
+                    if ((ProdOrderComponent."Flushing Method" = ProdOrderComponent."Flushing Method"::Backward) or Item.IsNonInventoriableType())
+                        and (ProdOrderComponent."Pick Qty." = 0) then begin
+                        ProdOrderComponent."Completely Picked" := true;
+                        ProdOrderComponent.Modify();
+                    end;
+            until ProdOrderComponent.Next() = 0;
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCode(var WarehouseActivityLine: Record "Warehouse Activity Line")

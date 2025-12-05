@@ -498,6 +498,11 @@ page 9326 "Released Production Orders"
         }
     }
 
+    trigger OnAfterGetRecord()
+    begin
+        Rec.CalcFields("Completely Picked");
+    end;
+
     var
         ManuPrintReport: Codeunit "Manu. Print Report";
 

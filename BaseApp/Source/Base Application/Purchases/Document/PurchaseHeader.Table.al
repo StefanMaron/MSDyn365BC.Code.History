@@ -8194,15 +8194,10 @@ table 38 "Purchase Header"
 
     procedure UpdatePurchaseOrderLineIfExist()
     var
-        PurchaseInvHeader: Record "Purch. Inv. Header";
         PurchaseCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
         IsHandled: Boolean;
     begin
-        PurchaseInvHeader.SetLoadFields("No.");
-        if (not PurchaseInvHeader.Get(Rec."Applies-to Doc. No.")) and (Rec."Applies-to ID" = '') then
-            exit;
-
         PurchaseCrMemoHeader.SetLoadFields("Pre-Assigned No.");
         PurchaseCrMemoHeader.SetRange("Pre-Assigned No.", Rec."No.");
         if not PurchaseCrMemoHeader.FindFirst() then
