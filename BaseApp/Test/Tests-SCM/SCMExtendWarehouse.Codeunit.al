@@ -26,6 +26,7 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
         IsInitialized: Boolean;
         ErrorMessageCounter: Integer;
         ROUTING_LINE_10: Label '10';
@@ -7496,6 +7497,72 @@ codeunit 137030 "SCM Extend Warehouse"
         Assert.IsTrue(WarehouseActivityLine."Bin Code" = SecondBin.Code, BinCodeErr);
     end;
 
+    [Test]
+    [HandlerFunctions('CreateInvtMvmntConfirmHandler,MessageHandlerSimple')]
+    [Scope('OnPrem')]
+    procedure MovementWorksheetCreateInventoryMovementWithCorrectBinForTrackingItem()
+    var
+        Item: Record Item;
+        FirstBin: Record Bin;
+        SecondBin: Record Bin;
+        ThirdBin: Record Bin;
+        FourthBin: Record Bin;
+        ItemTrackingCode: Record "Item Tracking Code";
+        Location: Record Location;
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        NoSeries: Codeunit "No. Series";
+        LotNo: Code[50];
+    begin
+        // [SCENARIO 610410] Movement worksheet creates Inventory Movement with the correct Take line/From Bin when Pick According to FEFO for item tracking items
+        Initialize();
+
+        // [GIVEN] Create Location with Pick According to FEFO as true.
+        LocationSetup(Location, true, true, true, true, true, 0, 4);
+        Location.Validate("Pick According to FEFO", true);
+        Location.Modify(true);
+
+        //[GIVEN] Create Item with Assembly Replenishment System and Manual Flushing Method.
+        TestSetup();
+        LibraryItemTracking.CreateLotItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
+        Item.Validate("Flushing Method", Item."Flushing Method"::Manual);
+        Item.Modify(true);
+
+        // [GIVEN] Set Item Tracking Code to use Expiration Dates.
+        ItemTrackingCode.Get(Item."Item Tracking Code");
+        ItemTrackingCode.Validate("Use Expiration Dates", true);
+        ItemTrackingCode.Modify(true);
+
+        // [GIVEN] Create Bins.
+        FindBin(FirstBin, Location, false, 1);
+        FindBin(SecondBin, Location, false, 2);
+        FindBin(ThirdBin, Location, false, 3);
+        FindBin(FourthBin, Location, false, 4);
+
+        // [GIVEN] Create Lot No for Item.
+        LotNo := NoSeries.GetNextNo(Item."Lot Nos.", WorkDate(), true);
+
+        // [GIVEN] Create Inventory in Bins with Lot No.
+        CreateAndPostInventoryAdjustmentWithLotNo(Item, Location.Code, LotNo, FirstBin, LibraryRandom.RandInt(1000));
+        CreateAndPostInventoryAdjustmentWithLotNo(Item, Location.Code, LotNo, SecondBin, LibraryRandom.RandInt(1200));
+        CreateAndPostInventoryAdjustmentWithLotNo(Item, Location.Code, LotNo, ThirdBin, LibraryRandom.RandInt(2000));
+
+        // [GIVEN] Create Whse Worksheet Line with Item and from Bin = ThirdBin, To Bin = FourthBin.
+        LibraryWarehouse.CreateMovementWorksheetLine(WhseWorksheetLine, ThirdBin, FourthBin, Item."No.", '', 100);
+
+        // [WHEN] Create Inventory Movement from Whse Worksheet Line.
+        WhseWorksheetLine.MovementCreate(WhseWorksheetLine);
+
+        // [THEN] Verify that Inventory Movement is created.
+        FindWarehouseActivityLine(WarehouseActivityLine, 0, Location.Code, WarehouseActivityLine."Activity Type"::"Invt. Movement");
+
+        // [THEN] Verify that Bin Code on Warehouse Activity Line is equal to Bin Code on Whse Worksheet Line.
+        Assert.IsTrue(WarehouseActivityLine."Bin Code" = ThirdBin.Code, BinCodeErr);
+        WarehouseActivityLine.Next();
+        Assert.IsTrue(WarehouseActivityLine."Bin Code" = FourthBin.Code, BinCodeErr);
+    end;
+
     local procedure UpdateMachineCenterOnRoutingLine(var ProductionOrder: Record "Production Order"; var MachineCenter: array[2] of Record "Machine Center")
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
@@ -7795,6 +7862,25 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseActivityLine.SetRange("Location Code", LocationCode);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
         WarehouseActivityLine.FindSet();
+    end;
+
+    local procedure CreateAndPostInventoryAdjustmentWithLotNo(Item: Record Item; LocationCode: Code[10]; var LotNo: Code[50]; Bin: Record Bin; Qty: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        NoSeries: Codeunit "No. Series";
+    begin
+        if LotNo = '' then
+            LotNo := NoSeries.GetNextNo(Item."Lot Nos.", WorkDate(), true);
+
+        ClearJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Qty);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Validate("Bin Code", Bin.Code);
+        ItemJournalLine.Modify(true);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNo, Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
     [ModalPageHandler]

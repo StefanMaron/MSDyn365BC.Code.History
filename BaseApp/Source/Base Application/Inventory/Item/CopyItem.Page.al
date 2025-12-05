@@ -323,6 +323,8 @@ page 729 "Copy Item"
             end;
         RecRef.Modify();
         RecRef.SetTable(Rec);
+
+        OnAfterValidateShouldCopyAllInformation(Rec, ShouldCopyAllInformation);
     end;
 
     [IntegrationEvent(false, false)]
@@ -332,6 +334,11 @@ page 729 "Copy Item"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateUserInput(var CopyItemBuffer: Record "Copy Item Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateShouldCopyAllInformation(var CopyItemBuffer: Record "Copy Item Buffer"; ShouldCopyAllInfo: Boolean)
     begin
     end;
 }

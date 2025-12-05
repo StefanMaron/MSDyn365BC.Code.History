@@ -193,6 +193,9 @@
       "path": "./EDocumentConnectors/Continia/Test/E-Document Connector - Continia Tests"
     },
     {
+      "path": "./EDocumentConnectors/FORNAV/Test/E-Document Connector - FORNAV Tests"
+    },
+    {
       "path": "./APIV2/Test/_Exclude_APIV2_ Tests"
     },
     {
@@ -330,10 +333,10 @@
   ],
   "settings": {
     "al.enableCodeAnalysis": false,
+    "al.enableCodeActions": false,
+    "allint.enabled": false,
     "search.exclude": {
       "**.xlf": true
-    },
-    "allint.enabled": false,
-    "al.enableCodeActions": false
+    }
   }
 }
