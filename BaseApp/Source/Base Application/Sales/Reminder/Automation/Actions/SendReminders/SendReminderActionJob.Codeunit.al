@@ -78,13 +78,23 @@ codeunit 6754 "Send Reminder Action Job"
     end;
 
     local procedure GetShouldSendReminder(var IssuedReminderHeader: Record "Issued Reminder Header"): Boolean
+    var
+        CurrentDateTime: DateTime;
     begin
         if (IssuedReminderHeader."Email Sent Level" <> IssuedReminderHeader."Reminder Level") then
             exit(true);
 
         if not GlobalSendReminderSetup."Send Multiple Times Per Level" then
             exit(false);
-        exit(CurrentDateTime() - IssuedReminderHeader."Last Email Sent Date Time" > GlobalSendReminderSetup."Minimum Time Between Sending");
+
+        if IssuedReminderHeader."Last Email Sent Date Time" = 0DT then
+            exit(true);
+
+        CurrentDateTime := CurrentDateTime();
+        if CurrentDateTime <= IssuedReminderHeader."Last Email Sent Date Time" then
+            exit(false);
+
+        exit(CurrentDateTime - IssuedReminderHeader."Last Email Sent Date Time" > GlobalSendReminderSetup."Minimum Time Between Sending");
     end;
 
     local procedure RunSendReminder(var IssuedReminderHeader: Record "Issued Reminder Header"): Boolean

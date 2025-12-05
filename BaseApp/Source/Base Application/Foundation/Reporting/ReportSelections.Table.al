@@ -10,6 +10,7 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
+using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
@@ -1282,7 +1283,8 @@ table 77 "Report Selections"
                                             Database::"Purch. Inv. Header",
                                             Database::"Purch. Cr. Memo Hdr.",
                                             Database::"Purch. Rcpt. Header",
-                                            Database::"Return Shipment Header"];
+                                            Database::"Return Shipment Header",
+                                            Database::"Vendor Ledger Entry"];
 
         OnAfterIsVendorAccount(DocumentTableId, IsVendor);
     end;
@@ -1534,12 +1536,17 @@ table 77 "Report Selections"
             end;
         end;
 
-        if TableId = Database::Vendor then
-            if DataTypeManagement.FindfieldByName(DocumentRecord, FieldRef, 'Buy-from Vendor No.') and Vendor.Get(Format(FieldRef.Value())) then begin
+        if TableId = Database::Vendor then begin
+            if DocumentRecord.Number() = Database::"Vendor Ledger Entry" then
+                FieldName := 'Vendor No.'
+            else
+                FieldName := 'Buy-from Vendor No.';
+            if DataTypeManagement.FindfieldByName(DocumentRecord, FieldRef, FieldName) and Vendor.Get(Format(FieldRef.Value())) then begin
                 SourceTableIDs.Add(Database::Vendor);
                 SourceIDs.Add(Vendor.SystemId);
                 SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
             end;
+        end;
 #if not CLEAN27
         if EmailBodyTempBlob.HasValue() then begin
             ServerEmailBodyFilePath := FileManagement.TempBlobToServerFile(EmailBodyTempBlob, 'html');

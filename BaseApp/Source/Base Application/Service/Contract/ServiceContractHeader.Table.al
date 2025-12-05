@@ -2255,6 +2255,8 @@ table 5965 "Service Contract Header"
             if Cont.Type = Cont.Type::Person then begin
                 "Contact Name" := Cont.Name;
                 ContactBusinessRelationFound := ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."No.");
+                if not ContactBusinessRelationFound then
+                    ContactBusinessRelationFound := ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."Company No.");
             end else begin
                 if not ContactBusinessRelationFound then
                     ContactBusinessRelationFound := ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."Company No.");
@@ -2302,6 +2304,8 @@ table 5965 "Service Contract Header"
             if Cont.Type = Cont.Type::Person then begin
                 "Bill-to Contact" := Cont.Name;
                 ContactBusinessRelationFound := ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."No.");
+                if not ContactBusinessRelationFound then
+                    ContactBusinessRelationFound := ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."Company No.");
             end else begin
                 if not ContactBusinessRelationFound then
                     ContactBusinessRelationFound := ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."Company No.");

@@ -76,6 +76,8 @@ report 2000006 "File Non Euro SEPA Payments"
                 if CheckNewGroup(SeparatePmtJnlLine) then
                     ExportPaymentInformation(CstmrCdtTrfInitnNode, SeparatePmtJnlLine);
                 ExportTransactionInformation(PmtInfNode, SeparatePmtJnlLine, "Payment Message");
+                if EmptyConsolidatedPayment() then
+                    InitConsolidatedPayment(SeparatePmtJnlLine);
             end;
 
             trigger OnPostDataItem()
