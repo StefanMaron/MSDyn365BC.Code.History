@@ -1,5 +1,7 @@
 namespace System.Security.AccessControl;
 
+using System.Agents;
+
 page 9817 "Permission Sets FactBox"
 {
     Caption = 'Permission Sets';
@@ -48,9 +50,12 @@ page 9817 "Permission Sets FactBox"
         }
     }
 
-    actions
-    {
-    }
+    trigger OnOpenPage()
+    var
+        AgentUtilities: Codeunit "Agent Utilities";
+    begin
+        AgentUtilities.BlockPageFromBeingOpenedByAgent();
+    end;
 
     trigger OnAfterGetRecord()
     var

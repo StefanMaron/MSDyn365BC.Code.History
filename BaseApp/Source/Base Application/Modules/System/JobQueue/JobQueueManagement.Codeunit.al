@@ -256,6 +256,8 @@ codeunit 456 "Job Queue Management"
     /// To find stale jobs (in process jobs with no scheduled tasks) and set them to error state.
     /// For both JQE and JQLE
     /// </summary>
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Job Queue Entry", 'RM')]
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Job Queue Log Entry", 'RM')]
     procedure FindStaleJobsAndSetError()
     var
         JobQueueEntry: Record "Job Queue Entry";
@@ -314,6 +316,7 @@ codeunit 456 "Job Queue Management"
             until JobQueueLogEntry.Next() = 0;
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Job Queue Log Entry", 'RM')]
     internal procedure UpdateRetriableFailedJobQueueLogEntry(var JobQueueEntry: Record "Job Queue Entry")
     var
         JobQueueLogEntry: Record "Job Queue Log Entry";

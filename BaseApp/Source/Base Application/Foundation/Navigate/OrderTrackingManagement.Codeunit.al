@@ -681,6 +681,8 @@ codeunit 99000778 OrderTrackingManagement
             DateWarning := true;
         end;
 
+        OnInsertOrderTrackingEntryOnBeforeOrderTrackingEntryExists(TempOrderTrackingEntry, ReservEntry, ReservEntry2);
+
         if OrderTrackingEntryExists() then begin
             TempOrderTrackingEntry.Quantity += ReservEntry."Quantity (Base)";
             TempOrderTrackingEntry.Modify();
@@ -981,6 +983,11 @@ codeunit 99000778 OrderTrackingManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDrillOrdersUp(var TempOrderTrackingEntry: Record "Order Tracking Entry" temporary; var ReservationEntry: Record "Reservation Entry"; Level: Integer; var EntryNo: Integer; var SearchUp: Boolean; var SearchUpIsSet: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOrderTrackingEntryOnBeforeOrderTrackingEntryExists(var TempOrderTrackingEntry: Record "Order Tracking Entry" temporary; ReservationEntry: Record "Reservation Entry"; ReservationEntry2: Record "Reservation Entry")
     begin
     end;
 }
