@@ -437,7 +437,7 @@ table 5896 "Inventory Adjmt. Entry (Order)"
             "Direct Cost (ACY)" := InvtAdjmtEntryOrder."Direct Cost (ACY)" - "Direct Cost (ACY)";
             "Indirect Cost (ACY)" := InvtAdjmtEntryOrder."Indirect Cost (ACY)" - "Indirect Cost (ACY)";
             if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
-                "Direct Cost Non-Inv. (ACY)" := InvtAdjmtEntryOrder."Direct Cost Non-Inv. (ACY)" - "Direct Cost (ACY)";
+                "Direct Cost Non-Inv. (ACY)" := InvtAdjmtEntryOrder."Direct Cost Non-Inv. (ACY)" - "Direct Cost Non-Inv. (ACY)";
         end;
         "Single-Lvl Material Cost (ACY)" := InvtAdjmtEntryOrder."Single-Lvl Material Cost (ACY)" - "Single-Lvl Material Cost (ACY)";
         "Single-Lvl Capacity Cost (ACY)" := InvtAdjmtEntryOrder."Single-Lvl Capacity Cost (ACY)" - "Single-Lvl Capacity Cost (ACY)";
