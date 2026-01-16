@@ -114,6 +114,7 @@ codeunit 144007 "Alt. Cust. VAT Doc. BE Tests"
         CreateAlternativeCustVATReg(AltCustVATReg, Customer."No.", ShipToAddress."Country/Region Code");
         // [GIVEN] Sales order with the customer
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        Commit();
         // [WHEN] Choose Ship-To Address with country BE, but do not confirm changes
         asserterror SalesHeader.Validate("Ship-to Code", ShipToAddress.Code);
         // [THEN] Sales order does not have "Enterprise No."
