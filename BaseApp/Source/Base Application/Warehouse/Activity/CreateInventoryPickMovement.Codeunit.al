@@ -2530,7 +2530,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         if TotalQtyPicked = TotalPickedQuantityCalculated then
             exit;
 
-        if Abs(TotalPickedQuantityCalculated - TotalQtyPicked) > SalesLine."Qty. Rounding Precision" then
+        if Abs(TotalPickedQuantityCalculated - TotalQtyPicked) > SalesLine."Qty. Rounding Precision (Base)" then
             exit;
 
         WareHouseActivityLine.FindLast();
