@@ -19,6 +19,7 @@ codeunit 139762 "SMTP Account Auth Tests"
         AuthenticationFailedMsg: Label 'Could not authenticate.';
         EveryUserShouldPressAuthenticateMsg: Label 'Before people can send email they must authenticate their email account. They can do that by choosing the Authenticate action on the SMTP Account page.';
         TokenFromCache: Text;
+        NotificationIsSent: Boolean;
 
     [Test]
     [HandlerFunctions('OAuth2AuthenticationMessageHandler')]
@@ -60,6 +61,65 @@ codeunit 139762 "SMTP Account Auth Tests"
         // [THEN] The actions related to OAuth 2.0 are visible.
         Assert.IsTrue(SMTPAccountPage."Authenticate with OAuth 2.0".Visible(), 'OAuth 2.0 actions should be visible if the authentication is OAuth 2.0 in SMTP setup');
         Assert.IsTrue(SMTPAccountPage."Check OAuth 2.0 authentication".Visible(), 'OAuth 2.0 actions should be visible if the authentication is OAuth 2.0 in SMTP setup');
+    end;
+
+    [Test]
+    [HandlerFunctions('BasicAuthNotificationHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure SMTPBasicAuthenticationObsoleteNotificationTest()
+    var
+        SMTPAccount: Record "SMTP Account";
+        SMTPConnectorImpl: Codeunit "SMTP Connector Impl.";
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
+        EmailOutboxPage: TestPage "Email Outbox";
+    begin
+        // [SCENARIO]
+        // Verifies that when an SMTP account uses Basic authentication, a deprecation notification
+        // is displayed on the Email Outbox page. Once the user switches the authentication method
+        // to OAuth 2.0, the notification should no longer appear.
+
+        // [GIVEN] An SMTP account configured with Basic authentication.
+        SMTPAccount.DeleteAll();
+        SMTPAccount.Id := CreateGuid();
+        SMTPAccount."Authentication Type" := SMTPAccount."Authentication Type"::Basic;
+        SMTPAccount.Server := SMTPConnectorImpl.GetO365SmtpServer();
+        SMTPAccount.Insert();
+
+        // Reset the notification tracking flag before test execution.
+        NotificationIsSent := false;
+
+        // [GIVEN] Simulate OnPrem environment (not SaaS) so that the local SMTP implementation is used.
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
+
+        // [WHEN] The Email Outbox page is opened while Basic Auth is still in use.
+        EmailOutboxPage.OpenView();
+
+        // [THEN] A notification should be triggered warning about Basic Auth deprecation.
+        Assert.IsTrue(NotificationIsSent, 'Notification about basic authentication being obsolete was not shown.');
+        EmailOutboxPage.Close();
+
+        // [WHEN] The SMTP account authentication is changed to OAuth 2.0.
+        SMTPAccount."Authentication Type" := SMTPAccount."Authentication Type"::"OAuth 2.0";
+        SMTPAccount.Modify();
+
+        // Reset the notification tracking flag to verify that no new notification is triggered.
+        NotificationIsSent := false;
+
+        // [WHEN] The Email Outbox page is opened again (after switching to OAuth 2.0).
+        EmailOutboxPage.OpenView();
+
+        // [THEN] No notification should appear, as Basic Auth is no longer used.
+        Assert.IsFalse(NotificationIsSent, 'Notification about basic authentication being obsolete is shown.');
+        EmailOutboxPage.Close();
+    end;
+
+    [SendNotificationHandler]
+    procedure BasicAuthNotificationHandler(var Notification: Notification): Boolean
+    begin
+        if StrPos(Notification.Message(), 'Basic authentication') > 0 then begin
+            NotificationIsSent := true;
+            exit(true);
+        end;
     end;
 
     [Test]

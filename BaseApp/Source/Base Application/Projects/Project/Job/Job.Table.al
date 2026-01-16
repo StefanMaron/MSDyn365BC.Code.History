@@ -1335,10 +1335,12 @@ table 167 Job
     trigger OnRename()
     var
         CommentLine: Record "Comment Line";
+        JobArchiveManagement: Codeunit "Job Archive Management";
     begin
         UpdateJobNoInReservationEntries();
         DimMgt.RenameDefaultDim(Database::Job, xRec."No.", "No.");
         CommentLine.RenameCommentLine(CommentLine."Table Name"::Job, xRec."No.", "No.");
+        JobArchiveManagement.RenameJobArchieve(xRec."No.", Rec."No.");
         "Last Date Modified" := Today;
     end;
 
