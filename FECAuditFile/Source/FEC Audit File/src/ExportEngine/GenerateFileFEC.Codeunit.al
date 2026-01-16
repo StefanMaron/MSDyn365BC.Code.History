@@ -11,10 +11,10 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Purchases.Payables;
-using Microsoft.Sales.Setup;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
+using Microsoft.Sales.Setup;
 using System.Reflection;
 using System.Telemetry;
 using System.Utilities;
@@ -629,11 +629,10 @@ codeunit 10826 "Generate File FEC"
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        if GetDetailedVendorLedgEntry(DetailedVendorLedgEntry, VendorLedgEntryApplied."Entry No.") then begin
-            if DetailedVendorLedgEntry."Posting Date" > AppliedDate then
-                AppliedDate := DetailedVendorLedgEntry."Posting Date";
-        end else
-            AppliedDate := VendorLedgEntryApplied."Posting Date";
+        if GetDetailedVendorLedgEntry(DetailedVendorLedgEntry, VendorLedgEntryApplied."Entry No.") then
+            AppliedDate := DT2Date(DetailedVendorLedgEntry.SystemCreatedAt)
+        else
+            AppliedDate := DT2Date(VendorLedgEntryApplied.SystemCreatedAt);
     end;
 
     local procedure GetDetailedVendorLedgEntry(var DetailedVendorLedgEntryApplied: Record "Detailed Vendor Ledg. Entry"; AppliedVendorLedgerEntryNo: Integer): Boolean
