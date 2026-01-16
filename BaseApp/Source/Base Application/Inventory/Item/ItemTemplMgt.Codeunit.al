@@ -12,6 +12,7 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Setup;
 using Microsoft.Sales.Setup;
 using Microsoft.Utilities;
+using Microsoft.Warehouse.Ledger;
 using System.IO;
 using System.Reflection;
 using System.Utilities;
@@ -158,11 +159,20 @@ codeunit 1336 "Item Templ. Mgt."
 
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
         if ItemLedgerEntry.IsEmpty() then
-            exit;
+            if NoWarehouseEntriesExist(Item."No.") then
+                exit;
 
         FieldExclusionList.Add(ItemTempl.FieldNo("Item Tracking Code"));
         FieldExclusionList.Add(ItemTempl.FieldNo("Lot Nos."));
         FieldExclusionList.Add(ItemTempl.FieldNo("Serial Nos."));
+    end;
+
+    local procedure NoWarehouseEntriesExist(ItemNo: Code[20]): Boolean
+    var
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        WarehouseEntry.SetRange("Item No.", ItemNo);
+        exit(WarehouseEntry.IsEmpty());
     end;
 
     local procedure DoUpdateValue(ItemFldRef: FieldRef; EmptyItemFldRef: FieldRef; ItemTemplFldRef: FieldRef; EmptyItemTemplFldRef: FieldRef; UpdateExistingValues: Boolean): Boolean

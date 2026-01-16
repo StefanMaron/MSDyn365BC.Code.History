@@ -2346,6 +2346,9 @@ table 83 "Item Journal Line"
         SourceCode: Code[10];
         IsHandled: Boolean;
         OldDimSetID: Integer;
+        TableIds: List of [Integer];
+        TableId: Integer;
+        DimSource: Dictionary of [Integer, Code[20]];
     begin
         IsHandled := false;
         OnBeforeCreateDim(Rec, IsHandled, CurrFieldNo, DefaultDimSource, InheritFromDimSetID, InheritFromTableNo);
@@ -2368,12 +2371,21 @@ table 83 "Item Journal Line"
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         if "Entry Type" = "Entry Type"::Transfer then
-            if Rec."New Location Code" <> '' then
-                CreateNewDimFromDefaultDim(Rec.FieldNo("New Location Code"))
-            else begin
-                "New Dimension Set ID" := "Dimension Set ID";
-                "New Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
-                "New Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
+            if DefaultDimSource.Count() > 1 then begin
+                DimSource := DefaultDimSource.Get(1);
+                TableIds := DimSource.Keys;
+                if TableIds.Count > 0 then begin
+                    TableId := TableIds.Get(1);
+                    if TableId <> 0 then
+                        case TableId of
+                            Database::Location:
+                                CreateNewDimFromDefaultDim(Rec.FieldNo("New Location Code"));
+                            Database::Item:
+                                CreateNewDimFromDefaultDim(Rec.FieldNo("Item No."));
+                            Database::"Salesperson/Purchaser":
+                                CreateNewDimFromDefaultDim(Rec.FieldNo("Salespers./Purch. Code"));
+                        end;
+                end;
             end;
     end;
 
@@ -3699,7 +3711,7 @@ table 83 "Item Journal Line"
     begin
         if not DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(FieldNo)) then
             exit;
-        InitDefaultDimensionSources(DefaultDimSource, FieldNo);
+        InitDefaultDimensionSources(DefaultDimSource, FieldNo, false);
         CreateDim(DefaultDimSource);
     end;
 
@@ -3711,7 +3723,7 @@ table 83 "Item Journal Line"
     begin
         if not DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(FieldNo)) then
             exit;
-        InitDefaultDimensionSources(DefaultDimSource, FieldNo);
+        InitDefaultDimensionSources(DefaultDimSource, FieldNo, true);
 
         SourceCode := "Source Code";
         if SourceCode = '' then
@@ -3743,12 +3755,14 @@ table 83 "Item Journal Line"
         OnAfterInitTableValuePair(Rec, TableValuePair, FieldNo);
     end;
 
-    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer; CalledForNewDimension: Boolean)
     begin
         DimMgt.AddDimSource(DefaultDimSource, Database::Item, Rec."Item No.", FieldNo = Rec.FieldNo("Item No."));
         DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Salespers./Purch. Code", FieldNo = Rec.FieldNo("Salespers./Purch. Code"));
-        DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"));
-        DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."New Location Code", FieldNo = Rec.FieldNo("New Location Code"));
+        if CalledForNewDimension = false then
+            DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"))
+        else
+            DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."New Location Code", FieldNo = Rec.FieldNo("New Location Code"));
 
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;

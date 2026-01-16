@@ -60,6 +60,7 @@ codeunit 60 "Sales-Calc. Discount"
         TempSalesLine: Record "Sales Line" temporary;
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
         DiscountNotificationMgt: Codeunit "Discount Notification Mgt.";
+        TotalChargeItemLineAmount: Decimal;
         ShouldGetCustInvDisc: Boolean;
         IsHandled: Boolean;
     begin
@@ -118,8 +119,10 @@ codeunit 60 "Sales-Calc. Discount"
 
         CustInvDiscFound := false;
 
+        TotalChargeItemLineAmount := GetTotalChargeItemLineAmount(SalesLine."Document Type", SalesLine."Document No.");
+
         CustInvDisc.GetRec(
-          SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, ChargeBase, CustInvDiscFound);
+          SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, (ChargeBase - TotalChargeItemLineAmount), CustInvDiscFound);
 
         OnCalculateInvoiceDiscountOnBeforeCheckCustInvDiscServiceCharge(CustInvDisc, SalesHeader, CurrencyDate, ChargeBase);
         if CustInvDiscFound and (CustInvDisc."Service Charge" <> 0) then begin
@@ -419,6 +422,19 @@ codeunit 60 "Sales-Calc. Discount"
                     end;
                 until SalesLine.Next() = 0;
         end;
+    end;
+
+    local procedure GetTotalChargeItemLineAmount(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]): Decimal
+    var
+        SalesLine3: Record "Sales Line";
+    begin
+        SalesLine3.Reset();
+        SalesLine3.SetLoadFields("Line Amount");
+        SalesLine3.SetRange("Document Type", DocumentType);
+        SalesLine3.SetRange("Document No.", DocumentNo);
+        SalesLine3.SetRange(Type, SalesLine3.Type::"Charge (Item)");
+        SalesLine3.CalcSums("Line Amount");
+        exit(SalesLine3."Line Amount");
     end;
 
     [IntegrationEvent(false, false)]

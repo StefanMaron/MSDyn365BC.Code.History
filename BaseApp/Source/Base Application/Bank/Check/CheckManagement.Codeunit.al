@@ -787,6 +787,7 @@ codeunit 367 CheckManagement
         ApplyingCustLedgerEntry: Record "Cust. Ledger Entry";
         CustEntrySetApplID: Codeunit "Cust. Entry-SetAppl.ID";
     begin
+        CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");
         CustLedgerEntry.SetRange("Applies-to ID", GenJournalLine."Document No.");
         if CustLedgerEntry.FindSet() then
             repeat
@@ -800,6 +801,7 @@ codeunit 367 CheckManagement
         ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry";
         VendEntrySetApplID: Codeunit "Vend. Entry-SetAppl.ID";
     begin
+        VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
         VendorLedgerEntry.SetRange("Applies-to ID", GenJournalLine."Document No.");
         if VendorLedgerEntry.FindSet() then
             repeat
@@ -813,6 +815,7 @@ codeunit 367 CheckManagement
         ApplyingEmployeeLedgerEntry: Record "Employee Ledger Entry";
         EmplEntrySetApplID: Codeunit "Empl. Entry-SetAppl.ID";
     begin
+        EmplLedgerEntry.SetRange("Employee No.", GenJournalLine."Account No.");
         EmplLedgerEntry.SetRange("Applies-to ID", GenJournalLine."Document No.");
         if EmplLedgerEntry.FindSet() then
             repeat
