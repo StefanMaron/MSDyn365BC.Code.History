@@ -6605,7 +6605,8 @@ codeunit 22 "Item Jnl.-Post Line"
            (ItemJnlLine."Value Entry Type" = ItemJnlLine."Value Entry Type"::"Direct Cost") and
            (ItemJnlLine."Item Charge No." = '') and
            (ItemJnlLine."Applies-from Entry" = 0) and
-           not ItemJnlLine.Adjustment and (ItemJnlLine."Document Type" <> ItemJnlLine."Document Type"::"Inventory Receipt") then
+           not ItemJnlLine.Adjustment and (ItemJnlLine."Document Type" <> ItemJnlLine."Document Type"::"Inventory Receipt") and
+           (ItemJnlLine."Entry Type" <> ItemJnlLine."Entry Type"::Sale) then
             exit(true);
 
         exit(false);
