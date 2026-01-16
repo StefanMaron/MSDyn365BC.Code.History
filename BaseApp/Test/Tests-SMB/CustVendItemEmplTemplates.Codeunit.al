@@ -13,12 +13,13 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         Assert: Codeunit Assert;
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryERM: Codeunit "Library - ERM";
-        LibraryInventory: Codeunit "Library - Inventory";
         LibraryHumanResource: Codeunit "Library - Human Resource";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryRapidStart: Codeunit "Library - Rapid Start";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryRapidStart: Codeunit "Library - Rapid Start";
         LibrarySales: Codeunit "Library - Sales";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTemplates: Codeunit "Library - Templates";
@@ -2858,7 +2859,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         ItemJournalLine: Record "Item Journal Line";
         ItemTempl: Record "Item Templ.";
         ItemTrackingCode: Record "Item Tracking Code";
-        ItemCard: TestPage "Item Card";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
     begin
         // [SCENARIO 610902] Apply item template with tracking code should not change tracking code when item has inventory entries
         Initialize();
@@ -2872,18 +2873,14 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
         // [GIVEN] Create Item template with item tracking code.
         LibraryTemplates.CreateItemTemplate(ItemTempl);
-        LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
-        ItemTrackingCode.Validate("Lot Specific Tracking", true);
-        ItemTrackingCode.Modify(true);
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
         ItemTempl.Validate("Base Unit of Measure", Item."Base Unit of Measure");
         ItemTempl.Validate("Item Tracking Code", ItemTrackingCode.Code);
         ItemTempl.Modify(true);
         LibraryVariableStorage.Enqueue(ItemTempl.Code);
 
         // [WHEN] Apply item template to item.
-        ItemCard.OpenEdit();
-        ItemCard.GoToRecord(Item);
-        ItemCard.ApplyTemplate.Invoke();
+        ItemTemplMgt.UpdateItemFromTemplate(Item);
 
         // [THEN] Item tracking code remains empty (not updated from template)
         Item.Get(Item."No.");

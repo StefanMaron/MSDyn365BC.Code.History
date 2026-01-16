@@ -1780,7 +1780,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
         OrigValueEntry: Record "Value Entry";
         IsHandled: Boolean;
     begin
-        OrigValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
+        OrigValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type", SystemCreatedAt);
         OrigValueEntry.SetRange("Item Ledger Entry No.", TempInvtAdjmtBuf."Item Ledger Entry No.");
         OrigValueEntry.SetBaseLoadFields();
         OrigValueEntry.FindFirst();
