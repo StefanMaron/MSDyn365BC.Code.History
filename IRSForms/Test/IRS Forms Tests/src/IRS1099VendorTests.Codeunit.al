@@ -333,6 +333,68 @@ codeunit 148011 "IRS 1099 Vendor Tests"
 #endif
     end;
 
+    [Test]
+    [HandlerFunctions('IRS1099PropagateVendSetupRequestPageHandler')]
+    procedure PropagateAllSelectedVendorsFromVendorFormBoxSetupToVendorLedgerEntries()
+    var
+        VendorNo: array[3] of Code[20];
+        FormNo: Code[20];
+        FormBoxNo: Code[20];
+        PeriodNo: Code[20];
+    begin
+        // [SCENARIO 495389] Stan can propagate all the selected vendors from vendor form box setup to vendor ledger entries
+        Initialize();
+
+        // [GIVEN] Create period
+        PeriodNo := LibraryIRSReportingPeriod.CreateOneDayReportingPeriod(WorkDate());
+
+        // [GIVEN] Vendor form box setup with MISC-01 code is assigned to vendor "X"
+        FormNo := LibraryIRS1099FormBox.CreateSingleFormInReportingPeriod(WorkDate(), WorkDate());
+        FormBoxNo := LibraryIRS1099FormBox.CreateSingleFormBoxInReportingPeriod(WorkDate(), WorkDate(), FormNo);
+
+        // [GIVEN] Post purchase invoice and enqueu Period No.
+        PostPurchaseInvoiceForMultipleVendors(VendorNo, FormNo, FormBoxNo);
+        LibraryVariableStorage.Enqueue(PeriodNo);
+
+        // [WHEN] Propagate vendor form box setup to vendor ledger entries
+        LibraryIRS1099FormBox.PropagateVendorFormBoxSetupToVendorLedgerEntries(WorkDate(), WorkDate(), PeriodNo, VendorNo[1] + '|' + VendorNo[3]);
+
+        // [THEN] Vendor ledger entry has IRS 1099 fields filled on Vendor Ledger Entry of selected Vendors
+        VerifyIRS1099FieldsOnVendorLedgerEntry(PeriodNo, FormNo, FormBoxNo, VendorNo[1] + '|' + VendorNo[3]);
+    end;
+
+    [Test]
+    [HandlerFunctions('NoDataFoundMessageHandler')]
+    procedure IRS1099VendorOverviewRefreshesDataWithPeriodNo()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        IRS1099VendorOverviewPage: TestPage "IRS 1099 Vendor Overview";
+        PeriodNo, FormNo, FormBoxNo, VendNo : Code[20];
+        IRSAmount: Decimal;
+    begin
+        // [SCENARIO 615776] The IRS 1099 Vendor Overview page correctly sets the period number before calling GetVendorFormBoxAmount
+
+        Initialize();
+        // [GIVEN] IRS Reporting Period with forms and form boxes
+        PeriodNo := LibraryIRSReportingPeriod.CreateOneDayReportingPeriod(WorkDate());
+        FormNo := LibraryIRS1099FormBox.CreateSingleFormInReportingPeriod(WorkDate());
+        FormBoxNo := LibraryIRS1099FormBox.CreateSingleFormBoxInReportingPeriod(WorkDate(), FormNo);
+        // [GIVEN] Vendor with Form Box setup and vendor ledger entry with IRS data
+        VendNo := LibraryIRS1099FormBox.CreateVendorNoWithFormBox(WorkDate(), FormNo, FormBoxNo);
+        IRSAmount := -LibraryRandom.RandDec(100, 2);
+        LibraryIRS1099Document.MockInvVendLedgEntryWithIRSData(VendorLedgerEntry, WorkDate(), WorkDate(), FormNo, FormBoxNo, IRSAmount);
+        VendorLedgerEntry."Vendor No." := VendNo;
+        VendorLedgerEntry.Modify();
+
+        // [WHEN] Open IRS 1099 Vendor Overview page and set the Reporting Period
+        IRS1099VendorOverviewPage.OpenView();
+        IRS1099VendorOverviewPage.IRSReportingPeriodNoField.SetValue(PeriodNo);
+
+        // [THEN] The page shows data for the selected period (no error occurs)
+        // The fix ensures IRS1099CalcParameters."Period No." is set before calling GetVendorFormBoxAmount
+        IRS1099VendorOverviewPage.Close();
+    end;
+
     local procedure Initialize()
     var
         IRSReportingPeriod: Record "IRS Reporting Period";
@@ -346,6 +408,38 @@ codeunit 148011 "IRS 1099 Vendor Tests"
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"IRS 1099 Vendor Tests");
+    end;
+
+    local procedure PostPurchaseInvoiceForMultipleVendors(var VendorNo: array[3] of Code[20]; FormNo: Code[20]; FormBoxNo: Code[20])
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(VendorNo) do begin
+            VendorNo[i] := LibraryPurchase.CreateVendorNo();
+            LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo[i]);
+            LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine, PurchaseHeader, LibraryInventory.CreateItemNo(), 1, 1);
+            LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+            LibraryIRS1099FormBox.AssignFormBoxForVendorInPeriod(VendorNo[i], WorkDate(), WorkDate(), FormNo, FormBoxNo);
+            Commit();
+        end;
+    end;
+
+    local procedure VerifyIRS1099FieldsOnVendorLedgerEntry(PeriodNo: Code[20]; FormNo: Code[20]; FormBoxNo: Code[20]; VendorNoFilter: Text)
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        VendorLedgerEntry.SetFilter("Vendor No.", VendorNoFilter);
+        VendorLedgerEntry.FindSet();
+        repeat
+            VendorLedgerEntry.CalcFields(Amount);
+            VendorLedgerEntry.TestField("IRS 1099 Reporting Period", PeriodNo);
+            VendorLedgerEntry.TestField("IRS 1099 Form No.", FormNo);
+            VendorLedgerEntry.TestField("IRS 1099 Form Box No.", FormBoxNo);
+            VendorLedgerEntry.TestField("IRS 1099 Reporting Amount", VendorLedgerEntry.Amount);
+            VendorLedgerEntry.TestField("IRS 1099 Subject For Reporting", true);
+        until VendorLedgerEntry.Next() = 0;
     end;
 
     [RequestPageHandler]
@@ -366,5 +460,10 @@ codeunit 148011 "IRS 1099 Vendor Tests"
         IRS1099PropagateVendSetup.PurchaseDocumentsControl.SetValue(true);
         IRS1099PropagateVendSetup.VendorLedgerEntriesControl.SetValue(true);
         IRS1099PropagateVendSetup.OK().Invoke();
+    end;
+
+    [MessageHandler]
+    procedure NoDataFoundMessageHandler(Message: Text[1024])
+    begin
     end;
 }

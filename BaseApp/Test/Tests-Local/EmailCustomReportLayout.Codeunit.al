@@ -945,6 +945,69 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ExportElectronicPaymentsRequestPageHandler')]
+    procedure ExportElectronicPayments_A_Email_B_NoEmail_C_Email_PrintIfEmailIsMissing_False();
+    var
+        BankAccount: Record "Bank Account";
+        CustomReportSelection: Record "Custom Report Selection";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        ReportSelections: Record "Report Selections";
+        TempErrorMessage: Record "Error Message" temporary;
+        Vendor: array[3] of Record "Vendor";
+        LibrarySMTPMailHandler: Codeunit "Library - SMTP Mail Handler";
+        LibraryTempNVBufferHandler: Codeunit "Library - TempNVBufferHandler";
+        ErrorMessages: TestPage "Error Messages";
+        ReportID: Integer;
+    begin
+        // [SCENARIO 609533] Email "Export Electronic Payments" For three vendors: "A" & "C" email, "B" with without email."PrintIfEmailIsMissing" = false;.
+        // For the payment lines that are emailed and exported, the system should update the related exported flags to true
+        Initialize();
+
+        // [GIVEN] Find the Vendor Remittance Report ID.
+        ReportID := GetExportElectronicPaymentsReportID();
+
+        // [GIVEN] Set the report selection for Vendor Remittance. 
+        InsertReportSelections(ReportSelections, ReportID, false, false, ReportSelections.Usage::"V.Remittance");
+
+        // [GIVEN] Create the first and third vendors and configure the document layout along with the email setup.
+        CreateVendorWithDocumentLayout(
+          Vendor[1], CustomReportSelection.Usage::"V.Remittance", ReportID, LibraryUtility.GenerateRandomEmail());
+        CreateVendorWithDocumentLayout(
+          Vendor[3], CustomReportSelection.Usage::"V.Remittance", ReportID, LibraryUtility.GenerateRandomEmail());
+
+        // [GIVEN] Create the second vendor and configure the document layout, excluding the email setup.
+        CreateVendorWithDocumentLayout(
+          Vendor[2], CustomReportSelection.Usage::"V.Remittance", ReportID, '');
+
+        ErrorMessages.Trap();
+        BindSubscription(LibraryTempNVBufferHandler);
+        LibrarySMTPMailHandler.SetDisableSending(true);
+        BindSubscription(LibrarySMTPMailHandler);
+
+        // [GIVEN] Create a bank account and configure the electronic setup.
+        CreateBankAccount(BankAccount, LibraryUtility.GenerateGUID(), BankAccount."Export Format"::US);
+        BankAccount.Validate("Payment Export Format", 'US EFT DEFAULT');
+        BankAccount.Modify(true);
+
+        // [GIVEN] Create a General Journal Batch and set the Bal. Account Type to Bank Account and specify the Bank Account No.
+        CreateGeneralJournalBatch(GenJournalBatch, BankAccount."No.");
+
+        // [WHEN] Create and export the payment journal for multiple vendors.
+        CreateAndExportElectronicallyPaymentJournal(GenJournalBatch, Vendor, BankAccount."No.", false);
+
+        AddExpectedErrorMessage(TempErrorMessage, TargetEmailAddressErr);
+        AssertErrorsOnErrorMessagesPage(ErrorMessages, TempErrorMessage);
+
+        // [THEN] Verify Electronic Export Details.
+        VerifyElectronicExportDetails(GenJournalBatch);
+
+        // [THEN] Verify that the email is triggered for the first and third vendors, and the second vendor appears in the error messages.
+        LibraryTempNVBufferHandler.AssertEntry(Vendor[1]."No.");
+        LibraryTempNVBufferHandler.AssertEntry(Vendor[3]."No.");
+        LibraryTempNVBufferHandler.AssertQueueEmpty();
+    end;
+
     local procedure Initialize();
     begin
         LibrarySetupStorage.Restore();
@@ -1294,6 +1357,67 @@ codeunit 144083 "EMail Custom Report Layout"
         until Stop;
 
         Assert.IsFalse(ErrorMessages.Next(), STRSUBSTNO(MoreErrorsOnErrorMessagesPageErr, ErrorMessages.CAPTION));
+    end;
+
+    local procedure CreateAndExportElectronicallyPaymentJournal(var GenJournalBatch: Record "Gen. Journal Batch"; var Vendor: array[3] of Record "Vendor"; BankAccountNo: Code[20]; PrintIfEMailIsMissing: Boolean);
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorBankAccount: Record "Vendor Bank Account";
+        PaymentJournal: TestPage "Payment Journal";
+        Index: Integer;
+        DocAmount: Decimal;
+        DocumentNo: Code[20];
+    begin
+        for Index := 1 to ArrayLen(Vendor) do begin
+            LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor[Index]."No.");
+            VendorBankAccount.Validate("Bank Account No.", BankAccountNo);
+            VendorBankAccount.Validate("Use For Electronic Payments", true);
+            VendorBankAccount.Modify(true);
+            DocAmount := LibraryRandom.RandIntInRange(100, 200);
+
+            LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor[Index]."No.");
+            LibraryPurchase.CreatePurchaseLine(
+              PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+            PurchaseLine.Validate("Direct Unit Cost", DocAmount);
+            PurchaseLine.Modify(true);
+
+            DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+            CreatePaymentJournal(
+              GenJournalLine, GenJournalBatch, DocumentNo,
+              GenJournalLine."Account Type"::Vendor, Vendor[Index]."No.",
+              DocAmount, VendorBankAccount.Code);
+        end;
+        Commit();
+
+        LibraryvariableStorage.Enqueue(GenJournalLine."Bal. Account No.");
+        LibraryvariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+        LibraryvariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
+        LibraryvariableStorage.Enqueue('Email');
+        LibraryvariableStorage.Enqueue(PrintIfEMailIsMissing);
+
+        PaymentJournal.OpenEdit();
+        ExportPaymentJournal(PaymentJournal, GenJournalLine);
+        PaymentJournal.Close();
+
+        LibraryvariableStorage.AssertEmpty();
+    end;
+
+    local procedure VerifyElectronicExportDetails(GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.SetFilter("Document No.", '<>%1', '');
+        GenJournalLine.FindSet();
+        repeat
+            GenJournalLine.TestField("Check Printed", true);
+            GenJournalLine.TestField("Exported to Payment File", true);
+            GenJournalLine.TestField("Check Exported", true);
+        until GenJournalLine.Next() = 0;
     end;
 
     [RequestPageHandler]

@@ -14,6 +14,7 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using System.IO;
+using System.Utilities;
 
 codeunit 10250 "Bulk Vendor Remit Reporting"
 {
@@ -457,6 +458,84 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
     [IntegrationEvent(false, false)]
     local procedure OnRunWithRecordOnBeforeCustomLayoutProcessReport(var CustomLayoutReporting: Codeunit "Custom Layout Reporting")
     begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Custom Layout Reporting", 'OnBeforeThrowProcessReportError', '', false, false)]
+    local procedure OnBeforeThrowProcessReportError(var ErrorMessageHandler: Codeunit "Error Message Handler"; var ReportDataRecordRef: RecordRef; var OutputType: Option)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorMessageManagement: Codeunit "Error Message Management";
+    begin
+        if OutputType <> 3 then // for only check Output Type Emaill
+            exit;
+
+        if ReportDataRecordRef.Number <> Database::"Gen. Journal Line" then
+            exit;
+
+        ErrorMessageManagement.GetErrors(TempErrorMessage);
+        ReportDataRecordRef.SetTable(GenJournalLine);
+        GenJournalLine.SetRange("Check Exported", false);
+        GenJournalLine.SetFilter("Document No.", '<>%1', '');
+        if GenJournalLine.FindSet() then
+            repeat
+                if ProcessLine(GenJournalLine) then
+                    if LineHasErrors(GenJournalLine, TempErrorMessage) then
+                        RollbackDocumentNumberAssignment(GenJournalLine)
+                    else
+                        MarkLineAsExported(GenJournalLine);
+            until GenJournalLine.Next() = 0;
+    end;
+
+    local procedure LineHasErrors(GenJournalLine: Record "Gen. Journal Line"; var TempErrorMessage: Record "Error Message" temporary): Boolean
+    begin
+        TempErrorMessage.Reset();
+        if TempErrorMessage.FindSet() then
+            repeat
+                if (StrPos(TempErrorMessage."Message", GenJournalLine."Journal Template Name") > 0) and
+                   (StrPos(TempErrorMessage."Message", GenJournalLine."Journal Batch Name") > 0) and
+                   (StrPos(TempErrorMessage."Message", Format(GenJournalLine."Line No.")) > 0)
+                then
+                    exit(true);
+            until TempErrorMessage.Next() = 0;
+
+        exit(false);
+    end;
+
+    local procedure RollbackDocumentNumberAssignment(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        CheckLedgerEntry: Record "Check Ledger Entry";
+        BankAccountNo: Code[20];
+    begin
+        if GenJournalLine."Account Type" = GenJournalLine."Account Type"::"Bank Account" then
+            BankAccountNo := GenJournalLine."Account No."
+        else
+            BankAccountNo := GenJournalLine."Bal. Account No.";
+
+        CheckLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        CheckLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        CheckLedgerEntry.SetRange("Entry Status", CheckLedgerEntry."Entry Status"::Exported);
+        if CheckLedgerEntry.FindFirst() then
+            CheckLedgerEntry.Delete();
+
+        GenJournalLine."Document No." := '';
+        GenJournalLine.Modify();
+    end;
+
+    local procedure MarkLineAsExported(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        EFTExport: Record "EFT Export";
+        BankAccountNo: Code[20];
+    begin
+        if GenJournalLine."Account Type" = GenJournalLine."Account Type"::"Bank Account" then
+            BankAccountNo := GenJournalLine."Account No."
+        else
+            BankAccountNo := GenJournalLine."Bal. Account No.";
+
+        CreateEFTRecord(EFTExport, GenJournalLine, BankAccountNo);
+        UpdateCheckInfoForGenLedgLine(GenJournalLine, EFTExport);
+        CreateCreditTransferRegister(BankAccountNo, GenJournalLine."Bal. Account No.", BankPaymentType);
+        UpdateApplication(GenJournalLine);
     end;
 }
 

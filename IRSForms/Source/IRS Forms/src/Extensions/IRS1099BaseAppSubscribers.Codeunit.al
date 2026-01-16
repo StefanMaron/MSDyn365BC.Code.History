@@ -8,6 +8,7 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Payables;
 using Microsoft.Utilities;
+using Microsoft.Finance.GeneralLedger.Reversal;
 
 codeunit 10032 "IRS 1099 BaseApp Subscribers"
 {
@@ -176,6 +177,12 @@ codeunit 10032 "IRS 1099 BaseApp Subscribers"
             Database::"IRS Forms Setup":
                 CardPageID := Page::"IRS Forms Setup";
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Reverse", 'OnReverseVendLedgEntryOnBeforeInsertVendLedgEntry', '', false, false)]
+    local procedure ReverseIRS1099AmountOnReverseVendLedgEntryOnBeforeInsertVendLedgEntry(var NewVendLedgEntry: Record "Vendor Ledger Entry"; VendLedgEntry: Record "Vendor Ledger Entry")
+    begin
+        NewVendLedgEntry."IRS 1099 Reporting Amount" := -VendLedgEntry."IRS 1099 Reporting Amount";
     end;
 
     procedure UpdateIRSDataInPurchHeader(var PurchHeader: Record "Purchase Header"; ModifyRecord: Boolean)
