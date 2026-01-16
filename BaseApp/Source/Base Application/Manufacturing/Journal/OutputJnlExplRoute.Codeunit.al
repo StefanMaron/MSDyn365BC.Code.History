@@ -171,10 +171,14 @@ codeunit 5406 "Output Jnl.-Expl. Route"
         DimMgt: Codeunit DimensionManagement;
         i: Integer;
         LinesToInsert: Integer;
+        QtyPerLine: Decimal;
     begin
         LinesToInsert := 1;
-        if ShouldSplitLinesForSNTracking(ItemJnlLine, ItemNo, LastOperation) then
+        QtyPerLine := QtyToPost;
+        if ShouldSplitLinesForSNTracking(ItemJnlLine, ItemNo, LastOperation) then begin
             LinesToInsert := QtyToPost;
+            QtyPerLine := 1;
+        end;
 
         for i := 1 to LinesToInsert do begin
             NextLineNo := NextLineNo + LineSpacing;
@@ -194,11 +198,11 @@ codeunit 5406 "Output Jnl.-Expl. Route"
             ItemJnlLine.Validate("Setup Time", 0);
             ItemJnlLine.Validate("Run Time", 0);
             if (LocationCode <> '') and LastOperation then
-                ItemJnlLine.CheckWhse(LocationCode, QtyToPost);
+                ItemJnlLine.CheckWhse(LocationCode, QtyPerLine);
             if ItemJnlLine.SubcontractingWorkCenterUsed() then
                 ItemJnlLine.Validate("Output Quantity", 0)
             else
-                ItemJnlLine.Validate("Output Quantity", QtyToPost);
+                ItemJnlLine.Validate("Output Quantity", QtyPerLine);
 
             OnBeforeOutputItemJnlLineInsert(ItemJnlLine, LastOperation);
             DimMgt.UpdateGlobalDimFromDimSetID(
