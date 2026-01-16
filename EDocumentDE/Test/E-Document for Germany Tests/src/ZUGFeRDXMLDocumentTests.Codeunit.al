@@ -754,6 +754,7 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         Customer.Validate("Country/Region Code", CompanyInformation."Country/Region Code");
         Customer.Validate("VAT Registration No.", CompanyInformation."VAT Registration No.");
         Customer.Validate("E-Invoice Routing No.", LibraryUtility.GenerateRandomText(20));
+        Customer.Validate("E-Mail", LibraryUtility.GenerateRandomEmail());
         Customer.Modify(true);
         exit(Customer."No.")
     end;
@@ -866,6 +867,9 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         Path := DocumentTok + '/ram:PostalTradeAddress/ram:CityName';
         Assert.AreEqual(CompanyInformation.City, GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
 
+        Path := DocumentTok + '/ram:URIUniversalCommunication/ram:URIID';
+        Assert.AreEqual(CompanyInformation."E-Mail", GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+
         Path := DocumentTok + '/ram:SpecifiedTaxRegistration/ram:ID';
         Assert.AreEqual(GetVATRegistrationNo(CompanyInformation."VAT Registration No.", CompanyInformation."Country/Region Code"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
     end;
@@ -877,6 +881,10 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
     begin
         Path := DocumentPartyTok + '/ram:Name';
         Assert.AreEqual(SalesInvoiceHeader."Bill-to Name", GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+
+        Path := DocumentPartyTok + '/ram:URIUniversalCommunication/ram:URIID';
+        Assert.AreEqual(SalesInvoiceHeader."Sell-to E-Mail", GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+
         Path := DocumentPartyTok + '/ram:SpecifiedTaxRegistration/ram:ID';
         Assert.AreEqual(GetVATRegistrationNo(SalesInvoiceHeader."VAT Registration No.", CompanyInformation."Country/Region Code"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
     end;
@@ -1134,6 +1142,7 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
 
     local procedure SetEdocumentServiceBuyerReference(EInvoiceBuyerReference: Enum "E-Document Buyer Reference");
     begin
+        EDocumentService."Buyer Reference Mandatory" := true;
         EDocumentService."Buyer Reference" := EInvoiceBuyerReference;
         EDocumentService.Modify();
     end;
