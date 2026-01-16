@@ -115,6 +115,7 @@ codeunit 134237 "Alt. Cust. VAT. Doc. Tests"
         LibraryAltCustVATReg.CreateAlternativeCustVATReg(AltCustVATReg, Customer."No.", ShipToAddress."Country/Region Code");
         // [GIVEN] Sales order with the customer
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        Commit();
         // [WHEN] Choose Ship-To Address with country "Y", but do not confirm changes
         asserterror SalesHeader.Validate("Ship-to Code", ShipToAddress.Code);
         // [THEN] Sales order has "VAT Registration No." = "X1234567890", "Gen. Bus. Posting Group" = "CUSTBUS", "VAT Bus. Posting Group" = "CUSTVAT", "Country/Region Code" = "X"
