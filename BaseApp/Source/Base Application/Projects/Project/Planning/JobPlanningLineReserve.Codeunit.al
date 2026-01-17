@@ -439,6 +439,8 @@ codeunit 1032 "Job Planning Line-Reserve"
             TempReservationEntry.Insert();
         until ReservationEntry.Next() = 0;
 
+        OnUpdateReservationsWhenPostingJobPlaningLineNegativeAdjFromPOOnAfterTempReservationEntryInserted(JobPlanningLine, ItemJournalLine, ReservationEntry, TempReservationEntry);
+
         TempReservationEntry.Reset();
         TempReservationEntry.FindSet();
         repeat
@@ -923,6 +925,11 @@ codeunit 1032 "Job Planning Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAutoReserveJobPlanningLine(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; var IsReserved: Boolean; Search: Text[1]; NextStep: Integer; CalcReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateReservationsWhenPostingJobPlaningLineNegativeAdjFromPOOnAfterTempReservationEntryInserted(var JobPlanningLine: Record "Job Planning Line"; var ItemJournalLine: Record "Item Journal Line"; var ReservationEntry: Record "Reservation Entry"; var TempReservationEntry: Record "Reservation Entry" temporary)
     begin
     end;
 

@@ -621,7 +621,6 @@ page 2000001 "EB Payment Journal"
     end;
 
     var
-        ExportProtocol: Record "Export Protocol";
         PmtJrnlMgt: Codeunit PmtJrnlManagement;
         CurrentJnlBatchName: Code[10];
         AccName: Text[100];
@@ -636,13 +635,14 @@ page 2000001 "EB Payment Journal"
         Text002: Label 'Payment lines have been validated successfully.';
         BalanceRemVisible: Boolean;
         TotalBalanceVisible: Boolean;
-        EnablePaymentExportErrors: Boolean;
-        EnableCheckPaymentLines: Boolean;
 
     protected var
+        ExportProtocol: Record "Export Protocol";
         ExportProtocolCode: Code[20];
         BankAccountCodeFilter: Code[1024];
         SuggestPayments: Report "Suggest Vendor Payments EB";
+        EnablePaymentExportErrors: Boolean;
+        EnableCheckPaymentLines: Boolean;
 
     local procedure UpdateAmount()
     begin

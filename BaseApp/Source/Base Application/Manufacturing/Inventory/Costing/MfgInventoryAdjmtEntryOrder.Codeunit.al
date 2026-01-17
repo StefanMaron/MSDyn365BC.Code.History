@@ -73,7 +73,7 @@ codeunit 99000776 "Mfg. InventoryAdjmtEntryOrder"
         if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then begin
             if not OnlyCostShares then begin
                 InvtAdjmtEntryOrderRec."Direct Cost Non-Inventory" := InvtAdjmtEntryOrder."Direct Cost Non-Inventory" - InvtAdjmtEntryOrderRec."Direct Cost Non-Inventory";
-                InvtAdjmtEntryOrderRec."Direct Cost Non-Inv. (ACY)" := InvtAdjmtEntryOrder."Direct Cost Non-Inv. (ACY)" - InvtAdjmtEntryOrderRec."Direct Cost (ACY)";
+                InvtAdjmtEntryOrderRec."Direct Cost Non-Inv. (ACY)" := InvtAdjmtEntryOrder."Direct Cost Non-Inv. (ACY)" - InvtAdjmtEntryOrderRec."Direct Cost Non-Inv. (ACY)";
             end;
             InvtAdjmtEntryOrderRec."Single-Lvl Mat. Non-Invt. Cost" := InvtAdjmtEntryOrder."Single-Lvl Mat. Non-Invt. Cost" - InvtAdjmtEntryOrderRec."Single-Lvl Mat. Non-Invt. Cost";
             InvtAdjmtEntryOrderRec."Single-Lvl Mat.NonInvCost(ACY)" := InvtAdjmtEntryOrder."Single-Lvl Mat.NonInvCost(ACY)" - InvtAdjmtEntryOrderRec."Single-Lvl Mat.NonInvCost(ACY)";
