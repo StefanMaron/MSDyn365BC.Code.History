@@ -709,7 +709,7 @@ table 339 "Item Application Entry"
     begin
         MaxValuationDate := 0D;
         if WithinValuationDate then begin
-            ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Valuation Date");
+            ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Valuation Date", "SystemCreatedAt");
             ValueEntry.SetRange("Item Ledger Entry No.", FromItemLedgEntry."Entry No.");
             ValueEntry.SetLoadFields("Valuation Date");
             ValueEntry.FindLast();
@@ -889,7 +889,7 @@ table 339 "Item Application Entry"
     begin
         if MaxDate = 0D then
             exit(true);
-        ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Valuation Date");
+        ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Valuation Date", SystemCreatedAt);
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
         ValueEntry.SetLoadFields("Valuation Date");
         ValueEntry.FindLast();
