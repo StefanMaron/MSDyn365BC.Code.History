@@ -33,6 +33,8 @@ codeunit 134391 "ERM Sales Batch Posting"
         NothingToPostErr: Label 'There is nothing to post because the document does not contain a quantity or amount.';
         SalesOrderStatusMsg: Label 'Sales Order Status must be released.';
         SalesCrMemoPostingErr: Label 'Sales Credit Memo was not posted successfully.';
+        PaymentDiscountNotCalculatedErr: Label 'Payment discount was not calculated correctly on sales invoice %1. Expected: %2, Actual: %3.',
+            Comment = '%1 - Sales Invoice No., %2 - Expected Payment Discount Amount, %3 - Actual Payment Discount Amount';
 
     [Test]
     [HandlerFunctions('RequestPageHandlerBatchPostSalesInvoices,MessageHandler')]
@@ -1839,6 +1841,61 @@ codeunit 134391 "ERM Sales Batch Posting"
         SalesHeader.TestField(Status, SalesHeader.Status::Open);
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestItemChargeAssignmentPageHandler,StrMenuHandler')]
+    procedure VerifyPmtDiscWithTieredInvoiceDiscAndItemCharge()
+    var
+        Customer: Record Customer;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Item: Record Item;
+        ItemCharge: Record "Item Charge";
+        SalesHeader: Record "Sales Header";
+        SalesInvLine: Record "Sales Invoice Line";
+        SalesLine: Record "Sales Line";
+        SalesSetup: Record "Sales & Receivables Setup";
+    begin
+        // [SCENARIO 611599] Payment discount is not calculated correctly on sales invoice with tiered invoice discounts and item charges.
+        Initialize();
+
+        // [GIVEN] Customer with tiered invoice discounts: 20% (700-1000), 25% (1001-2000), 30% (2001+).
+        LibrarySales.CreateCustomer(Customer);
+        CreateCustInvoiceDisc(Customer);
+        Customer.Validate("Invoice Disc. Code", Customer."No.");
+        Customer.Validate("Payment Terms Code", CreatePaymentTermsWithDiscount());
+        Customer.Modify(true);
+
+        // [GIVEN] Create Sales Invoice with Payment Discount 2%.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        SalesHeader.Validate("Payment Discount %", 2);
+        SalesHeader.Modify(true);
+        CreateSalesLinesForPaymentDiscount(Item, ItemCharge, SalesHeader, SalesLine);
+
+        // [GIVEN] Set Sales Order Lines Qty. to Ship.
+        SetSalesLinesQtyToShip(SalesHeader, 1);
+
+        // [GIVEN] Suggest Item Charge Assignment.
+        UpdateQtyToAssignOnItemChargeAssignment(SalesHeader);
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Payment Discount Type", GeneralLedgerSetup."Payment Discount Type"::"Calc. Pmt. Disc. On Lines");
+        GeneralLedgerSetup.Validate("Discount Calculation", GeneralLedgerSetup."Discount Calculation"::"Line Disc. * Inv. Disc. * Payment Disc.");
+        GeneralLedgerSetup.Modify(true);
+
+        // [GIVEN] Enable "Calc. Inv. Discount" in Sales & Receivables Setup.
+        SalesHeader.CalcInvDiscForHeader();
+
+        // [WHEN] Run Batch Post Sales Credity Memo with Replace Posting Date, Replace Document Date, Calc. Inv. Discount options
+        RunBatchPostForSalesInvWithNoPrint(SalesHeader."No.", SalesHeader."Posting Date" + 1, true);
+
+        // [THEN] Verify payment discount on sales invoice lines.
+        SalesInvLine.Reset();
+        SalesInvLine.SetRange("Sell-to Customer No.", Customer."No.");
+        SalesInvLine.FindSet();
+        SalesInvLine.CalcSums("Pmt. Discount Amount");
+        Assert.AreEqual(24.56, SalesInvLine."Pmt. Discount Amount",
+            StrSubstNo(PaymentDiscountNotCalculatedErr, SalesInvLine."Document No.", 24.56, SalesInvLine."Pmt. Discount Amount"));
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2245,6 +2302,89 @@ codeunit 134391 "ERM Sales Batch Posting"
         Assert.AreEqual(SalesHeader.Status::Released, SalesHeader.Status, SalesOrderStatusMsg);
     end;
 
+    local procedure CreateSalesLinesForPaymentDiscount(var Item: Record Item; var ItemCharge: Record "Item Charge"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        SalesLine.Validate("Unit Price", 855.68);
+        SalesLine.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        SalesLine.Validate("Unit Price", 459.5);
+        SalesLine.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        SalesLine.Validate("Unit Price", 69.7);
+        SalesLine.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        SalesLine.Validate("Unit Price", 97.85);
+        SalesLine.Modify(true);
+
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", ItemCharge."No.", 1);
+        SalesLine.Validate("Unit Price", 42);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreateCustInvoiceDisc(Customer: Record Customer)
+    var
+        CustInvoiceDisc: Record "Cust. Invoice Disc.";
+    begin
+        LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, Customer."No.", '', 700);
+        CustInvoiceDisc.Validate("Discount %", 20);
+        CustInvoiceDisc.Modify(true);
+        LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, Customer."No.", '', 1500);
+        CustInvoiceDisc.Validate("Discount %", 25);
+        CustInvoiceDisc.Modify(true);
+        LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, Customer."No.", '', 3000);
+        CustInvoiceDisc.Validate("Discount %", 30);
+        CustInvoiceDisc.Modify(true);
+    end;
+
+    local procedure UpdateQtyToAssignOnItemChargeAssignment(SalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Type, SalesLine.Type::"Charge (Item)");
+        SalesLine.FindFirst();
+        SalesLine.ShowItemChargeAssgnt();
+    end;
+
+    local procedure SetSalesLinesQtyToShip(var SalesHeader: Record "Sales Header"; Quantity: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindSet();
+        repeat
+            SalesLine.Validate("Qty. to Ship", Quantity);
+            SalesLine.Modify(true);
+        until SalesLine.Next() = 0;
+    end;
+
+    local procedure CreatePaymentTermsWithDiscount(): Code[10]
+    var
+        PaymentTerms: Record "Payment Terms";
+    begin
+        LibraryERM.FindPaymentTerms(PaymentTerms);
+        PaymentTerms.Validate("Discount %", LibraryRandom.RandDec(99, 2));
+        PaymentTerms.Modify(true);
+        exit(PaymentTerms.Code);
+    end;
+
+    local procedure RunBatchPostForSalesInvWithNoPrint(DocumentNoFilter: Text; PostingDate: Date; CalcInvDisc: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        UpdateCalcInvDiscSalesReceivablesSetup(CalcInvDisc);
+        LibraryVariableStorage.Enqueue(DocumentNoFilter);
+        LibraryVariableStorage.Enqueue(PostingDate);
+
+        Commit();
+        Report.RunModal(Report::"Batch Post Sales Invoices", false, false, SalesHeader);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RequestPageHandlerBatchPostSalesInvoices(var BatchPostSalesInvoices: TestRequestPage "Batch Post Sales Invoices")
@@ -2594,6 +2734,18 @@ codeunit 134391 "ERM Sales Batch Posting"
         BatchPostSalesInvoices.ReplacePostingDate.SetValue(RunReplacePostingDate);
         BatchPostSalesInvoices.ReplaceVATDate.SetValue(RunReplacePostingDate);
         BatchPostSalesInvoices.OK().Invoke();
+    end;
+
+    [StrMenuHandler]
+    procedure StrMenuHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        Choice := 1;
+    end;
+
+    [ModalPageHandler]
+    procedure SuggestItemChargeAssignmentPageHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
+    begin
+        ItemChargeAssignmentSales.SuggestItemChargeAssignment.Invoke();
     end;
 }
 

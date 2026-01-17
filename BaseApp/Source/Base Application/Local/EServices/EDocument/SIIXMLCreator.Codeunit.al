@@ -1341,6 +1341,7 @@ codeunit 10750 "SII XML Creator"
         ExemptExists: Boolean;
         ExemptionCausePresent: array[10] of Boolean;
         ExemptionBaseAmounts: array[10] of Decimal;
+        ValueRefExternal: Text;
     begin
         DomesticCustomer := SIIManagement.IsDomesticCustomer(Customer);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'TipoRectificativa', 'I', 'sii', SiiTxt, TempXMLNode);
@@ -1356,7 +1357,9 @@ codeunit 10750 "SII XML Creator"
         FillOperationDescription(
           XMLNode, GetOperationDescriptionFromDocument(true, CustLedgerEntry."Document No."),
           CustLedgerEntry."Posting Date", CustLedgerEntry.Description);
-        FillRefExternaNode(XMLNode, Format(SIIDocUploadState."Entry No"));
+        ValueRefExternal := Format(SIIDocUploadState."Entry No");
+        OnCorrectiveInvoiceSalesDifferenceOnBeforeFillRefExternaNode(SIIDocUploadState, ValueRefExternal);
+        FillRefExternaNode(XMLNode, ValueRefExternal);
         FillSucceededCompanyInfo(XMLNode, SIIDocUploadState);
         FillMacrodatoNode(XMLNode, TotalAmount);
 
@@ -1492,6 +1495,7 @@ codeunit 10750 "SII XML Creator"
         RegimeCodes: array[3] of Code[2];
         ECVATEntryExists: Boolean;
         InvoiceType: Text;
+        ValueRefExternal: Text;
     begin
         XMLDOMManagement.AddElementWithPrefix(
           XMLNode, 'NumSerieFacturaEmisor', Format(VendorLedgerEntry."External Document No."), 'sii', SiiTxt, TempXMLNode);
@@ -1535,7 +1539,9 @@ codeunit 10750 "SII XML Creator"
         FillOperationDescription(
           XMLNode, GetOperationDescriptionFromDocument(false, VendorLedgerEntry."Document No."),
           VendorLedgerEntry."Posting Date", VendorLedgerEntry.Description);
-        FillRefExternaNode(XMLNode, Format(SIIDocUploadState."Entry No"));
+        ValueRefExternal := Format(SIIDocUploadState."Entry No");
+        OnHandleReplacementPurchCorrectiveInvoiceOnBeforeFillRefExternaNode(SIIDocUploadState, ValueRefExternal);
+        FillRefExternaNode(XMLNode, ValueRefExternal);
         FillSucceededCompanyInfo(XMLNode, SIIDocUploadState);
         FillMacrodatoNode(XMLNode, TotalAmount);
 
@@ -1615,6 +1621,7 @@ codeunit 10750 "SII XML Creator"
         RegimeCodes: array[3] of Code[2];
         VendNo: Code[20];
         InvoiceType: Text;
+        ValueRefExternal: Text;
     begin
         XMLDOMManagement.AddElementWithPrefix(
           XMLNode, 'NumSerieFacturaEmisor', Format(VendorLedgerEntry."External Document No."), 'sii', SiiTxt, TempXMLNode);
@@ -1646,7 +1653,9 @@ codeunit 10750 "SII XML Creator"
         FillOperationDescription(
           XMLNode, GetOperationDescriptionFromDocument(false, VendorLedgerEntry."Document No."),
           VendorLedgerEntry."Posting Date", VendorLedgerEntry.Description);
-        FillRefExternaNode(XMLNode, Format(SIIDocUploadState."Entry No"));
+        ValueRefExternal := Format(SIIDocUploadState."Entry No");
+        OnHandleNormalPurchCorrectiveInvoiceOnBeforeFillRefExternaNode(SIIDocUploadState, ValueRefExternal);
+        FillRefExternaNode(XMLNode, ValueRefExternal);
         FillSucceededCompanyInfo(XMLNode, SIIDocUploadState);
         FillMacrodatoNode(XMLNode, TotalAmount);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'DesgloseFactura', '', 'sii', SiiTxt, XMLNode);
@@ -1711,6 +1720,7 @@ codeunit 10750 "SII XML Creator"
         ExemptExists: Boolean;
         ExemptionCausePresent: array[10] of Boolean;
         ExemptionBaseAmounts: array[10] of Decimal;
+        ValueRefExternal: Text;
     begin
         DomesticCustomer := SIIManagement.IsDomesticCustomer(Customer);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'TipoRectificativa', 'S', 'sii', SiiTxt, TempXMLNode);
@@ -1745,7 +1755,9 @@ codeunit 10750 "SII XML Creator"
         FillOperationDescription(
           XMLNode, GetOperationDescriptionFromDocument(true, CustLedgerEntry."Document No."),
           CustLedgerEntry."Posting Date", CustLedgerEntry.Description);
-        FillRefExternaNode(XMLNode, Format(SIIDocUploadState."Entry No"));
+        ValueRefExternal := Format(SIIDocUploadState."Entry No");
+        OnHandleReplacementSalesCorrectiveInvoiceOnBeforeFillRefExternaNode(SIIDocUploadState, ValueRefExternal);
+        FillRefExternaNode(XMLNode, ValueRefExternal);
         FillSucceededCompanyInfo(XMLNode, SIIDocUploadState);
         FillMacrodatoNode(XMLNode, TotalAmount);
         UpdateSalesCrMemoTypeFromCorrInvType(SIIDocUploadState);
@@ -3157,6 +3169,26 @@ codeunit 10750 "SII XML Creator"
 
     [IntegrationEvent(false, false)]
     local procedure OnPopulateXMLWithPurchInvoiceOnBeforeFillRefExternaNode(var SIIDocUploadState: Record "SII Doc. Upload State"; var ValueRefExternal: Text);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCorrectiveInvoiceSalesDifferenceOnBeforeFillRefExternaNode(var SIIDocUploadState: Record "SII Doc. Upload State"; var ValueRefExternal: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleReplacementSalesCorrectiveInvoiceOnBeforeFillRefExternaNode(var SIIDocUploadState: Record "SII Doc. Upload State"; var ValueRefExternal: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleNormalPurchCorrectiveInvoiceOnBeforeFillRefExternaNode(var SIIDocUploadState: Record "SII Doc. Upload State"; var ValueRefExternal: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleReplacementPurchCorrectiveInvoiceOnBeforeFillRefExternaNode(var SIIDocUploadState: Record "SII Doc. Upload State"; var ValueRefExternal: Text)
     begin
     end;
 }

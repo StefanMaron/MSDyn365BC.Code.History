@@ -212,6 +212,7 @@ codeunit 826 "Purch. Post Invoice Events"
     begin
         OnBeforePrepareLineFADiscount(InvoicePostingBuffer, GenPostingSetup, AccountNo, IsHandled);
     end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrepareLineFADiscount(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; GenPostingSetup: Record "General Posting Setup"; AccountNo: Code[20]; var IsHandled: Boolean)
     begin
@@ -681,6 +682,16 @@ codeunit 826 "Purch. Post Invoice Events"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetAmountsForDeferral(PurchLine: Record "Purchase Line"; var AmtToDefer: Decimal; var AmtToDeferACY: Decimal; var DeferralAccount: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    procedure RunOnCalcSplitFA(GenJnlLine: Record "Gen. Journal Line"; SplitNo: Integer; var SplitEnabled: Boolean)
+    begin
+        OnCalcSplitFA(GenJnlLine, SplitNo, SplitEnabled);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcSplitFA(GenJnlLine: Record "Gen. Journal Line"; SplitNo: Integer; var SplitEnabled: Boolean)
     begin
     end;
 }

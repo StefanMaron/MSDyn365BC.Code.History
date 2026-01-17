@@ -549,17 +549,15 @@ report 1316 "Standard Statement"
                                     StartBalance += CustLedgerEntryBalance."Remaining Amount";
                                 until CustLedgerEntryBalance.Next() = 0;
                             OnCurrencyLoopOnAfterGetRecordOnAfterCalculateStartBalanceStatementTypeOpenItems(Customer, CustLedgerEntryBalance, StartDate, EndDate, TempCurrency2.Code, StartBalance);
-                            CustBalance := StartBalance;
-                        end
-                        else begin
+                        end else begin
                             Cust2 := Customer;
                             Cust2.SetRange("Date Filter", 0D, StartDate - 1);
                             Cust2.SetRange("Currency Filter", TempCurrency2.Code);
                             Cust2.CalcFields("Net Change");
                             StartBalance := Cust2."Net Change";
                             OnCurrencyLoopOnAfterGetRecordOnAfterCalculateStartBalanceStatementTypeBalance(Customer, StartDate, EndDate, TempCurrency2.Code, StartBalance);
-                            CustBalance := Cust2."Net Change";
                         end;
+                        CustBalance := StartBalance;
                         CustBalance2 := 0;
                     end;
 

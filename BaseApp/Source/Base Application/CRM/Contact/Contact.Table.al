@@ -3334,6 +3334,8 @@ table 5050 Contact
     var
         ContBusRel: Record "Contact Business Relation";
     begin
+        OnBeforeCreateEmployeeLink(Rec);
+
         CheckContactType(Type::Person);
         CheckIfPrivacyBlockedGeneric();
 
@@ -3948,6 +3950,11 @@ table 5050 Contact
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateVendorOnVendorTemplateNotExist(var Contact: Record Contact; var VendorNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateEmployeeLink(var Contact: Record Contact)
     begin
     end;
 }

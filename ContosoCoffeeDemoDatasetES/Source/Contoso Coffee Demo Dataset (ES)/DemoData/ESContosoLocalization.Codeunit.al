@@ -142,6 +142,7 @@ codeunit 10824 "ES Contoso Localization"
                 begin
                     Codeunit.Run(Codeunit::"Create ES Column Layout");
                     Codeunit.Run(Codeunit::"Create ES Currency Exch");
+                    Codeunit.Run(Codeunit::"Create Allocation Account ES");
                 end;
         end;
     end;

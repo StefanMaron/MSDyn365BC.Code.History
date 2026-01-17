@@ -363,6 +363,8 @@ report 7000097 "Reject Docs."
 
     trigger OnPreReport()
     begin
+        OnBeforeOnPreReport(PostingDate, IncludeExpenses, UseJournal, TemplName, BatchName);
+
         GLSetup.Get();
 
         if UseJournal = UseJournal::AuxJournal then begin
@@ -707,6 +709,11 @@ report 7000097 "Reject Docs."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostGenJournal(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnPreReport(var PostingDate: Date; var IncludeExpenses: Boolean; var UseJournal: Option; var TemplName: Code[10]; var BatchName: Code[10])
     begin
     end;
 }

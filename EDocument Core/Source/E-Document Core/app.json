@@ -44,7 +44,11 @@
   "idRanges": [
     {
       "from": 6100,
-      "to": 6197
+      "to": 6198
+    },
+    {
+      "from": 6208,
+      "to": 6209
     }
   ],
   "resourceExposurePolicy": {
@@ -54,6 +58,7 @@
   },
   "application": "$(app_minimumVersion)",
   "target": "OnPrem",
+  "runtime": "16.1",
   "resourceFolders": [
     ".resources"
   ]

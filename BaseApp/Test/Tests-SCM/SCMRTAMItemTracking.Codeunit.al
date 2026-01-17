@@ -3029,6 +3029,55 @@ codeunit 137052 "SCM RTAM Item Tracking"
         Assert.AreEqual(Quantity, ItemJournalLine.Count(), NumberOfLineEqualErr);
     end;
 
+    [Test]
+    procedure QuantityInExplodeRoutingOnOutputJournalItemTrackingLines()
+    var
+        Item: array[3] of Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ProductionOrder: Record "Production Order";
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 613675] Explode Routing in the Output Journal respects the Item Tracking on lines uses wrong qty for the last line
+        Initialize();
+
+        // [GIVEN] Create and store Quantity.
+        Quantity := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Create Items and Production BOM with Serial No. tracking for Output Item.
+        CreateItem(Item[1], ItemTrackingCodeSerialSpecific.Code, Item[1]."Costing Method"::FIFO);
+
+        // [GIVEN] Create and certify Production BOM with multiple components.
+        CreateAndCertifyProdBOMWithMultipleComponent(Item[1], Item[2], Item[3], ItemTrackingCodeSerialSpecific.Code, true);
+
+        // [GIVEN] Assign Global variable for Serial No.
+        SetGlobalValue(Item[1]."No.", true, false, false, AssignTracking::SerialNo, 0, false);
+
+        // [GIVEN] Create a Release Production Order and refresh it.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item[1]."No.", LocationBlue.Code, Quantity);
+
+        // [GIVEN] Post Output Journal in two steps with Serial No. tracking.
+        LibraryInventory.ClearItemJournal(OutputItemJournalTemplate, OutputItemJournalBatch);
+        OutputItemJournalBatch.Validate("Item Tracking on Lines", true);
+        OutputItemJournalBatch.Modify(true);
+
+        // [GIVEN] Create an Output Journal.
+        LibraryManufacturing.CreateOutputJournal(ItemJournalLine, OutputItemJournalTemplate, OutputItemJournalBatch, '', ProductionOrder."No.");
+
+        // [WHEN] Explode Route and Post Output Journal.
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
+
+        // [THEN] Verify Each split line has Output Quantity = 1.
+        ItemJournalLine.SetRange("Journal Template Name", OutputItemJournalTemplate.Name);
+        ItemJournalLine.SetRange("Journal Batch Name", OutputItemJournalBatch.Name);
+        ItemJournalLine.SetRange("Item No.", Item[1]."No.");
+        Assert.AreEqual(Quantity, ItemJournalLine.Count(), NumberOfLineEqualErr);
+
+        ItemJournalLine.FindSet();
+        repeat
+            ItemJournalLine.TestField("Output Quantity", 1);
+        until ItemJournalLine.Next() = 0;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
