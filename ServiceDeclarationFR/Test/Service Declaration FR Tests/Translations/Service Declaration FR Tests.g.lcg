@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LCX SchemaVersion="6.0" Name="Service Declaration FR Tests.g" PsrId="63" SrcCul="en-US" TgtCul="en-US" xmlns="http://schemas.microsoft.com/locstudio/2006/6/lcx">
+  <OwnedComments>
+    <Cmt Name="Dev" />
+    <Cmt Name="LcxAdmin" />
+    <Cmt Name="Rccx" />
+  </OwnedComments>
+  <Item ItemId=";Codeunit 2896671867 - NamedType 4232242651" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected element name. Expected element name: %1. Actual element name: %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Expetced XML Element Name;%2=Actual XML Element Name]D;]A;(LookupHint=Codeunit Serv. Decl. FR Export Tests - NamedType UnexpectedElementNameErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2896671867 - NamedType 2890512375" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected element value for element %1. Expected element value: %2. Actual element value: %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=XML Element Name;%2=Expected XML Element Value;%3=Actual XML element Value]D;]A;(LookupHint=Codeunit Serv. Decl. FR Export Tests - NamedType UnexpectedElementValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
+</LCX>
