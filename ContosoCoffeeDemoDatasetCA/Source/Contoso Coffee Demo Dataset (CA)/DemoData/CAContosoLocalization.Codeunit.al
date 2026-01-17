@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -97,6 +97,7 @@ codeunit 27054 "CA Contoso Localization"
                     Codeunit.Run(Codeunit::"Create CA Column Layout");
                     CreateCATaxArea.UpdateTaxAreaOnCompanyInformation();
                     CreateCAGeneralLedgerSetup.UpdateMaxVATDifferenceAllowedOnGeneralLedgerSetup();
+                    Codeunit.Run(Codeunit::"Create Allocation Account CA");
                 end;
         end;
     end;

@@ -4843,6 +4843,55 @@ codeunit 137404 "SCM Manufacturing"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure PostingConsumptionProdJnlAndItemTracking()
+    var
+        ItemComponent1: Record Item;
+        ItemComponent2: Record Item;
+        ItemMain: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+        ProductionBOM1: Record "Production BOM Header";
+        ProductionBOM2: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+    begin
+        // [SCENARIO 615088] Posting consumption in production journal with item tracking.
+        Initialize();
+
+        // [GIVEN] Create Item Tracking Code with lot tracking enabled.
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+
+        // [GIVEN] Create Component 1 without item tracking.
+        LibraryInventory.CreateItem(ItemComponent1);
+
+        // [GIVEN] Create Production BOM 1 with Component 1 and Quantity per.
+        CreateProductionBOM(ProductionBOM1, ItemComponent1, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Create Component 2 with item tracking, Make-to-Order and using BOM 1.
+        CreateProdItemWithTracking(ItemComponent2, ItemTrackingCode.Code, ProductionBOM1."No.");
+
+        // [GIVEN] Create Production BOM 2 with Component 2 and Quantity per.
+        CreateProductionBOM(ProductionBOM2, ItemComponent2, LibraryRandom.RandInt(2));
+
+        // [GIVEN] Create Main Item with item tracking, Make-to-Order and using BOM 2.
+        CreateProdItemWithTracking(ItemMain, ItemTrackingCode.Code, ProductionBOM2."No.");
+
+        // [GIVEN] Create Positive adjustment for Component 1 with Quantity.
+        CreateAndPostPositiveAdjustment(ItemComponent1."No.", LibraryRandom.RandInt(500));
+
+        // [GIVEN] Create Released Production Order for Main item and Quantity.
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder,
+            ProductionOrder.Status::Released,
+            ProductionOrder."Source Type"::Item,
+            ItemMain."No.",
+            LibraryRandom.RandInt(10));
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [WHEN] Multiple production journals are posted with lot tracking.
+        PostProductionJournalsWithLotTracking(ProductionOrder, ItemComponent1."No.", ItemComponent2."No.", ItemMain."No.");
+
+        // [THEN] Verify no error occurs on Posting and Production Journals are posted successfully.
+    end;
 
     local procedure Initialize()
     var
@@ -7734,6 +7783,161 @@ codeunit 137404 "SCM Manufacturing"
         ProductionBOMLine.SetRange("No.", ItemNo);
         ProductionBOMLine.FindFirst();
         Assert.AreEqual(StartingDate - 1, ProductionBOMLine."Ending Date", 'Ending Date is not correctly set on the Production BOM line.')
+    end;
+
+    local procedure CreateProductionJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Quantity: Decimal; ProdOrderLine: Record "Prod. Order Line")
+    begin
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+            EntryType, ItemNo, Quantity);
+        ItemJournalLine.Validate("Source No.", ProdOrderLine."Item No.");
+        ItemJournalLine.Validate("Order No.", ProdOrderLine."Prod. Order No.");
+        ItemJournalLine.Validate("Order Line No.", ProdOrderLine."Line No.");
+        ItemJournalLine.Modify(true);
+    end;
+
+    local procedure CreateProdItemWithTracking(var Item: Record Item; ItemTrackingCodeCode: Code[10]; ProductionBOMNo: Code[20])
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Order");
+        Item.Validate("Production BOM No.", ProductionBOMNo);
+        Item.Validate("Item Tracking Code", ItemTrackingCodeCode);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; Item: Record Item; QuantityPer: Decimal)
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader,
+            ProductionBOMLine,
+            '',
+            ProductionBOMLine.Type::Item,
+            Item."No.",
+            QuantityPer);
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+    end;
+
+    local procedure CreateAndPostPositiveAdjustment(ItemNo: Code[20]; Quantity: Decimal)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine,
+            ItemJournalBatch."Journal Template Name",
+            ItemJournalBatch.Name,
+            ItemJournalLine."Entry Type"::"Positive Adjmt.",
+            ItemNo,
+            Quantity);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure PostProductionJournalsWithLotTracking(ProductionOrder: Record "Production Order"; Component1ItemNo: Code[20]; Component2ItemNo: Code[20]; MainItemNo: Code[20])
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalTemplate: Record "Item Journal Template";
+        ProdOrderLine: Record "Prod. Order Line";
+        LotNo: array[2] of Code[10];
+        Quantity: Decimal;
+    begin
+        // [GIVEN] Generate Lot No. and Output Qty.
+        LotNo[1] := Format(LibraryRandom.RandText(4));
+        LotNo[2] := Format(LibraryRandom.RandText(4));
+        Quantity := LibraryRandom.RandInt(10);
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Output);
+
+        // Post Production Journal for component 2 with lot tracking (first time).
+        FindProdOrderLine(ProdOrderLine, ProductionOrder, Component2ItemNo);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+
+        // [GIVEN] Create consumption line for Component 1 with quantity.
+        CreateProductionJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Consumption, Component1ItemNo, LibraryRandom.RandInt(200), ProdOrderLine);
+
+        // [GIVEN] Create output line for Component 2 with LotNo[1] and Output Quantity.
+        CreateProductionJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Output, Component2ItemNo, Quantity, ProdOrderLine);
+        ItemJournalLine.Validate("Output Quantity", Quantity);
+        ItemJournalLine.Modify(true);
+
+        // [GIVEN] Assign LOTNo[1] to output via Item Tracking
+        LibraryVariableStorage.Enqueue(LotNo[1]);
+        LibraryVariableStorage.Enqueue(Quantity);
+        CreateItemTrackingForJournalLine(ItemJournalLine);
+
+        // [GIVEN] Post Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [GIVEN] Create again consumption line for Component 1 with quantity.
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        CreateProductionJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Consumption, Component1ItemNo, LibraryRandom.RandInt(200), ProdOrderLine);
+
+        // [GIVEN] Create output line for Component 2 with LOTNo[1] and Output Quantity.
+        CreateProductionJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Output, Component2ItemNo, Quantity, ProdOrderLine);
+        ItemJournalLine.Validate("Output Quantity", Quantity);
+        ItemJournalLine.Modify(true);
+
+        // [GIVEN] Assign LOTNo[1] to output via Item Tracking
+        LibraryVariableStorage.Enqueue(LOTNo[1]);
+        LibraryVariableStorage.Enqueue(Quantity);
+        CreateItemTrackingForJournalLine(ItemJournalLine);
+
+        // [GIVEN] Post Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [GIVEN] Create Consumption of component 2 with Item Tracking with quantity.
+        FindProdOrderLine(ProdOrderLine, ProductionOrder, MainItemNo);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        CreateProductionJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Consumption, Component2ItemNo, Quantity * 2, ProdOrderLine);
+
+        LibraryVariableStorage.Enqueue(LotNo[1]);
+        LibraryVariableStorage.Enqueue(Quantity * 2);
+        CreateItemTrackingForJournalLine(ItemJournalLine);
+
+        // [GIVEN] Create output line for Main Component with LOTNo[2] and Output Quantity.
+        CreateProductionJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Output, MainItemNo, Quantity, ProdOrderLine);
+        ItemJournalLine.Validate("Output Quantity", Quantity);
+        ItemJournalLine.Modify(true);
+
+        // [GIVEN] Assign LOTNo[2] to output via Item Tracking
+        LibraryVariableStorage.Enqueue(LotNo[2]);
+        LibraryVariableStorage.Enqueue(Quantity);
+        CreateItemTrackingForJournalLine(ItemJournalLine);
+
+        // [WHEN] Post Item Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [THEN] Verify no error occurs on Posting.
+    end;
+
+    local procedure CreateItemTrackingForJournalLine(var ItemJournalLine: Record "Item Journal Line")
+    var
+        ReservationEntry: Record "Reservation Entry";
+        LotNo: Code[50];
+        Quantity: Decimal;
+    begin
+        if LibraryVariableStorage.Length() >= 2 then begin
+            LotNo := LibraryVariableStorage.DequeueText();
+            Quantity := LibraryVariableStorage.DequeueDecimal();
+
+            LibraryItemTracking.CreateItemJournalLineItemTracking(
+              ReservationEntry, ItemJournalLine, '', LotNo, Quantity);
+        end;
+    end;
+
+    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order"; ItemNo: Code[20])
+    begin
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Item No.", ItemNo);
+        ProdOrderLine.FindFirst();
     end;
 
     [ModalPageHandler]

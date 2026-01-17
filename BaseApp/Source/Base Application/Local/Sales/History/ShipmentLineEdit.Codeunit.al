@@ -17,9 +17,16 @@ codeunit 10001 "Shipment Line - Edit"
         SalesShipmentLine."Package Tracking No." := Rec."Package Tracking No.";
         SalesShipmentLine.Modify();
         Rec := SalesShipmentLine;
+
+        OnAfterOnRun(Rec);
     end;
 
     var
         SalesShipmentLine: Record "Sales Shipment Line";
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnRun(var SalesShipmentLine: Record "Sales Shipment Line")
+    begin
+    end;
 }
 
