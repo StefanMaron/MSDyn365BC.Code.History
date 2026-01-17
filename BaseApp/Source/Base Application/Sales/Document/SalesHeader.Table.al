@@ -2767,6 +2767,8 @@ table 36 "Sales Header"
 
                 CreateDimFromDefaultDim(Rec.FieldNo("Responsibility Center"));
 
+                OnValidateResponsibilityCenterOnBeforeRecreateSalesLines(Rec, CurrFieldNo);
+
                 if xRec."Responsibility Center" <> "Responsibility Center" then begin
                     RecreateSalesLines(FieldCaption("Responsibility Center"));
                     "Assigned User ID" := '';
@@ -5555,7 +5557,7 @@ table 36 "Sales Header"
                 "Ship-to Contact" := CompanyInfo."Ship-to Contact";
             end;
 
-        OnAfterUpdateShipToAddress(Rec, xRec, CurrFieldNo);
+        OnAfterUpdateShipToAddress(Rec, xRec, CurrFieldNo, Location, CompanyInfo);
     end;
 
     local procedure SetRcvdFromCountry(RcvdFromCountryRegionCode: Code[10])
@@ -9606,7 +9608,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateShipToAddress(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer)
+    local procedure OnAfterUpdateShipToAddress(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer; Location: Record Location; CompanyInformation: Record "Company Information")
     begin
     end;
 
@@ -10439,6 +10441,11 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateBilltoCustomerTemplCodeOnBeforeRecreateSalesLines(var SalesHeader: Record "Sales Header"; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateResponsibilityCenterOnBeforeRecreateSalesLines(var SalesHeader: Record "Sales Header"; CallingFieldNo: Integer)
     begin
     end;
 

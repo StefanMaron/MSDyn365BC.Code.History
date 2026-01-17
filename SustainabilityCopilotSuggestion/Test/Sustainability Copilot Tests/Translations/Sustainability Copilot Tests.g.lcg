@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LCX SchemaVersion="6.0" Name="Sustainability Copilot Tests.g" PsrId="63" SrcCul="en-US" TgtCul="en-US" xmlns="http://schemas.microsoft.com/locstudio/2006/6/lcx">
+  <OwnedComments>
+    <Cmt Name="Dev" />
+    <Cmt Name="LcxAdmin" />
+    <Cmt Name="Rccx" />
+  </OwnedComments>
+  <Item ItemId=";Codeunit 957148332 - NamedType 411834270" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Value %1 is not in the list of expected values: %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = actual value, %2 = expected values]D;]A;(Namespace=Microsoft.Sustainability.Copilot)(LookupHint=Codeunit Library Sustainability Copilot - NamedType IncorrectFormulaErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1583337873 - NamedType 4012720532" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Incorrect emission factor. Expected between %1 and %2. Actual %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = minExpectedResult, %2 = maxExpectedResult, %3 = actualEmissionFactor]D;]A;(Namespace=Microsoft.Sustainability.Copilot)(LookupHint=Codeunit Sust. Copilot Emiss. Tests - NamedType IncorrectEmissionFactorErr)]]></Cmt>
+    </Cmts>
+  </Item>
+</LCX>
