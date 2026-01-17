@@ -75,6 +75,7 @@ report 81 "Import Budget from Excel"
                 GLBudgetEntry."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
                 OnBudgetBufOnAfterGetRecordOnBeforeGLBudgetEntryInsert(GLBudgetEntry);
                 GLBudgetEntry.Insert(true);
+                OnBudgetBufOnAfterGetRecordOnAfterGLBudgetEntryInsert(GLBudgetEntry, EntryNo);
                 EntryNo := EntryNo + 1;
             end;
 
@@ -870,6 +871,17 @@ report 81 "Import Budget from Excel"
 
     [IntegrationEvent(false, false)]
     local procedure OnAnalyzeDataOnAfterCaseText014(var BudgetBuf: Record "Budget Buffer")
+    begin
+    end;
+
+    /// <summary>
+    /// Integration event raised after inserting G/L Budget Entry records during import processing.
+    /// Enables custom budget entry modification after insertion and allows modification of the EntryNo for creating additional entries.
+    /// </summary>
+    /// <param name="GLBudgetEntry">G/L Budget Entry record that was inserted</param>
+    /// <param name="EntryNo">Current entry number counter that will be incremented for the next entry</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnBudgetBufOnAfterGetRecordOnAfterGLBudgetEntryInsert(var GLBudgetEntry: Record "G/L Budget Entry"; var EntryNo: Integer)
     begin
     end;
 }

@@ -500,6 +500,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Invoicing - NamedType CorrectPostedInvoiceQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1338490621 - NamedType 2037114244" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 should be equal to %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption, %2 = Expected Value]D;]A;(LookupHint=Codeunit Job Invoicing - NamedType ExpectedValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1338490621 - NamedType 2861410367" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The actual %1 External Document No. and the expected %2 External Document No. are not equal]]></Val>

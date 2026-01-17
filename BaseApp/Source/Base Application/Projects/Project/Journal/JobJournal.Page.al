@@ -1028,13 +1028,13 @@ page 201 "Job Journal"
         JobDescription: Text[100];
         AccName: Text[100];
         NumberOfRecords: Integer;
-        CurrentJnlBatchName: Code[10];
         ExtendedPriceEnabled: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
         BackgroundErrorCheck: Boolean;
         ShowAllLinesEnabled: Boolean;
 
     protected var
+        CurrentJnlBatchName: Code[10];
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
