@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LCX SchemaVersion="6.0" Name="Contoso Coffee Demo Dataset Tests.g" PsrId="63" SrcCul="en-US" TgtCul="en-US" xmlns="http://schemas.microsoft.com/locstudio/2006/6/lcx">
+  <OwnedComments>
+    <Cmt Name="Dev" />
+    <Cmt Name="LcxAdmin" />
+    <Cmt Name="Rccx" />
+  </OwnedComments>
+  <Item ItemId=";Codeunit 2450394998 - NamedType 1352653013" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The demo data module cannot be added. Adding this demo data module %1 would cause a circular dependency with %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Module Name, %2 = Dependency Name]D;]A;(Namespace=Microsoft.Test.DemoTool)(LookupHint=Codeunit DemoTool Dependency Test - NamedType CircularDependencyErr)]]></Cmt>
+    </Cmts>
+  </Item>
+</LCX>

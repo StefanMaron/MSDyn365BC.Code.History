@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -33,7 +33,9 @@ table 6103 "E-Document Service"
             DataClassification = SystemMetadata;
         }
 #if not CLEANSCHEMA29
+#pragma warning disable AL0432
         field(4; "Service Integration"; Enum "E-Document Integration")
+#pragma warning restore AL0432
         {
             Caption = 'Service Integration';
             DataClassification = SystemMetadata;
@@ -287,7 +289,12 @@ table 6103 "E-Document Service"
             ToolTip = 'Specifies whether you want to automatically create a PDF based on Report Selection, as a background process, and embed it into the E-Document export file when posting the document.';
             DataClassification = SystemMetadata;
         }
-
+        field(41; "Export Eligibility Evaluator"; Enum "Export Eligibility Evaluator")
+        {
+            Caption = 'Export Eligibility Evaluator';
+            ToolTip = 'Specifies the evaluator that determines if a document is eligible for export via this service.';
+            DataClassification = SystemMetadata;
+        }
         #region [60-80] are reserved for purchase draft document settings.
         field(60; "Verify Purch. Total Amounts"; Boolean)
         {
@@ -384,10 +391,34 @@ table 6103 "E-Document Service"
     internal procedure ToString(): Text
     begin
 #if not CLEAN26
+#pragma warning disable AL0432
         exit(StrSubstNo(EDocStringLbl, SystemId, "Document Format", "Service Integration", "Use Batch Processing", "Batch Mode"));
+#pragma warning restore AL0432
 #else
         exit(StrSubstNo(EDocStringLbl, SystemId, "Document Format", "Service Integration V2", "Use Batch Processing", "Batch Mode"));
 #endif
+    end;
+
+    /// <summary>
+    /// Gets the default file extension for the e-document service.
+    /// </summary>
+    /// <returns>The default file extension (e.g., '.xml'). Can be overridden via OnAfterGetDefaultFileExtension event.</returns>
+    procedure GetDefaultFileExtension() FileExtension: Text
+    var
+        XMLFileTypeTok: Label '.xml', Locked = true;
+    begin
+        FileExtension := XMLFileTypeTok;
+        OnAfterGetDefaultFileExtension(Rec, FileExtension);
+    end;
+
+    /// <summary>
+    /// Integration event that allows subscribers to override the default file extension for the e-document service.
+    /// </summary>
+    /// <param name="EDocumentService">The E-Document Service record.</param>
+    /// <param name="FileExtension">The file extension to be used. By default, it is set to '.xml'.</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDefaultFileExtension(EDocumentService: Record "E-Document Service"; var FileExtension: Text)
+    begin
     end;
 
     var

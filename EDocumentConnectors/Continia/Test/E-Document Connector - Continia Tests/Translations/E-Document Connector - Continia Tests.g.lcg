@@ -1,0 +1,134 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LCX SchemaVersion="6.0" Name="E-Document Connector - Continia Tests.g" PsrId="63" SrcCul="en-US" TgtCul="en-US" xmlns="http://schemas.microsoft.com/locstudio/2006/6/lcx">
+  <OwnedComments>
+    <Cmt Name="Dev" />
+    <Cmt Name="LcxAdmin" />
+    <Cmt Name="Rccx" />
+  </OwnedComments>
+  <Item ItemId=";Codeunit 4079883188 - NamedType 2996603465" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Wrong value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.EServices.EDocumentConnector.Continia)(LookupHint=Codeunit Continia Api Comm. Unit Tests - NamedType IncorrectValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4079883188 - NamedType 163429794" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Continia Delivery Network API returned the following error: Error Code Bad Request - Missing parameter]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.EServices.EDocumentConnector.Continia)(LookupHint=Codeunit Continia Api Comm. Unit Tests - NamedType Response400ErrorMessageLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4079883188 - NamedType 2682463425" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Continia Delivery Network API returned the following error: Error Code Not Authenticated - Login failed]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.EServices.EDocumentConnector.Continia)(LookupHint=Codeunit Continia Api Comm. Unit Tests - NamedType Response401ErrorMessageLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4079883188 - NamedType 1809729894" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Continia Delivery Network API returned the following error: Error Code Not Found - Not Found]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.EServices.EDocumentConnector.Continia)(LookupHint=Codeunit Continia Api Comm. Unit Tests - NamedType Response404ErrorMessageLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4079883188 - NamedType 3202042953" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Continia Delivery Network API returned the following error: Error Code Conflict - Conflict]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.EServices.EDocumentConnector.Continia)(LookupHint=Codeunit Continia Api Comm. Unit Tests - NamedType Response409ErrorMessageLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4079883188 - NamedType 4128083794" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Continia Delivery Network API returned the following error: Error Code string - string]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.EServices.EDocumentConnector.Continia)(LookupHint=Codeunit Continia Api Comm. Unit Tests - NamedType Response422ErrorMessageLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4079883188 - NamedType 1557150673" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Continia Delivery Network API returned the following system error: Error Code Internal Server - Unhandled system error]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.EServices.EDocumentConnector.Continia)(LookupHint=Codeunit Continia Api Comm. Unit Tests - NamedType Response500ErrorMessageLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1455298473 - NamedType 2996603465" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Wrong value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.EServices.EDocumentConnector.Continia)(LookupHint=Codeunit Continia Doc. Integr. Tests - NamedType IncorrectValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 843468273 - NamedType 2996603465" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Wrong value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.EServices.EDocumentConnector.Continia)(LookupHint=Codeunit Continia Reg. Integr. Tests - NamedType IncorrectValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 843468273 - NamedType 1809729894" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Continia Delivery Network API returned the following error: Error Code Not Found - Not Found]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.EServices.EDocumentConnector.Continia)(LookupHint=Codeunit Continia Reg. Integr. Tests - NamedType Response404ErrorMessageLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 843468273 - Method 2359319702 - NamedType 2902611984" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There is already a registration in Peppol network with the identifier type]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.EServices.EDocumentConnector.Continia)(LookupHint=Codeunit Continia Reg. Integr. Tests - Method Registration_AdvancedFlow - NamedType ParticipationAlreadyRegisteredPeppolErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 843468273 - Method 203495607 - NamedType 2085114167" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected Activated Network Profile %1 was found]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Network Profile Id]D;]A;(Namespace=Microsoft.EServices.EDocumentConnector.Continia)(LookupHint=Codeunit Continia Reg. Integr. Tests - Method TestActivatedNetworkProfiles - NamedType UnexpectedProfileFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";PageExtension 2213242278 - Action 4110281078 - Property 1295455071" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Delete Profile. Used for automated testing only]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 2213242278)(Namespace=Microsoft.EServices.EDocumentConnector.Continia)(LookupHint=PageExtension Continia Profile Selection - Action DeleteProfile - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";PageExtension 2213242278 - Action 4110281078 - Property 2879900210" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[DeleteProfile]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 2213242278)(Namespace=Microsoft.EServices.EDocumentConnector.Continia)(LookupHint=PageExtension Continia Profile Selection - Action DeleteProfile - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+</LCX>

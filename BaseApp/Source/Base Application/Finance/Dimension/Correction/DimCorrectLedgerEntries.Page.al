@@ -546,6 +546,7 @@ page 2583 "Dim. Correct Ledger Entries"
         if RecordCount > DimensionCorrectionMgt.GetPreviewGLEntriesLimit() then
             exit;
 
+        ExcludedEntriesDimCorrectSelectionCriteria.SetRange("Dimension Correction Entry No.", DimensionCorrectionEntryNo);
         ExcludedEntriesDimCorrectSelectionCriteria.SetRange("Filter Type", DimCorrectSelectionCriteria."Filter Type"::Excluded);
         ExcluedEntriesExist := not ExcludedEntriesDimCorrectSelectionCriteria.IsEmpty();
         LoadRecordsForSelection(DimCorrectSelectionCriteria, ExcludedEntriesDimCorrectSelectionCriteria, ExcluedEntriesExist);
