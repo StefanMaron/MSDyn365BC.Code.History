@@ -79,10 +79,14 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
                 TempGenJnlLine.InsertPaymentFileError(SameBankErr);
         until TempGenJnlLine.Next() = 0;
 
-        if TempGenJnlLine.HasPaymentFileErrorsInBatch() then begin
-            Commit();
-            Error(HasErrorsErr);
-        end;
+        TempGenJnlLine.Reset();
+        TempGenJnlLine.FindSet();
+        repeat
+            if TempGenJnlLine.HasPaymentFileErrorsInBatch() then begin
+                Commit();
+                Error(HasErrorsErr);
+            end;
+        until TempGenJnlLine.Next() = 0;
 
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("LCY Code");

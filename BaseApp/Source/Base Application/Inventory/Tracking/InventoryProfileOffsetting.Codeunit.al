@@ -1388,6 +1388,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
             IncrementLastProjectedInventory := true;
             OnStartOfPrePlanDateApplicationLoop(SupplyInvtProfile, DemandInvtProfile, SupplyExists, DemandExists, IncrementLastProjectedInventory);
             if DemandInvtProfile."Untracked Quantity" > SupplyInvtProfile."Untracked Quantity" then begin
+                OnPlanItemCalcInitialInventoryOnBeforeChechkIncrementLastProjectedInventory(SupplyInvtProfile, DemandInvtProfile, SupplyExists, DemandExists, IncrementLastProjectedInventory, LastProjectedInventory);
                 if IncrementLastProjectedInventory then
                     LastProjectedInventory += SupplyInvtProfile."Remaining Quantity (Base)";
                 DemandInvtProfile."Untracked Quantity" -= SupplyInvtProfile."Untracked Quantity";
@@ -4643,11 +4644,19 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     local procedure SetPurchase(var PurchaseLine: Record "Purchase Line"; var InventoryProfile: Record "Inventory Profile")
+    var
+        PurchaseLineExists: Boolean;
+        DocumentType: Enum "Purchase Document Type";
+        NotFoundError: Label 'Purchase Line with Document Type %1, Document No. %2, Line No. %3 was not found.', Comment = '%1 = Document Type, %2 = Document No., %3 = Line No.';
     begin
         ReqLine."Ref. Order Type" := ReqLine."Ref. Order Type"::Purchase;
         ReqLine."Ref. Order No." := InventoryProfile."Source ID";
         ReqLine."Ref. Line No." := InventoryProfile."Source Ref. No.";
-        PurchaseLine.Get(PurchaseLine."Document Type"::Order, ReqLine."Ref. Order No.", ReqLine."Ref. Line No.");
+        DocumentType := PurchaseLine."Document Type"::Order;
+        PurchaseLineExists := PurchaseLine.Get(DocumentType, ReqLine."Ref. Order No.", ReqLine."Ref. Line No.");
+        OnSetPurchaseOnBeforeTransferFromPurchaseLine(ReqLine, PurchaseLine, DocumentType, PurchaseLineExists);
+        if not PurchaseLineExists then
+            Error(NotFoundError, DocumentType, ReqLine."Ref. Order No.", ReqLine."Ref. Line No.");
         ReqLine.TransferFromPurchaseLine(PurchaseLine);
 
         OnAfterSetPurchase(PurchaseLine, ReqLine, InventoryProfile);
@@ -4975,6 +4984,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPurchase(var PurchaseLine: Record "Purchase Line"; ReqLine: Record "Requisition Line"; var InventoryProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetPurchaseOnBeforeTransferFromPurchaseLine(var RequisitionLine: Record "Requisition Line"; var PurchaseLine: Record "Purchase Line"; var DocumentType: Enum "Purchase Document Type"; var PurchaseLineExists: Boolean)
     begin
     end;
 
@@ -6182,6 +6196,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSumUpAvailableSupply(var SupplyInventoryProfile: Record "Inventory Profile"; var FromDate: Date; var ToDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPlanItemCalcInitialInventoryOnBeforeChechkIncrementLastProjectedInventory(var SupplyInventoryProfile: Record "Inventory Profile"; var DemandInventoryProfile: Record "Inventory Profile"; var SupplyExists: Boolean; var DemandExists: Boolean; var IncrementLastProjectedInventory: Boolean; var LastProjectedInventory: Decimal)
     begin
     end;
 }

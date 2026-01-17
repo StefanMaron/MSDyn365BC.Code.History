@@ -490,6 +490,8 @@ page 498 Reservation
         if ReservEntry.TrackingExists() then
             FilterReservEntry.SetTrackingFilterFromReservEntry(ReservEntry);
         FilterReservEntry.SetRange(Positive, ReservMgt.IsPositive());
+
+        OnAfterFilterReservEntry(FilterReservEntry, ReservEntrySummary, ReservEntry);
     end;
 
     local procedure RelatesToSummEntry(var FilterReservEntry: Record "Reservation Entry"; ReservEntrySummary: Record "Entry Summary"): Boolean
@@ -905,6 +907,11 @@ page 498 Reservation
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeReservedThisLine(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry"; ReservEntry2: Record "Reservation Entry"; TempReservSummEntry2: Record "Entry Summary" temporary; var ReservedQuantity: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterReservEntry(var FilterReservationEntry: Record "Reservation Entry"; FromEntrySummary: Record "Entry Summary"; ReservationEntry: Record "Reservation Entry")
     begin
     end;
 }

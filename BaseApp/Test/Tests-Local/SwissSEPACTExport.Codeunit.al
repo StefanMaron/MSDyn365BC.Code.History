@@ -2917,6 +2917,81 @@ codeunit 144352 "Swiss SEPA CT Export"
         VerifyVendorBankAccountFieldIBAN(GenJournalLine);
     end;
 
+    [Test]
+    [HandlerFunctions('GeneralJournalTemplateListPageHandler')]
+    procedure PaymentExportErrorsdWithDifferentDocumentNo()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        BankAccountNo: Code[20];
+        VendorNo: array[2] of Code[20];
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        // [SCENARIO 610578] Payment Export errors must be detected with same Document No.
+        Initialize();
+
+        // [GIVEN] Create a SWISS Bank Account.
+        BankAccountNo := CreateBankAccount(FindSwissSEPACTBankExpImpCode());
+
+        // [GIVEN] Create a Vendor with a vendor bank account that has a blank IBAN.
+        VendorNo[1] := CreateVendorWithBankAccount(PaymentFormGbl::"Post Payment Domestic", '', '', GetSWIFT(true), '');
+
+        // [GIVEN] Create a second vendor with a vendor bank account with IBAN.
+        VendorNo[2] := CreateVendorWithBankAccount(PaymentFormGbl::"Post Payment Domestic", '', '', GetSWIFT(true), GetIBAN(false));
+
+        // [GIVEN] Create a payment journal batch with two lines with the same Document No
+        LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, GenJournalBatch."Template Type"::Payments);
+        CreatePaymentJournalLine(GenJournalBatch, VendorNo[1], BankAccountNo); // The first vendor bank account is missing the IBAN number
+        CreatePaymentJournalLine(GenJournalBatch, VendorNo[2], BankAccountNo);
+        LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
+
+        // [GIVEN] Open the Payment Journal Page.
+        PaymentJournal.OpenEdit();
+        PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+
+        // [WHEN] Export the Payment File.
+        asserterror PaymentJournal.ExportPaymentsToFile.Invoke();
+
+        // [THEN] The system blocks the payment file export if any line has an error, even when the lines do not have the same Document No. and 
+    end;
+
+    [Test]
+    [HandlerFunctions('GeneralJournalTemplateListPageHandler')]
+    procedure PaymentExportWithOutErrorsdWithDifferentDocumentNo()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        BankAccountNo: Code[20];
+        VendorNo: array[2] of Code[20];
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        // [SCENARIO 610578] Payment Export errors must be detected with same Document No.
+        Initialize();
+
+        // [GIVEN] Create a SWISS Bank Account.
+        BankAccountNo := CreateBankAccount(FindSwissSEPACTBankExpImpCode());
+
+        // [GIVEN] Create a Vendor with a vendor bank account that has a blank IBAN.
+        VendorNo[1] := CreateVendorWithBankAccount(PaymentFormGbl::"Post Payment Domestic", '', '', GetSWIFT(true), GetIBAN(false));
+
+        // [GIVEN] Create a second vendor with a vendor bank account with IBAN.
+        VendorNo[2] := CreateVendorWithBankAccount(PaymentFormGbl::"Post Payment Domestic", '', '', GetSWIFT(true), GetIBAN(false));
+
+        // [GIVEN] Create a payment journal batch with two lines with the same Document No
+        LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, GenJournalBatch."Template Type"::Payments);
+        CreatePaymentJournalLine(GenJournalBatch, VendorNo[1], BankAccountNo);
+        CreatePaymentJournalLine(GenJournalBatch, VendorNo[2], BankAccountNo);
+        LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
+
+        // [GIVEN] Open the Payment Journal Page.
+        PaymentJournal.OpenEdit();
+        PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+
+        // [WHEN] Export the Payment File.
+        // No error occurred and the payment file was exported successfully.
+        PaymentJournal.ExportPaymentsToFile.Invoke();
+
+        // [THEN] No error occurred and the payment file was exported successfully.
+    end;
+
     local procedure Initialize()
     var
         GLSetup: Record "General Ledger Setup";
@@ -3991,6 +4066,19 @@ codeunit 144352 "Swiss SEPA CT Export"
             IBANErr, GenJournalLine."Recipient Bank Account"));
     end;
 
+    local procedure CreatePaymentJournalLine(GenJournalBatch: Record "Gen. Journal Batch"; VendorNo: Code[20]; BankAccountNo: Code[20])
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Gen. Journal Document Type"::Payment, GenJournalLine."Account Type"::Vendor,
+            VendorNo, GenJournalLine."Bal. Account Type"::"Bank Account", BankAccountNo, LibraryRandom.RandDec(1000, 2));
+        GenJournalLine.Validate("Posting Date", Today);
+        GenJournalLine.Validate("Currency Code", GetEURCurrency());
+        GenJournalLine.Validate("Document No.", 'DOC001');
+        GenJournalLine.Modify(true);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure DTASuggest_RPH(var DTASuggestVendorPayments: TestRequestPage "DTA Suggest Vendor Payments")
@@ -4037,5 +4125,12 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         PostedPurchInvoiceUpdate."Payment Reference".SetValue(LibraryVariableStorage.DequeueText());
         PostedPurchInvoiceUpdate.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure GeneralJournalTemplateListPageHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
+    begin
+        GeneralJournalTemplateList.GotoKey(LibraryVariableStorage.DequeueText());
+        GeneralJournalTemplateList.OK().Invoke();
     end;
 }
