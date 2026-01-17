@@ -97,7 +97,10 @@ codeunit 11113 "DE Contoso Localization"
                     Codeunit.Run(Codeunit::"Create DE Data Export Record");
                 end;
             Enum::"Contoso Demo Data Level"::"Master Data":
-                Codeunit.Run(Codeunit::"Create DE Currency Ex. Rate");
+                begin
+                    Codeunit.Run(Codeunit::"Create DE Currency Ex. Rate");
+                    Codeunit.Run(Codeunit::"Create Allocation Account DE");
+                end;
         end;
     end;
 
