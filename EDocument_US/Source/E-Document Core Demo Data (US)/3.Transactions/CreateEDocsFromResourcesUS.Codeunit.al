@@ -1,3 +1,4 @@
+#if not CLEAN28
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -13,6 +14,9 @@ using Microsoft.DemoData.Foundation;
 
 codeunit 11502 "Create EDocs From Resources US"
 {
+    ObsoleteReason = 'A new implementation in Create Demo EDocs US and Create E-Doc Sample Inv. US codeunits are used instead.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '28.0';
     InherentEntitlements = X;
     InherentPermissions = X;
     EventSubscriberInstance = Manual;
@@ -112,3 +116,4 @@ codeunit 11502 "Create EDocs From Resources US"
         IsHandled := true;
     end;
 }
+#endif
