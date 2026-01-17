@@ -4234,6 +4234,7 @@ table 5900 "Service Header"
         Init();
         GetServiceMgtSetup();
         InitRecord();
+        OnInitRecordFromContactOnAfterInitRecord(Rec, xRec);
         "No. Series" := xRec."No. Series";
         if xRec."Shipping No." <> '' then begin
             "Shipping No. Series" := xRec."Shipping No. Series";
@@ -6383,6 +6384,11 @@ table 5900 "Service Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterLookupAppliesToDocNo(var ServiceHeader: Record "Service Header"; var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitRecordFromContactOnAfterInitRecord(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header")
     begin
     end;
 }

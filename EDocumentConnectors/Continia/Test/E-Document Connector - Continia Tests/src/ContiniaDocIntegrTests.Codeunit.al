@@ -1,22 +1,23 @@
 namespace Microsoft.EServices.EDocumentConnector.Continia;
 
 using Microsoft.eServices.EDocument;
-using Microsoft.Sales.Customer;
-using Microsoft.Inventory.Item;
-using Microsoft.Foundation.UOM;
-using Microsoft.Inventory.Item.Catalog;
-using Microsoft.Purchases.Vendor;
-using Microsoft.Foundation.Company;
-using System.TestLibraries.Environment;
-using Microsoft.Purchases.Document;
-using System.Threading;
 using Microsoft.eServices.EDocument.Integration;
-using Microsoft.Finance.VAT.Setup;
 using Microsoft.Finance.Currency;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Foundation.Company;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using System.TestLibraries.Environment;
+using System.Threading;
+
 codeunit 148203 "Continia Doc. Integr. Tests"
 {
     Subtype = Test;
-    TestType = Uncategorized;
+    TestType = IntegrationTest;
     TestHttpRequestPolicy = AllowOutboundFromHandler;
     Access = Internal;
 
@@ -1136,7 +1137,14 @@ codeunit 148203 "Continia Doc. Integr. Tests"
         EDocumentService.Modify();
 
         CompanyInformation.Get();
+        CompanyInformation.Name := 'Test Company Ltd';
+        CompanyInformation.Address := '1 Test Street';
+        CompanyInformation.City := 'Test City';
+        CompanyInformation."Post Code" := 'DK';
         CompanyInformation."VAT Registration No." := 'GB777777771';
+        CompanyInformation.IBAN := 'TEST1234';
+        CompanyInformation."Bank Branch No." := '1234';
+        CompanyInformation."SWIFT Code" := 'TESTSWIFT';
         CompanyInformation.Modify();
 
         Vendor."VAT Registration No." := 'GB777777772';
