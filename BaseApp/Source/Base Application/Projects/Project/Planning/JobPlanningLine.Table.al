@@ -2209,9 +2209,15 @@ table 1003 "Job Planning Line"
 
             ApplyPrice(PriceType::Sale, CalledByFieldNo);
             ApplyPrice(PriceType::Purchase, CalledByFieldNo);
-            if Type = Type::Resource then begin
-                "Unit Cost (LCY)" := ConvertAmountToLCY("Unit Cost", UnitAmountRoundingPrecision);
-                "Direct Unit Cost (LCY)" := ConvertAmountToLCY("Direct Unit Cost (LCY)", UnitAmountRoundingPrecision);
+            case Type of
+                Type::Resource:
+                    begin
+                        "Unit Cost (LCY)" := ConvertAmountToLCY("Unit Cost", UnitAmountRoundingPrecision);
+                        "Direct Unit Cost (LCY)" := ConvertAmountToLCY("Direct Unit Cost (LCY)", UnitAmountRoundingPrecision);
+                    end;
+                Type::"G/L Account":
+                    if "Unit Cost" <> xRec."Unit Cost" then
+                        "Unit Cost (LCY)" := ConvertAmountToLCY("Unit Cost", UnitAmountRoundingPrecision);
             end;
             OnAfterFindPriceAndDiscount(Rec, xRec, CalledByFieldNo);
         end;
