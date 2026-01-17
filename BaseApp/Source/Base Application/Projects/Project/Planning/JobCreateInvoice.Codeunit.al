@@ -666,6 +666,8 @@ codeunit 1002 "Job Create-Invoice"
         if not IsHandled then begin
             if not SalesHeader."Prices Including VAT" then
                 SalesLine.Validate("Job Contract Entry No.", JobPlanningLine."Job Contract Entry No.");
+            if SalesHeader."Prices Including VAT" and (SalesLine.Type = SalesLine.Type::" ") then
+                SalesLine.Validate("Job Contract Entry No.", JobPlanningLine."Job Contract Entry No.");
             SalesLine."Job No." := JobPlanningLine."Job No.";
             SalesLine."Job Task No." := JobPlanningLine."Job Task No.";
         end;

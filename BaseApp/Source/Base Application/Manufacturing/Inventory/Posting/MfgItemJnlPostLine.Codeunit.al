@@ -24,6 +24,9 @@ using System.Reflection;
 
 codeunit 99000822 "Mfg. Item Jnl.-Post Line"
 {
+    Permissions = tabledata "Prod. Order Capacity Need" = rm,
+                  tabledata "Capacity Ledger Entry" = rm;
+
     var
         Item: Record Item;
         Location: Record Location;
