@@ -580,6 +580,7 @@ report 98 "Date Compress General Ledger"
         Window.Update(2, NewGLEntry."Posting Date");
         DateComprReg."No. of New Records" := DateComprReg."No. of New Records" + 1;
         Window.Update(3, DateComprReg."No. of New Records");
+        OnAfterInitNewEntry(NewGLEntry);
     end;
 
     local procedure InsertNewEntry(var NewGLEntry: Record "G/L Entry"; DimEntryNo: Integer)
@@ -674,6 +675,11 @@ report 98 "Date Compress General Ledger"
 
     [IntegrationEvent(false, false)]
     local procedure OnSummarizeEntryOnBeforeGLEntryDelete(var NewGLEntry: Record "G/L Entry"; GLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitNewEntry(var NewGLEntry: Record "G/L Entry")
     begin
     end;
 }

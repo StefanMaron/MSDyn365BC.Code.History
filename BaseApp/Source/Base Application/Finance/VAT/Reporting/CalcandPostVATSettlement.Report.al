@@ -554,6 +554,9 @@ report 20 "Calc. and Post VAT Settlement"
                     GenJnlLine."Source Currency Amount" := VATAmountAddCurr;
                     GenJnlLine."Source Code" := SourceCodeSetup."VAT Settlement";
                     GenJnlLine."VAT Posting" := GenJnlLine."VAT Posting"::"Manual VAT Entry";
+
+                    OnVATPostingSetupOnPostDataItemOnBeforePostSettlement(GenJnlLine);
+
                     if PostSettlement then
                         PostGenJnlLine(GenJnlLine);
                     OnVATPostingSetupOnAfterOnPostDataItem(GenJnlLine, PostSettlement);
@@ -779,7 +782,6 @@ report 20 "Calc. and Post VAT Settlement"
         VATTools: Codeunit "Norwegian VAT Tools";
         PrintVATEntries: Boolean;
         NextVATEntryNo: Integer;
-        PostingDate: Date;
         VATDate: Date;
         DocNo: Code[20];
         VATType: Enum "General Posting Type";
@@ -831,6 +833,7 @@ report 20 "Calc. and Post VAT Settlement"
         PostSettlement: Boolean;
         EntrdStartDate: Date;
         EnteredEndDate: Date;
+        PostingDate: Date;
 
     /// <summary>
     /// InitializeRequest with "VAT Date" default to "Posting Date"
@@ -1076,6 +1079,16 @@ report 20 "Calc. and Post VAT Settlement"
 
     [IntegrationEvent(false, false)]
     local procedure OnVATPostingSetupOnAfterOnPostDataItem(GenJnlLine: Record "Gen. Journal Line"; PostSettlement: Boolean)
+    begin
+    end;
+
+    /// <summary>
+    /// Integration event raised before posting settlement entry during VAT posting setup processing.
+    /// Enables custom validation and modification of journal lines before settlement posting.
+    /// </summary>
+    /// <param name="GenJnlLine">General journal line being prepared for posting</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnVATPostingSetupOnPostDataItemOnBeforePostSettlement(var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 }
