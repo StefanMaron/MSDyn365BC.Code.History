@@ -205,6 +205,8 @@ codeunit 1019 "Job-Explode BOM"
     end;
 
     local procedure ValidateQtyAndUoMForDifferentTypes(JobPlanningLine: Record "Job Planning Line")
+    var
+        QtyRoundingPrecision: Decimal;
     begin
         case ToJobPlanningLine.Type of
             ToJobPlanningLine.Type::Item:
@@ -212,7 +214,10 @@ codeunit 1019 "Job-Explode BOM"
                     Item.Get(FromBOMComp."No.");
                     ToJobPlanningLine.Validate("Unit of Measure Code", FromBOMComp."Unit of Measure Code");
                     ToJobPlanningLine."Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, ToJobPlanningLine."Unit of Measure Code");
-                    ToJobPlanningLine.Validate(Quantity, Round(JobPlanningLine."Quantity (Base)" * FromBOMComp."Quantity per", UOMMgt.QtyRndPrecision()));
+                    QtyRoundingPrecision := UOMMgt.GetQtyRoundingPrecision(Item, ToJobPlanningLine."Unit of Measure Code");
+                    if QtyRoundingPrecision = 0 then
+                        QtyRoundingPrecision := UOMMgt.QtyRndPrecision();
+                    ToJobPlanningLine.Validate(Quantity, Round(JobPlanningLine."Quantity (Base)" * FromBOMComp."Quantity per", QtyRoundingPrecision));
                 end;
             ToJobPlanningLine.Type::Resource:
                 begin

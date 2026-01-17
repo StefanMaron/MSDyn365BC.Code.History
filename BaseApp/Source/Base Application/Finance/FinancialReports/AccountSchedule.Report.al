@@ -830,13 +830,9 @@ report 25 "Account Schedule"
         CostBudgetFilterHidden: Text;
         BusinessUnitFilter: Text;
         BusinessUnitFilterHidden: Text;
-        Dim1Filter: Text;
         Dim1FilterHidden: Text;
-        Dim2Filter: Text;
         Dim2FilterHidden: Text;
-        Dim3Filter: Text;
         Dim3FilterHidden: Text;
-        Dim4Filter: Text;
         Dim4FilterHidden: Text;
         CostCenterFilter: Text;
         CostObjectFilter: Text;
@@ -913,6 +909,10 @@ report 25 "Account Schedule"
         LineSkipped: Boolean;
         UseAmtsInAddCurr: Boolean;
         NegativeAmountFormat: Enum "Analysis Negative Format";
+        Dim1Filter: Text;
+        Dim2Filter: Text;
+        Dim3Filter: Text;
+        Dim4Filter: Text;
 
     local procedure CalcColumnValueAsText(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var ColumnHeader: Text; var ValueIsEmpty: Boolean): Text[30]
     var

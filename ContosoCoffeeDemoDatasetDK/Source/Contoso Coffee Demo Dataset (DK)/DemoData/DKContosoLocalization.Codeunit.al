@@ -86,7 +86,10 @@ codeunit 13750 "DK Contoso Localization"
                     Codeunit.Run(Codeunit::"Create VAT Setup Post.Grp. DK");
                 end;
             Enum::"Contoso Demo Data Level"::"Master Data":
-                Codeunit.Run(Codeunit::"Create Currency Ex. Rate DK");
+                begin
+                    Codeunit.Run(Codeunit::"Create Currency Ex. Rate DK");
+                    Codeunit.Run(Codeunit::"Create Allocation Account DK");
+                end;
         end;
     end;
 
