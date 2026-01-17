@@ -15,6 +15,7 @@ using Microsoft.Foundation.Reporting;
 codeunit 10526 "Feature - GovTalk" implements "Feature Data Update"
 {
     Access = Internal;
+    Permissions = TableData "Feature Data Update Status" = rm;
     InherentEntitlements = X;
     InherentPermissions = X;
     ObsoleteReason = 'Feature GovTalk will be enabled by default in version 30.0.';

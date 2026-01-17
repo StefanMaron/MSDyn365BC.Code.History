@@ -1,0 +1,386 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LCX SchemaVersion="6.0" Name="Sales Lines Suggestions Tests.g" PsrId="63" SrcCul="en-US" TgtCul="en-US" xmlns="http://schemas.microsoft.com/locstudio/2006/6/lcx">
+  <OwnedComments>
+    <Cmt Name="Dev" />
+    <Cmt Name="LcxAdmin" />
+    <Cmt Name="Rccx" />
+  </OwnedComments>
+  <Item ItemId=";Codeunit 1895802958 - Method 724945030 - NamedType 3843836454" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Cannot process input data. Either the data is not in a valid CSV format or data exceeds the maximum length supported.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Attachment Data Size Test - Method ThrowErrorIfFirstRowIsMoreThanMaxAllowedHeaderLength - NamedType InvalidCsvDataErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 864560589 - NamedType 1897456386" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Copilot could not find the requested Sales Order %1. Please rephrase the description and try again.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 =Label for document number]D;]A;(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Document Lookup Test - NamedType CannotFindDocumentErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 864560589 - NamedType 858696412" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Description is incorrect!]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Document Lookup Test - NamedType DescriptionIsIncorrectErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 864560589 - NamedType 3716142996" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[High Quality Mouse Mat]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Document Lookup Test - NamedType Item1DescriptionLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 864560589 - NamedType 1498419693" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Yoga Mat]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Document Lookup Test - NamedType Item2DescriptionLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 864560589 - NamedType 3123573798" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Model Tool Kit]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Document Lookup Test - NamedType Item3DescriptionLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 864560589 - NamedType 1147949559" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Mobile Phone Holder]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Document Lookup Test - NamedType Item4DescriptionLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 864560589 - NamedType 1280242139" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[I need all items from sales Invoice %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 =Label for document number]D;]A;(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Document Lookup Test - NamedType NeedAllItemFromSpecifiedSalesInvoiceLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 864560589 - NamedType 1312391306" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[I need all items from sales order %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Label for document number]D;]A;(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Document Lookup Test - NamedType NeedAllItemFromSpecifiedSalesOrderLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 864560589 - NamedType 3219779646" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[I need all items from sales quote %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 =Label for document number]D;]A;(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Document Lookup Test - NamedType NeedAllItemFromSpecifiedSalesQuoteLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 864560589 - NamedType 660563244" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[I need all items from sales Shipment %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 =Label for document number]D;]A;(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Document Lookup Test - NamedType NeedAllItemFromSpecifiedSalesShipmentLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 864560589 - NamedType 2539316951" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[I need 40 keyboards from the latest unknown document]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Document Lookup Test - NamedType NeedAllItemFromUnknownDocumentLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 864560589 - NamedType 263876879" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Quantity is incorrect!]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Document Lookup Test - NamedType QuantityIsIncorrectErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 864560589 - NamedType 38405287" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Copilot does not support the specified document type. Please rephrase the description]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Document Lookup Test - NamedType UnknownDocTypeErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 864560589 - NamedType 3939272939" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unit of Measure is incorrect!]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Document Lookup Test - NamedType UoMIsIncorrectErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 864560589 - NamedType 960250355" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Variant is incorrect!]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Document Lookup Test - NamedType VariantIsIncorrectErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4000057348 - NamedType 3568384139" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[extract_information_from_csv]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Extract Info. Accuracy - NamedType ExtractInformationFromCsvFunctionLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 585470211 - NamedType 3568384139" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[extract_information_from_csv]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Extract Info. from csv Prompt - NamedType ExtractInformationFromCsvFunctionLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2889088588 - Method 2493584938 - NamedType 4123945839" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Item No. does not match. Expected: %1, Actual: %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Expected Item No., %2 = Actual Item No.]D;]A;(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Item Entity Search - Method TestItemEntitySearch - NamedType ItemNoMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3963453632 - NamedType 858696412" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Description is incorrect!]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Item Srch. In Doc. Lookup Test - NamedType DescriptionIsIncorrectErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3963453632 - NamedType 1976120505" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[I need %1 from sales order %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = item description, %2 = Label for document number]D;]A;(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Item Srch. In Doc. Lookup Test - NamedType NeedSpecificItemFromSpecifiedSalesOrderLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3963453632 - NamedType 4183209564" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[I need %1 and %2 from sales order %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1,%2 = item description, %3 = Label for document number]D;]A;(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Item Srch. In Doc. Lookup Test - NamedType NeedTwoItemsFromSpecifiedSalesOrderLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3963453632 - NamedType 263876879" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Quantity is incorrect!]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Item Srch. In Doc. Lookup Test - NamedType QuantityIsIncorrectErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3963453632 - NamedType 960250355" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Variant is incorrect!]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Item Srch. In Doc. Lookup Test - NamedType VariantIsIncorrectErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2472328187 - NamedType 3568384139" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[extract_information_from_csv]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Magic Function Attmt. Prompt - NamedType ExtractInformationFromCsvFunctionLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2472328187 - NamedType 3681570427" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[magic_function]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Magic Function Attmt. Prompt - NamedType MagicFunctionLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4086747051 - Method 1304885489 - NamedType 553265223" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There are no suggestions for this description. Please rephrase it.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Magic Function Prompt Test - Method AssertErrorNotificationHandler - NamedType ExpectedMessage1Msg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4086747051 - Method 1304885489 - NamedType 2593577690" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Sorry, something went wrong. Please rephrase and try again.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Magic Function Prompt Test - Method AssertErrorNotificationHandler - NamedType ExpectedMessage2Msg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4086747051 - Method 1304885489 - NamedType 3656526069" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Notification message is incorrect. Expected: %1 or %2, Actual: %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = ExpectedMessage1Msg, %2 = ExpectedMessage2Msg, %3 = Notification.Message]D;]A;(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Magic Function Prompt Test - Method AssertErrorNotificationHandler - NamedType AssertMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4086747051 - Method 681274411 - NamedType 3656526069" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The completion answer is not a magic function. Expected: magic_function, Actual: %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[Actual: %1]D;]A;(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Magic Function Prompt Test - Method AssertMagicFunction - NamedType AssertMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4086747051 - Method 1176517106 - NamedType 979370368" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Add 2 athens desk and %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = input string]D;]A;(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Magic Function Prompt Test - Method AssertMagicFunctionOrFailedResponseUnitTestWithEmbeddedInput - NamedType InputTemplateLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 61316215 - NamedType 858696412" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Description is incorrect!]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Search Item Test - NamedType DescriptionIsIncorrectErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 61316215 - NamedType 2351040422" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The value %1 in field %2 is of lower precision than expected. \\Note: Default rounding precision of %3 is used if a rounding precision is not defined.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - decimal value, %2 - field name, %3 - default rounding precision.]D;]A;(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Search Item Test - NamedType InvalidPrecisionErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 61316215 - NamedType 3597090482" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[I need the following items: \nBike\nBike]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Search Item Test - NamedType NeedSameItemMoreThanOnceLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 61316215 - NamedType 4323377" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Copilot could not find the requested items. Please rephrase the description.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Search Item Test - NamedType NoSuggestionGeneratedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 61316215 - NamedType 263876879" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Quantity is incorrect!]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit Search Item Test - NamedType QuantityIsIncorrectErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 43997058 - NamedType 1604201154" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected data is missing. Expected Json property and value: "%1": %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Json property name, %2 = Json property value]D;]A;(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit SLS Prompt Test - NamedType JsonPropIsMissingErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 43997058 - NamedType 1682965997" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA["%1" property is incorrect]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Json property name]D;]A;(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit SLS Prompt Test - NamedType JsonPropValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 43997058 - Method 4027679352 - NamedType 1029690167" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA["%1" not found in the json array property "%2": [%3]5D;]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Json token, %2 = Json array property name, %3 = json array values]D;]A;(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit SLS Prompt Test - Method AssertExpectedArrayContainsActualArrayElements - NamedType JsonTokenNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 43997058 - Method 2973877519 - NamedType 2898742944" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Array length for "%1" is incorrect.\Expected Array: [%2]5D; \Actual Array: [%3]5D;]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Json array property name, %2 = Expected array values, %3 = Actual array values]D;]A;(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit SLS Prompt Test - Method AssertJsonArraysContentAreSame - NamedType JsonArrayLengthMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 43997058 - Method 2973877519 - NamedType 1029690167" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA["%1" not found in the json array property "%2": [%3]5D;]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Json token, %2 = Json array property name, %3 = Actual json array]D;]A;(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit SLS Prompt Test - Method AssertJsonArraysContentAreSame - NamedType JsonTokenNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 883189259 - Method 1489119318 - NamedType 3196385904" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[**CUSTOMER**]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sales.Document.Test)(LookupHint=Codeunit SLS Test Demo Data - Method GetCustomer - NamedType CustomerTok)]]></Cmt>
+    </Cmts>
+  </Item>
+</LCX>

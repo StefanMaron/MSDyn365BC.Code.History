@@ -6,11 +6,11 @@ namespace Microsoft.eServices.EDocument.Processing.Import;
 
 using Microsoft.eServices.EDocument;
 using Microsoft.eServices.EDocument.Processing.AI;
-using Microsoft.eServices.EDocument.Processing.Interfaces;
 using Microsoft.eServices.EDocument.Processing.Import.Purchase;
+using Microsoft.eServices.EDocument.Processing.Interfaces;
 using Microsoft.Foundation.UOM;
-using Microsoft.Purchases.Vendor;
 using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Vendor;
 using System.Log;
 
 codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
@@ -48,12 +48,10 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
         end;
 
         PurchaseOrder := IPurchaseOrderProvider.GetPurchaseOrder(EDocumentPurchaseHeader);
-
         if PurchaseOrder."No." <> '' then begin
-            PurchaseOrder.TestField("Document Type", "Purchase Document Type"::Order);
+            // Matching purchase order specified in the E-Document 
             EDocumentPurchaseHeader."[BC] Purchase Order No." := PurchaseOrder."No.";
             EDocumentPurchaseHeader.Modify();
-            exit("E-Document Type"::"Purchase Order");
         end;
         if EDocPurchaseHistMapping.FindRelatedPurchaseHeaderInHistory(EDocument, EDocVendorAssignmentHistory) then
             EDocPurchaseHistMapping.UpdateMissingHeaderValuesFromHistory(EDocVendorAssignmentHistory, EDocumentPurchaseHeader);
@@ -125,7 +123,6 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
         EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocumentEntryNo);
         EDocumentPurchaseLine.SetRange("[BC] Purchase Type No.", '');
         EDocumentPurchaseLine.SetRange("[BC] Item Reference No.", '');
-
 
         if not EDocumentPurchaseLine.IsEmpty() then begin
             Commit();
