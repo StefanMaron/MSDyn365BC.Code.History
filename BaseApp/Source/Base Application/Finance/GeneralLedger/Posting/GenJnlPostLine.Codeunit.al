@@ -605,6 +605,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                                         end;
                                     GLEntry.Amount := 0;
                                     GLEntry."Additional-Currency Amount" := 0;
+                                    GLEntry."Source Currency Amount" := 0;
                                     GLEntry."VAT Amount" := GenJnlLine."Amount (LCY)";
                                     if GenJnlLine."Source Currency Code" = AddCurrencyCode then
                                         AddCurrGLEntryVATAmt := GenJnlLine."Source Currency Amount"
@@ -1340,7 +1341,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
             InitGLEntry(
                 GenJnlLine, GLEntry, GenJnlLine."Account No.", GenJnlLine."Amount (LCY)",
                 GenJnlLine."Source Currency Amount", true, GenJnlLine."System-Created Entry",
-                CalcAmountSrcCurr(GenJnlLine, GenJnlLine."VAT Base Amount (LCY)"));
+                CalcSourceCurrVATBaseAmount(GenJnlLine));
             OnPostGLAccOnAfterInitGLEntry(GenJnlLine, GLEntry);
             CheckGLAccDirectPosting(GenJnlLine, GLAcc);
             CheckDescriptionForGL(GLAcc, GenJnlLine.Description);
@@ -9343,6 +9344,20 @@ codeunit 12 "Gen. Jnl.-Post Line"
             TempCVLedgerEntryBufferDocOccurrence."Amount to Apply" := AppliedAmount;
         end else
             TempCVLedgerEntryBufferDocOccurrence."Amount to Apply" += AppliedAmount;
+    end;
+
+    local procedure CalcSourceCurrVATBaseAmount(var GenJnlLine: Record "Gen. Journal Line"): Decimal
+    var
+        SourceCurrVATBaseAmount: Decimal;
+    begin
+        if (GenJnlLine."Source Currency Code" <> '') and ((not GenJnlLine."System-Created Entry") or GenJnlLine."Financial Void") then begin
+            if GenJnlLine."Source Curr. VAT Base Amount" <> 0 then
+                SourceCurrVATBaseAmount := GenJnlLine."Source Curr. VAT Base Amount"
+            else
+                SourceCurrVATBaseAmount := GenJnlLine."Source Currency Amount";
+        end else
+            SourceCurrVATBaseAmount := CalcAmountSrcCurr(GenJnlLine, GenJnlLine."VAT Base Amount (LCY)");
+        exit(SourceCurrVATBaseAmount);
     end;
 
     local procedure GetVendorPayablesAccount2(var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var GenJournalLine: Record "Gen. Journal Line"; VendPostingGr: Record "Vendor Posting Group"): Code[20]

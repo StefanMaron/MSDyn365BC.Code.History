@@ -81,10 +81,10 @@ report 5405 "Calc. Consumption"
                     NextConsumpJnlLineNo := 10000;
 
                 Window.Open(
-                  Text000 +
-                  Text001 +
-                  Text002 +
-                  Text003);
+                    Text000 +
+                    Text001 +
+                    Text002 +
+                    Text003);
             end;
         }
     }
@@ -155,9 +155,6 @@ report 5405 "Calc. Consumption"
     }
 
     var
-        Item: Record Item;
-        ProdOrderLine: Record "Prod. Order Line";
-        ItemJnlLine: Record "Item Journal Line";
         LastItemJnlLine: Record "Item Journal Line";
         UOMMgt: Codeunit "Unit of Measure Management";
         Window: Dialog;
@@ -165,7 +162,6 @@ report 5405 "Calc. Consumption"
         CalcBasedOn: Option "Actual Output","Expected Output";
         ToTemplateName: Code[10];
         ToBatchName: Code[10];
-        NextConsumpJnlLineNo: Integer;
 
 #pragma warning disable AA0074
         Text000: Label 'Calculating consumption...\\';
@@ -179,6 +175,10 @@ report 5405 "Calc. Consumption"
     protected var
         LocationCode: Code[10];
         ReservedFromStock: Enum "Reservation From Stock";
+        Item: Record Item;
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemJnlLine: Record "Item Journal Line";
+        NextConsumpJnlLineNo: Integer;
 
     procedure InitializeRequest(NewPostingDate: Date; NewCalcBasedOn: Option)
     begin
@@ -196,7 +196,7 @@ report 5405 "Calc. Consumption"
         exit(ManufacturingSetup."Default Consum. Calc. Based on"::"Expected Output");
     end;
 
-    local procedure CreateConsumpJnlLine(LocationCode: Code[10]; BinCode: Code[20]; OriginalQtyToPost: Decimal)
+    procedure CreateConsumpJnlLine(LocationCode: Code[10]; BinCode: Code[20]; OriginalQtyToPost: Decimal)
     var
         Location: Record Location;
 #if not CLEAN27

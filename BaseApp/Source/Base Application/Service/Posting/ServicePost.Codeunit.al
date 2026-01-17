@@ -203,7 +203,7 @@ codeunit 5980 "Service-Post"
             Finalize(ServiceHeader);
 
             OnAfterFinalizePostingOnBeforeCommit(
-              PassedServHeader, PassedServLine, ServDocumentsMgt, PassedShip, PassedConsume, PassedInvoice);
+              PassedServHeader, PassedServLine, ServDocumentsMgt, PassedShip, PassedConsume, PassedInvoice, ServInvoiceNo, ServCrMemoNo, ServShipmentNo);
 
             if WhseShip then
                 WhseServiceRelease.Release(ServiceHeader);
@@ -691,7 +691,7 @@ codeunit 5980 "Service-Post"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterFinalizePostingOnBeforeCommit(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var ServDocumentsMgt: Codeunit "Serv-Documents Mgt."; var PassedShip: Boolean; var PassedConsume: Boolean; var PassedInvoice: Boolean)
+    local procedure OnAfterFinalizePostingOnBeforeCommit(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var ServDocumentsMgt: Codeunit "Serv-Documents Mgt."; var PassedShip: Boolean; var PassedConsume: Boolean; var PassedInvoice: Boolean; ServInvoiceNo: Code[20]; ServCrMemoNo: Code[20]; ServShipmentNo: Code[20])
     begin
     end;
 

@@ -2433,6 +2433,9 @@ table 83 "Item Journal Line"
         SourceCode: Code[10];
         IsHandled: Boolean;
         OldDimSetID: Integer;
+        TableIds: List of [Integer];
+        TableId: Integer;
+        DimSource: Dictionary of [Integer, Code[20]];
     begin
         IsHandled := false;
         OnBeforeCreateDim(Rec, IsHandled, CurrFieldNo, DefaultDimSource, InheritFromDimSetID, InheritFromTableNo);
@@ -2454,11 +2457,23 @@ table 83 "Item Journal Line"
         OnCreateDimOnBeforeUpdateGlobalDimFromDimSetID(Rec, xRec, CurrFieldNo, OldDimSetID, DefaultDimSource, InheritFromDimSetID, InheritFromTableNo);
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
-        if "Entry Type" = "Entry Type"::Transfer then begin
-            "New Dimension Set ID" := "Dimension Set ID";
-            "New Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
-            "New Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
-        end;
+        if "Entry Type" = "Entry Type"::Transfer then
+            if DefaultDimSource.Count() > 1 then begin
+                DimSource := DefaultDimSource.Get(1);
+                TableIds := DimSource.Keys;
+                if TableIds.Count > 0 then begin
+                    TableId := TableIds.Get(1);
+                    if TableId <> 0 then
+                        case TableId of
+                            Database::Location:
+                                CreateNewDimFromDefaultDim(Rec.FieldNo("New Location Code"));
+                            Database::Item:
+                                CreateNewDimFromDefaultDim(Rec.FieldNo("Item No."));
+                            Database::"Salesperson/Purchaser":
+                                CreateNewDimFromDefaultDim(Rec.FieldNo("Salespers./Purch. Code"));
+                        end;
+                end;
+            end;
     end;
 
     /// <summary>
@@ -2533,7 +2548,7 @@ table 83 "Item Journal Line"
     procedure LookupShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         DimMgt.LookupDimValueCode(FieldNumber, ShortcutDimCode);
-        DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
+        ValidateShortcutDimCode(FieldNumber, ShortcutDimCode);
     end;
 
     /// <summary>
@@ -2552,7 +2567,11 @@ table 83 "Item Journal Line"
     /// <param name="NewShortcutDimCode">Value of the new shortcut dimension.</param>
     procedure ValidateNewShortcutDimCode(FieldNumber: Integer; var NewShortcutDimCode: Code[20])
     begin
+        OnBeforeValidateNewShortcutDimCode(Rec, xRec, FieldNumber, NewShortcutDimCode);
+
         DimMgt.ValidateShortcutDimValues(FieldNumber, NewShortcutDimCode, "New Dimension Set ID");
+
+        OnAfterValidateNewShortcutDimCode(Rec, xRec, FieldNumber, NewShortcutDimCode);
     end;
 
     /// <summary>
@@ -2564,7 +2583,7 @@ table 83 "Item Journal Line"
     procedure LookupNewShortcutDimCode(FieldNumber: Integer; var NewShortcutDimCode: Code[20])
     begin
         DimMgt.LookupDimValueCode(FieldNumber, NewShortcutDimCode);
-        DimMgt.ValidateShortcutDimValues(FieldNumber, NewShortcutDimCode, "New Dimension Set ID");
+        ValidateNewShortcutDimCode(FieldNumber, NewShortcutDimCode);
     end;
 
     /// <summary>
@@ -3783,11 +3802,11 @@ table 83 "Item Journal Line"
     begin
         if not DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(FieldNo)) then
             exit;
-        InitDefaultDimensionSources(DefaultDimSource, FieldNo);
+        InitDefaultDimensionSources(DefaultDimSource, FieldNo, false);
         CreateDim(DefaultDimSource);
     end;
 
-    local procedure CreateNewDimFromDefaultDim(FieldNo: Integer)
+    procedure CreateNewDimFromDefaultDim(FieldNo: Integer)
     var
         ItemJournalTemplate: Record "Item Journal Template";
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
@@ -3795,7 +3814,7 @@ table 83 "Item Journal Line"
     begin
         if not DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(FieldNo)) then
             exit;
-        InitDefaultDimensionSources(DefaultDimSource, FieldNo);
+        InitDefaultDimensionSources(DefaultDimSource, FieldNo, true);
 
         SourceCode := "Source Code";
         if SourceCode = '' then
@@ -3827,12 +3846,14 @@ table 83 "Item Journal Line"
         OnAfterInitTableValuePair(Rec, TableValuePair, FieldNo);
     end;
 
-    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer; CalledForNewDimension: Boolean)
     begin
         DimMgt.AddDimSource(DefaultDimSource, Database::Item, Rec."Item No.", FieldNo = Rec.FieldNo("Item No."));
         DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Salespers./Purch. Code", FieldNo = Rec.FieldNo("Salespers./Purch. Code"));
-        DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"));
-        DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."New Location Code", FieldNo = Rec.FieldNo("New Location Code"));
+        if CalledForNewDimension = false then
+            DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"))
+        else
+            DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."New Location Code", FieldNo = Rec.FieldNo("New Location Code"));
 
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
@@ -5307,6 +5328,16 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateEntryTypeBeforeValidateLocationCode(var ItemJnlLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateNewShortcutDimCode(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; FieldNumber: Integer; var NewShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateNewShortcutDimCode(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; FieldNumber: Integer; var NewShortcutDimCode: Code[20])
     begin
     end;
 }

@@ -99,7 +99,6 @@ table 12176 "ABI/CAB Codes"
         ABICAB.Get(ABI, CAB);
     end;
 
-    [Scope('OnPrem')]
     procedure CalcBBAN(ABI: Code[5]; CAB: Code[5]; BankAcc: Text[30]): Code[30]
     var
         tmpBBAN: Code[30];
@@ -111,7 +110,6 @@ table 12176 "ABI/CAB Codes"
         exit(tmpBBAN);
     end;
 
-    [Scope('OnPrem')]
     procedure CalcCIN(ABI: Code[5]; CAB: Code[5]; BankAcc: Text[30]): Code[1]
     var
         tmpBBAN: Code[30];

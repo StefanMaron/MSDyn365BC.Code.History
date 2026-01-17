@@ -1686,6 +1686,9 @@ table 5407 "Prod. Order Component"
         if BinCode <> '' then
             exit;
 
+        if Rec."Bin Code" <> '' then
+            exit(Rec."Bin Code");
+
         BinCode := GetBinCodeFromLocation("Location Code");
 
         if BinCode <> '' then

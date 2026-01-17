@@ -365,6 +365,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM - Planning UT - NamedType LeadTimeCalcNegativeErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1068311504 - NamedType 319115757" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Item %1 in Location %2 should have %3 set to %4. Current %3 is %5.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Item No., %2= Location Code, %3= Replenishment System Caption, %4= Replenishment System::Purchase, %5= Field Value.]D;]A;(LookupHint=Codeunit SCM - Planning UT - NamedType ReplenishmentSystemPurchaseErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1068311504 - NamedType 52278390" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Requisition line is unexpected.]]></Val>
@@ -1632,6 +1641,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Dedicated Bins - NamedType ErrLocationOnResourceCard)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 967609788 - NamedType 2111776054" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The location code should already be set.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Dedicated Bins - NamedType LocationSetErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 967609788 - NamedType 487574238" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -13368,6 +13386,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse Unit Tests - NamedType QtyMustNotBeChangedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3751593413 - NamedType 2738008817" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Qty. to Cross-Dock must be have value.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse Unit Tests - NamedType QtytoCrossDockErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3751593413 - NamedType 305124715" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

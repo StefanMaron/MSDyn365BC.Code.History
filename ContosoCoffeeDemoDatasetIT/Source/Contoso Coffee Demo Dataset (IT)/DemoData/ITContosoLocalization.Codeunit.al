@@ -69,10 +69,14 @@ codeunit 12251 "IT Contoso Localization"
                     CreateVatPostingGroupIT.UpdateVATPostingSetupIT();
                     Codeunit.Run(Codeunit::"Create General Ledger Setup IT");
                     Codeunit.Run(Codeunit::"Create Currency IT");
+                    Codeunit.Run(Codeunit::"Create Posting Group IT");
                     Codeunit.Run(Codeunit::"Create VAT Statement IT");
                 end;
             Enum::"Contoso Demo Data Level"::"Master Data":
-                Codeunit.Run(Codeunit::"Create Currency Ex. Rate IT");
+                begin
+                    Codeunit.Run(Codeunit::"Create Currency Ex. Rate IT");
+                    Codeunit.Run(Codeunit::"Create Allocation Account IT");
+                end;
         end;
     end;
 

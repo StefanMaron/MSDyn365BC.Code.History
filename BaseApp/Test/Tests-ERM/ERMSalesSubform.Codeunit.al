@@ -42,6 +42,10 @@ codeunit 134393 "ERM Sales Subform"
         MustMatchErr: Label '%1 and %2 must match.';
         InvoiceDiscPct: Label 'Invoice Disc. Pct.';
         ItemTestDescriptionLbl: Label 'Test Description';
+        LineNoRemainsZeroLbl: Label 'Line No. should remain zero as zero is allowed';
+        LineNoPositiveAfterInsertNegativeLbl: Label 'Line No. should be positive after insert with negative';
+        NewLineNoGreaterThanPreviousLbl: Label 'New Line No. should be greater than previous';
+        PositiveLineNoRemainUnchangedLbl: Label 'Positive Line No. should remain unchanged';
 
 #if not CLEAN26
     [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
@@ -6667,6 +6671,67 @@ codeunit 134393 "ERM Sales Subform"
            CustInvoiceDisc."Discount %",
            InvDiscPct,
            StrSubstNo(MustMatchErr, CustInvoiceDisc.FieldCaption("Discount %"), InvoiceDiscPct));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OrderLineNoRemainsPositiveWhenAutoSplitKeyExhausted()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Customer: Record Customer;
+        Item: Record Item;
+        PreviousLineNo: Integer;
+    begin
+        // [SCENARIO 612776] When AutoSplitKey exhausts line numbering space causing negative line numbers, new lines get positive line numbers
+        Initialize();
+
+        // [GIVEN] A sales order with a base line
+        LibrarySales.CreateCustomer(Customer);
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [GIVEN] Create a base line to establish max line number
+        SalesLine.Init();
+        SalesLine."Document Type" := SalesHeader."Document Type";
+        SalesLine."Document No." := SalesHeader."No.";
+        SalesLine."Line No." := 10000;
+        SalesLine.Insert(true);
+        PreviousLineNo := SalesLine."Line No.";
+
+        // [WHEN] Inserting a sales line with negative Line No. (simulating AutoSplitKey exhaustion)
+        SalesLine.Init();
+        SalesLine."Document Type" := SalesHeader."Document Type";
+        SalesLine."Document No." := SalesHeader."No.";
+        SalesLine."Line No." := -10000; // Simulate AutoSplitKey assigning negative
+        SalesLine.Insert(true);
+
+        // [THEN] Line No. is reassigned to a positive value greater than previous
+        SalesLine.Find();
+        Assert.IsTrue(SalesLine."Line No." > 0, LineNoPositiveAfterInsertNegativeLbl);
+        Assert.IsTrue(SalesLine."Line No." > PreviousLineNo, NewLineNoGreaterThanPreviousLbl);
+
+        // [WHEN] Inserting a line with Line No. = 0 (zero is allowed, should remain zero)
+        SalesLine.Init();
+        SalesLine."Document Type" := SalesHeader."Document Type";
+        SalesLine."Document No." := SalesHeader."No.";
+        SalesLine."Line No." := 0;
+        SalesLine.Insert(true);
+
+        // [THEN] Line No. remains zero (zero is allowed)
+        SalesLine.Find();
+        Assert.AreEqual(0, SalesLine."Line No.", LineNoRemainsZeroLbl);
+
+        // [WHEN] Inserting a normal line with positive Line No.
+        SalesLine.Init();
+        SalesLine."Document Type" := SalesHeader."Document Type";
+        SalesLine."Document No." := SalesHeader."No.";
+        SalesLine."Line No." := PreviousLineNo + 20000;
+        SalesLine.Insert(true);
+
+        // [THEN] Line No. remains unchanged
+        SalesLine.Find();
+        Assert.AreEqual(PreviousLineNo + 20000, SalesLine."Line No.", PositiveLineNoRemainUnchangedLbl);
     end;
 
     local procedure Initialize()

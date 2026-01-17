@@ -531,6 +531,76 @@ codeunit 144113 "ERM Close Income Statement IT"
         JobQueueEntryCard.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('CloseIncomeStatementRequestPageHandler,CloseOpenBalanceSheetRequestPageHandler,ConfirmHandler,MessageHandler,GeneralJournalBatchesModalPageHandler,DimensionSelectionMultipleModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CloseOpenBalanceSheetWithShortcutDim3()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalLine2: Record "Gen. Journal Line";
+        TempDimSetEntry: Record "Dimension Set Entry" temporary;
+        GLEntry: Record "G/L Entry";
+        Dimension: Record Dimension;
+        OldShortcutDim3Code: Code[20];
+        PostingDate: Date;
+        DocumentNo: Code[20];
+        ExpectedAmount: Decimal;
+    begin
+        // [SCENARIO 614952] Close/Open Balance Sheet report amounts are correct when Shortcut Dimension 3 is used
+        // [GIVEN] Shortcut Dimension 3 is set in General Ledger Setup
+        Initialize();
+        GeneralLedgerSetup.Get();
+        OldShortcutDim3Code := GeneralLedgerSetup."Shortcut Dimension 3 Code";
+        LibraryDimension.CreateDimension(Dimension);
+        GeneralLedgerSetup.Validate("Shortcut Dimension 3 Code", Dimension.Code);
+        GeneralLedgerSetup.Modify(true);
+
+        // [GIVEN] Closed Current Fiscal Year
+        LibraryFiscalYear.CloseFiscalYear();
+        // [GIVEN] Opened new Fiscal Year
+        LibraryFiscalYear.CreateFiscalYear();
+        // [GIVEN] Posted Balance Sheet entry with dimensions including Shortcut Dimension 3
+        PostingDate := LibraryFiscalYear.GetFirstPostingDate(false);
+        CreateAndPostGenJournalLineWithDim(GenJournalLine, PostingDate, TempDimSetEntry, false);
+
+        // [GIVEN] Calculate expected amount from G/L Entries
+        GLEntry.SetRange("G/L Account No.", GenJournalLine."Account No.");
+        GLEntry.SetRange("Posting Date", PostingDate);
+        GLEntry.CalcSums(Amount);
+        ExpectedAmount := GLEntry.Amount;
+
+        // [GIVEN] Closed newly created Fiscal Year
+        LibraryFiscalYear.CloseFiscalYear();
+        DocumentNo := IncStr(GenJournalLine."Document No.");
+        PostingDate := CalcDate('<1M-1D>', LibraryFiscalYear.GetLastPostingDate(true));
+        // [GIVEN] Ran Income Statement Report
+        SelectDimForCloseIncomeStatement(TempDimSetEntry);
+        RunCloseIncomeStatement(GenJournalLine, PostingDate, CreateGLAccount());
+        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJournalLine);
+
+        // [WHEN] Run Close/Open Balance Sheet Report
+        RunCloseOpenBalanceSheet(GenJournalLine, CreateGLAccount(), DocumentNo, false, PostingDate);
+
+        // [THEN] Generated Gen. Journal Lines have correct amounts matching G/L Entry amounts
+        GenJournalLine2.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine2.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine2.SetRange("Account No.", GenJournalLine."Account No.");
+        GenJournalLine2.SetFilter(Amount, '<>%1', 0);
+        GenJournalLine2.SetRange("Document No.", DocumentNo);
+        if GenJournalLine2.Findfirst() then
+            repeat
+                Assert.AreEqual(
+                  -ExpectedAmount, GenJournalLine2.Amount,
+                  StrSubstNo('Amount in journal line should be %1 but was %2', -ExpectedAmount, GenJournalLine2.Amount));
+            until GenJournalLine2.Next() = 0;
+
+        // Tear Down
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Shortcut Dimension 3 Code", OldShortcutDim3Code);
+        GeneralLedgerSetup.Modify(true);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();

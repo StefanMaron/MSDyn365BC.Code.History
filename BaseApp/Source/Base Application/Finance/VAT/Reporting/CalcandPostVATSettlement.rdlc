@@ -4811,6 +4811,30 @@
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
+            <Textbox Name="ActivityCode">
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>="Activity Code: " &amp; Fields!ActivityCode.Value</Value>
+                      <Style>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style />
+                </Paragraph>
+              </Paragraphs>
+              <Top>1.692cm</Top>
+              <Left>0.02728cm</Left>
+              <Height>0.423cm</Height>
+              <Width>7.5cm</Width>
+              <ZIndex>6</ZIndex>
+              <Style>
+                <VerticalAlign>Middle</VerticalAlign>
+              </Style>
+            </Textbox>
             <Textbox Name="CalcandPostVATSettleCptn">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
@@ -5097,6 +5121,9 @@ End Function
         </Field>
         <Field Name="VATEntryRemainingUnrealizedAmountCaption">
           <DataField>VATEntryRemainingUnrealizedAmountCaption</DataField>
+        </Field>
+        <Field Name="ActivityCode">
+          <DataField>ActivityCode</DataField>
         </Field>
         <Field Name="VATBusPostGr1_VATPostingSetup">
           <DataField>VATBusPostGr1_VATPostingSetup</DataField>

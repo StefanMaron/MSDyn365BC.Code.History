@@ -3579,6 +3579,7 @@ table 37 "Sales Line"
         JobCreateInvoice: Codeunit "Job Create-Invoice";
         SplitVATLinesRemoved: Boolean;
         IsHandled: Boolean;
+        RequiresVATRoundingAdjustment: Boolean;
     begin
         IsHandled := false;
         OnDeleteOnBeforeTestStatusOpen(Rec, IsHandled);
@@ -3633,9 +3634,10 @@ table 37 "Sales Line"
         SplitVATLinesRemoved := RemoveSplitVATLinesWithCheck(TableCaption);
 
         // In case we have roundings on VAT or Sales Tax, we should update some other line
-        if (Type <> Type::" ") and ("Line No." <> 0) and not IsExtendedText() and ("Job Contract Entry No." = 0) and
-           (Quantity <> 0) and (Amount <> 0) and (Amount <> "Amount Including VAT") and not StatusCheckSuspended
-        then begin
+        RequiresVATRoundingAdjustment := (Type <> Type::" ") and ("Line No." <> 0) and not IsExtendedText() and ("Job Contract Entry No." = 0) and
+           (Quantity <> 0) and (Amount <> 0) and (Amount <> "Amount Including VAT") and not StatusCheckSuspended;
+        OnBeforeVATRoundingAdjustment(Rec, StatusCheckSuspended, RequiresVATRoundingAdjustment);
+        if RequiresVATRoundingAdjustment then begin
             Quantity := 0;
             "Quantity (Base)" := 0;
             "Qty. to Invoice" := 0;
@@ -3661,6 +3663,9 @@ table 37 "Sales Line"
     trigger OnInsert()
     begin
         TestStatusOpen();
+
+        EnsurePositiveLineNo();
+
         if Quantity <> 0 then begin
             OnBeforeVerifyReservedQty(Rec, xRec, 0);
             SalesLineReserve.VerifyQuantity(Rec, xRec);
@@ -3700,6 +3705,20 @@ table 37 "Sales Line"
     trigger OnRename()
     begin
         Error(Text001, TableCaption);
+    end;
+
+    local procedure EnsurePositiveLineNo()
+    var
+        SalesLine: Record "Sales Line";
+        MaxLineNo: Integer;
+    begin
+        if "Line No." < 0 then begin
+            SalesLine.SetRange("Document Type", "Document Type");
+            SalesLine.SetRange("Document No.", "Document No.");
+            if SalesLine.FindLast() then
+                MaxLineNo := SalesLine."Line No.";
+            "Line No." := MaxLineNo + 10000;
+        end;
     end;
 
     var
@@ -5653,7 +5672,7 @@ table 37 "Sales Line"
     begin
         IsHandled := false;
         ResultDate := 0D;
-        OnBeforeGetDate(ResultDate, IsHandled);
+        OnBeforeGetDate(Rec, ResultDate, IsHandled);
         if IsHandled then
             exit(ResultDate);
 
@@ -12193,7 +12212,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetDate(var ResultDate: Date; var IsHandled: Boolean)
+    local procedure OnBeforeGetDate(var SalesLine: Record "Sales Line"; var ResultDate: Date; var IsHandled: Boolean)
     begin
     end;
 
@@ -12481,6 +12500,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcVATAmountLinesOnBeforeGetDeferralAmount(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVATRoundingAdjustment(var SalesLine: Record "Sales Line"; StatusCheckSuspended: Boolean; var RequiresVATRoundingAdjustment: Boolean)
     begin
     end;
 }

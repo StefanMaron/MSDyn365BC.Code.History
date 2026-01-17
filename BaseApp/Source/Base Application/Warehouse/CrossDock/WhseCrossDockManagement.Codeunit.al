@@ -5,6 +5,7 @@
 namespace Microsoft.Warehouse.CrossDock;
 
 using Microsoft.Foundation.UOM;
+using Microsoft.Foundation.Calendar;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Transfer;
@@ -193,10 +194,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
         CrossDockDate: Date;
     begin
         Location.Get(LocationCode);
-        if Format(Location."Cross-Dock Due Date Calc.") <> '' then
-            CrossDockDate := CalcDate(Location."Cross-Dock Due Date Calc.", WorkDate())
-        else
-            CrossDockDate := WorkDate();
+        CrossDockDate := CalculateCrossDockDate(Location);
 
         OnCalculateCrossDockOnAfterAssignCrossDocDate(
             WhseCrossDockOpportunity, CrossDockDate, ItemNo, VariantCode, LocationCode,
@@ -638,6 +636,22 @@ codeunit 5780 "Whse. Cross-Dock Management"
         if Value1 <= Value2 then
             exit(Value1);
         exit(Value2);
+    end;
+
+    local procedure CalculateCrossDockDate(Location: Record Location): Date
+    var
+        CustomizedCalendarChange: array[2] of Record "Customized Calendar Change";
+        CalendarManagement: Codeunit "Calendar Management";
+    begin
+        if (Format(Location."Cross-Dock Due Date Calc.") <> '') and (Location."Base Calendar Code" <> '') then begin
+            CalendarManagement.SetSource(Location, CustomizedCalendarChange[1]);
+            exit(CalendarManagement.CalcDateBOC(Format(Location."Cross-Dock Due Date Calc."), WorkDate(), CustomizedCalendarChange, false));
+        end;
+
+        if Format(Location."Cross-Dock Due Date Calc.") <> '' then
+            exit(CalcDate(Location."Cross-Dock Due Date Calc.", WorkDate()));
+
+        exit(WorkDate());
     end;
 
     [IntegrationEvent(false, false)]

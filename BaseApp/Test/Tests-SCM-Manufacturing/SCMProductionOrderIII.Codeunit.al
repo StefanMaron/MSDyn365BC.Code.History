@@ -33,6 +33,7 @@ using Microsoft.Warehouse.Setup;
 using Microsoft.Inventory.Item.Substitution;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Foundation.UOM;
+using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Pricing.PriceList;
 using System.Utilities;
@@ -7694,6 +7695,92 @@ codeunit 137079 "SCM Production Order III"
         VerifyRegisteredWhseActivityLine(PurchaseHeader."No.", WarehouseActivityHeader.Type::"Put-away", WareHouseActionType::Place, QtyToHandle);
     end;
 
+    [Test]
+    procedure VerifyACYCalculatedCorrectlyForNonInventoryOutputInProduction()
+    var
+        CompItem: record Item;
+        GeneralPostingSetup: Record "General Posting Setup";
+        NonInvItem: Record Item;
+        OutputItem: Record Item;
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
+        CompUnitCost: Decimal;
+        ExchangeRate: Decimal;
+        ExpectedACY: Decimal;
+        NonInvUnitCost: Decimal;
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 615807] Verify "Cost Amount (Actual) (ACY)" is calculated correctly for non-inventory output in production
+        // when "Include Non-Inventory Items to Production Items" is enabled and Additional Reporting Currency is set up.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Update Automatic Cost Posting, Expected Cost Posting to G/L as true and Automation Cost Adjustment as always in Inventory Setup.
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
+        LibraryInventory.SetAutomaticCostPosting(true);
+        LibraryInventory.SetExpectedCostPosting(true);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Create Currency with exchange rate and set as Additional Reporting Currency.
+        ExchangeRate := LibraryRandom.RandDecInDecimalRange(1.1, 2.0, 2);
+        CreateCurrencyWithExchangeRateAndSetAsACY(ExchangeRate);
+
+        // [GIVEN] Create Production Item, Non-Inventory Item , Component Item with Production BOM.
+        CreateProductionItemWithNonInvItemAndProductionBOM(OutputItem, NonInvItem, CompItem, ProductionBOMHeader);
+
+        // [GIVEN] Save Quantity and Non-Inventory Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        NonInvUnitCost := LibraryRandom.RandIntInRange(10, 10);
+        CompUnitCost := LibraryRandom.RandIntInRange(20, 20);
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem, Quantity, NonInvUnitCost);
+
+        // [GIVEN] Create and Post Purchase Document for Component item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(CompItem, Quantity, CompUnitCost);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, OutputItem."No.", Quantity, '', '');
+
+        // [GIVEN] Update "Direct Cost Non-Inv. App. Acc." in General Posting Setup.
+        GeneralPostingSetup.Get('', OutputItem."Gen. Prod. Posting Group");
+        LibraryERM.UpdateDirectCostNonInventoryAppliedAccountInGeneralPostingSetup(GeneralPostingSetup);
+
+        // [GIVEN] Find Production Order Component.
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.SetRange("Item No.", NonInvItem."No.");
+        ProdOrderComponent.FindFirst();
+
+        // [GIVEN] Create and Post Consumption Journal.
+        CreateAndPostConsumptionJournal(ProductionOrder, ProdOrderComponent, Quantity);
+
+        // [GIVEN] Find Production Order Component.
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.SetRange("Item No.", CompItem."No.");
+        ProdOrderComponent.FindFirst();
+
+        // [GIVEN] Create and Post Consumption Journal.
+        CreateAndPostConsumptionJournal(ProductionOrder, ProdOrderComponent, Quantity);
+
+        // [WHEN] Create and Post Output Journal with output quantity.
+        CreateAndPostOutputJournalWithRunTimeAndUnitCost(ProductionOrder."No.", Quantity, 0, 0);
+
+        // [WHEN] Change Prod Order Status from Released to Finished.
+        ProdOrderStatusMgt.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), true);
+
+        // [THEN] Verify "Cost Amount (Actual) (ACY)" is calculated from exchange rate, not just reversed.
+        ExpectedACY := NonInvUnitCost * Quantity * ExchangeRate;
+        VerifyCostAmountACYForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::"Direct Cost - Non Inventory", OutputItem, ExpectedACY);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");
@@ -10636,6 +10723,31 @@ codeunit 137079 "SCM Production Order III"
         ReservationEntry.SetRange("Source Type", SourceType);
         ReservationEntry.SetRange("Reservation Status", ReservationStatus);
         Assert.IsFalse(ReservationEntry.IsEmpty(), StrSubstNo(ReservationEntryMustExistErr, ReservationEntry.TableCaption));
+    end;
+
+    local procedure CreateCurrencyWithExchangeRateAndSetAsACY(ExchangeRateAmount: Decimal): Code[10]
+    var
+        Currency: Record Currency;
+    begin
+        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
+        LibraryERM.CreateExchangeRate(Currency.Code, CalcDate('<CY-2Y+1D>', WorkDate()), ExchangeRateAmount, ExchangeRateAmount);
+        LibraryERM.SetAddReportingCurrency(Currency.Code);
+        exit(Currency.Code);
+    end;
+
+    local procedure VerifyCostAmountACYForValueEntry(ProductionOrder: Record "Production Order"; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; CostEntryType: Enum "Cost Entry Type"; Item: Record Item; ExpectedACY: Decimal)
+    var
+        ValueEntry: Record "Value Entry";
+    begin
+        ValueEntry.SetRange("Document No.", ProductionOrder."No.");
+        ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgerEntryType);
+        ValueEntry.SetRange("Entry Type", CostEntryType);
+        ValueEntry.SetRange("Item No.", Item."No.");
+        ValueEntry.FindFirst();
+        Assert.AreEqual(
+            ExpectedACY,
+            ValueEntry."Cost Amount (Actual) (ACY)",
+            StrSubstNo(EntryMustBeEqualErr, ValueEntry.FieldCaption("Cost Amount (Actual) (ACY)"), ExpectedACY, ValueEntry."Entry No.", ValueEntry.TableCaption()));
     end;
 
     [PageHandler]

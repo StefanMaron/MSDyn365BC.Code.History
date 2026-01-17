@@ -558,10 +558,17 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
     end;
 
     local procedure CalcCostPerUnit(var OutbndValueEntry: Record "Value Entry"; OutbndCostElementBuf: Record "Cost Element Buffer"; ItemLedgEntryQty: Decimal)
+    var
+        CalcCostPerUnit: Boolean;
+        CalcCostPerUnitACY: Boolean;
     begin
-        if (OutbndValueEntry."Cost per Unit" = 0) and (OutbndCostElementBuf."Remaining Quantity" <> 0) then
+        CalcCostPerUnit := (OutbndValueEntry."Cost per Unit" = 0) and (OutbndCostElementBuf."Remaining Quantity" <> 0);
+        CalcCostPerUnitACY := (OutbndValueEntry."Cost per Unit (ACY)" = 0) and (OutbndCostElementBuf."Remaining Quantity" <> 0);
+        OnCalcCostPerUnitOnBeforeCalcCostPerUnit(OutbndValueEntry, OutbndCostElementBuf, CalcCostPerUnit, CalcCostPerUnitACY);
+
+        if CalcCostPerUnit then
             OutbndValueEntry."Cost per Unit" := OutbndCostElementBuf."Actual Cost" / (ItemLedgEntryQty - OutbndCostElementBuf."Remaining Quantity");
-        if (OutbndValueEntry."Cost per Unit (ACY)" = 0) and (OutbndCostElementBuf."Remaining Quantity" <> 0) then
+        if CalcCostPerUnitACY then
             OutbndValueEntry."Cost per Unit (ACY)" := OutbndCostElementBuf."Actual Cost (ACY)" / (ItemLedgEntryQty - OutbndCostElementBuf."Remaining Quantity");
     end;
 
@@ -751,6 +758,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
     local procedure CalcTransEntryOldCost(var CostElementBuf: Record "Cost Element Buffer"; var TransValueEntry: Record "Value Entry"; ItemLedgEntryNo: Integer)
     var
         TransValueEntry2: Record "Value Entry";
+        ProcessTransValueEntry: Boolean;
     begin
         Clear(CostElementBuf);
         TransValueEntry2 := TransValueEntry;
@@ -761,7 +769,9 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
         LoadFields(TransValueEntry);
         TransValueEntry.FindSet();
         repeat
-            if TransValueEntry."Item Charge No." = '' then begin
+            ProcessTransValueEntry := TransValueEntry."Item Charge No." = '';
+            OnCalcTransEntryOldCostOnBeforeProcessTransValueEntry(TransValueEntry, ProcessTransValueEntry);
+            if ProcessTransValueEntry then begin
                 if TempInvtAdjmtBuf.Get(TransValueEntry."Entry No.") then
                     TransValueEntry.AddCost(TempInvtAdjmtBuf);
                 CostElementBuf."Actual Cost" := CostElementBuf."Actual Cost" + TransValueEntry."Cost Amount (Actual)";
@@ -1172,6 +1182,8 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
         ItemJnlLine."Quantity (Base)" := 1;
         ItemJnlLine."Invoiced Qty. (Base)" := 1;
         ItemJnlLine."Source No." := OrigValueEntry."Source No.";
+
+        OnAfterInitRndgResidualItemJnlLine(ItemJnlLine, OrigValueEntry);
     end;
 
     local procedure AdjustItemAvgCost()
@@ -1787,7 +1799,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
         OrigValueEntry: Record "Value Entry";
         IsHandled: Boolean;
     begin
-        OrigValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
+        OrigValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type", SystemCreatedAt);
         OrigValueEntry.SetRange("Item Ledger Entry No.", TempInvtAdjmtBuf."Item Ledger Entry No.");
         OrigValueEntry.SetBaseLoadFields();
         OrigValueEntry.FindFirst();
@@ -1971,6 +1983,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
                             PostItemJnlLine(ItemJnlLine, OrigValueEntry, TempInvtAdjmtBuf."Cost Amount (Expected)", TempInvtAdjmtBuf."Cost Amount (Expected) (ACY)");
                         end;
                         InitAdjmtJnlLine(ItemJnlLine, OrigValueEntry, TempInvtAdjmtBuf."Entry Type", TempInvtAdjmtBuf."Variance Type", OrigValueEntry."Invoiced Quantity");
+                        OnPostAdjmtBufOnBeforePostNewCost(ItemJnlLine, OrigValueEntry, TempInvtAdjmtBuf);
                         PostItemJnlLine(ItemJnlLine, OrigValueEntry, TempInvtAdjmtBuf."Cost Amount (Actual)", TempInvtAdjmtBuf."Cost Amount (Actual) (ACY)");
 
                         OnPostAdjmtBufOnAfterPostNewCost(OrigValueEntry, TempInvtAdjmtBuf);
@@ -3369,6 +3382,11 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostAdjmtBufOnBeforePostNewCost(var ItemJournalLine: Record "Item Journal Line"; OrigValueEntry: Record "Value Entry"; TempInventoryAdjustmentBuffer: Record "Inventory Adjustment Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostAdjmtBufOnAfterPostNewCost(ValueEntry: Record "Value Entry"; TempInventoryAdjustmentBuffer: Record "Inventory Adjustment Buffer" temporary)
     begin
     end;
@@ -3467,6 +3485,16 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCalcCostPerUnitOnBeforeCalcCostPerUnit(var OutbndValueEntry: Record "Value Entry"; OutbndCostElementBuffer: Record "Cost Element Buffer"; var CalcCostPerUnit: Boolean; var CalcCostPerUnitACY: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcTransEntryOldCostOnBeforeProcessTransValueEntry(var TransValueEntry: Record "Value Entry"; var ProcessTransValueEntry: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAdjustAppliedOutbndEntry(var OutbndItemLedgEntry: Record "Item Ledger Entry")
     begin
     end;
@@ -3535,6 +3563,11 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
 
     [IntegrationEvent(true, false)]
     local procedure OnCalcInbndEntryAdjustedCostOnBeforeCalcNewAdjustedCost(var CostElementBuffer: Record "Cost Element Buffer"; ItemApplicationEntry: Record "Item Application Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitRndgResidualItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ValueEntry: Record "Value Entry")
     begin
     end;
 }

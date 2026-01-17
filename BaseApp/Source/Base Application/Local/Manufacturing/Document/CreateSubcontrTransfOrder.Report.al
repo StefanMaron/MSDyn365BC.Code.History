@@ -17,9 +17,9 @@ report 12152 "Create Subcontr.Transf. Order"
 {
     Caption = 'Create Subcontr.Transf. Order';
     ProcessingOnly = true;
-            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
-            ObsoleteState = Pending;
-            ObsoleteTag = '27.0';
+    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+    ObsoleteState = Pending;
+    ObsoleteTag = '27.0';
 
     dataset
     {
@@ -265,7 +265,7 @@ report 12152 "Create Subcontr.Transf. Order"
                         TransferLine."Work Center No." := PurchLine."Work Center No.";
                         TransferLine."Operation No." := PurchLine."Operation No.";
                         TransferLine.Insert();
-                        OnCheckPurchLineOnAfterTransferLineInsert(TransferHeader, TransferLine, PurchLine);
+                        OnCheckPurchLineOnAfterTransferLineInsert(TransferHeader, TransferLine, PurchLine, ProdOrderComponent);
 
                         if ProdOrderComponent."Original Location" = '' then
                             ProdOrderComponent."Original Location" := ProdOrderComponent."Location Code";
@@ -315,7 +315,7 @@ report 12152 "Create Subcontr.Transf. Order"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnCheckPurchLineOnAfterTransferLineInsert(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; PurchaseLine: Record "Purchase Line")
+    local procedure OnCheckPurchLineOnAfterTransferLineInsert(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; PurchaseLine: Record "Purchase Line"; var ProdOrderComponent: Record "Prod. Order Component")
     begin
     end;
 

@@ -94,48 +94,44 @@ codeunit 12136 "VATSettl ActCode FeatDataUpd" implements "Feature Data Update"
 
     local procedure UpgradeCalcAndPostPerActivityCode()
     var
-        Company: Record Company;
         PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry";
         PeriodicSettlVATEntry: Record "Periodic VAT Settlement Entry";
+        PeriodicVATSettlement: Codeunit "Periodic VAT Settlement";
     begin
-        if Company.FindSet() then
+        if PeriodicSettlementVATEntry.FindSet() then
             repeat
-                PeriodicSettlementVATEntry.ChangeCompany(Company.Name);
-                PeriodicSettlVATEntry.ChangeCompany(Company.Name);
-                if PeriodicSettlementVATEntry.FindSet() then
-                    repeat
-                        PeriodicSettlVATEntry."VAT Period" := PeriodicSettlementVATEntry."VAT Period";
-                        PeriodicSettlVATEntry."VAT Settlement" := PeriodicSettlementVATEntry."VAT Settlement";
-                        PeriodicSettlVATEntry."Add-Curr. VAT Settlement" := PeriodicSettlementVATEntry."Add-Curr. VAT Settlement";
-                        PeriodicSettlVATEntry."Prior Period Input VAT" := PeriodicSettlementVATEntry."Prior Period Input VAT";
-                        PeriodicSettlVATEntry."Prior Period Output VAT" := PeriodicSettlementVATEntry."Prior Period Output VAT";
-                        PeriodicSettlVATEntry."Add Curr. Prior Per. Inp. VAT" := PeriodicSettlementVATEntry."Add Curr. Prior Per. Inp. VAT";
-                        PeriodicSettlVATEntry."Add Curr. Prior Per. Out VAT" := PeriodicSettlementVATEntry."Add Curr. Prior Per. Out VAT";
-                        PeriodicSettlVATEntry."Paid Amount" := PeriodicSettlementVATEntry."Paid Amount";
-                        PeriodicSettlVATEntry."Advanced Amount" := PeriodicSettlementVATEntry."Advanced Amount";
-                        PeriodicSettlVATEntry."Add-Curr. Paid. Amount" := PeriodicSettlementVATEntry."Add-Curr. Paid. Amount";
-                        PeriodicSettlVATEntry."Add-Curr. Advanced Amount" := PeriodicSettlementVATEntry."Add-Curr. Advanced Amount";
-                        PeriodicSettlVATEntry."Bank Code" := PeriodicSettlementVATEntry."Bank Code";
-                        PeriodicSettlVATEntry."Paid Date" := PeriodicSettlementVATEntry."Paid Date";
-                        PeriodicSettlVATEntry.Description := PeriodicSettlementVATEntry.Description;
-                        PeriodicSettlVATEntry."VAT Period Closed" := PeriodicSettlementVATEntry."VAT Period Closed";
-                        PeriodicSettlVATEntry."Prior Year Input VAT" := PeriodicSettlementVATEntry."Prior Year Input VAT";
-                        PeriodicSettlVATEntry."Prior Year Output VAT" := PeriodicSettlementVATEntry."Prior Year Output VAT";
-                        PeriodicSettlVATEntry."Add Curr.Prior Year Inp. VAT" := PeriodicSettlementVATEntry."Add Curr.Prior Year Inp. VAT";
-                        PeriodicSettlVATEntry."Add Curr.Prior Year Out. VAT" := PeriodicSettlementVATEntry."Add Curr.Prior Year Out. VAT";
-                        PeriodicSettlVATEntry."Payable VAT Variation" := PeriodicSettlementVATEntry."Payable VAT Variation";
-                        PeriodicSettlVATEntry."Deductible VAT Variation" := PeriodicSettlementVATEntry."Deductible VAT Variation";
-                        PeriodicSettlVATEntry."Tax Debit Variation" := PeriodicSettlementVATEntry."Tax Debit Variation";
-                        PeriodicSettlVATEntry."Tax Credit Variation" := PeriodicSettlementVATEntry."Tax Credit Variation";
-                        PeriodicSettlVATEntry."Unpaid VAT Previous Periods" := PeriodicSettlementVATEntry."Unpaid VAT Previous Periods";
-                        PeriodicSettlVATEntry."Tax Debit Variation Interest" := PeriodicSettlementVATEntry."Tax Debit Variation Interest";
-                        PeriodicSettlVATEntry."Omit VAT Payable Interest" := PeriodicSettlementVATEntry."Omit VAT Payable Interest";
-                        PeriodicSettlVATEntry."Credit VAT Compensation" := PeriodicSettlementVATEntry."Credit VAT Compensation";
-                        PeriodicSettlVATEntry."Special Credit" := PeriodicSettlementVATEntry."Special Credit";
-                        OnAfterTransferfieldsToPeriodicSettlVATEntry(Company.Name, PeriodicSettlementVATEntry, PeriodicSettlVATEntry);
-                        PeriodicSettlVATEntry.Insert(true);
-                    until PeriodicSettlementVATEntry.Next() = 0;
-            until Company.Next() = 0;
+                PeriodicSettlVATEntry."VAT Period" := PeriodicSettlementVATEntry."VAT Period";
+                PeriodicSettlVATEntry."VAT Settlement" := PeriodicSettlementVATEntry."VAT Settlement";
+                PeriodicSettlVATEntry."Add-Curr. VAT Settlement" := PeriodicSettlementVATEntry."Add-Curr. VAT Settlement";
+                PeriodicSettlVATEntry."Prior Period Input VAT" := PeriodicSettlementVATEntry."Prior Period Input VAT";
+                PeriodicSettlVATEntry."Prior Period Output VAT" := PeriodicSettlementVATEntry."Prior Period Output VAT";
+                PeriodicSettlVATEntry."Add Curr. Prior Per. Inp. VAT" := PeriodicSettlementVATEntry."Add Curr. Prior Per. Inp. VAT";
+                PeriodicSettlVATEntry."Add Curr. Prior Per. Out VAT" := PeriodicSettlementVATEntry."Add Curr. Prior Per. Out VAT";
+                PeriodicSettlVATEntry."Paid Amount" := PeriodicSettlementVATEntry."Paid Amount";
+                PeriodicSettlVATEntry."Advanced Amount" := PeriodicSettlementVATEntry."Advanced Amount";
+                PeriodicSettlVATEntry."Add-Curr. Paid. Amount" := PeriodicSettlementVATEntry."Add-Curr. Paid. Amount";
+                PeriodicSettlVATEntry."Add-Curr. Advanced Amount" := PeriodicSettlementVATEntry."Add-Curr. Advanced Amount";
+                PeriodicSettlVATEntry."Bank Code" := PeriodicSettlementVATEntry."Bank Code";
+                PeriodicSettlVATEntry."Paid Date" := PeriodicSettlementVATEntry."Paid Date";
+                PeriodicSettlVATEntry.Description := PeriodicSettlementVATEntry.Description;
+                PeriodicSettlVATEntry."VAT Period Closed" := PeriodicSettlementVATEntry."VAT Period Closed";
+                PeriodicSettlVATEntry."Prior Year Input VAT" := PeriodicSettlementVATEntry."Prior Year Input VAT";
+                PeriodicSettlVATEntry."Prior Year Output VAT" := PeriodicSettlementVATEntry."Prior Year Output VAT";
+                PeriodicSettlVATEntry."Add Curr.Prior Year Inp. VAT" := PeriodicSettlementVATEntry."Add Curr.Prior Year Inp. VAT";
+                PeriodicSettlVATEntry."Add Curr.Prior Year Out. VAT" := PeriodicSettlementVATEntry."Add Curr.Prior Year Out. VAT";
+                PeriodicSettlVATEntry."Payable VAT Variation" := PeriodicSettlementVATEntry."Payable VAT Variation";
+                PeriodicSettlVATEntry."Deductible VAT Variation" := PeriodicSettlementVATEntry."Deductible VAT Variation";
+                PeriodicSettlVATEntry."Tax Debit Variation" := PeriodicSettlementVATEntry."Tax Debit Variation";
+                PeriodicSettlVATEntry."Tax Credit Variation" := PeriodicSettlementVATEntry."Tax Credit Variation";
+                PeriodicSettlVATEntry."Unpaid VAT Previous Periods" := PeriodicSettlementVATEntry."Unpaid VAT Previous Periods";
+                PeriodicSettlVATEntry."Tax Debit Variation Interest" := PeriodicSettlementVATEntry."Tax Debit Variation Interest";
+                PeriodicSettlVATEntry."Omit VAT Payable Interest" := PeriodicSettlementVATEntry."Omit VAT Payable Interest";
+                PeriodicSettlVATEntry."Credit VAT Compensation" := PeriodicSettlementVATEntry."Credit VAT Compensation";
+                PeriodicSettlVATEntry."Special Credit" := PeriodicSettlementVATEntry."Special Credit";
+                OnAfterTransferfieldsToPeriodicSettlVATEntry(CompanyName(), PeriodicSettlementVATEntry, PeriodicSettlVATEntry);
+                PeriodicVATSettlement.OnAfterTransferfieldsToPeriodicSettlVATEntry(PeriodicSettlementVATEntry, PeriodicSettlVATEntry);
+                PeriodicSettlVATEntry.Insert(true);
+            until PeriodicSettlementVATEntry.Next() = 0;
     end;
 
     local procedure SetUpgradeTag(DataUpgradeExecuted: Boolean)
