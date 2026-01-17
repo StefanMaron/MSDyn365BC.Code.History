@@ -459,6 +459,7 @@ page 183 "Reverse Transaction Entries"
     var
         ReversalPost: Codeunit "Reversal-Post";
     begin
+        OnBeforePost(Rec);
         ReversalPost.SetPrint(PrintRegister);
         ReversalPost.Run(Rec);
         CurrPage.Update(false);
@@ -568,6 +569,11 @@ page 183 "Reverse Transaction Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetEntryTypeText(var ReversalEntry: Record "Reversal Entry"; var Text: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePost(var TempReversalEntry: Record "Reversal Entry" temporary)
     begin
     end;
 }
