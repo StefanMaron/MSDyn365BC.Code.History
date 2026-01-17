@@ -264,6 +264,6 @@ codeunit 6753 "Send Reminder Event Handler"
             TempBlob.CreateInStream(AttachmentStream);
 
             TempEmailItem.AddAttachment(AttachmentStream, AttachmentFileName);
-        until ReportSelections.Next() = 0;
+        until TempAttachementReportSelections.Next() = 0;
     end;
 }

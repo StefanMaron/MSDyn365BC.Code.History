@@ -86,6 +86,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = value of "Allow Invoice Disc." field which can be either true or false.]D;]A;(LookupHint=Codeunit Cust/Vend/Item/Empl Templates - NamedType ItemTemplateAllowInvoiceDiscErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3467874167 - NamedType 682822190" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 should be empty]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption]D;]A;(LookupHint=Codeunit Cust/Vend/Item/Empl Templates - NamedType ItemTrackingCodeErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3467874167 - NamedType 2830596812" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[that cannot be found in the related table]]></Val>

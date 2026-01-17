@@ -1439,8 +1439,9 @@ codeunit 6500 "Item Tracking Management"
             if ItemTrackingCode."Package Specific Tracking" then
                 SourceReservEntry.SetRange("Package No.", WhseItemTrkgLine."Package No.");
             if SourceReservEntry.FindFirst() then
-                if Abs(SourceReservEntry."Quantity (Base)") > WhseItemTrkgLine."Quantity Handled (Base)" then
-                    WhseItemTrkgLine.Validate("Quantity (Base)", Abs(SourceReservEntry."Quantity (Base)"));
+                if not Registering then
+                    if Abs(SourceReservEntry."Quantity (Base)") > WhseItemTrkgLine."Quantity Handled (Base)" then
+                        WhseItemTrkgLine.Validate("Quantity (Base)", Abs(SourceReservEntry."Quantity (Base)"));
         end;
 
         if WhseItemTrkgLine."Quantity (Base)" >= WhseItemTrkgLine."Quantity Handled (Base)" then
