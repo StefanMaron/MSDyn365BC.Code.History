@@ -62,6 +62,9 @@ table 10044 "IRS 1099 Vend. Form Box Buffer"
         field(17; "Vendor Ledger Entry No."; Integer)
         {
         }
+        field(18; "Calculated Amount"; Decimal)
+        {
+        }
     }
 
     keys

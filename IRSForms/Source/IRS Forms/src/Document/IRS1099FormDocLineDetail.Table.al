@@ -50,6 +50,11 @@ table 10038 "IRS 1099 Form Doc. Line Detail"
             Editable = false;
             FieldClass = FlowField;
         }
+        field(201; "Calculated Amount"; Decimal)
+        {
+            Caption = 'Calculated Amount';
+            Editable = false;
+        }
     }
 
     keys

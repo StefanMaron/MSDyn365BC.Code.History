@@ -167,6 +167,24 @@
       <Cmt Name="Dev"><![CDATA[%1 = Document Type, %2 = Document No, %3 = Error text]D;]A;(LookupHint=Codeunit Doc. Backgr. Error Handling - NamedType InvalidDimensionsErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1257424307 - NamedType 272352229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There is nothing to post because the document does not contain a quantity or amount.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Doc. Backgr. Error Handling - NamedType NothingToPostErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1257424307 - NamedType 743217937" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected error message in Purchase Doc. Check Factbox]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Doc. Backgr. Error Handling - NamedType UnexpectedErrorInPurchaseDocCheckFactboxErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 682729763 - NamedType 4266379167" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Cash Flow Worksheet Line must not be found.]]></Val>
@@ -3209,6 +3227,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intercompany III - NamedType SendAgainQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1585422310 - NamedType 1421536719" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Cost adjustment amount must be %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Inv Discount by Currency - NamedType CostAdjustmentAmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1585422310 - NamedType 3742820574" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in %3.]]></Val>
@@ -4935,6 +4962,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Order - NamedType InvoiceDiscountChangedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1951354433 - NamedType 3254516274" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Item Charge %1 should be calculated proportionally to avoid rounding differences]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Field Caption]D;]A;(LookupHint=Codeunit ERM Purchase Order - NamedType ItemChargeCalculatedProportionallyErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1951354433 - NamedType 3879463934" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

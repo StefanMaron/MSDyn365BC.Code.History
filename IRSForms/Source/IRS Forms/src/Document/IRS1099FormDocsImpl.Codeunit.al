@@ -46,7 +46,7 @@ codeunit 10036 "IRS 1099 Form Docs Impl." implements "IRS 1099 Create Form Docs"
                         TempVendFormBoxBuffer.SetRange("Buffer Type", TempVendFormBoxBuffer."Buffer Type"::"Ledger Entry");
                         if TempVendFormBoxBuffer.FindSet() then
                             repeat
-                                AddFormDocLineDetail(TempIRS1099FormDocLineDetail, TempIRS1099FormDocLine, TempVendFormBoxBuffer."Vendor Ledger Entry No.");
+                                AddFormDocLineDetail(TempIRS1099FormDocLineDetail, TempIRS1099FormDocLine, TempVendFormBoxBuffer."Vendor Ledger Entry No.", TempVendFormBoxBuffer."Calculated Amount");
                             until TempVendFormBoxBuffer.Next() = 0;
                         TempVendFormBoxBuffer.Copy(CurrVendFormBoxBuffer);
                     end;
@@ -64,6 +64,16 @@ codeunit 10036 "IRS 1099 Form Docs Impl." implements "IRS 1099 Create Form Docs"
         IRS1099FormDocHeader: Record "IRS 1099 Form Doc. Header";
         IRS1099FormDocument: Codeunit "IRS 1099 Form Document";
     begin
+        if (IRS1099CalcParameters."Vendor No." <> '') and
+           (VendFormBoxBuffer."Vendor No." <> IRS1099CalcParameters."Vendor No.")
+        then
+            exit(true);
+
+        if (IRS1099CalcParameters."Form No." <> '') and
+           (VendFormBoxBuffer."Form No." <> IRS1099CalcParameters."Form No.")
+        then
+            exit(true);
+
         VendFormBoxBuffer.SetRange("Vendor No.", VendFormBoxBuffer."Vendor No.");
         VendFormBoxBuffer.SetRange("Form No.", VendFormBoxBuffer."Form No.");
         IRS1099FormDocHeader.SetRange("Period No.", VendFormBoxBuffer."Period No.");
@@ -93,7 +103,7 @@ codeunit 10036 "IRS 1099 Form Docs Impl." implements "IRS 1099 Create Form Docs"
         TempIRS1099FormDocHeader."Period No." := VendFormBoxBuffer."Period No.";
         TempIRS1099FormDocHeader."Vendor No." := VendFormBoxBuffer."Vendor No.";
         TempIRS1099FormDocHeader."Form No." := VendFormBoxBuffer."Form No.";
-        TempIRS1099FormDocHeader.Insert(true);
+        TempIRS1099FormDocHeader.Insert();
     end;
 
     procedure AddTempFormLineFromBuffer(var TempIRS1099FormDocLine: Record "IRS 1099 Form Doc. Line" temporary; IRS1099FormDocHeader: Record "IRS 1099 Form Doc. Header"; VendFormBoxBuffer: Record "IRS 1099 Vend. Form Box Buffer"; LineNo: Integer)
@@ -114,11 +124,12 @@ codeunit 10036 "IRS 1099 Form Docs Impl." implements "IRS 1099 Create Form Docs"
         TempIRS1099FormDocLine.Insert();
     end;
 
-    local procedure AddFormDocLineDetail(var TempIRS1099FormDocLineDetail: Record "IRS 1099 Form Doc. Line Detail" temporary; IRS1099FormDocLine: Record "IRS 1099 Form Doc. Line"; EntryNo: Integer)
+    local procedure AddFormDocLineDetail(var TempIRS1099FormDocLineDetail: Record "IRS 1099 Form Doc. Line Detail" temporary; IRS1099FormDocLine: Record "IRS 1099 Form Doc. Line"; EntryNo: Integer; CalculatedAmount: Decimal)
     begin
         TempIRS1099FormDocLineDetail.Validate("Document ID", IRS1099FormDocLine."Document ID");
         TempIRS1099FormDocLineDetail.Validate("Line No.", IRS1099FormDocLine."Line No.");
         TempIRS1099FormDocLineDetail.Validate("Vendor Ledger Entry No.", EntryNo);
+        TempIRS1099FormDocLineDetail."Calculated Amount" := CalculatedAmount;
         TempIRS1099FormDocLineDetail.Insert(true);
     end;
 
@@ -127,21 +138,19 @@ codeunit 10036 "IRS 1099 Form Docs Impl." implements "IRS 1099 Create Form Docs"
         IRS1099FormDocHeader: Record "IRS 1099 Form Doc. Header";
         IRS1099FormDocLine: Record "IRS 1099 Form Doc. Line";
         IRS1099FormDocLineDetail: Record "IRS 1099 Form Doc. Line Detail";
-        DocID: Integer;
+        TempDocID: Integer;
     begin
-        if IRS1099FormDocHeader.FindLast() then
-            DocID := IRS1099FormDocHeader.ID;
         TempIRS1099FormDocHeader.Reset();
         TempIRS1099FormDocLine.Reset();
         if TempIRS1099FormDocHeader.FindSet() then
             repeat
-                DocID += 1;
+                TempDocID := TempIRS1099FormDocHeader.ID;
                 IRS1099FormDocHeader := TempIRS1099FormDocHeader;
-                IRS1099FormDocHeader.ID := DocID;
+                IRS1099FormDocHeader.ID := 0;
                 IRS1099FormDocHeader.Validate("Vendor No.");
                 IRS1099FormDocHeader.Insert(true);
                 IRS1099FormDocHeaderIDs.Add(IRS1099FormDocHeader.ID);
-                TempIRS1099FormDocLine.SetRange("Document ID", TempIRS1099FormDocHeader.ID);
+                TempIRS1099FormDocLine.SetRange("Document ID", TempDocID);
                 if TempIRS1099FormDocLine.FindSet() then
                     repeat
                         IRS1099FormDocLine := TempIRS1099FormDocLine;
@@ -149,7 +158,7 @@ codeunit 10036 "IRS 1099 Form Docs Impl." implements "IRS 1099 Create Form Docs"
                         IRS1099FormDocLine.Validate(Amount, IRS1099FormDocLine.Amount);
                         IRS1099FormDocLine.Insert(true);
                         if IRSFormsSetup."Collect Details For Line" then begin
-                            TempIRS1099FormDocLineDetail.SetRange("Document ID", TempIRS1099FormDocLine."Document ID");
+                            TempIRS1099FormDocLineDetail.SetRange("Document ID", TempDocID);
                             TempIRS1099FormDocLineDetail.SetRange("Line No.", TempIRS1099FormDocLine."Line No.");
                             if TempIRS1099FormDocLineDetail.FindSet() then
                                 repeat
@@ -191,7 +200,7 @@ codeunit 10036 "IRS 1099 Form Docs Impl." implements "IRS 1099 Create Form Docs"
             TempVendFormBoxBuffer.SetRange("Buffer Type", TempVendFormBoxBuffer."Buffer Type"::"Ledger Entry");
             if TempVendFormBoxBuffer.FindSet() then
                 repeat
-                    AddFormDocLineDetail(TempIRS1099FormDocLineDetail, TempIRS1099FormDocLine, TempVendFormBoxBuffer."Vendor Ledger Entry No.");
+                    AddFormDocLineDetail(TempIRS1099FormDocLineDetail, TempIRS1099FormDocLine, TempVendFormBoxBuffer."Vendor Ledger Entry No.", TempVendFormBoxBuffer."Calculated Amount");
                 until TempVendFormBoxBuffer.Next() = 0;
             TempVendFormBoxBuffer.Copy(CurrVendFormBoxBuffer);
         end;
