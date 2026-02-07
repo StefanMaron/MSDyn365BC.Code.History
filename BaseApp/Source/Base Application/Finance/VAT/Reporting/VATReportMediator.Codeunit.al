@@ -51,6 +51,19 @@ codeunit 740 "VAT Report Mediator"
         VATReportExport.Export(VATReportHeader);
     end;
 
+#if not CLEAN28
+    /// <summary>
+    /// Exports VAT report using the legacy report format.
+    /// </summary>
+    /// <param name="VATReportHeader">VAT report to export</param>
+    internal procedure ExportLegacy(VATReportHeader: Record "VAT Report Header")
+    var
+        VATReportExport: Codeunit "VAT Report Export";
+    begin
+        VATReportExport.ExportLegacy(VATReportHeader);
+    end;
+#endif
+
     procedure Release(VATReportHeader: Record "VAT Report Header")
     begin
         VATReportReleaseReopen.Release(VATReportHeader);
