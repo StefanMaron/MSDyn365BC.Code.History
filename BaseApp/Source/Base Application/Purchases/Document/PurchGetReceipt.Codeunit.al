@@ -1,5 +1,6 @@
 namespace Microsoft.Purchases.Document;
 
+using Microsoft.Finance.Currency;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.UOM;
 using Microsoft.Purchases.History;
@@ -219,6 +220,7 @@ codeunit 74 "Purch.-Get Receipt"
         PurchLine2: Record "Purchase Line";
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
         ItemChargeAssgntPurch2: Record "Item Charge Assignment (Purch)";
+        Currency: Record Currency;
         InsertChargeAssgnt: Boolean;
         LineQtyToAssign: Decimal;
     begin
@@ -257,6 +259,22 @@ codeunit 74 "Purch.-Get Receipt"
                                 ItemChargeAssgntPurch2."Qty. to Assign" :=
                                   PurchLine2.Quantity - PurchLine2."Qty. to Assign";
                             ItemChargeAssgntPurch2.Validate("Unit Cost");
+                            if ItemChargeAssgntPurch."Qty. to Assign" <> 0 then begin
+                                GetItemChargeAssgntCurrency(Currency, ItemChargeAssgntPurch2);
+                                ItemChargeAssgntPurch2."Amount to Assign" :=
+                                    Round(
+                                        ItemChargeAssgntPurch2."Qty. to Assign" / ItemChargeAssgntPurch."Qty. to Assign" *
+                                        ItemChargeAssgntPurch."Amount to Assign",
+                                        Currency."Amount Rounding Precision");
+                            end;
+                            if ItemChargeAssgntPurch."Qty. to Handle" <> 0 then begin
+                                GetItemChargeAssgntCurrency(Currency, ItemChargeAssgntPurch2);
+                                ItemChargeAssgntPurch2."Amount to Handle" :=
+                                    Round(
+                                        ItemChargeAssgntPurch2."Qty. to Handle" / ItemChargeAssgntPurch."Qty. to Handle" *
+                                        ItemChargeAssgntPurch."Amount to Handle",
+                                        Currency."Amount Rounding Precision");
+                            end;
 
                             if ItemChargeAssgntPurch2."Applies-to Doc. Type" = PurchOrderLine."Document Type" then begin
                                 ItemChargeAssgntPurch2."Applies-to Doc. Type" := PurchLine2."Document Type";
@@ -490,6 +508,15 @@ codeunit 74 "Purch.-Get Receipt"
                     PrepmtAmtToDeductRounding -= TempPurchaseLine.Amount;
                 end;
             until TempPurchaseLine.Next() = 0;
+    end;
+
+    local procedure GetItemChargeAssgntCurrency(var Currency: Record Currency; ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)")
+    var
+        PurchLine: Record "Purchase Line";
+    begin
+        PurchLine.Get(ItemChargeAssgntPurch."Document Type", ItemChargeAssgntPurch."Document No.", ItemChargeAssgntPurch."Document Line No.");
+        if not Currency.Get(PurchLine."Currency Code") then
+            Currency.InitRoundingPrecision();
     end;
 
     [IntegrationEvent(false, false)]
