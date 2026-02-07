@@ -948,8 +948,7 @@ page 402 "Sales Order Statistics"
               Rec, TempSalesLine, i - 1, TotalSalesLine[i], TotalSalesLineLCY[i],
               VATAmount[i], VATAmountText[i], ProfitLCY[i], ProfitPct[i], TotalAdjCostLCY[i], false);
 
-            if i = 3 then
-                TotalAdjCostLCY[i] := TotalSalesLineLCY[i]."Unit Cost (LCY)";
+            TotalAdjCostLCY[i] := TotalSalesLineLCY[i]."Unit Cost (LCY)";
 
             AdjProfitLCY[i] := TotalSalesLineLCY[i].Amount - TotalAdjCostLCY[i];
             if TotalSalesLineLCY[i].Amount <> 0 then

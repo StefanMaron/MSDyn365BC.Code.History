@@ -603,6 +603,7 @@ codeunit 442 "Sales-Post Prepayments"
         PrepmtInvLineBuf2: Record "Prepayment Inv. Line Buffer";
         TotalPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer";
         TotalPrepmtInvLineBufferDummy: Record "Prepayment Inv. Line Buffer";
+        HasInvoiceDiscount: Boolean;
     begin
         TempGlobalPrepmtInvLineBuf.Reset();
         TempGlobalPrepmtInvLineBuf.DeleteAll();
@@ -616,6 +617,9 @@ codeunit 442 "Sales-Post Prepayments"
                     if not CheckSystemCreatedInvoiceRoundEntry(SalesLine, SalesHeader."Customer Posting Group") then
                         CheckSalesLineIsNegative(SalesHeader, SalesLine);
 
+                    if SalesLine."Inv. Discount Amount" <> 0 then
+                        HasInvoiceDiscount := true;
+
                     OnBuildInvLineBufferOnBeforeFillInvLineBuffer(SalesHeader, SalesLine);
                     FillInvLineBuffer(SalesHeader, SalesLine, PrepmtInvLineBuf2);
                     if UpdateLines then
@@ -627,6 +631,8 @@ codeunit 442 "Sales-Post Prepayments"
                     TempSalesLine.Insert();
                 end;
             until SalesLine.Next() = 0;
+        UpdateDifferenceAmount(SalesHeader, TotalPrepmtInvLineBuffer, TempPrepmtInvLineBuf, HasInvoiceDiscount);
+
         if SalesSetup."Invoice Rounding" then
             if InsertInvoiceRounding(
                  SalesHeader, PrepmtInvLineBuf2, TotalPrepmtInvLineBuffer, SalesLine."Line No.")
@@ -1066,6 +1072,8 @@ codeunit 442 "Sales-Post Prepayments"
                             end;
                             NewAmountIncludingVAT := NewAmount + Round(VATAmount, Currency."Amount Rounding Precision");
                         end;
+                        if DocumentType = DocumentType::"Credit Memo" then
+                            NewAmountIncludingVAT := CalcDifferAmt(SalesLine, NewAmountIncludingVAT);
 
                         SalesLine."Prepayment Amount" := NewAmount;
                         SalesLine."Prepmt. Amt. Incl. VAT" :=
@@ -1786,6 +1794,22 @@ codeunit 442 "Sales-Post Prepayments"
         PreviewMode := NewPreviewMode;
     end;
 
+    local procedure CalcDifferAmt(SalesLine: Record "Sales Line"; NewAmountIncludingVAT: Decimal): Decimal
+    var
+        AmountInclVAT: Decimal;
+        AmountInclVATDiff: Decimal;
+    begin
+        if SalesLine."Prepayment %" = 100 then begin
+            AmountInclVATDiff := NewAmountIncludingVAT - SalesLine."Prepmt. Amt. Incl. VAT";
+            if AmountInclVATDiff <> 0 then
+                AmountInclVAT := NewAmountIncludingVAT - AmountInclVATDiff
+            else
+                AmountInclVAT := NewAmountIncludingVAT;
+        end else
+            AmountInclVAT := NewAmountIncludingVAT;
+        exit(AmountInclVAT);
+    end;
+
     local procedure CheckSalesLineIsNegative(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     var
         IsHandled: Boolean;
@@ -1820,6 +1844,30 @@ codeunit 442 "Sales-Post Prepayments"
 
         if SalesLine."No." = CustomerPostingGroup."Invoice Rounding Account" then
             exit(true);
+    end;
+
+    local procedure UpdateDifferenceAmount(SalesHeader: Record "Sales Header"; var TotalPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary; var TempPrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; HasInvoiceDiscount: Boolean)
+    var
+        Currency: Record Currency;
+        PrepmtAmt: Decimal;
+        DifferenceAmt: Decimal;
+    begin
+        if HasInvoiceDiscount and (SalesHeader."Prepayment %" <> 0) then begin
+            Currency.Initialize(SalesHeader."Currency Code");
+            SalesHeader.CalcFields(Amount);
+            PrepmtAmt := Round(SalesHeader.Amount * SalesHeader."Prepayment %" / 100, Currency."Amount Rounding Precision");
+            if TotalPrepmtInvLineBuffer.Amount > PrepmtAmt then begin
+                DifferenceAmt := TotalPrepmtInvLineBuffer.Amount - PrepmtAmt;
+
+                TempPrepmtInvLineBuf.Reset();
+                TempPrepmtInvLineBuf.SetCurrentKey(Adjustment);
+                if TempPrepmtInvLineBuf.FindLast() then begin
+                    TempPrepmtInvLineBuf.Amount := Round(TempPrepmtInvLineBuf.Amount - DifferenceAmt, Currency."Amount Rounding Precision");
+                    TempPrepmtInvLineBuf."Amount Incl. VAT" := Round(TempPrepmtInvLineBuf."Amount Incl. VAT" - DifferenceAmt, Currency."Amount Rounding Precision");
+                    TempPrepmtInvLineBuf.Modify();
+                end;
+            end;
+        end;
     end;
 
     [IntegrationEvent(false, false)]
