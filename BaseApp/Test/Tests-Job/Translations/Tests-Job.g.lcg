@@ -518,6 +518,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Field caption]D;]A;(LookupHint=Codeunit Job Consumption Purchase - NamedType MustNotBeChangedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1521217763 - NamedType 3581399385" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected Requisition Line for Item No. %1 is %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Consumption Purchase - NamedType RequisitionLineErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1521217763 - NamedType 3118970677" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The dimensions used in Order %1, line no. %2 are invalid (Error: The %3 must be %4 for %5 %6 for %7 %8. Currently it's %9.]]></Val>
