@@ -141,13 +141,13 @@ table 740 "VAT Report Header"
                 case "VAT Report Type" of
                     "VAT Report Type"::Standard:
                         if "Original Report No." <> '' then
-                            Error(Text006, "VAT Report Type");
+                            Error(CannotSpecifyOriginalReportErr, "VAT Report Type");
                     "VAT Report Type"::Corrective:
                         begin
                             TestField("Original Report No.");
                             CheckOriginalReport("Original Report No.");
                             if "Original Report No." = "No." then
-                                Error(Text005);
+                                Error(CannotSpecifySameReportErr);
                             VATReportHeader.Get("Original Report No.");
                             VATReportHeader.TestField(Status, Status::Submitted);
                             "Start Date" := VATReportHeader."Start Date";
@@ -173,7 +173,7 @@ table 740 "VAT Report Header"
                 TestField("Original Report No.", '');
                 if "Report Period Type" <> xRec."Report Period Type" then begin
                     if LineExists() then
-                        Error(Text010, FieldCaption("Report Period No."));
+                        Error(CannotChangeWithLinesErr, FieldCaption("Report Period No."));
                     SetPeriod();
                 end;
             end;
@@ -189,7 +189,7 @@ table 740 "VAT Report Header"
                 TestField("Report Period Type");
                 if "Report Period No." <> xRec."Report Period No." then begin
                     if LineExists() then
-                        Error(Text010, FieldCaption("Report Period No."));
+                        Error(CannotChangeWithLinesErr, FieldCaption("Report Period No."));
                     SetPeriod();
                 end;
             end;
@@ -205,7 +205,7 @@ table 740 "VAT Report Header"
                 TestField("Original Report No.", '');
                 if "Report Year" <> xRec."Report Year" then begin
                     if LineExists() then
-                        Error(Text010, FieldCaption("Report Year"));
+                        Error(CannotChangeWithLinesErr, FieldCaption("Report Year"));
                     SetPeriod();
                 end;
             end;
@@ -218,7 +218,7 @@ table 740 "VAT Report Header"
             begin
                 TestField(Status, Status::Open);
                 if "Processing Date" < "End Date" then
-                    Error(Text003, FieldCaption("Processing Date"), FieldCaption("End Date"));
+                    Error(DateCannotBeEarlierErr, FieldCaption("Processing Date"), FieldCaption("End Date"));
 
                 case true of
                     Date2DWY("Processing Date", 1) = 6:
@@ -244,6 +244,8 @@ table 740 "VAT Report Header"
             trigger OnValidate()
             begin
                 TestField(Status, Status::Open);
+                if Notice and Revocation then
+                    Error(NoticeAndRevocationMutuallyExclusiveErr);
             end;
         }
         field(21; Revocation; Boolean)
@@ -253,6 +255,8 @@ table 740 "VAT Report Header"
             trigger OnValidate()
             begin
                 TestField(Status, Status::Open);
+                if Revocation and Notice then
+                    Error(NoticeAndRevocationMutuallyExclusiveErr);
             end;
         }
         field(22; "Date Type"; Enum "VAT Date Type")
@@ -340,6 +344,15 @@ table 740 "VAT Report Header"
         field(42; "Country/Region Name"; Text[30])
         {
             Caption = 'Country/Region Name';
+
+            trigger OnValidate()
+            begin
+                TestField(Status, Status::Open);
+            end;
+        }
+        field(43; "ISO Country/Region Code"; Code[2])
+        {
+            Caption = 'ISO Country/Region Code';
 
             trigger OnValidate()
             begin
@@ -488,10 +501,10 @@ table 740 "VAT Report Header"
                 NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", DefaultNoSeriesCode, WorkDate(), "No.");
             end;
 #else
-			if NoSeries.AreRelated(GetNoSeriesCode(), xRec."No. Series") then
-				"No. Series" := xRec."No. Series"
-			else
-				"No. Series" := GetNoSeriesCode();
+            if NoSeries.AreRelated(GetNoSeriesCode(), xRec."No. Series") then
+                "No. Series" := xRec."No. Series"
+            else
+                "No. Series" := GetNoSeriesCode();
             "No." := NoSeries.GetNextNo("No. Series");
 #endif
         end;
@@ -507,33 +520,29 @@ table 740 "VAT Report Header"
 
     trigger OnRename()
     begin
-        Error(Text004);
+        Error(CannotRenameReportErr);
     end;
 
     var
-        VATReportSetup: Record "VAT Report Setup";
         NoSeries: Codeunit "No. Series";
 
-#pragma warning disable AA0074
-#pragma warning disable AA0470
-        Text002: Label 'Editing is not allowed because the report is marked as %1.';
-        Text003: Label 'The %1 cannot be earlier than the %2.';
-#pragma warning restore AA0470
-        Text004: Label 'You cannot rename the report because it has been assigned a report number.';
-        Text005: Label 'You cannot specify the same report as the reference report.';
-#pragma warning disable AA0470
-        Text006: Label 'You cannot specify an original report for a report of type %1.';
-        Text007: Label 'This is not allowed because of the setup in the %1 window.';
-        Text008: Label 'You must specify an original report for a report of type %1.';
-        Text010: Label 'You cannot change %1 because you already have declaration lines.';
-        Text011: Label 'The field %1 can take values from 1 to %2.';
-        Text012: Label 'Deletion is not allowed because the report is marked as %1.';
+        EditingNotAllowedErr: Label 'Editing is not allowed because the report is marked as %1.', Comment = '%1 - Status';
+        DateCannotBeEarlierErr: Label 'The %1 cannot be earlier than the %2.', Comment = '%1 - First date field, %2 - Second date field';
+        CannotRenameReportErr: Label 'You cannot rename the report because it has been assigned a report number.';
+        CannotSpecifySameReportErr: Label 'You cannot specify the same report as the reference report.';
+        CannotSpecifyOriginalReportErr: Label 'You cannot specify an original report for a report of type %1.', Comment = '%1 - VAT Report Type';
+        NotAllowedDueToSetupErr: Label 'This is not allowed because of the setup in the %1 window.', Comment = '%1 - Table caption';
+        MustSpecifyOriginalReportErr: Label 'You must specify an original report for a report of type %1.', Comment = '%1 - VAT Report Type';
+        CannotChangeWithLinesErr: Label 'You cannot change %1 because you already have declaration lines.', Comment = '%1 - Field caption';
+        FieldValueRangeErr: Label 'The field %1 can take values from 1 to %2.', Comment = '%1 - Field caption, %2 - Maximum value';
+        DeletionNotAllowedErr: Label 'Deletion is not allowed because the report is marked as %1.', Comment = '%1 - Status';
         ReportTypeChangeErr: Label 'You cannot change this field when the report has existing VAT Report lines.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
+        NoticeAndRevocationMutuallyExclusiveErr: Label 'You cannot enable both Notice and Revocation at the same time.';
+        ISOCodeMustBeTwoCharsErr: Label 'The ISO Code for country/region %1 must be exactly 2 characters.', Comment = '%1 - Country/Region Code';
 
     procedure GetNoSeriesCode() Result: Code[20]
     var
+        VATReportSetup: Record "VAT Report Setup";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -567,17 +576,19 @@ table 740 "VAT Report Header"
     end;
 
     procedure CheckEditingAllowed()
+    var
+        VATReportSetup: Record "VAT Report Setup";
     begin
         VATReportSetup.Get();
         if (not VATReportSetup."Modify Submitted Reports") and (Status <> Status::Open) then
-            Error(Text002, Format(Status));
+            Error(EditingNotAllowedErr, Format(Status));
     end;
 
     [Scope('OnPrem')]
     procedure CheckDeleteAllowed()
     begin
         if Status <> Status::Open then
-            Error(Text012, Format(Status));
+            Error(DeletionNotAllowedErr, Format(Status));
     end;
 
     [Scope('OnPrem')]
@@ -600,7 +611,7 @@ table 740 "VAT Report Header"
     procedure CheckEndDate()
     begin
         if "End Date" < "Start Date" then
-            Error(Text003, "End Date", "Start Date");
+            Error(DateCannotBeEarlierErr, "End Date", "Start Date");
     end;
 
     procedure CheckIfCanBeSubmitted()
@@ -609,13 +620,15 @@ table 740 "VAT Report Header"
     end;
 
     procedure CheckIfCanBeReopened(VATReportHeader: Record "VAT Report Header")
+    var
+        VATReportSetup: Record "VAT Report Setup";
     begin
         case VATReportHeader.Status of
             VATReportHeader.Status::Submitted:
                 begin
                     VATReportSetup.Get();
                     if not VATReportSetup."Modify Submitted Reports" then
-                        Error(Text007, VATReportSetup.TableCaption());
+                        Error(NotAllowedDueToSetupErr, VATReportSetup.TableCaption());
                 end
         end;
     end;
@@ -637,7 +650,7 @@ table 740 "VAT Report Header"
 
         if "VAT Report Type" in ["VAT Report Type"::Corrective] then
             if "Original Report No." = '' then
-                Error(Text008, Format("VAT Report Type"));
+                Error(MustSpecifyOriginalReportErr, Format("VAT Report Type"));
     end;
 
     local procedure CheckPeriodNo()
@@ -654,7 +667,7 @@ table 740 "VAT Report Header"
                 MaxPeriodNo := 1;
         end;
         if not ("Report Period No." in [1 .. MaxPeriodNo]) then
-            Error(Text011, FieldCaption("Report Period No."), MaxPeriodNo);
+            Error(FieldValueRangeErr, FieldCaption("Report Period No."), MaxPeriodNo);
     end;
 
     local procedure SetPeriod()
@@ -701,7 +714,6 @@ table 740 "VAT Report Header"
         CheckEndDate();
     end;
 
-    [Scope('OnPrem')]
     procedure LineExists(): Boolean
     var
         VATReportLine: Record "VAT Report Line";
@@ -711,7 +723,6 @@ table 740 "VAT Report Header"
         exit(not VATReportLine.IsEmpty);
     end;
 
-    [Scope('OnPrem')]
     procedure FillCompanyInfo()
     var
         CompanyInfo: Record "Company Information";
@@ -723,17 +734,19 @@ table 740 "VAT Report Header"
         CompanyInfo.TestField("Country/Region Code");
 
         CountryRegion.Get(CompanyInfo."Country/Region Code");
+        if StrLen(CountryRegion."ISO Code") <> 2 then
+            Error(ISOCodeMustBeTwoCharsErr, CompanyInfo."Country/Region Code");
 
         Validate("VAT Registration No.", CompanyInfo."VAT Registration No.");
         Validate("Company Name", GetCompanyName(CompanyInfo, VATReportSetup));
         Validate("Company Address", GetCompanyAddress(CompanyInfo, VATReportSetup));
         Validate("Country/Region Name", CountryRegion.Name);
+        Validate("ISO Country/Region Code", CountryRegion."ISO Code");
         Validate(City, GetCompanyCity(CompanyInfo, VATReportSetup));
         Validate("Post Code", CompanyInfo."Post Code");
         Validate("Tax Office ID", CompanyInfo."Tax Office Number");
     end;
 
-    [Scope('OnPrem')]
     procedure CheckOriginalReport(VATReportNo: Code[20])
     var
         VATReportHeader: Record "VAT Report Header";
@@ -756,7 +769,7 @@ table 740 "VAT Report Header"
         if VATReportSetup."Company Address" <> '' then
             exit(VATReportSetup."Company Address");
 
-        exit(CompanyInformation.Address);
+        exit(CopyStr(CompanyInformation.Address, 1, 30));
     end;
 
     local procedure GetCompanyCity(CompanyInformation: Record "Company Information"; VATReportSetup: Record "VAT Report Setup"): Text[30]
