@@ -1815,6 +1815,7 @@ codeunit 99000845 "Reservation Management"
         WhseItemTrackingSetup: Record "Item Tracking Setup";
         TempWhseActivLine2: Record "Warehouse Activity Line" temporary;
         TempBinContentBuffer: Record "Bin Content Buffer" temporary;
+        TempTrackingSpecification: Record "Tracking Specification" temporary;
         WhseAvailMgt: Codeunit "Warehouse Availability Mgt.";
         QtyOnOutboundBins: Decimal;
         QtyOnInvtMovement: Decimal;
@@ -1865,9 +1866,15 @@ codeunit 99000845 "Reservation Management"
                 QtyOnOutboundBins :=
                     WhseAvailMgt.CalcQtyOnOutboundBins(CalcReservEntry."Location Code", CalcReservEntry."Item No.", CalcReservEntry."Variant Code", WhseItemTrackingSetup, true);
 
-            QtyReservedOnPickShip :=
-              WhseAvailMgt.CalcReservQtyOnPicksShips(
-                CalcReservEntry."Location Code", CalcReservEntry."Item No.", CalcReservEntry."Variant Code", TempWhseActivLine2);
+            if WhseItemTrackingSetup.TrackingExists() then begin
+                TempTrackingSpecification.CopyTrackingFromItemTrackingSetup(WhseItemTrackingSetup);
+                QtyReservedOnPickShip :=
+                  WhseAvailMgt.CalcReservQtyOnPicksShipsWithItemTracking(
+                    TempWhseActivLine2, TempTrackingSpecification, CalcReservEntry."Location Code", CalcReservEntry."Item No.", CalcReservEntry."Variant Code");
+            end else
+                QtyReservedOnPickShip :=
+                  WhseAvailMgt.CalcReservQtyOnPicksShips(
+                    CalcReservEntry."Location Code", CalcReservEntry."Item No.", CalcReservEntry."Variant Code", TempWhseActivLine2);
 
             QtyOnInvtMovement := CalcQtyOnInvtMovement(WhseActivLine);
 
