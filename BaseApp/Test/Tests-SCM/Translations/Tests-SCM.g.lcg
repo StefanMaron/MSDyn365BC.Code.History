@@ -10184,6 +10184,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Sales & Receivables - NamedType ReceiveInvoiceConfirmQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 714575624 - NamedType 4050996936" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Sales document was posted successfully]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Sales & Receivables - NamedType SalesDocumentPostedLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 714575624 - NamedType 3269445698" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Do you want to post the shipment?]]></Val>
