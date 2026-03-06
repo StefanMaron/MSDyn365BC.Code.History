@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -6,8 +6,8 @@ namespace Microsoft.Finance.VAT.Reporting;
 
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Purchases.Document;
-using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.History;
+using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using System.TestLibraries.Utilities;
 

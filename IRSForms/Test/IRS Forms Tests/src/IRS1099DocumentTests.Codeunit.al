@@ -1,14 +1,14 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Reporting;
 
-using Microsoft.Purchases.Document;
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Setup;
 using System.TestLibraries.Utilities;
-using Microsoft.Purchases.Payables;
 
 codeunit 148010 "IRS 1099 Document Tests"
 {
@@ -936,6 +936,137 @@ codeunit 148010 "IRS 1099 Document Tests"
 
         // [THEN] No error occurs and purchase quote is created
         Assert.AreNotEqual('', PurchaseHeader."No.", 'Purchase quote should be created with a No.');
+    end;
+
+    [Test]
+    procedure DeleteFormDocWithUniqueDocIDDoesNotAffectOtherDoc()
+    var
+        IRS1099FormDocHeader: array[2] of Record "IRS 1099 Form Doc. Header";
+        IRS1099FormDocLine: Record "IRS 1099 Form Doc. Line";
+        IRS1099FormDocLineDetail: Record "IRS 1099 Form Doc. Line Detail";
+        PeriodNo, FormNo, FormBoxNo : Code[20];
+        VendNo: array[2] of Code[20];
+        i: Integer;
+    begin
+        // [FEATURE] [AI test]
+        // [SCENARIO 617498] Deleting one form document does not affect line details of another form document due to unique Document IDs
+
+        Initialize();
+
+        // [GIVEN] Period "P", Form "F" and Form Box "FB"
+        PeriodNo := LibraryIRSReportingPeriod.CreateOneDayReportingPeriod(WorkDate());
+        FormNo := LibraryIRS1099FormBox.CreateSingleFormInReportingPeriod(WorkDate());
+        FormBoxNo := LibraryIRS1099FormBox.CreateSingleFormBoxInReportingPeriod(WorkDate(), FormNo);
+
+        // [GIVEN] Two vendors "V1" and "V2" with form documents in period "P"
+        for i := 1 to 2 do begin
+            VendNo[i] := LibraryIRS1099FormBox.CreateVendorNoWithFormBox(WorkDate(), FormNo, FormBoxNo);
+            IRS1099FormDocHeader[i]."Period No." := PeriodNo;
+            IRS1099FormDocHeader[i]."Vendor No." := VendNo[i];
+            IRS1099FormDocHeader[i]."Form No." := FormNo;
+            IRS1099FormDocHeader[i].Insert(true);
+            Clear(IRS1099FormDocLine);
+            IRS1099FormDocLine."Document ID" := IRS1099FormDocHeader[i].ID;
+            IRS1099FormDocLine."Period No." := PeriodNo;
+            IRS1099FormDocLine."Vendor No." := VendNo[i];
+            IRS1099FormDocLine."Form No." := FormNo;
+            IRS1099FormDocLine."Line No." := 10000;
+            IRS1099FormDocLine."Form Box No." := FormBoxNo;
+            IRS1099FormDocLine.Insert();
+            Clear(IRS1099FormDocLineDetail);
+            IRS1099FormDocLineDetail."Document ID" := IRS1099FormDocHeader[i].ID;
+            IRS1099FormDocLineDetail."Line No." := 10000;
+            IRS1099FormDocLineDetail."Vendor Ledger Entry No." := i * 100;
+            IRS1099FormDocLineDetail.Insert();
+        end;
+
+        // [WHEN] Delete form document for "V1"
+        IRS1099FormDocHeader[1].Delete(true);
+
+        // [THEN] Form document for "V2" exists with its line detail
+        Assert.IsTrue(IRS1099FormDocHeader[2].Find(), 'Form document for V2 should exist');
+        IRS1099FormDocLine.SetRange("Document ID", IRS1099FormDocHeader[2].ID);
+        Assert.RecordCount(IRS1099FormDocLine, 1);
+        IRS1099FormDocLineDetail.SetRange("Document ID", IRS1099FormDocHeader[2].ID);
+        Assert.RecordCount(IRS1099FormDocLineDetail, 1);
+
+        // Tear down
+        IRS1099FormDocHeader[2].Delete(true);
+    end;
+
+    [Test]
+    procedure PartialPaymentCreatesLineDetailWithDifferentCalculatedAndReportingAmounts()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        IRS1099FormDocHeader: Record "IRS 1099 Form Doc. Header";
+        IRS1099FormDocLine: Record "IRS 1099 Form Doc. Line";
+        IRS1099FormDocLineDetail: Record "IRS 1099 Form Doc. Line Detail";
+        IRSFormsSetup: Record "IRS Forms Setup";
+        PeriodNo, FormNo, FormBoxNo, VendNo : Code[20];
+        InvoiceAmount, PaymentAmount : Decimal;
+        PostingDate: Date;
+    begin
+        // [FEATURE] [AI test]
+        // [SCENARIO 617498] Partial payment creates line detail with different "Calculated Amount" and "IRS 1099 Reporting Amount"
+
+        Initialize();
+
+        // [GIVEN] Collect Details For Line is enabled
+        if not IRSFormsSetup.Get() then
+            IRSFormsSetup.Insert();
+        IRSFormsSetup."Collect Details For Line" := true;
+        IRSFormsSetup.Modify();
+
+        // [GIVEN] Period "P", Form "F" and Form Box "FB" for a unique future date
+        PostingDate := CalcDate('<2Y>', WorkDate());
+        PeriodNo := LibraryIRSReportingPeriod.CreateOneDayReportingPeriod(PostingDate);
+        FormNo := LibraryIRS1099FormBox.CreateSingleFormInReportingPeriod(PostingDate);
+        FormBoxNo := LibraryIRS1099FormBox.CreateSingleFormBoxInReportingPeriod(PostingDate, FormNo);
+        VendNo := LibraryIRS1099FormBox.CreateVendorNoWithFormBox(PostingDate, FormNo, FormBoxNo);
+
+        // [GIVEN] Posted purchase invoice with Amount = 1000 for vendor "V"
+        InvoiceAmount := 1000;
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendNo);
+        PurchaseHeader.Validate("Posting Date", PostingDate);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLineWithUnitCost(
+            PurchaseLine, PurchaseHeader, LibraryInventory.CreateItemNo(), 1, InvoiceAmount);
+        LibraryERM.FindVendorLedgerEntry(
+            VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice,
+            LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+        VendorLedgerEntry.CalcFields(Amount);
+        InvoiceAmount := Abs(VendorLedgerEntry."IRS 1099 Reporting Amount");
+
+        // [GIVEN] Payment with Amount = 500 applied to the invoice (partial payment - 50%)
+        PaymentAmount := Round(InvoiceAmount / 2);
+        LibraryIRS1099Document.PostPaymentAppliedToInvoice(PostingDate, VendNo, VendorLedgerEntry."Document No.", PaymentAmount);
+
+        // [WHEN] Create form documents
+        LibraryIRS1099Document.CreateFormDocuments(PostingDate, PostingDate, VendNo, FormNo);
+
+        // [THEN] Form document line detail has different "Calculated Amount" and "IRS 1099 Reporting Amount"
+        LibraryIRS1099Document.FindIRS1099FormDocHeader(IRS1099FormDocHeader, PeriodNo, VendNo, FormNo);
+        LibraryIRS1099Document.FindIRS1099FormDocLine(IRS1099FormDocLine, PeriodNo, VendNo, FormNo, FormBoxNo);
+        IRS1099FormDocLineDetail.SetRange("Document ID", IRS1099FormDocHeader.ID);
+        IRS1099FormDocLineDetail.FindFirst();
+        IRS1099FormDocLineDetail.CalcFields("IRS 1099 Reporting Amount");
+
+        // [THEN] "IRS 1099 Reporting Amount" = Invoice Amount (sign may differ in form doc line detail)
+        Assert.AreEqual(InvoiceAmount, Abs(IRS1099FormDocLineDetail."IRS 1099 Reporting Amount"), 'IRS 1099 Reporting Amount should be full invoice amount');
+
+        // [THEN] "Calculated Amount" = Payment Amount / Invoice Amount * IRS Reporting Amount = 500 (proportional to payment)
+        Assert.AreEqual(PaymentAmount, IRS1099FormDocLineDetail."Calculated Amount", 'Calculated Amount should reflect partial payment');
+
+        // [THEN] "Calculated Amount" <> "IRS 1099 Reporting Amount"
+        Assert.AreNotEqual(
+            Abs(IRS1099FormDocLineDetail."Calculated Amount"),
+            Abs(IRS1099FormDocLineDetail."IRS 1099 Reporting Amount"),
+            'Calculated Amount and IRS 1099 Reporting Amount should be different for partial payment');
+
+        // Tear down
+        DeleteDocuments();
     end;
 
     local procedure Initialize()

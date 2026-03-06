@@ -9,8 +9,8 @@ using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
-using System.Telemetry;
 using System.Reflection;
+using System.Telemetry;
 
 codeunit 10040 "IRS 1099 Transfer From BaseApp"
 {

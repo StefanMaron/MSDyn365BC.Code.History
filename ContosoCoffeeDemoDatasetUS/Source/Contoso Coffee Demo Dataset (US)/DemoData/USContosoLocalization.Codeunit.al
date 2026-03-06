@@ -85,7 +85,6 @@ codeunit 11465 "US Contoso Localization"
                     Codeunit.Run(Codeunit::"Create Tax Area US");
                     Codeunit.Run(Codeunit::"Create Tax Area Line US");
                     Codeunit.Run(Codeunit::"Create Tax Detail US");
-                    Codeunit.Run(Codeunit::"Create Allocation Account US");
                     CreateResourceUS.UpdateResourcesTaxGroup();
                 end;
         end;
@@ -179,6 +178,8 @@ codeunit 11465 "US Contoso Localization"
 
             Enum::"Contoso Demo Data Module"::Finance:
                 begin
+                    if ContosoDemoDataLevel = Enum::"Contoso Demo Data Level"::"Master Data" then
+                        Codeunit.Run(Codeunit::"Create Allocation Account US");
                     BindSubscription(CreateAccScheduleLineUS);
                     BindSubscription(CreateCurrencyUS);
                     BindSubscription(CreateGenJnlTemplateUS);

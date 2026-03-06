@@ -1,11 +1,11 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Reporting;
 
-using System.TestLibraries.Utilities;
 using Microsoft.Purchases.Vendor;
+using System.TestLibraries.Utilities;
 using System.Utilities;
 
 codeunit 148020 "IRS 1099 FIRE Tests"
