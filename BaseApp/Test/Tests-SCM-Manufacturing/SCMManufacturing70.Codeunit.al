@@ -3651,6 +3651,58 @@ codeunit 137063 "SCM Manufacturing 7.0"
         Assert.RecordIsNotEmpty(ProductionOrder[1]);
     end;
 
+    [Test]
+    [HandlerFunctions('ReleasedProdOrderMessageHandler')]
+    [Scope('OnPrem')]
+    procedure CapableToPromiseWithReservedProductionOrder()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        ProductionOrder: Record "Production Order";
+        TempOrderPromisingLine: Record "Order Promising Line" temporary;
+        RequisitionLine: Record "Requisition Line";
+        Qty: Decimal;
+    begin
+        // [SCENARIO 616920] Capable-to-Promise should suggest full quantity in planning worksheet 
+        Initialize();
+        CreateItem(Item, Item."Replenishment System"::"Prod. Order", Item."Reordering Policy"::" ", false, 0, 0, 0, '');
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] First Sales Order
+        Qty := LibraryRandom.RandIntInRange(1, 9);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Released Production Order created from first Sales Order
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(
+            SalesHeader, ProductionOrder.Status::Released, "Create Production Order Type"::ProjectOrder);
+        FindProductionOrder(ProductionOrder, SalesHeader."No.", ProductionOrder."Source Type"::"Sales Header");
+
+        // [GIVEN] First Sales Order line is reserved against the Production Order
+        SalesLine.Find();
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+
+        // [GIVEN] Second Sales Order 
+        Qty := LibraryRandom.RandIntInRange(10, 100);
+        LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader2."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine2, SalesHeader2, SalesLine2.Type::Item, Item."No.", Qty);
+        SalesLine2.Validate("Location Code", Location.Code);
+        SalesLine2.Modify(true);
+
+        // [WHEN] Calculate Capable to Promise for second Sales Order
+        CalcCapableToPromise(TempOrderPromisingLine, SalesHeader2);
+
+        // [THEN] Planning Worksheet should suggest Qty of second Sales order
+        // The reserved qty units on the production order should not be considered available
+        VerifyQuantityOnRequisitionLine(Item."No.", RequisitionLine."Replenishment System"::"Prod. Order", Qty);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

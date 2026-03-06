@@ -5909,6 +5909,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - XPath XML Reader - NamedType UnexpectedAttributeValueErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2857060485 - NamedType 2890512375" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected value in xml file for element <%1>]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - element name]D;]A;(LookupHint=Codeunit Library - XPath XML Reader - NamedType UnexpectedElementValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2857060485 - NamedType 12029917" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unexpected node %1 value. Expected: %2, actual %3.]]></Val>

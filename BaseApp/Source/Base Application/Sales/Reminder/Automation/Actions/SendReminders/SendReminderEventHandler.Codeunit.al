@@ -210,6 +210,7 @@ codeunit 6753 "Send Reminder Event Handler"
 
             if AttachRelatedDocument then
                 AttachDocument(TempEmailItem, SourceTableID, SourceRelationID, SourceID);
+            OnAttachRelatedDocumentsBeforeEmailFileInternalOnAfterAttachRelatedDocument(TempEmailItem, PostedDocNo, SendRemindersSetup, SourceTableID, SourceRelationID, SourceID, ReportUsage);
         end;
     end;
 
@@ -265,5 +266,10 @@ codeunit 6753 "Send Reminder Event Handler"
 
             TempEmailItem.AddAttachment(AttachmentStream, AttachmentFileName);
         until TempAttachementReportSelections.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAttachRelatedDocumentsBeforeEmailFileInternalOnAfterAttachRelatedDocument(var TempEmailItem: Record "Email Item" temporary; var PostedDocNo: Code[20]; SendRemindersSetup: Record "Send Reminders Setup"; SourceTableID: Integer; SourceRelationID: Integer; SourceID: Guid; ReportUsage: Integer)
+    begin
     end;
 }
