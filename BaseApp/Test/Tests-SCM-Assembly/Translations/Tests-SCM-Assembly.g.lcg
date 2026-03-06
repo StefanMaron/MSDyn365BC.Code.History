@@ -2309,6 +2309,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Whse.-Asm. To Order - NamedType FirstNumber)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1959443581 - NamedType 3819119362" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Inventory Pick should be registered successfully without error.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Whse.-Asm. To Order - NamedType InventoryPickErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1959443581 - NamedType 405438660" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[has been created.]]></Val>

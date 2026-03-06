@@ -15,7 +15,13 @@ codeunit 113 "Vend. Entry-Edit"
     trigger OnRun()
     var
         LedgEntryTrackChanges: Codeunit "Ledg. Entry-Track Changes";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(Rec, VendLedgEntry, DtldVendLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         VendLedgEntry := Rec;
         VendLedgEntry.LockTable();
         VendLedgEntry.Find();
@@ -91,6 +97,11 @@ codeunit 113 "Vend. Entry-Edit"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVendLedgEntryModify(var VendLedgEntry: Record "Vendor Ledger Entry"; FromVendLedgEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var VendorLedgerEntryRec: Record "Vendor Ledger Entry"; var VendorLedgerEntry: Record "Vendor Ledger Entry"; var DetailedVendLedgerEntry: Record "Detailed Vendor Ledg. Entry"; var IsHandled: Boolean)
     begin
     end;
 

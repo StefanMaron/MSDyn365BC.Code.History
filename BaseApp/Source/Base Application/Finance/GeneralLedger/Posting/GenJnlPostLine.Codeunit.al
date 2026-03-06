@@ -115,6 +115,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         BalanceCheckSrcCurrAmount2: Decimal;
         CurrentBalance: Decimal;
         TotalAddCurrAmount: Decimal;
+        TotalSrcCurrAmount: Decimal;
         TotalAmount: Decimal;
         UnrealizedRemainingAmountCust: Decimal;
         UnrealizedRemainingAmountVend: Decimal;
@@ -2243,6 +2244,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 NextEntryNo, TotalAmount, TotalAddCurrAmount, GLEntry);
 
             TempGLEntryBuf.Insert();
+            TotalSrcCurrAmount += TempGLEntryBuf."Source Currency Amount";
 
             if FirstEntryNo = 0 then
                 FirstEntryNo := TempGLEntryBuf."Entry No.";
@@ -2301,6 +2303,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         GLEntry: Record "G/L Entry";
     begin
         OnBeforeCreateGLEntryBalAcc(GenJnlLine, AccNo, Amount, AmountAddCurr, BalAccType, BalAccNo);
+        AmountAddCurr := AmountAddCurr - GenJnlLine."VAT Amount";
         InitGLEntry(
             GenJnlLine, GLEntry, AccNo, Amount, AmountAddCurr, true, true,
             CalcAmountSrcCurr(GenJnlLine, Amount));
@@ -6408,7 +6411,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                                 CreateGLEntry(
                                     GenJnlLine, VATPostingSetup.GetRevChargeAccount(false),
                                     VATEntry.Amount, CalcAddCurrForUnapplication(VATEntry."Posting Date", VATEntry.Amount), false,
-                                    CalcAmountSrcCurr(GenJnlLine, -VATEntry.Amount));
+                                    CalcAmountSrcCurr(GenJnlLine, VATEntry.Amount));
                             end else
                                 GLEntryNoFromVAT := PostUnrealVATByUnapply(GenJnlLine, VATPostingSetup, VATEntry, TempVATEntry);
                         VATEntry2 := TempVATEntry;
@@ -7351,8 +7354,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                         GenJnlLine, GLEntry, GLAccNo, TotalAmountLCY, TotalAmountAddCurr, true, true, TotalAmountAddCurr)
                 else
                     InitGLEntry(
-                        GenJnlLine, GLEntry, GLAccNo, TotalAmountLCY, TotalAmountAddCurr, true, true,
-                        CalcAmountSrcCurr(GenJnlLine, TotalAmountLCY));
+                        GenJnlLine, GLEntry, GLAccNo, TotalAmountLCY, TotalAmountAddCurr, true, true, -TotalSrcCurrAmount);
         end;
     end;
 
@@ -8668,17 +8670,17 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     local procedure CalcSourceCurrVATBaseAmount(var GenJnlLine: Record "Gen. Journal Line"): Decimal
-    var
-        SourceCurrVATBaseAmount: Decimal;
     begin
-        if (GenJnlLine."Source Currency Code" <> '') and ((not GenJnlLine."System-Created Entry") or GenJnlLine."Financial Void") then begin
+        if GenJnlLine."System-Created Entry" then
+            exit(GenJnlLine."Source Currency Amount");
+
+        if GenJnlLine."Source Currency Code" <> '' then begin
             if GenJnlLine."Source Curr. VAT Base Amount" <> 0 then
-                SourceCurrVATBaseAmount := GenJnlLine."Source Curr. VAT Base Amount"
+                exit(GenJnlLine."Source Curr. VAT Base Amount")
             else
-                SourceCurrVATBaseAmount := GenJnlLine."Source Currency Amount";
+                exit(GenJnlLine."Source Currency Amount");
         end else
-            SourceCurrVATBaseAmount := CalcAmountSrcCurr(GenJnlLine, GenJnlLine."VAT Base Amount (LCY)");
-        exit(SourceCurrVATBaseAmount);
+            exit(CalcAmountSrcCurr(GenJnlLine, GenJnlLine."VAT Base Amount (LCY)"));
     end;
 
     local procedure GetVendorPayablesAccount2(var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var GenJournalLine: Record "Gen. Journal Line"; VendPostingGr: Record "Vendor Posting Group"): Code[20]
