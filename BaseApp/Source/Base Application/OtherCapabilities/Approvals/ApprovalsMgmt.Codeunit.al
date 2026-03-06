@@ -2212,7 +2212,6 @@ codeunit 1535 "Approvals Mgmt."
     begin
         ApprovalEntry.SetRange("Table ID", RecId.TableNo);
         ApprovalEntry.SetRange("Record ID to Approve", RecId);
-        ApprovalEntry.SetRange("Related to Change", false);
         PAGE.RunModal(PAGE::"Approval Entries", ApprovalEntry);
     end;
 
