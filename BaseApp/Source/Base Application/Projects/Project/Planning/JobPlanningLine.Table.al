@@ -146,6 +146,9 @@ table 1003 "Job Planning Line"
                     "Work Type Code" := '';
                     "Gen. Bus. Posting Group" := '';
                     "Gen. Prod. Posting Group" := '';
+                    Description := '';
+                    "Description 2" := '';
+                    Reserve := Reserve::Never;
                     DeleteAmounts();
                     "Cost Factor" := 0;
                     if Type = Type::Item then begin
@@ -2301,8 +2304,7 @@ table 1003 "Job Planning Line"
             exit;
         end;
 
-        if (Amount <> xAmount) then
-            AmountLCY := ConvertAmountToLCY(Amount, UnitAmountRoundingPrecision);
+        AmountLCY := ConvertAmountToLCY(Amount, UnitAmountRoundingPrecision);
     end;
 
     local procedure ConvertAmountToFCY(AmountLCY: Decimal; Precision: Decimal) AmountFCY: Decimal;

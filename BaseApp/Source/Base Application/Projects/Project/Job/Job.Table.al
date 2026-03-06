@@ -2098,6 +2098,8 @@ table 167 Job
                 end;
                 JobTask.Modify();
             until JobTask.Next() = 0;
+
+        OnAfterUpdateJobTaskDimension(Rec, FieldNumber, ShortcutDimCode);
     end;
 
     procedure UpdateOverBudgetValue(JobNo: Code[20]; Usage: Boolean; Cost: Decimal)
@@ -3168,6 +3170,11 @@ table 167 Job
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateJobTaskDimension(var Job: Record Job; FieldNumber: Integer; ShortcutDimCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateJobTaskDimension(var Job: Record Job; FieldNumber: Integer; ShortcutDimCode: Code[20])
     begin
     end;
 
