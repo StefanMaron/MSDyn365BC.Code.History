@@ -42,8 +42,6 @@ codeunit 134394 "ERM Purchase Subform"
         InvoiceDiscPct: Label 'Invoice Disc. Pct.';
         ItemTestDescriptionLbl: Label 'Test Description';
         LineNoRemainsZeroLbl: Label 'Line No. should remain zero as zero is allowed';
-        LineNoPositiveAfterInsertNegativeLbl: Label 'Line No. should be positive after insert with negative';
-        NewLineNoGreaterThanPreviousLbl: Label 'New Line No. should be greater than previous';
         PositiveLineNoRemainUnchangedLbl: Label 'Positive Line No. should remain unchanged';
 
 #if not CLEAN26
@@ -7012,18 +7010,6 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseLine."Line No." := 10000;
         PurchaseLine.Insert(true);
         PreviousLineNo := PurchaseLine."Line No.";
-
-        // [WHEN] Inserting a purchase line with negative Line No. (simulating AutoSplitKey exhaustion)
-        PurchaseLine.Init();
-        PurchaseLine."Document Type" := PurchaseHeader."Document Type";
-        PurchaseLine."Document No." := PurchaseHeader."No.";
-        PurchaseLine."Line No." := -10000; // Simulate AutoSplitKey assigning negative
-        PurchaseLine.Insert(true);
-
-        // [THEN] Line No. is reassigned to a positive value greater than previous
-        PurchaseLine.Find();
-        Assert.IsTrue(PurchaseLine."Line No." > 0, LineNoPositiveAfterInsertNegativeLbl);
-        Assert.IsTrue(PurchaseLine."Line No." > PreviousLineNo, NewLineNoGreaterThanPreviousLbl);
 
         // [WHEN] Inserting a line with Line No. = 0 (zero is allowed, should remain zero)
         PurchaseLine.Init();

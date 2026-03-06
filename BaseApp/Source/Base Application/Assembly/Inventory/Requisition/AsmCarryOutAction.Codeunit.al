@@ -77,7 +77,6 @@ codeunit 945 "Asm. Carry Out Action"
         AssemblyHeader."Variant Code" := RequisitionLine."Variant Code";
         AssemblyHeader."Location Code" := RequisitionLine."Location Code";
         AssemblyHeader."Inventory Posting Group" := Item."Inventory Posting Group";
-        AssemblyHeader.Validate("Unit Cost", RequisitionLine."Unit Cost");
         AssemblyHeader."Due Date" := RequisitionLine."Due Date";
         AssemblyHeader."Starting Date" := RequisitionLine."Starting Date";
         AssemblyHeader."Ending Date" := RequisitionLine."Ending Date";
@@ -86,6 +85,7 @@ codeunit 945 "Asm. Carry Out Action"
         AssemblyHeader."Quantity (Base)" := RequisitionLine."Quantity (Base)";
         AssemblyHeader.InitRemainingQty();
         AssemblyHeader.InitQtyToAssemble();
+        AssemblyHeader.Validate("Unit Cost", RequisitionLine."Unit Cost");
         if RequisitionLine."Bin Code" <> '' then
             AssemblyHeader."Bin Code" := RequisitionLine."Bin Code"
         else
@@ -108,7 +108,8 @@ codeunit 945 "Asm. Carry Out Action"
 #if not CLEAN27
         CarryOutAction.RunOnAfterInsertAsmHeader(RequisitionLine, AssemblyHeader);
 #endif
-        CollectAsmOrderForPrinting(AssemblyHeader);
+        if PrintOrder then
+            CollectAsmOrderForPrinting(AssemblyHeader);
 
         TempDocumentEntry.Init();
         TempDocumentEntry."Table ID" := Database::Microsoft.Assembly.Document."Assembly Header";

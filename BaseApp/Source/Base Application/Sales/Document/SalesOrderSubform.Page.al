@@ -256,6 +256,7 @@ page 46 "Sales Order Subform"
 
                     trigger OnValidate()
                     begin
+                        ForceTotalsCalculation();
                         DeltaUpdateTotals();
                     end;
                 }
@@ -267,6 +268,7 @@ page 46 "Sales Order Subform"
 
                     trigger OnValidate()
                     begin
+                        ForceTotalsCalculation();
                         DeltaUpdateTotals();
                     end;
                 }
@@ -634,6 +636,7 @@ page 46 "Sales Order Subform"
                     trigger OnValidate()
                     begin
                         SetItemChargeFieldsStyle();
+                        CurrPage.Update();
                     end;
                 }
                 field("Quantity Invoiced"; Rec."Quantity Invoiced")

@@ -1256,6 +1256,15 @@
       <Cmt Name="Dev"><![CDATA[%1= field name. Example: The Name field must be filled.]D;]A;(LookupHint=Codeunit Swiss SEPA CT 09 Export - NamedType FieldBlankErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2038665092 - NamedType 1484122556" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 %2 must have a value in %3 or in %4]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=table name, %2=key field value, %3=field name,%4=field name 2. Example: Customer 10000 must have a value in Name.]D;]A;(LookupHint=Codeunit Swiss SEPA CT 09 Export - NamedType FieldKeyBlank2Err)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2038665092 - NamedType 2630528958" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 %2 must have a value in %3.]]></Val>
@@ -1344,6 +1353,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1= field name. Example: The Name field must be filled.]D;]A;(LookupHint=Codeunit Swiss SEPA CT Export - NamedType FieldBlankErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 498214539 - NamedType 1484122556" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 %2 must have a value in %3 or in %4]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=table name, %2=key field value, %3=field name,%4=field name 2. Example: Customer 10000 must have a value in Name.]D;]A;(LookupHint=Codeunit Swiss SEPA CT Export - NamedType FieldKeyBlank2Err)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 498214539 - NamedType 2630528958" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

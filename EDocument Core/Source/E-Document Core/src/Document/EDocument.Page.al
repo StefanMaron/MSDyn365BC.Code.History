@@ -4,17 +4,17 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument;
 
-using System.Telemetry;
-using System.Utilities;
 using Microsoft.Bank.Reconciliation;
-using Microsoft.eServices.EDocument.Integration.Send;
 using Microsoft.eServices.EDocument.Integration.Receive;
+using Microsoft.eServices.EDocument.Integration.Send;
 using Microsoft.eServices.EDocument.OrderMatch;
 using Microsoft.eServices.EDocument.OrderMatch.Copilot;
 using Microsoft.eServices.EDocument.Processing.Import;
 using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 using Microsoft.eServices.EDocument.Service;
 using Microsoft.Foundation.Attachment;
+using System.Telemetry;
+using System.Utilities;
 
 page 6121 "E-Document"
 {
@@ -517,7 +517,7 @@ page 6121 "E-Document"
     trigger OnAfterGetRecord()
     begin
         ShowClearanceInfo := Rec."Last Clearance Request Time" <> 0DT;
-        SubmitClearanceVisible := Rec."Document Type" = Enum::"E-Document Type"::"Sales Invoice";
+        SubmitClearanceVisible := GetClearanceVisibility();
         IsProcessed := Rec.Status = Rec.Status::Processed;
         IsIncomingDoc := Rec.Direction = Rec.Direction::Incoming;
 
@@ -530,11 +530,18 @@ page 6121 "E-Document"
             ClearErrorsAndWarnings();
 
         SetStyle();
-        ResetActionVisiability();
+        ResetActionVisibility();
         SetIncomingDocActions();
         FillLineBuffer();
 
         EDocImport.V1_ProcessEDocPendingOrderMatch(Rec);
+    end;
+
+    local procedure GetClearanceVisibility(): Boolean
+    begin
+        exit(Rec."Document Type" in
+            [Enum::"E-Document Type"::"Sales Invoice", Enum::"E-Document Type"::"Sales Order", Enum::"E-Document Type"::"Service Invoice", Enum::"E-Document Type"::"Sales Credit Memo",
+            Enum::"E-Document Type"::"Service Credit Memo", Enum::"E-Document Type"::"Service Order"]);
     end;
 
     local procedure SetStyle()
@@ -611,7 +618,7 @@ page 6121 "E-Document"
         end;
     end;
 
-    local procedure ResetActionVisiability()
+    local procedure ResetActionVisibility()
     begin
         ShowMapToOrder := false;
         ShowRelink := false;
