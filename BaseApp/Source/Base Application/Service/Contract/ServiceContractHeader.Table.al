@@ -2454,6 +2454,33 @@ table 5965 "Service Contract Header"
         end;
     end;
 
+    procedure GetActiveAnnualAmount(): Decimal
+    var
+        ServiceContractLine: Record "Service Contract Line";
+    begin
+        FilterToCurrentContractLines(ServiceContractLine);
+        ServiceContractLine.CalcSums("Line Amount");
+        exit(ServiceContractLine."Line Amount");
+    end;
+
+    procedure ShowActiveServiceContractLines()
+    var
+        ServiceContractLine: Record "Service Contract Line";
+    begin
+        ServiceContractLine.FilterGroup(2);
+        FilterToCurrentContractLines(ServiceContractLine);
+        ServiceContractLine.FilterGroup(0);
+        Page.Run(0, ServiceContractLine);
+    end;
+
+    local procedure FilterToCurrentContractLines(var ServiceContractLine: Record "Service Contract Line")
+    begin
+        ServiceContractLine.SetRange("Contract Type", Rec."Contract Type");
+        ServiceContractLine.SetRange("Contract No.", Rec."Contract No.");
+        ServiceContractLine.SetFilter("Contract Expiration Date", '%1|>=%2', 0D, Workdate());
+        ServiceContractLine.SetFilter("Starting Date", '%1|<=%2', 0D, Workdate());
+    end;
+
     procedure SetHideValidationDialog(Hide: Boolean)
     begin
         HideValidationDialog := Hide;

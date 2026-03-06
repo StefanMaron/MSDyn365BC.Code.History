@@ -522,10 +522,14 @@ page 143 "Posted Sales Invoices"
                 trigger OnAction()
                 var
                     SalesInvHeader: Record "Sales Invoice Header";
+                    IsHandled: Boolean;
                 begin
                     SalesInvHeader := Rec;
                     CurrPage.SetSelectionFilter(SalesInvHeader);
-                    SalesInvHeader.PrintRecords(true);
+                    IsHandled := false;
+                    OnPrintActionOnBeforePrintRecords(SalesInvHeader, IsHandled);
+                    if not IsHandled then
+                        SalesInvHeader.PrintRecords(true);
                 end;
             }
             action(Email)
@@ -886,6 +890,11 @@ page 143 "Posted Sales Invoices"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnAfterGetCurrRecord(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean; var HasPostedSalesInvoices: Boolean; var CRMIsCoupledToRecord: Boolean; var CRMIntegrationEnabled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrintActionOnBeforePrintRecords(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
     begin
     end;
 }

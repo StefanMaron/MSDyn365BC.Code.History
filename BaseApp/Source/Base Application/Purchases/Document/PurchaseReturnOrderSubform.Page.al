@@ -182,6 +182,7 @@ page 6641 "Purchase Return Order Subform"
 
                     trigger OnValidate()
                     begin
+                        ForceTotalsCalculation();
                         DeltaUpdateTotals();
                     end;
                 }
@@ -193,6 +194,7 @@ page 6641 "Purchase Return Order Subform"
 
                     trigger OnValidate()
                     begin
+                        ForceTotalsCalculation();
                         DeltaUpdateTotals();
                     end;
                 }
@@ -442,6 +444,11 @@ page 6641 "Purchase Return Order Subform"
                     Editable = not IsBlankNumber;
                     Enabled = not IsBlankNumber;
                     ToolTip = 'Specifies the quantity of items that remains to be shipped.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update();
+                    end;
                 }
                 field("Return Qty. Shipped"; Rec."Return Qty. Shipped")
                 {
@@ -466,6 +473,11 @@ page 6641 "Purchase Return Order Subform"
                     ApplicationArea = PurchReturnOrder;
                     BlankZero = true;
                     ToolTip = 'Specifies the quantity that remains to be invoiced. It is calculated as Quantity - Qty. Invoiced.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update();
+                    end;
                 }
                 field("Quantity Invoiced"; Rec."Quantity Invoiced")
                 {
