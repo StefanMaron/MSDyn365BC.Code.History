@@ -914,6 +914,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Posting - NamedType DimensionMustMatchMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3107932713 - NamedType 3886248544" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must not changed after changing %2 in %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Field Name, %2= Field Name, %3= Table Name]D;]A;(LookupHint=Codeunit Job Posting - NamedType DirectUnitCostLCYLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3107932713 - NamedType 219081772" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Projects Over Budget cue has incorrect value.]]></Val>
@@ -2084,6 +2093,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT T Job - Method PreventDeletionOfProjectPlanningLineLinkedToPurchaseReceipt - NamedType ValidationError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3226441871 - NamedType 1124054891" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Line Discount % should be 0]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT T Job Journal Line - NamedType LineDiscountPerErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3226441871 - NamedType 1609326224" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Rounding of the field]]></Val>
@@ -2091,6 +2109,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT T Job Journal Line - NamedType RoundingTo0Err)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3226441871 - NamedType 2043451082" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unit Price should not be 0]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT T Job Journal Line - NamedType UnitPriceErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3251676635 - NamedType 1574108426" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

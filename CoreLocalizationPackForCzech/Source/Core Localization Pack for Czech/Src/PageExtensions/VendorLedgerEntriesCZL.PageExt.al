@@ -4,13 +4,15 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Payables;
 
+using System.Security.User;
+
 pageextension 31016 "Vendor Ledger Entries CZL" extends "Vendor Ledger Entries"
 {
     layout
     {
         modify("External Document No.")
         {
-            Editable = true;
+            Editable = IsExtDocNoEditable;
         }
         addafter("Message to Recipient")
         {
@@ -92,4 +94,14 @@ pageextension 31016 "Vendor Ledger Entries CZL" extends "Vendor Ledger Entries"
             }
         }
     }
+
+    trigger OnOpenPage()
+    var
+    begin
+        IsExtDocNoEditable := UserSetupAdvManagementCZL.IsExtDocNoChangingAllowed();
+    end;
+
+    var
+        UserSetupAdvManagementCZL: Codeunit "User Setup Adv. Management CZL";
+        IsExtDocNoEditable: Boolean;
 }

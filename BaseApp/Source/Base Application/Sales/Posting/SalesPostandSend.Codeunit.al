@@ -5,6 +5,7 @@
 namespace Microsoft.Sales.Posting;
 
 using Microsoft.CRM.Outlook;
+using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
@@ -34,6 +35,7 @@ codeunit 79 "Sales-Post and Send"
         TempDocumentSendingProfile: Record "Document Sending Profile" temporary;
         SalesPost: Codeunit "Sales-Post";
         SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        PostingSelectionManagement: Codeunit "Posting Selection Management";
         HideDialog: Boolean;
         IsHandled: Boolean;
     begin
@@ -64,8 +66,11 @@ codeunit 79 "Sales-Post and Send"
                 SalesPostYesNo.PostAndSend(SalesHeader);
                 if not (SalesHeader.Ship or SalesHeader.Invoice) then
                     exit;
-            end else
+            end else begin
+                if SalesHeader."Document Type" in [SalesHeader."Document Type"::Invoice, SalesHeader."Document Type"::"Credit Memo"] then
+                    PostingSelectionManagement.CheckUserCanInvoiceSales();
                 CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
+            end;
 
         OnAfterPostAndBeforeSend(SalesHeader);
 

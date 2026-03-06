@@ -61,6 +61,11 @@ page 31198 "User Setup Card CZL"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether is allowed to change the VAT Date.';
                 }
+                field("Allow Ext.Doc.No. Changing CZL"; Rec."Allow Ext.Doc.No. Changing CZL")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies whether is allowed to change the External Document No.';
+                }
             }
             group(Posting)
             {
