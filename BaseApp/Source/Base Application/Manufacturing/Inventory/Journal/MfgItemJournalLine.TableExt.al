@@ -67,6 +67,7 @@ tableextension 99000758 "Mfg. Item Journal Line" extends "Item Journal Line"
                 WorkCenter: Record "Work Center";
                 ShopCalendarMgt: Codeunit "Shop Calendar Management";
                 TotalTime: Integer;
+                SkipTimeValidation: Boolean;
             begin
                 TestField("Entry Type", "Entry Type"::Output);
                 if "Concurrent Capacity" = 0 then
@@ -80,12 +81,16 @@ tableextension 99000758 "Mfg. Item Journal Line" extends "Item Journal Line"
                     TotalTime := TotalTime + 86400000;
                 TestField("Work Center No.");
                 WorkCenter.Get("Work Center No.");
-                Validate("Setup Time", 0);
-                Validate(
-                  "Run Time",
-                  Round(
-                    TotalTime / ShopCalendarMgt.TimeFactor("Cap. Unit of Measure Code") *
-                    "Concurrent Capacity", WorkCenter."Calendar Rounding Precision"));
+                SkipTimeValidation := false;
+                OnValidateConcurrentCapacityOnBeforeTimeValidation(Rec, xRec, SkipTimeValidation);
+                if not SkipTimeValidation then begin
+                    Validate("Setup Time", 0);
+                    Validate(
+                      "Run Time",
+                      Round(
+                        TotalTime / ShopCalendarMgt.TimeFactor("Cap. Unit of Measure Code") *
+                        "Concurrent Capacity", WorkCenter."Calendar Rounding Precision"));
+                end;
             end;
         }
         field(5839; "Work Center No."; Code[20])
@@ -1094,6 +1099,11 @@ tableextension 99000758 "Mfg. Item Journal Line" extends "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateProdOrderCompLineNo(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateConcurrentCapacityOnBeforeTimeValidation(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; var SkipTimeValidation: Boolean)
     begin
     end;
 }

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -201,7 +201,9 @@ table 37 "Sales Line"
             else
             if (Type = const("Allocation Account")) "Allocation Account"
             else
-            if (Type = const(Item)) Item;
+            if (Type = const(Item), "Document Type" = filter(<> "Credit Memo" & <> "Return Order")) Item where(Blocked = const(false), "Sales Blocked" = const(false))
+            else
+            if (Type = const(Item), "Document Type" = filter("Credit Memo" | "Return Order")) Item where(Blocked = const(false));
 
             trigger OnValidate()
             var
@@ -472,7 +474,7 @@ table 37 "Sales Line"
                 TestStatusOpen();
                 SalesWarehouseMgt.SalesLineVerifyChange(Rec, xRec);
                 DoCheckReceiptOrderStatus := CurrFieldNo <> 0;
-                OnValidateShipmentDateOnAfterSalesLineVerifyChange(Rec, CurrFieldNo, DoCheckReceiptOrderStatus);
+                OnValidateShipmentDateOnAfterSalesLineVerifyChange(Rec, CurrFieldNo, DoCheckReceiptOrderStatus, HasBeenShown);
                 if DoCheckReceiptOrderStatus then
                     CheckReceiptOrderStatus();
 
@@ -511,7 +513,9 @@ table 37 "Sales Line"
             else
             if (Type = const("G/L Account"), "System-Created Entry" = const(true)) "G/L Account".Name
             else
-            if (Type = const(Item)) Item.Description
+            if (Type = const(Item), "Document Type" = filter(<> "Credit Memo" & <> "Return Order")) Item.Description where(Blocked = const(false), "Sales Blocked" = const(false))
+            else
+            if (Type = const(Item), "Document Type" = filter("Credit Memo" | "Return Order")) Item.Description where(Blocked = const(false))
             else
             if (Type = const(Resource)) Resource.Name
             else
@@ -3561,8 +3565,6 @@ table 37 "Sales Line"
     begin
         TestStatusOpen();
 
-        EnsurePositiveLineNo();
-
         if Quantity <> 0 then begin
             OnBeforeVerifyReservedQty(Rec, xRec, 0);
             SalesLineReserve.VerifyQuantity(Rec, xRec);
@@ -3604,20 +3606,12 @@ table 37 "Sales Line"
         Error(Text001, TableCaption);
     end;
 
-    local procedure EnsurePositiveLineNo()
-    var
-        SalesLine: Record "Sales Line";
-        MaxLineNo: Integer;
+#if not CLEAN28
+    [Obsolete('Not used anymore', '28.0')]
+    procedure SetSkipEnsurePositiveLineNo(NewSkipEnsurePositiveLineNo: Boolean)
     begin
-        if "Line No." < 0 then begin
-            SalesLine.SetRange("Document Type", "Document Type");
-            SalesLine.SetRange("Document No.", "Document No.");
-            if SalesLine.FindLast() then
-                MaxLineNo := SalesLine."Line No.";
-            "Line No." := MaxLineNo + 10000;
-        end;
     end;
-
+#endif
     var
         ItemUOMForCaption: Record "Item Unit of Measure";
         CurrExchRate: Record "Currency Exchange Rate";
@@ -3662,6 +3656,7 @@ table 37 "Sales Line"
         HasBeenShown: Boolean;
         PlannedShipmentDateCalculated: Boolean;
         PlannedDeliveryDateCalculated: Boolean;
+        SkipDefaultItemQuantity: Boolean;
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text000: Label 'You cannot delete the order line because it is associated with purchase order %1 line %2.';
@@ -4835,7 +4830,8 @@ table 37 "Sales Line"
     var
         PriceCalculation: Interface "Price Calculation";
     begin
-        GetSalesHeader();
+        if Rec."Document No." <> '' then
+            SalesHeader.Get(Rec."Document Type", Rec."Document No.");
         GetPriceCalculationHandler(PriceType::Sale, SalesHeader, PriceCalculation);
         PriceCalculation.PickPrice();
         GetLineWithCalculatedPrice(PriceCalculation);
@@ -6863,7 +6859,14 @@ table 37 "Sales Line"
     end;
 
     local procedure SumVATAmountLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line"; QtyType: Option General,Invoicing,Shipping; AmtToHandle: Decimal; QtyToHandle: Decimal)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSumVATAmountLine(SalesHeader, SalesLine, VATAmountLine, QtyType, AmtToHandle, QtyToHandle, IsHandled);
+        if IsHandled then
+            exit;
+
         case QtyType of
             QtyType::General:
                 begin
@@ -7919,6 +7922,9 @@ table 37 "Sales Line"
         if IsHandled then
             exit;
 
+        if SkipDefaultItemQuantity then
+            exit;
+
         GetSalesSetup();
         if SalesSetup."Default Item Quantity" then begin
             Validate(Quantity, 1);
@@ -8785,6 +8791,11 @@ table 37 "Sales Line"
         UpdateAmounts();
 
         OnAfterValidateLineDiscountPercent(Rec, CurrFieldNo);
+    end;
+
+    procedure ExcludeDefaultItemQuantity(DefaultItemQuantity: Boolean)
+    begin
+        SkipDefaultItemQuantity := DefaultItemQuantity;
     end;
 
     local procedure ReduceInvoiceDiscValueOnHeader(InvDiscountAmount: Decimal)
@@ -11297,7 +11308,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateShipmentDateOnAfterSalesLineVerifyChange(var SalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var DoCheckReceiptOrderStatus: Boolean)
+    local procedure OnValidateShipmentDateOnAfterSalesLineVerifyChange(var SalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var DoCheckReceiptOrderStatus: Boolean; var HasBeenShown: Boolean)
     begin
     end;
 
@@ -12240,6 +12251,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateVATOnLinesOnAfterUpdateBaseAmounts(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempVATAmountLine: Record "VAT Amount Line" temporary; var VATAmountLine: Record "VAT Amount Line"; Currency: Record Currency)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSumVATAmountLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line"; QtyType: Option General,Invoicing,Shipping; AmtToHandle: Decimal; QtyToHandle: Decimal; var IsHandled: Boolean)
     begin
     end;
 

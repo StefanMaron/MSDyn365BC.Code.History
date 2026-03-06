@@ -647,7 +647,7 @@ page 5871 "Item Availability by BOM Level"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnOpenPageOnBeforeRefreshPage(var BOMBuffer: Record "BOM Buffer")
     begin
     end;
