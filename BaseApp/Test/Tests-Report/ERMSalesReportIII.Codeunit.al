@@ -2870,6 +2870,32 @@ codeunit 134984 "ERM Sales Report III"
     end;
 
     [Test]
+    [HandlerFunctions('StandardStatementRequestPageHandler')]
+    procedure VerifyCustomerStatementReportwhenCustomerNohasSpecialCharacters()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO 614170] Verify Customer Statement Report when Customer No has Special Characters
+        Initialize();
+
+        // [GIVEN] Create Customer with special characters in No.
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Rename('Ø' + Customer."No.");
+
+        // [GIVEN] Create and post Sales Order for the Customer
+        LibrarySales.CreateSalesOrderForCustomerNo(SalesHeader, Customer."No.");
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Run Customer Statement Report
+        RunStandardStatementReport(Customer."No.");
+
+        // [THEN] Dataset contains data for the Customer
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreNotEqual(0, LibraryReportDataset.RowCount(), '');
+    end;
+
+    [Test]
     [HandlerFunctions('RHAgedAccountsReceivableFileName')]
     [Scope('OnPrem')]
     procedure AgedAccountReceivablesReportsPrioritizeMostRecentPostingCausingFaultyReports()
@@ -3017,6 +3043,32 @@ codeunit 134984 "ERM Sales Report III"
                                 SalesLine.Amount * SalesLine."VAT %" / 100 * SalesLine."Qty. to Invoice" / SalesLine.Quantity, 0.01);
 
         LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount', Format(VATAmount));
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardStatementRequestPageHandler')]
+    procedure VerifyCustomerStatementReportWhenCustomerNoHasCharacterApostrophe()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO 616108] Verify Customer Statement Report when Customer No has Special Character Apostrophe.
+        Initialize();
+
+        // [GIVEN] Create Customer with special character Apostrophe in No.
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Rename('"FVAL D'' OR "');
+
+        // [GIVEN] Create and post Sales Order for the Customer
+        LibrarySales.CreateSalesOrderForCustomerNo(SalesHeader, Customer."No.");
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Run Customer Statement Report
+        RunStandardStatementReport(Customer."No.");
+
+        // [THEN] Dataset contains data for the Customer
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreNotEqual(0, LibraryReportDataset.RowCount(), '');
     end;
 
     local procedure Initialize()

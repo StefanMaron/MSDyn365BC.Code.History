@@ -367,6 +367,7 @@ codeunit 5642 "FA Reclass. Transfer Line"
 
     local procedure InsertGenJnlLine(var FAReclassJnlLine: Record "FA Reclass. Journal Line"; FA: Record "Fixed Asset"; EntryAmount: Decimal; BalAccount: Boolean)
     var
+        DepCalc: Codeunit "Depreciation Calculation";
         FAInsertGLAcc: Codeunit "FA Insert G/L Account";
         FADeprBook: Record "FA Depreciation Book";
     begin
@@ -408,6 +409,9 @@ codeunit 5642 "FA Reclass. Transfer Line"
             FAReclassJnlLine.TestField("Document No.");
 
         GenJnlLine."Posting No. Series" := FAJnlSetup.GetGenNoSeries(GenJnlLine);
+        if GenJnlLine."FA Posting Type" = GenJnlLine."FA Posting Type"::Depreciation then
+            EntryAmount := DepCalc.CalcRounding(FAReclassJnlLine."Depreciation Book Code", EntryAmount);
+
         GenJnlLine.Validate(Amount, EntryAmount);
         if GenJnlLine."FA Posting Type" = GenJnlLine."FA Posting Type"::"Acquisition Cost" then begin
             GenJnlLine.Quantity := FAReclassJnlLine.Quantity;

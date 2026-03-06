@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -197,6 +197,7 @@ page 54 "Purchase Order Subform"
 
                     trigger OnValidate()
                     begin
+                        ForceTotalsCalculation();
                         DeltaUpdateTotals();
                     end;
                 }
@@ -208,10 +209,7 @@ page 54 "Purchase Order Subform"
 
                     trigger OnValidate()
                     begin
-                        if (xRec."VAT Prod. Posting Group" <> '') and (Rec."VAT Prod. Posting Group" <> xRec."VAT Prod. Posting Group") then begin
-                            CurrPage.SaveRecord();
-                            Rec.RecalculateAmounts(Rec."Document Type", Rec."Document No.", Rec."Line No.");
-                        end;
+                        ForceTotalsCalculation();
                         DeltaUpdateTotals();
                     end;
                 }
@@ -508,6 +506,7 @@ page 54 "Purchase Order Subform"
                     trigger OnValidate()
                     begin
                         SetItemChargeFieldsStyle();
+                        CurrPage.Update();
                     end;
                 }
                 field("Quantity Received"; Rec."Quantity Received")
@@ -534,6 +533,7 @@ page 54 "Purchase Order Subform"
                     trigger OnValidate()
                     begin
                         SetItemChargeFieldsStyle();
+                        CurrPage.Update();
                     end;
                 }
                 field("Quantity Invoiced"; Rec."Quantity Invoiced")

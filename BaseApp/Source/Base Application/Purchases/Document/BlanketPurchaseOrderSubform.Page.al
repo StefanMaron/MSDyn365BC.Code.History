@@ -133,6 +133,7 @@ page 510 "Blanket Purchase Order Subform"
                     Visible = false;
                     trigger OnValidate()
                     begin
+                        ForceTotalsCalculation();
                         DeltaUpdateTotals();
                     end;
                 }
@@ -144,6 +145,7 @@ page 510 "Blanket Purchase Order Subform"
 
                     trigger OnValidate()
                     begin
+                        ForceTotalsCalculation();
                         DeltaUpdateTotals();
                     end;
                 }

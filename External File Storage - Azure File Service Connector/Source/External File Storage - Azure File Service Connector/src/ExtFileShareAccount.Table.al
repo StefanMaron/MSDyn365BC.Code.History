@@ -40,7 +40,7 @@ table 4570 "Ext. File Share Account"
         {
             Access = Internal;
             Caption = 'Authorization Type';
-            ToolTip = 'The way of authorizing used to access the Blob Storage.';
+            ToolTip = 'Specifies the way of authorization used to access the File Share.';
         }
         field(8; "Secret Key"; Guid)
         {
@@ -69,7 +69,8 @@ table 4570 "Ext. File Share Account"
     trigger OnDelete()
     begin
         if not IsNullGuid(Rec."Secret Key") then
-            if IsolatedStorage.Delete(Rec."Secret Key") then;
+            if IsolatedStorage.Contains(Rec."Secret Key", DataScope::Company) then
+                IsolatedStorage.Delete(Rec."Secret Key", DataScope::Company);
     end;
 
     procedure SetSecret(Secret: SecretText)

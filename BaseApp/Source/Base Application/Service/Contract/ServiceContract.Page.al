@@ -519,6 +519,7 @@ page 6050 "Service Contract"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies if the contents of the Calcd. Annual Amount field are copied into the Annual Amount field in the service contract or contract quote.';
+                    Importance = Additional;
 
                     trigger OnValidate()
                     begin
@@ -529,6 +530,21 @@ page 6050 "Service Contract"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the sum of the Line Amount field values on all contract lines associated with the service contract or contract quote.';
+                    Importance = Additional;
+                }
+                field(ActiveAnnualAmount; Rec.GetActiveAnnualAmount())
+                {
+                    ApplicationArea = Service;
+                    Importance = Promoted;
+                    Caption = 'Active Annual Amount';
+                    ToolTip = 'Specifies the sum of the Line Amount field values on all contract lines associated with the service contract or contract quote, respecting the contract expiration date.';
+                    AutoFormatExpression = Rec."Currency Code";
+                    AutoFormatType = 1;
+
+                    trigger OnDrillDown()
+                    begin
+                        Rec.ShowActiveServiceContractLines();
+                    end;
                 }
                 field(InvoicePeriod; Rec."Invoice Period")
                 {
