@@ -812,7 +812,7 @@ codeunit 2000042 "Post Coded Bank Statement"
         Customer: Record Customer;
     begin
         Customer.Get(AccountNo);
-        if Customer.Blocked = Customer.Blocked::" " then
+        if Customer.Blocked <> Customer.Blocked::All then
             exit;
 
         Customer.CustBlockedErrorMessage(Customer, true)

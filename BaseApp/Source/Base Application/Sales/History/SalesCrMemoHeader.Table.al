@@ -920,7 +920,12 @@ table 114 "Sales Cr.Memo Header"
         CountryRegion: Record "Country/Region";
     begin
         if CountryRegion.DetermineCountry("Bill-to Country/Region Code") then
+            if "Enterprise No." <> '' then
+                exit("Enterprise No.");
+
+        if "VAT Registration No." = '' then
             exit("Enterprise No.");
+
         exit("VAT Registration No.");
     end;
 
@@ -929,7 +934,12 @@ table 114 "Sales Cr.Memo Header"
         CountryRegion: Record "Country/Region";
     begin
         if CountryRegion.DetermineCountry("Bill-to Country/Region Code") then
+            if "Enterprise No." <> '' then
+                exit(FieldCaption("Enterprise No."));
+
+        if "VAT Registration No." = '' then
             exit(FieldCaption("Enterprise No."));
+
         exit(FieldCaption("VAT Registration No."));
     end;
 

@@ -2229,9 +2229,13 @@ table 18 Customer
             exit;
 
         ContactForLookup.FilterGroup(2);
-        if ContactBusinessRelation.FindByRelation(ContactBusinessRelation."Link to Table"::Customer, "No.") then
-            ContactForLookup.SetRange("Company No.", ContactBusinessRelation."Contact No.")
-        else
+        if ContactBusinessRelation.FindByRelation(ContactBusinessRelation."Link to Table"::Customer, "No.") then begin
+            if ContactForLookup.Get(ContactBusinessRelation."Contact No.") and (ContactForLookup.Type = ContactForLookup.Type::Person) then begin
+                ContactForLookup.SetRange(Type, ContactForLookup.Type::Person);
+                ContactForLookup.SetRange("No.", ContactBusinessRelation."Contact No.");
+            end else
+                ContactForLookup.SetRange("Company No.", ContactBusinessRelation."Contact No.")
+        end else
             ContactForLookup.SetRange("Company No.", '');
 
         if "Primary Contact No." <> '' then

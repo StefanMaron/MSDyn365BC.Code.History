@@ -297,6 +297,7 @@ table 36 "Sales Header"
                 OnAfterCheckBillToCust(Rec, xRec, Customer);
 
                 SetBillToCustomerAddressFieldsFromCustomer(Customer);
+                Validate("Currency Code");
 
                 if not BilltoCustomerNoChanged then
                     if ShippedSalesLinesExist() then begin
@@ -309,7 +310,6 @@ table 36 "Sales Header"
                 Validate("Payment Terms Code");
                 Validate("Prepmt. Payment Terms Code");
                 Validate("Payment Method Code");
-                Validate("Currency Code");
                 Validate("Prepayment %");
 
                 if (xRec."Sell-to Customer No." = "Sell-to Customer No.") and
@@ -5711,7 +5711,12 @@ table 36 "Sales Header"
             exit(ReturnValue);
 
         if CountryRegion.DetermineCountry("Bill-to Country/Region Code") then
+            if "Enterprise No." <> '' then
+                exit("Enterprise No.");
+
+        if "VAT Registration No." = '' then
             exit("Enterprise No.");
+
         exit("VAT Registration No.");
     end;
 
@@ -5730,7 +5735,12 @@ table 36 "Sales Header"
             exit(ReturnValue);
 
         if CountryRegion.DetermineCountry("Bill-to Country/Region Code") then
+            if "Enterprise No." <> '' then
+                exit(FieldCaption("Enterprise No."));
+
+        if "VAT Registration No." = '' then
             exit(FieldCaption("Enterprise No."));
+
         exit(FieldCaption("VAT Registration No."));
     end;
 

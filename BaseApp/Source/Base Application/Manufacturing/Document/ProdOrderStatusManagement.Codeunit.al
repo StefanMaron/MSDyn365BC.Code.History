@@ -289,6 +289,7 @@ codeunit 5407 "Prod. Order Status Management"
                 NewProdOrderComponent := FromProdOrderComponent;
                 NewProdOrderComponent.Status := NewProdOrderComponent.Status::Released;
                 NewProdOrderComponent.Insert();
+                OnTransReopenProdOrderCompOnAfterInsert(FromProdOrderComponent, NewProdOrderComponent);
             until FromProdOrderComponent.Next() = 0;
             FromProdOrderComponent.DeleteAll();
         end;
@@ -308,6 +309,7 @@ codeunit 5407 "Prod. Order Status Management"
                 ToProdOrderRtngLine.Status := ToProdOrderRtngLine.Status::Released;
                 ToProdOrderRtngLine."Routing Status" := ToProdOrderRtngLine."Routing Status"::"In Progress";
                 ToProdOrderRtngLine.Insert();
+                OnTransferReopenProdOrderRtngLineOnAfterInsert(FromProdOrderRtngLine, ToProdOrderRtngLine, FromProdOrder);
             until FromProdOrderRtngLine.Next() = 0;
             FromProdOrderRtngLine.DeleteAll();
         end;
@@ -1990,6 +1992,16 @@ codeunit 5407 "Prod. Order Status Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferReopenProdOrder(ProductionOrder: Record "Production Order"; FromProductionOrder: Record "Production Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransReopenProdOrderCompOnAfterInsert(FromProdOrderComponent: Record "Prod. Order Component"; NewProdOrderComponent: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferReopenProdOrderRtngLineOnAfterInsert(FromProdOrderRoutingLine: Record "Prod. Order Routing Line"; ToProdOrderRoutingLine: Record "Prod. Order Routing Line"; FromProductionOrder: Record "Production Order")
     begin
     end;
 }

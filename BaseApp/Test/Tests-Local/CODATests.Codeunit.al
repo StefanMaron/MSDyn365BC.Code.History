@@ -1054,6 +1054,75 @@ codeunit 144006 "CODA Tests"
         Assert.AreNotEqual(CODAStatementLine[1]."Statement Amount", -GenJnlLine.Amount, '');
     end;
 
+    [Test]
+    [HandlerFunctions('ApplyCustomerEntriesModalPageHandler,ConfirmHandler')]
+    procedure CODAStmtTransferredWhenCustBlockedShipOrInvoice()
+    var
+        BankAccount: Record "Bank Account";
+        CodaStatement: Record "CODA Statement";
+        CODAStatementLine: Record "CODA Statement Line";
+        Customer: array[3] of Record Customer;
+        CustomerLedgerEntry: Record "Cust. Ledger Entry";
+        GenJnlLine: Record "Gen. Journal Line";
+        TransactionCoding: Record "Transaction Coding";
+        CODAWriteStatements: Codeunit "CODA Write Statements";
+        CODAStatementPage: TestPage "CODA Statement";
+        DocumentNo: array[5] of Code[20];
+        i: Integer;
+    begin
+        // [SCENARIO 555809] Data Cannot be insert in Financial Journal when Customer was Blocked.
+        Initialize();
+
+        // [GIVEN] Create Bank Account And Financial Journal Template.
+        CreateBankAccounInformation(BankAccount);
+
+        // [GIVEN] Create Multiple Customers.
+        LibrarySales.CreateCustomer(Customer[1]);
+        LibrarySales.CreateCustomer(Customer[2]);
+        LibrarySales.CreateCustomer(Customer[3]);
+
+        // [GIVEN] Create Customer Ledger Entry.
+        DocumentNo[1] := CreateCODACustLedgerEntry(CustomerLedgerEntry, Customer[1]."No.");
+        DocumentNo[2] := CreateCODACustLedgerEntry(CustomerLedgerEntry, Customer[2]."No.");
+        DocumentNo[3] := CreateCODACustLedgerEntry(CustomerLedgerEntry, Customer[2]."No.");
+        DocumentNo[4] := CreateCODACustLedgerEntry(CustomerLedgerEntry, Customer[2]."No.");
+        DocumentNo[5] := CreateCODACustLedgerEntry(CustomerLedgerEntry, Customer[3]."No.");
+
+        // [GIVEN] Create CODA Statement Header.
+        CreateCODAStament(CodaStatement, BankAccount, TransactionCoding);
+
+        // [GIVEN] Create CODA Statement Line And Apply Posted Sales Invoice.
+        for i := 1 to LibraryRandom.RandIntInRange(5, 5) do begin
+            CreateCODAStamentLines(CodaStatement, TransactionCoding, CODAStatementLine, BankAccount, DocumentNo[i]);
+            CODAWriteStatements.Apply(CODAStatementLine);
+        end;
+
+        // [GIVEN] Open CODA Statement Page.
+        CODAStatementPage.OpenEdit();
+        CODAStatementPage.Filter.SetFilter("Bank Account No.", BankAccount."No.");
+
+        // [WHEN] Customer Blocked for All process.
+        Customer[2].Validate(Blocked, Customer[2].Blocked::All);
+        Customer[2].Modify(true);
+
+        // [THEN] Line Not inserted from CODA Statement Line to Financial Journal.
+        asserterror CODAStatementPage."Transfer to General Ledger".Invoke(); // Transfer to general ledger
+
+        // [WHEN] Customer Blocked for Ship process.
+        Customer[2].Get(Customer[2]."No.");
+        Customer[2].Validate(Blocked, Customer[2].Blocked::Ship);
+        Customer[2].Modify(true);
+
+        // [WHEN] Invoke the "Transfer to General Ledger" action.
+        CODAStatementPage."Transfer to General Ledger".Invoke();
+        CODAStatementPage.Close();
+
+        // [THEN] Verify that General journal line created with Customer = "X"
+        GenJnlLine.SetRange("Account No.", Customer[2]."No.");
+        GenJnlLine.SetRange("Bal. Account No.", BankAccount."No.");
+        Assert.IsFalse(GenJnlLine.IsEmpty(), IncorrectNoOfRecordsErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"CODA Tests");
