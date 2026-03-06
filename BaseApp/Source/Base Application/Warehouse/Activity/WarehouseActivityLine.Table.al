@@ -3498,7 +3498,7 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookUpTrackingSummary(WhseActivLine: Record "Warehouse Activity Line"; TrackingType: Enum "Item Tracking Type"; var IsHandled: Boolean)
+    local procedure OnBeforeLookUpTrackingSummary(var WhseActivLine: Record "Warehouse Activity Line"; TrackingType: Enum "Item Tracking Type"; var IsHandled: Boolean)
     begin
     end;
 

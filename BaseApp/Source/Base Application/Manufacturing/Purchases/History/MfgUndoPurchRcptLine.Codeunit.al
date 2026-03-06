@@ -13,7 +13,7 @@ using Microsoft.Inventory;
 codeunit 99000784 "Mfg. Undo Purch. Rcpt. Line"
 {
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Undo Purchase Receipt Line", 'OnUpdateItemJnlLineProdOrderSubcontracting', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Undo Purchase Receipt Line", 'OnUpdateItemJnlLineProdOrderSubcontracting', '', true, false)]
     local procedure OnUpdateItemJnlLineProdOrderSubcontracting(var ItemJnlLine: Record "Item Journal Line"; var PurchRcptLine: Record "Purch. Rcpt. Line"; var TempOutputItemLedgerEntry: Record "Item Ledger Entry" temporary; var OneLinePostingUndo: Boolean)
     begin
         UpdateItemJnlLineProdOrderSubcontracting(ItemJnlLine, PurchRcptLine, TempOutputItemLedgerEntry, OneLinePostingUndo);
@@ -82,25 +82,14 @@ codeunit 99000784 "Mfg. Undo Purch. Rcpt. Line"
         CapacityLedgEntry: Record "Capacity Ledger Entry";
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        CapacityLedgEntry.ReadIsolation := IsolationLevel::ReadCommitted;
-        CapacityLedgEntry.SetCurrentKey("Document No.", "Posting Date");
-        CapacityLedgEntry.SetRange("Document No.", PurchRcptLine."Document No.");
-        CapacityLedgEntry.SetRange("Order Type", CapacityLedgEntry."Order Type"::Production);
-        CapacityLedgEntry.SetRange("Order No.", PurchRcptLine."Prod. Order No.");
-        CapacityLedgEntry.SetRange("Order Line No.", PurchRcptLine."Prod. Order Line No.");
-
+        FilterCapacityLedgerEntry(CapacityLedgEntry, PurchRcptLine);
         if CapacityLedgEntry.FindSet() then
             repeat
                 TempCapacityLedgEntry := CapacityLedgEntry;
                 TempCapacityLedgEntry.Insert();
             until CapacityLedgEntry.Next() = 0;
 
-        ItemLedgEntry.ReadIsolation := IsolationLevel::ReadCommitted;
-        ItemLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type", "Prod. Order Comp. Line No.");
-        ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
-        ItemLedgEntry.SetRange("Order No.", PurchRcptLine."Prod. Order No.");
-        ItemLedgEntry.SetRange("Order Line No.", PurchRcptLine."Prod. Order Line No.");
-        ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Output);
+        FilterItemLedgerEntry(ItemLedgEntry, PurchRcptLine, CapacityLedgEntry."Item Register No.");
         ItemLedgEntry.SetRange("Source Type", ItemLedgEntry."Source Type"::Vendor);
         ItemLedgEntry.SetRange("Source No.", PurchRcptLine."Buy-from Vendor No.");
         ItemLedgEntry.SetFilter("Remaining Quantity", '>0');
@@ -111,7 +100,28 @@ codeunit 99000784 "Mfg. Undo Purch. Rcpt. Line"
             until ItemLedgEntry.Next() = 0;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Undo Posting Management", 'OnCollectOutputItemLedgEntriesForSubcontructingPurcReceiptLine', '', false, false)]
+    local procedure FilterCapacityLedgerEntry(var CapacityLedgEntry: Record "Capacity Ledger Entry"; var PurchRcptLine: Record "Purch. Rcpt. Line")
+    begin
+        CapacityLedgEntry.ReadIsolation := IsolationLevel::ReadCommitted;
+        CapacityLedgEntry.SetCurrentKey("Document No.", "Posting Date");
+        CapacityLedgEntry.SetRange("Document No.", PurchRcptLine."Document No.");
+        CapacityLedgEntry.SetRange("Order Type", CapacityLedgEntry."Order Type"::Production);
+        CapacityLedgEntry.SetRange("Order No.", PurchRcptLine."Prod. Order No.");
+        CapacityLedgEntry.SetRange("Order Line No.", PurchRcptLine."Prod. Order Line No.");
+    end;
+
+    local procedure FilterItemLedgerEntry(var ItemLedgEntry: Record "Item Ledger Entry"; var PurchRcptLine: Record "Purch. Rcpt. Line"; ItemRegisterNo: Integer)
+    begin
+        ItemLedgEntry.ReadIsolation := IsolationLevel::ReadCommitted;
+        ItemLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type", "Prod. Order Comp. Line No.");
+        ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
+        ItemLedgEntry.SetRange("Order No.", PurchRcptLine."Prod. Order No.");
+        ItemLedgEntry.SetRange("Order Line No.", PurchRcptLine."Prod. Order Line No.");
+        ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Output);
+        ItemLedgEntry.SetRange("Item Register No.", ItemRegisterNo);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Undo Posting Management", 'OnCollectOutputItemLedgEntriesForSubcontructingPurcReceiptLine', '', true, false)]
     local procedure OnCollectOutputItemLedgEntriesForSubcontructingPurcReceiptLine(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; PurchRcptLine: Record "Purch. Rcpt. Line"; var Result: Boolean)
     begin
         Result := CollectOutputItemLedgEntriesForSubcontructingPurcReceiptLine(TempItemLedgerEntry, PurchRcptLine);
@@ -119,6 +129,7 @@ codeunit 99000784 "Mfg. Undo Purch. Rcpt. Line"
 
     local procedure CollectOutputItemLedgEntriesForSubcontructingPurcReceiptLine(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; PurchRcptLine: Record "Purch. Rcpt. Line"): Boolean
     var
+        CapacityLedgerEntry: Record "Capacity Ledger Entry";
         ItemLedgEntry: Record "Item Ledger Entry";
         OutputEntriesExist: Boolean;
     begin
@@ -126,12 +137,11 @@ codeunit 99000784 "Mfg. Undo Purch. Rcpt. Line"
         if not TempItemLedgEntry.IsEmpty() then
             TempItemLedgEntry.DeleteAll();
 
-        ItemLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type", "Prod. Order Comp. Line No.");
+        FilterCapacityLedgerEntry(CapacityLedgerEntry, PurchRcptLine);
+        if CapacityLedgerEntry.FindLast() then;
+
         ItemLedgEntry.SetBaseLoadFields();
-        ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
-        ItemLedgEntry.SetRange("Order No.", PurchRcptLine."Prod. Order No.");
-        ItemLedgEntry.SetRange("Order Line No.", PurchRcptLine."Prod. Order Line No.");
-        ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Output);
+        FilterItemLedgerEntry(ItemLedgEntry, PurchRcptLine, CapacityLedgerEntry."Item Register No.");
         ItemLedgEntry.SetRange("Item No.", PurchRcptLine."No.");
         ItemLedgEntry.SetRange(Open, true);
 
@@ -150,7 +160,7 @@ codeunit 99000784 "Mfg. Undo Purch. Rcpt. Line"
         exit(OutputEntriesExist);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Undo Posting Management", 'OnPostItemJnlLineAppliedToListOnAfterSetInvoicedQty', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Undo Posting Management", 'OnPostItemJnlLineAppliedToListOnAfterSetInvoicedQty', '', true, false)]
     local procedure OnPostItemJnlLineAppliedToListOnAfterSetInvoicedQty(var ItemJournalLine: Record "Item Journal Line"; TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary)
     begin
         if ItemJournalLine.Correction and ItemJournalLine.Subcontracting then

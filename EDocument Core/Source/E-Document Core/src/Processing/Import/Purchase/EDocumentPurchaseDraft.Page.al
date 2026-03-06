@@ -205,6 +205,7 @@ page 6181 "E-Document Purchase Draft"
                 }
                 field("Amount Incl. VAT"; EDocumentPurchaseHeader.Total)
                 {
+                    Caption = 'Amount Incl. VAT';
                     ToolTip = 'Specifies the total amount of the electronic document including VAT.';
                     Importance = Promoted;
 
@@ -217,6 +218,7 @@ page 6181 "E-Document Purchase Draft"
                 }
                 field("Currency Code"; EDocumentPurchaseHeader."Currency Code")
                 {
+                    Caption = 'Currency Code';
                     Importance = Promoted;
                     ToolTip = 'Specifies the electronic document currency code.';
                     Editable = true;
@@ -254,7 +256,7 @@ page 6181 "E-Document Purchase Draft"
             }
             part(ErrorMessagesFactBox; "Error Messages Part")
             {
-                Visible = false;
+                Visible = HasErrorsOrWarnings;
                 ShowFilter = false;
                 UpdatePropagation = Both;
             }
@@ -411,6 +413,7 @@ page 6181 "E-Document Purchase Draft"
     trigger OnOpenPage()
     var
         EDocumentsSetup: Record "E-Documents Setup";
+        EDocumentDataStorage: Record "E-Doc. Data Storage";
         EDocumentNotification: Codeunit "E-Document Notification";
         EDocPOMatching: Codeunit "E-Doc. PO Matching";
         MatchesRemovedMsg: Label 'This e-document was matched to purchase order lines, but the matches are no longer consistent with the current data. The matches have been removed';
@@ -423,7 +426,10 @@ page 6181 "E-Document Purchase Draft"
             Message(MatchesRemovedMsg);
         end;
         CurrPage.Lines.Page.SetEDocumentPurchaseHeader(EDocumentPurchaseHeader);
-        HasPDFSource := Rec."Read into Draft Impl." = "E-Doc. Read into Draft"::ADI;
+        if Rec."Unstructured Data Entry No." <> 0 then begin
+            EDocumentDataStorage.Get(Rec."Unstructured Data Entry No.");
+            HasPDFSource := EDocumentDataStorage."File Format" = Enum::"E-Doc. File Format"::PDF;
+        end;
         EDocumentServiceStatus := Rec.GetEDocumentServiceStatus();
         HasErrorsOrWarnings := false;
         HasErrors := false;
@@ -453,7 +459,7 @@ page 6181 "E-Document Purchase Draft"
         SetPageCaption();
 
         Rec.CalcFields("Import Processing Status");
-        ShowFinalizeDraftAction := Rec."Import Processing Status" = Enum::"Import E-Doc. Proc. Status"::"Draft Ready";
+        ShowFinalizeDraftAction := Rec."Import Processing Status" in [Enum::"Import E-Doc. Proc. Status"::"Ready for draft", Enum::"Import E-Doc. Proc. Status"::"Draft Ready"];
         ShowAnalyzeDocumentAction :=
             (Rec."Import Processing Status" = Enum::"Import E-Document Steps"::"Structure received data") and
             (Rec.Status = Enum::"E-Document Status"::Error);
