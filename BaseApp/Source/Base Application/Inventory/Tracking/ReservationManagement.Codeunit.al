@@ -1014,7 +1014,7 @@ codeunit 99000845 "Reservation Management"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetValueArray(EntryStatus, ValueArray, ArrayCounter, IsHandled);
+        OnBeforeSetValueArray(EntryStatus, ValueArray, ArrayCounter, IsHandled, CalcReservEntry);
         if not IsHandled then begin
             Clear(ValueArray);
             case EntryStatus of
@@ -1170,7 +1170,7 @@ codeunit 99000845 "Reservation Management"
 
         GetItemSetup(CalcReservEntry);
         OnAutoTrackOnAfterGetItemSetup(CalcReservEntry, Item);
-        
+
         if Item."Order Tracking Policy" = Item."Order Tracking Policy"::None then
             exit;
 
@@ -1817,6 +1817,7 @@ codeunit 99000845 "Reservation Management"
         WhseItemTrackingSetup: Record "Item Tracking Setup";
         TempWhseActivLine2: Record "Warehouse Activity Line" temporary;
         TempBinContentBuffer: Record "Bin Content Buffer" temporary;
+        TempTrackingSpecification: Record "Tracking Specification" temporary;
         WhseAvailMgt: Codeunit "Warehouse Availability Mgt.";
         QtyOnOutboundBins: Decimal;
         QtyOnInvtMovement: Decimal;
@@ -1867,9 +1868,15 @@ codeunit 99000845 "Reservation Management"
                 QtyOnOutboundBins :=
                     WhseAvailMgt.CalcQtyOnOutboundBins(CalcReservEntry."Location Code", CalcReservEntry."Item No.", CalcReservEntry."Variant Code", WhseItemTrackingSetup, true);
 
-            QtyReservedOnPickShip :=
-              WhseAvailMgt.CalcReservQtyOnPicksShips(
-                CalcReservEntry."Location Code", CalcReservEntry."Item No.", CalcReservEntry."Variant Code", TempWhseActivLine2);
+            if WhseItemTrackingSetup.TrackingExists() then begin
+                TempTrackingSpecification.CopyTrackingFromItemTrackingSetup(WhseItemTrackingSetup);
+                QtyReservedOnPickShip :=
+                  WhseAvailMgt.CalcReservQtyOnPicksShipsWithItemTracking(
+                    TempWhseActivLine2, TempTrackingSpecification, CalcReservEntry."Location Code", CalcReservEntry."Item No.", CalcReservEntry."Variant Code");
+            end else
+                QtyReservedOnPickShip :=
+                  WhseAvailMgt.CalcReservQtyOnPicksShips(
+                    CalcReservEntry."Location Code", CalcReservEntry."Item No.", CalcReservEntry."Variant Code", TempWhseActivLine2);
 
             QtyOnInvtMovement := CalcQtyOnInvtMovement(WhseActivLine);
 
@@ -2047,7 +2054,7 @@ codeunit 99000845 "Reservation Management"
     begin
         IsHandled := false;
         OnBeforeAutoReserveToShip(IsHandled, FullAutoReservation, Description, AvailabilityDate, QuantityToShip, QuantityToShipBase);
-        if not IsHandled then begin            
+        if not IsHandled then begin
             CalcReservEntry.TestField("Source Type");
 
             if CalcReservEntry."Source Type" in [1 /*Sales*/, 3 /* Purchase*/]
@@ -2076,7 +2083,7 @@ codeunit 99000845 "Reservation Management"
             AutoReserveOneLine(ValueArray[1], RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate);
 
             FullAutoReservation := (RemainingQtyToReserve = 0);
-        end; 
+        end;
 
         OnAfterAutoReserveToShip(FullAutoReservation, Description, AvailabilityDate, QuantityToShip, QuantityToShipBase);
     end;
@@ -2434,7 +2441,7 @@ codeunit 99000845 "Reservation Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetValueArray(EntryStatus: Option; var ValueArray: array[30] of Integer; var ArrayCounter: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeSetValueArray(EntryStatus: Option; var ValueArray: array[30] of Integer; var ArrayCounter: Integer; var IsHandled: Boolean; var CalcReservationEntry: Record "Reservation Entry")
     begin
     end;
 
@@ -3032,6 +3039,6 @@ codeunit 99000845 "Reservation Management"
     [IntegrationEvent(false, false)]
     local procedure OnAfterAutoReserveToShip(var FullAutoReservation: Boolean; Description: Text[100]; AvailabilityDate: Date; QuantityToShip: Decimal; QuantityToShipBase: Decimal)
     begin
-    end;    
+    end;
 }
 

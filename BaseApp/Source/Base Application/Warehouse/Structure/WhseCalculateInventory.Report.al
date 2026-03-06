@@ -243,15 +243,22 @@ report 7390 "Whse. Calculate Inventory"
     end;
 
     local procedure InitBinContent(var BinContent: Record "Bin Content"; WarehouseEntry: Record "Warehouse Entry")
+    var
+        BinRec: Record Bin;
     begin
         BinContent.Init();
         BinContent."Location Code" := WarehouseEntry."Location Code";
         BinContent."Item No." := WarehouseEntry."Item No.";
-        BinContent."Zone Code" := WarehouseEntry."Zone Code";
         BinContent."Bin Code" := WarehouseEntry."Bin Code";
         BinContent."Variant Code" := WarehouseEntry."Variant Code";
         BinContent."Unit of Measure Code" := WarehouseEntry."Unit of Measure Code";
         BinContent."Quantity (Base)" := 0;
+
+        // Get current Zone Code from Bin table instead of historical value from Warehouse Entry
+        if BinRec.Get(WarehouseEntry."Location Code", WarehouseEntry."Bin Code") then
+            BinContent."Zone Code" := BinRec."Zone Code"
+        else
+            BinContent."Zone Code" := WarehouseEntry."Zone Code";
 
         OnAfterInitBinContent(BinContent, WarehouseEntry);
     end;

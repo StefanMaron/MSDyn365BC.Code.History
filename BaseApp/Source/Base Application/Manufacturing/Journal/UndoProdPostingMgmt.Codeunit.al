@@ -6,6 +6,7 @@ namespace Microsoft.Manufacturing.Journal;
 
 using Microsoft.Finance.GeneralLedger.Reversal;
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Posting;
@@ -43,6 +44,8 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
                 OnReverseProdItemLedgerEntryOnAfterProcessItemLedgerEntry(ItemLedgerEntry);
                 Processed := true;
             until ItemLedgerEntry.Next() = 0;
+
+        OnReverseProdItemLedgerEntryOnAfterProcessItemLedgerEntries(ItemLedgerEntry);
 
         if Processed then
             Message(PostedSuccessfullyMsg);
@@ -273,6 +276,7 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
 
     local procedure ReverseConsumptionItemLedgerEntry(ItemLedgerEntry: Record "Item Ledger Entry")
     var
+        Item: Record Item;
         ItemJnlLine: Record "Item Journal Line";
         ProductionOrder: Record "Production Order";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
@@ -297,7 +301,10 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         ItemJnlLine.Validate("Document No.", ItemLedgerEntry."Document No.");
         ItemJnlLine.Validate(Description, ItemLedgerEntry.Description);
         ItemJnlLine.Validate("Location Code", ItemLedgerEntry."Location Code");
-        ItemJnlLine.Validate("Unit of Measure Code", ItemLedgerEntry."Unit of Measure Code");
+        if Item.Get(ItemLedgerEntry."Item No.") and (Item."Base Unit of Measure" <> ItemLedgerEntry."Unit of Measure Code") then
+            ItemJnlLine.Validate("Unit of Measure Code", Item."Base Unit of Measure")
+        else
+            ItemJnlLine.Validate("Unit of Measure Code", ItemLedgerEntry."Unit of Measure Code");
         ItemJnlLine."Dimension Set ID" := ItemLedgerEntry."Dimension Set ID";
         ItemJnlLine."Shortcut Dimension 1 Code" := ItemLedgerEntry."Global Dimension 1 Code";
         ItemJnlLine."Shortcut Dimension 2 Code" := ItemLedgerEntry."Global Dimension 2 Code";
@@ -408,8 +415,10 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         if CapacityLedgerEntry.Subcontracting then
             Error(SubContractingErr);
 
-        if IsLastOperation(CapacityLedgerEntry) then
+        if IsLastOperation(CapacityLedgerEntry) then begin
+            OnValidateProdOrderOnIsLastOperation(CapacityLedgerEntry);
             Error(CannotReverseLastOperationErr, CapacityLedgerEntry.FieldCaption("Entry No."), CapacityLedgerEntry."Entry No.", CapacityLedgerEntry."Order No.", ItemLedgEntry.TableCaption());
+        end;
     end;
 
     local procedure CreateOutputReservationEntry(ItemJnlLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry")
@@ -527,6 +536,16 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateConsumptionReservationEntryOnBeforeInsert(var ReservationEntry: Record "Reservation Entry"; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseProdItemLedgerEntryOnAfterProcessItemLedgerEntries(var ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateProdOrderOnIsLastOperation(var CapacityLedgerEntry: Record "Capacity Ledger Entry")
     begin
     end;
 }
