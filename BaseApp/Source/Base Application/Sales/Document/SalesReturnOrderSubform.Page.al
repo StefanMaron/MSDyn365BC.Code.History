@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -190,6 +190,7 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnValidate()
                     begin
+                        ForceTotalsCalculation();
                         DeltaUpdateTotals();
                     end;
                 }
@@ -201,6 +202,7 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnValidate()
                     begin
+                        ForceTotalsCalculation();
                         DeltaUpdateTotals();
                     end;
                 }
@@ -453,6 +455,11 @@ page 6631 "Sales Return Order Subform"
                     ToolTip = 'Specifies the quantity of items that remain to be shipped.';
                     AboutTitle = 'The quantity that is returned';
                     AboutText = 'If the customer is not returning the full quantity, adjust the ‘Qty. to Receive’ value. Similarly, choose the quantity to credit the customer in the Qty to Invoice field.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update();
+                    end;
                 }
                 field("Return Qty. Received"; Rec."Return Qty. Received")
                 {
@@ -476,6 +483,11 @@ page 6631 "Sales Return Order Subform"
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the quantity that remains to be invoiced. It is calculated as Quantity - Qty. Invoiced.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update();
+                    end;
                 }
                 field("Quantity Invoiced"; Rec."Quantity Invoiced")
                 {

@@ -592,7 +592,7 @@ report 406 "Purchase - Invoice"
                                 MoreLines := Next(-1) <> 0;
                             if not MoreLines then
                                 CurrReport.Break();
-                            SetRange("Line No.", 0, "Line No.");
+                            SetFilter("Line No.", '<=%1', "Line No.");
 
                             PurchInvLine.SetRange("Document No.", "Purch. Inv. Header"."No.");
                             PurchInvLine.SetFilter(Type, '<>%1', 0);
