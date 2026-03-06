@@ -4,8 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Intercompany.Outbox;
 
-using Microsoft.Intercompany.Comment;
 using Microsoft.Intercompany;
+using Microsoft.Intercompany.Comment;
 using Microsoft.Intercompany.Journal;
 using Microsoft.Intercompany.Partner;
 using System.Utilities;
@@ -246,6 +246,7 @@ table 414 "IC Outbox Transaction"
         HandledICOutboxTrans.SetRange("IC Source Type", "IC Source Type");
         HandledICOutboxTrans.SetRange("Document Type", "Document Type");
         HandledICOutboxTrans.SetRange("Document No.", "Document No.");
+        OnOutboxCheckSendOnBeforeHandledICOutboxTransFindFirst(Rec, HandledICOutboxTrans);
         if HandledICOutboxTrans.FindFirst() then
             if not ConfirmManagement.GetResponseOrDefault(
                 StrSubstNo(
@@ -309,6 +310,19 @@ table 414 "IC Outbox Transaction"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOutboxCheckSend(var ICOutboxTransaction: Record "IC Outbox Transaction"; var IsHandled: Boolean)
+    begin
+    end;
+
+    /// <summary>
+    /// Integration event raised before finding handled outbox transactions for send validation.    
+    /// </summary>
+    /// <param name="ICOutboxTrans">IC Outbox Transaction record being validated</param>
+    /// <param name="HandledICOutboxTrans">Handled IC Outbox Transactions record for filtering</param>
+    /// <remarks>   
+    /// Raised from OutboxCheckSend procedure before searching for handled outbox transactions.
+    /// </remarks>
+    [IntegrationEvent(false, false)]
+    local procedure OnOutboxCheckSendOnBeforeHandledICOutboxTransFindFirst(var ICOutboxTrans: Record "IC Outbox Transaction"; var HandledICOutboxTrans: Record "Handled IC Outbox Trans.")
     begin
     end;
 

@@ -21,6 +21,7 @@ codeunit 137055 "SCM Warehouse Pick"
         LocationYellow: Record Location;
         LocationOrange: Record Location;
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryWarehouse: Codeunit "Library - Warehouse";
@@ -1869,6 +1870,92 @@ codeunit 137055 "SCM Warehouse Pick"
         Assert.AreEqual(SalesLine.Quantity, SalesLine."Quantity Shipped", ShipQtyErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesAssignLotPageHandler,AvailabilityWarningConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RegisterPickWhenAnotherOrderHasExcessiveItemTrackingAssignment()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        WarehouseShipmentHeader: array[2] of Record "Warehouse Shipment Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNo: Code[50];
+        InventoryQty: Decimal;
+        SalesQty1: Decimal;
+        SalesQty2: Decimal;
+        ExpectedPickQty2: Decimal;
+    begin
+        // [SCENARIO 563605] Warehouse pick can be registered when another sales order has item tracking assigned for excessive quantity (not yet picked)
+        Initialize();
+
+        // [GIVEN] Create Location with Require Shipment = Yes, Require Pick = Yes (non-directed put-away and pick)
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Create Item with Lot-specific Item Tracking
+        LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
+        ItemTrackingCode.Validate("Lot Specific Tracking", true);
+        ItemTrackingCode.Validate("Lot Warehouse Tracking", true);
+        ItemTrackingCode.Modify(true);
+
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        Item.Modify(true);
+
+        // [GIVEN] Post positive adjustment for 15 units with a Lot No.
+        InventoryQty := 15;
+        LotNo := LibraryUtility.GenerateGUID();
+        CreateAndPostItemJournalLineWithLotNo(ItemJournalLine, Item."No.", Location.Code, InventoryQty, LotNo);
+
+        // [GIVEN] Create Sales Order 1 for 10 units, assign item tracking with the Lot No. for 10 units
+        SalesQty1 := 10;
+        CreateSalesOrderWithLotTracking(SalesHeader[1], SalesLine[1], Item."No.", Location.Code, SalesQty1, LotNo);
+
+        // [GIVEN] Create Warehouse Shipment for Sales Order 1
+        LibrarySales.ReleaseSalesDocument(SalesHeader[1]);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader[1]);
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader[1], SalesHeader[1]."No.");
+
+        // [GIVEN] Create Pick from Warehouse Shipment for Sales Order 1 (do NOT register yet)
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader[1]);
+
+        // [GIVEN] Create Sales Order 2 for 11 units, assign item tracking with the Lot No. for 11 units
+        // (Availability warning will be shown because only 5 units are available, user confirms)
+        SalesQty2 := 11;
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(SalesQty2);
+        CreateSalesOrderWithExcessiveLotTracking(SalesHeader[2], SalesLine[2], Item."No.", Location.Code, SalesQty2);//, LotNo);
+
+        // [GIVEN] Create Warehouse Shipment for Sales Order 2 (do NOT create pick yet)
+        LibrarySales.ReleaseSalesDocument(SalesHeader[2]);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader[2]);
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader[2], SalesHeader[2]."No.");
+
+        // [WHEN] Register the Warehouse Pick for Sales Order 1
+        FindWarehouseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::Pick, Location.Code, SalesHeader[1]."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] Pick is registered successfully (no error "Lot No. is not available on inventory...")
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.SetRange("Source No.", SalesHeader[1]."No.");
+        Assert.RecordIsEmpty(WarehouseActivityLine);
+
+        // [WHEN] Create Pick from Warehouse Shipment for Sales Order 2
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader[2]);
+
+        // [THEN] Pick is created with Quantity = 5 (15 inventory - 10 already picked = 5 remaining)
+        ExpectedPickQty2 := InventoryQty - SalesQty1;
+        FindWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, Location.Code, SalesHeader[2]."No.", WarehouseActivityLine."Action Type"::" ");
+        Assert.AreEqual(ExpectedPickQty2, WarehouseActivityLine.Quantity, 'Pick quantity for second sales order should be remaining inventory');
+    end;
+
     local procedure Initialize()
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -2837,6 +2924,84 @@ codeunit 137055 "SCM Warehouse Pick"
         LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, QtyPerUOM);
         ItemUnitOfMeasure.Validate("Qty. Rounding Precision", QtyRoundingPrecision);
         ItemUnitOfMeasure.Modify(true);
+    end;
+
+    local procedure CreateAndPostItemJournalLineWithLotNo(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; LotNo: Code[50])
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+            ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Modify(true);
+
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNo, Quantity);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure CreateSalesOrderWithLotTracking(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; LotNo: Code[50])
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
+            LibrarySales.CreateCustomerNo(), ItemNo, Quantity, LocationCode, WorkDate());
+        LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLine, '', LotNo, Quantity);
+    end;
+
+    local procedure CreateSalesOrderWithExcessiveLotTracking(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    begin
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
+            LibrarySales.CreateCustomerNo(), ItemNo, Quantity, LocationCode, WorkDate());
+
+        // Open item tracking lines - handler will assign lot with excessive quantity and confirm availability warning
+        SalesLine.OpenItemTrackingLines();
+    end;
+
+    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; SourceNo: Code[20])
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.SetRange("Location Code", LocationCode);
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+    end;
+
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type")
+    begin
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.SetRange("Location Code", LocationCode);
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        WarehouseActivityLine.FindFirst();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLinesAssignLotPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        LotNo: Code[50];
+        Qty: Decimal;
+    begin
+        LotNo := LibraryVariableStorage.DequeueText();
+        Qty := LibraryVariableStorage.DequeueDecimal();
+        ItemTrackingLines."Lot No.".SetValue(LotNo);
+        ItemTrackingLines."Quantity (Base)".SetValue(Qty);
+        ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure AvailabilityWarningConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        // Confirm the availability warning when assigning excessive item tracking
+        Reply := true;
     end;
 
     [ModalPageHandler]
