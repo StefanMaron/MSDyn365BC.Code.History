@@ -194,6 +194,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Buffer Table/Page UT - NamedType QueryClosePageLookupErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3786576731 - NamedType 4171081487" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Approval Entry should exist when Credit Limit is changed.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Cust Cred Lmt Approval - NamedType ApprovalEntryNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3786576731 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
@@ -372,6 +381,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Item Approval - NamedType UnexpectedNoOfWorkflowStepInstancesErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3736882455 - NamedType 4171081487" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Approval Entry should exist when Item Unit Price is changed.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Item Unit Pri Approval - NamedType ApprovalEntryNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3736882455 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1272,6 +1290,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Vendor Approval - NamedType ApprovalCommentWasNotDeletedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3829500651 - NamedType 4171081487" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Approval Entry should exist when Vendor approval is requested.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Vendor Approval - NamedType ApprovalEntryNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3829500651 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

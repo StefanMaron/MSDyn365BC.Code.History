@@ -26,6 +26,9 @@ codeunit 137023 "SCM Reservation Worksheet"
         QtyCannotExceedErr: Label 'Qty. to Reserve cannot exceed';
         DateSequenceErr: Label 'Start Date Formula must be less than or equal to End Date Formula';
         ChangeLocationMessage: Label 'You have changed Location Code on the sales header, but it has not been changed on the existing sales lines.';
+        AvailableQtyToReserveErr: Label 'There is no available quantity to reserve. %1 must be greater than zero.', Comment = '%1 = Available Qty. to Reserve';
+        RemainingQtyToReserveErr: Label '%1 should equal the quantity on the sales line.', Comment = '%1 = Remaining Qty. to Reserve';
+        MustBeEqualErr: Label '%1 must be equal to %2 in %3', Comment = '%1 = Field Name, %2 = Expected Value, %3 = table name';
 
     [Test]
     [HandlerFunctions('GetDemandToReserveRequestPageHandler')]
@@ -1126,6 +1129,181 @@ codeunit 137023 "SCM Reservation Worksheet"
 
         // [THEN] Verify each Sales Line have reservation (should complete without error)
         VerifySalesLineQuantityIsReserved(SalesHeader);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetDemandToReserveRequestPageHandler,CarryOutReservationRequestPageHandler')]
+    procedure AvailableQtyToReserveNotDoubleCountingWarehouseQuantity()
+    var
+        Bin: array[3] of Record Bin;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReservationWkshBatch: Record "Reservation Wksh. Batch";
+        ReservationWkshLine: Record "Reservation Wksh. Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        ReservationWorksheetMgt: Codeunit "Reservation Worksheet Mgt.";
+        ItemList: List of [Code[20]];
+    begin
+        // [SCENARIO 617197] 'Available Qty. to Reserve' field within the Reservation Worksheet is calculating both the Reservation
+        // and the Pick thus duplicating the value.
+        Initialize();
+
+        // [GIVEN] Create location with Inventory Posting Setup
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, true);
+
+        // [GIVEN] Create Bins for Location.
+        CreateBins(Bin, Location.Code);
+
+        // [GIVEN] Assign Bins to "Receipt Bin Code", "Shipment Bin Code" fields on Location.
+        Location.Validate("Receipt Bin Code", Bin[1].Code);
+        Location.Validate("Shipment Bin Code", Bin[2].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create Warehouse Employee for Location.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Create an Item with Reserve as Always.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Reserve, Item.Reserve::Always);
+        Item.Modify(true);
+
+        // [GIVEN] Create and Post Item Journal Line.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, Bin[3].Code, LibraryRandom.RandIntInRange(40, 40));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create Sales Order SO1 and auto reserve Sales Line.
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandIntInRange(30, 30), Location.Code, WorkDate());
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create Sales Order SO2, released but not reserved
+        Item.Get(Item."No.");
+        Item.Validate(Reserve, Item.Reserve::Optional);
+        Item.Modify(true);
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader2, SalesLine, SalesHeader2."Document Type"::Order, '', Item."No.", LibraryRandom.RandIntInRange(10, 10), Location.Code, WorkDate());
+        LibrarySales.ReleaseSalesDocument(SalesHeader2);
+
+        // [GIVEN] Create Warehouse Shipment and Pick for Sales Order SO1.
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, Location.Code);
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+
+        // [WHEN] Run "Get Demand" in Reservation Worksheet for the Item.
+        ItemList.Add(Item."No.");
+        ReservationWkshBatch.FindFirst();
+        GetDemand(ReservationWkshBatch.Name, ItemList);
+
+        // [THEN] Verify that warehouse pick does not affect Available Qty calculation.
+        ReservationWkshLine.SetRange("Journal Batch Name", ReservationWkshBatch.Name);
+        ReservationWkshLine.SetRange("Item No.", Item."No.");
+        ReservationWkshLine.SetRange("Source ID", SalesHeader2."No.");
+        ReservationWkshLine.FindFirst();
+        Assert.IsTrue(ReservationWkshLine."Available Qty. to Reserve" > 0,
+            StrSubstNo(AvailableQtyToReserveErr, ReservationWkshLine.FieldCaption("Available Qty. to Reserve")));
+        Assert.AreEqual(SalesLine.Quantity, ReservationWkshLine."Remaining Qty. to Reserve",
+            StrSubstNo(RemainingQtyToReserveErr, ReservationWkshLine.FieldCaption("Remaining Qty. to Reserve")));
+
+        // [WHEN] Make reservation for Sales Order SO2.
+        ReservationWkshLine.Validate("Qty. to Reserve", ReservationWkshLine."Remaining Qty. to Reserve");
+        ReservationWkshLine.Validate(Accept, true);
+        ReservationWkshLine.Modify();
+
+        Commit();
+        ReservationWkshLine.Reset();
+        ReservationWkshLine.SetRange("Journal Batch Name", ReservationWkshBatch.Name);
+        LibraryVariableStorage.Enqueue("Reservation Demand Type"::All);
+        ReservationWorksheetMgt.CarryOutAction(ReservationWkshLine);
+
+        // [THEN] Verify Sales Order SO2 is fully reserved.
+        SalesLine.SetRange("Document Type", SalesHeader2."Document Type"::Order);
+        SalesLine.SetRange("Document No.", SalesHeader2."No.");
+        SalesLine.FindFirst();
+        SalesLine.CalcFields("Reserved Quantity");
+        SalesLine.TestField("Reserved Quantity", 10);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetDemandToReserveRequestPageHandler,CarryOutReservationRequestPageHandler')]
+    procedure AvailableQtyToReserveWithBlankLotNoReservation()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        ReservationWkshBatch: Record "Reservation Wksh. Batch";
+        ReservationWkshLine: Record "Reservation Wksh. Line";
+        ReservationEntry: Record "Reservation Entry";
+        ReservationWorksheetMgt: Codeunit "Reservation Worksheet Mgt.";
+        ItemList: List of [Code[20]];
+        ReservedQty: Decimal;
+        TotalQuantity: Decimal;
+        LotNo: array[2] of Code[50];
+    begin
+        // [SCENARIO 620961] Available Qty. to Reserve calculation should not be overstated when LOT NO has not been specified on Reserved Sales Order Demand.
+        Initialize();
+
+        // [GIVEN] Create Item with LOT Item Tracking Code.
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Create Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create and Post Item Journal Line with LotNo.
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        LotNo[2] := LibraryUtility.GenerateGUID();
+        TotalQuantity := LibraryRandom.RandIntInRange(20, 20);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, '', TotalQuantity);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNo[1], LibraryRandom.RandIntInRange(10, 10));
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNo[2], LibraryRandom.RandIntInRange(10, 10));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create Sales Order and auto-reserved without specifying Lot No.
+        ReservedQty := LibraryRandom.RandIntInRange(5, 5);
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader[1], SalesLine[1], SalesHeader[1]."Document Type"::Order, '', Item."No.", ReservedQty, Location.Code, WorkDate());
+        LibrarySales.AutoReserveSalesLine(SalesLine[1]);
+
+        // [GIVEN] Create second Sales Order.
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader[2], SalesLine[2], SalesHeader[2]."Document Type"::Order, '', Item."No.", LibraryRandom.RandIntInRange(16, 16), Location.Code, WorkDate());
+
+        // [WHEN] Get Demand in Reservation Worksheet for Item.
+        ItemList.Add(Item."No.");
+        ReservationWkshBatch.FindFirst();
+        GetDemand(ReservationWkshBatch.Name, ItemList);
+
+        // [THEN] Available Qty. to Reserve shows the correct quantity (Total Quantity - Reserved Quantity).
+        ReservationWkshLine.SetRange("Journal Batch Name", ReservationWkshBatch.Name);
+        ReservationWkshLine.SetRange("Item No.", Item."No.");
+        ReservationWkshLine.SetRange("Source ID", SalesHeader[2]."No.");
+        ReservationWkshLine.FindFirst();
+        Assert.AreEqual(TotalQuantity - ReservedQty, ReservationWkshLine."Available Qty. to Reserve",
+            StrSubstNo(MustBeEqualErr, ReservationWkshLine.FieldCaption("Available Qty. to Reserve"),
+                TotalQuantity - ReservedQty, ReservationWkshLine.TableCaption()));
+
+        // [WHEN] Enter Available Qty. to Reserve in Qty. to Reserve and make reservation
+        ReservationWkshLine.Validate("Qty. to Reserve", TotalQuantity - ReservedQty);
+        ReservationWkshLine.Validate(Accept, true);
+        ReservationWkshLine.Modify();
+
+        Commit();
+        ReservationWkshLine.Reset();
+        ReservationWorksheetMgt.CarryOutAction(ReservationWkshLine);
+
+        // [THEN] Verify Total Quantity - Reserved Quantity is reserved on Sales Order Line and no over reservation happens.
+        SalesLine[2].Find();
+        SalesLine[2].CalcFields("Reserved Quantity");
+        Assert.AreEqual(TotalQuantity - ReservedQty, SalesLine[2]."Reserved Quantity",
+            StrSubstNo(MustBeEqualErr, SalesLine[2].FieldCaption("Reserved Quantity"),
+                TotalQuantity - ReservedQty, SalesLine[2].TableCaption()));
     end;
 
     local procedure Initialize()
