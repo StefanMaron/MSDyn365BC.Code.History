@@ -1,0 +1,197 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LCX SchemaVersion="6.0" Name="IRS Forms Tests.g" PsrId="63" SrcCul="en-US" TgtCul="en-US" xmlns="http://schemas.microsoft.com/locstudio/2006/6/lcx">
+  <OwnedComments>
+    <Cmt Name="Dev" />
+    <Cmt Name="LcxAdmin" />
+    <Cmt Name="Rccx" />
+  </OwnedComments>
+  <Item ItemId=";Codeunit 4242698808 - NamedType 796356999" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[irs1099documents]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS 1099 API Tests - NamedType IRS1099DocumentsServiceNameLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3301994773 - NamedType 1488298041" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot change the Form Box No. for the line with calculated amount.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS 1099 Document Tests - NamedType CannotChangeFormBoxWithCalculatedAmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3301994773 - NamedType 2665963104" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot change the IRS data in the vendor ledger entry connected to the form document. Period = %1, Vendor No. = %2, Form No. = %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Period No., %2 = Vendor No., %3 = Form No.]D;]A;(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS 1099 Document Tests - NamedType CannotChangeIRSDataInEntryConnectedToFormDocumentErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3301994773 - NamedType 1244873477" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot create multiple form documents with the same period, vendor and form.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS 1099 Document Tests - NamedType CannotCreateFormDocSamePeriodVendorFormErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3301994773 - NamedType 1459409920" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You have changed the Posting Date on the purchase header, which might affect the prices and discounts on the purchase lines.\You should review the lines and manually update prices and discounts if needed]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS 1099 Document Tests - NamedType ChangingPostingDateInPurchHeaderWhileHavingLineMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3301994773 - NamedType 2152427800" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot create two form document lines with the same form box.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS 1099 Document Tests - NamedType CreateCreateFormDocLineSameFormBoxErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3301994773 - NamedType 1009580807" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Field Period No. should be visible.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS 1099 Document Tests - NamedType PeriodNoFieldVisibleErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3301994773 - NamedType 2882764134" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Field Period No. should not be visible.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS 1099 Document Tests - NamedType PeriodNoNotVisibleErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2447379500 - NamedType 410573950" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You must set up email in Business Central before you can send 1099 forms.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS 1099 Emailing Tests - NamedType EmailSetupMissingErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2447379500 - NamedType 709463224" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be set in the document or vendor card.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - "Vendor E-Mail" field caption]D;]A;(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS 1099 Emailing Tests - NamedType EmptyEmailErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2447379500 - NamedType 3334536312" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You must enable the Receiving 1099 E-Form Consent field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS 1099 Emailing Tests - NamedType EnableConsentMessageTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2447379500 - NamedType 2834716302" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be enabled on the vendor card.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - "Receiving 1099 E-Form Consent" field caption]D;]A;(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS 1099 Emailing Tests - NamedType NoConsentErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2447379500 - NamedType 1827093280" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to propagate the %1 to all released 1099 form documents by this vendor?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = field caption]D;]A;(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS 1099 Emailing Tests - NamedType PropagateFieldToReleasedFormDocsQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2447379500 - NamedType 1718766172" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to propagate the %1 to all submitted 1099 form documents by this vendor?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = field caption]D;]A;(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS 1099 Emailing Tests - NamedType PropagateFieldToSubmittedFormDocsQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2447379500 - NamedType 2906666071" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Set the email in the document or in the vendor card]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS 1099 Emailing Tests - NamedType SetEmailMessageTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 650084024 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Wrong value of Amount.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS 1099 FIRE Tests - NamedType AmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2316209135 - NamedType 3705348688" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There are no form statement lines for the selected form and period.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS 1099 Printing Tests - NamedType IRS1099FormStatementLineEmptyErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 942779516 - NamedType 644652525" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[IRS Reporting Amount cannot be more than Amount]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS 1099 Vendor Tests - NamedType IRSReportingAmountCannotBeMoreThanAmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 942779516 - NamedType 41268496" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[IRS 1099 Reporting Amount must be negative]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS 1099 Vendor Tests - NamedType IRSReportingAmountNegativeErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 942779516 - NamedType 4239669864" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[IRS 1099 Reporting Amount must be positive]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS 1099 Vendor Tests - NamedType IRSReportingAmountPositiveErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2972639346 - NamedType 3343964103" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The starting date and ending date overlap with an existing reporting period.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS Reporting Period Tests - NamedType StartingEndingDateOverlapErr)]]></Cmt>
+    </Cmts>
+  </Item>
+</LCX>

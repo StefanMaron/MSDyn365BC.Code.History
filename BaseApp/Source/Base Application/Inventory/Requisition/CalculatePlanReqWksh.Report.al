@@ -155,11 +155,6 @@ report 699 "Calculate Plan - Req. Wksh."
                         Caption = 'Price Calculation Method';
                         ToolTip = 'Specifies the price calculation method.';
                         Visible = ExtendedPriceEnabled;
-
-                        trigger OnValidate()
-                        begin
-                            ValidatePriceCalcMethod();
-                        end;
                     }
                 }
             }

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -231,6 +231,7 @@ page 46 "Sales Order Subform"
 
                     trigger OnValidate()
                     begin
+                        ForceTotalsCalculation();
                         DeltaUpdateTotals();
                     end;
                 }
@@ -242,6 +243,7 @@ page 46 "Sales Order Subform"
 
                     trigger OnValidate()
                     begin
+                        ForceTotalsCalculation();
                         DeltaUpdateTotals();
                     end;
                 }
@@ -619,6 +621,7 @@ page 46 "Sales Order Subform"
                     trigger OnValidate()
                     begin
                         SetItemChargeFieldsStyle();
+                        CurrPage.Update();
                     end;
                 }
                 field("Quantity Invoiced"; Rec."Quantity Invoiced")

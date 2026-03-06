@@ -2460,6 +2460,53 @@ codeunit 136353 "UT T Job Planning Line"
                 JobPlanningLine.TableCaption()));
     end;
 
+
+    [Test]
+    procedure VerifyReserveAndDescriptionOnTypeChangeFromItemToResourceInJobPlanningLine()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+        JobTask: Record "Job Task";
+        Resource: Record Resource;
+    begin
+        // [SCENARIO 619701] Verify that the reserve and description values in the Job Planning Line are correctly updated when the type is changed from Item to Resource.
+        Initialize();
+
+        // [GIVEN] Create Job and Job Task with Usage Link
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Apply Usage Link", true);
+        Job.Modify(true);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Create Item with Description..
+        CreateItemWithDescription(Item);
+
+        // [GIVEN] Create Resource with Description
+        CreateResourceWithDescription(Resource);
+
+        // [GIVEN] Create Job Planning Line with Type = Item.
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", Item."No.");
+        JobPlanningLine.Modify(true);
+
+        // [THEN] The Reserve field value should be picked from the Item Master.
+        Assert.Equal(JobPlanningLine.Reserve, Item.Reserve);
+
+        // [WHEN] Change Type from Item to Resource
+        JobPlanningLine.Validate(Type, JobPlanningLine.Type::Resource);
+
+        // [THEN] The Reserve field value in the Job Planning Line should be set to Never for resources.
+        Assert.Equal(JobPlanningLine.Reserve::Never, JobPlanningLine.Reserve);
+
+        // [WHEN] Assign Resource No. in Job Planning Line.
+        JobPlanningLine.Validate("No.", Resource."No.");
+        JobPlanningLine.Modify(true);
+
+        // [THEN] Verify that Description, Description 2, and Reserve fields are correctly populated in the Job Planning Line when the type is Resource.
+        VerifyJobPlanningLine(JobPlanningLine, Resource);
+    end;
+    
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2829,6 +2876,30 @@ codeunit 136353 "UT T Job Planning Line"
         StandardText.Get(StandardTextCode);
         NewKey := CopyStr(LibraryRandom.RandText(20), 1, 20);
         StandardText.Rename(NewKey);
+    end;
+
+    local procedure CreateItemWithDescription(var Item: Record Item)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Reserve, Item.Reserve::Optional);
+        Item.Validate(Description, Item."No.");
+        Item.Validate("Description 2", LibraryRandom.RandText(StrLen(Item."No.")));
+        Item.Modify(true);
+    end;
+
+    local procedure CreateResourceWithDescription(var Resource: Record Resource)
+    begin
+        LibraryResource.CreateResourceNew(Resource);
+        Resource.Validate(Name, Resource."No.");
+        Resource.Validate("Name 2", LibraryRandom.RandText(StrLen(Resource."No.")));
+        Resource.Modify(true);
+    end;
+
+    local procedure VerifyJobPlanningLine(JobPlanningLine: Record "Job Planning Line"; Resource: Record Resource)
+    begin
+        JobPlanningLine.TestField(Description, Resource.Name);
+        JobPlanningLine.TestField("Description 2", Resource."Name 2");
+        JobPlanningLine.TestField(Reserve, JobPlanningLine.Reserve::Never);
     end;
 
     [ModalPageHandler]

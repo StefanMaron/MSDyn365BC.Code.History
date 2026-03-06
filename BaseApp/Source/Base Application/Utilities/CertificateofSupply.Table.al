@@ -137,10 +137,17 @@ table 780 "Certificate of Supply"
 #pragma warning restore AA0470
 
     procedure Print()
+    var
+        DocumentType: Enum "Supply Document Type";
     begin
-        case "Document Type" of
-            "Document Type"::"Sales Shipment",
-            "Document Type"::"Return Shipment":
+        DocumentType := "Document Type";
+
+        if Rec.GetFilter("Document Type") <> '' then
+            DocumentType := GetRangeMin("Document Type");
+
+        case DocumentType of
+            DocumentType::"Sales Shipment",
+            DocumentType::"Return Shipment":
                 REPORT.RunModal(REPORT::"Certificate of Supply", true, false, Rec);
             else
                 OnPrint(Rec);

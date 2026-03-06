@@ -264,6 +264,7 @@ codeunit 5520 "Get Unplanned Demand"
             PurchaseLine.SetRange("Job No.", JobPlanningLine."Job No.");
             PurchaseLine.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
             PurchaseLine.SetRange("Job Planning Line No.", JobPlanningLine."Line No.");
+            PurchaseLine.SetRange("No.", JobPlanningLine."No.");
             if PurchaseLine.FindFirst() then
                 NeededQty -= PurchaseLine."Outstanding Qty. (Base)";
         end;
@@ -371,10 +372,7 @@ codeunit 5520 "Get Unplanned Demand"
                     UnplannedDemand."Quantity (Base)" := JobPlanningLine."Remaining Qty. (Base)" - JobPlanningLine."Reserved Qty. (Base)";
                 end;
 
-                ForceIncludeDemand :=
-                  (UnplannedDemand."Demand Order No." = IncludeMetDemandForSpecificSalesOrderNo) and
-                  (UnplannedDemand."Demand Type" = UnplannedDemand."Demand Type"::Sales) and
-                  (UnplannedDemand."Demand SubType" = SalesLine."Document Type"::Order.AsInteger());
+                ForceIncludeDemand := IsDemandForSpecificSalesOrderNo(UnplannedDemand) or IsDemandForSpecificJobNo(UnplannedDemand);
 
                 OnCalcNeededDemandsOnAfterCalcForceIncludeDemand(UnplannedDemand, ForceIncludeDemand);
                 if ForceIncludeDemand or (UnplannedDemand."Needed Qty. (Base)" > 0)
@@ -516,6 +514,20 @@ codeunit 5520 "Get Unplanned Demand"
             WindowUpdateDateTime := CurrentDateTime;
             Window.Update(1, Round(i / NoOfRecords * 10000, 1));
         end;
+    end;
+
+    local procedure IsDemandForSpecificSalesOrderNo(UnplannedDemand: Record "Unplanned Demand"): Boolean
+    begin
+        exit((UnplannedDemand."Demand Order No." = IncludeMetDemandForSpecificSalesOrderNo) and
+            (UnplannedDemand."Demand Type" = UnplannedDemand."Demand Type"::Sales) and
+            (UnplannedDemand."Demand SubType" = SalesLine."Document Type"::Order.AsInteger()));
+    end;
+
+    local procedure IsDemandForSpecificJobNo(UnplannedDemand: Record "Unplanned Demand"): Boolean
+    begin
+        exit((UnplannedDemand."Demand Order No." = IncludeMetDemandForSpecificJobNo) and
+            (UnplannedDemand."Demand Type" = UnplannedDemand."Demand Type"::Job) and
+            (UnplannedDemand."Demand SubType" = JobPlanningLine.Status::Order.AsInteger()));
     end;
 
     [IntegrationEvent(true, false)]

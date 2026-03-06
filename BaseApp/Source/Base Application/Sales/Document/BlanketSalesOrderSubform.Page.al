@@ -146,6 +146,7 @@ page 508 "Blanket Sales Order Subform"
 
                     trigger OnValidate()
                     begin
+                        ForceTotalsCalculation();
                         DeltaUpdateTotals();
                     end;
                 }
@@ -157,6 +158,7 @@ page 508 "Blanket Sales Order Subform"
 
                     trigger OnValidate()
                     begin
+                        ForceTotalsCalculation();
                         DeltaUpdateTotals();
                     end;
                 }

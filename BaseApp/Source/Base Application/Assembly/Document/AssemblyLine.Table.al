@@ -141,13 +141,15 @@ table 901 "Assembly Line"
                 if Rec."Variant Code" = '' then begin
                     GetItemResource();
                     Description := Item.Description;
-                    "Description 2" := Item."Description 2"
+                    "Description 2" := Item."Description 2";
+                    OnValidateVariantCodeOnUpdateDescriptionsFromItem(Rec, Item);
                 end else begin
                     ItemVariant.SetLoadFields(Description, "Description 2", Blocked);
                     ItemVariant.Get("No.", "Variant Code");
                     ItemVariant.TestField(Blocked, false);
                     Description := ItemVariant.Description;
                     "Description 2" := ItemVariant."Description 2";
+                    OnValidateVariantCodeOnUpdateDescriptionsFromVariantCode(Rec, ItemVariant);
                 end;
 
                 GetDefaultBin();
@@ -2357,6 +2359,16 @@ table 901 "Assembly Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetQtyPerUoMAndQtyRoundingPrecision(var AssemblyLine: Record "Assembly Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVariantCodeOnUpdateDescriptionsFromItem(var AssemblyLine: Record "Assembly Line"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVariantCodeOnUpdateDescriptionsFromVariantCode(var AssemblyLine: Record "Assembly Line"; ItemVariant: Record "Item Variant")
     begin
     end;
 }
