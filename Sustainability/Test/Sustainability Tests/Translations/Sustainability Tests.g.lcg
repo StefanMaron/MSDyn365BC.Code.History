@@ -581,6 +581,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value, %3 = Table Caption]D;]A;(Namespace=Microsoft.Test.Sustainability)(LookupHint=Codeunit Sust. Job Journal Test - NamedType ValueMustBeEqualErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2040440002 - NamedType 4011764850" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Sustainability Ledger Entry must not be found with External Document No. filter in Find Entries]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.Sustainability)(LookupHint=Codeunit Sust. Value Entry Test - NamedType SustLedgerEntryMustNotBeFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2040440002 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be equal to %2 in the %3.]]></Val>

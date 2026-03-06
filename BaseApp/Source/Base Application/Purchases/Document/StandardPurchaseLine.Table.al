@@ -153,7 +153,14 @@ table 174 "Standard Purchase Line"
             Caption = 'Amount Excl. VAT';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateAmountExclVAT(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if (Type <> Type::"G/L Account") and (Type <> Type::"Charge (Item)") then
                     Error(Text002, FieldCaption(Type), Type);
             end;
@@ -168,7 +175,14 @@ table 174 "Standard Purchase Line"
             "Unit of Measure";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateUnitOfMeasureCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField(Type);
             end;
         }
@@ -379,6 +393,16 @@ table 174 "Standard Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var StandardPurchaseLine: Record "Standard Purchase Line"; xStandardPurchaseLine: Record "Standard Purchase Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateAmountExclVAT(var StandardPurchaseLine: Record "Standard Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateUnitOfMeasureCode(var StandardPurchaseLine: Record "Standard Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }
