@@ -425,6 +425,7 @@ codeunit 4508 "Email - Outlook API Client" implements "Email - Outlook API Clien
             AddAttachmentsToDraft(AccessToken, EmailAddress, ExternalMessageId, AttachmentsJsonArray);
         end;
 
+        MessageJson.WriteTo(MessageJsonText);
         UpdateDraftMessage(AccessToken, EmailAddress, ExternalMessageId, MessageJsonText);
         SendDraftMail(AccessToken, EmailAddress, ExternalMessageId);
     end;

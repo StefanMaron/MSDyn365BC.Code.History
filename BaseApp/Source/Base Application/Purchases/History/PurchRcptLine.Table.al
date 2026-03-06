@@ -836,6 +836,7 @@ table 121 "Purch. Rcpt. Line"
                     PurchOrderHeader.Get(PurchOrderLine."Document Type"::Order, "Order No.");
 
                 PrepaymentMgt.TestPurchaseOrderLineForGetRcptLines(PurchOrderLine);
+                CalcFields("Currency Code");
                 InitCurrency("Currency Code");
 
                 if PurchInvHeader."Prices Including VAT" then begin

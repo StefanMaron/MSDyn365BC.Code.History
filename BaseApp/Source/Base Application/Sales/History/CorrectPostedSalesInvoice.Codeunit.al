@@ -971,9 +971,8 @@ codeunit 1303 "Correct Posted Sales Invoice"
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        SalesCrMemoLine.SetLoadFields("Document No.", Type, "No.", "Appl.-from Item Entry", Quantity, "Variant Code");
+        SalesCrMemoLine.SetLoadFields("Document No.", "No.", "Appl.-from Item Entry", Quantity, "Variant Code");
         SalesCrMemoLine.SetRange("Document No.", SalesCreditMemoNo);
-        SalesCrMemoLine.SetRange(Type, SalesCrMemoLine.Type::Item);
         SalesCrMemoLine.SetFilter("No.", '<>%1', '');
         SalesCrMemoLine.SetFilter(Quantity, '<>%1', 0);
         if SalesCrMemoLine.FindSet() then

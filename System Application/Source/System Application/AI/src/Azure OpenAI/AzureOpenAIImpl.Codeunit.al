@@ -193,7 +193,7 @@ codeunit 7772 "Azure OpenAI Impl" implements "AI Service Name"
 
         SendTokenCountTelemetry(AOAIToken.GetGPT4TokenCount(Metaprompt), AOAIToken.GetGPT4TokenCount(Prompt), CustomDimensions);
 
-        if not SendRequest(Enum::"AOAI Model Type"::"Text Completions", TextCompletionsAOAIAuthorization, PayloadText, AOAIOperationResponse, CallerModuleInfo) then begin
+        if not SendRequest(Enum::"AOAI Model Type"::"Text Completions", TextCompletionsAOAIAuthorization, PayloadText, AOAIOperationResponse, CallerModuleInfo, '') then begin
             FeatureTelemetry.LogError('0000KVD', GetAzureOpenAICategory(), TelemetryGenerateTextCompletionLbl, CompletionsFailedWithCodeErr, '', Enum::"AL Telemetry Scope"::All, CustomDimensions);
             exit;
         end;
@@ -220,7 +220,7 @@ codeunit 7772 "Azure OpenAI Impl" implements "AI Service Name"
 
         CopilotCapabilityImpl.AddTelemetryCustomDimensions(CustomDimensions, CallerModuleInfo);
         SendTokenCountTelemetry(0, AOAIToken.GetAdaTokenCount(Input), CustomDimensions);
-        if not SendRequest(Enum::"AOAI Model Type"::Embeddings, EmbeddingsAOAIAuthorization, PayloadText, AOAIOperationResponse, CallerModuleInfo) then begin
+        if not SendRequest(Enum::"AOAI Model Type"::Embeddings, EmbeddingsAOAIAuthorization, PayloadText, AOAIOperationResponse, CallerModuleInfo, '') then begin
             FeatureTelemetry.LogError('0000KVE', GetAzureOpenAICategory(), TelemetryGenerateEmbeddingLbl, EmbeddingsFailedWithCodeErr, '', Enum::"AL Telemetry Scope"::All, CustomDimensions);
             exit;
         end;
@@ -256,12 +256,14 @@ codeunit 7772 "Azure OpenAI Impl" implements "AI Service Name"
     [NonDebuggable]
     procedure GenerateChatCompletion(var ChatMessages: Codeunit "AOAI Chat Messages"; AOAIChatCompletionParams: Codeunit "AOAI Chat Completion Params"; var AOAIOperationResponse: Codeunit "AOAI Operation Response"; CallerModuleInfo: ModuleInfo)
     var
+        AOAIPolicyParams: Codeunit "AOAI Policy Params";
         CustomDimensions: Dictionary of [Text, Text];
         Payload, ToolChoicePayload : JsonObject;
         ToolsPayload: JsonArray;
         PayloadText, ToolChoice : Text;
         MetapromptTokenCount: Integer;
         PromptTokenCount: Integer;
+        AzureOpenAIPolicy: Text;
     begin
         GuiCheck(ChatCompletionsAOAIAuthorization);
 
@@ -271,6 +273,12 @@ codeunit 7772 "Azure OpenAI Impl" implements "AI Service Name"
         CopilotCapabilityImpl.AddTelemetryCustomDimensions(CustomDimensions, CallerModuleInfo);
 
         AOAIChatCompletionParams.AddChatCompletionsParametersToPayload(Payload);
+
+        AOAIPolicyParams := AOAIChatCompletionParams.GetAOAIPolicyParams();
+        AzureOpenAIPolicy := (ChatCompletionsAOAIAuthorization.GetResourceUtilization() = Enum::"AOAI Resource Utilization"::"Self-Managed") and AOAIPolicyParams.IsDefaultPolicy()
+            ? '' // The default value is generally not compatible with self managed resources, yet we allow them to specify their own policy and must honor that.
+            : AOAIPolicyParams.GetAOAIPolicy();
+
         Payload.Add('messages', ChatMessages.AssembleHistory(MetapromptTokenCount, PromptTokenCount));
 
         if ChatMessages.ToolsExists() then begin
@@ -293,7 +301,7 @@ codeunit 7772 "Azure OpenAI Impl" implements "AI Service Name"
         Payload.WriteTo(PayloadText);
 
         SendTokenCountTelemetry(MetapromptTokenCount, PromptTokenCount, CustomDimensions);
-        if not SendRequest(Enum::"AOAI Model Type"::"Chat Completions", ChatCompletionsAOAIAuthorization, PayloadText, AOAIOperationResponse, CallerModuleInfo) then begin
+        if not SendRequest(Enum::"AOAI Model Type"::"Chat Completions", ChatCompletionsAOAIAuthorization, PayloadText, AOAIOperationResponse, CallerModuleInfo, AzureOpenAIPolicy) then begin
             FeatureTelemetry.LogError('0000KVF', GetAzureOpenAICategory(), TelemetryGenerateChatCompletionLbl, ChatCompletionsFailedWithCodeErr, '', Enum::"AL Telemetry Scope"::All, CustomDimensions);
             exit;
         end;
@@ -449,7 +457,7 @@ codeunit 7772 "Azure OpenAI Impl" implements "AI Service Name"
 
     [TryFunction]
     [NonDebuggable]
-    local procedure SendRequest(ModelType: Enum "AOAI Model Type"; AOAIAuthorization: Codeunit "AOAI Authorization"; Payload: Text; var AOAIOperationResponse: Codeunit "AOAI Operation Response"; CallerModuleInfo: ModuleInfo)
+    local procedure SendRequest(ModelType: Enum "AOAI Model Type"; AOAIAuthorization: Codeunit "AOAI Authorization"; Payload: Text; var AOAIOperationResponse: Codeunit "AOAI Operation Response"; CallerModuleInfo: ModuleInfo; AzureOpenAIPolicy: Text)
     var
         CopilotNotifications: Codeunit "Copilot Notifications";
         ALCopilotAuthorization: DotNet ALCopilotAuthorization;
@@ -463,6 +471,7 @@ codeunit 7772 "Azure OpenAI Impl" implements "AI Service Name"
 
         if not IsBillingTypeAuthorized(AOAIAuthorization, CallerModuleInfo) then begin
             Error := StrSubstNo(BillingTypeAuthorizationErr, CopilotCapabilityImpl.GetCapabilityName(), CopilotCapabilityImpl.GetCopilotBillingType());
+            AOAIOperationResponse.SetOperationResponse(false, 403, '', Error);
             Error(Error);
         end;
 
@@ -483,9 +492,10 @@ codeunit 7772 "Azure OpenAI Impl" implements "AI Service Name"
             Enum::"AOAI Model Type"::Embeddings:
                 ALCopilotOperationResponse := ALCopilotFunctions.GenerateEmbedding(Payload, ALCopilotAuthorization, ALCopilotCapability);
             Enum::"AOAI Model Type"::"Chat Completions":
-                ALCopilotOperationResponse := ALCopilotFunctions.GenerateChatCompletion(Payload, ALCopilotAuthorization, ALCopilotCapability);
+                ALCopilotOperationResponse := ALCopilotFunctions.GenerateChatCompletion(Payload, ALCopilotAuthorization, ALCopilotCapability, AzureOpenAIPolicy);
             else
-                Error(InvalidModelTypeErr)
+                AOAIOperationResponse.SetOperationResponse(false, 400, '', InvalidModelTypeErr);
+                Error(InvalidModelTypeErr);
         end;
 
         Error := ALCopilotOperationResponse.ErrorText();
