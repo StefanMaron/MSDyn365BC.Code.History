@@ -1,9 +1,11 @@
+
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument.Formats;
 
+using Microsoft.CRM.Team;
 using Microsoft.eServices.EDocument;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -12,18 +14,19 @@ using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Foundation.Reporting;
 using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Location;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Peppol;
+using Microsoft.Service.History;
 using System.IO;
 using System.Reflection;
 using System.Telemetry;
 using System.Text;
 using System.Utilities;
-using Microsoft.Foundation.Reporting;
-
 codeunit 13916 "Export XRechnung Document"
 {
     TableNo = "Record Export Buffer";
@@ -35,6 +38,7 @@ codeunit 13916 "Export XRechnung Document"
         GeneralLedgerSetup: Record "General Ledger Setup";
         EDocumentService: Record "E-Document Service";
         FeatureTelemetry: Codeunit "Feature Telemetry";
+        PEPPOLMgt: Codeunit "PEPPOL Management";
         FeatureNameTok: Label 'E-document XRechnung Format', Locked = true;
         StartEventNameTok: Label 'E-document XRechnung export started', Locked = true;
         EndEventNameTok: Label 'E-document XRechnung export completed', Locked = true;
@@ -48,41 +52,79 @@ codeunit 13916 "Export XRechnung Document"
                 ExportSalesInvoice(Rec);
             Database::"Sales Cr.Memo Header":
                 ExportSalesCreditMemo(Rec);
+            Database::"Service Invoice Header":
+                ExportServiceInvoice(Rec);
+            Database::"Service Cr.Memo Header":
+                ExportServiceCreditMemo(Rec);
         end;
     end;
 
-    procedure ExportSalesInvoice(var Rec: Record "Record Export Buffer")
+    procedure ExportSalesInvoice(var RecordExportBuffer: Record "Record Export Buffer")
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         RecordRef: RecordRef;
         FileOutStream: OutStream;
     begin
         FeatureTelemetry.LogUsage('0000EXD', FeatureNameTok, StartEventNameTok);
-        RecordRef.Get(Rec.RecordID);
+        RecordRef.Get(RecordExportBuffer.RecordID);
         RecordRef.SetTable(SalesInvoiceHeader);
 
-        FindEDocumentService(Rec."Electronic Document Format");
-        Rec."File Content".CreateOutStream(FileOutStream, TextEncoding::UTF8);
+        FindEDocumentService(RecordExportBuffer."Electronic Document Format");
+        RecordExportBuffer."File Content".CreateOutStream(FileOutStream, TextEncoding::UTF8);
         CreateXML(SalesInvoiceHeader, FileOutStream);
-        Rec.Modify();
+        RecordExportBuffer.Modify();
         FeatureTelemetry.LogUsage('0000EXE', FeatureNameTok, EndEventNameTok);
     end;
 
-    procedure ExportSalesCreditMemo(var Rec: Record "Record Export Buffer")
+    procedure ExportSalesCreditMemo(var RecordExportBuffer: Record "Record Export Buffer")
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         RecordRef: RecordRef;
         FileOutStream: OutStream;
     begin
         FeatureTelemetry.LogUsage('0000EXF', FeatureNameTok, StartEventNameTok);
-        RecordRef.Get(Rec.RecordID);
+        RecordRef.Get(RecordExportBuffer.RecordID);
         RecordRef.SetTable(SalesCrMemoHeader);
 
-        FindEDocumentService(Rec."Electronic Document Format");
-        Rec."File Content".CreateOutStream(FileOutStream, TextEncoding::UTF8);
+        FindEDocumentService(RecordExportBuffer."Electronic Document Format");
+        RecordExportBuffer."File Content".CreateOutStream(FileOutStream, TextEncoding::UTF8);
         CreateXML(SalesCrMemoHeader, FileOutStream);
-        Rec.Modify();
+        RecordExportBuffer.Modify();
         FeatureTelemetry.LogUsage('0000EXG', FeatureNameTok, EndEventNameTok);
+    end;
+
+    procedure ExportServiceInvoice(var RecordExportBuffer: Record "Record Export Buffer")
+    var
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        RecordRef: RecordRef;
+        FileOutStream: OutStream;
+    begin
+        FeatureTelemetry.LogUsage('0000EXH', FeatureNameTok, StartEventNameTok);
+        RecordRef.Get(RecordExportBuffer.RecordID);
+        RecordRef.SetTable(ServiceInvoiceHeader);
+
+        FindEDocumentService(RecordExportBuffer."Electronic Document Format");
+        RecordExportBuffer."File Content".CreateOutStream(FileOutStream, TextEncoding::UTF8);
+        CreateXML(ServiceInvoiceHeader, FileOutStream);
+        RecordExportBuffer.Modify();
+        FeatureTelemetry.LogUsage('0000EXI', FeatureNameTok, EndEventNameTok);
+    end;
+
+    procedure ExportServiceCreditMemo(var RecordExportBuffer: Record "Record Export Buffer")
+    var
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        RecordRef: RecordRef;
+        FileOutStream: OutStream;
+    begin
+        FeatureTelemetry.LogUsage('0000EXJ', FeatureNameTok, StartEventNameTok);
+        RecordRef.Get(RecordExportBuffer.RecordID);
+        RecordRef.SetTable(ServiceCrMemoHeader);
+
+        FindEDocumentService(RecordExportBuffer."Electronic Document Format");
+        RecordExportBuffer."File Content".CreateOutStream(FileOutStream, TextEncoding::UTF8);
+        CreateXML(ServiceCrMemoHeader, FileOutStream);
+        RecordExportBuffer.Modify();
+        FeatureTelemetry.LogUsage('0000EXK', FeatureNameTok, EndEventNameTok);
     end;
 
     procedure CreateXML(SalesInvoiceHeader: Record "Sales Invoice Header"; var FileOutstream: Outstream)
@@ -114,7 +156,7 @@ codeunit 13916 "Export XRechnung Document"
         InsertEmbeddedDocument(RootXMLNode, SalesInvoiceHeader);
         InsertAttachment(RootXMLNode, Database::"Sales Invoice Header", SalesInvoiceHeader."No.");
         CalculateLineAmounts(SalesInvoiceHeader, SalesInvLine, Currency, LineAmounts);
-        InsertAccountingSupplierParty(RootXMLNode);
+        InsertAccountingSupplierParty(SalesInvoiceHeader."Responsibility Center", SalesInvoiceHeader."Salesperson Code", RootXMLNode);
         InsertAccountingCustomerParty(RootXMLNode, SalesInvoiceHeader);
         InsertDelivery(RootXMLNode, SalesInvoiceHeader);
         InsertPaymentMeans(RootXMLNode, '68', 'PayeeFinancialAccount', SalesInvoiceHeader."Company Bank Account Code");
@@ -159,7 +201,7 @@ codeunit 13916 "Export XRechnung Document"
         InsertEmbeddedDocument(RootXMLNode, SalesCrMemoHeader);
         InsertAttachment(RootXMLNode, Database::"Sales Cr.Memo Header", SalesCrMemoHeader."No.");
         CalculateLineAmounts(SalesCrMemoHeader, SalesCrMemoLine, Currency, LineAmounts);
-        InsertAccountingSupplierParty(RootXMLNode);
+        InsertAccountingSupplierParty(SalesCrMemoHeader."Responsibility Center", SalesCrMemoHeader."Salesperson Code", RootXMLNode);
         InsertAccountingCustomerParty(RootXMLNode, SalesCrMemoHeader);
         InsertDelivery(RootXMLNode, SalesCrMemoHeader);
         InsertPaymentMeans(RootXMLNode, '68', '', SalesCrMemoHeader."Company Bank Account Code");
@@ -169,6 +211,115 @@ codeunit 13916 "Export XRechnung Document"
         InsertTaxTotal(RootXMLNode, SalesCrMemoLine, CurrencyCode, LineAmount, LineVATAmount);
         InsertLegalMonetaryTotal(RootXMLNode, SalesCrMemoLine, LineAmounts, CurrencyCode);
         InsertCrMemoLines(RootXMLNode, SalesCrMemoLine, Currency, CurrencyCode, SalesCrMemoHeader."Prices Including VAT");
+        OnCreateXMLOnBeforeSalesCrMemoXmlDocumentWriteToFile(XMLDoc, SalesCrMemoHeader);
+        XMLDoc.WriteTo(XMLDocText);
+        FileOutstream.WriteText(XMLDocText);
+        Clear(XMLDoc);
+    end;
+
+    procedure CreateXML(ServiceInvoiceHeader: Record "Service Invoice Header"; var FileOutstream: Outstream)
+    var
+        Currency: Record "Currency";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TempSalesInvLine: Record "Sales Invoice Line" temporary;
+        ServiceInvoiceLine: Record "Service Invoice Line";
+        RootXMLNode: XmlElement;
+        XMLDoc: XmlDocument;
+        XMLDocText: Text;
+        CurrencyCode: Code[10];
+        LineAmounts: Dictionary of [Text, Decimal];
+        LineVATAmount: Dictionary of [Decimal, Decimal];
+        LineAmount: Dictionary of [Decimal, Decimal];
+        LineDiscAmount: Dictionary of [Decimal, Decimal];
+    begin
+        GetSetups();
+        PEPPOLMgt.TransferHeaderToSalesInvoiceHeader(ServiceInvoiceHeader, SalesInvoiceHeader);
+        ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
+        if ServiceInvoiceLine.FindSet() then
+            repeat
+                PEPPOLMgt.TransferLineToSalesInvoiceLine(ServiceInvoiceLine, TempSalesInvLine);
+                TempSalesInvLine.Insert();
+            until ServiceInvoiceLine.Next() = 0;
+
+        if not DocumentLinesExist(SalesInvoiceHeader, TempSalesInvLine) then
+            exit;
+
+        CurrencyCode := GetCurrencyCode(SalesInvoiceHeader."Currency Code", Currency);
+
+        XmlDocument.ReadFrom(GetInvoiceXMLHeader(), XMLDoc);
+        XmlDoc.GetRoot(RootXMLNode);
+
+        InitializeNamespaces();
+
+        InsertHeaderData(RootXMLNode, SalesInvoiceHeader, CurrencyCode);
+        InsertOrderReference(RootXMLNode, SalesInvoiceHeader);
+        InsertEmbeddedDocument(RootXMLNode, SalesInvoiceHeader);
+        InsertAttachment(RootXMLNode, Database::"Sales Invoice Header", SalesInvoiceHeader."No.");
+        CalculateLineAmounts(SalesInvoiceHeader, TempSalesInvLine, Currency, LineAmounts);
+        InsertAccountingSupplierParty(SalesInvoiceHeader."Responsibility Center", SalesInvoiceHeader."Salesperson Code", RootXMLNode);
+        InsertAccountingCustomerParty(RootXMLNode, SalesInvoiceHeader);
+        InsertDelivery(RootXMLNode, SalesInvoiceHeader);
+        InsertPaymentMeans(RootXMLNode, '68', 'PayeeFinancialAccount', SalesInvoiceHeader."Company Bank Account Code");
+        InsertPaymentTerms(RootXMLNode, SalesInvoiceHeader."Payment Terms Code");
+        InsertVATAmounts(TempSalesInvLine, LineVATAmount, LineAmount, LineDiscAmount, SalesInvoiceHeader."Prices Including VAT", Currency);
+        InsertInvDiscountAllowanceCharge(LineAmounts, TempSalesInvLine, CurrencyCode, RootXMLNode, LineDiscAmount, LineAmount, Currency."Amount Rounding Precision");
+        InsertTaxTotal(RootXMLNode, TempSalesInvLine, CurrencyCode, LineAmount, LineVATAmount);
+        InsertLegalMonetaryTotal(RootXMLNode, TempSalesInvLine, LineAmounts, CurrencyCode);
+        InsertInvoiceLines(RootXMLNode, TempSalesInvLine, Currency, CurrencyCode, SalesInvoiceHeader."Prices Including VAT");
+        OnCreateXMLOnBeforeSalesInvXmlDocumentWriteToFile(XMLDoc, SalesInvoiceHeader);
+        XMLDoc.WriteTo(XMLDocText);
+        FileOutstream.WriteText(XMLDocText);
+        Clear(XMLDoc);
+    end;
+
+    procedure CreateXML(ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var FileOutstream: Outstream)
+    var
+        Currency: Record "Currency";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        TempSalesCrMemoLine: Record "Sales Cr.Memo Line" temporary;
+        ServiceCrMemoLine: Record "Service Cr.Memo Line";
+        RootXMLNode: XmlElement;
+        XMLDoc: XmlDocument;
+        XMLDocText: Text;
+        CurrencyCode: Code[10];
+        LineAmounts: Dictionary of [Text, Decimal];
+        LineVATAmount: Dictionary of [Decimal, Decimal];
+        LineAmount: Dictionary of [Decimal, Decimal];
+        LineDiscAmount: Dictionary of [Decimal, Decimal];
+    begin
+        GetSetups();
+        PEPPOLMgt.TransferHeaderToSalesCrMemoHeader(ServiceCrMemoHeader, SalesCrMemoHeader);
+        ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
+        if ServiceCrMemoLine.FindSet() then
+            repeat
+                PEPPOLMgt.TransferLineToSalesCrMemoLine(ServiceCrMemoLine, TempSalesCrMemoLine);
+                TempSalesCrMemoLine.Insert();
+            until ServiceCrMemoLine.Next() = 0;
+        if not DocumentLinesExist(SalesCrMemoHeader, TempSalesCrMemoLine) then
+            exit;
+
+        CurrencyCode := GetCurrencyCode(SalesCrMemoHeader."Currency Code", Currency);
+
+        XmlDocument.ReadFrom(GetCrMemoXMLHeader(), XMLDoc);
+        XmlDoc.GetRoot(RootXMLNode);
+
+        InitializeNamespaces();
+
+        InsertHeaderData(RootXMLNode, SalesCrMemoHeader, CurrencyCode);
+        InsertOrderReference(RootXMLNode, SalesCrMemoHeader);
+        InsertEmbeddedDocument(RootXMLNode, SalesCrMemoHeader);
+        InsertAttachment(RootXMLNode, Database::"Sales Cr.Memo Header", SalesCrMemoHeader."No.");
+        CalculateLineAmounts(SalesCrMemoHeader, TempSalesCrMemoLine, Currency, LineAmounts);
+        InsertAccountingSupplierParty(SalesCrMemoHeader."Responsibility Center", SalesCrMemoHeader."Salesperson Code", RootXMLNode);
+        InsertAccountingCustomerParty(RootXMLNode, SalesCrMemoHeader);
+        InsertDelivery(RootXMLNode, SalesCrMemoHeader);
+        InsertPaymentMeans(RootXMLNode, '68', '', SalesCrMemoHeader."Company Bank Account Code");
+        InsertPaymentTerms(RootXMLNode, SalesCrMemoHeader."Payment Terms Code");
+        InsertVATAmounts(TempSalesCrMemoLine, LineVATAmount, LineAmount, LineDiscAmount, SalesCrMemoHeader."Prices Including VAT", Currency);
+        InsertInvDiscountAllowanceCharge(LineAmounts, TempSalesCrMemoLine, CurrencyCode, RootXMLNode, LineDiscAmount, LineAmount, Currency."Amount Rounding Precision");
+        InsertTaxTotal(RootXMLNode, TempSalesCrMemoLine, CurrencyCode, LineAmount, LineVATAmount);
+        InsertLegalMonetaryTotal(RootXMLNode, TempSalesCrMemoLine, LineAmounts, CurrencyCode);
+        InsertCrMemoLines(RootXMLNode, TempSalesCrMemoLine, Currency, CurrencyCode, SalesCrMemoHeader."Prices Including VAT");
         OnCreateXMLOnBeforeSalesCrMemoXmlDocumentWriteToFile(XMLDoc, SalesCrMemoHeader);
         XMLDoc.WriteTo(XMLDocText);
         FileOutstream.WriteText(XMLDocText);
@@ -285,12 +436,12 @@ codeunit 13916 "Export XRechnung Document"
             until SalesCrMemoLine.Next() = 0;
     end;
 
-    local procedure InsertAccountingSupplierParty(var RootXMLNode: XmlElement)
+    local procedure InsertAccountingSupplierParty(RespCenterCode: Code[10]; SalespersonCode: Code[20]; var RootXMLNode: XmlElement)
     var
         AccountingSupplierPartyElement: XmlElement;
     begin
         AccountingSupplierPartyElement := XmlElement.Create('AccountingSupplierParty', XmlNamespaceCAC);
-        InsertSupplierParty(AccountingSupplierPartyElement);
+        InsertSupplierParty(RespCenterCode, SalespersonCode, AccountingSupplierPartyElement);
         RootXMLNode.Add(AccountingSupplierPartyElement);
     end;
 
@@ -348,6 +499,7 @@ codeunit 13916 "Export XRechnung Document"
     local procedure InsertAddress(var RootElement: XmlElement; ElementName: Text; Address: Record "Standard Address");
     var
         AddressElement: XmlElement;
+        IdentificationCode: Code[2];
     begin
         AddressElement := XmlElement.Create(ElementName, XmlNamespaceCAC);
         AddressElement.Add(XmlElement.Create('StreetName', XmlNamespaceCBC, Address.Address));
@@ -355,7 +507,8 @@ codeunit 13916 "Export XRechnung Document"
             AddressElement.Add(XmlElement.Create('AdditionalStreetName', XmlNamespaceCBC, Address."Address 2"));
         AddressElement.Add(XmlElement.Create('CityName', XmlNamespaceCBC, Address.City));
         AddressElement.Add(XmlElement.Create('PostalZone', XmlNamespaceCBC, Address."Post Code"));
-        InsertCountry(AddressElement, GetCountryRegionCode(Address."Country/Region Code"));
+        IdentificationCode := GetCountryISOCode(GetCountryRegionCode(Address."Country/Region Code"));
+        InsertCountry(AddressElement, IdentificationCode);
         RootElement.Add(AddressElement);
     end;
 
@@ -530,18 +683,46 @@ codeunit 13916 "Export XRechnung Document"
         RootElement.Add(ContactElement);
     end;
 
-    local procedure InsertContact(var RootElement: XmlElement);
+    local procedure InsertSupplierContact(SalespersonCode: Code[20]; var RootElement: XmlElement)
     var
         ContactElement: XmlElement;
+        ContactName: Text;
+        EmailAddress: Text;
+        PhoneNumber: Text;
     begin
+        if not SetSupplierContactFromSalesPerson(SalespersonCode, ContactName, PhoneNumber, EmailAddress) then
+            SetSupplierContactFromCompanyInformation(ContactName, PhoneNumber, EmailAddress);
+
         ContactElement := XmlElement.Create('Contact', XmlNamespaceCAC);
-        ContactElement.Add(XmlElement.Create('Name', XmlNamespaceCBC, CompanyInformation."Contact Person"));
-        ContactElement.Add(XmlElement.Create('Telephone', XmlNamespaceCBC, CompanyInformation."Phone No."));
-        ContactElement.Add(XmlElement.Create('ElectronicMail', XmlNamespaceCBC, CompanyInformation."E-Mail"));
+        ContactElement.Add(XmlElement.Create('Name', XmlNamespaceCBC, ContactName));
+        ContactElement.Add(XmlElement.Create('Telephone', XmlNamespaceCBC, PhoneNumber));
+        ContactElement.Add(XmlElement.Create('ElectronicMail', XmlNamespaceCBC, EmailAddress));
         RootElement.Add(ContactElement);
     end;
 
-    local procedure InsertSupplierParty(var AccountingSupplierPartyElement: XmlElement);
+    local procedure SetSupplierContactFromSalesPerson(SalespersonCode: Code[20]; var ContactName: Text; var PhoneNumber: Text; var EmailAddress: Text): Boolean
+    var
+        Salesperson: Record "Salesperson/Purchaser";
+    begin
+        if SalesPersonCode = '' then
+            exit(false);
+        Salesperson.SetLoadFields(Name, "Phone No.", "E-Mail");
+        if not Salesperson.Get(SalesPersonCode) then
+            exit(false);
+        ContactName := Salesperson.Name;
+        PhoneNumber := Salesperson."Phone No.";
+        EmailAddress := Salesperson."E-Mail";
+        exit(true);
+    end;
+
+    local procedure SetSupplierContactFromCompanyInformation(var ContactName: Text; var PhoneNumber: Text; var EmailAddress: Text)
+    begin
+        ContactName := CompanyInformation."Contact Person";
+        PhoneNumber := CompanyInformation."Phone No.";
+        EmailAddress := CompanyInformation."E-Mail";
+    end;
+
+    local procedure InsertSupplierParty(RespCenterCode: Code[10]; SalespersonCode: Code[20]; var AccountingSupplierPartyElement: XmlElement);
     var
         TempCompanyAddress: Record "Standard Address" temporary;
         PartyElement: XmlElement;
@@ -555,10 +736,11 @@ codeunit 13916 "Export XRechnung Document"
             InsertPartyIdentification(PartyElement, GetVATRegistrationNo(CompanyInformation."VAT Registration No.", CompanyInformation."Country/Region Code"));
         InsertPartyName(PartyElement, CompanyInformation.Name);
         TempCompanyAddress.CopyFromCompanyInformation(CompanyInformation);
+        UpdateSellerAddressFromResponsibilityCenter(RespCenterCode, TempCompanyAddress);
         InsertAddress(PartyElement, 'PostalAddress', TempCompanyAddress);
         InsertPartyTaxScheme(PartyElement, CompanyInformation."VAT Registration No.", CompanyInformation."Country/Region Code");
         InsertPartyLegalEntity(PartyElement);
-        InsertContact(PartyElement);
+        InsertSupplierContact(SalespersonCode, PartyElement);
         AccountingSupplierPartyElement.Add(PartyElement);
     end;
 
@@ -646,8 +828,6 @@ codeunit 13916 "Export XRechnung Document"
         TaxCategoryElement := XmlElement.Create(TaxCategory, XmlNamespaceCAC);
         TaxCategoryElement.Add(XmlElement.Create('ID', XmlNamespaceCBC, TaxCategoryID));
         TaxCategoryElement.Add(XmlElement.Create('Percent', XmlNamespaceCBC, FormatDecimal(Percent)));
-        if Percent = 0 then
-            TaxCategoryElement.Add(XmlElement.Create('TaxExemptionReasonCode', XmlNamespaceCBC, 'VATEX-EU-O'));
         InsertTaxScheme(TaxCategoryElement);
         RootElement.Add(TaxCategoryElement);
     end;
@@ -659,7 +839,7 @@ codeunit 13916 "Export XRechnung Document"
         AllowanceChargeElement := XmlElement.Create('AllowanceCharge', XmlNamespaceCAC);
         AllowanceChargeElement.Add(XmlElement.Create('ChargeIndicator', XmlNamespaceCBC, 'false'));
         AllowanceChargeElement.Add(XmlElement.Create('AllowanceChargeReason', XmlNamespaceCBC, AllowanceChargeReason));
-        AllowanceChargeElement.Add(XmlElement.Create('MultiplierFactorNumeric', XmlNamespaceCBC, FormatDecimal(MultiplierFactorNumeric)));
+        AllowanceChargeElement.Add(XmlElement.Create('MultiplierFactorNumeric', XmlNamespaceCBC, FormatFiveDecimal(MultiplierFactorNumeric)));
         AllowanceChargeElement.Add(XmlElement.Create('Amount', XmlNamespaceCBC, XmlAttribute.Create('currencyID', CurrencyCode), FormatDecimal(Amount)));
         AllowanceChargeElement.Add(XmlElement.Create('BaseAmount', XmlNamespaceCBC, XmlAttribute.Create('currencyID', CurrencyCode), FormatDecimal(BaseAmount)));
         if InsertTaxCat then
@@ -889,7 +1069,6 @@ codeunit 13916 "Export XRechnung Document"
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        PEPPOLMgt: Codeunit "PEPPOL Management";
         DataTypeManagement: Codeunit "Data Type Management";
         HeaderRecordRef: RecordRef;
         AttachmentElement: XmlElement;
@@ -909,12 +1088,14 @@ codeunit 13916 "Export XRechnung Document"
             Database::"Sales Invoice Header":
                 begin
                     HeaderRecordRef.SetTable(SalesInvoiceHeader);
-                    PEPPOLMgt.FindNextSalesInvoiceRec(SalesInvoiceHeader, SalesHeader, 1);
+                    SalesHeader.TransferFields(SalesInvoiceHeader);
+                    SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
                 end;
             Database::"Sales Cr.Memo Header":
                 begin
                     HeaderRecordRef.SetTable(SalesCrMemoHeader);
-                    PEPPOLMgt.FindNextSalesCreditMemoRec(SalesCrMemoHeader, SalesHeader, 1);
+                    SalesHeader.TransferFields(SalesCrMemoHeader);
+                    SalesHeader."Document Type" := SalesHeader."Document Type"::"Credit Memo";
                 end;
         end;
         PEPPOLMgt.GeneratePDFAttachmentAsAdditionalDocRef(
@@ -1086,6 +1267,24 @@ codeunit 13916 "Export XRechnung Document"
             TotalAmounts.Set(VATPercent, TotalAmounts.Get(VATPercent) + NewAmount);
     end;
 
+    local procedure UpdateSellerAddressFromResponsibilityCenter(RespCenterCode: Code[10]; var TempCompanyAddress: Record "Standard Address" temporary)
+    var
+        RespCenter: Record "Responsibility Center";
+    begin
+        if RespCenterCode = '' then
+            exit;
+        if not RespCenter.Get(RespCenterCode) then
+            exit;
+
+        TempCompanyAddress.Address := RespCenter.Address;
+        TempCompanyAddress."Address 2" := RespCenter."Address 2";
+        TempCompanyAddress.City := RespCenter.City;
+        TempCompanyAddress."Country/Region Code" := RespCenter."Country/Region Code";
+        TempCompanyAddress."Post Code" := RespCenter."Post Code";
+        TempCompanyAddress.County := RespCenter.County;
+        TempCompanyAddress.Modify(false);
+    end;
+
     local procedure FindEDocumentService(EDocumentFormat: Code[20])
     begin
         if EDocumentFormat = '' then
@@ -1113,6 +1312,11 @@ codeunit 13916 "Export XRechnung Document"
     procedure FormatFourDecimal(VarDecimal: Decimal): Text[30];
     begin
         exit(Format(Round(VarDecimal, 0.0001), 0, 9));
+    end;
+
+    procedure FormatFiveDecimal(VarDecimal: Decimal): Text[30];
+    begin
+        exit(Format(Round(VarDecimal, 0.00001), 0, 9));
     end;
 
     procedure GetUoMCode(UoMCode: Code[10]): Text;
@@ -1161,6 +1365,14 @@ codeunit 13916 "Export XRechnung Document"
             Currency.TestField("Unit-Amount Rounding Precision");
             exit(DocumentCurrencyCode);
         end;
+    end;
+
+    local procedure GetCountryISOCode(CountryRegionCode: Code[10]): Code[2]
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        CountryRegion.Get(CountryRegionCode);
+        exit(CountryRegion."ISO Code");
     end;
 
     local procedure GetCountryRegionCode(CountryRegionCode: Code[10]): Code[10]
