@@ -689,6 +689,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Telebank - NamedType ForeignAmountRecalculatedCorrectlyErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 933252864 - NamedType 1613680527" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Foreign Amount will be 0 when Currency Code is blank.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Telebank - NamedType ForeignAmountZeroForNoCurrencyCodeErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 933252864 - NamedType 4160909131" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Nature of the Payment is invisible- and capital transactions, Description Payment must be filled in.]]></Val>

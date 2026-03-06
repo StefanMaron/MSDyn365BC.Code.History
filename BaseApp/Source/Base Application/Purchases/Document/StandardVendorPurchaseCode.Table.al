@@ -137,6 +137,7 @@ table 175 "Standard Vendor Purchase Code"
         StdPurchLine: Record "Standard Purchase Line";
         StdPurchCode: Record "Standard Purchase Code";
         Factor: Integer;
+        IsHandled: Boolean;
     begin
         Currency.Initialize(PurchHeader."Currency Code");
 
@@ -164,29 +165,33 @@ table 175 "Standard Vendor Purchase Code"
                 PurchLine.SetPurchHeader(PurchHeader);
                 PurchLine."Line No." := 0;
                 PurchLine.Validate(Type, StdPurchLine.Type);
-                if StdPurchLine.Type = StdPurchLine.Type::" " then begin
-                    PurchLine.Validate("No.", StdPurchLine."No.");
-                    PurchLine.Description := StdPurchLine.Description;
-                    PurchLine."Buy-from Vendor No." := PurchHeader."Buy-from Vendor No.";
-                end else
-                    if not StdPurchLine.EmptyLine() then begin
-                        StdPurchLine.TestField("No.");
+
+                IsHandled := false;
+                OnApplyStdCodesToPurchaseLinesOnLoopStdPurchLine(Rec, StdPurchLine, PurchLine, PurchHeader, StdPurchCode, IsHandled);
+                if not IsHandled then
+                    if StdPurchLine.Type = StdPurchLine.Type::" " then begin
                         PurchLine.Validate("No.", StdPurchLine."No.");
-                        if StdPurchLine."Variant Code" <> '' then
-                            PurchLine.Validate("Variant Code", StdPurchLine."Variant Code");
-                        PurchLine.Validate(Quantity, StdPurchLine.Quantity);
-                        if StdPurchLine."Unit of Measure Code" <> '' then
-                            PurchLine.Validate("Unit of Measure Code", StdPurchLine."Unit of Measure Code");
-                        if StdPurchLine.Description <> '' then
-                            PurchLine.Validate(Description, StdPurchLine.Description);
-                        if (StdPurchLine.Type = StdPurchLine.Type::"G/L Account") or
-                           (StdPurchLine.Type = StdPurchLine.Type::"Charge (Item)")
-                        then
-                            PurchLine.Validate(
-                              "Direct Unit Cost",
-                              Round(StdPurchLine."Amount Excl. VAT" *
-                                (PurchLine."VAT %" / 100 * Factor + 1), Currency."Unit-Amount Rounding Precision"));
-                    end;
+                        PurchLine.Description := StdPurchLine.Description;
+                        PurchLine."Buy-from Vendor No." := PurchHeader."Buy-from Vendor No.";
+                    end else
+                        if not StdPurchLine.EmptyLine() then begin
+                            StdPurchLine.TestField("No.");
+                            PurchLine.Validate("No.", StdPurchLine."No.");
+                            if StdPurchLine."Variant Code" <> '' then
+                                PurchLine.Validate("Variant Code", StdPurchLine."Variant Code");
+                            PurchLine.Validate(Quantity, StdPurchLine.Quantity);
+                            if StdPurchLine."Unit of Measure Code" <> '' then
+                                PurchLine.Validate("Unit of Measure Code", StdPurchLine."Unit of Measure Code");
+                            if StdPurchLine.Description <> '' then
+                                PurchLine.Validate(Description, StdPurchLine.Description);
+                            if (StdPurchLine.Type = StdPurchLine.Type::"G/L Account") or
+                               (StdPurchLine.Type = StdPurchLine.Type::"Charge (Item)")
+                            then
+                                PurchLine.Validate(
+                                  "Direct Unit Cost",
+                                  Round(StdPurchLine."Amount Excl. VAT" *
+                                    (PurchLine."VAT %" / 100 * Factor + 1), Currency."Unit-Amount Rounding Precision"));
+                        end;
 
                 PurchLine."Shortcut Dimension 1 Code" := StdPurchLine."Shortcut Dimension 1 Code";
                 PurchLine."Shortcut Dimension 2 Code" := StdPurchLine."Shortcut Dimension 2 Code";
@@ -315,6 +320,11 @@ table 175 "Standard Vendor Purchase Code"
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyStdCodesToPurchaseLinesOnBeforeStdPurchLineFind(var StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code"; var StandardPurchaseLine: Record "Standard Purchase Line"; var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; StandardPurchaseCode: Record "Standard Purchase Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyStdCodesToPurchaseLinesOnLoopStdPurchLine(var StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code"; var StandardPurchaseLine: Record "Standard Purchase Line"; var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header"; var StandardPurchaseCode: Record "Standard Purchase Code"; var IsHandled: Boolean)
     begin
     end;
 
