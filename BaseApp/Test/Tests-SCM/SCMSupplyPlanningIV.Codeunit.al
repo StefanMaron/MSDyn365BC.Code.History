@@ -10,32 +10,32 @@ codeunit 137077 "SCM Supply Planning -IV"
     end;
 
     var
-        ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
-        LocationSilver: Record Location;
+        ItemJournalTemplate: Record "Item Journal Template";
         LocationBlue: Record Location;
-        LocationRed: Record Location;
         LocationInTransit: Record Location;
+        LocationRed: Record Location;
+        LocationSilver: Record Location;
+        Assert: Codeunit Assert;
+        LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryAssembly: Codeunit "Library - Assembly";
+        LibraryDimension: Codeunit "Library - Dimension";
         LibraryERM: Codeunit "Library - ERM";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
-        LibraryPlanning: Codeunit "Library - Planning";
-        LibraryUtility: Codeunit "Library - Utility";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
-        LibraryWarehouse: Codeunit "Library - Warehouse";
-        LibraryPurchase: Codeunit "Library - Purchase";
-        LibrarySales: Codeunit "Library - Sales";
-        LibraryRandom: Codeunit "Library - Random";
-        LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        LibraryReportDataset: Codeunit "Library - Report Dataset";
-        LibraryAssembly: Codeunit "Library - Assembly";
-        LibraryDimension: Codeunit "Library - Dimension";
+        LibraryPlanning: Codeunit "Library - Planning";
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
-        Assert: Codeunit Assert;
-        LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryRandom: Codeunit "Library - Random";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibrarySales: Codeunit "Library - Sales";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         ShopCalendarMgt: Codeunit "Shop Calendar Management";
         isInitialized: Boolean;
         VendorNoErr: Label 'Vendor No. must have a value in Requisition Line';
@@ -53,6 +53,9 @@ codeunit 137077 "SCM Supply Planning -IV"
         AmountType: Option "Net Change","Balance at Date";
         AppliesToEntryMissingErr: Label 'Applies-to Entry must have a value';
         ItemNoErr: Label 'Item No. must be equal';
+        AmountErr: Label '%1 must be equal to %2', Comment = '%1 = Cost Amount, %2 = Expected Amount';
+        DimSetIDErr: Label 'Dimension set id on Requisition Line does not match the updated dimension set id on production order line.';
+        AssemblyOrderCreatedErr: Label 'The assembly order has been created.';
 
     [Test]
     [Scope('OnPrem')]
@@ -4319,6 +4322,112 @@ codeunit 137077 "SCM Supply Planning -IV"
         Assert.RecordIsNotEmpty(PurchRcptLine[2]);
     end;
 
+    [Test]
+    procedure AssemblyOrderCostAmountCalculatedFromPlanningWorksheet()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        CompItem: Record Item;
+        Item: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        PlanningCreateAsmOrder: Enum "Planning Create Assembly Order";
+        ExpectedCostAmount: Decimal;
+        StandardCost: Decimal;
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 616613] Cost Amount is calculated when creating Assembly Order from Planning Worksheet.
+        Initialize();
+
+        // [GIVEN] Create an Assembly Item with Standard Cost and a Component in Assembly BOM.
+        StandardCost := LibraryRandom.RandDecInRange(100, 500, 2);
+        Quantity := LibraryRandom.RandIntInRange(5, 20);
+        CreateAssemblyItemWithStandardCost(Item, CompItem, StandardCost);
+
+        // [GIVEN] Create a  Sales Order for the Assembly Item.
+        CreateSalesOrder(Item."No.", '', Quantity);
+
+        // [GIVEN] Calculate Regenerative Plan in Planning Worksheet and Accept Action Message.
+        CalculateRegenPlanForPlanningWorksheet(Item);
+        AcceptActionMessage(RequisitionLine, Item."No.");
+
+        // [WHEN] Carry Out Action Message to create Assembly Order.
+        LibraryPlanning.CarryOutPlanWksh(RequisitionLine, 0, 0, 0, PlanningCreateAsmOrder::"Make Assembly Orders".AsInteger(), '', '', '', '');
+
+        // [THEN] Verify Assembly Order is created with correct Cost Amount.
+        AssemblyHeader.SetRange("Item No.", Item."No.");
+        AssemblyHeader.FindFirst();
+        ExpectedCostAmount := Round(Quantity * StandardCost);
+
+        Assert.AreEqual(StandardCost, AssemblyHeader."Unit Cost",
+            StrSubstNo(AmountErr, AssemblyHeader.FieldCaption("Unit Cost"), StandardCost));
+        Assert.AreEqual(ExpectedCostAmount, AssemblyHeader."Cost Amount",
+            StrSubstNo(AmountErr, AssemblyHeader.FieldCaption("Cost Amount"), ExpectedCostAmount));
+    end;
+
+    [Test]
+    procedure VerifyDimensionCalcSubcontractOrderForReleasedProdOrder()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        RequisitionLine: Record "Requisition Line";
+        RoutingHeader: Record "Routing Header";
+        WorkCenter: Record "Work Center";
+        NewDimSetID: Integer;
+    begin
+        // [SCENARIO 620065] Missing Dimension in Subcontracting Worksheet.
+        Initialize();
+
+        // [GIVEN] Create Item with Routing with Subcontractor and Workcenter.
+        CreateItem(Item);
+        CreateRoutingSetup(WorkCenter, RoutingHeader);
+        UpdateItemRoutingNo(Item, RoutingHeader."No.");
+
+        // [GIVEN] Create and refresh Released Production Order without Location and Bin.
+        CreateAndRefreshReleasedProductionOrderWithLocationAndBin(ProductionOrder, Item."No.", '', '');
+
+        // [GIVEN] Update Dimension on Production Order Line.
+        NewDimSetID := UpdateProductionOrderDimension(ProductionOrder."No.");
+
+        // [WHEN] Calculate Subcontracting Worksheet for Work Center.
+        CalculateSubcontractOrder(WorkCenter);
+
+        // [THEN] Verify Dimension Set ID on Requisition Line matches updated Dimension Set ID on Production Order Line.
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        RequisitionLine.FindFirst();
+        Assert.AreEqual(NewDimSetID, RequisitionLine."Dimension Set ID", DimSetIDErr);
+    end;
+
+    [Test]
+    procedure AssemblyOrdersFromPlanningWorksheet()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        CompItem: Record Item;
+        Item: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        PlanningCreateAsmOrder: Enum "Planning Create Assembly Order";
+    begin
+        // [SCENARIO 620790] Carry out action on planning worksheet with Make and Print assembly orders should be able to print multiple assembly orders. 
+        Initialize();
+
+        // [GIVEN] Create Item with planning parameters and Asm. BOM.
+        CreateAssemblyItemWithBOM(Item, CompItem);
+        CreateSalesOrder(Item."No.", '');
+
+        // [GIVEN] Calculate the plan in Planning Worksheet.
+        CalculateRegenPlanForPlanningWorksheet(Item);
+        AcceptActionMessage(RequisitionLine, Item."No.");
+
+        // [WHEN] Carry out action to create Assembly Order for Sales Lines with Option: Make Assembly Orders'
+        LibraryPlanning.CarryOutPlanWksh(RequisitionLine, 0, 0, 0, PlanningCreateAsmOrder::"Make Assembly Orders".AsInteger(), '', '', '', '');
+
+        // [THEN] Assembly Order is created
+        AssemblyHeader.SetRange("Item No.", Item."No.");
+        Assert.IsFalse(AssemblyHeader.IsEmpty(), AssemblyOrderCreatedErr);
+
+        // [THEN] Verify the assembly order is not printed.
+        VerifyNotPrintedAsmOrders(AssemblyHeader);
+    end;
+
     local procedure Initialize()
     var
         RequisitionLine: Record "Requisition Line";
@@ -5792,6 +5901,66 @@ codeunit 137077 "SCM Supply Planning -IV"
     begin
         WarehouseEntry.FindLast();
         Assert.AreEqual(WarehouseEntry."Item No.", ItemNo, ItemNoErr);
+    end;
+
+    local procedure CreateAssemblyItemWithStandardCost(var Item: Record Item; var CompItem: Record Item; StandardCost: Decimal)
+    var
+        BOMComponent: Record "BOM Component";
+        QuantityPer: Decimal;
+    begin
+        // [GIVEN] Create Assembly Item with Standard Costing Method and Assemble-to-Stock policy.
+        CreateAndUpdateItem(
+            Item, Item."Replenishment System"::Assembly, Item."Reordering Policy"::Order,
+            Item."Manufacturing Policy", '');
+        Item.Validate("Costing Method", Item."Costing Method"::Standard);
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Stock");
+        Item.Validate("Standard Cost", StandardCost);
+        Item.Modify(true);
+
+        // [GIVEN] Create Component Item.
+        CreateAndUpdateItem(
+            CompItem, CompItem."Replenishment System"::Purchase, CompItem."Reordering Policy"::Order,
+            CompItem."Manufacturing Policy", LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Create Assembly BOM with component.
+        QuantityPer := LibraryRandom.RandInt(5);
+        LibraryAssembly.CreateAssemblyListComponent(
+            BOMComponent.Type::Item, CompItem."No.", Item."No.", '',
+            BOMComponent."Resource Usage Type", QuantityPer, true);
+    end;
+
+    local procedure UpdateProductionOrderDimension(ProductionOrderNo: Code[20]) DimensionSetID: Integer
+    var
+        ProductionOrder: Record "Production Order";
+        ProductionOrderLine: Record "Prod. Order Line";
+    begin
+        ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
+        ProductionOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProductionOrderLine.FindFirst();
+        DimensionSetID := SelectNewDimSetID(ProductionOrderLine."Dimension Set ID");
+
+        ProductionOrderLine.Validate("Dimension Set ID", DimensionSetID);
+        ProductionOrderLine.Modify(true);
+    end;
+
+    local procedure SelectNewDimSetID(OldDimSetID: Integer): Integer
+    var
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+    begin
+        LibraryDimension.FindDimension(Dimension);
+        Dimension.Next();
+        LibraryDimension.FindDimensionValue(DimensionValue, Dimension.Code);
+        exit(LibraryDimension.CreateDimSet(OldDimSetID, Dimension.Code, DimensionValue.Code));
+    end;
+
+    local procedure VerifyNotPrintedAsmOrders(var AssemblyHeader: Record "Assembly Header")
+    begin
+        AssemblyHeader.FindSet();
+        repeat
+            LibraryReportDataset.AssertElementWithValueNotExist('No_AssemblyHeader', AssemblyHeader."No.");
+            LibraryReportDataset.GetNextRow();
+        until AssemblyHeader.Next() = 0;
     end;
 
     [RequestPageHandler]

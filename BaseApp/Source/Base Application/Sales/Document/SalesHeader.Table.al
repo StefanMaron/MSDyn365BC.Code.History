@@ -304,6 +304,7 @@ table 36 "Sales Header"
                 OnAfterCheckBillToCust(Rec, xRec, Customer);
 
                 SetBillToCustomerAddressFieldsFromCustomer(Customer);
+                Validate("Currency Code");
 
                 if not BilltoCustomerNoChanged then
                     if ShippedSalesLinesExist() then begin
@@ -316,7 +317,6 @@ table 36 "Sales Header"
                 Validate("Payment Terms Code");
                 Validate("Prepmt. Payment Terms Code");
                 Validate("Payment Method Code");
-                Validate("Currency Code");
                 Validate("Prepayment %");
 
                 if (xRec."Sell-to Customer No." = "Sell-to Customer No.") and

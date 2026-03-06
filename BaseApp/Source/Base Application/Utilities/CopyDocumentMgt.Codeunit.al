@@ -1893,6 +1893,8 @@ codeunit 6620 "Copy Document Mgt."
             ToSalesLine.Validate(Type, FromSalesLine.Type);
             ToSalesLine.Description := FromSalesLine.Description;
             ToSalesLine.Validate("Description 2", FromSalesLine."Description 2");
+            if FromSalesLine.Type = FromSalesLine.Type::Item then
+                ToSalesLine.ExcludeDefaultItemQuantity(true);
             OnUpdateSalesLine(ToSalesLine, FromSalesLine);
 
             if (FromSalesLine.Type <> FromSalesLine.Type::" ") and (FromSalesLine."No." <> '') then begin
@@ -1905,6 +1907,9 @@ codeunit 6620 "Copy Document Mgt."
                         ToSalesLine.Validate("No.", FromSalesLine."No.");
                 end else
                     ToSalesLine.Validate("No.", FromSalesLine."No.");
+
+                if FromSalesLine.Type = FromSalesLine.Type::Item then
+                    ToSalesLine.ExcludeDefaultItemQuantity(false);
 
                 OnRecalculateSalesLineOnAfterValidateNo(ToSalesLine, FromSalesLine);
                 if ToSalesLine."Document Type" in [
@@ -7895,6 +7900,18 @@ codeunit 6620 "Copy Document Mgt."
         ToPurchLine.Validate("Job No.", FromPurchLine."Job No.");
         ToPurchLine.Validate("Job Task No.", FromPurchLine."Job Task No.");
         ToPurchLine.Validate("Job Planning Line No.", FromPurchLine."Job Planning Line No.");
+        ToPurchLine.Validate("Job Unit Price", FromPurchLine."Job Unit Price");
+        ToPurchLine.Validate("Job Total Price", FromPurchLine."Job Total Price");
+        ToPurchLine.Validate("Job Line Amount", FromPurchLine."Job Line Amount");
+        ToPurchLine.Validate("Job Line Discount Amount", FromPurchLine."Job Line Discount Amount");
+        ToPurchLine.Validate("Job Line Discount %", FromPurchLine."Job Line Discount %");
+        ToPurchLine.Validate("Job Unit Price (LCY)", FromPurchLine."Job Unit Price (LCY)");
+        ToPurchLine.Validate("Job Total Price (LCY)", FromPurchLine."Job Total Price (LCY)");
+        ToPurchLine.Validate("Job Line Amount (LCY)", FromPurchLine."Job Line Amount (LCY)");
+        ToPurchLine.Validate("Job Line Disc. Amount (LCY)", FromPurchLine."Job Line Disc. Amount (LCY)");
+        ToPurchLine.Validate("Job Currency Factor", FromPurchLine."Job Currency Factor");
+        ToPurchLine.Validate("Job Currency Code", FromPurchLine."Job Currency Code");
+
     end;
 
     local procedure CopyPurchLineExtText(ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; FromPurchHeader: Record "Purchase Header"; FromPurchLine: Record "Purchase Line"; DocLineNo: Integer; var NextLineNo: Integer)

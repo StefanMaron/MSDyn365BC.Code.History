@@ -999,8 +999,16 @@ table 125 "Purch. Cr. Memo Line"
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
         ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgerEntry."Entry Type");
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Purchase Invoice");
-        if ValueEntry.FindFirst() then
+        if ValueEntry.FindFirst() then begin
             PurchInvLine.Get(ValueEntry."Document No.", ValueEntry."Document Line No.");
+            exit;
+        end;
+
+        if ItemLedgerEntry."Entry No." = 0 then begin
+            PurchInvLine.SetRange("Order No.", "Order No.");
+            PurchInvLine.SetRange("Order Line No.", "Order Line No.");
+            if PurchInvLine.FindFirst() then;
+        end;
     end;
 
     local procedure CheckApplFromItemLedgEntry(var ItemLedgerEntry: Record "Item Ledger Entry")

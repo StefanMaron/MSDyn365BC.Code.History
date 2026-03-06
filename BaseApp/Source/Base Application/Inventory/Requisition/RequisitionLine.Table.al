@@ -19,6 +19,7 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
+using Microsoft.Manufacturing.Document;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Projects.Project.Job;
@@ -216,6 +217,7 @@ table 246 "Requisition Line"
                 ItemVend: Record "Item Vendor";
                 TempSKU: Record "Stockkeeping Unit" temporary;
                 IsHandled: Boolean;
+                UpdateVendorItemInfo: Boolean;
             begin
                 CheckActionMessageNew();
                 if "Vendor No." <> '' then
@@ -262,7 +264,10 @@ table 246 "Requisition Line"
 
                 "Order Address Code" := '';
 
-                if (Type = Type::Item) and ("No." <> '') and (not IsProdOrder()) then begin
+                UpdateVendorItemInfo := (Type = Type::Item) and ("No." <> '') and (not IsProdOrder());
+                OnValidateVendorNoOnBeforeUpdateVendorItemInfo(Rec, UpdateVendorItemInfo);
+
+                if UpdateVendorItemInfo then begin
                     if ItemVend.Get("Vendor No.", "No.", "Variant Code") then begin
                         IsHandled := false;
                         OnValidateVendorNoOnBeforeSetVendorItemNoFromItemVend(Rec, IsHandled);
@@ -1538,10 +1543,14 @@ table 246 "Requisition Line"
     local procedure CopyFromGLAcc()
     var
         GLAcc: Record "G/L Account";
+        ShouldTestFieldDirectPosting: Boolean;
     begin
         GLAcc.Get("No.");
         GLAcc.CheckGLAcc();
-        GLAcc.TestField("Direct Posting", true);
+        ShouldTestFieldDirectPosting := true;
+        OnCopyFromGLAccOnBeforeTestFieldDirectPosting(Rec, GLAcc, ShouldTestFieldDirectPosting);
+        if ShouldTestFieldDirectPosting then
+            GLAcc.TestField("Direct Posting", true);
         CopyDescriptionFromGLAcc(GLAcc);
     end;
 
@@ -2384,6 +2393,7 @@ table 246 "Requisition Line"
     procedure GetDimFromRefOrderLine(AddToExisting: Boolean)
     var
         PurchLine: Record "Purchase Line";
+        ProdOrderLine: Record "Prod. Order Line";
         TransferLine: Record "Transfer Line";
         DimSetIDArr: array[10] of Integer;
         i: Integer;
@@ -2399,6 +2409,9 @@ table 246 "Requisition Line"
             "Ref. Order Type"::Purchase:
                 if PurchLine.Get(PurchLine."Document Type"::Order, "Ref. Order No.", "Ref. Line No.") then
                     DimSetIDArr[i] := PurchLine."Dimension Set ID";
+            "Ref. Order Type"::"Prod. Order":
+                if ProdOrderLine.Get("Ref. Order Status", "Ref. Order No.", "Ref. Line No.") then
+                    DimSetIDArr[i] := ProdOrderLine."Dimension Set ID";
             "Ref. Order Type"::Transfer:
                 begin
                     IsHandled := false;
@@ -3696,6 +3709,11 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCopyFromGLAccOnBeforeTestFieldDirectPosting(var RequisitionLine: Record "Requisition Line"; GLAccount: Record "G/L Account"; var ShouldTestFieldDirectPosting: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterLookupVendorNo(var RequisitionLine: Record "Requisition Line"; var Vend: Record Vendor)
     begin
     end;
@@ -4027,6 +4045,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateVendorNoOnAfterGetDefaultBinCode(var RequisitionLine: Record "Requisition Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVendorNoOnBeforeUpdateVendorItemInfo(var RequisitionLine: Record "Requisition Line"; var UpdateVendorItemInfo: Boolean)
     begin
     end;
 }

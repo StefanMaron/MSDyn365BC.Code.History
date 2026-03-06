@@ -206,6 +206,7 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnValidate()
                     begin
+                        ForceTotalsCalculation();
                         DeltaUpdateTotals();
                     end;
                 }
@@ -218,6 +219,7 @@ page 47 "Sales Invoice Subform"
                     trigger OnValidate()
                     begin
                         UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption("VAT Prod. Posting Group"), 1, 100));
+                        ForceTotalsCalculation();
                         DeltaUpdateTotals();
                     end;
                 }

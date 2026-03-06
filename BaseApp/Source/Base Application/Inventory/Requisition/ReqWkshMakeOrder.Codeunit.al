@@ -852,6 +852,8 @@ codeunit 333 "Req. Wksh.-Make Order"
                 PurchOrderHeader.SetShipToForSpecOrder();
             if Vendor.Get(PurchOrderHeader."Buy-from Vendor No.") then
                 PurchOrderHeader.Validate("Shipment Method Code", Vendor."Shipment Method Code");
+            if ReqLine2."Order Date" <> 0D then
+                PurchOrderHeader."Order Date" := ReqLine2."Order Date";
         end;
         if not SpecialOrder then
             if SalesHeader.Get(SalesHeader."Document Type"::Order, ReqLine2."Sales Order No.") then begin

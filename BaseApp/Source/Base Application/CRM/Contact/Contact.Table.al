@@ -1539,11 +1539,16 @@ table 5050 Contact
         end;
     end;
 
-    procedure CreateCustomer(): Code[20];
+    procedure CreateCustomer() CustomerNo: Code[20];
     var
         CustomerTempl: Record "Customer Templ.";
         CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+        IsHandled: Boolean;
     begin
+        OnBeforeCreateCustomer(Rec, CustomerNo, IsHandled);
+        if IsHandled then
+            exit(CustomerNo);
+
         if CustomerTemplMgt.SelectCustomerTemplateFromContact(CustomerTempl, Rec) then
             exit(CreateCustomerFromTemplate(CustomerTempl.Code))
         else
@@ -3419,6 +3424,14 @@ table 5050 Contact
             Rec.Validate("Format Region", LanguageSelection."Language Tag");
     end;
 
+    internal procedure CreateInteractionForEmail()
+    var
+        TempSegmentLine: Record "Segment Line" temporary;
+    begin
+        CheckIfPrivacyBlockedGeneric();
+        TempSegmentLine.CreateSegLineInteractionFromContactForEmail(Rec);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSalutation(var SalutationType: Enum "Salutation Formula Salutation Type"; var LanguageCode: Code[10]; var NamePart: array[5] of Text[100]; var Contact: Record Contact; var SalutationFormula: Record "Salutation Formula")
     begin
@@ -4001,6 +4014,11 @@ table 5050 Contact
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateEmployeeLink(var Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateCustomer(var Contact: Record Contact; var CustomerNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

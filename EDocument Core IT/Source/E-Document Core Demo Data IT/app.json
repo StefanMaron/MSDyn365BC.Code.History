@@ -39,6 +39,9 @@
   ],
   "screenshots": [],
   "platform": "$(app_platformVersion)",
+  "features": [
+    "TranslationFile"
+  ],
   "idRanges": [
     {
       "from": 12194,

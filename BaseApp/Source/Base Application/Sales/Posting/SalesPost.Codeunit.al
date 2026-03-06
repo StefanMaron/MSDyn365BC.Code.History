@@ -3307,6 +3307,9 @@ codeunit 80 "Sales-Post"
           GenJnlPostLine, SuppressCommit, PreviewMode);
 
         ClearPostBuffers();
+
+        if SalesHeader."Document Type" = SalesHeader."Document Type"::"Return Order" then
+            UpdateSalesOrderLineIfExist(SalesHeader."No.");
     end;
 
     local procedure DeleteApprovalEntries(var SalesHeader: Record "Sales Header")
@@ -9017,7 +9020,18 @@ codeunit 80 "Sales-Post"
 
         exit(false);
     end;
-    
+
+    local procedure UpdateSalesOrderLineIfExist(DocumentNo: Code[20])
+    var
+        SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        SalesCreditMemoHeader.SetLoadFields("Return Order No.", "No.");
+        SalesCreditMemoHeader.SetRange("Return Order No.", DocumentNo);
+        if SalesCreditMemoHeader.FindFirst() then
+            CorrectPostedSalesInvoice.UpdateSalesOrderLineIfExist(SalesCreditMemoHeader."No.");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostLines(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; var TempWhseShptHeader: Record "Warehouse Shipment Header" temporary; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
     begin
@@ -10497,10 +10511,12 @@ codeunit 80 "Sales-Post"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforePostValueEntryToGL', '', false, false)]
-    local procedure OnBeforePostValueEntryToGL(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    local procedure OnBeforePostValueEntryToGL(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean; PostToGL: Boolean)
     var
         InventorySetup: Record "Inventory Setup";
     begin
+        if not PostToGL then
+            exit;
         if InventorySetup.UseLegacyPosting() then
             exit;
         PostponedValueEntries.Add(ValueEntry."Entry No.");

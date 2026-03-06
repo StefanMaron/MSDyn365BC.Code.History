@@ -7696,6 +7696,293 @@ codeunit 137079 "SCM Production Order III"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure UndoFirstReceiptInSubcontractingPurchaseOrder()
+    var
+        Item: Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ProductionOrder: Record "Production Order";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        RequisitionLine: Record "Requisition Line";
+        WorkCenter: Record "Work Center";
+        PostedPurchaseReceipt: TestPage "Posted Purchase Receipt";
+        FirstReceiptQty: Decimal;
+        SecondReceiptQty: Decimal;
+        TotalQuantity: Decimal;
+    begin
+        // [SCENARIO 615586] Undoing first receipt on a subcontracting purchase order should only reverse that receipt
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        CreateItem(Item);
+
+        // [GIVEN] Create Routing and Update Item for Subcontracting.
+        CreateRoutingAndUpdateItemSubc(Item, WorkCenter, true);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        TotalQuantity := LibraryRandom.RandIntInRange(10, 20);
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", TotalQuantity, '', '');
+
+        // [GIVEN] Determine quantities for first and second receipts.
+        FirstReceiptQty := LibraryRandom.RandIntInRange(6, 9);
+        SecondReceiptQty := TotalQuantity - FirstReceiptQty;
+
+        // [GIVEN] Calculate Subcontracting and create Purchase Order.
+        CalculateSubcontractOrder(WorkCenter);
+        AcceptActionMessage(RequisitionLine, Item."No.");
+        LibraryPlanning.CarryOutAMSubcontractWksh(RequisitionLine);
+
+        // [GIVEN] Post Purchase Order with first Partial Receipt.
+        FindPurchaseOrderLine(PurchaseLine, Item."No.");
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PurchaseLine.Validate("Qty. to Receive", FirstReceiptQty);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Verify Prod. Order Line after first receipt.
+        VerifyReleasedProdOrderLine(Item."No.", TotalQuantity, FirstReceiptQty);
+
+        // [GIVEN] Post Purchase Order with second Partial Receipt.
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        PurchaseLine.Validate("Qty. to Receive", SecondReceiptQty);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Verify Prod. Order Line after second receipt.
+        VerifyReleasedProdOrderLine(Item."No.", TotalQuantity, TotalQuantity);
+
+        // [GIVEN] Find the first Purchase Receipt Line for the Item.
+        PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
+        PurchRcptLine.SetRange("No.", Item."No.");
+        PurchRcptLine.FindFirst();
+
+        // [WHEN] Undo the selected receipt (first or second based on parameter)
+        PostedPurchaseReceipt.OpenEdit();
+        PostedPurchaseReceipt.Filter.SetFilter("No.", PurchRcptLine."Document No.");
+        PostedPurchaseReceipt.PurchReceiptLines.First();
+        PostedPurchaseReceipt.PurchReceiptLines."&Undo Receipt".Invoke();
+
+        // [GIVEN] Find the last Purchase Receipt Line for the Item after undo.
+        PurchRcptLine.SetFilter(Quantity, '>0');
+        PurchRcptLine.FindLast();
+
+        // [GIVEN] Verify Prod. Order Line after undoing the receipt.
+        VerifyReleasedProdOrderLine(Item."No.", TotalQuantity, PurchRcptLine.Quantity);
+
+        // [THEN] Verify that ILE Output Qty. matches expected.
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.CalcSums(Quantity);
+        Assert.AreEqual(
+            PurchRcptLine.Quantity,
+            ItemLedgerEntry.Quantity,
+            StrSubstNo(ValueMustBeEqualErr, ItemLedgerEntry.FieldCaption(Quantity), PurchRcptLine.Quantity, ItemLedgerEntry.TableCaption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,ItemTrackingPageHandlerWithQuantity')]
+    procedure UndoSecondReceiptInSubcontractingPurchaseOrder_WithTracking()
+    var
+        Item: Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProductionOrder: Record "Production Order";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        RequisitionLine: Record "Requisition Line";
+        WorkCenter: Record "Work Center";
+        PostedPurchaseReceipt: TestPage "Posted Purchase Receipt";
+        FirstReceiptQty: Decimal;
+        SecondReceiptQty: Decimal;
+        TotalQuantity: Decimal;
+    begin
+        // [SCENARIO 615586] Undoing first receipt on a subcontracting purchase order with item tracking should only reverse that receipt
+        Initialize();
+
+        // [GIVEN] Create an Item with Item Tracking.
+        CreateItemWithItemTrackingCode(Item);
+
+        // [GIVEN] Create Routing and Update Item for Subcontracting.
+        CreateRoutingAndUpdateItemSubc(Item, WorkCenter, true);
+        TotalQuantity := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", TotalQuantity, '', '');
+
+        // [GIVEN] Determine quantities for first and second receipts.
+        FirstReceiptQty := LibraryRandom.RandIntInRange(6, 9);
+        SecondReceiptQty := TotalQuantity - FirstReceiptQty;
+
+        // [GIVEN] Assign Tracking on Prod. Order Line before first receipt.
+        LibraryVariableStorage.Enqueue(FirstReceiptQty);
+        AssignTrackingOnProdOrderLine(ProductionOrder."No.");
+
+        // [GIVEN] Calculate Subcontracting and create Purchase Order.
+        CalculateSubcontractOrder(WorkCenter);
+        AcceptActionMessage(RequisitionLine, Item."No.");
+        LibraryPlanning.CarryOutAMSubcontractWksh(RequisitionLine);
+
+        // [GIVEN] Post Purchase Order with first partial receipt.
+        FindPurchaseOrderLine(PurchaseLine, Item."No.");
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PurchaseLine.Validate("Qty. to Receive", FirstReceiptQty);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Verify Prod. Order Line after first receipt.
+        VerifyReleasedProdOrderLine(Item."No.", TotalQuantity, FirstReceiptQty);
+
+        // [GIVEN] Assign Tracking on Prod. Order Line before second receipt.
+        LibraryVariableStorage.Enqueue(SecondReceiptQty);
+        AssignTrackingOnProdOrderLine(ProductionOrder."No.");
+
+        // [GIVEN] Post Purchase Order with second partial receipt.
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        PurchaseLine.Validate("Qty. to Receive", SecondReceiptQty);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        VerifyReleasedProdOrderLine(Item."No.", TotalQuantity, TotalQuantity);
+
+        // [WHEN] Undo the selected first receipt
+        PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
+        PurchRcptLine.SetRange("No.", Item."No.");
+        PurchRcptLine.FindFirst();
+        PostedPurchaseReceipt.OpenEdit();
+        PostedPurchaseReceipt.Filter.SetFilter("No.", PurchRcptLine."Document No.");
+        PostedPurchaseReceipt.PurchReceiptLines.Last();
+
+        // [GIVEN] Enqueue the Quantity to be used in Item Tracking Page Handler.
+        LibraryVariableStorage.Enqueue(PostedPurchaseReceipt.PurchReceiptLines.Quantity.AsDecimal());
+        PostedPurchaseReceipt.PurchReceiptLines."&Undo Receipt".Invoke();
+
+        // [GIVEN] Find the last Purchase Receipt Line for the Item after undo.
+        PurchRcptLine.SetFilter(Quantity, '>0');
+        PurchRcptLine.FindLast();
+        VerifyReleasedProdOrderLine(Item."No.", TotalQuantity, PurchRcptLine.Quantity);
+
+        // [THEN] Verify that ILE Output Qty. matches expected
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.CalcSums(Quantity);
+        Assert.AreEqual(
+            PurchRcptLine.Quantity,
+            ItemLedgerEntry.Quantity,
+            StrSubstNo(ValueMustBeEqualErr, ItemLedgerEntry.FieldCaption(Quantity), PurchRcptLine.Quantity, ItemLedgerEntry.TableCaption()));
+
+        // [THEN] Verify that the Item Tracking Lines can again be updated in Production level.
+        ProductionOrder.Get(ProductionOrder.Status, ProductionOrder."No.");
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Item No.", Item."No.");
+        ProdOrderLine.FindFirst();
+        ProdOrderLine.OpenItemTrackingLines();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,ItemTrackingPageHandlerWithQuantity')]
+    procedure UndoFirstReceiptInSubcontractingPurchaseOrder_WithTracking()
+    var
+        Item: Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProductionOrder: Record "Production Order";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        RequisitionLine: Record "Requisition Line";
+        WorkCenter: Record "Work Center";
+        PostedPurchaseReceipt: TestPage "Posted Purchase Receipt";
+        FirstReceiptQty: Decimal;
+        SecondReceiptQty: Decimal;
+        TotalQuantity: Decimal;
+    begin
+        // [SCENARIO 615586] Undoing first receipt on a subcontracting purchase order with item tracking should only reverse that receipt
+        Initialize();
+
+        // [GIVEN] Create an Item with Item Tracking.
+        CreateItemWithItemTrackingCode(Item);
+
+        // [GIVEN] Create Routing and Update Item for Subcontracting.
+        CreateRoutingAndUpdateItemSubc(Item, WorkCenter, true);
+        TotalQuantity := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", TotalQuantity, '', '');
+
+        // [GIVEN] Determine quantities for first and second receipts.
+        FirstReceiptQty := LibraryRandom.RandIntInRange(6, 9);
+        SecondReceiptQty := TotalQuantity - FirstReceiptQty;
+
+        // [GIVEN] Assign Tracking on Prod. Order Line before first receipt.
+        LibraryVariableStorage.Enqueue(FirstReceiptQty);
+        AssignTrackingOnProdOrderLine(ProductionOrder."No.");
+
+        // [GIVEN] Calculate Subcontracting and create Purchase Order.
+        CalculateSubcontractOrder(WorkCenter);
+        AcceptActionMessage(RequisitionLine, Item."No.");
+        LibraryPlanning.CarryOutAMSubcontractWksh(RequisitionLine);
+
+        // [GIVEN] Post Purchase Order with first partial receipt.
+        FindPurchaseOrderLine(PurchaseLine, Item."No.");
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PurchaseLine.Validate("Qty. to Receive", FirstReceiptQty);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Verify Prod. Order Line after first receipt.
+        VerifyReleasedProdOrderLine(Item."No.", TotalQuantity, FirstReceiptQty);
+
+        // [GIVEN] Assign Tracking on Prod. Order Line before second receipt.
+        LibraryVariableStorage.Enqueue(SecondReceiptQty);
+        AssignTrackingOnProdOrderLine(ProductionOrder."No.");
+
+        // [GIVEN] Post Purchase Order with second partial receipt.
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        PurchaseLine.Validate("Qty. to Receive", SecondReceiptQty);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        VerifyReleasedProdOrderLine(Item."No.", TotalQuantity, TotalQuantity);
+
+        // [WHEN] Undo the selected first receipt
+        PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
+        PurchRcptLine.SetRange("No.", Item."No.");
+        PurchRcptLine.FindFirst();
+        PostedPurchaseReceipt.OpenEdit();
+        PostedPurchaseReceipt.Filter.SetFilter("No.", PurchRcptLine."Document No.");
+        PostedPurchaseReceipt.PurchReceiptLines.First();
+
+        // [GIVEN] Enqueue the Quantity to be used in Item Tracking Page Handler.
+        LibraryVariableStorage.Enqueue(PostedPurchaseReceipt.PurchReceiptLines.Quantity.AsDecimal());
+        PostedPurchaseReceipt.PurchReceiptLines."&Undo Receipt".Invoke();
+
+        // [GIVEN] Find the last Purchase Receipt Line for the Item after undo.
+        PurchRcptLine.SetFilter(Quantity, '>0');
+        PurchRcptLine.FindLast();
+        VerifyReleasedProdOrderLine(Item."No.", TotalQuantity, PurchRcptLine.Quantity);
+
+        // [THEN] Verify that ILE Output Qty. matches expected
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.CalcSums(Quantity);
+        Assert.AreEqual(
+            PurchRcptLine.Quantity,
+            ItemLedgerEntry.Quantity,
+            StrSubstNo(ValueMustBeEqualErr, ItemLedgerEntry.FieldCaption(Quantity), PurchRcptLine.Quantity, ItemLedgerEntry.TableCaption()));
+
+        // [THEN] Verify that the Item Tracking Lines can again be updated in Production level.
+        ProductionOrder.Get(ProductionOrder.Status, ProductionOrder."No.");
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Item No.", Item."No.");
+        ProdOrderLine.FindFirst();
+        ProdOrderLine.OpenItemTrackingLines();
+    end;
+
+    [Test]
     procedure VerifyACYCalculatedCorrectlyForNonInventoryOutputInProduction()
     var
         CompItem: record Item;
@@ -7779,6 +8066,60 @@ codeunit 137079 "SCM Production Order III"
         // [THEN] Verify "Cost Amount (Actual) (ACY)" is calculated from exchange rate, not just reversed.
         ExpectedACY := NonInvUnitCost * Quantity * ExchangeRate;
         VerifyCostAmountACYForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::"Direct Cost - Non Inventory", OutputItem, ExpectedACY);
+    end;
+
+    [Test]
+    [HandlerFunctions('PostProductionJournalHandlerWithUpdateQuantity,ConfirmHandlerTRUE,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure PostPartialProductionJournalWithItemFlushingPickAndBackward()
+    var
+        Item: Record Item;
+        ChildItem: Record Item;
+        Bin: Record Bin;
+        ProductionOrder: Record "Production Order";
+        ProductionOrder2: Record "Production Order";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ItemJournalLine: Record "Item Journal Line";
+        Quantity1: Decimal;
+        Quantity2: Decimal;
+        PartialQty: Decimal;
+    begin
+        // [SCENARIO 616539] Allow posting picked quantity from another production order if partial posting has been made on the production order and the component is set to pick + backward
+        Initialize();
+
+        // [GIVEN] Create Item with BOM and Routing, Child Item with Pick + Backward flushing method
+        CreateItemWithBOMAndRouting(Item, ChildItem, 1); // QuantityPer = 1 for simplicity
+        UpdateLocationAndBins(LocationSilver);
+        LibraryWarehouse.FindBin(Bin, LocationSilver.Code, '', 1);
+
+        // [GIVEN] Inventory for child item = 10 units
+        CreateAndPostItemJournalLine(ChildItem."No.", 10, LocationSilver.Code, Bin.Code);
+
+        // [GIVEN] First Production Order with Quantity = 8, create and register warehouse pick
+        Quantity1 := 8;
+        CreateAndRefreshReleasedProductionOrder(
+          ProductionOrder, Item."No.", Quantity1, LocationSilver.Code, '');
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
+        RegisterWarehouseActivity(ProductionOrder."No.", WarehouseActivityLine."Activity Type"::Pick);
+
+        // [GIVEN] Second Production Order with Quantity = 3
+        Quantity2 := 3;
+        CreateAndRefreshReleasedProductionOrder(
+          ProductionOrder2, Item."No.", Quantity2, LocationSilver.Code, LocationSilver."To-Production Bin Code");
+
+        // [GIVEN] Create and register warehouse pick for second order (only 2 units available)
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder2);
+        RegisterWarehouseActivity(ProductionOrder2."No.", WarehouseActivityLine."Activity Type"::Pick);
+
+        // [WHEN] Post Production Journal with partial quantity = 2
+        PartialQty := 2;
+        OpenProductionJournalPage(ProductionOrder2, Item."No.", Item."No.", PartialQty, ItemJournalLine."Entry Type"::Output);
+
+        // [THEN] Error should occur because total consumption (2 + 1 = 3) exceeds picked quantity (2)
+        CreateOutputJournalWithExplodeRouting(ItemJournalLine, ProductionOrder2."No.");
+        ItemJournalLine.Validate("Output Quantity", 1);
+        ItemJournalLine.Modify(true);
+        asserterror LibraryInventory.PostItemJournalLine(OutputItemJournalBatch."Journal Template Name", OutputItemJournalBatch.Name);
     end;
 
     local procedure Initialize()
@@ -10620,6 +10961,14 @@ codeunit 137079 "SCM Production Order III"
                 ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
         end;
 
+        ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingPageHandlerWithQuantity(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines."Assign Lot No.".Invoke();
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
         ItemTrackingLines.OK().Invoke();
     end;
 

@@ -3729,8 +3729,12 @@ table 38 "Purchase Header"
     /// </summary>
     /// <param name="VendNo">Vendor number to set.</param>
     procedure GetVend(VendNo: Code[20])
+    var
+        GetVendor: Boolean;
     begin
-        if VendNo <> Vend."No." then
+        GetVendor := VendNo <> Vend."No.";
+        OnBeforeGetVend(Rec, Vend, VendNo, GetVendor);
+        if GetVendor then
             Vend.Get(VendNo);
     end;
 
@@ -3787,8 +3791,10 @@ table 38 "Purchase Header"
 
         Contact.FilterGroup(2);
         LookupContact("Buy-from Vendor No.", "Buy-from Contact No.", Contact);
-        if PAGE.RunModal(0, Contact) = ACTION::LookupOK then
+        if PAGE.RunModal(0, Contact) = ACTION::LookupOK then begin
             Validate("Buy-from Contact No.", Contact."No.");
+            OnLookupBuyFromContactOnAfterValidateBuyFromContactNo(Rec, Contact);
+        end;
         Contact.FilterGroup(0);
     end;
 
@@ -6602,6 +6608,7 @@ table 38 "Purchase Header"
         if VendorNo = '' then begin
             if not PurchLine.IsEmpty() then
                 Error(Text005, VendorCaption);
+            OnInitFromVendorOnBeforeInit(Rec, xRec);
             Init();
             "No. Series" := xRec."No. Series";
             OnInitFromVendorOnBeforeInitRecord(Rec, xRec);
@@ -6620,6 +6627,7 @@ table 38 "Purchase Header"
         if (ContactNo = '') and (VendorNo = '') then begin
             if not PurchLine.IsEmpty() then
                 Error(Text005, ContactCaption);
+            OnInitFromContactOnBeforeInit(Rec, xRec);
             Init();
             GetPurchSetup();
             "No. Series" := xRec."No. Series";
@@ -9651,6 +9659,26 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePrepmtNoSeries(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetVend(PurchaseHeader: Record "Purchase Header"; var Vendor: Record Vendor; VendorNo: Code[20]; var GetVendor: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitFromVendorOnBeforeInit(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitFromContactOnBeforeInit(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupBuyFromContactOnAfterValidateBuyFromContactNo(var PurchaseHeader: Record "Purchase Header"; Contact: Record Contact)
     begin
     end;
 }
