@@ -198,7 +198,7 @@ codeunit 60 "Sales-Calc. Discount"
                       (SalesLine2."Prepayment %" = 0)
                     then
                         SalesLine2.Validate("Inv. Discount Amount");
-                    if (SalesLine2."Allow Invoice Disc.") and (SalesLine2."Line Discount %" < 100) then begin
+                    if (SalesLine2."Allow Invoice Disc.") and (SalesLine2."Line Discount %" < 100) and (CustInvDiscFound) then begin
                         case GLSetup."Discount Calculation" of
                             GLSetup."Discount Calculation"::" ",
                             GLSetup."Discount Calculation"::"Line Disc. * Inv. Disc. + Payment Disc.",
@@ -282,21 +282,22 @@ codeunit 60 "Sales-Calc. Discount"
             SalesLine2.SetSalesHeader(SalesHeader);
             SalesLine2.UpdateVATOnLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
             UpdatePrepmtLineAmount(SalesHeader);
-        end else begin
-            SalesHeader."Invoice Discount Calculation" := SalesHeader."Invoice Discount Calculation"::"%";
-            SalesHeader."Invoice Discount Value" := CustInvDisc."Discount %";
-            if UpdateHeader then
-                SalesHeader.Modify();
+        end else
+            if CustInvDiscFound then begin
+                SalesHeader."Invoice Discount Calculation" := SalesHeader."Invoice Discount Calculation"::"%";
+                SalesHeader."Invoice Discount Value" := CustInvDisc."Discount %";
+                if UpdateHeader then
+                    SalesHeader.Modify();
 
-            TempVATAmountLine.SetInvoiceDiscountPercent(
-              CustInvDisc."Discount %", SalesHeader."Currency Code",
-              SalesHeader."Prices Including VAT", SalesSetup."Calc. Inv. Disc. per VAT ID",
-              SalesHeader."VAT Base Discount %");
+                TempVATAmountLine.SetInvoiceDiscountPercent(
+                  CustInvDisc."Discount %", SalesHeader."Currency Code",
+                  SalesHeader."Prices Including VAT", SalesSetup."Calc. Inv. Disc. per VAT ID",
+                  SalesHeader."VAT Base Discount %");
 
-            SalesLine2.SetSalesHeader(SalesHeader);
-            SalesLine2.UpdateVATOnLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
-            UpdatePrepmtLineAmount(SalesHeader);
-        end;
+                SalesLine2.SetSalesHeader(SalesHeader);
+                SalesLine2.UpdateVATOnLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
+                UpdatePrepmtLineAmount(SalesHeader);
+            end;
 
         SalesCalcDiscountByType.ResetRecalculateInvoiceDisc(SalesHeader);
         OnAfterCalcSalesDiscount(SalesHeader, TempVATAmountLine, SalesLine2);

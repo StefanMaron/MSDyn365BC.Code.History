@@ -994,6 +994,8 @@ table 25 "Vendor Ledger Entry"
         CarteraDoc: Record "Cartera Doc.";
         PostedCarteraDoc: Record "Posted Cartera Doc.";
     begin
+        OnBeforeCheckBillSituation(Rec);
+
         case true of
             CarteraDoc.Get(CarteraDoc.Type::Payable, "Entry No."):
                 if CarteraDoc."Bill Gr./Pmt. Order No." <> '' then
@@ -1345,6 +1347,11 @@ table 25 "Vendor Ledger Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAmountsForApplication(var VendorLedgerEntry: Record "Vendor Ledger Entry"; ApplnDate: Date; ApplnCurrencyCode: Code[10]; RoundAmounts: Boolean; UpdateMaxPaymentTolerance: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBillSituation(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 }

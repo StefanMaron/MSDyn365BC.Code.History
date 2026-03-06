@@ -3156,7 +3156,10 @@ table 5900 "Service Header"
             end else begin
                 ServiceHeader."Due Date" := ServiceHeader."Document Date";
                 AdjustDueDate.SalesAdjustDueDate(ServiceHeader."Due Date", ServiceHeader."Document Date", 99991231D, ServiceHeader."Bill-to Customer No.");
-                ServiceHeader."Pmt. Discount Date" := ServiceHeader."Document Date";
+                IsHandled := false;
+                OnValidatePaymentTermsCodeOnBeforeCalcPmtDiscDate(ServiceHeader, IsHandled);
+                if not IsHandled then		
+                    ServiceHeader."Pmt. Discount Date" := ServiceHeader."Document Date";
                 ServiceHeader.Validate("Payment Discount %", 0);
             end
         else
@@ -5388,6 +5391,7 @@ table 5900 "Service Header"
         ServiceContractHeader: Record "Service Contract Header";
         ServiceContractLine: Record "Service Contract Line";
         ServiceLine: Record "Service Line";
+        TempServiceLine: Record "Service Line" temporary;
         ServLedgEntriesPost: Codeunit "ServLedgEntries-Post";
         ServContractMgt: Codeunit ServContractManagement;
         ConfirmManagement: Codeunit "Confirm Management";
@@ -5397,6 +5401,8 @@ table 5900 "Service Header"
         ServiceLine.SetFilter("Appl.-to Service Entry", '>%1', 0);
         if ServiceLine.IsEmpty() then
             exit;
+        if ServiceLine.FindSet() then
+            GetAllContractLinesForInvoice(ServiceLine, TempServiceLine);
 
         if not ConfirmManagement.GetResponseOrDefault(RestoreInvoiceDatesOnDeleteInvQst, false) then
             exit;
@@ -5404,27 +5410,50 @@ table 5900 "Service Header"
         if not ServiceContractHeader.Get(ServiceContractHeader."Contract Type"::Contract, Rec."Contract No.") then
             exit;
 
-        CheckServiceLedgerEntriesCanBeReversed(Rec."Contract No.", Rec."No.");
+        TempServiceLine.SetRange("Document No.", ServiceLine."Document No.");
+        if TempServiceLine.FindSet() then
+            repeat
+                if ServiceContractHeader.Get(ServiceContractHeader."Contract Type"::Contract, TempServiceLine."Contract No.") then
+                    CheckServiceLedgerEntriesCanBeReversed(TempServiceLine."Contract No.", Rec."No.");
+            until TempServiceLine.Next() = 0;
 
         ServLedgEntriesPost.UnapplyOpenServiceLines(ServiceLine);
-
-        ServiceContractHeader.SuspendStatusCheck(true);
-        if not RestoreServiceContractDates(ServiceContractHeader) then
-            Error(CannotRestoreInvoiceDatesErr);
-        ServiceContractHeader.Modify(true);
-
-        ServContractMgt.FilterServiceContractLine(ServiceContractLine, ServiceContractHeader."Contract No.", ServiceContractHeader."Contract Type", 0);
-        ServiceContractLine.SetFilter(
-          "Starting Date", '<=%1|%2..%3', ServiceContractHeader."Next Invoice Date",
-          ServiceContractHeader."Next Invoice Period Start", ServiceContractHeader."Next Invoice Period End");
-        if ServiceContractLine.FindSet() then
+        TempServiceLine.SetRange("Document No.", ServiceLine."Document No.");
+        if TempServiceLine.FindSet() then
             repeat
-                if ServiceContractHeader."Last Invoice Date" = 0D then
-                    ServiceContractLine."Invoiced to Date" := 0D
-                else
-                    ServContractMgt.CalcInvoicedToDate(ServiceContractLine, ServiceContractLine."Starting Date", ServiceContractHeader."Next Invoice Period Start" - 1);
-                ServiceContractLine.Modify(true);
-            until ServiceContractLine.Next() = 0;
+                if ServiceContractHeader.Get(ServiceContractHeader."Contract Type"::Contract, TempServiceLine."Contract No.") then begin
+                    ServiceContractHeader.SuspendStatusCheck(true);
+                    if not RestoreServiceContractDates(ServiceContractHeader) then
+                        Error(CannotRestoreInvoiceDatesErr);
+                    ServiceContractHeader.Modify(true);
+
+                    ServContractMgt.FilterServiceContractLine(ServiceContractLine, ServiceContractHeader."Contract No.", ServiceContractHeader."Contract Type", 0);
+                    ServiceContractLine.SetFilter(
+                      "Starting Date", '<=%1|%2..%3', ServiceContractHeader."Next Invoice Date",
+                      ServiceContractHeader."Next Invoice Period Start", ServiceContractHeader."Next Invoice Period End");
+                    if ServiceContractLine.FindSet() then
+                        repeat
+                            if ServiceContractHeader."Last Invoice Date" = 0D then
+                                ServiceContractLine."Invoiced to Date" := 0D
+                            else
+                                ServContractMgt.CalcInvoicedToDate(ServiceContractLine, ServiceContractLine."Starting Date", ServiceContractHeader."Next Invoice Period Start" - 1);
+                            ServiceContractLine.Modify(true);
+                        until ServiceContractLine.Next() = 0;
+                end;
+            until TempServiceLine.Next() = 0;
+    end;
+
+    local procedure GetAllContractLinesForInvoice(ServiceLine: Record "Service Line"; var TempServiceLine: Record "Service Line" temporary)
+    var
+        ServiceLine2: Record "Service Line";
+    begin
+        ServiceLine2.CopyFilters(ServiceLine);
+        serviceLine2.SetFilter("Contract No.", '<>%1', '');
+        if ServiceLine2.FindSet() then
+            repeat
+                TempServiceLine := ServiceLine2;
+                TempServiceLine.Insert();
+            until ServiceLine2.Next() = 0;
     end;
 
     local procedure CheckServiceLedgerEntriesCanBeReversed(ContractNo: Code[20]; ServiceInvoiceNo: Code[20])
@@ -5922,6 +5951,11 @@ table 5900 "Service Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidatePaymentTermsCodeOnBeforeValidateDueDate(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePaymentTermsCodeOnBeforeCalcPmtDiscDate(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 

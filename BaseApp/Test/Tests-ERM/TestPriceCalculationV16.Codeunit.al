@@ -5736,6 +5736,177 @@ codeunit 134159 "Test Price Calculation - V16"
         LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandlerOK,GetPriceLineHandler')]
+    procedure VerifySalesLinePriceUpdateUsingGetPriceFunction()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        PriceListHeader: array[2] of Record "Price List Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+        UnitPrice: array[2] of Decimal;
+        FirstDayOfYear, LastDayOfYear : Date;
+    begin
+        // [SCENARIO 614325] Confirm sales price in sales line when sales price is updated via GetPrice function.
+        Initialize();
+
+        // [GIVEN] Calculate the first and last day of the year.
+        FirstDayOfYear := CalcDate('<-CY>', WorkDate());
+        LastDayOfYear := CalcDate('<CY>', WorkDate());
+
+        // [GIVEN] Create an Item and customer.
+        CreateItemAndCustomer(Item, Customer);
+
+        // [GIVEN] Create First Sales Price.
+        UnitPrice[1] := CreatePriceListHeader(
+            PriceListHeader[1], Customer."No.", Item."No.", FirstDayOfYear, LastDayOfYear);
+
+        // [GIVEN] Create Second Sales Price.
+        UnitPrice[2] := CreatePriceListHeader(
+            PriceListHeader[2], Customer."No.", Item."No.", CalcDate('<6M>', FirstDayOfYear), LastDayOfYear);
+
+        // [GIVEN] Set WorkDate.
+        WorkDate := CalcDate('<5M>', FirstDayOfYear);
+
+        // [GIVEN] Create a sales order.
+        LibraryVariableStorage.Enqueue(PriceListHeader[2]."Starting Date");
+
+        // [GIVEN] Create Sales Order.
+        SalesOrder.OpenNew();
+        SalesOrder."Sell-to Customer No.".SetValue(Customer."No.");
+        SalesOrder.SalesLines.Type.SetValue(2);
+        SalesOrder.SalesLines."No.".SetValue(Item."No.");
+
+        // [WHEN] Quantity is inserted in the Sales Line table.
+        SalesOrder.SalesLines.Quantity.SetValue(1);
+
+        // [THEN] Verify Sales Line Unit Price.
+        Assert.Equal(UnitPrice[1], SalesOrder.SalesLines."Unit Price".AsDecimal());
+
+        // [GIVEN] Update the Posting Date and Order Date on the Sales Order.
+        SalesOrder."Posting Date".SetValue(CalcDate('<2M>', WorkDate()));
+        SalesOrder."Order Date".SetValue(CalcDate('<2M>', WorkDate()));
+
+        // [WHEN] Get Prices Action was invoked.
+        SalesOrder.SalesLines.GetPrices.Invoke();
+
+        // [GIVEN] Find Updated Sales Line.
+        FindSalesLine(SalesLine, SalesOrder."No.".Value(), Item."No.");
+
+        // [THEN] No error occurred and the unit price is updating in the sales line from the sales price.
+        Assert.AreEqual(
+            UnitPrice[2], SalesLine."Unit Price",
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                SalesLine.FieldCaption("Unit Price"),
+                UnitPrice[2],
+                SalesLine.TableCaption()));
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure VerifySalesLineDiscountUpdateWhenIncludeVariant()
+    var
+        Customer: Record Customer;
+        CustomerDiscountGroup: Record "Customer Discount Group";
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        ItemDiscountGroup: Record "Item Discount Group";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        OldHandler: Enum "Price Calculation Handler";
+        ItemPrice: Decimal;
+        ItemVariantPrice: Decimal;
+        DiscountPct: Decimal;
+        ErrorMessage: Text;
+    begin
+        // [FEATURE] [SalesPrice] [Item] [Variant]
+        Initialize();
+
+        // [GIVEN] Default price calculation is 'V16'
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        // [GIVEN] Customer 'A' with Customer Discount Group 'D'
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreateCustomerDiscountGroup(CustomerDiscountGroup);
+        Customer."Customer Disc. Group" := CustomerDiscountGroup.Code;
+        Customer.Modify(true);
+
+        // [GIVEN] Item 'I' with Variant 'V' and Item Discount Group 'X'
+        LibraryInventory.CreateItem(Item);
+        LibraryERM.CreateItemDiscountGroup(ItemDiscountGroup);
+        Item."Item Disc. Group" := ItemDiscountGroup.Code;
+        item.Modify();
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+
+        // [GIVEN] Random Item Price and Variant Price
+        ItemPrice := LibraryRandom.RandDecInRange(50, 100, 0);
+        ItemVariantPrice := LibraryRandom.RandDec(ItemPrice - 1, 0);
+        DiscountPct := LibraryRandom.RandIntInRange(5, 20);
+
+        // [GIVEN] Active Price List for 'All Customers'
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        
+        // [GIVEN] Price Line for customer discount group 'D' and Item Discount Group = X
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader.Code, "Price Type"::Sale, PriceListLine."Source Type"::"Customer Disc. Group", CustomerDiscountGroup.Code, "Price Amount Type"::Discount, "Price Asset Type"::"Item Discount Group", ItemDiscountGroup.Code);
+        PriceListLine.Validate("Line Discount %", DiscountPct);
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Modify(true);
+
+        Clear(PriceListLine);
+        Clear(PriceListHeader);
+        // [GIVEN] Active Price List for 'All Customers'
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+
+        // [GIVEN] Price Line for Item 'I' and Variant 'V' with Unit Price = 100
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Any, "Price Asset Type"::Item, Item."No.");
+        PriceListLine.Validate("Variant Code", ItemVariant.Code);
+        PriceListLine.Validate("Unit Price", ItemVariantPrice);
+        PriceListLine.Validate("Line Discount %", 0);
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Modify(true);
+
+        // [GIVEN] Price Line for Item 'I' (no variant) with Unit Price = 200
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Any, "Price Asset Type"::Item, Item."No.");
+        PriceListLine.Validate("Unit Price", ItemPrice);
+        PriceListLine.Validate("Line Discount %", 0);
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Modify(true);
+
+        // [GIVEN] Sales Quote for Customer 'A'
+        LibrarySales.CreateSalesHeader(SalesHeader, "Sales Document Type"::Quote, Customer."No.");
+
+        // [WHEN] Create Sales Line for Item 'I' (without variant)
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, "Sales Line Type"::Item, Item."No.", 1);
+
+        // [THEN] Unit Price is 200 (Base item price) and Discount % is applied
+        ErrorMessage := 'Without variant: ' + ValueMustBeEqualErr;
+        Assert.AreEqual(ItemPrice, SalesLine."Unit Price",
+            StrSubstNo(ErrorMessage, SalesLine.FieldCaption("Unit Price"), ItemPrice, SalesLine.TableCaption()));
+        Assert.AreEqual(DiscountPct, SalesLine."Line Discount %",
+            StrSubstNo(ErrorMessage, SalesLine.FieldCaption("Line Discount %"), DiscountPct, SalesLine.TableCaption()));
+
+        // [WHEN] Validate Variant Code 'V' on Sales Line
+        SalesLine.Validate("Variant Code", ItemVariant.Code);
+
+        // [THEN] Unit Price is 100 (Specific variant price) and Discount % is applied
+        ErrorMessage := 'With variant: ' + ValueMustBeEqualErr;
+        Assert.AreEqual(ItemVariantPrice, SalesLine."Unit Price",
+            StrSubstNo(ErrorMessage, SalesLine.FieldCaption("Unit Price"), ItemVariantPrice, SalesLine.TableCaption()));
+        Assert.AreEqual(DiscountPct, SalesLine."Line Discount %",
+            StrSubstNo(ErrorMessage, SalesLine.FieldCaption("Line Discount %"), DiscountPct, SalesLine.TableCaption()));
+
+        // Cleanup: Restore default handler
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6570,10 +6741,10 @@ codeunit 134159 "Test Price Calculation - V16"
             SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesOrdertNo: Code[20]; ItemNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesOrderNo: Code[20]; ItemNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
-        SalesLine.SetRange("Document No.", SalesOrdertNo);
+        SalesLine.SetRange("Document No.", SalesOrderNo);
         SalesLine.SetRange("No.", ItemNo);
         SalesLine.FindFirst();
     end;

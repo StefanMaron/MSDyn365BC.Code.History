@@ -2526,7 +2526,7 @@ page 43 "Sales Invoice"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnPostDocumentOnElseCaseNavigateAfterPosting(var SalesHeader: Record "Sales Header"; PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")
     begin
     end;

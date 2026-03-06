@@ -5,6 +5,42 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 1458306441 - NamedType 323454483" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[QR code should be generated for document %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Document number]D;]A;(Namespace=Microsoft.EServices.EDocument.Verifactu.Test)(LookupHint=Codeunit Test Verifactu Export - NamedType QRCodeShouldBeGeneratedForDocumentLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1458306441 - NamedType 84544122" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Service Credit Memo %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Credit memo number]D;]A;(Namespace=Microsoft.EServices.EDocument.Verifactu.Test)(LookupHint=Codeunit Test Verifactu Export - NamedType TestServiceCreditMemoLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1458306441 - NamedType 2259070884" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Service Invoice %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Invoice number]D;]A;(Namespace=Microsoft.EServices.EDocument.Verifactu.Test)(LookupHint=Codeunit Test Verifactu Export - NamedType TestServiceInvoiceLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1458306441 - NamedType 1103707847" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[XML should contain document %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Document number]D;]A;(Namespace=Microsoft.EServices.EDocument.Verifactu.Test)(LookupHint=Codeunit Test Verifactu Export - NamedType XMLShouldContainDocumentLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2030085112 - NamedType 944894587" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[SII setup will be disabled. Do you want to proceed?]]></Val>

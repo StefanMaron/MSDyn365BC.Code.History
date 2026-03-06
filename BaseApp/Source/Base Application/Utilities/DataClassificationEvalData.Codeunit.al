@@ -3851,18 +3851,13 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToCompanyConfidential(TableNo, DummyAgentTaskLogEntry.FieldNo("Description"));
         SetFieldToCompanyConfidential(TableNo, DummyAgentTaskLogEntry.FieldNo("Page Caption"));
 
-        // Agent developer toolkit
-        SetTableFieldsToNormal(4301); // "Agent Task Template"
-        SetTableFieldsToNormal(4302); // "Agent Message Template"
-        SetTableFieldsToNormal(4315); // "Developer Agent"
-        SetFieldToCompanyConfidential(4315, 2); // Instructions
-        SetTableFieldsToNormal(4316); // "Custom Agent Instructions Log"
-        SetFieldToCompanyConfidential(4316, 3); // Instructions
-
-        // No-code agent 
-        SetTableFieldsToNormal(4387); // No-Code Agent Setup
-        SetFieldToPersonal(4387, 1); // Agent User Security Id
-        SetFieldToPersonal(4387, 2); // Agent Initials
+        // Agent Designer
+        SetTableFieldsToNormal(4350); // "Custom Agent Setup"
+        SetFieldToCompanyConfidential(4350, 2); // Instructions
+        SetTableFieldsToNormal(4352); // "Custom Agent Instructions Log"
+        SetFieldToCompanyConfidential(4352, 3); // Instructions
+        SetTableFieldsToNormal(4356); // "Agent Message Template"
+        SetTableFieldsToNormal(4357); // "Agent Task Template"
 
         // following tables are internal but still require classification
         SetTableFieldsToNormal(2000000258); // Agent Data table
@@ -3904,6 +3899,13 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToCompanyConfidential(2000000281, 6); // Description
         SetFieldToCompanyConfidential(2000000281, 8); // Page Caption
         SetFieldToCompanyConfidential(2000000281, 9); // Client Context
+
+        SetTableFieldsToNormal(2000000298); // Agent Troubleshoot Info Data table
+        SetFieldToCompanyConfidential(2000000298, 4); // Troubleshooting Info
+        SetFieldToPersonal(2000000298, 5); // Agent User Security Id
+
+        SetTableFieldsToNormal(2000000239); // Tenant Application Storage Data table
+        SetFieldToCompanyConfidential(2000000239, 11); // Blob
     end;
 
     local procedure ClasifyScheduledPerformanceProfiling()
