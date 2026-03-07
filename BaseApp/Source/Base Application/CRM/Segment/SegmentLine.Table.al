@@ -1771,6 +1771,46 @@ table 5077 "Segment Line"
 
     end;
 
+    internal procedure CreateSegLineInteractionFromContactForEmail(var Contact: Record Contact)
+    var
+        Opportunity: Record Opportunity;
+        SegManagementMgt: Codeunit SegManagement;
+    begin
+        DeleteAll();
+        Init();
+
+        if Contact.Type = Contact.Type::Person then
+            SetRange("Contact Company No.", Contact."Company No.");
+        SetRange("Contact No.", Contact."No.");
+        Validate("Contact No.", Contact."No.");
+
+        "Salesperson Code" := FindSalespersonByUserEmail();
+        if "Salesperson Code" = '' then
+            "Salesperson Code" := Contact."Salesperson Code";
+        if GlobalCampaign.Get("Campaign No.") then
+            "Campaign Description" := GlobalCampaign.Description;
+        if Opportunity.Get("Opportunity No.") then
+            "Opportunity Description" := Opportunity.Description;
+        "Interaction Successful" := true;
+        Validate(Date, WorkDate());
+        "Time of Interaction" := DT2Time(RoundDateTime(CurrentDateTime + 1000, 60000, '>'));
+        Insert();
+        Validate("Interaction Template Code", GetInteractionTemplateCodeForEmail());
+
+        SegManagementMgt.LogInteraction(Rec, TempAttachment, TempInterLogEntryCommentLine, true, false);
+    end;
+
+    local procedure GetInteractionTemplateCodeForEmail(): Code[10]
+    var
+        InteractionTemplateSetup: Record "Interaction Template Setup";
+    begin
+        if not InteractionTemplateSetup.ReadPermission() then
+            exit('');
+
+        if InteractionTemplateSetup.Get() then
+            exit(InteractionTemplateSetup."E-Mails");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckStatus(var SegmentLine: Record "Segment Line")
     begin
