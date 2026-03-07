@@ -1142,6 +1142,11 @@ table 337 "Reservation Entry"
         end;
     end;
 
+    procedure HasNoTrackingWithSpec() IsNoTracking: Boolean
+    begin
+        IsNoTracking := ("Serial No." = '') and ("Lot No." = '') and ("Package No." = '');
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromItemLedgEntry(var ReservationEntry: Record "Reservation Entry"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin

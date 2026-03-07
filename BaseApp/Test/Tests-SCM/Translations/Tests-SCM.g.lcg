@@ -6611,6 +6611,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Orders V - NamedType ChangeBillToCustomerNoConfirmQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3152970314 - NamedType 870456264" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Changing the contact number must not create a duplicate task]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Orders V - NamedType ContactNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3152970314 - NamedType 2620270689" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Extended text of the BOM component.]]></Val>
@@ -6753,6 +6762,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Orders V - NamedType UndoReturnShipmentMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3152970314 - NamedType 2680344235" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Original task must have a new contact number]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Orders V - NamedType UpdateTaskErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3152970314 - NamedType 3535663031" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
