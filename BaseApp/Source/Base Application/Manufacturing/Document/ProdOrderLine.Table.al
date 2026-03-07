@@ -1408,8 +1408,8 @@ table 5406 "Prod. Order Line"
         CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
         QtyReserved := "Reserved Quantity";
         QtyReservedBase := "Reserved Qty. (Base)";
-        QtyToReserve := "Remaining Quantity";
-        QtyToReserveBase := "Remaining Qty. (Base)";
+        QtyToReserve := "Remaining Quantity" - "Reserved Quantity";
+        QtyToReserveBase := "Remaining Qty. (Base)" - "Reserved Qty. (Base)";
         exit("Qty. per Unit of Measure");
     end;
 
