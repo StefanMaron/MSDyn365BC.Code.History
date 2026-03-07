@@ -1796,6 +1796,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Copy Purch/Sales Doc - NamedType OneLineShouldBeCopiedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 556740976 - NamedType 1831704050" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Sales Line qty. to ship must not be zero]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Copy Purch/Sales Doc - NamedType SalesLineQtyToShipErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 556740976 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be equal to %2 in the %3.]]></Val>

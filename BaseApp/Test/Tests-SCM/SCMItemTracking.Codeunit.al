@@ -33,6 +33,7 @@ codeunit 137405 "SCM Item Tracking"
         AssignSerialNo: Boolean;
         QtyToHandleMismatchErr: Label 'Quantity to handle in inbound and outbound entries does not match.';
         ItemTrackSpecNotFoundErr: Label 'Item tracking specification for transfer line is not found.';
+        OrderPromising: Option CapableToPromise,AvailableToPromise;
         TrackingOptionStr: Option AssignSerialNo,AssignLotNo,SelectEntries,SetLotQty,VerifyLotQty;
         PostedWhseQuantityErr: Label 'Posted Warehouse Shipment must have same quantity as Warehouse Shipment';
         WrongExpDateErr: Label 'Wrong expiration date in %1 No. %2';
@@ -5158,7 +5159,7 @@ codeunit 137405 "SCM Item Tracking"
 
         // [GIVEN] Create Serial Item Tracking Code.
         CreateSerialItemTrackingCode(ItemTrackingCode);
- 
+
 
         // [GIVEN] Create Item with Serial Item Tracking Code and
         // Validate "Use Expiration Dates" and "Strict Expiration Posting".
@@ -5227,6 +5228,74 @@ codeunit 137405 "SCM Item Tracking"
 
         // [VERIFY] Warehouse Activity Lineis found.
         Assert.IsFalse(WhseActivityLine.IsEmpty(), WhseActivityLineMustBeFoundErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('OrderPromisingLinesPageHandler,ItemTrackingLinesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure OrderToOrderBindingWithAsymmetricTracking()
+    var
+        Item: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        RequisitionLine: Record "Requisition Line";
+        Vendor: Record Vendor;
+        Purchasing: Record Purchasing;
+        LibraryRandom: Codeunit "Library - Random";
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 617550] Item tracking can be assigned on demand side when supply doesn't require tracking in Order-to-Order binding
+        Initialize();
+
+        //[GIVEN] Create item tracking code with SN only on sales outbound
+        CreateItemTrackingCodeSNSalesOnly(ItemTrackingCode);
+
+        //[GIVEN] Create item with this tracking code
+        CreateItemWithItemTrackingCode(Item, ItemTrackingCode);
+
+        //[GIVEN]  Create vendor and Quantity = 1
+        LibraryPurchase.CreateVendor(Vendor);
+        Quantity := LibraryRandom.RandIntInRange(1, 1);
+
+        // [GIVEN] Sales Order for the item
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
+            '', Item."No.", Quantity, '', WorkDate());
+
+        // [GIVEN] Run Capable-to-Promise from "SO".
+        RunOrderPromisingFromSalesHeader(SalesHeader, OrderPromising::CapableToPromise, true);
+
+        // Commit before planning to ensure all records are visible to the planning engine
+        Commit();
+
+        // [GIVEN] Calculate regenerative plan for item "I"
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
+        LibraryPurchase.CreatePurchasingCode(Purchasing);
+        SelectRequisitionLine(RequisitionLine, Item."No.");
+        RequisitionLine.Validate("Accept Action Message", true);
+        RequisitionLine.Validate("Vendor No.", Vendor."No.");
+        RequisitionLine.Validate("Purchasing Code", Purchasing.Code);
+        RequisitionLine.Modify(true);
+        Commit();
+
+        // [GIVEN] Carry out action message from the planning worksheet
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
+        Commit();
+        FindPurchLine(PurchaseLine, Item."No.");
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+
+        // [GIVEN] Purchase order is received (no serial numbers required or assigned on purchase)
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [WHEN] Assign serial numbers on the sales order line
+        LibraryVariableStorage.Enqueue(TrackingOptionStr::AssignSerialNo);
+        SalesLine.Find(); // Refresh
+        SalesLine.OpenItemTrackingLines();
+
+        // [THEN] No error is raised at the time of assignment of serial numbers and close the page.
     end;
 
     local procedure Initialize()
@@ -6979,7 +7048,7 @@ codeunit 137405 "SCM Item Tracking"
         LibraryInventory.CreateItemJournalLine(
             ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
             ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
-        
+
         ItemJournalLine.Validate("Location Code", LocationCode);
         ItemJournalLine.Validate("Bin Code", Bin.Code);
         ItemJournalLine.Modify(true);
@@ -7016,6 +7085,56 @@ codeunit 137405 "SCM Item Tracking"
         SalesLine.Modify(true);
 
         LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
+    local procedure RunOrderPromisingFromSalesHeader(SalesHeader: Record "Sales Header"; OrderPromisingValue: Option; Accept: Boolean)
+    var
+        SalesOrder: TestPage "Sales Order";
+    begin
+        LibraryVariableStorage.Enqueue(OrderPromisingValue);
+        LibraryVariableStorage.Enqueue(Accept);
+        SalesOrder.OpenEdit();
+        SalesOrder.GotoRecord(SalesHeader);
+        SalesOrder.OrderPromising.Invoke();
+    end;
+
+    local procedure SelectRequisitionLine(var RequisitionLine: Record "Requisition Line"; No: Code[20])
+    begin
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", No);
+        RequisitionLine.FindFirst();
+    end;
+
+    local procedure CreateItemTrackingCodeSNSalesOnly(var ItemTrackingCode: Record "Item Tracking Code")
+    begin
+        // Create tracking code that requires SN only on sales outbound (like SNSALES)
+        Clear(ItemTrackingCode);
+        ItemTrackingCode.Validate(Code,
+            LibraryUtility.GenerateRandomCode(ItemTrackingCode.FieldNo(Code), Database::"Item Tracking Code"));
+        ItemTrackingCode.Validate("SN Specific Tracking", false);
+        ItemTrackingCode.Insert(true);
+
+        // Set tracking only on sales outbound
+        ItemTrackingCode.Validate("SN Sales Outbound Tracking", true);
+        ItemTrackingCode.Modify(true);
+    end;
+
+    local procedure FindPurchLine(var PurchLine: Record "Purchase Line"; ItemNo: Code[20])
+    begin
+        PurchLine.SetRange(Type, PurchLine.Type::Item);
+        PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
+        PurchLine.SetRange("No.", ItemNo);
+        PurchLine.FindFirst();
+    end;
+
+    local procedure CreateItemWithItemTrackingCode(var Item: Record Item; ItemTrackingCode: Record "Item Tracking Code")
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
+        Item.Modify(true);
     end;
 
     [ModalPageHandler]
@@ -7351,6 +7470,51 @@ codeunit 137405 "SCM Item Tracking"
         end;
 
         ItemTrkgLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingLinesModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        OptionValue: Variant;
+        TrackingOptionLocal: Option;
+    begin
+        LibraryVariableStorage.Dequeue(OptionValue);
+        TrackingOptionLocal := OptionValue;
+
+        case TrackingOptionLocal of
+            TrackingOptionStr::AssignSerialNo:
+                ItemTrackingLines."Assign Serial No.".Invoke();
+            TrackingOptionStr::SelectEntries:
+                ItemTrackingLines."Select Entries".Invoke();
+        end;
+
+        ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure OrderPromisingLinesPageHandler(var OrderPromisingLines: TestPage "Order Promising Lines")
+    var
+        Accept: Boolean;
+    begin
+        case LibraryVariableStorage.DequeueInteger() of
+            OrderPromising::CapableToPromise:
+                OrderPromisingLines.CapableToPromise.Invoke();
+            OrderPromising::AvailableToPromise:
+                OrderPromisingLines.AvailableToPromise.Invoke();
+        end;
+        Accept := LibraryVariableStorage.DequeueBoolean();
+
+        OrderPromisingLines.First();
+        LibraryVariableStorage.Enqueue(OrderPromisingLines."Planned Delivery Date".AsDate());
+        LibraryVariableStorage.Enqueue(OrderPromisingLines."Original Shipment Date".AsDate());
+        LibraryVariableStorage.Enqueue(OrderPromisingLines."Earliest Shipment Date".AsDate());
+        LibraryVariableStorage.Enqueue(OrderPromisingLines.Quantity.AsDecimal());
+
+        if Accept then
+            OrderPromisingLines.AcceptButton.Invoke()
+        else
+            OrderPromisingLines.OK().Invoke();
     end;
 
     [MessageHandler]
