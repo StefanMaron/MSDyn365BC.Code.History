@@ -17,6 +17,7 @@ codeunit 136309 "Job Posting"
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryResource: Codeunit "Library - Resource";
         LibrarySales: Codeunit "Library - Sales";
@@ -54,6 +55,7 @@ codeunit 136309 "Job Posting"
         PostJournaLinesQst: Label 'Do you want to post the journal lines?';
         UsageWillNotBeLinkedQst: Label 'Usage will not be linked to the project planning line because the Line Type field is empty.';
         WrongPostPreviewErr: Label 'Expected empty error from Preview. Actual error: ';
+        DirectUnitCostLCYLbl: Label '%1 must not changed after changing %2 in %3.', Comment = '%1= Field Name, %2= Field Name, %3= Table Name';
 
     [Test]
     [HandlerFunctions('MessageHandler,ConfirmHandlerTrue')]
@@ -2374,6 +2376,83 @@ codeunit 136309 "Job Posting"
         Assert.AreEqual(ResLedgerEntry."Entry No.", ResourceRegister."From Entry No.", 'incorrect resource register From Entry No.');
         ResLedgerEntry.FindLast();
         Assert.AreEqual(ResLedgerEntry."Entry No.", ResourceRegister."To Entry No.", 'incorrect resource register To Entry No.');
+    end;
+
+    [Test]
+    procedure DirectUnitCostFromResourceInJobJnlLineWhenQuantityChanged()
+    var
+        Currency: Record Currency;
+        PriceCalculationSetup: Record "Price Calculation Setup";
+        PriceListLine: Record "Price List Line";
+        Resource: Record Resource;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobJournalLine: Record "Job Journal Line";
+        ExchRate: Decimal;
+        UnitCostLCY: Decimal;
+        UnitCostFCY: Decimal;
+        DirectUnitCostLCY: Decimal;
+    begin
+        // [SCENARIO 608945] Direct Unit Cost (LCY) field in Project Journal displays the Value Converted to Foreign Currency if Project has Foreign Currency.
+        Initialize();
+
+        ExchRate := LibraryRandom.RandIntInRange(2, 5);
+        UnitCostLCY := LibraryRandom.RandDec(100, 2);
+        UnitCostFCY := UnitCostLCY * ExchRate;
+
+        // [GIVEN] Enable new prices expirience.
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        PriceCalculationSetup.DeleteAll();
+        LibraryPriceCalculation.AddSetup(
+            PriceCalculationSetup,
+            "Price Calculation Method"::"Lowest Price",
+            "Price Type"::Purchase,
+            "Price Asset Type"::" ",
+            "Price Calculation Handler"::"Business Central (Version 16.0)",
+            true);
+
+        // [GIVEN] Currency "FCY", set exchange rate 1 "LCY" = 1.5 "FCY".
+        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchRate, ExchRate));
+
+        // [GIVEN] Job with Currency Code = "FCY".
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Currency Code", Currency.Code);
+        Job.Modify(true);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Create Resource.
+        Resource.Get(LibraryJob.CreateConsumable("Job Planning Line Type"::Resource));
+
+        // [GIVEN] Create purchase price for the job and resource:
+        LibraryPriceCalculation.CreatePurchPriceLine(
+             PriceListLine,
+             '',
+             "Price Source Type"::Job,
+             Job."No.",
+             "Price Asset Type"::Resource,
+             Resource."No.");
+        PriceListLine.Validate("Currency Code", Currency.Code);
+        PriceListLine.Validate("Direct Unit Cost", UnitCostFCY);
+        PriceListLine.Validate("Unit Cost", UnitCostFCY);
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine.Modify();
+
+        // [WHEN] Create job journal line, select the job and resource "R".
+        LibraryJob.CreateJobJournalLineForType("Job Line Type"::" ", JobJournalLine.Type::Resource, JobTask, JobJournalLine);
+        JobJournalLine.Validate("No.", Resource."No.");
+        DirectUnitCostLCY := JobJournalLine."Direct Unit Cost (LCY)";
+        JobJournalLine.Validate(Quantity, LibraryRandom.RandIntInRange(2, 5));
+        JobJournalLine.Modify(true);
+
+        // [THEN] Direct Unit Cost (LCY) should not be changed when quantity is changed.
+        Assert.AreEqual(
+            DirectUnitCostLCY,
+            JobJournalLine."Direct Unit Cost (LCY)",
+            StrSubstNo(
+                DirectUnitCostLCYLbl,
+                JobJournalLine.FieldCaption("Direct Unit Cost (LCY)"),
+                JobJournalLine.FieldCaption(Quantity),
+                JobJournalLine.TableCaption()));
     end;
 
     local procedure Initialize()

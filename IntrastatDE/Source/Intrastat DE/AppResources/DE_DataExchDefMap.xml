@@ -143,7 +143,7 @@
         <DataExchFieldMapping ColumnNo="2" FieldID="23" Optional="true" />
         <DataExchFieldMapping ColumnNo="4" FieldID="5" Optional="true" TransformationRule="ALPHANUM_ONLY" />
         <DataExchFieldMapping ColumnNo="5" FieldID="6" Optional="true" />
-        <DataExchFieldMapping ColumnNo="6" FieldID="7" Optional="true" />
+        <DataExchFieldMapping ColumnNo="6" FieldID="101" Optional="true" />
         <DataExchFieldMapping ColumnNo="7" FieldID="24" Optional="true" />
         <DataExchFieldMapping ColumnNo="8" FieldID="21" Optional="true" TransformationRule="ROUNDTOINT">
           <TransformationRules>
@@ -374,7 +374,7 @@
         <DataExchFieldMapping ColumnNo="2" FieldID="23" Optional="true" />
         <DataExchFieldMapping ColumnNo="4" FieldID="5" Optional="true" TransformationRule="ALPHANUM_ONLY" />
         <DataExchFieldMapping ColumnNo="5" FieldID="6" Optional="true" />
-        <DataExchFieldMapping ColumnNo="6" FieldID="7" Optional="true" />
+        <DataExchFieldMapping ColumnNo="6" FieldID="101" Optional="true" />
         <DataExchFieldMapping ColumnNo="7" FieldID="24" Optional="true" />
         <DataExchFieldMapping ColumnNo="8" FieldID="21" Optional="true" TransformationRule="ROUNDTOINT">
           <TransformationRules>

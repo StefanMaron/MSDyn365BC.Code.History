@@ -1783,7 +1783,8 @@ codeunit 7307 "Whse.-Activity-Register"
                                                      (ReservEntry."Source Ref. No." = WhseActivLine."Source Subline No."))) and
                                                not ReservEntry.Positive
                                             then
-                        QtyBasePicked := QtyBasePicked + Abs(ReservEntry."Quantity (Base)");
+                        if HasSourceLineActuallyBeenPicked(ReservEntry) then
+                            QtyBasePicked := QtyBasePicked + Abs(ReservEntry."Quantity (Base)");
                 end else
                     if not ((ReservEntry."Source Type" = WhseActivLine."Source Type") and
                             (ReservEntry."Source Subtype" = WhseActivLine."Source Subtype") and
@@ -1792,12 +1793,32 @@ codeunit 7307 "Whse.-Activity-Register"
                              (ReservEntry."Source Ref. No." = WhseActivLine."Source Subline No."))) and
                        not ReservEntry.Positive
                     then
-                        QtyBasePicked := QtyBasePicked + Abs(ReservEntry."Quantity (Base)");
+                        if HasSourceLineActuallyBeenPicked(ReservEntry) then
+                            QtyBasePicked := QtyBasePicked + Abs(ReservEntry."Quantity (Base)");
             until ReservEntry.Next() = 0;
 
         CalcQtyBasePicked(WhseActivLine, WhseItemTrackingSetup, QtyBasePicked);
 
         exit(QtyBasePicked);
+    end;
+
+    local procedure HasSourceLineActuallyBeenPicked(ReservEntry: Record "Reservation Entry"): Boolean
+    var
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseShipmentLine.SetSourceFilter(ReservEntry."Source Type", ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.", false);
+        WarehouseShipmentLine.SetFilter("Qty. Picked (Base)", '>0');
+        if not WarehouseShipmentLine.IsEmpty() then
+            exit(true);
+
+        WarehouseActivityLine.SetSourceFilter(ReservEntry."Source Type", ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.", -1, true);
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.SetFilter("Action Type", '%1|%2', WarehouseActivityLine."Action Type"::Take, WarehouseActivityLine."Action Type"::" ");
+        if not WarehouseActivityLine.IsEmpty() then
+            exit(true);
+
+        exit(false);
     end;
 
     local procedure CalcQtyBasePicked(WhseActivLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"; var QtyBasePicked: Decimal)
