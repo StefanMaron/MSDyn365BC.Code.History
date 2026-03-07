@@ -1121,8 +1121,8 @@ table 900 "Assembly Header"
         CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
         QtyReserved := "Reserved Quantity";
         QtyReservedBase := "Reserved Qty. (Base)";
-        QtyToReserve := "Remaining Quantity";
-        QtyToReserveBase := "Remaining Quantity (Base)";
+        QtyToReserve := "Remaining Quantity" - "Reserved Quantity";
+        QtyToReserveBase := "Remaining Quantity (Base)" - "Reserved Qty. (Base)";
         exit("Qty. per Unit of Measure");
     end;
 

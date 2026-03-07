@@ -108,16 +108,18 @@ report 1086 "Job Calculate WIP"
                 InfoMsg := Text002
             else
                 InfoMsg := Text000;
-            if DIALOG.Confirm(InfoMsg + PreviewQst) then begin
-                JobWIPEntry.SetRange("Job No.", Job."No.");
-                PAGE.RunModal(PAGE::"Job WIP Entries", JobWIPEntry);
+            if (not HideValidationDialog) and GuiAllowed() then
+                if DIALOG.Confirm(InfoMsg + PreviewQst) then begin
+                    JobWIPEntry.SetRange("Job No.", Job."No.");
+                    PAGE.RunModal(PAGE::"Job WIP Entries", JobWIPEntry);
 
-                WIPQst := StrSubstNo(RunWIPFunctionsQst, 'Project Post WIP to G/L');
-                if DIALOG.Confirm(WIPQst) then
-                    REPORT.RunModal(REPORT::"Job Post WIP to G/L", true, false, Job);
-            end;
+                    WIPQst := StrSubstNo(RunWIPFunctionsQst, 'Project Post WIP to G/L');
+                    if DIALOG.Confirm(WIPQst) then
+                        REPORT.RunModal(REPORT::"Job Post WIP to G/L", true, false, Job);
+                end;
         end else
-            Message(Text001);
+            if (not HideValidationDialog) and GuiAllowed() then
+                Message(Text001);
     end;
 
     trigger OnPreReport()
@@ -170,10 +172,16 @@ report 1086 "Job Calculate WIP"
         PostingDate: Date;
         DocNo: Code[20];
         WIPPostedWithWarnings: Boolean;
+        HideValidationDialog: Boolean;
 
     procedure InitializeRequest()
     begin
         PostingDate := WorkDate();
+    end;
+
+    procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
+    begin
+        HideValidationDialog := NewHideValidationDialog;
     end;
 }
 
