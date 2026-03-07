@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+#if not CLEAN28
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -18,6 +19,9 @@ report 10940 "VAT Reconciliation A"
     ApplicationArea = Basic, Suite;
     Caption = 'VAT Reconciliation A';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteReason = 'Use 14601 IS VAT Reconciliation A instead.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '28.0';
 
     dataset
     {
@@ -396,4 +400,4 @@ report 10940 "VAT Reconciliation A"
             Error(PeriodErr);
     end;
 }
-
+#endif
