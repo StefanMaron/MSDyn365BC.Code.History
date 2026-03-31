@@ -119,9 +119,11 @@ table 9640 "Table Relations Buffer"
         if not TableMetadata.Get(TableId) then
             Error('Table with ID %1 does not exist.', TableId);
 
+        if (TableMetadata.ObsoleteState = TableMetadata.ObsoleteState::Removed) then
+            exit(false);
+
         exit((TableMetadata.TableType = TableMetadata.TableType::Normal) and
               (TableMetadata.Access = TableMetadata.Access::Public) and
-              (TableMetadata.ObsoleteState <> TableMetadata.ObsoleteState::Removed) and
               ((TableMetadata.Scope = TableMetadata.Scope::Cloud) or EnvironmentInformation.IsOnPrem()) and
               DoesTheTableHavePages(TableId) and HasReadPermission(TableId));
     end;
