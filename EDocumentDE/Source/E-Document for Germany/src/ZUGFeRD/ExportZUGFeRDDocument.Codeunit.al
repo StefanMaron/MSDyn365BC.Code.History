@@ -4,8 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument.Formats;
 
-using Microsoft.eServices.EDocument;
 using Microsoft.CRM.Team;
+using Microsoft.eServices.EDocument;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Setup;
@@ -674,7 +674,7 @@ codeunit 13917 "Export ZUGFeRD Document"
 
     local procedure InsertApplicableHeaderTradeDelivery(var RootXMLNode: XmlElement; SalesInvoiceHeader: Record "Sales Invoice Header")
     var
-        DeliveryElement, ShipToPartyElement, PostalAddressElement : XmlElement;
+        DeliveryElement, ShipToPartyElement, PostalAddressElement, ActualDeliveryDateElement, OccurrenceDateTimeElement : XmlElement;
     begin
         DeliveryElement := XmlElement.Create('ApplicableHeaderTradeDelivery', XmlNamespaceRAM);
 
@@ -689,12 +689,19 @@ codeunit 13917 "Export ZUGFeRD Document"
 
         ShipToPartyElement.Add(PostalAddressElement);
         DeliveryElement.Add(ShipToPartyElement);
+
+        ActualDeliveryDateElement := XmlElement.Create('ActualDeliverySupplyChainEvent', XmlNamespaceRAM);
+        OccurrenceDateTimeElement := XmlElement.Create('OccurrenceDateTime', XmlNamespaceRAM);
+        OccurrenceDateTimeElement.Add(XmlElement.Create('DateTimeString', XmlNamespaceUDT, XmlAttribute.Create('format', '102'), FormatDate(SalesInvoiceHeader."Shipment Date")));
+        ActualDeliveryDateElement.Add(OccurrenceDateTimeElement);
+        DeliveryElement.Add(ActualDeliveryDateElement);
+
         RootXMLNode.Add(DeliveryElement);
     end;
 
     local procedure InsertApplicableHeaderTradeDelivery(var RootXMLNode: XmlElement; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     var
-        DeliveryElement, ShipToPartyElement, PostalAddressElement : XmlElement;
+        DeliveryElement, ShipToPartyElement, PostalAddressElement, ActualDeliveryDateElement, OccurrenceDateTimeElement : XmlElement;
     begin
         DeliveryElement := XmlElement.Create('ApplicableHeaderTradeDelivery', XmlNamespaceRAM);
 
@@ -709,6 +716,13 @@ codeunit 13917 "Export ZUGFeRD Document"
 
         ShipToPartyElement.Add(PostalAddressElement);
         DeliveryElement.Add(ShipToPartyElement);
+
+        ActualDeliveryDateElement := XmlElement.Create('ActualDeliverySupplyChainEvent', XmlNamespaceRAM);
+        OccurrenceDateTimeElement := XmlElement.Create('OccurrenceDateTime', XmlNamespaceRAM);
+        OccurrenceDateTimeElement.Add(XmlElement.Create('DateTimeString', XmlNamespaceUDT, XmlAttribute.Create('format', '102'), FormatDate(SalesCrMemoHeader."Shipment Date")));
+        ActualDeliveryDateElement.Add(OccurrenceDateTimeElement);
+        DeliveryElement.Add(ActualDeliveryDateElement);
+
         RootXMLNode.Add(DeliveryElement);
     end;
 
@@ -768,7 +782,7 @@ codeunit 13917 "Export ZUGFeRD Document"
             repeat
                 if LineVATAmount.ContainsKey(SalesInvLine."VAT %") and LineAmount.ContainsKey(SalesInvLine."VAT %") then begin
                     InsertTaxElement(SettlementElement, FormatDecimal(LineVATAmount.Get(SalesInvLine."VAT %")), FormatDecimal(LineAmount.Get(SalesInvLine."VAT %")),
-                        GetTaxCategoryID(SalesInvLine."Tax Category", SalesInvLine."VAT Bus. Posting Group", SalesInvLine."VAT Prod. Posting Group"), FormatFourDecimal(SalesInvLine."VAT %"),
+                        GetTaxCategoryID(SalesInvLine."Tax Category", SalesInvLine."VAT Bus. Posting Group", SalesInvLine."VAT Prod. Posting Group"), FormatFiveDecimal(SalesInvLine."VAT %"),
                         SalesInvLine."VAT %" = 0);
                     LineAmount.Remove(SalesInvLine."VAT %");
                     LineVATAmount.Remove(SalesInvLine."VAT %");
@@ -785,7 +799,7 @@ codeunit 13917 "Export ZUGFeRD Document"
             repeat
                 if LineVATAmount.ContainsKey(SalesCrMemoLine."VAT %") and LineAmount.ContainsKey(SalesCrMemoLine."VAT %") then begin
                     InsertTaxElement(SettlementElement, FormatDecimal(LineVATAmount.Get(SalesCrMemoLine."VAT %")), FormatDecimal(LineAmount.Get(SalesCrMemoLine."VAT %")),
-                        GetTaxCategoryID(SalesCrMemoLine."Tax Category", SalesCrMemoLine."VAT Bus. Posting Group", SalesCrMemoLine."VAT Prod. Posting Group"), FormatFourDecimal(SalesCrMemoLine."VAT %"),
+                        GetTaxCategoryID(SalesCrMemoLine."Tax Category", SalesCrMemoLine."VAT Bus. Posting Group", SalesCrMemoLine."VAT Prod. Posting Group"), FormatFiveDecimal(SalesCrMemoLine."VAT %"),
                         SalesCrMemoLine."VAT %" = 0);
 
                     LineAmount.Remove(SalesCrMemoLine."VAT %");
@@ -840,6 +854,22 @@ codeunit 13917 "Export ZUGFeRD Document"
         RootXMLNode.Add(SupplyChainTradeTransactionElement);
     end;
 
+    local procedure InsertBillingSpecifiedPeriod(var RootElement: XmlElement; StartDate: Date; EndDate: Date);
+    var
+        BillingSpecifiedPeriodElement: XmlElement;
+        StartDateElement: XmlElement;
+        EndDateElement: XmlElement;
+    begin
+        BillingSpecifiedPeriodElement := XmlElement.Create('BillingSpecifiedPeriod', XmlNamespaceRAM);
+        StartDateElement := XmlElement.Create('StartDateTime', XmlNamespaceRAM);
+        StartDateElement.Add(XmlElement.Create('DateTimeString', XmlNamespaceUDT, XmlAttribute.Create('format', '102'), FormatDate(StartDate)));
+        BillingSpecifiedPeriodElement.Add(StartDateElement);
+        EndDateElement := XmlElement.Create('EndDateTime', XmlNamespaceRAM);
+        EndDateElement.Add(XmlElement.Create('DateTimeString', XmlNamespaceUDT, XmlAttribute.Create('format', '102'), FormatDate(EndDate)));
+        BillingSpecifiedPeriodElement.Add(EndDateElement);
+        RootElement.Add(BillingSpecifiedPeriodElement);
+    end;
+
     local procedure InsertInvoiceLine(var SupplyChainTradeTransactionElement: XmlElement; var SalesInvoiceLine: Record "Sales Invoice Line"; Currency: Record Currency; CurrencyCode: Code[10]; PricesIncVAT: Boolean)
     var
         InvoiceLineElement: XmlElement;
@@ -871,13 +901,13 @@ codeunit 13917 "Export ZUGFeRD Document"
 
             SpecifiedLineTradeAgreementElement := XmlElement.Create('SpecifiedLineTradeAgreement', XmlNamespaceRAM);
             NetPriceProductTradePriceElement := XmlElement.Create('NetPriceProductTradePrice', XmlNamespaceRAM);
-            ChargeAmountElement := XmlElement.Create('ChargeAmount', XmlNamespaceRAM, FormatFourDecimal(SalesInvoiceLine."Unit Price"));
+            ChargeAmountElement := XmlElement.Create('ChargeAmount', XmlNamespaceRAM, FormatDecimalUnlimited(SalesInvoiceLine."Unit Price"));
             NetPriceProductTradePriceElement.Add(ChargeAmountElement);
             SpecifiedLineTradeAgreementElement.Add(NetPriceProductTradePriceElement);
             InvoiceLineElement.Add(SpecifiedLineTradeAgreementElement);
 
             SpecifiedLineTradeDeliveryElement := XmlElement.Create('SpecifiedLineTradeDelivery', XmlNamespaceRAM);
-            BilledQuantityElement := XmlElement.Create('BilledQuantity', XmlNamespaceRAM, FormatFourDecimal(SalesInvoiceLine.Quantity));
+            BilledQuantityElement := XmlElement.Create('BilledQuantity', XmlNamespaceRAM, FormatDecimalUnlimited(SalesInvoiceLine.Quantity));
             BilledQuantityElement.SetAttribute('unitCode', GetUoMCode(SalesInvoiceLine."Unit of Measure Code"));
             SpecifiedLineTradeDeliveryElement.Add(BilledQuantityElement);
             InvoiceLineElement.Add(SpecifiedLineTradeDeliveryElement);
@@ -888,8 +918,11 @@ codeunit 13917 "Export ZUGFeRD Document"
             ApplicableTradeTaxElement := XmlElement.Create('ApplicableTradeTax', XmlNamespaceRAM);
             ApplicableTradeTaxElement.Add(XmlElement.Create('TypeCode', XmlNamespaceRAM, 'VAT'));
             ApplicableTradeTaxElement.Add(XmlElement.Create('CategoryCode', XmlNamespaceRAM, GetTaxCategoryID(SalesInvoiceLine."Tax Category", SalesInvoiceLine."VAT Bus. Posting Group", SalesInvoiceLine."VAT Prod. Posting Group")));
-            ApplicableTradeTaxElement.Add(XmlElement.Create('RateApplicablePercent', XmlNamespaceRAM, FormatFourDecimal(SalesInvoiceLine."VAT %")));
+            ApplicableTradeTaxElement.Add(XmlElement.Create('RateApplicablePercent', XmlNamespaceRAM, FormatFiveDecimal(SalesInvoiceLine."VAT %")));
             SpecifiedLineTradeSettlementElement.Add(ApplicableTradeTaxElement);
+
+            if SalesInvoiceLine."Shipment Date" <> 0D then
+                InsertBillingSpecifiedPeriod(SpecifiedLineTradeSettlementElement, SalesInvoiceLine."Shipment Date", SalesInvoiceLine."Shipment Date");
 
             if SalesInvoiceLine."Line Discount Amount" <> 0 then
                 InsertAllowanceCharge(SpecifiedLineTradeSettlementElement, 'Line Discount', GetTaxCategoryID(SalesInvoiceLine."Tax Category", SalesInvoiceLine."VAT Bus. Posting Group",
@@ -953,13 +986,13 @@ codeunit 13917 "Export ZUGFeRD Document"
 
             SpecifiedLineTradeAgreementElement := XmlElement.Create('SpecifiedLineTradeAgreement', XmlNamespaceRAM);
             NetPriceProductTradePriceElement := XmlElement.Create('NetPriceProductTradePrice', XmlNamespaceRAM);
-            ChargeAmountElement := XmlElement.Create('ChargeAmount', XmlNamespaceRAM, FormatFourDecimal(SalesCrMemoLine."Unit Price"));
+            ChargeAmountElement := XmlElement.Create('ChargeAmount', XmlNamespaceRAM, FormatDecimalUnlimited(SalesCrMemoLine."Unit Price"));
             NetPriceProductTradePriceElement.Add(ChargeAmountElement);
             SpecifiedLineTradeAgreementElement.Add(NetPriceProductTradePriceElement);
             CrMemoLineElement.Add(SpecifiedLineTradeAgreementElement);
 
             SpecifiedLineTradeDeliveryElement := XmlElement.Create('SpecifiedLineTradeDelivery', XmlNamespaceRAM);
-            BilledQuantityElement := XmlElement.Create('BilledQuantity', XmlNamespaceRAM, FormatFourDecimal(SalesCrMemoLine.Quantity));
+            BilledQuantityElement := XmlElement.Create('BilledQuantity', XmlNamespaceRAM, FormatDecimalUnlimited(SalesCrMemoLine.Quantity));
             BilledQuantityElement.SetAttribute('unitCode', GetUoMCode(SalesCrMemoLine."Unit of Measure Code"));
             SpecifiedLineTradeDeliveryElement.Add(BilledQuantityElement);
             CrMemoLineElement.Add(SpecifiedLineTradeDeliveryElement);
@@ -970,8 +1003,11 @@ codeunit 13917 "Export ZUGFeRD Document"
             ApplicableTradeTaxElement := XmlElement.Create('ApplicableTradeTax', XmlNamespaceRAM);
             ApplicableTradeTaxElement.Add(XmlElement.Create('TypeCode', XmlNamespaceRAM, 'VAT'));
             ApplicableTradeTaxElement.Add(XmlElement.Create('CategoryCode', XmlNamespaceRAM, GetTaxCategoryID(SalesCrMemoLine."Tax Category", SalesCrMemoLine."VAT Bus. Posting Group", SalesCrMemoLine."VAT Prod. Posting Group")));
-            ApplicableTradeTaxElement.Add(XmlElement.Create('RateApplicablePercent', XmlNamespaceRAM, FormatFourDecimal(SalesCrMemoLine."VAT %")));
+            ApplicableTradeTaxElement.Add(XmlElement.Create('RateApplicablePercent', XmlNamespaceRAM, FormatFiveDecimal(SalesCrMemoLine."VAT %")));
             SpecifiedLineTradeSettlementElement.Add(ApplicableTradeTaxElement);
+
+            if SalesCrMemoLine."Shipment Date" <> 0D then
+                InsertBillingSpecifiedPeriod(SpecifiedLineTradeSettlementElement, SalesCrMemoLine."Shipment Date", SalesCrMemoLine."Shipment Date");
 
             if SalesCrMemoLine."Line Discount Amount" <> 0 then
                 InsertAllowanceCharge(SpecifiedLineTradeSettlementElement, 'Line Discount', GetTaxCategoryID(SalesCrMemoLine."Tax Category", SalesCrMemoLine."VAT Bus. Posting Group",
@@ -1075,7 +1111,7 @@ codeunit 13917 "Export ZUGFeRD Document"
         AllowanceChargeElement.Add(XmlElement.Create('ActualAmount', XmlNamespaceRAM, FormatDecimal(Amount)));
         AllowanceChargeElement.Add(XmlElement.Create('Reason', XmlNamespaceRAM, AllowanceChargeReason));
         if InsertCategoryTax then
-            InsertCategoryTradeTax(AllowanceChargeElement, TaxCategory, FormatFourDecimal(Percent));
+            InsertCategoryTradeTax(AllowanceChargeElement, TaxCategory, FormatFiveDecimal(Percent));
         RootXMLNode.Add(AllowanceChargeElement);
     end;
 
@@ -1268,9 +1304,22 @@ codeunit 13917 "Export ZUGFeRD Document"
         exit(Format(VarDecimal, 0, TypeHelper.GetXMLAmountFormatWithTwoDecimalPlaces()))
     end;
 
+    procedure FormatDecimalUnlimited(VarDecimal: Decimal): Text
+    begin
+        exit(Format(VarDecimal, 0, 9));
+    end;
+
+#if not CLEAN29
+    [Obsolete('FormatFourDecimal is no longer used internally. Quantity and unit price fields are now exported with unlimited precision per EN 16931. For VAT percentages, use FormatFiveDecimal. For quantity and unit price, use FormatDecimalUnlimited.', '29.0')]
     procedure FormatFourDecimal(VarDecimal: Decimal): Text
     begin
-        exit(Format(VarDecimal, 0, '<Precision,4:4><Standard Format,9>'))
+        exit(Format(VarDecimal, 0, '<Precision,4:4><Standard Format,9>'));
+    end;
+#endif
+
+    procedure FormatFiveDecimal(VarDecimal: Decimal): Text
+    begin
+        exit(Format(Round(VarDecimal, 0.00001), 0, 9));
     end;
 
     procedure GetUoMCode(UoMCode: Code[10]): Text;

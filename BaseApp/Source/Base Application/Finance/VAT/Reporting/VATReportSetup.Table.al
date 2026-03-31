@@ -181,6 +181,18 @@ table 743 "VAT Report Setup"
         {
             Caption = 'Company City';
         }
+        field(11009; "BOP User Account ID"; Text[20])
+        {
+            Caption = 'BOP User Account ID';
+            Numeric = true;
+            ToolTip = 'Specifies the 10-digit BOP user account ID (Benutzerkonto-ID) required for ELMA data transmission. This ID is displayed in your BOP account under Mein BOP.';
+
+            trigger OnValidate()
+            begin
+                if (Rec."BOP User Account ID" <> '') and (StrLen(Rec."BOP User Account ID") <> 10) then
+                    Error(BOPUserAccountIDLengthErr);
+            end;
+        }
     }
 
     keys
@@ -196,6 +208,7 @@ table 743 "VAT Report Setup"
     }
 
     var
+        BOPUserAccountIDLengthErr: Label 'The BOP User Account ID must be exactly 10 digits.';
         PositivePeriodReminderCalcErr: Label 'The Period Reminder Calculation should be a positive formula. For example, "1M" should be used instead of "-1M".';
 
     procedure IsPeriodReminderCalculation(): Boolean
