@@ -740,6 +740,71 @@ codeunit 134283 "Non-Deductible Purch. Posting"
             'Non-Deductible VAT Base should not exceed total VAT Base');
     end;
 
+    [Test]
+    procedure PurchCrMemoNonDedVATWithPositiveAndNegativeLines()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        VATEntry: Record "VAT Entry";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        ItemNo: Code[20];
+        DocNo: Code[20];
+        VATBase: Decimal;
+        NonDeductibleVATBase: Decimal;
+        DeductibleVATBase: Decimal;
+        DeductibleVATAmt: Decimal;
+        NonDeductibleVATAmt: Decimal;
+        NonDeductibleVATPct: Decimal;
+    begin
+        // [SCENARIO 623369] Incorrect G/L Entries and VAT Entries if you post a Purchase Credit Memo with Non-Deductible VAT and Use For Item Cost activated using negative and positive lines.
+
+        Initialize();
+        LibraryNonDeductibleVAT.SetUseForItemCost();
+
+        // [GIVEN] Normal VAT Posting Setup with "VAT %" = 19 and "Non-Deductible VAT %" = 10
+        LibraryNonDeductibleVAT.CreateVATPostingSetupWithNonDeductibleDetail(VATPostingSetup, 19, 10);
+
+        // [GIVEN] Item with VAT Prod. Posting Group
+        ItemNo := LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Purchase Credit Memo with "Prices Including VAT" = TRUE
+        LibraryPurchase.CreatePurchHeader(
+            PurchHeader, PurchHeader."Document Type"::"Credit Memo",
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        PurchHeader.Validate("Prices Including VAT", true);
+        PurchHeader.Modify(true);
+
+        // [GIVEN] Positive line: Qty = 1, Direct Unit Cost (incl. VAT)
+        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, ItemNo, 1);
+        PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(1000, 1200));
+        VATBase := PurchLine."Direct Unit Cost" * PurchLine.Quantity;
+        PurchLine.Modify(true);
+
+        // [GIVEN] Negative line: Qty = -1, Direct Unit Cost (incl. VAT)
+        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, ItemNo, -1);
+        PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        VATBase += PurchLine."Direct Unit Cost" * PurchLine.Quantity;
+        PurchLine.Modify(true);
+        NonDeductibleVATPct := LibraryNonDeductibleVAT.GetNonDeductibleVATPctFromVATPostingSetup(VATPostingSetup);
+        NonDeductibleVATBase := Round(PurchLine."VAT Base Amount" * NonDeductibleVATPct / 100);
+
+        // [WHEN] Post the Purchase Credit Memo
+        DocNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
+
+        // [THEN] Calculate VAT entry deductible Base Amount and Non-Deductible VAT Base Amount 
+        VATBase := VATBase / (1 + VATPostingSetup."VAT %" / 100);
+        NonDeductibleVATBase := Round(VATBase) * NonDeductibleVATPct / 100;
+        DeductibleVATBase := Round(VATBase) * (100 - NonDeductibleVATPct) / 100;
+        DeductibleVATAmt := DeductibleVATBase * (VATPostingSetup."VAT %" / 100);
+        NonDeductibleVATAmt := NonDeductibleVATBase * (VATPostingSetup."VAT %" / 100);
+
+        // [THEN] Verify VAT entry has deductible Amount and Non-Deductible VAT Amount 
+        FindVATEntry(VATEntry, DocNo);
+        Assert.AreNearlyEqual(-Round(DeductibleVATAmt), VATEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision", AmountMustBeEqualErr);
+        Assert.AreNearlyEqual(-Round(NonDeductibleVATAmt), VATEntry."Non-Deductible VAT Amount", GeneralLedgerSetup."Amount Rounding Precision", AmountMustBeEqualErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
