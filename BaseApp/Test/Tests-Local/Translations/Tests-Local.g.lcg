@@ -3497,6 +3497,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit No Taxable Documents - NamedType NoTaxableEntryIsNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1151467462 - NamedType 3906402459" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No Taxable Entry should be created.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit No Taxable Documents - NamedType NoTaxableEntryShouldBeCreatedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1151467462 - NamedType 1742261496" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No Taxable Entry should not be created.]]></Val>

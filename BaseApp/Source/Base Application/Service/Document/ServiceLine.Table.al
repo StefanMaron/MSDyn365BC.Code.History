@@ -3524,9 +3524,8 @@ table 5902 "Service Line"
             "Line Amount" := ExpectedLineAmount;
             ClearVATDifference();
         end;
-        if ServHeader."Tax Area Code" = '' then
-            UpdateVATAmounts();
 
+        UpdateVATAmounts();
         InitOutstandingAmount();
         ShouldCheckCrLimit := not IsCustCrLimitChecked and (CurrFieldNo <> 0);
         OnUpdateAmountsOnAfterCalcShouldCheckCrLimit(Rec, IsCustCrLimitChecked, CurrFieldNo, ShouldCheckCrLimit);
