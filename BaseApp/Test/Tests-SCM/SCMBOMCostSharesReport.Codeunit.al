@@ -815,6 +815,39 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         // is equal to QtyPerParent in BOMCostSharesHandler.
     end;
 
+    [Test]
+    [HandlerFunctions('BOMStructureRefreshPageHandler')]
+    procedure RefreshPageUpdatesWhenItemNoDiffersFromItemFilter()
+    var
+        Item: array[2] of Record Item;
+    begin
+        // [SCENARIO 620750] RefreshPage updates when Item."No." differs from ItemFilter.
+        Initialize();
+
+        // [GIVEN] Two items created with Production BOM setup
+        LibraryInventory.CreateItem(Item[1]);
+        Item[1].Validate("Replenishment System", Item[1]."Replenishment System"::"Prod. Order");
+        Item[1].Modify(true);
+
+        // [GIVEN] Create a Production BOM.
+        LibraryManufacturing.CreateProductionBOM(Item[1], LibraryRandom.RandInt(2));
+
+        LibraryInventory.CreateItem(Item[2]);
+        Item[2].Validate("Replenishment System", Item[2]."Replenishment System"::"Prod. Order");
+        Item[2].Modify(true);
+        LibraryManufacturing.CreateProductionBOM(Item[2], LibraryRandom.RandInt(2));
+
+        // [GIVEN] Store item numbers for verification in handler
+        LibraryVariableStorage.Enqueue(Item[1]."No.");
+        LibraryVariableStorage.Enqueue(Item[2]."No.");
+
+        // [WHEN] Run BOM Structure page to test RefreshPage functionality
+        RunBOMStructurePage(Item[1]);
+
+        // [THEN] The page properly updates when RefreshPage is called.
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure CreateRoutingWithWorkCenter(WorkCenterNo: Code[20]; SetupTime: Decimal; RunTime: Decimal; LotSize: Decimal): Code[20]
     var
         RoutingHeader: Record "Routing Header";
@@ -1263,6 +1296,26 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         BOMStructure.Expand(true);
         BOMStructure.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
         BOMStructure."Qty. per Parent".AssertEquals(LibraryVariableStorage.DequeueDecimal());
+    end;
+
+    [PageHandler]
+    procedure BOMStructureRefreshPageHandler(var BOMStructure: TestPage "BOM Structure")
+    var
+        ItemNo: array[2] of Code[20];
+    begin
+        ItemNo[1] := LibraryVariableStorage.DequeueText();
+        ItemNo[2] := LibraryVariableStorage.DequeueText();
+
+        BOMStructure.ItemFilter.SetValue(ItemNo[2]);
+        BOMStructure.Next();
+
+        Assert.AreEqual(
+            ItemNo[2],
+            BOMStructure."No.".Value(),
+            StrSubstNo(
+                IncorrectValueErr,
+                BOMStructure.Caption(),
+                ItemNo[2]));
     end;
 
     [ModalPageHandler]
