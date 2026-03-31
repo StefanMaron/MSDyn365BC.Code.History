@@ -364,6 +364,7 @@ page 5870 "BOM Structure"
         RaiseError: Boolean;
         ErrorText: Text;
         IsHandled: Boolean;
+        IsUpdatePageNeeded: Boolean;
     begin
         IsHandled := false;
 #if not CLEAN27
@@ -378,6 +379,8 @@ page 5870 "BOM Structure"
         OnBeforeRefreshPage(Rec, Item, SourceRecordVar, ShowBy, ItemFilter, IsHandled);
         if IsHandled then
             exit;
+
+        IsUpdatePageNeeded := Item."No." <> ItemFilter;
 
         Item.SetFilter("No.", ItemFilter);
         Item.SetRange("Date Filter", 0D, WorkDate());
@@ -396,6 +399,9 @@ page 5870 "BOM Structure"
             else
                 CalculateBOMTree.GenerateTreeForSource(SourceRecordVar, Rec, "BOM Tree Type"::" ", ShowBy, WorkDate());
         end;
+
+        if IsUpdatePageNeeded then
+            CurrPage.Update(false);
     end;
 
     local procedure ShowWarnings()
