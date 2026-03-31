@@ -763,7 +763,6 @@ codeunit 99000818 "Mfg. Carry Out Action"
             exit(false);
 
         if (Item."Replenishment System" = Item."Replenishment System"::"Prod. Order") and
-            (Item."Manufacturing Policy" = Item."Manufacturing Policy"::"Make-to-Order") and
             (Item."Reordering Policy" = Item."Reordering Policy"::Order) then
             exit(true);
     end;
