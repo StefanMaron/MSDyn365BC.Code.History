@@ -276,6 +276,13 @@ page 6181 "E-Document Purchase Draft"
 
                 trigger OnAction()
                 begin
+                    Session.LogMessage('0000PCO', FinalizeDraftInvokedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', EDocumentPurchaseHeader.FeatureName());
+                    Rec.SetAutoCalcFields("Import Processing Status");
+                    if Rec.Get(Rec."Entry No") then
+                        if Rec."Import Processing Status" = "Import E-Doc. Proc. Status"::Processed then begin
+                            Rec.ShowRecord();
+                            exit;
+                        end;
                     FinalizeEDocument();
                 end;
             }
@@ -672,8 +679,8 @@ page 6181 "E-Document Purchase Draft"
         HasErrorsOrWarnings, HasErrors : Boolean;
         ShowFinalizeDraftAction: Boolean;
         ShowAnalyzeDocumentAction: Boolean;
-        FinalizeDraftInvokedTxt: Label 'User invoked Finalize Draft action.';
-        FinalizeDraftPerformedTxt: Label 'User completed Finalize Draft action.';
+        FinalizeDraftInvokedTxt: Label 'User invoked Finalize Draft action.', Locked = true;
+        FinalizeDraftPerformedTxt: Label 'User completed Finalize Draft action.', Locked = true;
         ProcessingDocumentMsg: Label 'Processing document...';
         ResetDraftQst: Label 'All the changes that you may have made on the document draft will be lost. Do you want to continue?';
         PageEditable, HasPDFSource : Boolean;
