@@ -3977,7 +3977,7 @@ codeunit 80 "Sales-Post"
         IsHandled: Boolean;
     begin
 
-        if CalledFromStatistics and IsInvoiceRoundingLine(SalesHeader, SalesLine) then
+        if (CalledFromStatistics) and (IsInvoiceRoundingLine(SalesHeader, SalesLine)) and (SalesLine."System-Created Entry") then
             exit;
 
         IsHandled := false;
