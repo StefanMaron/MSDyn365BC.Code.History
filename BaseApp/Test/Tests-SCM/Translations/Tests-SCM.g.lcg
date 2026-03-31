@@ -11129,6 +11129,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Tracking Package Base - NamedType PostedItemDocumentShowTrackingErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 90459367 - NamedType 3682604939" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 should be modifiable in Inventory Receipt with Item Tracking.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Name]D;]A;(LookupHint=Codeunit SCM Tracking Package Base - NamedType PostingDateNotUpdatedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 90459367 - NamedType 1802208537" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 is should be modifiable in Inventory Receipt with Item Tracking.]]></Val>

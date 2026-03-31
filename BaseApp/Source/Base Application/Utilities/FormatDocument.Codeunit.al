@@ -170,10 +170,8 @@ codeunit 368 "Format Document"
         if Code = '' then begin
             SalespersonPurchaser.Init();
             PurchaserText := '';
-        end else begin
-            SalespersonPurchaser.Get(Code);
+        end else
             PurchaserText := PurchaserTxt;
-        end;
     end;
 
     procedure SetShipmentMethod(var ShipmentMethod: Record "Shipment Method"; "Code": Code[10]; LanguageCode: Code[10])
