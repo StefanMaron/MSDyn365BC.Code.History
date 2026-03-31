@@ -32,8 +32,6 @@ codeunit 144354 "Swiss SEPA CT 09 Export"
         MessageToRecipientMsg: Label 'Payment of %1 %2 to vendor %3', Comment = '%1 document type, %2 Document No., %3 Vendor No.';
         GetPaymentTypeErr: Label 'Wrong result of GetPaymentType';
         IBANTypeErr: Label 'The IBAN type on the recipient bank account must match the payment reference type.';
-        QRIBANErr: Label 'The recipient bank account has an IBAN that is of type QR-IBAN. This type requires that the recipient bank account has a SEPA CT export payment type that is type 3.';
-        QRRefErr: Label 'The payment reference is a QR reference. This type requires that the recipient bank account has a SEPA CT export payment type that is type 3.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2232,8 +2230,8 @@ codeunit 144354 "Swiss SEPA CT 09 Export"
         // [WHEN] Export payment to file.
         asserterror GenJournalLine_XMLExport(GenJournalLine);
 
-        // [THEN] XML File was not exported, an error is thrown: Payment Reference of QR type must only be used with Payment Type 3.
-        VerifyPaymentJnlExportErrorText(GenJournalLine, QRRefErr);
+        // [THEN] XML File was not exported, an error is thrown: IBAN type on recipient bank account must match payment reference type.
+        VerifyPaymentJnlExportErrorText(GenJournalLine, IBANTypeErr);
     end;
 
     [Test]
@@ -2255,19 +2253,20 @@ codeunit 144354 "Swiss SEPA CT 09 Export"
         // [WHEN] Export payment to file.
         asserterror GenJournalLine_XMLExport(GenJournalLine);
 
-        // [THEN] XML File was not exported, an error is thrown: IBAN of QR-IBAN type must only be used with Payment Type 3.
-        VerifyPaymentJnlExportErrorText(GenJournalLine, QRIBANErr);
+        // [THEN] XML File was not exported, an error is thrown: IBAN type on recipient bank account must match payment reference type.
+        VerifyPaymentJnlExportErrorText(GenJournalLine, IBANTypeErr);
     end;
 
     [Test]
     procedure XMLExport_PaymentType22_QRReferenceQRIBAN()
     var
         GenJournalLine: Record "Gen. Journal Line";
-        PaymentJnlExportErrorText: Record "Payment Jnl. Export Error Text";
+        FileName: Text;
+        MessageID: Text;
         VendorNo: Code[20];
     begin
-        // [FEATURE] [XML] [Export] [Payment Reference]
-        // [SCENARIO 423342] Swiss SEPA CT export for "Payment Type" = "2.2" in case of QR-IBAN and QR Payment Reference.
+        // [FEATURE] [AI test 0.3]
+        // [SCENARIO 621106] Swiss SEPA CT export for "Payment Type" = "2.2" in case of QR-IBAN and QR Payment Reference.
         Initialize();
 
         // [GIVEN] Vendor payment journal line for Payment Type = "2.2" and filled-in QR Payment Reference.
@@ -2277,17 +2276,11 @@ codeunit 144354 "Swiss SEPA CT 09 Export"
         CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', GetQRReferenceNo());
 
         // [WHEN] Export payment to file.
-        asserterror GenJournalLine_XMLExport(GenJournalLine);
+        MessageID := GetMessageID(GenJournalLine."Bal. Account No.");
+        FileName := GenJournalLine_XMLExport(GenJournalLine);
 
-        // [THEN] XML File was not exported, two errors are thrown: Payment Reference of QR type and IBAN of QR-IBAN type must only be used with Payment Type 3.
-        PaymentJnlExportErrorText.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
-        PaymentJnlExportErrorText.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        PaymentJnlExportErrorText.SetRange("Journal Line No.", GenJournalLine."Line No.");
-        Assert.RecordCount(PaymentJnlExportErrorText, 2);
-        PaymentJnlExportErrorText.FindFirst();
-        PaymentJnlExportErrorText.TestField("Error Text", QRRefErr);
-        PaymentJnlExportErrorText.Next();
-        PaymentJnlExportErrorText.TestField("Error Text", QRIBANErr);
+        // [THEN] XML File has been exported with correct Swiss SEPA CT scheme for "Payment Type" = "2.2".
+        VerifyXMLFile(GenJournalLine, FileName, MessageID, PaymentTypeGbl::"2.2");
     end;
 
     [Test]
@@ -2888,6 +2881,52 @@ codeunit 144354 "Swiss SEPA CT 09 Export"
         // [WHEN] Run IsSwissSEPACTExport() of codeunit 11503 CHMgt.
         // [THEN] The function returns false.
         Assert.IsFalse(CHMgt.IsSwissSEPACTExport(GenJournalLine), '');
+    end;
+
+    [Test]
+    procedure XMLExport_PaymentType22_UstrdReferenceQRIBAN()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [AI test 0.3]
+        // [SCENARIO 621106] Swiss SEPA CT export for "Payment Type" = "2.2" in case of unstructured Payment Reference and QR-IBAN.
+        Initialize();
+
+        // [GIVEN] Vendor payment journal line for Payment Type = "2.2" and filled-in unstructured Payment Reference.
+        // [GIVEN] Vendor Bank Account has QR-IBAN.
+        VendorNo := CreateVendorWithBankAccount_Clearing();
+        UpdateVendorBankAccIBAN(VendorNo, GetQRIBAN());
+        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', LibraryUtility.GenerateGUID());
+
+        // [WHEN] Export payment to file.
+        asserterror GenJournalLine_XMLExport(GenJournalLine);
+
+        // [THEN] XML File was not exported, an error about matching Payment Reference type and IBAN type is thrown.
+        VerifyPaymentJnlExportErrorText(GenJournalLine, IBANTypeErr);
+    end;
+
+    [Test]
+    procedure XMLExport_PaymentType22_BlankReferenceQRIBAN()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [AI test 0.3]
+        // [SCENARIO 621106] Swiss SEPA CT export for "Payment Type" = "2.2" in case of blank Payment Reference and QR-IBAN.
+        Initialize();
+
+        // [GIVEN] Vendor payment journal line for Payment Type = "2.2" and blank Payment Reference.
+        // [GIVEN] Vendor Bank Account has QR-IBAN.
+        VendorNo := CreateVendorWithBankAccount_Clearing();
+        UpdateVendorBankAccIBAN(VendorNo, GetQRIBAN());
+        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', '');
+
+        // [WHEN] Export payment to file.
+        asserterror GenJournalLine_XMLExport(GenJournalLine);
+
+        // [THEN] XML File was not exported, an error about matching Payment Reference type and IBAN type is thrown.
+        VerifyPaymentJnlExportErrorText(GenJournalLine, IBANTypeErr);
     end;
 
     local procedure Initialize()
