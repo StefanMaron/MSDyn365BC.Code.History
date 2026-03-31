@@ -38,12 +38,6 @@ report 713 "Inventory - Customer Sales"
             column(ItemLedgEntryFilter; ItemLedgEntryFilter)
             {
             }
-
-            trigger OnPreDataItem()
-            begin
-                if not ReportHasData then
-                    CurrReport.Break();
-            end;
         }
         dataitem(Item; Item)
         {
@@ -255,6 +249,21 @@ report 713 "Inventory - Customer Sales"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posting Date Filter';
                     }
+                    // Used to set report headers across multiple languages
+                    field(RequestItemFilter; ItemFilter)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Item Filter';
+                        ToolTip = 'Specifies the Item Filters applied to this report.';
+                        Visible = false;
+                    }
+                    field(RequestItemLedgEntryFilter; ItemLedgEntryFilter)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Item Ledger Entry Filter';
+                        ToolTip = 'Specifies the Item Ledger Entry Filters applied to this report.';
+                        Visible = false;
+                    }
                 }
             }
         }
@@ -265,6 +274,11 @@ report 713 "Inventory - Customer Sales"
         trigger OnQueryClosePage(CloseAction: Action): Boolean
         begin
             PostingDateFilter := "Item Ledger Entry".GetFilter("Posting Date");
+        end;
+
+        trigger OnClosePage()
+        begin
+            UpdateRequestPageFilterValues();
         end;
     }
 
@@ -297,26 +311,26 @@ report 713 "Inventory - Customer Sales"
 
     labels
     {
-        DataRetrieved = 'Data retrieved:';
-        InventoryCustomerSales = 'Inventory - Customer Sales';
-        InventoryCustomerSalesPrint = 'Inventory - Cust. Sales (Print)', MaxLength = 31, Comment = 'Excel worksheet name.';
-        InvCustomerSalesAnalysis = 'Inv. - Cust. Sales (Analysis)', MaxLength = 31, Comment = 'Excel worksheet name.';
-        PostingDateFilterLabel = 'Posting Date Filter:';
+        DataRetrievedLbl = 'Data retrieved:';
+        InventoryCustomerSalesLbl = 'Inventory Customer Sales';
+        InvCustomerSalesPrintLbl = 'Inv. Cust. Sales (Print)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        InvCustomerSalesAnalysisLbl = 'Inv. Cust. Sales (Analysis)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        PeriodLbl = 'Period';
         // About the report labels
-        AboutTheReportLabel = 'About the report', MaxLength = 31, Comment = 'Excel worksheet name.';
-        EnvironmentLabel = 'Environment';
-        CompanyLabel = 'Company';
-        UserLabel = 'User';
-        RunOnLabel = 'Run on';
-        ReportNameLabel = 'Report name';
-        DocumentationLabel = 'Documentation';
-        CustomerNoLabel = 'Customer No.';
-        CustNameLabel = 'Name';
-        InvQtyLabel = 'Invoiced Quantity';
-        AmountLabel = 'Amount';
-        DiscountAmtLabel = 'Discount Amount';
-        ProfitLabel = 'Profit';
-        ProfitPctLabel = 'Profit %';
+        AboutTheReportLbl = 'About the report', MaxLength = 31, Comment = 'Excel worksheet name.';
+        EnvironmentLbl = 'Environment';
+        CompanyLbl = 'Company';
+        UserLbl = 'User';
+        RunOnLbl = 'Run on';
+        ReportNameLbl = 'Report name';
+        DocumentationLbl = 'Documentation';
+        CustomerNoLbl = 'Customer No.';
+        CustNameLbl = 'Name';
+        InvQtyLbl = 'Invoiced Quantity';
+        AmountLbl = 'Amount';
+        DiscountAmtLbl = 'Discount Amount';
+        ProfitLbl = 'Profit';
+        ProfitPctLbl = 'Profit %';
 #if not CLEAN27
         ReportTitle = 'Inventory - Customer Sales';
         Page = 'Page';
@@ -333,19 +347,18 @@ report 713 "Inventory - Customer Sales"
 
     trigger OnPreReport()
     begin
-        ItemFilter := GetTableFilters(Item.TableCaption(), Item.GetFilters);
-        ItemLedgEntryFilter := GetTableFilters("Item Ledger Entry".TableCaption(), "Item Ledger Entry".GetFilters);
-        PeriodText := StrSubstNo(PeriodInfoTxt, "Item Ledger Entry".GetFilter("Posting Date"));
+        UpdateRequestPageFilterValues();
     end;
 
     var
         ValueEntryBuf: Record "Value Entry";
         TempValueEntryBuf: Record "Value Entry" temporary;
         TempValueEntryBuf2: Record "Value Entry" temporary;
-        PeriodText: Text;
         ItemFilter: Text;
         ItemLedgEntryFilter: Text;
         PostingDateFilter: Text;
+        PeriodText: Text;
+        PeriodInfoTxt: Label 'Period: %1', Comment = '%1 - period name';
         LastItemLedgEntryNo: Integer;
         ReportLineNo: Integer;
         ProfitPct: Decimal;
@@ -359,7 +372,6 @@ report 713 "Inventory - Customer Sales"
         TotalsProfit: Decimal;
         TotalsProfitPct: Decimal;
         ReportHasData: Boolean;
-        PeriodInfoTxt: Label 'Period: %1', Comment = '%1 - period name';
         TableFiltersTxt: Label '%1: %2', Locked = true;
 
     local procedure CalcDiscountAmount(ItemLedgerEntryNo: Integer): Decimal
@@ -438,6 +450,14 @@ report 713 "Inventory - Customer Sales"
         if Filters <> '' then
             exit(StrSubstNo(TableFiltersTxt, TableName, Filters));
         exit('');
+    end;
+
+    // Ensures layout filter headings are up to date
+    local procedure UpdateRequestPageFilterValues()
+    begin
+        ItemFilter := GetTableFilters(Item.TableCaption(), Item.GetFilters);
+        ItemLedgEntryFilter := GetTableFilters("Item Ledger Entry".TableCaption(), "Item Ledger Entry".GetFilters);
+        PeriodText := StrSubstNo(PeriodInfoTxt, "Item Ledger Entry".GetFilter("Posting Date"));
     end;
 }
 
