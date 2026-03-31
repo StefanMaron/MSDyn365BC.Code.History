@@ -63,6 +63,14 @@ page 743 "VAT Report Setup"
                     ToolTip = 'Specifies the number series that will be used for standard VAT reports.';
                 }
             }
+            group(ELMA)
+            {
+                Caption = 'ELMA';
+                field("BOP User Account ID"; Rec."BOP User Account ID")
+                {
+                    ApplicationArea = Basic, Suite;
+                }
+            }
 #if not CLEAN28
             group(ZIVIT)
             {
