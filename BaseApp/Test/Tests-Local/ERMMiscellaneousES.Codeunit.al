@@ -79,27 +79,17 @@ codeunit 144072 "ERM Miscellaneous ES"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
-        CustNoCap: Label 'No_Cust';
         CustomerNameCap: Label 'Customer_Name';
         EntryMustBeOpenMsg: Label 'Entry must be open';
         ExpectedValueMsg: Label 'Amount must be same.';
-        FilterTxt: Label '%1..%2';
         GLAccountNoCap: Label 'G_L_Account_No_';
         ItemNoCap: Label 'No_Item';
         ItemInventoryCap: Label 'Inventory_Item';
-        OriginalAmtCap: Label 'CLEEndDateRemAmtLCY';
-        OriginalAmt2Cap: Label 'AgedCLE2RemAmtLCY';
-        PeriodLengthTxt: Label '1M', Comment = '.';
-        PrintDetailsCap: Label 'PrintDetails';
         ReverseSignMsg: Label 'Reversed Sign must be TRUE.';
-        TotalDebitAmtCap: Label 'TotalDebitAmtAtEnd';
         TotalDebitAmtEndCap: Label 'TotalDebitAmtEnd';
-        TotalPeriodCreditAmtCap: Label 'TotalPeriodCreditAmt';
         VATRegistrationNoCap: Label 'Customer__VAT_Registration_No__';
         FieldValueErr: Label 'Wrong value in %1 field';
         PmtDiscAmtErr: Label 'Wrong Payment Discount Amount value';
-        GLAccountTypeTxt: Label 'AccountType_GLAccount';
-        GLFilterOptionTxt: Label 'GLFilterOption';
         IncorrectCountErr: Label 'Incorrect Count of G/L Entries';
         LibraryUtility: Codeunit "Library - Utility";
         LibraryJournals: Codeunit "Library - Journals";
@@ -269,31 +259,6 @@ codeunit 144072 "ERM Miscellaneous ES"
 
         // Verify.
         VerifyVendorLedgerEntry(PurchaseLine."Buy-from Vendor No.", -Round(PaymentDiscountAmount, LibraryERM.GetAmountRoundingPrecision(), '<'));
-    end;
-
-    [Test]
-    [HandlerFunctions('AgedAccountsReceivableRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure AgedAccountsReceivableReportWithPrintDetails()
-    var
-        SalesLine: Record "Sales Line";
-        SalesLine2: Record "Sales Line";
-    begin
-        // Purpose of this test to verify values on Aged Accounts Receivable report after Sales Order posting.
-        // Setup.
-        Initialize();
-        CreateAndPostSalesDocument(SalesLine, LibrarySales.CreateCustomerNo());
-        CreateAndPostSalesDocument(SalesLine2, SalesLine."Sell-to Customer No.");
-
-        // Exercise.
-        REPORT.Run(REPORT::"Aged Accounts Receivable");  // Opens AgedAccountsReceivableRequestPageHandler.
-
-        // Verify: Verify values on Aged Accounts Receivable report.
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists(CustNoCap, SalesLine."Sell-to Customer No.");
-        LibraryReportDataset.AssertElementWithValueExists(OriginalAmtCap, SalesLine."Amount Including VAT");
-        LibraryReportDataset.AssertElementWithValueExists(OriginalAmt2Cap, SalesLine2."Amount Including VAT");
-        LibraryReportDataset.AssertElementWithValueExists(PrintDetailsCap, true);
     end;
 
     [Test]
@@ -765,217 +730,6 @@ codeunit 144072 "ERM Miscellaneous ES"
         LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GLAccountNoCap, ExpectedGLAccount);
         LibraryReportDataset.AssertElementWithValueExists(TotalDebitAmtEndCap, Amount);
-    end;
-
-    [Test]
-    [HandlerFunctions('TrialBalanceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TrialBalanceReportWithAccountTypeFilterAsPosting()
-    var
-        GLAccount: Record "G/L Account";
-        GLAccountNo: Code[20];
-        GLAccountNo2: Code[20];
-    begin
-        // Purpose of this test to verify values on Trial Balance report with Account Type as Posting.
-        Initialize();
-        GLAccountNo := CreateGLAccountWithAccountType(GLAccount."Account Type"::Posting, '');  // Using blank value for Totaling.
-        GLAccountNo2 := CreateGLAccountWithAccountType(GLAccount."Account Type"::Heading, GLAccountNo);
-        TrialBalanceReportWithAccountTypeFilter(GLAccountNo, GLAccountNo2, GLAccountNo, GLAccount."Account Type"::Posting, 0); // 0 indicates Posting option of Account Type
-    end;
-
-    [Test]
-    [HandlerFunctions('TrialBalanceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TrialBalanceReportWithAccountTypeFilterAsHeading()
-    var
-        GLAccount: Record "G/L Account";
-        GLAccountNo: Code[20];
-        GLAccountNo2: Code[20];
-    begin
-        // Purpose of this test to verify values on Trial Balance report with Account Type as Heading.
-        Initialize();
-        GLAccountNo := CreateGLAccountWithAccountType(GLAccount."Account Type"::Posting, '');  // Using blank value for Totaling.
-        GLAccountNo2 := CreateGLAccountWithAccountType(GLAccount."Account Type"::Heading, GLAccountNo);
-        TrialBalanceReportWithAccountTypeFilter(GLAccountNo, GLAccountNo2, GLAccountNo2, GLAccount."Account Type"::Heading, 1); // 1 indicates Heading option of Account Type
-    end;
-
-    local procedure TrialBalanceReportWithAccountTypeFilter(GLAccountNo: Code[20]; GLAccountNo2: Code[20]; ExpectedGLAccount: Code[20]; AccountType: Enum "G/L Account Type"; AccountTypeOption: Integer)
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        Amount: Decimal;
-    begin
-        // Setup.
-        Amount := LibraryRandom.RandDec(100, 2);
-        CreateAndPostGeneralJournalLine(GenJournalLine."Account Type"::"G/L Account", GLAccountNo, Amount, '', WorkDate());  // Using blank value for ShorcutDimensionOneCode.
-        EnqueueValuesForTrialBalanceRequestPageHandler('', StrSubstNo(FilterTxt, GLAccountNo, GLAccountNo2),
-          false, false, false, AccountType, WorkDate());  // Using blank value for DepartmentFilter, FALSE for IncludeClosingEntries.
-
-        // Exercise.
-        REPORT.Run(REPORT::"Trial Balance");  // Open TrialBalanceRequestPageHandler.
-
-        // Verify.
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists(GLAccountNoCap, ExpectedGLAccount);
-        LibraryReportDataset.AssertElementWithValueExists(TotalDebitAmtCap, Amount);
-        LibraryReportDataset.AssertElementWithValueExists(GLAccountTypeTxt, Format(AccountTypeOption));
-        LibraryReportDataset.AssertElementWithValueExists(GLFilterOptionTxt, Format(AccountTypeOption));
-    end;
-
-    [Test]
-    [HandlerFunctions('TrialBalanceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TrialBalanceRptWithDimensionCode()
-    var
-        Amount: Decimal;
-    begin
-        // Purpose of this test to verify values on Trial Balance report with Include Closing Entries and Dimension Code.
-        Initialize();
-        Amount := LibraryRandom.RandDec(100, 2);
-        TrialBalanceReportWithIncludeClosingEntries(GetDimensionValueCode(), Amount, 2 * Amount);  // Taking sum of amounts for two entries with Dimension Code.
-    end;
-
-    [Test]
-    [HandlerFunctions('TrialBalanceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TrialBalanceRptWithoutDimensionCode()
-    var
-        Amount: Decimal;
-    begin
-        // Purpose of this test to verify values on Trial Balance report with Include Closing Entries and without Dimension Code.
-        Initialize();
-        Amount := LibraryRandom.RandDec(100, 2);
-        TrialBalanceReportWithIncludeClosingEntries('', Amount, 4 * Amount);  // Using blank value for DepartmentFilter and taking sum of amounts for all the four entries.
-    end;
-
-    [Test]
-    [HandlerFunctions('TrialBalanceRequestPageHandler')]
-    procedure TestTotalOnTrialBalanceReportWithAccountNoFilter()
-    var
-        AccountingPeriod: Record "Accounting Period";
-        GLEntry: Record "G/L Entry";
-        GenJournalLine: Record "Gen. Journal Line";
-        GLAccount: Record "G/L Account";
-        GLAccountNo: array[4] of Code[20];
-        PostingDate: Date;
-        Amount: Decimal;
-        i: Integer;
-    begin
-        // [SCENARIO 540482] Test total on Trial Balance report for accounts with different length
-        Initialize();
-
-        GLEntry.SetFilter("G/L Account No.", '4|43|4300|430003');
-        GLEntry.DeleteAll();
-        GLAccount.SetFilter("No.", '4|43|4300|430003');
-        GLAccount.DeleteAll();
-
-        Amount := LibraryRandom.RandDec(100, 2);
-
-        // [GIVEN] Create G/L Accounts 4, 43, 4300, 430003 with blank totaling
-        GLAccountNo[1] := CreateGLAccount('4', GLAccount."Account Type"::Posting, '');
-        GLAccountNo[2] := CreateGLAccount('43', GLAccount."Account Type"::Posting, '');
-        GLAccountNo[3] := CreateGLAccount('4300', GLAccount."Account Type"::Posting, '');
-        GLAccountNo[4] := CreateGLAccount('430003', GLAccount."Account Type"::Posting, '');
-
-        // [GIVEN] Post General Journal Lines with Posting Date 1.1.2000. for accounts 4, 43, 4300, 430003 with the same amount 100
-        AccountingPeriod.SetRange("New Fiscal Year", true);
-        AccountingPeriod.FindLast();
-        PostingDate := CalcDate('<+1D>', AccountingPeriod."Starting Date");
-        for i := 1 to ArrayLen(GLAccountNo) do
-            CreateAndPostGeneralJournalLine(GenJournalLine."Account Type"::"G/L Account", GLAccountNo[i], Amount, '', PostingDate);
-
-        // [GIVEN] Set request parameters with G/L Account No. filter = '4|43|4300|430003'
-        EnqueueValuesForTrialBalanceRequestPageHandler('', StrSubstNo('%1|%2|%3|%4', GLAccountNo[1], GLAccountNo[2], GLAccountNo[3], GLAccountNo[4]),
-          false, false, false, GLAccount."Account Type"::Posting, PostingDate);
-
-        // [WHEN] Run Trial Balance report
-        REPORT.Run(REPORT::"Trial Balance");
-
-        // [THEN] Total on the report is sum of amounts of all four accounts
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists('DebitAmount2_GLAccount', Amount);
-        LibraryReportDataset.AssertElementWithValueExists(TotalDebitAmtCap, 4 * Amount);
-    end;
-
-    [Test]
-    [HandlerFunctions('TrialBalanceRequestPageHandler')]
-    procedure TestTotalOnTrialBalanceReportWithAccountNoFilterAndTotaling()
-    var
-        AccountingPeriod: Record "Accounting Period";
-        GLEntry: Record "G/L Entry";
-        GenJournalLine: Record "Gen. Journal Line";
-        GLAccount: Record "G/L Account";
-        GLAccountNo: array[4] of Code[20];
-        PostingDate: Date;
-        Amount: Decimal;
-        i: Integer;
-    begin
-        // [SCENARIO 540482] Test total on Trial Balance report for accounts with different length and totaling
-        Initialize();
-
-        GLEntry.SetFilter("G/L Account No.", '4|43|4300|430003');
-        GLEntry.DeleteAll();
-        GLAccount.SetFilter("No.", '4|43|4300|430003');
-        GLAccount.DeleteAll();
-
-        Amount := LibraryRandom.RandDec(100, 2);
-
-        // [GIVEN] Create G/L Accounts 4 with totaling 43, 43 with totaling 4300, 4300 with totaling 430003, 430003 with blank totaling
-        GLAccountNo[1] := CreateGLAccount('4', GLAccount."Account Type"::Posting, '43');
-        GLAccountNo[2] := CreateGLAccount('43', GLAccount."Account Type"::Posting, '4300');
-        GLAccountNo[3] := CreateGLAccount('4300', GLAccount."Account Type"::Posting, '430003');
-        GLAccountNo[4] := CreateGLAccount('430003', GLAccount."Account Type"::Posting, '');
-
-        // [GIVEN] Post General Journal Lines with Posting Date 1.1.2000. for accounts 4, 43, 4300, 430003 with the same amount 100
-        AccountingPeriod.SetRange("New Fiscal Year", true);
-        AccountingPeriod.FindLast();
-        PostingDate := CalcDate('<+1D>', AccountingPeriod."Starting Date");
-        for i := 1 to ArrayLen(GLAccountNo) do
-            CreateAndPostGeneralJournalLine(GenJournalLine."Account Type"::"G/L Account", GLAccountNo[i], Amount, '', PostingDate);
-
-        // [GIVEN] Set request parameters with G/L Account No. filter = '4|43|4300|430003'
-        EnqueueValuesForTrialBalanceRequestPageHandler('', StrSubstNo('%1|%2|%3|%4', GLAccountNo[1], GLAccountNo[2], GLAccountNo[3], GLAccountNo[4]),
-          false, false, false, GLAccount."Account Type"::Posting, PostingDate);
-
-        // [WHEN] Run Trial Balance report
-        REPORT.Run(REPORT::"Trial Balance");
-
-        // [THEN] Total on the report is sum of amounts of all four accounts
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists('DebitAmount2_GLAccount', Amount);
-        LibraryReportDataset.AssertElementWithValueExists(TotalDebitAmtCap, 4 * Amount);
-    end;
-
-    local procedure TrialBalanceReportWithIncludeClosingEntries(DepartmentFilter: Code[20]; Amount: Decimal; ExpectedAmount: Decimal)
-    var
-        AccountingPeriod: Record "Accounting Period";
-        GenJournalLine: Record "Gen. Journal Line";
-        GLAccount: Record "G/L Account";
-        GLAccountNo: Code[20];
-        PostingDate: Date;
-    begin
-        // Setup: Post General Journal Lines with different Shortcut Dimension Codes and Posting Date.
-        AccountingPeriod.SetRange("New Fiscal Year", true);
-        AccountingPeriod.FindLast();
-        PostingDate := CalcDate('<-1D>', AccountingPeriod."Starting Date");  // Using -1D as required for the test case.
-        GLAccountNo := CreateGLAccountWithAccountType(GLAccount."Account Type"::Posting, '');  // Using blank value for Totaling.
-        CreateAndPostGeneralJournalLine(GenJournalLine."Account Type"::"G/L Account", GLAccountNo, Amount, '', PostingDate);  // Using blank value for ShortcutDimensionOneCode.
-        CreateAndPostGeneralJournalLine(GenJournalLine."Account Type"::"G/L Account", GLAccountNo, Amount, DepartmentFilter, PostingDate);
-        CreateAndPostGeneralJournalLine(
-          GenJournalLine."Account Type"::"G/L Account", GLAccountNo, Amount, '',
-          CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'Y>', PostingDate));  // Using blank value for ShortcutDimensionOneCode and random value for Posting Date.
-        CreateAndPostGeneralJournalLine(
-          GenJournalLine."Account Type"::"G/L Account", GLAccountNo, Amount, DepartmentFilter,
-          CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'Y>', PostingDate));  // Using random value for Posting Date.
-        EnqueueValuesForTrialBalanceRequestPageHandler(DepartmentFilter, GLAccountNo,
-          true, false, false, GLAccount."Account Type"::Posting, PostingDate);  // Using TRUE for IncludeClosingEntries.
-
-        // Exercise.
-        REPORT.Run(REPORT::"Trial Balance");  // Opens TrialBalanceRequestPageHandler.
-
-        // Verify.
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists(TotalPeriodCreditAmtCap, ExpectedAmount);
-        LibraryReportDataset.AssertElementWithValueExists(GLAccountNoCap, GLAccountNo);
     end;
 
     [Test]
@@ -1780,87 +1534,6 @@ codeunit 144072 "ERM Miscellaneous ES"
     end;
 
     [Test]
-    [HandlerFunctions('TrialBalanceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TrialBalanceReportWithIncludeOpeningEntriesAndAccumulateBalance()
-    var
-        AccountingPeriod: Record "Accounting Period";
-        GenJournalLine: Record "Gen. Journal Line";
-        GLAccount: Record "G/L Account";
-        GLAccountNo: Code[20];
-        Amount: Decimal;
-    begin
-        // [FEATURE] [Report] [G/L Balance]
-        // [SCENARIO 278929] Trial Balance report with Include Opening Entries and Accumulate Balance options only counts opening entries once
-        Initialize();
-        Amount := LibraryRandom.RandDec(1000, 2);
-
-        // [GIVEN] An accounting period
-        AccountingPeriod.SetRange("New Fiscal Year", true);
-        AccountingPeriod.FindLast();
-
-        // [GIVEN] A G/L Account with type = posting
-        GLAccountNo := CreateGLAccountWithAccountType(GLAccount."Account Type"::Posting, '');
-
-        // [GIVEN] There was an entry with credit amount for this account before the accounting period
-        CreateAndPostGeneralJournalLine(
-          GenJournalLine."Account Type"::"G/L Account", GLAccountNo, -Amount, '', AccountingPeriod."Starting Date" - 1);
-
-        // [WHEN] Trial Balance report is run with Include Opening Entries and Accumulate Balance at date for the accounting period
-        EnqueueValuesForTrialBalanceRequestPageHandler(
-          '', GLAccountNo, false, true, true, GLAccount."Account Type"::Posting, AccountingPeriod."Starting Date");
-
-        REPORT.Run(REPORT::"Trial Balance");
-        // Handled by TrialBalanceRequestPageHandler.
-
-        // [THEN] Opening entry was counted only once by the report
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists('TotalCreditAmtAtEnd', Amount);
-        LibraryReportDataset.AssertElementWithValueExists(GLAccountNoCap, GLAccountNo);
-    end;
-
-    [Test]
-    [HandlerFunctions('SimpleTrialBalanceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TrialBalanceReportNegativeCreditAmount()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        GenJournalTemplate: Record "Gen. Journal Template";
-        GLAccount: Record "G/L Account";
-        GLAccountNo: Code[20];
-        Amount: Decimal;
-    begin
-        // [FEATURE] [Report] [Trial Balance]
-        // [SCENARIO 428389] Trial Balance report prints negative credit amount
-        Initialize();
-        Amount := LibraryRandom.RandDec(1000, 2);
-
-        // [GIVEN] A G/L Account with type = posting
-        GLAccountNo := CreateGLAccountWithAccountType(GLAccount."Account Type"::Posting, '');
-
-        // [GIVEN] Create and post gen. journal line with "Credit Amount" = -100
-        CreateGeneralJournalLine(
-            GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccountNo, Amount, '', WorkDate());
-        GenJournalLine.Validate("Credit Amount", -Amount);
-        GenJournalLine.Modify();
-        GenJournalTemplate.Get(GenJournalLine."Journal Template Name");
-        GenJournalTemplate.Validate("Force Doc. Balance", true);
-        GenJournalTemplate.Modify();
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-
-        // [WHEN] Trial Balance report is run with Include Opening Entries and Accumulate Balance at date for the accounting period
-        LibraryVariableStorage.Enqueue(WorkDate());
-        LibraryVariableStorage.Enqueue(GLAccountNo);
-        Report.Run(Report::"Trial Balance");
-        // Handled by SimpleTrialBalanceRequestPageHandler.
-
-        // [THEN] Credit amount -100 printed
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists('CreditAmount_GLAccount', -Amount);
-        LibraryReportDataset.AssertElementWithValueExists('CreditAmount2_GLAccount', -Amount);
-    end;
-
-    [Test]
     [HandlerFunctions('SalesInvoiceBookOnlySIIRequestPageHandler')]
     [Scope('OnPrem')]
     procedure OnlySIIDocumentsShownInSalesInvBookWhenOnlySIIDocsOptionEnabled()
@@ -2502,17 +2175,6 @@ codeunit 144072 "ERM Miscellaneous ES"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreateGLAccount(GLAccountNo: Code[20]; AccountType: Enum "G/L Account Type"; Totaling: Text): Code[20]
-    var
-        GLAccount: Record "G/L Account";
-    begin
-        GLAccount.Validate("No.", GLAccountNo);
-        GLAccount.Validate("Account Type", AccountType);
-        GLAccount.Validate(Totaling, Totaling);
-        GLAccount.Insert(true);
-        exit(GLAccount."No.");
-    end;
-
     local procedure CreateItem(): Code[20]
     var
         Item: Record Item;
@@ -2776,18 +2438,6 @@ codeunit 144072 "ERM Miscellaneous ES"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure EnqueueValuesForTrialBalanceRequestPageHandler(DepartmentFilter: Code[20]; GLAccountFilter: Text[50]; IncludeClosingEntries: Boolean; IncludeOpeningEntries: Boolean; AccumulateBalance: Boolean; AccountType: Enum "G/L Account Type"; StartingDate: Date)
-    begin
-        // Enqueue for TrialBalanceRequestPageHandler.
-        LibraryVariableStorage.Enqueue(StartingDate);
-        LibraryVariableStorage.Enqueue(AccountType);
-        LibraryVariableStorage.Enqueue(GLAccountFilter);
-        LibraryVariableStorage.Enqueue(IncludeClosingEntries);
-        LibraryVariableStorage.Enqueue(IncludeOpeningEntries);
-        LibraryVariableStorage.Enqueue(AccumulateBalance);
-        LibraryVariableStorage.Enqueue(DepartmentFilter);
-    end;
-
     local procedure FindAndUpdateGLAccountWithAccountTypeAsHeading(Totaling: Text): Code[20]
     var
         GLAccount: Record "G/L Account";
@@ -2826,17 +2476,6 @@ codeunit 144072 "ERM Miscellaneous ES"
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
         ServiceInvoiceHeader.FindFirst();
         exit(ServiceInvoiceHeader."No.");
-    end;
-
-    local procedure GetDimensionValueCode(): Code[20]
-    var
-        DimensionValue: Record "Dimension Value";
-        GeneralLedgerSetup: Record "General Ledger Setup";
-    begin
-        GeneralLedgerSetup.Get();
-        DimensionValue.SetRange("Dimension Code", GeneralLedgerSetup."Global Dimension 1 Code");
-        DimensionValue.FindFirst();
-        exit(DimensionValue.Code);
     end;
 
     local procedure GetNextAutoDocNo(): Code[20]
@@ -3256,21 +2895,6 @@ codeunit 144072 "ERM Miscellaneous ES"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure AgedAccountsReceivableRequestPageHandler(var AgedAccountsReceivable: TestRequestPage "Aged Accounts Receivable")
-    var
-        AgingBy: Option "Due Date","Posting Date","Document Date";
-        HeadingType: Option "Date Interval","Number of Days";
-    begin
-        AgedAccountsReceivable.AgedAsOf.SetValue(WorkDate());
-        AgedAccountsReceivable.Agingby.SetValue(AgingBy::"Due Date");
-        AgedAccountsReceivable.PeriodLength.SetValue(PeriodLengthTxt);
-        AgedAccountsReceivable.HeadingType.SetValue(HeadingType::"Date Interval");
-        AgedAccountsReceivable.PrintDetails.SetValue(true);
-        AgedAccountsReceivable.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
     procedure AssemblyBOMRawMaterialsRequestPageHandler(var AssemblyBOMRawMaterials: TestRequestPage "Assembly BOM - Raw Materials")
     var
         BaseUnitOfMeasure: Variant;
@@ -3343,46 +2967,6 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         ApplyVendorEntries.ActionSetAppliesToID.Invoke();
         ApplyVendorEntries.ActionPostApplication.Invoke();  // Invokes PostApplicationModalPageHandler.
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure TrialBalanceRequestPageHandler(var TrialBalance: TestRequestPage "Trial Balance")
-    var
-        AccountType: Variant;
-        DateFilter: Variant;
-        GlobalDimensionOneFilter: Variant;
-        No: Variant;
-        IncludeClosingEntries: Boolean;
-        IncludeOpeningEntries: Boolean;
-        AccumulateBalance: Boolean;
-    begin
-        LibraryVariableStorage.Dequeue(DateFilter);
-        LibraryVariableStorage.Dequeue(AccountType);
-        LibraryVariableStorage.Dequeue(No);
-        IncludeClosingEntries := LibraryVariableStorage.DequeueBoolean();
-        IncludeOpeningEntries := LibraryVariableStorage.DequeueBoolean();
-        AccumulateBalance := LibraryVariableStorage.DequeueBoolean();
-        LibraryVariableStorage.Dequeue(GlobalDimensionOneFilter);
-        TrialBalance.OnlyGLAccountsWithBalanceAtDate.SetValue(true);
-        TrialBalance.IncludeClosingEntries.SetValue(IncludeClosingEntries);
-        TrialBalance.IncludeOpeningEntries.SetValue(IncludeOpeningEntries);
-        TrialBalance.AcumBalanceAtDate.SetValue(AccumulateBalance);
-        TrialBalance."G/L Account".SetFilter("Account Type", Format(AccountType));
-        TrialBalance."G/L Account".SetFilter("No.", No);
-        TrialBalance."G/L Account".SetFilter("Date Filter", Format(ClosingDate(DateFilter)));
-        TrialBalance."G/L Account".SetFilter("Global Dimension 1 Filter", GlobalDimensionOneFilter);
-        TrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SimpleTrialBalanceRequestPageHandler(var TrialBalance: TestRequestPage "Trial Balance")
-    begin
-        TrialBalance.OnlyGLAccountsWithBalanceAtDate.SetValue(true);
-        TrialBalance."G/L Account".SetFilter("Date Filter", Format(LibraryVariableStorage.DequeueText()));
-        TrialBalance."G/L Account".SetFilter("No.", LibraryVariableStorage.DequeueText());
-        TrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]

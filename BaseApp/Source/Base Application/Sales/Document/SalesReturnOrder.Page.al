@@ -1,15 +1,16 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Document;
 
 using Microsoft.CRM.Contact;
+using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.ReceivablesPayables;
+using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Reporting;
@@ -30,9 +31,11 @@ using Microsoft.Warehouse.InventoryDocument;
 using Microsoft.Warehouse.Request;
 using System.Automation;
 using System.Security.User;
-using Microsoft.EServices.EDocument;
 using System.Threading;
 
+/// <summary>
+/// Displays and manages a single sales return order document for processing customer returns.
+/// </summary>
 page 6630 "Sales Return Order"
 {
     Caption = 'Sales Return Order';
@@ -234,7 +237,6 @@ page 6630 "Sales Return Order"
                 {
                     ApplicationArea = SalesReturnOrder;
                     Importance = Additional;
-                    ToolTip = 'Specifies the date when the related document was created.';
                 }
                 field("Posting Date"; Rec."Posting Date")
                 {
@@ -253,38 +255,32 @@ page 6630 "Sales Return Order"
                     Importance = Promoted;
                     Editable = VATDateEnabled;
                     Visible = VATDateEnabled;
-                    ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
                 }
                 field("Order Date"; Rec."Order Date")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Importance = Promoted;
                     QuickEntry = false;
-                    ToolTip = 'Specifies the date when the order was created.';
                 }
                 field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Importance = Promoted;
-                    ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
                 field("Your Reference"; Rec."Your Reference")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Importance = Additional;
-                    ToolTip = 'Specifies the customer''s reference. The content will be printed on sales documents.';
                 }
                 field("No. of Archived Versions"; Rec."No. of Archived Versions")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the number of archived versions for this document.';
                 }
                 field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Importance = Additional;
                     QuickEntry = false;
-                    ToolTip = 'Specifies the name of the salesperson who is assigned to the customer.';
 
                     trigger OnValidate()
                     begin
@@ -294,7 +290,6 @@ page 6630 "Sales Return Order"
                 field("Campaign No."; Rec."Campaign No.")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the campaign number the document is linked to.';
                     trigger OnValidate()
                     begin
                         if Rec."Campaign No." <> xRec."Campaign No." then
@@ -304,12 +299,10 @@ page 6630 "Sales Return Order"
                 field("Responsibility Center"; Rec."Responsibility Center")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the code of the responsibility center, such as a distribution hub, that is associated with the involved user, company, customer, or vendor.';
                 }
                 field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
                 field("Job Queue Status"; Rec."Job Queue Status")
                 {
@@ -333,18 +326,15 @@ page 6630 "Sales Return Order"
                     Importance = Promoted;
                     StyleExpr = StatusStyleTxt;
                     QuickEntry = false;
-                    ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
                 }
                 field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the language to be used on printouts for this document.';
                     Visible = false;
                 }
                 field("Format Region"; Rec."Format Region")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the format to be used on printouts for this document.';
                     Visible = false;
                 }
                 field("Corrected Invoice No."; Rec."Corrected Invoice No.")
@@ -392,12 +382,10 @@ page 6630 "Sales Return Order"
                 {
                     ApplicationArea = SalesReturnOrder;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
                 }
                 field("Prices Including VAT"; Rec."Prices Including VAT")
                 {
                     ApplicationArea = VAT;
-                    ToolTip = 'Specifies if the Unit Price and Line Amount fields on document lines should be shown with or without VAT.';
 
                     trigger OnValidate()
                     begin
@@ -408,25 +396,21 @@ page 6630 "Sales Return Order"
                 {
                     ApplicationArea = VAT;
                     Importance = Additional;
-                    ToolTip = 'Specifies the country or region code for the VAT.';
                 }
                 field("VAT Registration No."; Rec."VAT Registration No.")
                 {
                     ApplicationArea = VAT;
                     Editable = false;
                     Importance = Additional;
-                    ToolTip = 'Specifies the customer''s VAT registration number for customers.';
                 }
                 field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the general business posting group that the sales document is linked to. The general business posting group is used to link the sales document to the appropriate general ledger account.';
                 }
                 field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
 
                     trigger OnValidate()
                     begin
@@ -438,30 +422,25 @@ page 6630 "Sales Return Order"
                     ApplicationArea = Basic, Suite;
                     Editable = IsPostingGroupEditable;
                     Importance = Additional;
-                    ToolTip = 'Specifies the customer''s market type to link business transactions to.';
                 }
                 field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
-                    ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                 }
                 field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
                 }
                 field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
                     Visible = IsPaymentMethodCodeVisible;
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
 
                     trigger OnValidate()
                     begin
@@ -471,7 +450,6 @@ page 6630 "Sales Return Order"
                 field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
 
                     trigger OnValidate()
                     begin
@@ -487,35 +465,29 @@ page 6630 "Sales Return Order"
                 {
                     ApplicationArea = SalesReturnOrder;
                     Importance = Promoted;
-                    ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                 }
                 field("Applies-to Doc. Type"; Rec."Applies-to Doc. Type")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the type of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
                 }
                 field("Applies-to Doc. No."; Rec."Applies-to Doc. No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the number of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
                 }
                 field("Applies-to ID"; Rec."Applies-to ID")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
                 }
                 field("Journal Templ. Name"; Rec."Journal Templ. Name")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the name of the journal template in which the sales header is to be posted.';
                     Visible = IsJournalTemplNameVisible;
                 }
                 field("Tax Liable"; Rec."Tax Liable")
                 {
                     ApplicationArea = SalesTax;
-                    ToolTip = 'Specifies if the customer or vendor is liable for sales tax.';
                 }
                 field("Tax Area Code"; Rec."Tax Area Code")
                 {
@@ -570,12 +542,12 @@ page 6630 "Sales Return Order"
                     field("Succeeded Company Name"; Rec."Succeeded Company Name")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the name of the company sucessor in connection with corporate restructuring.';
+                        ToolTip = 'Specifies the name of the company successor in connection with corporate restructuring.';
                     }
                     field("Succeeded VAT Registration No."; Rec."Succeeded VAT Registration No.")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the VAT registration number of the company sucessor in connection with corporate restructuring.';
+                        ToolTip = 'Specifies the VAT registration number of the company successor in connection with corporate restructuring.';
                     }
                 }
             }
@@ -603,7 +575,6 @@ page 6630 "Sales Return Order"
                     {
                         ApplicationArea = SalesReturnOrder;
                         Importance = Additional;
-                        ToolTip = 'Specifies the shipping agent''s package number.';
                     }
                 }
                 group("Ship-to")
@@ -634,7 +605,6 @@ page 6630 "Sales Return Order"
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Address';
-                        ToolTip = 'Specifies the address that products on the sales document will be shipped to.';
                     }
                     field("Ship-to Address 2"; Rec."Ship-to Address 2")
                     {
@@ -680,7 +650,6 @@ page 6630 "Sales Return Order"
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Phone No.';
-                        ToolTip = 'Specifies the telephone number of the company''s shipping address.';
                     }
                     field("Ship-to Contact"; Rec."Ship-to Contact")
                     {
@@ -743,7 +712,6 @@ page 6630 "Sales Return Order"
                         Editable = Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.";
                         Enabled = Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.";
                         Importance = Additional;
-                        ToolTip = 'Specifies the address of the customer that you will send the invoice to.';
                     }
                     field("Bill-to Address 2"; Rec."Bill-to Address 2")
                     {
@@ -850,32 +818,26 @@ page 6630 "Sales Return Order"
                 field("Transaction Specification"; Rec."Transaction Specification")
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies a specification of the document''s transaction, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Transaction Type"; Rec."Transaction Type")
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Transport Method"; Rec."Transport Method")
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Exit Point"; Rec."Exit Point")
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the point of exit through which you ship the items out of your country/region, for reporting to Intrastat.';
                 }
                 field("Area"; Rec.Area)
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the country or region of origin for the purpose of Intrastat reporting.';
                 }
                 field("Rcvd-from Country/Region Code"; Rec."Rcvd.-from Count./Region Code")
                 {
                     ApplicationArea = BasicEU, BasicCH, BasicNO;
-                    ToolTip = 'Specifies the country or region from which the items are returned for the purpose of Intrastat reporting.';
                 }
             }
         }
@@ -889,20 +851,6 @@ page 6630 "Sales Return Order"
                 SubPageLink = "No." = field("No."),
                               "Document Type" = field("Document Type");
             }
-#if not CLEAN25
-            part("Attached Documents"; "Document Attachment Factbox")
-            {
-                ObsoleteTag = '25.0';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
-                ApplicationArea = All;
-                Visible = false;
-                Caption = 'Attachments';
-                SubPageLink = "Table ID" = const(Database::"Sales Header"),
-                              "No." = field("No."),
-                              "Document Type" = field("Document Type");
-            }
-#endif
             part("Attached Documents List"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = All;
@@ -1937,6 +1885,10 @@ page 6630 "Sales Return Order"
         IsSalesLinesEditable := Rec.SalesLinesEditable();
     end;
 
+    /// <summary>
+    /// Posts the sales return order using the specified posting codeunit.
+    /// </summary>
+    /// <param name="PostingCodeunitID">The ID of the codeunit to use for posting.</param>
     procedure CallPostDocument(PostingCodeunitID: Integer)
     begin
         PostDocument(PostingCodeunitID);
@@ -2018,6 +1970,9 @@ page 6630 "Sales Return Order"
         DocNoVisible := DocumentNoVisibility.SalesDocumentNoIsVisible(DocType::"Return Order", Rec."No.");
     end;
 
+    /// <summary>
+    /// Sets whether the posting group field is editable based on the bill-to customer's settings.
+    /// </summary>
     procedure SetPostingGroupEditable()
     var
         BillToCustomer: Record Customer;
@@ -2026,6 +1981,9 @@ page 6630 "Sales Return Order"
             IsPostingGroupEditable := BillToCustomer."Allow Multiple Posting Groups";
     end;
 
+    /// <summary>
+    /// Shows a preview of the posting results for the sales return order.
+    /// </summary>
     procedure ShowPreview()
     var
         SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
@@ -2049,6 +2007,9 @@ page 6630 "Sales Return Order"
         SetPostingGroupEditable();
     end;
 
+    /// <summary>
+    /// Runs background validation to check for errors in the sales return order.
+    /// </summary>
     procedure RunBackgroundCheck()
     begin
         CurrPage.SalesDocCheckFactbox.Page.CheckErrorsInBackground(Rec);

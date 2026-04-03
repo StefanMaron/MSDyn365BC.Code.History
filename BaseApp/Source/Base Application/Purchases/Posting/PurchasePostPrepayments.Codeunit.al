@@ -28,8 +28,8 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Setup;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Utilities;
-using System.Utilities;
 using System.Telemetry;
+using System.Utilities;
 
 codeunit 444 "Purchase-Post Prepayments"
 {
@@ -304,7 +304,7 @@ codeunit 444 "Purchase-Post Prepayments"
         SetStatusPendingPrepayment(PurchHeader);
         PurchHeader.Modify();
 
-        OnCodeOnAfterUpdateHeaderAndLines(PurchHeader, PurchInvHeader, PurchCrMemoHeader, GenJnlPostLine, PreviewMode);
+        OnCodeOnAfterUpdateHeaderAndLines(PurchHeader, PurchInvHeader, PurchCrMemoHeader, GenJnlPostLine, DocumentType, PreviewMode);
 
         PurchHeader2 := PurchHeader;
 
@@ -2008,7 +2008,7 @@ codeunit 444 "Purchase-Post Prepayments"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCodeOnAfterUpdateHeaderAndLines(var PurchaseHeader: Record "Purchase Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PreviewMode: Boolean)
+    local procedure OnCodeOnAfterUpdateHeaderAndLines(var PurchaseHeader: Record "Purchase Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";DocumentType: Option Invoice,"Credit Memo"; PreviewMode: Boolean)
     begin
     end;
 

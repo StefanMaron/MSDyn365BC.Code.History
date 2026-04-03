@@ -8,16 +8,20 @@ using Microsoft.Finance.FinancialReports;
 using Microsoft.Finance.GeneralLedger.Setup;
 using System.Text;
 
+/// <summary>
+/// Main page for managing the hierarchical structure of G/L account categories.
+/// Provides a tree view interface for organizing and configuring account categories used in financial reporting.
+/// </summary>
 page 790 "G/L Account Categories"
 {
+    AboutTitle = 'About G/L Account Categories';
+    AboutText = 'The G/L Account Categories page lets you create simple financial reports based on your chart of accounts. By providing categories, subcategories, and account mapping to your chart of accounts, you can generate basic financial reporting out of the box. If you''re just getting started with financial reporting, the standard reports are excellent options until you become more experienced.';
     AccessByPermission = TableData "G/L Account Category" = R;
     AdditionalSearchTerms = 'general ledger account categories';
     ApplicationArea = Basic, Suite;
     Caption = 'G/L Account Categories';
     InsertAllowed = false;
     PageType = List;
-    AboutTitle = 'About G/L Account Categories';
-    AboutText = 'Organize general ledger accounts into customizable categories and subcategories to structure financial statements, assign accounts for reporting, and generate up-to-date financial reports such as the Balance Sheet and Income Statement.';
     RefreshOnActivate = true;
     ShowFilter = false;
     SourceTable = "G/L Account Category";
@@ -71,6 +75,8 @@ page 790 "G/L Account Categories"
                 field(GetBalance; Rec.GetBalance())
                 {
                     ApplicationArea = Basic, Suite;
+                    AutoFormatType = 2;
+                    AutoFormatExpression = '';
                     Caption = 'Balance';
                     Editable = false;
                     Style = Strong;
@@ -101,6 +107,9 @@ page 790 "G/L Account Categories"
     {
         area(creation)
         {
+            /// <summary>
+            /// Creates a new G/L account category as a sibling of the currently selected category.
+            /// </summary>
             action(New)
             {
                 ApplicationArea = Basic, Suite;
@@ -118,6 +127,9 @@ page 790 "G/L Account Categories"
         }
         area(processing)
         {
+            /// <summary>
+            /// Moves the selected category up one position in the sibling sequence within the same parent level.
+            /// </summary>
             action(MoveUp)
             {
                 ApplicationArea = Basic, Suite;
@@ -132,6 +144,9 @@ page 790 "G/L Account Categories"
                     Rec.MoveUp();
                 end;
             }
+            /// <summary>
+            /// Moves the selected category down one position in the sibling sequence within the same parent level.
+            /// </summary>
             action(MoveDown)
             {
                 ApplicationArea = Basic, Suite;
@@ -146,6 +161,9 @@ page 790 "G/L Account Categories"
                     Rec.MoveDown();
                 end;
             }
+            /// <summary>
+            /// Indents the selected category to make it a child of the previous sibling category.
+            /// </summary>
             action(Indent)
             {
                 ApplicationArea = Basic, Suite;
@@ -159,6 +177,9 @@ page 790 "G/L Account Categories"
                     Rec.MakeChildOfPreviousSibling();
                 end;
             }
+            /// <summary>
+            /// Outdents the selected category to make it a sibling of its parent category.
+            /// </summary>
             action(Outdent)
             {
                 ApplicationArea = Basic, Suite;
@@ -172,12 +193,16 @@ page 790 "G/L Account Categories"
                     Rec.MakeSiblingOfParent();
                 end;
             }
+            /// <summary>
+            /// Generates financial reports based on the current account category structure.
+            /// Creates account schedules that reflect the category hierarchy and account assignments.
+            /// </summary>
             action(GenerateAccSched)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Generate Financial Reports';
                 Image = CreateLinesFromJob;
-                ToolTip = 'Generate financial reports.';
+                ToolTip = 'Generate new or replace standard financial reports, such as Balance Sheet, Cash Flow Statement, Income Statement, and Retained Earnings.';
 
                 trigger OnAction()
                 var
@@ -185,6 +210,14 @@ page 790 "G/L Account Categories"
                 begin
                     GLAccountCategoryMgt.ConfirmAndRunGenerateAccountSchedules();
                 end;
+            }
+            action(ViewUncategorizedAccounts)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'View Uncategorized Accounts';
+                Image = ViewCheck;
+                RunObject = page "Uncategorized G/L Accounts";
+                ToolTip = 'View a list of Uncategorized G/L Accounts.';
             }
         }
         area(navigation)
@@ -235,6 +268,9 @@ page 790 "G/L Account Categories"
                 actionref(GenerateAccSched_Promoted; GenerateAccSched)
                 {
                 }
+                actionref(ViewUncategorizedAccounts_Promoted; ViewUncategorizedAccounts)
+                {
+                }
                 actionref(GLSetup_Promoted; GLSetup)
                 {
                 }
@@ -277,6 +313,10 @@ page 790 "G/L Account Categories"
         GLAccTotaling: Code[250];
         PageEditable: Boolean;
 
+    /// <summary>
+    /// Returns a selection filter string for the currently selected G/L account categories.
+    /// </summary>
+    /// <returns>Filter string that can be used to identify the selected categories.</returns>
     procedure GetSelectionFilter(): Text
     var
         GLAccountCategory: Record "G/L Account Category";

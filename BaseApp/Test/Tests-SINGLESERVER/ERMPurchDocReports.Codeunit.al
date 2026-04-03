@@ -203,82 +203,6 @@ codeunit 134335 "ERM Purch. Doc. Reports"
 
     [Test]
     [Scope('OnPrem')]
-    procedure SummaryAgingNoOption()
-    var
-        VendorSummaryAging: Report "Vendor - Summary Aging";
-    begin
-        // Check Vendor Summary Aging Report without any option selected.
-
-        // Setup.
-        Initialize();
-
-        // Exercise: Try to Save Vendor Summary Aging without any option.
-        Clear(VendorSummaryAging);
-        VendorSummaryAging.InitializeRequest(0D, '', false);
-        asserterror VendorSummaryAging.SaveAsExcel('Test');
-
-        // Verify: Verify Error raised during save Vendor Summary Aging Report.
-        Assert.ExpectedError(UndefinedDateErr);
-    end;
-
-    [Test]
-    [HandlerFunctions('ReportHandlerVendorSummaryAging')]
-    [Scope('OnPrem')]
-    procedure SummaryAgingPostingDate()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        // Check Vendor Summary Aging Report with Posting Date.
-
-        // Setup: Post Invoice Entry for Vendor on WORKDATE.
-        Initialize();
-        CreatePostGeneralJournalLine(GenJournalLine, LibraryPurchase.CreateVendorNo(), '', '0D');
-
-        // Exercise: Save Vendor Summary Aging Report with Posting Date.
-        SaveVendorSummaryAging(GenJournalLine."Account No.", GenJournalLine."Posting Date", Format(0D), false);
-
-        // Verify: Verify Saved Report Data.
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists('TotalVendAmtDueLCY', GenJournalLine.Amount);
-        LibraryReportDataset.AssertElementWithValueExists('VendBalanceDueLCY_1_', 0);
-    end;
-
-    [Test]
-    [HandlerFunctions('ReportHandlerVendorSummaryAging')]
-    [Scope('OnPrem')]
-    procedure SummaryAgingPeriodLength()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        // Check Vendor Summary Aging Report with Period Length.
-
-        // Setup: Post Invoice Entry for Vendor on WORKDATE.
-        Initialize();
-        CreatePostGeneralJournalLine(GenJournalLine, LibraryPurchase.CreateVendorNo(), '', '0D');
-
-        // Save and Verify Vendor Summary Aging Report with Period Length.
-        SaveAndVerifySummaryAging(GenJournalLine, false);
-    end;
-
-    [Test]
-    [HandlerFunctions('ReportHandlerVendorSummaryAging')]
-    [Scope('OnPrem')]
-    procedure SummaryAgingCurrency()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        // Check Vendor Summary Aging Report with Currency.
-
-        // Setup: Post Invoice Entry for Vendor on WORKDATE with Currency Attached.
-        Initialize();
-        CreatePostGeneralJournalLine(GenJournalLine, LibraryPurchase.CreateVendorNo(), CreateCurrencyAndExchangeRate(), '0D');
-
-        // Save and Verify Vendor Summary Aging Report with Currency.
-        SaveAndVerifySummaryAging(GenJournalLine, true);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure OrderSummaryNoOption()
     var
         VendorOrderSummary: Report "Vendor - Order Summary";
@@ -516,7 +440,6 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         asserterror LibraryReportDataset.AssertElementWithValueExists('', DocumentNo);
     end;
 
-#if not CLEAN25
     [Test]
     [HandlerFunctions('ReportHandlerVendorItemCatalog')]
     [Scope('OnPrem')]
@@ -544,7 +467,6 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryReportDataset.AssertElementWithValueExists('ItemVendLeadTimeCal', Format(ItemVendor."Lead Time Calculation"));
         LibraryReportDataset.AssertElementWithValueExists('ItemVendVendorItemNo', ItemVendor."Vendor Item No.");
     end;
-#endif
 
     [Test]
     [HandlerFunctions('ReportHandlerVendorPurchaseList')]
@@ -1887,7 +1809,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Item.Modify(true);
         exit(Item."No.");
     end;
-#if not CLEAN25
+
     local procedure CreateItemVendor(var ItemVendor: Record "Item Vendor"; ItemNo: Code[20]; VendorNo: Code[20])
     begin
         // Using Random value for Lead Time Calculation.
@@ -1897,7 +1819,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Evaluate(ItemVendor."Lead Time Calculation", '<' + Format(LibraryRandom.RandInt(5)) + 'D>');
         ItemVendor.Modify(true);
     end;
-#endif
+
     local procedure CreateItemWithDimension(var DefaultDimension: Record "Default Dimension")
     var
         Dimension: Record Dimension;
@@ -1988,7 +1910,6 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         PurchaseLine.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure CreatePurchasePrice(var PurchasePrice: Record "Purchase Price"; VendorNo: Code[20])
     var
         Item: Record Item;
@@ -1999,7 +1920,6 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         PurchasePrice.Validate("Direct Unit Cost", Item."Last Direct Cost");
         PurchasePrice.Modify(true);
     end;
-#endif
 
     local procedure CreatePurchaseQuoteWithMultipleLine(var PurchaseHeader: Record "Purchase Header")
     var
@@ -2194,21 +2114,6 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         DetailedVendorLedgEntry.Insert();
     end;
 
-    local procedure SaveAndVerifySummaryAging(GenJournalLine: Record "Gen. Journal Line"; AmountLCY: Boolean)
-    var
-        DatePeriod: DateFormula;
-    begin
-        // Exercise: Save Vendor Summary Aging Report with Currency.
-        Evaluate(DatePeriod, '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
-        SaveVendorSummaryAging(GenJournalLine."Account No.", GenJournalLine."Posting Date", Format(DatePeriod), AmountLCY);
-
-        // Verify: Verify Saved Report Data.
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists('TotalVendAmtDueLCY', GenJournalLine."Amount (LCY)");
-        LibraryReportDataset.AssertElementWithValueExists('VendBalanceDueLCY_3_', 0);
-        LibraryReportDataset.AssertElementWithValueExists('TotalVendAmtDueLCY', GenJournalLine."Amount (LCY)");
-    end;
-
     local procedure SaveBlanketPurchaseOrder(No: Code[20]; DocumentType: Enum "Purchase Document Type"; ShowInternalInfo: Boolean; LogInteraction: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
@@ -2305,7 +2210,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorDetailTrialBalance.InitializeRequest(PrintAmountsInLCY, false, ExcludeBalanceOnly);  // Set FALSE for Print Only Per Page.
         VendorDetailTrialBalance.Run();
     end;
-#if not CLEAN25
+
     local procedure SaveVendorItemCatalog(VendorNo: Code[20])
     var
         Vendor: Record Vendor;
@@ -2317,7 +2222,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorItemCatalog.SetTableView(Vendor);
         VendorItemCatalog.Run();
     end;
-#endif
+
     local procedure SaveVendorOrderSummary(No: Code[20]; PostingDate: Date; AmountLCY: Boolean)
     var
         Vendor: Record Vendor;
@@ -2344,22 +2249,6 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
         VendorPaymentReceipt.SetTableView(VendorLedgerEntry);
         VendorPaymentReceipt.Run();
-    end;
-
-    local procedure SaveVendorSummaryAging(AccountNo: Code[20]; PostingDate: Date; DatePeriod: Text[10]; AmountLCY: Boolean)
-    var
-        Vendor: Record Vendor;
-        VendorSummaryAging: Report "Vendor - Summary Aging";
-    begin
-        LibraryVariableStorage.Enqueue(PostingDate);
-        LibraryVariableStorage.Enqueue(DatePeriod);
-        LibraryVariableStorage.Enqueue(AmountLCY);
-
-        Commit(); // Required to run report with request page.
-        Clear(VendorSummaryAging);
-        Vendor.SetRange("No.", AccountNo);
-        VendorSummaryAging.SetTableView(Vendor);
-        VendorSummaryAging.Run();
     end;
 
     local procedure SaveVendorBalanceToDate(PurchaseHeader: Record "Purchase Header"; AmountLCY: Boolean; Unapplied: Boolean; ShowEntriesWithZeroBalance: Boolean)
@@ -2721,25 +2610,6 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     procedure ReportHandlerVendorPaymentReceipt(var VendorPaymentReceipt: TestRequestPage "Vendor - Payment Receipt")
     begin
         VendorPaymentReceipt.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure ReportHandlerVendorSummaryAging(var VendorSummaryAging: TestRequestPage "Vendor - Summary Aging")
-    var
-        StartingDate: Variant;
-        AmountLCY: Variant;
-        DatePeriod: Variant;
-        DatePeriodFormula: DateFormula;
-    begin
-        LibraryVariableStorage.Dequeue(StartingDate);
-        LibraryVariableStorage.Dequeue(DatePeriod);
-        Evaluate(DatePeriodFormula, DatePeriod);
-        LibraryVariableStorage.Dequeue(AmountLCY);
-        VendorSummaryAging."PeriodStartDate[2]".SetValue(StartingDate);
-        VendorSummaryAging.PeriodLength.SetValue(DatePeriodFormula);
-        VendorSummaryAging.PrintAmountsInLCY.SetValue(AmountLCY);
-        VendorSummaryAging.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

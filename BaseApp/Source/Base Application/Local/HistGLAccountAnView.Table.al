@@ -1,4 +1,4 @@
-﻿#if not CLEANSCHEMA28 
+#if not CLEANSCHEMA28 
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -18,13 +18,8 @@ table 10725 "Hist. G/L Account (An. View)"
     Caption = 'Hist. G/L Account (An. View)';
     DataCaptionFields = "No.", Name;
     ObsoleteReason = 'Obsolete feature';
-#if CLEAN25
     ObsoleteState = Removed;
     ObsoleteTag = '28.0';
-#else
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
-#endif
     DataClassification = CustomerContent;
 
     fields
@@ -33,9 +28,6 @@ table 10725 "Hist. G/L Account (An. View)"
         {
             Caption = 'No.';
             NotBlank = true;
-#if not CLEAN25
-            TableRelation = "Historic G/L Account";
-#endif
         }
         field(2; Name; Text[30])
         {
@@ -132,7 +124,7 @@ table 10725 "Hist. G/L Account (An. View)"
         }
         field(31; "Balance at Date"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 0;
             BlankZero = true;
             CalcFormula = sum("Analysis View Entry".Amount where("Analysis View Code" = field("Analysis View Filter"),
                                                                   "Business Unit Code" = field("Business Unit Filter"),
@@ -149,7 +141,7 @@ table 10725 "Hist. G/L Account (An. View)"
         }
         field(32; "Net Change"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 0;
             BlankZero = true;
             CalcFormula = sum("Analysis View Entry".Amount where("Analysis View Code" = field("Analysis View Filter"),
                                                                   "Business Unit Code" = field("Business Unit Filter"),
@@ -166,7 +158,7 @@ table 10725 "Hist. G/L Account (An. View)"
         }
         field(33; "Budgeted Amount"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 0;
             BlankZero = true;
             CalcFormula = sum("Analysis View Budget Entry".Amount where("Analysis View Code" = field("Analysis View Filter"),
                                                                          "Budget Name" = field("Budget Filter"),
@@ -184,10 +176,6 @@ table 10725 "Hist. G/L Account (An. View)"
         field(34; Totaling; Text[250])
         {
             Caption = 'Totaling';
-#if not CLEAN25
-            TableRelation = "Historic G/L Account";
-            ValidateTableRelation = false;
-#endif
         }
         field(35; "Budget Filter"; Code[10])
         {
@@ -197,7 +185,7 @@ table 10725 "Hist. G/L Account (An. View)"
         }
         field(36; Balance; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 0;
             BlankZero = true;
             CalcFormula = sum("Analysis View Entry".Amount where("Analysis View Code" = field("Analysis View Filter"),
                                                                   "Business Unit Code" = field("Business Unit Filter"),
@@ -214,7 +202,7 @@ table 10725 "Hist. G/L Account (An. View)"
         }
         field(37; "Budgeted at Date"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 0;
             BlankZero = true;
             CalcFormula = sum("Analysis View Budget Entry".Amount where("Analysis View Code" = field("Analysis View Filter"),
                                                                          "Budget Name" = field("Budget Filter"),
@@ -261,7 +249,7 @@ table 10725 "Hist. G/L Account (An. View)"
         }
         field(47; "Debit Amount"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 0;
             BlankZero = true;
             CalcFormula = sum("Analysis View Entry"."Debit Amount" where("Analysis View Code" = field("Analysis View Filter"),
                                                                           "Business Unit Code" = field("Business Unit Filter"),
@@ -278,7 +266,7 @@ table 10725 "Hist. G/L Account (An. View)"
         }
         field(48; "Credit Amount"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 0;
             BlankZero = true;
             CalcFormula = sum("Analysis View Entry"."Credit Amount" where("Analysis View Code" = field("Analysis View Filter"),
                                                                            "Business Unit Code" = field("Business Unit Filter"),
@@ -299,7 +287,7 @@ table 10725 "Hist. G/L Account (An. View)"
         }
         field(52; "Budgeted Debit Amount"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 0;
             BlankNumbers = BlankNegAndZero;
             BlankZero = true;
             CalcFormula = sum("Analysis View Budget Entry".Amount where("Analysis View Code" = field("Analysis View Filter"),
@@ -317,7 +305,7 @@ table 10725 "Hist. G/L Account (An. View)"
         }
         field(53; "Budgeted Credit Amount"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 0;
             BlankNumbers = BlankZeroAndPos;
             BlankZero = true;
             CalcFormula = - sum("Analysis View Budget Entry".Amount where("Analysis View Code" = field("Analysis View Filter"),
@@ -359,7 +347,7 @@ table 10725 "Hist. G/L Account (An. View)"
         }
         field(60; "Additional-Currency Net Change"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 0;
             BlankZero = true;
             CalcFormula = sum("Analysis View Entry"."Add.-Curr. Amount" where("Analysis View Code" = field("Analysis View Filter"),
                                                                                "Business Unit Code" = field("Business Unit Filter"),
@@ -376,7 +364,7 @@ table 10725 "Hist. G/L Account (An. View)"
         }
         field(61; "Add.-Currency Balance at Date"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 0;
             BlankZero = true;
             CalcFormula = sum("Analysis View Entry"."Add.-Curr. Amount" where("Analysis View Code" = field("Analysis View Filter"),
                                                                                "Business Unit Code" = field("Business Unit Filter"),
@@ -393,7 +381,7 @@ table 10725 "Hist. G/L Account (An. View)"
         }
         field(62; "Additional-Currency Balance"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 0;
             BlankZero = true;
             CalcFormula = sum("Analysis View Entry"."Add.-Curr. Amount" where("Analysis View Code" = field("Analysis View Filter"),
                                                                                "Business Unit Code" = field("Business Unit Filter"),
@@ -416,7 +404,7 @@ table 10725 "Hist. G/L Account (An. View)"
         }
         field(64; "Add.-Currency Debit Amount"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 0;
             BlankZero = true;
             CalcFormula = sum("Analysis View Entry"."Add.-Curr. Debit Amount" where("Analysis View Code" = field("Analysis View Filter"),
                                                                                      "Business Unit Code" = field("Business Unit Filter"),
@@ -433,7 +421,7 @@ table 10725 "Hist. G/L Account (An. View)"
         }
         field(65; "Add.-Currency Credit Amount"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 0;
             BlankZero = true;
             CalcFormula = sum("Analysis View Entry"."Add.-Curr. Credit Amount" where("Analysis View Code" = field("Analysis View Filter"),
                                                                                       "Business Unit Code" = field("Business Unit Filter"),
@@ -549,5 +537,5 @@ table 10725 "Hist. G/L Account (An. View)"
     end;
 }
 
- 
+
 #endif

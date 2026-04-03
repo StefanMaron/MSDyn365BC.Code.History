@@ -5,8 +5,8 @@
 namespace Microsoft.Service.History;
 
 using Microsoft.EServices.EDocument;
-using Microsoft.Sales.History;
 using Microsoft.Sales.Customer;
+using Microsoft.Sales.History;
 
 tableextension 10794 "Service Cr.Memo Header ES" extends "Service Cr.Memo Header"
 {

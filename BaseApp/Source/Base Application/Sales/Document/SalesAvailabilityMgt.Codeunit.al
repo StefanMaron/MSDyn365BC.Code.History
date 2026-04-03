@@ -4,14 +4,17 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Document;
 
+using Microsoft.Assembly.Document;
+using Microsoft.Foundation.Company;
 using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Foundation.Company;
 using System.IO;
-using Microsoft.Assembly.Document;
 
+/// <summary>
+/// Manages inventory availability checks and warnings for sales documents.
+/// </summary>
 codeunit 99000872 "Sales Availability Mgt."
 {
     var
@@ -38,6 +41,12 @@ codeunit 99000872 "Sales Availability Mgt."
         end;
     end;
 
+    /// <summary>
+    /// Sets the sales header for order promising and populates order promising lines.
+    /// </summary>
+    /// <param name="OrderPromisingLine">The order promising line record to populate.</param>
+    /// <param name="SalesHeader">The sales header to process.</param>
+    /// <param name="CaptionText">Returns the caption text for the page.</param>
     procedure SetSalesHeader(var OrderPromisingLine: Record "Order Promising Line"; var SalesHeader: Record "Sales Header"; var CaptionText: Text)
     var
         SalesLine: Record "Sales Line";
@@ -311,17 +320,15 @@ codeunit 99000872 "Sales Availability Mgt."
     local procedure OnGetDemandEntries(var AvailabilityCalcOverview: Record "Availability Calc. Overview"; var Item: Record Item; var sender: Codeunit "Calc. Availability Overview")
     var
         SalesLine: Record "Sales Line";
-        SalesHeader: Record "Sales Header";
     begin
         if SalesLine.FindLinesWithItemToPlan(Item, SalesLine."Document Type"::Order) then
             repeat
-                SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-                SalesLine.CalcFields("Reserved Qty. (Base)");
+                SalesLine.CalcFields("Reserved Qty. (Base)", "Sell-to Customer Name");
                 sender.InsertAvailabilityEntry(
                     AvailabilityCalcOverview,
                     AvailabilityCalcOverview.Type::Demand, SalesLine."Shipment Date", SalesLine."Location Code", SalesLine."Variant Code",
                     -SalesLine."Outstanding Qty. (Base)", -SalesLine."Reserved Qty. (Base)",
-                    Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesHeader."Sell-to Customer Name",
+                    Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Sell-to Customer Name",
                     "Demand Order Source Type"::"Sales Demand");
             until SalesLine.Next() = 0;
     end;
@@ -330,17 +337,15 @@ codeunit 99000872 "Sales Availability Mgt."
     local procedure OnGetSupplyEntries(var AvailabilityCalcOverview: Record "Availability Calc. Overview"; var Item: Record Item; var sender: Codeunit "Calc. Availability Overview")
     var
         SalesLine: Record "Sales Line";
-        SalesHeader: Record "Sales Header";
     begin
         if SalesLine.FindLinesWithItemToPlan(Item, SalesLine."Document Type"::"Return Order") then
             repeat
-                SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-                SalesLine.CalcFields("Reserved Qty. (Base)");
+                SalesLine.CalcFields("Reserved Qty. (Base)", "Sell-to Customer Name");
                 sender.InsertAvailabilityEntry(
                   AvailabilityCalcOverview,
                   AvailabilityCalcOverview.Type::Supply, SalesLine."Shipment Date", SalesLine."Location Code", SalesLine."Variant Code",
                   SalesLine."Outstanding Qty. (Base)", SalesLine."Reserved Qty. (Base)",
-                  Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesHeader."Sell-to Customer Name",
+                  Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Sell-to Customer Name",
                   "Demand Order Source Type"::"All Demands");
             until SalesLine.Next() = 0;
     end;
@@ -377,6 +382,11 @@ codeunit 99000872 "Sales Availability Mgt."
 
     // Table "Order Promising Line"
 
+    /// <summary>
+    /// Transfers sales line data to an order promising line record.
+    /// </summary>
+    /// <param name="OrderPromisingLine">The order promising line to populate.</param>
+    /// <param name="SalesLine">The sales line to transfer from.</param>
     procedure TransferToOrderPromisingLine(var OrderPromisingLine: Record "Order Promising Line"; var SalesLine: Record "Sales Line")
     begin
         OrderPromisingLine."Source Type" := OrderPromisingLine."Source Type"::Sales;
@@ -396,9 +406,6 @@ codeunit 99000872 "Sales Availability Mgt."
         OrderPromisingLine."Quantity (Base)" := SalesLine."Outstanding Qty. (Base)";
 
         OnAfterTransferToOrderPromisingLine(OrderPromisingLine, SalesLine);
-#if not CLEAN25
-        OrderPromisingLine.RunOnAfterTransferFromSalesLine(OrderPromisingLine, SalesLine);
-#endif
     end;
 
     [IntegrationEvent(false, false)]
@@ -541,6 +548,11 @@ codeunit 99000872 "Sales Availability Mgt."
 
     // Codeunit "Item Availability Forms Mgt"
 
+    /// <summary>
+    /// Shows item availability information from a sales line for the specified availability type.
+    /// </summary>
+    /// <param name="SalesLine">The sales line to check availability for.</param>
+    /// <param name="AvailabilityType">The type of availability view to show (Period, Variant, Location, Event, BOM, or UOM).</param>
     procedure ShowItemAvailabilityFromSalesLine(var SalesLine: Record "Sales Line"; AvailabilityType: Enum "Item Availability Type")
     var
         Item: Record Item;
@@ -604,6 +616,10 @@ codeunit 99000872 "Sales Availability Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Shows sales order lines for the specified item.
+    /// </summary>
+    /// <param name="Item">The item to show sales lines for.</param>
     procedure ShowSalesLines(var Item: Record Item)
     var
         SalesLine: Record "Sales Line";
@@ -706,6 +722,11 @@ codeunit 99000872 "Sales Availability Mgt."
     end;
 
 
+    /// <summary>
+    /// Transfers sales line data to an inventory event buffer for availability calculation.
+    /// </summary>
+    /// <param name="InventoryEventBuffer">The inventory event buffer to populate.</param>
+    /// <param name="SalesLine">The sales line to transfer from.</param>
     procedure TransferFromSales(var InventoryEventBuffer: Record "Inventory Event Buffer"; SalesLine: Record "Sales Line")
     var
         SalesLineReserve: Codeunit "Sales Line-Reserve";
@@ -735,11 +756,14 @@ codeunit 99000872 "Sales Availability Mgt."
         end;
 
         OnAfterTransferFromSales(InventoryEventBuffer, SalesLine);
-#if not CLEAN25
-        InventoryEventBuffer.RunOnAfterTransferFromSales(InventoryEventBuffer, SalesLine);
-#endif
     end;
 
+    /// <summary>
+    /// Transfers blanket sales order line data to an inventory event buffer.
+    /// </summary>
+    /// <param name="InventoryEventBuffer">The inventory event buffer to populate.</param>
+    /// <param name="SalesLine">The blanket sales order line to transfer from.</param>
+    /// <param name="UnconsumedQtyBase">The unconsumed quantity in base unit of measure.</param>
     procedure TransferFromSalesBlanketOrder(var InventoryEventBuffer: Record "Inventory Event Buffer"; SalesLine: Record "Sales Line"; UnconsumedQtyBase: Decimal)
     var
         RecRef: RecordRef;
@@ -761,11 +785,13 @@ codeunit 99000872 "Sales Availability Mgt."
         InventoryEventBuffer.Positive := not (InventoryEventBuffer."Remaining Quantity (Base)" < 0);
 
         OnAfterTransferFromSalesBlanketOrder(InventoryEventBuffer, SalesLine);
-#if not CLEAN25
-        InventoryEventBuffer.RunOnAfterTransferFromSalesBlanketOrder(InventoryEventBuffer, SalesLine);
-#endif
     end;
 
+    /// <summary>
+    /// Transfers sales return order line data to an inventory event buffer.
+    /// </summary>
+    /// <param name="InventoryEventBuffer">The inventory event buffer to populate.</param>
+    /// <param name="SalesLine">The sales return line to transfer from.</param>
     procedure TransferFromSalesReturn(var InventoryEventBuffer: Record "Inventory Event Buffer"; SalesLine: Record "Sales Line")
     var
         SalesLineReserve: Codeunit "Sales Line-Reserve";
@@ -795,9 +821,6 @@ codeunit 99000872 "Sales Availability Mgt."
         end;
 
         OnAfterTransferFromSalesReturn(InventoryEventBuffer, SalesLine);
-#if not CLEAN25
-        InventoryEventBuffer.RunOnAfterTransferFromSalesReturn(InventoryEventBuffer, SalesLine);
-#endif
     end;
 
     [IntegrationEvent(false, false)]

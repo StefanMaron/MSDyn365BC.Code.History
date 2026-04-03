@@ -4,8 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.History;
 
-using Microsoft.Purchases.Payables;
 using Microsoft.EServices.EDocument;
+using Microsoft.Purchases.Payables;
 
 codeunit 1405 "Purch. Inv. Header - Edit"
 {

@@ -33,8 +33,10 @@ codeunit 6140 "E-Doc. Import"
         AllEDocumentsProcessed: Boolean;
     begin
 #if not CLEAN26
+#pragma warning disable AL0432
         if EDocumentService."Service Integration V2" = "Service Integration"::"No Integration" then
             exit(EDocIntegrationMgt.ReceiveDocument(EDocumentService, EDocumentService."Service Integration"));
+#pragma warning restore AL0432
 #endif
         EDocIntegrationMgt.ReceiveDocuments(EDocumentService, ReceiveContext);
 
@@ -122,7 +124,6 @@ codeunit 6140 "E-Doc. Import"
                         EDocImpSessionTelemetry.Emit(EDocument);
                         exit(false);
                     end;
-
                 end;
 
         if CurrentStatus <> DesiredStatus then
@@ -544,10 +545,13 @@ codeunit 6140 "E-Doc. Import"
         end;
 
         if Vendor.Get(EDocument."Bill-to/Pay-to No.") then
-            if ValidateEDocumentIsForPurchaseOrder(EDocument, Vendor) then
-                ReceiveEDocumentToPurchaseOrder(EDocument, EDocService, SourceDocumentHeader, SourceDocumentLine, EDocServiceStatus, Vendor, Window)
+            if Vendor."Self-Billing Agreement" then
+                EDocImportHelper.LogErrorIfVendorIsSelfBilling(EDocument, Vendor)
             else
-                ReceiveEDocumentToPurchaseDoc(EDocument, EDocService, SourceDocumentHeader, SourceDocumentLine, EDocServiceStatus, Window, CreateJnlLine)
+                if ValidateEDocumentIsForPurchaseOrder(EDocument, Vendor) then
+                    ReceiveEDocumentToPurchaseOrder(EDocument, EDocService, SourceDocumentHeader, SourceDocumentLine, EDocServiceStatus, Vendor, Window)
+                else
+                    ReceiveEDocumentToPurchaseDoc(EDocument, EDocService, SourceDocumentHeader, SourceDocumentLine, EDocServiceStatus, Window, CreateJnlLine)
         else
             EDocErrorHelper.LogErrorMessage(EDocument, Vendor, Vendor.FieldNo("No."), FailedToFindVendorErr);
 
@@ -878,12 +882,16 @@ codeunit 6140 "E-Doc. Import"
 #if not CLEAN26
     internal procedure V1_AfterInsertImportedEdocument(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; var TempBlob: Codeunit "Temp Blob"; EDocCount: Integer; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage)
     begin
+#pragma warning disable AL0432
         OnAfterInsertImportedEdocument(EDocument, EDocumentService, TempBlob, EDocCount, HttpRequest, HttpResponse);
+#pragma warning restore AL0432
     end;
 
     internal procedure V1_BeforeInsertImportedEdocument(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; var TempBlob: Codeunit "Temp Blob"; EDocCount: Integer; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage; var IsCreated: Boolean; var IsProcessed: Boolean)
     begin
+#pragma warning disable AL0432
         OnBeforeInsertImportedEdocument(EDocument, EDocumentService, TempBlob, EDocCount, HttpRequest, HttpResponse, IsCreated, IsProcessed);
+#pragma warning restore AL0432
     end;
 #endif
 

@@ -4,9 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.PaymentTerms;
 
+using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Integration.Dataverse;
 using System.Globalization;
-using Microsoft.Finance.ReceivablesPayables;
 
 table 3 "Payment Terms"
 {
@@ -32,6 +32,7 @@ table 3 "Payment Terms"
         }
         field(4; "Discount %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Discount %';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;

@@ -436,6 +436,8 @@ report 10707 "Make 347 Declaration"
                     field(MinAmount; MinAmount)
                     {
                         ApplicationArea = Basic, Suite;
+                        AutoFormatType = 1;
+                        AutoFormatExpression = '';
                         Caption = 'Min. Amount';
                         ShowMandatory = true;
                         ToolTip = 'Specifies the minimum amount for the operations declaration.';
@@ -444,6 +446,8 @@ report 10707 "Make 347 Declaration"
                     field(MinAmountInCash; MinAmountCash)
                     {
                         ApplicationArea = Basic, Suite;
+                        AutoFormatType = 1;
+                        AutoFormatExpression = '';
                         Caption = 'Min. Amount in Cash';
                         ToolTip = 'Specifies the minimum amount in payments in cash received from customers for the operations declaration.';
                     }

@@ -825,13 +825,11 @@ codeunit 5343 "CRM Sales Order to Sales Order"
     local procedure InitializeWriteInOrderLine(var SalesLine: Record "Sales Line")
     var
         SalesSetup: Record "Sales & Receivables Setup";
-        SalesHeader: Record "Sales Header";
     begin
         SalesSetup.Get();
         if SalesSetup."Write-in Product No." = '' then begin
-            SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
             Session.LogMessage('000083C', StrSubstNo(MisingWriteInProductTelemetryMsg, CRMProductName.CDSServiceName()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
-            Error(MissingWriteInProductNoErr, CRMProductName.CDSServiceName(), SalesLine."Document Type", SalesHeader."Your Reference");
+            Error(MissingWriteInProductNoErr, CRMProductName.CDSServiceName(), SalesLine."Document Type", SalesLine.GetSalesHeader()."Your Reference");
         end;
         SalesSetup.Validate("Write-in Product No.");
         case SalesSetup."Write-in Product Type" of

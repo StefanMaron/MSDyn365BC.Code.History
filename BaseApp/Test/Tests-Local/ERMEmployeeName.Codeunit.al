@@ -176,8 +176,10 @@ codeunit 144046 "ERM Employee Name"
     end;
 
     local procedure GetImagePath(): Text
+    var
+        LibraryUtilityOnPrem: Codeunit "Library - Utility OnPrem";
     begin
-        exit(LibraryUtility.GetInetRoot() + ImagePathTxt);
+        exit(LibraryUtilityOnPrem.GetInetRoot() + ImagePathTxt);
     end;
 
     [ConfirmHandler]

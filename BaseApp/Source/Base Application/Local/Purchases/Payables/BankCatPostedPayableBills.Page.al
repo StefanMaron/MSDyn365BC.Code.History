@@ -5,9 +5,9 @@
 namespace Microsoft.Purchases.Payables;
 
 using Microsoft.Bank.BankAccount;
-using Microsoft.Foundation.Enums;
 using Microsoft.Finance.Analysis;
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Enums;
 using System.Utilities;
 
 page 7000071 "Bank Cat. Posted Payable Bills"

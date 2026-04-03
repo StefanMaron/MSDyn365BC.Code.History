@@ -48,8 +48,8 @@ using Microsoft.Service.Pricing;
 using Microsoft.Service.Reports;
 using Microsoft.Service.Resources;
 using Microsoft.Service.Setup;
-using Microsoft.Warehouse.Structure;
 using Microsoft.Utilities;
+using Microsoft.Warehouse.Structure;
 using System.Environment.Configuration;
 using System.IO;
 using System.Security.User;
@@ -75,6 +75,7 @@ codeunit 136101 "Service Orders"
         LibraryService: Codeunit "Library - Service";
         LibraryResource: Codeunit "Library - Resource";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryUtilityOnPrem: Codeunit "Library - Utility OnPrem";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibrarySmallBusiness: Codeunit "Library - Small Business";
@@ -739,7 +740,7 @@ codeunit 136101 "Service Orders"
         ServiceOrderResponseTime.SaveAsExcel(FilePath);
 
         // [THEN] Verify that Saved file has some data.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
+        LibraryUtilityOnPrem.CheckFileNotEmpty(FilePath);
     end;
 
     [Test]
@@ -764,7 +765,7 @@ codeunit 136101 "Service Orders"
         ServiceItemLineLabels.SaveAsExcel(FilePath);
 
         // [THEN] Verify that Saved file has some data.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
+        LibraryUtilityOnPrem.CheckFileNotEmpty(FilePath);
     end;
 
     [Test]
@@ -793,7 +794,7 @@ codeunit 136101 "Service Orders"
         ServiceProfitRespCenters.SaveAsExcel(FilePath);
 
         // [THEN] Verify that Saved file has some data.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
+        LibraryUtilityOnPrem.CheckFileNotEmpty(FilePath);
     end;
 
     [Test]
@@ -822,7 +823,7 @@ codeunit 136101 "Service Orders"
         ServiceProfitServOrders.SaveAsExcel(FilePath);
 
         // [THEN] Verify that Saved file has some data.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
+        LibraryUtilityOnPrem.CheckFileNotEmpty(FilePath);
     end;
 
     [Test]
@@ -855,7 +856,7 @@ codeunit 136101 "Service Orders"
         ServiceTasks.SaveAsExcel(FilePath);
 
         // [THEN] Verify that Saved file has some data.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
+        LibraryUtilityOnPrem.CheckFileNotEmpty(FilePath);
     end;
 
     [Test]
@@ -4131,7 +4132,6 @@ codeunit 136101 "Service Orders"
             ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.", 0);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure CorrectCalculationLineDiscountForServiceLineWithSalesPrice()
@@ -4184,7 +4184,7 @@ codeunit 136101 "Service Orders"
         ServiceLine.TestField("Line Discount %", 0);
         ServiceLine.TestField("Line Discount Amount", 0);
     end;
-#endif
+
     [Test]
     [Scope('OnPrem')]
     procedure ThereIsNoPaymentGLEntriesAfterPostingServiceOrderWithEmptyPaymentMethodCode()
@@ -8026,7 +8026,6 @@ codeunit 136101 "Service Orders"
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
     end;
 
-#if not CLEAN25
     local procedure CreateSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; CustomerNo: Code[20]; ItemNo: Code[20])
     begin
         SalesLineDiscount.Init();
@@ -8036,7 +8035,7 @@ codeunit 136101 "Service Orders"
         SalesLineDiscount.Validate("Sales Code", CustomerNo);
         SalesLineDiscount.Insert(true);
     end;
-#endif
+
     local procedure SetupForUoMTest(
         var Item: Record Item;
         var ServiceLine: Record "Service Line";

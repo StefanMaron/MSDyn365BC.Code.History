@@ -4,10 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument;
 
-using Microsoft.Finance.GeneralLedger.Journal;
-using Microsoft.eServices.EDocument.Integration.Interfaces;
 using Microsoft.eServices.EDocument.Integration;
+using Microsoft.eServices.EDocument.Integration.Interfaces;
 using Microsoft.eServices.EDocument.Processing.Import;
+using Microsoft.Finance.GeneralLedger.Journal;
 
 table 6103 "E-Document Service"
 {
@@ -356,11 +356,7 @@ table 6103 "E-Document Service"
     end;
 
     internal procedure GetImportProcessVersion(): Enum "E-Document Import Process"
-    var
-        EDocumentsSetup: Record "E-Documents Setup";
     begin
-        if not EDocumentsSetup.IsNewEDocumentExperienceActive() then
-            exit("E-Document Import Process"::"Version 1.0");
         exit(Rec."Import Process");
     end;
 

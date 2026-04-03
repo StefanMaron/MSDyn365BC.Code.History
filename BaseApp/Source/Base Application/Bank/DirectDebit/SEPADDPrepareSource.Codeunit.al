@@ -4,8 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.DirectDebit;
 
-using Microsoft.Sales.Receivables;
 using Microsoft.Finance.ReceivablesPayables;
+using Microsoft.Sales.Receivables;
 
 /// <summary>
 /// Prepares direct debit collection entry data for SEPA XML export by copying and organizing

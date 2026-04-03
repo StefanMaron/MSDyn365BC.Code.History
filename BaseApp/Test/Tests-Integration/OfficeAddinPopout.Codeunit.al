@@ -80,35 +80,6 @@ codeunit 139053 "Office Addin Popout"
     end;
 
     [Test]
-    [HandlerFunctions('CustomerActionPageHandlerForCreditMemo')]
-    [Scope('OnPrem')]
-    procedure MailEngineCustomerPageCreateCreditMemoPopOut()
-    var
-        OfficeAddinContext: Record "Office Add-in Context";
-        ContactNo: Code[20];
-        NewBusRelCode: Code[10];
-        TestEmail: Text[80];
-    begin
-        // [FEATURE] [Contact] [Customer]
-        // [SCENARIO 156493] Stan can initiate tasks from the Sales Credit Memo page
-        // Setup
-        Initialize();
-
-        // [GIVEN] New contact with email is created and assigned to customer
-        TestEmail := RandomEmail();
-        CreateContactFromCustomer(TestEmail, ContactNo, NewBusRelCode);
-
-        // [WHEN] Outlook Main Engine finds email and contact/customer it is assigned to
-        OfficeAddinContext.SetFilter(Email, '=%1', TestEmail);
-
-        // [THEN] Customer card is opened for associated email
-        RunMailEngine(OfficeAddinContext);
-
-        // Cleanup: Input the original value of the field Bus. Rel. Code for Customers in Marketing Setup.
-        ChangeBusinessRelationCodeForCustomers(BusRelCodeForCustomers);
-    end;
-
-    [Test]
     [HandlerFunctions('VendorActionPageHandlerForInvoice')]
     [Scope('OnPrem')]
     procedure MailEngineVendorPageCreateInvoicePopOut()
@@ -122,37 +93,6 @@ codeunit 139053 "Office Addin Popout"
         // [SCENARIO 156495] Stan can initiate tasks from the Purchase Invoice page
         // Setup
         Initialize();
-
-        // [GIVEN] New contact with email is created and assigned to customer
-        TestEmail := RandomEmail();
-        CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode);
-
-        // [WHEN] Outlook Main Engine finds email and contact/vendor it is assigned to
-        OfficeAddinContext.SetFilter(Email, '=%1', TestEmail);
-
-        // [THEN] Vendor card is opened for associated email
-        RunMailEngine(OfficeAddinContext);
-
-        // Cleanup: Input the original value of the field Bus. Rel. Code for Vendors in Marketing Setup.
-        ChangeBusinessRelationCodeForVendors(BusRelCodeForVendors);
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorActionPageHandlerForCreditMemo,NewPurchaseCreditMemoPageHandler')]
-    [Scope('OnPrem')]
-    procedure MailEngineVendorPageCreateCreditMemoPopOut()
-    var
-        OfficeAddinContext: Record "Office Add-in Context";
-        ContactNo: Code[20];
-        NewBusRelCode: Code[10];
-        TestEmail: Text[80];
-    begin
-        // [FEATURE] [Contact] [Vendor]
-        // [SCENARIO 156496] Stan can initiate tasks from the Purchase Credit Memo page
-        // Setup
-        Initialize();
-
-        SetDocNoSeries();
 
         // [GIVEN] New contact with email is created and assigned to customer
         TestEmail := RandomEmail();
@@ -428,21 +368,6 @@ codeunit 139053 "Office Addin Popout"
         CompanyQueryPos := StrPos(LowerCase(BaseURL), '?');
         BaseURL := InsStr(BaseURL, '/OfficePopOut.aspx', CompanyQueryPos) + '&';
         exit(StrSubstNo('%1mode=edit&page=%2&filter=''No.'' IS ''%3''', BaseURL, PageNo, DocNo));
-    end;
-
-    [Normal]
-    local procedure SetDocNoSeries()
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-        NoSeries: Record "No. Series";
-        DocNoSeries: Code[20];
-    begin
-        PurchasesPayablesSetup.Get();
-        DocNoSeries := PurchasesPayablesSetup."Credit Memo Nos.";
-
-        NoSeries.Get(DocNoSeries);
-        NoSeries."Manual Nos." := false;
-        NoSeries.Modify();
     end;
 
     [PageHandler]

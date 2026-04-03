@@ -1,15 +1,15 @@
 namespace System.Security.AccessControl;
 
-using Microsoft.Finance.VAT.Reporting;
 using Microsoft;
-using Microsoft.Finance.ReceivablesPayables;
-using Microsoft.Sales.Receivables;
-using Microsoft.Foundation.AuditCodes;
-using Microsoft.Purchases.Payables;
-using Microsoft.Finance.VAT.Ledger;
-using Microsoft.Sales.History;
-using Microsoft.Purchases.History;
 using Microsoft.EServices.EDocument;
+using Microsoft.Finance.ReceivablesPayables;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Payables;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Receivables;
 
 permissionset 1002 "LOCAL READ"
 {
@@ -36,14 +36,6 @@ permissionset 1002 "LOCAL READ"
                   tabledata "Customer/Vendor Warning 349" = R,
                   tabledata "Doc. Post. Buffer" = R,
                   tabledata "Fee Range" = R,
-#if not CLEAN25
-                  tabledata "G/L Acc. Equiv. Tool Setup" = R,
-                  tabledata "G/L Accounts Equivalence Tool" = R,
-                  tabledata "Hist. G/L Account (An. View)" = R,
-                  tabledata "Historic G/L Account" = R,
-                  tabledata "History of Equivalences COA" = R,
-                  tabledata "New G/L Account" = R,
-#endif
                   tabledata "G/L Account Buffer" = R,
                   tabledata "Gen. Prod. Post. Group Buffer" = R,
                   tabledata "Inc. Stmt. Clos. Buffer" = R,

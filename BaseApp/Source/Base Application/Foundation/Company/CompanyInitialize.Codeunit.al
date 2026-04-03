@@ -10,16 +10,17 @@ using Microsoft.Bank.DirectDebit;
 using Microsoft.Bank.Ledger;
 using Microsoft.Bank.Reconciliation;
 using Microsoft.Bank.Setup;
-using Microsoft.CRM.Interaction;
-using Microsoft.CRM.Setup;
 using Microsoft.CashFlow.Setup;
 using Microsoft.CostAccounting.Setup;
+using Microsoft.CRM.Interaction;
+using Microsoft.CRM.Setup;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.FinancialReports;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Registration;
@@ -53,19 +54,17 @@ using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Peppol;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Setup;
+using Microsoft.Utilities;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Setup;
-using Microsoft.Utilities;
 using System.Automation;
 using System.Environment;
 using System.Environment.Configuration;
-using System.Integration;
 using System.Globalization;
-using System.Feedback;
+using System.Integration;
 using System.IO;
 using System.Upgrade;
-using Microsoft.Finance.ReceivablesPayables;
 
 codeunit 2 "Company-Initialize"
 {
@@ -100,7 +99,6 @@ codeunit 2 "Company-Initialize"
         TransformationRule: Record "Transformation Rule";
         WorkflowSetup: Codeunit "Workflow Setup";
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
-        SatisfactionSurveyMgt: Codeunit "Satisfaction Survey Mgt.";
         UpgradeTag: Codeunit "Upgrade Tag";
         Window: Dialog;
     begin
@@ -121,7 +119,6 @@ codeunit 2 "Company-Initialize"
         TransformationRule.CreateDefaultTransformations();
         InitElectronicFormats();
         InitApplicationAreasForSaaS();
-        SatisfactionSurveyMgt.ResetCache();
         UpgradeTag.SetAllUpgradeTags();
 
         OnCompanyInitialize();
@@ -848,7 +845,7 @@ codeunit 2 "Company-Initialize"
     local procedure OnAfterInitBankExportImportSetup()
     begin
     end;
-    
+
     [IntegrationEvent(true, false)]
     local procedure OnBeforeSourceCodeSetupInsert(var SourceCodeSetup: Record "Source Code Setup")
     begin

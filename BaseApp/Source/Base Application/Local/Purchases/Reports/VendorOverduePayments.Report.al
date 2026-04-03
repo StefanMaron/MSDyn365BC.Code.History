@@ -4,8 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Reports;
 
-using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Bank.BankAccount;
+using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using System.Utilities;

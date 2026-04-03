@@ -4,13 +4,13 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.RoleCenters;
 
+using Microsoft.EServices.EDocument;
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
 using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
-using Microsoft.Finance.ReceivablesPayables;
-using Microsoft.Purchases.History;
-using Microsoft.EServices.EDocument;
 
 page 9032 "Acc. Payables Activities"
 {

@@ -6,10 +6,10 @@
 
 namespace Microsoft.DemoData.Warehousing;
 
-using Microsoft.Inventory.Location;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Inventory.Item;
-using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Inventory.Location;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 
@@ -87,12 +87,14 @@ table 4763 "Whse Demo Data Setup"
         }
         field(38; "Price Factor"; Decimal)
         {
+            AutoFormatType = 0;
             DataClassification = CustomerContent;
             InitValue = 1;
             Caption = 'Price Factor';
         }
         field(39; "Rounding Precision"; Decimal)
         {
+            AutoFormatType = 0;
             DataClassification = CustomerContent;
             Caption = 'Rounding Precision';
             InitValue = 0.01;

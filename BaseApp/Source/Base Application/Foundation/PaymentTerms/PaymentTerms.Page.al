@@ -4,8 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.PaymentTerms;
 
-using Microsoft.Integration.Dataverse;
 using Microsoft.Finance.ReceivablesPayables;
+using Microsoft.Integration.Dataverse;
 
 page 4 "Payment Terms"
 {

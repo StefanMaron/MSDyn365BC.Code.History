@@ -1,9 +1,9 @@
 namespace Microsoft.Sustainability.Journal;
 
+using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.UOM;
-using Microsoft.Finance.Dimension;
 using Microsoft.Inventory.Location;
 using Microsoft.Sustainability.Account;
 using Microsoft.Sustainability.Calculation;
@@ -186,6 +186,7 @@ table 6214 "Sustainability Jnl. Line"
         }
         field(17; "Installation Multiplier"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Installation Multiplier';
             InitValue = 1;
 
@@ -198,6 +199,7 @@ table 6214 "Sustainability Jnl. Line"
         }
         field(18; "Time Factor"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Time Factor';
             MaxValue = 1;
 
@@ -378,6 +380,7 @@ table 6214 "Sustainability Jnl. Line"
         }
         field(32; "CO2e Emission"; Decimal)
         {
+            AutoFormatType = 0;
             DataClassification = CustomerContent;
             Caption = 'CO2e Emission';
             DecimalPlaces = 2 : 5;
@@ -409,6 +412,10 @@ table 6214 "Sustainability Jnl. Line"
         field(5154; "Renewable Energy"; Boolean)
         {
             Caption = 'Renewable Energy';
+        }
+        field(5817; Correction; Boolean)
+        {
+            Caption = 'Correction';
         }
     }
 

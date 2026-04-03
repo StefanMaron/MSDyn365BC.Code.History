@@ -4,18 +4,17 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.RoleCenters;
 
-
 using Microsoft.Bank.Reconciliation;
+using Microsoft.EServices.EDocument;
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
 using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Document;
-using Microsoft.Sales.Receivables;
-using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Sales.History;
-using Microsoft.Purchases.History;
-using Microsoft.EServices.EDocument;
+using Microsoft.Sales.Receivables;
 
 page 9036 "Bookkeeper Activities"
 {

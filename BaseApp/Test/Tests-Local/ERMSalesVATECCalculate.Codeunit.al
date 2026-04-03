@@ -559,7 +559,8 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
 
         // [THEN] "EC Amount" = "A" * (100 - "P") * "E"
         FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.");
-        ExpectedECAmount := Round(SalesLine."VAT Base Amount" * (100 - FirstPrepmtPct) * SalesLine."EC %" / 10000);
+        ExpectedECAmount := Round(SalesLine."VAT Base Amount" * SalesLine."EC %" / 100);
+        ExpectedECAmount := Round(ExpectedECAmount * (100 - FirstPrepmtPct) / 100);
         VerifySalesPrepmtDocTestReportECAmount(ExpectedECAmount);
     end;
 
@@ -591,9 +592,6 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         CustomerNo :=
           CreateCustomerWithPostingGroup(
             GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-#if not CLEAN25
-        CopySalesPrices();
-#endif
 
         // [GIVEN] Posted Sales Invoice with Item Quantity = 1, Unit Price = 100, Prices Including VAT = TRUE
         CreateSalesDocumentWithPriceInclVAT(
@@ -643,9 +641,6 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         CustomerNo :=
           CreateCustomerWithPostingGroup(
             GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-#if not CLEAN25
-        CopySalesPrices();
-#endif
 
         // [GIVEN] Sales Invoice with Item Quantity = 1, Unit Price = 100, Prices Including VAT = TRUE
         CreateSalesDocumentWithPriceInclVAT(
@@ -695,9 +690,6 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         CustomerNo :=
           CreateCustomerWithPostingGroup(
             GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-#if not CLEAN25
-        CopySalesPrices();
-#endif
 
         // [GIVEN] Sales Invoice with Item Quantity = 1, Unit Price = 100, Prices Including VAT = TRUE
         CreateSalesDocumentWithPriceInclVAT(
@@ -894,9 +886,6 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         CustomerNo :=
           CreateCustomerWithPostingGroup(
             GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-#if not CLEAN25
-        CopySalesPrices();
-#endif
 
         // [GIVEN] Posted Sales Invoice with Item Quantity = 1, Unit Price = 100, Prices Including VAT = TRUE
         CreateSalesDocumentWithPriceInclVAT(
@@ -995,17 +984,6 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         SalesLine.Modify(true);
     end;
 
-#if not CLEAN25
-    local procedure CopySalesPrices()
-    var
-        SalesPrice: record "Sales Price";
-        PriceListLine: Record "Price List Line";
-        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
-    begin
-        PriceListLine.DeleteAll();
-        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
-    end;
-#endif
 
     local procedure CreateCustomerWithPostingGroup(GenBusPostingGroup: Code[20]; VATBusPostingGroup: Code[20]): Code[20]
     var

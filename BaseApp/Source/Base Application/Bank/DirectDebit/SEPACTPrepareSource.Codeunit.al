@@ -5,9 +5,9 @@
 namespace Microsoft.Bank.DirectDebit;
 
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Payables;
-using Microsoft.Finance.ReceivablesPayables;
 
 /// <summary>
 /// Prepares general journal line data for SEPA credit transfer XML export by copying and organizing

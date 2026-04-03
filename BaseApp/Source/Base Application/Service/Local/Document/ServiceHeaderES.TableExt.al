@@ -4,10 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Document;
 
-using Microsoft.Service.History;
 using Microsoft.EServices.EDocument;
-using Microsoft.Sales.Customer;
 using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Sales.Customer;
+using Microsoft.Service.History;
 
 tableextension 10790 "Service Header ES" extends "Service Header"
 {

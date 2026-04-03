@@ -6,6 +6,15 @@ namespace Microsoft.Finance.GeneralLedger.Account;
 
 using Microsoft.Intercompany.GLAccount;
 
+/// <summary>
+/// Manages hierarchical indentation of general ledger accounts in the chart of accounts structure.
+/// Provides functionality to automatically indent accounts based on Begin-Total and End-Total relationships and update totaling ranges.
+/// </summary>
+/// <remarks>
+/// Key functions: Chart of accounts indentation, totaling range calculation, hierarchical structure validation.
+/// Updates account indentation levels and totaling fields based on Begin-Total/End-Total account structure.
+/// Validates proper nesting of account hierarchies and prevents invalid indentation configurations.
+/// </remarks>
 codeunit 3 "G/L Account-Indent"
 {
 
@@ -48,6 +57,16 @@ codeunit 3 "G/L Account-Indent"
 #pragma warning restore AA0470
 #pragma warning restore AA0074
 
+    /// <summary>
+    /// Processes all general ledger accounts to update indentation levels and totaling ranges based on account hierarchy.
+    /// Automatically calculates indentation for accounts between Begin-Total and End-Total markers and updates totaling fields.
+    /// </summary>
+    /// <remarks>
+    /// Validates proper nesting of Begin-Total and End-Total account pairs.
+    /// Updates indentation field and totaling ranges for End-Total accounts.
+    /// Supports up to 10 levels of account hierarchy indentation.
+    /// Displays progress window during processing of large chart of accounts.
+    /// </remarks>
     procedure Indent()
     var
         LineCounter: Integer;
@@ -124,6 +143,10 @@ codeunit 3 "G/L Account-Indent"
         OnAfterIndent();
     end;
 
+    /// <summary>
+    /// Runs the indentation process for Intercompany G/L Accounts with user confirmation.
+    /// Updates the indentation levels based on account hierarchy structure.
+    /// </summary>
     procedure RunICAccountIndent()
     begin
         if not
@@ -211,16 +234,32 @@ codeunit 3 "G/L Account-Indent"
         HidePrintDialog := NewHidePrintDialog;
     end;
 
+    /// <summary>
+    /// Integration event raised after completing the chart of accounts indentation process.
+    /// Allows extensions to perform additional processing after indentation is complete.
+    /// </summary>
     [IntegrationEvent(false, false)]
     local procedure OnAfterIndent()
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before starting the chart of accounts indentation process.
+    /// Allows extensions to override or supplement the indentation logic.
+    /// </summary>
+    /// <param name="GLAcc">General ledger account record being processed</param>
+    /// <param name="IsHandled">Set to true to skip default indentation logic</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIndent(var GLAcc: Record "G/L Account"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before indenting intercompany accounts during the indentation process.
+    /// Allows extensions to customize intercompany account indentation behavior.
+    /// </summary>
+    /// <param name="GLAcc">Intercompany general ledger account being processed</param>
+    /// <param name="IsHandled">Set to true to skip default intercompany indentation logic</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIndentICAccount(var GLAcc: Record "G/L Account"; var IsHandled: Boolean)
     begin

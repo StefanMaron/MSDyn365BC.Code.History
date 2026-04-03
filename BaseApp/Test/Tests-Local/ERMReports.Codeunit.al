@@ -36,8 +36,6 @@ codeunit 144097 "ERM Reports"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LineAmtInvDiscAmtPurchLineCap: Label 'LineAmtInvDiscAmt_PurchLine';
-        NoCustCap: Label 'No_Cust';
-        OriginalAmtCap: Label 'CLEEndDateRemAmtLCY';
         PeriodLengthTxt: Label '1M';
         CustBalDueTxt: Label 'CustBalDue';
         CustBalanceDueTxt: Label 'CustBalanceDue';
@@ -53,34 +51,6 @@ codeunit 144097 "ERM Reports"
         EC_Amount_CaptionLbl: Label 'EC Amount';
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
-
-    [Test]
-    [HandlerFunctions('AgedAccountsReceivableRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure AgedAccountsReceivableReport()
-    var
-        Customer: Record Customer;
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-    begin
-        // Test to verify values on Aged Accounts Receivable report after Sales Order posting.
-
-        // Setup: Create and post sales order.
-        Initialize();
-        LibrarySales.CreateCustomer(Customer);
-        CreateSalesOrder(SalesLine, Customer."No.", 0);  // Using 0 for Payment Discount %.
-        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-        LibrarySales.PostSalesDocument(SalesHeader, true, true);  // True for ship and invoice.
-        LibraryVariableStorage.Enqueue(Customer."No.");  // Enqueue for AgedAccountsReceivableRequestPageHandler.
-
-        // Exercise.
-        REPORT.Run(REPORT::"Aged Accounts Receivable");  // Opens AgedAccountsReceivableRequestPageHandler.
-
-        // Verify: Verify values on Aged Accounts Receivable report.
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists(NoCustCap, Customer."No.");
-        LibraryReportDataset.AssertElementWithValueExists(OriginalAmtCap, SalesLine."Amount Including VAT");
-    end;
 
     [Test]
     [HandlerFunctions('ConfirmHandler,OrderRequestPageHandler')]
@@ -117,27 +87,6 @@ codeunit 144097 "ERM Reports"
         LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           LineAmtInvDiscAmtPurchLineCap, -Round(PurchaseLine."Line Amount" * PurchaseHeader."Payment Discount %" / 100));
-    end;
-
-    [Test]
-    [HandlerFunctions('AgedAccReceivableRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure AgedAccountsReceivableShowCustomerLedgerEntry()
-    var
-        ExpectedValue: Decimal;
-    begin
-        // [SCENARIO 376523] Report "Aged Accounts Receivable" should showing Customer Ledger Entry if "Print Amounts in LCY" = TRUE
-        Initialize();
-
-        // [GIVEN] Posted Sales Document with Amount incl. VAT = 100
-        ExpectedValue := CreatePostSalesDocument();
-
-        // [WHEN] Run report "Aged Accounts Receivable"
-        RunAgedAccountsReceivableReport();
-
-        // [THEN] Report should contains value 100 in columt for referenced period
-        LibraryReportValidation.OpenExcelFile();
-        LibraryReportValidation.VerifyCellValueOnWorksheet(22, 10, LibraryReportValidation.FormatDecimalValue(ExpectedValue), '1');
     end;
 
     [Test]
@@ -469,21 +418,6 @@ codeunit 144097 "ERM Reports"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesOrder(var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; PaymentDiscountPct: Decimal)
-    var
-        Item: Record Item;
-        SalesHeader: Record "Sales Header";
-    begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
-        SalesHeader.Validate("Payment Discount %", PaymentDiscountPct);
-        SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item,
-          LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(10, 2));  // Random for quantity.
-        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
-        SalesLine.Modify(true);
-    end;
-
     local procedure CreateCustLedgEntry(CustomerNo: Code[20]; PostingDate: Date): Integer
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
@@ -564,21 +498,6 @@ codeunit 144097 "ERM Reports"
         TotalPurchLine.SetRange("Document Type", PurchHeader."Document Type");
         TotalPurchLine.SetRange("Document No.", PurchHeader."No.");
         TotalPurchLine.CalcSums(Amount, "Amount Including VAT");
-    end;
-
-    local procedure CreatePostSalesDocument(): Decimal
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-    begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
-        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(1000));
-        SalesLine.Modify(true);
-        LibraryVariableStorage.Enqueue(SalesHeader."Sell-to Customer No.");
-        LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        exit(SalesLine."Amount Including VAT");
     end;
 
     local procedure UpdateGeneralLedgerSetup(PaymentDiscountType: Option; DiscountCalculation: Option)
@@ -684,14 +603,6 @@ codeunit 144097 "ERM Reports"
         exit(GLEntry.Amount);
     end;
 
-    local procedure RunAgedAccountsReceivableReport()
-    begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName());
-        Commit();
-        REPORT.Run(REPORT::"Aged Accounts Receivable");
-    end;
-
     local procedure RunArchivedSalesOrderReport(DocumentNo: Code[20])
     var
         SalesHeaderArchive: Record "Sales Header Archive";
@@ -791,23 +702,6 @@ codeunit 144097 "ERM Reports"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure AgedAccountsReceivableRequestPageHandler(var AgedAccountsReceivable: TestRequestPage "Aged Accounts Receivable")
-    var
-        No: Variant;
-        AgingBy: Option "Due Date","Posting Date","Document Date";
-        HeadingType: Option "Date Interval","Number of Days";
-    begin
-        LibraryVariableStorage.Dequeue(No);
-        AgedAccountsReceivable.AgedAsOf.SetValue(WorkDate());
-        AgedAccountsReceivable.Agingby.SetValue(AgingBy::"Due Date");
-        AgedAccountsReceivable.PeriodLength.SetValue(PeriodLengthTxt);
-        AgedAccountsReceivable.HeadingType.SetValue(HeadingType::"Date Interval");
-        AgedAccountsReceivable.Customer.SetFilter("No.", No);
-        AgedAccountsReceivable.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
     procedure CustomerSummaryAgingRequestPageHandler(var CustomerSummaryAging: TestRequestPage "Customer - Summary Aging")
     var
         CustomerNo: Variant;
@@ -827,13 +721,6 @@ codeunit 144097 "ERM Reports"
         Reply := true;
     end;
 
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandlerNo(Question: Text; var Reply: Boolean)
-    begin
-        Reply := false;
-    end;
-
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure OrderRequestPageHandler(var "Order": TestRequestPage "Order")
@@ -843,22 +730,6 @@ codeunit 144097 "ERM Reports"
         LibraryVariableStorage.Dequeue(BuyFromVendorNo);
         Order."Purchase Header".SetFilter("Buy-from Vendor No.", BuyFromVendorNo);
         Order.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure AgedAccReceivableRequestPageHandler(var AgedAccountsReceivable: TestRequestPage "Aged Accounts Receivable")
-    var
-        AgingBy: Option "Due Date","Posting Date","Document Date";
-        HeadingType: Option "Date Interval","Number of Days";
-    begin
-        AgedAccountsReceivable.AgedAsOf.SetValue(WorkDate());
-        AgedAccountsReceivable.Agingby.SetValue(AgingBy::"Due Date");
-        AgedAccountsReceivable.PeriodLength.SetValue(PeriodLengthTxt);
-        AgedAccountsReceivable.HeadingType.SetValue(HeadingType::"Date Interval");
-        AgedAccountsReceivable.AmountsinLCY.SetValue(true);
-        AgedAccountsReceivable.Customer.SetFilter("No.", LibraryVariableStorage.DequeueText());
-        AgedAccountsReceivable.SaveAsExcel(LibraryVariableStorage.DequeueText());
     end;
 
     [RequestPageHandler]

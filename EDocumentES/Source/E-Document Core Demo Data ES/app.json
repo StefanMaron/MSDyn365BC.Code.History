@@ -39,9 +39,6 @@
   ],
   "screenshots": [],
   "platform": "$(app_platformVersion)",
-  "features": [
-    "TranslationFile"
-  ],
   "idRanges": [
     {
       "from": 10886,
@@ -54,5 +51,8 @@
     "includeSourceInSymbolFile": true
   },
   "application": "$(app_minimumVersion)",
-  "target": "OnPrem"
+  "target": "OnPrem",
+  "features": [
+    "TranslationFile"
+  ]
 }

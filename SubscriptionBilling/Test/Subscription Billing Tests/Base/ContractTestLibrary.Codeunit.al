@@ -2,28 +2,28 @@ namespace Microsoft.SubscriptionBilling;
 
 #region Using
 
-using System.Reflection;
-using System.Environment.Configuration;
-using System.Globalization;
+using Microsoft.CRM.Contact;
+using Microsoft.CRM.Team;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Attachment;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Attribute;
-using Microsoft.Inventory.BOM;
-using Microsoft.CRM.Team;
-using Microsoft.CRM.Contact;
-using Microsoft.Sales.Setup;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Pricing;
-using Microsoft.Purchases.Document;
-using Microsoft.Purchases.Vendor;
-using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Finance.GeneralLedger.Account;
-using Microsoft.Finance.Dimension;
-using Microsoft.Finance.Currency;
-using Microsoft.Finance.GeneralLedger.Journal;
-using Microsoft.Foundation.AuditCodes;
+using Microsoft.Sales.Setup;
 using Microsoft.TestLibraries.Foundation.NoSeries;
+using System.Environment.Configuration;
+using System.Globalization;
+using System.Reflection;
 using System.TestLibraries.Utilities;
 
 #endregion Using
@@ -209,7 +209,7 @@ codeunit 139685 "Contract Test Library"
         CreateItemForServiceObject(NewItem, false, ItemServiceCommitmentType, Enum::"Item Type"::"Non-Inventory");
     end;
 
-    procedure CreateItemTranslation(var ItemTranslation: Record "Item Translation"; ItemNo: Code[20]; LanguageCode: Code[10])
+    procedure CreateItemTranslation(var ItemTranslation: Record "Item Translation"; ItemNo: Code[20]; VariantCode: Code[10]; LanguageCode: Code[10])
     var
         Language: Record Language;
     begin
@@ -221,6 +221,7 @@ codeunit 139685 "Contract Test Library"
 
         ItemTranslation.Init();
         ItemTranslation."Item No." := ItemNo;
+        ItemTranslation."Variant Code" := VariantCode;
         ItemTranslation."Language Code" := LanguageCode;
         ItemTranslation.Description := 'Translated Description';
         ItemTranslation.Insert(true);

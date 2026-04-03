@@ -27,19 +27,15 @@
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
         LibraryERM: Codeunit "Library - ERM";
-#if not CLEAN25
         LibraryCosting: Codeunit "Library - Costing";
-#endif
         LibraryPlanning: Codeunit "Library - Planning";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryJob: Codeunit "Library - Job";
         LibraryAccountSchedule: Codeunit "Library - Account Schedule";
         LibraryDimension: Codeunit "Library - Dimension";
-#if not CLEAN25
         LibrarySmallBusiness: Codeunit "Library - Small Business";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
-#endif
         isInitialized: Boolean;
         ReserveItemsManuallyConfirmQst: Label 'Automatic reservation is not possible.\Do you want to reserve items manually?';
         ShipmentDateBeforeWorkDateMsg: Label '%1 %2 is before work date %3', Comment = '%1 = Shipment Date, %2 = Shipment Date value, %3 = Work Date value';
@@ -48,9 +44,7 @@
         UndoShipmentMsg: Label 'Do you really want to undo the selected Shipment lines?';
         UndoReturnReceiptMsg: Label 'Do you really want to undo the selected Return Receipt lines?';
         RecordMustBeDeletedTxt: Label 'Order must be deleted.';
-#if not CLEAN25
         SalesLineDiscountMustBeDeletedErr: Label 'Sales Line Discount must be deleted.';
-#endif
         ConfirmTextForChangeOfSellToCustomerOrBuyFromVendorQst: Label 'Do you want to change';
         DiscountErr: Label 'The Discount Amount is not correct.';
         NothingToHandleErr: Label 'Nothing to handle.';
@@ -73,7 +67,6 @@
         ShipToAddressErr: Label 'Ship-to Address on Return Order should be company address';
         DropShipmentErr: Label 'The Drop Shipment field should be blank for item %1 on the sales invoice.', Comment = '%1= Item No.';
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure CheckValueOfSalesTypeOnSalesPricesPage()
@@ -161,7 +154,6 @@
         SalesLineDiscounts."Sales Type".AssertEquals(Format(SalesLineDiscount."Sales Type"::Campaign));
         SalesLineDiscounts.SalesTypeFilter.AssertEquals(Format(SalesLineDiscount."Sales Type"::Campaign));
     end;
-#endif
 
     [Test]
     [HandlerFunctions('CheckPurchaseInvoiceLinesModalPageHandler')]
@@ -1100,7 +1092,6 @@
             SalesHeader, SalesLine, SalesLine.Type::Item, '', Item."No.", LibraryRandom.RandDec(10, 2), '');
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SalesLineDiscountDeletedAfterDeletingCustomerDiscountGroup()
@@ -1166,7 +1157,6 @@
         CopyFromToPriceListLine.CopyFrom(PurchPrice, PriceListLine);
         CopyFromToPriceListLine.CopyFrom(PurchLineDiscount, PriceListLine);
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1231,7 +1221,6 @@
         UpdateCreditWarningOnSalesAndReceivablesSetup(OldCreditWarning);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SalesOrderWithSpecialOrderAndCarryOutActionMsg()
@@ -1249,7 +1238,6 @@
         Initialize();
         CarryOutActionMessageOnRequisitionWorksheet(false);  // Special Order as FALSE.
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1407,7 +1395,6 @@
         UpdateCreditWarningOnSalesAndReceivablesSetup(OldCreditWarning);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure CreateSalesLineDiscountForTypeItem()
@@ -1427,7 +1414,6 @@
         Initialize();
         CreateSalesLineDiscountWithType(SalesLineDiscount.Type::Item);  // Sales Line Discount for Type Item.
     end;
-#endif
 
     [Test]
     [HandlerFunctions('ItemChargeAssignmentSalesPageHandler')]
@@ -1857,7 +1843,6 @@
         VerifyQuantityOnWarehouseActivityLine(SalesHeaderNo, QtyToHandle + (QtyOnSalesLine - QtyOnPurchLine));
     end;
 
-#if not CLEAN25
     [Test]
     [HandlerFunctions('MoveNegativeSalesLinesHandler,YesConfirmHandler,SalesOrderHandler')]
     [Scope('OnPrem')]
@@ -1893,7 +1878,6 @@
         // [THEN] "Unit Price" = "X2", "Line Discount %" = "Y2" on the new sales order line.
         // Verifications are performed in SalesOrderHandler.
     end;
-#endif
 
     [Test]
     [HandlerFunctions('ItemChargeAssignmentPurchPageWithSalesShipSuggestHandler,SalesShipmentLinePageHandler,ItemStatisticsMatrixPageHandler2')]
@@ -2952,7 +2936,6 @@
         SalesLine.TestField("Line Discount %", LineDiscPercent);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountPercIsZeroWhenAllowLineDiscDisabledOnCustomer()
@@ -2991,7 +2974,6 @@
         // [THEN] "Line Discount %" on the sales line is zero.
         SalesLine.TestField("Line Discount %", 0);
     end;
-#endif
 
     [Test]
     [HandlerFunctions('DummyMessageHandler')]
@@ -3900,7 +3882,6 @@
         Item.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure CreateCustomerDiscountGroupWithSalesLineDiscount(var CustomerDiscountGroup: Record "Customer Discount Group"; var SalesLineDiscount: Record "Sales Line Discount"; Item: Record Item)
     begin
         LibraryERM.CreateCustomerDiscountGroup(CustomerDiscountGroup);
@@ -3918,7 +3899,6 @@
         Customer.Modify(true);
         CustomerNo := Customer."No.";
     end;
-#endif
     local procedure CreateCustomerWithInvoiceDiscount(var Customer: Record Customer; InvoiceDiscPct: Decimal)
     var
         CustInvoiceDisc: Record "Cust. Invoice Disc.";
@@ -4041,14 +4021,12 @@
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", Type, VendorNo, ItemNo, Quantity);
     end;
 
-#if not CLEAN25
     local procedure CreatePurchaseLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount"; Item: Record Item; Quantity: Decimal)
     begin
         LibraryERM.CreateLineDiscForVendor(PurchaseLineDiscount, Item."No.", Item."Vendor No.", 0D, '', '', '', Quantity);
         PurchaseLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         PurchaseLineDiscount.Modify(true);
     end;
-#endif
 
     local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal)
     begin
@@ -4066,14 +4044,12 @@
         PurchaseLine.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure CreatePurchasePriceForVendor(var PurchasePrice: Record "Purchase Price"; Item: Record Item; Quantity: Decimal)
     begin
         LibraryCosting.CreatePurchasePrice(PurchasePrice, Item."Vendor No.", Item."No.", 0D, '', '', '', Quantity);
         PurchasePrice.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchasePrice.Modify(true);
     end;
-#endif
 
     local procedure CreatePurchasingCode(DropShipment: Boolean; SpecialOrder: Boolean) PurchasingCode: Code[10]
     var
@@ -4102,7 +4078,6 @@
         CreateSalesLine(SalesHeader, SalesLine, Type, ItemNo, Quantity, LocationCode);
     end;
 
-#if not CLEAN25
     local procedure CreateSalesReturnOrderWithUnitPriceAndLineDiscount(CustomerNo: Code[20]; ItemNo: Code[20]; Qty: Decimal): Code[20]
     var
         SalesHeader: Record "Sales Header";
@@ -4114,7 +4089,7 @@
         UpdateLineDiscountOnSalesLine(SalesLine, LibraryRandom.RandInt(10));
         exit(SalesHeader."No.");
     end;
-#endif
+
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
     begin
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Type, CustomerNo, ItemNo, Quantity, LocationCode);
@@ -4181,7 +4156,6 @@
         exit(VATPostingSetup."VAT %");
     end;
 
-#if not CLEAN25
     local procedure CreateSalesOrderWithDropShipment(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     begin
         CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, CustomerNo, ItemNo, Quantity, '');
@@ -4197,7 +4171,7 @@
         SalesLine.Validate("Purchasing Code", CreatePurchasingCode(false, true));  // Special Order as TRUE.
         SalesLine.Modify(true);
     end;
-#endif
+
     local procedure CreateSalesOrderWithMultipleLinesWithDiffPurchasingCode(var SalesHeader: Record "Sales Header"; var SalesLine2: Record "Sales Line"; Quantity: Decimal; LocationCode: Code[10]): Code[20]
     var
         SalesLine: Record "Sales Line";
@@ -4303,7 +4277,6 @@
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2));
     end;
 
-#if not CLEAN25
     local procedure CreateSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; Item: Record Item; SalesType: Option; SalesCode: Code[20]; StartingDate: Date; Quantity: Decimal)
     begin
         LibraryERM.CreateLineDiscForCustomer(
@@ -4364,7 +4337,6 @@
         SalesPrice.Validate("Unit Price", LibraryRandom.RandDec(50, 2));
         SalesPrice.Modify(true);
     end;
-#endif
 
     local procedure CreateServiceOrderByPage(var ServiceOrder: TestPage "Service Order")
     begin
@@ -4501,7 +4473,6 @@
         VerifyPurchaseOrdContainsTwoLines(SalesHeader, false);
     end;
 
-#if not CLEAN25
     local procedure CarryOutActionMessageOnRequisitionWorksheet(SpecialOrder: Boolean)
     var
         Item: Record Item;
@@ -4549,7 +4520,6 @@
         // Verify: Verify Posted Sales Invoice Line.
         VerifyPostedSalesInvoiceLine(PostedDocumentNo, SalesPrice."Unit Price", SalesLineDiscount."Line Discount %", Quantity);
     end;
-#endif
 
     local procedure EnqueueForChangeOfSellToCustomerOrBuyFromVendor()
     begin
@@ -4596,13 +4566,12 @@
         PostedWhseShipmentLine.FindFirst();
     end;
 
-#if not CLEAN25
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; No: Code[20])
     begin
         PurchaseLine.SetRange("No.", No);
         PurchaseLine.FindFirst();
     end;
-#endif
+
     local procedure FindReturnReceiptLine(var ReturnReceiptLine: Record "Return Receipt Line"; No: Code[20])
     begin
         ReturnReceiptLine.SetRange("No.", No);
@@ -4679,13 +4648,11 @@
         SalesLine.SetRange("No.", '');
     end;
 
-#if not CLEAN25
     local procedure FilterSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; CustomerDiscountGroupCode: Code[20])
     begin
         SalesLineDiscount.SetRange("Sales Type", SalesLineDiscount."Sales Type"::"Customer Disc. Group");
         SalesLineDiscount.SetRange("Sales Code", CustomerDiscountGroupCode);
     end;
-#endif
 
     local procedure FilterSalesHeader(var SalesHeader: Record "Sales Header")
     begin
@@ -4744,7 +4711,6 @@
         exit(SalesHeader."No.");
     end;
 
-#if not CLEAN25
     local procedure GetRandomCode(FieldLength: Integer): Code[20]
     var
         RandomCode: Code[20];
@@ -4755,7 +4721,7 @@
         until StrLen(RandomCode) = FieldLength;
         exit(RandomCode);
     end;
-#endif
+
     local procedure GetReturnReceiptLine(SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; Qty: Decimal)
     var
         ReturnReceiptLine: Record "Return Receipt Line";
@@ -4923,6 +4889,7 @@
         GLEntry: Record "G/L Entry";
         PostedDocumentNo: Code[20];
         PostedDocumentNo2: Code[20];
+        CheckAmount: Decimal;
     begin
         // Create and post Sales Order with Item Charge Assignment. Update blank Quantity to Invoice on Sales Line.
         CreateAndShipSalesOrderWithItemCharge(SalesHeader, SalesLine2, SalesLine, Customer, Item);
@@ -4945,19 +4912,19 @@
             UpdateQuantityToInvoiceOnSalesLine(SalesHeader."No.", SalesLine.Quantity / 2);  // Value required for Partial quantity.
             PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);  // Post as Invoice.
             PostedDocumentNo2 := LibrarySales.PostSalesDocument(SalesHeader, false, true);  // Post as Invoice.
-
+            CheckAmount := SalesLine2."Line Amount" * SalesLine2."VAT %" / 100 + SalesLine2."Line Amount";
             // Verify.
             GeneralPostingSetup2.Get(Customer."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
             VerifyGLEntry(
               GLEntry."Document Type"::Invoice, PostedDocumentNo, GeneralPostingSetup2."Sales Account", -SalesLine2."Line Amount" / 2);  // Value required for Partial quantity.
             VerifyGLEntry(
               GLEntry."Document Type"::Invoice, PostedDocumentNo, CustomerPostingGroup."Receivables Account",
-              SalesLine2."Amount Including VAT" / 2);  // Value required for Partial quantity.
+              Round(CheckAmount / 2, LibraryERM.GetAmountRoundingPrecision()));  // Value required for Partial quantity.
             VerifyGLEntry(
               GLEntry."Document Type"::Invoice, PostedDocumentNo2, GeneralPostingSetup2."Sales Account", -SalesLine2."Line Amount" / 2);  // Value required for Partial quantity.
             VerifyGLEntry(
               GLEntry."Document Type"::Invoice, PostedDocumentNo2, CustomerPostingGroup."Receivables Account",
-              SalesLine2."Amount Including VAT" / 2);  // Value required for Partial quantity.
+              Round((CheckAmount / 2), LibraryERM.GetAmountRoundingPrecision()));  // Value required for Partial quantity.
         end;
     end;
 
@@ -5284,13 +5251,12 @@
         SalesLine.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure UpdateLineDiscountOnSalesLine(var SalesLine: Record "Sales Line"; LineDiscount: Decimal)
     begin
         SalesLine.Validate("Line Discount %", LineDiscount);
         SalesLine.Modify(true);
     end;
-#endif
+
     local procedure UpdateZoneAndBinCodeOnWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActionType: Enum "Warehouse Action Type"; SourceNo: Code[20]; BinCode: Code[20]; ZoneCode: Code[10])
     begin
         WarehouseActivityLine.SetRange("Action Type", ActionType);
@@ -5456,7 +5422,6 @@ WarehouseActivityLine."Activity Type"::"Put-away");
         PostedInvtPutAwayLine.TestField(Quantity, Quantity);
     end;
 
-#if not CLEAN25
     local procedure VerifyPostedSalesInvoiceLine(DocumentNo: Code[20]; UnitPrice: Decimal; LineDiscount: Decimal; Quantity: Decimal)
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
@@ -5475,7 +5440,7 @@ WarehouseActivityLine."Activity Type"::"Put-away");
         PurchaseLine.TestField("Direct Unit Cost", DirectUnitCost);
         PurchaseLine.TestField("Line Discount %", LineDiscount);
     end;
-#endif
+
     local procedure VerifyQtyToInvoiceOnSalesLine(ItemNo: Code[20]; DocumentType: Enum "Sales Document Type"; Quantity: Decimal)
     var
         SalesLine: Record "Sales Line";
@@ -5495,7 +5460,6 @@ WarehouseActivityLine."Activity Type"::"Put-away");
         RegisteredWhseActivityLine.TestField(Quantity, Quantity);
     end;
 
-#if not CLEAN25
     local procedure VerifySalesLineDiscount(SalesLineDiscount: Record "Sales Line Discount")
     var
         SalesLineDiscount2: Record "Sales Line Discount";
@@ -5516,7 +5480,6 @@ WarehouseActivityLine."Activity Type"::"Put-away");
           Round(SalesLine."Line Amount" * SalesLineDiscount."Line Discount %" / 100, LibraryERM.GetAmountRoundingPrecision()));
         SalesLine.TestField(Quantity, SalesLineDiscount."Minimum Quantity");
     end;
-#endif
 
     local procedure VerifySalesOrder(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     var
@@ -6153,7 +6116,6 @@ WarehouseActivityLine."Activity Type"::"Put-away");
         Reservation."Summary Type".AssertEquals('');
     end;
 
-#if not CLEAN25
     local procedure MoveNegativeLines(No: Code[20])
     var
         SalesReturnOrder: TestPage "Sales Return Order";
@@ -6163,7 +6125,7 @@ WarehouseActivityLine."Activity Type"::"Put-away");
         Commit(); // Commit required before invoke Move Negative Lines.
         SalesReturnOrder.MoveNegativeLines.Invoke();
     end;
-#endif
+
     local procedure MoveNegativeLinesOnSalesOrder(SalesHeader: Record "Sales Header")
     var
         MoveNegSalesLines: Report "Move Negative Sales Lines";

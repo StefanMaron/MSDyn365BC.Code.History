@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Visualization;
+
 using System.Environment;
 using System.Reflection;
 

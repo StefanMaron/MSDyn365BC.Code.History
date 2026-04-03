@@ -6,13 +6,23 @@ namespace Microsoft.Finance.Currency;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.HumanResources.Employee;
+using Microsoft.HumanResources.Payables;
 using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
-using Microsoft.HumanResources.Employee;
-using Microsoft.HumanResources.Payables;
 
+/// <summary>
+/// Maintains a register of exchange rate adjustment runs for audit and tracking purposes.
+/// Records details of each adjustment process including date ranges, account types processed,
+/// and statistical information about the adjustments performed.
+/// </summary>
+/// <remarks>
+/// Linked to Exchange Rate Adjustment Ledger Entries for detailed transaction tracking.
+/// Provides drill-down capabilities to view specific adjustments and supports
+/// audit trail requirements for currency revaluation procedures.
+/// </remarks>
 table 86 "Exch. Rate Adjmt. Reg."
 {
     Caption = 'Exch. Rate Adjmt. Reg.';
@@ -53,6 +63,7 @@ table 86 "Exch. Rate Adjmt. Reg."
         }
         field(6; "Currency Factor"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Currency Factor';
             DecimalPlaces = 0 : 15;
             MinValue = 0;
@@ -65,11 +76,13 @@ table 86 "Exch. Rate Adjmt. Reg."
         }
         field(8; "Adjusted Base (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Adjusted Base (LCY)';
         }
         field(9; "Adjusted Amt. (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Adjusted Amt. (LCY)';
         }
@@ -111,6 +124,8 @@ table 86 "Exch. Rate Adjmt. Reg."
         }
         field(23; "Adjustment Amount"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             Caption = 'Adjustment Amount';
             CalcFormula = sum("Exch. Rate Adjmt. Ledg. Entry"."Adjustment Amount" where("Register No." = field("No.")));
             Editable = false;
@@ -153,4 +168,3 @@ table 86 "Exch. Rate Adjmt. Reg."
         exit(GLSetup."Additional Reporting Currency");
     end;
 }
-

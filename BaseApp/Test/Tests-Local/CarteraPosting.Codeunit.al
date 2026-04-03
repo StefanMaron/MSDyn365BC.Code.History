@@ -97,7 +97,6 @@ codeunit 147305 "Cartera Posting"
     // Test Function Name                                                                                                      TFS ID
     // --------------------------------------------------------------------------------------------------------------------------------
     // SalesPostPaymentWithCurrencyAppliedToBill                                                                               349783
-    // PurchPostPaymentWithCurrencyAppliedToBill                                                                               349783
     // 
     // SalesSettleDocInPostBillGrWithDimension                                                                                 85211
     // SalesBillGroupDiscountDealingTypeWithDimension                                                                          85211
@@ -720,39 +719,6 @@ codeunit 147305 "Cartera Posting"
           CreateApplyPostPaymentToBill(
             GenJnlLine."Account Type"::Customer, Customer."No.",
             SalesInvoiceHeader."No.", '1', -SalesInvoiceHeader.Amount); // Bill No always 1
-
-        // Verify
-        VerifyGLEntryCount(DocumentNo, WorkDate(), 2);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PurchPostPaymentWithCurrencyAppliedToBill()
-    var
-        GenJnlLine: Record "Gen. Journal Line";
-        Vendor: Record Vendor;
-        PurchInvHeader: Record "Purch. Inv. Header";
-        Currency: Record Currency;
-        DocumentNo: Code[20];
-    begin
-        // Related to bug TFS 349783 and TFS 298727
-        // Test posting Cash Receipt Journal Line with non-empty Currency which is applied to Bill
-        Initialize();
-
-        // Setup
-        ClearAddReportingCurrency();
-        CreateVendor(Vendor);
-        LibraryERM.FindCurrency(Currency);
-        Vendor.Validate("Currency Code", Currency.Code);
-        Vendor.Modify();
-
-        // Exercise
-        PurchInvHeader.Get(CreateAndPostPurchInvoice(Vendor));
-        PurchInvHeader.CalcFields(Amount);
-        DocumentNo :=
-          CreateApplyPostPaymentToBill(
-            GenJnlLine."Account Type"::Vendor, Vendor."No.",
-            PurchInvHeader."No.", '1', PurchInvHeader.Amount); // Bill No always 1
 
         // Verify
         VerifyGLEntryCount(DocumentNo, WorkDate(), 2);

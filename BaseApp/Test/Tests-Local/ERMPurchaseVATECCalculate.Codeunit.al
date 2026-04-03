@@ -22,7 +22,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
     // 18. Test to verify that VAT Amount gets successfully updated on Purchase Invoice Statistics - Second Line.
     // 19. Test to verify the correct G/L and VAT entries when Purchase Invoice created when Unrealized VAT is true.
     // 20. Test to verify the correct G/L and VAT entries when payment is applied to created invoice when Unrealized VAT is true.
-    // 
+    //
     // Covers Test Cases for WI - 352246.
     // ------------------------------------------------------------------------------------------
     // Test Function Name                                                                  TFS ID
@@ -39,7 +39,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
     // PostedPurchCrMemoReverseChargeVATWithCurrency                                      282944
     // PostedPurchCrMemoNormalVATWithoutCurrency                                          282943
     // PostedPurchCrMemoReverseChargeVATWithoutCurrency                                   282945
-    // 
+    //
     // Covers Test Cases for WI - 352245.
     // ------------------------------------------------------------------------------------------
     // Test Function Name                                                                 TFS ID
@@ -48,7 +48,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
     // VATAmountOnPurchaseCreditMemo                                                      219963
     // PostedPurchaseReturnOrderVATAmount                                                 217455
     // PostedPurchaseOrderVATAmount                                                       217454
-    // 
+    //
     // Covers Test Cases for WI - 352352.
     // ------------------------------------------------------------------------------------------
     // Test Function Name                                                                 TFS ID
@@ -72,13 +72,8 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
-#if not CLEAN25
-        LibraryCosting: Codeunit "Library - Costing";
-#endif
         LibraryRandom: Codeunit "Library - Random";
-#if CLEAN25
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
-#endif
         ValueMustBeSameMsg: Label 'Value must be same.';
         TotalFromSevPrepmtAmtErr: Label 'Total amount from several prepayments must be equal to original document amount';
 
@@ -791,9 +786,6 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         ItemNo :=
           CreateItemWithPurchasePrice(
             PurchasePrice, GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group", VendorNo);
-#if not CLEAN25
-        CopyPurchPrices();
-#endif
 
         // [GIVEN] Purchase Invoice with Item Quantity = 1, Unit Price = 100, Prices Including VAT = TRUE
         CreatePurchaseDocumentWithPriceInclVAT(
@@ -842,9 +834,6 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         ItemNo :=
           CreateItemWithPurchasePrice(
             PurchasePrice, GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group", VendorNo);
-#if not CLEAN25
-        CopyPurchPrices();
-#endif
 
         // [GIVEN] Purchase Invoice with Item Quantity = 1, Unit Price = 100, Prices Including VAT = TRUE
         CreatePurchaseDocumentWithPriceInclVAT(
@@ -897,9 +886,6 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         ItemNo :=
           CreateItemWithPurchasePrice(
             PurchasePrice, GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group", VendorNo);
-#if not CLEAN25
-        CopyPurchPrices();
-#endif
 
         // [GIVEN] Purchase Invoice with Item Quantity = 1, Unit Price = 100, Prices Including VAT = TRUE
         CreatePurchaseDocumentWithPriceInclVAT(
@@ -1098,21 +1084,12 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
     local procedure CreateItemWithPurchasePrice(UnitCost: Decimal; GenProdPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; VendorNo: Code[20]): Code[20]
     var
         Item: Record Item;
-#if not CLEAN25
-        PurchasePrice: Record "Purchase Price";
-#else
         PriceListLine: Record "Price List Line";
-#endif
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
         Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
         Item.Modify(true);
-#if not CLEAN25
-        LibraryCosting.CreatePurchasePrice(PurchasePrice, VendorNo, Item."No.", WorkDate(), '', '', Item."Base Unit of Measure", 0);
-        PurchasePrice.Validate("Direct Unit Cost", UnitCost);
-        PurchasePrice.Modify(true);
-#else
         LibraryPriceCalculation.CreatePurchPriceLine(
             PriceListLine, '', "Price Source Type"::Vendor, VendorNo, "Price Asset Type"::Item, Item."No.");
         PriceListLine.Validate("Starting Date", WorkDate());
@@ -1120,21 +1097,8 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         PriceListLine.Validate("Direct Unit Cost", UnitCost);
         PriceListLine.Status := "Price Status"::Active;
         PriceListLine.Modify(true);
-#endif
         exit(Item."No.");
     end;
-
-#if not CLEAN25
-    local procedure CopyPurchPrices()
-    var
-        PurchasePrice: record "Purchase Price";
-        PriceListLine: Record "Price List Line";
-        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
-    begin
-        PriceListLine.DeleteAll();
-        CopyFromToPriceListLine.CopyFrom(PurchasePrice, PriceListLine);
-    end;
-#endif
 
     local procedure CreatePurchaseDocWithPostingSetup(var PurchaseHeader: Record "Purchase Header"): Decimal
     var
@@ -1611,4 +1575,3 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         PurchasePrepmtDocTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-

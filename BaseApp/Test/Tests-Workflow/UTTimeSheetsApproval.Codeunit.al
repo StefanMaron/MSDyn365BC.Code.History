@@ -13,7 +13,6 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetApprovalMgt: Codeunit "Time Sheet Approval Management";
         LibraryHumanResource: Codeunit "Library - Human Resource";
         LibraryTimeSheet: Codeunit "Library - Time Sheet";
-        UTTimeSheetsApproval: Codeunit "UT Time Sheets Approval";
         Text001: Label 'Rolling back changes...';
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
@@ -114,16 +113,16 @@ codeunit 136501 "UT Time Sheets Approval"
     var
         TimeSheetLine: Record "Time Sheet Line";
     begin
-        // rejected line cannot be reopen
+        // rejected line can be reopen
         Initialize();
-        BindSubscription(UTTimeSheetsApproval);
 
         DoSubmitReject(TimeSheetLine);
 
         // try to reopen
-        asserterror TimeSheetApprovalMgt.ReopenSubmitted(TimeSheetLine);
+        TimeSheetApprovalMgt.ReopenSubmitted(TimeSheetLine);
 
-        UnbindSubscription(UTTimeSheetsApproval);
+        // Verify
+        Assert.AreEqual(TimeSheetLine.Status, TimeSheetLine.Status::Open, '');
     end;
 
     [Test]
@@ -179,17 +178,17 @@ codeunit 136501 "UT Time Sheets Approval"
     var
         TimeSheetLine: Record "Time Sheet Line";
     begin
-        // approved line cannot be reopened
+        // approved line can be reopened
         Initialize();
-        BindSubscription(UTTimeSheetsApproval);
 
         DoSubmitApprove(TimeSheetLine);
 
         // try to reopen
-        asserterror TimeSheetApprovalMgt.ReopenSubmitted(TimeSheetLine);
+        TimeSheetApprovalMgt.ReopenSubmitted(TimeSheetLine);
 
-        UnbindSubscription(UTTimeSheetsApproval);
-        TearDown();
+        // Verify
+        Assert.AreEqual(TimeSheetLine.Status, TimeSheetLine.Status::Open, ' ');
+
     end;
 
     [Test]

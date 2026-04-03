@@ -543,8 +543,8 @@ codeunit 144080 "ERM PPL"
         // [THEN] Footer has Payments within the legal limit = A1 + A2; Payments outside the legal limit = A3.
         XmlFileName := LibraryVariableStorage.DequeueText();
         LibraryXPathXMLReader.Initialize(XmlFileName, '');
-        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//DataSet/Result/TotalPaymentWithinDueDate', Format(Amount[1] + Amount[2], 0, 9), 2);
-        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//DataSet/Result/TotalPaymentOutsideDueDate', Format(Amount[3], 0, 9), 2);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//DataSet/Result/TotalPaymentWithinDueDate', DelChr(Format(Round(Amount[1] + Amount[2], 0.01), 0, '<Precision,2><Integer><Decimal>'), '=', ','), 2);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//DataSet/Result/TotalPaymentOutsideDueDate', DelChr(Format(Round(Amount[3], 0.01), 0, '<Precision,2><Integer><Decimal>'), '=', ','), 2);
         LibraryXPathXMLReader.VerifyNodeCountByXPath('//DataSet/Result/TotalPaymentWithinDueDate', 3);
         LibraryXPathXMLReader.VerifyNodeCountByXPath('//DataSet/Result/TotalPaymentOutsideDueDate', 3);
     end;
@@ -681,8 +681,8 @@ codeunit 144080 "ERM PPL"
         // [THEN] Footer has Payments within the legal limit = A1 + A2; Payments outside the legal limit = A3.
         XmlFileName := LibraryVariableStorage.DequeueText();
         LibraryXPathXMLReader.Initialize(XmlFileName, '');
-        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//DataSet/Result/TotalPaymentWithinDueDate', Format(Amount[1] + Amount[2], 0, 9), 2);
-        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//DataSet/Result/TotalPaymentOutsideDueDate', Format(Amount[3], 0, 9), 2);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//DataSet/Result/TotalPaymentWithinDueDate', DelChr(Format(Round(Amount[1] + Amount[2], 0.01), 0, '<Precision,2><Integer><Decimal>'), '=', ','), 2);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//DataSet/Result/TotalPaymentOutsideDueDate', DelChr(Format(Round(Amount[3], 0.01), 0, '<Precision,2><Integer><Decimal>'), '=', ','), 2);
         LibraryXPathXMLReader.VerifyNodeCountByXPath('//DataSet/Result/TotalPaymentWithinDueDate', 3);
         LibraryXPathXMLReader.VerifyNodeCountByXPath('//DataSet/Result/TotalPaymentOutsideDueDate', 3);
     end;

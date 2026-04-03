@@ -12,13 +12,8 @@ table 10720 "G/L Accounts Equivalence Tool"
     Caption = 'G/L Accounts Equivalence Tool';
     ObsoleteReason = 'Obsolete feature';
     Permissions = TableData "G/L Entry" = rimd;
-#if CLEAN25
     ObsoleteState = Removed;
     ObsoleteTag = '28.0';
-#else
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
-#endif
     DataClassification = CustomerContent;
     ReplicateData = false;
 
@@ -28,27 +23,15 @@ table 10720 "G/L Accounts Equivalence Tool"
         {
             Caption = 'No.';
             NotBlank = true;
-#if not CLEAN25
-            TableRelation = "Historic G/L Account"."No.";
-            //This property is currently not supported
-            //TestTableRelation = true;
-            ValidateTableRelation = true;
-#endif
         }
         field(2; Name; Text[30])
         {
-#if not CLEAN25
-            CalcFormula = lookup("Historic G/L Account".Name where("No." = field("No.")));
-#endif
             Caption = 'Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(3; "Account Type"; Option)
         {
-#if not CLEAN25
-            CalcFormula = lookup("Historic G/L Account"."Account Type" where("No." = field("No.")));
-#endif
             Caption = 'Account Type';
             Editable = false;
             FieldClass = FlowField;
@@ -58,18 +41,9 @@ table 10720 "G/L Accounts Equivalence Tool"
         field(4; "New No."; Code[20])
         {
             Caption = 'New No.';
-#if not CLEAN25
-            TableRelation = "New G/L Account"."No.";
-            //This property is currently not supported
-            //TestTableRelation = true;
-            ValidateTableRelation = true;
-#endif
         }
         field(5; "New Name"; Text[30])
         {
-#if not CLEAN25
-            CalcFormula = lookup("New G/L Account".Name where("No." = field("New No.")));
-#endif
             Caption = 'New Name';
             Editable = false;
             FieldClass = FlowField;

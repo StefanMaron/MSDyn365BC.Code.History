@@ -6,7 +6,6 @@ namespace Microsoft.Finance.ReceivablesPayables;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Currency;
-using Microsoft.Sales.Setup;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -16,6 +15,7 @@ using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Reports;
+using Microsoft.Sales.Setup;
 using Microsoft.Service.Document;
 using Microsoft.Service.History;
 using Microsoft.Service.Setup;

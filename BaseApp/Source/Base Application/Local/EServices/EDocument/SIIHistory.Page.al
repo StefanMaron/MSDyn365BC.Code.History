@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -203,7 +203,7 @@ page 10752 "SII History"
                 {
                     ApplicationArea = All;
                     Caption = 'Succeeded Company Name';
-                    ToolTip = 'Specifies the name of the company sucessor in connection with corporate restructuring.';
+                    ToolTip = 'Specifies the name of the company successor in connection with corporate restructuring.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -215,7 +215,7 @@ page 10752 "SII History"
                 {
                     ApplicationArea = All;
                     Caption = 'Succeeded VAT Registration No.';
-                    ToolTip = 'Specifies the VAT registration number of the company sucessor in connection with corporate restructuring.';
+                    ToolTip = 'Specifies the VAT registration number of the company successor in connection with corporate restructuring.';
                     Visible = false;
 
                     trigger OnValidate()

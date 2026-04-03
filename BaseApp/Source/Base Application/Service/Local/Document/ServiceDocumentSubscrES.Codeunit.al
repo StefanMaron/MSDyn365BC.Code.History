@@ -6,14 +6,14 @@ namespace Microsoft.Service.Document;
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Sales.Customer;
-using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Pricing;
+using Microsoft.Sales.Receivables;
 
 codeunit 10763 "Service Document Subscr. ES"
 {

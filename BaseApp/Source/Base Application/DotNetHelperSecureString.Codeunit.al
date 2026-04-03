@@ -6,6 +6,8 @@ namespace System.Security.Encryption;
 
 codeunit 3750 DotNetHelper_SecureString
 {
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     trigger OnRun()
     begin

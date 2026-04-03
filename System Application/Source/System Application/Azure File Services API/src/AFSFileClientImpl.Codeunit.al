@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Azure.Storage.Files;
+
 using System.Azure.Storage;
 using System.Telemetry;
 using System.Utilities;

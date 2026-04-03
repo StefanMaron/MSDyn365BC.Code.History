@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -100,6 +100,7 @@ table 5349 "CRM Incident"
         field(10; Title; Text[200])
         {
             Caption = 'Case Title';
+            ToolTip = 'Specifies the name of the case.';
             Description = 'Type a subject or descriptive name, such as the request, issue, or company name, to identify the case in Microsoft Dynamics CRM views.';
             ExternalName = 'title';
             ExternalType = 'String';
@@ -159,6 +160,7 @@ table 5349 "CRM Incident"
         field(17; CreatedOn; DateTime)
         {
             Caption = 'Created On';
+            ToolTip = 'Specifies when the sales order was created.';
             Description = 'Shows the date and time when the record was created. The date and time are displayed in the time zone selected in Microsoft Dynamics CRM options.';
             ExternalAccess = Read;
             ExternalName = 'createdon';
@@ -167,6 +169,7 @@ table 5349 "CRM Incident"
         field(18; TicketNumber; Text[100])
         {
             Caption = 'Case Number';
+            ToolTip = 'Specifies the number of the case.';
             Description = 'Shows the case number for customer reference and searching capabilities. This cannot be modified.';
             ExternalAccess = Insert;
             ExternalName = 'ticketnumber';
@@ -249,6 +252,7 @@ table 5349 "CRM Incident"
         field(27; StateCode; Option)
         {
             Caption = 'Status';
+            ToolTip = 'Specifies the status of the case.';
             Description = 'Shows whether the case is active, resolved, or canceled. Resolved and canceled cases are read-only and can''t be edited unless they are reactivated.';
             ExternalAccess = Modify;
             ExternalName = 'statecode';
@@ -483,6 +487,7 @@ table 5349 "CRM Incident"
         }
         field(53; ExchangeRate; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Exchange Rate';
             Description = 'Shows the conversion rate of the record''s currency. The exchange rate is used to convert all money fields in the record from the local currency to the system''s default currency.';
             ExternalAccess = Read;
@@ -630,6 +635,7 @@ table 5349 "CRM Incident"
         }
         field(71; SentimentValue; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Sentiment Value';
             Description = 'Value derived after assessing words commonly associated with a negative, neutral, or positive sentiment that occurs in a social post. Sentiment information can also be reported as numeric values.';
             ExternalAccess = Insert;
@@ -638,6 +644,7 @@ table 5349 "CRM Incident"
         }
         field(72; InfluenceScore; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Influence Score';
             Description = 'Will contain the Influencer score coming from NetBreeze.';
             ExternalAccess = Insert;

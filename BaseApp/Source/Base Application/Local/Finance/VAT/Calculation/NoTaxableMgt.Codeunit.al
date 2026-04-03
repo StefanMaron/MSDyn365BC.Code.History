@@ -15,16 +15,16 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Enums;
+using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Payables;
+using Microsoft.Purchases.Posting;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
-using Microsoft.Sales.History;
-using Microsoft.Sales.Receivables;
-using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
 using Microsoft.Sales.Posting;
-using Microsoft.Purchases.Posting;
+using Microsoft.Sales.Receivables;
 
 codeunit 10740 "No Taxable Mgt."
 {

@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Privacy;
+
 using System.Environment;
 using System.Environment.Configuration;
 using System.Reflection;

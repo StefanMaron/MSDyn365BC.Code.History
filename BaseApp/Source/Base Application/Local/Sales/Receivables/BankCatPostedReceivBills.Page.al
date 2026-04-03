@@ -5,9 +5,9 @@
 namespace Microsoft.Sales.Receivables;
 
 using Microsoft.Bank.BankAccount;
-using Microsoft.Foundation.Enums;
 using Microsoft.Finance.Analysis;
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Enums;
 using System.Utilities;
 
 page 7000066 "Bank Cat. Posted Receiv. Bills"

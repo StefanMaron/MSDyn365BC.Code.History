@@ -5,7 +5,18 @@
 namespace Microsoft.Finance.FinancialReports;
 
 using Microsoft.CostAccounting.Account;
+using System.Utilities;
 
+
+/// <summary>
+/// Provides worksheet interface for creating and editing financial report column definitions.
+/// Enables detailed setup of column layouts including data sources, formulas, dimensions, and display options.
+/// </summary>
+/// <remarks>
+/// Primary functionality: Column definition creation, formula management, dimension filtering setup.
+/// Integration: Links with Account Schedule reporting and Analysis View functionality.
+/// Extensibility: Standard page extension patterns for additional column types and calculation methods.
+/// </remarks>
 page 489 "Column Layout"
 {
     AboutTitle = 'About (Financial Report) Column Definition';
@@ -23,62 +34,94 @@ page 489 "Column Layout"
     {
         area(content)
         {
-#if not CLEAN27
-            field(CurrentColumnName; CurrentColumnName)
+            group(General)
             {
-                ApplicationArea = Basic, Suite;
-                AssistEdit = false;
-                Caption = 'Name';
-                Lookup = true;
-                TableRelation = "Column Layout Name".Name;
-                ToolTip = 'Specifies the unique name (code) of the column definition.';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'This field is no longer required and will be removed in a future release.';
-                ObsoleteTag = '27.0';
+                ShowCaption = false;
+                Visible = not HeaderHidden;
+                field(CurrentColumnName; CurrentColumnName)
+                {
+                    ApplicationArea = Basic, Suite;
+                    AssistEdit = false;
+                    Caption = 'Name';
+                    ToolTip = 'Specifies the unique name (code) of the column definition.';
 
-                trigger OnLookup(var Text: Text): Boolean
-                begin
-                    exit(AccSchedManagement.LookupColumnName(CurrentColumnName, Text));
-                end;
+                    trigger OnValidate()
+                    var
+                        ColumnLayoutName: Record "Column Layout Name";
+                        ConfirmMgt: Codeunit "Confirm Management";
+                        OldName: Code[10];
+                        RenameQst: Label 'Your change might update related records, which can take a while. Do you want to continue?';
+                    begin
+                        Rec.FilterGroup(2);
+                        if Rec.GetFilter("Column Layout Name") <> '' then
+                            OldName := Rec.GetRangeMin("Column Layout Name");
+                        Rec.FilterGroup(0);
+                        if (OldName = CurrentColumnName) or (OldName = '') then
+                            Error('');
+                        if not ColumnLayoutName.Get(OldName) then
+                            Error('');
+                        if not ConfirmMgt.GetResponse(RenameQst) then
+                            Error('');
+                        CurrPage.SaveRecord();
+                        ColumnLayoutName.Rename(CurrentColumnName);
+                        CurrentColumnName := ColumnLayoutName.Name;
+                        AccSchedManagement.SetColumnName(CurrentColumnName, Rec);
+                        if Rec.FindFirst() then
+                            CurrPage.Update(false)
+                        else begin
+                            Clear(Rec);
+                            Rec.Init();
+                        end;
+                    end;
+                }
+                field(CurrentDescription; CurrentDescription)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Description';
+                    ToolTip = 'Specifies the description of the column definition. The description is not shown on the final report but is used to provide more context when using the definition.';
 
-                trigger OnValidate()
-                begin
-                    AccSchedManagement.CheckColumnName(CurrentColumnName);
-                    CurrentColumnNameOnAfterValida();
-                end;
-            }
-#endif
-            field(CurrentDescription; CurrentDescription)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Description';
-                ToolTip = 'Specifies the description of the column definition. The description is not shown on the final report but is used to provide more context when using the definition.';
+                    trigger OnValidate()
+                    var
+                        ColumnLayoutName: Record "Column Layout Name";
+                    begin
+                        ColumnLayoutName.Get(CurrentColumnName);
+                        ColumnLayoutName.Description := CurrentDescription;
+                        ColumnLayoutName.Modify();
+                    end;
+                }
+                field(DefinitionStatus; DefinitionStatus)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Status';
+                    TableRelation = "Financial Report Status";
+                    ToolTip = 'Specifies the status code for the column definition. The status code helps you organize the lifecycle of your column definitions.';
 
-                trigger OnValidate()
-                var
-                    ColumnLayoutName: Record "Column Layout Name";
-                begin
-                    ColumnLayoutName.Get(CurrentColumnName);
-                    ColumnLayoutName.Description := CurrentDescription;
-                    ColumnLayoutName.Modify();
-                end;
-            }
-            field(InternalDescription; InternalDescription)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Internal Description';
-                MultiLine = true;
-                ToolTip = 'Specifies the internal description of the column definition. The internal description is not shown on the final report but is used to provide more context when using the definition.';
+                    trigger OnValidate()
+                    var
+                        ColumnLayoutName: Record "Column Layout Name";
+                    begin
+                        ColumnLayoutName.Get(CurrentColumnName);
+                        ColumnLayoutName.Status := DefinitionStatus;
+                        ColumnLayoutName.Modify();
+                    end;
+                }
+                field(InternalDescription; InternalDescription)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Internal Description';
+                    MultiLine = true;
+                    ToolTip = 'Specifies the internal description of the column definition. The internal description is not shown on the final report but is used to provide more context when using the definition.';
 
-                trigger OnValidate()
-                var
-                    ColumnLayoutName: Record "Column Layout Name";
-                begin
-                    ColumnLayoutName.Get(CurrentColumnName);
-                    ColumnLayoutName."Internal Description" := InternalDescription;
-                    ColumnLayoutName.Modify();
-                end;
+                    trigger OnValidate()
+                    var
+                        ColumnLayoutName: Record "Column Layout Name";
+                    begin
+                        ColumnLayoutName.Get(CurrentColumnName);
+                        ColumnLayoutName."Internal Description" := InternalDescription;
+                        ColumnLayoutName.Modify();
+                    end;
+                }
+
             }
             repeater(Control1)
             {
@@ -142,7 +185,6 @@ page 489 "Column Layout"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a period formula that specifies the accounting periods you want to use to calculate the amount in this column.';
-                    Visible = false;
                 }
                 field(Show; Rec.Show)
                 {
@@ -249,6 +291,10 @@ page 489 "Column Layout"
                 {
                     ApplicationArea = Basic, Suite;
                 }
+                field("Internal Description"; Rec."Internal Description")
+                {
+                    ApplicationArea = Basic, Suite;
+                }
             }
         }
         area(factboxes)
@@ -270,6 +316,7 @@ page 489 "Column Layout"
     {
         area(processing)
         {
+#if not CLEAN28
             action(CopyColumnLayout)
             {
                 ApplicationArea = Basic, Suite;
@@ -277,6 +324,10 @@ page 489 "Column Layout"
                 Image = Copy;
                 Scope = Repeater;
                 ToolTip = 'Create a copy of the current column layout.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This action will be removed in a future release, use the same action on the Column Layout Names page instead.';
+                ObsoleteTag = '28.0';
+                Visible = false;
 
                 trigger OnAction()
                 var
@@ -287,6 +338,7 @@ page 489 "Column Layout"
                     Report.RunModal(Report::"Copy Column Layout", true, true, ColLayoutName);
                 end;
             }
+#endif
             action(WhereUsed)
             {
                 ApplicationArea = Basic, Suite;
@@ -302,6 +354,32 @@ page 489 "Column Layout"
                     Page.Run(0, FinancialReport);
                 end;
             }
+            action(HideHeader)
+            {
+                Caption = 'Hide Header';
+                Image = ListPage;
+                ToolTip = 'Hide the page header.';
+                Visible = not HeaderHidden;
+
+                trigger OnAction()
+                begin
+                    HeaderHidden := true;
+                    CurrPage.Update(false);
+                end;
+            }
+            action(ShowHeader)
+            {
+                Caption = 'Show Header';
+                Image = TaskPage;
+                ToolTip = 'Show the page header.';
+                Visible = HeaderHidden;
+
+                trigger OnAction()
+                begin
+                    HeaderHidden := false;
+                    CurrPage.Update(false);
+                end;
+            }
         }
         area(Promoted)
         {
@@ -309,12 +387,17 @@ page 489 "Column Layout"
             {
                 Caption = 'Process';
 
+#if not CLEAN28
                 actionref(CopyColumnLayout_Promoted; CopyColumnLayout)
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This action will be removed in a future release, use the same action on the Column Layout Names page instead.';
+                    ObsoleteTag = '28.0';
                 }
-                actionref(WhereUsed_Promoted; WhereUsed)
-                {
-                }
+#endif
+                actionref(WhereUsed_Promoted; WhereUsed) { }
+                actionref(HideHeader_Promoted; HideHeader) { }
+                actionref(ShowHeader_Promoted; ShowHeader) { }
             }
         }
     }
@@ -328,40 +411,45 @@ page 489 "Column Layout"
     trigger OnOpenPage()
     var
         FinancialReportMgt: Codeunit "Financial Report Mgt.";
+        CurrentPageCaption: Text;
     begin
         FinancialReportMgt.LaunchEditColumnsWarningNotification();
         AccSchedManagement.OpenColumns(CurrentColumnName, Rec);
-        if CurrentColumnName <> '' then
-            CurrPage.Caption(CurrentColumnName);
+        CurrentPageCaption := AccSchedManagement.GetColumnLayoutCaption(CurrentColumnName);
+        if CurrentPageCaption <> '' then
+            CurrPage.Caption(CurrentPageCaption);
+
         GetDescriptions();
     end;
 
     var
         AccSchedManagement: Codeunit AccSchedManagement;
         CurrentColumnName: Code[10];
+        DefinitionStatus: Code[10];
         DimCaptionsInitialized: Boolean;
         CurrentDescription: Text[80];
-        InternalDescription: Text[250];
-#if not CLEAN27
-    local procedure CurrentColumnNameOnAfterValida()
-    begin
-        CurrPage.SaveRecord();
-        AccSchedManagement.SetColumnName(CurrentColumnName, Rec);
-        CurrPage.Update(false);
-    end;
-#endif
+        InternalDescription: Text[500];
+        HeaderHidden: Boolean;
+
     local procedure GetDescriptions()
     var
         ColumnLayoutName: Record "Column Layout Name";
+        FinancialReportMgt: Codeunit "Financial Report Mgt.";
     begin
         CurrentDescription := '';
         InternalDescription := '';
         if ColumnLayoutName.Get(CurrentColumnName) then begin
+            DefinitionStatus := ColumnLayoutName.Status;
             CurrentDescription := ColumnLayoutName.Description;
             InternalDescription := ColumnLayoutName."Internal Description";
+            FinancialReportMgt.CheckStatus(ColumnLayoutName.TableCaption(), ColumnLayoutName.Status);
         end;
     end;
 
+    /// <summary>
+    /// Sets the current column layout name for the page to display the associated column definitions.
+    /// </summary>
+    /// <param name="NewColumnName">Column layout name to display in the worksheet</param>
     procedure SetColumnLayoutName(NewColumnName: Code[10])
     begin
         CurrentColumnName := NewColumnName;

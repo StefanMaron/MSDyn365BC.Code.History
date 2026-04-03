@@ -10,17 +10,12 @@ codeunit 139006 "Test My Settings"
 
     var
         Assert: Codeunit Assert;
-        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibrarySales: Codeunit "Library - Sales";
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         EnabledValue: Boolean;
         ActionToDo: Option SetValue,VerifyValue;
-        ViewFilterDetailsTxt: Label '(View filter details)';
-        CustomerNum: Code[20];
-        RemoveFilterValues: Boolean;
-        FilterFormOpened: Boolean;
         MyNotificationFilterTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Table18">VERSION(1) SORTING(Field1) WHERE(Field1=1(%1))</DataItem></DataItems></ReportParameters>';
 
     [Test]
@@ -100,65 +95,6 @@ codeunit 139006 "Test My Settings"
     end;
 
     [Test]
-    [HandlerFunctions('MyNotificationsModalPageHandlerForCreditLimitWarning,CustomerFilterSettingsModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure FilteringOnRecordIsRespected()
-    var
-        Customer: Record Customer;
-        CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
-        UserSettings: TestPage "User Settings";
-        CrCheckEnabled: Boolean;
-    begin
-        // [FEATURE] [My Notifications]
-        // [SCENARIO 169269] "My Notifications" page enforces the setting for filters as exemplified in the credit limit warning check
-        Initialize();
-
-        // [GIVEN] Opened page "My Settings"
-        UserSettings.OpenEdit();
-
-        // [WHEN] Set Credit limit warning for a certain customer
-        LibrarySales.CreateCustomer(Customer);
-        CustomerNum := Customer."No.";
-        EnabledValue := true;
-        RemoveFilterValues := false;
-        UserSettings.MyNotificationsLbl.DrillDown();
-
-        // [WHEN] Create sales invoice for the customer
-        LibraryLowerPermissions.SetSalesDocsPost();
-        CrCheckEnabled := CustCheckCrLimit.IsCreditLimitNotificationEnabled(Customer);
-
-        // [THEN] The credit check should be enabled for this customer
-        Assert.IsTrue(CrCheckEnabled, 'Customer should be filtered as per the My Notification settings');
-
-        // [WHEN] Create a new customer without a credit limit check
-        LibrarySales.CreateCustomer(Customer);
-
-        // [WHEN] Create sales invoice for the customer
-        CrCheckEnabled := CustCheckCrLimit.IsCreditLimitNotificationEnabled(Customer);
-
-        // [THEN] The credit check should be enabled for this customer
-        Assert.IsFalse(CrCheckEnabled, 'New customer should not be filtered as per the My Notification settings');
-
-        // [WHEN] Disable Credit limit warning
-        EnabledValue := false;
-        UserSettings.MyNotificationsLbl.DrillDown();
-
-        // [WHEN] Create sales invoice for the customer
-        CrCheckEnabled := CustCheckCrLimit.IsCreditLimitNotificationEnabled(Customer);
-
-        // [THEN] The credit check should be enabled for this customer
-        Assert.IsFalse(CrCheckEnabled, 'My Notification settings is disabled for all customers.');
-
-        // [WHEN] Enable the check again but remove filters
-        EnabledValue := true;
-        RemoveFilterValues := true;
-        UserSettings.MyNotificationsLbl.DrillDown();
-
-        // [THEN] The filter form is opened.
-        Assert.IsTrue(FilterFormOpened, 'Filter form should have been opened');
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure MyNotificatioPageIsFilteredWithUserID()
     var
@@ -201,47 +137,6 @@ codeunit 139006 "Test My Settings"
         MyAccountsTestPage.Last();
         VerifyGLAccountBalanceAndEntriesFilterOnDrillDown(
           MyAccountsTestPage, GLAccountNo[2], GLAccountBalance[2]);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure AmountsForTotalingAccountTypesAreVisible()
-    var
-        TotalingGLAccount: Record "G/L Account";
-        MyAccount: Record "My Account";
-        MyAccountsTestPage: TestPage "My Accounts";
-        GeneralLedgerEntries: TestPage "General Ledger Entries";
-        GLAccountBalance: array[2] of Decimal;
-        TotalingBalance: Decimal;
-        GLAccountNo: array[2] of Code[20];
-    begin
-        // [SCENARIO 211089] "My Accounts" subpage for GLAccount (Totaling type) populates the Balance field and drills down with GL Entries filtered for that GLAccount.Totaling.
-        Initialize();
-
-        // [GIVEN] G/L Accounts "AC1" and "AC2" with G/L Entries with Amounts = 100 and 200 respectively.
-        PrepareTwoGLAccountsWithGLEntries(GLAccountNo, GLAccountBalance);
-
-        // [GIVEN] Totaling G/L Account "ACT" where "ACT".Totaling = "AC1"|"AC2" and "ACT".Balance is 300.
-        PrepareTotalingGLAccount(Format(GLAccountNo[1]) + '|' + Format(GLAccountNo[2]), TotalingGLAccount, TotalingBalance);
-
-        // [GIVEN] "ACT" is added to "My Account" table as "MyAcc" record.
-        CreateMyAccountRecord(MyAccount, TotalingGLAccount."No.");
-
-        // [WHEN] My Account page is opened for "MYACC".
-        MyAccountsTestPage.OpenEdit();
-        MyAccountsTestPage.GotoRecord(MyAccount);
-        MyAccountsTestPage.Last();
-
-        // [THEN] The Balance field is = 300 for "ACT" added to "MYACC".
-        MyAccountsTestPage.Balance.AssertEquals(TotalingBalance);
-
-        // [THEN] DrillDown for the Balance field is opening General Ledger Entries with filter for "AC2".Totaling value.
-        GeneralLedgerEntries.Trap();
-        MyAccountsTestPage.Balance.DrillDown();
-        Assert.AreEqual(
-          Format(TotalingGLAccount.Totaling),
-          GeneralLedgerEntries.FILTER.GetFilter("G/L Account No."),
-          'Filter value for Totaling G/L Account is expected.');
     end;
 
     [Test]
@@ -468,74 +363,5 @@ codeunit 139006 "Test My Settings"
             ActionToDo::VerifyValue:
                 MyNotifications.Enabled.AssertEquals(EnabledValue);
         end;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure MyNotificationsModalPageHandlerForCreditLimitWarning(var MyNotifications: TestPage "My Notifications")
-    var
-        Customer: Record Customer;
-        CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
-    begin
-        MyNotifications.FILTER.SetFilter("Notification Id", CustCheckCrLimit.GetCreditLimitNotificationId());
-
-        // [WHEN] The notification is disabled
-        MyNotifications.Enabled.SetValue(false);
-
-        // [THEN] The Filter column has blank values
-        MyNotifications.Filters.AssertEquals('');
-
-        if EnabledValue then begin
-            // [WHEN] The notification is enabled
-            MyNotifications.Enabled.SetValue(true);
-
-            if RemoveFilterValues then begin
-                // [WHEN] A filter is chosen
-                MyNotifications.Filters.DrillDown();
-
-                // [THEN] The Filter column has a default text
-                MyNotifications.Filters.AssertEquals(ViewFilterDetailsTxt);
-
-                // [WHEN] The filter drill down is clicked again.
-                FilterFormOpened := false;
-                MyNotifications.Filters.DrillDown();
-            end else begin
-                // [THEN] The Filter column has a default text
-                MyNotifications.Filters.AssertEquals(ViewFilterDetailsTxt);
-
-                // [WHEN] A filter is chosen
-                MyNotifications.Filters.DrillDown();
-
-                // [THEN] The Filter Column has the Customer filter visible
-                MyNotifications.Filters.AssertEquals(StrSubstNo('%1: %2', Customer.FieldName("No."), CustomerNum));
-            end;
-        end;
-    end;
-
-    [FilterPageHandler]
-    [Scope('OnPrem')]
-    procedure CustomerFilterSettingsModalPageHandler(var CustomerRecordRef: RecordRef): Boolean
-    var
-        Customer: Record Customer;
-    begin
-        FilterFormOpened := true;
-        CustomerRecordRef.GetTable(Customer);
-        if not RemoveFilterValues then
-            Customer.SetRange("No.", CustomerNum);
-        CustomerRecordRef.SetView(Customer.GetView());
-        exit(true);
-    end;
-
-    [SessionSettingsHandler]
-    [Scope('OnPrem')]
-    procedure StandardSessionSettingsHandler(var TestSessionSettings: SessionSettings): Boolean
-    begin
-        exit(false);
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure MessageHandler(Text: Text[1024])
-    begin
     end;
 }

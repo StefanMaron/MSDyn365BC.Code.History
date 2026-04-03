@@ -11,8 +11,8 @@ using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Inventory.Intrastat;
 using Microsoft.Sales.Receivables;
-using Microsoft.Service.Document;
 using Microsoft.Sales.Setup;
+using Microsoft.Service.Document;
 using Microsoft.Service.History;
 
 codeunit 10789 "Service Posting Subscr. ES"

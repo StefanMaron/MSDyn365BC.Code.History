@@ -244,7 +244,6 @@ page 10736 "Customer/Vendor Warnings 349"
         ExcludeGenProductPostingGroupFilter := FilterText;
     end;
 
-    [Scope('OnPrem')]
     procedure Rectify(FiscalYear: Code[4]; Period: Code[2])
     var
         VATEntry: Record "VAT Entry";

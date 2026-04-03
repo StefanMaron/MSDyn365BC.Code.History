@@ -1,13 +1,13 @@
 namespace Microsoft.Service.History;
 
 using Microsoft.EServices.EDocument;
-using Microsoft.Finance.VAT.Calculation;
-using Microsoft.Foundation.PaymentTerms;
-using Microsoft.Sales.Receivables;
-using Microsoft.Finance.VAT.Ledger;
-using Microsoft.Sales.Customer;
-using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.ReceivablesPayables;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Receivables;
 
 codeunit 10762 "Service History Subscr. ES"
 {
