@@ -4,11 +4,11 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Warehouse.Activity;
 
-using Microsoft.Warehouse.Request;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Inventory.Tracking;
-using System.Telemetry;
 using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Warehouse.Request;
+using System.Telemetry;
 
 codeunit 99000878 "Mfg. Create Inventory Put-Away"
 {
@@ -315,7 +315,7 @@ codeunit 99000878 "Mfg. Create Inventory Put-Away"
                                     Database::"Prod. Order Component", ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.", ProdOrderComponent."Line No.",
                                     ProdOrderComponent."Location Code", ProdOrderComponent."Item No.", ProdOrderComponent."Variant Code", ProdOrderComponent."Unit of Measure Code",
                                     ProdOrderComponent."Qty. per Unit of Measure", ProdOrderComponent."Qty. Rounding Precision", ProdOrderComponent."Qty. Rounding Precision (Base)",
-                                    ProdOrderComponent.Description, '', ProdOrderComponent."Due Date", '', ProdOrderComponent);
+                                    ProdOrderComponent.Description, ProdOrderComponent."Description 2", ProdOrderComponent."Due Date", '', ProdOrderComponent);
                         until RemQtyToPutAway <= 0;
                 end;
         until ProdOrderComponent.Next() = 0;
@@ -342,7 +342,7 @@ codeunit 99000878 "Mfg. Create Inventory Put-Away"
                     Database::"Prod. Order Component", ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.", ProdOrderComponent."Line No.",
                     ProdOrderComponent."Location Code", ProdOrderComponent."Item No.", ProdOrderComponent."Variant Code", ProdOrderComponent."Unit of Measure Code",
                     ProdOrderComponent."Qty. per Unit of Measure", ProdOrderComponent."Qty. Rounding Precision", ProdOrderComponent."Qty. Rounding Precision (Base)",
-                    ProdOrderComponent.Description, '', ProdOrderComponent."Due Date", BinCodeToUse, ProdOrderComponent)
+                    ProdOrderComponent.Description, ProdOrderComponent."Description 2", ProdOrderComponent."Due Date", BinCodeToUse, ProdOrderComponent)
 
         until RemQtyToPutAway <= 0;
     end;
@@ -353,7 +353,7 @@ codeunit 99000878 "Mfg. Create Inventory Put-Away"
             Database::"Prod. Order Component", ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.", ProdOrderComponent."Line No.",
             ProdOrderComponent."Location Code", ProdOrderComponent."Bin Code", ProdOrderComponent."Item No.", ProdOrderComponent."Variant Code", ProdOrderComponent."Quantity (Base)",
             ProdOrderComponent."Unit of Measure Code", ProdOrderComponent."Qty. per Unit of Measure", ProdOrderComponent."Qty. Rounding Precision",
-            ProdOrderComponent."Qty. Rounding Precision (Base)", ProdOrderComponent.Description, '', ProdOrderComponent."Due Date");
+            ProdOrderComponent."Qty. Rounding Precision (Base)", ProdOrderComponent.Description, ProdOrderComponent."Description 2", ProdOrderComponent."Due Date");
     end;
 
     local procedure FindReservationFromProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; var sender: Codeunit "Create Inventory Put-away")

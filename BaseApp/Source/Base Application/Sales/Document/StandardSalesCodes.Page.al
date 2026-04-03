@@ -4,6 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Document;
 
+/// <summary>
+/// Displays a list of standard sales codes for managing recurring sales templates.
+/// </summary>
 page 172 "Standard Sales Codes"
 {
     AdditionalSearchTerms = 'recurring sales,reorder,repeat sales';
@@ -26,12 +29,10 @@ page 172 "Standard Sales Codes"
                 field("Code"; Rec.Code)
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies a code which identifies this standard sales code.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies a description of the standard sales code.';
                 }
                 field("Currency Code"; Rec."Currency Code")
                 {

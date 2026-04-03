@@ -475,6 +475,7 @@ codeunit 7312 "Create Pick"
         QtyWithBlockedItemTracking: Decimal;
         QtyInWhse: Decimal;
         MaxPickableQty: Decimal;
+        QtyInBinNotBlockedNotDedicatedWithoutItemTrackingFilter: Decimal;
     begin
         GetLocation(LocationCode);
         if not CurrLocation."Directed Put-away and Pick" then
@@ -498,6 +499,7 @@ codeunit 7312 "Create Pick"
                     CalcOutstandQtyOnWhseActLine.SetFilter(Bin_Type_Code, GetBinTypeFilter(3));
                 end;
         end;
+        QtyInBinNotBlockedNotDedicatedWithoutItemTrackingFilter := GetQtyInBinNotBlockedNotDedicatedWithoutItemTrackingFilter(LocationCode, ItemNo, VariantCode);
 
         // Summing up Warehouse Entry
         CalcPickableQtyFromWhseEntry.SetRange(Location_Code, LocationCode);
@@ -541,13 +543,13 @@ codeunit 7312 "Create Pick"
         MaxPickableQty := Maximum(0, QtyInBinNotBlockedNotDedicated - QtyWithBlockedItemTracking - QtyAssignedInWhseActLinesNotBlockedNotDedicated);
 
         if CalledFromMoveWksh then begin
-            UpdateCalculationSummaryQuantitiesForMaxPickableQtyInWhse(0, QtyInBinNotBlockedNotDedicated, QtyWithBlockedItemTracking, QtyAssignedInWhseActLinesNotBlockedNotDedicated, BinTypeFilter);
+            UpdateCalculationSummaryQuantitiesForMaxPickableQtyInWhse(0, QtyInBinNotBlockedNotDedicated, QtyWithBlockedItemTracking, QtyAssignedInWhseActLinesNotBlockedNotDedicated, BinTypeFilter, QtyInBinNotBlockedNotDedicatedWithoutItemTrackingFilter);
             exit(MaxPickableQty);
         end
         else begin
             // QtyInBinNotBlockedNotDedicated might not be in the inventory yet when using Adjustment bins, so we need to take the minimum of QtyInBinNotBlockedNotDedicated and QtyInWhse (which includes adjustment bins).
             QtyInWhse := SumWhseEntries(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, '', '', false);
-            UpdateCalculationSummaryQuantitiesForMaxPickableQtyInWhse(QtyInWhse, QtyInBinNotBlockedNotDedicated, QtyWithBlockedItemTracking, QtyAssignedInWhseActLinesNotBlockedNotDedicated, BinTypeFilter);
+            UpdateCalculationSummaryQuantitiesForMaxPickableQtyInWhse(QtyInWhse, QtyInBinNotBlockedNotDedicated, QtyWithBlockedItemTracking, QtyAssignedInWhseActLinesNotBlockedNotDedicated, BinTypeFilter, QtyInBinNotBlockedNotDedicatedWithoutItemTrackingFilter);
             exit(Minimum(QtyInWhse, MaxPickableQty));
         end;
     end;
@@ -2133,6 +2135,22 @@ codeunit 7312 "Create Pick"
                 exit(false)
             end;
         exit(true);
+    end;
+
+    local procedure GetQtyInBinNotBlockedNotDedicatedWithoutItemTrackingFilter(LocationCode: Code[20]; ItemNo: Code[20]; Variantcode: Code[20]) QtyInBinNotBlockedNotDedicatedWithoutItemTrackingFilter: Decimal
+    var
+        CalcPickableQtyFromWhseEntry: Query CalcPickableQtyFromWhseEntry;
+    begin
+        if not ReqFEFOPick then
+            exit;
+        CalcPickableQtyFromWhseEntry.SetRange(Location_Code, LocationCode);
+        CalcPickableQtyFromWhseEntry.SetRange(Item_No_, ItemNo);
+        CalcPickableQtyFromWhseEntry.SetRange(Variant_Code, VariantCode);
+        CalcPickableQtyFromWhseEntry.Open();
+        if CalcPickableQtyFromWhseEntry.Read() then
+            QtyInBinNotBlockedNotDedicatedWithoutItemTrackingFilter := CalcPickableQtyFromWhseEntry.TotalPickableQtyBase;
+        CalcPickableQtyFromWhseEntry.Close();
+        exit(QtyInBinNotBlockedNotDedicatedWithoutItemTrackingFilter);
     end;
 
     procedure SetParameters(NewCreatePickParameters: Record "Create Pick Parameters")
@@ -4042,7 +4060,7 @@ codeunit 7312 "Create Pick"
         end;
     end;
 
-    local procedure UpdateCalculationSummaryQuantitiesForMaxPickableQtyInWhse(QtyInWhse: Decimal; QtyInBinNotBlockedNotDedicated: Decimal; QtyWithBlockedItemTracking: Decimal; QtyAssignedInWhseActLinesNotBlockedNotDedicated: Decimal; BinTypeFilter: Option ExcludeReceive,ExcludeShip,OnlyPickBins)
+    local procedure UpdateCalculationSummaryQuantitiesForMaxPickableQtyInWhse(QtyInWhse: Decimal; QtyInBinNotBlockedNotDedicated: Decimal; QtyWithBlockedItemTracking: Decimal; QtyAssignedInWhseActLinesNotBlockedNotDedicated: Decimal; BinTypeFilter: Option ExcludeReceive,ExcludeShip,OnlyPickBins; QtyInBinNotBlockedNotDedicatedWithoutItemTrackingFilter: Decimal)
     begin
         if not CanSaveSummary() then
             exit;
@@ -4062,8 +4080,11 @@ codeunit 7312 "Create Pick"
                     begin
                         TempWarehousePickSummary."Qty. in blocked item tracking" := QtyWithBlockedItemTracking;
                         TempWarehousePickSummary."Qty. in active pick lines" := QtyAssignedInWhseActLinesNotBlockedNotDedicated;
-                        TempWarehousePickSummary."Qty. in pickable Bins" := QtyInBinNotBlockedNotDedicated;
                         TempWarehousePickSummary."Qty. in Warehouse" := QtyInWhse;
+                        if QtyInBinNotBlockedNotDedicatedWithoutItemTrackingFilter <> 0 then
+                            TempWarehousePickSummary."Qty. in pickable Bins" := QtyInBinNotBlockedNotDedicatedWithoutItemTrackingFilter
+                        else
+                            TempWarehousePickSummary."Qty. in pickable Bins" := QtyInBinNotBlockedNotDedicated;
                     end;
                 BinTypeFilter::ExcludeShip: //Needed to balance reserved quantities when not called from Movement Worksheet
                     begin

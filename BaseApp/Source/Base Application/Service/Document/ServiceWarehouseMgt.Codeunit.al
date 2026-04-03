@@ -4,19 +4,19 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Document;
 
+using Microsoft.Finance.ReceivablesPayables;
+using Microsoft.Foundation.AuditCodes;
 using Microsoft.Inventory.Tracking;
+using Microsoft.Service.History;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.CrossDock;
 using Microsoft.Warehouse.Document;
-using Microsoft.Service.History;
+using Microsoft.Warehouse.History;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Worksheet;
 using System.Security.User;
-using Microsoft.Finance.ReceivablesPayables;
-using Microsoft.Foundation.AuditCodes;
-using Microsoft.Warehouse.History;
 
 codeunit 5995 "Service Warehouse Mgt."
 {
@@ -26,7 +26,7 @@ codeunit 5995 "Service Warehouse Mgt."
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
         MustNotBeGreaterErr: Label 'must not be greater than %1 units', Comment = '%1 - Quantity';
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"WMS Management", 'OnShowSourceDocLine', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"WMS Management", 'OnShowSourceDocLine', '', true, false)]
     local procedure OnShowSourceDocLine(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer)
     var
         ServiceLine: Record "Service Line";
@@ -44,7 +44,7 @@ codeunit 5995 "Service Warehouse Mgt."
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"WMS Management", 'OnShowSourceDocAttachedLines', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"WMS Management", 'OnShowSourceDocAttachedLines', '', true, false)]
     local procedure OnShowSourceDocAttachedLines(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer)
     var
         ServiceLine: Record "Service Line";
@@ -117,7 +117,7 @@ codeunit 5995 "Service Warehouse Mgt."
         OnAfterServiceLineDelete(ServiceLine);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Validate Source Line", 'OnWhseLineExistOnBeforeCheckShipment', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Validate Source Line", 'OnWhseLineExistOnBeforeCheckShipment', '', true, false)]
     local procedure OnWhseLineExistOnBeforeCheckShipment(SourceType: Integer; SourceSubType: Option; SourceQty: Decimal; var CheckShipment: Boolean)
     begin
         CheckShipment := CheckShipment or
@@ -139,21 +139,24 @@ codeunit 5995 "Service Warehouse Mgt."
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"WMS Management", 'OnBeforeShowPostedSourceDocument', '', false, false)]
-    local procedure OnBeforeShowPostedSourceDocument(PostedSourceDoc: Enum "Warehouse Shipment Posted Source Document"; PostedSourceNo: Code[20]; var IsHandled: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"WMS Management", 'OnShowPostedSourceDoc', '', true, false)]
+    local procedure OnShowPostedSourceDoc(PostedSourceDoc: Option; PostedSourceNo: Code[20]; WarehouseActivitySourceDocument: Enum "Warehouse Activity Source Document")
     var
         ServiceShipmentHeader: Record "Service Shipment Header";
+        WarehouseShipmentPostedSourceDocument: Enum "Warehouse Shipment Posted Source Document";
     begin
-        case PostedSourceDoc of
-            PostedSourceDoc::"Posted Shipment":
-                if ServiceShipmentHeader.Get(PostedSourceNo) then begin
-                    IsHandled := true;
+        if WarehouseActivitySourceDocument <> WarehouseActivitySourceDocument::"Service Order" then
+            exit;
+
+        WarehouseShipmentPostedSourceDocument := Enum::"Warehouse Shipment Posted Source Document".FromInteger(PostedSourceDoc);
+        case WarehouseShipmentPostedSourceDocument of
+            WarehouseShipmentPostedSourceDocument::"Posted Shipment":
+                if ServiceShipmentHeader.Get(PostedSourceNo) then
                     Page.RunModal(Page::"Posted Service Shipment", ServiceShipmentHeader);
-                end;
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Warehouse Request", 'OnShowSourceDocumentCard', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Warehouse Request", 'OnShowSourceDocumentCard', '', true, false)]
     local procedure OnShowSourceDocumentCard(var WarehouseRequest: Record "Warehouse Request")
     var
         ServiceHeader: Record "Service Header";
@@ -185,7 +188,7 @@ codeunit 5995 "Service Warehouse Mgt."
             until ServiceLine.Next() = 0;
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Warehouse Source Filter", 'OnSetFiltersOnSourceTables', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Warehouse Source Filter", 'OnSetFiltersOnSourceTables', '', true, false)]
     local procedure OnSetFiltersOnSourceTables(var WarehouseSourceFilter: Record "Warehouse Source Filter"; var GetSourceDocuments: Report "Get Source Documents"; var WarehouseRequest: Record "Warehouse Request")
     var
         ServiceHeader: Record "Service Header";
@@ -299,7 +302,7 @@ codeunit 5995 "Service Warehouse Mgt."
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnAfterGetSrcDocLineQtyOutstanding', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnAfterGetSrcDocLineQtyOutstanding', '', true, false)]
     local procedure OnAfterGetSrcDocLineQtyOutstanding(SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var QtyBaseOutstanding: Decimal; var QtyOutstanding: Decimal)
     var
         ServiceLine: Record "Service Line";
@@ -311,7 +314,7 @@ codeunit 5995 "Service Warehouse Mgt."
             end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnAfterGetSourceDocumentType', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnAfterGetSourceDocumentType', '', true, false)]
     local procedure WhseManagementGetSourceDocumentType(SourceType: Integer; SourceSubType: Integer; var SourceDocument: Enum "Warehouse Journal Source Document"; var IsHandled: Boolean)
     begin
         if SourceType = Database::"Service Line" then begin
@@ -320,7 +323,7 @@ codeunit 5995 "Service Warehouse Mgt."
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnAfterGetJournalSourceDocument', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnAfterGetJournalSourceDocument', '', true, false)]
     local procedure WhseManagementGetJournalSourceDocument(SourceType: Integer; SourceSubType: Integer; var SourceDocument: Enum "Warehouse Journal Source Document"; var IsHandled: Boolean)
     begin
         if SourceType = Database::"Service Line" then begin
@@ -329,7 +332,7 @@ codeunit 5995 "Service Warehouse Mgt."
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnAfterGetWhseRqstSourceDocument', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnAfterGetWhseRqstSourceDocument', '', true, false)]
     local procedure OnAfterGetWhseRqstSourceDocument(WhseJournalSourceDocument: Enum "Warehouse Journal Source Document"; var SourceDocument: Enum "Warehouse Request Source Document")
     begin
         case WhseJournalSourceDocument of
@@ -338,7 +341,7 @@ codeunit 5995 "Service Warehouse Mgt."
         end;
     end;
 
-    [EventSubscriber(ObjectType::Report, Report::"Create Pick", 'OnCheckSourceDocument', '', false, false)]
+    [EventSubscriber(ObjectType::Report, Report::"Create Pick", 'OnCheckSourceDocument', '', true, false)]
     local procedure CreatePickOnCheckSourceDocument(var PickWhseWkshLine: Record "Whse. Worksheet Line")
     var
         ServiceLine: Record "Service Line";
@@ -352,7 +355,7 @@ codeunit 5995 "Service Warehouse Mgt."
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Cross-Dock Management", 'OnCalcCrossDockToServiceOrder', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Cross-Dock Management", 'OnCalcCrossDockToServiceOrder', '', true, false)]
     local procedure OnCalcCrossDockToServiceOrder(var WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity"; var QtyOnPick: Decimal; var QtyPicked: Decimal; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; CrossDockDate: Date; LineNo: Integer; var sender: Codeunit "Whse. Cross-Dock Management")
     begin
         CalcCrossDockToServiceOrder(WhseCrossDockOpportunity, QtyOnPick, QtyPicked, ItemNo, VariantCode, LocationCode, CrossDockDate, LineNo, sender);
@@ -366,12 +369,6 @@ codeunit 5995 "Service Warehouse Mgt."
         QtyPickedBase: Decimal;
         IsHandled: Boolean;
     begin
-#if not CLEAN25
-        IsHandled := false;
-        sender.RunOnBeforeCalcCrossDockToServiceOrder(WhseCrossDockOpportunity, ItemNo, VariantCode, LocationCode, CrossDockDate, QtyOnPick, QtyPicked, LineNo, IsHandled);
-        if IsHandled then
-            exit;
-#endif
         IsHandled := false;
         OnBeforeCalcCrossDockToServiceOrder(WhseCrossDockOpportunity, ItemNo, VariantCode, LocationCode, CrossDockDate, QtyOnPick, QtyPicked, LineNo, IsHandled);
         if IsHandled then
@@ -384,9 +381,6 @@ codeunit 5995 "Service Warehouse Mgt."
         ServiceLine.SetRange("Location Code", LocationCode);
         ServiceLine.SetRange("Needed by Date", 0D, CrossDockDate);
         ServiceLine.SetFilter("Outstanding Qty. (Base)", '>0');
-#if not CLEAN25
-        sender.RunOnCalcCrossDockToServiceOrderOnAfterServiceLineSetFilters(ServiceLine, WhseCrossDockOpportunity, QtyOnPick, QtyPicked, ItemNo, VariantCode, LocationCode, CrossDockDate, LineNo);
-#endif
         OnCalcCrossDockToServiceOrderOnAfterServiceLineSetFilters(ServiceLine, WhseCrossDockOpportunity, QtyOnPick, QtyPicked, ItemNo, VariantCode, LocationCode, CrossDockDate, LineNo);
         if ServiceLine.Find('-') then
             repeat
@@ -398,9 +392,6 @@ codeunit 5995 "Service Warehouse Mgt."
                         Database::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", ServiceLine."Line No.",
                         QtyOnPick, QtyOnPickBase, QtyPicked, QtyPickedBase, ServiceLine.Quantity, ServiceLine."Quantity (Base)",
                         ServiceLine."Outstanding Quantity", ServiceLine."Outstanding Qty. (Base)");
-#if not CLEAN25
-                    sender.RunOnCalcCrossDockToServiceOrderOnBeforeInsertCrossDockLine(ServiceLine, WhseCrossDockOpportunity, QtyOnPick, QtyPicked, ItemNo, VariantCode, LocationCode, CrossDockDate, LineNo);
-#endif
                     OnCalcCrossDockToServiceOrderOnBeforeInsertCrossDockLine(ServiceLine, WhseCrossDockOpportunity, QtyOnPick, QtyPicked, ItemNo, VariantCode, LocationCode, CrossDockDate, LineNo);
                     sender.InsertCrossDockOpp(
                         WhseCrossDockOpportunity,
@@ -409,9 +400,6 @@ codeunit 5995 "Service Warehouse Mgt."
                         QtyOnPick, QtyOnPickBase, QtyPicked, QtyPickedBase,
                         ServiceLine."Unit of Measure Code", ServiceLine."Qty. per Unit of Measure", ServiceLine."Needed by Date",
                         ServiceLine."No.", ServiceLine."Variant Code", LineNo);
-#if not CLEAN25
-                    sender.RunOnCalcCrossDockToServiceOrderOnAfterInsertCrossDockLine(ServiceLine, WhseCrossDockOpportunity, QtyOnPick, QtyPicked, ItemNo, VariantCode, LocationCode, CrossDockDate, LineNo);
-#endif
                     OnCalcCrossDockToServiceOrderOnAfterInsertCrossDockLine(ServiceLine, WhseCrossDockOpportunity, QtyOnPick, QtyPicked, ItemNo, VariantCode, LocationCode, CrossDockDate, LineNo);
                 end;
             until ServiceLine.Next() = 0;
@@ -437,7 +425,7 @@ codeunit 5995 "Service Warehouse Mgt."
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Integration Management", 'OnCheckBinTypeAndCode', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Integration Management", 'OnCheckBinTypeAndCode', '', true, false)]
     local procedure OnCheckBinTypeAndCode(BinType: Record "Bin Type"; AdditionalIdentifier: Option)
     begin
         if AdditionalIdentifier = "Service Document Type"::Invoice.AsInteger() then
@@ -446,7 +434,7 @@ codeunit 5995 "Service Warehouse Mgt."
 
     // Report "Create Warehouse Shipment"
 
-    [EventSubscriber(ObjectType::Report, Report::"Create Warehouse Shipment", 'OnWarehouseRequestOnAfterGetRecord', '', false, false)]
+    [EventSubscriber(ObjectType::Report, Report::"Create Warehouse Shipment", 'OnWarehouseRequestOnAfterGetRecord', '', true, false)]
     local procedure OnWarehouseRequestOnAfterGetRecord(WarehouseRequest: Record "Warehouse Request"; sender: Report "Create Warehouse Shipment")
     var
         ServiceHeader: Record "Service Header";
@@ -463,7 +451,7 @@ codeunit 5995 "Service Warehouse Mgt."
 
     // Table "Warehouse Shipment Line"
 
-    [EventSubscriber(ObjectType::Table, Database::"Warehouse Shipment Line", 'OnCheckSourceDocLineQtyOnSetQtyOutstandingBase', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Warehouse Shipment Line", 'OnCheckSourceDocLineQtyOnSetQtyOutstandingBase', '', true, false)]
     local procedure OnCheckSourceDocLineQtyOnSetQtyOutstandingBase(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; QuantityBase: Decimal; WhseQtyOutstandingBase: Decimal; var QtyOutstandingBase: Decimal)
     var
         ServiceLine: Record "Service Line";
@@ -479,7 +467,7 @@ codeunit 5995 "Service Warehouse Mgt."
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Warehouse Shipment Line", 'OnOpenItemTrackingLines', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Warehouse Shipment Line", 'OnOpenItemTrackingLines', '', true, false)]
     local procedure OnOpenItemTrackingLines(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
     var
         ServiceLine: Record "Service Line";
@@ -494,20 +482,20 @@ codeunit 5995 "Service Warehouse Mgt."
 
     // Codeunit "Whse. Undo Quantity"
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Undo Quantity", 'OnAfterIsShipmentLine', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Undo Quantity", 'OnAfterIsShipmentLine', '', true, false)]
     local procedure OnAfterIsSalesShipmentLine(UndoType: Integer; var IsShipment: Boolean)
     begin
         IsShipment := IsShipment or (UndoType = Database::"Service Shipment Line");
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Warehouse Source Filter", 'OnAfterCheckType', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Warehouse Source Filter", 'OnAfterCheckType', '', true, false)]
     local procedure OnAfterCheckType(var WarehouseSourceFilter: Record "Warehouse Source Filter")
     begin
         if WarehouseSourceFilter.Type = WarehouseSourceFilter.Type::Inbound then
             WarehouseSourceFilter."Service Orders" := false;
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Warehouse Source Filter", 'OnSetFiltersOnAfterSetSourceFilters', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Warehouse Source Filter", 'OnSetFiltersOnAfterSetSourceFilters', '', true, false)]
     local procedure OnSetFiltersOnAfterSetSourceFilters(var WarehouseSourceFilter: Record "Warehouse Source Filter"; var WarehouseRequest: Record "Warehouse Request")
     begin
         if WarehouseSourceFilter."Service Orders" then begin
@@ -524,7 +512,7 @@ codeunit 5995 "Service Warehouse Mgt."
             CodeField := CodeField + '|' + NewFilter;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Posting Selection Management", 'OnAfterGetInvoicePostingPolicy', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Posting Selection Management", 'OnAfterGetInvoicePostingPolicy', '', true, false)]
     local procedure OnAfterGetInvoicePostingPolicy(SourceDocument: Enum "Warehouse Activity Source Document"; var Ship: Boolean; var Invoice: Boolean)
     var
         UserSetupManagement: Codeunit "User Setup Management";
@@ -534,7 +522,7 @@ codeunit 5995 "Service Warehouse Mgt."
             UserSetupManagement.GetServiceInvoicePostingPolicy(Ship, Consume, Invoice);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"WMS Management", 'OnAfterGetWhseJnlLineBinCode', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"WMS Management", 'OnAfterGetWhseJnlLineBinCode', '', true, false)]
     local procedure OnAfterGetWhseJnlLineBinCode(BinCode: Code[20]; SourceCode: Code[10]; var Result: Code[20]; SourceCodeSetup: Record "Source Code Setup")
     begin
         if BinCode <> '' then

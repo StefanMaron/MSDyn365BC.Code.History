@@ -20,9 +20,7 @@ codeunit 137008 "SCM Planning Options"
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
-#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
-#endif
         Initialized: Boolean;
         WrongFieldValueErr: Label '%1 is incorrect in %2', Comment = '%1: Field name; %2: Table name. Example: "Direct Unit Cost is incorrect in Requisition Line"';
 
@@ -526,7 +524,6 @@ codeunit 137008 "SCM Planning Options"
         PurchPayablesSetup.Modify(true);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure RequisitionLineValidateDueDateUpdatesUnitCost()
@@ -571,7 +568,6 @@ codeunit 137008 "SCM Planning Options"
         // [THEN] "Direct Unit Cost" on requisition line = 2 * "X"
         Assert.AreEqual(UnitCost, RequisitionLine."Direct Unit Cost", StrSubstNo(WrongFieldValueErr, RequisitionLine.FieldCaption("Direct Unit Cost"), RequisitionLine.TableCaption));
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -991,7 +987,6 @@ codeunit 137008 "SCM Planning Options"
         SKU.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure CreateItemPurchasePrice(ItemNo: Code[20]; VendorNo: Code[20]; StartingDate: Date; EndingDate: Date; UnitCost: Decimal)
     var
         PurchPrice: Record "Purchase Price";
@@ -1004,7 +999,6 @@ codeunit 137008 "SCM Planning Options"
         PurchPrice.Validate("Direct Unit Cost", UnitCost);
         PurchPrice.Insert(true);
     end;
-#endif
 
     local procedure CreatePurchaseOrder(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; Quantity: Decimal; AvailableDate: Date)
     var

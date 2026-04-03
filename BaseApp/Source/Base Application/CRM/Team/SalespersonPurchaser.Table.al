@@ -26,6 +26,7 @@ table 13 "Salesperson/Purchaser"
         field(1; "Code"; Code[20])
         {
             Caption = 'Code';
+            ToolTip = 'Specifies a code for the salesperson or purchaser.';
             NotBlank = true;
 
             trigger OnValidate()
@@ -36,11 +37,13 @@ table 13 "Salesperson/Purchaser"
         field(2; Name; Text[50])
         {
             Caption = 'Name';
+            ToolTip = 'Specifies the name of the salesperson or purchaser.';
         }
         field(3; "Commission %"; Decimal)
         {
             AutoFormatType = 0;
             Caption = 'Commission %';
+            ToolTip = 'Specifies the percentage to use to calculate the salesperson''s commission.';
             DecimalPlaces = 2 : 2;
             MaxValue = 100;
             MinValue = 0;
@@ -48,11 +51,13 @@ table 13 "Salesperson/Purchaser"
         field(140; Image; Media)
         {
             Caption = 'Image';
+            ToolTip = 'Specifies the picture that has been inserted for the salesperson or purchaser.';
             ExtendedDatatype = Person;
         }
         field(150; "Privacy Blocked"; Boolean)
         {
             Caption = 'Privacy Blocked';
+            ToolTip = 'Specifies whether to limit access to data for the data subject during daily operations. This is useful, for example, when protecting data from changes while it is under privacy review.';
         }
 #if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
@@ -68,6 +73,7 @@ table 13 "Salesperson/Purchaser"
         {
             FieldClass = FlowField;
             Caption = 'Coupled to Dataverse';
+            ToolTip = 'Specifies that the salesperson/purchaser is coupled to a user in Dataverse.';
             Editable = false;
             CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::"Salesperson/Purchaser")));
         }
@@ -75,6 +81,7 @@ table 13 "Salesperson/Purchaser"
         {
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
+            ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
                                                           Blocked = const(false));
 
@@ -87,6 +94,7 @@ table 13 "Salesperson/Purchaser"
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
+            ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
                                                           Blocked = const(false));
 
@@ -98,6 +106,7 @@ table 13 "Salesperson/Purchaser"
         field(5052; "E-Mail"; Text[80])
         {
             Caption = 'Email';
+            ToolTip = 'Specifies the salesperson''s email address.';
             ExtendedDatatype = EMail;
 
             trigger OnValidate()
@@ -111,6 +120,7 @@ table 13 "Salesperson/Purchaser"
         field(5053; "Phone No."; Text[30])
         {
             Caption = 'Phone No.';
+            ToolTip = 'Specifies the salesperson''s telephone number.';
             ExtendedDatatype = PhoneNo;
         }
         field(5054; "Next Task Date"; Date)
@@ -119,6 +129,7 @@ table 13 "Salesperson/Purchaser"
                                                   Closed = const(false),
                                                   "System To-do Type" = filter(Organizer | "Salesperson Attendee")));
             Caption = 'Next Task Date';
+            ToolTip = 'Specifies the date of the next task assigned to the salesperson.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -133,6 +144,7 @@ table 13 "Salesperson/Purchaser"
                                                            "Probability %" = field("Probability % Filter"),
                                                            "Completed %" = field("Completed % Filter")));
             Caption = 'No. of Opportunities';
+            ToolTip = 'Specifies the number of open opportunities handled by the salesperson.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -180,6 +192,7 @@ table 13 "Salesperson/Purchaser"
                                                                Date = field("Date Filter"),
                                                                Postponed = const(false)));
             Caption = 'No. of Interactions';
+            ToolTip = 'Specifies the number of interactions handled by this salesperson.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -210,13 +223,12 @@ table 13 "Salesperson/Purchaser"
         field(5062; "Job Title"; Text[30])
         {
             Caption = 'Job Title';
+            ToolTip = 'Specifies the salesperson''s job title.';
         }
-        field(5063; "Action Taken Filter"; Option)
+        field(5063; "Action Taken Filter"; Enum "Opportunity Action Taken")
         {
             Caption = 'Action Taken Filter';
             FieldClass = FlowFilter;
-            OptionCaption = ' ,Next,Previous,Updated,Jumped,Won,Lost';
-            OptionMembers = " ",Next,Previous,Updated,Jumped,Won,Lost;
         }
         field(5064; "Sales Cycle Filter"; Code[10])
         {
@@ -405,6 +417,7 @@ table 13 "Salesperson/Purchaser"
         field(5087; Blocked; Boolean)
         {
             Caption = 'Blocked';
+            ToolTip = 'Specifies whether this Salesperson can be assigned for new documents';
         }
     }
 

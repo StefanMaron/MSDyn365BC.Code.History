@@ -1,10 +1,25 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.eServices.EDocument.Test;
+
+using Microsoft.eServices.EDocument;
+using Microsoft.eServices.EDocument.Integration;
+using Microsoft.eServices.EDocument.OrderMatch;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Vendor;
+using System.TestLibraries.Utilities;
+
 codeunit 139659 "E-Doc. Line Matching Test"
 {
 
     Subtype = Test;
-    TestType = Uncategorized;
+    TestType = IntegrationTest;
     EventSubscriberInstance = Manual;
-
 
     var
 
@@ -91,6 +106,8 @@ codeunit 139659 "E-Doc. Line Matching Test"
         // [THEN] we have qty 5 and qty to invoice 5 
         Assert.AreEqual('5.00', EDocOrderLineMatchingPage.OrderLines."Available Quantity".Value(), '');
         Assert.AreEqual('5', EDocOrderLineMatchingPage.OrderLines."Qty. to Invoice".Value(), '');
+
+        EDocOrderLineMatchingPage.Close();
     end;
 
     [Test]
@@ -112,6 +129,7 @@ codeunit 139659 "E-Doc. Line Matching Test"
 
         // Setup E-Document with link to purchase order
         Initialize(Enum::"Service Integration"::"Mock");
+        PurchaseLine.DeleteAll();
 
         EDocImportedLine.DeleteAll();
 
@@ -159,7 +177,8 @@ codeunit 139659 "E-Doc. Line Matching Test"
 
         // [WHEN] We click "Match Automatically" action
         EDocOrderLineMatchingPage.MatchAuto_Promoted.Invoke();
-        EDocOrderLineMatchingPage.OrderLines.Last();
+        EDocOrderLineMatchingPage.ImportedLines.First();
+        EDocOrderLineMatchingPage.OrderLines.First();
 
         // [THEN] we have qty 5 and matched 5 
         Assert.AreEqual('5', EDocOrderLineMatchingPage.ImportedLines.Quantity.Value(), '');
@@ -167,6 +186,7 @@ codeunit 139659 "E-Doc. Line Matching Test"
         // [THEN] we have qty 5 and qty to invoice 5 
         Assert.AreEqual('5.00', EDocOrderLineMatchingPage.OrderLines."Available Quantity".Value(), '');
         Assert.AreEqual('5', EDocOrderLineMatchingPage.OrderLines."Qty. to Invoice".Value(), '');
+        EDocOrderLineMatchingPage.Close();
     end;
 
     [Test]

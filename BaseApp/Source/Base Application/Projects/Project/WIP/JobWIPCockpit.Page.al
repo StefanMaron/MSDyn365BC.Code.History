@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -38,59 +38,63 @@ page 1027 "Job WIP Cockpit"
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies a short description of the project.';
                 }
                 field("WIP Warnings"; Rec."WIP Warnings")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies whether or not there are WIP warnings associated with a project.';
                 }
                 field("Recog. Costs Amount"; Rec."Recog. Costs Amount")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the Recognized Cost amount that was last calculated for the project. The Recognized Cost Amount for the project is the sum of the Recognized Cost Project WIP Entries.';
                 }
                 field("Recog. Costs G/L Amount"; Rec."Recog. Costs G/L Amount")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the total Recognized Cost amount that was last posted to the general ledger for the project. The Recognized Cost G/L amount for the project is the sum of the Recognized Cost Project WIP G/L Entries.';
                 }
                 field("Recog. Sales Amount"; Rec."Recog. Sales Amount")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the recognized sales amount that was last calculated for the project, which is the sum of the Recognized Sales Project WIP Entries.';
                 }
                 field("Recog. Sales G/L Amount"; Rec."Recog. Sales G/L Amount")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the total Recognized Sales amount that was last posted to the general ledger for the project. The Recognized Sales G/L amount for the project is the sum of the Recognized Sales Project WIP G/L Entries.';
                 }
                 field("Recog. Costs Amount Difference"; Rec."Recog. Costs Amount" - Rec."Recog. Costs G/L Amount")
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = Rec."Currency Code";
                     ApplicationArea = Jobs;
                     Caption = 'Recog. Costs Amount Difference';
                     ToolTip = 'Specifies the difference in recognized costs for the project.';
                 }
                 field("Recog. Sales Amount Difference"; Rec."Recog. Sales Amount" - Rec."Recog. Sales G/L Amount")
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = Rec."Currency Code";
                     ApplicationArea = Jobs;
                     Caption = 'Recog. Sales Amount Difference';
                     ToolTip = 'Specifies the difference in recognized sales for the project.';
                 }
                 field("Recog. Profit Amount"; Rec.CalcRecognizedProfitAmount())
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = Rec."Currency Code";
                     ApplicationArea = Jobs;
                     Caption = 'Recog. Profit Amount';
                     ToolTip = 'Specifies the recognized profit amount for the project.';
                 }
                 field("Recog. Profit G/L Amount"; Rec.CalcRecognizedProfitGLAmount())
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = Rec."Currency Code";
                     ApplicationArea = Jobs;
                     Caption = 'Recog. Profit G/L Amount';
                     ToolTip = 'Specifies the total recognized profit G/L amount for this project.';
                 }
                 field("Recog. Profit Amount Difference"; Rec.CalcRecognizedProfitAmount() - Rec.CalcRecognizedProfitGLAmount())
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = Rec."Currency Code";
                     ApplicationArea = Jobs;
                     Caption = 'Recog. Profit Amount Difference';
                     ToolTip = 'Specifies the difference in recognized profit for the project.';
@@ -98,25 +102,23 @@ page 1027 "Job WIP Cockpit"
                 field("WIP Posting Date"; Rec."WIP Posting Date")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the posting date that was entered when the Project Calculate WIP batch job was last run.';
                 }
                 field("WIP G/L Posting Date"; Rec."WIP G/L Posting Date")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the posting date that was entered when the Project Post WIP to general ledger batch job was last run.';
                 }
                 field("Total WIP Cost Amount"; Rec."Total WIP Cost Amount")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the total WIP cost amount that was last calculated for the project. The WIP Cost Amount for the project is the value WIP Cost Project WIP Entries less the value of the Recognized Cost Project WIP Entries. For projects with WIP Methods of Sales Value or Percentage of Completion, the WIP Cost Amount is normally 0.';
                 }
                 field("Total WIP Cost G/L Amount"; Rec."Total WIP Cost G/L Amount")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the total WIP Cost amount that was last posted to the G/L for the project. The WIP Cost Amount for the project is the value WIP Cost Project WIP G/L Entries less the value of the Recognized Cost Project WIP G/L Entries. For projects with WIP Methods of Sales Value or Percentage of Completion, the WIP Cost Amount is normally 0.';
                 }
                 field("Total WIP Cost Difference"; Rec."Total WIP Cost Amount" - Rec."Total WIP Cost G/L Amount")
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = Rec."Currency Code";
                     ApplicationArea = Jobs;
                     Caption = 'Total WIP Cost Difference';
                     ToolTip = 'Specifies the difference in total WIP costs.';
@@ -133,6 +135,8 @@ page 1027 "Job WIP Cockpit"
                 }
                 field("Total WIP Sales Difference"; Rec."Total WIP Sales Amount" - Rec."Total WIP Sales G/L Amount")
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = Rec."Currency Code";
                     ApplicationArea = Jobs;
                     Caption = 'Total WIP Sales Difference';
                     ToolTip = 'Specifies the difference in total WIP sales.';

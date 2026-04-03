@@ -193,7 +193,7 @@ codeunit 9803 "Job Queue Telemetry"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnReuseExisingJobFromId', '', false, false)]
-    local procedure EmitTelemetryOnReuseExisingJobFromId(JobQueueEntry: Record "Job Queue Entry")
+    local procedure EmitTelemetryOnReuseExisingJobFromId(JobQueueEntry: Record "Job Queue Entry"; ExecutionDateTime: DateTime)
     var
         TranslationHelper: Codeunit "Translation Helper";
         Dimensions: Dictionary of [Text, Text];
@@ -201,6 +201,7 @@ codeunit 9803 "Job Queue Telemetry"
         TranslationHelper.SetGlobalLanguageToDefault();
 
         SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
+        Dimensions.Add('JobQueueProposedExecutionDateTime', Format(ExecutionDateTime));
         Telemetry.LogMessage('0000F6B',
                                 ReusingExistingJobFromIdTxt,
                                 Verbosity::Normal,

@@ -6,9 +6,9 @@
 namespace Microsoft.Integration.Shopify.Test;
 
 using Microsoft.Integration.Shopify;
-using System.TestLibraries.Utilities;
-using Microsoft.Sales.Customer;
 using Microsoft.Inventory.Item;
+using Microsoft.Sales.Customer;
+using System.TestLibraries.Utilities;
 
 codeunit 139564 "Shpfy Order Refunds Helper"
 {
@@ -43,10 +43,12 @@ codeunit 139564 "Shpfy Order Refunds Helper"
 
         ReturnId := CreateReturn(OrderId);
         CreateReturnLine(ReturnId, ShopifyIds.Get('OrderLine').Get(1), 'DEFECTIVE');
+        CreateUnverifiedReturnLine(ReturnId, 'DEFECTIVE');
         ShopifyIds.Get('Return').Add(ReturnId);
 
         ReturnId := CreateReturn(OrderId);
         CreateReturnLine(ReturnId, ShopifyIds.Get('OrderLine').Get(2), 'NOT_AS_DESCRIBED');
+        CreateUnverifiedReturnLine(ReturnId, 'NOT_AS_DESCRIBED');
         ShopifyIds.Get('Return').Add(ReturnId);
 
         RefundId := CreateRefundHeader(OrderId, ShopifyIds.Get('Return').Get(1), 156.38);
@@ -184,16 +186,17 @@ codeunit 139564 "Shpfy Order Refunds Helper"
         exit(ReturnHeader."Return Id");
     end;
 
-    internal procedure CreateReturnLine(ReturnOrderId: BigInteger; OrderLineId: BigInteger; ReturnReason: Text): BigInteger
+    internal procedure CreateReturnLine(ReturnOrderId: BigInteger; OrderLineId: BigInteger; ReturnReasonHandle: Text): BigInteger
     var
         ReturnLine: Record "Shpfy Return Line";
-        ReturnEnumConvertor: Codeunit "Shpfy Return Enum Convertor";
     begin
         ReturnLine."Return Line Id" := Any.IntegerInRange(100000, 999999);
         ReturnLine."Return Id" := ReturnOrderId;
+        ReturnLine.Type := ReturnLine.Type::Default;
         ReturnLine."Fulfillment Line Id" := Any.IntegerInRange(100000, 999999);
         ReturnLine."Order Line Id" := OrderLineId;
-        ReturnLine."Return Reason" := ReturnEnumConvertor.ConvertToReturnReason(ReturnReason);
+        ReturnLine."Return Reason Handle" := CopyStr(ReturnReasonHandle, 1, MaxStrLen(ReturnLine."Return Reason Handle"));
+        ReturnLine."Return Reason Name" := CopyStr(GetReturnReasonNameFromHandle(ReturnReasonHandle), 1, MaxStrLen(ReturnLine."Return Reason Name"));
         ReturnLine.Quantity := 1;
         ReturnLine."Refundable Quantity" := 0;
         ReturnLine."Refunded Quantity" := 1;
@@ -202,6 +205,50 @@ codeunit 139564 "Shpfy Order Refunds Helper"
         ReturnLine."Discounted Total Amount" := 156.38;
         ReturnLine.Insert();
         exit(ReturnLine."Return Line Id");
+    end;
+
+    internal procedure CreateUnverifiedReturnLine(ReturnId: BigInteger; ReturnReasonHandle: Text): BigInteger
+    var
+        ReturnLine: Record "Shpfy Return Line";
+    begin
+        ReturnLine."Return Line Id" := Any.IntegerInRange(100000, 999999);
+        ReturnLine."Return Id" := ReturnId;
+        ReturnLine.Type := ReturnLine.Type::Unverified;
+        ReturnLine."Return Reason Handle" := CopyStr(ReturnReasonHandle, 1, MaxStrLen(ReturnLine."Return Reason Handle"));
+        ReturnLine."Return Reason Name" := CopyStr(GetReturnReasonNameFromHandle(ReturnReasonHandle), 1, MaxStrLen(ReturnLine."Return Reason Name"));
+        ReturnLine.Quantity := 1;
+        ReturnLine."Refundable Quantity" := 1;
+        ReturnLine."Refunded Quantity" := 0;
+        ReturnLine."Unit Price" := 156.38;
+        ReturnLine.Insert();
+        exit(ReturnLine."Return Line Id");
+    end;
+
+    local procedure GetReturnReasonNameFromHandle(Handle: Text): Text
+    begin
+        // Map handle values to human-readable names (simulating Shopify's returnReasonDefinition)
+        case Handle of
+            'DEFECTIVE':
+                exit('Defective');
+            'NOT_AS_DESCRIBED':
+                exit('Not as described');
+            'WRONG_ITEM':
+                exit('Wrong item');
+            'SIZE_TOO_SMALL':
+                exit('Size too small');
+            'SIZE_TOO_LARGE':
+                exit('Size too large');
+            'STYLE':
+                exit('Style');
+            'COLOR':
+                exit('Color');
+            'OTHER':
+                exit('Other');
+            'UNKNOWN':
+                exit('Unknown');
+            else
+                exit(Handle);
+        end;
     end;
 
     internal procedure CreateRefundHeader(OrderId: BigInteger; ReturnId: BigInteger; Amount: Decimal): BigInteger
@@ -235,7 +282,18 @@ codeunit 139564 "Shpfy Order Refunds Helper"
         exit(RefundHeader."Refund Id");
     end;
 
-    internal procedure CreateRefundLine(RefundId: BigInteger; OrderLineId: BigInteger; RestockType: Enum "Shpfy Restock Type")
+    internal procedure CreateRefundHeaderWithPresentmentCurrency(OrderId: BigInteger; Amount: Decimal; ShopCode: Code[20]; PresentmentCurrencyCode: Code[10]; PresentmentAmount: Decimal): BigInteger
+    var
+        RefundHeader: Record "Shpfy Refund Header";
+    begin
+        RefundHeader.Get(CreateRefundHeader(OrderId, 0, Amount, ShopCode));
+        RefundHeader."Presentment Currency Code" := PresentmentCurrencyCode;
+        RefundHeader."Pres. Tot. Refunded Amount" := PresentmentAmount;
+        RefundHeader.Modify(false);
+        exit(RefundHeader."Refund Id");
+    end;
+
+    internal procedure CreateRefundLine(RefundId: BigInteger; OrderLineId: BigInteger; RestockType: Enum "Shpfy Restock Type"): BigInteger
     var
         RefundLine: Record "Shpfy Refund Line";
         RefundHeader: Record "Shpfy Refund Header";
@@ -252,6 +310,7 @@ codeunit 139564 "Shpfy Order Refunds Helper"
         RefundLine."Subtotal Amount" := 156.38;
         RefundLine."Can Create Credit Memo" := RefundsAPI.IsNonZeroOrReturnRefund(RefundHeader) or (RefundLine."Restock Type" = RefundLine."Restock Type"::Return);
         RefundLine.Insert();
+        exit(RefundLine."Refund Line Id");
     end;
 
     internal procedure CreateRefundLine(RefundId: BigInteger; OrderLineId: BigInteger; LocationId: BigInteger; RestockType: Enum "Shpfy Restock Type")
@@ -272,6 +331,18 @@ codeunit 139564 "Shpfy Order Refunds Helper"
         RefundLine."Can Create Credit Memo" := RefundsAPI.IsNonZeroOrReturnRefund(RefundHeader) or (RefundLine."Restock Type" = RefundLine."Restock Type"::Return);
         RefundLine."Location Id" := LocationId;
         RefundLine.Insert();
+    end;
+
+    internal procedure CreateRefundLineWithPresentmentCurrency(RefundId: BigInteger; OrderLineId: BigInteger; Amount: Decimal; PresentmentAmount: Decimal)
+    var
+        RefundLine: Record "Shpfy Refund Line";
+    begin
+        RefundLine.Get(RefundId, CreateRefundLine(RefundId, OrderLineId, "Shpfy Restock Type"::Return));
+        RefundLine.Amount := Amount;
+        RefundLine."Subtotal Amount" := Amount;
+        RefundLine."Presentment Amount" := PresentmentAmount;
+        RefundLine."Presentment Subtotal Amount" := PresentmentAmount;
+        RefundLine.Modify(false);
     end;
 
     local procedure GetItem(): Record Item

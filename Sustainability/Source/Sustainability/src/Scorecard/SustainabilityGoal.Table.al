@@ -1,10 +1,10 @@
 namespace Microsoft.Sustainability.Scorecard;
 
+using Microsoft.Foundation.Address;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Location;
 using Microsoft.Sustainability.Ledger;
 using Microsoft.Sustainability.Setup;
-using Microsoft.Foundation.Address;
-using Microsoft.Inventory.Location;
-using Microsoft.Foundation.UOM;
 using System.Security.User;
 
 table 6219 "Sustainability Goal"
@@ -178,16 +178,19 @@ table 6219 "Sustainability Goal"
         }
         field(19; "Target Value for CO2"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Target Value for CO2';
             CaptionClass = '102,9,1';
         }
         field(20; "Target Value for CH4"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Target Value for CH4';
             CaptionClass = '102,9,2';
         }
         field(21; "Target Value for N2O"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Target Value for N2O';
             CaptionClass = '102,9,3';
         }
@@ -273,10 +276,12 @@ table 6219 "Sustainability Goal"
         }
         field(31; "Target Value for Water Int."; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Target Value for Water Intensity';
         }
         field(32; "Target Value for Waste Int."; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Target Value for Waste Intensity';
         }
     }

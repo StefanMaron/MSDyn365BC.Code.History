@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Integration;
+
 using System.Azure.Identity;
 using System.Environment;
 using System.Globalization;

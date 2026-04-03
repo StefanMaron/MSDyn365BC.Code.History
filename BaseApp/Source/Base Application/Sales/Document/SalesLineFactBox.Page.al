@@ -7,6 +7,9 @@ namespace Microsoft.Sales.Document;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Inventory.Availability;
 
+/// <summary>
+/// Displays detailed information and availability data for the selected sales line in a factbox.
+/// </summary>
 page 9087 "Sales Line FactBox"
 {
     Caption = 'Sales Line Details';
@@ -31,6 +34,7 @@ page 9087 "Sales Line FactBox"
             }
             field("Required Quantity"; Rec."Outstanding Quantity" - Rec."Reserved Quantity")
             {
+                AutoFormatType = 0;
                 ApplicationArea = Reservation;
                 Caption = 'Required Quantity';
                 DecimalPlaces = 0 : 5;
@@ -43,7 +47,6 @@ page 9087 "Sales Line FactBox"
                 {
                     ApplicationArea = All;
                     Caption = 'Documents';
-                    ToolTip = 'Specifies the number of attachments.';
 
                     trigger OnDrillDown()
                     var
@@ -67,6 +70,7 @@ page 9087 "Sales Line FactBox"
                 }
                 field("Item Availability"; SalesInfoPaneMgt.CalcAvailability(Rec))
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Basic, Suite;
                     Caption = 'Item Availability';
                     DecimalPlaces = 0 : 5;
@@ -75,16 +79,13 @@ page 9087 "Sales Line FactBox"
 
                     trigger OnDrillDown()
                     begin
-#if not CLEAN25
-                        ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, "Item Availability Type"::"Event".AsInteger());
-#else
                         SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::"Event");
-#endif
                         CurrPage.Update(true);
                     end;
                 }
                 field("Available Inventory"; SalesInfoPaneMgt.CalcAvailableInventory(Rec))
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Basic, Suite;
                     Caption = 'Available Inventory';
                     DecimalPlaces = 0 : 5;
@@ -92,6 +93,7 @@ page 9087 "Sales Line FactBox"
                 }
                 field("Scheduled Receipt"; SalesInfoPaneMgt.CalcScheduledReceipt(Rec))
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Basic, Suite;
                     Caption = 'Scheduled Receipt';
                     DecimalPlaces = 0 : 5;
@@ -99,6 +101,7 @@ page 9087 "Sales Line FactBox"
                 }
                 field("Reserved Receipt"; SalesInfoPaneMgt.CalcReservedRequirements(Rec))
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Reservation;
                     Caption = 'Reserved Receipt';
                     DecimalPlaces = 0 : 5;
@@ -106,6 +109,7 @@ page 9087 "Sales Line FactBox"
                 }
                 field("Gross Requirements"; SalesInfoPaneMgt.CalcGrossRequirements(Rec))
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Service;
                     Caption = 'Gross Requirements';
                     DecimalPlaces = 0 : 5;
@@ -113,6 +117,7 @@ page 9087 "Sales Line FactBox"
                 }
                 field("Reserved Requirements"; SalesInfoPaneMgt.CalcReservedDemand(Rec))
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Reservation;
                     Caption = 'Reserved Requirements';
                     DecimalPlaces = 0 : 5;
@@ -138,7 +143,6 @@ page 9087 "Sales Line FactBox"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Qty. per Unit of Measure';
-                    ToolTip = 'Specifies an auto-filled number if you have included Sales Unit of Measure on the item card and a quantity in the Qty. per Unit of Measure field.';
                 }
                 field(Substitutions; SalesInfoPaneMgt.CalcNoOfSubstitutions(Rec))
                 {
@@ -205,12 +209,7 @@ page 9087 "Sales Line FactBox"
 
     protected var
         SalesInfoPaneMgt: Codeunit "Sales Info-Pane Management";
-#if not CLEAN25
-        [Obsolete('Replaced by SalesAvailabilityMgt', '25.0')]
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
-#else
         SalesAvailabilityMgt: Codeunit "Sales Availability Mgt.";
-#endif
 
     local procedure ShowNo(): Code[20]
     begin
@@ -219,4 +218,3 @@ page 9087 "Sales Line FactBox"
         exit(Rec."No.");
     end;
 }
-

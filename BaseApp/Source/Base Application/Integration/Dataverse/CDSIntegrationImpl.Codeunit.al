@@ -274,7 +274,7 @@ codeunit 7201 "CDS Integration Impl."
         CDSConnectionFirstPartyAppIdAKVSecretNameLbl: Label 'bctocdsappid', Locked = true;
         CDSConnectionClientSecretAKVSecretNameLbl: Label 'globaldisco-clientsecret', Locked = true;
         CDSConnectionFirstPartyAppCertificateNameAKVSecretNameLbl: Label 'bctocdsappcertificatename', Locked = true;
-        MissingClientIdOrSecretTelemetryTxt: Label 'The client id or client secret have not been initialized.', Locked = true;
+        MissingClientIdOrSecretTelemetryTxt: Label 'The client id or client secret have not been initialized. This indicates that the tenant is not embed ISV. Other tenants will use cert auth instead.', Locked = true;
         MissingFirstPartyappIdOrCertificateTelemetryTxt: Label 'The first-party app id or certificate have not been initialized.', Locked = true;
         MissingClientIdOrSecretErr: Label 'The client id or client secret have not been initialized.';
         MissingClientIdOrSecretOnPremErr: Label 'You must register an Microsoft Entra application that will be used to connect to the Dataverse environment and specify the application id, secret and redirect URL in the Dataverse Connection Setup page.', Comment = 'Dataverse and Microsoft Entra are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
@@ -334,6 +334,8 @@ codeunit 7201 "CDS Integration Impl."
         VirtualTableAppNameTxt: Label 'dyn365bc_BusinessCentralConfiguration', Locked = true;
         SyntheticRelationEntityNameTxt: Label 'dyn365bc_syntheticrelation', Locked = true;
         InstallVirtualTablesAppLbl: Label 'Install Virtual Tables App';
+        RetrievingEntityMetadataTxt: Label 'Retrieving entity metadata for table %1.', Locked = true, Comment = '%1 - table external name';
+        RetrievingEntityFieldsTxt: Label 'Retrieving entity fields for table %1.', Locked = true, Comment = '%1 - table external name';
 
     [Scope('OnPrem')]
     procedure GetBaseSolutionUniqueName(): Text
@@ -2223,18 +2225,6 @@ codeunit 7201 "CDS Integration Impl."
         UnregisterTableConnection(TableConnectionType::CRM, TempConnectionName);
     end;
 
-#if not CLEAN25
-    [Obsolete('Use the procedure that receives AdminPassword and AccessToken as SecretText instead.', '25.0')]
-    [NonDebuggable]
-    procedure CheckIntegrationUserPrerequisites(var CDSConnectionSetup: Record "CDS Connection Setup"; AdminUserName: text; AdminPassword: Text; AccessToken: Text; AdminADDomain: Text)
-    var
-        SecretAdminPassword, SecretAccessToken : SecretText;
-    begin
-        SecretAdminPassword := AdminPassword;
-        SecretAccessToken := AccessToken;
-        CheckIntegrationUserPrerequisites(CDSConnectionSetup, AdminUserName, SecretAdminPassword, SecretAccessToken, AdminADDomain);
-    end;
-#endif
 
     [Scope('OnPrem')]
     [NonDebuggable]
@@ -3369,17 +3359,6 @@ codeunit 7201 "CDS Integration Impl."
         end;
     end;
 
-#if not CLEAN25
-    [Obsolete('Use the procedure that receives NewPassword as SecretText and returns a SecretText instead', '25.0')]
-    [NonDebuggable]
-    procedure ReplaceUserNamePasswordInConnectionString(CDSConnectionSetup: Record "CDS Connection Setup"; NewUserName: Text; NewPassword: Text): Text
-    var
-        SecretNewPassword: SecretText;
-    begin
-        SecretNewPassword := NewPassword;
-        exit(ReplaceUserNamePasswordInConnectionString(CDSConnectionSetup, NewUserName, SecretNewPassword).Unwrap());
-    end;
-#endif
 
     local procedure ReplaceUserNameInConnectionString(CDSConnectionSetup: Record "CDS Connection Setup"; NewUserName: Text): Text
     var
@@ -3420,17 +3399,6 @@ codeunit 7201 "CDS Integration Impl."
         exit(NewConnectionString);
     end;
 
-#if not CLEAN25
-    [NonDebuggable]
-    [Obsolete('Use the procedure that receives AccessToken as SecretText instead.', '25.0')]
-    procedure GetAccessToken(ResourceURL: Text; GetTokenFromCache: Boolean; var AccessToken: Text)
-    var
-        SecretAccessToken: SecretText;
-    begin
-        GetAccessToken(ResourceURL, GetTokenFromCache, SecretAccessToken);
-        AccessToken := SecretAccessToken.Unwrap();
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure GetAccessToken(ResourceURL: Text; GetTokenFromCache: Boolean; var AccessToken: SecretText)
@@ -3585,7 +3553,7 @@ codeunit 7201 "CDS Integration Impl."
     begin
         if EnvironmentInfo.IsSaaSInfrastructure() then
             if not AzureKeyVault.GetAzureKeyVaultSecret(CDSConnectionClientIdAKVSecretNameLbl, ClientId) then
-                Session.LogMessage('0000C0Y', MissingClientIdOrSecretTelemetryTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
+                Session.LogMessage('0000C0Y', MissingClientIdOrSecretTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
             else
                 exit(ClientId);
 
@@ -5286,6 +5254,64 @@ codeunit 7201 "CDS Integration Impl."
             // Deleting all couplings can timeout so disable the keys before deleting
             TableKey.DisableAll(Database::"CRM Integration Record");
             CRMIntegrationRecord.DeleteAll();
+        end;
+    end;
+
+    internal procedure GetEntityMetadata(TableNo: Integer): Text
+    var
+        TableMetadata: Record "Table Metadata";
+        CrmHelper: DotNet CrmHelper;
+    begin
+        if TableNo = 0 then
+            exit('');
+
+        if not TableMetadata.Get(TableNo) then
+            exit('');
+
+        if TableMetadata.ExternalName = '' then
+            exit('');
+
+        if not InitializeConnection(CrmHelper) then
+            exit('');
+
+        Session.LogMessage('0000QL8', StrSubstNo(RetrievingEntityMetadataTxt, TableMetadata.ExternalName), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+
+        exit(CrmHelper.GetEntityMetadata(TableMetadata.ExternalName));
+    end;
+
+    internal procedure GetEntityFields(TableNo: Integer; var IntegrationField: Record "Integration Field")
+    var
+        Field: Record Field;
+        TableMatadata: Record "Table Metadata";
+        CrmHelper: DotNet CrmHelper;
+        FieldsDictionary: Dotnet GenericDictionary2;
+        Fields: DotNet GenericKeyValuePair2;
+    begin
+        if TableNo = 0 then
+            exit;
+
+        if not TableMatadata.Get(TableNo) then
+            exit;
+
+        if TableMatadata.ExternalName = '' then
+            exit;
+
+        if not InitializeConnection(CrmHelper) then
+            exit;
+
+        Session.LogMessage('0000QL9', StrSubstNo(RetrievingEntityFieldsTxt, TableMatadata.ExternalName), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+
+        FieldsDictionary := CrmHelper.GetEntityFields(TableMatadata.ExternalName);
+        foreach Fields in FieldsDictionary do begin
+            Field.SetRange(TableNo, TableNo);
+            Field.SetRange(ExternalName, Fields.Key);
+            if not Field.IsEmpty() then
+                continue;
+            IntegrationField."Table No." := TableNo;
+            IntegrationField."Field Name" := Fields.Key;
+            IntegrationField."Field Caption" := Fields.Value;
+            IntegrationField.IsRuntime := true;
+            IntegrationField.Insert();
         end;
     end;
 

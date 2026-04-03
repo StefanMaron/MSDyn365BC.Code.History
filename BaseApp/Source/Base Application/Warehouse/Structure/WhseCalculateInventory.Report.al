@@ -7,9 +7,9 @@ namespace Microsoft.Warehouse.Structure;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Counting.Tracking;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
-using Microsoft.Inventory.Counting.Tracking;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Ledger;
@@ -124,7 +124,7 @@ report 7390 "Whse. Calculate Inventory"
 
                 "Bin Content".CopyFilter("Location Code", "Location Code");
                 "Bin Content".CopyFilter("Zone Code", "Zone Code");
-                "Bin Content".CopyFilter("Bin Code", "Bin Code");
+                    "Bin Content".CopyFilter("Bin Code", "Bin Code");
                 "Bin Content".CopyFilter("Item No.", "Item No.");
                 "Bin Content".CopyFilter("Variant Code", "Variant Code");
                 "Bin Content".CopyFilter("Unit of Measure Code", "Unit of Measure Code");

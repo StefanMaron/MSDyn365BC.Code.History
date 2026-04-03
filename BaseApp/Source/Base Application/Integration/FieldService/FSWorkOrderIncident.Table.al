@@ -14,13 +14,8 @@ table 6403 "FS Work Order Incident"
     Description = 'Specify work order incidents reported to you by the client. These are also referred to as problem codes.';
     DataClassification = SystemMetadata;
     ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-#if not CLEAN25
-    ObsoleteState = Pending;
-    ObsoleteTag = '25.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '28.0';
-#endif
 
     fields
     {
@@ -270,6 +265,7 @@ table 6403 "FS Work Order Incident"
         }
         field(50; TasksPercentCompleted; Decimal)
         {
+            AutoFormatType = 0;
             ExternalName = 'msdyn_taskspercentcompleted';
             ExternalType = 'Double';
             Description = 'Shows the percent completed on associated tasks. This indicates the total of completed tasks, but not if the incident was resolved.';
@@ -318,5 +314,5 @@ table 6403 "FS Work Order Incident"
         {
         }
     }
-} 
+}
 #endif

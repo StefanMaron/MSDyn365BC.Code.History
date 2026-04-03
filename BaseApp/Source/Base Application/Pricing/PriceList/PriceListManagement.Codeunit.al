@@ -6,6 +6,7 @@ namespace Microsoft.Pricing.PriceList;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
 using Microsoft.Projects.Project.Setup;
@@ -14,10 +15,9 @@ using Microsoft.Sales.Setup;
 using Microsoft.Upgrade;
 using Microsoft.Utilities;
 using System.Environment.Configuration;
+using System.Telemetry;
 using System.Threading;
 using System.Upgrade;
-using System.Telemetry;
-using Microsoft.Pricing.Calculation;
 
 codeunit 7017 "Price List Management"
 {
@@ -372,15 +372,11 @@ codeunit 7017 "Price List Management"
     end;
 
     procedure DefineDefaultPriceList(PriceType: Enum "Price Type"; SourceGroup: Enum "Price Source Group") DefaultPriceListCode: Code[20];
-#if not CLEAN25
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-#endif
     begin
-#if not CLEAN25
         FeatureTelemetry.LogUptake('0000LLR', PriceCalculationMgt.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
-#endif
         case SourceGroup of
             SourceGroup::Customer:
                 DefaultPriceListCode := DefineSalesDefaultPriceList();

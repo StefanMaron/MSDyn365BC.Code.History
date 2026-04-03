@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -15,12 +15,14 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Posting;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Pricing.Calculation;
+using Microsoft.Utilities;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Structure;
-using Microsoft.Utilities;
+using System.Automation;
 using System.Environment;
 using System.Environment.Configuration;
 using System.Integration;
+using System.Privacy;
 
 page 40 "Item Journal"
 {
@@ -41,26 +43,38 @@ page 40 "Item Journal"
     {
         area(content)
         {
-            field(CurrentJnlBatchName; CurrentJnlBatchName)
+            group(Control120)
             {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Batch Name';
-                Lookup = true;
-                ToolTip = 'Specifies the name of the journal batch, a personalized journal layout, that the journal is based on.';
+                ShowCaption = false;
+                field(CurrentJnlBatchName; CurrentJnlBatchName)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Batch Name';
+                    Lookup = true;
+                    ToolTip = 'Specifies the name of the journal batch, a personalized journal layout, that the journal is based on.';
 
-                trigger OnLookup(var Text: Text): Boolean
-                begin
-                    CurrPage.SaveRecord();
-                    ItemJnlMgt.LookupName(CurrentJnlBatchName, Rec);
-                    SetControlAppearanceFromBatch();
-                    CurrPage.Update(false);
-                end;
+                    trigger OnLookup(var Text: Text): Boolean
+                    begin
+                        CurrPage.SaveRecord();
+                        ItemJnlMgt.LookupName(CurrentJnlBatchName, Rec);
+                        SetControlAppearanceFromBatch();
+                        CurrPage.Update(false);
+                    end;
 
-                trigger OnValidate()
-                begin
-                    ItemJnlMgt.CheckName(CurrentJnlBatchName, Rec);
-                    CurrentJnlBatchNameOnAfterVali();
-                end;
+                    trigger OnValidate()
+                    begin
+                        ItemJnlMgt.CheckName(CurrentJnlBatchName, Rec);
+                        CurrentJnlBatchNameOnAfterVali();
+                    end;
+                }
+                field(ItemJnlBatchApprovalStatus; ItemJnlBatchApprovalStatus)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Approval Status';
+                    Editable = false;
+                    Visible = EnabledItemJnlBatchWorkflowsExist;
+                    ToolTip = 'Specifies the approval status for item journal batch.';
+                }
             }
             repeater(Control1)
             {
@@ -68,19 +82,16 @@ page 40 "Item Journal"
                 field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the posting date for the entry.';
                 }
                 field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
                 field("Entry Type"; Rec."Entry Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Entry Type';
-                    ToolTip = 'Specifies the type of transaction that will be posted from the item journal line.';
                     Visible = false;
                 }
                 field(EntryType; EntryType)
@@ -100,24 +111,20 @@ page 40 "Item Journal"
                 {
                     Visible = ExtendedPriceEnabled;
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the method that will be used for price calculation in the journal line.';
                 }
                 field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a document number for the journal line.';
                     ShowMandatory = true;
                 }
                 field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                     Visible = false;
                 }
                 field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the item on the journal line.';
 
                     trigger OnValidate()
                     begin
@@ -129,7 +136,6 @@ page 40 "Item Journal"
                     AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     QuickEntry = false;
-                    ToolTip = 'Specifies a reference to the item number as defined by the item''s barcode.';
                     Visible = false;
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -149,18 +155,15 @@ page 40 "Item Journal"
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a description of the item on the journal line.';
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
-                    ToolTip = 'Specifies the code for the inventory location where the item on the journal line will be registered.';
 
                     trigger OnValidate()
                     var
@@ -176,101 +179,83 @@ page 40 "Item Journal"
                 field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies the bin where the items are picked or put away.';
                 }
                 field("Salespers./Purch. Code"; Rec."Salespers./Purch. Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the code for the salesperson or purchaser who is linked to the sale or purchase on the journal line.';
                     Visible = false;
                 }
                 field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
                 }
                 field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
                 }
                 field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of units of the item to be included on the journal line.';
                 }
                 field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
                 field("Unit Amount"; Rec."Unit Amount")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the price of one unit of the item on the journal line.';
                 }
                 field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the line''s net amount.';
                 }
                 field("Discount Amount"; Rec."Discount Amount")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the discount amount of this entry on the line.';
                 }
                 field("Indirect Cost %"; Rec."Indirect Cost %")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the percentage of the item''s last purchase cost that includes indirect costs, such as freight that is associated with the purchase of the item.';
                     Visible = false;
                 }
                 field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                 }
                 field("Applies-to Entry"; Rec."Applies-to Entry")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the quantity on the journal line must be applied to an already-posted entry. In that case, enter the entry number that the quantity will be applied to.';
                 }
                 field("Applies-from Entry"; Rec."Applies-from Entry")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the outbound item ledger entry, whose cost is forwarded to the inbound item ledger entry.';
                     Visible = false;
                 }
                 field("Transaction Type"; Rec."Transaction Type")
                 {
                     ApplicationArea = BasicEU, BasicNO;
-                    ToolTip = 'Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.';
                     Visible = false;
                 }
                 field("Transport Method"; Rec."Transport Method")
                 {
                     ApplicationArea = BasicEU, BasicNO;
-                    ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
                     Visible = false;
                 }
                 field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the country/region of the address.';
                     Visible = false;
                 }
                 field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                     Visible = false;
                 }
                 field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
-                    ToolTip = 'Specifies the serial number of the item.';
                     Editable = ItemTrackingEditable;
                     Visible = CanSelectItemTrackingOnLines;
                     ExtendedDatatype = Barcode;
@@ -288,7 +273,6 @@ page 40 "Item Journal"
                 field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = ItemTracking;
-                    ToolTip = 'Specifies the lot number of the item.';
                     Editable = ItemTrackingEditable;
                     Visible = CanSelectItemTrackingOnLines;
                     ExtendedDatatype = Barcode;
@@ -306,7 +290,6 @@ page 40 "Item Journal"
                 field("Package No."; Rec."Package No.")
                 {
                     ApplicationArea = ItemTracking;
-                    ToolTip = 'Specifies the package number of the item.';
                     Editable = ItemTrackingEditable;
                     Visible = PackageNoVisible;
                     ExtendedDatatype = Barcode;
@@ -331,20 +314,17 @@ page 40 "Item Journal"
                 field("Warranty Date"; Rec."Warranty Date")
                 {
                     ApplicationArea = ItemTracking;
-                    ToolTip = 'Specifies the warranty expiration date of the item.';
                     Editable = ItemTrackingEditable;
                     Visible = CanSelectItemTrackingOnLines;
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
                 field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible2;
                 }
                 field(ShortcutDimCode3; ShortcutDimCode[3])
@@ -480,6 +460,15 @@ page 40 "Item Journal"
                 ApplicationArea = Basic, Suite;
                 SubPageLink = "No." = field("Item No.");
                 Visible = false;
+            }
+            part(WorkflowStatusBatch; "Workflow Status FactBox")
+            {
+                ApplicationArea = Suite;
+                Caption = 'Batch Workflows';
+                Editable = false;
+                Enabled = false;
+                ShowFilter = false;
+                Visible = ShowWorkflowStatusOnBatch;
             }
             systempart(Control1900383207; Links)
             {
@@ -663,6 +652,21 @@ page 40 "Item Journal"
                             ItemAvailFormsMgt.ShowItemAvailabilityFromItemJnlLine(Rec, "Item Availability Type"::BOM)
                         end;
                     }
+                }
+                action(Approvals)
+                {
+                    AccessByPermission = TableData "Approval Entry" = R;
+                    ApplicationArea = Suite;
+                    Caption = 'Approvals';
+                    Image = Approvals;
+                    ToolTip = 'View a list of the records that are waiting to be approved. For example, you can see who requested the record to be approved, when it was sent, and when it is due to be approved.';
+
+                    trigger OnAction()
+                    var
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                    begin
+                        ApprovalsMgmt.ShowJournalApprovalEntries(Rec);
+                    end;
                 }
             }
         }
@@ -880,6 +884,134 @@ page 40 "Item Journal"
                     ItemJnlLine.PrintInventoryMovement();
                 end;
             }
+            group("Request Approval")
+            {
+                Caption = 'Request Approval';
+                group(SendApprovalRequest)
+                {
+                    Caption = 'Send Approval Request';
+                    Image = SendApprovalRequest;
+                    action(SendApprovalRequestJournalBatch)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Journal Batch';
+                        Enabled = not OpenApprovalEntriesOnJnlBatchExist and CanRequestFlowApprovalForBatch and EnabledItemJnlBatchWorkflowsExist;
+                        Image = SendApprovalRequest;
+                        ToolTip = 'Send all journal lines for approval, also those that you may not see because of filters.';
+
+                        trigger OnAction()
+                        var
+                            ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                        begin
+                            ApprovalsMgmt.TrySendJournalBatchApprovalRequest(Rec);
+                            SetControlAppearanceFromBatch();
+                        end;
+                    }
+                }
+                group(CancelApprovalRequest)
+                {
+                    Caption = 'Cancel Approval Request';
+                    Image = Cancel;
+                    action(CancelApprovalRequestJournalBatch)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Journal Batch';
+                        Enabled = CanCancelApprovalForJnlBatch or CanCancelFlowApprovalForBatch;
+                        Image = CancelApprovalRequest;
+                        ToolTip = 'Cancel sending all journal lines for approval, also those that you may not see because of filters.';
+
+                        trigger OnAction()
+                        var
+                            ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                        begin
+                            ApprovalsMgmt.TryCancelJournalBatchApprovalRequest(Rec);
+                            SetControlAppearanceFromBatch();
+                        end;
+                    }
+                }
+                group(Flow)
+                {
+                    Caption = 'Power Automate';
+                    Image = Flow;
+
+                    customaction(CreateApprovalFlowFromTemplate)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Create approval flow';
+                        ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
+                        Visible = IsSaaS and IsPowerAutomatePrivacyNoticeApproved;
+                        CustomActionType = FlowTemplateGallery;
+                        FlowTemplateCategoryName = 'd365bc_approval_itemJournal';
+                    }
+                }
+            }
+            group(Approval)
+            {
+                Caption = 'Approval';
+                action(Approve)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Approve';
+                    Image = Approve;
+                    ToolTip = 'Approve the requested changes.';
+                    Visible = OpenApprovalEntriesExistForCurrUser;
+
+                    trigger OnAction()
+                    var
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                    begin
+                        ApprovalsMgmt.ApproveItemJournalRequest(Rec);
+                    end;
+                }
+                action(Reject)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Reject';
+                    Image = Reject;
+                    ToolTip = 'Reject the approval request.';
+                    Visible = OpenApprovalEntriesExistForCurrUser;
+
+                    trigger OnAction()
+                    var
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                    begin
+                        ApprovalsMgmt.RejectItemJournalRequest(Rec);
+                    end;
+                }
+                action(Delegate)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Delegate';
+                    Image = Delegate;
+                    ToolTip = 'Delegate the approval to a substitute approver.';
+                    Visible = OpenApprovalEntriesExistForCurrUser;
+
+                    trigger OnAction()
+                    var
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                    begin
+                        ApprovalsMgmt.DelegateItemJournalRequest(Rec);
+                    end;
+                }
+                action(Comments)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Comments';
+                    Image = ViewComments;
+                    ToolTip = 'View or add comments for the record.';
+                    Visible = OpenApprovalEntriesExistForCurrUser or ApprovalEntriesExistSentByCurrentUser;
+
+                    trigger OnAction()
+                    var
+                        ItemJournalBatch: Record "Item Journal Batch";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                    begin
+                        if OpenApprovalEntriesOnJnlBatchExist then
+                            if ItemJournalBatch.Get(Rec."Journal Template Name", Rec."Journal Batch Name") then
+                                ApprovalsMgmt.GetApprovalComment(ItemJournalBatch);
+                    end;
+                }
+            }
             group("Page")
             {
                 Caption = 'Page';
@@ -972,6 +1104,44 @@ page 40 "Item Journal"
                 {
                 }
             }
+            group(Category_Category8)
+            {
+                Caption = 'Approve', Comment = 'Generated from the PromotedActionCategories property index 7.';
+
+                actionref(Approve_Promoted; Approve)
+                {
+                }
+                actionref(Reject_Promoted; Reject)
+                {
+                }
+                actionref(Comments_Promoted; Comments)
+                {
+                }
+                actionref(Delegate_Promoted; Delegate)
+                {
+                }
+            }
+            group("Category_Request Approval")
+            {
+                Caption = 'Request Approval';
+
+                group("Category_Send Approval Request")
+                {
+                    Caption = 'Send Approval Request';
+
+                    actionref(SendApprovalRequestJournalBatch_Promoted; SendApprovalRequestJournalBatch)
+                    {
+                    }
+                }
+                group("Category_Cancel Approval Request")
+                {
+                    Caption = 'Cancel Approval Request';
+
+                    actionref(CancelApprovalRequestJournalBatch_Promoted; CancelApprovalRequestJournalBatch)
+                    {
+                    }
+                }
+            }
             group(Category_Category6)
             {
                 Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 5.';
@@ -980,6 +1150,9 @@ page 40 "Item Journal"
                 {
                 }
                 actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(Approvals_Promoted; Approvals)
                 {
                 }
                 group("Category_Item Availability by")
@@ -1033,6 +1206,8 @@ page 40 "Item Journal"
     }
 
     trigger OnAfterGetCurrRecord()
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
     begin
         ItemJnlMgt.GetItem(Rec."Item No.", ItemDescription);
         EntryType := Rec."Entry Type";
@@ -1042,6 +1217,12 @@ page 40 "Item Journal"
             ItemTrackingEditable := not Rec.ReservEntryExist();
 
         ExpirationDateEditable := SetExpirationDateVisibility();
+        if ItemJournalBatch.Get(Rec.GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then begin
+            ItemJournalBatch.SetApprovalStateForBatch(ItemJournalBatch, Rec, OpenApprovalEntriesExistForCurrUser, OpenApprovalEntriesOnJnlBatchExist, CanCancelApprovalForJnlBatch, CanRequestFlowApprovalForBatch, CanCancelFlowApprovalForBatch, ApprovalEntriesExistSentByCurrentUser, EnabledItemJnlBatchWorkflowsExist);
+            ShowWorkflowStatusOnBatch := CurrPage.WorkflowStatusBatch.Page.SetFilterOnWorkflowRecord(ItemJournalBatch.RecordId());
+        end;
+
+        ApprovalMgmt.GetItemJnlBatchApprovalStatus(Rec, ItemJnlBatchApprovalStatus, EnabledItemJnlBatchWorkflowsExist);
     end;
 
     trigger OnAfterGetRecord()
@@ -1059,6 +1240,11 @@ page 40 "Item Journal"
             SetItemTrackingFieldsEditabilityForOData();
     end;
 
+    trigger OnInit()
+    begin
+        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(FlowServiceManagement.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+    end;
+
     trigger OnDeleteRecord(): Boolean
     var
         ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
@@ -1067,6 +1253,11 @@ page 40 "Item Journal"
         if not ItemJnlLineReserve.DeleteLineConfirm(Rec) then
             exit(false);
         ItemJnlLineReserve.DeleteLine(Rec);
+    end;
+
+    trigger OnModifyRecord(): Boolean
+    begin
+        ApprovalMgmt.CleanItemJournalApprovalStatus(Rec, ItemJnlBatchApprovalStatus);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1082,12 +1273,14 @@ page 40 "Item Journal"
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         ServerSetting: Codeunit "Server Setting";
+        EnvironmentInfo: Codeunit "Environment Information";
     begin
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
 
+        IsSaaS := EnvironmentInfo.IsSaaS();
         SetDimensionsVisibility();
 
         OpenJournal();
@@ -1100,7 +1293,11 @@ page 40 "Item Journal"
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ClientTypeManagement: Codeunit "Client Type Management";
         ItemJournalErrorsMgt: Codeunit "Item Journal Errors Mgt.";
+        ApprovalMgmt: Codeunit "Approvals Mgmt.";
+        PrivacyNotice: Codeunit "Privacy Notice";
+        FlowServiceManagement: Codeunit "Flow Service Management";
         ItemDescription: Text[100];
+        ItemJnlBatchApprovalStatus: Text[20];
         ExtendedPriceEnabled: Boolean;
         BackgroundErrorCheck: Boolean;
         ShowAllLinesEnabled: Boolean;
@@ -1113,6 +1310,16 @@ page 40 "Item Journal"
         Text002: Label 'Standard Item Journal %1 has been successfully created.';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
+        ApprovalEntriesExistSentByCurrentUser: Boolean;
+        OpenApprovalEntriesExistForCurrUser: Boolean;
+        OpenApprovalEntriesOnJnlBatchExist: Boolean;
+        EnabledItemJnlBatchWorkflowsExist: Boolean;
+        ShowWorkflowStatusOnBatch: Boolean;
+        CanCancelApprovalForJnlBatch: Boolean;
+        CanRequestFlowApprovalForBatch: Boolean;
+        CanCancelFlowApprovalForBatch: Boolean;
+        IsPowerAutomatePrivacyNoticeApproved: Boolean;
+        IsSaaS: Boolean;
 
     protected var
         EntryType: Enum "Item Journal Entry Type";
@@ -1186,7 +1393,7 @@ page 40 "Item Journal"
         Clear(DimMgt);
     end;
 
-    local procedure SetControlAppearanceFromBatch()
+    procedure SetControlAppearanceFromBatch()
     var
         ItemJournalBatch: Record "Item Journal Batch";
         ItemTrackingCode: Record "Item Tracking Code";
@@ -1201,6 +1408,9 @@ page 40 "Item Journal"
         CanSelectItemTrackingOnLines := ItemJournalBatch."Item Tracking on Lines";
         ItemTrackingCode.SetRange("Package Specific Tracking", true);
         PackageNoVisible := CanSelectItemTrackingOnLines and not ItemTrackingCode.IsEmpty();
+
+        ShowWorkflowStatusOnBatch := CurrPage.WorkflowStatusBatch.Page.SetFilterOnWorkflowRecord(ItemJournalBatch.RecordId());
+        ItemJournalBatch.SetApprovalStateForBatch(ItemJournalBatch, Rec, OpenApprovalEntriesExistForCurrUser, OpenApprovalEntriesOnJnlBatchExist, CanCancelApprovalForJnlBatch, CanRequestFlowApprovalForBatch, CanCancelFlowApprovalForBatch, ApprovalEntriesExistSentByCurrentUser, EnabledItemJnlBatchWorkflowsExist);
 
         Rec.SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
         ItemJournalErrorsMgt.SetFullBatchCheck(true);

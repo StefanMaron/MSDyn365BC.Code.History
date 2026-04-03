@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Text;
+
 using System.AI;
 using System.Azure.KeyVault;
 using System.Environment;

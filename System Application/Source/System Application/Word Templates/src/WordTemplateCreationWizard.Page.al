@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Integration.Word;
+
 using System.Globalization;
 using System.Reflection;
 using System.Telemetry;
