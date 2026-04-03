@@ -4,22 +4,22 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Utilities;
 
+using Microsoft;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Deposit;
+using Microsoft.Bank.ElectronicFundsTransfer;
+using Microsoft.Bank.Reconciliation;
+using Microsoft.EServices.EDocument;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.HumanResources.Absence;
 using Microsoft.HumanResources.Employee;
 using Microsoft.HumanResources.Payables;
-using Microsoft.Sales.Archive;
-using System.Privacy;
-using Microsoft.EServices.EDocument;
-using Microsoft.Finance.SalesTax;
 using Microsoft.Inventory.Location;
-using Microsoft.Finance.GeneralLedger.Account;
-using Microsoft.Bank.BankAccount;
-using Microsoft.Bank.Reconciliation;
-using Microsoft.Bank.Deposit;
-using Microsoft.Bank.ElectronicFundsTransfer;
+using Microsoft.Sales.Archive;
 using Microsoft.Sales.RoleCenters;
-using Microsoft;
+using System.Privacy;
 
 codeunit 1752 "Data Class. Eval. Data Country"
 {
@@ -48,10 +48,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"MX Electronic Invoicing Setup");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Document Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Document Line");
-#if not CLEAN25
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"IRS 1099 Form-Box");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"IRS 1099 Adjustment");
-#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Tax Amount Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Tax Amount Difference");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Vendor Location");

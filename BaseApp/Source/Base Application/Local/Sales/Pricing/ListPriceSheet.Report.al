@@ -2,7 +2,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-#if not CLEAN25
 namespace Microsoft.Sales.Pricing;
 
 using Microsoft.CRM.Campaign;
@@ -20,9 +19,6 @@ report 10148 "List Price Sheet"
     ApplicationArea = Basic, Suite;
     Caption = 'List Price Sheet';
     UsageCategory = ReportsAndAnalysis;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by the List Price Sheet V16.';
-    ObsoleteTag = '19.0';
 
     dataset
     {
@@ -399,4 +395,3 @@ report 10148 "List Price Sheet"
         SalesCodeCtrlEnable: Boolean;
         CurrReport_PAGENOCaptionLbl: Label 'Page';
 }
-#endif

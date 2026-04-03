@@ -1,20 +1,17 @@
-﻿namespace System.Security.AccessControl;
+namespace System.Security.AccessControl;
 
-using Microsoft.Finance.SalesTax;
-using Microsoft.Bank.ElectronicFundsTransfer;
 using Microsoft;
 using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Deposit;
+using Microsoft.Bank.ElectronicFundsTransfer;
+using Microsoft.Bank.Reconciliation;
 using Microsoft.EServices.EDocument;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.SalesTax;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Reports;
 using Microsoft.Sales.RoleCenters;
 using Microsoft.Utilities;
-using Microsoft.Finance.GeneralLedger.Account;
-#if not CLEAN25
-using Microsoft.Finance.VAT.Reporting;
-#endif
-using Microsoft.Inventory.Reports;
-using Microsoft.Bank.Reconciliation;
-using Microsoft.Bank.Deposit;
-using Microsoft.Inventory.Location;
 
 permissionset 1001 "LOCAL"
 {
@@ -47,10 +44,6 @@ permissionset 1001 "LOCAL"
                   tabledata "EFT Export" = RIMD,
                   tabledata "EFT Export Workset" = RIMD,
                   tabledata "GIFI Code" = RIMD,
-#if not CLEAN25
-                  tabledata "IRS 1099 Adjustment" = RIMD,
-                  tabledata "IRS 1099 Form-Box" = RIMD,
-#endif
                   tabledata "Item Location Variant Buffer" = RIMD,
                   tabledata "MX Electronic Invoicing Setup" = RIMD,
                   tabledata "PAC Web Service" = RIMD,

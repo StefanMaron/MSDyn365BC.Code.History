@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -74,35 +74,6 @@ codeunit 27030 "SAT Utilities"
         exit(PaymentMeth);
     end;
 
-#if not CLEAN25
-    [Scope('OnPrem')]
-    [Obsolete('Replaced with GetSATClassification with Enum parameter', '25.0')]
-    procedure GetSATItemClassification(Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; ItemNumber: Code[20]): Code[10]
-    var
-        Item: Record Item;
-        GLAccount: Record "G/L Account";
-        FixedAsset: Record "Fixed Asset";
-        ItemCharge: Record "Item Charge";
-    begin
-        case Type of
-            Type::Item:
-                if Item.Get(ItemNumber) then
-                    exit(Item."SAT Item Classification");
-            Type::"G/L Account":
-                if GLAccount.Get(ItemNumber) then
-                    exit(GLAccount."SAT Classification Code");
-            Type::"Fixed Asset":
-                if FixedAsset.Get(ItemNumber) then
-                    exit(FixedAsset."SAT Classification Code");
-            Type::"Charge (Item)":
-                if ItemCharge.Get(ItemNumber) then
-                    exit(ItemCharge."SAT Classification Code");
-            Type::Resource:
-                exit('01010101'); // Does not exist in the catalog
-        end;
-        exit('');
-    end;
-#endif
 
     procedure GetSATClassification(LineType: Enum "Sales Line Type"; ReferenceCode: Code[20]): Code[10]
     var
@@ -777,4 +748,3 @@ codeunit 27030 "SAT Utilities"
     begin
     end;
 }
-

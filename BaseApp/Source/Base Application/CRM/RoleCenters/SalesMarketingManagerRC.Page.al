@@ -17,9 +17,12 @@ using Microsoft.CRM.Segment;
 using Microsoft.CRM.Setup;
 using Microsoft.CRM.Task;
 using Microsoft.CRM.Team;
+using Microsoft.eServices.EDocument;
 using Microsoft.Finance.Deferral;
 using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.SalesTax;
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Foundation.Shipping;
 using Microsoft.Integration.D365Sales;
@@ -35,12 +38,7 @@ using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
-#if CLEAN25
-using Microsoft.Pricing.Worksheet;
-#endif
-#if not CLEAN25
 using Microsoft.RoleCenters;
-#endif
 using Microsoft.Sales.Analysis;
 using Microsoft.Sales.Archive;
 using Microsoft.Sales.Customer;
@@ -50,10 +48,7 @@ using Microsoft.Sales.Pricing;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Reports;
 using Microsoft.Sales.Setup;
-using Microsoft.Foundation.Navigate;
 using Microsoft.Utilities;
-using Microsoft.Finance.SalesTax;
-using Microsoft.eServices.EDocument;
 
 page 8907 "Sales & Marketing Manager RC"
 {
@@ -276,12 +271,17 @@ page 8907 "Sales & Marketing Manager RC"
                             Caption = 'Customer - Order Detail';
                             RunObject = report "Customer - Order Detail";
                         }
+#if not CLEAN28
                         action("Customer - Top 10 List")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'Customer Top 10 List';
+                            Caption = 'Customer Top 10 List (Obsolete)';
                             RunObject = report "Customer - Top 10 List";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This report has been replaced by the report Customer - Top List (Excel). This report will be removed in a future release.';
+                            ObsoleteTag = '28.0';
                         }
+#endif
                         action("Customer/Item Sales1")
                         {
                             ApplicationArea = Basic, Suite;
@@ -294,12 +294,17 @@ page 8907 "Sales & Marketing Manager RC"
                             Caption = 'Customer Trial Balance';
                             RunObject = report "Customer - Trial Balance";
                         }
+#if not CLEAN28
                         action("Customer - Sales List")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Customer - Sales List';
                             RunObject = report "Customer - Sales List";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This report is obsolete and will be removed in a future version.';
+                            ObsoleteTag = '28.0';
                         }
+#endif
                     }
                     group("Group6")
                     {
@@ -502,18 +507,26 @@ page 8907 "Sales & Marketing Manager RC"
                         Caption = 'Customer - Order Detail';
                         RunObject = report "Customer - Order Detail";
                     }
+#if not CLEAN28
                     action("Sales Reservation Avail.")
                     {
                         ApplicationArea = Reservation;
                         Caption = 'Sales Reservation Avail.';
                         RunObject = report "Sales Reservation Avail.";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report is obsolete and will be removed in a future version.';
+                        ObsoleteTag = '28.0';
                     }
                     action("Customer - Sales List1")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Customer - Sales List';
                         RunObject = report "Customer - Sales List";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report is obsolete and will be removed in a future version.';
+                        ObsoleteTag = '28.0';
                     }
+#endif
                     action("Customer/Item Sales2")
                     {
                         ApplicationArea = Basic, Suite;
@@ -636,7 +649,6 @@ page 8907 "Sales & Marketing Manager RC"
                     Caption = 'Item Attributes';
                     RunObject = page "Item Attributes";
                 }
-#if not CLEAN25
                 action("Sales Price Worksheet")
                 {
                     ApplicationArea = Suite;
@@ -644,16 +656,6 @@ page 8907 "Sales & Marketing Manager RC"
                     RunPageView = where("Object Type" = const(Page), "Object ID" = const(7023)); // "Sales Price Worksheet";
                     RunObject = Page "Role Center Page Dispatcher";
                 }
-#else
-                action("Sales Price Worksheet")
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Sales Price Worksheet';
-                    Image = PriceWorksheet;
-                    RunObject = Page "Price Worksheet";
-                    ToolTip = 'Manage sales prices for individual customers, for a group of customers, for all customers, or for a campaign.';
-                }
-#endif
                 action("Adjust Item Costs/Prices")
                 {
                     ApplicationArea = Basic, Suite;
@@ -693,17 +695,25 @@ page 8907 "Sales & Marketing Manager RC"
                         Caption = 'Item Substitutions';
                         RunObject = report "Item Substitutions";
                     }
+#if not CLEAN28
                     action("Availability Projection")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Availability Projection';
                         RunObject = report "Availability Projection";
+                        ObsoleteReason = 'Prepare for extraction of Manufacturing app';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '28.0';
                     }
                     action("Availability Status")
                     {
                         Caption = 'Availability Status';
                         RunObject = report "Availability Status";
+                        ObsoleteReason = 'Prepare for extraction of Manufacturing app';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '28.0';
                     }
+#endif
                     action("Back Order Fill by Customer")
                     {
                         Caption = 'Back Order Fill by Customer';
@@ -743,12 +753,8 @@ page 8907 "Sales & Marketing Manager RC"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'List Price Sheet';
-#if not CLEAN25
                         RunPageView = where("Object Type" = const(Report), "Object ID" = const(10148)); // "List Price Sheet"
                         RunObject = Page "Role Center Page Dispatcher";
-#else
-                        RunObject = Report "List Price Sheet V16";
-#endif
                     }
                     action("Picking List by Item")
                     {
@@ -774,12 +780,7 @@ page 8907 "Sales & Marketing Manager RC"
                     action("Sales Promotion")
                     {
                         Caption = 'Sales Promotion';
-#if not CLEAN25
-                        RunPageView = where("Object Type" = const(Report), "Object ID" = const(10159)); // "Sales Promotion"
-                        RunObject = Page "Role Center Page Dispatcher";
-#else
                         RunObject = report "Sales Promotion V16";
-#endif
                     }
                     action("Serial Number Sold History")
                     {

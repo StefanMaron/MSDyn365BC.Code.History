@@ -8,8 +8,8 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
-using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Setup;
+using Microsoft.Inventory.Tracking;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
@@ -78,16 +78,12 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
 
         Item.CopyFilter(Item."Variant Filter", PlanningAssignment."Variant Code");
         Item.CopyFilter(Item."Location Filter", PlanningAssignment."Location Code");
+        PlanningAssignment.SetRange("Item No.", Item."No.");
         PlanningAssignment.SetRange(Inactive, false);
         PlanningAssignment.SetRange("Net Change Planning", true);
-        PlanningAssignment.SetRange("Item No.", Item."No.");
-        if PlanningAssignment.Find('-') then
-            repeat
-                if PlanningAssignment."Latest Date" <= ToDate then begin
-                    PlanningAssignment.Inactive := true;
-                    PlanningAssignment.Modify();
-                end;
-            until PlanningAssignment.Next() = 0;
+        PlanningAssignment.SetFilter("Latest Date", '..%1', ToDate);
+        if not PlanningAssignment.IsEmpty() then
+            PlanningAssignment.ModifyAll(Inactive, true);
 
         OnCodeOnAfterGetPlanningComponents(Item);
 

@@ -4,19 +4,19 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.DemoTool.Helpers;
 
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.CRM.Campaign;
+using Microsoft.CRM.Contact;
 using Microsoft.CRM.Duplicates;
 using Microsoft.CRM.Interaction;
+using Microsoft.CRM.Opportunity;
+using Microsoft.CRM.Profiling;
+using Microsoft.CRM.Segment;
 using Microsoft.CRM.Setup;
 using Microsoft.CRM.Task;
-using Microsoft.CRM.BusinessRelation;
-using Microsoft.CRM.Opportunity;
-using Microsoft.CRM.Campaign;
-using Microsoft.Inventory.Intrastat;
 using Microsoft.CRM.Team;
+using Microsoft.Inventory.Intrastat;
 using System.Integration.Word;
-using Microsoft.CRM.Segment;
-using Microsoft.CRM.Contact;
-using Microsoft.CRM.Profiling;
 using System.Utilities;
 
 codeunit 5180 "Contoso CRM"
@@ -740,7 +740,7 @@ codeunit 5180 "Contoso CRM"
         OpportunityEntry.Validate("Date of Change", DateofChange);
         OpportunityEntry.Validate(Active, Active);
         OpportunityEntry.Validate("Date Closed", DateClosed);
-        OpportunityEntry.Validate("Action Taken", ActionTaken);
+        OpportunityEntry.Validate("Action Taken", "Opportunity Action Taken".FromInteger(ActionTaken));
         OpportunityEntry.Validate("Estimated Value (LCY)", EstimatedValueLCY);
         OpportunityEntry.Validate("Completed %", CompletedPercent);
         OpportunityEntry.Validate("Chances of Success %", ChancesofSuccessPercent);

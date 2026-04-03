@@ -54,7 +54,7 @@ codeunit 134902 "ERM Account Schedule"
         AvoidBlankTok: Label '+ %1 ';
         CircularRefErr: Label 'This can be caused by recursive function calls';
         IsInitialized: Boolean;
-        RowVisibleErr: Label 'Row no %1 with property Show = No is visible in Account Schedule Overview.';
+        RowVisibleErr: Label 'Row description %1 with property Show = No is visible in Account Schedule Overview.';
         DivisionFormulaTok: Label '%1/%2', Locked = true;
         ResponseRef: Option "None",OK,Cancel,LookupOK,LookupCancel,Yes,No,RunObject,RunSystem;
         LookupCostCenterFilterErr: Label 'Function LookupCostCenterFilter returned wrong value.';
@@ -155,7 +155,7 @@ codeunit 134902 "ERM Account Schedule"
         LibraryERM.CreateGLAccount(GLAccount);
         CreateAccountScheduleAndLineWithoutFormula(AccScheduleLine, GLAccount."No.");
         LibraryVariableStorage.Enqueue(AccScheduleLine."Schedule Name");
-        LibraryVariableStorage.Enqueue(AccScheduleLine."Row No.");
+        LibraryVariableStorage.Enqueue(AccScheduleLine.Description);
         LibraryVariableStorage.Enqueue(ViewByPeriod);
         LibrarySales.CreateCustomer(Customer);
 
@@ -2903,7 +2903,7 @@ codeunit 134902 "ERM Account Schedule"
     procedure AccScheduleOverviewExcludeLinesWithShowNo()
     var
         AccScheduleName: Record "Acc. Schedule Name";
-        AccScheduleLine: Record "Acc. Schedule Line";
+        AccScheduleLine: array[2] of Record "Acc. Schedule Line";
         RowNo: array[2] of Code[10];
         i: Integer;
     begin
@@ -2912,16 +2912,17 @@ codeunit 134902 "ERM Account Schedule"
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         for i := 1 to ArrayLen(RowNo) do begin
             RowNo[i] := Format(i);
-            LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
-            AccScheduleLine.Validate("Row No.", RowNo[i]);
-            AccScheduleLine.Modify(true);
+            LibraryERM.CreateAccScheduleLine(AccScheduleLine[i], AccScheduleName.Name);
+            AccScheduleLine[i].Validate("Row No.", RowNo[i]);
+            AccScheduleLine[i].Description := AccScheduleLine[i]."Row No.";
+            AccScheduleLine[i].Modify(true);
         end;
-        LibraryVariableStorage.Enqueue(RowNo[2]);
-        AccScheduleLine.Validate(Show, AccScheduleLine.Show::No);
-        AccScheduleLine.Modify(true);
+        LibraryVariableStorage.Enqueue(AccScheduleLine[2].Description);
+        AccScheduleLine[2].Validate(Show, AccScheduleLine[2].Show::No);
+        AccScheduleLine[2].Modify(true);
 
         // Veirification done in AccScheduleOverviewWithDisabledLinePageHandler
-        OpenAccountScheduleOverviewPage(AccScheduleLine."Schedule Name");
+        OpenAccountScheduleOverviewPage(AccScheduleLine[2]."Schedule Name");
     end;
 
     [Test]
@@ -3913,48 +3914,6 @@ codeunit 134902 "ERM Account Schedule"
         RunAccountScheduleReportFromOverviewPage(AccScheduleOverview, AccScheduleName.Name, ColumnLayoutName2.Name);
 
         // [THEN] Request page of Account Schedule report has "Col2" value as column layout
-        // Verification is done in AccountScheduleRequestPageVerifyValuesHandler
-    end;
-
-    [Test]
-    [HandlerFunctions('AccountScheduleRequestPageVerifyValuesHandler')]
-    [Scope('OnPrem')]
-    procedure RunAccScheduleReqPageWhenChangeToEmptyScheduleName()
-    var
-        FinancialReport2: Record "Financial Report";
-        AccScheduleName: Record "Acc. Schedule Name";
-        AccScheduleName2: Record "Acc. Schedule Name";
-        ColumnLayoutName: Record "Column Layout Name";
-        AccScheduleOverview: TestPage "Acc. Schedule Overview";
-        FinancialReports: TestPage "Financial Reports";
-        AccountScheduleCurrentColumnName: Code[10];
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 201171] Request page of Account Schedule report should have not changed column layout value when Account Schedule Name without setup is changed
-        Initialize();
-        LibraryLowerPermissions.SetFinancialReporting();
-
-        // [GIVEN] Account Schedule "Acc1" has "Col1" as default column layout name, Account Schedule "Acc2" has not defined column layout name
-        CreateAccountScheduleNameAndColumn(AccScheduleName, ColumnLayoutName);
-        LibraryERM.CreateAccScheduleName(AccScheduleName2);
-
-        // [GIVEN] Save the value of Account Schedule "Col2" column layout name ("Default" in W1)
-        AccScheduleOverview.Trap();
-        OpenAccountScheduleOverviewPage(AccScheduleName2.Name);
-        AccountScheduleCurrentColumnName := AccScheduleOverview.CurrentColumnName.Value();
-
-        // [GIVEN] Set Column Layout as "Col2" on Account Schedule "Acc1" Overview page
-        AccScheduleOverview.Trap();
-        FinancialReports.OpenEdit();
-        FinancialReports.Filter.SetFilter(Name, AccScheduleName.Name);
-        FinancialReports.Overview.Invoke();
-        AccScheduleOverview.FinancialReportName.SetValue(AccScheduleName2.Name);
-        AccScheduleOverview.CurrentSchedName.SetValue(AccScheduleName2.Name);
-        FinancialReport2.Get(AccScheduleName2.Name);
-        // [WHEN] Invoke Account Schedule report
-        RunAccountScheduleReportFromOverviewPage(AccScheduleOverview, AccScheduleName2.Name, FinancialReport2."Financial Report Column Group");
-
-        // [THEN] Request page of Account Schedule report has changed to "Col1" value and is equal to "Default" and "Acc2" schedule name
         // Verification is done in AccountScheduleRequestPageVerifyValuesHandler
     end;
 
@@ -5474,11 +5433,12 @@ codeunit 134902 "ERM Account Schedule"
         // [GIVEN] Account Schedule Line was created  with Show = No
         LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
         AccScheduleLine.Validate("Row No.", Format(LibraryRandom.RandInt(100)));
+        AccScheduleLine.Validate(Description, AccScheduleLine."Row No.");
         AccScheduleLine.Validate(Show, AccScheduleLine.Show::No);
         AccScheduleLine.Modify(true);
 
         // [WHEN] Account Schedule Overviw page is open for this Account Schedule
-        LibraryVariableStorage.Enqueue(AccScheduleLine."Row No.");
+        LibraryVariableStorage.Enqueue(AccScheduleLine.Description);
         OpenAccountScheduleOverviewPage(AccScheduleLine."Schedule Name");
 
         // [THEN] Account Schedule Line with Row No. = XXX is visible
@@ -5752,7 +5712,7 @@ codeunit 134902 "ERM Account Schedule"
         FinancialReports.FILTER.SetFilter(Name, AccScheduleLine."Schedule Name");
         AccScheduleOverview.Trap();
         FinancialReports.Overview.Invoke();
-        AccScheduleOverview.NegativeAmountFormat.Value(Format(Enum::"Analysis Negative Format"::"Minus Sign"));
+        AccScheduleOverview.NegativeAmountFormatDefault.Value(Format(Enum::"Fin. Report Negative Format"::"Minus Sign"));
 
         // [THEN] Negative amount is displayed with a minus sign
         AccScheduleOverview.GoToRecord(AccScheduleLine);
@@ -5785,7 +5745,7 @@ codeunit 134902 "ERM Account Schedule"
         FinancialReports.FILTER.SetFilter(Name, AccScheduleLine."Schedule Name");
         AccScheduleOverview.Trap();
         FinancialReports.Overview.Invoke();
-        AccScheduleOverview.NegativeAmountFormat.Value(Format(Enum::"Analysis Negative Format"::Parentheses));
+        AccScheduleOverview.NegativeAmountFormatDefault.Value(Format(Enum::"Fin. Report Negative Format"::Parentheses));
 
         // [THEN] Negative amount is displayed with parentheses
         AccScheduleOverview.GoToRecord(AccScheduleLine);
@@ -5865,6 +5825,62 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure AccountScheduleOverviewNegativeFormatDefault()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+        FinancialReport: Record "Financial Report";
+        GLSetup: Record "General Ledger Setup";
+        AccScheduleOverview: TestPage "Acc. Schedule Overview";
+        FinancialReports: TestPage "Financial Reports";
+        Amount: Decimal;
+    begin
+        // [SCENARIO] When using parentheses as negative format, a negative amount should be displayed with parentheses on the page
+        Initialize();
+#if not CLEAN27
+        EnabledFinancialReportDefaultsFeature();
+#endif
+        GLSetup.Get();
+
+        // [GIVEN] An account schedule line with negative value
+        Amount := -LibraryRandom.RandDec(100, 2);
+        SetupForAccountScheduleOverviewPage(
+          AccScheduleLine, Enum::"Column Layout Show"::Always, Amount, Enum::"Analysis Rounding Factor"::None, '');
+        FinancialReport.Get(AccScheduleLine."Schedule Name");
+        FinancialReport."Financial Report Column Group" := LibraryVariableStorage.DequeueText();
+        FinancialReport.Modify();
+
+        // [WHEN] Account schedule overview is opened with negative amount format as parentheses
+        FinancialReports.OpenView();
+        FinancialReports.FILTER.SetFilter(Name, AccScheduleLine."Schedule Name");
+        AccScheduleOverview.Trap();
+        FinancialReports.Overview.Invoke();
+        AccScheduleOverview.NegativeAmountFormatDefault.Value(Format(Enum::"Fin. Report Negative Format"::Default));
+
+        // [GIVEN] GL Setup negative amount format is set parentheses
+        GLSetup.Validate("Fin. Rep. Neg. Amount Format", GLSetup."Fin. Rep. Neg. Amount Format"::Parentheses);
+        GLSetup.Modify();
+
+        // [THEN] Negative amount is displayed with parentheses
+        Clear(AccScheduleOverview);
+        AccScheduleOverview.Trap();
+        FinancialReports.Overview.Invoke();
+        AccScheduleOverview.GoToRecord(AccScheduleLine);
+        AccScheduleOverview.ColumnValues1.AssertEquals('(' + Format(Abs(Amount), 0, RoundingFormatTxt) + ')');
+
+        // [GIVEN] GL Setup negative amount format is set minus sign
+        GLSetup.Validate("Fin. Rep. Neg. Amount Format", GLSetup."Fin. Rep. Neg. Amount Format"::"Minus Sign");
+        GLSetup.Modify();
+
+        // [THEN] Negative amount is displayed with minus sign
+        Clear(AccScheduleOverview);
+        AccScheduleOverview.Trap();
+        FinancialReports.Overview.Invoke();
+        AccScheduleOverview.GoToRecord(AccScheduleLine);
+        AccScheduleOverview.ColumnValues1.AssertEquals(Format(Amount, 0, RoundingFormatTxt));
+    end;
+
+    [Test]
     [HandlerFunctions('AccountScheduleRequestPageNegativeFormatHandler')]
     [Scope('OnPrem')]
     procedure AccountScheduleInheritNegativeFormat()
@@ -5884,7 +5900,7 @@ codeunit 134902 "ERM Account Schedule"
         FinancialReports.Filter.SetFilter(Name, AccScheduleName.Name);
         AccountScheduleOverview.Trap();
         FinancialReports.Overview.Invoke();
-        AccountScheduleOverview.NegativeAmountFormat.SetValue(Enum::"Analysis Negative Format"::"Minus Sign");
+        AccountScheduleOverview.NegativeAmountFormatDefault.SetValue(Enum::"Fin. Report Negative Format"::"Minus Sign");
         Commit();
 
         // [WHEN] Running account schedule report from account schedule overview
@@ -5894,13 +5910,206 @@ codeunit 134902 "ERM Account Schedule"
         // [THEN] Account schedule report inherits negative amount format as minus sign
 
         // [WHEN] Negative amount format is changed to parentheses and account schedule report is ran again
-        AccountScheduleOverview.NegativeAmountFormat.SetValue(Enum::"Analysis Negative Format"::Parentheses);
+        AccountScheduleOverview.NegativeAmountFormatDefault.SetValue(Enum::"Fin. Report Negative Format"::Parentheses);
         Commit();
         LibraryVariableStorage.Enqueue(Enum::"Analysis Negative Format"::Parentheses);
         AccountScheduleOverview.Print.Invoke();
         // Handled by AccountScheduleRequestPageNegativeFormatHandler
         // [THEN] Account schedule report inherits negative amount format as parentheses
     end;
+
+    [Test]
+    [HandlerFunctions('AccountScheduleRequestPageNegativeFormatHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleDefaultNegativeFormatMinusSign()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        ColumnLayoutName: Record "Column Layout Name";
+        GLSetup: Record "General Ledger Setup";
+        FinancialReports: TestPage "Financial Reports";
+        AccountScheduleOverview: TestPage "Acc. Schedule Overview";
+    begin
+        // [SCENARIO] Account Schedule defaults negative format option from GL Setup
+        Initialize();
+#if not CLEAN27
+        EnabledFinancialReportDefaultsFeature();
+#endif
+
+        // [GIVEN] GL Setup negative amount format is set minus sign
+        GLSetup.Get();
+        GLSetup.Validate("Fin. Rep. Neg. Amount Format", GLSetup."Fin. Rep. Neg. Amount Format"::"Minus Sign");
+        GLSetup.Modify();
+        Commit();
+
+        // [GIVEN] An financial report with negative amount format as default
+        CreateAccountScheduleNameAndColumn(AccScheduleName, ColumnLayoutName);
+        Commit();
+        FinancialReports.OpenEdit();
+        FinancialReports.Filter.SetFilter(Name, AccScheduleName.Name);
+        AccountScheduleOverview.Trap();
+        FinancialReports.Overview.Invoke();
+        AccountScheduleOverview.NegativeAmountFormatDefault.SetValue(Enum::"Fin. Report Negative Format"::Default);
+        Commit();
+
+        // [WHEN] Running account schedule report from account schedule overview
+        LibraryVariableStorage.Enqueue(Enum::"Analysis Negative Format"::"Minus Sign");
+        AccountScheduleOverview.Print.Invoke();
+        // Handled by AccountScheduleRequestPageNegativeFormatHandler
+        // [THEN] Account schedule report defaults negative amount format as minus sign
+    end;
+
+
+    [Test]
+    [HandlerFunctions('AccountScheduleRequestPageNegativeFormatHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleDefaultNegativeFormatParenthesis()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        ColumnLayoutName: Record "Column Layout Name";
+        GLSetup: Record "General Ledger Setup";
+        FinancialReports: TestPage "Financial Reports";
+        AccountScheduleOverview: TestPage "Acc. Schedule Overview";
+    begin
+        // [SCENARIO] Account Schedule defaults negative format option from GL Setup
+        Initialize();
+#if not CLEAN27
+        EnabledFinancialReportDefaultsFeature();
+#endif
+
+        // [GIVEN] GL Setup negative amount format is set parentheses
+        GLSetup.Get();
+        GLSetup.Validate("Fin. Rep. Neg. Amount Format", GLSetup."Fin. Rep. Neg. Amount Format"::Parentheses);
+        GLSetup.Modify();
+        Commit();
+
+        // [GIVEN] An financial report with negative amount format as default
+        CreateAccountScheduleNameAndColumn(AccScheduleName, ColumnLayoutName);
+        Commit();
+        FinancialReports.OpenEdit();
+        FinancialReports.Filter.SetFilter(Name, AccScheduleName.Name);
+        AccountScheduleOverview.Trap();
+        FinancialReports.Overview.Invoke();
+        AccountScheduleOverview.NegativeAmountFormatDefault.SetValue(Enum::"Fin. Report Negative Format"::Default);
+        Commit();
+
+        // [WHEN] Running account schedule report from account schedule overview again
+        LibraryVariableStorage.Enqueue(Enum::"Analysis Negative Format"::Parentheses);
+        AccountScheduleOverview.Print.Invoke();
+        // Handled by AccountScheduleRequestPageNegativeFormatHandler
+        // [THEN] Account schedule report defaults negative amount format as parentheses
+    end;
+
+    [Test]
+    [HandlerFunctions('ViewByDefaultValuesOnOverviewPageHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleViewByDayFromDefault()
+    begin
+        // Check that correct values updated in the newly created column on Account Schedule Overview Page when the default View by is set to Day.
+        Initialize();
+#if not CLEAN27
+        EnabledFinancialReportDefaultsFeature();
+#endif
+        LibraryLowerPermissions.SetFinancialReporting();
+        LibraryLowerPermissions.AddO365Setup();
+        AccountScheduleOverviewByPeriod(ViewByRef::Day);
+    end;
+
+    [Test]
+    [HandlerFunctions('ViewByDefaultValuesOnOverviewPageHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleViewByWeekFromDefault()
+    begin
+        // Check that correct values updated in the newly created column on Account Schedule Overview Page when the default View by is set to Week.
+        Initialize();
+#if not CLEAN27
+        EnabledFinancialReportDefaultsFeature();
+#endif
+        LibraryLowerPermissions.SetFinancialReporting();
+        LibraryLowerPermissions.AddO365Setup();
+        AccountScheduleOverviewByPeriod(ViewByRef::Week);
+    end;
+
+    [Test]
+    [HandlerFunctions('ViewByDefaultValuesOnOverviewPageHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleViewByMonthFromDefault()
+    begin
+        // Check that correct values updated in the newly created column on Account Schedule Overview Page when the default View by is set to Month.
+        Initialize();
+#if not CLEAN27
+        EnabledFinancialReportDefaultsFeature();
+#endif
+        LibraryLowerPermissions.SetFinancialReporting();
+        LibraryLowerPermissions.AddO365Setup();
+        AccountScheduleOverviewByPeriod(ViewByRef::Month);
+    end;
+
+    [Test]
+    [HandlerFunctions('ViewByDefaultValuesOnOverviewPageHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleViewByQuarterFromDefault()
+    begin
+        // Check that correct values updated in the newly created column on Account Schedule Overview Page when the default View by is set to Quarter.
+        Initialize();
+#if not CLEAN27
+        EnabledFinancialReportDefaultsFeature();
+#endif
+        LibraryLowerPermissions.SetFinancialReporting();
+        LibraryLowerPermissions.AddO365Setup();
+        AccountScheduleOverviewByPeriod(ViewByRef::Quarter);
+    end;
+
+    [Test]
+    [HandlerFunctions('ViewByDefaultValuesOnOverviewPageHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleViewByYearFromDefault()
+    begin
+        // Check that correct values updated in the newly created column on Account Schedule Overview Page when the default View by is set to Year.
+        Initialize();
+#if not CLEAN27
+        EnabledFinancialReportDefaultsFeature();
+#endif
+        LibraryLowerPermissions.SetFinancialReporting();
+        LibraryLowerPermissions.AddO365Setup();
+        AccountScheduleOverviewByPeriod(ViewByRef::Year);
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ViewByDefaultValuesOnOverviewPageHandler(var AccScheduleOverview: TestPage "Acc. Schedule Overview")
+    var
+        GLSetup: Record "General Ledger Setup";
+        Description: Variant;
+    begin
+        AccScheduleOverview.CurrentColumnName.SetValue(LibraryVariableStorage.DequeueText());
+        AccScheduleOverview.CurrentSchedName.SetValue(LibraryVariableStorage.DequeueText());
+        AccScheduleOverview.FinancialReportName.SetValue(AccScheduleOverview.CurrentSchedName);
+        AccScheduleOverview.UseAmtsInAddCurr.SetValue(false);
+        LibraryVariableStorage.Dequeue(Description);
+        AccScheduleOverview.Description.AssertEquals(Description);
+
+        GLSetup.Get();
+        GLSetup."Fin. Rep. Period Type" := Enum::"Analysis Period Type".FromInteger(LibraryVariableStorage.DequeueInteger());
+        GLSetup.Modify();
+
+        AccScheduleOverview.PeriodTypeDefault.SetValue(Enum::"Financial Report Period Type"::Default);
+        AccScheduleOverview.ColumnValues1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        AccScheduleOverview.PeriodTypeDefault.SetValue(ViewByRef::Day);
+        AccScheduleOverview.OK().Invoke();
+    end;
+
+#if not CLEAN27
+    local procedure EnabledFinancialReportDefaultsFeature()
+    var
+        FeatureKey: Record "Feature Key";
+        FeatureFinancialReportDef: Codeunit "Feature - Fin. Report Default";
+    begin
+        if FeatureKey.Get(FeatureFinancialReportDef.GetFinancialReportDefaultsFeatureKey()) then begin
+            FeatureKey.Enabled := FeatureKey.Enabled::"All Users";
+            FeatureKey.Modify();
+        end;
+    end;
+#endif
 
     [Test]
     procedure ColumnLayoutGLAccountTotaling()
@@ -5934,6 +6143,7 @@ codeunit 134902 "ERM Account Schedule"
             GLAccount1."No." + '|' + GLAccount2."No.");
         AccScheduleLine."Line No." += 10000;
         AccScheduleLine."Row No." := '20';
+        AccScheduleLine.Validate(Description, AccScheduleLine."Row No.");
         AccScheduleLine.Totaling := GLAccount3."No.";
         AccScheduleLine.Insert(true);
 
@@ -6182,6 +6392,7 @@ codeunit 134902 "ERM Account Schedule"
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
         AccScheduleLine.Validate("Row No.", RowNo);
+        AccScheduleLine.Validate(Description, AccScheduleLine."Row No.");
         AccScheduleLine.Validate("Totaling Type", AccScheduleLine."Totaling Type"::Formula);
         AccScheduleLine.Validate(Totaling, AccScheduleName.Name);
         AccScheduleLine.Modify(true);
@@ -6194,6 +6405,7 @@ codeunit 134902 "ERM Account Schedule"
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
         AccScheduleLine.Validate("Row No.", Format(LibraryRandom.RandInt(100)));
+        AccScheduleLine.Validate(Description, AccScheduleLine."Row No.");
         AccScheduleLine.Validate(Totaling, Totaling);
         AccScheduleLine.Modify(true);
     end;
@@ -6210,6 +6422,7 @@ codeunit 134902 "ERM Account Schedule"
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
         AccScheduleLine.Validate("Row No.", RowNo);
+        AccScheduleLine.Validate(Description, AccScheduleLine."Row No.");
         AccScheduleLine.Validate("Totaling Type", AccScheduleLine."Totaling Type"::"Cost Type");
         AccScheduleLine.Validate(Totaling, AccScheduleName.Name);
         AccScheduleLine.Modify(true);
@@ -6984,7 +7197,7 @@ codeunit 134902 "ERM Account Schedule"
           Amount,
           RoundingOption,
           Totaling);
-        LibraryVariableStorage.Enqueue(AccScheduleLine."Row No.");
+        LibraryVariableStorage.Enqueue(AccScheduleLine.Description);
         LibraryVariableStorage.Enqueue(ExpectedValue);
 
         OpenAccountScheduleOverviewPage(AccScheduleLine."Schedule Name");
@@ -7346,14 +7559,14 @@ codeunit 134902 "ERM Account Schedule"
     procedure BlankCellOverviewPageHandler(var AccScheduleOverview: TestPage "Acc. Schedule Overview")
     var
         StoredColumnLayoutName: Variant;
-        StoredRowNo: Variant;
+        StoredDescription: Variant;
         StoredExpectedValue: Variant;
     begin
         LibraryVariableStorage.Dequeue(StoredColumnLayoutName);
         AccScheduleOverview.CurrentColumnName.SetValue(StoredColumnLayoutName);
 
-        LibraryVariableStorage.Dequeue(StoredRowNo);
-        AccScheduleOverview."Row No.".AssertEquals(StoredRowNo);
+        LibraryVariableStorage.Dequeue(StoredDescription);
+        AccScheduleOverview.Description.AssertEquals(StoredDescription);
 
         LibraryVariableStorage.Dequeue(StoredExpectedValue);
         Assert.AreEqual(StoredExpectedValue, AccScheduleOverview.ColumnValues1.Value, IncorrectValueInAccScheduleErr);
@@ -7408,12 +7621,12 @@ codeunit 134902 "ERM Account Schedule"
     [Scope('OnPrem')]
     procedure AccScheduleOverviewWithDisabledLinePageHandler(var AccScheduleOverview: TestPage "Acc. Schedule Overview")
     var
-        UnxpectedRowNo: Variant;
+        UnxpectedDesc: Variant;
     begin
-        LibraryVariableStorage.Dequeue(UnxpectedRowNo);
+        LibraryVariableStorage.Dequeue(UnxpectedDesc);
         AccScheduleOverview.First();
         repeat
-            Assert.AreNotEqual(UnxpectedRowNo, AccScheduleOverview."Row No.".Value, StrSubstNo(RowVisibleErr, AccScheduleOverview."Row No."));
+            Assert.AreNotEqual(UnxpectedDesc, AccScheduleOverview.Description.Value, StrSubstNo(RowVisibleErr, AccScheduleOverview.Description));
         until not AccScheduleOverview.Next();
     end;
 
@@ -7423,7 +7636,7 @@ codeunit 134902 "ERM Account Schedule"
     begin
         AccScheduleOverview.ShowLinesWithShowNo.SetValue(true);
         AccScheduleOverview.First();
-        AccScheduleOverview."Row No.".AssertEquals(LibraryVariableStorage.DequeueText());
+        AccScheduleOverview.Description.AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 
     [PageHandler]
@@ -7447,17 +7660,19 @@ codeunit 134902 "ERM Account Schedule"
     [Scope('OnPrem')]
     procedure ValuesOnOverviewPageHandler(var AccScheduleOverview: TestPage "Acc. Schedule Overview")
     var
-        RowNo: Variant;
+        ScheduleName: Variant;
+        Description: Variant;
     begin
         AccScheduleOverview.CurrentColumnName.SetValue(LibraryVariableStorage.DequeueText());
-        AccScheduleOverview.CurrentSchedName.SetValue(LibraryVariableStorage.DequeueText());
+        ScheduleName := LibraryVariableStorage.DequeueText();
+        AccScheduleOverview.CurrentSchedName.SetValue(ScheduleName);
         AccScheduleOverview.FinancialReportName.SetValue(AccScheduleOverview.CurrentSchedName);
         AccScheduleOverview.UseAmtsInAddCurr.SetValue(false);
-        LibraryVariableStorage.Dequeue(RowNo);
-        AccScheduleOverview."Row No.".AssertEquals(RowNo);
-        AccScheduleOverview.PeriodType.SetValue(LibraryVariableStorage.DequeueInteger());
+        LibraryVariableStorage.Dequeue(Description);
+        AccScheduleOverview.Description.AssertEquals(Description);
+        AccScheduleOverview.PeriodTypeDefault.SetValue(LibraryVariableStorage.DequeueInteger());
         AccScheduleOverview.ColumnValues1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
-        AccScheduleOverview.PeriodType.SetValue(ViewByRef::Day);
+        AccScheduleOverview.PeriodTypeDefault.SetValue(ViewByRef::Day);
         AccScheduleOverview.OK().Invoke();
     end;
 

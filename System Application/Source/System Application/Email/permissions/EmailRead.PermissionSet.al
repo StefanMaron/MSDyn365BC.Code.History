@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Email;
+
 using System.DataAdministration;
 using System.Environment;
 using System.Reflection;

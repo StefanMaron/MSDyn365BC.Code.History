@@ -1980,6 +1980,7 @@
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
         ServTestReportPrint: Codeunit "Serv. Test Report Print";
+        ReportSelectionMgt: Codeunit "Report Selection Mgt.";
         DiscountPct: Decimal;
         ExpectedInvDiscAmount: Decimal;
         ServiceItemLineNo: Integer;
@@ -1990,6 +1991,8 @@
         Initialize();
         // [GIVEN] Service Order with two lines. "Allow Inv. Discount" is on only for the second line. "Inv. Disc. Amount" = "X"
         UpdateCalculateInvoiceDiscount(true);
+        ReportSelectionMgt.UpdateReportSelection("Report Selection Usage"::"SM.Test", '1', Report::"Service Document - Test");
+
         CreateServiceOrderWithDiscount(ServiceHeader, ServiceItemLineNo, DiscountPct);
         CreateServiceLineWithAllowInvDisc(ServiceLine, ServiceHeader, ServiceItemLineNo, false);
         CreateServiceLineWithAllowInvDisc(ServiceLine, ServiceHeader, ServiceItemLineNo, true);
@@ -2014,9 +2017,11 @@
     var
         ServiceHeader: Record "Service Header";
         ServTestReportPrint: Codeunit "Serv. Test Report Print";
+        ReportSelectionMgt: Codeunit "Report Selection Mgt.";
     begin
         // [SCENARIO 375362] Section "Customer" of Test Report should contain Sell-to address from Service Order header
         Initialize();
+        ReportSelectionMgt.UpdateReportSelection("Report Selection Usage"::"SM.Test", '1', Report::"Service Document - Test");
 
         // [GIVEN] Service order with different Sell-to and Ship-to Addresses
         CreateServiceOrderWithSelltoAddress(ServiceHeader);

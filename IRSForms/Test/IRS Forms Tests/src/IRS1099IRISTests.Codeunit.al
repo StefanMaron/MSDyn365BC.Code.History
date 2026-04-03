@@ -374,6 +374,7 @@ codeunit 148022 "IRS 1099 IRIS Tests"
         UpdateVendorFederalId(Vendor[2]."No.", LibraryIRS1099IRIS.GetUniqueTIN());
         LibraryIRS1099IRIS.CreateUSVendor(Vendor[3]);
         UpdateVendorFederalId(Vendor[3]."No.", LibraryIRS1099IRIS.GetUniqueTIN());
+
         // [GIVEN] Form documents for all vendors
         for i := 1 to 3 do
             CreateReleasedFormDocForVendor(IRS1099FormDocHeader[i], Vendor[i]."No.", 'NEC', 'NEC-01');

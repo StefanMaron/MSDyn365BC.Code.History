@@ -5168,7 +5168,7 @@ codeunit 10145 "E-Invoice Mgt."
                                 if CustLedgerEntryLoc2."Source Code" = ServiceSourceCode then
                                     if ServiceCrMemoHeader.Get(CustLedgerEntryLoc2."Document No.") then
                                         if ServiceCrMemoHeader."Fiscal Invoice Number PAC" <> '' then
-                                            exit(true);
+                                    exit(true);
                                 if SalesCrMemoHeader.Get(CustLedgerEntryLoc2."Document No.") then
                                     if SalesCrMemoHeader."Fiscal Invoice Number PAC" <> '' then
                                         exit(true);

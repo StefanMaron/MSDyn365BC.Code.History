@@ -2,6 +2,8 @@
 
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Requisition;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
@@ -39,6 +41,10 @@ codeunit 1541 "Workflow Webhook Events"
                     WorkflowEventHandling.AddEventPredecessor(WorkflowWebhookResponseReceivedEventCode(),
                       WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode());
                     WorkflowEventHandling.AddEventPredecessor(WorkflowWebhookResponseReceivedEventCode(),
+                      WorkflowEventHandling.RunWorkflowOnSendItemJournalBatchForApprovalCode());
+                    WorkflowEventHandling.AddEventPredecessor(WorkflowWebhookResponseReceivedEventCode(),
+                      WorkflowEventHandling.RunWorkflowOnSendRequisitionWkshBatchForApprovalCode());
+                    WorkflowEventHandling.AddEventPredecessor(WorkflowWebhookResponseReceivedEventCode(),
                       WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode());
                     WorkflowEventHandling.AddEventPredecessor(WorkflowWebhookResponseReceivedEventCode(),
                       WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode());
@@ -66,6 +72,8 @@ codeunit 1541 "Workflow Webhook Events"
         DummyItem: Record Item;
         DummyGenJournalBatch: Record "Gen. Journal Batch";
         DummyGenJournalLine: Record "Gen. Journal Line";
+        DummyItemJournalBatch: Record "Item Journal Batch";
+        DummyRequisitionWkshName: Record "Requisition Wksh. Name";
         DummyPurchaseHeader: Record "Purchase Header";
         DummySalesHeader: Record "Sales Header";
         DummyVendor: Record Vendor;
@@ -78,6 +86,10 @@ codeunit 1541 "Workflow Webhook Events"
           DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
         WorkflowSetup.InsertTableRelation(DATABASE::"Gen. Journal Line", DummyGenJournalLine.FieldNo(SystemId),
           DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
+        WorkflowSetup.InsertTableRelation(Database::"Item Journal Batch", DummyItemJournalBatch.FieldNo(SystemId),
+          Database::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
+        WorkflowSetup.InsertTableRelation(Database::"Requisition Wksh. Name", DummyRequisitionWkshName.FieldNo(SystemId),
+          Database::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
         WorkflowSetup.InsertTableRelation(DATABASE::Item, DummyItem.FieldNo(SystemId),
           DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
         WorkflowSetup.InsertTableRelation(DATABASE::"Purchase Header", DummyPurchaseHeader.FieldNo(SystemId),
@@ -96,6 +108,8 @@ codeunit 1541 "Workflow Webhook Events"
         DummyItem: Record Item;
         DummyGenJournalBatch: Record "Gen. Journal Batch";
         DummyGenJournalLine: Record "Gen. Journal Line";
+        DummyItemJournalBatch: Record "Item Journal Batch";
+        DummyRequisitionWkshName: Record "Requisition Wksh. Name";
         DummyPurchaseHeader: Record "Purchase Header";
         DummySalesHeader: Record "Sales Header";
         DummyVendor: Record Vendor;
@@ -106,6 +120,8 @@ codeunit 1541 "Workflow Webhook Events"
         CleanupIntegrationRecordTableRelation(DATABASE::Customer, DummyCustomer.FieldNo(SystemId), 8000, DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
         CleanupIntegrationRecordTableRelation(DATABASE::"Gen. Journal Batch", DummyGenJournalBatch.FieldNo(SystemId), 8000, DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
         CleanupIntegrationRecordTableRelation(DATABASE::"Gen. Journal Line", DummyGenJournalLine.FieldNo(SystemId), 8000, DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
+        CleanupIntegrationRecordTableRelation(Database::"Item Journal Batch", DummyItemJournalBatch.FieldNo(SystemId), 8000, Database::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
+        CleanupIntegrationRecordTableRelation(Database::"Requisition Wksh. Name", DummyRequisitionWkshName.FieldNo(SystemId), 8000, Database::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
         CleanupIntegrationRecordTableRelation(DATABASE::Item, DummyItem.FieldNo(SystemId), 8000, DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
         CleanupIntegrationRecordTableRelation(DATABASE::"Purchase Header", DummyPurchaseHeader.FieldNo(SystemId), 8000, DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
         CleanupIntegrationRecordTableRelation(DATABASE::"Sales Header", DummySalesHeader.FieldNo(SystemId), 8000, DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
@@ -188,6 +204,24 @@ codeunit 1541 "Workflow Webhook Events"
     begin
         // Handles the scenario when a General Journal Line is deleted after it's been sent approval
         WorkflowWebhookManagement.FindAndCancel(GenJournalLine.RecordId, true);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelItemJournalBatchApprovalRequest', '', false, false)]
+    local procedure HandleOnCancelItemJournalBatchApprovalRequest(var ItemJournalBatch: Record "Item Journal Batch")
+    var
+        WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
+    begin
+        // Handles the scenario when a Item Journal Batch is deleted after it's been sent approval
+        WorkflowWebhookManagement.FindAndCancel(ItemJournalBatch.RecordId(), true);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelRequisitionWkshBatchApprovalRequest', '', false, false)]
+    local procedure HandleOnCancelRequisitionWkshBatchApprovalRequest(var RequisitionWkshName: Record "Requisition Wksh. Name")
+    var
+        WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
+    begin
+        // Handles the scenario when a Requisition Worksheet Batch is deleted after it's been sent approval
+        WorkflowWebhookManagement.FindAndCancel(RequisitionWkshName.RecordId(), true);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelVendorApprovalRequest', '', false, false)]

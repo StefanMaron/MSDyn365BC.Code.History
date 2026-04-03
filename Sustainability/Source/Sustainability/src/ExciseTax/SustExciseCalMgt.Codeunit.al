@@ -6,10 +6,10 @@ namespace Microsoft.Sustainability.ExciseTax;
 
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.NoSeries;
+using Microsoft.Inventory.Ledger;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.History;
-using Microsoft.Inventory.Ledger;
 using Microsoft.Sustainability.Account;
 using Microsoft.Sustainability.Posting;
 

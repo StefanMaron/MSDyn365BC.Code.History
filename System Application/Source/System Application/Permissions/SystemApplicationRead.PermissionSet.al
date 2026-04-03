@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Security.AccessControl;
+
 using System.Apps;
 using System.Azure.Identity;
 using System.DataAdministration;
@@ -11,7 +12,9 @@ using System.Device;
 using System.Environment;
 using System.Environment.Configuration;
 using System.ExternalFileStorage;
+#if not CLEAN28
 using System.Feedback;
+#endif
 using System.Globalization;
 using System.Integration;
 using System.Integration.Excel;
@@ -51,7 +54,9 @@ permissionset 21 "System Application - Read"
                              "Record Link Management - Read",
                              "Retention Policy - Read",
                              "Environment Cleanup - Read",
+#if not CLEAN28
                              "Satisfaction Survey - Read",
+#endif
                              "System Initialization - Exec",
                              "Security Groups - Read",
                              "Table Information - Read",

@@ -259,17 +259,6 @@ page 8903 "Manufacturing Manager RC"
                         Caption = 'Assembly Orders';
                         RunObject = page "Assembly Orders";
                     }
-#if not CLEAN25
-                    action("Orders2")
-                    {
-                        ApplicationArea = Service;
-                        Caption = 'Service Orders';
-                        RunObject = page Microsoft.Service.Document."Service Orders";
-                        ObsoleteReason = 'Moving Service Management to separate extension';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '25.0';
-                    }
-#endif
                 }
                 group("Group9")
                 {
@@ -692,14 +681,12 @@ page 8903 "Manufacturing Manager RC"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'This group will be removed in a future release.';
                 ObsoleteTag = '27.0';
-
                 group("Group19")
                 {
                     Caption = 'Reports';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'This group will be removed in a future release.';
                     ObsoleteTag = '27.0';
-
                     action("BOM Cost Share Distribution")
                     {
                         ApplicationArea = Manufacturing;
@@ -832,7 +819,7 @@ page 8903 "Manufacturing Manager RC"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Inventory Transaction Detail';
-                        RunObject = report "Item Transaction Detail";
+                        RunObject = report "Inventory - Transaction Detail";
                         ObsoleteState = Pending;
                         ObsoleteReason = 'This action is available on the Purchasing Manager Role Center. It will be removed from this Role Center in a future release.';
                         ObsoleteTag = '27.0';

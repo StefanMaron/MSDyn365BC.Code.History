@@ -1,9 +1,12 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Reminder;
 
+/// <summary>
+/// Displays a read-only view of email text configurations as a subpage part.
+/// </summary>
 page 843 "Reminder View Email Text"
 {
     PageType = ListPart;
@@ -25,19 +28,16 @@ page 843 "Reminder View Email Text"
                 {
                     ApplicationArea = All;
                     Caption = 'Language Code';
-                    ToolTip = 'Specifies the language code for the text communications.';
                 }
                 field(Subject; Rec.Subject)
                 {
                     ApplicationArea = All;
                     Caption = 'Subject';
-                    ToolTip = 'Specifies the subject of the generated email.';
                 }
                 field(Greeting; Rec.Greeting)
                 {
                     ApplicationArea = All;
                     Caption = 'Greeting';
-                    ToolTip = 'Specifies the first lines at the beginning of the email';
                 }
                 field("Body Text Editor"; Rec.GetBodyText())
                 {
@@ -49,7 +49,6 @@ page 843 "Reminder View Email Text"
                 {
                     ApplicationArea = All;
                     Caption = 'Closing';
-                    ToolTip = 'Specifies the last lines at the end of the email.';
                 }
             }
         }

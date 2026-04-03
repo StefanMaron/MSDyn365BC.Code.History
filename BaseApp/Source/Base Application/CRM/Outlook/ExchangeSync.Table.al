@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -19,6 +19,7 @@ table 6700 "Exchange Sync"
         field(1; "User ID"; Code[50])
         {
             Caption = 'User ID';
+            ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
             DataClassification = EndUserIdentifiableInformation;
             NotBlank = true;
             TableRelation = User."User Name";
@@ -27,6 +28,7 @@ table 6700 "Exchange Sync"
         field(2; Enabled; Boolean)
         {
             Caption = 'Enabled';
+            ToolTip = 'Specifies that data synchronization can occur while users perform related tasks.';
         }
         field(3; "Exchange Service URI"; Text[250])
         {
@@ -40,11 +42,13 @@ table 6700 "Exchange Sync"
         field(5; "Last Sync Date Time"; DateTime)
         {
             Caption = 'Last Sync Date Time';
+            ToolTip = 'Specifies the last date/time that the Exchange server was synchronized.';
             Editable = false;
         }
         field(7; "Folder ID"; Text[30])
         {
             Caption = 'Folder ID';
+            ToolTip = 'Specifies the public folder on the Exchange server that you want to use for your queue and storage folders.';
         }
         field(9; "Filter"; BLOB)
         {
@@ -73,8 +77,9 @@ table 6700 "Exchange Sync"
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
 
         EncryptionIsNotActivatedQst: Label 'Data encryption is not activated. It is recommended that you encrypt data. \Do you want to open the Data Encryption Management window?';
+#if not CLEAN28
         IsDefaultProdEndpointTxt: Label 'Configured Exchange endpoint is the BC default: %1', Locked = true;
-
+#endif
     [NonDebuggable]
     [Scope('OnPrem')]
     procedure SetExchangeAccountPassword(PasswordText: Text)
@@ -95,13 +100,17 @@ table 6700 "Exchange Sync"
     procedure GetExchangeEndpoint() Endpoint: Text[250]
     var
         ExchangeWebServicesServer: Codeunit "Exchange Web Services Server";
+#if not CLEAN28
         O365SyncManagement: Codeunit "O365 Sync. Management";
+#endif
     begin
         Endpoint := "Exchange Service URI";
         if Endpoint = '' then
             Endpoint := CopyStr(ExchangeWebServicesServer.GetEndpoint(), 1, 250);
+#if not CLEAN28
 
         Session.LogMessage('0000GP0', StrSubstNo(IsDefaultProdEndpointTxt, ExchangeWebServicesServer.IsDefaultProdEndpoint(Endpoint)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
+#endif
     end;
 
     local procedure CheckEncryption()
@@ -143,4 +152,3 @@ table 6700 "Exchange Sync"
         ActivityLog.DeleteAll();
     end;
 }
-

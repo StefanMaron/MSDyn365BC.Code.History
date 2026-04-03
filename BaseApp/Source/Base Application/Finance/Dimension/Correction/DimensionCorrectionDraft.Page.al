@@ -7,6 +7,9 @@ namespace Microsoft.Finance.Dimension.Correction;
 using System.Security.AccessControl;
 using System.Utilities;
 
+/// <summary>
+/// Draft mode interface for creating and configuring dimension corrections. Provides editing capabilities for dimension correction setup before execution.
+/// </summary>
 page 2591 "Dimension Correction Draft"
 {
     PageType = ListPlus;

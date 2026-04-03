@@ -13,6 +13,7 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.Foundation.Enums;
@@ -42,7 +43,6 @@ using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Setup;
 using System.IO;
 using System.Utilities;
-using Microsoft.Finance.SalesTax;
 
 codeunit 6620 "Copy Document Mgt."
 {
@@ -2183,9 +2183,6 @@ codeunit 6620 "Copy Document Mgt."
                 PurchaseHeader."Posting Date" := WorkDate()
             else
                 PurchaseHeader."Posting Date" := OriginalPurchaseHeader."Posting Date";
-#if not CLEAN25
-        PurchaseHeader.Validate("IRS 1099 Amount", 0);
-#endif
     end;
 
     local procedure UpdatePurchHeaderWhenCopyFromPurchHeaderArchive(var PurchaseHeader: Record "Purchase Header")
@@ -3003,7 +3000,6 @@ codeunit 6620 "Copy Document Mgt."
                 OnCopySalesShptLinesToDocOnBeforeTestPricesInclVAT(ToSalesHeader, IncludeHeader, RecalculateLines, IsHandled);
                 if not IsHandled then
                     FromSalesShptHeader.TestField("Prices Including VAT", ToSalesHeader."Prices Including VAT");
-                FromSalesShptHeader.TestField("Prices Including VAT", ToSalesHeader."Prices Including VAT");
 
                 OnCopySalesShptLinesToDocOnBeforeFromSalesHeaderTransferFields(FromSalesShptHeader, FromSalesHeader, ToSalesHeader, FromSalesShptLine);
                 FromSalesHeader.TransferFields(FromSalesShptHeader);

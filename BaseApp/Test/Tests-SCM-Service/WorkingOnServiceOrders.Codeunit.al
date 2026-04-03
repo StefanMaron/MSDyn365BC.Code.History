@@ -4,20 +4,21 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Test;
 
-using System.TestLibraries.Utilities;
-using Microsoft.Service.Setup;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
-using Microsoft.Service.Comment;
-using Microsoft.Service.Item;
 using Microsoft.Inventory.Item;
-using Microsoft.Service.Email;
-using Microsoft.Service.Maintenance;
-using Microsoft.Sales.Customer;
-using Microsoft.Service.Pricing;
-using Microsoft.Projects.Resources.Resource;
-using Microsoft.Sales.Setup;
 using Microsoft.Inventory.Location;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Setup;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Contract;
+using Microsoft.Service.Document;
+using Microsoft.Service.Email;
+using Microsoft.Service.History;
+using Microsoft.Service.Item;
+using Microsoft.Service.Maintenance;
+using Microsoft.Service.Pricing;
+using Microsoft.Service.Setup;
+using System.TestLibraries.Utilities;
 
 codeunit 136112 "Working On Service Orders"
 {
@@ -42,6 +43,7 @@ codeunit 136112 "Working On Service Orders"
         LibraryERM: Codeunit "Library - ERM";
         LibraryJobQueue: Codeunit "Library - Job Queue";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         ServiceItemNoForReplacement: Code[20];
         StandServiceItemGroupCode: Code[10];
         IsInitialized: Boolean;
@@ -198,20 +200,15 @@ codeunit 136112 "Working On Service Orders"
     [Scope('OnPrem')]
     procedure OneServiceItemLinePerOrder()
     var
-        ServiceMgtSetup: Record "Service Mgt. Setup";
         ServiceHeader: Record "Service Header";
         ServiceItemLine: Record "Service Item Line";
-        DefaultSetupValue: Boolean;
     begin
         // Covers document number TC0150 - refer to TFS ID 21731.
         // Test error occurs on entering second Service Item Line with "One Service Item Line/Order" field True on Service Management Setup.
 
         // 1. Setup: Set "One Service Item Line/Order" field True on Service Management Setup.
         Initialize();
-        ServiceMgtSetup.Get();
-        DefaultSetupValue := ServiceMgtSetup."One Service Item Line/Order";
-        ServiceMgtSetup.Validate("One Service Item Line/Order", true);
-        ServiceMgtSetup.Modify(true);
+        SetOneServiceItemLinePerOrder(true);
 
         // 2. Exercise: Create Service Order with One Service Item Line.
         CreateServiceOrderWithOneLine(ServiceHeader, ServiceItemLine);
@@ -219,30 +216,21 @@ codeunit 136112 "Working On Service Orders"
         // 3. Verify: Verify that Service Order Shows error "One Service Item Line per Order" on creation of second Service Item Line.
         asserterror LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
         Assert.AreEqual(StrSubstNo(ServiceItemError), GetLastErrorText, UnknownError);
-
-        // 4. Teardown: Rollback "One Service Item Line/Order" field to Default Value on Service Management Setup.
-        ServiceMgtSetup.Validate("One Service Item Line/Order", DefaultSetupValue);
-        ServiceMgtSetup.Modify(true);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TwoServiceItemLinePerOrder()
     var
-        ServiceMgtSetup: Record "Service Mgt. Setup";
         ServiceHeader: Record "Service Header";
         ServiceItemLine: Record "Service Item Line";
-        DefaultSetupValue: Boolean;
     begin
         // Covers document number TC0150 - refer to TFS ID 21731.
         // Test second Service Item Line Successfully Created with "One Service Item Line/Order" field False on Service Management Setup.
 
         // 1. Setup: Set "One Service Item Line/Order" field False on Service Management Setup.
         Initialize();
-        ServiceMgtSetup.Get();
-        DefaultSetupValue := ServiceMgtSetup."One Service Item Line/Order";
-        ServiceMgtSetup.Validate("One Service Item Line/Order", false);
-        ServiceMgtSetup.Modify(true);
+        SetOneServiceItemLinePerOrder(false);
 
         // 2. Exercise: Create Service Order with One Service Item Line.
         CreateServiceOrderWithOneLine(ServiceHeader, ServiceItemLine);
@@ -252,22 +240,16 @@ codeunit 136112 "Working On Service Orders"
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
         Assert.AreEqual(ServiceItemLine.Count, 2, StrSubstNo(NoOfLinesError, 2));
-
-        // 4. Teardown: Rollback "One Service Item Line/Order" field to Default Value on Service Management Setup.
-        ServiceMgtSetup.Validate("One Service Item Line/Order", DefaultSetupValue);
-        ServiceMgtSetup.Modify(true);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure OneServiceItemLineAfterShip()
     var
-        ServiceMgtSetup: Record "Service Mgt. Setup";
         ServiceHeader: Record "Service Header";
         ServiceItemLine: Record "Service Item Line";
         ServiceLine: Record "Service Line";
         Item: Record Item;
-        DefaultSetupValue: Boolean;
     begin
         // Covers document number TC0150 - refer to TFS ID 21731.
         // Test error occurs on entering second Service Item Line after Posting Service Order as Ship with "One Service Item Line/Order"
@@ -282,19 +264,69 @@ codeunit 136112 "Working On Service Orders"
         // 2. Exercise: Post Service Order with Ship Option, Set "One Service Item Line/Order" field True on Service Management Setup.
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
 
-        ServiceMgtSetup.Get();
-        DefaultSetupValue := ServiceMgtSetup."One Service Item Line/Order";
-        ServiceMgtSetup.Validate("One Service Item Line/Order", true);
-        ServiceMgtSetup.Modify(true);
+        SetOneServiceItemLinePerOrder(true);
 
         // 3. Verify: Verify that Service Order Shows error "One Service Item Line per Order" on creation of second Service Item Line.
         Clear(ServiceItemLine);
         asserterror LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
         Assert.AreEqual(StrSubstNo(ServiceItemError), GetLastErrorText, UnknownError);
+    end;
 
-        // 4. Teardown: Rollback "One Service Item Line/Order" field to Default Value on Service Management Setup.
-        ServiceMgtSetup.Validate("One Service Item Line/Order", DefaultSetupValue);
-        ServiceMgtSetup.Modify(true);
+    [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
+    procedure CreateServiceContractOrdersOneItemPerOrder()
+    var
+        Customer: Record Customer;
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        ServiceItem: Record "Service Item";
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServicePeriodFormula: DateFormula;
+        I: Integer;
+    begin
+        // [SCENARIO] "Create Contract Service Orders" creates separate order for each item if "One Service Item Line/Order" toggle in Service Mgt. Setup is on.
+
+        Initialize();
+
+        // [GIVEN] Enable the "One Service Item Line/Order" setting in Service Mgt. Setup
+        SetOneServiceItemLinePerOrder(true);
+
+        // [GIVEN] Create and sign a service contract with 3 service items
+        LibrarySales.CreateCustomer(Customer);
+        LibraryService.CreateServiceContractHeader(ServiceContractHeader, Enum::"Service Contract Type"::Contract, Customer."No.");
+
+        Evaluate(ServicePeriodFormula, '<1M>');
+        for I := 1 to 3 do begin
+            Clear(ServiceItem);
+            LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+            LibraryService.CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, ServiceItem."No.");
+
+            ServiceContractLine.Validate("Line Value", LibraryRandom.RandIntInRange(300, 500));
+            ServiceContractLine.Validate("Line Cost", LibraryRandom.RandIntInRange(100, 200));
+            ServiceContractLine.Validate("Next Planned Service Date", WorkDate());
+            ServiceContractLine.Validate("Service Period", ServicePeriodFormula);
+            ServiceContractLine.Modify(true);
+        end;
+
+        ServiceContractLine.UpdateContractAnnualAmount(false);
+        LibraryService.SignContract(ServiceContractHeader, true);
+
+        // [WHEN] Run the "Create Contract Service Orders" job
+        ServiceContractHeader.SetRecFilter();
+        CreateContractServiceOrders(ServiceContractHeader);
+
+        // [THEN] 3 service orders are created, each with one service item line.
+        ServiceHeader.SetRange("Document Type", Enum::"Service Document Type"::Order);
+        ServiceHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
+        Assert.RecordCount(ServiceHeader, 3);
+
+        ServiceHeader.FindSet();
+        repeat
+            ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
+            ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
+            Assert.RecordCount(ServiceItemLine, 1);
+        until ServiceHeader.Next() = 0;
     end;
 
     [Test]
@@ -1379,6 +1411,7 @@ codeunit 136112 "Working On Service Orders"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Working On Service Orders");
         Clear(LibraryService);
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -1392,6 +1425,7 @@ codeunit 136112 "Working On Service Orders"
         LibraryService.SetupServiceMgtNoSeries();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibrarySetupStorage.SaveServiceMgtSetup();
         IsInitialized := true;
         Commit();
         BindSubscription(LibraryJobQueue);
@@ -1574,6 +1608,18 @@ codeunit 136112 "Working On Service Orders"
               ServiceCommentLine, ServiceItemLine, ServiceCommentLine.Type::"Service Item Loaner");
             LibraryService.CreateCommentLineForServHeader(ServiceCommentLine, ServiceItemLine, ServiceCommentLine.Type::General);
         until ServiceItemLine.Next() = 0;
+    end;
+
+    local procedure CreateContractServiceOrders(var ServiceContractHeader: Record "Service Contract Header")
+    var
+        CreateContractServOrders: Report "Create Contract Service Orders";
+        CreateServOrders: Option "Create Service Order","Print Only";
+    begin
+        CreateContractServOrders.InitializeRequest(WorkDate(), WorkDate(), CreateServOrders::"Create Service Order");
+        CreateContractServOrders.SetTableView(ServiceContractHeader);
+        CreateContractServOrders.UseRequestPage(false);
+        CreateContractServOrders.SetHideDialog(true);
+        CreateContractServOrders.Run();
     end;
 
     local procedure CreateFaultCode(var FaultCode: Record "Fault Code")
@@ -1836,6 +1882,15 @@ codeunit 136112 "Working On Service Orders"
             TempServiceCommentLine := ServiceCommentLine;
             TempServiceCommentLine.Insert();
         until ServiceCommentLine.Next() = 0;
+    end;
+
+    local procedure SetOneServiceItemLinePerOrder(IsOneLinePerOrder: Boolean)
+    var
+        ServiceMgtSetup: Record "Service Mgt. Setup";
+    begin
+        ServiceMgtSetup.Get();
+        ServiceMgtSetup.Validate("One Service Item Line/Order", IsOneLinePerOrder);
+        ServiceMgtSetup.Modify(true);
     end;
 
     local procedure UpdateFaultResolution(var ServiceItemLine: Record "Service Item Line"; FaultCode: Record "Fault Code"; ResolutionCode: Code[10])
@@ -2115,7 +2170,6 @@ codeunit 136112 "Working On Service Orders"
     local procedure VerifyFaultResolutionRelation(var TempServiceItemLine: Record "Service Item Line" temporary)
     var
         FaultResolCodRelationship: Record "Fault/Resol. Cod. Relationship";
-        Assert: Codeunit Assert;
     begin
         FaultResolCodRelationship.SetRange("Fault Area Code", TempServiceItemLine."Fault Area Code");
         FaultResolCodRelationship.SetRange("Fault Code", TempServiceItemLine."Fault Code");
@@ -2255,6 +2309,13 @@ codeunit 136112 "Working On Service Orders"
     procedure ConfirmMessageHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerNo(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 
     [MessageHandler]

@@ -310,12 +310,12 @@ codeunit 142061 "ERM Misc. Report II"
     begin
         // Setup: Create and Post two Purchase Order.
         Initialize();
-        CreateAndPostPurchaseDocument(
-          LibraryInventory.CreateItem(Item), '', true, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
+        CreateAndPostPurchaseDocumentForInventoryValue(
+          LibraryInventory.CreateItem(Item), '', true, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDecInRange(0, 10, 2));  // Random value for Quantity.
         Item.CalcFields(Inventory);
-        CreateAndPostPurchaseDocument(
+        CreateAndPostPurchaseDocumentForInventoryValue(
           LibraryInventory.CreateItem(Item2),
-          '', true, PurchaseHeader."Document Type"::Order, Item.Inventory + LibraryRandom.RandDec(10, 2));  // Random value for greater Quantity.
+          '', true, PurchaseHeader."Document Type"::Order, Item.Inventory + LibraryRandom.RandDec(10, 2), LibraryRandom.RandDecInDecimalRange(10, 100, 2));  // Random value for greater Quantity.
         EnqueueValuesForTopInventoryItemsReport(Item."No.", Item2."No.", TopSorting, TopType::"Inventory Value");
 
         // Excercise.
@@ -1379,6 +1379,29 @@ codeunit 142061 "ERM Misc. Report II"
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));  // Taken random for Direct Unit Cost.
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreateAndPostPurchaseDocumentForInventoryValue(ItemNo: Code[20]; CurrencyCode: Code[10]; ToInvoice: Boolean; DocumentType: Enum "Purchase Document Type"; Quantity: Decimal; DirectUnitCost: Decimal): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        CreatePurchaseDocumentForInventoryValue(PurchaseHeader, ItemNo, CurrencyCode, DocumentType, Quantity, DirectUnitCost);
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, ToInvoice));
+    end;
+
+    local procedure CreatePurchaseDocumentForInventoryValue(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Enum "Purchase Document Type"; Quantity: Decimal; DirectUnitCost: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendorWithCurrency(CurrencyCode));
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
+        PurchaseHeader.Modify(true);
+        LibraryUtility.FillFieldMaxText(PurchaseHeader, PurchaseHeader.FieldNo("Vendor Invoice No."));
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
         PurchaseLine.Modify(true);
     end;
 

@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.RoleCenters;
 
-#if not CLEAN25
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.Reports;
 using Microsoft.Pricing.Worksheet;
@@ -12,7 +11,6 @@ using Microsoft.Projects.Resources.Pricing;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Pricing;
 using Microsoft.Sales.Pricing;
-#endif
 using System.Reflection;
 
 page 9079 "Role Center Page Dispatcher"
@@ -49,7 +47,6 @@ page 9079 "Role Center Page Dispatcher"
     local procedure GetPageReplacement(var AllObjWithCaption: Record AllObjWithCaption)
     begin
         case AllObjWithCaption."Object ID" of
-#if not CLEAN25
             Page::"Purchase Prices",
             Page::"Purchase Line Discounts":
                 if IsExtendedPriceCalculationEnabled() then
@@ -70,14 +67,12 @@ page 9079 "Role Center Page Dispatcher"
             Page::"Sales Price Worksheet":
                 if IsExtendedPriceCalculationEnabled() then
                     AllObjWithCaption."Object ID" := Page::"Price Worksheet";
-#endif
         end;
     end;
 
     local procedure GetReportReplacement(var AllObjWithCaption: Record AllObjWithCaption)
     begin
         case AllObjWithCaption."Object ID" of
-#if not CLEAN25
             Report::"Resource - Price List":
                 if IsExtendedPriceCalculationEnabled() then
                     AllObjWithCaption."Object ID" := Report::"Res. Price List";
@@ -94,16 +89,13 @@ page 9079 "Role Center Page Dispatcher"
             Report::"Sales Promotion":
                 if IsExtendedPriceCalculationEnabled() then
                     AllObjWithCaption."Object ID" := Report::"Sales Promotion V16";
-#endif
         end;
     end;
 
-#if not CLEAN25
     local procedure IsExtendedPriceCalculationEnabled(): Boolean;
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
         exit(PriceCalculationMgt.IsExtendedPriceCalculationEnabled());
     end;
-#endif
 }

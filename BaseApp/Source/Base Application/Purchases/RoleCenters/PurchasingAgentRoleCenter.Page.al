@@ -9,6 +9,7 @@ using Microsoft.Assembly.History;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Foundation.Navigate;
+using Microsoft.Foundation.Task;
 using Microsoft.Inventory.Analysis;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
@@ -18,16 +19,10 @@ using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Purchases.Analysis;
 using Microsoft.Purchases.Document;
-using Microsoft.Foundation.Task;
 using Microsoft.Purchases.History;
-#if CLEAN25
-using Microsoft.Purchases.Pricing;
-#endif
 using Microsoft.Purchases.Reports;
 using Microsoft.Purchases.Vendor;
-#if not CLEAN25
 using Microsoft.RoleCenters;
-#endif
 using Microsoft.Sales.Document;
 using System.Threading;
 
@@ -123,13 +118,18 @@ page 9007 "Purchasing Agent Role Center"
             separator(Action28)
             {
             }
+#if not CLEAN28
             action("Availability Projection")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Availability Projection';
                 RunObject = Report "Availability Projection";
                 ToolTip = 'View a list of the quantity of each item in customer, purchase, and transfer orders and the quantity available in inventory. The list is divided into columns that cover six periods with starting and ending dates as well as the periods before and after those periods. The list is useful when you are planning your inventory purchases.';
+                ObsoleteReason = 'Prepare for extraction of Manufacturing app';
+                ObsoleteState = Pending;
+                ObsoleteTag = '28.0';
             }
+#endif
             action("Purchase Order Status")
             {
                 ApplicationArea = Basic, Suite;
@@ -478,7 +478,6 @@ page 9007 "Purchasing Agent Role Center"
                                     Recurring = const(false));
                 ToolTip = 'Calculate a supply plan to fulfill item demand with purchases or transfers.';
             }
-#if not CLEAN25
             action("Pur&chase Prices")
             {
                 ApplicationArea = Basic, Suite;
@@ -487,9 +486,6 @@ page 9007 "Purchasing Agent Role Center"
                 RunPageView = where("Object Type" = const(Page), "Object ID" = const(7012)); // "Purchase Prices";
                 RunObject = Page "Role Center Page Dispatcher";
                 ToolTip = 'View or set up different prices for items that you buy from the vendor. An item price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                ObsoleteTag = '19.0';
             }
             action("Purchase &Line Discounts")
             {
@@ -499,20 +495,7 @@ page 9007 "Purchasing Agent Role Center"
                 RunPageView = where("Object Type" = const(Page), "Object ID" = const(7014)); // "Purchase Line Discounts";
                 RunObject = Page "Role Center Page Dispatcher";
                 ToolTip = 'View or set up different discounts for items that you buy from the vendor. An item discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                ObsoleteTag = '19.0';
             }
-#else
-            action("Purchase Price Lists")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = '&Prices';
-                Image = Price;
-                RunObject = Page "Purchase Price Lists";
-                ToolTip = 'View or set up price lists for products that you buy from the vendor. A product price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
-            }
-#endif
             separator(History)
             {
                 Caption = 'History';
@@ -530,4 +513,3 @@ page 9007 "Purchasing Agent Role Center"
         }
     }
 }
-

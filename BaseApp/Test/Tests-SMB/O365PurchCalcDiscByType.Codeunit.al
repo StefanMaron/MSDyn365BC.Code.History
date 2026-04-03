@@ -156,7 +156,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         CreateInvoiceWithLinesAndVendorDiscount(PurchaseHeader, NumberOfLines, DiscPct);
         PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, PurchaseHeader);
 
-        VerifyVendorDiscountPercentage(PurchaseHeader, 0);
+        VerifyVendorDiscountPercentageFromAmount(PurchaseHeader, InvoiceDiscountAmount / NumberOfLines);
     end;
 
     [Test]
@@ -482,6 +482,20 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.FindFirst();
+        Assert.AreEqual(
+          VendDiscPct, PurchCalcDiscByType.GetVendInvoiceDiscountPct(PurchaseLine),
+          'VendorDiscountPercentage was not set to expected value');
+    end;
+
+    local procedure VerifyVendorDiscountPercentageFromAmount(PurchaseHeader: Record "Purchase Header"; InvoiceDiscAmount: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+        VendDiscPct: Decimal;
+    begin
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.FindFirst();
+        VendDiscPct := Round((InvoiceDiscAmount / (PurchaseLine.Amount + InvoiceDiscAmount) * 100), 0.01);
         Assert.AreEqual(
           VendDiscPct, PurchCalcDiscByType.GetVendInvoiceDiscountPct(PurchaseLine),
           'VendorDiscountPercentage was not set to expected value');

@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Integration.Graph;
 
+using Microsoft.API.Upgrade;
 using Microsoft.Integration.Entity;
 using Microsoft.Inventory.Item;
 using Microsoft.Purchases.Document;
@@ -11,10 +12,11 @@ using Microsoft.Upgrade;
 using Microsoft.Utilities;
 using System.Reflection;
 using System.Upgrade;
-using Microsoft.API.Upgrade;
 
 codeunit 5497 "Graph Mgt - Purch Order Buffer"
 {
+    Permissions =
+        tabledata "Purchase Order Entity Buffer" = rimd;
     trigger OnRun()
     begin
     end;

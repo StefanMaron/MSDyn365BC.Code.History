@@ -15,7 +15,7 @@ codeunit 139125 ReportCatalogTests
     var
         SmallBusinessReportCatalogCU: Codeunit "Small Business Report Catalog";
         FileManagement: Codeunit "File Management";
-        LibraryUtility: Codeunit "Library - Utility";
+        LibraryUtilityOnPrem: Codeunit "Library - Utility OnPrem";
         SavedPDFFile: Text;
 
     [Test]
@@ -55,7 +55,7 @@ codeunit 139125 ReportCatalogTests
 
         SavedPDFFile := FileManagement.ServerTempFileName('.pdf');
         CustomerStatement.SaveAsPdf(SavedPDFFile);
-        LibraryUtility.CheckFileNotEmpty(SavedPDFFile);
+        LibraryUtilityOnPrem.CheckFileNotEmpty(SavedPDFFile);
     end;
 }
 #endif

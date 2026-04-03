@@ -2278,7 +2278,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         CreateAndRegisterInventoryMovement(Location.Code, Bin2, Bin3, CompItem."No.", Quantity / 2);
 
         // [WHEN] Create Warehouse Pick for one of the Production Order
-        CreateWhsePickFromProduction(ProductionOrder[2]);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder[2]);
 
         // [THEN] Verify Warehouse Pick Line
         VerifyWhseActivityLine(CompItem."No.", Location.Code, Quantity / 2);
@@ -4137,12 +4137,6 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         repeat
             Assert.IsTrue(ExpectedQtyToHandle = WhseActivityLine."Qty. to Handle", StrSubstNo(PickQtyToHandleErr, ExpectedQtyToHandle));
         until WhseActivityLine.Next() = 0;
-    end;
-
-    procedure CreateWhsePickFromProduction(ProductionOrder: Record "Production Order")
-    begin
-        ProductionOrder.SetHideValidationDialog(true);
-        ProductionOrder.CreatePick(CopyStr(UserId(), 1, 50), 0, false, false, false);
     end;
 
     local procedure CreateAndCertifyProductionBOMOfTwoComponents(

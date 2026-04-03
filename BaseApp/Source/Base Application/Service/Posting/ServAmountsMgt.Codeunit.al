@@ -28,8 +28,6 @@ codeunit 5986 "Serv-Amounts Mgt."
     var
         Currency: Record Currency;
         SalesSetup: Record "Sales & Receivables Setup";
-        TempServiceLineForSalesTax: Record "Service Line" temporary;
-        TempServiceLineForSpread: Record "Service Line" temporary;
         DimBufMgt: Codeunit "Dimension Buffer Management";
         UOMMgt: Codeunit "Unit of Measure Management";
         RoundingLineNo: Integer;
@@ -49,6 +47,7 @@ codeunit 5986 "Serv-Amounts Mgt."
         GetCurrency(CurrencyCode, Currency);
         SalesSetup.Get();
         IsInitialized := true;
+        OnAfterInitialize();
     end;
 
     procedure GetDimensions(DimensionEntryNo: Integer; var TempDimBuf: Record "Dimension Buffer")
@@ -61,7 +60,18 @@ codeunit 5986 "Serv-Amounts Mgt."
         IsInitialized := false;
     end;
 
-    procedure DivideAmount(QtyType: Option General,Invoicing,Shipping; ServLineQty: Decimal; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var TempVATAmountLine: Record "VAT Amount Line"; var TempVATAmountLineRemainder: Record "VAT Amount Line"; var TempServiceLineForSalesTax: Record "Service Line")
+#if not CLEAN28
+    [Obsolete('Replaced by W1 procedure DivideAmount', '28.0')]
+    procedure DivideAmount(QtyType: Option General,Invoicing,Shipping; ServLineQty: Decimal; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var TempVATAmountLine: Record "VAT Amount Line"; var TempVATAmountLineRemainder: Record "VAT Amount Line"; var TempServiceLineForSalesTax: Record "Service Line" temporary)
+    var
+        ServDocumentsMgtNA: Codeunit "Serv-Documents Mgt. NA";
+    begin
+        ServDocumentsMgtNA.SetTempServiceLineForSalesTax(TempServiceLineForSalesTax);
+        DivideAmount(QtyType, ServLineQty, ServiceHeader, ServiceLine, TempVATAmountLine, TempVATAmountLineRemainder);
+    end;
+#endif
+
+    procedure DivideAmount(QtyType: Option General,Invoicing,Shipping; ServLineQty: Decimal; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var TempVATAmountLine: Record "VAT Amount Line"; var TempVATAmountLineRemainder: Record "VAT Amount Line")
     var
         ChargeableQty: Decimal;
         LineAmountExpected: Decimal;
@@ -81,39 +91,11 @@ codeunit 5986 "Serv-Amounts Mgt."
             ServiceLine.Amount := 0;
             ServiceLine."Amount Including VAT" := 0;
         end else
-            if ServiceLine."VAT Calculation Type" = ServiceLine."VAT Calculation Type"::"Sales Tax" then begin
-                if (QtyType = QtyType::Invoicing) and
-                   TempServiceLineForSalesTax.Get(ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.")
-                then begin
-                    ServiceLine."Line Amount" := TempServiceLineForSalesTax."Line Amount";
-                    ServiceLine."Line Discount Amount" := TempServiceLineForSalesTax."Line Discount Amount";
-                    ServiceLine.Amount := TempServiceLineForSalesTax.Amount;
-                    ServiceLine."Amount Including VAT" := TempServiceLineForSalesTax."Amount Including VAT";
-                    ServiceLine."Inv. Discount Amount" := TempServiceLineForSalesTax."Inv. Discount Amount";
-                    ServiceLine."VAT Base Amount" := TempServiceLineForSalesTax."VAT Base Amount";
-                end else begin
-                    ServiceLine."Line Amount" := Round(ServLineQty * ServiceLine."Unit Price", Currency."Amount Rounding Precision");
-                    ServiceLine."Line Discount Amount" :=
-                      Round(ServiceLine."Line Amount" * ServiceLine."Line Discount %" / 100, Currency."Amount Rounding Precision");
-                    ServiceLine."Line Amount" := ServiceLine."Line Amount" - ServiceLine."Line Discount Amount";
-                    if ServiceLine."Allow Invoice Disc." then
-                        if QtyType = QtyType::Invoicing then
-                            ServiceLine."Inv. Discount Amount" := ServiceLine."Inv. Disc. Amount to Invoice"
-                        else begin
-                            TempServiceLineForSpread."Inv. Discount Amount" :=
-                              TempServiceLineForSpread."Inv. Discount Amount" +
-                              ServiceLine."Inv. Discount Amount" * Abs(ServLineQty / ServiceLine.Quantity);
-                            ServiceLine."Inv. Discount Amount" :=
-                              Round(TempServiceLineForSpread."Inv. Discount Amount", Currency."Amount Rounding Precision");
-                            TempServiceLineForSpread."Inv. Discount Amount" :=
-                              TempServiceLineForSpread."Inv. Discount Amount" - ServiceLine."Inv. Discount Amount";
-                        end;
-                    ServiceLine.Amount := ServiceLine."Line Amount" - ServiceLine."Inv. Discount Amount";
-                    ServiceLine."VAT Base Amount" := ServiceLine.Amount;
-                    ServiceLine."Amount Including VAT" := ServiceLine.Amount;
-                end;
-            end else begin
-                if TempVATAmountLine.Get(ServiceLine."VAT Identifier", ServiceLine."VAT Calculation Type", ServiceLine."Tax Group Code", '', false, ServiceLine."Line Amount" >= 0) then;
+            if ServiceLine."VAT Calculation Type" = ServiceLine."VAT Calculation Type"::"Sales Tax" then
+                OnDivideAmountOnSalesTaxCalculation(ServiceLine, ServLineQty, QtyType, Currency)
+            else begin
+                if TempVATAmountLine.Get(ServiceLine."VAT Identifier", ServiceLine."VAT Calculation Type", ServiceLine."Tax Group Code", false, ServiceLine."Line Amount" >= 0) then;
+                OnDivideAmountOnAfterGetTempVATAmountLine(ServiceLine, TempVATAmountLine);
                 if ServiceLine."VAT Calculation Type" = ServiceLine."VAT Calculation Type"::"Sales Tax" then
                     ServiceLine."VAT %" := TempVATAmountLine."VAT %";
                 TempVATAmountLineRemainder := TempVATAmountLine;
@@ -557,12 +539,7 @@ codeunit 5986 "Serv-Amounts Mgt."
                         ServLineQty := ServLine.Quantity;
                 end;
 
-                DivideAmount(QtyType,
-                  ServLineQty,
-                  ServHeader,
-                  ServLine,
-                  TempVATAmountLine,
-                  TempVATAmountLineRemainder, TempServiceLineForSalesTax);
+                DivideAmount(QtyType, ServLineQty, ServHeader, ServLine, TempVATAmountLine, TempVATAmountLineRemainder);
 
                 ServLine.Quantity := ServLineQty;
                 if ServLineQty <> 0 then begin
@@ -709,16 +686,23 @@ codeunit 5986 "Serv-Amounts Mgt."
     begin
     end;
 
-
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRoundAmount(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; ServLineQty: Decimal)
     begin
     end;
 
-
     [IntegrationEvent(false, false)]
     local procedure OnDivideAmountOnAfterCalcLineAmountExpected(var ServiceLine: Record "Service Line"; var ChargeableQty: Decimal; var LineAmountExpected: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDivideAmountOnSalesTaxCalculation(var ServiceLine: Record "Service Line"; ServLineQty: Decimal; QtyType: Option General,Invoicing,Shipping; Currency: Record Currency)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDivideAmountOnAfterGetTempVATAmountLine(var ServiceLine: Record "Service Line"; var TempVATAmountLine: Record "VAT Amount Line")
     begin
     end;
 
@@ -759,6 +743,11 @@ codeunit 5986 "Serv-Amounts Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInvoiceRounding(ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var TotalServiceLine: Record "Service Line"; UseTempData: Boolean; InvoiceRoundingAmount: Decimal; Currency: Record Currency; var BiggestLineNo: Integer; var LastLineRetrieved: Boolean; var RoundingLineIsInserted: Boolean; var RoundingLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitialize()
     begin
     end;
 

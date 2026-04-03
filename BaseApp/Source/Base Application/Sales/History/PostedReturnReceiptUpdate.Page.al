@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -6,6 +6,9 @@ namespace Microsoft.Sales.History;
 
 using Microsoft.Foundation.Address;
 
+/// <summary>
+/// Provides editing capabilities for specific fields on posted sales return receipts that can be modified after posting.
+/// </summary>
 page 1353 "Posted Return Receipt - Update"
 {
     Caption = 'Posted Return Receipt - Update';
@@ -29,20 +32,17 @@ page 1353 "Posted Return Receipt - Update"
                 {
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
-                    ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
                 field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Caption = 'Customer';
                     Editable = false;
-                    ToolTip = 'Specifies the name of the customer.';
                 }
                 field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
-                    ToolTip = 'Specifies the entry''s posting date.';
                 }
             }
             group(Invoicing)
@@ -72,13 +72,11 @@ page 1353 "Posted Return Receipt - Update"
                     ApplicationArea = SalesReturnOrder;
                     Caption = 'Agent';
                     Editable = true;
-                    ToolTip = 'Specifies which shipping agent is used to transport the items on the sales document to the customer.';
                 }
                 field("Package Tracking No."; Rec."Package Tracking No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Editable = true;
-                    ToolTip = 'Specifies the shipping agent''s package number.';
                 }
             }
         }
@@ -127,6 +125,10 @@ page 1353 "Posted Return Receipt - Update"
         IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
     end;
 
+    /// <summary>
+    /// Sets the record for this page to edit.
+    /// </summary>
+    /// <param name="ReturnReceiptHeader">The return receipt header to edit.</param>
     procedure SetRec(ReturnReceiptHeader: Record "Return Receipt Header")
     begin
         Rec := ReturnReceiptHeader;

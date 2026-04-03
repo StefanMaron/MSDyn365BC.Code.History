@@ -4,11 +4,11 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.UOM;
 
+using Microsoft.eServices.EDocument;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Inventory.Item;
 using System.DateTime;
 using System.Globalization;
-using Microsoft.eServices.EDocument;
 
 table 204 "Unit of Measure"
 {

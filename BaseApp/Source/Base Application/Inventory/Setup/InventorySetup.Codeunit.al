@@ -19,6 +19,7 @@ codeunit 24 "Inventory Setup"
             RecordWasReadTime := CurrentDateTime(); // because time calculations not allowed when 0DT
         if not RecordHasBeenRead or (CurrentDateTime() > RecordWasReadTime + 60000) then begin
             InventorySetup.Get();
+            RecordHasBeenRead := true;
             RecordWasReadTime := CurrentDateTime();
         end;
         NewInventorySetup := InventorySetup;

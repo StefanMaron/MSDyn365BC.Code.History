@@ -15,6 +15,7 @@ tableextension 60 ShowCurrencyGenLedgSetup extends "General Ledger Setup"
         /// Specifies when the currency symbol is shown in the UI.
         /// This field allows users to configure the visibility of currency symbols based on their preferences.
         /// The options include 'Never', 'Always', 'FCY Only', 'ACY Only', and 'FCY and ACY'.
+        /// This flexibility helps in adapting the display of currency symbols to
         /// </summary>
         field(165; "Show Currency"; Enum "Show Currency")
         {
@@ -24,14 +25,11 @@ tableextension 60 ShowCurrencyGenLedgSetup extends "General Ledger Setup"
 
             trigger OnValidate()
             var
+                Currency: Record Currency;
             begin
-                TestField(Rec."Show Currency", Rec."Show Currency"::Never);
+                Currency.CheckDuplicateCurrencySymbol(Rec."Local Currency Symbol");
             end;
         }
-        /// <summary>
-        /// Specifies the position of the currency symbol in relation to the amount.
-        /// This field allows users to configure whether the currency symbol appears before or after the amount.
-        /// </summary>
         field(166; "Currency Symbol Position"; Enum "Currency Symbol Position")
         {
             Caption = 'Currency Symbol Position';

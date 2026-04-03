@@ -6,6 +6,7 @@ namespace Microsoft.Manufacturing.RoleCenters;
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Foundation.Navigate;
+using Microsoft.Foundation.Task;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
@@ -25,7 +26,6 @@ using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 using Microsoft.Warehouse.Activity;
-using Microsoft.Foundation.Task;
 using System.Threading;
 
 page 9011 "Shop Supervisor Mfg Foundation"
@@ -121,6 +121,14 @@ page 9011 "Shop Supervisor Mfg Foundation"
                 Image = "Report";
                 RunObject = Report Status;
                 ToolTip = 'View production orders by status.';
+            }
+            action("&Item Registers - Quantity")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = '&Item Registers - Quantity';
+                Image = "Report";
+                RunObject = Report "Item Register - Quantity";
+                ToolTip = 'View all item ledger entries.';
             }
             action("Inventory Valuation &WIP")
             {

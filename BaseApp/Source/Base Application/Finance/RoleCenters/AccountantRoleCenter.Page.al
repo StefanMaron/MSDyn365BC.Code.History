@@ -34,6 +34,7 @@ using Microsoft.Finance.VAT.Setup;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.FixedAssets.Insurance;
 using Microsoft.FixedAssets.Journal;
+using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Foundation.Period;
@@ -57,7 +58,6 @@ using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Reminder;
 using Microsoft.Sales.Reports;
-using Microsoft.Foundation.Navigate;
 using System.Automation;
 using System.Email;
 using System.Environment;
@@ -1047,7 +1047,7 @@ page 9027 "Accountant Role Center"
 #if not CLEAN26
                     group(Legacy)
                     {
-                        Caption = 'Legacy';
+                        Caption = 'Legacy reports (will be removed)';
                         Image = Excel;
                         ObsoleteReason = 'These reports have been deprecated and will be removed in a future release.';
                         ObsoleteState = Pending;
@@ -1059,7 +1059,7 @@ page 9027 "Accountant Role Center"
                             Caption = 'Balance Sheet';
                             Image = "Report";
                             RunObject = Codeunit "Run Template Balance Sheet";
-                            ToolTip = 'Open a spreadsheet that shows your company''s assets, liabilities, and equity.';
+                            ToolTip = 'Open a spreadsheet that shows your company''s assets, liabilities, and equity. This report is deprecated and will be removed in a future release.';
                             ObsoleteReason = 'This report is deprecated and will be removed in a future release.';
                             ObsoleteState = Pending;
                             ObsoleteTag = '26.0';
@@ -1070,7 +1070,7 @@ page 9027 "Accountant Role Center"
                             Caption = 'Income Statement';
                             Image = "Report";
                             RunObject = Codeunit "Run Template Income Stmt.";
-                            ToolTip = 'Open a spreadsheet that shows your company''s income and expenses.';
+                            ToolTip = 'Open a spreadsheet that shows your company''s income and expenses. This report is deprecated and will be removed in a future release.';
                             ObsoleteReason = 'This report is deprecated and will be removed in a future release.';
                             ObsoleteState = Pending;
                             ObsoleteTag = '26.0';
@@ -1081,7 +1081,7 @@ page 9027 "Accountant Role Center"
                             Caption = 'Cash Flow Statement';
                             Image = "Report";
                             RunObject = Codeunit "Run Template CashFlow Stmt.";
-                            ToolTip = 'Open a spreadsheet that shows how changes in balance sheet accounts and income affect the company''s cash holdings.';
+                            ToolTip = 'Open a spreadsheet that shows how changes in balance sheet accounts and income affect the company''s cash holdings. This report is deprecated and will be removed in a future release.';
                             ObsoleteReason = 'This report is deprecated and will be removed in a future release.';
                             ObsoleteState = Pending;
                             ObsoleteTag = '26.0';
@@ -1092,52 +1092,11 @@ page 9027 "Accountant Role Center"
                             Caption = 'Retained Earnings Statement';
                             Image = "Report";
                             RunObject = Codeunit "Run Template Retained Earn.";
-                            ToolTip = 'Open a spreadsheet that shows your company''s changes in retained earnings based on net income from the other financial statements.';
+                            ToolTip = 'Open a spreadsheet that shows your company''s changes in retained earnings based on net income from the other financial statements. This report is deprecated and will be removed in a future release.';
                             ObsoleteReason = 'This report is deprecated and will be removed in a future release.';
                             ObsoleteState = Pending;
                             ObsoleteTag = '26.0';
                         }
-#if not CLEAN25
-                        action(ExcelTemplateTrialBalance)
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'Trial Balance';
-                            Image = "Report";
-                            RunObject = Codeunit "Run Template Trial Balance";
-                            ToolTip = 'Open a spreadsheet that shows a summary trial balance by account.';
-#pragma warning disable AS0072
-                            ObsoleteReason = 'Functionality replaced by "EXR Trial Balance Excel". Extend this report object with Excel layout instead.';
-                            ObsoleteState = Pending;
-                            ObsoleteTag = '25.0';
-#pragma warning restore AS0072
-                        }
-                        action(ExcelTemplateAgedAccPay)
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'Aged Accounts Payable';
-                            Image = "Report";
-                            RunObject = Codeunit "Run Template Aged Acc. Pay.";
-                            ToolTip = 'Open a spreadsheet that shows a list of aged remaining balances for each vendor by period.';
-#pragma warning disable AS0072
-                            ObsoleteReason = 'Functionality replaced by "EXR Aged Acc Payable Excel". Extend this report object with Excel layout instead.';
-                            ObsoleteState = Pending;
-                            ObsoleteTag = '25.0';
-#pragma warning restore AS0072
-                        }
-                        action(ExcelTemplateAgedAccRec)
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'Aged Accounts Receivable';
-                            Image = "Report";
-                            RunObject = Codeunit "Run Template Aged Acc. Rec.";
-                            ToolTip = 'Open a spreadsheet that shows when customer payments are due or overdue by period.';
-#pragma warning disable AS0072
-                            ObsoleteReason = 'Functionality replaced by "EXR Aged Accounts Rec Excel". Extend this report object with Excel layout instead.';
-                            ObsoleteState = Pending;
-                            ObsoleteTag = '25.0';
-#pragma warning restore AS0072
-                        }
-#endif
                     }
 #endif
                 }

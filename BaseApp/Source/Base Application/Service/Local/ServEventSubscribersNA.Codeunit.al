@@ -4,12 +4,12 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Document;
 
-using Microsoft.Service.History;
-using Microsoft.Sales.Customer;
 using Microsoft.EServices.EDocument;
-using Microsoft.Service.Contract;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.SalesTax;
+using Microsoft.Sales.Customer;
+using Microsoft.Service.Contract;
+using Microsoft.Service.History;
 
 codeunit 10059 "Serv. Event Subscribers NA"
 {

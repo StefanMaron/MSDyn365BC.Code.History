@@ -5,8 +5,8 @@
 namespace Microsoft.Service.Document;
 
 using Microsoft.EServices.EDocument;
-using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Setup;
 
 tableextension 10011 "Service Header NA" extends "Service Header"
 {
@@ -38,6 +38,7 @@ tableextension 10011 "Service Header NA" extends "Service Header"
         }
         field(10060; "Exchange Rate USD"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Exchange Rate USD';
             DataClassification = CustomerContent;
             DecimalPlaces = 0 : 6;

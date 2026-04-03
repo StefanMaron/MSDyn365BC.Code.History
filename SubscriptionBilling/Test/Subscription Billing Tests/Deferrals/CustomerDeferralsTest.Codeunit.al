@@ -1,14 +1,14 @@
 namespace Microsoft.SubscriptionBilling;
 
-using System.Security.User;
-using Microsoft.Utilities;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Inventory.Item;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
-using Microsoft.Finance.Currency;
-using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Utilities;
+using System.Security.User;
 
 #pragma warning disable AA0210
 codeunit 139912 "Customer Deferrals Test"
@@ -58,7 +58,7 @@ codeunit 139912 "Customer Deferrals Test"
         PrevGLEntry: Integer;
         TotalNumberOfMonths: Integer;
         IsInitialized: Boolean;
-        ConfirmQuestionLbl: Label 'If you change Quantity, only the Amount for existing service commitments will be recalculated.\\Do you want to continue?', Comment = '%1= Changed Field Name.';
+        ConfirmQuestionLbl: Label 'If you change the Quantity, the amount for open subscription lines will be recalculated.\\Do you want to continue?';
 
     #region Tests
 

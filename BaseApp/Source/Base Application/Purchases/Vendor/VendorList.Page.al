@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -9,11 +9,13 @@ using Microsoft.CRM.Contact;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.SalesTax;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Comment;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.SyncEngine;
 using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Pricing.Calculation;
@@ -30,11 +32,6 @@ using System.Email;
 using System.Integration.PowerBI;
 using System.Integration.Word;
 using System.Text;
-using Microsoft.Inventory.Location;
-#if not CLEAN25
-using Microsoft.Finance.VAT.Reporting;
-#endif
-using Microsoft.Finance.SalesTax;
 
 page 27 "Vendor List"
 {
@@ -71,146 +68,121 @@ page 27 "Vendor List"
                 field("Name 2"; Rec."Name 2")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies an additional part of the name.';
                     Visible = false;
                 }
                 field(Address; Rec.Address)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the vendor street address.';
                     Visible = false;
                 }
                 field(City; Rec.City)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the vendor''s city.';
                     Visible = false;
                 }
                 field("Responsibility Center"; Rec."Responsibility Center")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the code of the responsibility center, such as a distribution hub, that is associated with the involved user, company, customer, or vendor.';
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
-                    ToolTip = 'Specifies the warehouse location where items from the vendor must be received by default.';
                 }
                 field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the postal code.';
                     Visible = false;
                 }
                 field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the country/region of the address.';
                     Visible = false;
                 }
                 field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the vendor''s telephone number.';
                 }
                 field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the vendor''s fax number.';
                     Visible = false;
                 }
                 field("IC Partner Code"; Rec."IC Partner Code")
                 {
                     ApplicationArea = Intercompany;
-                    ToolTip = 'Specifies the vendor''s intercompany partner code.';
                     Visible = false;
                 }
                 field(Contact; Rec.Contact)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the person you regularly contact when you do business with this vendor.';
                 }
                 field("Purchaser Code"; Rec."Purchaser Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies which purchaser is assigned to the vendor.';
                     Visible = false;
                 }
                 field("Vendor Posting Group"; Rec."Vendor Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the vendor''s market type to link business transactions made for the vendor with the appropriate account in the general ledger.';
                     Visible = false;
                 }
                 field("Allow Multiple Posting Groups"; Rec."Allow Multiple Posting Groups")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if multiple posting groups can be used for posting business transactions for this vendor.';
                     Visible = IsAllowMultiplePostingGroupsVisible;
                 }
                 field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the vendor''s trade type to link transactions made for this vendor with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
                 }
                 field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
                 }
                 field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                     Visible = false;
                 }
                 field("Fin. Charge Terms Code"; Rec."Fin. Charge Terms Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the code for the involved finance charges in case of late payment.';
                     Visible = false;
                 }
                 field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the currency code that is inserted by default when you create purchase documents or journal lines for the vendor.';
                     Visible = false;
                 }
                 field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
                     Visible = false;
                 }
                 field("Search Name"; Rec."Search Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies an alternate name that you can use to search for the record in question when you cannot remember the value in the Name field.';
                 }
                 field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies which transactions with the vendor that cannot be processed, for example a vendor that is declared insolvent.';
                     Visible = false;
                 }
                 field("Privacy Blocked"; Rec."Privacy Blocked")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether to limit access to data for the data subject during daily operations. This is useful, for example, when protecting data from changes while it is under privacy review.';
                     Visible = false;
                 }
                 field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies when the vendor card was last modified.';
                     Visible = false;
                 }
                 field("Application Method"; Rec."Application Method")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies how to apply payments to entries for this vendor.';
                     Visible = false;
                 }
                 field("Location Code2"; Rec."Location Code")
@@ -222,19 +194,16 @@ page 27 "Vendor List"
                 field("Shipment Method Code"; Rec."Shipment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
                     Visible = false;
                 }
                 field("Lead Time Calculation"; Rec."Lead Time Calculation")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a date formula for the amount of time it takes to replenish the item.';
                     Visible = false;
                 }
                 field("Base Calendar Code"; Rec."Base Calendar Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a customizable calendar for delivery planning that holds the vendor''s working days and holidays.';
                     Visible = false;
                 }
                 field("Balance (LCY)"; Rec."Balance (LCY)")
@@ -265,7 +234,6 @@ page 27 "Vendor List"
                 field("Coupled to Dataverse"; Rec."Coupled to Dataverse")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies that the vendor is coupled to an account in Dataverse.';
                     Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
                 }
             }
@@ -277,18 +245,6 @@ page 27 "Vendor List"
                 ApplicationArea = Basic, Suite;
                 Visible = false;
             }
-#if not CLEAN25
-            part("Attached Documents"; "Document Attachment Factbox")
-            {
-                ObsoleteTag = '25.0';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
-                ApplicationArea = All;
-                Visible = false;
-                Caption = 'Attachments';
-                SubPageLink = "Table ID" = const(Database::Vendor), "No." = field("No.");
-            }
-#endif
             part("Attached Documents List"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = All;
@@ -550,7 +506,6 @@ page 27 "Vendor List"
                         PriceUXManagement.ShowPriceListLines(PriceSource, Enum::"Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN25
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -558,9 +513,6 @@ page 27 "Vendor List"
                     Image = LineDiscount;
                     Visible = false;
                     ToolTip = 'View or set up different discounts for products that you buy from the vendor. An product discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action PriceLists shows all purchase price lists with prices and discounts';
-                    ObsoleteTag = '18.0';
 
                     trigger OnAction()
                     var
@@ -570,8 +522,6 @@ page 27 "Vendor List"
                         PriceUXManagement.ShowPriceLists(Rec, AmountType::Discount);
                     end;
                 }
-#endif
-#if not CLEAN25
                 action(Prices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -582,9 +532,6 @@ page 27 "Vendor List"
                     RunPageLink = "Vendor No." = field("No.");
                     RunPageView = sorting("Vendor No.");
                     ToolTip = 'View or set up different prices for items that you buy from the vendor. An item price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
                 action("Line Discounts")
                 {
@@ -596,11 +543,7 @@ page 27 "Vendor List"
                     RunPageLink = "Vendor No." = field("No.");
                     RunPageView = sorting("Vendor No.");
                     ToolTip = 'View or set up different discounts for items that you buy from the vendor. An item discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
-#endif
                 action("Prepa&yment Percentages")
                 {
                     ApplicationArea = Prepayments;
@@ -727,22 +670,6 @@ page 27 "Vendor List"
                                   "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
                     ToolTip = 'View entry statistics for the record.';
                 }
-#if not CLEAN25
-                action("1099 Statistics")
-                {
-                    ApplicationArea = BasicUS;
-                    Caption = '1099 Statistics';
-                    Image = Statistics1099;
-                    RunObject = Page "Vendor 1099 Statistics";
-                    RunPageLink = "No." = field("No.");
-                    ShortCutKey = 'Shift+F11';
-                    ToolTip = 'View the vendor 1099 statistics that you can use to create 1099 reports and generate the files necessary to submit 1099 information to the Internal Revenue Service (IRS). This information is required to report paid vendor income.';
-                    ObsoleteReason = 'Moved to IRS Forms App.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-                    Visible = false;
-                }
-#endif
                 action("Statistics by C&urrencies")
                 {
                     ApplicationArea = Suite;
@@ -1230,110 +1157,6 @@ page 27 "Vendor List"
                     RunObject = Report "Item/Vendor Catalog";
                     ToolTip = 'View a list of the items that your vendors supply.';
                 }
-#if not CLEAN25
-                action("Vendor 1099 Div")
-                {
-                    ApplicationArea = BasicUS;
-                    Caption = 'Vendor 1099 Div';
-                    Image = "Report";
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = "Report";
-                    ToolTip = 'View the federal form 1099-DIV for dividends and distribution.';
-                    ObsoleteReason = 'Moved to IRS Forms App.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-
-                    trigger OnAction()
-                    var
-                        IRS1099Management: Codeunit "IRS 1099 Management";
-                    begin
-                        IRS1099Management.Run1099DivReport();
-                    end;
-                }
-                action("Vendor 1099 Information")
-                {
-                    ApplicationArea = BasicUS;
-                    Caption = 'Vendor 1099 Information';
-                    Image = "Report";
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = "Report";
-                    RunObject = Report "Vendor 1099 Information";
-                    ToolTip = 'View the vendors'' 1099 information. The report includes all 1099 information for the vendors that have been set up using the IRS 1099 Form-Box table. This includes only amounts that have been paid. It does not include amounts billed but not yet paid. You must enter a date filter before you can print this report.';
-                    ObsoleteReason = 'Moved to IRS Forms App.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-                }
-                action("Vendor 1099 Int")
-                {
-                    ApplicationArea = BasicUS;
-                    Caption = 'Vendor 1099 Int';
-                    Image = "Report";
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = "Report";
-                    ToolTip = 'View the federal form 1099-INT for interest income.';
-                    ObsoleteReason = 'Moved to IRS Forms App.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-
-                    trigger OnAction()
-                    var
-                        IRS1099Management: Codeunit "IRS 1099 Management";
-                    begin
-                        IRS1099Management.Run1099IntReport();
-                    end;
-                }
-                action("Vendor 1099 Misc")
-                {
-                    ApplicationArea = BasicUS;
-                    Caption = 'Vendor 1099 Misc';
-                    Image = "Report";
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = "Report";
-                    ToolTip = 'View the federal form 1099-MISC for miscellaneous income.';
-                    ObsoleteReason = 'Moved to IRS Forms App.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-
-                    trigger OnAction()
-                    var
-                        IRS1099Management: Codeunit "IRS 1099 Management";
-                    begin
-                        IRS1099Management.Run1099MiscReport();
-                    end;
-                }
-                action(RunVendor1099NecReport)
-                {
-                    ApplicationArea = BasicUS;
-                    Caption = 'Vendor 1099 Nec';
-                    Image = "Report";
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = "Report";
-                    ToolTip = 'View the federal form 1099-NEC for nonemployee compensation.';
-                    ObsoleteReason = 'Moved to IRS Forms App.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-
-                    trigger OnAction()
-                    var
-                        IRS1099Management: Codeunit "IRS 1099 Management";
-                    begin
-                        IRS1099Management.Run1099NecReport();
-                    end;
-                }
-#endif
-#if not CLEAN25
-                action("Vendor - Top 10 List")
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Vendor - Top 10 List';
-                    Image = "Report";
-                    RunObject = Report "Top __ Vendor List";
-                    ToolTip = 'View a list of the vendors from whom you purchase the most or to whom you owe the most.';
-                    ObsoleteReason = 'Moved to IRS Forms App.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-                }
-#endif
             }
             group(Action5)
             {
@@ -1463,14 +1286,6 @@ page 27 "Vendor List"
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
-#if not CLEAN25
-                actionref("1099 Statistics_Promoted"; "1099 Statistics")
-                {
-                    ObsoleteReason = 'Moved to IRS Forms App.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-                }
-#endif
                 separator(Navigate_Separator)
                 {
                 }
@@ -1510,22 +1325,12 @@ page 27 "Vendor List"
                 actionref(DiscountLines_Promoted; DiscountLines)
                 {
                 }
-#if not CLEAN25
                 actionref(Prices_Promoted; Prices)
                 {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
-#endif
-#if not CLEAN25
                 actionref("Line Discounts_Promoted"; "Line Discounts")
                 {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
-#endif
             }
             group(Category_Category6)
             {
@@ -1645,4 +1450,3 @@ page 27 "Vendor List"
         CurrPage.SetSelectionFilter(Vendor);
     end;
 }
-

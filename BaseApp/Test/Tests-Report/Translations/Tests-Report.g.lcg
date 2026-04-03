@@ -626,15 +626,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Custom Reports - NamedType DescriptionReportTotalsLineTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2882671476 - NamedType 1636488268" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Expected files as report output in temporary directory. None found. Expected file %1.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1, filename.]D;]A;(LookupHint=Codeunit Test Custom Reports - NamedType ExpectedFilePathErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2882671476 - NamedType 4091928762" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Expected files as report output in temporary directory. None found.]]></Val>
@@ -642,24 +633,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1, filename.]D;]A;(LookupHint=Codeunit Test Custom Reports - NamedType ExpectedFilesErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2882671476 - NamedType 2529727104" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Expected files to not be present in output directory. Found %1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - filename]D;]A;(LookupHint=Codeunit Test Custom Reports - NamedType ExpectedMissingFilePathErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2882671476 - NamedType 1411664433" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Expected a single output file, found .zip file.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Custom Reports - NamedType ExpectedSingleFileErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2882671476 - NamedType 1187575616" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

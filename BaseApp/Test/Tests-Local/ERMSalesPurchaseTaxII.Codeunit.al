@@ -2909,7 +2909,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
 
         // [WHEN] Open "Sales Order List" page with SkipShowingLinesWithoutVAT = TRUE
         LibraryVariableStorage.Enqueue(SalesHeader."No.");
-        OpenSalesOrderList(SalesHeader, true);
+        OpenSalesOrderList(SalesHeader, false);
 
         // [THEN] Sales Order "A" is on the order list
         // Verify sales order in SalesOrderListPageHandler
@@ -3517,7 +3517,6 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     procedure PrintOrderConfirmationW1Report()
     var
         SalesHeader: Record "Sales Header";
-        DummyReportLayoutSelection: Record "Report Layout Selection";
         TaxAreaCode: Code[20];
         TaxGroupCode: array[2] of Code[20];
     begin
@@ -3525,7 +3524,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [SCENARIO 228827] Print REP1305 "Standard Sales - Order Conf." in case of Tax Country = CA, Expense, several custom lines including negative and last nontaxable
         Initialize();
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        UpdateReportLayoutSelection(REPORT::"Standard Sales - Order Conf.", DummyReportLayoutSelection.Type::"RDLC (built-in)");
+        UpdateReportLayoutSelection(REPORT::"Standard Sales - Order Conf.", 'StandardSalesOrderConf.rdlc');
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -3539,14 +3538,14 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
 
         // [THEN] Report prints correct total amounts
         LibraryReportValidation.OpenFile();
-        LibraryReportValidation.VerifyCellValueByRef('T', 44, 1, LibraryReportValidation.FormatDecimalValue(5617.52)); // Amount
-        LibraryReportValidation.VerifyCellValueByRef('T', 47, 1, LibraryReportValidation.FormatDecimalValue(280.88)); // PST
-        LibraryReportValidation.VerifyCellValueByRef('T', 49, 1, LibraryReportValidation.FormatDecimalValue(393.23)); // GST
-        LibraryReportValidation.VerifyCellValueByRef('T', 50, 1, Format(6291.63)); // Total Including VAT
-        LibraryReportValidation.VerifyCellValueByRef('T', 52, 1, LibraryReportValidation.FormatDecimalValue(674.11)); // Total Tax
+        LibraryReportValidation.VerifyCellValueByRef('T', 45, 1, LibraryReportValidation.FormatDecimalValue(5617.52)); // Amount
+        LibraryReportValidation.VerifyCellValueByRef('T', 48, 1, LibraryReportValidation.FormatDecimalValue(280.88)); // PST
+        LibraryReportValidation.VerifyCellValueByRef('T', 50, 1, LibraryReportValidation.FormatDecimalValue(393.23)); // GST
+        LibraryReportValidation.VerifyCellValueByRef('T', 51, 1, Format(6291.63)); // Total Including VAT
+        LibraryReportValidation.VerifyCellValueByRef('T', 53, 1, LibraryReportValidation.FormatDecimalValue(674.11)); // Total Tax
 
         // Tear Down
-        UpdateReportLayoutSelection(REPORT::"Standard Sales - Order Conf.", DummyReportLayoutSelection.Type::"Word (built-in)");
+        UpdateReportLayoutSelection(REPORT::"Standard Sales - Order Conf.", 'StandardSalesOrderConf.docx');
     end;
 
     [Test]
@@ -5091,8 +5090,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         PurchaseTaxAccountNo := TaxJurisdiction."Tax Account (Purchases)";
 
         TaxAreaCode := LibraryERMTax.CreateTaxArea_CA();
-        CreateSimpleTaxAreaLine(TaxAreaCode, TaxDetail[1]."Tax Jurisdiction Code", 1);
-        CreateSimpleTaxAreaLine(TaxAreaCode, TaxDetail[2]."Tax Jurisdiction Code", 2);
+        CreateSimpleTaxAreaLine(TaxAreaCode, TaxDetail[2]."Tax Jurisdiction Code", 1);
+        CreateSimpleTaxAreaLine(TaxAreaCode, TaxDetail[1]."Tax Jurisdiction Code", 2);
     end;
 
     local procedure CreateTaxAreaSetupWithValues(var TaxDetail: Record "Tax Detail"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxBelowMax: Decimal; MaxAmt: Decimal; GLAccountNo: Code[20])
@@ -6138,14 +6137,15 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         TaxDetail.Modify(true);
     end;
 
-    local procedure UpdateReportLayoutSelection(ReportID: Integer; NewType: Option)
+    local procedure UpdateReportLayoutSelection(ReportID: Integer; ReportName: Text[250])
     var
-        ReportLayoutSelectionPage: TestPage "Report Layout Selection";
+        ReportLayouts: TestPage "Report Layouts";
     begin
-        ReportLayoutSelectionPage.OpenEdit();
-        ReportLayoutSelectionPage.FILTER.SetFilter("Report ID", Format(ReportID));
-        ReportLayoutSelectionPage.Type.SetValue(NewType);
-        ReportLayoutSelectionPage.Close();
+        ReportLayouts.OpenEdit();
+        ReportLayouts.Filter.SetFilter("Report ID", Format(ReportID));
+        ReportLayouts.Filter.SetFilter(Name, ReportName);
+        ReportLayouts.IsDefaultLayout.SetValue(true);
+        ReportLayouts.Close();
     end;
 
     local procedure ValidatePurchaseInvoiceTaxAreaThroughPage(var PurchaseHeader: Record "Purchase Header"; TaxAreaCode: Code[20])

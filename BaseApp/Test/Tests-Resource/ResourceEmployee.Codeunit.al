@@ -726,6 +726,8 @@ codeunit 136400 "Resource Employee"
         Resource: Record Resource;
         PostCode: Record "Post Code";
         ResourceNo: Code[20];
+        CountryCode: Code[10];
+        City, County : Text[30];
     begin
         // [SCENARIO 460016] In the Resource page, fields are not populated correctly, when the Post Code is inserted manually
         Initialize();
@@ -736,7 +738,8 @@ codeunit 136400 "Resource Employee"
 
         // [WHEN] Update Post Code on Resource
         Resource.Get(ResourceNo);
-        Resource.Validate("Post Code", PostCode.Code);
+        PostCode.ValidatePostCode(City, PostCode.Code, County, CountryCode, false);
+        UpdateResourcePostCodeValidation(Resource, City, PostCode.Code, County, CountryCode);
         Resource.Modify(true);
 
         // [VERIFY] Verify City for Resource
@@ -769,6 +772,14 @@ codeunit 136400 "Resource Employee"
         Commit();
         Clear(EmployeeNoSeriesCode);  // Clear global variable.
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Resource Employee");
+    end;
+
+    local procedure UpdateResourcePostCodeValidation(var Resource: Record Resource; CityTxt: Text[30]; PostCode: Code[20]; CountyTxt: Text[30]; CountryCode: Code[10])
+    begin
+        Resource."Post Code" := PostCode;
+        Resource.City := CityTxt;
+        Resource.County := CountyTxt;
+        Resource."Country/Region Code" := CountryCode;
     end;
 
     local procedure CreateEmployee(var Employee: Record Employee)

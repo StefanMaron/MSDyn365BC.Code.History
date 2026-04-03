@@ -164,16 +164,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=FieldCaption, %2=FieldValue, %3=TableCaption]D;]A;(LookupHint=Codeunit ERM Inv Disc VAT Sale/Purchase - NamedType AmountErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 936479918 - NamedType 3636898339" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Amount must be %1 in %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=FieldValue, %2=TableCaption]D;]A;(LookupHint=Codeunit ERM Inv Disc VAT Sale/Purchase - NamedType ErrorAmountErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = FieldCaption, %2 = amount, %3 = tablecaption]D;]A;(LookupHint=Codeunit ERM Inv Disc VAT Sale/Purchase - NamedType AmountErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 936479918 - NamedType 1608165387" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -182,7 +173,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=FieldCaption, %2=FieldValue]D;]A;(LookupHint=Codeunit ERM Inv Disc VAT Sale/Purchase - NamedType InvDiscErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = FieldCaption, %2 = amount]D;]A;(LookupHint=Codeunit ERM Inv Disc VAT Sale/Purchase - NamedType InvDiscErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 936479918 - NamedType 3201150890" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -219,6 +210,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Inv Disc VAT Sale/Purchase - NamedType ValidationErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 936479918 - NamedType 1074613222" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Amount must be %1 in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = amount, %2 = tablecaption]D;]A;(LookupHint=Codeunit ERM Inv Disc VAT Sale/Purchase - NamedType WrongAmountErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1373116803 - NamedType 3420941840" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

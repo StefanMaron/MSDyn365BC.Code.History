@@ -2601,6 +2601,8 @@
             </Border>
           </Style>
         </PageHeader>
+        <PageHeight>29.7cm</PageHeight>
+        <PageWidth>21cm</PageWidth>
         <InteractiveHeight>11in</InteractiveHeight>
         <InteractiveWidth>8.5in</InteractiveWidth>
         <LeftMargin>50pt</LeftMargin>

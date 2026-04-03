@@ -14,13 +14,8 @@ table 6410 "FS Bookable Resource"
     Description = 'Resource that has capacity which can be allocated to work.';
     DataClassification = SystemMetadata;
     ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-#if not CLEAN25
-    ObsoleteState = Pending;
-    ObsoleteTag = '25.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '28.0';
-#endif
 
     fields
     {
@@ -277,6 +272,7 @@ table 6410 "FS Bookable Resource"
         }
         field(44; ExchangeRate; Decimal)
         {
+            AutoFormatType = 0;
             ExternalName = 'exchangerate';
             ExternalType = 'Decimal';
             ExternalAccess = Read;
@@ -414,6 +410,7 @@ table 6410 "FS Bookable Resource"
         }
         field(81; HourlyRate; Decimal)
         {
+            AutoFormatType = 0;
             ExternalName = 'msdyn_hourlyrate';
             ExternalType = 'Money';
             Description = '';
@@ -422,6 +419,7 @@ table 6410 "FS Bookable Resource"
         }
         field(82; HourlyRate_Base; Decimal)
         {
+            AutoFormatType = 0;
             ExternalName = 'msdyn_hourlyrate_base';
             ExternalType = 'Money';
             ExternalAccess = Read;
@@ -459,6 +457,7 @@ table 6410 "FS Bookable Resource"
         }
         field(90; Latitude; Decimal)
         {
+            AutoFormatType = 0;
             ExternalName = 'msdyn_latitude';
             ExternalType = 'Double';
             Description = 'The location latitude.';
@@ -467,6 +466,7 @@ table 6410 "FS Bookable Resource"
         }
         field(91; Longitude; Decimal)
         {
+            AutoFormatType = 0;
             ExternalName = 'msdyn_longitude';
             ExternalType = 'Double';
             Description = 'The location longitude.';
@@ -507,5 +507,5 @@ table 6410 "FS Bookable Resource"
         {
         }
     }
-} 
+}
 #endif

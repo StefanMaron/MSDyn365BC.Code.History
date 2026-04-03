@@ -1,8 +1,8 @@
 namespace System.IO;
 
+using Microsoft.Bank.ElectronicFundsTransfer;
 using Microsoft.Bank.PositivePay;
 using System.Reflection;
-using Microsoft.Bank.ElectronicFundsTransfer;
 
 table 1224 "Data Exch. Mapping"
 {
@@ -135,7 +135,6 @@ table 1224 "Data Exch. Mapping"
         Insert();
     end;
 
-    [Scope('OnPrem')]
     procedure InsertRecForExport(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; TableId: Integer; NewName: Text[250]; ProcessingCodeunit: Integer)
     begin
         Init();

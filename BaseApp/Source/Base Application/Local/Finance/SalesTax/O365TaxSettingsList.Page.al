@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -22,7 +22,7 @@ page 10151 "O365 Tax Settings List"
                 ShowCaption = false;
                 field(GetDescriptionInCurrentLanguage; Rec.GetDescriptionInCurrentLanguageFullLength())
                 {
-                    ApplicationArea = Invoicing, Basic, Suite;
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     StyleExpr = StyleExpr;
                     ToolTip = 'Specifies the tax rate used to calculate tax on what you buy or sell.';
@@ -37,7 +37,7 @@ page 10151 "O365 Tax Settings List"
         {
             action(Open)
             {
-                ApplicationArea = Invoicing, Basic, Suite;
+                ApplicationArea = Basic, Suite;
                 Caption = 'Open';
                 Image = ViewDetails;
                 ShortCutKey = 'Return';
