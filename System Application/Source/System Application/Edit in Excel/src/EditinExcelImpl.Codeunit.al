@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Integration.Excel;
+
 using System;
 using System.Environment;
 using System.Integration;

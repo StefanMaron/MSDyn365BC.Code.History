@@ -4,25 +4,25 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Integration.DynamicsFieldService;
 
-using Microsoft.Integration.Dataverse;
-using Microsoft.Projects.Project.Job;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.UOM;
-using Microsoft.Projects.Project.Setup;
-using Microsoft.Service.Item;
-using Microsoft.Integration.SyncEngine;
-using Microsoft.Inventory.Setup;
-using Microsoft.Sales.Customer;
-using Microsoft.Projects.Project.Posting;
-using Microsoft.Projects.Project.Journal;
-using Microsoft.Projects.Resources.Resource;
 using Microsoft.Integration.D365Sales;
+using Microsoft.Integration.Dataverse;
+using Microsoft.Integration.SyncEngine;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Setup;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Projects.Project.Journal;
+using Microsoft.Projects.Project.Ledger;
+using Microsoft.Projects.Project.Planning;
+using Microsoft.Projects.Project.Posting;
+using Microsoft.Projects.Project.Setup;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.History;
 using Microsoft.Service.Archive;
 using Microsoft.Service.Document;
-using Microsoft.Projects.Project.Planning;
-using Microsoft.Projects.Project.Ledger;
-using Microsoft.Sales.History;
+using Microsoft.Service.Item;
 using Microsoft.Service.Setup;
 using System.Security.User;
 using System.Telemetry;
@@ -37,6 +37,7 @@ codeunit 6610 "FS Int. Table Subscriber"
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         CRMSynchHelper: Codeunit "CRM Synch. Helper";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         RecordMustBeCoupledErr: Label '%1 %2 must be coupled to %3.', Comment = '%1 = table caption, %2 = primary key value, %3 - service name';
         RecordCoupledToDeletedErr: Label '%1 %2 is coupled to a deleted record.', Comment = '%1 = table caption, %2 = primary key value';
         JobJournalIncorrectSetupErr: Label 'You must set up %1 correctly on %2.', Comment = '%1 = a table name, %2 = a table name';
@@ -69,7 +70,8 @@ codeunit 6610 "FS Int. Table Subscriber"
         ErrorInfo: ErrorInfo;
     begin
         if FSConnectionSetup.Get() then
-            if FSConnectionSetup.IsEnabled() then
+            if FSConnectionSetup.IsEnabled() then begin
+                CRMIntegrationManagement.CheckCRMConnectionURL(FSConnectionSetup."Server Address");
                 if FSConnectionSetup."Server Address" <> TestServerAddressTok then begin
                     Session.LogMessage('0000MQW', FSConnEnabledTelemetryErr, Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                     ErrorInfo.Message := FSConnEnabledErr;
@@ -77,6 +79,7 @@ codeunit 6610 "FS Int. Table Subscriber"
                     ErrorInfo.PageNo(Page::"FS Connection Setup");
                     Error(ErrorInfo);
                 end;
+            end;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Integration Table Mapping", 'OnEnableMultiCompanySynchronization', '', false, false)]

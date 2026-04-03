@@ -194,6 +194,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets - NamedType DepreciationBookCodeMustMatchErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 893927009 - NamedType 1401417133" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Dimension values are not equal on the copied Fixed Asset.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets - NamedType DimValueError)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 893927009 - NamedType 2810311271" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Error Message Must be same.]]></Val>
@@ -653,51 +662,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Journal - NamedType UnknownError)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 685873446 - NamedType 805273717" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Acquisition Cost Amount must be same.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType AcquisitionCostAmountErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 685873446 - NamedType 1859939264" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Acquisition Cost at Ending Date]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType AcquisitionCostatEndingDateTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 685873446 - NamedType 30612225" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Acquisition Cost before Starting Date]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType AcquisitionCostBeforeDateTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 685873446 - NamedType 3805625961" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Acquisition Cost Error.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType AcquisitionCostErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 685873446 - NamedType 2176000253" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Acquisition Cost Net Change]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType AcquisitionCostNetChangeTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 685873446 - NamedType 286059758" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Acquisition Cost]]></Val>
@@ -707,15 +671,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType AcquisitionCostTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 685873446 - NamedType 3785111295" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Acquisition Date]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType AcquisitionDateTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 685873446 - NamedType 1410263026" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Addition in Period]]></Val>
@@ -723,60 +678,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType AdditionInPeriodTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 685873446 - NamedType 2693864780" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Appreciation Amount must be same.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType AppreciationAmountErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 685873446 - NamedType 787931161" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Appreciation at Ending Date]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType AppreciationatEndingDateTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 685873446 - NamedType 1635523544" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Appreciation before Starting Date]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType AppreciationBeforeDateTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 685873446 - NamedType 3044006400" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Appreciation Error.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType AppreciationErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 685873446 - NamedType 1972062924" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Appreciation Net Change]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType AppreciationNetChangeTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 685873446 - NamedType 4102178979" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Appreciation]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType AppreciationTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 685873446 - NamedType 1066335323" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -795,15 +696,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType BookValueTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 685873446 - NamedType 535299383" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Fixed Asset - Analysis (Budget Report)]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType BudgetTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 685873446 - NamedType 883743138" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -860,42 +752,6 @@
       <Cmt Name="Dev"><![CDATA[%1 = Column or field value]D;]A;(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType ExistErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 685873446 - NamedType 211171855" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Column value does not exist.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType FixedAssetsColumnvalueErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 685873446 - NamedType 450924412" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Fixed Assets does not exist.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType FixedAssetsErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 685873446 - NamedType 1078595758" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Gain/Loss]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType GainLossTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 685873446 - NamedType 4137197280" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Group Total Amount must be same.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType GroupTotalAmountErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 685873446 - NamedType 1665040906" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Group Totals: %1]]></Val>
@@ -923,15 +779,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType LaterEndingDateErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 685873446 - NamedType 2722655201" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Proceeds on Disposal]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType ProceedsonDisposalTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 685873446 - NamedType 3718121153" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Reclassification]]></Val>
@@ -941,24 +788,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType ReclassifyTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 685873446 - NamedType 3711766328" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Fixed Asset - Analysis (Only Sold Assets)]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType SoldTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 685873446 - NamedType 2972574163" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 or %2 must be specified only together with the option at Ending Date.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 and %2 = Field Names]D;]A;(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType SpecifiedOnlyTogetherErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 685873446 - NamedType 471491446" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You must specify the Starting Date and the Ending Date.]]></Val>
@@ -966,15 +795,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType SpecifyDateErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 685873446 - NamedType 2146008245" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Total Amount must be same.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - NamedType TotalAmountErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 685873446 - NamedType 309314094" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

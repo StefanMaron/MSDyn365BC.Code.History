@@ -100,6 +100,8 @@ table 18203 "GST Distribution Header"
         }
         field(18; "Total Amout Applied for Dist."; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Total Amout Applied for Dist.';
             DataClassification = CustomerContent;
         }
@@ -164,6 +166,20 @@ table 18203 "GST Distribution Header"
         if NoSeries.LookupRelatedNoSeries(GLSetup."GST Distribution Nos.", "No. Series", "No. Series") then begin
             "No." := NoSeries.GetNextNo("No. Series");
             Rec := GSTDistributionHeader;
+            exit(true);
+        end;
+    end;
+
+    procedure ReversalAssistEdit(GSTDistributionHeader: Record "GST Distribution Header"): Boolean
+    var
+        GLedgerSetup: Record "General Ledger Setup";
+        NoSeries: Codeunit "No. Series";
+    begin
+        Copy(Rec);
+        GLedgerSetup.Get();
+        GLedgerSetup.TestField("GST Reversal Distribution Nos.");
+        if NoSeries.LookupRelatedNoSeries(GLedgerSetup."GST Reversal Distribution Nos.", "No. Series", "No. Series") then begin
+            "No." := NoSeries.GetNextNo("No. Series");
             exit(true);
         end;
     end;

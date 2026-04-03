@@ -959,6 +959,24 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Manufacturing Reports -II - NamedType NoOfLinesError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4114220431 - Method 1038186742 - NamedType 2915252239" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[CategoryName]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Manufacturing Reports -II - Method VerifyInvAvailabilityPlanReportInventoryRow - NamedType CategoryNameLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4114220431 - Method 1038186742 - NamedType 3691251604" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Inventory]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Manufacturing Reports -II - Method VerifyInvAvailabilityPlanReportInventoryRow - NamedType InventoryLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1981732821 - NamedType 2632635105" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Bin Codes are not equal.]]></Val>
@@ -1236,6 +1254,33 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 - Field Caption, %2 - Table Caption, %3 - Value, %4 - Related Table Caption]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Journal - NamedType ProductionItemNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 571731545 - NamedType 961260727" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Reservation entry should not be created when due date is missing]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Journal - NamedType ReservationEntryDueDateMissingErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 571731545 - NamedType 2807237328" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Reservation entry should not be created when stock is insufficient]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Journal - NamedType ReservationEntryInsufficientStockErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 571731545 - NamedType 2742292927" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Reserved quantity should match production order component expected quantity]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Journal - NamedType ReservedQtyProdCompErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 571731545 - NamedType 3098962420" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2496,6 +2541,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders II - NamedType TimeShiftedOnParentLineMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3590079757 - NamedType 1553598376" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be correct in %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 =Field Name %2 = Table Name]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders II - NamedType UnitCostMustBeEqualErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3590079757 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

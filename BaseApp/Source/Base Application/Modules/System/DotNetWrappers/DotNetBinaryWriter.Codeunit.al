@@ -5,6 +5,8 @@ using System.Text;
 
 codeunit 3033 DotNet_BinaryWriter
 {
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     trigger OnRun()
     begin

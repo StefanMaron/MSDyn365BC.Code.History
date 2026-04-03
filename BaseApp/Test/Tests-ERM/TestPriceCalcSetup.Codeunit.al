@@ -114,11 +114,7 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationMgt.Run();
 
         PriceCalculationSetup.SetRange(Method, PriceCalculationSetup.Method::"Lowest Price");
-#if not CLEAN25
         Assert.RecordCount(PriceCalculationSetup, 6);
-#else
-        Assert.RecordCount(PriceCalculationSetup, 4);
-#endif
         PriceCalculationSetup.SetRange(
             Implementation, PriceCalculationSetup.Implementation::"Business Central (Version 16.0)");
         PriceCalculationSetup.SetRange(Default, true);

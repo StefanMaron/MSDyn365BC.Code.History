@@ -194,6 +194,321 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Invoices Test - Method UnitTestExportWithoutSettingEnabled - NamedType PostedInvoiceSyncNotSetErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 127707647 - NamedType 562056659" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[More than expected API calls to Shopify detected.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - NamedType UnexpectedAPICallsErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 1973092297 - NamedType 4278623333" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[GQL Product Options]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method RegisterOutboundHttpRequests - NamedType GqlProductOptionsLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 1973092297 - NamedType 976441263" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[GQL Prod. Variant Creation Response]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method RegisterOutboundHttpRequests - NamedType VariantCreatedFromItemResponseLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 3498452898 - NamedType 2270793037" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[duplicate item variant attribute value combinations]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method UnitTestExportItemWith2VariantsAnd3AsOptionAttributesDuplicateCombinations - NamedType ExpFailureMessageErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 3318330284 - NamedType 2270793037" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[maximum of 3 product options]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method UnitTestExportItemWithMoreThan3AsOptionAttributes - NamedType ExpFailureMessageErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 3189489374 - NamedType 2270793037" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[cannot be added as a product variant because another variant already has the same option values.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method UnitTestValidateItemAttributesForNewVariantDuplicateCombination - NamedType ExpFailureMessageErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 2162529377 - NamedType 2270793037" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[cannot be added as a product variant because it does not have required attributes.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method UnitTestValidateItemAttributesForNewVariantMissingAttributes - NamedType ExpFailureMessageErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 2725716791 - NamedType 1890856938" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot enable this setting because one or more Item Attributes are configured with "Incl. in Product Sync" set to "As Option".]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method UnitTestValidateUoMAsVariantWhenAsOptionAttributesExist - NamedType FailureMessageErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 2725716791 - NamedType 527934274" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected error was not raised.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method UnitTestValidateUoMAsVariantWhenAsOptionAttributesExist - NamedType ExpectedErrorNotRaisedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 996291383 - NamedType 3670203974" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Validation result was incorrect.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyItemAttributesValidationForNewVariantFailed - NamedType IncorrectValidationResultMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 2045775238 - NamedType 2181971024" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Product should be marked as having variants]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyProductHasVariants - NamedType ProductHasVariantsMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 4151848177 - NamedType 3896455139" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Incorrect result of compatibility check.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyResultOfCompatibilityCheck - NamedType IncorrectResultMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 2358825161 - NamedType 1849613356" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Incorrect Option 1 Name]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyVariantCreatedWithCorrectOptionValues - NamedType Option1NameMismatchMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 2358825161 - NamedType 57824928" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Incorrect Option 1 Value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyVariantCreatedWithCorrectOptionValues - NamedType Option1ValueMismatchMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 2358825161 - NamedType 949029053" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Incorrect Option 2 Name]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyVariantCreatedWithCorrectOptionValues - NamedType Option2NameMismatchMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 2358825161 - NamedType 2453708585" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Incorrect Option 2 Value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyVariantCreatedWithCorrectOptionValues - NamedType Option2ValueMismatchMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 2584207298 - NamedType 1849613356" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Option 1 Name should be 'Variant']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyVariantCreatedWithItemNo - NamedType Option1NameMismatchMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 2584207298 - NamedType 3365046990" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Option 1 Value should be Item No.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyVariantCreatedWithItemNo - NamedType Option1ValueShouldBeItemNoMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 159677188 - NamedType 1849613356" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Incorrect Option 1 Name]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyVariantHas2Options - NamedType Option1NameMismatchMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 159677188 - NamedType 57824928" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Incorrect Option 1 Value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyVariantHas2Options - NamedType Option1ValueMismatchMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 159677188 - NamedType 949029053" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Incorrect Option 2 Name]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyVariantHas2Options - NamedType Option2NameMismatchMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 159677188 - NamedType 2453708585" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Incorrect Option 2 Value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyVariantHas2Options - NamedType Option2ValueMismatchMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 3272638685 - NamedType 820621862" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Option 1 Name should be empty]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyVariantHasNoOptions - NamedType EmptyOptionName1Lbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 3272638685 - NamedType 698218627" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Option 2 Name should be empty]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyVariantHasNoOptions - NamedType EmptyOptionName2Lbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 3272638685 - NamedType 2292405930" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Option 1 Value should be empty]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyVariantHasNoOptions - NamedType EmptyOptionValue1Lbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 3272638685 - NamedType 2470712647" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Option 2 Value should be empty]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyVariantHasNoOptions - NamedType EmptyOptionValue2Lbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 867137686 - NamedType 1849613356" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Option 1 Name has incorrect value.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyVariantsCreatedWith3Options - NamedType Option1NameMismatchMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 867137686 - NamedType 57824928" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Option 1 Value has incorrect value.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyVariantsCreatedWith3Options - NamedType Option1ValueMismatchMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 867137686 - NamedType 949029053" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Option 2 Name has incorrect value.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyVariantsCreatedWith3Options - NamedType Option2NameMismatchMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 867137686 - NamedType 2453708585" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Option 2 Value has incorrect value.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyVariantsCreatedWith3Options - NamedType Option2ValueMismatchMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 867137686 - NamedType 822463374" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Option 3 Name has incorrect value.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyVariantsCreatedWith3Options - NamedType Option3NameMismatchMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 867137686 - NamedType 1479898962" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Option 3 Value has incorrect value.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyVariantsCreatedWith3Options - NamedType Option3ValueMismatchMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 3196432063 - NamedType 900578604" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Option 1 Value should not be empty]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyVariantsCreatedWithOptionName - NamedType Option1ValueNotEmptyMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 3196432063 - NamedType 1364603450" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Incorrect Option 1 Name]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyVariantsCreatedWithOptionName - NamedType Option1NameAssertionMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 127707647 - Method 3196432063 - NamedType 3636377504" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Incorect count of variants has been be created]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - Method VerifyVariantsCreatedWithOptionName - NamedType IncorrectVariantCountMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2648072336 - Method 2260759780 - NamedType 612099540" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The Json data: %1 is not converted to: %2]]></Val>
@@ -329,6 +644,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Salesperson/Purchaser table caption, %2 = Salesperson/Purchaser code, %3 = Shopify Staff Member name]D;]A;(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Staff Test - Method TestCannotAssignSameSalespersonToMultipleStaff - NamedType SalespersonPurchaserMappingErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 718136426 - NamedType 562056659" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[More than expected API calls to Shopify detected.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Sync Variant Images Test - NamedType UnexpectedAPICallsErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2109467660 - Method 430562072 - NamedType 1603380026" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The Shop is missing the Shopify URL.]]></Val>
@@ -336,6 +660,33 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Test Shopify - Method UnitTestConfigureShop - NamedType ShopMissingUrlErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Enum 3930955020 - EnumValue 1842188621 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Always Fail]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Enum Shpfy Inventory Retry Scenario - EnumValue AlwaysFail - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Enum 3930955020 - EnumValue 3006466004 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Fail Once Then Succeed]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Enum Shpfy Inventory Retry Scenario - EnumValue FailOnceThenSucceed - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Enum 3930955020 - EnumValue 3878926381 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Success]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Enum Shpfy Inventory Retry Scenario - EnumValue Success - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";EnumExtension 912748123 - EnumValue 922120222 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">

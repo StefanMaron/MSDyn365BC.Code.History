@@ -2224,26 +2224,38 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
     [Scope('OnPrem')]
     procedure ItemTemplCardControls()
     var
-        Item: Record Item;
         ItemCardPageControlField: Record "Page Control Field";
         ItemTemplCardPageControlField: Record "Page Control Field";
+        ItemField: Record Field;
         ItemTemplField: Record Field;
         FieldExclusionList: List of [Integer];
     begin
-        FieldExclusionList.Add(Item.FieldNo("Prevent Negative Inventory"));
-        FieldExclusionList.Add(Item.FieldNo("Stockout Warning"));
+        FillItemFieldExclusionList(FieldExclusionList);
 
+        // Verify fields in "Item" and "Item Templ." tables, all fields should match or added in the exclusion list
+        ItemField.SetRange(TableNo, Database::Item);
+        ItemField.SetRange(Class, ItemField.Class::Normal);
+        ItemField.SetRange(ObsoleteState, ItemField.ObsoleteState::No);
+        ItemField.SetRange("No.", 1, 9999); // Only check w1 fields
+        if ItemField.FindSet() then
+            repeat
+                if not FieldExclusionList.Contains(ItemField."No.") then
+                    if not ItemTemplField.Get(Database::"Item Templ.", ItemField."No.") then
+                        Error('%1 field should exist in "Item Templ." table or added to exclusion list', ItemField.FieldName);
+            until ItemField.Next() = 0;
+
+        // Verify controls on "Item Card" and "Item Templ. Card" pages, all controls should match or added in the exclusion list
         ItemTemplCardPageControlField.SetRange(PageNo, Page::"Item Templ. Card");
-
         ItemCardPageControlField.SetRange(PageNo, Page::"Item Card");
         ItemCardPageControlField.SetFilter(FieldNo, '<>0');
         if ItemCardPageControlField.FindSet() then
             repeat
-                if ItemTemplField.Get(Database::"Item Templ.", ItemCardPageControlField.FieldNo) and not (FieldExclusionList.Contains(ItemCardPageControlField.FieldNo)) then begin
-                    ItemTemplCardPageControlField.SetRange(FieldNo, ItemCardPageControlField.FieldNo);
-                    if ItemTemplCardPageControlField.IsEmpty() then
-                        Error('%1 should exist on the Item template card.', ItemCardPageControlField.ControlName);
-                end;
+                if not FieldExclusionList.Contains(ItemCardPageControlField.FieldNo) then
+                    if ItemTemplField.Get(Database::"Item Templ.", ItemCardPageControlField.FieldNo) then begin
+                        ItemTemplCardPageControlField.SetRange(FieldNo, ItemCardPageControlField.FieldNo);
+                        if ItemTemplCardPageControlField.IsEmpty() then
+                            Error('%1 control should exist on the item template card or added to exclusion list.', ItemCardPageControlField.ControlName);
+                    end;
             until ItemCardPageControlField.Next() = 0;
     end;
 
@@ -3492,6 +3504,54 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         exit(DimensionValue.Code);
     end;
 
+    local procedure FillItemFieldExclusionList(var FieldExclusionList: List of [Integer])
+    var
+        Item: Record Item;
+    begin
+        FieldExclusionList.Add(Item.FieldNo("Prevent Negative Inventory"));
+        FieldExclusionList.Add(Item.FieldNo("Stockout Warning"));
+        FieldExclusionList.Add(Item.FieldNo("Variant Mandatory if Exists"));
+        FieldExclusionList.Add(Item.FieldNo("No."));
+        FieldExclusionList.Add(Item.FieldNo("No. 2"));
+        FieldExclusionList.Add(Item.FieldNo("Alternative Item No."));
+        FieldExclusionList.Add(Item.FieldNo("Description"));
+        FieldExclusionList.Add(Item.FieldNo("Search Description"));
+        FieldExclusionList.Add(Item.FieldNo("Description 2"));
+        FieldExclusionList.Add(Item.FieldNo("Last Direct Cost"));
+        FieldExclusionList.Add(Item.FieldNo("Cost is Adjusted"));
+        FieldExclusionList.Add(Item.FieldNo("Allow Online Adjustment"));
+        FieldExclusionList.Add(Item.FieldNo("Excluded from Cost Adjustment"));
+        FieldExclusionList.Add(Item.FieldNo("Last DateTime Modified"));
+        FieldExclusionList.Add(Item.FieldNo("Last Date Modified"));
+        FieldExclusionList.Add(Item.FieldNo("Last Time Modified"));
+        FieldExclusionList.Add(Item.FieldNo("Picture"));
+        FieldExclusionList.Add(Item.FieldNo("Application Wksh. User ID"));
+        FieldExclusionList.Add(Item.FieldNo("Low-Level Code"));
+        FieldExclusionList.Add(Item.FieldNo("Last Unit Cost Calc. Date"));
+        FieldExclusionList.Add(Item.FieldNo("Rolled-up Material Cost"));
+        FieldExclusionList.Add(Item.FieldNo("Rolled-up Capacity Cost"));
+        FieldExclusionList.Add(Item.FieldNo("Inventory Value Zero"));
+        FieldExclusionList.Add(Item.FieldNo("Sales Unit of Measure"));
+        FieldExclusionList.Add(Item.FieldNo("Purch. Unit of Measure"));
+        FieldExclusionList.Add(Item.FieldNo("Created From Nonstock Item"));
+        FieldExclusionList.Add(Item.FieldNo("Put-away Unit of Measure Code"));
+        FieldExclusionList.Add(Item.FieldNo("Last Counting Period Update"));
+        FieldExclusionList.Add(Item.FieldNo("Next Counting Start Date"));
+        FieldExclusionList.Add(Item.FieldNo("Next Counting End Date"));
+        FieldExclusionList.Add(Item.FieldNo("Unit of Measure Id"));
+        FieldExclusionList.Add(Item.FieldNo("Tax Group Id"));
+        FieldExclusionList.Add(Item.FieldNo("Item Category Id"));
+        FieldExclusionList.Add(Item.FieldNo("Inventory Posting Group Id"));
+        FieldExclusionList.Add(Item.FieldNo("Gen. Prod. Posting Group Id"));
+        FieldExclusionList.Add(Item.FieldNo("Single-Level Material Cost"));
+        FieldExclusionList.Add(Item.FieldNo("Single-Level Capacity Cost"));
+        FieldExclusionList.Add(Item.FieldNo("Single-Level Subcontrd. Cost"));
+        FieldExclusionList.Add(Item.FieldNo("Single-Level Cap. Ovhd Cost"));
+        FieldExclusionList.Add(Item.FieldNo("Single-Level Mfg. Ovhd Cost"));
+        FieldExclusionList.Add(Item.FieldNo("Rolled-up Subcontracted Cost"));
+        FieldExclusionList.Add(Item.FieldNo("Rolled-up Mfg. Ovhd Cost"));
+        FieldExclusionList.Add(Item.FieldNo("Rolled-up Cap. Overhead Cost"));
+    end;
 
     local procedure VerifyTemplateGlobalDimensionIsDefaultDimension(TemplateTableId: Integer; TemplateCode: Code[20]; GlobalDim1CodeValue: Code[20]; GlobalDim2CodeValue: Code[20])
     var

@@ -60,7 +60,8 @@ table 30142 "Shpfy Refund Header"
             DataClassification = SystemMetadata;
             Editable = false;
             AutoFormatType = 1;
-            AutoFormatExpression = OrderPresentmentCurrencyCode();
+            AutoFormatExpression = "Presentment Currency Code";
+            ToolTip = 'Specifies the total amount in presentment currency across all transactions for the refund.';
         }
         field(8; Note; Blob)
         {
@@ -138,6 +139,15 @@ table 30142 "Shpfy Refund Header"
             CalcFormula = exist("Shpfy Doc. Link To Doc." where("Shopify Document Type" = const("Shopify Shop Refund"), "Shopify Document Id" = field("Refund Id")));
             Editable = false;
         }
+        field(108; "Currency Code"; Code[10])
+        {
+            Caption = 'Currency Code';
+        }
+        field(109; "Presentment Currency Code"; Code[10])
+        {
+            Caption = 'Presentment Currency Code';
+            ToolTip = 'Specifies the presentment currency code for the refund.';
+        }
     }
     keys
     {
@@ -156,11 +166,11 @@ table 30142 "Shpfy Refund Header"
         RefundShippingLine: Record "Shpfy Refund Shipping Line";
         DataCapture: Record "Shpfy Data Capture";
     begin
-        RefundLine.SetRange("Refund Id");
+        RefundLine.SetRange("Refund Id", Rec."Refund Id");
         if not RefundLine.IsEmpty() then
             RefundLine.DeleteAll(true);
 
-        RefundShippingLine.SetRange("Refund Id");
+        RefundShippingLine.SetRange("Refund Id", Rec."Refund Id");
         if not RefundShippingLine.IsEmpty() then
             RefundShippingLine.DeleteAll(true);
 
@@ -248,13 +258,5 @@ table 30142 "Shpfy Refund Header"
     begin
         if OrderHeader.Get("Order Id") then
             exit(OrderHeader."Currency Code");
-    end;
-
-    local procedure OrderPresentmentCurrencyCode(): Code[10]
-    var
-        OrderHeader: Record "Shpfy Order Header";
-    begin
-        if OrderHeader.Get("Order Id") then
-            exit(OrderHeader."Presentment Currency Code");
     end;
 }

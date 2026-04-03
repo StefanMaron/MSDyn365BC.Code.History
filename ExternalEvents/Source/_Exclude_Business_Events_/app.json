@@ -26,5 +26,8 @@
     "allowDownloadingSource": true,
     "includeSourceInSymbolFile": true
   },
-  "application": "$(app_minimumVersion)"
+  "application": "$(app_minimumVersion)",
+  "features": [
+    "TranslationFile"
+  ]
 }

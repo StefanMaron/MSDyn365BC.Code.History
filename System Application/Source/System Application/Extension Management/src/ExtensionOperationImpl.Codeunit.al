@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Apps;
+
 using System;
 using System.Environment;
 using System.Environment.Configuration;

@@ -4,9 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.TDS.TDSReturnAndSettlement;
 
-using Microsoft.Foundation.Company;
 using Microsoft.Finance.TaxBase;
 using Microsoft.Finance.TDS.TDSBase;
+using Microsoft.Foundation.Company;
 
 report 18747 "Update Challan Register"
 {
@@ -49,18 +49,24 @@ report 18747 "Update Challan Register"
                     Caption = 'Options';
                     field("Interest Amount"; InterestAmount)
                     {
+                        AutoFormatType = 1;
+                        AutoFormatExpression = '';
                         Caption = 'Interest Amount';
                         ToolTip = 'Specifies the value of interest payable.';
                         ApplicationArea = Basic, Suite;
                     }
                     field("Others"; OtherFee)
                     {
+                        AutoFormatType = 1;
+                        AutoFormatExpression = '';
                         Caption = 'Others';
                         ToolTip = 'Specifies the value of other charges payable.';
                         ApplicationArea = Basic, Suite;
                     }
                     field(Fee; LateFee)
                     {
+                        AutoFormatType = 1;
+                        AutoFormatExpression = '';
                         Caption = 'Fee';
                         ToolTip = 'Specifies the value of fees payable.';
                         ApplicationArea = Basic, Suite;

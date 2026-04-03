@@ -265,12 +265,16 @@ codeunit 137159 "SCM Warehouse VII"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesLine2: Record "Sales Line";
+        VATPostingsetupSale: Record "VAT Posting Setup";
         Quantity: Decimal;
         PostedDocumentNo: Code[20];
     begin
         // Create Customer. Create Warehouse Shipment from Sales Order.
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
+        LibraryERM.FindVATPostingSetup(VATPostingSetupSale, VATPostingSetupSale."VAT Calculation Type"::"Normal VAT");
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetupSale."VAT Prod. Posting Group");
+        Item.Modify();
         LibrarySales.CreateCustomer(Customer);
         CreateWarehouseShipmentFromSalesOrder(SalesHeader, SalesLine, Customer."No.", Item."No.", Quantity, LocationBlue.Code, false);
 
@@ -2707,87 +2711,6 @@ codeunit 137159 "SCM Warehouse VII"
     end;
 
     [Test]
-    [HandlerFunctions('ProductionJournalModalPage,DummyMessageHandler,ConfirmHandlerTrue')]
-    procedure ConsumptionIsProportionalForHighPrecisionQtyPer()
-    var
-        Item: array[2] of Record Item;
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        ProductionBOMHeader: Record "Production BOM Header";
-        ProductionOrder: Record "Production Order";
-        ProdOrderLine: Record "Prod. Order Line";
-        RoutingHeader: Record "Routing Header";
-        RoutingLink: Record "Routing Link";
-        WorkCenter: Record "Work Center";
-        QtyPer: Decimal;
-        RoundingPrecision: Decimal;
-        OutputQty: Decimal;
-        ProductionQty: Decimal;
-        InventoryQty: Decimal;
-        ExpectedConsumptionQty: Decimal;
-    begin
-        // [SCENARIO 611334] When posting the output for a released production Order with routing link setup a wrong consumption 
-        // is posted and the remaining amount is calculated wrong on the ILE
-        Initialize();
-
-        // [GIVEN] Define variables.
-        QtyPer := 0.0258;
-        RoundingPrecision := 0.00001;
-        InventoryQty := 414.864;
-        ProductionQty := 16080;
-        OutputQty := 13740;
-
-        // [GIVEN] Create Item [1] and Validate "Replenishment System", "Rounding Precision"  and "Flushing Method".
-        LibraryInventory.CreateItem(Item[1]);
-        Item[1].Validate("Replenishment System", Item[1]."Replenishment System"::Purchase);
-        Item[1].Validate("Rounding Precision", RoundingPrecision);
-        Item[1].Validate("Flushing Method", Item[1]."Flushing Method"::Backward);
-        Item[1].Modify(true);
-
-        // [GIVEN] Create a Work Center with Calendar.
-        CreateWorkCenterWithCalendar(WorkCenter);
-
-        // [GIVEN] Create a Routing Link.
-        LibraryManufacturing.CreateRoutingLink(RoutingLink);
-
-        // [GIVEN] Create a Routing with Work Center and Routing Link.
-        CreateRoutingWithWorkCenterAndRoutingLink(RoutingHeader, WorkCenter."No.", RoutingLink.Code, 14, 0);
-
-        // [GIVEN] Create a Production BOM.
-        CreateProductionBOM(ProductionBOMHeader, Item[1], RoutingLink.Code, QtyPer, 0);
-
-        // [GIVEN] Create Item [2] and Validate "Replenishment System", "Routing No." and "Production BOM No.".
-        LibraryInventory.CreateItem(Item[2]);
-        Item[2].Validate("Replenishment System", Item[2]."Replenishment System"::"Prod. Order");
-        Item[2].Validate("Routing No.", RoutingHeader."No.");
-        Item[2].Validate("Production BOM No.", ProductionBOMHeader."No.");
-        Item[1].Validate("Rounding Precision", RoundingPrecision);
-        Item[2].Modify(true);
-
-        // [GIVEN] Post an Item Journal Line.
-        PostItemJournalLine(Item[1]."No.", '', InventoryQty, LibraryRandom.RandIntInRange(10, 10), WorkDate(), 0);
-
-        // [GIVEN] Create a Production Order for Item [2].
-        CreateProdOrderForParentItem(ProductionOrder, '', Item[2]."No.", ProductionQty);
-
-        // [GIVEN] Find Prod. Order Line.
-        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst();
-
-        // [GIVEN] Open Production Journal.
-        LibraryVariableStorage.Enqueue(OutputQty);
-        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
-
-        // [WHEN] Find Item Ledger Entry.
-        ExpectedConsumptionQty := GetQuantityFromILE(Item[1]."No.", ItemLedgerEntry."Entry Type"::Consumption);
-
-        // [THEN] Only one Consumption Item Ledger Entry is found.
-        Assert.AreEqual(
-            ExpectedConsumptionQty,
-            OutputQty * QtyPer,
-           QuantityMustBeSame);
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     [HandlerFunctions('ItemTrkingLinesPageHandler,CreateInvtPutAwayPickMvmtPageHandler,DummyMessageHandler')]
     procedure InvtMvmtIsRegisteredEvenIfQtyInAOIsMoreThanInBinContent()
@@ -2898,6 +2821,86 @@ codeunit 137159 "SCM Warehouse VII"
 
         // [THEN] Registered Invt. Movement Hdr. is found.
         Assert.IsFalse(RegisteredInvtMovementHdr.IsEmpty(), RegInvtMovementHdrDoesNotExistErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJournalModalPage,DummyMessageHandler,ConfirmHandlerTrue')]
+    procedure ConsumptionIsProportionalForHighPrecisionQtyPer()
+    var
+        Item: array[2] of Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        RoutingHeader: Record "Routing Header";
+        RoutingLink: Record "Routing Link";
+        WorkCenter: Record "Work Center";
+        QtyPer: Decimal;
+        RoundingPrecision: Decimal;
+        OutputQty: Decimal;
+        ProductionQty: Decimal;
+        InventoryQty: Decimal;
+        ExpectedConsumptionQty: Decimal;
+    begin
+        // [SCENARIO 611334] Validate consumption when Double Posting of Output in Released Production Order with Routing Link Setup
+        Initialize();
+
+        // [GIVEN] Define variables.
+        QtyPer := LibraryRandom.RandDec(1, 5);
+        RoundingPrecision := 0.00001;
+        InventoryQty := LibraryRandom.RandDec(500, 3);
+        ProductionQty := Round(InventoryQty / QtyPer, 2);
+        OutputQty := ProductionQty / 2;
+
+        // [GIVEN] Create Item [1] and Validate "Replenishment System", "Rounding Precision"  and "Flushing Method".
+        LibraryInventory.CreateItem(Item[1]);
+        Item[1].Validate("Replenishment System", Item[1]."Replenishment System"::Purchase);
+        Item[1].Validate("Rounding Precision", RoundingPrecision);
+        Item[1].Validate("Flushing Method", Item[1]."Flushing Method"::Backward);
+        Item[1].Modify(true);
+
+        // [GIVEN] Create a Work Center with Calendar.
+        CreateWorkCenterWithCalendar(WorkCenter);
+
+        // [GIVEN] Create a Routing Link.
+        LibraryManufacturing.CreateRoutingLink(RoutingLink);
+
+        // [GIVEN] Create a Routing with Work Center and Routing Link.
+        CreateRoutingWithWorkCenterAndRoutingLink(RoutingHeader, WorkCenter."No.", RoutingLink.Code, 14, 0);
+
+        // [GIVEN] Create a Production BOM.
+        CreateProductionBOM(ProductionBOMHeader, Item[1], RoutingLink.Code, QtyPer, 0);
+
+        // [GIVEN] Create Item [2] and Validate "Replenishment System", "Routing No." and "Production BOM No.".
+        LibraryInventory.CreateItem(Item[2]);
+        Item[2].Validate("Replenishment System", Item[2]."Replenishment System"::"Prod. Order");
+        Item[2].Validate("Routing No.", RoutingHeader."No.");
+        Item[2].Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item[1].Validate("Rounding Precision", RoundingPrecision);
+        Item[2].Modify(true);
+
+        // [GIVEN] Post an Item Journal Line.
+        PostItemJournalLine(Item[1]."No.", '', InventoryQty, LibraryRandom.RandIntInRange(10, 10), WorkDate(), 0);
+
+        // [GIVEN] Create a Production Order for Item [2].
+        CreateProdOrderForParentItem(ProductionOrder, '', Item[2]."No.", ProductionQty);
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Open Production Journal.
+        LibraryVariableStorage.Enqueue(OutputQty);
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [WHEN] Find Item Ledger Entry.
+        ExpectedConsumptionQty := GetQuantityFromILE(Item[1]."No.", ItemLedgerEntry."Entry Type"::Consumption);
+
+        // [THEN] Only one Consumption Item Ledger Entry is found.
+        Assert.AreEqual(
+            ExpectedConsumptionQty,
+            OutputQty * QtyPer,
+           QuantityMustBeSame);
     end;
 
     local procedure Initialize()

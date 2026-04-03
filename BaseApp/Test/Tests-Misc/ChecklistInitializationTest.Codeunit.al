@@ -6,7 +6,6 @@ codeunit 132606 "Checklist Initialization Test"
     var
         Assert: Codeunit Assert;
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
-        LibrarySignupContext: Codeunit "Library - Signup Context";
 
     [Test]
     [Scope('OnPrem')]
@@ -53,57 +52,6 @@ codeunit 132606 "Checklist Initialization Test"
         VerifyBusinessManagerChecklistItems();
         VerifyAccountantChecklistItems();
         VerifyOrderProcessingChecklistItems();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestSignupContextChecklistInitialization()
-    var
-        Company: Record Company;
-        GuidedExperienceTestLibrary: Codeunit "Guided Experience Test Library";
-        ChecklistTestLibrary: Codeunit "Checklist Test Library";
-        ChecklistSetupTestLibrary: Codeunit "Checklist Setup Test Library";
-        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
-        ChecklistInitializationTest: Codeunit "Checklist Initialization Test";
-    begin
-        // ensure there's only company of the current type in the system
-        Company.Get(CompanyName());
-        Company.SetFilter(Name, '<>%1', CompanyName());
-        Company.ModifyAll("Evaluation Company", not Company."Evaluation Company"); // change the type of all other companies
-
-        // [GIVEN] The client type is set to Web
-        TestClientTypeSubscriber.SetClientType(ClientType::Web);
-
-        // [GIVEN] The company type is non-evaluation
-        SetEvaluationPropertyForCompany(false);
-
-        LibraryLowerPermissions.SetOutsideO365Scope();
-
-        // [GIVEN] The Checklist Setup table is empty
-        ChecklistSetupTestLibrary.DeleteAll();
-
-        // [GIVEN] The Guided Experience Item and Checklist Item tables are empty
-        GuidedExperienceTestLibrary.DeleteAll();
-        ChecklistTestLibrary.DeleteAll();
-
-        // [GIVEN] The Signup Context is a known value but unknown to BaseApp 
-        LibrarySignupContext.DeleteSignupContext();
-        LibrarySignupContext.SetSignupContext('name', 'Test Value 2');
-        LibrarySignupContext.SetDisableSystemUserCheck();
-        BindSubscription(ChecklistInitializationTest);
-
-        LibraryLowerPermissions.SetO365Basic();
-
-        // [WHEN] Calling OnCompanyOpen
-        TriggerOnCompanyOpen();
-
-        // [THEN] The checklist setup should be marked as done
-        Assert.IsFalse(ChecklistSetupTestLibrary.IsChecklistSetupDone(),
-            'The checklist setup should not be completed as this is not a context known to us.');
-
-        // [THEN] The guided experience item table should be empty
-        Assert.AreEqual(0, GuidedExperienceTestLibrary.GetCount(),
-            'The Guided Experience Item table should be empty when an unknown context is provided.');
     end;
 
     local procedure SetEvaluationPropertyForCompany(IsEvaluationCompany: Boolean)

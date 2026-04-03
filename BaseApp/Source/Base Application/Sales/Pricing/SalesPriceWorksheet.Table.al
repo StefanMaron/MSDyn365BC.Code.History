@@ -1,5 +1,4 @@
-#if not CLEANSCHEMA28 
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -11,28 +10,26 @@ using Microsoft.Finance.VAT.Setup;
 using Microsoft.Inventory.Item;
 using Microsoft.Sales.Customer;
 
+/// <summary>
+/// Stores temporary sales price entries for batch price updates before applying them to the Sales Price table.
+/// </summary>
 table 7023 "Sales Price Worksheet"
 {
     Caption = 'Sales Price Worksheet';
-#if not CLEAN25
-    ObsoleteState = Pending;
-    ObsoleteTag = '16.0';
-#else
-    ObsoleteState = Removed;
-    ObsoleteTag = '28.0';
-#endif    
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price Worksheet Line';
     DataClassification = CustomerContent;
 
     fields
     {
+        /// <summary>
+        /// Specifies the item that the worksheet price entry applies to.
+        /// </summary>
         field(1; "Item No."; Code[20])
         {
             Caption = 'Item No.';
+            ToolTip = 'Specifies the number of the item for which sales prices are being changed or set up.';
             NotBlank = true;
             TableRelation = Item;
 
-#if not CLEAN25
             trigger OnValidate()
             begin
                 if "Item No." <> xRec."Item No." then begin
@@ -49,18 +46,20 @@ table 7023 "Sales Price Worksheet"
 
                 CalcCurrentPrice(PriceAlreadyExists);
             end;
-#endif
         }
+        /// <summary>
+        /// Specifies the customer, customer price group, or campaign that the worksheet price entry applies to.
+        /// </summary>
         field(2; "Sales Code"; Code[20])
         {
             Caption = 'Sales Code';
+            ToolTip = 'Specifies the Sales Type code.';
             TableRelation = if ("Sales Type" = const("Customer Price Group")) "Customer Price Group"
             else
             if ("Sales Type" = const(Customer)) Customer
             else
             if ("Sales Type" = const(Campaign)) Campaign;
 
-#if not CLEAN25
             trigger OnValidate()
             begin
                 if ("Sales Code" <> '') and ("Sales Type" = "Sales Type"::"All Customers") then
@@ -97,25 +96,29 @@ table 7023 "Sales Price Worksheet"
                             end;
                     end;
             end;
-#endif
         }
+        /// <summary>
+        /// Specifies the currency that the worksheet price entry is valid for. A blank value indicates the local currency.
+        /// </summary>
         field(3; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
+            ToolTip = 'Specifies the currency code of the sales price.';
             TableRelation = Currency;
 
-#if not CLEAN25
             trigger OnValidate()
             begin
                 CalcCurrentPrice(PriceAlreadyExists);
             end;
-#endif
         }
+        /// <summary>
+        /// Specifies the date from which the worksheet price entry is valid.
+        /// </summary>
         field(4; "Starting Date"; Date)
         {
             Caption = 'Starting Date';
+            ToolTip = 'Specifies the earliest date on which the item can be sold at the sales price.';
 
-#if not CLEAN25
             trigger OnValidate()
             begin
                 if ("Starting Date" > "Ending Date") and ("Ending Date" <> 0D) then
@@ -127,40 +130,62 @@ table 7023 "Sales Price Worksheet"
 
                 CalcCurrentPrice(PriceAlreadyExists);
             end;
-#endif
         }
+        /// <summary>
+        /// Contains the existing unit price from the sales price table for reference during price updates.
+        /// </summary>
         field(5; "Current Unit Price"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 2;
             Caption = 'Current Unit Price';
+            ToolTip = 'Specifies the unit price of the item.';
             Editable = false;
             MinValue = 0;
         }
+        /// <summary>
+        /// Specifies the new unit price to be applied when the worksheet entries are implemented.
+        /// </summary>
         field(6; "New Unit Price"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 2;
             Caption = 'New Unit Price';
+            ToolTip = 'Specifies the new unit price that is valid for the selected combination of Sales Code, Currency Code and/or Starting Date.';
             MinValue = 0;
         }
+        /// <summary>
+        /// Indicates whether the new unit price includes VAT.
+        /// </summary>
         field(7; "Price Includes VAT"; Boolean)
         {
             Caption = 'Price Includes VAT';
+            ToolTip = 'Specifies if the sales price includes VAT.';
         }
+        /// <summary>
+        /// Indicates whether invoice discounts can be applied when this price is used.
+        /// </summary>
         field(10; "Allow Invoice Disc."; Boolean)
         {
             Caption = 'Allow Invoice Disc.';
+            ToolTip = 'Specifies if an invoice discount will be calculated when the sales price is offered.';
             InitValue = true;
         }
+        /// <summary>
+        /// Specifies the VAT business posting group used for price calculations when the price includes VAT.
+        /// </summary>
         field(11; "VAT Bus. Posting Gr. (Price)"; Code[20])
         {
             Caption = 'VAT Bus. Posting Gr. (Price)';
             TableRelation = "VAT Business Posting Group";
         }
+        /// <summary>
+        /// Specifies the type of sales target for the worksheet price entry, such as customer, customer price group, all customers, or campaign.
+        /// </summary>
         field(13; "Sales Type"; Enum "Sales Price Type")
         {
             Caption = 'Sales Type';
+            ToolTip = 'Specifies the type of sale that the price is based on, such as All Customers or Campaign.';
 
             trigger OnValidate()
             begin
@@ -168,23 +193,29 @@ table 7023 "Sales Price Worksheet"
                     Validate("Sales Code", '');
             end;
         }
+        /// <summary>
+        /// Specifies the minimum quantity that must be ordered to qualify for this price.
+        /// </summary>
         field(14; "Minimum Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Minimum Quantity';
+            ToolTip = 'Specifies the minimum sales quantity that must be met to warrant the sales price.';
             MinValue = 0;
 
-#if not CLEAN25
             trigger OnValidate()
             begin
                 CalcCurrentPrice(PriceAlreadyExists);
             end;
-#endif
         }
+        /// <summary>
+        /// Specifies the last date on which the worksheet price entry is valid.
+        /// </summary>
         field(15; "Ending Date"; Date)
         {
             Caption = 'Ending Date';
+            ToolTip = 'Specifies the date on which the sales price agreement ends.';
 
-#if not CLEAN25
             trigger OnValidate()
             begin
                 Validate("Starting Date");
@@ -193,45 +224,60 @@ table 7023 "Sales Price Worksheet"
                     if "Sales Type" = "Sales Type"::Campaign then
                         Error(Text002, FieldCaption("Starting Date"), FieldCaption("Ending Date"), FieldCaption("Sales Type"), "Sales Type");
             end;
-#endif
         }
+        /// <summary>
+        /// Contains the description of the item from the item table for display purposes.
+        /// </summary>
         field(20; "Item Description"; Text[100])
         {
             CalcFormula = lookup(Item.Description where("No." = field("Item No.")));
             Caption = 'Item Description';
+            ToolTip = 'Specifies the description of the item on the worksheet line.';
             FieldClass = FlowField;
         }
+        /// <summary>
+        /// Contains the name or description of the customer, customer price group, or campaign for display purposes.
+        /// </summary>
         field(21; "Sales Description"; Text[100])
         {
             Caption = 'Sales Description';
+            ToolTip = 'Specifies the description of the sales type, such as Campaign, on the worksheet line.';
         }
+        /// <summary>
+        /// Specifies the unit of measure that the worksheet price entry applies to for the item.
+        /// </summary>
         field(5400; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
+            ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
             TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
 
-#if not CLEAN25
             trigger OnValidate()
             begin
                 CalcCurrentPrice(PriceAlreadyExists);
             end;
-#endif
         }
+        /// <summary>
+        /// Specifies the item variant that the worksheet price entry applies to.
+        /// </summary>
         field(5700; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
+            ToolTip = 'Specifies the variant of the item on the line.';
             TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
 
-#if not CLEAN25
             trigger OnValidate()
             begin
                 CalcCurrentPrice(PriceAlreadyExists);
             end;
-#endif
         }
+        /// <summary>
+        /// Indicates whether line discounts can be applied when this price is used.
+        /// </summary>
         field(7001; "Allow Line Disc."; Boolean)
         {
             Caption = 'Allow Line Disc.';
+            ToolTip = 'Specifies if a line discount will be calculated when the sales price is offered.';
             InitValue = true;
         }
     }
@@ -251,7 +297,6 @@ table 7023 "Sales Price Worksheet"
     {
     }
 
-#if not CLEAN25
     trigger OnInsert()
     begin
         if "Sales Type" = "Sales Type"::"All Customers" then
@@ -285,6 +330,10 @@ table 7023 "Sales Price Worksheet"
     protected var
         Item: Record Item;
 
+    /// <summary>
+    /// Calculates and retrieves the current price for the worksheet item based on matching sales price records.
+    /// </summary>
+    /// <param name="PriceAlreadyExists">Returns true if a sales price record with the same starting date already exists.</param>
     procedure CalcCurrentPrice(var PriceAlreadyExists: Boolean)
     var
         SalesPrice: Record "Sales Price";
@@ -312,7 +361,10 @@ table 7023 "Sales Price Worksheet"
             OnCalcCurrentPriceOnPriceNotFound(Rec);
         end;
     end;
-#endif
+
+    /// <summary>
+    /// Sets the Sales Description field based on the sales type and code.
+    /// </summary>
     procedure SetSalesDescription()
     var
         Customer: Record Customer;
@@ -335,7 +387,6 @@ table 7023 "Sales Price Worksheet"
         end;
     end;
 
-#if not CLEAN25
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcCurrentPriceFound(var SalesPriceWorksheet: Record "Sales Price Worksheet"; SalesPrice: Record "Sales Price")
     begin
@@ -350,8 +401,4 @@ table 7023 "Sales Price Worksheet"
     local procedure OnCalcCurrentPriceOnPriceNotFound(var SalesPriceWorksheet: Record "Sales Price Worksheet")
     begin
     end;
-#endif
 }
-
- 
-#endif

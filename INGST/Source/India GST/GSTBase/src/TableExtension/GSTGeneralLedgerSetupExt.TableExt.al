@@ -32,6 +32,8 @@ tableextension 18003 "GST General Ledger Setup Ext" extends "General Ledger Setu
         }
         field(18003; "GST Recon. Tolerance"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'GST Recon. Tolerance';
             DataClassification = CustomerContent;
         }
@@ -61,6 +63,12 @@ tableextension 18003 "GST General Ledger Setup Ext" extends "General Ledger Setu
         field(18013; "Generate E-Inv. on Sales Post"; Boolean)
         {
             Caption = 'Generate E-Inv. on Sales Post';
+            DataClassification = CustomerContent;
+        }
+        field(18014; "GST Reversal Distribution Nos."; code[20])
+        {
+            caption = 'GST Reversal Distribution Nos.';
+            TableRelation = "No. Series";
             DataClassification = CustomerContent;
         }
     }

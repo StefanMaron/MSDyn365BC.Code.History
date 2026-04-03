@@ -1,9 +1,10 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.CRM.Outlook;
 
+#if not CLEAN28
+namespace Microsoft.CRM.Outlook;
 using Microsoft.Booking;
 using System.Azure.Identity;
 using System.Security.AccessControl;
@@ -16,7 +17,11 @@ page 6700 "Exchange Sync. Setup"
     LinksAllowed = false;
     PageType = Card;
     SourceTable = "Exchange Sync";
-    UsageCategory = Administration;
+    ObsoleteReason = 'Contact sync is now moved to assisted setup experience with new Graph based implementation.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '28.0';
+
+    UsageCategory = None;
 
     layout
     {
@@ -30,7 +35,6 @@ page 6700 "Exchange Sync. Setup"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Lookup = false;
-                    ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
                 }
                 field(ExchangeAccountUserName; ExchangeAccountUserName)
                 {
@@ -98,8 +102,9 @@ page 6700 "Exchange Sync. Setup"
                     Caption = 'Bookings Sync. Setup';
                     Image = BookingsLogo;
                     ToolTip = 'Open the Bookings Sync. Setup page.';
-                    Visible = false;
-
+                    ObsoleteReason = 'Bookings is no longer part of Business Central 365.';
+                    ObsoleteState = pending;
+                    ObsoleteTag = '28.0';
                     trigger OnAction()
                     begin
                         if PasswordRequired and IsNullGuid(Rec."Exchange Account Password Key") then
@@ -142,9 +147,11 @@ page 6700 "Exchange Sync. Setup"
             group(Category_Category4)
             {
                 Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 3.';
-
                 actionref(SetupBookingSync_Promoted; SetupBookingSync)
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Bookings is no longer part of Business Central 365.';
+                    ObsoleteTag = '28.0';
                 }
                 actionref(SetupContactSync_Promoted; SetupContactSync)
                 {
@@ -206,3 +213,4 @@ page 6700 "Exchange Sync. Setup"
     end;
 }
 
+#endif

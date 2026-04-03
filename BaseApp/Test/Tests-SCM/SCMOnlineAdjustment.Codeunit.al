@@ -17,6 +17,7 @@ codeunit 137001 "SCM Online Adjustment"
         ErrorNoEntryFound: Label 'No value entry found for item %1 of type %2.';
         ErrorWrongCost: Label 'Cost per unit should be %1 (2 decimals) for item %2.';
         LibraryCosting: Codeunit "Library - Costing";
+        LibraryPostInventoryToGL: Codeunit "Library - Post Inventory To GL";
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
@@ -318,7 +319,7 @@ codeunit 137001 "SCM Online Adjustment"
 
         // [WHEN] Adjust cost-item entries is run.
         LibraryCosting.AdjustCostItemEntries(ProductionOrder."Source No.", '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
+        LibraryPostInventoryToGL.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Unit cost and value entries for parent item are correct.
         CheckOutputValueEntries(PurchInvHeader, PurchInvHeader1, ProductionOrder, TempItemJournalLine);

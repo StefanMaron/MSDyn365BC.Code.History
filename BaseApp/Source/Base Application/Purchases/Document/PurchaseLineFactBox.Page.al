@@ -33,6 +33,7 @@ page 9100 "Purchase Line FactBox"
             field(Availability; PurchInfoPaneMgt.CalcAvailability(Rec))
             {
                 ApplicationArea = Basic, Suite;
+                AutoFormatType = 0;
                 Caption = 'Availability';
                 DecimalPlaces = 0 : 5;
                 DrillDown = true;
@@ -41,11 +42,7 @@ page 9100 "Purchase Line FactBox"
 
                 trigger OnDrillDown()
                 begin
-#if not CLEAN25
-                    ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, "Item Availability Type"::"Event".AsInteger());
-#else
                     PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::"Event");
-#endif
                     CurrPage.Update(true);
                 end;
             }
@@ -84,7 +81,6 @@ page 9100 "Purchase Line FactBox"
                 {
                     ApplicationArea = All;
                     Caption = 'Documents';
-                    ToolTip = 'Specifies the number of attachments.';
 
                     trigger OnDrillDown()
                     var
@@ -111,12 +107,7 @@ page 9100 "Purchase Line FactBox"
 
     protected var
         PurchInfoPaneMgt: Codeunit "Purchases Info-Pane Management";
-#if not CLEAN25
-        [Obsolete('Replaced by PurchAvailabilityMgt', '25.0')]
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
-#else
         PurchAvailabilityMgt: Codeunit "Purch. Availability Mgt.";
-#endif
 
     protected procedure ShowDetails()
     var
@@ -128,4 +119,3 @@ page 9100 "Purchase Line FactBox"
         end;
     end;
 }
-

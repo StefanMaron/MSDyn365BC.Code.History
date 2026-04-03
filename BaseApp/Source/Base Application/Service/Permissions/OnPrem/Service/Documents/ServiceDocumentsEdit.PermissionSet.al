@@ -4,71 +4,69 @@
 // ------------------------------------------------------------------------------------------------
 namespace System.Security.AccessControl;
 
-using Microsoft.Utilities;
-using Microsoft.Sales.Customer;
-using Microsoft.Sales.Document;
+using Microsoft.Bank.BankAccount;
+using Microsoft.CRM.Campaign;
+using Microsoft.CRM.Contact;
+using Microsoft.CRM.Interaction;
+using Microsoft.CRM.Segment;
 using Microsoft.CRM.Team;
-using Microsoft.Projects.Project.Job;
-using Microsoft.Inventory.Location;
-using Microsoft.Foundation.Reporting;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.RateChange;
 using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Foundation.Address;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Comment;
+using Microsoft.Foundation.ExtendedText;
+using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Foundation.Reporting;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.BOM;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Item.Substitution;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Planning;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
+using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Projects.Project.Posting;
-using Microsoft.Foundation.AuditCodes;
-using Microsoft.Foundation.UOM;
-using Microsoft.Finance.VAT.Calculation;
-using Microsoft.Finance.VAT.Setup;
-using Microsoft.Finance.VAT.RateChange;
-using Microsoft.Warehouse.Structure;
-using Microsoft.Inventory.BOM;
-using Microsoft.CRM.Campaign;
-using Microsoft.Foundation.Comment;
-using Microsoft.CRM.Contact;
-using Microsoft.Service.Archive;
-using Microsoft.Service.Contract;
-using Microsoft.Foundation.Address;
-using Microsoft.Finance.Currency;
-using Microsoft.Sales.Receivables;
-using Microsoft.Finance.Dimension;
-using Microsoft.Pricing.Calculation;
-using Microsoft.Pricing.PriceList;
-using Microsoft.Inventory.Tracking;
-using Microsoft.Foundation.ExtendedText;
-using Microsoft.Service.Maintenance;
-using Microsoft.Finance.GeneralLedger.Account;
-using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.CRM.Interaction;
-using Microsoft.Inventory.Item;
-using Microsoft.Inventory.Ledger;
-using Microsoft.Inventory.Journal;
-using Microsoft.Inventory.Item.Substitution;
-using Microsoft.Service.Loaner;
-using Microsoft.Bank.BankAccount;
-using Microsoft.Foundation.PaymentTerms;
-using Microsoft.Inventory.Planning;
-using Microsoft.Pricing.Asset;
-using Microsoft.Pricing.Source;
-using Microsoft.Pricing.Worksheet;
-using Microsoft.Purchases.Document;
-using Microsoft.Projects.Resources.Resource;
-#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
-#endif
-using Microsoft.Service.Resources;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Purchases.Document;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Pricing;
-using Microsoft.CRM.Segment;
-using Microsoft.Service.Pricing;
+using Microsoft.Sales.Receivables;
+using Microsoft.Service.Archive;
 using Microsoft.Service.Comment;
+using Microsoft.Service.Contract;
 using Microsoft.Service.Document;
 using Microsoft.Service.Email;
 using Microsoft.Service.History;
 using Microsoft.Service.Item;
 using Microsoft.Service.Ledger;
+using Microsoft.Service.Loaner;
+using Microsoft.Service.Maintenance;
+using Microsoft.Service.Pricing;
+using Microsoft.Service.Resources;
 using Microsoft.Service.Setup;
-using Microsoft.Finance.SalesTax;
-using Microsoft.Inventory.Transfer;
+using Microsoft.Utilities;
+using Microsoft.Warehouse.Structure;
 using System.Security.User;
 
 permissionset 8611 "Service Documents - Edit"
@@ -157,20 +155,16 @@ permissionset 8611 "Service Documents - Edit"
                   tabledata "Reservation Entry" = Rimd,
                   tabledata "Resolution Code" = R,
                   tabledata Resource = R,
-#if not CLEAN25
                   tabledata "Resource Cost" = R,
                   tabledata "Resource Price" = R,
-#endif
                   tabledata "Resource Skill" = R,
                   tabledata "Resource Unit of Measure" = R,
                   tabledata "Responsibility Center" = R,
                   tabledata "Return Receipt Header" = R,
                   tabledata "Sales Discount Access" = R,
                   tabledata "Sales Line" = R,
-#if not CLEAN25
                   tabledata "Sales Line Discount" = R,
                   tabledata "Sales Price" = R,
-#endif
                   tabledata "Sales Price Access" = R,
                   tabledata "Salesperson/Purchaser" = R,
                   tabledata "Segment Header" = R,

@@ -4,16 +4,16 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.TDS.TDSOnPayments;
 
+using Microsoft.Bank.BankAccount;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.TaxBase;
-using Microsoft.Purchases.Vendor;
-using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.TDS.TDSBase;
-using Microsoft.Inventory.Location;
-using Microsoft.Finance.Currency;
-using Microsoft.Sales.Customer;
-using Microsoft.Bank.BankAccount;
 using Microsoft.FixedAssets.FixedAsset;
+using Microsoft.Inventory.Location;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
 
 table 18766 "Provisional Entry"
 {
@@ -95,16 +95,22 @@ table 18766 "Provisional Entry"
         }
         field(12; Amount; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
             Caption = 'Amount';
             DataClassification = EndUserIdentifiableInformation;
         }
         field(13; "Debit Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
             Caption = 'Debit Amount';
             DataClassification = EndUserIdentifiableInformation;
         }
         field(14; "Credit Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
             Caption = 'Credit Amount';
             DataClassification = EndUserIdentifiableInformation;
         }
@@ -206,6 +212,8 @@ table 18766 "Provisional Entry"
         }
         field(32; "Amount LCY"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount LCY';
             DataClassification = EndUserIdentifiableInformation;
         }

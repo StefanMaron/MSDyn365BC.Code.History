@@ -35,7 +35,9 @@ codeunit 137350 "SCM Inventory Reports - III"
         isInitialized: Boolean;
         RecordCountError: Label 'Record count should be greater than 1.';
         RegisteringDateError: Label 'Enter the Registering Date.';
+#if not CLEAN28
         SalesLinesShownError: Label 'Sales lines must be shown.';
+#endif
         UndoShipmentConfirmMessage: Label 'Do you really want to undo the selected Shipment lines?';
         ValueNotMatchedError: Label 'Value not matched';
         ValidationError: Label '%1 must be %2 in Report.';
@@ -283,6 +285,8 @@ codeunit 137350 "SCM Inventory Reports - III"
         Assert.ExpectedError(ValuationDateError);
     end;
 
+#if not CLEAN28
+    [Obsolete('Sales Reservation Avail. report is deprecated.', '28.0')]
     [Test]
     [HandlerFunctions('SalesReservationAvailRequestPageHandler')]
     [Scope('OnPrem')]
@@ -305,7 +309,10 @@ codeunit 137350 "SCM Inventory Reports - III"
         SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         VerifySalesReservationAvailReport(SalesLine);
     end;
+#endif
 
+#if not CLEAN28
+    [Obsolete('Sales Reservation Avail. report is deprecated.', '28.0')]
     [Test]
     [HandlerFunctions('SalesReservationAvailRequestPageHandler')]
     [Scope('OnPrem')]
@@ -329,6 +336,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify.
         Assert.ExpectedError(SalesLinesShownError);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ReservationPageHandler,PurchaseReservationAvailRequestPageHandler')]
@@ -385,6 +393,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         asserterror LibraryReportDataset.LoadDataSetFile();
     end;
 
+#if not CLEAN28
     [Test]
     [HandlerFunctions('InventoryAvailabilityPlanRequestPageHandler')]
     [Scope('OnPrem')]
@@ -439,6 +448,62 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify: Verify Inventory Availability Plan Report.
         VerifyQuantityOnInventoryAvailabilityPlanReport(Item.Inventory, Item.Inventory);
         LibraryReportDataset.AssertCurrentRowValueEquals('LocCode_SKU', Location.Code);
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('InvAvailabilityPlanRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InvAvailabilityPlanAfterCreatingSalesOrder()
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO] Verify Inventory Availability Plan Report after creating Sales Order.
+
+        // [GIVEN] Create Item, create and Receive Purchase Order, create Sales Order.
+        Initialize();
+        CreateAndReceivePurchaseOrder(PurchaseLine);
+        PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        CreateSalesOrder(SalesLine, PurchaseLine."No.", LibraryRandom.RandDec(10, 2));  // Use random value for Quantity.
+        Item.Get(PurchaseLine."No.");
+        Item.CalcFields(Inventory, "Qty. on Sales Order");
+        LibraryVariableStorage.Enqueue(false);
+
+        // [WHEN] Run Inventory Availability Plan Report.
+        RunInvAvailabilityPlanReport(PurchaseLine."No.");
+
+        // [THEN] Verify Inventory Availability Plan Report.
+        VerifyQuantityOnInvAvailabilityPlanReport(Item.Inventory, Item.Inventory - Item."Qty. on Sales Order");
+    end;
+
+    [Test]
+    [HandlerFunctions('InvAvailabilityPlanRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InvAvailabilityPlanWithStockKeeping()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        // [SCENARIO] Verify Inventory Availability Plan Report with Stockkeeping Unit as True.
+
+        // [GIVEN] Create Item with Stockkeeping Unit, Location, create and Post Item Journal Line.
+        Initialize();
+        Item.Get(CreateItem());
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Item.SetRange("Location Filter", Location.Code);
+        LibraryInventory.CreateStockKeepingUnit(Item, "SKU Creation Method"::Location, false, false);  // Use False for Item InInventory Only and Replace Previous SKUs fields.
+        CreateAndPostItemJournalLineWithLocation(ItemJournalLine, Item."No.", Location.Code);
+        LibraryVariableStorage.Enqueue(true);
+        Item.CalcFields(Inventory);
+
+        // [WHEN] Run Inventory Availability Plan Report.
+        RunInvAvailabilityPlanReport(Item."No.");
+
+        // [THEN] Verify Inventory Availability Plan Report.
+        VerifyQuantityOnInvAvailabilityPlanReport(Item.Inventory, Item.Inventory);
+        LibraryReportDataset.AssertCurrentRowValueEquals('LocationCode', Location.Code);
     end;
 
     [Test]
@@ -1453,6 +1518,8 @@ codeunit 137350 "SCM Inventory Reports - III"
         end;
     end;
 
+#if not CLEAN28
+    [Obsolete('Sales Reservation Avail. report is deprecated.', '28.0')]
     [Test]
     [HandlerFunctions('SalesReservationAvailRequestPageHandler')]
     [Scope('OnPrem')]
@@ -1504,6 +1571,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         SalesLine.FindFirst();
         Assert.AreEqual(0, SalesLine."Qty. to Ship", 'Expected qty. to be updated for line without location.');
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ItemRegisterValueRequestPageHandler')]
@@ -2006,6 +2074,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
     end;
 
+#if not CLEAN28
     local procedure CreateSalesOrderAndModifyQuantity(var SalesLine: Record "Sales Line"; ItemNo: Code[20]; Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
@@ -2015,6 +2084,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         LibrarySales.ReopenSalesDocument(SalesHeader);
         OpenSalesOrderToEnterQuantity(SalesHeader."No.", Quantity);
     end;
+#endif
 
     local procedure CreateWhseJournalBatch(var WarehouseJournalBatch: Record "Warehouse Journal Batch"; LocationCode: Code[10])
     var
@@ -2100,6 +2170,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         PurchaseOrder.PurchLines.Reserve.Invoke();
     end;
 
+#if not CLEAN28
     local procedure OpenSalesOrderToEnterQuantity(No: Code[20]; Quantity: Decimal)
     var
         SalesOrder: TestPage "Sales Order";
@@ -2109,6 +2180,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         SalesOrder.SalesLines.Quantity.SetValue(Quantity);
         SalesOrder.OK().Invoke();
     end;
+#endif
 
     local procedure PostItemJournalAndUndoShipment(var SalesLine: Record "Sales Line") DocumentNo: Code[20]
     var
@@ -2363,6 +2435,8 @@ codeunit 137350 "SCM Inventory Reports - III"
         REPORT.Run(REPORT::"Phys. Inventory List", true, false, ItemJournalBatch);
     end;
 
+#if not CLEAN28
+    [Obsolete('Sales Reservation Avail. report is deprecated.', '28.0')]
     local procedure RunSalesReservationAvailReport(No: Code[20])
     var
         SalesLine: Record "Sales Line";
@@ -2375,6 +2449,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         Commit();
         REPORT.Run(REPORT::"Sales Reservation Avail.", true, false, SalesLine);
     end;
+#endif
 
     local procedure RunPostInventoryCostToGL(var PostValueEntryToGL: Record "Post Value Entry to G/L"; PostToGLMethod: Option; DocumentNo: Code[20]; ExpectedResult: Text)
     begin
@@ -2398,6 +2473,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         REPORT.Run(REPORT::"Purchase Reservation Avail.", true, false, PurchaseLine);
     end;
 
+#if not CLEAN28
     local procedure RunInventoryAvailabilityPlanReport(No: Code[20])
     var
         Item: Record Item;
@@ -2409,6 +2485,19 @@ codeunit 137350 "SCM Inventory Reports - III"
         LibraryVariableStorage.Enqueue(PeriodLength);
         Commit();
         REPORT.Run(REPORT::"Inventory - Availability Plan", true, false, Item);
+    end;
+#endif
+    local procedure RunInvAvailabilityPlanReport(No: Code[20])
+    var
+        Item: Record Item;
+        PeriodLength: DateFormula;
+    begin
+        Item.SetRange("No.", No);
+        Evaluate(PeriodLength, '<1M>');  // Use 1M for monthly Period.
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(PeriodLength);
+        Commit();
+        REPORT.Run(REPORT::"Inv. Availability Plan", true, false, Item);
     end;
 
     local procedure RunItemAgeCompositionValueReport(ItemNo: Code[20])
@@ -2665,6 +2754,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         LibraryReportDataset.AssertCurrentRowValueEquals('RemainingQty', Item.Inventory);
     end;
 
+#if not CLEAN28
     local procedure VerifySalesReservationAvailReport(SalesLine: Record "Sales Line")
     begin
         LibraryReportDataset.LoadDataSetFile();
@@ -2673,6 +2763,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         SalesLine.CalcFields("Reserved Quantity");
         LibraryReportDataset.AssertCurrentRowValueEquals('ResrvdQtyBase_SalesLine', SalesLine."Reserved Quantity");
     end;
+#endif
 
     local procedure VerifyPurchaseReservationAvailReport(PurchaseLine: Record "Purchase Line")
     begin
@@ -2683,12 +2774,24 @@ codeunit 137350 "SCM Inventory Reports - III"
         LibraryReportDataset.AssertCurrentRowValueEquals('ReservQtyBase_PurchLine', PurchaseLine."Reserved Quantity");
     end;
 
+#if not CLEAN28
     local procedure VerifyQuantityOnInventoryAvailabilityPlanReport(Inventory: Decimal; Quantity: Decimal)
     begin
         LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Inventory_Item', Inventory);
         LibraryReportDataset.AssertCurrentRowValueEquals('ProjAvBalance8', Quantity);
+    end;
+#endif
+    local procedure VerifyQuantityOnInvAvailabilityPlanReport(Inventory: Decimal; Quantity: Decimal)
+    var
+        InventoryLbl: Label 'Inventory';
+    begin
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('CategoryName', InventoryLbl);
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals('CurrentQuantity', Inventory);
+        LibraryReportDataset.AssertCurrentRowValueEquals('Quantity8', Quantity);
     end;
 
     local procedure VerifyQuantityOnPhysInventoryListReport(PurchaseLine: Record "Purchase Line")
@@ -2880,6 +2983,8 @@ codeunit 137350 "SCM Inventory Reports - III"
         Reservation."Reserve from Current Line".Invoke();
     end;
 
+#if not CLEAN28
+    [Obsolete('Sales Reservation Avail. report is deprecated.', '28.0')]
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesReservationAvailRequestPageHandler(var SalesReservationAvail: TestRequestPage "Sales Reservation Avail.")
@@ -2898,6 +3003,7 @@ codeunit 137350 "SCM Inventory Reports - III"
 
         SalesReservationAvail.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
@@ -3066,6 +3172,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         PurchaseReservationAvail.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
+#if not CLEAN28
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure InventoryAvailabilityPlanRequestPageHandler(var InventoryAvailabilityPlan: TestRequestPage "Inventory - Availability Plan")
@@ -3083,6 +3190,25 @@ codeunit 137350 "SCM Inventory Reports - III"
         InventoryAvailabilityPlan.UseStockkeepUnit.SetValue(UseStockkeepingUnit);
 
         InventoryAvailabilityPlan.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+#endif
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure InvAvailabilityPlanRequestPageHandler(var InvAvailabilityPlan: TestRequestPage "Inv. Availability Plan")
+    var
+        UseStockkeepingUnit: Variant;
+        PeriodLength: Variant;
+        StartingDate: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(UseStockkeepingUnit);
+        LibraryVariableStorage.Dequeue(StartingDate);
+        LibraryVariableStorage.Dequeue(PeriodLength);
+
+        InvAvailabilityPlan.StartingDate.SetValue(StartingDate);
+        InvAvailabilityPlan.PeriodLength.SetValue(PeriodLength);
+        InvAvailabilityPlan.UseStockkeepUnit.SetValue(UseStockkeepingUnit);
+
+        InvAvailabilityPlan.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
@@ -3102,4 +3228,3 @@ codeunit 137350 "SCM Inventory Reports - III"
         Reply := false;
     end;
 }
-

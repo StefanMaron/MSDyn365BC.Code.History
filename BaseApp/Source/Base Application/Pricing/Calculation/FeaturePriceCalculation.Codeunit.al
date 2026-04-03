@@ -1,4 +1,3 @@
-#if not CLEAN25
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -27,9 +26,6 @@ using System.Threading;
 /// </summary>
 codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
 {
-    ObsoleteState = Pending;
-    ObsoleteTag = '19.0';
-    ObsoleteReason = 'The feature will be automatically enabled on version 22.0';
 
     procedure IsDataUpdateRequired(): Boolean;
     begin
@@ -351,4 +347,3 @@ codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
     begin
     end;
 }
-#endif

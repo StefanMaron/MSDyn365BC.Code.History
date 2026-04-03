@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -15,6 +15,9 @@ using Microsoft.Sales.Customer;
 using Microsoft.Utilities;
 using System.Automation;
 
+/// <summary>
+/// Displays a list of sales quotes for managing customer proposals and offers.
+/// </summary>
 page 9300 "Sales Quotes"
 {
     AdditionalSearchTerms = 'offer';
@@ -59,104 +62,86 @@ page 9300 "Sales Quotes"
                 field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
                 field("Sell-to Post Code"; Rec."Sell-to Post Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the postal code of the customer''s main address.';
                     Visible = false;
                 }
                 field("Sell-to Country/Region Code"; Rec."Sell-to Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the country/region code of the customer''s main address.';
                     Visible = false;
                 }
                 field("Sell-to Contact"; Rec."Sell-to Contact")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the contact person at the customer''s main address.';
                 }
                 field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
                 field("Bill-to Name"; Rec."Bill-to Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
                 field("Bill-to Post Code"; Rec."Bill-to Post Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the postal code of the customer''s billing address.';
                     Visible = false;
                 }
                 field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the country/region code of the customer''s billing address.';
                     Visible = false;
                 }
                 field("Bill-to Contact"; Rec."Bill-to Contact")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the contact person at the customer''s billing address.';
                     Visible = false;
                 }
                 field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
                     Visible = false;
                 }
                 field("Ship-to Name"; Rec."Ship-to Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     Visible = false;
                 }
                 field("Ship-to Post Code"; Rec."Ship-to Post Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
                     Visible = false;
                 }
                 field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the country/region code of the address that the items are shipped to.';
                     Visible = false;
                 }
                 field("Ship-to Contact"; Rec."Ship-to Contact")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the contact person at the address that the items are shipped to.';
                     Visible = false;
                 }
                 field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the date when the posting of the sales document will be recorded.';
                 }
                 field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies when the sales invoice must be paid.';
                 }
                 field("Requested Delivery Date"; Rec."Requested Delivery Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the date that the customer has asked for the order to be delivered.';
                 }
                 field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the sum of amounts on all the lines in the document. This will include invoice discounts.';
                 }
                 field("Amount Including VAT"; Rec."Amount Including VAT")
                 {
@@ -166,43 +151,36 @@ page 9300 "Sales Quotes"
                 field("Quote Accepted"; Rec."Quote Accepted")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies that the quote was accepted by the customer.';
                 }
                 field("Quote Accepted Date"; Rec."Quote Accepted Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies when the quote was accepted by the customer.';
                     Visible = false;
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
                 field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
-                    ToolTip = 'Specifies the location from where items are to be shipped. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
                 }
                 field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
                     Visible = false;
                 }
                 field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
                     Visible = false;
                 }
                 field("Salesperson Code"; Rec."Salesperson Code")
@@ -214,18 +192,15 @@ page 9300 "Sales Quotes"
                 field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
                 field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the currency of amounts on the sales document.';
                     Visible = false;
                 }
                 field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
                 field("Campaign No."; Rec."Campaign No.")
@@ -237,45 +212,28 @@ page 9300 "Sales Quotes"
                 field("Opportunity No."; Rec."Opportunity No.")
                 {
                     ApplicationArea = RelationshipMgmt;
-                    ToolTip = 'Specifies the number of the opportunity that the sales quote is assigned to.';
                     Visible = false;
                 }
                 field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
                     Visible = false;
                     StyleExpr = StatusStyleTxt;
                 }
                 field("Your Reference"; Rec."Your Reference")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the customer''s reference. The content will be printed on sales documents.';
                     Visible = false;
                 }
                 field("Quote Valid Until Date"; Rec."Quote Valid Until Date")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
-                    ToolTip = 'Specifies how long the quote is valid.';
                 }
             }
         }
         area(factboxes)
         {
-#if not CLEAN25
-            part("Attached Documents"; "Document Attachment Factbox")
-            {
-                ObsoleteTag = '25.0';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
-                ApplicationArea = All;
-                Visible = false;
-                SubPageLink = "Table ID" = const(Database::"Sales Header"),
-                              "No." = field("No."),
-                              "Document Type" = field("Document Type");
-            }
-#endif
             part("Attached Documents List"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = All;
@@ -805,6 +763,10 @@ page 9300 "Sales Quotes"
         LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
     end;
 
+    /// <summary>
+    /// Returns the style to use for displaying the sales quote based on its validity date.
+    /// </summary>
+    /// <returns>Returns 'Unfavorable' if the quote has expired, otherwise an empty string.</returns>
     procedure SetStyle(): Text
     begin
         if (Rec."Quote Valid Until Date" <> 0D) and (WorkDate() > Rec."Quote Valid Until Date") then

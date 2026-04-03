@@ -19,7 +19,7 @@ codeunit 18005 "GST Tax Type Data"
         exit(GSTTaxTypeLbl);
     end;
 
-#if not CLEAN27 
+#if not CLEAN27
     [Obsolete('Removal of procedure as all Use cases covered in GSTBaseTaxEngineSetup Codeunit', '27.0')]
     procedure GetConfig(CaseID: Guid; var Handled: Boolean): Text
     var

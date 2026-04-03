@@ -263,8 +263,9 @@ codeunit 138033 "O365 Navigate"
         MultipleSalesInvoicesCustomer: Record Customer;
         OneCreditMemoCustomer: Record Customer;
         MultipleCreditMemoCustomer: Record Customer;
+        SalesInvoiceList: TestPage "Sales Invoice List";
         SalesInvoice: TestPage "Sales Invoice";
-        SalesList: TestPage "Sales List";
+        SalesCreditMemos: TestPage "Sales Credit Memos";
         SalesCreditMemo: TestPage "Sales Credit Memo";
         Navigate: TestPage Navigate;
         ContactType: Option " ",Vendor,Customer;
@@ -305,9 +306,9 @@ codeunit 138033 "O365 Navigate"
         Navigate.Find.Invoke();
         Assert.AreEqual(2, Navigate."No. of Records".AsInteger(), 'There should be only two record on the first row');
 
-        SalesList.Trap();
+        SalesInvoiceList.Trap();
         Navigate.Show.Invoke();
-        SalesList.Close();
+        SalesInvoiceList.Close();
 
         // Test opening one credit memo
         Navigate.ContactNo.SetValue(OneCreditMemoCustomer."No.");
@@ -324,9 +325,9 @@ codeunit 138033 "O365 Navigate"
         Navigate.Find.Invoke();
         Assert.AreEqual(2, Navigate."No. of Records".AsInteger(), 'There should be only two record on the first row');
 
-        SalesList.Trap();
+        SalesCreditMemos.Trap();
         Navigate.Show.Invoke();
-        SalesList.Close();
+        SalesCreditMemos.Close();
 
         Navigate.Close();
     end;
