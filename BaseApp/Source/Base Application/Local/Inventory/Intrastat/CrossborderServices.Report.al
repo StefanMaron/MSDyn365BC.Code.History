@@ -4,9 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Intrastat;
 
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Foundation.Address;
-using Microsoft.Finance.GeneralLedger.Setup;
 
 report 11111 "Crossborder Services"
 {

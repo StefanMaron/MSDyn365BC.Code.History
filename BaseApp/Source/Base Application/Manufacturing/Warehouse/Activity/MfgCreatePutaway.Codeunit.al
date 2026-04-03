@@ -558,7 +558,7 @@ codeunit 99000893 "Mfg. Create Put-away"
         CalledFromPutAwayWorksheet := NewCalledFromPutAwayWorksheet;
     end;
 
-    internal procedure CreateWhsePutAwayForProdOrderOutputLine(ProdOrderLine: Record "Prod. Order Line")
+    procedure CreateWhsePutAwayForProdOrderOutputLine(ProdOrderLine: Record "Prod. Order Line")
     var
         TempProdOrdLineTrackingBuff: Record "Prod. Ord. Line Tracking Buff." temporary;
         ItemTrackingManagement: Codeunit "Item Tracking Management";
@@ -584,7 +584,7 @@ codeunit 99000893 "Mfg. Create Put-away"
             until TempProdOrdLineTrackingBuff.Next() = 0;
     end;
 
-    internal procedure ShouldCreateWhsePutAwayForProdOutput(ItemJournalLine: Record "Item Journal Line"): Boolean
+    procedure ShouldCreateWhsePutAwayForProdOutput(ItemJournalLine: Record "Item Journal Line"): Boolean
     var
         ProductionOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";

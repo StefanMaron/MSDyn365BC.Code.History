@@ -4,6 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Reporting;
 
+/// <summary>
+/// Manages VAT return period operations and VAT return document lifecycle.
+/// Handles automatic period updates, return creation, and integration with job queue processing.
+/// </summary>
 codeunit 737 "VAT Report Mgt."
 {
 

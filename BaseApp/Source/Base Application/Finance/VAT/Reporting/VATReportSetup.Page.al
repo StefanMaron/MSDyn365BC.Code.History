@@ -6,6 +6,10 @@ namespace Microsoft.Finance.VAT.Reporting;
 
 using System.Telemetry;
 
+/// <summary>
+/// Setup interface for VAT reporting configuration and parameters.
+/// Controls report modification permissions, VAT base reporting options, and period management settings.
+/// </summary>
 page 743 "VAT Report Setup"
 {
     ApplicationArea = VAT;
@@ -61,6 +65,14 @@ page 743 "VAT Report Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series that will be used for standard VAT reports.';
+                }
+            }
+            group(ELMA)
+            {
+                Caption = 'ELMA';
+                field("BOP User Account ID"; Rec."BOP User Account ID")
+                {
+                    ApplicationArea = Basic, Suite;
                 }
             }
 #if not CLEAN28

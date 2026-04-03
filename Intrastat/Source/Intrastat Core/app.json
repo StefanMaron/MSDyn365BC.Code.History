@@ -26,5 +26,8 @@
     "includeSourceInSymbolFile": true
   },
   "application": "$(app_minimumVersion)",
-  "target": "Cloud"
+  "target": "Cloud",
+  "features": [
+    "TranslationFile"
+  ]
 }

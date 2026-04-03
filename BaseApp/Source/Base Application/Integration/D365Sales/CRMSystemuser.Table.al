@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -87,6 +87,7 @@ table 5340 "CRM Systemuser"
         field(10; FullName; Text[200])
         {
             Caption = 'Full Name';
+            ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
             Description = 'Full name of the user.';
             ExternalAccess = Read;
             ExternalName = 'fullname';
@@ -109,6 +110,7 @@ table 5340 "CRM Systemuser"
         field(13; InternalEMailAddress; Text[100])
         {
             Caption = 'Primary Email';
+            ToolTip = 'Specifies the email address.';
             Description = 'Internal email address for the user.';
             ExtendedDatatype = EMail;
             ExternalName = 'internalemailaddress';
@@ -150,6 +152,7 @@ table 5340 "CRM Systemuser"
         field(18; MobilePhone; Text[64])
         {
             Caption = 'Mobile Phone';
+            ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
             Description = 'Mobile phone number for the user.';
             ExternalName = 'mobilephone';
             ExternalType = 'String';
@@ -396,6 +399,7 @@ table 5340 "CRM Systemuser"
         }
         field(49; Address1_Latitude; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Address 1: Latitude';
             Description = 'Latitude for address 1.';
             ExternalName = 'address1_latitude';
@@ -410,6 +414,7 @@ table 5340 "CRM Systemuser"
         }
         field(51; Address1_Longitude; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Address 1: Longitude';
             Description = 'Longitude for address 1.';
             ExternalName = 'address1_longitude';
@@ -553,6 +558,7 @@ table 5340 "CRM Systemuser"
         }
         field(70; Address2_Latitude; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Address 2: Latitude';
             Description = 'Latitude for address 2.';
             ExternalName = 'address2_latitude';
@@ -567,6 +573,7 @@ table 5340 "CRM Systemuser"
         }
         field(72; Address2_Longitude; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Address 2: Longitude';
             Description = 'Longitude for address 2.';
             ExternalName = 'address2_longitude';
@@ -847,6 +854,7 @@ table 5340 "CRM Systemuser"
         }
         field(105; ExchangeRate; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Exchange Rate';
             Description = 'Exchange rate for the currency associated with the systemuser with respect to the base currency.';
             ExternalAccess = Read;

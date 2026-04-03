@@ -106,6 +106,7 @@ table 1701 "Deferral Header"
         /// </summary>
         field(9; "Amount to Defer (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Amount to Defer (LCY)';
         }
@@ -174,6 +175,8 @@ table 1701 "Deferral Header"
         /// </summary>
         field(14; "Initial Amount to Defer"; Decimal)
         {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Initial Amount to Defer';
         }
         /// <summary>
@@ -190,6 +193,8 @@ table 1701 "Deferral Header"
         /// </summary>
         field(20; "Schedule Line Total"; Decimal)
         {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             CalcFormula = sum("Deferral Line".Amount where("Deferral Doc. Type" = field("Deferral Doc. Type"),
                                                             "Gen. Jnl. Template Name" = field("Gen. Jnl. Template Name"),
                                                             "Gen. Jnl. Batch Name" = field("Gen. Jnl. Batch Name"),
@@ -299,4 +304,3 @@ table 1701 "Deferral Header"
     begin
     end;
 }
-

@@ -11,21 +11,17 @@
 
     var
         Assert: Codeunit Assert;
-#if not CLEAN25
         LibraryCosting: Codeunit "Library - Costing";
-#endif
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryUtility: Codeunit "Library - Utility";
+        LibraryUtilityOnPrem: Codeunit "Library - Utility OnPrem";
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
-#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
-#endif
         LibraryNonDeductibleVAT: Codeunit "Library - NonDeductible VAT";
         DocumentNo2: Code[20];
         IsInitialized: Boolean;
@@ -152,7 +148,7 @@
         PurchaseDocumentTest.SaveAsExcel(FilePath);
 
         // Verify: Verify that saved files have some data.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
+        LibraryUtilityOnPrem.CheckFileNotEmpty(FilePath);
     end;
 
     [Test]
@@ -183,7 +179,7 @@
         PurchaseCreditMemo.SaveAsExcel(FilePath);
 
         // Verify: Verify that Saved files have some data.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
+        LibraryUtilityOnPrem.CheckFileNotEmpty(FilePath);
     end;
 
     [Test]
@@ -273,7 +269,6 @@
         Location.Modify(true);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountPurchaseCreditMemo()
@@ -309,7 +304,7 @@
           PurchaseLine, PostedDocumentNo,
           (PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost") * PurchaseLineDiscount."Line Discount %" / 100);
     end;
-#endif
+
     [Test]
     [Scope('OnPrem')]
     procedure InvDiscountPurchaseCreditMemo()
@@ -1128,7 +1123,6 @@
         // Verification done in handler PostedPurchaseDocumentLinesWithSpecificCrMemoValidationHandler
     end;
 
-#if not CLEAN25
     [Test]
     [HandlerFunctions('PostedPurchaseDocumentLinesHandler')]
     [Scope('OnPrem')]
@@ -1209,7 +1203,6 @@
         // [THEN] "Line Discount %" is 10
         PurchaseLine.TestField("Line Discount %", PurchaseLineDiscount."Line Discount %");
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1289,7 +1282,6 @@
         Assert.AreEqual('Purchase Credit Memo', PurchaseHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
     end;
 
-#if not CLEAN25
     [Test]
     [HandlerFunctions('PostedPurchaseDocumentLinesHandler')]
     [Scope('OnPrem')]
@@ -1378,7 +1370,6 @@
         GetPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.");
         Assert.AreEqual(InitialUnitCost, PurchaseLine."Unit Cost", PurchaseLine.FieldCaption("Unit Cost"));
     end;
-#endif
 
     [Test]
     [HandlerFunctions('PostedPurchaseDocumentLinesHandler')]
@@ -1714,7 +1705,6 @@
         PurchaseLine.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure SetupLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount")
     var
         Item: Record Item;
@@ -1727,7 +1717,7 @@
         PurchaseLineDiscount.Validate("Line Discount %", LibraryRandom.RandInt(10));
         PurchaseLineDiscount.Modify(true);
     end;
-#endif
+
     local procedure SetupInvoiceDiscount(var VendorInvoiceDisc: Record "Vendor Invoice Disc.")
     begin
         // Enter Random Values for "Minimum Amount" and "Discount %".
@@ -1831,7 +1821,7 @@
           -Amount, CostAmount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(FieldErr, ValueEntry.FieldCaption("Cost Amount (Actual)"), ValueEntry.TableCaption()));
     end;
-#if not CLEAN25
+
     local procedure VerifyLineDiscountAmount(PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]; LineDiscountAmount: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -1850,7 +1840,7 @@
           LineDiscountAmount, PurchaseLine."Line Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(FieldErr, PurchaseLine.FieldCaption("Line Discount Amount"), PurchaseLine.TableCaption()));
     end;
-#endif
+
     local procedure VerifyInvoiceDiscountAmount(PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]; InvoiceDiscountAmount: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";

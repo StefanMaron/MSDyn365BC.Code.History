@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -6,6 +6,7 @@ namespace Microsoft.Inventory.Item;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Inventory.BOM;
+using Microsoft.Inventory.Item.Attribute;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Item.Substitution;
 using Microsoft.Inventory.Journal;
@@ -31,12 +32,14 @@ table 5401 "Item Variant"
         field(1; "Code"; Code[10])
         {
             Caption = 'Code';
+            ToolTip = 'Specifies a code to identify the variant.';
             OptimizeForTextSearch = true;
             NotBlank = true;
         }
         field(2; "Item No."; Code[20])
         {
             Caption = 'Item No.';
+            ToolTip = 'Specifies the number of the item card from which you opened the Item Variant Translations window.';
             TableRelation = Item;
 
             trigger OnValidate()
@@ -53,11 +56,13 @@ table 5401 "Item Variant"
         field(3; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies text that describes the item variant.';
             OptimizeForTextSearch = true;
         }
         field(4; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
+            ToolTip = 'Specifies the item variant in more detail than the Description field.';
             OptimizeForTextSearch = true;
         }
         field(5; "Item Id"; Guid)
@@ -80,21 +85,31 @@ table 5401 "Item Variant"
         field(54; Blocked; Boolean)
         {
             Caption = 'Blocked';
+            ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example an item variant that is placed in quarantine.';
+            DataClassification = CustomerContent;
+        }
+        field(92; Picture; MediaSet)
+        {
+            Caption = 'Picture';
+            ToolTip = 'Specifies the picture that has been inserted for the item variant.';
             DataClassification = CustomerContent;
         }
         field(8003; "Sales Blocked"; Boolean)
         {
             Caption = 'Sales Blocked';
+            ToolTip = 'Specifies that the item variant cannot be entered on sales documents, except return orders and credit memos, and journals.';
             DataClassification = CustomerContent;
         }
         field(8004; "Purchasing Blocked"; Boolean)
         {
             Caption = 'Purchasing Blocked';
+            ToolTip = 'Specifies that the item variant cannot be entered on purchase documents, except return orders and credit memos, and journals.';
             DataClassification = CustomerContent;
         }
         field(8010; "Service Blocked"; Boolean)
         {
             Caption = 'Service Blocked';
+            ToolTip = 'Specifies that the item variant cannot be entered on service items, service contracts and service documents, except credit memos.';
             DataClassification = CustomerContent;
         }
     }
@@ -121,12 +136,24 @@ table 5401 "Item Variant"
         fieldgroup(DropDown; "Item No.", "Code", Description)
         {
         }
+        fieldgroup(Brick; "Code", Description, Picture)
+        {
+        }
     }
+
+    trigger OnInsert()
+    var
+        ItemAttributeManagement: Codeunit "Item Attribute Management";
+    begin
+        if not IsTemporary then
+            ItemAttributeManagement.InheritAttributesFromItem(Rec, Rec."Item No.");
+    end;
 
     trigger OnRename()
     var
         SalesLine: Record "Sales Line";
         PurchaseLine: Record "Purchase Line";
+        ItemVariantAttributeValueMapping: Record "Item Var. Attr. Value Mapping";
     begin
         if xRec."Item No." <> "Item No." then begin
             SalesLine.SetRange(Type, SalesLine.Type::Item);
@@ -141,6 +168,8 @@ table 5401 "Item Variant"
             if not PurchaseLine.IsEmpty() then
                 Error(CannotRenameItemUsedInPurchaseLinesErr, FieldCaption("Item No."), TableCaption());
         end;
+
+        ItemVariantAttributeValueMapping.RenameItemVariantAttributeMapping(xRec."Item No.", xRec.Code, "Item No.", Code);
     end;
 
     trigger OnDelete()
@@ -268,6 +297,8 @@ table 5401 "Item Variant"
         PlanningAssignment.SetRange("Variant Code", Code);
         PlanningAssignment.DeleteAll();
 
+        DeleteItemVariantAttributes();
+
         OnAfterOnDelete(Rec);
     end;
 
@@ -296,6 +327,15 @@ table 5401 "Item Variant"
         "Item Id" := Item.SystemId;
     end;
 
+    local procedure DeleteItemVariantAttributes()
+    var
+        ItemVariantAttributeValueMapping: Record "Item Var. Attr. Value Mapping";
+    begin
+        ItemVariantAttributeValueMapping.SetRange("Item No.", "Item No.");
+        ItemVariantAttributeValueMapping.SetRange("Variant Code", Code);
+        ItemVariantAttributeValueMapping.DeleteAll();
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnDelete(ItemVariant: Record "Item Variant")
     begin
@@ -303,6 +343,21 @@ table 5401 "Item Variant"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteOnAfterCheck(var ItemVariant: Record "Item Variant")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    internal procedure OnAfterDeleteItemVariantPicture(var ItemVariant: Record "Item Variant")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    internal procedure OnAfterTakeNewPicture(var ItemVariant: Record "Item Variant"; IsPictureAdded: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    internal procedure OnImportFromDeviceOnAfterModify(var ItemVariant: Record "Item Variant")
     begin
     end;
 }

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -21,7 +21,6 @@ page 9094 "Vendor Statistics FactBox"
             {
                 ApplicationArea = All;
                 Caption = 'Vendor No.';
-                ToolTip = 'Specifies the number of the vendor. The field is either filled automatically from a defined number series, or you enter the number manually because you have enabled manual number entry in the number-series setup.';
 
                 trigger OnDrillDown()
                 begin
@@ -47,6 +46,8 @@ page 9094 "Vendor Statistics FactBox"
             }
             field(BalanceAsCustomer; BalanceAsCustomer)
             {
+                AutoFormatType = 1;
+                AutoFormatExpression = Rec."Currency Code";
                 ApplicationArea = Basic, Suite;
                 Caption = 'Balance (LCY) As Customer';
                 Editable = false;
@@ -87,12 +88,15 @@ page 9094 "Vendor Statistics FactBox"
             {
                 ApplicationArea = Basic, Suite;
                 AutoFormatType = 1;
+                AutoFormatExpression = '';
                 Caption = 'Total (LCY)';
                 ToolTip = 'Specifies the payment amount that you owe the vendor for completed purchases plus purchases that are still ongoing.';
             }
             field("Balance Due (LCY)"; OverDueBalance)
             {
                 ApplicationArea = Basic, Suite;
+                AutoFormatType = 1;
+                AutoFormatExpression = '';
                 CaptionClass = Format(StrSubstNo(OverdueAmountsLCYTxt, Format(WorkDate())));
                 Caption = 'Balance Due (LCY)';
 
@@ -111,6 +115,8 @@ page 9094 "Vendor Statistics FactBox"
             field(GetInvoicedPrepmtAmountLCY; InvoicedPrepmtAmountLCY)
             {
                 ApplicationArea = Prepayments;
+                AutoFormatType = 1;
+                AutoFormatExpression = '';
                 Caption = 'Invoiced Prepayment Amount (LCY)';
                 ToolTip = 'Specifies your payments to the vendor, based on invoiced prepayments.';
             }

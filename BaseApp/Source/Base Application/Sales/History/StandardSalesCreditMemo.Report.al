@@ -27,9 +27,13 @@ using Microsoft.Sales.Setup;
 using Microsoft.Utilities;
 using System.Email;
 using System.Globalization;
+using System.Reflection;
 using System.Text;
 using System.Utilities;
 
+/// <summary>
+/// Generates a standard format printable document for posted sales credit memos with amounts and VAT details.
+/// </summary>
 report 1307 "Standard Sales - Credit Memo"
 {
     Caption = 'Sales - Credit Memo';
@@ -354,20 +358,6 @@ report 1307 "Standard Sales - Credit Memo"
             column(VATRegistrationNo_Lbl; GetCustomerVATRegistrationNumberLbl())
             {
             }
-#if not CLEAN25
-            column(GlobalLocationNumber; '')
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Not in use anymore.';
-                ObsoleteTag = '25.0';
-            }
-            column(GlobalLocationNumber_Lbl; '')
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Not in use anymore.';
-                ObsoleteTag = '25.0';
-            }
-#endif
             column(LegalEntityType; Cust.GetLegalEntityType())
             {
             }
@@ -664,10 +654,14 @@ report 1307 "Standard Sales - Credit Memo"
                 }
 
                 trigger OnAfterGetRecord()
+                var
+                    TypeHelper: Codeunit "Type Helper";
                 begin
                     if WorkDescriptionInstream.EOS then
                         CurrReport.Break();
-                    WorkDescriptionInstream.ReadText(WorkDescriptionLine);
+                    WorkDescriptionLine := TypeHelper.ReadAsTextWithSeparator(WorkDescriptionInstream, TypeHelper.LFSeparator());
+                    if WorkDescriptionLine = '' then
+                        CurrReport.Break();
                 end;
 
                 trigger OnPostDataItem()
@@ -1267,6 +1261,11 @@ report 1307 "Standard Sales - Credit Memo"
         exit(SalesCreditMemoNoLbl);
     end;
 
+    /// <summary>
+    /// Initializes the report request options for the sales credit memo report.
+    /// </summary>
+    /// <param name="NewLogInteraction">Specifies whether to log the interaction.</param>
+    /// <param name="DisplayAsmInfo">Specifies whether to display assembly information.</param>
     procedure InitializeRequest(NewLogInteraction: Boolean; DisplayAsmInfo: Boolean)
     begin
         LogInteraction := NewLogInteraction;
@@ -1389,4 +1388,3 @@ report 1307 "Standard Sales - Credit Memo"
     begin
     end;
 }
-

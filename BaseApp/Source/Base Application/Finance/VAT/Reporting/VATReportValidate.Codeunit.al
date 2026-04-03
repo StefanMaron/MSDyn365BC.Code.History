@@ -6,6 +6,10 @@ namespace Microsoft.Finance.VAT.Reporting;
 
 using Microsoft.Foundation.Address;
 
+/// <summary>
+/// Validates VAT report data for completeness and accuracy before release.
+/// Performs standard validation checks and manages error reporting for VAT submissions.
+/// </summary>
 codeunit 744 "VAT Report Validate"
 {
     TableNo = "VAT Report Header";

@@ -1,4 +1,5 @@
 ﻿namespace System.Integration;
+
 using System.Apps;
 using System.Reflection;
 using System.Text.Json;

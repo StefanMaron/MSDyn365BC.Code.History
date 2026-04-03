@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -70,6 +70,7 @@ table 5341 "CRM Account"
         field(6; CustomerTypeCode; Option)
         {
             Caption = 'Relationship Type';
+            ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
             Description = 'Select the category that best describes the relationship between the account and your organization.';
             ExternalName = 'customertypecode';
             ExternalType = 'Picklist';
@@ -187,6 +188,7 @@ table 5341 "CRM Account"
         field(19; Name; Text[160])
         {
             Caption = 'Account Name';
+            ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
             Description = 'Type the company or business name.';
             ExternalName = 'name';
             ExternalType = 'String';
@@ -200,6 +202,7 @@ table 5341 "CRM Account"
         }
         field(21; Revenue; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Annual Revenue';
             Description = 'Type the annual revenue for the account, used as an indicator in financial performance analysis.';
             ExternalName = 'revenue';
@@ -242,6 +245,7 @@ table 5341 "CRM Account"
         }
         field(26; MarketCap; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Market Capitalization';
             Description = 'Type the market capitalization of the account to identify the company''s equity, used as an indicator in financial performance analysis.';
             ExternalName = 'marketcap';
@@ -382,6 +386,7 @@ table 5341 "CRM Account"
         }
         field(45; CreditLimit; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Credit Limit';
             Description = 'Type the credit limit of the account. This is a useful reference when you address invoice and accounting issues with the customer.';
             ExternalName = 'creditlimit';
@@ -446,6 +451,7 @@ table 5341 "CRM Account"
         }
         field(53; Aging30; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Aging 30';
             Description = 'For system use only.';
             ExternalAccess = Read;
@@ -466,6 +472,7 @@ table 5341 "CRM Account"
         }
         field(55; Aging60; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Aging 60';
             Description = 'For system use only.';
             ExternalAccess = Read;
@@ -485,6 +492,7 @@ table 5341 "CRM Account"
         }
         field(57; Aging90; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Aging 90';
             Description = 'For system use only.';
             ExternalAccess = Read;
@@ -546,6 +554,7 @@ table 5341 "CRM Account"
         field(64; Address1_PrimaryContactName; Text[100])
         {
             Caption = 'Address 1: Primary Contact Name';
+            ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
             Description = 'Type the name of the main contact at the account''s primary address.';
             ExternalName = 'address1_primarycontactname';
             ExternalType = 'String';
@@ -553,6 +562,7 @@ table 5341 "CRM Account"
         field(65; Address1_Line1; Text[250])
         {
             Caption = 'Address 1: Street 1';
+            ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
             Description = 'Type the first line of the primary address.';
             ExternalName = 'address1_line1';
             ExternalType = 'String';
@@ -560,6 +570,7 @@ table 5341 "CRM Account"
         field(66; Address1_Line2; Text[250])
         {
             Caption = 'Address 1: Street 2';
+            ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
             Description = 'Type the second line of the primary address.';
             ExternalName = 'address1_line2';
             ExternalType = 'String';
@@ -574,6 +585,7 @@ table 5341 "CRM Account"
         field(68; Address1_City; Text[80])
         {
             Caption = 'Address 1: City';
+            ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
             Description = 'Type the city for the primary address.';
             ExternalName = 'address1_city';
             ExternalType = 'String';
@@ -595,6 +607,7 @@ table 5341 "CRM Account"
         field(71; Address1_Country; Text[80])
         {
             Caption = 'Address 1: Country/Region';
+            ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
             Description = 'Type the country or region for the primary address.';
             ExternalName = 'address1_country';
             ExternalType = 'String';
@@ -609,6 +622,7 @@ table 5341 "CRM Account"
         field(73; Address1_PostalCode; Text[20])
         {
             Caption = 'Address 1: ZIP/Postal Code';
+            ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
             Description = 'Type the ZIP Code or postal code for the primary address.';
             ExternalName = 'address1_postalcode';
             ExternalType = 'String';
@@ -631,6 +645,7 @@ table 5341 "CRM Account"
         }
         field(77; Address1_Latitude; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Address 1: Latitude';
             Description = 'Type the latitude value for the primary address for use in mapping and other applications.';
             ExternalName = 'address1_latitude';
@@ -645,6 +660,7 @@ table 5341 "CRM Account"
         }
         field(79; Address1_Longitude; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Address 1: Longitude';
             Description = 'Type the longitude value for the primary address for use in mapping and other applications.';
             ExternalName = 'address1_longitude';
@@ -795,6 +811,7 @@ table 5341 "CRM Account"
         }
         field(100; Address2_Latitude; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Address 2: Latitude';
             Description = 'Type the latitude value for the secondary address for use in mapping and other applications.';
             ExternalName = 'address2_latitude';
@@ -809,6 +826,7 @@ table 5341 "CRM Account"
         }
         field(102; Address2_Longitude; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Address 2: Longitude';
             Description = 'Type the longitude value for the secondary address for use in mapping and other applications.';
             ExternalName = 'address2_longitude';
@@ -964,6 +982,7 @@ table 5341 "CRM Account"
         }
         field(120; ExchangeRate; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Exchange Rate';
             Description = 'Shows the conversion rate of the record''s currency. The exchange rate is used to convert all money fields in the record from the local currency to the system''s default currency.';
             ExternalAccess = Read;
@@ -1012,6 +1031,7 @@ table 5341 "CRM Account"
         }
         field(126; CreditLimit_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Credit Limit (Base)';
             Description = 'Shows the credit limit converted to the system''s default base currency for reporting purposes.';
             ExternalAccess = Read;
@@ -1029,6 +1049,7 @@ table 5341 "CRM Account"
         }
         field(128; Aging30_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Aging 30 (Base)';
             Description = 'The base currency equivalent of the aging 30 field.';
             ExternalAccess = Read;
@@ -1037,6 +1058,7 @@ table 5341 "CRM Account"
         }
         field(129; Revenue_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Annual Revenue (Base)';
             Description = 'Shows the annual revenue converted to the system''s default base currency. The calculations use the exchange rate specified in the Currencies area.';
             ExternalAccess = Read;
@@ -1045,6 +1067,7 @@ table 5341 "CRM Account"
         }
         field(130; Aging90_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Aging 90 (Base)';
             Description = 'The base currency equivalent of the aging 90 field.';
             ExternalAccess = Read;
@@ -1053,6 +1076,7 @@ table 5341 "CRM Account"
         }
         field(131; MarketCap_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Market Capitalization (Base)';
             Description = 'Shows the market capitalization converted to the system''s default base currency.';
             ExternalAccess = Read;
@@ -1061,6 +1085,7 @@ table 5341 "CRM Account"
         }
         field(132; Aging60_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Aging 60 (Base)';
             Description = 'The base currency equivalent of the aging 60 field.';
             ExternalAccess = Read;
@@ -1185,6 +1210,7 @@ table 5341 "CRM Account"
         }
         field(147; OpenRevenue; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Open Revenue';
             Description = 'Sum of open revenue against an account and its child accounts.';
             ExternalAccess = Read;
@@ -1193,6 +1219,7 @@ table 5341 "CRM Account"
         }
         field(148; OpenRevenue_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Open Revenue (Base)';
             Description = 'Sum of open revenue against an account and its child accounts.';
             ExternalAccess = Read;

@@ -1,5 +1,4 @@
-#if not CLEAN25
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -11,9 +10,12 @@ using Microsoft.Inventory.Item;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Sales.Customer;
 using System.Environment;
-using System.Text;
 using System.Globalization;
+using System.Text;
 
+/// <summary>
+/// Displays and manages sales prices with filtering by sales type, item, currency, and date range.
+/// </summary>
 page 7002 "Sales Prices"
 {
     Caption = 'Sales Prices';
@@ -22,9 +24,6 @@ page 7002 "Sales Prices"
     PageType = List;
     SaveValues = true;
     SourceTable = "Sales Price";
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-    ObsoleteTag = '16.0';
     ODataKeyFields = SystemId;
 
     layout
@@ -192,7 +191,6 @@ page 7002 "Sales Prices"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = SalesTypeControlEditable;
-                    ToolTip = 'Specifies the sales price type, which defines whether the price is for an individual, group, all customers, or a campaign.';
 
                     trigger OnValidate()
                     begin
@@ -203,66 +201,54 @@ page 7002 "Sales Prices"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = SalesCodeControlEditable;
-                    ToolTip = 'Specifies the code that belongs to the Sales Type.';
                 }
                 field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the item for which the sales price is valid.';
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
                 field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the code for the currency of the sales price.';
                     Visible = false;
                 }
                 field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
                 field("Minimum Quantity"; Rec."Minimum Quantity")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the minimum sales quantity required to warrant the sales price.';
                 }
                 field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
                 }
                 field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the date from which the sales price is valid.';
                 }
                 field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the calendar date when the sales price agreement ends.';
                 }
                 field("Price Includes VAT"; Rec."Price Includes VAT")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the sales price includes VAT.';
                     Visible = false;
                 }
                 field("Allow Line Disc."; Rec."Allow Line Disc.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if a line discount will be calculated when the sales price is offered.';
                     Visible = false;
                 }
                 field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if an invoice discount will be calculated when the sales price is offered.';
                     Visible = false;
                 }
                 field("VAT Bus. Posting Gr. (Price)"; Rec."VAT Bus. Posting Gr. (Price)")
@@ -430,6 +416,9 @@ page 7002 "Sales Prices"
         CurrencyCodeFilter := Rec.GetFilter("Currency Code");
     end;
 
+    /// <summary>
+    /// Applies filter settings to the sales price records based on current filter values.
+    /// </summary>
     procedure SetRecFilters()
     begin
         SalesCodeFilterCtrlEnable := true;
@@ -663,24 +652,44 @@ page 7002 "Sales Prices"
         end;
     end;
 
+    /// <summary>
+    /// Retrieves the currently selected sales price records as a filter.
+    /// </summary>
+    /// <param name="SalesPrice">The sales price record variable to receive the selection filter.</param>
     procedure GetSelectionFilter(var SalesPrice: Record "Sales Price")
     begin
         CurrPage.SetSelectionFilter(SalesPrice);
     end;
 
+    /// <summary>
+    /// Raises an event after calculating whether the sales code field should be editable.
+    /// </summary>
+    /// <param name="SalesPrice">The current sales price record.</param>
+    /// <param name="SalesCodeControlEditable">Indicates whether the sales code control is editable.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetCurrRecordOnAfterCalcSalesCodeControlEditable(var SalesPrice: Record "Sales Price"; var SalesCodeControlEditable: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Raises an event before retrieving record filters when the page opens.
+    /// </summary>
+    /// <param name="SalesPrice">The sales price record.</param>
+    /// <param name="IsHandled">Set to true to skip the default filter retrieval logic.</param>
     [IntegrationEvent(true, false)]
     local procedure OnOpenPageOnBeforeGetRecFilters(var SalesPrice: Record "Sales Price"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Raises an event before checking if filter values are valid.
+    /// </summary>
+    /// <param name="SalesPrice">The sales price record.</param>
+    /// <param name="TableNo">The table number being filtered.</param>
+    /// <param name="FilterTxt">The filter text to validate.</param>
+    /// <param name="IsEmptyFilter">Indicates whether the filter is empty.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckFilters(var SalesPrice: Record "Sales Price"; TableNo: Integer; var FilterTxt: Text; var IsEmptyFilter: Boolean)
     begin
     end;
 }
-#endif

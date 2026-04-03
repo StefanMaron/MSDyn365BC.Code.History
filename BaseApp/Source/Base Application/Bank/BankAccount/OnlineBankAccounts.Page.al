@@ -30,12 +30,10 @@ page 270 "Online Bank Accounts"
                 field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the online bank account.';
                 }
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the bank account name.';
                 }
             }
         }
@@ -45,6 +43,10 @@ page 270 "Online Bank Accounts"
     {
     }
 
+    /// <summary>
+    /// Populates the page with online bank account link records from the source table.
+    /// </summary>
+    /// <param name="OnlineBankAccLink">Source record set containing online bank account links</param>
     procedure SetRecs(var OnlineBankAccLink: Record "Online Bank Acc. Link")
     begin
         OnlineBankAccLink.Reset();

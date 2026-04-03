@@ -1265,6 +1265,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit VAT - Vies Declaration XML - NamedType XMLHasElementErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 962565375 - NamedType 725557979" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The BOP User Account ID must be exactly 10 digits.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit VAT Report - NamedType BOPUserAccountIDLengthErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 962565375 - NamedType 639907051" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The BOP User Account ID must be specified in the VAT Report Setup before generating the ELMA XML file.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit VAT Report - NamedType BOPUserAccountIDMissingErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 962565375 - NamedType 1100186259" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[A correction entry already exists for this entry in report]]></Val>

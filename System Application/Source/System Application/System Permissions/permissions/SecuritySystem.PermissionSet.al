@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Security.AccessControl;
+
 using System.Environment;
 using System.Environment.Configuration;
 using System.Globalization;

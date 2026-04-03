@@ -532,7 +532,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         VendorCard: TestPage "Vendor Card";
     begin
-        // [SCENARIO 612993] A user can delegate a Vendor approval.
+        // [SCENARIO 7] A user can delegate a Vendor approval.
         // [GIVEN] A Vendor Approval.
         // [WHEN] The user delegates a request for Vendor approval.
         // [THEN] The Vendor gets assigned to the substitute.

@@ -97,14 +97,19 @@ page 9019 "CEO and President Role Center"
                 RunObject = Report "Receivables-Payables";
                 ToolTip = 'Perform bookkeeping tasks.';
             }
+#if not CLEAN28
             action("&Trial Balance/Budget")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Trial Balance/Budget';
+                Caption = '&Trial Balance/Budget (Obsolete)';
                 Image = "Report";
                 RunObject = Report "Trial Balance/Budget";
                 ToolTip = 'View a trial balance in comparison to a budget. You can choose to see a trial balance for selected dimensions. You can use the report at the close of an accounting period or fiscal year.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report has been replaced by the report Trial Balance/Budget (Excel). This report will be removed in a future release.';
+                ObsoleteTag = '28.0';
             }
+#endif
             action("&Closing Trial Balance")
             {
                 ApplicationArea = Basic, Suite;
@@ -132,14 +137,20 @@ page 9019 "CEO and President Role Center"
                 RunObject = Report "Customer - Balance to Date";
                 ToolTip = 'View a list with customers'' payment history up until a certain date. You can use the report to extract your total sales income at the close of an accounting period or fiscal year.';
             }
+#if not CLEAN28
             action("Customer - T&op 10 List")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Customer - T&op 10 List';
+                Caption = 'Customer - T&op 10 List (Obsolete)';
                 Image = "Report";
                 RunObject = Report "Customer - Top 10 List";
                 ToolTip = 'View which customers purchase the most or owe the most in a selected period. Only customers that have either purchases during the period or a balance at the end of the period will be included.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report has been replaced by the report Customer - Top List (Excel). This report will be removed in a future release.';
+                ObsoleteTag = '28.0';
             }
+#endif
+#if not CLEAN28
             action("Customer - S&ales List")
             {
                 ApplicationArea = Basic, Suite;
@@ -147,7 +158,12 @@ page 9019 "CEO and President Role Center"
                 Image = "Report";
                 RunObject = Report "Customer - Sales List";
                 ToolTip = 'View customer sales for a period, for example, to report sales activity to customs and tax authorities. You can choose to include only customers with total sales that exceed a minimum amount. You can also specify whether you want the report to show address details for each customer.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report is obsolete and will be removed in a future version.';
+                ObsoleteTag = '28.0';
             }
+#endif
+#if not CLEAN28
             action("Sales &Statistics")
             {
                 ApplicationArea = Suite;
@@ -155,7 +171,11 @@ page 9019 "CEO and President Role Center"
                 Image = "Report";
                 RunObject = Report "Sales Statistics";
                 ToolTip = 'View customers'' total costs, sales, and profits over time, for example, to analyze earnings trends. The report shows amounts for original and adjusted costs, sales, profits, invoice discounts, payment discounts, and profit percentage in three adjustable periods.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report is obsolete and will be removed in a future version.';
+                ObsoleteTag = '28.0';
             }
+#endif
             separator(Action11)
             {
             }

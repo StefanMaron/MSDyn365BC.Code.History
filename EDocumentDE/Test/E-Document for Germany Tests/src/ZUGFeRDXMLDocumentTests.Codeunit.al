@@ -24,7 +24,6 @@ using Microsoft.Service.Document;
 using Microsoft.Service.History;
 using Microsoft.Service.Test;
 using System.IO;
-using System.Reflection;
 using System.Utilities;
 
 codeunit 13922 "ZUGFeRD XML Document Tests"
@@ -52,10 +51,29 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         LibraryEdocument: Codeunit "Library - E-Document";
         Assert: Codeunit Assert;
         ZUGFeRDFormat: Codeunit "ZUGFeRD Format";
+        ExportZUGFeRDDocument: Codeunit "Export ZUGFeRD Document";
         IncorrectValueErr: Label 'Incorrect value for %1', Locked = true;
         IsInitialized: Boolean;
 
     #region SalesInvoice
+    [Test]
+    procedure CheckSalesInvoiceInZUGFeRDFormatVATRegNoNotMandatoryWithCustomerReference();
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO] When Buyer Reference is Customer Reference, VAT Registration No. is not required if customer has E-Invoice Routing No.
+        Initialize();
+
+        // [GIVEN] Buyer Reference is Customer Reference
+        SetEdocumentServiceBuyerReference("E-Document Buyer Reference"::"Customer Reference");
+
+        // [GIVEN] Sales Invoice for a customer with E-Invoice Routing No. but without VAT Registration No.
+        SalesHeader.Get("Sales Document Type"::Invoice, CreateSalesDocumentWithCustomerWithoutVATRegNo("Sales Document Type"::Invoice, Enum::"Sales Line Type"::Item));
+
+        // [WHEN/THEN] Check does not throw an error - VAT Registration No. is not required
+        CheckSalesHeader(SalesHeader);
+    end;
+
     [Test]
     procedure ExportPostedSalesInvoiceInZUGFeRDFormatVerifyHeaderData();
     var
@@ -367,7 +385,6 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
     procedure PrintPostedSalesInvoiceWithCustomReportLayout();
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
-        ExportZUGFeRDDocument: Codeunit "Export ZUGFeRD Document";
         PDFDocument: Codeunit "PDF Document";
         PDFTempBlob: Codeunit "Temp Blob";
         TempBlob: Codeunit "Temp Blob";
@@ -1403,8 +1420,8 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
     begin
         CreatePurchHeader(PurchaseHeader, DocumentType);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
-        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(50, 2));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(10, 20, 5));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(50, 5));
         PurchaseLine.Modify(true);
     end;
 
@@ -1475,6 +1492,11 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
     end;
 
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type");
+    begin
+        CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer());
+    end;
+
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]);
     var
         PostCode: Record "Post Code";
         PaymentMethod: Record "Payment Method";
@@ -1483,7 +1505,7 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         LibraryERM.FindPostCode(PostCode);
         PaymentTermsCode := LibraryERM.FindPaymentTermsCode();
         LibraryERM.FindPaymentMethod(PaymentMethod);
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer());
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Sell-to Contact", SalesHeader."No.");
         SalesHeader.Validate("Bill-to Address", LibraryUtility.GenerateGUID());
         SalesHeader.Validate("Bill-to City", PostCode.City);
@@ -1535,12 +1557,12 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         UnitOfMeasure."International Standard Code" := LibraryUtility.GenerateGUID();
         UnitOfMeasure.Modify(true);
         LibrarySales.CreateSalesLine(
-        SalesLine, SalesHeader, LineType, LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(10, 20, 2));
-        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine, SalesHeader, LineType, LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(10, 20, 5));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 5));
         SalesLine.Validate("Unit of Measure", UnitOfMeasure.Code);
         SalesLine.Validate("Tax Category", LibraryRandom.RandText(2));
         if LineDiscount then
-            SalesLine.Validate("Line Discount %", LibraryRandom.RandDecInRange(10, 20, 2));
+            SalesLine.Validate("Line Discount %", LibraryRandom.RandDecInRange(10, 20, 5));
         SalesLine.Modify(true);
     end;
 
@@ -1649,6 +1671,19 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
     begin
         SourceDocumentHeader.GetTable(SalesHeader);
         ZUGFeRDFormat.Check(SourceDocumentHeader, EDocumentService, "E-Document Processing Phase"::Release);
+    end;
+
+    local procedure CreateSalesDocumentWithCustomerWithoutVATRegNo(DocumentType: Enum "Sales Document Type"; LineType: Enum "Sales Line Type"): Code[20];
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+    begin
+        Customer.Get(CreateCustomer());
+        Customer."VAT Registration No." := '';
+        Customer.Modify(true);
+        CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
+        CreateSalesLine(SalesHeader, LineType, false);
+        exit(SalesHeader."No.");
     end;
 
     local procedure ExportInvoice(SalesInvoiceHeader: Record "Sales Invoice Header"; var TempXMLBuffer: Record "XML Buffer" temporary);
@@ -1921,7 +1956,7 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         Path: Text;
     begin
         Path := DocumentTaxTotalTok + '/ram:CalculatedAmount';
-        Assert.AreEqual(FormatDecimal(GetTotalTaxAmount(SalesInvoiceHeader)), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(GetTotalTaxAmount(SalesInvoiceHeader)), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
     end;
 
     local procedure VerifyTaxTotals(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var TempXMLBuffer: Record "XML Buffer" temporary);
@@ -1930,7 +1965,7 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         Path: Text;
     begin
         Path := DocumentTaxTotalsTok + '/ram:CalculatedAmount';
-        Assert.AreEqual(FormatDecimal(GetTotalTaxAmount(SalesCrMemoHeader)), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(GetTotalTaxAmount(SalesCrMemoHeader)), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
     end;
 
     local procedure VerifyTaxTotals(ServiceInvoiceHeader: Record "Service Invoice Header"; var TempXMLBuffer: Record "XML Buffer" temporary)
@@ -1939,7 +1974,7 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         Path: Text;
     begin
         Path := ServiceDocumentTaxTotalTok + '/ram:CalculatedAmount';
-        Assert.AreEqual(FormatDecimal(GetTotalTaxAmount(ServiceInvoiceHeader)), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(GetTotalTaxAmount(ServiceInvoiceHeader)), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
     end;
 
     local procedure VerifyTaxTotals(ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var TempXMLBuffer: Record "XML Buffer" temporary)
@@ -1948,7 +1983,7 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         Path: Text;
     begin
         Path := ServiceDocumentTaxTotalsTok + '/ram:CalculatedAmount';
-        Assert.AreEqual(FormatDecimal(GetTotalTaxAmount(ServiceCrMemoHeader)), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(GetTotalTaxAmount(ServiceCrMemoHeader)), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
     end;
 
     local procedure VerifyLegalMonetaryTotal(SalesInvoiceHeader: Record "Sales Invoice Header"; var TempXMLBuffer: Record "XML Buffer" temporary);
@@ -1959,13 +1994,13 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
     begin
         CalculateLineAmounts(SalesInvoiceHeader, LineAmounts);
         Path := DocumentLegalMonetaryTotalTok + '/ram:LineTotalAmount';
-        Assert.AreEqual(FormatDecimal(LineAmounts.Get(SalesInvoiceHeader.FieldName(Amount))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(LineAmounts.Get(SalesInvoiceHeader.FieldName(Amount))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentLegalMonetaryTotalTok + '/ram:TaxBasisTotalAmount';
-        Assert.AreEqual(FormatDecimal(LineAmounts.Get(SalesInvoiceHeader.FieldName(Amount))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(LineAmounts.Get(SalesInvoiceHeader.FieldName(Amount))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentLegalMonetaryTotalTok + '/ram:GrandTotalAmount';
-        Assert.AreEqual(FormatDecimal(LineAmounts.Get(SalesInvoiceHeader.FieldName("Amount Including VAT"))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(LineAmounts.Get(SalesInvoiceHeader.FieldName("Amount Including VAT"))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentLegalMonetaryTotalTok + '/ram:DuePayableAmount';
-        Assert.AreEqual(FormatDecimal(LineAmounts.Get(SalesInvoiceHeader.FieldName("Amount Including VAT"))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(LineAmounts.Get(SalesInvoiceHeader.FieldName("Amount Including VAT"))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
     end;
 
     local procedure VerifyLegalMonetaryTotal(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var TempXMLBuffer: Record "XML Buffer" temporary);
@@ -1976,13 +2011,13 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
     begin
         CalculateLineAmounts(SalesCrMemoHeader, LineAmounts);
         Path := DocumentLegalMonetaryTotalsTok + '/ram:LineTotalAmount';
-        Assert.AreEqual(FormatDecimal(LineAmounts.Get(SalesCrMemoHeader.FieldName(Amount))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(LineAmounts.Get(SalesCrMemoHeader.FieldName(Amount))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentLegalMonetaryTotalsTok + '/ram:TaxBasisTotalAmount';
-        Assert.AreEqual(FormatDecimal(LineAmounts.Get(SalesCrMemoHeader.FieldName(Amount))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(LineAmounts.Get(SalesCrMemoHeader.FieldName(Amount))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentLegalMonetaryTotalsTok + '/ram:GrandTotalAmount';
-        Assert.AreEqual(FormatDecimal(LineAmounts.Get(SalesCrMemoHeader.FieldName("Amount Including VAT"))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(LineAmounts.Get(SalesCrMemoHeader.FieldName("Amount Including VAT"))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentLegalMonetaryTotalsTok + '/ram:DuePayableAmount';
-        Assert.AreEqual(FormatDecimal(LineAmounts.Get(SalesCrMemoHeader.FieldName("Amount Including VAT"))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(LineAmounts.Get(SalesCrMemoHeader.FieldName("Amount Including VAT"))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
     end;
 
     local procedure VerifyLegalMonetaryTotal(ServiceInvoiceHeader: Record "Service Invoice Header"; var TempXMLBuffer: Record "XML Buffer" temporary)
@@ -1993,13 +2028,13 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
     begin
         CalculateLineAmounts(ServiceInvoiceHeader, LineAmounts);
         Path := ServiceDocumentLegalMonetaryTotalTok + '/ram:LineTotalAmount';
-        Assert.AreEqual(FormatDecimal(LineAmounts.Get(ServiceInvoiceHeader.FieldName(Amount))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(LineAmounts.Get(ServiceInvoiceHeader.FieldName(Amount))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := ServiceDocumentLegalMonetaryTotalTok + '/ram:TaxBasisTotalAmount';
-        Assert.AreEqual(FormatDecimal(LineAmounts.Get(ServiceInvoiceHeader.FieldName(Amount))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(LineAmounts.Get(ServiceInvoiceHeader.FieldName(Amount))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := ServiceDocumentLegalMonetaryTotalTok + '/ram:GrandTotalAmount';
-        Assert.AreEqual(FormatDecimal(LineAmounts.Get(ServiceInvoiceHeader.FieldName("Amount Including VAT"))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(LineAmounts.Get(ServiceInvoiceHeader.FieldName("Amount Including VAT"))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := ServiceDocumentLegalMonetaryTotalTok + '/ram:DuePayableAmount';
-        Assert.AreEqual(FormatDecimal(LineAmounts.Get(ServiceInvoiceHeader.FieldName("Amount Including VAT"))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(LineAmounts.Get(ServiceInvoiceHeader.FieldName("Amount Including VAT"))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
     end;
 
     local procedure VerifyLegalMonetaryTotal(ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var TempXMLBuffer: Record "XML Buffer" temporary)
@@ -2010,13 +2045,13 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
     begin
         CalculateLineAmounts(ServiceCrMemoHeader, LineAmounts);
         Path := ServiceDocumentLegalMonetaryTotalsTok + '/ram:LineTotalAmount';
-        Assert.AreEqual(FormatDecimal(LineAmounts.Get(ServiceCrMemoHeader.FieldName(Amount))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(LineAmounts.Get(ServiceCrMemoHeader.FieldName(Amount))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := ServiceDocumentLegalMonetaryTotalsTok + '/ram:TaxBasisTotalAmount';
-        Assert.AreEqual(FormatDecimal(LineAmounts.Get(ServiceCrMemoHeader.FieldName(Amount))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(LineAmounts.Get(ServiceCrMemoHeader.FieldName(Amount))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := ServiceDocumentLegalMonetaryTotalsTok + '/ram:GrandTotalAmount';
-        Assert.AreEqual(FormatDecimal(LineAmounts.Get(ServiceCrMemoHeader.FieldName("Amount Including VAT"))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(LineAmounts.Get(ServiceCrMemoHeader.FieldName("Amount Including VAT"))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := ServiceDocumentLegalMonetaryTotalsTok + '/ram:DuePayableAmount';
-        Assert.AreEqual(FormatDecimal(LineAmounts.Get(ServiceCrMemoHeader.FieldName("Amount Including VAT"))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(LineAmounts.Get(ServiceCrMemoHeader.FieldName("Amount Including VAT"))), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
     end;
 
     local procedure VerifyInvoiceLine(SalesInvoiceHeader: Record "Sales Invoice Header"; var TempXMLBuffer: Record "XML Buffer" temporary);
@@ -2038,15 +2073,19 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         Path := DocumentTok + '/ram:AssociatedDocumentLineDocument/ram:LineID';
         Assert.AreEqual(Format(SalesInvoiceLine."Line No."), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeDelivery/ram:BilledQuantity';
-        Assert.AreEqual(FormatFourDecimal(SalesInvoiceLine."Quantity"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimalUnlimited(SalesInvoiceLine."Quantity"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeSettlement/ram:SpecifiedTradeSettlementLineMonetarySummation/ram:LineTotalAmount';
-        Assert.AreEqual(FormatDecimal(SalesInvoiceLine."Amount"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(SalesInvoiceLine."Amount"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedTradeProduct/ram:Name';
         Assert.AreEqual(SalesInvoiceLine."Description", GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeAgreement/ram:NetPriceProductTradePrice/ram:ChargeAmount';
-        Assert.AreEqual(FormatFourDecimal(SalesInvoiceLine."Unit Price"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimalUnlimited(SalesInvoiceLine."Unit Price"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeSettlement/ram:ApplicableTradeTax/ram:CategoryCode';
         Assert.AreEqual(SalesInvoiceLine."Tax Category", GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Path := DocumentTok + '/ram:SpecifiedLineTradeSettlement/ram:BillingSpecifiedPeriod/ram:StartDateTime/udt:DateTimeString';
+        Assert.AreEqual(FormatDate(SalesInvoiceLine."Shipment Date"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Path := DocumentTok + '/ram:SpecifiedLineTradeSettlement/ram:BillingSpecifiedPeriod/ram:EndDateTime/udt:DateTimeString';
+        Assert.AreEqual(FormatDate(SalesInvoiceLine."Shipment Date"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
     end;
 
     local procedure VerifySecondSalesInvoiceLine(SalesInvoiceLine: Record "Sales Invoice Line"; var TempXMLBuffer: Record "XML Buffer" temporary; DocumentTok: Text);
@@ -2056,15 +2095,19 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         Path := DocumentTok + '/ram:AssociatedDocumentLineDocument/ram:LineID';
         Assert.AreEqual(Format(SalesInvoiceLine."Line No."), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeDelivery/ram:BilledQuantity';
-        Assert.AreEqual(FormatFourDecimal(SalesInvoiceLine."Quantity"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimalUnlimited(SalesInvoiceLine."Quantity"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeSettlement/ram:SpecifiedTradeSettlementLineMonetarySummation/ram:LineTotalAmount';
-        Assert.AreEqual(FormatDecimal(SalesInvoiceLine."Amount"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(SalesInvoiceLine."Amount"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedTradeProduct/ram:Name';
         Assert.AreEqual(SalesInvoiceLine."Description", GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeAgreement/ram:NetPriceProductTradePrice/ram:ChargeAmount';
-        Assert.AreEqual(FormatFourDecimal(SalesInvoiceLine."Unit Price"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimalUnlimited(SalesInvoiceLine."Unit Price"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeSettlement/ram:ApplicableTradeTax/ram:CategoryCode';
         Assert.AreEqual(SalesInvoiceLine."Tax Category", GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Path := DocumentTok + '/ram:SpecifiedLineTradeSettlement/ram:BillingSpecifiedPeriod/ram:StartDateTime/udt:DateTimeString';
+        Assert.AreEqual(FormatDate(SalesInvoiceLine."Shipment Date"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Path := DocumentTok + '/ram:SpecifiedLineTradeSettlement/ram:BillingSpecifiedPeriod/ram:EndDateTime/udt:DateTimeString';
+        Assert.AreEqual(FormatDate(SalesInvoiceLine."Shipment Date"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
     end;
 
     local procedure VerifyInvoiceLineWithDiscount(SalesInvoiceHeader: Record "Sales Invoice Header"; var TempXMLBuffer: Record "XML Buffer" temporary);
@@ -2078,7 +2121,7 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         Path := DocumentTok + '/ram:Reason';
         Assert.AreEqual('Line Discount', GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:ActualAmount';
-        Assert.AreEqual(FormatDecimal(SalesInvoiceLine."Line Discount Amount"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(SalesInvoiceLine."Line Discount Amount"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
     end;
 
     local procedure VerifyInvoiceWithInvDiscount(SalesInvoiceHeader: Record "Sales Invoice Header"; var TempXMLBuffer: Record "XML Buffer" temporary);
@@ -2090,7 +2133,7 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         Path := DocumentTok + '/ram:Reason';
         Assert.AreEqual('Document discount', GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:ActualAmount';
-        Assert.AreEqual(FormatDecimal(SalesInvoiceHeader."Invoice Discount Amount"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(SalesInvoiceHeader."Invoice Discount Amount"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
     end;
 
     local procedure VerifyCrMemoLine(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var TempXMLBuffer: Record "XML Buffer" temporary);
@@ -2112,15 +2155,19 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         Path := DocumentTok + '/ram:AssociatedDocumentLineDocument/ram:LineID';
         Assert.AreEqual(Format(SalesCrMemoLine."Line No."), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeDelivery/ram:BilledQuantity';
-        Assert.AreEqual(FormatFourDecimal(SalesCrMemoLine."Quantity"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimalUnlimited(SalesCrMemoLine."Quantity"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeSettlement/ram:SpecifiedTradeSettlementLineMonetarySummation/ram:LineTotalAmount';
-        Assert.AreEqual(FormatDecimal(SalesCrMemoLine."Amount"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(SalesCrMemoLine."Amount"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedTradeProduct/ram:Name';
         Assert.AreEqual(SalesCrMemoLine."Description", GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeAgreement/ram:NetPriceProductTradePrice/ram:ChargeAmount';
-        Assert.AreEqual(FormatFourDecimal(SalesCrMemoLine."Unit Price"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimalUnlimited(SalesCrMemoLine."Unit Price"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeSettlement/ram:ApplicableTradeTax/ram:CategoryCode';
         Assert.AreEqual(SalesCrMemoLine."Tax Category", GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Path := DocumentTok + '/ram:SpecifiedLineTradeSettlement/ram:BillingSpecifiedPeriod/ram:StartDateTime/udt:DateTimeString';
+        Assert.AreEqual(FormatDate(SalesCrMemoLine."Shipment Date"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Path := DocumentTok + '/ram:SpecifiedLineTradeSettlement/ram:BillingSpecifiedPeriod/ram:EndDateTime/udt:DateTimeString';
+        Assert.AreEqual(FormatDate(SalesCrMemoLine."Shipment Date"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
     end;
 
     local procedure VerifySecondSalesCrMemoLine(SalesCrMemoLine: Record "Sales Cr.Memo Line"; var TempXMLBuffer: Record "XML Buffer" temporary; DocumentTok: Text);
@@ -2130,15 +2177,19 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         Path := DocumentTok + '/ram:AssociatedDocumentLineDocument/ram:LineID';
         Assert.AreEqual(Format(SalesCrMemoLine."Line No."), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeDelivery/ram:BilledQuantity';
-        Assert.AreEqual(FormatFourDecimal(SalesCrMemoLine."Quantity"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimalUnlimited(SalesCrMemoLine."Quantity"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeSettlement/ram:SpecifiedTradeSettlementLineMonetarySummation/ram:LineTotalAmount';
-        Assert.AreEqual(FormatDecimal(SalesCrMemoLine."Amount"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(SalesCrMemoLine."Amount"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedTradeProduct/ram:Name';
         Assert.AreEqual(SalesCrMemoLine."Description", GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeAgreement/ram:NetPriceProductTradePrice/ram:ChargeAmount';
-        Assert.AreEqual(FormatFourDecimal(SalesCrMemoLine."Unit Price"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimalUnlimited(SalesCrMemoLine."Unit Price"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeSettlement/ram:ApplicableTradeTax/ram:CategoryCode';
         Assert.AreEqual(SalesCrMemoLine."Tax Category", GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Path := DocumentTok + '/ram:SpecifiedLineTradeSettlement/ram:BillingSpecifiedPeriod/ram:StartDateTime/udt:DateTimeString';
+        Assert.AreEqual(FormatDate(SalesCrMemoLine."Shipment Date"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Path := DocumentTok + '/ram:SpecifiedLineTradeSettlement/ram:BillingSpecifiedPeriod/ram:EndDateTime/udt:DateTimeString';
+        Assert.AreEqual(FormatDate(SalesCrMemoLine."Shipment Date"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
     end;
 
     local procedure VerifyCrMemoLineWithDiscounts(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var TempXMLBuffer: Record "XML Buffer" temporary);
@@ -2152,7 +2203,7 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         Path := DocumentTok + '/ram:Reason';
         Assert.AreEqual('Line Discount', GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:ActualAmount';
-        Assert.AreEqual(FormatDecimal(SalesCrMemoLine."Line Discount Amount"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(SalesCrMemoLine."Line Discount Amount"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
     end;
 
     local procedure VerifyCrMemoWithInvDiscount(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var TempXMLBuffer: Record "XML Buffer" temporary);
@@ -2164,7 +2215,7 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         Path := DocumentTok + '/ram:Reason';
         Assert.AreEqual('Document discount', GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:ActualAmount';
-        Assert.AreEqual(FormatDecimal(SalesCrMemoHeader."Invoice Discount Amount"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(SalesCrMemoHeader."Invoice Discount Amount"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
     end;
 
     local procedure VerifyServiceInvoiceLine(ServiceInvoiceHeader: Record "Service Invoice Header"; var TempXMLBuffer: Record "XML Buffer" temporary)
@@ -2186,13 +2237,13 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         Path := DocumentTok + '/ram:AssociatedDocumentLineDocument/ram:LineID';
         Assert.AreEqual(Format(ServiceInvoiceLine."Line No."), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeDelivery/ram:BilledQuantity';
-        Assert.AreEqual(FormatFourDecimal(ServiceInvoiceLine."Quantity"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimalUnlimited(ServiceInvoiceLine."Quantity"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeSettlement/ram:SpecifiedTradeSettlementLineMonetarySummation/ram:LineTotalAmount';
-        Assert.AreEqual(FormatDecimal(ServiceInvoiceLine."Amount"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(ServiceInvoiceLine."Amount"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedTradeProduct/ram:Name';
         Assert.AreEqual(ServiceInvoiceLine."Description", GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeAgreement/ram:NetPriceProductTradePrice/ram:ChargeAmount';
-        Assert.AreEqual(FormatFourDecimal(ServiceInvoiceLine."Unit Price"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimalUnlimited(ServiceInvoiceLine."Unit Price"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
     end;
 
     local procedure VerifySecondServiceInvoiceLine(ServiceInvoiceLine: Record "Service Invoice Line"; var TempXMLBuffer: Record "XML Buffer" temporary; DocumentTok: Text)
@@ -2202,13 +2253,13 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         Path := DocumentTok + '/ram:AssociatedDocumentLineDocument/ram:LineID';
         Assert.AreEqual(Format(ServiceInvoiceLine."Line No."), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeDelivery/ram:BilledQuantity';
-        Assert.AreEqual(FormatFourDecimal(ServiceInvoiceLine."Quantity"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimalUnlimited(ServiceInvoiceLine."Quantity"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeSettlement/ram:SpecifiedTradeSettlementLineMonetarySummation/ram:LineTotalAmount';
-        Assert.AreEqual(FormatDecimal(ServiceInvoiceLine."Amount"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(ServiceInvoiceLine."Amount"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedTradeProduct/ram:Name';
         Assert.AreEqual(ServiceInvoiceLine."Description", GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeAgreement/ram:NetPriceProductTradePrice/ram:ChargeAmount';
-        Assert.AreEqual(FormatFourDecimal(ServiceInvoiceLine."Unit Price"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimalUnlimited(ServiceInvoiceLine."Unit Price"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
     end;
 
     local procedure VerifyServiceCrMemoLine(ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var TempXMLBuffer: Record "XML Buffer" temporary)
@@ -2230,13 +2281,13 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         Path := DocumentTok + '/ram:AssociatedDocumentLineDocument/ram:LineID';
         Assert.AreEqual(Format(ServiceCrMemoLine."Line No."), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeDelivery/ram:BilledQuantity';
-        Assert.AreEqual(FormatFourDecimal(ServiceCrMemoLine."Quantity"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimalUnlimited(ServiceCrMemoLine."Quantity"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeSettlement/ram:SpecifiedTradeSettlementLineMonetarySummation/ram:LineTotalAmount';
-        Assert.AreEqual(FormatDecimal(ServiceCrMemoLine."Amount"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(ServiceCrMemoLine."Amount"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedTradeProduct/ram:Name';
         Assert.AreEqual(ServiceCrMemoLine."Description", GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeAgreement/ram:NetPriceProductTradePrice/ram:ChargeAmount';
-        Assert.AreEqual(FormatFourDecimal(ServiceCrMemoLine."Unit Price"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimalUnlimited(ServiceCrMemoLine."Unit Price"), GetNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
     end;
 
     local procedure VerifySecondServiceCrMemoLine(ServiceCrMemoLine: Record "Service Cr.Memo Line"; var TempXMLBuffer: Record "XML Buffer" temporary; DocumentTok: Text)
@@ -2246,13 +2297,13 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         Path := DocumentTok + '/ram:AssociatedDocumentLineDocument/ram:LineID';
         Assert.AreEqual(Format(ServiceCrMemoLine."Line No."), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeDelivery/ram:BilledQuantity';
-        Assert.AreEqual(FormatFourDecimal(ServiceCrMemoLine."Quantity"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimalUnlimited(ServiceCrMemoLine."Quantity"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeSettlement/ram:SpecifiedTradeSettlementLineMonetarySummation/ram:LineTotalAmount';
-        Assert.AreEqual(FormatDecimal(ServiceCrMemoLine."Amount"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimal(ServiceCrMemoLine."Amount"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedTradeProduct/ram:Name';
         Assert.AreEqual(ServiceCrMemoLine."Description", GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
         Path := DocumentTok + '/ram:SpecifiedLineTradeAgreement/ram:NetPriceProductTradePrice/ram:ChargeAmount';
-        Assert.AreEqual(FormatFourDecimal(ServiceCrMemoLine."Unit Price"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
+        Assert.AreEqual(ExportZUGFeRDDocument.FormatDecimalUnlimited(ServiceCrMemoLine."Unit Price"), GetLastNodeByPathWithError(TempXMLBuffer, Path), StrSubstNo(IncorrectValueErr, Path));
     end;
 
     local procedure GetCurrencyCode(CurrencyCode: Code[10]): Code[10];
@@ -2485,18 +2536,6 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         exit(Format(VarDate, 0, '<Year4><Month,2><Day,2>'));
     end;
 
-    procedure FormatDecimal(VarDecimal: Decimal): Text
-    var
-        TypeHelper: Codeunit "Type Helper";
-    begin
-        exit(Format(VarDecimal, 0, TypeHelper.GetXMLAmountFormatWithTwoDecimalPlaces()));
-    end;
-
-    procedure FormatFourDecimal(VarDecimal: Decimal): Text
-    begin
-        exit(Format(VarDecimal, 0, '<Precision,4:4><Standard Format,9>'))
-    end;
-
     local procedure Initialize();
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ZUGFeRD XML Document Tests");
@@ -2505,6 +2544,10 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ZUGFeRD XML Document Tests");
         IsInitialized := true;
         CompanyInformation.Get();
+        CompanyInformation.IBAN := LibraryUtility.GenerateMOD97CompliantCode();
+        CompanyInformation."SWIFT Code" := LibraryUtility.GenerateGUID();
+        CompanyInformation."E-Mail" := LibraryUtility.GenerateRandomEmail();
+        CompanyInformation.Modify();
         GeneralLedgerSetup.Get();
         EDocumentService.DeleteAll();
         EDocumentService.Get(LibraryEdocument.CreateService("E-Document Format"::ZUGFeRD, "Service Integration"::"No Integration"));

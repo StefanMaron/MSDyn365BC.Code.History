@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -12,6 +12,9 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Reports;
 using Microsoft.Utilities;
 
+/// <summary>
+/// Provides a document page for creating and managing individual finance charge memos before issuing.
+/// </summary>
 page 446 "Finance Charge Memo"
 {
     Caption = 'Finance Charge Memo';
@@ -29,7 +32,6 @@ page 446 "Finance Charge Memo"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                     Visible = DocNoVisible;
 
                     trigger OnAssistEdit()
@@ -43,7 +45,6 @@ page 446 "Finance Charge Memo"
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ShowMandatory = true;
-                    ToolTip = 'Specifies the number of the customer you want to create a finance charge memo for.';
 
                     trigger OnValidate()
                     begin
@@ -56,35 +57,29 @@ page 446 "Finance Charge Memo"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the name of the customer the finance charge memo is for.';
                 }
                 field(Address; Rec.Address)
                 {
                     ApplicationArea = Basic, Suite;
                     QuickEntry = false;
-                    ToolTip = 'Specifies the address of the customer the finance charge memo is for.';
                 }
                 field("Address 2"; Rec."Address 2")
                 {
                     ApplicationArea = Basic, Suite;
                     QuickEntry = false;
-                    ToolTip = 'Specifies additional address information.';
                 }
                 field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     QuickEntry = false;
-                    ToolTip = 'Specifies the postal code.';
                 }
                 field(City; Rec.City)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the city name of the customer the finance charge memo is for.';
                 }
                 field(Contact; Rec.Contact)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the person you regularly contact when you communicate with the customer the finance charge memo is for.';
                 }
                 field(ContactPhoneNo; PrimaryContact."Phone No.")
                 {
@@ -117,30 +112,25 @@ page 446 "Finance Charge Memo"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the customer''s reference. The content will be printed on the related document.';
                 }
                 field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the date when the finance charge memo should be issued.';
                 }
                 field("VAT Reporting Date"; Rec."VAT Reporting Date")
                 {
                     ApplicationArea = VAT;
                     Editable = VATDateEnabled;
                     Visible = VATDateEnabled;
-                    ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
                 }
                 field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the date when the related document was created.';
                 }
                 field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
             }
             part(FinChrgMemoLines; "Finance Charge Memo Lines")
@@ -156,19 +146,16 @@ page 446 "Finance Charge Memo"
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ShowMandatory = true;
-                    ToolTip = 'Specifies the code for the involved finance charges in case of late payment.';
                 }
                 field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
-                    ToolTip = 'Specifies when payment of the amount on the finance charge memo is due.';
                 }
                 field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the currency code of the finance charge memo.';
 
                     trigger OnAssistEdit()
                     var
@@ -189,23 +176,19 @@ page 446 "Finance Charge Memo"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
                 field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
                 field("Customer Posting Group"; Rec."Customer Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = IsPostingGroupEditable;
-                    ToolTip = 'Specifies the customer''s market type to link business transactions to.';
                 }
             }
         }
@@ -381,22 +364,6 @@ page 446 "Finance Charge Memo"
         }
         area(reporting)
         {
-#if not CLEAN25
-            action("Finance Charge Memo Nos.")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'The action will be obsoleted.';
-                Image = "Report";
-                //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                //PromotedCategory = "Report";
-                RunObject = Report "Finance Charge Memo";
-                ToolTip = 'The action will be obsoleted.';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The related report doesn''t exist anymore.';
-                ObsoleteTag = '25.0';
-            }
-#endif
             action("Finance Charge Memo")
             {
                 ApplicationArea = Basic, Suite;
@@ -520,6 +487,9 @@ page 446 "Finance Charge Memo"
         DocNoVisible := DocumentNoVisibility.SalesDocumentNoIsVisible(DocType::FinChMemo, Rec."No.");
     end;
 
+    /// <summary>
+    /// Sets the posting group field editability based on customer settings.
+    /// </summary>
     procedure SetPostingGroupEditable()
     var
         Customer2: Record Customer;
@@ -528,4 +498,3 @@ page 446 "Finance Charge Memo"
             IsPostingGroupEditable := Customer2."Allow Multiple Posting Groups";
     end;
 }
-

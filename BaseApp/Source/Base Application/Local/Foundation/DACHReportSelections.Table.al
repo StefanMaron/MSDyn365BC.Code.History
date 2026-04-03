@@ -12,13 +12,8 @@ table 26100 "DACH Report Selections"
     Caption = 'DACH Report Selections';
     DataClassification = CustomerContent;
     ObsoleteReason = 'Replaced by W1 table Report Selections';
-#if not CLEAN25 
-    ObsoleteState = Pending;
-    ObsoleteTag = '25.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '28.0';
-#endif
 
     fields
     {
@@ -37,12 +32,6 @@ table 26100 "DACH Report Selections"
         {
             Caption = 'Report ID';
             TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Report));
-#if not CLEAN25
-            trigger OnValidate()
-            begin
-                CalcFields("Report Name");
-            end;
-#endif
         }
         field(4; "Report Name"; Text[80])
         {
@@ -66,21 +55,6 @@ table 26100 "DACH Report Selections"
     {
     }
 
-#if not CLEAN25
-    var
-        DACHReportSelection2: Record "DACH Report Selections";
-
-    [Obsolete('Replaced by W1 table Report Selections', '25.0')]
-    [Scope('OnPrem')]
-    procedure NewRecord()
-    begin
-        DACHReportSelection2.SetRange(Usage, Usage);
-        if DACHReportSelection2.FindLast() and (DACHReportSelection2.Sequence <> '') then
-            Sequence := IncStr(DACHReportSelection2.Sequence)
-        else
-            Sequence := '1';
-    end;
-#endif
 }
  
 #endif

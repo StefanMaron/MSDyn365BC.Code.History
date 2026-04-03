@@ -16,24 +16,27 @@ codeunit 1003 "Job Task-Indent"
     begin
         Rec.TestField("Job No.");
 
-        IsHandled := false;
-        OnRunOnBeforeConfirm(Rec, IsHandled);
-        if not IsHandled then
-            if not
-               Confirm(
-                 Text000 +
-                 Text001 +
-                 Text002 +
-                 Text003, true)
-            then
-                exit;
+        if not HideDialogGlobal then begin
+            IsHandled := false;
+            OnRunOnBeforeConfirm(Rec, IsHandled);
+            if not IsHandled then
+                if not
+                    Confirm(
+                        Text000 +
+                        Text001 +
+                        Text002 +
+                        Text003, true)
+                then
+                    exit;
+        end;
 
         JobTask := Rec;
-        Indent(Rec."Job No.");
+        Indent(Rec."Job No.", HideDialogGlobal);
     end;
 
     var
         JobTask: Record "Job Task";
+        HideDialogGlobal: Boolean;
         Window: Dialog;
         i: Integer;
 
@@ -49,16 +52,36 @@ codeunit 1003 "Job Task-Indent"
 #pragma warning restore AA0074
         ArrayExceededErr: Label 'You can only indent %1 levels for project tasks of the type Begin-Total.', Comment = '%1 = A number bigger than 1';
 
+    /// <summary>
+    /// Use this procedure if you want to hide the dialog when calling this codeunit via Codeunit.Run()
+    /// </summary>
+    /// <param name="HideDialog"></param>
+    /// <remarks>Hiding the dialog will prevent the Dialog Window and the confirmation dialog</remarks>
+    procedure SetHideDialog(HideDialog: Boolean)
+    begin
+        HideDialogGlobal := HideDialog;
+    end;
+
     procedure Indent(JobNo: Code[20])
+    begin
+        Indent(JobNo, false);
+    end;
+
+    procedure Indent(JobNo: Code[20]; HideDialog: Boolean)
     var
         SelectionFilterManagement: Codeunit "SelectionFilterManagement";
         JobTaskNo: array[10] of Text;
+        WindowOpened: Boolean;
     begin
-        Window.Open(Text004);
+        if GuiAllowed() and not HideDialog then begin
+            Window.Open(Text004);
+            WindowOpened := true;
+        end;
         JobTask.SetRange("Job No.", JobNo);
         if JobTask.Find('-') then
             repeat
-                Window.Update(1, JobTask."Job Task No.");
+                if WindowOpened then
+                    Window.Update(1, JobTask."Job Task No.");
 
                 if JobTask."Job Task Type" = "Job Task Type"::"End-Total" then begin
                     if i < 1 then
@@ -82,7 +105,8 @@ codeunit 1003 "Job Task-Indent"
                 end;
             until JobTask.Next() = 0;
 
-        Window.Close();
+        if WindowOpened then
+            Window.Close();
     end;
 
     [IntegrationEvent(false, false)]

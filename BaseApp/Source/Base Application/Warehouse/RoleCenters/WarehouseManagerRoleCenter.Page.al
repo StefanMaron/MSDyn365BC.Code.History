@@ -9,6 +9,7 @@ using Microsoft.Assembly.History;
 using Microsoft.Assembly.Reports;
 using Microsoft.Assembly.Setup;
 using Microsoft.Foundation.Navigate;
+using Microsoft.Inventory.Analysis;
 using Microsoft.Inventory.Counting.Document;
 using Microsoft.Inventory.Counting.Journal;
 using Microsoft.Inventory.Counting.Recording;
@@ -430,12 +431,17 @@ page 8909 "Warehouse Manager Role Center"
                         Caption = 'Whse. Shipment Status';
                         RunObject = report "Whse. Shipment Status";
                     }
+#if not CLEAN28
                     action("Customer - List")
                     {
                         ApplicationArea = Basic, Suite, Warehouse;
                         Caption = 'Customer - List';
                         RunObject = report "Customer - List";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report is obsolete and will be removed in a future version.';
+                        ObsoleteTag = '28.0';
                     }
+#endif
                     action("Inventory Picking List")
                     {
                         ApplicationArea = Warehouse;
@@ -572,12 +578,17 @@ page 8909 "Warehouse Manager Role Center"
                         Caption = 'Whse. Shipment Status';
                         RunObject = report "Whse. Shipment Status";
                     }
+#if not CLEAN28
                     action("Customer - List1")
                     {
                         ApplicationArea = Basic, Suite, Warehouse;
                         Caption = 'Customer - List';
                         RunObject = report "Customer - List";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report is obsolete and will be removed in a future version.';
+                        ObsoleteTag = '28.0';
                     }
+#endif
                     action("Customer - Labels")
                     {
                         ApplicationArea = Warehouse;
@@ -709,6 +720,12 @@ page 8909 "Warehouse Manager Role Center"
                         ApplicationArea = Assembly;
                         Caption = 'Assembly Setup';
                         RunObject = page "Assembly Setup";
+                    }
+                    action("ABC Analysis Setup")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'ABC Analysis Setup';
+                        RunObject = page "ABC Analysis Setup";
                     }
                     action("Locations")
                     {

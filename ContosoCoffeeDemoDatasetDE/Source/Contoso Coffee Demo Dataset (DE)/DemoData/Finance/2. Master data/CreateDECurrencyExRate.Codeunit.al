@@ -5,8 +5,8 @@
 
 namespace Microsoft.DemoData.Finance;
 
-using Microsoft.Finance.Currency;
 using Microsoft.DemoTool.Helpers;
+using Microsoft.Finance.Currency;
 
 codeunit 11376 "Create DE Currency Ex. Rate"
 {
@@ -194,5 +194,15 @@ codeunit 11376 "Create DE Currency Ex. Rate"
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", AdjustmentExchRateAmount);
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelationalExchRateAmount);
         CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", RelationalAdjmtExchRateAmt);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Create Add. Reporting Currency", OnBeforeGetResidualCurrencyAccounts, '', false, false)]
+    local procedure GetResidualCurrencyAccountsDe(var FXGainsAccount: Code[20]; var FXLossesAccount: Code[20]; var IsHandled: Boolean)
+    var
+        CreateDEGLAcc: Codeunit "Create DE GL Acc.";
+    begin
+        FXGainsAccount := CreateDEGLAcc.CurrencyGains();
+        FXLossesAccount := CreateDEGLAcc.CurrencyLosses();
+        IsHandled := true;
     end;
 }

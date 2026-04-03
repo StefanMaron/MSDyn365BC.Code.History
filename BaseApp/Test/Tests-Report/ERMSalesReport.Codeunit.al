@@ -1,4 +1,4 @@
-﻿codeunit 134976 "ERM Sales Report"
+codeunit 134976 "ERM Sales Report"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -231,67 +231,11 @@
         LibraryReportDataset.AssertCurrentRowValueEquals('CustBalanceDueLCY_5__Control37', InvoiceAmount);
     end;
 
-    [Test]
-    [HandlerFunctions('CustomerTopTenListRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TopTenListSalesLCY()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        Customer: Record Customer;
-        ShowType: Option "Sales (LCY)","Balance (LCY)";
-        SalesLCY: Decimal;
-    begin
-        // Setup: Create Customer, Make and Post Invoice Entry from General Journal Line.
-        Initialize();
-        LibrarySales.CreateCustomer(Customer);
-        SalesLCY := GetCustomerSalesLCY() + LibraryRandom.RandDec(100, 2);
-        CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', SalesLCY, WorkDate());
-
-        // Exercise: Generate Customer Summary Aging Simp Report as Output file and save as XML.
-        LibraryVariableStorage.Enqueue(ShowType::"Sales (LCY)");
-        LibraryVariableStorage.Enqueue(Customer."No.");
-        REPORT.Run(REPORT::"Customer - Top 10 List");
-
-        // Verify: Verify Customer Top 10 List Report for Sales LCY.
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.SetRange('No_Customer', Customer."No.");
-        if not LibraryReportDataset.GetNextRow() then
-            Error(RowNotFoundErr, 'No_Customer', Customer."No.");
-        LibraryReportDataset.AssertCurrentRowValueEquals('SalesLCY_Customer', SalesLCY);
-    end;
-
-    [Test]
-    [HandlerFunctions('CustomerTopTenListRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TopTenListBalanceLCY()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        Customer: Record Customer;
-        ShowType: Option "Sales (LCY)","Balance (LCY)";
-        BalanceLCY: Decimal;
-    begin
-        // Setup: Create Customer, Make and Post Invoice Entry from General Journal Line.
-        Initialize();
-        LibrarySales.CreateCustomer(Customer);
-        BalanceLCY := GetCustomerBalanceLCY() + LibraryRandom.RandDec(100, 2);
-        CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', BalanceLCY, WorkDate());
-
-        // Exercise: Generate Customer Summary Aging Simp Report as Output file and save as XML.
-        LibraryVariableStorage.Enqueue(ShowType::"Balance (LCY)");
-        LibraryVariableStorage.Enqueue(Customer."No.");
-        REPORT.Run(REPORT::"Customer - Top 10 List");
-
-        // Verify: Verify Customer Top 10 List Report for Balance LCY.
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.SetRange('No_Customer', Customer."No.");
-        if not LibraryReportDataset.GetNextRow() then
-            Error(RowNotFoundErr, 'No_Customer', Customer."No.");
-        LibraryReportDataset.AssertCurrentRowValueEquals('BalanceLCY_Customer', BalanceLCY);
-    end;
-
+#if not CLEAN28
     [Test]
     [HandlerFunctions('CustomerListRequestPageHandler')]
     [Scope('OnPrem')]
+    [Obsolete('Customer - List report is deprecated.', '28.0')]
     procedure CustomerList()
     var
         Customer: Record Customer;
@@ -319,6 +263,7 @@
     [Test]
     [HandlerFunctions('CustomerListRequestPageHandler')]
     [Scope('OnPrem')]
+    [Obsolete('Customer - List report is deprecated.', '28.0')]
     procedure CustomerListFilterStringWithGlobalDimCaptions()
     var
         Customer: Record Customer;
@@ -351,6 +296,7 @@
         LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('CustFilter', ExpectedFilterString);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('CustomerRegisterRequestPageHandler')]
@@ -619,9 +565,11 @@
         Clear(LibraryReportDataset);
     end;
 
+#if not CLEAN28
     [Test]
     [HandlerFunctions('CustomerSalesListRequestPageHandler')]
     [Scope('OnPrem')]
+    [Obsolete('Customer - Sales List report is deprecated.', '28.0')]
     procedure CustomerSalesListWithAmount()
     var
         SalesHeader: Record "Sales Header";
@@ -653,6 +601,7 @@
     [Test]
     [HandlerFunctions('CustomerSalesListRequestPageHandler')]
     [Scope('OnPrem')]
+    [Obsolete('Customer - Sales List report is deprecated.', '28.0')]
     procedure CustomerSalesListWithAddress()
     var
         SalesHeader: Record "Sales Header";
@@ -678,6 +627,7 @@
         SalesInvoiceHeader.Get(PostedDocumentNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('CustAddr_2_', SalesInvoiceHeader."Sell-to Address");
     end;
+#endif
 
     [Test]
     [HandlerFunctions('StatementReportRequestPageHandler')]
@@ -2620,9 +2570,11 @@
         VerifyDueMonthsForDueDate(DueDate[4], 14);
     end;
 
+#if not CLEAN28
     [Test]
     [HandlerFunctions('SalesStatisticsRequestPageHandler')]
     [Scope('OnPrem')]
+    [Obsolete('Sales Statistics report is deprecated.', '28.0')]
     procedure SalesStatisticsReportForNonInventoryItem()
     var
         Item: Record Item;
@@ -2657,6 +2609,7 @@
         LibraryReportDataset.AssertElementWithValueExists('CustProfitLCY2', Item."Unit Price" - Item."Unit Cost");
         LibraryReportDataset.AssertElementWithValueExists('CustSalProfAdjmtCostLCY2', Item."Unit Cost");
     end;
+#endif
 
     [Test]
     [HandlerFunctions('CustomerItemSalesEmptyRequestPageHandler')]
@@ -3511,6 +3464,7 @@
         exit(Customer."No.");
     end;
 
+#if not CLEAN28
     local procedure CreateCustomerWithDefaultGlobalDimValues(var Customer: Record Customer; var DimValueCode: array[2] of Code[20])
     var
         DimensionValue: Record "Dimension Value";
@@ -3525,6 +3479,7 @@
             DimValueCode[i] := DimensionValue.Code;
         end;
     end;
+#endif
 
     local procedure CreateCustomerItemReferenceNo(var Customer: Record Customer; var Item: Record Item): Code[20]
     var
@@ -3858,32 +3813,6 @@
         exit(GLEntry."Transaction No.");
     end;
 
-    local procedure GetCustomerBalanceLCY() TotalBalance: Decimal
-    var
-        Customer: Record Customer;
-    begin
-        TotalBalance := 0;
-        Customer.SetFilter("Balance (LCY)", '>0');
-        if Customer.FindSet() then
-            repeat
-                Customer.CalcFields("Balance (LCY)");
-                TotalBalance += Customer."Balance (LCY)";
-            until Customer.Next() = 0;
-    end;
-
-    local procedure GetCustomerSalesLCY() TotalSalesLCY: Decimal
-    var
-        Customer: Record Customer;
-    begin
-        TotalSalesLCY := 0;
-        Customer.SetFilter("Sales (LCY)", '>0');
-        if Customer.FindSet() then
-            repeat
-                Customer.CalcFields("Sales (LCY)");
-                TotalSalesLCY += Customer."Sales (LCY)";
-            until Customer.Next() = 0;
-    end;
-
     local procedure GetPostingDate(): Date
     var
         DateComprRegister: Record "Date Compr. Register";
@@ -3949,6 +3878,7 @@
         GenJournalLine.Modify();
     end;
 
+#if not CLEAN28
     local procedure UpdateGlobalDims()
     var
         Dimension: array[2] of Record Dimension;
@@ -3959,6 +3889,7 @@
             LibraryDimension.RunChangeGlobalDimensions(Dimension[1].Code, Dimension[2].Code);
         end;
     end;
+#endif
 
     local procedure PostJournalLines(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; DebitAmount: Decimal; CreditAmount: Decimal)
     begin
@@ -4108,12 +4039,15 @@
         REPORT.Run(REPORT::"Customer - Trial Balance", true, false, Customer);
     end;
 
+#if not CLEAN28
+    [Obsolete('Customer - List report is deprecated.', '28.0')]
     local procedure RunCustomerListReport(var Customer: Record Customer)
     begin
         Commit();
         Customer.SetRange("No.", Customer."No.");
         REPORT.Run(REPORT::"Customer - List", true, false, Customer);
     end;
+#endif
 
     local procedure RunStandardSalesOrderConfirmationReport(SalesHeaderNo: Code[20])
     var
@@ -4424,12 +4358,15 @@
         CustomerDetailedAging.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
+#if not CLEAN28
     [RequestPageHandler]
     [Scope('OnPrem')]
+    [Obsolete('Customer - List report is deprecated.', '28.0')]
     procedure CustomerListRequestPageHandler(var CustomerList: TestRequestPage "Customer - List")
     begin
         CustomerList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
@@ -4458,20 +4395,6 @@
         CustomerSummaryAgingSimp.Customer.SetFilter("Balance Due", BalanceDue);
         CustomerSummaryAgingSimp.Customer.SetFilter("No.", '');
         CustomerSummaryAgingSimp.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure CustomerTopTenListRequestPageHandler(var CustomerTop10List: TestRequestPage "Customer - Top 10 List")
-    var
-        CustomerNo: Variant;
-        ShowType: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(ShowType);
-        LibraryVariableStorage.Dequeue(CustomerNo);
-        CustomerTop10List.Show.SetValue(ShowType);
-        CustomerTop10List.Customer.SetFilter("No.", CustomerNo);
-        CustomerTop10List.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -4599,8 +4522,10 @@
     begin
     end;
 
+#if not CLEAN28
     [RequestPageHandler]
     [Scope('OnPrem')]
+    [Obsolete('Customer - Sales List report is deprecated.', '28.0')]
     procedure CustomerSalesListRequestPageHandler(var CustomerSalesList: TestRequestPage "Customer - Sales List")
     var
         CustomerNo: Variant;
@@ -4609,6 +4534,7 @@
         CustomerSalesList.Customer.SetFilter("No.", CustomerNo);
         CustomerSalesList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
@@ -4904,12 +4830,15 @@
         StandardSalesCreditMemo.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
+#if not CLEAN28
     [RequestPageHandler]
     [Scope('OnPrem')]
+    [Obsolete('Sales Statistics report is deprecated.', '28.0')]
     procedure SalesStatisticsRequestPageHandler(var SalesStatistics: TestRequestPage "Sales Statistics")
     begin
         SalesStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]

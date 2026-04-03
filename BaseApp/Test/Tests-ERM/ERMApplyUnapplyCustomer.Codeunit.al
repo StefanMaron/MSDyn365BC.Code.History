@@ -1981,6 +1981,11 @@
           PaymentDocumentType, -CustLedgEntry.Amount, SalesLine);
         GenJnlLine.Validate("Applies-to Doc. Type", GenJnlLine."Applies-to Doc. Type"::Invoice);
         GenJnlLine.Validate("Applies-to Doc. No.", PostedDocumentNo);
+        GenJnlLine.Validate("Bal. VAT Prod. Posting Group", '');
+        GenJnlLine.Validate("Bal. VAT Bus. Posting Group", '');
+        GenJnlLine.Validate("Bal. Gen. Bus. Posting Group", '');
+        GenJnlLine.Validate("Bal. Gen. Prod. Posting Group", '');
+        GenJnlLine.validate("Bal. Gen. Posting Type", GenJnlLine."Bal. Gen. Posting Type"::" ");
         GenJnlLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
 

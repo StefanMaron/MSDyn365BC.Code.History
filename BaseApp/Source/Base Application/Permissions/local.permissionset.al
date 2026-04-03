@@ -1,12 +1,9 @@
 namespace System.Security.AccessControl;
 
-#if not CLEAN25
-using Microsoft.Foundation.Reporting;
-#endif
 using Microsoft.Finance.AuditFileExport;
-using Microsoft.Purchases.Document;
 using Microsoft.Finance.GeneralLedger.Reports;
 using Microsoft.Inventory.Intrastat;
+using Microsoft.Purchases.Document;
 
 permissionset 1001 "LOCAL"
 {
@@ -30,9 +27,6 @@ permissionset 1001 "LOCAL"
                   tabledata "Delivery Reminder Line" = RIMD,
                   tabledata "Delivery Reminder Term" = RIMD,
                   tabledata "Delivery Reminder Text" = RIMD,
-#if not CLEAN25
-                  tabledata "DACH Report Selections" = RIMD,
-#endif
                   tabledata "Issued Deliv. Reminder Header" = RIMD,
                   tabledata "Issued Deliv. Reminder Line" = RIMD,
                   tabledata "Key Buffer" = RIMD,

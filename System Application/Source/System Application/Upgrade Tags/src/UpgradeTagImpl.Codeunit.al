@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Upgrade;
+
 using System.Environment;
 using System.Integration;
 using System.Reflection;

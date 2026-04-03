@@ -10,6 +10,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
 
     var
         LibraryCosting: Codeunit "Library - Costing";
+        LibraryPostInventoryToGL: Codeunit "Library - Post Inventory To GL";
         LibrarySales: Codeunit "Library - Sales";
         LibraryERM: Codeunit "Library - ERM";
         LibraryDimension: Codeunit "Library - Dimension";
@@ -71,7 +72,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         Initialize();
 
         LibraryCosting.AdjustCostItemEntries('', '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
+        LibraryPostInventoryToGL.PostInvtCostToGL(false, WorkDate(), '');
 
         LibraryInventory.UpdateAverageCostSettings(
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
@@ -99,7 +100,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         InventorySetup.Modify(true);
 
         // Exercise. Post to G/L.
-        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
+        LibraryPostInventoryToGL.PostInvtCostToGL(false, WorkDate(), '');
 
         // Verify. Interim accounts have 0 balance.
         InventoryPostingSetup.Get('', Item."Inventory Posting Group");
@@ -148,7 +149,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         // Execute: Adjust and post to G/L.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
+        LibraryPostInventoryToGL.PostInvtCostToGL(false, WorkDate(), '');
 
         // Verify: Value Entry Cost Amount (Non-Invtbl.).
         ValueEntry.SetRange("Item No.", Item."No.");

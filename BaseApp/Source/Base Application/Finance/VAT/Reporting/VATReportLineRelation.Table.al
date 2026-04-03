@@ -4,6 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Reporting;
 
+/// <summary>
+/// Links VAT report lines to source table entries for tracking which records contribute to reported amounts.
+/// Provides audit trail between VAT report lines and underlying data sources like VAT entries or G/L entries.
+/// </summary>
 table 744 "VAT Report Line Relation"
 {
     Caption = 'VAT Report Line Relation';
@@ -11,20 +15,39 @@ table 744 "VAT Report Line Relation"
 
     fields
     {
+        /// <summary>
+        /// VAT report number containing the related line.
+        /// </summary>
         field(1; "VAT Report No."; Code[20])
         {
             Caption = 'VAT Report No.';
             TableRelation = "VAT Report Header"."No.";
         }
+        /// <summary>
+        /// Line number within the VAT report that this relation applies to.
+        /// </summary>
         field(2; "VAT Report Line No."; Integer)
         {
             Caption = 'VAT Report Line No.';
             TableRelation = "VAT Report Line"."Line No.";
         }
+        /// <summary>
+        /// Sequential line number for multiple relations to the same VAT report line.
+        /// </summary>
+        field(3; "Line No."; Integer)
+        {
+            Caption = 'Line No.';
+        }
+        /// <summary>
+        /// Table number identifying the source table type for the related entry.
+        /// </summary>
         field(10; "Table No."; Integer)
         {
             Caption = 'Table No.';
         }
+        /// <summary>
+        /// Entry number from the source table that contributes to the VAT report line amount.
+        /// </summary>
         field(11; "Entry No."; Integer)
         {
             Caption = 'Entry No.';

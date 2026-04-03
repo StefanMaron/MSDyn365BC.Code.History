@@ -7,6 +7,10 @@ namespace Microsoft.Finance.VAT.Reporting;
 using System.IO;
 using System.Utilities;
 
+/// <summary>
+/// Provides export functionality for VAT reports with automatic release capability.
+/// Handles export operations based on report status and ensures proper workflow progression.
+/// </summary>
 codeunit 743 "VAT Report Export"
 {
 
@@ -21,6 +25,11 @@ codeunit 743 "VAT Report Export"
         Text002: Label 'You cannot export already submitted report. Reopen report first.';
 #pragma warning restore AA0074
 
+    /// <summary>
+    /// Exports VAT report based on current status with automatic release if needed.
+    /// Routes to appropriate export method based on report status.
+    /// </summary>
+    /// <param name="VATReportHeader">VAT report to export</param>
     procedure Export(VATReportHeader: Record "VAT Report Header")
     begin
         case VATReportHeader.Status of
@@ -50,19 +59,39 @@ codeunit 743 "VAT Report Export"
         ExportVIESELMAReport(VATReportHeader);
     end;
 
-    procedure CreateVIESELMAXml(VATReportHeader: Record "VAT Report Header"; var TempBlob: Codeunit "Temp Blob")
+    procedure CreateVIESELMAXml(VATReportHeader: Record "VAT Report Header"; var FileID: Text; var TempBlob: Codeunit "Temp Blob")
     var
         VIESELMAXml: Codeunit "VIES ELMA Xml";
     begin
-        VIESELMAXml.Create(VATReportHeader, TempBlob);
+        VIESELMAXml.Create(VATReportHeader, FileID, TempBlob);
     end;
 
+#if not CLEAN29
+    [Obsolete('Use the overload that returns FileID instead.', '29.0')]
+    procedure CreateVIESELMAXml(VATReportHeader: Record "VAT Report Header"; var TempBlob: Codeunit "Temp Blob")
+    var
+        FileID: Text;
+    begin
+        CreateVIESELMAXml(VATReportHeader, FileID, TempBlob);
+    end;
+#endif
+
+    procedure GetVIESELMAFileName(VATReportHeader: Record "VAT Report Header"; FileID: Text): Text
+    var
+        VIESELMAXml: Codeunit "VIES ELMA Xml";
+    begin
+        exit(VIESELMAXml.MakeFileName(VATReportHeader, FileID));
+    end;
+
+#if not CLEAN29
+    [Obsolete('Use the overload with explicit FileID parameter instead.', '29.0')]
     procedure GetVIESELMAFileName(VATReportHeader: Record "VAT Report Header"): Text
     var
         VIESELMAXml: Codeunit "VIES ELMA Xml";
     begin
         exit(VIESELMAXml.MakeFileName(VATReportHeader));
     end;
+#endif
 
     local procedure ExportVIESELMAReport(VATReportHeader: Record "VAT Report Header")
     var
@@ -70,10 +99,11 @@ codeunit 743 "VAT Report Export"
         FileMgt: Codeunit "File Management";
         XmlInStream: InStream;
         FileName: Text;
+        FileID: Text;
     begin
-        CreateVIESELMAXml(VATReportHeader, TempBlob);
+        CreateVIESELMAXml(VATReportHeader, FileID, TempBlob);
         TempBlob.CreateInStream(XmlInStream);
-        FileName := GetVIESELMAFileName(VATReportHeader);
+        FileName := GetVIESELMAFileName(VATReportHeader, FileID);
         FileMgt.DownloadFromStreamHandler(XmlInStream, '', '', '', FileName);
     end;
 

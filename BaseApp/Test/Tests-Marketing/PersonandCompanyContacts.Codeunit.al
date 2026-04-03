@@ -674,12 +674,14 @@ codeunit 134626 "Person and Company Contacts"
         Contact: Record Contact;
         ContactBusinessRelation: Record "Contact Business Relation";
     begin
-        // [SCENARIO 612274] When Customer of type Person is created, the default contact created is set as the 'Primary Contact No on the Customer.
+        // [FEATURE] [Contact] [Customer] [Person]
+        // [SCENARIO 597848] When Customer of type Person is created, the default contact created is set as the 'Primary Contact No.'
+        // on the Customer.
         Initialize();
         LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] Customer "C" of type Person is created
-        CreateCustomer(Customer, Customer."Contact Type"::Person);
+        LibrarySales.CreateCustomer(Customer, Customer."Contact Type"::Person);
 
         // [THEN] Contact and Business Relation are created for Customer
         AssertContactBusinessRelationExists(ContactBusinessRelation, Customer."Primary Contact No.");
@@ -785,18 +787,6 @@ codeunit 134626 "Person and Company Contacts"
         MarketingSetup.Get();
         ContactBusinessRelation.Get(Contact."No.", MarketingSetup."Bus. Rel. Code for Customers");
         Customer.Get(ContactBusinessRelation."No.");
-    end;
-
-    procedure CreateCustomer(var Customer: Record Customer; ContactType: Enum "Contact Type")
-    var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
-    begin
-        LibraryUtility.UpdateSetupNoSeriesCode(
-          DATABASE::"Sales & Receivables Setup", SalesReceivablesSetup.FieldNo("Customer Nos."));
-
-        Clear(Customer);
-        Customer.Validate("Contact Type", ContactType);
-        Customer.Insert(true);
     end;
 
     [ModalPageHandler]

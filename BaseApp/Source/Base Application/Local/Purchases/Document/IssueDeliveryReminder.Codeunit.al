@@ -4,8 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Document;
 
-using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.NoSeries;
 
 codeunit 5005270 "Issue Delivery Reminder"
 {
