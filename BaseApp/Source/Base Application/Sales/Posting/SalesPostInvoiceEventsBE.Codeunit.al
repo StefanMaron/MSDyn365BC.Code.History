@@ -5,8 +5,8 @@
 namespace Microsoft.Sales.Posting;
 
 using Microsoft.Finance.GeneralLedger.Journal;
-using Microsoft.Sales.Document;
 using Microsoft.Finance.ReceivablesPayables;
+using Microsoft.Sales.Document;
 
 codeunit 854 "Sales Post Invoice Events BE"
 {

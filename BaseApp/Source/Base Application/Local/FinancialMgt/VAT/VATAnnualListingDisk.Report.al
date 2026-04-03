@@ -11,9 +11,9 @@ using Microsoft.Foundation.Company;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
 using System;
+using System.IO;
 using System.Utilities;
 using System.Xml;
-using System.IO;
 
 report 11309 "VAT Annual Listing - Disk"
 {
@@ -227,7 +227,7 @@ report 11309 "VAT Annual Listing - Disk"
                         field(Minimum; Minimum)
                         {
                             ApplicationArea = Basic, Suite;
-                            AutoFormatType = 1;
+                            AutoFormatType = 0;
                             Caption = 'Minimum Amount';
                             ToolTip = 'Specifies the minimum customer''s year balance to be included in the report. If the yearly balance of the customer is smaller than the minimum amount (and there are no negative entries), the customer will not be included in the declaration.';
                         }

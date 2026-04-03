@@ -266,6 +266,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Contacts - NamedType ContactNotRelatedToVendorErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 688363657 - NamedType 3965352048" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Contact should have customer business relation]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Contacts - NamedType ContactShouldHaveCustomerRelationErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 688363657 - NamedType 1616539987" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Contact should not have vendor business relation]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Contacts - NamedType ContactShouldNotHaveVendorRelationErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 688363657 - NamedType 2905932780" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[351199d7-6c9b-40f1-8e78-ff9e67c546c9]]></Val>
@@ -374,6 +392,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Contacts - NamedType SelectCustomerTemplateQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 688363657 - NamedType 656251454" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to select the vendor template?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Contacts - NamedType SelectVendorTemplateQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 688363657 - NamedType 4174999501" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1: %2 must exist.]]></Val>
@@ -399,6 +426,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Contacts - NamedType VendorContNotifTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 688363657 - NamedType 3812642768" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Vendor template should be applied even after customer creation]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Contacts - NamedType VendorTemplateAfterCustomerCreationMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 688363657 - NamedType 2424751594" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Vendor template should be applied to first purchase quote]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Contacts - NamedType VendorTemplateShouldBeAppliedMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 688363657 - NamedType 2909483028" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

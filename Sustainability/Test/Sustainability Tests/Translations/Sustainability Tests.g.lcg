@@ -32,6 +32,177 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.PowerBIReports.Test)(LookupHint=Codeunit PowerBI Sustainability Test - NamedType ResponseEmptyErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2110966602 - NamedType 793911106" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[AccountCode%1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Number]D;]A;(Namespace=Microsoft.Sustainability.Tests)(LookupHint=Codeunit Sustainability Report Tests - NamedType AccountCodeLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2110966602 - NamedType 2484171849" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[CategoryCode%1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Number]D;]A;(Namespace=Microsoft.Sustainability.Tests)(LookupHint=Codeunit Sustainability Report Tests - NamedType CategoryCodeLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2110966602 - NamedType 2148354034" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[CO2e [%1]5D; per Unit]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Unit Of Measure Code]D;]A;(Namespace=Microsoft.Sustainability.Tests)(LookupHint=Codeunit Sustainability Report Tests - NamedType CO2ePerUnitCaptionLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2110966602 - NamedType 1425284234" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[CO2ePerUnit_Line]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sustainability.Tests)(LookupHint=Codeunit Sustainability Report Tests - NamedType CO2ePerUnitLineLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2110966602 - NamedType 983568998" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[CO2ePerUnit_Lbl]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sustainability.Tests)(LookupHint=Codeunit Sustainability Report Tests - NamedType CO2ePerUnitTagLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2110966602 - NamedType 3405983715" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Disclaimer_Lbl]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sustainability.Tests)(LookupHint=Codeunit Sustainability Report Tests - NamedType DisclaimerLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2110966602 - NamedType 1842497574" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[docx]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sustainability.Tests)(LookupHint=Codeunit Sustainability Report Tests - NamedType DocxLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2110966602 - NamedType 3675223015" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[MSXI%1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = random number for unique layout code]D;]A;(Namespace=Microsoft.Sustainability.Tests)(LookupHint=Codeunit Sustainability Report Tests - NamedType MSXILbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2110966602 - NamedType 1921119112" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[MSX%1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = random number for unique layout code]D;]A;(Namespace=Microsoft.Sustainability.Tests)(LookupHint=Codeunit Sustainability Report Tests - NamedType MSXLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2110966602 - NamedType 1385062009" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Disclaimer %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Random Value]D;]A;(Namespace=Microsoft.Sustainability.Tests)(LookupHint=Codeunit Sustainability Report Tests - NamedType ReportDisclaimerLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2110966602 - NamedType 3211005405" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[SubcategoryCode%1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Number]D;]A;(Namespace=Microsoft.Sustainability.Tests)(LookupHint=Codeunit Sustainability Report Tests - NamedType SubcategoryCodeLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2110966602 - NamedType 1727868263" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Total CO2e [%1]5D;]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Unit Of Measure Code]D;]A;(Namespace=Microsoft.Sustainability.Tests)(LookupHint=Codeunit Sustainability Report Tests - NamedType TotalCO2eCaptionLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2110966602 - NamedType 3099905941" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TotalCO2e]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sustainability.Tests)(LookupHint=Codeunit Sustainability Report Tests - NamedType TotalCO2eLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2110966602 - NamedType 4256489035" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TotalCO2e_Lbl]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sustainability.Tests)(LookupHint=Codeunit Sustainability Report Tests - NamedType TotalCO2eTagLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 173696687 - NamedType 793911106" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[AccountCode%1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Number]D;]A;(Namespace=Microsoft.Sustainability.Tests)(LookupHint=Codeunit Sustainability Service Tests - NamedType AccountCodeLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 173696687 - NamedType 2484171849" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[CategoryCode%1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Number]D;]A;(Namespace=Microsoft.Sustainability.Tests)(LookupHint=Codeunit Sustainability Service Tests - NamedType CategoryCodeLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 173696687 - NamedType 4047901243" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The CO2e fields must have a value that is not 0.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Sustainability.Tests)(LookupHint=Codeunit Sustainability Service Tests - NamedType CO2eMustNotBeZeroErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 173696687 - NamedType 3211005405" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[SubcategoryCode%1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Number]D;]A;(Namespace=Microsoft.Sustainability.Tests)(LookupHint=Codeunit Sustainability Service Tests - NamedType SubcategoryCodeLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 173696687 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to %2 in the %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value, %3 = Table Caption]D;]A;(Namespace=Microsoft.Sustainability.Tests)(LookupHint=Codeunit Sustainability Service Tests - NamedType ValueMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3519527523 - NamedType 1995986831" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Balance at Date (%1)]]></Val>
@@ -581,13 +752,40 @@
       <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value, %3 = Table Caption]D;]A;(Namespace=Microsoft.Test.Sustainability)(LookupHint=Codeunit Sust. Job Journal Test - NamedType ValueMustBeEqualErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2040440002 - NamedType 4011764850" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3640771977 - NamedType 4047901243" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Sustainability Ledger Entry must not be found with External Document No. filter in Find Entries]]></Val>
+      <Val><![CDATA[The CO2e fields must have a value that is not 0.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.Sustainability)(LookupHint=Codeunit Sust. Value Entry Test - NamedType SustLedgerEntryMustNotBeFoundErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.Sustainability)(LookupHint=Codeunit Sust. Value Chain Fixed Asset - NamedType CO2eMustNotBeZeroErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3640771977 - NamedType 3548854366" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to 'Acquisition Cost']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = FA Posting Type Field Caption]D;]A;(Namespace=Microsoft.Test.Sustainability)(LookupHint=Codeunit Sust. Value Chain Fixed Asset - NamedType FAPostingTypeErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3640771977 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to %2 in the %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value, %3 = Table Caption]D;]A;(Namespace=Microsoft.Test.Sustainability)(LookupHint=Codeunit Sust. Value Chain Fixed Asset - NamedType ValueMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2040440002 - NamedType 4047901243" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The CO2e fields must have a value that is not 0.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.Sustainability)(LookupHint=Codeunit Sust. Value Entry Test - NamedType CO2eMustNotBeZeroErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2040440002 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -788,6 +986,24 @@
       <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value, %3 = Table Caption]D;]A;(Namespace=Microsoft.Test.Sustainability)(LookupHint=Codeunit Sustainability Financial Test - NamedType ValueMustBeEqualErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2717238290 - NamedType 1338614241" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Calculation Foundation %1 not supported for Scope %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Calculation Foundation; %2 = Emission Scope Type]D;]A;(Namespace=Microsoft.Test.Sustainability)(LookupHint=Codeunit Sustainability Formulas Test - NamedType CalculationNotSupportedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2717238290 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to %2 in the %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value, %3 = Table Caption]D;]A;(Namespace=Microsoft.Test.Sustainability)(LookupHint=Codeunit Sustainability Formulas Test - NamedType ValueMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3352788717 - NamedType 2777467521" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 should be editable in Page %2.]]></Val>
@@ -813,6 +1029,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Expected Value , %2 = Page Caption]D;]A;(Namespace=Microsoft.Test.Sustainability)(LookupHint=Codeunit Sustainability Posting Test - NamedType FilterMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3352788717 - NamedType 4026727719" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You must not use Item No. Filter and Item Category Filter at the same time.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.Sustainability)(LookupHint=Codeunit Sustainability Posting Test - NamedType ItemOrCategoryFilterErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3352788717 - NamedType 2797086404" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -1,3 +1,4 @@
+#if not CLEAN28
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -8,6 +9,7 @@ using Microsoft.DemoData.Common;
 using Microsoft.DemoData.Finance;
 using Microsoft.DemoData.Jobs;
 using Microsoft.DemoData.Purchases;
+using Microsoft.eServices.EDocument.DemoData;
 using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 using Microsoft.Purchases.Document;
 
@@ -16,6 +18,9 @@ codeunit 11452 "Create E-Doc Sample Inv. BE"
     Access = Internal;
     InherentEntitlements = X;
     InherentPermissions = X;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Create E-Doc. Sample Invoices Codeunit';
+    ObsoleteTag = '28.0';
 
     var
         EDocSamplePurchaseInvoice: Codeunit "E-Doc Sample Purchase Invoice";
@@ -54,3 +59,4 @@ codeunit 11452 "Create E-Doc Sample Inv. BE"
         EDocSamplePurchaseInvoice.Generate();
     end;
 }
+#endif

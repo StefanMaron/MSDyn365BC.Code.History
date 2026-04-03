@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -24,33 +24,39 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         field(1; "Order Type"; Enum "Inventory Order Type")
         {
             Caption = 'Order Type';
+            ToolTip = 'Specifies which type of order that the entry was created in.';
         }
         field(2; "Order No."; Code[20])
         {
             Caption = 'Order No.';
+            ToolTip = 'Specifies the number of the order that the entry was created in.';
         }
         field(3; "Order Line No."; Integer)
         {
             Caption = 'Order Line No.';
+            ToolTip = 'Specifies the line number of the order that the entry was created in.';
         }
         field(4; "Item No."; Code[20])
         {
             Caption = 'Item No.';
+            ToolTip = 'Specifies the item number.';
             TableRelation = Item;
         }
         field(21; "Indirect Cost %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Indirect Cost %';
             DecimalPlaces = 0 : 5;
         }
         field(22; "Overhead Rate"; Decimal)
         {
-            AutoFormatType = 2;
+            AutoFormatType = 0;
             Caption = 'Overhead Rate';
         }
         field(29; "Cost is Adjusted"; Boolean)
         {
             Caption = 'Cost is Adjusted';
+            ToolTip = 'Specifies whether the cost of the order has been adjusted.';
             InitValue = true;
         }
         field(30; "Allow Online Adjustment"; Boolean)
@@ -61,41 +67,49 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         field(41; "Unit Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost';
         }
         field(42; "Direct Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Direct Cost';
         }
         field(43; "Indirect Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Indirect Cost';
         }
         field(44; "Single-Level Material Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Single-Level Material Cost';
         }
         field(45; "Single-Level Capacity Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Single-Level Capacity Cost';
         }
         field(46; "Single-Level Subcontrd. Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Single-Level Subcontrd. Cost';
         }
         field(47; "Single-Level Cap. Ovhd Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Single-Level Cap. Ovhd Cost';
         }
         field(48; "Single-Level Mfg. Ovhd Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Single-Level Mfg. Ovhd Cost';
         }
         field(52; "Direct Cost (ACY)"; Decimal)
@@ -143,14 +157,17 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         field(61; "Completely Invoiced"; Boolean)
         {
             Caption = 'Completely Invoiced';
+            ToolTip = 'Specifies whether the entry has been fully invoiced.';
         }
         field(62; "Is Finished"; Boolean)
         {
             Caption = 'Is Finished';
+            ToolTip = 'Specifies that the order is finished and that its cost will be adjusted.';
         }
         field(70; "Direct Cost Non-Inventory"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Direct Cost Non-Inventory';
         }
         field(71; "Direct Cost Non-Inv. (ACY)"; Decimal)
@@ -162,6 +179,7 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         field(72; "Single-Lvl Mat. Non-Invt. Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Single-Level Material Non-Inventory Cost';
             DataClassification = CustomerContent;
             Editable = false;
@@ -301,7 +319,8 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         Item.Get("Item No.");
         OnGetUnroundedCostsFromItemOnAfterGetItem(Item, Rec);
 
-        "Indirect Cost %" := Item."Indirect Cost %";
+        if "Indirect Cost %" = 0 then
+            "Indirect Cost %" := Item."Indirect Cost %";
         "Overhead Rate" := Item."Overhead Rate";
 
         GetSingleLevelCosts();

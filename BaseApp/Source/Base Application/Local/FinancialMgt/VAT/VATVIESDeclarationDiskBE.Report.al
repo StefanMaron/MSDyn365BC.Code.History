@@ -10,9 +10,9 @@ using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
 using Microsoft.Sales.Customer;
 using System;
+using System.IO;
 using System.Utilities;
 using System.Xml;
-using System.IO;
 
 report 11315 "VAT-VIES Declaration Disk BE"
 {

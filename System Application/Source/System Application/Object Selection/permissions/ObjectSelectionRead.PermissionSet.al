@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Reflection;
+
 using System.Apps;
 using System.Environment.Configuration;
 

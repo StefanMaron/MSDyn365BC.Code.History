@@ -15,14 +15,14 @@ codeunit 99000853 "Service Line-Planning"
     var
         ServiceTxt: Label 'Service';
 
-    [EventSubscriber(ObjectType::Table, Database::"Requisition Line", 'OnSetDemandTypeFromUnplannedDemand', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Requisition Line", 'OnSetDemandTypeFromUnplannedDemand', '', true, false)]
     local procedure ReqLineOnSetDemandTypeFromUnplannedDemand(var RequisitionLine: Record "Requisition Line"; UnplannedDemand: Record "Unplanned Demand")
     begin
         if UnplannedDemand."Demand Type" = UnplannedDemand."Demand Type"::Service then
             RequisitionLine."Demand Type" := Database::"Service Line";
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Unplanned Demand", 'OnValidateDemandOrderNoOnGetSourceFields', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Unplanned Demand", 'OnValidateDemandOrderNoOnGetSourceFields', '', true, false)]
     local procedure OnValidateDemandOrderNoOnGetSourceFields(var UnplannedDemand: Record "Unplanned Demand")
     var
         ServiceHeader: Record "Service Header";
@@ -39,7 +39,7 @@ codeunit 99000853 "Service Line-Planning"
 
     // Codeunit "Get Unplanned Demand"
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Get Unplanned Demand", 'OnBeforeOpenWindow', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Get Unplanned Demand", 'OnBeforeOpenWindow', '', true, false)]
     local procedure OnBeforeOpenWindow(var RecordCounter: Integer)
     var
         ServiceLine: Record "Service Line";
@@ -48,7 +48,7 @@ codeunit 99000853 "Service Line-Planning"
         RecordCounter += ServiceLine.Count();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Get Unplanned Demand", 'OnAfterGetUnplanned', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Get Unplanned Demand", 'OnAfterGetUnplanned', '', true, false)]
     local procedure OnAfterGetUnplanned(var UnplannedDemand: Record "Unplanned Demand"; ItemFilter: TextBuilder; var sender: Codeunit "Get Unplanned Demand")
     begin
         GetUnplannedServLine(UnplannedDemand, ItemFilter, sender);
@@ -58,15 +58,9 @@ codeunit 99000853 "Service Line-Planning"
     var
         ServiceHeader2: Record "Service Header";
         ServiceLine: Record "Service Line";
-#if not CLEAN25
-        GetUnplannedDemand: Codeunit "Get Unplanned Demand";
-#endif
         DemandQtyBase: Decimal;
     begin
         OnBeforeGetUnplannedServLine(UnplannedDemand, ServiceLine);
-#if not CLEAN25
-        GetUnplannedDemand.RunOnBeforeGetUnplannedServLine(UnplannedDemand, ServiceLine);
-#endif
 
         ServiceLine.SetRange("Document Type", "Service Document Type"::Order);
         ServiceLine.SetFilter("No.", ItemFilter.ToText());
@@ -82,9 +76,6 @@ codeunit 99000853 "Service Line-Planning"
                         sender.InsertUnplannedDemand(
                           UnplannedDemand, UnplannedDemand."Demand Type"::Service, ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", ServiceHeader2.Status.AsInteger());
                         OnGetUnplannedServLineOnAfterInsertUnplannedDemand(UnplannedDemand);
-#if not CLEAN25
-                        GetUnplannedDemand.RunOnGetUnplannedServLineOnAfterInsertUnplannedDemand(UnplannedDemand);
-#endif
                     end;
                     InsertServiceLine(UnplannedDemand, ServiceLine, DemandQtyBase);
                 end;
@@ -104,9 +95,6 @@ codeunit 99000853 "Service Line-Planning"
     local procedure InsertServiceLine(var UnplannedDemand: Record "Unplanned Demand"; var ServiceLine: Record "Service Line"; DemandQtyBase: Decimal)
     var
         UnplannedDemand2: Record "Unplanned Demand";
-#if not CLEAN25
-        GetUnplannedDemand: Codeunit "Get Unplanned Demand";
-#endif
     begin
         UnplannedDemand2.Copy(UnplannedDemand);
         UnplannedDemand.InitRecord(
@@ -115,9 +103,6 @@ codeunit 99000853 "Service Line-Planning"
           DemandQtyBase, ServiceLine."Needed by Date");
         UnplannedDemand.Reserve := ServiceLine.Reserve = ServiceLine.Reserve::Always;
         OnInsertServiceLineOnBeforeInsert(UnplannedDemand, ServiceLine);
-#if not CLEAN25
-        GetUnplannedDemand.RunOnInsertServLineOnBeforeInsert(UnplannedDemand, ServiceLine);
-#endif
         UnplannedDemand.Insert();
         UnplannedDemand.Copy(UnplannedDemand2);
     end;
@@ -139,7 +124,7 @@ codeunit 99000853 "Service Line-Planning"
 
     // Report "Carry Out Action Msg. - Plan."
 
-    [EventSubscriber(ObjectType::Report, Report::"Carry Out Action Msg. - Plan.", 'OnCheckDemandType', '', false, false)]
+    [EventSubscriber(ObjectType::Report, Report::"Carry Out Action Msg. - Plan.", 'OnCheckDemandType', '', true, false)]
     local procedure CarryOutActionMsgPlanOnCheckDemandType(RequisitionLine: Record "Requisition Line")
     var
         ServiceLine: Record "Service Line";
@@ -160,7 +145,7 @@ codeunit 99000853 "Service Line-Planning"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Order Planning Mgt.", 'OnInsertDemandLinesOnCopyItemTracking', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Order Planning Mgt.", 'OnInsertDemandLinesOnCopyItemTracking', '', true, false)]
     local procedure OnInsertDemandLinesOnCopyItemTracking(var RequisitionLine: Record "Requisition Line"; UnplannedDemand: Record "Unplanned Demand")
     var
         ServiceLine: Record "Service Line";
@@ -172,7 +157,7 @@ codeunit 99000853 "Service Line-Planning"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"Order Planning", 'OnBeforeShowDemandOrder', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Order Planning", 'OnBeforeShowDemandOrder', '', true, false)]
     local procedure OrderPlanningOnBeforeShowDemandOrder(RequisitionLine: Record "Requisition Line")
     var
         ServiceHeader: Record "Service Header";
@@ -186,7 +171,7 @@ codeunit 99000853 "Service Line-Planning"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"Order Planning", 'OnSetRecDemandFilter', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Order Planning", 'OnSetRecDemandFilter', '', true, false)]
     local procedure OnSetRecDemandFilter(var RequisitionLine: Record "Requisition Line"; DemandOrderFilter: Enum "Demand Order Source Type")
     begin
         if DemandOrderFilter = DemandOrderFilter::"Service Demand" then begin
@@ -195,7 +180,7 @@ codeunit 99000853 "Service Line-Planning"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"Order Planning", 'OnAfterStatusTextOnFormat', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Order Planning", 'OnAfterStatusTextOnFormat', '', true, false)]
     local procedure OnAfterStatusTextOnFormat(var RequisitionLine: Record "Requisition Line"; var Text: Text)
     begin
         if RequisitionLine."Demand Line No." = 0 then
@@ -203,7 +188,7 @@ codeunit 99000853 "Service Line-Planning"
                 Text := Format(Enum::"Service Document Status".FromInteger(RequisitionLine.Status));
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"Order Planning", 'OnAfterDemandTypeTextOnFormat', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Order Planning", 'OnAfterDemandTypeTextOnFormat', '', true, false)]
     local procedure OnAfterDemandTypeTextOnFormat(var RequisitionLine: Record "Requisition Line"; var Text: Text)
     begin
         if RequisitionLine."Demand Line No." = 0 then
@@ -211,7 +196,7 @@ codeunit 99000853 "Service Line-Planning"
                 Text := ServiceTxt;
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"Order Planning", 'OnAfterDemandSubtypeTextOnFormat', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Order Planning", 'OnAfterDemandSubtypeTextOnFormat', '', true, false)]
     local procedure OnAfterDemandSubtypeTextOnFormat(var RequisitionLine: Record "Requisition Line"; var Text: Text)
     begin
         if RequisitionLine."Demand Type" = Database::"Service Line" then

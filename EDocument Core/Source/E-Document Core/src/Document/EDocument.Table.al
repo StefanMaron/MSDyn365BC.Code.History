@@ -4,23 +4,23 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument;
 
-using Microsoft.Foundation.Reporting;
-using Microsoft.Finance.Currency;
 using Microsoft.eServices.EDocument.Integration;
-using System.Telemetry;
+using Microsoft.eServices.EDocument.OrderMatch;
+using Microsoft.eServices.EDocument.Processing.Import;
+using Microsoft.eServices.EDocument.Processing.Import.Purchase;
+using Microsoft.eServices.EDocument.Processing.Interfaces;
+using Microsoft.Finance.Currency;
 using Microsoft.Foundation.Attachment;
+using Microsoft.Foundation.Reporting;
+#if not CLEAN27
+using Microsoft.Purchases.Document;
+#endif
 using Microsoft.Utilities;
 using System.Automation;
 using System.IO;
 using System.Reflection;
+using System.Telemetry;
 using System.Threading;
-using Microsoft.eServices.EDocument.Processing.Import;
-using Microsoft.eServices.EDocument.Processing.Interfaces;
-using Microsoft.eServices.EDocument.OrderMatch;
-using Microsoft.eServices.EDocument.Processing.Import.Purchase;
-#if not CLEAN27
-using Microsoft.Purchases.Document;
-#endif
 
 table 6121 "E-Document"
 {
@@ -383,6 +383,7 @@ table 6121 "E-Document"
         EDocument.SetRange("Document Record ID", RecordRef.RecordId());
         exit(not EDocument.IsEmpty());
     end;
+
     internal procedure IsSourceDocumentStructured(): Boolean
     var
         EDocDataStorage: Record "E-Doc. Data Storage";

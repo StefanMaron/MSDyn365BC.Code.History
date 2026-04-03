@@ -8,10 +8,10 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Registration;
 using Microsoft.Foundation.Company;
 using System;
+using System.IO;
 using System.Telemetry;
 using System.Utilities;
 using System.Xml;
-using System.IO;
 
 report 11307 "VAT - Form"
 {

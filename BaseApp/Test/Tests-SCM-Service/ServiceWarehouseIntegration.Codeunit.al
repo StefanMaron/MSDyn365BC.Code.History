@@ -870,6 +870,59 @@ codeunit 136142 "Service Warehouse Integration"
         ValidateWhseSourceFilterField(WarehouseSourceFilter.Type::Outbound, 5, false, true);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyPostedSourceDocumentServiceOrder()
+    var
+        ServiceHeader: Record "Service Header";
+        TempWarehouseShipmentLine: Record "Warehouse Shipment Line" temporary;
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        TempPostedWhseShipmentLine: Record "Posted Whse. Shipment Line" temporary;
+        ServiceShipmentHeader: Record "Service Shipment Header";
+        WhseShipmentCreatePick: Report "Whse.-Shipment - Create Pick";
+        WhsePostShipment: Codeunit "Whse.-Post Shipment";
+    begin
+        // [FEATURE] [Warehouse] [Service] [Posted Source Document]
+        // [SCENARIO 597197] Verify that Posted Source Document action from Posted Whse. Shipment Line correctly navigates to Posted Service Shipment for Service Orders
+        Initialize();
+
+        // [GIVEN] Create service order and process through warehouse shipment
+        CreateServiceOrder(ServiceHeader, 5, WhiteLocationCode, 0, 0, 0, 0, false);
+        LibraryService.ReleaseServiceDocument(ServiceHeader);
+        CreateWhseShipment(ServiceHeader, true);
+
+        // [GIVEN] Create pick, register it and post warehouse shipment
+        CollectWarehouseShipmentLines(ServiceHeader."No.", TempWarehouseShipmentLine);
+        TempWarehouseShipmentLine.FindFirst();
+        WarehouseShipmentHeader.Get(TempWarehouseShipmentLine."No.");
+        WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
+        WarehouseShipmentLine.FindFirst();
+        WhseShipmentCreatePick.SetWhseShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
+        WhseShipmentCreatePick.SetHideValidationDialog(true);
+        WhseShipmentCreatePick.Initialize('', "Whse. Activity Sorting Method"::None, false, false, false);
+        WhseShipmentCreatePick.UseRequestPage(false);
+        WhseShipmentCreatePick.RunModal();
+        Clear(WhseShipmentCreatePick);
+        RegisterPick(TempWarehouseShipmentLine."No.");
+        WhsePostShipment.SetPostingSettings(false); // Post as ship only: Invoice = FALSE
+        WhsePostShipment.Run(WarehouseShipmentLine);
+
+        // [WHEN] Get Posted Whse. Shipment Line for the Service Order
+        CollectPostedWarehouseShipmentLines(ServiceHeader."No.", TempPostedWhseShipmentLine);
+        TempPostedWhseShipmentLine.FindFirst();
+
+        // [THEN] Verify that Posted Service Shipment exists for this order
+        ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
+        Assert.IsTrue(ServiceShipmentHeader.FindFirst(), 'Posted Service Shipment should exist');
+
+        // [THEN] Verify that ShowPostedSourceDocument works correctly for Service Order
+        // This validates that the Source Document is "Service Order" and routes to Service Shipment
+        Assert.AreEqual(TempPostedWhseShipmentLine."Source Document", TempPostedWhseShipmentLine."Source Document"::"Service Order", 'Source Document should be Service Order');
+        Assert.AreEqual(TempPostedWhseShipmentLine."Posted Source No.", ServiceShipmentHeader."No.", 'Posted Source No. should match Service Shipment No.');
+        CleanSetupData();
+    end;
+
     local procedure ValidateWhseSourceFilterField(InbOutb: Option Inbound,Outbound; FieldToValidate: Integer; ValidateWithValue: Boolean; ErrorExpected: Boolean)
     var
         MyRecRef: RecordRef;

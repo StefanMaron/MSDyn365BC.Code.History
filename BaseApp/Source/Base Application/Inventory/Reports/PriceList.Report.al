@@ -1,8 +1,7 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-#if not CLEAN25
 namespace Microsoft.Inventory.Reports;
 
 using Microsoft.CRM.BusinessRelation;
@@ -21,7 +20,6 @@ using Microsoft.Sales.Document;
 using Microsoft.Sales.Pricing;
 using System.Utilities;
 
-#pragma warning disable AS0072
 report 715 "Price List"
 {
     DefaultLayout = RDLC;
@@ -30,9 +28,6 @@ report 715 "Price List"
     Caption = 'Price List';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: Item Price List report';
-    ObsoleteTag = '16.0';
 
     dataset
     {
@@ -553,6 +548,7 @@ report 715 "Price List"
         PriceListCaptionLbl: Label 'Price List';
         CompanyInfoPhoneNoCaptionLbl: Label 'Phone No.';
         CompanyInfoFaxNoCaptionLbl: Label 'Fax No.';
+        CompanyInfoEnterpriseNoCaptionLbl: Label 'Enterprise No.';
         CompanyInfoGiroNoCaptionLbl: Label 'Giro No.';
         CompanyInfoBankNameCaptionLbl: Label 'Bank';
         CompanyInfoBankAccNoCaptionLbl: Label 'Account No.';
@@ -561,7 +557,6 @@ report 715 "Price List"
         UnitOfMeasureCaptionLbl: Label 'Unit of Measure';
         MinimumQuantityCaptionLbl: Label 'Minimum Quantity';
         VATTextCaptionLbl: Label 'VAT';
-        CompanyInfoEnterpriseNoCaptionLbl: Label 'Enterprise No.';
         NativeCalculationErr: Label 'The Business Central (Version 15.0) must be selected on the Price Calculation Method page.';
 
     local procedure VerifyPriceSetup()
@@ -734,5 +729,3 @@ report 715 "Price List"
         end;
     end;
 }
-#pragma warning restore AS0072
-#endif

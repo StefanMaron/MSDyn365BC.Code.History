@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Text;
+
 using System;
 using System.AI;
 using System.Telemetry;

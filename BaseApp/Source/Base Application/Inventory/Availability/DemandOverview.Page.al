@@ -77,12 +77,6 @@ page 5830 "Demand Overview"
                     var
                         IsHandled: Boolean;
                     begin
-#if not CLEAN25
-                        IsHandled := false;
-                        OnBeforeLookupDemandNo(Rec, TransformDemandTypeEnumToOption(DemandType), Result, IsHandled, Text);
-                        if IsHandled then
-                            exit(Result);
-#endif
                         IsHandled := false;
                         OnBeforeOnLookupDemandNo(Rec, DemandType, Result, IsHandled, Text);
                         if IsHandled then
@@ -117,13 +111,11 @@ page 5830 "Demand Overview"
                     HideValue = ItemNoHideValue;
                     Style = Strong;
                     StyleExpr = ItemNoEmphasize;
-                    ToolTip = 'Specifies the identifier number for the item.';
                 }
                 field("Matches Criteria"; Rec."Matches Criteria")
                 {
                     ApplicationArea = Planning;
                     Editable = false;
-                    ToolTip = 'Specifies whether the line in the Demand Overview window is related to the lines where the demand overview was calculated.';
                     Visible = false;
                 }
                 field(Type; Rec.Type)
@@ -132,7 +124,6 @@ page 5830 "Demand Overview"
                     Editable = false;
                     Style = Strong;
                     StyleExpr = TypeEmphasize;
-                    ToolTip = 'Specifies the type of availability being calculated.';
                 }
                 field(Date; Rec.Date)
                 {
@@ -140,7 +131,6 @@ page 5830 "Demand Overview"
                     Editable = false;
                     Style = Unfavorable;
                     StyleExpr = DateEmphasize;
-                    ToolTip = 'Specifies the date of the availability calculation.';
                 }
                 field(SourceTypeText; SourceTypeText)
                 {
@@ -155,14 +145,12 @@ page 5830 "Demand Overview"
                     ApplicationArea = Planning;
                     Editable = false;
                     HideValue = SourceOrderStatusHideValue;
-                    ToolTip = 'Specifies the order status of the item for which availability is being calculated.';
                     Visible = false;
                 }
                 field("Source ID"; Rec."Source ID")
                 {
                     ApplicationArea = Planning;
                     Editable = false;
-                    ToolTip = 'Specifies the identifier code of the source.';
                     Visible = false;
                 }
                 field(Description; Rec.Description)
@@ -171,19 +159,16 @@ page 5830 "Demand Overview"
                     Editable = false;
                     Style = Strong;
                     StyleExpr = DescriptionEmphasize;
-                    ToolTip = 'Specifies the description of the item for which availability is being calculated.';
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Editable = false;
-                    ToolTip = 'Specifies the location code of the item for which availability is being calculated.';
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     Editable = false;
-                    ToolTip = 'Specifies the variant of the item on the line.';
                 }
                 field(QuantityText; QuantityText)
                 {
@@ -209,7 +194,6 @@ page 5830 "Demand Overview"
                     HideValue = RunningTotalHideValue;
                     Style = Strong;
                     StyleExpr = RunningTotalEmphasize;
-                    ToolTip = 'Specifies the total count of items from inventory, supply, and demand.';
                 }
                 field("Inventory Running Total"; Rec."Inventory Running Total")
                 {
@@ -219,7 +203,6 @@ page 5830 "Demand Overview"
                     HideValue = InventoryRunningTotalHideValue;
                     Style = Strong;
                     StyleExpr = InventoryRunningTotalEmphasize;
-                    ToolTip = 'Specifies the count of items in inventory.';
                     Visible = false;
                 }
                 field("Supply Running Total"; Rec."Supply Running Total")
@@ -230,7 +213,6 @@ page 5830 "Demand Overview"
                     HideValue = SupplyRunningTotalHideValue;
                     Style = Strong;
                     StyleExpr = SupplyRunningTotalEmphasize;
-                    ToolTip = 'Specifies the count of items in supply.';
                     Visible = false;
                 }
                 field("Demand Running Total"; Rec."Demand Running Total")
@@ -241,7 +223,6 @@ page 5830 "Demand Overview"
                     HideValue = DemandRunningTotalHideValue;
                     Style = Strong;
                     StyleExpr = DemandRunningTotalEmphasize;
-                    ToolTip = 'Specifies the count of items in demand.';
                     Visible = false;
                 }
             }
@@ -569,51 +550,6 @@ page 5830 "Demand Overview"
         CurrPage.Update(false);
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by SetParameters() with enum', '25.0')]
-    procedure Initialize(NewStartDate: Date; NewDemandType: Integer; NewDemandNo: Code[20]; NewItemNo: Code[20]; NewLocationFilter: Code[250])
-    begin
-        SetParameters(NewStartDate, TransformDemandTypeOptionToEnum(NewDemandType), NewDemandNo, NewItemNo, NewLocationFilter);
-    end;
-
-    [Obsolete('Temporary procedure used by Initialize()', '25.0')]
-    local procedure TransformDemandTypeOptionToEnum(DemandTypeOption: Option): Enum "Demand Order Source Type"
-    begin
-        case DemandTypeOption of
-            0: // " "
-                exit("Demand Order Source Type"::"All Demands");
-            1: // Sales
-                exit("Demand Order Source Type"::"Sales Demand");
-            2: // Production
-                exit("Demand Order Source Type"::"Production Demand");
-            3: // Jobs
-                exit("Demand Order Source Type"::"Job Demand");
-            4: // Services 
-                exit("Demand Order Source Type"::"Service Demand");
-            5: // Assembly
-                exit("Demand Order Source Type"::"Assembly Demand");
-        end;
-    end;
-
-    [Obsolete('Temporary procedure used by DemandNoCtrl - OnLookup for event publisher OnBeforeLookupDemandNo()', '25.0')]
-    local procedure TransformDemandTypeEnumToOption(DemandTypeEnum: Enum "Demand Order Source Type"): Integer
-    begin
-        case DemandTypeEnum of
-            DemandTypeEnum::"All Demands":
-                exit(0); // " "
-            DemandTypeEnum::"Sales Demand":
-                exit(1); // Sales
-            DemandTypeEnum::"Production Demand":
-                exit(2); // Production
-            DemandTypeEnum::"Job Demand":
-                exit(3); // Jobs
-            DemandTypeEnum::"Service Demand":
-                exit(4); // Services
-            DemandTypeEnum::"Assembly Demand":
-                exit(5); // Assembly
-        end;
-    end;
-#endif
 
     procedure SetParameters(NewStartDate: Date; NewDemandType: Enum "Demand Order Source Type"; NewDemandNo: Code[20]; NewItemNo: Code[20]; NewLocationFilter: Code[250])
     begin
@@ -644,13 +580,6 @@ page 5830 "Demand Overview"
         CalculationOfDemand := CalculateDemandParam;
     end;
 
-#if not CLEAN25 
-    [Obsolete('Replaced by OnBeforeOnLookupDemandNo() with enum', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookupDemandNo(var AvailabilityCalcOverview: Record "Availability Calc. Overview"; DemandType: Option; var Result: Boolean; var IsHandled: Boolean; var Text: Text)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnLookupDemandNo(var AvailabilityCalcOverview: Record "Availability Calc. Overview"; DemandType: Enum "Demand Order Source Type"; var Result: Boolean; var IsHandled: Boolean; var Text: Text)
@@ -667,4 +596,3 @@ page 5830 "Demand Overview"
     begin
     end;
 }
-

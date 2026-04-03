@@ -11,6 +11,13 @@ codeunit 132476 "API Mock Events"
         MockIntegrationManagementEnabled: Boolean;
         MultipleTestHandlersOnEventErr: Label 'There are multiple subscribers competing for the handled in the tests.';
 
+    procedure SetAPIServicesEnabled(Value: Boolean)
+    begin
+        UnbindSubscription(this);
+        SetIsAPIEnabled(Value);
+        BindSubscription(this);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'OnGetIsAPIEnabled', '', false, false)]
     local procedure HandleOnGetIsAPIEnabled(var Handled: Boolean; var IsAPIEnabled: Boolean)
     begin

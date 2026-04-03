@@ -5,10 +5,10 @@
 namespace Microsoft.Manufacturing.Routing;
 
 using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Planning;
-using Microsoft.Inventory.Planning;
 
 codeunit 99000808 PlanningRoutingManagement
 {

@@ -4,18 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Utilities;
 
-using Microsoft.Service.Document;
-using Microsoft.Service.Contract;
 using Microsoft.Service.Archive;
+using Microsoft.Service.Contract;
+using Microsoft.Service.Document;
 
 codeunit 6466 "Serv. Page Management"
 {
-#if not CLEAN25
-    var
-        PageManagement: Codeunit "Page Management";
-#endif
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Page Management", 'OnConditionalCardPageIDNotFound', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Page Management", 'OnConditionalCardPageIDNotFound', '', true, false)]
     local procedure OnConditionalCardPageIDNotFound(RecordRef: RecordRef; var CardPageID: Integer);
     begin
         case RecordRef.Number of
@@ -57,9 +53,6 @@ codeunit 6466 "Serv. Page Management"
                 Result := PAGE::"Service Credit Memo";
         end;
         OnAfterGetServiceHeaderPageID(RecRef, ServiceHeader, Result);
-#if not CLEAN25
-        PageManagement.RunOnAfterGetServiceHeaderPageID(RecRef, ServiceHeader, Result);
-#endif
     end;
 
     local procedure GetServiceContractHeaderPageID(RecRef: RecordRef): Integer

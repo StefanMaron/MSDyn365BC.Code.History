@@ -18,6 +18,9 @@ using Microsoft.Sales.RoleCenters;
 using Microsoft.Utilities;
 using System.Privacy;
 
+/// <summary>
+/// Classifies data sensitivity levels for sales-related tables to support GDPR compliance. Marks fields as personal, confidential, or normal based on data privacy requirements.
+/// </summary>
 codeunit 1762 "Sales-Data Classification"
 {
     var
@@ -98,11 +101,9 @@ codeunit 1762 "Sales-Data Classification"
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Line Fee Note on Report Hist.");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Sales Document Icon");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"Customer Templ.");
-#if not CLEAN25
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Sales Price");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Sales Line Discount");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Sales Price Worksheet");
-#endif
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Sales Comment Line Archive");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Sales Cue");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Sales by Cust. Grp.Chart Setup");

@@ -6,10 +6,10 @@ namespace Microsoft.Finance.GeneralLedger.Reports;
 
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Ledger;
-using Microsoft.Foundation.Enums;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.Period;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;

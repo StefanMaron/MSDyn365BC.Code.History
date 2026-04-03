@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -6,6 +6,7 @@ namespace Microsoft.CRM.Outlook;
 
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
+using Microsoft.Utilities;
 
 table 1606 "Office Invoice"
 {
@@ -21,10 +22,12 @@ table 1606 "Office Invoice"
         field(2; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+            ToolTip = 'Specifies the number of the related document.';
         }
         field(3; Posted; Boolean)
         {
             Caption = 'Posted';
+            ToolTip = 'Specifies whether the document has been posted.';
         }
     }
 
@@ -44,13 +47,14 @@ table 1606 "Office Invoice"
     var
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        PageManagement: Codeunit "Page Management";
     begin
         if Posted then begin
             SalesInvoiceHeader.Get("Document No.");
-            PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvoiceHeader);
+            PageManagement.PageRun(SalesInvoiceHeader);
         end else begin
             SalesHeader.Get(SalesHeader."Document Type"::Invoice, "Document No.");
-            PAGE.Run(PAGE::"Sales Invoice", SalesHeader);
+            PageManagement.PageRun(SalesHeader);
         end;
     end;
 

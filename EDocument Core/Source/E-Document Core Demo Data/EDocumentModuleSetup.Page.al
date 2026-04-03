@@ -1,4 +1,9 @@
-#pragma warning disable AA0247
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.eServices.EDocument.DemoData;
+
 page 5377 "E-Document Module Setup"
 {
     PageType = Card;
@@ -26,6 +31,14 @@ page 5377 "E-Document Module Setup"
                 field("Vendor No. 3"; Rec."Vendor No. 3")
                 {
                     ToolTip = 'Specifies vendor 3 number to use for the scenarios.';
+                }
+                field("Recurring Expense G/L Acc. No"; Rec."Recurring Expense G/L Acc. No")
+                {
+                    ToolTip = 'Specifies the recurring expense G/L account number to use for the scenarios.';
+                }
+                field("Delivery Expense G/L Acc. No"; Rec."Delivery Expense G/L Acc. No")
+                {
+                    ToolTip = 'Specifies the delivery expense G/L account number to use for the scenarios.';
                 }
             }
         }

@@ -49,33 +49,6 @@ codeunit 144012 "Checklist Revenue and VAT Test"
     [Test]
     [HandlerFunctions('HandleRequestPage')]
     [Scope('OnPrem')]
-    procedure ManualVATCorrectionOnReport()
-    var
-        FilterGLAccount: Record "G/L Account";
-        CorrectionAmount: Decimal;
-        RowNoFilter: Text;
-    begin
-        // [FEATURE] [Manual VAT Correction]
-        // [SCENARIO REP.040] VAT Correction Amount in 'Checklist Revenue and VAT'
-        // [GIVEN] VAT Statement Lines with specific 'Row No.'
-        RowNoFilter := '00|01|02|03|44|45|46|47|48|49';
-        // [GIVEN] Added Manual VAT Correction. Amount = X
-        CorrectionAmount := AddManVATCorrection(RowNoFilter);
-
-        // [WHEN] print Report 11312 'Checklist Revenue and VAT'
-        FilterGLAccount.SetRange("No.", '_'); // to minimize output
-        REPORT.Run(REPORT::"Checklist Revenue and VAT", true, true, FilterGLAccount);
-
-        // [THEN] 'Difference (2)-(1)' = X
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists(
-          'TotTVAStatement__TotRevenue_TotNotRevenue_CreditAmt_DebitAmt_TotBaseVAT_TotAmount_',
-          CorrectionAmount);
-    end;
-
-    [Test]
-    [HandlerFunctions('HandleRequestPage')]
-    [Scope('OnPrem')]
     procedure NoAmountVATBaseDiffExcludedDataItem()
     var
         FilterGLAccount: Record "G/L Account";
@@ -128,34 +101,6 @@ codeunit 144012 "Checklist Revenue and VAT Test"
         // [WHEN] Report "Purchase Advice" is being printed to PDF
         REPORT.Run(REPORT::"Checklist Revenue and VAT", true, true, FilterGLAccount);
         // [THEN] No RDLC rendering errors
-    end;
-
-    local procedure AddManVATCorrection(RowNoFilter: Text): Decimal
-    var
-        GLSetup: Record "General Ledger Setup";
-        VATStatementLine: Record "VAT Statement Line";
-        ManualVATCorrection: Record "Manual VAT Correction";
-    begin
-        GLSetup.Get();
-        VATStatementLine.SetRange("Statement Template Name", GLSetup."VAT Statement Template Name");
-        VATStatementLine.SetRange("Statement Name", GLSetup."VAT Statement Name");
-        VATStatementLine.SetFilter("Row No.", RowNoFilter);
-        VATStatementLine.FindSet();
-        VATStatementLine.Next(LibraryRandom.RandInt(VATStatementLine.Count - 1));
-
-        ManualVATCorrection.DeleteAll();
-
-        ManualVATCorrection.Init();
-        ManualVATCorrection."Statement Template Name" := VATStatementLine."Statement Template Name";
-        ManualVATCorrection."Statement Name" := VATStatementLine."Statement Name";
-        ManualVATCorrection."Statement Line No." := VATStatementLine."Line No.";
-        ManualVATCorrection."Posting Date" := WorkDate();
-        ManualVATCorrection.Amount := LibraryRandom.RandDec(10000, 2);
-        ManualVATCorrection.Insert();
-
-        Commit();
-
-        exit(ManualVATCorrection.Amount);
     end;
 
     local procedure PostGLEntries(var GLAccNo: Code[20]; var BalGLAccNo: Code[20])

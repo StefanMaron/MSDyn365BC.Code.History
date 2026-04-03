@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -90,6 +90,7 @@ table 5768 "Whse. Cross-Dock Opportunity"
         field(13; "To Source No."; Code[20])
         {
             Caption = 'To Source No.';
+            ToolTip = 'Specifies the number of the source document for which items can be cross-docked.';
             Editable = false;
         }
         field(14; "To Source Line No."; Integer)
@@ -106,30 +107,36 @@ table 5768 "Whse. Cross-Dock Opportunity"
         {
             BlankZero = true;
             Caption = 'To Source Document';
+            ToolTip = 'Specifies the type of source document for which the cross-dock opportunity can be used, such as sales order.';
             OptionCaption = ',Sales Order,,,,,,,Purchase Return Order,,Outbound Transfer,Prod. Order Comp.,,,,,,,Service Order,,Assembly Consumption,Assembly Order';
             OptionMembers = ,"Sales Order",,,,,,,"Purchase Return Order",,"Outbound Transfer","Prod. Order Comp.",,,,,,,"Service Order",,"Assembly Consumption","Assembly Order";
         }
         field(17; "Item No."; Code[20])
         {
             Caption = 'Item No.';
+            ToolTip = 'Specifies the item number of the items that can be cross-docked.';
             Editable = false;
             TableRelation = Item;
         }
         field(18; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
+            ToolTip = 'Specifies the variant of the item on the line.';
             Editable = false;
             TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
         }
         field(19; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
+            ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
             Editable = false;
             TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
         }
         field(20; "Qty. per Unit of Measure"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. per Unit of Measure';
+            ToolTip = 'Specifies the number of base units of measure in which the item has been received.';
             DecimalPlaces = 0 : 5;
             Editable = false;
             InitValue = 1;
@@ -137,24 +144,30 @@ table 5768 "Whse. Cross-Dock Opportunity"
         field(21; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
+            ToolTip = 'Specifies the code of the location on the warehouse receipt line related to this cross-dock opportunity.';
             Editable = false;
             TableRelation = Location;
         }
         field(24; "Qty. Needed"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Needed';
+            ToolTip = 'Specifies the quantity that is still needed on the document for which the items can be cross-docked.';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(25; "Qty. Needed (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Needed (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(26; "Qty. to Cross-Dock"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. to Cross-Dock';
+            ToolTip = 'Specifies the quantity that is ready to cross-dock.';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -169,6 +182,7 @@ table 5768 "Whse. Cross-Dock Opportunity"
         }
         field(27; "Qty. to Cross-Dock (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. to Cross-Dock (Base)';
             DecimalPlaces = 0 : 5;
 
@@ -180,6 +194,7 @@ table 5768 "Whse. Cross-Dock Opportunity"
         }
         field(28; "Qty. Cross-Docked (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Whse. Cross-Dock Opportunity"."Qty. to Cross-Dock (Base)" where("Source Template Name" = field("Source Template Name"),
                                                                                                 "Source Name/No." = field("Source Name/No."),
                                                                                                 "Source Line No." = field("Source Line No."),
@@ -191,6 +206,7 @@ table 5768 "Whse. Cross-Dock Opportunity"
         }
         field(29; "Total Qty. Needed (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Whse. Cross-Dock Opportunity"."Qty. Needed (Base)" where("Source Template Name" = field("Source Template Name"),
                                                                                          "Source Name/No." = field("Source Name/No."),
                                                                                          "Source Line No." = field("Source Line No."),
@@ -200,6 +216,7 @@ table 5768 "Whse. Cross-Dock Opportunity"
         }
         field(36; "Reserved Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = - sum("Reservation Entry".Quantity where("Source ID" = field("To Source No."),
                                                                    "Source Ref. No." = field("To Source Line No."),
                                                                    "Source Type" = field("To Source Type"),
@@ -207,12 +224,14 @@ table 5768 "Whse. Cross-Dock Opportunity"
                                                                    "Source Prod. Order Line" = field("To Source Subline No."),
                                                                    "Reservation Status" = const(Reservation)));
             Caption = 'Reserved Quantity';
+            ToolTip = 'Specifies the number of units of the item on the line reserved for the source document line.';
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
         }
         field(37; "Reserved Qty. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = - sum("Reservation Entry".Quantity where("Source ID" = field("To Source No."),
                                                                    "Source Ref. No." = field("To Source Line No."),
                                                                    "Source Type" = field("To Source Type"),
@@ -227,12 +246,15 @@ table 5768 "Whse. Cross-Dock Opportunity"
         field(39; "To-Src. Unit of Measure Code"; Code[10])
         {
             Caption = 'To-Src. Unit of Measure Code';
+            ToolTip = 'Specifies the unit of measure code on the source document line that needs the cross-dock opportunity item.';
             Editable = false;
             TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
         }
         field(40; "To-Src. Qty. per Unit of Meas."; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'To-Src. Qty. per Unit of Meas.';
+            ToolTip = 'Specifies the quantity of base units of measure, on the source document line, that needs the cross-dock opportunity items.';
             DecimalPlaces = 0 : 5;
             Editable = false;
             InitValue = 1;
@@ -240,17 +262,21 @@ table 5768 "Whse. Cross-Dock Opportunity"
         field(41; "Due Date"; Date)
         {
             Caption = 'Due Date';
+            ToolTip = 'Specifies the date when the outbound warehouse activity should be started.';
             Editable = false;
         }
         field(42; "Pick Qty."; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Pick Qty.';
+            ToolTip = 'Specifies the quantity of the item that is on pick instructions for the outbound source document, but that has not yet been registered as picked.';
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = Normal;
         }
         field(43; "Pick Qty. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Pick Qty. (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -258,12 +284,14 @@ table 5768 "Whse. Cross-Dock Opportunity"
         }
         field(44; "Picked Qty."; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Picked Qty.';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(45; "Picked Qty. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Picked Qty. (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;

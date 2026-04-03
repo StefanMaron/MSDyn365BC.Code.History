@@ -4,6 +4,15 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.FinancialReports;
 
+/// <summary>
+/// Provides management interface for financial report row definitions (formerly account schedules).
+/// Enables creation, editing, copying, import/export, and where-used analysis of row definition templates.
+/// </summary>
+/// <remarks>
+/// Primary functionality: Row definition management, copy operations, RapidStart import/export integration.
+/// Navigation: Links to Account Schedule page for detailed row editing and Financial Report usage tracking.
+/// Extensibility: Standard page extension patterns for additional fields and actions.
+/// </remarks>
 page 103 "Account Schedule Names"
 {
     AboutTitle = 'About (Financial Report) Row Definitions';
@@ -35,6 +44,7 @@ page 103 "Account Schedule Names"
                 {
                     ApplicationArea = Suite;
                 }
+                field(Status; Rec.Status) { }
                 field("Internal Description"; Rec."Internal Description")
                 {
                     ApplicationArea = Suite;
@@ -164,5 +174,25 @@ page 103 "Account Schedule Names"
             }
         }
     }
+
+    trigger OnOpenPage()
+    var
+        FinancialReportStatus: Record "Financial Report Status";
+        LastFilterGroup: Integer;
+    begin
+        if not FinancialReportStatus.WritePermission() then begin
+            LastFilterGroup := Rec.FilterGroup();
+            Rec.FilterGroup(4);
+            Rec.SetRange("Status Blocked", false);
+            Rec.FilterGroup(LastFilterGroup);
+        end;
+    end;
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    var
+        FinancialReportMgt: Codeunit "Financial Report Mgt.";
+    begin
+        Rec.Status := FinancialReportMgt.GetDefaultStatus();
+    end;
 }
 

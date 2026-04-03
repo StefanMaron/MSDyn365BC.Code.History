@@ -5,9 +5,9 @@
 namespace Microsoft.Service.Document;
 
 using Microsoft.Finance.Currency;
-using Microsoft.Service.Posting;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Service.History;
+using Microsoft.Service.Posting;
 
 codeunit 11309 "Service Line Mgt. BE"
 {

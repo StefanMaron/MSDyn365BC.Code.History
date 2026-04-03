@@ -1,8 +1,13 @@
+#if not CLEAN28
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Reports;
+
+/// <summary>
+/// Lists top customers ranked by sales or balance amounts with graphical chart representation. This report is obsolete.
+/// </summary>
 
 using Microsoft.Sales.Customer;
 using Microsoft.Utilities;
@@ -13,10 +18,13 @@ report 111 "Customer - Top 10 List"
     DefaultLayout = RDLC;
     RDLCLayout = './Sales/Reports/CustomerTop10List.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Customer - Top 10 List';
+    Caption = 'Customer - Top 10 List (Obsolete)';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This report has been replaced by the report Customer - Top List (Excel). This report will be removed in a future release.';
+    ObsoleteTag = '28.0';
 
     dataset
     {
@@ -157,8 +165,8 @@ report 111 "Customer - Top 10 List"
 
     requestpage
     {
-        AboutTitle = 'About Customer - Top 10 List';
-        AboutText = 'Review a summary of customers with the most transactions within a selected period to identify sales trends, upcoming collectable debts, and major revenue sources in the company.';
+        AboutTitle = 'About Customer - Top 10 List (Obsolete)';
+        AboutText = 'Review a summary of customers with the most transactions within a selected period to identify sales trends, upcoming collectable debts, and major revenue sources in the company.** This report is obsolete and will be removed in a future release.** Please refer to the report documentation for alternative ways to retrieve this information.';
         SaveValues = true;
 
         layout
@@ -258,6 +266,12 @@ report 111 "Customer - Top 10 List"
         PercentofTotalSalesCaptionLbl: Label '% of Total Sales';
         NoOfRecordsToPrintErrMsg: Label 'The value must be a positive number.';
 
+    /// <summary>
+    /// Initializes the report request options for the Customer Top 10 List report.
+    /// </summary>
+    /// <param name="SetChartType">The chart type option for visualization.</param>
+    /// <param name="SetShowType">The show type option (sales or balance).</param>
+    /// <param name="NoOfRecords">The number of top customers to include.</param>
     procedure InitializeRequest(SetChartType: Option; SetShowType: Option; NoOfRecords: Integer)
     begin
         ChartType := SetChartType;
@@ -275,4 +289,5 @@ report 111 "Customer - Top 10 List"
     begin
     end;
 }
+#endif
 

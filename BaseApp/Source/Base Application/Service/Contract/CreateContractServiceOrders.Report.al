@@ -213,15 +213,13 @@ report 6036 "Create Contract Service Orders"
     local procedure CreateOrAddToServOrder()
     var
         NextLineNo: Integer;
+        CreateHeader: Boolean;
     begin
-        ServHeader.Reset();
-        ServHeader.SetCurrentKey("Contract No.", Status, "Posting Date");
-        ServHeader.SetRange("Document Type", ServHeader."Document Type"::Order);
-        ServHeader.SetRange("Contract No.", "Service Contract Header"."Contract No.");
-        ServHeader.SetRange(Status, ServHeader.Status::Pending);
-        ServHeader.SetFilter("Order Date", '>=%1', "Service Contract Line"."Next Planned Service Date");
-        OnBeforeFindServiceHeader(ServHeader, "Service Contract Header", "Service Contract Line");
-        if not ServHeader.FindFirst() then begin
+        CreateHeader := ServMgtSetup."One Service Item Line/Order";
+        if not CreateHeader then
+            CreateHeader := not FindPendingServiceOrderFromContract();
+
+        if CreateHeader then begin
             CreateServiceHeader(ServHeader, "Service Contract Header");
             ServOrderCreated := ServOrderCreated + 1;
         end;
@@ -244,6 +242,18 @@ report 6036 "Create Contract Service Orders"
         OnBeforeFindServiceItemLineOnCreateServiceHeader(ServItemLine, ServHeader, "Service Contract Header", "Service Contract Line");
         if not ServItemLine.FindFirst() then
             CreateServiceItemLine(ServHeader, "Service Contract Line", NextLineNo);
+    end;
+
+    local procedure FindPendingServiceOrderFromContract(): Boolean
+    begin
+        ServHeader.Reset();
+        ServHeader.SetCurrentKey("Contract No.", Status, "Posting Date");
+        ServHeader.SetRange("Document Type", ServHeader."Document Type"::Order);
+        ServHeader.SetRange("Contract No.", "Service Contract Header"."Contract No.");
+        ServHeader.SetRange(Status, ServHeader.Status::Pending);
+        ServHeader.SetFilter("Order Date", '>=%1', "Service Contract Line"."Next Planned Service Date");
+        OnBeforeFindServiceHeader(ServHeader, "Service Contract Header", "Service Contract Line");
+        exit(ServHeader.FindFirst());
     end;
 
     local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; ServiceContractHeader: Record "Service Contract Header")

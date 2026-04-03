@@ -22,10 +22,8 @@ codeunit 136906 "Job Reports"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryReportValidation: Codeunit "Library - Report Validation";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
         GLAccountCap: Label 'GLAcc__No__', Locked = true;
-        WIPAmountCap: Label 'JobBuffer__Amount_1_', Locked = true;
         XJOBTxt: Label 'JOB';
         XJ10Txt: Label 'J10';
         XJ99990Txt: Label 'J99990';
@@ -81,57 +79,6 @@ codeunit 136906 "Job Reports"
         LibraryReportDataset.SetRange(GLAccountCap, JobPostingGroup."Job Costs Applied Account");
         Assert.IsFalse(
           LibraryReportDataset.GetNextRow(), StrSubstNo('No records exist for account:%1', JobPostingGroup."Job Costs Applied Account"));
-    end;
-
-    [Test]
-    [HandlerFunctions('JobPostWIPToGLHandler,ConfirmHandlerMultipleResponses,MessageHandler,JobWIPToGLRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure JobWIPToGLAfterJobPostWIPToGL()
-    var
-        Job: Record Job;
-        TotalCost: Decimal;
-    begin
-        // Test functionality of Job WIP To G/L after Job Post WIP To G/L.
-
-        // 1. Setup: Create Initial setup for Job. Run Job Calculate WIP. Run Job Post WIP To G/L.
-        Initialize();
-        LibraryVariableStorage.Enqueue(true);
-        TotalCost := CreateInitialSetupForJob(Job);
-        LibraryVariableStorage.Enqueue(false);
-        RunJobCalculateWIP(Job);
-        RunJobPostWIPToGL(Job);
-
-        // 2. Exercise: Run Job WIP To G/L report.
-        RunJobWIPToGL(Job);
-
-        // 3. Verify: Verify WIP Amount On Job WIP To G/L report.
-        VerifyWIPAmountOnJobWIPToGL(Job."Job Posting Group", -TotalCost);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [HandlerFunctions('JobWIPToGLToExcelRequestPageHandler')]
-    procedure JobWIPToGLSaveToExcel()
-    var
-        Job: Record Job;
-    begin
-        // [SCENARIO 332702] Run report "Job WIP To G/L" with saving results to Excel file.
-        Initialize();
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-
-        // [GIVEN] Job and Job WIP G/L Entry.
-        LibraryJob.CreateJob(Job);
-        MockJobWipGLEntry(Job."No.");
-        Commit();
-
-        // [WHEN] Run report "Job WIP To G/L", save report output to Excel file.
-        Job.SetRecFilter();
-        Report.RunModal(Report::"Job WIP To G/L", true, false, Job);
-
-        // [THEN] Report output is saved to Excel file.
-        LibraryReportValidation.OpenExcelFile();
-        LibraryReportValidation.VerifyCellValue(1, 7, '1'); // page number
-        LibraryReportValidation.VerifyCellValue(2, 1, 'Job WIP To G/L');
     end;
 
     local procedure CreateAndPostJobJournalLine(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task"; JobPlanningLine: Record "Job Planning Line")
@@ -194,20 +141,6 @@ codeunit 136906 "Job Reports"
         Job.Modify(true);
     end;
 
-    local procedure MockJobWipGLEntry(JobNo: Code[20])
-    var
-        JobWipGLEntry: Record "Job WIP G/L Entry";
-    begin
-        JobWipGLEntry.Init();
-        JobWIPGLEntry."Job No." := JobNo;
-        JobWIPGLEntry.Reversed := false;
-        JobWIPGLEntry."Job Complete" := false;
-        JobWipGLEntry."Posting Date" := WorkDate();
-        JobWipGLEntry."G/L Account No." := LibraryERM.CreateGLAccountNo();
-        JobWipGLEntry."WIP Entry Amount" := LibraryRandom.RandDecInRange(100, 200, 2);
-        JobWipGLEntry.Insert();
-    end;
-
     local procedure SetJobNoSeries(var JobsSetup: Record "Jobs Setup"; var NoSeries: Record "No. Series")
     begin
         JobsSetup.Get();
@@ -264,16 +197,6 @@ codeunit 136906 "Job Reports"
         JobCalculateWIP.Run();
     end;
 
-    local procedure RunJobPostWIPToGL(Job: Record Job)
-    var
-        JobPostWIPToGL: Report "Job Post WIP to G/L";
-    begin
-        Job.SetRange("No.", Job."No.");
-        Clear(JobPostWIPToGL);
-        JobPostWIPToGL.SetTableView(Job);
-        JobPostWIPToGL.Run();
-    end;
-
     local procedure RunJobWIPToGL(Job: Record Job)
     var
         JobWIPToGL: Report "Job WIP To G/L";
@@ -295,17 +218,6 @@ codeunit 136906 "Job Reports"
                 JobPostingGroup.Validate("Job Costs Applied Account", LibraryERM.CreateGLAccountNo());
                 JobPostingGroup.Modify(true);
             until JobPostingGroup.Next() = 0;
-    end;
-
-    local procedure VerifyWIPAmountOnJobWIPToGL("Code": Code[20]; TotalCost: Decimal)
-    var
-        JobPostingGroup: Record "Job Posting Group";
-    begin
-        JobPostingGroup.Get(Code);
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.SetRange(GLAccountCap, JobPostingGroup."Job Costs Applied Account");
-        Assert.IsTrue(LibraryReportDataset.GetNextRow(), JobPostingGroup.FieldCaption("Job Costs Applied Account"));
-        LibraryReportDataset.AssertCurrentRowValueEquals(WIPAmountCap, TotalCost);
     end;
 
     [RequestPageHandler]
