@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -6,20 +6,20 @@ namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Warehouse.Activity;
-using Microsoft.Foundation.UOM;
 using Microsoft.Foundation.Navigate;
+using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.MachineCenter;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
+using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
+using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Activity.History;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Structure;
@@ -39,10 +39,12 @@ table 5406 "Prod. Order Line"
         field(1; Status; Enum "Production Order Status")
         {
             Caption = 'Status';
+            ToolTip = 'Specifies a value that is copied from the corresponding field on the production order header.';
         }
         field(2; "Prod. Order No."; Code[20])
         {
             Caption = 'Prod. Order No.';
+            ToolTip = 'Specifies the number of the related production order.';
             TableRelation = "Production Order"."No." where(Status = field(Status));
         }
         field(3; "Line No."; Integer)
@@ -52,6 +54,7 @@ table 5406 "Prod. Order Line"
         field(11; "Item No."; Code[20])
         {
             Caption = 'Item No.';
+            ToolTip = 'Specifies the number of the item that is to be produced.';
             TableRelation = Item where(Type = const(Inventory), "Production Blocked" = filter(<> Output));
 
             trigger OnValidate()
@@ -130,6 +133,7 @@ table 5406 "Prod. Order Line"
         field(12; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
+            ToolTip = 'Specifies the variant of the item on the line.';
             TableRelation = "Item Variant".Code where("Item No." = field("Item No."),
                                                        Code = field("Variant Code"),
                                                        "Production Blocked" = filter(<> Output));
@@ -162,14 +166,17 @@ table 5406 "Prod. Order Line"
         field(13; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies the value of the Description field on the item card. If you enter a variant code, the variant description is copied to this field instead.';
         }
         field(14; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
+            ToolTip = 'Specifies an additional description.';
         }
         field(20; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
+            ToolTip = 'Specifies the location code, if the produced items should be stored in a specific location.';
             TableRelation = Location where("Use As In-Transit" = const(false));
 
             trigger OnValidate()
@@ -192,6 +199,7 @@ table 5406 "Prod. Order Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
                                                           Blocked = const(false));
 
@@ -204,6 +212,7 @@ table 5406 "Prod. Order Line"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
                                                           Blocked = const(false));
 
@@ -215,6 +224,7 @@ table 5406 "Prod. Order Line"
         field(23; "Bin Code"; Code[20])
         {
             Caption = 'Bin Code';
+            ToolTip = 'Specifies the bin that the produced item is posted to as output, and from where it can be taken to storage or cross-docked.';
             TableRelation = if (Quantity = filter(< 0)) "Bin Content"."Bin Code" where("Location Code" = field("Location Code"),
                                                                                      "Item No." = field("Item No."),
                                                                                      "Variant Code" = field("Variant Code"))
@@ -255,6 +265,7 @@ table 5406 "Prod. Order Line"
         field(35; "Standard Task Code"; Code[10])
         {
             Caption = 'Standard Task Code';
+            ToolTip = 'Specifies a standard task.';
             TableRelation = "Standard Task";
             ObsoleteReason = 'This field is not required anymore. The standard task code is now defined on the routing line.';
 #if CLEAN27
@@ -268,7 +279,9 @@ table 5406 "Prod. Order Line"
 #endif
         field(40; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
+            ToolTip = 'Specifies the quantity to be produced if you manually fill in this line.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 
@@ -301,27 +314,34 @@ table 5406 "Prod. Order Line"
         }
         field(41; "Finished Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Finished Quantity';
+            ToolTip = 'Specifies how much of the quantity on this line has been produced.';
             DecimalPlaces = 0 : 5;
             Editable = false;
             MinValue = 0;
         }
         field(42; "Remaining Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Remaining Quantity';
+            ToolTip = 'Specifies the difference between the finished and planned quantities, or zero if the finished quantity is greater than the remaining quantity.';
             DecimalPlaces = 0 : 5;
             Editable = false;
             MinValue = 0;
         }
         field(45; "Scrap %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Scrap %';
+            ToolTip = 'Specifies the percentage of the item that you expect to be scrapped in the production process.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
         }
         field(47; "Due Date"; Date)
         {
             Caption = 'Due Date';
+            ToolTip = 'Specifies the date when the produced item must be available. The date is copied from the header of the production order.';
             Editable = false;
 
             trigger OnValidate()
@@ -420,6 +440,7 @@ table 5406 "Prod. Order Line"
         field(60; "Production BOM No."; Code[20])
         {
             Caption = 'Production BOM No.';
+            ToolTip = 'Specifies the number of the production BOM that is the basis for creating the Prod. Order Component list for this line.';
             TableRelation = "Production BOM Header"."No.";
 
             trigger OnValidate()
@@ -445,6 +466,7 @@ table 5406 "Prod. Order Line"
         field(61; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';
+            ToolTip = 'Specifies the number of the routing used as the basis for creating the production order routing for this line.';
             TableRelation = "Routing Header"."No.";
 
             trigger OnValidate()
@@ -516,7 +538,9 @@ table 5406 "Prod. Order Line"
         field(65; "Unit Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost';
+            ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
 
             trigger OnValidate()
             var
@@ -539,18 +563,23 @@ table 5406 "Prod. Order Line"
                     else
                         "Unit Cost" := Item."Unit Cost" * "Qty. per Unit of Measure";
                 end;
-
-                "Cost Amount" := Round(Quantity * "Unit Cost");
+                if "Finished Quantity" <> 0 then
+                    "Cost Amount" := Round("Finished Quantity" * "Unit Cost")
+                else
+                    "Cost Amount" := Round(Quantity * "Unit Cost");
             end;
         }
         field(67; "Cost Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Cost Amount';
+            ToolTip = 'Specifies the total cost on the line by multiplying the unit cost by the quantity.';
             Editable = false;
         }
         field(68; "Reserved Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Reservation Entry".Quantity where("Source ID" = field("Prod. Order No."),
                                                                   "Source Ref. No." = const(0),
                                                                   "Source Type" = const(5406),
@@ -561,6 +590,7 @@ table 5406 "Prod. Order Line"
                                                                   "Source Prod. Order Line" = field("Line No."),
                                                                   "Reservation Status" = const(Reservation)));
             Caption = 'Reserved Quantity';
+            ToolTip = 'Specifies how many units of this item have been reserved.';
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
@@ -585,6 +615,7 @@ table 5406 "Prod. Order Line"
         }
         field(73; "Qty. Rounding Precision"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Rounding Precision';
             InitValue = 0;
             DecimalPlaces = 0 : 5;
@@ -594,6 +625,7 @@ table 5406 "Prod. Order Line"
         }
         field(74; "Qty. Rounding Precision (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Rounding Precision (Base)';
             InitValue = 0;
             DecimalPlaces = 0 : 5;
@@ -610,6 +642,7 @@ table 5406 "Prod. Order Line"
         field(80; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
+            ToolTip = 'Specifies how each unit of the item is measured, such as in pieces or tons. By default, the value in the Base Unit of Measure field on the item card is inserted. It will be changed if you switch Product BOM or Production BOM Version.';
             TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
 
             trigger OnValidate()
@@ -634,6 +667,7 @@ table 5406 "Prod. Order Line"
         }
         field(81; "Quantity (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity (Base)';
             DecimalPlaces = 0 : 5;
 
@@ -657,18 +691,21 @@ table 5406 "Prod. Order Line"
         }
         field(82; "Finished Qty. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Finished Qty. (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(83; "Remaining Qty. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Remaining Qty. (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(84; "Reserved Qty. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Reservation Entry"."Quantity (Base)" where("Source ID" = field("Prod. Order No."),
                                                                            "Source Ref. No." = const(0),
                                                                            "Source Type" = const(5406),
@@ -686,6 +723,7 @@ table 5406 "Prod. Order Line"
         field(90; "Expected Operation Cost Amt."; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("Prod. Order Routing Line"."Expected Operation Cost Amt." where(Status = field(Status),
                                                                                                "Prod. Order No." = field("Prod. Order No."),
                                                                                                "Routing No." = field("Routing No."),
@@ -696,6 +734,7 @@ table 5406 "Prod. Order Line"
         }
         field(91; "Total Exp. Oper. Output (Qty.)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Prod. Order Line".Quantity where(Status = field(Status),
                                                                  "Prod. Order No." = field("Prod. Order No."),
                                                                  "Routing No." = field("Routing No."),
@@ -709,6 +748,7 @@ table 5406 "Prod. Order Line"
         field(94; "Expected Component Cost Amt."; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("Prod. Order Component"."Cost Amount" where(Status = field(Status),
                                                                            "Prod. Order No." = field("Prod. Order No."),
                                                                            "Prod. Order Line No." = field("Line No."),
@@ -720,6 +760,7 @@ table 5406 "Prod. Order Line"
         field(198; "Starting Date-Time"; DateTime)
         {
             Caption = 'Starting Date-Time';
+            ToolTip = 'Specifies the starting date and the starting time, which are combined in a format called "starting date-time".';
 
             trigger OnValidate()
             begin
@@ -731,6 +772,7 @@ table 5406 "Prod. Order Line"
         field(199; "Ending Date-Time"; DateTime)
         {
             Caption = 'Ending Date-Time';
+            ToolTip = 'Specifies the ending date and the ending time, which are combined in a format called "ending date-time".';
 
             trigger OnValidate()
             begin
@@ -774,18 +816,22 @@ table 5406 "Prod. Order Line"
         }
         field(5850; "Qty. Put Away"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Put Away';
+            ToolTip = 'Specifies the quantity that is put away.';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(5851; "Qty. Put Away (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Put Away (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(5852; "Put-away Qty."; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Warehouse Activity Line"."Qty. Outstanding" where("Activity Type" = const("Put-away"),
                                                                                   "Whse. Document Type" = const(Production),
                                                                                   "Whse. Document No." = field("Prod. Order No."),
@@ -803,6 +849,7 @@ table 5406 "Prod. Order Line"
         }
         field(5853; "Put-away Qty. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Warehouse Activity Line"."Qty. Outstanding (Base)" where("Activity Type" = const("Put-away"),
                                                                                          "Whse. Document Type" = const(Production),
                                                                                          "Whse. Document No." = field("Prod. Order No."),
@@ -842,6 +889,7 @@ table 5406 "Prod. Order Line"
         field(99000750; "Production BOM Version Code"; Code[20])
         {
             Caption = 'Production BOM Version Code';
+            ToolTip = 'Specifies the version code of the production BOM.';
             TableRelation = "Production BOM Version"."Version Code" where("Production BOM No." = field("Production BOM No."));
 
             trigger OnValidate()
@@ -865,6 +913,7 @@ table 5406 "Prod. Order Line"
         field(99000751; "Routing Version Code"; Code[20])
         {
             Caption = 'Routing Version Code';
+            ToolTip = 'Specifies the version number of the routing.';
             TableRelation = "Routing Version"."Version Code" where("Routing No." = field("Routing No."));
 
             trigger OnValidate()
@@ -887,6 +936,7 @@ table 5406 "Prod. Order Line"
         }
         field(99000753; "Qty. per Unit of Measure"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. per Unit of Measure';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -898,6 +948,7 @@ table 5406 "Prod. Order Line"
         field(99000755; "Planning Flexibility"; Enum "Reservation Planning Flexibility")
         {
             Caption = 'Planning Flexibility';
+            ToolTip = 'Specifies whether the supply represented by this line is considered by the planning system when calculating action messages.';
 
             trigger OnValidate()
             begin
@@ -907,12 +958,13 @@ table 5406 "Prod. Order Line"
         }
         field(99000764; "Indirect Cost %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Indirect Cost %';
             DecimalPlaces = 0 : 5;
         }
         field(99000765; "Overhead Rate"; Decimal)
         {
-            AutoFormatType = 2;
+            AutoFormatType = 0;
             Caption = 'Overhead Rate';
         }
     }

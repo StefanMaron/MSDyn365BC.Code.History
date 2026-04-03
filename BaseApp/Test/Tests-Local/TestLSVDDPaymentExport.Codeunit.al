@@ -13,7 +13,6 @@ codeunit 144040 "Test LSV DD Payment Export"
         Assert: Codeunit Assert;
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryReportValidation: Codeunit "Library - Report Validation";
-        LibraryTextFileValidation: Codeunit "Library - Text File Validation";
         LibraryERM: Codeunit "Library - ERM";
         LibraryLSV: Codeunit "Library - LSV";
         LibrarySales: Codeunit "Library - Sales";
@@ -25,8 +24,6 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVSetupDeleteErr: Label 'You cannot delete %1 there are entries in table %2.';
         IDSizeErr: Label '%1 must have 5 characters.';
         MissingCustBankAccErr: Label 'No valid LSV %1 for customer %2.';
-        FileLineValueIsWrongErr: Label 'Unexpected file value at position %1, length %2.';
-        FileNotExistErr: Label 'The file %1 does not exist.';
         DeleteLSVJnlErr: Label 'You can only delete LSV Journal entries with Status edit or finished.';
         DeleteLSVJnlLineErr: Label 'Delete not allowed because File has already been created.';
         MissingGiroErr: Label 'Post account is not defined for customer %1';
@@ -41,7 +38,6 @@ codeunit 144040 "Test LSV DD Payment Export"
         DebitAuthorizationCHTxt: Label 'Hiermit ermächtige ich meine Bank bis auf Widerruf, die ihr von obigem Zahlungsempfänger vorgelegten Lastschriften <b>in %1</b> meinem Konto zu belasten.';
         DebitAuthorizationFRTxt: Label 'Par la présente j''autorise ma banque, sous reserve de révocation, à débiter sur mon compte les recouvrements directs <b>en %1</b> émis par le bénéficiaire ci-dessus.';
         DebitAuthorizationITTxt: Label 'Con la presente autorizzo la mia banca revocabilmente ad addebitare sul mio conto gli avvisi di addebito <b>in %1</b> emessi dal beneficiario summenzionato.';
-        WantToCorrectDifferenceQst: Label 'Do you want to correct the difference';
 
     [Test]
     [Scope('OnPrem')]
@@ -176,130 +172,6 @@ codeunit 144040 "Test LSV DD Payment Export"
     [Test]
     [HandlerFunctions('LSVSuggestCollectionReqPageHandler,LSVJournalLinesCreatedMessageHandler,LSVCloseCollectionReqPageHandler,WriteLSVFileReqPageHandler,CreateFileConfirmHandlerTrue')]
     [Scope('OnPrem')]
-    procedure CreateLSVFileFromLSVJournal()
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-        Customer: Record Customer;
-        LSVJnl: Record "LSV Journal";
-        LSVJnlLine: Record "LSV Journal Line";
-        LSVSetup: Record "LSV Setup";
-    begin
-        Initialize();
-
-        // Setup
-        PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
-        SpecifyLSVCustomerForCollection(Customer."No.");
-        SuggestLSVJournalLines(LSVJnl);
-        CollectLSVJournalLinesFromLSVJournalList(LSVJnl);
-
-        // Exercise.
-        RunWriteLSVFile(LSVJnl, false);
-
-        // Verify.
-        VerifyLSVJnl(LSVJnl."LSV Status"::"File Created",
-          FindCustLedgerEntries(CustLedgerEntry, Customer."No."), CustLedgerEntry.Count, '', LSVJnl);
-        FindLSVJournalLines(LSVJnlLine, LSVJnl."No.");
-        VerifyLSVFile(LSVJnl, LSVJnlLine, LSVSetup, 'P');
-    end;
-
-    [Test]
-    [HandlerFunctions('LSVSuggestCollectionReqPageHandler,LSVJournalLinesCreatedMessageHandler,LSVCloseCollectionReqPageHandler,WriteLSVFileReqPageHandler,CreateFileConfirmHandlerTrue')]
-    [Scope('OnPrem')]
-    procedure CreateLSVFileFromLSVJournalFCY()
-    var
-        Currency: Record Currency;
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-        Customer: Record Customer;
-        LSVJnl: Record "LSV Journal";
-        LSVJnlLine: Record "LSV Journal Line";
-        LSVSetup: Record "LSV Setup";
-    begin
-        Initialize();
-
-        // Setup
-        Currency.Init();
-        Currency.Validate(Code, LibraryUtility.GenerateRandomText(3));
-        Currency.Insert(true);
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
-        PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, Currency.Code);
-        SpecifyLSVCustomerForCollection(Customer."No.");
-        SuggestLSVJournalLines(LSVJnl);
-        CollectLSVJournalLinesFromLSVJournalList(LSVJnl);
-
-        // Exercise.
-        RunWriteLSVFile(LSVJnl, false);
-
-        // Verify.
-        VerifyLSVJnl(LSVJnl."LSV Status"::"File Created",
-          FindCustLedgerEntries(CustLedgerEntry, Customer."No."), CustLedgerEntry.Count, Currency.Code, LSVJnl);
-        FindLSVJournalLines(LSVJnlLine, LSVJnl."No.");
-        VerifyLSVFile(LSVJnl, LSVJnlLine, LSVSetup, 'P');
-    end;
-
-    [Test]
-    [HandlerFunctions('LSVSuggestCollectionReqPageHandler,LSVJournalLinesCreatedMessageHandler,LSVCloseCollectionReqPageHandler,WriteLSVFileReqPageHandler,CreateFileConfirmHandlerFalse')]
-    [Scope('OnPrem')]
-    procedure CreateLSVFileFromLSVJournalDoNotConfirm()
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-        Customer: Record Customer;
-        LSVJnl: Record "LSV Journal";
-        LSVSetup: Record "LSV Setup";
-        LSVJnlLine: Record "LSV Journal Line";
-        Path: Text;
-    begin
-        Initialize();
-
-        // Setup
-        PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
-        SpecifyLSVCustomerForCollection(Customer."No.");
-        SuggestLSVJournalLines(LSVJnl);
-        CollectLSVJournalLinesFromLSVJournalList(LSVJnl);
-
-        // Exercise.
-        RunWriteLSVFile(LSVJnl, false);
-
-        // Verify
-        VerifyLSVJnl(LSVJnl."LSV Status"::Released,
-          FindCustLedgerEntries(CustLedgerEntry, Customer."No."), CustLedgerEntry.Count, '', LSVJnl);
-        FindLSVJournalLines(LSVJnlLine, LSVJnl."No.");
-        asserterror VerifyLSVFile(LSVJnl, LSVJnlLine, LSVSetup, 'P');
-        Path := LSVSetup."LSV File Folder" + LSVSetup."LSV Filename";
-        Assert.ExpectedError(StrSubstNo(FileNotExistErr, Path));
-    end;
-
-    [Test]
-    [HandlerFunctions('LSVSuggestCollectionReqPageHandler,LSVJournalLinesCreatedMessageHandler,LSVCloseCollectionReqPageHandler,WriteLSVFileReqPageHandler,CreateFileConfirmHandlerTrue')]
-    [Scope('OnPrem')]
-    procedure CreateLSVFileFromLSVJournalTestSending()
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-        Customer: Record Customer;
-        LSVJnl: Record "LSV Journal";
-        LSVSetup: Record "LSV Setup";
-        LSVJnlLine: Record "LSV Journal Line";
-    begin
-        Initialize();
-
-        // Setup
-        PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
-        SpecifyLSVCustomerForCollection(Customer."No.");
-        SuggestLSVJournalLines(LSVJnl);
-        CollectLSVJournalLinesFromLSVJournalList(LSVJnl);
-
-        // Exercise.
-        RunWriteLSVFile(LSVJnl, true);
-
-        // Verify.
-        VerifyLSVJnl(LSVJnl."LSV Status"::Released,
-          FindCustLedgerEntries(CustLedgerEntry, Customer."No."), CustLedgerEntry.Count, '', LSVJnl);
-        FindLSVJournalLines(LSVJnlLine, LSVJnl."No.");
-        VerifyLSVFile(LSVJnl, LSVJnlLine, LSVSetup, 'T');
-    end;
-
-    [Test]
-    [HandlerFunctions('LSVSuggestCollectionReqPageHandler,LSVJournalLinesCreatedMessageHandler,LSVCloseCollectionReqPageHandler,WriteLSVFileReqPageHandler,CreateFileConfirmHandlerTrue')]
-    [Scope('OnPrem')]
     procedure CreateLSVFileCustBankAccountHasNoIBANOrBankAccNo()
     var
         Customer: Record Customer;
@@ -326,44 +198,6 @@ codeunit 144040 "Test LSV DD Payment Export"
 
         // Verify
         Assert.ExpectedError(StrSubstNo(FieldMustHaveValueErr, CustomerBankAccount.FieldCaption(IBAN), CustomerBankAccount.TableName));
-    end;
-
-    [Test]
-    [HandlerFunctions('LSVSuggestCollectionReqPageHandler,LSVJournalLinesCreatedMessageHandler,LSVCloseCollectionReqPageHandler,WriteLSVFileReqPageHandler,CreateFileConfirmHandlerTrue')]
-    [Scope('OnPrem')]
-    procedure CreateLSVFileCustBankAccountHasBankAccNoAndNoIBAN()
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-        Customer: Record Customer;
-        LSVJnl: Record "LSV Journal";
-        LSVSetup: Record "LSV Setup";
-        LSVJnlLine: Record "LSV Journal Line";
-        CustomerBankAccount: Record "Customer Bank Account";
-    begin
-        Initialize();
-
-        // Setup
-        PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
-        SpecifyLSVCustomerForCollection(Customer."No.");
-        SuggestLSVJournalLines(LSVJnl);
-        CollectLSVJournalLinesFromLSVJournalList(LSVJnl);
-
-        CustomerBankAccount.SetRange("Customer No.", Customer."No.");
-        CustomerBankAccount.FindFirst();
-        CustomerBankAccount.Validate(IBAN, '');
-        CustomerBankAccount.Validate("Bank Account No.",
-          LibraryUtility.GenerateRandomCode(CustomerBankAccount.FieldNo("Bank Account No."), DATABASE::"Customer Bank Account"));
-        CustomerBankAccount.Modify(true);
-
-        // Exercise.
-        Commit();
-        RunWriteLSVFile(LSVJnl, false);
-
-        // Verify
-        VerifyLSVJnl(LSVJnl."LSV Status"::"File Created",
-          FindCustLedgerEntries(CustLedgerEntry, Customer."No."), CustLedgerEntry.Count, '', LSVJnl);
-        FindLSVJournalLines(LSVJnlLine, LSVJnl."No.");
-        VerifyLSVFile(LSVJnl, LSVJnlLine, LSVSetup, 'P');
     end;
 
     [Test]
@@ -420,40 +254,6 @@ codeunit 144040 "Test LSV DD Payment Export"
 
         // Verify
         Assert.ExpectedError(StrSubstNo(MissingCustBankAccErr, 'bank was found', Customer."No."));
-    end;
-
-    [Test]
-    [HandlerFunctions('LSVSuggestCollectionReqPageHandler,LSVJournalLinesCreatedMessageHandler,LSVCloseCollectionReqPageHandler,WriteLSVFileReqPageHandler,CreateFileConfirmHandlerTrue')]
-    [Scope('OnPrem')]
-    procedure CreateLSVFileWithCustInfoExceeding35()
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-        Customer: Record Customer;
-        LSVJnl: Record "LSV Journal";
-        LSVJnlLine: Record "LSV Journal Line";
-        LSVSetup: Record "LSV Setup";
-    begin
-        Initialize();
-
-        // Setup
-        PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
-        Customer.Validate(Name, PadStr(Customer.Name, MaxStrLen(Customer.Name), 'X'));
-        Customer.Validate(Address, PadStr(Customer.Address, MaxStrLen(Customer.Address), 'X'));
-        Customer.Validate("Address 2", PadStr(Customer."Address 2", MaxStrLen(Customer."Address 2"), 'X'));
-        Customer.Modify(true);
-
-        SpecifyLSVCustomerForCollection(Customer."No.");
-        SuggestLSVJournalLines(LSVJnl);
-        CollectLSVJournalLinesFromLSVJournalList(LSVJnl);
-
-        // Exercise.
-        RunWriteLSVFile(LSVJnl, false);
-
-        // Verify.
-        VerifyLSVJnl(LSVJnl."LSV Status"::"File Created",
-          FindCustLedgerEntries(CustLedgerEntry, Customer."No."), CustLedgerEntry.Count, '', LSVJnl);
-        FindLSVJournalLines(LSVJnlLine, LSVJnl."No.");
-        VerifyLSVFile(LSVJnl, LSVJnlLine, LSVSetup, 'P');
     end;
 
     [Test]
@@ -660,36 +460,6 @@ codeunit 144040 "Test LSV DD Payment Export"
     [Test]
     [HandlerFunctions('LSVSuggestCollectionReqPageHandler,LSVJournalLinesCreatedMessageHandler,LSVCloseCollectionReqPageHandler,WriteDDFileReqPageHandler,CreateFileConfirmHandlerTrue')]
     [Scope('OnPrem')]
-    procedure CreateDDFileFromLSVJournal()
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-        Customer: Record Customer;
-        LSVJnl: Record "LSV Journal";
-        LSVJnlLine: Record "LSV Journal Line";
-        LSVSetup: Record "LSV Setup";
-    begin
-        Initialize();
-
-        // Setup
-        PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
-        SpecifyLSVCustomerForCollection(Customer."No.");
-        SuggestLSVJournalLines(LSVJnl);
-        CollectLSVJournalLinesFromLSVJournalList(LSVJnl);
-
-        // Exercise.
-        WriteDDFile(LSVJnl, false);
-
-        // Verify.
-        LSVJnl.CalcFields("No. Of Entries Plus", "Amount Plus");
-        VerifyLSVJnl(LSVJnl."LSV Status"::"File Created",
-          FindCustLedgerEntries(CustLedgerEntry, Customer."No."), CustLedgerEntry.Count, '', LSVJnl);
-        FindLSVJournalLines(LSVJnlLine, LSVJnl."No.");
-        VerifyDDFile(LSVJnlLine, LSVJnl, LSVSetup);
-    end;
-
-    [Test]
-    [HandlerFunctions('LSVSuggestCollectionReqPageHandler,LSVJournalLinesCreatedMessageHandler,LSVCloseCollectionReqPageHandler,WriteDDFileReqPageHandler,CreateFileConfirmHandlerTrue')]
-    [Scope('OnPrem')]
     procedure CreateDDFileFromLSVJournalNoCustBankAccount()
     var
         CustomerBankAccount: Record "Customer Bank Account";
@@ -775,43 +545,6 @@ codeunit 144040 "Test LSV DD Payment Export"
     [Test]
     [HandlerFunctions('LSVSuggestCollectionReqPageHandler,LSVJournalLinesCreatedMessageHandler,LSVCloseCollectionReqPageHandler,WriteDDFileReqPageHandler,CreateFileConfirmHandlerTrue')]
     [Scope('OnPrem')]
-    procedure CreateDDFileWithCombinePerCustomer()
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-        Customer: Record Customer;
-        LSVJnl: Record "LSV Journal";
-        LSVJnlLine: Record "LSV Journal Line";
-        LSVSetup: Record "LSV Setup";
-        FileName: Text;
-    begin
-        Initialize();
-
-        // Setup
-        PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
-        SpecifyLSVCustomerForCollection(Customer."No.");
-        SuggestLSVJournalLines(LSVJnl);
-        CollectLSVJournalLinesFromLSVJournalList(LSVJnl);
-
-        // Don't trigger error.
-        LSVSetup.Validate("DebitDirect Import Filename", '');
-        LSVSetup.Modify(true);
-
-        // Exercise.
-        Commit();
-        WriteDDFile(LSVJnl, true);
-
-        // Verify.
-        LSVJnl.CalcFields("Amount Plus", "No. Of Entries Plus");
-        VerifyLSVJnl(LSVJnl."LSV Status"::"File Created",
-          FindCustLedgerEntries(CustLedgerEntry, Customer."No."), CustLedgerEntry.Count, '', LSVJnl);
-        FindLSVJournalLines(LSVJnlLine, LSVJnl."No.");
-        VerifyDDRecord(LSVJnl, LSVSetup, 1, LSVJnl."Amount Plus", Customer."No.", LibraryTextFileValidation.ReadLine(FileName, 2));
-        VerifyDDTotalRecord(LSVJnl, 1, LibraryTextFileValidation.ReadLine(FileName, 3));
-    end;
-
-    [Test]
-    [HandlerFunctions('LSVSuggestCollectionReqPageHandler,LSVJournalLinesCreatedMessageHandler,LSVCloseCollectionReqPageHandler,WriteDDFileReqPageHandler,CreateFileConfirmHandlerTrue')]
-    [Scope('OnPrem')]
     procedure CreateDDFileWithCombinePerCustomerError()
     var
         Customer: Record Customer;
@@ -832,32 +565,6 @@ codeunit 144040 "Test LSV DD Payment Export"
 
         // Verify.
         Assert.ExpectedError(CombinePerCustErr);
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure CreateTestDDFile()
-    var
-        Customer: Record Customer;
-        LSVJnl: Record "LSV Journal";
-        LSVSetup: Record "LSV Setup";
-        LSVSetupPage: TestPage "LSV Setup";
-        Path: Text;
-    begin
-        Initialize();
-
-        // Setup
-        PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
-
-        // Exercise.
-        LSVSetupPage.OpenView();
-        LSVSetupPage.GotoRecord(LSVSetup);
-        LSVSetupPage."&Write DebiDirect Testfile".Invoke();
-
-        // Verify.
-        Path := LSVSetup."LSV File Folder" + LSVSetup."LSV Filename";
-        Assert.ExpectedError(StrSubstNo(FileNotExistErr, Path));
     end;
 
     [Test]
@@ -1075,51 +782,6 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJnl.TestField("LSV Status", LSVJnl."LSV Status"::Edit);
     end;
 
-    [Test]
-    [HandlerFunctions('LSVSuggestCollectionReqPageHandler,LSVJournalLinesCreatedMessageHandler,LSVCloseCollectionReqPageHandler,WriteLSVFileReqPageHandler,CreateFileConfirmHandlerTrue')]
-    [Scope('OnPrem')]
-    procedure CreateLSVFileWhenPaymentDiscountIsChangedOnLSVJournalLine()
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-        Customer: Record Customer;
-        LSVJnl: Record "LSV Journal";
-        LSVJnlLine: Record "LSV Journal Line";
-        LSVSetup: Record "LSV Setup";
-    begin
-        // [SCENARIO 212494] LSV File should be created and Customer Ledger Entry updated when Payment Discount is updated on LSV Journal Line
-        Initialize();
-
-        // [GIVEN] Sales Invoice with Remaining Amount = 100 and "Remaining Pmt. Disc. Possible" = 10.
-        // [GIVEN] LSV Journal line is suggested with Collection Amount = 90, Remaining Amount = 100, Payment Discount = 10.
-        PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
-        SpecifyLSVCustomerForCollection(Customer."No.");
-        SuggestLSVJournalLines(LSVJnl);
-
-        // [GIVEN] Changed LSV Journal line has Collection Amount = 100, Remaining Amount = 100, Payment Discount = 0.
-        FindLSVJournalLines(LSVJnlLine, LSVJnl."No.");
-        LSVJnlLine.Validate("Collection Amount", LSVJnlLine."Collection Amount" + LSVJnlLine."Pmt. Discount");
-        LSVJnlLine.Validate("Pmt. Discount", 0);
-        LSVJnlLine.Modify(true);
-
-        // [GIVEN] LSV Collection is closed
-        LibraryVariableStorage.Enqueue(WantToCorrectDifferenceQst);
-        CollectLSVJournalLinesFromLSVJournalList(LSVJnl);
-
-        // [WHEN] Write LSV File
-        RunWriteLSVFile(LSVJnl, false);
-
-        // [THEN] LSV Journal Line has status "File Created"
-        VerifyLSVJnl(
-          LSVJnl."LSV Status"::"File Created",
-          FindCustLedgerEntries(CustLedgerEntry, Customer."No."), CustLedgerEntry.Count, '', LSVJnl);
-        // [THEN] Customer Ledger Entry has "Remaining Pmt. Disc. Possible" = 0
-        CustLedgerEntry.FindFirst();
-        CustLedgerEntry.TestField("Remaining Pmt. Disc. Possible", 0);
-        // [THEN] Collection Amount = 100 is exported
-        FindLSVJournalLines(LSVJnlLine, LSVJnl."No.");
-        VerifyLSVFile(LSVJnl, LSVJnlLine, LSVSetup, 'P');
-    end;
-
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -1313,19 +975,6 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJnlList.WriteDebitDirectFile.Invoke();
     end;
 
-    local procedure CheckColumnValue(Expected: Text; Line: Text; StartingPosition: Integer; Length: Integer)
-    var
-        Actual: Text;
-    begin
-        Actual := ReadFieldValue(Line, StartingPosition, Length);
-        Assert.AreEqual(Expected, Actual, StrSubstNo(FileLineValueIsWrongErr, StartingPosition, Length));
-    end;
-
-    local procedure ReadFieldValue(Line: Text; StartingPosition: Integer; Length: Integer): Text
-    begin
-        exit(LibraryTextFileValidation.ReadValue(Line, StartingPosition, Length));
-    end;
-
     local procedure FindCustLedgerEntries(var CustLedgEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]) CollectionAmount: Decimal
     begin
         CustLedgEntry.SetAutoCalcFields("Remaining Amt. (LCY)", "Amount (LCY)", "Remaining Amount");
@@ -1388,81 +1037,6 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJnl.TestField("No. Of Entries Plus", ExpCount);
         LSVJnl.TestField("Amount Plus", ExpAmount);
         LSVJnl.TestField("Currency Code", GeneralMgt.CheckCurrency(ExpCurrencyCode));
-    end;
-
-    local procedure VerifyLSVFile(LSVJnl: Record "LSV Journal"; LSVJnlLine: Record "LSV Journal Line"; LSVSetup: Record "LSV Setup"; Test: Text)
-    var
-        Customer: Record Customer;
-        CustomerBankAccount: Record "Customer Bank Account";
-        GeneralMgt: Codeunit GeneralMgt;
-        Line: Text;
-    begin
-        CheckColumnValue('8750', Line, 1, 4);
-        CheckColumnValue(Test, Line, 5, 1);
-        CheckColumnValue(Format(LSVJnl."Credit Date", 8, '<year4><month,2><day,2>'), Line, 6, 8);
-
-        CustomerBankAccount.SetRange("Customer No.", LSVJnlLine."Customer No.");
-        CustomerBankAccount.FindFirst();
-
-        CheckColumnValue(CustomerBankAccount."Bank Branch No.", Line, 14, 5);
-        CheckColumnValue(Format(Today, 8, '<year4><month,2><day,2>'), Line, 19, 8);
-        CheckColumnValue(LSVSetup."LSV Sender Clearing", Line, 27, 5);
-        CheckColumnValue(LSVSetup."LSV Sender ID", Line, 32, 5);
-        CheckColumnValue('0000001', Line, 37, 7);
-        CheckColumnValue(LSVSetup."LSV Customer ID", Line, 44, 5);
-        CheckColumnValue(GeneralMgt.CheckCurrency(LSVSetup."LSV Currency Code"), Line, 49, 3);
-        CheckColumnValue(Format(LSVJnlLine."Collection Amount", 0,
-            '<Precision,2><sign><Integer,9><Filler Character,0><Decimals><Comma,,>'), Line, 52, 12);
-        CheckColumnValue(PadStr(LSVSetup."LSV Sender IBAN", 34), Line, 64, 34);
-        CheckColumnValue(PadStr(CustomerBankAccount.IBAN + CustomerBankAccount."Bank Account No.", 34), Line, 238, 34);
-
-        Customer.Get(LSVJnlLine."Customer No.");
-        CheckColumnValue(CopyStr(PadStr(Customer.Name, 35), 1, 35), Line, 272, 35);
-        CheckColumnValue(CopyStr(PadStr(Customer.Address, 35), 1, 35), Line, 342, 35);
-        CheckColumnValue(CopyStr(PadStr(Customer."Address 2", 35), 1, 35), Line, 377, 35);
-    end;
-
-    local procedure VerifyDDFile(var LSVJnlLine: Record "LSV Journal Line"; LSVJnl: Record "LSV Journal"; LSVSetup: Record "LSV Setup")
-    var
-        Line: Text;
-        FileName: Text;
-        LineNo: Integer;
-    begin
-        LineNo := 2;
-        repeat
-            Line := LibraryTextFileValidation.ReadLine(FileName, LineNo);
-            VerifyDDRecord(LSVJnl, LSVSetup, LSVJnlLine."Line No.", LSVJnlLine."Collection Amount", LSVJnlLine."Customer No.", Line);
-            LineNo += 1;
-        until LSVJnlLine.Next() = 0;
-
-        // Total record.
-        VerifyDDTotalRecord(LSVJnl, LSVJnl."No. Of Entries Plus", LibraryTextFileValidation.ReadLine(FileName, LineNo));
-    end;
-
-    local procedure VerifyDDRecord(LSVJnl: Record "LSV Journal"; LSVSetup: Record "LSV Setup"; LSVJnlLineNo: Integer; LSVJnlLineAmount: Decimal; LSVJnlLineCustomerNo: Code[20]; Line: Text)
-    var
-        CustomerBankAccount: Record "Customer Bank Account";
-    begin
-        CheckColumnValue('036', Line, 1, 3);
-        CheckColumnValue(Format(LSVJnl."Credit Date", 6, '<year><month,2><day,2>'), Line, 4, 6);
-        CheckColumnValue(LSVSetup."DebitDirect Customerno.", Line, 10, 6);
-        CheckColumnValue('1', Line, 16, 1);
-        CheckColumnValue(Format(LSVJnlLineNo, 0, '<Integer,6><Filler Character,0>'), Line, 38, 6);
-        CheckColumnValue(LSVJnl."Currency Code", Line, 51, 3);
-        CheckColumnValue(Format(100 * LSVJnlLineAmount, 0, '<Integer,13><Filler Character,0>'), Line, 54, 13);
-
-        CustomerBankAccount.SetRange("Customer No.", LSVJnlLineCustomerNo);
-        CustomerBankAccount.FindFirst();
-        CheckColumnValue(DelChr(CustomerBankAccount."Giro Account No.", '=', '-'), Line, 73, 9);
-    end;
-
-    local procedure VerifyDDTotalRecord(LSVJnl: Record "LSV Journal"; NoOfEntries: Integer; Line: Text)
-    begin
-        CheckColumnValue('036', Line, 1, 3);
-        CheckColumnValue(Format(LSVJnl."Credit Date", 6, '<year><month,2><day,2>'), Line, 4, 6);
-        CheckColumnValue(LSVJnl."Currency Code", Line, 51, 3);
-        CheckColumnValue(Format(NoOfEntries, 0, '<Integer,6><Filler Character,0>'), Line, 54, 6);
-        CheckColumnValue(Format(100 * LSVJnl."Amount Plus", 0, '<Integer,13><Filler Character,0>'), Line, 60, 13);
     end;
 
     local procedure VerifyLSVCollectionOrderReport(LSVJnl: Record "LSV Journal"; LSVSetup: Record "LSV Setup")

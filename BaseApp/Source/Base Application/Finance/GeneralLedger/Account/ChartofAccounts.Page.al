@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -8,6 +8,7 @@ using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.Finance.GeneralLedger.Reports;
 using Microsoft.Finance.FinancialReports;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
@@ -15,8 +16,17 @@ using Microsoft.Finance.GeneralLedger.Reports;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Comment;
 using Microsoft.Foundation.ExtendedText;
-using Microsoft.Finance.Finance.GeneralLedger.Reports;
 
+/// <summary>
+/// Primary interface for managing the complete chart of accounts structure with hierarchical display and account operations.
+/// Provides comprehensive account management including creation, modification, analysis, and reporting functionality.
+/// </summary>
+/// <remarks>
+/// Key functionality: Account overview, balance inquiries, account setup, dimensional analysis, reporting navigation.
+/// User workflow: Central hub for all general ledger account operations and financial structure management.
+/// Extensible via page extensions for additional columns, actions, and account-specific functionality.
+/// Supports indented display for account hierarchies and integrated financial reporting access.
+/// </remarks>
 page 16 "Chart of Accounts"
 {
     ApplicationArea = Basic, Suite;
@@ -172,30 +182,6 @@ page 16 "Chart of Accounts"
                     ToolTip = 'Specifies the G/L account balance on the last date included in the Date Filter field.';
                     Visible = false;
                 }
-#if not CLEAN25
-                field("Currency Code"; Rec."Currency Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the foreign currency code.';
-#pragma warning disable AS0072
-                    ObsoleteReason = 'Replaced by W1 field Account Currency Code';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-#pragma warning restore AS0072
-                    Visible = not SourceCurrencyVisible;
-                }
-                field("Balance (FCY)"; Rec."Balance (FCY)")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the foreign currency balance in the G/L account.';
-#pragma warning disable AS0072
-                    ObsoleteReason = 'Replaced by W1 field Balance FCY';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-#pragma warning restore AS0072
-                    Visible = not SourceCurrencyVisible;
-                }
-#endif
                 field("Additional-Currency Net Change"; Rec."Additional-Currency Net Change")
                 {
                     ApplicationArea = Basic, Suite;
@@ -233,17 +219,11 @@ page 16 "Chart of Accounts"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how amounts in foreign currencies should be posted to this account.';
-#if not CLEAN25
-                    Visible = SourceCurrencyVisible;
-#endif
                 }
                 field("Source Currency Code"; Rec."Source Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the allowed source currency code if Source Currency Posting value is Same Currency.';
-#if not CLEAN25
-                    Visible = SourceCurrencyVisible;
-#endif
                 }
                 field("Source Currency Balance"; Rec."Source Currency Balance")
                 {
@@ -306,9 +286,6 @@ page 16 "Chart of Accounts"
                               "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
                               "Global Dimension 2 Filter" = field("Global Dimension 2 Filter"),
                               "Date Filter" = field("Date Filter");
-#if not CLEAN25
-                Visible = SourceCurrencyVisible;
-#endif
             }
             systempart(Control1900383207; Links)
             {
@@ -546,9 +523,6 @@ page 16 "Chart of Accounts"
                     Image = CurrencyExchangeRates;
                     RunObject = Report "G/L Currency Revaluation";
                     ToolTip = 'Create general journal lines with currency revaluation for G/L accounts with posting in source currency.';
-#if not CLEAN25
-                    Visible = SourceCurrencyVisible;
-#endif
                 }
                 action("Close Income Statement")
                 {
@@ -828,28 +802,13 @@ page 16 "Chart of Accounts"
         NameIndent: Integer;
         AmountVisible: Boolean;
         DebitCreditVisible: Boolean;
-#if not CLEAN25
-        SourceCurrencyVisible: Boolean;
-#endif
 
     local procedure SetControlVisibility()
     var
         GLSetup: Record "General Ledger Setup";
-#if not CLEAN25
-        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
-        ClientTypeManagement: Codeunit System.Environment."Client Type Management";
-#endif
     begin
         GLSetup.Get();
         AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
-#if not CLEAN25
-        if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::SOAP, CLIENTTYPE::OData, CLIENTTYPE::ODataV4, ClientType::Api]
-        then
-            SourceCurrencyVisible := false
-        else
-            SourceCurrencyVisible := FeatureKeyManagement.IsGLCurrencyRevaluationEnabled();
-#endif
     end;
 }
-

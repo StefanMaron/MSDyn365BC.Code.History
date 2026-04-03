@@ -12,9 +12,6 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
-#if not CLEAN25
-using System.Environment.Configuration;
-#endif
 using System.Telemetry;
 
 report 3010546 "DTA Suggest Vendor Payments"
@@ -219,6 +216,8 @@ report 3010546 "DTA Suggest Vendor Payments"
                     }
                     field(MaxAmtLCY; MaxAmtLCY)
                     {
+                        AutoFormatType = 1;
+                        AutoFormatExpression = '';
                         ApplicationArea = Basic, Suite;
                         BlankZero = true;
                         Caption = 'Available Amount (LCY)';
@@ -345,9 +344,6 @@ report 3010546 "DTA Suggest Vendor Payments"
         ReqFormDebitBank: Record "DTA Setup";
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
         VendorLedgEntryTemp: Record "Vendor Ledger Entry" temporary;
-#if not CLEAN25
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-#endif
         Window: Dialog;
         DocNo: Code[20];
         NoOfLinesInserted: Integer;
@@ -531,14 +527,7 @@ report 3010546 "DTA Suggest Vendor Payments"
                 if BalAccDtaBank."Bal. Account Type" = BalAccDtaBank."Bal. Account Type"::"G/L Account" then begin
                     if not GlAcc.Get(BalAccDtaBank."Bal. Account No.") then
                         Error(Text025, BalAccDtaBank."Bank Code");
-#if not CLEAN25
-                    if FeatureKeyManagement.IsGLCurrencyRevaluationEnabled() then
-                        AccountCurrency := GlAcc."Source Currency Code"
-                    else
-                        AccountCurrency := GlAcc."Currency Code";
-#else
                     AccountCurrency := GlAcc."Source Currency Code";
-#endif
                 end;
 
                 if BalAccDtaBank."Bal. Account Type" = BalAccDtaBank."Bal. Account Type"::"Bank Account" then begin

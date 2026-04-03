@@ -62,6 +62,8 @@ page 11500 "G/L Acc. Provisional Balance"
                         }
                         field(AccBalance; AccBalance)
                         {
+                            AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             ApplicationArea = Basic, Suite;
                             BlankZero = true;
                             Caption = 'Balance';
@@ -70,12 +72,16 @@ page 11500 "G/L Acc. Provisional Balance"
                         }
                         field(AccNotPosted; AccNotPosted)
                         {
+                            AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             ApplicationArea = Basic, Suite;
                             BlankZero = true;
                             Caption = 'Not Posted (w/o VAT)';
                         }
                         field("AccBalance + AccNotPosted"; AccBalance + AccNotPosted)
                         {
+                            AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             ApplicationArea = Basic, Suite;
                             BlankZero = true;
                             Caption = 'Total';
@@ -101,17 +107,23 @@ page 11500 "G/L Acc. Provisional Balance"
                         }
                         field(AccBalanceFC; AccBalanceFC)
                         {
+                            AutoFormatType = 1;
+                            AutoFormatExpression = AccCurrency;
                             ApplicationArea = Basic, Suite;
                             BlankZero = true;
                             DrillDown = false;
                         }
                         field(AccNotPostedFC; AccNotPostedFC)
                         {
+                            AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             ApplicationArea = Basic, Suite;
                             BlankZero = true;
                         }
                         field("AccBalanceFC + AccNotPostedFC"; AccBalanceFC + AccNotPostedFC)
                         {
+                            AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             ApplicationArea = Basic, Suite;
                             BlankZero = true;
                         }
@@ -133,16 +145,22 @@ page 11500 "G/L Acc. Provisional Balance"
                         }
                         field(BalAccBalance; BalAccBalance)
                         {
+                            AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             ApplicationArea = Basic, Suite;
                             BlankZero = true;
                         }
                         field(BalAccNotPosted; BalAccNotPosted)
                         {
+                            AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             ApplicationArea = Basic, Suite;
                             BlankZero = true;
                         }
                         field("BalAccBalance + BalAccNotPosted"; BalAccBalance + BalAccNotPosted)
                         {
+                            AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             ApplicationArea = Basic, Suite;
                             BlankZero = true;
                         }
@@ -166,16 +184,22 @@ page 11500 "G/L Acc. Provisional Balance"
                         }
                         field(BalAccBalanceFC; BalAccBalanceFC)
                         {
+                            AutoFormatType = 1;
+                            AutoFormatExpression = AccCurrency;
                             ApplicationArea = Basic, Suite;
                             BlankZero = true;
                         }
                         field(BalAccNotPostedFC; BalAccNotPostedFC)
                         {
+                            AutoFormatType = 1;
+                            AutoFormatExpression = AccCurrency;
                             ApplicationArea = Basic, Suite;
                             BlankZero = true;
                         }
                         field("BalAccBalanceFC + BalAccNotPostedFC"; BalAccBalanceFC + BalAccNotPostedFC)
                         {
+                            AutoFormatType = 1;
+                            AutoFormatExpression = AccCurrency;
                             ApplicationArea = Basic, Suite;
                             BlankZero = true;
                         }
@@ -247,9 +271,7 @@ page 11500 "G/L Acc. Provisional Balance"
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlLine2: Record "Gen. Journal Line";
         GlAcc: Record "G/L Account";
-#if CLEAN25
         GLAccountSourceCurrency: Record "G/L Account Source Currency";
-#endif
         Customer: Record Customer;
         Vendor: Record Vendor;
         Bank: Record "Bank Account";
@@ -279,26 +301,16 @@ page 11500 "G/L Acc. Provisional Balance"
         case Rec."Account Type" of
             Rec."Account Type"::"G/L Account":
                 if GlAcc.Get(Rec."Account No.") then begin
-#if not CLEAN25
-                    GlAcc.CalcFields(Balance, "Balance (FCY)");
-                    AddNotPosted(Rec."Account No.", GlAcc."Currency Code", Rec."Account Type");
-#else
                     GLAcc.CalcFields(Balance);
                     GLAccountSourceCurrency."G/L Account No." := GLAcc."No.";
                     GLAccountSourceCurrency."Currency Code" := GLAcc."Source Currency Code";
                     GLAccountSourceCurrency.CalcFields("Source Curr. Balance at Date");
                     AddNotPosted(Rec."Account No.", GlAcc."Source Currency Code", Rec."Account Type");
-#endif
                     AccNumber := GlAcc."No.";
                     AccName := GlAcc.Name;
                     AccBalance := GlAcc.Balance;
-#if not CLEAN25
-                    AccCurrency := GlAcc."Currency Code";
-                    AccBalanceFC := GlAcc."Balance (FCY)";
-#else
                     AccCurrency := GlAcc."Source Currency Code";
                     AccBalanceFC := GLAccountSourceCurrency."Source Curr. Balance at Date";
-#endif
                 end;
             Rec."Account Type"::"Bank Account":
                 if Bank.Get(Rec."Account No.") then begin
@@ -338,26 +350,16 @@ page 11500 "G/L Acc. Provisional Balance"
         case Rec."Bal. Account Type" of
             Rec."Bal. Account Type"::"G/L Account":
                 if GlAcc.Get(Rec."Bal. Account No.") then begin
-#if not CLEAN25
-                    GlAcc.CalcFields(Balance, "Balance (FCY)");
-                    AddNotPosted(Rec."Bal. Account No.", GlAcc."Currency Code", Rec."Bal. Account Type");
-#else
                     GlAcc.CalcFields(Balance);
                     GLAccountSourceCurrency."G/L Account No." := GLAcc."No.";
                     GLAccountSourceCurrency."Currency Code" := GLAcc."Source Currency Code";
                     GLAccountSourceCurrency.CalcFields("Source Curr. Balance at Date");
                     AddNotPosted(Rec."Bal. Account No.", GlAcc."Source Currency Code", Rec."Bal. Account Type");
-#endif
                     BalAccNo := GlAcc."No.";
                     BalAccName := GlAcc.Name;
                     BalAccBalance := GlAcc.Balance;
-#if not CLEAN25
-                    BalAccCurrency := GlAcc."Currency Code";
-                    BalAccBalanceFC := GlAcc."Balance (FCY)";
-#else
                     BalAccCurrency := GlAcc."Source Currency Code";
                     BalAccBalanceFC := GLAccountSourceCurrency."Source Curr. Balance at Date";
-#endif
                 end;
             Rec."Bal. Account Type"::"Bank Account":
                 if Bank.Get(Rec."Bal. Account No.") then begin
@@ -435,4 +437,3 @@ page 11500 "G/L Acc. Provisional Balance"
             until GenJnlLine.Next() = 0;
     end;
 }
-

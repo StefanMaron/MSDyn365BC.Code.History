@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -21,19 +21,23 @@ table 7132 "Item Budget Name"
         field(2; Name; Code[10])
         {
             Caption = 'Name';
+            ToolTip = 'Specifies the name of the item budget.';
             NotBlank = true;
         }
         field(3; Description; Text[80])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the item budget.';
         }
         field(4; Blocked; Boolean)
         {
             Caption = 'Blocked';
+            ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
         }
         field(5; "Budget Dimension 1 Code"; Code[20])
         {
             Caption = 'Budget Dimension 1 Code';
+            ToolTip = 'Specifies a dimension code for Item Budget Dimension 1.';
             TableRelation = Dimension;
 
             trigger OnValidate()
@@ -48,6 +52,7 @@ table 7132 "Item Budget Name"
         field(6; "Budget Dimension 2 Code"; Code[20])
         {
             Caption = 'Budget Dimension 2 Code';
+            ToolTip = 'Specifies a dimension code for Item Budget Dimension 2.';
             TableRelation = Dimension;
 
             trigger OnValidate()
@@ -62,6 +67,7 @@ table 7132 "Item Budget Name"
         field(7; "Budget Dimension 3 Code"; Code[20])
         {
             Caption = 'Budget Dimension 3 Code';
+            ToolTip = 'Specifies a dimension code for Item Budget Dimension 3.';
             TableRelation = Dimension;
 
             trigger OnValidate()

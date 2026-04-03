@@ -33,28 +33,6 @@ codeunit 5005396 "Print Document Comfort"
         until ReportSelections.Next() = 0;
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by procedure PrintDeliveryReminder','25.0')]
-    procedure DeliveryRemindPrint(DeliveryReminderHeader: Record "Delivery Reminder Header")
-    var
-        DACHReportSelections: Record "DACH Report Selections";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeDeliveryRemindPrint(DeliveryReminderHeader, IsHandled);
-        if IsHandled then
-            exit;
-
-        DeliveryReminderHeader.SetRange("No.", DeliveryReminderHeader."No.");
-        DACHReportSelections.SetRange(Usage, DACHReportSelections.Usage::"Delivery Reminder Test");
-        DACHReportSelections.SetFilter("Report ID", '<>0');
-        OnDeliveryRemindPrintOnAfterSetFilters(DACHReportSelections, DeliveryReminderHeader);
-        DACHReportSelections.Find('-');
-        repeat
-            REPORT.RunModal(DACHReportSelections."Report ID", true, false, DeliveryReminderHeader)
-        until DACHReportSelections.Next() = 0;
-    end;
-#endif
 
     procedure IssuedDeliveryRemindPrint(IssuedDeliveryReminderHeader: Record "Issued Deliv. Reminder Header"; ShowRequestForm: Boolean)
     var
@@ -75,13 +53,6 @@ codeunit 5005396 "Print Document Comfort"
         until ReportSelections.Next() = 0;
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by event OnBeforePringDeliveryReminder', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeliveryRemindPrint(var DeliveryReminderHeader: Record "Delivery Reminder Header"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintDeliveryReminder(var DeliveryReminderHeader: Record "Delivery Reminder Header"; var IsHandled: Boolean)
@@ -93,13 +64,6 @@ codeunit 5005396 "Print Document Comfort"
     begin
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by event OnPrintDeliveryReminderOnAfterSetFilters','25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnDeliveryRemindPrintOnAfterSetFilters(var DACHReportSelections: Record "DACH Report Selections"; var DeliveryReminderHeader: Record "Delivery Reminder Header")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnPrintDeliveryReminderOnAfterSetFilters(var ReportSelections: Record "Report Selections"; var DeliveryReminderHeader: Record "Delivery Reminder Header")

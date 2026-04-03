@@ -6,20 +6,16 @@ namespace Microsoft.Manufacturing.StandardCost;
 
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.NoSeries;
+using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
 using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Manufacturing.WorkCenter;
-#if not CLEAN25
 using Microsoft.Pricing.Calculation;
-#endif
 using Microsoft.Pricing.PriceList;
-#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
-#endif
 using Microsoft.Projects.Resources.Resource;
-using Microsoft.Inventory.Costing;
 
 report 5855 "Implement Standard Cost Change"
 {
@@ -429,10 +425,9 @@ report 5855 "Implement Standard Cost Change"
         if IsHandled then
             exit;
 
-#if not CLEAN25
         if UpdateOldResourceCost(StandardCostWorksheet, Resource) then
             exit;
-#endif
+
         PriceListLine.Reset();
         PriceListLine.SetRange("Price Type", PriceListLine."Price Type"::Purchase);
         PriceListLine.SetRange("Source Type", PriceListLine."Source Type"::"All Jobs");
@@ -455,7 +450,6 @@ report 5855 "Implement Standard Cost Change"
         end;
     end;
 
-#if not CLEAN25
     local procedure UpdateOldResourceCost(StandardCostWorksheet: Record "Standard Cost Worksheet"; Resource: Record Resource): Boolean;
     var
         ResourceCost: Record "Resource Cost";
@@ -471,7 +465,6 @@ report 5855 "Implement Standard Cost Change"
         if not ResourceCost.Modify(true) then;
         exit(true);
     end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateInventoryValue(var ItemJournalTemplate: Record "Item Journal Template"; var StandardCostWorksheet: Record "Standard Cost Worksheet"; PostingDate: Date; DocNo: Code[20]; HideDuplWarning: Boolean; var IsHandled: Boolean; var ItemJournalBatch: Record "Item Journal Batch");

@@ -7,7 +7,11 @@ namespace Microsoft.Sales.History;
 using Microsoft.Finance.Dimension;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
+using Microsoft.Utilities;
 
+/// <summary>
+/// Lists posted sales shipment lines with navigation to related sales and purchase documents.
+/// </summary>
 page 5824 "Sales Shipment Lines"
 {
     Caption = 'Sales Shipment Lines';
@@ -27,103 +31,85 @@ page 5824 "Sales Shipment Lines"
                     ApplicationArea = Basic, Suite;
                     HideValue = DocumentNoHideValue;
                     StyleExpr = 'Strong';
-                    ToolTip = 'Specifies the shipment number.';
                 }
                 field("Sell-to Customer No."; Rec."Sell-to Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the customer.';
                 }
                 field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
                 field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the line type.';
                 }
                 field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the item or general ledger account, or some descriptive text.';
                 }
                 field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies information in addition to the description.';
                     Visible = false;
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
                 field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the code for the location of the item on the shipment line which was posted.';
                     Visible = true;
                 }
                 field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of units of the item specified on the line.';
                 }
                 field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
                 field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the name of the item or resource''s unit of measure, such as piece or hour.';
                     Visible = false;
                 }
                 field("Appl.-to Item Entry"; Rec."Appl.-to Item Entry")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied to.';
                     Visible = false;
                 }
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
                 field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                     Visible = false;
                 }
                 field("Quantity Invoiced"; Rec."Quantity Invoiced")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies how many units of the item on the line have been posted as invoiced.';
                 }
             }
         }
@@ -161,9 +147,10 @@ page 5824 "Sales Shipment Lines"
                     trigger OnAction()
                     var
                         SalesShptHeader: Record "Sales Shipment Header";
+                        PageManagement: Codeunit "Page Management";
                     begin
                         SalesShptHeader.Get(Rec."Document No.");
-                        PAGE.Run(PAGE::"Posted Sales Shipment", SalesShptHeader);
+                        PageManagement.PageRun(SalesShptHeader);
                     end;
                 }
                 action(Dimensions)
@@ -234,6 +221,12 @@ page 5824 "Sales Shipment Lines"
         AssignmentType: Option Sale,Purchase;
         DocumentNoHideValue: Boolean;
 
+    /// <summary>
+    /// Initializes the page for sales item charge assignment.
+    /// </summary>
+    /// <param name="NewItemChargeAssgnt">The sales item charge assignment to initialize from.</param>
+    /// <param name="NewSellToCustomerNo">The sell-to customer number.</param>
+    /// <param name="NewUnitCost">The unit cost for the charge assignment.</param>
     procedure InitializeSales(NewItemChargeAssgnt: Record "Item Charge Assignment (Sales)"; NewSellToCustomerNo: Code[20]; NewUnitCost: Decimal)
     begin
         ItemChargeAssgntSales := NewItemChargeAssgnt;
@@ -242,6 +235,11 @@ page 5824 "Sales Shipment Lines"
         AssignmentType := AssignmentType::Sale;
     end;
 
+    /// <summary>
+    /// Initializes the page for purchase item charge assignment.
+    /// </summary>
+    /// <param name="NewItemChargeAssgnt">The purchase item charge assignment to initialize from.</param>
+    /// <param name="NewUnitCost">The unit cost for the charge assignment.</param>
     procedure InitializePurchase(NewItemChargeAssgnt: Record "Item Charge Assignment (Purch)"; NewUnitCost: Decimal)
     begin
         ItemChargeAssgntPurch := NewItemChargeAssgnt;

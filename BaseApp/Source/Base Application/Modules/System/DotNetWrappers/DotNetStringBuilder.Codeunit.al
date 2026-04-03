@@ -4,6 +4,8 @@ using System;
 
 codeunit 3014 DotNet_StringBuilder
 {
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     trigger OnRun()
     begin

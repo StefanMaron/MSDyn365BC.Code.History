@@ -4,30 +4,30 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Test;
 
-using Microsoft.Manufacturing.Setup;
-using Microsoft.Foundation.Enums;
-using Microsoft.Inventory.Item;
-using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Manufacturing.WorkCenter;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Purchases.Document;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Inventory.Ledger;
-using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Manufacturing.Capacity;
-using Microsoft.Inventory.Setup;
-using Microsoft.Inventory.Journal;
-using Microsoft.Manufacturing.MachineCenter;
-using Microsoft.Foundation.NoSeries;
-using Microsoft.Manufacturing.StandardCost;
-using Microsoft.Inventory.Costing;
-using Microsoft.Finance.VAT.Setup;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
-using Microsoft.Inventory.Requisition;
-using Microsoft.Purchases.Vendor;
 using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Foundation.Enums;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Inventory.Costing;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Requisition;
+using Microsoft.Inventory.Setup;
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.MachineCenter;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Manufacturing.Routing;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Manufacturing.StandardCost;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
+using Microsoft.Purchases.Vendor;
 
 codeunit 137004 "SCM WIP Costing Production-II"
 {
@@ -43,6 +43,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     var
         LibraryUtility: Codeunit "Library - Utility";
         LibraryCosting: Codeunit "Library - Costing";
+        LibraryPostInventoryToGL: Codeunit "Library - Post Inventory To GL";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryPlanning: Codeunit "Library - Planning";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -1154,7 +1155,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         ProdOrderRoutingLine.Validate(Type, CapacityType);
         ProdOrderRoutingLine.Validate("No.", MachineCenterNo);
         ProdOrderRoutingLine.Validate("Setup Time", LibraryRandom.RandInt(5));
-        ProdOrderRoutingLine.Validate("Run Time", LibraryRandom.RandInt(5));
+        ProdOrderRoutingLine.Validate("Run Time", LibraryRandom.RandInt(2));
         ProdOrderRoutingLine.Modify(true);
     end;
 
@@ -1377,7 +1378,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     local procedure AdjustCostPostInventoryCostGL(ItemNoFilter: Text[250])
     begin
         LibraryCosting.AdjustCostItemEntries(ItemNoFilter, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
+        LibraryPostInventoryToGL.PostInvtCostToGL(false, WorkDate(), '');
     end;
 
     local procedure CreateSubcontractorWithCurrency(CurrencyCode: Code[10]): Code[20]

@@ -16,6 +16,7 @@ using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Foundation.Reporting;
 using Microsoft.Foundation.Shipping;
 using Microsoft.Inventory.Location;
 using Microsoft.Sales.Customer;
@@ -25,8 +26,10 @@ using Microsoft.Utilities;
 using System.Email;
 using System.Globalization;
 using System.Utilities;
-using Microsoft.Foundation.Reporting;
 
+/// <summary>
+/// Generates a printable document for blanket sales orders to send to customers.
+/// </summary>
 report 210 "Blanket Sales Order"
 {
     DefaultLayout = RDLC;
@@ -1114,6 +1117,13 @@ report 210 "Blanket Sales Order"
         VALVATBaseLCY: Decimal;
         VALVATAmountLCY: Decimal;
 
+    /// <summary>
+    /// Initializes the report request with the specified parameters.
+    /// </summary>
+    /// <param name="NewNoOfCopies">The number of copies to print.</param>
+    /// <param name="NewShowInternalInfo">Whether to show internal information.</param>
+    /// <param name="NewArchiveDocument">Whether to archive the document.</param>
+    /// <param name="NewLogInteraction">Whether to log interaction.</param>
     procedure InitializeRequest(NewNoOfCopies: Integer; NewShowInternalInfo: Boolean; NewArchiveDocument: Boolean; NewLogInteraction: Boolean)
     begin
         NoOfCopies := NewNoOfCopies;

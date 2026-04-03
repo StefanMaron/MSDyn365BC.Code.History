@@ -1,27 +1,27 @@
 namespace System.Security.AccessControl;
 
 using Microsoft.Bank.BankAccount;
-using Microsoft.Bank.Ledger;
 using Microsoft.Bank.Check;
+using Microsoft.Bank.Ledger;
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
-using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Calculation;
-using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.RateChange;
 using Microsoft.Finance.VAT.Reporting;
-using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.AuditCodes;
-using Microsoft.Foundation.Period;
 using Microsoft.Foundation.BatchProcessing;
+using Microsoft.Foundation.Period;
 using Microsoft.Foundation.Reporting;
-using Microsoft.HumanResources.Payables;
 using Microsoft.HumanResources.Employee;
+using Microsoft.HumanResources.Payables;
 using Microsoft.Intercompany.BankAccount;
 using Microsoft.Intercompany.Comment;
 using Microsoft.Intercompany.Dimension;
@@ -46,8 +46,8 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Warehouse.History;
-using System.Security.User;
 using Microsoft.Warehouse.Request;
+using System.Security.User;
 
 permissionset 862 "Payables Documents - Post"
 {
@@ -68,6 +68,7 @@ permissionset 862 "Payables Documents - Post"
                   tabledata Currency = r,
                   tabledata "Currency Exchange Rate" = r,
                   tabledata "Customer Bank Account" = R,
+                  tabledata "Detailed Matched Order Line" = Rd,
                   tabledata "Detailed Vendor Ledg. Entry" = ri,
                   tabledata "Dimension Combination" = R,
                   tabledata "Dimension Value Combination" = R,
@@ -111,10 +112,12 @@ permissionset 862 "Payables Documents - Post"
                   tabledata "Job Ledger Entry" = Rim,
                   tabledata "Job Register" = Rim,
                   tabledata "Lot No. Information" = R,
+                  tabledata "Matched Order Line" = Rd,
                   tabledata "My Vendor" = Rimd,
                   tabledata "Package No. Information" = R,
                   tabledata "Planning Component" = Rm,
                   tabledata "Post Value Entry to G/L" = I,
+                  tabledata "Posted Matched Order Line" = Ri,
                   tabledata "Posted Whse. Receipt Header" = R,
                   tabledata "Posted Whse. Receipt Line" = R,
                   tabledata "Purch. Comment Line" = RD,

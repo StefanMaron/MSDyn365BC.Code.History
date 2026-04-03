@@ -4,22 +4,19 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Utilities;
 
+using Microsoft.Bank.Payment;
+using Microsoft.Finance.AuditFileExport;
+using Microsoft.Finance.GeneralLedger.Reports;
 using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.VAT.Setup;
 using Microsoft.HumanResources.Absence;
 using Microsoft.HumanResources.Employee;
 using Microsoft.HumanResources.Payables;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Payables;
 using Microsoft.Sales.Archive;
 using System.Privacy;
-using Microsoft.Inventory.Intrastat;
-using Microsoft.Finance.AuditFileExport;
-using Microsoft.Finance.GeneralLedger.Reports;
-#if not CLEAN25
-using Microsoft.Foundation.Reporting;
-#endif
-using Microsoft.Purchases.Document;
-using Microsoft.Finance.VAT.Setup;
-using Microsoft.Bank.Payment;
-using Microsoft.Purchases.Payables;
 
 codeunit 1752 "Data Class. Eval. Data Country"
 {
@@ -55,9 +52,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Data Exp. Primary Key Buffer");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Key Buffer");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Number Series Buffer");
-#if not CLEAN25
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"DACH Report Selections");
-#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Delivery Reminder Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Delivery Reminder Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Issued Deliv. Reminder Header");

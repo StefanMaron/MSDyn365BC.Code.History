@@ -4,25 +4,25 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.RoleCenters;
 
+using Microsoft.Bank.DirectDebit;
 using Microsoft.Bank.Payment;
-using Microsoft.Sales.Customer;
-using Microsoft.Foundation.Task;
-using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Bank.Reconciliation;
+using Microsoft.EServices.EDocument;
 using Microsoft.Finance.GeneralLedger.Journal;
-using Microsoft.Sales.Reports;
-using Microsoft.Sales.History;
-using Microsoft.Sales.Reminder;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Reports;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.Navigate;
+using Microsoft.Foundation.Task;
+using Microsoft.RoleCenters;
+using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.FinanceCharge;
-using Microsoft.Bank.DirectDebit;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Reminder;
+using Microsoft.Sales.Reports;
 using Microsoft.Sales.Setup;
 using System.Visualization;
-using Microsoft.Finance.GeneralLedger.Ledger;
-using Microsoft.Bank.Reconciliation;
-using Microsoft.Foundation.Navigate;
-using Microsoft.Finance.GeneralLedger.Reports;
-using Microsoft.RoleCenters;
-using Microsoft.EServices.EDocument;
 
 page 9077 "Account Receivables"
 {
@@ -183,6 +183,7 @@ page 9077 "Account Receivables"
             }
             group(Reports)
             {
+#if not CLEAN28
                 action("C&ustomer - List")
                 {
                     ApplicationArea = All;
@@ -190,7 +191,11 @@ page 9077 "Account Receivables"
                     Image = "Report";
                     RunObject = Report "Customer - List";
                     ToolTip = 'View various information for customers, such as customer posting group, discount group, finance charge and payment information, salesperson, the customer''s default currency and credit limit (in LCY), and the customer''s current balance (in LCY).';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This report is obsolete and will be removed in a future version.';
+                    ObsoleteTag = '28.0';
                 }
+#endif
                 action("Customer - &Balance to Date")
                 {
                     ApplicationArea = All;
@@ -199,14 +204,19 @@ page 9077 "Account Receivables"
                     RunObject = Report "Customer - Balance to Date";
                     ToolTip = 'View a list with customers'' payment history up until a certain date. You can use the report to extract your total sales income at the close of an accounting period or fiscal year.';
                 }
+#if not CLEAN28
                 action("Aged &Accounts Receivable")
                 {
                     ApplicationArea = All;
-                    Caption = 'Aged &Accounts Receivable';
+                    Caption = 'Aged &Accounts Receivable (Obsolete)';
                     Image = "Report";
                     RunObject = Report "Aged Accounts Receivable";
                     ToolTip = 'View an overview of when your receivables from customers are due or overdue (divided into four periods). You must specify the date you want aging calculated from and the length of the period that each column will contain data for.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This report has been replaced by the report Aged Accounts Receivable (Excel). This report will be removed in a future release.';
+                    ObsoleteTag = '28.0';
                 }
+#endif
                 action("Customer - &Summary Aging Simp.")
                 {
                     ApplicationArea = Suite;

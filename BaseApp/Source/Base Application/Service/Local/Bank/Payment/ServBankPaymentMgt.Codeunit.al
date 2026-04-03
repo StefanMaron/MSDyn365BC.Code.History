@@ -26,9 +26,6 @@ codeunit 11523 "Serv. Bank Payment Mgt."
         Amt := ServiceInvoiceLine."Amount Including VAT";
 
         OnPrepareEsrServiceOnBeforeCompressArray(ServiceInvHeader, Adr);
-#if not CLEAN25
-        CHMgt.RunOnPrepareEsrServiceOnBeforeCompressArray(ServiceInvHeader, Adr);
-#endif
         CHMgt.PrepareEsrConsolidate(
             ESRSetup, EsrType, AmtTxt, CurrencyCode, DocType, RefNo, CodingLine, ServiceInvHeader."Currency Code",
             ServiceInvHeader."Payment Method Code", ServiceInvHeader."No.", Amt);

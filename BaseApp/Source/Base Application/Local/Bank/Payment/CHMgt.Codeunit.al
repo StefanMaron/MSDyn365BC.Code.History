@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -54,15 +54,6 @@ codeunit 11503 CHMgt
             SalesInvHeader."Payment Method Code", SalesInvHeader."No.", Amt);
     end;
 
-#if not CLEAN25
-    [Obsolete('Moved to codeunit ServBankPaymentMgt', '25.0')]
-    procedure PrepareEsrService(ServiceInvHeader: Record Microsoft.Service.History."Service Invoice Header"; var ESRSetup: Record "ESR Setup"; var EsrType: Option Default,ESR,"ESR+"; var Adr: array[8] of Text[100]; var AmtTxt: Text[30]; var CurrencyCode: Code[10]; var DocType: Text[10]; var RefNo: Text[35]; var CodingLine: Text[100])
-    var
-        ServBankPaymentMgt: Codeunit "Serv. Bank Payment Mgt.";
-    begin
-        ServBankPaymentMgt.PrepareEsrService(ServiceInvHeader, ESRSetup, EsrType, Adr, AmtTxt, CurrencyCode, DocType, RefNo, CodingLine);
-    end;
-#endif
 
     procedure PrepareEsrConsolidate(var ESRSetup: Record "ESR Setup"; var EsrType: Option Default,ESR,"ESR+"; var AmtTxt: Text[30]; var CurrencyCode: Code[10]; var DocType: Text[10]; var RefNo: Text[35]; var CodingLine: Text[100]; CurrencyCode2: Code[10]; PaymentMethodCode: Code[10]; _No: Code[20]; Amt: Decimal)
     var
@@ -429,16 +420,4 @@ codeunit 11503 CHMgt
     begin
     end;
 
-#if not CLEAN25
-    internal procedure RunOnPrepareEsrServiceOnBeforeCompressArray(var ServiceInvoiceHeader: Record Microsoft.Service.History."Service Invoice Header"; var Adr: array[8] of Text[100])
-    begin
-        OnPrepareEsrServiceOnBeforeCompressArray(ServiceInvoiceHeader, Adr);
-    end;
-
-    [Obsolete('Moved to codeunit ServBankPaymentMgt', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnPrepareEsrServiceOnBeforeCompressArray(var ServiceInvoiceHeader: Record Microsoft.Service.History."Service Invoice Header"; var Adr: array[8] of Text[100])
-    begin
-    end;
-#endif
 }

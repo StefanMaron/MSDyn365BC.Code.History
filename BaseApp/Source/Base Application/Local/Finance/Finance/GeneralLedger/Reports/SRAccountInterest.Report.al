@@ -163,11 +163,7 @@ report 11529 "SR Account Interest"
 
                 trigger OnAfterGetRecord()
                 begin
-#if not CLEAN25
-                    CalcInterest("Posting Date", Amount, "Amount (FCY)");
-#else
                     CalcInterest("Posting Date", Amount, "Source Currency Amount");
-#endif
                 end;
 
                 trigger OnPreDataItem()
@@ -413,6 +409,7 @@ report 11529 "SR Account Interest"
                     }
                     field("Interest Rate %"; InterestRate)
                     {
+                        AutoFormatType = 0;
                         ApplicationArea = Basic, Suite;
                         Caption = 'Interest Rate %';
                         ToolTip = 'Specifies the rate for calculating interest. If an interest rate is changed during the year, the calculation of interest can be run a second time with a different date range and interest date.';
@@ -624,4 +621,3 @@ report 11529 "SR Account Interest"
         AccNumber := '';
     end;
 }
-

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -7,6 +7,10 @@ namespace Microsoft.Bank.Reconciliation;
 using Microsoft.Bank.Statement;
 using System.IO;
 
+/// <summary>
+/// Worksheet page for manual payment application and matching.
+/// Provides interface for applying payments to ledger entries and managing matches.
+/// </summary>
 page 1292 "Payment Application"
 {
     Caption = 'Payment Application';
@@ -69,7 +73,6 @@ page 1292 "Payment Application"
                         Caption = 'Applied Amount';
                         Style = Strong;
                         StyleExpr = true;
-                        ToolTip = 'Specifies the payment amount, excluding the value in the Applied Pmt. Discount field, that is applied to the open entry.';
 
                         trigger OnValidate()
                         begin
@@ -79,7 +82,6 @@ page 1292 "Payment Application"
                     field(Applied; Rec.Applied)
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies that the payment specified on the header of the Payment Application window is applied to the open entry.';
 
                         trigger OnValidate()
                         begin
@@ -89,6 +91,8 @@ page 1292 "Payment Application"
                     field(RemainingAmountAfterPosting; Rec.GetRemainingAmountAfterPostingValue())
                     {
                         ApplicationArea = Basic, Suite;
+                        AutoFormatType = 1;
+                        AutoFormatExpression = Rec."Currency Code";
                         Caption = 'Remaining Amount After Posting';
                         ToolTip = 'Specifies the amount that remains to be paid for the open entry after you have posted the payment in the Payment Reconciliation Journal window.';
                     }
@@ -96,7 +100,6 @@ page 1292 "Payment Application"
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
-                        ToolTip = 'Specifies the number of the customer or vendor ledger entry that the payment will be applied to when you post the payment reconciliation journal line.';
 
                         trigger OnDrillDown()
                         begin
@@ -107,38 +110,32 @@ page 1292 "Payment Application"
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
-                        ToolTip = 'Specifies the due date of the open entry.';
                     }
                     field("Document Type"; Rec."Document Type")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
-                        ToolTip = 'Specifies the type of document that is related to the open entry.';
                     }
                     field("Document No."; Rec."Document No.")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
-                        ToolTip = 'Specifies the number of the document that is related to the open entry.';
                     }
                     field("External Document No."; Rec."External Document No.")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
-                        ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                     }
                     field(Description; Rec.Description)
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
-                        ToolTip = 'Specifies the description of the open entry.';
                     }
                     field("Remaining Amount"; Rec."Remaining Amount")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
                         Enabled = false;
-                        ToolTip = 'Specifies the amount that remains to be paid for the open entry.';
                         Visible = false;
                     }
                     field("Remaining Amt. Incl. Discount"; Rec."Remaining Amt. Incl. Discount")
@@ -146,13 +143,11 @@ page 1292 "Payment Application"
                         ApplicationArea = Basic, Suite;
                         Editable = false;
                         Enabled = false;
-                        ToolTip = 'Specifies the amount that remains to be paid for the open entry, minus any granted payment discount.';
                     }
                     field("Pmt. Disc. Due Date"; Rec."Pmt. Disc. Due Date")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Pmt. Discount Date';
-                        ToolTip = 'Specifies the date on which the remaining amount on the open entry must be paid to grant a discount.';
 
                         trigger OnValidate()
                         begin
@@ -162,14 +157,12 @@ page 1292 "Payment Application"
                     field("Pmt. Disc. Tolerance Date"; Rec."Pmt. Disc. Tolerance Date")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the latest date the amount in the entry must be paid in order for payment discount tolerance to be granted.';
                         Visible = false;
                     }
                     field("Remaining Pmt. Disc. Possible"; Rec."Remaining Pmt. Disc. Possible")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Remaining Pmt. Discount Possible';
-                        ToolTip = 'Specifies how much discount you can grant for the payment if you apply it to the open entry.';
 
                         trigger OnValidate()
                         begin
@@ -192,13 +185,11 @@ page 1292 "Payment Application"
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = LineEditable;
-                        ToolTip = 'Specifies the type of account that the payment application will be posted to when you post the payment reconciliation journal.';
                     }
                     field("Account No."; Rec."Account No.")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = LineEditable;
-                        ToolTip = 'Specifies the account number the payment application will be posted to when you post the payment reconciliation journal.';
 
                         trigger OnValidate()
                         begin
@@ -209,19 +200,16 @@ page 1292 "Payment Application"
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
-                        ToolTip = 'Specifies the posting date of the open entry.';
                         Visible = false;
                     }
                     field("Match Confidence"; Rec."Match Confidence")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the quality of the match between the payment and the open entry for payment application purposes.';
                     }
                     field("Currency Code"; Rec."Currency Code")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Entry Currency Code';
-                        ToolTip = 'Specifies the currency code of the open entry.';
                         Visible = false;
                     }
                 }
@@ -242,6 +230,7 @@ page 1292 "Payment Application"
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
+                    AutoFormatExpression = BankAccReconLine.GetCurrencyCode();
                     Caption = 'Difference';
                     DecimalPlaces = 0 : 5;
                     Editable = false;

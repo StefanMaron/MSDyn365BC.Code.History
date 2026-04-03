@@ -455,6 +455,24 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Assembly Posting - NamedType ErrOrderAlreadyExists)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3425900309 - NamedType 3057371184" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[While posting, Indirect Cost % should be considered from Assembly Header instead of Item card.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Assembly Posting - NamedType IndirectCostErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 237793734 - NamedType 1272476163" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Quantity %1 in line %2 cannot be reserved automatically.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Quantity, %2 = Line No.]D;]A;(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Assembly Reservation I - NamedType CannotReserveAutomaticallyErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 237793734 - NamedType 1750763547" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Quantity must be %1 in %2.]]></Val>
@@ -462,6 +480,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1=Actual Quantity ,%2=Table Name]D;]A;(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Assembly Reservation I - NamedType ReservationQtyErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 237793734 - NamedType 4019622448" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected reserved quantity does not match actual quantity in Assembly Line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Assembly Reservation I - NamedType ReservedQtyAsmLineErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 237793734 - NamedType 1405540346" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

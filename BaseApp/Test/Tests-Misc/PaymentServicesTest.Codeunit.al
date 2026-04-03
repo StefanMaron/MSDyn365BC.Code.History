@@ -1427,12 +1427,12 @@ codeunit 134425 "Payment Services Test"
         PaymentMethod: Record "Payment Method";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         TempPaymentReportingArgument: Record "Payment Reporting Argument" temporary;
-        LibraryWorkflow: Codeunit "Library - Workflow";
+        LibraryEmail: Codeunit "Library - Email";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
         // Setup
         Initialize();
-        LibraryWorkflow.SetUpEmailAccount();
+        LibraryEmail.SetUpEmailAccount();
 
         CreateDefaultTemplate(TempTemplatePaymentServiceSetup);
         PaymentServiceExtensionMock.SetPaymentServiceTemplates(TempTemplatePaymentServiceSetup);

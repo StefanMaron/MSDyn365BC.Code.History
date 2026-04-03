@@ -1433,7 +1433,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         OutStream: OutStream;
     begin
         // [FEATURE] [Invoice] [Document Attachment]
-        // 
+        //
         Initialize();
 
         // [GIVEN] Posted Sales Invoice
@@ -1451,7 +1451,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         SalesInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice());
 
-        // [THEN] 
+        // [THEN]
         LibraryXMLRead.Initialize(XMLFilePath);
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:AdditionalDocumentReference', 'cbc:ID', SalesInvoiceHeader."No.");
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:Attachment', 'cbc:EmbeddedDocumentBinaryObject', Base64Convert.ToBase64('Test'));
@@ -2034,4 +2034,3 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         SalesLine.Modify(true);
     end;
 }
-

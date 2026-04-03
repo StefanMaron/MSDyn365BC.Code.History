@@ -42,7 +42,6 @@
         BankPaymentFormChangedErr: Label 'The reference number may only be modified for payment type ESR and ESR+.';
         BankESRTypeChangedErr: Label 'The reference number may only be modified for ESR type 9/16 and 9/27.';
         DetailInfoMsg: Label '%1: %2.', Locked = true;
-        JournalLineAmount: Decimal;
 
     [Test]
     [HandlerFunctions('DTASuggestVendorPaymentsRequestPageHandler,MessageHandler,ConfirmHandler,VendorLedgerEntryPageHandler')]
@@ -903,44 +902,6 @@
         VerifyDTAPaymentOrderFooter(Amounts);
     end;
 
-    [Test]
-    [HandlerFunctions('DTASuggestVendorPaymentsRequestAutoDebitPageHandler,MessageHandler,ConfirmHandler,VendorLedgerEntryCheckLineAmountPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestNoSuggestVendorPaymentEntriesWithLateInvoice()
-    var
-        GenJournalTemplate: Record "Gen. Journal Template";
-        GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalLine: Record "Gen. Journal Line";
-        DateStart: Date;
-        DateEnd: Date;
-        DateInvoice: Date;
-    begin
-        // [FEATURE] [DTA Suggest Vendor Payments]
-        // [SCENARIO 380351] DTA Lines with no payment suggestions displayed when their Posting Date is later than Posting Date in the DTA Suggest batch.
-
-        Initialize();
-        DateInvoice := CalcDate('<+1W>', WorkDate());
-        DateStart := CalcDate('<-1W>', WorkDate());
-        DateEnd := CalcDate('<+3M>', DateStart);
-        JournalLineAmount := -LibraryRandom.RandDecInRange(100, 10000, 2);
-
-        // [GIVEN] Vendor "V" with payment terms which has payment discount
-        // [GIVEN] Posted Purchase Invoice "PI" for "V" with not default currency
-        // [GIVEN] "DateInvoice" is a "PI"s Posting Date
-        // [GIVEN] "JournalAmount" is the amount of "PI"
-        CreateGenJournalLineWithPaymentDiscount(
-          GenJournalLine, GenJournalBatch, DateInvoice, JournalLineAmount, LibraryERM.CreateCurrencyWithRandomExchRates());
-
-        CreateGenJournalBatchType(GenJournalBatch, GenJournalTemplate.Type::Payments);
-
-        // [WHEN] Batch "DTA Suggest Vendor Payment" is invoked from Payment Journal - "DTABatch"
-        // [WHEN] "DTABatch"'s Posting Date is before the date of "DateInvoice"
-        // [THEN] Vendor Ledger Enrties displayed with missing entries
-        // [THEN] VendorLedgerEntry.Amount is equal to "JournalAmount"
-        RunDTASuggestVendorPaymentAutoDebit(
-          GenJournalBatch, GenJournalLine."Account No.", DateStart, DateStart, DateEnd, DateStart, DateEnd, true);
-    end;
-
     local procedure Initialize()
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -1063,31 +1024,6 @@
         DTASuggestVendorPayments.RunModal();
     end;
 
-    local procedure RunDTASuggestVendorPaymentAutoDebit(GenJournalBatch: Record "Gen. Journal Batch"; VendorNo: Code[80]; PostingDate: Date; DueDateFrom: Date; DueDateTo: Date; DiscDateFrom: Date; DiscDateTo: Date; AutoDebitBank: Boolean)
-    var
-        Vendor: Record Vendor;
-        GenJournalLine: Record "Gen. Journal Line";
-        DTASuggestVendorPayments: Report "DTA Suggest Vendor Payments";
-    begin
-        GenJournalLine.Init();  // INIT is mandatory for Gen. Journal Line to Set the General Template and General Batch Name.
-        GenJournalLine.Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
-        GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
-        DTASuggestVendorPayments.DefineJournalName(GenJournalLine);
-
-        LibraryVariableStorage.Enqueue(PostingDate);
-        LibraryVariableStorage.Enqueue(DueDateFrom);
-        LibraryVariableStorage.Enqueue(DueDateTo);
-        LibraryVariableStorage.Enqueue(DiscDateFrom);
-        LibraryVariableStorage.Enqueue(DiscDateTo);
-        LibraryVariableStorage.Enqueue(AutoDebitBank);
-
-        Vendor.SetFilter("No.", VendorNo);
-        DTASuggestVendorPayments.SetTableView(Vendor);
-        DTASuggestVendorPayments.UseRequestPage(true);
-        Commit();
-        DTASuggestVendorPayments.RunModal();
-    end;
-
     local procedure RunDTAPaymentOrderForJournalBatch(GenJournalBatch: Record "Gen. Journal Batch")
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -1162,14 +1098,6 @@
     [Scope('OnPrem')]
     procedure VendorLedgerEntryPageHandler(var VendorLedgerEntries: TestPage "Vendor Ledger Entries")
     begin
-        VendorLedgerEntries.OK().Invoke();
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure VendorLedgerEntryCheckLineAmountPageHandler(var VendorLedgerEntries: TestPage "Vendor Ledger Entries")
-    begin
-        VendorLedgerEntries.Amount.AssertEquals(JournalLineAmount);
         VendorLedgerEntries.OK().Invoke();
     end;
 

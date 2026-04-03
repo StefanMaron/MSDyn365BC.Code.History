@@ -55,7 +55,7 @@ codeunit 142062 "ERM Reports DACH"
 
     var
         Assert: Codeunit Assert;
-        LibraryCosting: Codeunit "Library - Costing";
+        LibraryPostInventoryToGL: Codeunit "Library - Post Inventory To GL";
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -207,7 +207,7 @@ codeunit 142062 "ERM Reports DACH"
         CreatePurchaseOrderPostReceipt(PurchaseLine, Item);
 
         // [GIVEN] Post Inventory Cost to G/L.
-        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
+        LibraryPostInventoryToGL.PostInvtCostToGL(false, WorkDate(), '');
 
         // [WHEN] Run Inventory Value report
         RunInventoryValue(ItemJournalLine."Item No.");
@@ -246,7 +246,7 @@ codeunit 142062 "ERM Reports DACH"
         CreatePurchaseOrderPostReceipt(PurchaseLine[2], Item[2]);
 
         // [GIVEN] Post Inventory Cost to G/L.
-        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
+        LibraryPostInventoryToGL.PostInvtCostToGL(false, WorkDate(), '');
 
         // [WHEN] Run Inventory Value report
         RunInventoryValue(Item[1]."No." + '|' + Item[2]."No.");
@@ -322,7 +322,7 @@ codeunit 142062 "ERM Reports DACH"
         PostPurchaseInvoiceOnDate(PurchaseHeader, PurchaseHeader."Posting Date" + 1);
 
         // [GIVEN] Post cost to G/L
-        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
+        LibraryPostInventoryToGL.PostInvtCostToGL(false, WorkDate(), '');
 
         // [WHEN] Run "Inventory Value" report on workdate
         RunInventoryValue(Item."No.");

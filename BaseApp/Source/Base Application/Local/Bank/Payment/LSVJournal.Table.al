@@ -5,9 +5,9 @@
 namespace Microsoft.Bank.Payment;
 
 using Microsoft.Bank.BankAccount;
-using Microsoft.Foundation.Enums;
 using Microsoft.Bank.DirectDebit;
 using Microsoft.Finance.Currency;
+using Microsoft.Foundation.Enums;
 using Microsoft.Sales.Receivables;
 using System.Security.AccessControl;
 
@@ -85,10 +85,14 @@ table 3010832 "LSV Journal"
         }
         field(52; Amount; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = "Currency Code";
             Caption = 'Amount';
         }
         field(53; "Amount Plus"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = "Currency Code";
             CalcFormula = sum("LSV Journal Line"."Collection Amount" where("LSV Journal No." = field("No.")));
             Caption = 'Amount Plus';
             FieldClass = FlowField;

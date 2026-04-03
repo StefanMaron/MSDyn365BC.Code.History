@@ -43,15 +43,9 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
             column(Name_GLAcc; Name)
             {
             }
-#if not CLEAN25
-            column(CurrencyCode_GLAcc; "Currency Code")
-            {
-            }
-#else
             column(CurrencyCode_GLAcc; "Source Currency Code")
             {
             }
-#endif
             column(No_GLAcc; "G/L Account"."No.")
             {
             }
@@ -60,11 +54,7 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
             }
             column(FcyAcyBalance; FcyAcyBalance)
             {
-#if not CLEAN25
-                AutoFormatExpression = "G/L Account"."Currency Code";
-#else
                 AutoFormatExpression = "G/L Account"."Source Currency Code";
-#endif
                 AutoFormatType = 1;
             }
             column(GlBalance; GlBalance)
@@ -135,11 +125,7 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
                 }
                 column(FcyAcyBalanceFcyAcyAmt; FcyAcyBalance - FcyAcyAmt)
                 {
-#if not CLEAN25
-                    AutoFormatExpression = "G/L Account"."Currency Code";
-#else
                     AutoFormatExpression = "G/L Account"."Source Currency Code";
-#endif
                     AutoFormatType = 1;
                 }
                 column(PostingDate_GLEntry; Format("Posting Date"))
@@ -157,11 +143,7 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
                 }
                 column(FcyAcyAmt; FcyAcyAmt)
                 {
-#if not CLEAN25
-                    AutoFormatExpression = "G/L Account"."Currency Code";
-#else
                     AutoFormatExpression = "G/L Account"."Source Currency Code";
-#endif
                     AutoFormatType = 1;
                 }
                 column(Exrate; Exrate)
@@ -170,11 +152,7 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
                 }
                 column(GLEntryFcyAcyBalance; FcyAcyBalance)
                 {
-#if not CLEAN25
-                    AutoFormatExpression = "G/L Account"."Currency Code";
-#else
                     AutoFormatExpression = "G/L Account"."Source Currency Code";
-#endif
                     AutoFormatType = 1;
                 }
                 column(BalAccNo_GLEntry; "Bal. Account No.")
@@ -242,11 +220,7 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
                 }
                 column(GlAccTotalFcyAcyBalance; FcyAcyBalance)
                 {
-#if not CLEAN25
-                    AutoFormatExpression = "G/L Account"."Currency Code";
-#else
                     AutoFormatExpression = "G/L Account"."Source Currency Code";
-#endif
                     AutoFormatType = 1;
                 }
                 column(GlAccTotalExrate; Exrate)
@@ -259,11 +233,7 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
 
                 trigger OnAfterGetRecord()
                 begin
-#if not CLEAN25
-                    Exrate := CalcExrate(FcyAcyBalance, GlBalance, "G/L Account"."Currency Code");
-#else
                     Exrate := CalcExrate(FcyAcyBalance, GlBalance, "G/L Account"."Source Currency Code");
-#endif
                 end;
             }
             dataitem("Gen. Journal Line"; "Gen. Journal Line")
@@ -397,10 +367,8 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
             }
 
             trigger OnAfterGetRecord()
-#if CLEAN25
             var
                 GLAccountSourceCurrency: Record "G/L Account Source Currency";
-#endif
             begin
                 if NewPagePerAcc then
                     NewPagePerAccNo := NewPagePerAccNo + 1;
@@ -424,22 +392,14 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
                 if GlJourDateFilter <> '' then
                     GlEntry2.SetFilter("Posting Date", GlJourDateFilter);
                 CalcFields("Balance at Date");
-#if not CLEAN25
-                CalcFields("Balance at Date (FCY)");
-#else
                 GLAccountSourceCurrency."G/L Account No." := "No.";
                 GLAccountSourceCurrency."Currency Code" := "Gen. Journal Line"."Currency Code";
                 GLAccountSourceCurrency.SetFilter("Date Filter", GlJourDateFilter);
                 GLAccountSourceCurrency.CalcFields("Source Curr. Balance at Date");
-#endif
                 CheckProvEntry();
 
                 if ("Balance at Date" = 0) and
-#if not CLEAN25
-                   ("Balance at Date (FCY)" = 0) and
-#else
                    (GLAccountSourceCurrency."Source Curr. Balance at Date" = 0) and
-#endif
                    (not GlEntry2.FindFirst()) and
                    (not ProvEntryExist) and
                    (not ShowAllAccounts)
@@ -664,4 +624,3 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
         GenJourLine2.SetRange("Bal. Account Type");
     end;
 }
-

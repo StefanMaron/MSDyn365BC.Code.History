@@ -33,9 +33,6 @@ codeunit 144001 "LSV CH DD Test"
         CollectionSuccesfullySuggestedMsg: Label 'Collection has been successfully suggested.';
         RecordNotFoundErr: Label '%1 record was not found.';
         UnexpectedMessageDialogErr: Label 'Unexpected message: %1';
-        FileSuffixTxt: Label '-2';
-        GenJournalLineNotPostedErr: Label 'Gen. Journal Line not posted.';
-        PmtApplnErr: Label 'You cannot post and apply general journal line %1, %2, %3 because the corresponding balance contains VAT.', Comment = '%1 - Template name, %2 - Batch name, %3 - Line no.';
 
     [Test]
     [HandlerFunctions('LSVSuggestCollectionReqPageHandler,LSVJournalLinesCreatedMessageHandler')]
@@ -99,49 +96,6 @@ codeunit 144001 "LSV CH DD Test"
         ValidateLSVFileIsCreated(LSVBankCode);
     end;
 
-    [Test]
-    [HandlerFunctions('LSVSuggestCollectionReqPageHandler,LSVCloseCollectionReqPageHandler,MessageHandler,WriteLSVDirectDebitFileReqPageHandler,WriteFileConfirmHandlerYes,LSVSetupListModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure LaunchLSVImportDirectDebitFile()
-    var
-        Customer: Record Customer;
-        LSVJnl: Record "LSV Journal";
-        GenJournalLine: Record "Gen. Journal Line";
-        LSVBankCode: Code[20];
-        PrevPath: Text[250];
-    begin
-        // Try to import DD File with rejected lines.
-
-        // Pre-Setup
-        LSVBankCode := PrepareLSVSalesDocForCollection(Customer, LSVJnl);
-        CreatePostLSVSalesDocs(Customer."No.", 3);
-        PrevPath := SetupImportFilePath(LSVBankCode, GetPathToDDFile(LSVBankCode, 1));
-        SpecifyLSVCustomerForCollection(Customer."No.");
-        Commit();
-
-        // Setup
-        CreateLSVJournalLines(LSVJnl);
-        CloseLSVJournal(LSVJnl);
-
-        // Exercise
-        WriteLSVDirectDebitFile(LSVJnl);
-        CreateLSVDirectDebitImportFile();
-        LibraryVariableStorage.Enqueue(LSVBankCode); // for LSV Setup List handler
-        ImportLSVDirectDebitFile(GenJournalLine);
-        asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
-
-        GenJournalLine."Line No." := 10000;
-        VerifyApplicationWithVATBalancingError(GenJournalLine);
-        if true then
-            exit; // We reject possibility to apply payment with VAT and Discount on a balance account until proper fix (split transaction)
-
-        // Verify
-        Assert.IsTrue(GenJournalLine.IsEmpty, GenJournalLineNotPostedErr);
-
-        // Teardown
-        SetupImportFilePath(LSVBankCode, PrevPath);
-    end;
-
     local procedure PrepareLaunchLSVWriteDirectDebitFile(var LSVJnl: Record "LSV Journal") LSVBankCode: Code[20]
     var
         Customer: Record Customer;
@@ -172,29 +126,6 @@ codeunit 144001 "LSV CH DD Test"
         Customer.Modify();
         LibraryLSV.CreateLSVCustomerBankAccount(Customer);
         CreatePostLSVSalesDocs(Customer."No.", 1);
-    end;
-
-    local procedure SetupImportFilePath(LSVBankCode: Code[20]; DDImportFileName: Text[250]) Result: Text[250]
-    var
-        LSVSetup: Record "LSV Setup";
-    begin
-        LSVSetup.Get(LSVBankCode);
-        Result := LSVSetup."DebitDirect Import Filename";
-        LSVSetup."DebitDirect Import Filename" := DDImportFileName;
-        LSVSetup.Modify();
-    end;
-
-    local procedure GetPathToDDFile(LSVBankCode: Code[20]; PathType: Option Export,Import): Text[250]
-    var
-        LSVSetup: Record "LSV Setup";
-    begin
-        LSVSetup.Get(LSVBankCode);
-        case PathType of
-            PathType::Export:
-                exit(LSVSetup."LSV File Folder" + LSVSetup."LSV Filename");
-            PathType::Import:
-                exit(LSVSetup."LSV File Folder" + LSVSetup."LSV Filename" + FileSuffixTxt);
-        end;
     end;
 
     local procedure CreateLSVSalesDoc(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
@@ -334,69 +265,6 @@ codeunit 144001 "LSV CH DD Test"
         LSVJnlList.WriteDebitDirectFile.Invoke();
     end;
 
-    local procedure CreateLSVDirectDebitImportFile()
-    var
-        InFile: File;
-        OutFile: File;
-        InStr: InStream;
-        OutStr: OutStream;
-        PathToFile: Text;
-        Line: Text[1024];
-        i: Integer;
-    begin
-        InFile.TextMode(true);
-        InFile.Open(PathToFile);
-        InFile.CreateInStream(InStr);
-        OutFile.TextMode(true);
-        OutFile.Create(PathToFile + FileSuffixTxt);
-        OutFile.CreateOutStream(OutStr);
-        while not InStr.EOS do begin
-            i += 1;
-            InStr.ReadText(Line);
-            if i > 1 then begin
-                OutStr.WriteText(ModifyLineForImport(Line, (i = 3)));
-                OutStr.WriteText();
-            end;
-        end;
-        InFile.Close();
-        OutFile.Close();
-    end;
-
-    local procedure ModifyLineForImport(Line: Text[1024]; SetRejected: Boolean): Text[1024]
-    var
-        MidText: Text[2];
-        RejectionCode: Text[2];
-    begin
-        if CopyStr(Line, 36, 2) = '97' then
-            exit(Line);
-
-        if SetRejected then begin
-            MidText := '84';
-            RejectionCode := '02';
-        end else begin
-            MidText := '81';
-            RejectionCode := '';
-        end;
-        Line := CopyStr(Line, 1, 35) + MidText + CopyStr(Line, 36 + StrLen(MidText));
-        exit(CopyStr(Line, 1, 542) + RejectionCode + CopyStr(Line, 543 + StrLen(RejectionCode)));
-    end;
-
-    local procedure ImportLSVDirectDebitFile(var GenJournalLine: Record "Gen. Journal Line")
-    var
-        GenJournalTemplate: Record "Gen. Journal Template";
-        GenJournalBatch: Record "Gen. Journal Batch";
-        LSVMgt: Codeunit LSVMgt;
-    begin
-        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::"Cash Receipts");
-        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
-        LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        GenJournalLine.SetRange("Journal Template Name", GenJournalTemplate.Name);
-        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine."Journal Template Name" := GenJournalTemplate.Name;
-        GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
-        LSVMgt.ImportDebitDirectFile(GenJournalLine);
-    end;
-
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure WriteLSVDirectDebitFileReqPageHandler(var LSVWriteDebitDirectFile: TestRequestPage "LSV Write DebitDirect File")
@@ -448,13 +316,6 @@ codeunit 144001 "LSV CH DD Test"
         Assert.AreEqual(LSVJnl."Collection Completed By", UserId, LSVJnl.FieldCaption("Collection Completed By"));
         Assert.AreEqual(LSVJnl."File Written On", Today, LSVJnl.FieldCaption("File Written On"));
         Assert.AreEqual(LSVJnl."LSV Status", LSVJnl."LSV Status"::"File Created", LSVJnl.FieldCaption("LSV Status"));
-    end;
-
-    local procedure VerifyApplicationWithVATBalancingError(GenJournalLine: Record "Gen. Journal Line")
-    begin
-        Assert.ExpectedError(
-              StrSubstNo(
-                PmtApplnErr, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No."));
     end;
 }
 

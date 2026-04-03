@@ -4,10 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.DirectDebit;
 
+using Microsoft.Bank.Payment;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Enums;
 using Microsoft.Sales.Customer;
-using Microsoft.Bank.Payment;
 
 /// <summary>
 /// Validates direct debit collection entries for SEPA compliance and data completeness.

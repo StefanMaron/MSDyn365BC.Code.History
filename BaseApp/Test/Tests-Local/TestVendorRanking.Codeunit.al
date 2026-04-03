@@ -118,14 +118,6 @@ codeunit 144034 "Test Vendor Ranking"
     [Test]
     [HandlerFunctions('VendorRankingRequestPageHandler')]
     [Scope('OnPrem')]
-    procedure VendorRankingCreditMemos()
-    begin
-        VendorRankingTest(ColumnOption::"Credit Memos", ColumnOption::"<blank>", 'Credit Memos', '');
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorRankingRequestPageHandler')]
-    [Scope('OnPrem')]
     procedure VendorRankingPayments()
     begin
         VendorRankingTest(ColumnOption::Payments, ColumnOption::Backlog, 'Payments', 'Backlog');

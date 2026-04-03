@@ -4,10 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.DirectDebit;
 
+using Microsoft.Bank;
 using Microsoft.Bank.Payment;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Foundation.Company;
-using Microsoft.Bank;
 using System.Telemetry;
 
 /// <summary>

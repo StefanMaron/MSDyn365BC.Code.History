@@ -4,11 +4,11 @@
 // ------------------------------------------------------------------------------------------------
 namespace System.Security.Encryption;
 
-using System.Utilities;
+using System;
 using System.IO;
 using System.Security.AccessControl;
 using System.Text;
-using System;
+using System.Utilities;
 
 codeunit 1259 "Certificate Management"
 {

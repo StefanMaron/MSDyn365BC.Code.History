@@ -7,11 +7,11 @@ namespace Microsoft.Inventory.Counting;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.HumanResources.Employee;
 using Microsoft.Inventory.Location;
 using Microsoft.Warehouse.Structure;
-using Microsoft.Foundation.AuditCodes;
 
 table 5005354 "Post. Phys. Invt. Order Header"
 {

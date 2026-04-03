@@ -4,8 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Document;
 
-using Microsoft.Purchases.Vendor;
 using Microsoft.Foundation.Navigate;
+using Microsoft.Purchases.Vendor;
 
 page 5005273 "Issued Delivery Reminder"
 {

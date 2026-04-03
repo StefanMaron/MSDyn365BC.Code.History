@@ -5,10 +5,10 @@
 namespace Microsoft.Service.Document;
 
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Inventory.Journal;
 using Microsoft.Sales.Customer;
 using Microsoft.Service.History;
 using Microsoft.Service.Posting;
-using Microsoft.Inventory.Journal;
 
 codeunit 11524 "Serv. Document Mgt. CH"
 {

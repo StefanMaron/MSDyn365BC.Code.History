@@ -12,6 +12,7 @@ using Microsoft.CRM.Team;
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
+using Microsoft.Foundation.Reporting;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
@@ -23,8 +24,10 @@ using Microsoft.Utilities;
 using System.Email;
 using System.Globalization;
 using System.Utilities;
-using Microsoft.Foundation.Reporting;
 
+/// <summary>
+/// Generates a printable document for posted sales shipments showing items shipped to customers.
+/// </summary>
 report 208 "Sales - Shipment"
 {
     Caption = 'Sales - Shipment';
@@ -813,11 +816,23 @@ report 208 "Sales - Shipment"
         CompanyInfo2: Record "Company Information";
         CompanyInfo3: Record "Company Information";
 
+    /// <summary>
+    /// Initializes the log interaction setting based on interaction template configuration.
+    /// </summary>
     procedure InitLogInteraction()
     begin
         LogInteraction := SegManagement.FindInteractionTemplateCode(Enum::"Interaction Log Entry Document Type"::"Sales Shpt. Note") <> '';
     end;
 
+    /// <summary>
+    /// Initializes the request parameters for the sales shipment report.
+    /// </summary>
+    /// <param name="NewNoOfCopies">The number of copies to print.</param>
+    /// <param name="NewShowInternalInfo">Specifies whether to show internal information.</param>
+    /// <param name="NewLogInteraction">Specifies whether to log interaction.</param>
+    /// <param name="NewShowCorrectionLines">Specifies whether to show correction lines.</param>
+    /// <param name="NewShowLotSN">Specifies whether to show lot and serial numbers.</param>
+    /// <param name="DisplayAsmInfo">Specifies whether to display assembly information.</param>
     procedure InitializeRequest(NewNoOfCopies: Integer; NewShowInternalInfo: Boolean; NewLogInteraction: Boolean; NewShowCorrectionLines: Boolean; NewShowLotSN: Boolean; DisplayAsmInfo: Boolean)
     begin
         NoOfCopies := NewNoOfCopies;
@@ -857,6 +872,10 @@ report 208 "Sales - Shipment"
         exit(UnitOfMeasure.Description);
     end;
 
+    /// <summary>
+    /// Returns a text string of blank spaces for indentation purposes.
+    /// </summary>
+    /// <returns>A text string with two blank spaces.</returns>
     procedure BlanksForIndent(): Text[10]
     begin
         exit(PadStr('', 2, ' '));

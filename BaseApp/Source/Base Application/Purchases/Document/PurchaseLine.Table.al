@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -58,8 +58,8 @@ using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
-using System.Utilities;
 using System.Environment.Configuration;
+using System.Utilities;
 
 table 39 "Purchase Line"
 {
@@ -115,6 +115,7 @@ table 39 "Purchase Line"
                 TestField("Qty. Rcd. Not Invoiced", 0);
                 TestField("Quantity Received", 0);
                 TestField("Receipt No.", '');
+                MatchedOrderLineMgmt.IsLineMatched(Rec, true);
 
                 TestField("Return Qty. Shipped Not Invd.", 0);
                 TestField("Return Qty. Shipped", 0);
@@ -216,9 +217,10 @@ table 39 "Purchase Line"
 
                 IsHandled := false;
                 OnValidateNoOnBeforeCheckReceiptNo(Rec, xRec, IsHandled);
-                if not IsHandled then
+                if not IsHandled then begin
                     TestField("Receipt No.", '');
-
+                    MatchedOrderLineMgmt.IsLineMatched(Rec, true);
+                end;
                 TestField("Prepmt. Amt. Inv.", 0);
 
                 TestReturnFieldsZero();
@@ -414,6 +416,7 @@ table 39 "Purchase Line"
 
                 GetDefaultBin();
                 CheckWMS();
+                MatchedOrderLineMgmt.CheckReceiptOnInvoiceAllowedForLocation("Location Code", GetPurchHeader());
 
                 if "Document Type" = "Document Type"::"Return Order" then
                     ValidateReturnReasonCode(FieldNo("Location Code"));
@@ -525,6 +528,7 @@ table 39 "Purchase Line"
         field(13; "Unit of Measure"; Text[50])
         {
             Caption = 'Unit of Measure';
+            ToolTip = 'Specifies the unit of measure.';
 
             trigger OnValidate()
             begin
@@ -534,6 +538,7 @@ table 39 "Purchase Line"
         }
         field(15; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
             ToolTip = 'Specifies the number of units of the item specified on the line.';
@@ -672,6 +677,7 @@ table 39 "Purchase Line"
         }
         field(16; "Outstanding Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Outstanding Quantity';
             ToolTip = 'Specifies how many units on the order line have not yet been received.';
             DecimalPlaces = 0 : 5;
@@ -679,6 +685,7 @@ table 39 "Purchase Line"
         }
         field(17; "Qty. to Invoice"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. to Invoice';
             DecimalPlaces = 0 : 5;
             ToolTip = 'Specifies the quantity that remains to be invoiced. It is calculated as Quantity - Qty. Invoiced.';
@@ -720,7 +727,9 @@ table 39 "Purchase Line"
         field(18; "Qty. to Receive"; Decimal)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
+            AutoFormatType = 0;
             Caption = 'Qty. to Receive';
+            ToolTip = 'Specifies the quantity of items that remains to be received.';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -790,6 +799,7 @@ table 39 "Purchase Line"
         }
         field(23; "Unit Cost (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 2;
             Caption = 'Unit Cost (LCY)';
             ToolTip = 'Specifies the cost, in LCY, of one unit of the item or resource on the line.';
@@ -845,13 +855,16 @@ table 39 "Purchase Line"
         }
         field(25; "VAT %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'VAT %';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(27; "Line Discount %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Line Discount %';
+            ToolTip = 'Specifies the discount percentage that is granted for the item on the line.';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
             MinValue = 0;
@@ -897,6 +910,7 @@ table 39 "Purchase Line"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
+            ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
             Editable = false;
 
             trigger OnValidate()
@@ -1006,6 +1020,7 @@ table 39 "Purchase Line"
         }
         field(31; "Unit Price (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 2;
             Caption = 'Unit Price (LCY)';
             ToolTip = 'Specifies the price, in LCY, of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
@@ -1013,6 +1028,7 @@ table 39 "Purchase Line"
         field(32; "Allow Invoice Disc."; Boolean)
         {
             Caption = 'Allow Invoice Disc.';
+            ToolTip = 'Specifies if the invoice line is included when the invoice discount is calculated.';
             InitValue = true;
 
             trigger OnValidate()
@@ -1026,6 +1042,7 @@ table 39 "Purchase Line"
                         "Inv. Discount Amount" := 0;
                         "Inv. Disc. Amount to Invoice" := 0;
                     end;
+                    "Recalculate Invoice Disc." := true;
                     UpdateAmounts();
                     UpdateUnitCost();
                 end;
@@ -1033,28 +1050,37 @@ table 39 "Purchase Line"
         }
         field(34; "Gross Weight"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Gross Weight';
+            ToolTip = 'Specifies the gross weight of one unit of the item. In the purchase statistics window, the gross weight on the line is included in the total gross weight of all the lines for the particular purchase document.';
             DecimalPlaces = 0 : 5;
         }
         field(35; "Net Weight"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Net Weight';
+            ToolTip = 'Specifies the net weight of one unit of the item. In the purchase statistics window, the net weight on the line is included in the total net weight of all the lines for the particular purchase document.';
             DecimalPlaces = 0 : 5;
         }
         field(36; "Units per Parcel"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Units per Parcel';
+            ToolTip = 'Specifies the number of units per parcel of the item. In the purchase statistics window, the number of units per parcel on the line helps to determine the total number of units for all the lines for the particular purchase document.';
             DecimalPlaces = 0 : 5;
         }
         field(37; "Unit Volume"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Unit Volume';
+            ToolTip = 'Specifies the volume of one unit of the item. In the purchase statistics window, the volume of one unit of the item on the line is included in the total volume of all the lines for the particular purchase document.';
             DecimalPlaces = 0 : 5;
         }
         field(38; "Appl.-to Item Entry"; Integer)
         {
             AccessByPermission = TableData Item = R;
             Caption = 'Appl.-to Item Entry';
+            ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied -to.';
 
             trigger OnLookup()
             begin
@@ -1113,6 +1139,8 @@ table 39 "Purchase Line"
                 TestField("Drop Shipment", false);
                 TestField("Special Order", false);
                 TestField("Receipt No.", '');
+                MatchedOrderLineMgmt.IsLineMatched(Rec, true);
+
                 if "Document Type" = "Document Type"::Order then
                     TestField("Quantity Received", 0);
 
@@ -1153,6 +1181,7 @@ table 39 "Purchase Line"
         }
         field(54; "Indirect Cost %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Indirect Cost %';
             ToolTip = 'Specifies the percentage of the item''s last purchase cost that includes indirect costs, such as freight that is associated with the purchase of the item.';
             DecimalPlaces = 0 : 5;
@@ -1217,6 +1246,7 @@ table 39 "Purchase Line"
         }
         field(58; "Qty. Rcd. Not Invoiced"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Rcd. Not Invoiced';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1252,6 +1282,7 @@ table 39 "Purchase Line"
         field(60; "Quantity Received"; Decimal)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
+            AutoFormatType = 0;
             Caption = 'Quantity Received';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1260,7 +1291,9 @@ table 39 "Purchase Line"
         }
         field(61; "Quantity Invoiced"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity Invoiced';
+            ToolTip = 'Specifies how many units of the item on the line have been posted as invoiced.';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
@@ -1285,6 +1318,7 @@ table 39 "Purchase Line"
         }
         field(67; "Profit %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Profit %';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1355,6 +1389,7 @@ table 39 "Purchase Line"
         {
             AccessByPermission = TableData "Drop Shpt. Post. Buffer" = R;
             Caption = 'Drop Shipment';
+            ToolTip = 'Specifies if your vendor ships the items directly to your customer.';
             Editable = false;
 
             trigger OnValidate()
@@ -1377,6 +1412,7 @@ table 39 "Purchase Line"
         field(74; "Gen. Bus. Posting Group"; Code[20])
         {
             Caption = 'Gen. Bus. Posting Group';
+            ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
             TableRelation = "Gen. Business Posting Group";
 
             trigger OnValidate()
@@ -1393,6 +1429,7 @@ table 39 "Purchase Line"
         field(75; "Gen. Prod. Posting Group"; Code[20])
         {
             Caption = 'Gen. Prod. Posting Group';
+            ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
             TableRelation = "Gen. Product Posting Group";
 
             trigger OnValidate()
@@ -1428,6 +1465,7 @@ table 39 "Purchase Line"
         field(80; "Attached to Line No."; Integer)
         {
             Caption = 'Attached to Line No.';
+            ToolTip = 'Specifies the line number to which this purchase line is attached.';
             Editable = false;
             TableRelation = "Purchase Line"."Line No." where("Document Type" = field("Document Type"),
                                                               "Document No." = field("Document No."));
@@ -1450,6 +1488,7 @@ table 39 "Purchase Line"
         field(85; "Tax Area Code"; Code[20])
         {
             Caption = 'Tax Area Code';
+            ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
             TableRelation = "Tax Area";
 
             trigger OnValidate()
@@ -1460,6 +1499,7 @@ table 39 "Purchase Line"
         field(86; "Tax Liable"; Boolean)
         {
             Caption = 'Tax Liable';
+            ToolTip = 'Specifies if this vendor charges you sales tax for purchases.';
 
             trigger OnValidate()
             begin
@@ -1469,6 +1509,7 @@ table 39 "Purchase Line"
         field(87; "Tax Group Code"; Code[20])
         {
             Caption = 'Tax Group Code';
+            ToolTip = 'Specifies the tax group that is used to calculate and post sales tax.';
             TableRelation = "Tax Group";
 
             trigger OnValidate()
@@ -1480,6 +1521,7 @@ table 39 "Purchase Line"
         field(88; "Use Tax"; Boolean)
         {
             Caption = 'Use Tax';
+            ToolTip = 'Specifies a U.S. sales tax that is paid on items purchased by a company that are used by the company, instead of being sold to a customer.';
 
             trigger OnValidate()
             begin
@@ -1489,6 +1531,7 @@ table 39 "Purchase Line"
         field(89; "VAT Bus. Posting Group"; Code[20])
         {
             Caption = 'VAT Bus. Posting Group';
+            ToolTip = 'Specifies the vendor''s VAT specification to link transactions made for this vendor with the appropriate general ledger account according to the VAT posting setup.';
             TableRelation = "VAT Business Posting Group";
 
             trigger OnValidate()
@@ -1499,6 +1542,7 @@ table 39 "Purchase Line"
         field(90; "VAT Prod. Posting Group"; Code[20])
         {
             Caption = 'VAT Prod. Posting Group';
+            ToolTip = 'Specifies the VAT product posting group. Links business transactions made for the item, resource, or G/L account with the general ledger, to account for VAT amounts resulting from trade with that record.';
             TableRelation = "VAT Product Posting Group";
 
             trigger OnValidate()
@@ -1550,11 +1594,13 @@ table 39 "Purchase Line"
         field(91; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
+            ToolTip = 'Specifies the currency that is used on the entry.';
             Editable = false;
             TableRelation = Currency;
         }
         field(92; "Outstanding Amount (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Outstanding Amount (LCY)';
             ToolTip = 'Specifies the amount for the items on the order that have not yet been received in LCY.';
@@ -1563,6 +1609,7 @@ table 39 "Purchase Line"
         field(93; "Amt. Rcd. Not Invoiced (LCY)"; Decimal)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Amt. Rcd. Not Invoiced (LCY)';
             ToolTip = 'Specifies the sum, in LCY, for items that have been received but have not yet been invoiced. The value in the Amt. Rcd. Not Invoiced (LCY) field is used for entries in the Purchase Line table of document type Order to calculate and update the contents of this field.';
@@ -1571,6 +1618,7 @@ table 39 "Purchase Line"
         field(95; "Reserved Quantity"; Decimal)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
+            AutoFormatType = 0;
             CalcFormula = sum("Reservation Entry".Quantity where("Source ID" = field("Document No."),
                                                                   "Source Ref. No." = field("Line No."),
                                                                   "Source Type" = const(39),
@@ -1579,6 +1627,7 @@ table 39 "Purchase Line"
 #pragma warning restore
                                                                   "Reservation Status" = const(Reservation)));
             Caption = 'Reserved Quantity';
+            ToolTip = 'Specifies how many item units on this line have been reserved.';
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
@@ -1587,6 +1636,7 @@ table 39 "Purchase Line"
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'Blanket Order No.';
+            ToolTip = 'Specifies the number of the blanket order that the record originates from.';
             TableRelation = "Purchase Header"."No." where("Document Type" = const("Blanket Order"));
 
             trigger OnLookup()
@@ -1623,6 +1673,7 @@ table 39 "Purchase Line"
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'Blanket Order Line No.';
+            ToolTip = 'Specifies the number of the blanket order line that the record originates from.';
             TableRelation = "Purchase Line"."Line No." where("Document Type" = const("Blanket Order"),
                                                               "Document No." = field("Blanket Order No."));
 
@@ -1728,6 +1779,7 @@ table 39 "Purchase Line"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Inv. Disc. Amount to Invoice';
+            ToolTip = 'Specifies the actual invoice discount amount that will be posted for the line on the invoice.';
             Editable = false;
         }
         field(106; "VAT Identifier"; Code[20])
@@ -1739,6 +1791,7 @@ table 39 "Purchase Line"
         {
             AccessByPermission = TableData "IC G/L Account" = R;
             Caption = 'IC Partner Ref. Type';
+            ToolTip = 'Specifies the item or account in your IC partner''s company that corresponds to the item or account on the line.';
 
             trigger OnValidate()
             var
@@ -1759,6 +1812,7 @@ table 39 "Purchase Line"
         {
             AccessByPermission = TableData "IC G/L Account" = R;
             Caption = 'IC Partner Reference';
+            ToolTip = 'Specifies the IC partner. If the line is being sent to one of your intercompany partners, this field is used together with the IC Partner Ref. Type field to indicate the item or account in your partner''s company that corresponds to the line.';
 
             trigger OnLookup()
             var
@@ -1793,7 +1847,9 @@ table 39 "Purchase Line"
         }
         field(109; "Prepayment %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Prepayment %';
+            ToolTip = 'Specifies the prepayment percentage to use to calculate the prepayment for purchases.';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
             MinValue = 0;
@@ -1814,6 +1870,7 @@ table 39 "Purchase Line"
             AutoFormatType = 1;
             CaptionClass = GetCaptionClass(FieldNo("Prepmt. Line Amount"));
             Caption = 'Prepmt. Line Amount';
+            ToolTip = 'Specifies the prepayment amount of the line in the currency of the purchase document if a prepayment percentage is specified for the purchase line.';
             MinValue = 0;
 
             trigger OnValidate()
@@ -1841,6 +1898,7 @@ table 39 "Purchase Line"
             AutoFormatType = 1;
             CaptionClass = GetCaptionClass(FieldNo("Prepmt. Amt. Inv."));
             Caption = 'Prepmt. Amt. Inv.';
+            ToolTip = 'Specifies the prepayment amount that has already been invoiced to the customer for this purchase line.';
             Editable = false;
         }
         field(112; "Prepmt. Amt. Incl. VAT"; Decimal)
@@ -1866,6 +1924,7 @@ table 39 "Purchase Line"
         }
         field(115; "Prepayment VAT %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Prepayment VAT %';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1917,6 +1976,7 @@ table 39 "Purchase Line"
             AutoFormatType = 1;
             CaptionClass = GetCaptionClass(FieldNo("Prepmt Amt to Deduct"));
             Caption = 'Prepmt Amt to Deduct';
+            ToolTip = 'Specifies the prepayment amount that has already been deducted from ordinary invoices posted for this purchase order line.';
             MinValue = 0;
 
             trigger OnValidate()
@@ -1946,6 +2006,7 @@ table 39 "Purchase Line"
             AutoFormatType = 1;
             CaptionClass = GetCaptionClass(FieldNo("Prepmt Amt Deducted"));
             Caption = 'Prepmt Amt Deducted';
+            ToolTip = 'Specifies the prepayment amount that has already been deducted from ordinary invoices posted for this purchase order line.';
             Editable = false;
         }
         field(123; "Prepayment Line"; Boolean)
@@ -1962,6 +2023,7 @@ table 39 "Purchase Line"
         }
         field(129; "Prepmt. Amount Inv. (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Prepmt. Amount Inv. (LCY)';
             Editable = false;
@@ -1969,6 +2031,7 @@ table 39 "Purchase Line"
         field(130; "IC Partner Code"; Code[20])
         {
             Caption = 'IC Partner Code';
+            ToolTip = 'Specifies the code of the intercompany partner that the transaction is related to if the entry was created from an intercompany transaction.';
             TableRelation = "IC Partner";
 
             trigger OnValidate()
@@ -1984,6 +2047,8 @@ table 39 "Purchase Line"
         }
         field(132; "Prepmt. VAT Amount Inv. (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             Caption = 'Prepmt. VAT Amount Inv. (LCY)';
             Editable = false;
         }
@@ -2045,10 +2110,14 @@ table 39 "Purchase Line"
         }
         field(140; "Outstanding Amt. Ex. VAT (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             Caption = 'Outstanding Amt. Ex. VAT (LCY)';
         }
         field(141; "A. Rcd. Not Inv. Ex. VAT (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             Caption = 'A. Rcd. Not Inv. Ex. VAT (LCY)';
         }
         field(145; "Pmt. Discount Amount"; Decimal)
@@ -2103,6 +2172,7 @@ table 39 "Purchase Line"
 
                 TestStatusOpen();
                 TestField("Receipt No.", '');
+                MatchedOrderLineMgmt.IsLineMatched(Rec, true);
 
                 if "Job Task No." <> xRec."Job Task No." then begin
                     Validate("Job Planning Line No.", 0);
@@ -2153,6 +2223,8 @@ table 39 "Purchase Line"
 
                 TestStatusOpen();
                 TestField("Receipt No.", '');
+                MatchedOrderLineMgmt.IsLineMatched(Rec, true);
+
                 if "Document Type" = "Document Type"::Order then
                     TestField("Quantity Received", 0);
 
@@ -2162,9 +2234,12 @@ table 39 "Purchase Line"
         }
         field(1003; "Job Unit Price"; Decimal)
         {
+            AutoFormatType = 2;
+            AutoFormatExpression = "Job Currency Code";
             AccessByPermission = TableData Job = R;
             BlankZero = true;
             Caption = 'Project Unit Price';
+            ToolTip = 'Specifies the sales price per unit that applies to the item or general ledger expense that will be posted.';
 
             trigger OnValidate()
             var
@@ -2176,6 +2251,8 @@ table 39 "Purchase Line"
                     exit;
 
                 TestField("Receipt No.", '');
+                MatchedOrderLineMgmt.IsLineMatched(Rec, true);
+
                 if "Document Type" = "Document Type"::Order then
                     TestField("Quantity Received", 0);
 
@@ -2189,8 +2266,11 @@ table 39 "Purchase Line"
         field(1004; "Job Total Price"; Decimal)
         {
             AccessByPermission = TableData Job = R;
+            AutoFormatExpression = "Job Currency Code";
+            AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Project Total Price';
+            ToolTip = 'Specifies the gross amount of the line that the purchase line applies to.';
             Editable = false;
         }
         field(1005; "Job Line Amount"; Decimal)
@@ -2200,6 +2280,7 @@ table 39 "Purchase Line"
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Project Line Amount';
+            ToolTip = 'Specifies the line amount of the project ledger entry that is related to the purchase line.';
 
             trigger OnValidate()
             var
@@ -2210,6 +2291,8 @@ table 39 "Purchase Line"
                     exit;
 
                 TestField("Receipt No.", '');
+                MatchedOrderLineMgmt.IsLineMatched(Rec, true);
+
                 if "Document Type" = "Document Type"::Order then
                     TestField("Quantity Received", 0);
 
@@ -2227,6 +2310,7 @@ table 39 "Purchase Line"
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Project Line Discount Amount';
+            ToolTip = 'Specifies the line discount amount of the project ledger entry that is related to the purchase line.';
 
             trigger OnValidate()
             var
@@ -2238,6 +2322,8 @@ table 39 "Purchase Line"
                     exit;
 
                 TestField("Receipt No.", '');
+                MatchedOrderLineMgmt.IsLineMatched(Rec, true);
+
                 if "Document Type" = "Document Type"::Order then
                     TestField("Quantity Received", 0);
 
@@ -2251,8 +2337,10 @@ table 39 "Purchase Line"
         field(1007; "Job Line Discount %"; Decimal)
         {
             AccessByPermission = TableData Job = R;
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Project Line Discount %';
+            ToolTip = 'Specifies the line discount percentage of the project ledger entry that is related to the purchase line.';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
             MinValue = 0;
@@ -2267,6 +2355,8 @@ table 39 "Purchase Line"
                     exit;
 
                 TestField("Receipt No.", '');
+                MatchedOrderLineMgmt.IsLineMatched(Rec, true);
+
                 if "Document Type" = "Document Type"::Order then
                     TestField("Quantity Received", 0);
 
@@ -2280,10 +2370,11 @@ table 39 "Purchase Line"
         field(1008; "Job Unit Price (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
+            AutoFormatExpression = '';
+            AutoFormatType = 2;
             BlankZero = true;
             Caption = 'Project Unit Price (LCY)';
             Editable = false;
-            AutoFormatType = 2;
 
             trigger OnValidate()
             var
@@ -2295,6 +2386,8 @@ table 39 "Purchase Line"
                     exit;
 
                 TestField("Receipt No.", '');
+                MatchedOrderLineMgmt.IsLineMatched(Rec, true);
+
                 if "Document Type" = "Document Type"::Order then
                     TestField("Quantity Received", 0);
 
@@ -2308,14 +2401,16 @@ table 39 "Purchase Line"
         field(1009; "Job Total Price (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Project Total Price (LCY)';
             Editable = false;
-            AutoFormatType = 1;
         }
         field(1010; "Job Line Amount (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Project Line Amount (LCY)';
@@ -2331,6 +2426,8 @@ table 39 "Purchase Line"
                     exit;
 
                 TestField("Receipt No.", '');
+                MatchedOrderLineMgmt.IsLineMatched(Rec, true);
+
                 if "Document Type" = "Document Type"::Order then
                     TestField("Quantity Received", 0);
 
@@ -2344,6 +2441,7 @@ table 39 "Purchase Line"
         field(1011; "Job Line Disc. Amount (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Project Line Disc. Amount (LCY)';
@@ -2359,6 +2457,8 @@ table 39 "Purchase Line"
                     exit;
 
                 TestField("Receipt No.", '');
+                MatchedOrderLineMgmt.IsLineMatched(Rec, true);
+
                 if "Document Type" = "Document Type"::Order then
                     TestField("Quantity Received", 0);
 
@@ -2371,6 +2471,7 @@ table 39 "Purchase Line"
         }
         field(1012; "Job Currency Factor"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Project Currency Factor';
         }
@@ -2383,6 +2484,7 @@ table 39 "Purchase Line"
             AccessByPermission = TableData Job = R;
             BlankZero = true;
             Caption = 'Project Planning Line No.';
+            ToolTip = 'Specifies the project planning line number that the usage should be linked to when the project journal is posted. You can only link to project planning lines that have the Apply Usage Link option enabled.';
 
             trigger OnLookup()
             var
@@ -2449,7 +2551,9 @@ table 39 "Purchase Line"
         field(1030; "Job Remaining Qty."; Decimal)
         {
             AccessByPermission = TableData Job = R;
+            AutoFormatType = 0;
             Caption = 'Project Remaining Qty.';
+            ToolTip = 'Specifies the quantity that remains to complete a project.';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -2475,11 +2579,13 @@ table 39 "Purchase Line"
         }
         field(1031; "Job Remaining Qty. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Project Remaining Qty. (Base)';
         }
         field(1700; "Deferral Code"; Code[10])
         {
             Caption = 'Deferral Code';
+            ToolTip = 'Specifies the deferral template that governs how expenses paid with this purchase document are deferred to the different accounting periods when the expenses were incurred.';
             TableRelation = "Deferral Template"."Deferral Code";
 
             trigger OnValidate()
@@ -2505,6 +2611,7 @@ table 39 "Purchase Line"
         field(1702; "Returns Deferral Start Date"; Date)
         {
             Caption = 'Returns Deferral Start Date';
+            ToolTip = 'Specifies the starting date of the returns deferral period.';
 
             trigger OnValidate()
             var
@@ -2548,9 +2655,32 @@ table 39 "Purchase Line"
             Caption = 'Allocation Purchase Line SystemId';
             DataClassification = SystemMetadata;
         }
+        field(2700; "Invoicing From Line SystemId"; Guid)
+        {
+            Caption = 'Invoicing From Line SystemId';
+            DataClassification = SystemMetadata;
+            Editable = false;
+        }
+        field(2701; "Matched Order Lines"; Integer)
+        {
+            BlankZero = true;
+            CalcFormula = count("Matched Order Line" where("Document Line SystemId" = field(SystemId), "Matched Rcpt./Shpt. Line SysId" = const('00000000-0000-0000-0000-000000000000')));
+            Caption = 'Matched Order Lines';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(2702; "Matched Inv./Cr. Memo Lines"; Integer)
+        {
+            BlankZero = true;
+            CalcFormula = count("Matched Order Line" where("Matched Order Line SystemId" = field(SystemId), "Matched Rcpt./Shpt. Line SysId" = const('00000000-0000-0000-0000-000000000000')));
+            Caption = 'Matched Invoice/Cr. Memo Lines';
+            Editable = false;
+            FieldClass = FlowField;
+        }
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
+            ToolTip = 'Specifies the variant of the item on the line.';
             TableRelation = if (Type = const(Item), "Document Type" = filter(<> "Credit Memo" & <> "Return Order")) "Item Variant".Code where("Item No." = field("No."), Blocked = const(false), "Purchasing Blocked" = const(false))
             else
             if (Type = const(Item), "Document Type" = filter("Credit Memo" | "Return Order")) "Item Variant".Code where("Item No." = field("No."), Blocked = const(false));
@@ -2580,6 +2710,7 @@ table 39 "Purchase Line"
                     TestField("Receipt No.", '');
                     TestField("Return Qty. Shipped Not Invd.", 0);
                     TestField("Return Shipment No.", '');
+                    MatchedOrderLineMgmt.IsLineMatched(Rec, true);
                 end;
 
                 IsHandled := false;
@@ -2621,6 +2752,7 @@ table 39 "Purchase Line"
         field(5403; "Bin Code"; Code[20])
         {
             Caption = 'Bin Code';
+            ToolTip = 'Specifies the bin where the items are picked or put away.';
             TableRelation = if ("Document Type" = filter(Order | Invoice),
                                 Quantity = filter(< 0)) "Bin Content"."Bin Code" where("Location Code" = field("Location Code"),
                                                                                      "Item No." = field("No."),
@@ -2682,6 +2814,7 @@ table 39 "Purchase Line"
         }
         field(5404; "Qty. per Unit of Measure"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. per Unit of Measure';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -2689,6 +2822,7 @@ table 39 "Purchase Line"
         }
         field(5405; "Qty. Rounding Precision"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Rounding Precision';
             InitValue = 0;
             DecimalPlaces = 0 : 5;
@@ -2698,6 +2832,7 @@ table 39 "Purchase Line"
         }
         field(5406; "Qty. Rounding Precision (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Rounding Precision (Base)';
             InitValue = 0;
             DecimalPlaces = 0 : 5;
@@ -2732,6 +2867,7 @@ table 39 "Purchase Line"
                 if "Unit of Measure Code" <> xRec."Unit of Measure Code" then begin
                     TestField("Receipt No.", '');
                     TestField("Return Shipment No.", '');
+                    MatchedOrderLineMgmt.IsLineMatched(Rec, true);
                 end;
 
                 IsHandled := false;
@@ -2787,6 +2923,7 @@ table 39 "Purchase Line"
         }
         field(5415; "Quantity (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity (Base)';
             DecimalPlaces = 0 : 5;
 
@@ -2808,12 +2945,14 @@ table 39 "Purchase Line"
         }
         field(5416; "Outstanding Qty. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Outstanding Qty. (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(5417; "Qty. to Invoice (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. to Invoice (Base)';
             DecimalPlaces = 0 : 5;
 
@@ -2832,6 +2971,7 @@ table 39 "Purchase Line"
         }
         field(5418; "Qty. to Receive (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. to Receive (Base)';
             DecimalPlaces = 0 : 5;
 
@@ -2850,24 +2990,28 @@ table 39 "Purchase Line"
         }
         field(5458; "Qty. Rcd. Not Invoiced (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Rcd. Not Invoiced (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(5460; "Qty. Received (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Received (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(5461; "Qty. Invoiced (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Invoiced (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(5495; "Reserved Qty. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Reservation Entry"."Quantity (Base)" where("Source Type" = const(39),
 #pragma warning disable AL0603
                                                                            "Source Subtype" = field("Document Type"),
@@ -2884,11 +3028,13 @@ table 39 "Purchase Line"
         field(5600; "FA Posting Date"; Date)
         {
             Caption = 'FA Posting Date';
+            ToolTip = 'Specifies the FA posting date if you have selected Fixed Asset in the Type field for this line.';
         }
         field(5601; "FA Posting Type"; Enum "Purchase FA Posting Type")
         {
             AccessByPermission = TableData "Fixed Asset" = R;
             Caption = 'FA Posting Type';
+            ToolTip = 'Specifies the FA posting type if you have selected Fixed Asset in the Type field for this line.';
 
             trigger OnValidate()
             begin
@@ -2914,6 +3060,7 @@ table 39 "Purchase Line"
         field(5602; "Depreciation Book Code"; Code[10])
         {
             Caption = 'Depreciation Book Code';
+            ToolTip = 'Specifies the code for the depreciation book to which the line will be posted if you have selected Fixed Asset in the Type field for this line.';
             TableRelation = "Depreciation Book";
 
             trigger OnValidate()
@@ -2923,6 +3070,7 @@ table 39 "Purchase Line"
         }
         field(5603; "Salvage Value"; Decimal)
         {
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Salvage Value';
         }
@@ -2930,11 +3078,13 @@ table 39 "Purchase Line"
         {
             AccessByPermission = TableData "Fixed Asset" = R;
             Caption = 'Depr. until FA Posting Date';
+            ToolTip = 'Specifies if depreciation was calculated until the FA posting date of the line.';
         }
         field(5606; "Depr. Acquisition Cost"; Boolean)
         {
             AccessByPermission = TableData "Fixed Asset" = R;
             Caption = 'Depr. Acquisition Cost';
+            ToolTip = 'Specifies if, when this line was posted, the additional acquisition cost posted on the line was depreciated in proportion to the amount by which the fixed asset had already been depreciated.';
         }
         field(5609; "Maintenance Code"; Code[10])
         {
@@ -2944,11 +3094,13 @@ table 39 "Purchase Line"
         field(5610; "Insurance No."; Code[20])
         {
             Caption = 'Insurance No.';
+            ToolTip = 'Specifies an insurance number if you have selected the Acquisition Cost option in the FA Posting Type field.';
             TableRelation = Insurance;
         }
         field(5611; "Budgeted FA No."; Code[20])
         {
             Caption = 'Budgeted FA No.';
+            ToolTip = 'Specifies the number of a fixed asset with the Budgeted Asset check box selected. When you post the journal or document line, an additional entry is created for the budgeted fixed asset where the amount has the opposite sign.';
             TableRelation = "Fixed Asset";
 
             trigger OnValidate()
@@ -2964,6 +3116,7 @@ table 39 "Purchase Line"
         field(5612; "Duplicate in Depreciation Book"; Code[10])
         {
             Caption = 'Duplicate in Depreciation Book';
+            ToolTip = 'Specifies a depreciation book code if you want the journal line to be posted to that depreciation book, as well as to the depreciation book in the Depreciation Book Code field.';
             TableRelation = "Depreciation Book";
 
             trigger OnValidate()
@@ -2975,6 +3128,7 @@ table 39 "Purchase Line"
         {
             AccessByPermission = TableData "Fixed Asset" = R;
             Caption = 'Use Duplication List';
+            ToolTip = 'Specifies, if the type is Fixed Asset, that information on the line is to be posted to all the assets defined depreciation books.';
 
             trigger OnValidate()
             begin
@@ -3001,6 +3155,7 @@ table 39 "Purchase Line"
         {
             AccessByPermission = TableData "Nonstock Item" = R;
             Caption = 'Catalog';
+            ToolTip = 'Specifies that this item is a catalog item.';
         }
         field(5711; "Purchasing Code"; Code[10])
         {
@@ -3067,6 +3222,7 @@ table 39 "Purchase Line"
         {
             AccessByPermission = TableData "Item Reference" = R;
             Caption = 'Item Reference No.';
+            ToolTip = 'Specifies the referenced item number.';
             ExtendedDatatype = Barcode;
 
             trigger OnLookup()
@@ -3101,6 +3257,7 @@ table 39 "Purchase Line"
         field(5750; "Whse. Outstanding Qty. (Base)"; Decimal)
         {
             AccessByPermission = TableData Location = R;
+            AutoFormatType = 0;
             BlankZero = true;
             CalcFormula = sum("Warehouse Receipt Line"."Qty. Outstanding (Base)" where("Source Type" = const(39),
 #pragma warning disable AL0603
@@ -3178,6 +3335,7 @@ table 39 "Purchase Line"
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'Lead Time Calculation';
+            ToolTip = 'Specifies a date formula for the amount of time it takes to replenish the item.';
 
             trigger OnValidate()
             var
@@ -3200,6 +3358,7 @@ table 39 "Purchase Line"
         {
             AccessByPermission = TableData Location = R;
             Caption = 'Inbound Whse. Handling Time';
+            ToolTip = 'Specifies the time it takes to make items part of available inventory, after the items have been posted as received.';
 
             trigger OnValidate()
             begin
@@ -3215,6 +3374,7 @@ table 39 "Purchase Line"
         {
             AccessByPermission = TableData "Order Promising Line" = R;
             Caption = 'Planned Receipt Date';
+            ToolTip = 'Specifies the date when the item is planned to arrive in inventory. Forward calculation: planned receipt date = order date + vendor lead time (per the vendor calendar and rounded to the next working day in first the vendor calendar and then the location calendar). If no vendor calendar exists, then: planned receipt date = order date + vendor lead time (per the location calendar). Backward calculation: order date = planned receipt date - vendor lead time (per the vendor calendar and rounded to the previous working day in first the vendor calendar and then the location calendar). If no vendor calendar exists, then: order date = planned receipt date - vendor lead time (per the location calendar).';
 
             trigger OnValidate()
             var
@@ -3255,6 +3415,7 @@ table 39 "Purchase Line"
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'Order Date';
+            ToolTip = 'Specifies the date when the order was created.';
 
             trigger OnValidate()
             var
@@ -3301,6 +3462,7 @@ table 39 "Purchase Line"
         {
             AccessByPermission = TableData "Item Charge" = R;
             Caption = 'Allow Item Charge Assignment';
+            ToolTip = 'Specifies that you can assign item charges to this line.';
             InitValue = true;
 
             trigger OnValidate()
@@ -3310,20 +3472,24 @@ table 39 "Purchase Line"
         }
         field(5801; "Qty. to Assign"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Item Charge Assignment (Purch)"."Qty. to Assign" where("Document Type" = field("Document Type"),
                                                                                        "Document No." = field("Document No."),
                                                                                        "Document Line No." = field("Line No.")));
             Caption = 'Qty. to Assign';
+            ToolTip = 'Specifies how many units of the item charge will be assigned to the line.';
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
         }
         field(5802; "Qty. Assigned"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Item Charge Assignment (Purch)"."Qty. Assigned" where("Document Type" = field("Document Type"),
                                                                                       "Document No." = field("Document No."),
                                                                                       "Document Line No." = field("Line No.")));
             Caption = 'Qty. Assigned';
+            ToolTip = 'Specifies how much of the item charge that has been assigned.';
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
@@ -3331,7 +3497,9 @@ table 39 "Purchase Line"
         field(5803; "Return Qty. to Ship"; Decimal)
         {
             AccessByPermission = TableData "Return Shipment Header" = R;
+            AutoFormatType = 0;
             Caption = 'Return Qty. to Ship';
+            ToolTip = 'Specifies the quantity of items that remains to be shipped.';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -3379,6 +3547,7 @@ table 39 "Purchase Line"
         }
         field(5804; "Return Qty. to Ship (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Return Qty. to Ship (Base)';
             DecimalPlaces = 0 : 5;
 
@@ -3397,12 +3566,14 @@ table 39 "Purchase Line"
         }
         field(5805; "Return Qty. Shipped Not Invd."; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Return Qty. Shipped Not Invd.';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(5806; "Ret. Qty. Shpd Not Invd.(Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Ret. Qty. Shpd Not Invd.(Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -3434,6 +3605,7 @@ table 39 "Purchase Line"
         }
         field(5808; "Return Shpd. Not Invd. (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Return Shpd. Not Invd. (LCY)';
             Editable = false;
@@ -3441,28 +3613,34 @@ table 39 "Purchase Line"
         field(5809; "Return Qty. Shipped"; Decimal)
         {
             AccessByPermission = TableData "Return Shipment Header" = R;
+            AutoFormatType = 0;
             Caption = 'Return Qty. Shipped';
+            ToolTip = 'Specifies how many units of the item on the line have been posted as shipped.';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(5810; "Return Qty. Shipped (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Return Qty. Shipped (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(5812; "Item Charge Qty. to Handle"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Item Charge Assignment (Purch)"."Qty. to Handle" where("Document Type" = field("Document Type"),
                                                                                        "Document No." = field("Document No."),
                                                                                        "Document Line No." = field("Line No.")));
             Caption = 'Item Charge Qty. to Handle';
+            ToolTip = 'Specifies how many items the item charge will be assigned to on the line. It can be either equal to Qty. to Assign or to zero. If it is zero, the item charge will not be assigned to the line.';
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
         }
         field(6200; "Non-Deductible VAT %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Non-Deductible VAT %';
             DecimalPlaces = 0 : 5;
 
@@ -3476,29 +3654,37 @@ table 39 "Purchase Line"
         field(6201; "Non-Deductible VAT Base"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Base';
+            ToolTip = 'Specifies the amount of VAT that is not deducted due to the type of goods or services purchased.';
             Editable = false;
         }
         field(6202; "Non-Deductible VAT Amount"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Amount';
+            ToolTip = 'Specifies the amount of the transaction for which VAT is not applied, due to the type of goods or services purchased.';
             Editable = false;
         }
         field(6203; "Non-Deductible VAT Diff."; Decimal)
         {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Difference';
             Editable = false;
         }
         field(6204; "Prepmt. Non-Deduct. VAT Base"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Prepmt.  Non-Deductible VAT Base';
             Editable = false;
         }
         field(6205; "Prepmt. Non-Deduct. VAT Amount"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Prepmt. on-Deductible VAT Amount';
             Editable = false;
         }
@@ -3520,6 +3706,7 @@ table 39 "Purchase Line"
         field(6608; "Return Reason Code"; Code[10])
         {
             Caption = 'Return Reason Code';
+            ToolTip = 'Specifies the code explaining why the item was returned.';
             TableRelation = "Return Reason";
 
             trigger OnValidate()
@@ -3549,6 +3736,7 @@ table 39 "Purchase Line"
                                                              "Document Type" = field("Document Type"),
                                                              "Line No." = field("Line No.")));
             Caption = 'Attached Doc Count';
+            ToolTip = 'Specifies the number of attachments.';
             FieldClass = FlowField;
             InitValue = 0;
         }
@@ -3559,13 +3747,16 @@ table 39 "Purchase Line"
                                                        "Attached to Line No." = field("Line No."),
                                                        Quantity = filter(<> 0)));
             Caption = 'Attached Lines Count';
+            ToolTip = 'Specifies the number of non-inventory product lines attached to the purchase line.';
             Editable = false;
             FieldClass = FlowField;
             BlankZero = true;
         }
         field(8509; "Over-Receipt Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Over-Receipt Quantity';
+            ToolTip = 'Specifies over-receipt quantity.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 
@@ -3620,6 +3811,7 @@ table 39 "Purchase Line"
         field(8510; "Over-Receipt Code"; Code[20])
         {
             Caption = 'Over-Receipt Code';
+            ToolTip = 'Specifies over-receipt code.';
             TableRelation = "Over-Receipt Code";
 
             trigger OnValidate()
@@ -3674,6 +3866,7 @@ table 39 "Purchase Line"
 #endif
         field(99000755; "Overhead Rate"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Overhead Rate';
             DecimalPlaces = 0 : 5;
 
@@ -3689,6 +3882,7 @@ table 39 "Purchase Line"
         field(99000757; "Planning Flexibility"; Enum "Reservation Planning Flexibility")
         {
             Caption = 'Planning Flexibility';
+            ToolTip = 'Specifies whether the supply represented by this line is considered by the planning system when calculating action messages.';
 
             trigger OnValidate()
             begin
@@ -3799,7 +3993,7 @@ table 39 "Purchase Line"
             IsHandled := false;
             OnDeleteOnBeforeCheckQtyNotInvoiced(Rec, IsHandled);
             if not IsHandled then begin
-                if "Receipt No." = '' then
+                if not IsMatchedToReceiptOrOrder() then
                     TestField("Qty. Rcd. Not Invoiced", 0);
                 if "Return Shipment No." = '' then
                     TestField("Return Qty. Shipped Not Invd.", 0);
@@ -3885,11 +4079,15 @@ table 39 "Purchase Line"
             DeferralUtilities.DeferralCodeOnDelete(
                 Enum::"Deferral Document Type"::Purchase.AsInteger(), '', '',
                 "Document Type".AsInteger(), "Document No.", "Line No.");
+
+        MatchedOrderLineMgmt.DeleteMatchedOrderLines(Rec);
     end;
 
     trigger OnInsert()
     begin
         TestStatusOpen();
+        if not HasPurchHeader then
+            Error(CannotInsertPurchLineWithoutHeaderErr);
 
         if Quantity <> 0 then begin
             OnBeforeVerifyReservedQty(Rec, xRec, 0);
@@ -3967,6 +4165,7 @@ table 39 "Purchase Line"
         PostingSetupMgt: Codeunit PostingSetupManagement;
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         NonDeductibleVAT: Codeunit "Non-Deductible VAT";
+        MatchedOrderLineMgmt: Codeunit "Matched Order Line Mgmt.";
         FieldCausedPriceCalculation: Integer;
         GLSetupRead: Boolean;
         UnitCostCurrency: Decimal;
@@ -3974,6 +4173,7 @@ table 39 "Purchase Line"
         HasBeenShown: Boolean;
         PrePaymentLineAmountEntered: Boolean;
         PurchSetupRead: Boolean;
+        HasPurchHeader: Boolean;
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text000: Label 'You cannot rename a %1.';
@@ -4049,6 +4249,8 @@ table 39 "Purchase Line"
         LineAmountInvalidErr: Label 'You have set the line amount to a value that results in a discount that is not valid. Consider increasing the unit cost instead.';
         ChangeExtendedTextErr: Label 'You cannot change %1 for Extended Text Line.', Comment = '%1= Field Caption';
         InvoiceOrOrderDocTypeErr: Label '%1 must be either %2 or %3.', Comment = '%1 - Document Type; %2, %3 - Purchase Document Type, Invoice or Order';
+        CannotInsertPurchLineWithoutHeaderErr: Label 'You cannot insert a purchase line without a purchase header.';
+        MustSpecifyErr: Label 'You must either specify %1 or %2.', Comment = '%1 = Field Caption; %2 = Field Caption';
 
     protected var
         Currency: Record Currency;
@@ -4552,6 +4754,7 @@ table 39 "Purchase Line"
                 Item.TestField("Inventory Posting Group");
                 "Posting Group" := Item."Inventory Posting Group";
             end;
+            MatchedOrderLineMgmt.CheckReceiptOnInvoiceAllowedForItem(Item, GetPurchHeader());
         end;
 
         OnCopyFromItemOnAfterCheck(Rec, Item, CurrFieldNo);
@@ -4712,6 +4915,7 @@ table 39 "Purchase Line"
     procedure SetPurchHeader(NewPurchHeader: Record "Purchase Header")
     begin
         PurchHeader := NewPurchHeader;
+        HasPurchHeader := true;
 
         if PurchHeader."Currency Code" = '' then
             Currency.InitRoundingPrecision()
@@ -4742,13 +4946,14 @@ table 39 "Purchase Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetPurchHeader(Rec, PurchHeader, IsHandled, Currency);
+        OnBeforeGetPurchHeader(Rec, PurchHeader, IsHandled, Currency, HasPurchHeader);
         if IsHandled then
             exit;
 
         TestField("Document No.");
         if ("Document Type" <> PurchHeader."Document Type") or ("Document No." <> PurchHeader."No.") then
-            if PurchHeader.Get(Rec."Document Type", Rec."Document No.") then
+            if PurchHeader.Get(Rec."Document Type", Rec."Document No.") then begin
+                HasPurchHeader := true;
                 if PurchHeader."Currency Code" = '' then
                     Currency.InitRoundingPrecision()
                 else begin
@@ -4756,8 +4961,10 @@ table 39 "Purchase Line"
                     Currency.Get(PurchHeader."Currency Code");
                     Currency.TestField("Amount Rounding Precision");
                 end
-            else
+            end else begin
                 Clear(PurchHeader);
+                HasPurchHeader := false;
+            end;
 
         OnAfterGetPurchHeader(Rec, PurchHeader, Currency);
         OutPurchHeader := PurchHeader;
@@ -5285,7 +5492,7 @@ table 39 "Purchase Line"
 
         VATBaseAmount := "VAT Base Amount";
         NonDeductAmount := NonDeductibleVAT.GetNonDeductibleVATAmount(Rec);
-        "Recalculate Invoice Disc." := "Allow Invoice Disc.";
+        "Recalculate Invoice Disc." := "Recalculate Invoice Disc." or "Allow Invoice Disc.";
 
         UpdateLineAmount(LineAmountChanged);
 
@@ -5617,7 +5824,7 @@ table 39 "Purchase Line"
         OnAfterUpdateSalesCost(Rec, SalesOrderLine);
     end;
 
-    local procedure GetFAPostingGroup()
+    procedure GetFAPostingGroup()
     var
         LocalGLAcc: Record "G/L Account";
         FAPostingGr: Record "FA Posting Group";
@@ -6554,6 +6761,7 @@ table 39 "Purchase Line"
 
         TestField("Qty. Rcd. Not Invoiced", 0);
         TestField("Receipt No.", '');
+        MatchedOrderLineMgmt.IsLineMatched(Rec, true);
 
         TestField("Return Qty. Shipped Not Invd.", 0);
         TestField("Return Shipment No.", '');
@@ -6769,6 +6977,7 @@ table 39 "Purchase Line"
         LineAmountToInvoiceDiscounted: Decimal;
         DeferralAmount: Decimal;
         IsHandled: Boolean;
+        IsLineAmountToInvoiceSimple: Boolean;
     begin
         LineWasModified := false;
         if QtyType = QtyType::Shipping then
@@ -6803,7 +7012,12 @@ table 39 "Purchase Line"
                             TempVATAmountLineRemainder.Insert();
                         end;
 
-                        if QtyType = QtyType::General then
+                        IsLineAmountToInvoiceSimple := QtyType = QtyType::General;
+
+                        if not IsLineAmountToInvoiceSimple then
+                            OnAfterCheckIsLineAmountToInvoiceSimple(PurchHeader, IsLineAmountToInvoiceSimple);
+
+                        if IsLineAmountToInvoiceSimple then
                             LineAmountToInvoice := PurchLine."Line Amount"
                         else
                             LineAmountToInvoice :=
@@ -6813,7 +7027,7 @@ table 39 "Purchase Line"
                             if (VATAmountLine."Inv. Disc. Base Amount" = 0) or (LineAmountToInvoice = 0) then
                                 InvDiscAmount := 0
                             else begin
-                                if QtyType = QtyType::General then
+                                if IsLineAmountToInvoiceSimple then
                                     LineAmountToInvoice := PurchLine."Line Amount"
                                 else
                                     LineAmountToInvoice :=
@@ -6829,7 +7043,7 @@ table 39 "Purchase Line"
                                 TempVATAmountLineRemainder."Invoice Discount Amount" :=
                                   TempVATAmountLineRemainder."Invoice Discount Amount" - InvDiscAmount;
                             end;
-                            if QtyType = QtyType::General then begin
+                            if IsLineAmountToInvoiceSimple then begin
                                 PurchLine."Inv. Discount Amount" := InvDiscAmount;
                                 PurchLine.CalcInvDiscToInvoice();
                             end else
@@ -7016,7 +7230,7 @@ table 39 "Purchase Line"
                                     case true of
                                         (PurchLine."Document Type" in [PurchLine."Document Type"::Order, PurchLine."Document Type"::Invoice]) and
                                     (not PurchHeader.Receive) and PurchHeader.Invoice and (not PurchLine."Prepayment Line"):
-                                            if PurchLine."Receipt No." = '' then begin
+                                            if not PurchLine.IsMatchedToReceiptOrOrder() then begin
                                                 QtyToHandle := PurchLine.GetAbsMin(PurchLine."Qty. to Invoice", PurchLine."Qty. Rcd. Not Invoiced");
                                                 VATAmountLine.Quantity += PurchLine.GetAbsMin(PurchLine."Qty. to Invoice (Base)", PurchLine."Qty. Rcd. Not Invoiced (Base)");
                                             end else begin
@@ -7044,13 +7258,17 @@ table 39 "Purchase Line"
                             end;
                         QtyType::Shipping:
                             begin
-                                if PurchLine.IsCreditDocType() then begin
-                                    QtyToHandle := PurchLine."Return Qty. to Ship";
-                                    VATAmountLine.Quantity += PurchLine."Return Qty. to Ship (Base)";
-                                end else begin
-                                    QtyToHandle := PurchLine."Qty. to Receive";
-                                    VATAmountLine.Quantity += PurchLine."Qty. to Receive (Base)";
-                                end;
+                                IsHandled := false;
+                                OnCalcVATAmountLinesOnBeforeAssignShippingQuantities(PurchHeader, PurchLine, VATAmountLine, QtyToHandle, IsHandled);
+                                if not IsHandled then
+                                    if PurchLine.IsCreditDocType() then begin
+                                        QtyToHandle := PurchLine."Return Qty. to Ship";
+                                        VATAmountLine.Quantity += PurchLine."Return Qty. to Ship (Base)";
+                                    end else begin
+                                        QtyToHandle := PurchLine."Qty. to Receive";
+                                        VATAmountLine.Quantity += PurchLine."Qty. to Receive (Base)";
+                                    end;
+                                OnCalcVATAmountLinesOnQtyTypeShippingOnBeforeCalcAmtToHandle(PurchLine, PurchHeader, QtyToHandle, VATAmountLine);
                                 AmtToHandle := PurchLine.GetLineAmountToHandleInclPrepmt(QtyToHandle);
                                 OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType, PurchLine);
                                 SumVATAmountLine(PurchHeader, PurchLine, VATAmountLine, QtyType, AmtToHandle, QtyToHandle);
@@ -7589,7 +7807,7 @@ table 39 "Purchase Line"
         if "Appl.-to Item Entry" = 0 then
             exit;
 
-        if "Receipt No." <> '' then
+        if IsMatchedToReceiptOrOrder() then
             exit;
 
         TestField(Type, Type::Item);
@@ -8439,7 +8657,7 @@ table 39 "Purchase Line"
             if "Quantity (Base)" <> 0 then
                 case "Document Type" of
                     "Document Type"::Invoice:
-                        if "Receipt No." = '' then
+                        if not IsMatchedToReceiptOrOrder() then
                             if Location.Get("Location Code") and Location."Directed Put-away and Pick" then begin
                                 DialogText += Location.GetRequirementText(Location.FieldNo("Require Receive"));
                                 Error(Text016, DialogText, FieldCaption("Line No."), "Line No.");
@@ -9284,7 +9502,10 @@ table 39 "Purchase Line"
         if IsHandled then
             exit;
 
-        PurchaseHeader.TestField("Buy-from Vendor No.");
+        if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Quote then
+            CheckQuoteVendorTemplateCode(PurchaseHeader)
+        else
+            PurchaseHeader.TestField("Buy-from Vendor No.");
     end;
 
     local procedure UpdateLineAmount(var LineAmountChanged: Boolean)
@@ -9765,6 +9986,25 @@ table 39 "Purchase Line"
             StrSubstNo(QtyReceiveActionDescriptionLbl, Rec.FieldCaption("Qty. to Receive"), Rec.Quantity)));
     end;
 
+    local procedure CheckQuoteVendorTemplateCode(PurchaseHeader: Record "Purchase Header")
+    begin
+        if (PurchaseHeader."Buy-from Vendor No." = '') and
+           (PurchaseHeader."Buy-from Vendor Templ. Code" = '')
+        then
+            Error(
+              MustSpecifyErr,
+              PurchaseHeader.FieldCaption("Buy-from Vendor No."),
+              PurchaseHeader.FieldCaption("Buy-from Vendor Templ. Code"));
+
+        if (PurchaseHeader."Pay-to Vendor No." = '') and
+           (PurchaseHeader."Pay-to Vendor Templ. Code" = '')
+        then
+            Error(
+              MustSpecifyErr,
+              PurchaseHeader.FieldCaption("Pay-to Vendor No."),
+              PurchaseHeader.FieldCaption("Pay-to Vendor Templ. Code"));
+    end;
+
     local procedure OverturnExitConditionForDefaultGLAccountQuantityValidation(var ShouldExit: Boolean)
     begin
         if not ShouldExit then
@@ -9815,7 +10055,7 @@ table 39 "Purchase Line"
         OnAfterClearVATDifference(Rec);
     end;
 
-    internal procedure GetVATPct() VATPct: Decimal
+    procedure GetVATPct() VATPct: Decimal
     begin
         VATPct := "VAT %";
         OnAfterGetVATPct(Rec, VATPct);
@@ -9873,6 +10113,23 @@ table 39 "Purchase Line"
         if IsHandled then
             exit;
         TestField("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
+    end;
+
+    internal procedure IsMatchedToReceiptOrOrder(): Boolean
+    begin
+        exit(("Receipt No." <> '') or IsMatchedToOrder());
+    end;
+
+    internal procedure IsMatchedToOrder(): Boolean
+    begin
+        CalcFields("Matched Order Lines");
+        exit("Matched Order Lines" > 0);
+    end;
+
+    internal procedure IsMatchedToInvoiceCreditMemo(): Boolean
+    begin
+        CalcFields("Matched Inv./Cr. Memo Lines");
+        exit("Matched Inv./Cr. Memo Lines" > 0);
     end;
 
     [IntegrationEvent(false, false)]
@@ -11189,7 +11446,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetPurchHeader(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; var Currency: Record Currency)
+    local procedure OnBeforeGetPurchHeader(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; var Currency: Record Currency; var HasPurchHeader: Boolean)
     begin
     end;
 
@@ -11942,6 +12199,21 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckAcquisitionCost(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckIsLineAmountToInvoiceSimple(PurchHeader: Record "Purchase Header"; var IsLineAmountToInvoiceSimple: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesOnBeforeAssignShippingQuantities(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var VATAmountLine: record "VAT Amount Line"; var QtyToHandle: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesOnQtyTypeShippingOnBeforeCalcAmtToHandle(var PurchLine: Record "Purchase Line"; var PurchHeader: Record "Purchase Header"; var QtyToHandle: Decimal; var VATAmountLine: record "VAT Amount Line")
     begin
     end;
 

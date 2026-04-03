@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Integration.Word;
+
 using System.Integration;
 using System.Reflection;
 

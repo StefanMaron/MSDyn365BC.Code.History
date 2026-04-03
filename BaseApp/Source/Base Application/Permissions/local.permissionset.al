@@ -1,15 +1,12 @@
 namespace System.Security.AccessControl;
 
 using Microsoft.Bank.Payment;
-#if not CLEAN25
-using Microsoft.Foundation.Reporting;
-#endif
 using Microsoft.Finance.AuditFileExport;
-using Microsoft.Purchases.Document;
 using Microsoft.Finance.GeneralLedger.Reports;
-using Microsoft.Inventory.Intrastat;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.VAT.Setup;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Purchases.Document;
 
 permissionset 1001 "LOCAL"
 {
@@ -36,9 +33,6 @@ permissionset 1001 "LOCAL"
                   tabledata "Delivery Reminder Text" = RIMD,
                   tabledata "DTA Setup" = RIMD,
                   tabledata "ESR Setup" = RIMD,
-#if not CLEAN25
-                  tabledata "DACH Report Selections" = RIMD,
-#endif
                   tabledata "Issued Deliv. Reminder Header" = RIMD,
                   tabledata "Issued Deliv. Reminder Line" = RIMD,
                   tabledata "Key Buffer" = RIMD,

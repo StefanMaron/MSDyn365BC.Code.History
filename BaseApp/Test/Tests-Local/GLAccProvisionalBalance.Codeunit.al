@@ -343,11 +343,7 @@ codeunit 144014 "G/L Acc. Provisional Balance"
     begin
         LibraryERM.FindCurrency(Currency);
         GLAccount.SetFilter("No.", '%1|%2', GenJournalLine."Account No.", GenJournalLine."Bal. Account No.");
-#if not CLEAN25
-        GLAccount.ModifyAll("Currency Code", Currency.Code);
-#else
         GLAccount.ModifyAll("Source Currency Code", Currency.Code);
-#endif
         GenJournalLine.Validate("Currency Code", Currency.Code);
         GenJournalLine.Modify(true);
     end;
@@ -359,31 +355,20 @@ codeunit 144014 "G/L Acc. Provisional Balance"
         Customer: Record Customer;
         BankAccount: Record "Bank Account";
         Vendor: Record Vendor;
-#if CLEAN25
         GLAccountSourceCurrency: Record "G/L Account Source Currency";
-#endif
     begin
         case AccountType of
             GenJournalLine."Account Type"::"G/L Account":
                 begin
                     GLAccount.Get(AccountNo);
-#if not CLEAN25
-                    GLAccount.CalcFields(Balance, "Balance (FCY)");
-#else
                     GLAccount.CalcFields(Balance);
                     GLAccountSourceCurrency."G/L Account No." := GLAccount."No.";
                     GLAccountSourceCurrency."Currency Code" := GLAccount."Source Currency Code";
                     GLAccountSourceCurrency.CalcFields("Source Curr. Balance at Date");
-#endif
                     AccountName := GLAccount.Name;
                     BalanceLCY := GLAccount.Balance;
-#if not CLEAN25
-                    CurrencyCode := GLAccount."Currency Code";
-                    BalanceFCY := GLAccount."Balance (FCY)";
-#else
                     BalanceFCY := GLAccountSourceCurrency."Source Curr. Balance at Date";
                     CurrencyCode := GLAccount."Source Currency Code";
-#endif
                 end;
             GenJournalLine."Account Type"::"Bank Account":
                 begin
@@ -515,4 +500,3 @@ codeunit 144014 "G/L Acc. Provisional Balance"
         GLAccProvisionalBalance.BalAccNotPostedFC.AssertEquals(-ExpUnpostedBalAccFCY);
     end;
 }
-

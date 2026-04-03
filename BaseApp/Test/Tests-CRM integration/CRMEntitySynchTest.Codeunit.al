@@ -29,9 +29,7 @@ codeunit 139180 "CRM Entity Synch Test"
         MultipleSyncStartedMsg: Label 'The synchronization has been scheduled for 2 of 4 records. 0 records failed. 2 records were skipped.';
         ItemMustBeCoupledErr: Label '%1 %2 must be coupled to a record in %3.';
         PriceListMustBeCoupledErr: Label 'Price List Code %1 must be coupled to a record in %2.';
-#if not CLEAN25
         SalesCodeMustBeCoupledErr: Label 'Sales Code %1 must be coupled to a record in %2.';
-#endif
         SalespersonMustBeCoupledErr: Label 'Salesperson Code %1 must be coupled to a record in %2.';
 
     [Test]
@@ -1672,7 +1670,6 @@ codeunit 139180 "CRM Entity Synch Test"
         VerifyIntegrationSynchJob(IntegrationTableMapping.Name, 0, 1);
     end;
 
-#if not CLEAN25
     [Test]
     [HandlerFunctions('SyncStartedNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
@@ -1732,7 +1729,6 @@ codeunit 139180 "CRM Entity Synch Test"
         Assert.IsTrue(CRMProductpricelevel.FindFirst(), 'Missing second price list line.');
         CRMProductpricelevel.TestField(Amount, SalesPrice[2]."Unit Price");
     end;
-#endif
 
     [Test]
     [HandlerFunctions('SyncStartedNotificationHandler,RecallNotificationHandler')]
@@ -1866,7 +1862,6 @@ codeunit 139180 "CRM Entity Synch Test"
         CRMProductpricelevel.TestField(Amount, PriceListLine[2]."Unit Price");
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SyncModifiedSalesPriceIfCustPriceGroupIsNotCoupled()
@@ -1911,7 +1906,6 @@ codeunit 139180 "CRM Entity Synch Test"
         Assert.ExpectedMessage(
           StrSubstNo(SalesCodeMustBeCoupledErr, CustomerPriceGroup.Code, CRMProductName.CDSServiceName()), IntegrationSynchJobErrors.Message);
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1959,7 +1953,6 @@ codeunit 139180 "CRM Entity Synch Test"
             StrSubstNo(PriceListMustBeCoupledErr, PriceListHeader.Code, CRMProductName.CDSServiceName()), IntegrationSynchJobErrors.Message);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SyncDuplicateSalesPriceShouldCoupleRecords()
@@ -2002,7 +1995,6 @@ codeunit 139180 "CRM Entity Synch Test"
         Assert.IsTrue(IntegrationSynchJob.FindLast(), 'No IntegrationSynchJob for ' + IntegrationTableMappingName);
         IntegrationSynchJob.TestField(Modified, 1);
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -2046,7 +2038,6 @@ codeunit 139180 "CRM Entity Synch Test"
         IntegrationSynchJob.TestField(Modified, 1);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SyncPriceListForDecoupledItemShouldFail()
@@ -2096,7 +2087,6 @@ codeunit 139180 "CRM Entity Synch Test"
         Assert.ExpectedMessage(
           StrSubstNo(ItemMustBeCoupledErr, SalesPrice[2].FieldCaption("Item No."), SalesPrice[2]."Item No.", CRMProductName.CDSServiceName()), IntegrationSynchJobErrors.Message);
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -2167,7 +2157,6 @@ codeunit 139180 "CRM Entity Synch Test"
         IntegrationFieldMapping.TestField(Direction, IntegrationFieldMapping.Direction::Bidirectional);
     end;
 
-#if not CLEAN25
     [Test]
     [HandlerFunctions('TestSyncSingleRecordStrMenuHandler,ConfirmHandler')]
     [Scope('OnPrem')]
@@ -2225,7 +2214,6 @@ codeunit 139180 "CRM Entity Synch Test"
         CRMPricelevel.Get(CRMIntegrationRecord."CRM ID");
         VerifyCRMProductPriceLevelAmount(CRMProduct.ProductId, CRMPricelevel.PriceLevelId, SalesPrice."Unit Price");
     end;
-#endif
 
     [Test]
     [HandlerFunctions('TestSyncSingleRecordStrMenuHandler,ConfirmHandler')]

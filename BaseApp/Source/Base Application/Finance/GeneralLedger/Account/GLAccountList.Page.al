@@ -14,6 +14,15 @@ using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using System.Text;
 
+/// <summary>
+/// List interface for browsing and selecting general ledger accounts with hierarchical display and balance information.
+/// Provides lookup functionality and navigation to detailed account information and related records.
+/// </summary>
+/// <remarks>
+/// Key functionality: Account lookup, balance display, hierarchical navigation, bulk operations.
+/// User workflow: Account selection for transactions, account browsing, balance inquiries.
+/// Extensible via page extensions for additional columns, actions, and filtering options.
+/// </remarks>
 page 18 "G/L Account List"
 {
     Caption = 'G/L Account List';
@@ -380,11 +389,21 @@ page 18 "G/L Account List"
     protected var
         Emphasize: Boolean;
 
+    /// <summary>
+    /// Sets the current page selection to match the specified general ledger account record set.
+    /// Used for programmatically selecting accounts in the list for bulk operations.
+    /// </summary>
+    /// <param name="GLAcc">Record set of general ledger accounts to select in the list</param>
     procedure SetSelection(var GLAcc: Record "G/L Account")
     begin
         CurrPage.SetSelectionFilter(GLAcc);
     end;
 
+    /// <summary>
+    /// Returns a filter string representing the currently selected general ledger accounts.
+    /// Used for capturing user selections for processing in other procedures or reports.
+    /// </summary>
+    /// <returns>Filter string for the selected general ledger accounts</returns>
     procedure GetSelectionFilter(): Text
     var
         GLAcc: Record "G/L Account";
@@ -400,4 +419,3 @@ page 18 "G/L Account List"
         Emphasize := Rec."Account Type" <> Rec."Account Type"::Posting;
     end;
 }
-
