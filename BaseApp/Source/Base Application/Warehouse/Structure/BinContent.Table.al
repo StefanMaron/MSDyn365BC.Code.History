@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -30,6 +30,7 @@ table 7302 "Bin Content"
         field(1; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
+            ToolTip = 'Specifies the location code of the bin.';
             NotBlank = true;
             TableRelation = Location;
 
@@ -44,6 +45,7 @@ table 7302 "Bin Content"
         field(2; "Zone Code"; Code[10])
         {
             Caption = 'Zone Code';
+            ToolTip = 'Specifies the zone code of the bin.';
             Editable = false;
             NotBlank = true;
             TableRelation = Zone.Code where("Location Code" = field("Location Code"));
@@ -57,6 +59,7 @@ table 7302 "Bin Content"
         field(3; "Bin Code"; Code[20])
         {
             Caption = 'Bin Code';
+            ToolTip = 'Specifies the bin where the items are picked or put away.';
             NotBlank = true;
             TableRelation = if ("Zone Code" = filter('')) Bin.Code where("Location Code" = field("Location Code"))
             else
@@ -81,6 +84,7 @@ table 7302 "Bin Content"
         field(4; "Item No."; Code[20])
         {
             Caption = 'Item No.';
+            ToolTip = 'Specifies the number of the item that will be stored in the bin.';
             NotBlank = true;
             TableRelation = Item where(Type = const(Inventory));
 
@@ -106,30 +110,37 @@ table 7302 "Bin Content"
         field(10; "Bin Type Code"; Code[10])
         {
             Caption = 'Bin Type Code';
+            ToolTip = 'Specifies the code of the bin type that was selected for this bin.';
             Editable = false;
             TableRelation = "Bin Type";
         }
         field(11; "Warehouse Class Code"; Code[10])
         {
             Caption = 'Warehouse Class Code';
+            ToolTip = 'Specifies the warehouse class code. Only items with the same warehouse class can be stored in this bin.';
             Editable = false;
             TableRelation = "Warehouse Class";
         }
         field(12; "Block Movement"; Option)
         {
             Caption = 'Block Movement';
+            ToolTip = 'Specifies how the movement of a particular item, or bin content, into or out of this bin, is blocked.';
             OptionCaption = ' ,Inbound,Outbound,All';
             OptionMembers = " ",Inbound,Outbound,All;
         }
         field(15; "Min. Qty."; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Min. Qty.';
+            ToolTip = 'Specifies the minimum number of units of the item that you want to have in the bin at all times.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
         }
         field(16; "Max. Qty."; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Max. Qty.';
+            ToolTip = 'Specifies the maximum number of units of the item that you want to have in the bin.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 
@@ -142,10 +153,12 @@ table 7302 "Bin Content"
         field(21; "Bin Ranking"; Integer)
         {
             Caption = 'Bin Ranking';
+            ToolTip = 'Specifies the bin ranking.';
             Editable = false;
         }
         field(26; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Warehouse Entry".Quantity where("Location Code" = field("Location Code"),
                                                                 "Bin Code" = field("Bin Code"),
                                                                 "Item No." = field("Item No."),
@@ -161,6 +174,7 @@ table 7302 "Bin Content"
         }
         field(29; "Pick Qty."; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Warehouse Activity Line"."Qty. Outstanding" where("Location Code" = field("Location Code"),
                                                                                   "Bin Code" = field("Bin Code"),
                                                                                   "Item No." = field("Item No."),
@@ -178,6 +192,7 @@ table 7302 "Bin Content"
         }
         field(30; "Neg. Adjmt. Qty."; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Warehouse Journal Line"."Qty. (Absolute)" where("Location Code" = field("Location Code"),
                                                                                 "From Bin Code" = field("Bin Code"),
                                                                                 "Item No." = field("Item No."),
@@ -193,6 +208,7 @@ table 7302 "Bin Content"
         }
         field(31; "Put-away Qty."; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Warehouse Activity Line"."Qty. Outstanding" where("Location Code" = field("Location Code"),
                                                                                   "Bin Code" = field("Bin Code"),
                                                                                   "Item No." = field("Item No."),
@@ -209,6 +225,7 @@ table 7302 "Bin Content"
         }
         field(32; "Pos. Adjmt. Qty."; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Warehouse Journal Line"."Qty. (Absolute)" where("Location Code" = field("Location Code"),
                                                                                 "To Bin Code" = field("Bin Code"),
                                                                                 "Item No." = field("Item No."),
@@ -225,14 +242,17 @@ table 7302 "Bin Content"
         field(37; "Fixed"; Boolean)
         {
             Caption = 'Fixed';
+            ToolTip = 'Specifies that the item (bin content) has been associated with this bin, and that the bin should normally contain the item.';
         }
         field(40; "Cross-Dock Bin"; Boolean)
         {
             Caption = 'Cross-Dock Bin';
+            ToolTip = 'Specifies if the bin content is in a cross-dock bin.';
         }
         field(41; Default; Boolean)
         {
             Caption = 'Default';
+            ToolTip = 'Specifies if the bin is the default bin for the associated item.';
 
             trigger OnValidate()
             begin
@@ -245,6 +265,7 @@ table 7302 "Bin Content"
         }
         field(50; "Quantity (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Warehouse Entry"."Qty. (Base)" where("Location Code" = field("Location Code"),
                                                                      "Bin Code" = field("Bin Code"),
                                                                      "Item No." = field("Item No."),
@@ -260,6 +281,7 @@ table 7302 "Bin Content"
         }
         field(51; "Pick Quantity (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Warehouse Activity Line"."Qty. Outstanding (Base)" where("Location Code" = field("Location Code"),
                                                                                          "Bin Code" = field("Bin Code"),
                                                                                          "Item No." = field("Item No."),
@@ -277,6 +299,7 @@ table 7302 "Bin Content"
         }
         field(52; "Negative Adjmt. Qty. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Warehouse Journal Line"."Qty. (Absolute, Base)" where("Location Code" = field("Location Code"),
                                                                                       "From Bin Code" = field("Bin Code"),
                                                                                       "Item No." = field("Item No."),
@@ -292,6 +315,7 @@ table 7302 "Bin Content"
         }
         field(53; "Put-away Quantity (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Warehouse Activity Line"."Qty. Outstanding (Base)" where("Location Code" = field("Location Code"),
                                                                                          "Bin Code" = field("Bin Code"),
                                                                                          "Item No." = field("Item No."),
@@ -308,6 +332,7 @@ table 7302 "Bin Content"
         }
         field(54; "Positive Adjmt. Qty. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Warehouse Journal Line"."Qty. (Absolute, Base)" where("Location Code" = field("Location Code"),
                                                                                       "To Bin Code" = field("Bin Code"),
                                                                                       "Item No." = field("Item No."),
@@ -323,6 +348,7 @@ table 7302 "Bin Content"
         }
         field(55; "ATO Components Pick Qty."; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Warehouse Activity Line"."Qty. Outstanding" where("Location Code" = field("Location Code"),
                                                                                   "Bin Code" = field("Bin Code"),
                                                                                   "Item No." = field("Item No."),
@@ -341,6 +367,7 @@ table 7302 "Bin Content"
         }
         field(56; "ATO Components Pick Qty (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Warehouse Activity Line"."Qty. Outstanding (Base)" where("Location Code" = field("Location Code"),
                                                                                          "Bin Code" = field("Bin Code"),
                                                                                          "Item No." = field("Item No."),
@@ -360,6 +387,7 @@ table 7302 "Bin Content"
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
+            ToolTip = 'Specifies the variant of the item on the line.';
             TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
 
             trigger OnValidate()
@@ -370,7 +398,9 @@ table 7302 "Bin Content"
         }
         field(5404; "Qty. per Unit of Measure"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. per Unit of Measure';
+            ToolTip = 'Specifies the number of base units of measure that are in the unit of measure specified for the item in the bin.';
             DecimalPlaces = 0 : 5;
             Editable = false;
             InitValue = 1;
@@ -378,6 +408,7 @@ table 7302 "Bin Content"
         field(5407; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
+            ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
             NotBlank = true;
             TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
 
@@ -410,6 +441,7 @@ table 7302 "Bin Content"
         field(6502; Dedicated; Boolean)
         {
             Caption = 'Dedicated';
+            ToolTip = 'Specifies if the bin is used as a dedicated bin, which means that its bin content is available only to certain resources.';
             Editable = false;
         }
         field(6503; "Unit of Measure Filter"; Code[10])

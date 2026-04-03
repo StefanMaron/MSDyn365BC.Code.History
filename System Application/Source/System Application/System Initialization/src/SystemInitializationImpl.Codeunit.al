@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Environment.Configuration;
+
 using System.Azure.Identity;
 using System.Environment;
 using System.Security.User;

@@ -3,6 +3,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace System.AI.DocumentIntelligence;
+
 using System;
 using System.AI;
 using System.Telemetry;

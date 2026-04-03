@@ -13,7 +13,6 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         LibraryERM: Codeunit "Library - ERM";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
-        LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -227,81 +226,6 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         VerifyBankAccDetailTrialBalReport(GenJournalLine, 1);  // 1 for SignFactor.
     end;
 
-    [Test]
-    [HandlerFunctions('BankAccountLabelReqPageHandler')]
-    [Scope('OnPrem')]
-    procedure BankAccountLabel36x70mm3Columns()
-    var
-        LabelFormat: Option "36 x 70 mm (3 columns)","37 x 70 mm (3 columns)","36 x 105 mm (2 columns)","37 x 105 mm (2 columns)";
-    begin
-        // Check Bank Account Label Report with Label Format 36 x 70 mm (3 columns).
-        Initialize();
-        asserterror BankAccountLabelReport(LabelFormat::"36 x 70 mm (3 columns)", 3);
-    end;
-
-    [Test]
-    [HandlerFunctions('BankAccountLabelReqPageHandler')]
-    [Scope('OnPrem')]
-    procedure BankAccount37x70mm3Columns()
-    var
-        LabelFormat: Option "36 x 70 mm (3 columns)","37 x 70 mm (3 columns)","36 x 105 mm (2 columns)","37 x 105 mm (2 columns)";
-    begin
-        // Check Bank Account Label Report with Label Format 37 x 70 mm (3 columns).
-        Initialize();
-        asserterror BankAccountLabelReport(LabelFormat::"37 x 70 mm (3 columns)", 3);
-    end;
-
-    [Test]
-    [HandlerFunctions('BankAccountLabelReqPageHandler')]
-    [Scope('OnPrem')]
-    procedure BankAccount36x105mm2Columns()
-    var
-        LabelFormat: Option "36 x 70 mm (3 columns)","37 x 70 mm (3 columns)","36 x 105 mm (2 columns)","37 x 105 mm (2 columns)";
-    begin
-        // Check Bank Account Label Report with Label Format 36 x 105 mm (2 columns).
-        Initialize();
-        asserterror BankAccountLabelReport(LabelFormat::"36 x 105 mm (2 columns)", 2);
-    end;
-
-    [Test]
-    [HandlerFunctions('BankAccountLabelReqPageHandler')]
-    [Scope('OnPrem')]
-    procedure BankAccount37x105mm2Columns()
-    var
-        LabelFormat: Option "36 x 70 mm (3 columns)","37 x 70 mm (3 columns)","36 x 105 mm (2 columns)","37 x 105 mm (2 columns)";
-    begin
-        // Check Bank Account Label Report with Label Format 37 x 105 mm (2 columns).
-        Initialize();
-        asserterror BankAccountLabelReport(LabelFormat::"37 x 105 mm (2 columns)", 2);
-    end;
-
-    local procedure BankAccountLabelReport(LabelFormat: Option; NumberOfColumns: Integer)
-    var
-        BankAccount: Record "Bank Account";
-        BankAccount2: Record "Bank Account";
-        BankAccount3: Record "Bank Account";
-        BankAccountLabels: Report "Bank Account - Labels";
-    begin
-        // Setup: Create Three Bank Account with Complete Address.
-        CreateBankAccountWithAddress(BankAccount);
-        CreateBankAccountWithAddress(BankAccount2);
-        CreateBankAccountWithAddress(BankAccount3);
-
-        // Exercise.
-        Commit();
-        Clear(BankAccountLabels);
-        BankAccount.SetFilter("No.", '%1|%2|%3', BankAccount."No.", BankAccount2."No.", BankAccount3."No.");
-        BankAccountLabels.SetTableView(BankAccount);
-        LibraryVariableStorage.Enqueue(LabelFormat);
-        BankAccountLabels.Run();
-
-        // Verify: Verify All Bank Account with Different Label Format.
-        LibraryReportDataset.LoadDataSetFile();
-        VerifyLabels(BankAccount, 1, NumberOfColumns);
-        VerifyLabels(BankAccount2, 2, NumberOfColumns);
-        VerifyLabels(BankAccount3, 3, NumberOfColumns);
-    end;
-
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Bank Acc Ledger Reversal");
@@ -352,29 +276,6 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
     begin
         LibraryERM.CreateBankAccount(BankAccount);
         exit(BankAccount."No.");
-    end;
-
-    local procedure CreateBankAccountWithAddress(var BankAccount: Record "Bank Account")
-    var
-        PostCode: Record "Post Code";
-        CountryRegion: Record "Country/Region";
-    begin
-        LibraryERM.CreatePostCode(PostCode);  // Creation of Post Code is required to avoid special characters in existing ones.
-        CountryRegion.FindFirst();
-        LibraryERM.CreateBankAccount(BankAccount);
-        BankAccount.Validate(
-          Address,
-          CopyStr(
-            LibraryUtility.GenerateRandomCode(BankAccount.FieldNo(Address), DATABASE::"Bank Account"), 1,
-            LibraryUtility.GetFieldLength(DATABASE::"Bank Account", BankAccount.FieldNo(Address))));
-        BankAccount.Validate(
-          "Address 2",
-          CopyStr(
-            LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("Address 2"), DATABASE::"Bank Account"), 1,
-            LibraryUtility.GetFieldLength(DATABASE::"Bank Account", BankAccount.FieldNo("Address 2"))));
-        BankAccount.Validate("Country/Region Code", CountryRegion.Code);
-        BankAccount.Validate("Post Code", PostCode.Code);
-        BankAccount.Modify(true);
     end;
 
     local procedure CreateCurrency(): Code[10]
@@ -471,26 +372,6 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         LibraryReportDataset.AssertElementWithValueExists('DocNo_BankAccLedg', GenJournalLine."Document No.");
         LibraryReportDataset.AssertElementWithValueExists('DocType_BankAccLedg', Format(GenJournalLine."Document Type"::Payment));
         LibraryReportDataset.AssertElementWithValueExists('Amount_BankAccLedg', SignFactor * GenJournalLine.Amount);
-    end;
-
-    local procedure VerifyLabels(BankAccount: Record "Bank Account"; Index: Integer; NumberOfColumns: Integer)
-    var
-        CountryRegion: Record "Country/Region";
-        FormatAddress: Codeunit "Format Address";
-        PostCodeCity: Text[90];
-        County: Text[50];
-        Column: Integer;
-    begin
-        Column := ((Index - 1) mod NumberOfColumns) + 1;
-        LibraryReportDataset.AssertElementWithValueExists(StrSubstNo('BankAccAddr_%1__1_', Column), BankAccount."No.");
-        LibraryReportDataset.AssertElementWithValueExists(StrSubstNo('BankAccAddr_%1__2_', Column), BankAccount.Address);
-        LibraryReportDataset.AssertElementWithValueExists(StrSubstNo('BankAccAddr_%1__3_', Column), BankAccount."Address 2");
-
-        CountryRegion.Get(BankAccount."Country/Region Code");
-        FormatAddress.FormatPostCodeCity(
-          PostCodeCity, County, BankAccount.City, BankAccount."Post Code", BankAccount.County, CountryRegion.Code);
-        LibraryReportDataset.AssertElementWithValueExists(StrSubstNo('BankAccAddr_%1__4_', Column), PostCodeCity);
-        LibraryReportDataset.AssertElementWithValueExists(StrSubstNo('BankAccAddr_%1__5_', Column), CountryRegion.Name);
     end;
 
     [ConfirmHandler]

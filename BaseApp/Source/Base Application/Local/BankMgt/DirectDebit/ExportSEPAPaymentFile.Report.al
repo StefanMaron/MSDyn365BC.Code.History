@@ -517,17 +517,9 @@ report 13403 "Export SEPA Payment File"
             exit(GLSetup."LCY Code");
         exit(CurrencyCode);
     end;
-#if not CLEAN25
-    [IntegrationEvent(false, false)]
-    [Obsolete('File is not downloaded anymore, use OnBeforeDownloadFromBlob event to get xml file content.', '25.0')]
-    local procedure OnBeforeFileDownload(FileName: Text; var CancelDownload: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDownloadFromBlob(var TempBlob: Codeunit "Temp Blob"; var CancelDownload: Boolean)
     begin
     end;
 }
-

@@ -5,6 +5,8 @@ using System.Utilities;
 
 codeunit 3034 DotNet_Stream
 {
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     trigger OnRun()
     begin

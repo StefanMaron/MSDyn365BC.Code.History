@@ -4,6 +4,15 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.FinancialReports;
 
+/// <summary>
+/// Provides management interface for financial report column definitions used in financial reporting.
+/// Enables creation, editing, copying, import/export, and where-used analysis of column layout templates.
+/// </summary>
+/// <remarks>
+/// Primary functionality: Column definition management, copy operations, RapidStart import/export integration.
+/// Navigation: Links to Column Layout page for detailed column editing and Financial Report usage tracking.
+/// Extensibility: Standard page extension patterns for additional fields and actions.
+/// </remarks>
 page 488 "Column Layout Names"
 {
     AboutTitle = 'About (Financial Report) Column Definitions';
@@ -34,6 +43,7 @@ page 488 "Column Layout Names"
                 {
                     ApplicationArea = Basic, Suite;
                 }
+                field(Status; Rec.Status) { }
                 field("Internal Description"; Rec."Internal Description")
                 {
                     ApplicationArea = Suite;
@@ -155,5 +165,25 @@ page 488 "Column Layout Names"
             }
         }
     }
+
+    trigger OnOpenPage()
+    var
+        FinancialReportStatus: Record "Financial Report Status";
+        LastFilterGroup: Integer;
+    begin
+        if not FinancialReportStatus.WritePermission() then begin
+            LastFilterGroup := Rec.FilterGroup();
+            Rec.FilterGroup(4);
+            Rec.SetRange("Status Blocked", false);
+            Rec.FilterGroup(LastFilterGroup);
+        end;
+    end;
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    var
+        FinancialReportMgt: Codeunit "Financial Report Mgt.";
+    begin
+        Rec.Status := FinancialReportMgt.GetDefaultStatus();
+    end;
 }
 

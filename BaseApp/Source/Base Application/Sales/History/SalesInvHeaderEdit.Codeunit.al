@@ -4,9 +4,12 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.History;
 
-using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Customer;
+using Microsoft.Sales.Receivables;
 
+/// <summary>
+/// Provides functionality to edit specific fields on posted sales invoice headers.
+/// </summary>
 codeunit 1409 "Sales Inv. Header - Edit"
 {
     Permissions = TableData "Sales Invoice Header" = rm;

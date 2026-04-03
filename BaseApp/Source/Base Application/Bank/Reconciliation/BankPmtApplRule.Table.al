@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -6,6 +6,20 @@ namespace Microsoft.Bank.Reconciliation;
 
 using System.Text;
 
+/// <summary>
+/// Defines rules and criteria for automatic bank payment application with configurable matching thresholds.
+/// This table contains scoring logic that determines when bank statement lines should be automatically
+/// applied to customer, vendor, or other ledger entries based on various matching criteria including
+/// amounts, document numbers, related party information, and tolerance settings. Each rule defines
+/// a specific combination of matching conditions with associated confidence levels and automation settings.
+/// </summary>
+/// <remarks>
+/// Key features include configurable match confidence levels, priority-based rule ordering, scoring algorithms,
+/// automatic vs. manual application thresholds, and review requirements. Rules enable fine-tuning of automatic
+/// matching behavior to balance automation efficiency with accuracy requirements. Integration with tolerance
+/// settings, payment discounts, and multi-criteria matching provides comprehensive payment application logic.
+/// Supports customization for different business scenarios and risk tolerance levels.
+/// </remarks>
 table 1252 "Bank Pmt. Appl. Rule"
 {
     Caption = 'Bank Pmt. Appl. Rule';
@@ -13,15 +27,25 @@ table 1252 "Bank Pmt. Appl. Rule"
 
     fields
     {
+        /// <summary>
+        /// Overall confidence level for this payment application rule.
+        /// Determines the quality threshold and automation behavior for matches meeting this rule's criteria.
+        /// </summary>
         field(1; "Match Confidence"; Option)
         {
             Caption = 'Match Confidence';
+            ToolTip = 'Specifies your confidence in the application rule that you defined by the values in the Related Party Matched, Doc. No./Ext. Doc. No. Matched, and Amount Incl. Tolerance Matched fields on the line in the Payment Application Rules window.';
             OptionCaption = 'None,Low,Medium,High';
             OptionMembers = "None",Low,Medium,High;
         }
+        /// <summary>
+        /// Priority order for evaluating this rule within its confidence level.
+        /// Lower numbers indicate higher priority and are evaluated first during matching processes.
+        /// </summary>
         field(2; Priority; Integer)
         {
             Caption = 'Priority';
+            ToolTip = 'Specifies the priority of the application rule in relation to other application rules that are defined as lines in the Payment Application Rules window. 1 represents the highest priority.';
 
             trigger OnValidate()
             var
@@ -36,44 +60,78 @@ table 1252 "Bank Pmt. Appl. Rule"
                     Error(WrongPriorityNoErr, FieldCaption(Priority), 1, GetMaximumPriorityNo());
             end;
         }
+        /// <summary>
+        /// Criteria for related party (customer/vendor) name matching requirements.
+        /// Specifies whether and how closely party names must match for this rule to apply.
+        /// </summary>
         field(3; "Related Party Matched"; Option)
         {
             Caption = 'Related Party Matched';
+            ToolTip = 'Specifies how much information on the payment reconciliation journal line must match the open entry before the application rule will apply the payment to the open entry.';
             OptionCaption = 'Not Considered,Fully,Partially,No';
             OptionMembers = "Not Considered",Fully,Partially,No;
         }
+        /// <summary>
+        /// Criteria for document number or external document number matching requirements.
+        /// Determines the document reference matching conditions necessary for this rule.
+        /// </summary>
         field(4; "Doc. No./Ext. Doc. No. Matched"; Option)
         {
             Caption = 'Doc. No./Ext. Doc. No. Matched';
+            ToolTip = 'Specifies if text on the payment reconciliation journal line must match with the value in the Document No. field or the External Document No. field on the open entry before the application rule will be used to automatically apply the payment to the open entry.';
             OptionCaption = 'Not Considered,Yes,No,Yes - Multiple';
             OptionMembers = "Not Considered",Yes,No,"Yes - Multiple";
         }
+        /// <summary>
+        /// Criteria for amount matching including payment tolerance considerations.
+        /// Specifies requirements for transaction amount alignment with ledger entries.
+        /// </summary>
         field(5; "Amount Incl. Tolerance Matched"; Option)
         {
             Caption = 'Amount Incl. Tolerance Matched';
+            ToolTip = 'Specifies how many entries must match the amount including payment tolerance, before the application rule will be used to apply a payment to the open entry.';
             OptionCaption = 'Not Considered,One Match,Multiple Matches,No Matches';
             OptionMembers = "Not Considered","One Match","Multiple Matches","No Matches";
         }
+        /// <summary>
+        /// Criteria for direct debit collection matching in payment processing.
+        /// Used for automatic matching of direct debit transactions with collection entries.
+        /// </summary>
         field(6; "Direct Debit Collect. Matched"; Option)
         {
             Caption = 'Direct Debit Collect. Matched';
+            ToolTip = 'Specifies if the Transaction ID value on the payment reconciliation journal line must match with the value in the related Transaction ID field in the Direct Debit Collect. Entries window.';
             OptionCaption = 'Not Considered,Yes,No';
             OptionMembers = "Not Considered",Yes,No;
         }
+        /// <summary>
+        /// Calculated scoring value for this rule based on its matching criteria combination.
+        /// Used internally for rule evaluation and matching quality assessment.
+        /// </summary>
         field(30; Score; Integer)
         {
             Caption = 'Score';
             Editable = false;
         }
 
+        /// <summary>
+        /// Indicates whether matches using this rule require manual review before application.
+        /// When enabled, automatic application is disabled and user confirmation is required.
+        /// </summary>
         field(40; "Review Required"; Boolean)
         {
             Caption = 'Review Required';
+            ToolTip = 'Specifies if bank statement lines matched with this rule will be shown as recommended for review.';
         }
 
+        /// <summary>
+        /// Enables immediate automatic application of payments matching this rule.
+        /// When enabled, qualified matches are applied without user intervention or confirmation.
+        /// </summary>
         field(41; "Apply Immediatelly"; Boolean)
         {
             Caption = 'Apply Immediatelly';
+            ToolTip = 'Specifies whether to search for alternative ledger entries that this line can be applied to. If turned on, the value is applied to the first match and alternative ledger entries are not considered.';
         }
     }
 
@@ -107,6 +165,11 @@ table 1252 "Bank Pmt. Appl. Rule"
         WrongPriorityNoErr: Label 'The %1 you entered is invalid. The %1 must be between %2 and %3.', Comment = '%1 - Table field with caption Priority. %2 and %3 are numbers presenting a range - e.g. 1 and 999';
         LoadRulesOnlyOnTempRecordsErr: Label 'Programming error: The LoadRules function can only be called from temporary records.', Comment = 'Description to developers, should not be seen by users';
 
+    /// <summary>
+    /// Loads all payment application rules into the current temporary record.
+    /// Used for efficient processing of multiple rules during payment matching operations.
+    /// Must be called on temporary table instances for performance optimization.
+    /// </summary>
     procedure LoadRules()
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
@@ -122,6 +185,13 @@ table 1252 "Bank Pmt. Appl. Rule"
             until BankPmtApplRule.Next() = 0;
     end;
 
+    /// <summary>
+    /// Determines the best matching score for given payment application criteria.
+    /// Evaluates all applicable rules based on the provided matching parameters and returns
+    /// the highest score achievable, enabling optimal rule selection for payment matching.
+    /// </summary>
+    /// <param name="ParameterBankPmtApplRule">Payment application rule containing matching criteria to evaluate.</param>
+    /// <returns>The highest matching score available for the specified criteria combination.</returns>
     procedure GetBestMatchScore(ParameterBankPmtApplRule: Record "Bank Pmt. Appl. Rule"): Integer
     begin
         Clear(Rec);

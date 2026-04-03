@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -26,6 +26,7 @@ table 520 "Availability Info. Buffer"
         field(3; "Lot No."; Code[50])
         {
             Caption = 'Lot No.';
+            ToolTip = 'Specifies a location code for the warehouse or distribution center where your items are handled and stored before being sold.';
         }
         field(4; "Serial No."; Code[50])
         {
@@ -38,10 +39,12 @@ table 520 "Availability Info. Buffer"
         field(6; "Expiration Date"; Date)
         {
             Caption = 'Expiration Date';
+            ToolTip = 'Specifies expiration date for the specified lot.';
         }
         field(7; Quality; Option)
         {
             Caption = 'Quality';
+            ToolTip = 'Specifies the test quality of the specified lot.';
             OptionCaption = ' ,Good,Average,Bad';
             OptionMembers = " ",Good,"Average",Bad;
             FieldClass = FlowField;
@@ -51,6 +54,7 @@ table 520 "Availability Info. Buffer"
         field(8; "Certificate Number"; Code[20])
         {
             Caption = 'Certificate Number';
+            ToolTip = 'Specifies the certificate number of the specified lot.';
             FieldClass = FlowField;
             CalcFormula = lookup("Lot No. Information"."Certificate Number" where("Item No." = field("Item No."),
                                                                                   "Lot No." = field("Lot No.")));
@@ -64,6 +68,7 @@ table 520 "Availability Info. Buffer"
         }
         field(20; Inventory; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Item Ledger Entry"."Remaining Quantity" where("Item No." = field("Item No."),
                                                                              Open = const(true),
                                                                              "Lot No." = field("Lot No. Filter"),
@@ -98,26 +103,37 @@ table 520 "Availability Info. Buffer"
         }
         field(30; "Qty. In Hand"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. in Hand';
+            ToolTip = 'Specifies the inventory level of an item.';
         }
         field(31; "Gross Requirement"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Gross Requirement';
+            ToolTip = 'Specifies the sum of the total demand for the item. The gross requirement consists of independent demand (which include sales orders, service orders, transfer orders, and demand forecasts) and dependent demand (which include production order components for planned, firm planned, and released production orders and requisition and planning worksheets lines).';
         }
         field(32; "Planned Order Receipt"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Planned Order Receipt';
+            ToolTip = 'Specifies the item''s availability figures for the planned order receipt.';
         }
         field(33; "Scheduled Receipt"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Scheduled Receipt';
+            ToolTip = 'Specifies the sum of items from replenishment orders.';
         }
         field(34; "Available Inventory"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Available Inventory';
+            ToolTip = 'Specifies the quantity of the item that is currently in inventory and not reserved for other demand.';
         }
         field(503; "Qty. on Sales Order"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = - sum("Reservation Entry"."Quantity (Base)" where("Item No." = field("Item No."),
                                                                             "Source Type" = const(37),
                                                                             "Source Subtype" = const("1"),
@@ -133,6 +149,7 @@ table 520 "Availability Info. Buffer"
         }
         field(504; "Qty. on Service Order"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = - sum("Reservation Entry"."Quantity (Base)" where("Item No." = field("Item No."),
                                                                             "Source Type" = const(5902),
                                                                             "Source Subtype" = const("1"),
@@ -148,6 +165,7 @@ table 520 "Availability Info. Buffer"
         }
         field(505; "Qty. on Job Order"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = - sum("Reservation Entry"."Quantity (Base)" where("Item No." = field("Item No."),
                                                                             "Source Type" = const(1003),
                                                                             "Source Subtype" = const("2"),
@@ -163,6 +181,7 @@ table 520 "Availability Info. Buffer"
         }
         field(506; "Qty. on Component Lines"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = - sum("Reservation Entry"."Quantity (Base)" where("Item No." = field("Item No."),
                                                                             "Source Type" = const(5407),
                                                                             "Source Subtype" = filter("1" .. "3"),
@@ -178,6 +197,7 @@ table 520 "Availability Info. Buffer"
         }
         field(507; "Qty. on Trans. Order Shipment"; Decimal)
         {
+            AutoFormatType = 0;
             AccessByPermission = TableData Microsoft.Inventory.Transfer."Transfer Header" = R;
             CalcFormula = - sum("Reservation Entry"."Quantity (Base)" where("Item No." = field("Item No."),
                                                                             "Source Type" = const(5741),
@@ -194,6 +214,7 @@ table 520 "Availability Info. Buffer"
         }
         field(509; "Qty. on Asm. Component"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = - sum("Reservation Entry"."Quantity (Base)" where("Item No." = field("Item No."),
                                                                             "Source Type" = const(901),
                                                                             "Source Subtype" = const("1"),
@@ -209,6 +230,7 @@ table 520 "Availability Info. Buffer"
         }
         field(510; "Qty. on Purch. Return"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = - sum("Reservation Entry"."Quantity (Base)" where("Item No." = field("Item No."),
                                                                             "Source Type" = const(39),
                                                                             "Source Subtype" = const("5"),
@@ -224,6 +246,7 @@ table 520 "Availability Info. Buffer"
         }
         field(511; "Qty. on Purch. Order"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Reservation Entry"."Quantity (Base)" where("Item No." = field("Item No."),
                                                                           "Source Type" = const(39),
                                                                           "Source Subtype" = const("1"),
@@ -239,6 +262,7 @@ table 520 "Availability Info. Buffer"
         }
         field(512; "Planned Order Receipt (Qty.)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Reservation Entry"."Quantity (Base)" where("Item No." = field("Item No."),
                                                                           "Source Type" = const(5406),
                                                                           "Source Subtype" = const("1"),
@@ -254,6 +278,7 @@ table 520 "Availability Info. Buffer"
         }
         field(513; "Purch. Req. Receipt (Qty.)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Reservation Entry"."Quantity (Base)" where("Item No." = field("Item No."),
                                                                           "Source Type" = const(246),
                                                                           "Source Subtype" = const("0"),
@@ -269,6 +294,7 @@ table 520 "Availability Info. Buffer"
         }
         field(514; "Qty. on Prod. Receipt"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Reservation Entry"."Quantity (Base)" where("Item No." = field("Item No."),
                                                                           "Source Type" = const(5406),
                                                                           "Source Subtype" = filter("2" .. "3"),
@@ -284,6 +310,7 @@ table 520 "Availability Info. Buffer"
         }
         field(516; "Qty. on Trans. Order Receipt"; Decimal)
         {
+            AutoFormatType = 0;
             AccessByPermission = TableData Microsoft.Inventory.Transfer."Transfer Header" = R;
             CalcFormula = sum("Reservation Entry"."Quantity (Base)" where("Item No." = field("Item No."),
                                                                           "Source Type" = const(5741),
@@ -300,6 +327,7 @@ table 520 "Availability Info. Buffer"
         }
         field(517; "Qty. on Assembly Order"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Reservation Entry"."Quantity (Base)" where("Item No." = field("Item No."),
                                                                           "Source Type" = const(900),
                                                                           "Source Subtype" = const("1"),
@@ -315,6 +343,7 @@ table 520 "Availability Info. Buffer"
         }
         field(518; "Qty. on Sales Return"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Reservation Entry"."Quantity (Base)" where("Item No." = field("Item No."),
                                                                           "Source Type" = const(37),
                                                                           "Source Subtype" = const("5"),
@@ -330,6 +359,7 @@ table 520 "Availability Info. Buffer"
         }
         field(99000777; "Qty. on Prod. Order"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Reservation Entry"."Quantity (Base)" where("Item No." = field("Item No."),
                                                                           "Source Type" = const(5406),
                                                                           "Source Subtype" = filter("1" .. "3"),

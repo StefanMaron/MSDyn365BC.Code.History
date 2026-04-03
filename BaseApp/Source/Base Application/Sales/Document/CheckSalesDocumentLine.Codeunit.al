@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -7,6 +7,9 @@ namespace Microsoft.Sales.Document;
 using Microsoft.Inventory.Item;
 using Microsoft.Sales.Posting;
 
+/// <summary>
+/// Validates sales document lines before posting to ensure data integrity.
+/// </summary>
 codeunit 9069 "Check Sales Document Line"
 {
     TableNo = "Sales Line";
@@ -22,6 +25,10 @@ codeunit 9069 "Check Sales Document Line"
         CannotDeleteItemIfSalesDocExistErr: Label 'You cannot delete %1 %2 because there is at least one outstanding Sales %3 that includes this item.', Comment = '1: Type, 2 Item No. and 3 : Type of document Order,Invoice';
 #pragma warning restore AA0470
 
+    /// <summary>
+    /// Sets the sales header context for validating sales lines.
+    /// </summary>
+    /// <param name="NewSalesHeader">The sales header to use as context during line validation.</param>
     procedure SetSalesHeader(NewSalesHeader: Record "Sales Header")
     begin
         SalesHeader := NewSalesHeader;
@@ -47,9 +54,6 @@ codeunit 9069 "Check Sales Document Line"
     begin
         IsHandled := false;
         OnBeforeCheckSalesLines(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
-#if not CLEAN25
-        Item.RunOnBeforeCheckSalesLine(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
-#endif
         if IsHandled then
             exit;
 

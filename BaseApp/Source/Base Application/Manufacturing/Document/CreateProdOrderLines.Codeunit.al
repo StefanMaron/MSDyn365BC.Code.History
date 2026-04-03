@@ -465,7 +465,7 @@ codeunit 99000787 "Create Prod. Order Lines"
         ProdOrderLine."Qty. per Unit of Measure" := ProdOrderComp."Qty. per Unit of Measure";
         ProdOrderLine."Bin Code" := ProdOrderComp."Bin Code";
         ProdOrderLine.Description := ProdOrderComp.Description;
-        ProdOrderLine."Description 2" := Item."Description 2";
+        ProdOrderLine."Description 2" := ProdOrderComp."Description 2";
         ProdOrderComp.CalcFields("Reserved Quantity");
         ProdOrderLine.Validate(Quantity, ProdOrderComp."Expected Quantity" - ProdOrderComp."Reserved Quantity");
         if ProdOrderLine."Quantity (Base)" = 0 then

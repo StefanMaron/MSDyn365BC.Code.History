@@ -7,12 +7,9 @@ namespace Microsoft.Finance.VAT.Group;
 using Microsoft.Finance.VAT.Reporting;
 using System.Azure.KeyVault;
 using System.Environment;
-using System.Security.Authentication;
 using System.Reflection;
+using System.Security.Authentication;
 using System.Telemetry;
-#if not CLEAN25
-using System.Text;
-#endif
 
 codeunit 4700 "VAT Group Communication"
 {
@@ -80,12 +77,6 @@ codeunit 4700 "VAT Group Communication"
         PrepareHeaders(HttpRequestMessage, IsBatch);
         PrepareContent(HttpRequestMessage, Content);
 
-#if not CLEAN25
-#pragma warning disable AL0432
-        if VATReportSetup."VAT Group Authentication Type" = VATReportSetup."VAT Group Authentication Type"::WindowsAuthentication then
-            HttpClient.UseDefaultNetworkWindowsAuthentication();
-#pragma warning restore
-#endif
         HttpClient.Send(HttpRequestMessage, HttpResponseMessage);
         HttpResponseMessage.Content().ReadAs(HttpResponseBodyText);
         HandleHttpResponse(HttpResponseMessage);
@@ -290,13 +281,7 @@ codeunit 4700 "VAT Group Communication"
     local procedure PrepareHeaders(HttpRequestMessage: HttpRequestMessage; IsBatch: Boolean)
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
-#if not CLEAN25
-        Base64Convert: Codeunit "Base64 Convert";
-#endif
         HttpRequestHeaders: HttpHeaders;
-#if not CLEAN25
-        Base64AuthHeader: SecretText;
-#endif
     begin
         FeatureTelemetry.LogUptake('0000NG8', FeatureName(), Enum::"Feature Uptake Status"::Used);
         FeatureTelemetry.LogUsage('0000NG9', FeatureName(), 'Submitting VAT return to group representative.');
@@ -304,14 +289,6 @@ codeunit 4700 "VAT Group Communication"
 
         HttpRequestHeaders.Add('Accept', 'application/json');
 
-#if not CLEAN25
-#pragma warning disable AL0432
-        if VATReportSetup."VAT Group Authentication Type" = VATReportSetup."VAT Group Authentication Type"::WebServiceAccessKey then begin
-            Base64AuthHeader := Base64Convert.ToBase64(VATReportSetup.GetSecretAsSecretText(VATReportSetup."User Name Key").Unwrap() + ':' + VATReportSetup.GetSecretAsSecretText(VATReportSetup."Web Service Access Key Key").Unwrap());
-            HttpRequestHeaders.Add('Authorization', SecretStrSubstNo('Basic %1', GetBearerTokenFromCache()));
-        end;
-#pragma warning restore
-#endif
         if VATReportSetup."VAT Group Authentication Type" = VATReportSetup."VAT Group Authentication Type"::OAuth2 then
             HttpRequestHeaders.Add('Authorization', SecretStrSubstNo('Bearer %1', GetBearerTokenFromCache()));
 

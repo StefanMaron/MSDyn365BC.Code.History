@@ -4,15 +4,18 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Document;
 
+using Microsoft.Finance.AllocationAccount;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
-using Microsoft.Finance.AllocationAccount;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Utilities;
 
+/// <summary>
+/// Stores individual lines for a standard sales code template.
+/// </summary>
 table 171 "Standard Sales Line"
 {
     Caption = 'Standard Sales Line';
@@ -20,20 +23,30 @@ table 171 "Standard Sales Line"
 
     fields
     {
+        /// <summary>
+        /// Specifies the standard sales code to which this line belongs.
+        /// </summary>
         field(1; "Standard Sales Code"; Code[10])
         {
             Caption = 'Standard Sales Code';
             Editable = false;
             TableRelation = "Standard Sales Code";
         }
+        /// <summary>
+        /// Specifies the unique line number within the standard sales code.
+        /// </summary>
         field(2; "Line No."; Integer)
         {
             Caption = 'Line No.';
             Editable = false;
         }
+        /// <summary>
+        /// Specifies the type of entity on this line such as Item, Resource, or G/L Account.
+        /// </summary>
         field(3; Type; Enum "Sales Line Type")
         {
             Caption = 'Type';
+            ToolTip = 'Specifies whether the line is for a general ledger account, item, resource, fixed asset or item charge.';
 
             trigger OnValidate()
             var
@@ -44,9 +57,13 @@ table 171 "Standard Sales Line"
                 Type := OldType;
             end;
         }
+        /// <summary>
+        /// Specifies the number of the entity based on the line type.
+        /// </summary>
         field(4; "No."; Code[20])
         {
             Caption = 'No.';
+            ToolTip = 'Specifies the number of a general ledger account, item, resource, additional cost, or fixed asset, depending on the contents of the Type field.';
             TableRelation = if (Type = const(" ")) "Standard Text"
             else
             if (Type = const("G/L Account")) "G/L Account"
@@ -127,14 +144,23 @@ table 171 "Standard Sales Line"
                 OnAfterValidateNo(Rec, GLAcc);
             end;
         }
+        /// <summary>
+        /// Contains a description of the line item.
+        /// </summary>
         field(5; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the entry, which is based on the contents of the Type and No. fields.';
         }
+        /// <summary>
+        /// Specifies the quantity of the item or resource on the line.
+        /// </summary>
         field(6; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Quantity';
+            ToolTip = 'Specifies the number of units of the item on the line.';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -142,12 +168,16 @@ table 171 "Standard Sales Line"
                 TestField(Type);
             end;
         }
+        /// <summary>
+        /// Specifies the line amount excluding VAT for G/L account and item charge lines.
+        /// </summary>
         field(7; "Amount Excl. VAT"; Decimal)
         {
             AutoFormatExpression = GetCurrency();
             AutoFormatType = 2;
             BlankZero = true;
             Caption = 'Amount Excl. VAT';
+            ToolTip = 'Specifies the net amount for the standard sales line. This field only applies to lines of type G/L Account and Charge (Item).';
 
             trigger OnValidate()
             begin
@@ -155,9 +185,13 @@ table 171 "Standard Sales Line"
                     Error(Text001, FieldCaption(Type), Type);
             end;
         }
+        /// <summary>
+        /// Specifies the unit of measure code for the quantity on the line.
+        /// </summary>
         field(8; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
+            ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
             TableRelation = if (Type = const(Item)) "Item Unit of Measure".Code where("Item No." = field("No."))
             else
             if (Type = const(Resource)) "Resource Unit of Measure".Code where("Resource No." = field("No."))
@@ -169,10 +203,14 @@ table 171 "Standard Sales Line"
                 TestField(Type);
             end;
         }
+        /// <summary>
+        /// Specifies the code for the first global dimension used for analysis.
+        /// </summary>
         field(9; "Shortcut Dimension 1 Code"; Code[20])
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
                                                           Blocked = const(false));
 
@@ -181,10 +219,14 @@ table 171 "Standard Sales Line"
                 Rec.ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
             end;
         }
+        /// <summary>
+        /// Specifies the code for the second global dimension used for analysis.
+        /// </summary>
         field(10; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
                                                           Blocked = const(false));
 
@@ -193,9 +235,13 @@ table 171 "Standard Sales Line"
                 Rec.ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
             end;
         }
+        /// <summary>
+        /// Specifies the item variant code for items with multiple variants.
+        /// </summary>
         field(11; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
+            ToolTip = 'Specifies the variant of the item on the line.';
             TableRelation = if (Type = const(Item)) "Item Variant".Code where("Item No." = field("No."), Blocked = const(false));
 
             trigger OnValidate()
@@ -218,6 +264,9 @@ table 171 "Standard Sales Line"
                 Description := ItemVariant.Description;
             end;
         }
+        /// <summary>
+        /// Specifies the identifier for the combination of dimensions applied to the line.
+        /// </summary>
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -270,11 +319,19 @@ table 171 "Standard Sales Line"
 #pragma warning restore AA0074
         CommentLbl: Label 'Comment';
 
+    /// <summary>
+    /// Checks if the line is empty (no item number and zero quantity).
+    /// </summary>
+    /// <returns>Returns true if the line has no item number and zero quantity.</returns>
     procedure EmptyLine(): Boolean
     begin
         exit(("No." = '') and (Quantity = 0))
     end;
 
+    /// <summary>
+    /// Determines if the line should be inserted into a sales document.
+    /// </summary>
+    /// <returns>Returns true if the line type is blank or the line is not empty.</returns>
     procedure InsertLine(): Boolean
     begin
         exit((Type = Type::" ") or (not EmptyLine()));
@@ -290,6 +347,9 @@ table 171 "Standard Sales Line"
         exit('');
     end;
 
+    /// <summary>
+    /// Opens the dimension set editing page for this standard sales line.
+    /// </summary>
     procedure ShowDimensions()
     begin
         "Dimension Set ID" :=
@@ -299,6 +359,11 @@ table 171 "Standard Sales Line"
         OnAfterShowDimensions(Rec, DimMgt);
     end;
 
+    /// <summary>
+    /// Validates a shortcut dimension code for this standard sales line.
+    /// </summary>
+    /// <param name="FieldNumber">The field number of the shortcut dimension.</param>
+    /// <param name="ShortcutDimCode">The shortcut dimension code to validate.</param>
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
@@ -308,6 +373,11 @@ table 171 "Standard Sales Line"
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
+    /// <summary>
+    /// Opens a lookup for a shortcut dimension code and validates the selection.
+    /// </summary>
+    /// <param name="FieldNumber">The field number of the shortcut dimension.</param>
+    /// <param name="ShortcutDimCode">The shortcut dimension code selected from the lookup.</param>
     procedure LookupShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     var
         IsHandled: Boolean;
@@ -321,11 +391,19 @@ table 171 "Standard Sales Line"
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
     end;
 
+    /// <summary>
+    /// Retrieves all eight shortcut dimension codes for this standard sales line.
+    /// </summary>
+    /// <param name="ShortcutDimCode">Returns the array of shortcut dimension codes.</param>
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
     begin
         DimMgt.GetShortcutDimensions(Rec."Dimension Set ID", ShortcutDimCode);
     end;
 
+    /// <summary>
+    /// Formats the line type for display, returning 'Comment' for blank types.
+    /// </summary>
+    /// <returns>The formatted type text.</returns>
     procedure FormatType(): Text[20]
     begin
         if Type = Type::" " then
@@ -359,4 +437,3 @@ table 171 "Standard Sales Line"
     begin
     end;
 }
-

@@ -5,6 +5,8 @@ using System.Utilities;
 
 codeunit 3043 DotNet_X509Certificate2
 {
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     trigger OnRun()
     begin

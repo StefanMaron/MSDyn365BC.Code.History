@@ -287,7 +287,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         InvoiceNo := GenJournalLine."Document No.";
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, WorkDate(), Vendor."No.", GenJournalLine."Document Type"::Payment,
-          InvoiceAmount * LibraryUtility.GenerateRandomFraction());
+          LibraryRandom.RandDecInDecimalRange(100, 200, 2));
         ApplyGenJnlLineEntryToInvoice(GenJournalLine, InvoiceNo);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, WorkDate(), Vendor."No.", GenJournalLine."Document Type"::"Credit Memo",
@@ -875,7 +875,8 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Two payment vendor ledger entries are posted, fully applied.
-        VerifyTwoPaymentEntriesFullyClosed(GenJournalLine);
+        VerifyVenderLedgerEntryFullyClosed(GenJournalLineInv."Document No.", Vendor."No.", Enum::"Gen. Journal Document Type"::Invoice);
+        VerifyVenderLedgerEntryFullyClosed(GenJournalLineCrM."Document No.", Vendor."No.", Enum::"Gen. Journal Document Type"::"Credit Memo");
     end;
 
     [Test]
@@ -3738,6 +3739,19 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         VendorLedgerEntry.CalcFields("Remaining Amount");
         VendorLedgerEntry.TestField("Remaining Amount", 0);
         VendorLedgerEntry.Next();
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        VendorLedgerEntry.TestField("Remaining Amount", 0);
+    end;
+
+    local procedure VerifyVenderLedgerEntryFullyClosed(DocumentNo: Code[20]; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange("Document Type", DocumentType);
+        Assert.RecordCount(VendorLedgerEntry, 1);
+        VendorLedgerEntry.Find('-');
         VendorLedgerEntry.CalcFields("Remaining Amount");
         VendorLedgerEntry.TestField("Remaining Amount", 0);
     end;

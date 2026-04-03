@@ -20,6 +20,9 @@ using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Setup;
 using Microsoft.Utilities;
 
+/// <summary>
+/// Handles the cancellation of posted sales credit memos by creating and posting a corrective sales invoice.
+/// </summary>
 codeunit 1339 "Cancel Posted Sales Cr. Memo"
 {
     Permissions = TableData "Sales Invoice Header" = rm,
@@ -61,10 +64,16 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
         UnappliedErr: Label 'You cannot cancel this posted sales credit memo because it is fully or partially applied.\\To reverse an applied sales credit memo, you must manually unapply all applied entries.';
         NotAppliedCorrectlyErr: Label 'You cannot cancel this posted sales credit memo because it is not fully applied to an invoice.';
 
+    /// <summary>
+    /// Cancels the posted sales credit memo by creating and posting a corrective sales invoice.
+    /// </summary>
+    /// <param name="SalesCrMemoHeader">Specifies the posted sales credit memo to cancel.</param>
+    /// <returns>True if the credit memo was successfully canceled, otherwise false.</returns>
     procedure CancelPostedCrMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"): Boolean
     var
         SalesHeader: Record "Sales Header";
         SalesInvHeader: Record "Sales Invoice Header";
+        PageManagement: Codeunit "Page Management";
         IsHandled: Boolean;
     begin
         TestCorrectCrMemoIsAllowed(SalesCrMemoHeader);
@@ -75,7 +84,7 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
                     IsHandled := false;
                     OnBeforeShowPostedSalesInvoice(SalesInvHeader, IsHandled);
                     if not IsHandled then
-                        PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvHeader);
+                        PageManagement.PageRun(SalesInvHeader);
                 end
             end else begin
                 SalesHeader.SetRange("Applies-to Doc. No.", SalesCrMemoHeader."No.");
@@ -108,6 +117,10 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
         OnAfterCreateCopyDocument(SalesCrMemoHeader, SalesHeader);
     end;
 
+    /// <summary>
+    /// Tests whether the posted sales credit memo can be canceled by checking customer status, dimensions, and other conditions.
+    /// </summary>
+    /// <param name="SalesCrMemoHeader">Specifies the posted sales credit memo to validate.</param>
     procedure TestCorrectCrMemoIsAllowed(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     var
         IsHandled: Boolean;

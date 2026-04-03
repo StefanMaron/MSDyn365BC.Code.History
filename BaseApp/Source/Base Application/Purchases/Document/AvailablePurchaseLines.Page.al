@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -35,17 +35,14 @@ page 501 "Available - Purchase Lines"
                 field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the type of document that you are about to create.';
                 }
                 field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the document number.';
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
-                    ToolTip = 'Specifies the code for the location where the items on the line will be located.';
                 }
                 field("Expected Receipt Date"; Rec."Expected Receipt Date")
                 {
@@ -66,6 +63,7 @@ page 501 "Available - Purchase Lines"
                 field(QtyToReserveBase; QtyToReserveBase)
                 {
                     ApplicationArea = Reservation;
+                    AutoFormatType = 0;
                     Caption = 'Available Quantity';
                     DecimalPlaces = 0 : 5;
                     Editable = false;
@@ -74,6 +72,7 @@ page 501 "Available - Purchase Lines"
                 field(ReservedQuantity; GetReservedQtyInLine())
                 {
                     ApplicationArea = Reservation;
+                    AutoFormatType = 0;
                     Caption = 'Current Reserved Quantity';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the quantity of the item that is reserved from the purchase line, for the current line or entry.';

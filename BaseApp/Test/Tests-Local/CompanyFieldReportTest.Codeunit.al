@@ -16,9 +16,6 @@ codeunit 144010 "Company Field Report Test"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-#if not CLEAN25
-        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
-#endif
         TenDigitsTxt: Label '0123456789';
         LibraryERM: Codeunit "Library - ERM";
         VendorCrMemoNoTxt: Label '123';
@@ -196,14 +193,6 @@ codeunit 144010 "Company Field Report Test"
                         LibraryReportDataset.GetElementValueInCurrentRow('CompanyInfoBusinessIDCode', CompanyInfoBusinessIdCode);
                         LibraryReportDataset.GetElementValueInCurrentRow('CompanyInfoRegHomeCity', CompanyInfoRegHomeCity);
                     end;
-#if not CLEAN25
-                5:
-                    begin
-                        LibraryReportDataset.GetElementValueInCurrentRow('CompanyRegistrationNumber', CompanyInfoBusinessIdCode);
-
-                        LibraryReportDataset.GetElementValueInCurrentRow('CompanyLegalOffice', CompanyInfoRegHomeCity);
-                    end;
-#endif
             end;
             Assert.AreEqual(CompanyInformation."Business Identity Code", CompanyInfoBusinessIdCode, 'Incorrect BusinessIdentityCode');
             Assert.AreEqual(CompanyInformation."Registered Home City", CompanyInfoRegHomeCity, 'Incorrect RegisteredHomeCity');
@@ -239,27 +228,6 @@ codeunit 144010 "Company Field Report Test"
         TestBusinessIdentityandHomeCity(3);
     end;
 
-#if not CLEAN25
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure ResourceReportHandler(var ResourceReport: TestRequestPage "Resource - Price List")
-    begin
-        ResourceReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
-
-    [Test]
-    [HandlerFunctions('ResourceReportHandler')]
-    [Scope('OnPrem')]
-    procedure ResourceReport()
-    var
-        ResourcePriceListReport: Report "Resource - Price List";
-    begin
-        Initialize();
-        ResourcePriceListReport.UseRequestPage(true);
-        ResourcePriceListReport.Run();
-        TestBusinessIdentityandHomeCity(0);
-    end;
-#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
@@ -401,37 +369,6 @@ codeunit 144010 "Company Field Report Test"
         TestBusinessIdentityandHomeCity(0);
     end;
 
-#if not CLEAN25
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    [Obsolete('Test is moved to FI Core', '23.0')]
-    procedure SalesQuoteReportHandler(var SalesQuoteReport: TestRequestPage "Standard Sales - Quote")
-    var
-        DocumentNumber: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(DocumentNumber);
-        SalesQuoteReport.Header.SetFilter("No.", Format(DocumentNumber));
-
-        SalesQuoteReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesQuoteReportHandler')]
-    [Obsolete('Test is moved to FI Core', '23.0')]
-    [Scope('OnPrem')]
-    procedure SalesQuoteReport()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesQuoteReport: Report "Standard Sales - Quote";
-    begin
-        Initialize();
-
-        CreateSalesDocument(SalesHeader."Document Type"::Quote, false);
-        SalesQuoteReport.UseRequestPage(true);
-        SalesQuoteReport.Run();
-        TestBusinessIdentityandHomeCity(5);
-    end;
-#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
@@ -688,36 +625,6 @@ codeunit 144010 "Company Field Report Test"
         TestBusinessIdentityandHomeCity(0);
     end;
 
-#if not CLEAN25
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure PriceListReportHandler(var PriceListReport: TestRequestPage "Price List")
-    begin
-        PriceListReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
-
-    [Test]
-    [HandlerFunctions('PriceListReportHandler')]
-    [Scope('OnPrem')]
-    procedure PriceListReport()
-    var
-        Customer: Record Customer;
-        PriceListReport: Report "Price List";
-        xImplemetation: Enum "Price Calculation Handler";
-    begin
-        Initialize();
-        xImplemetation := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 15.0)");
-
-        LibrarySales.CreateCustomer(Customer);
-        PriceListReport.InitializeRequest(0D, 0, Customer."No.", '');
-        Commit();
-        PriceListReport.UseRequestPage(true);
-        PriceListReport.Run();
-        TestBusinessIdentityandHomeCity(0);
-
-        LibraryPriceCalculation.SetupDefaultHandler(xImplemetation);
-    end;
-#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
@@ -888,4 +795,3 @@ codeunit 144010 "Company Field Report Test"
 
 
 }
-

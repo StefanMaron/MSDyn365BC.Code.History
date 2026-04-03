@@ -14,7 +14,7 @@ using Microsoft.Inventory.Tracking;
 
 codeunit 99000809 "Planning Line Management"
 {
-#if not CLEAN27
+#if not CLEAN28
     Permissions = TableData Microsoft.Manufacturing.Setup."Manufacturing Setup" = rm,
                   TableData Microsoft.Manufacturing.Routing."Routing Header" = r,
                   TableData Microsoft.Manufacturing.ProductionBOM."Production BOM Header" = r,
@@ -385,6 +385,7 @@ codeunit 99000809 "Planning Line Management"
                 ReqLine3."Action Message" := ReqLine2."Action Message";
                 ReqLine3."Accept Action Message" := ReqLine2."Accept Action Message";
                 ReqLine3.Description := PlanningComp.Description;
+                ReqLine3."Description 2" := PlanningComp."Description 2";
                 ReqLine3."Variant Code" := PlanningComp."Variant Code";
                 ReqLine3."Unit of Measure Code" := PlanningComp."Unit of Measure Code";
                 ReqLine3."Location Code" := PlanningComp."Location Code";

@@ -1,8 +1,8 @@
 namespace System.Security.AccessControl;
 
-using Microsoft.FixedAssets.Depreciation;
 using Microsoft.Bank.Payment;
 using Microsoft.Bank.Setup;
+using Microsoft.FixedAssets.Depreciation;
 
 permissionset 1002 "LOCAL READ"
 {

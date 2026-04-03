@@ -6,14 +6,14 @@ using Microsoft.API;
 using Microsoft.API.Upgrade;
 using Microsoft.Assembly.Comment;
 using Microsoft.Assembly.Reports;
-using Microsoft.Booking;
-using Microsoft.Bank.Payment;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
 using Microsoft.Bank.DirectDebit;
+using Microsoft.Bank.Payment;
 using Microsoft.Bank.PositivePay;
 using Microsoft.Bank.Reconciliation;
 using Microsoft.Bank.Setup;
+using Microsoft.Booking;
 using Microsoft.CashFlow.Forecast;
 using Microsoft.CRM.Analysis;
 using Microsoft.CRM.Campaign;
@@ -28,11 +28,11 @@ using Microsoft.CRM.Team;
 using Microsoft.EServices.EDocument;
 using Microsoft.EServices.OnlineMap;
 using Microsoft.Finance.Analysis;
-using Microsoft.Finance.Currency;
 using Microsoft.Finance.Consolidation;
+using Microsoft.Finance.Currency;
 using Microsoft.Finance.Deferral;
-using Microsoft.Finance.Dimension.Correction;
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.Dimension.Correction;
 using Microsoft.Finance.FinancialReports;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Budget;
@@ -108,9 +108,7 @@ using Microsoft.Projects.Project.WIP;
 using Microsoft.Projects.Resources.Analysis;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Ledger;
-#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
-#endif
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.Resources.Setup;
 using Microsoft.Projects.TimeSheet;
@@ -120,9 +118,7 @@ using Microsoft.Purchases.Comment;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Payables;
-#if not CLEAN25
 using Microsoft.Purchases.Pricing;
-#endif
 using Microsoft.Purchases.RoleCenters;
 using Microsoft.Purchases.Vendor;
 using Microsoft.RoleCenters;
@@ -133,9 +129,7 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
-#if not CLEAN25
 using Microsoft.Sales.Pricing;
-#endif
 using Microsoft.Sales.Reminder;
 using Microsoft.Sales.RoleCenters;
 using Microsoft.Utilities;
@@ -148,7 +142,6 @@ using Microsoft.Warehouse.RoleCenters;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Tracking;
-
 using System.AI;
 using System.Apps;
 using System.Automation;
@@ -426,9 +419,15 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Error Message Register" = RIMD,
                   tabledata "Excel Buffer" = RIMD,
                   tabledata "Excel Template Storage" = RIMD,
+                  tabledata "Contact Sync User" = RIMD,
+                  tabledata "Outlook Contacts" = RIMD,
+#if not CLEAN28
                   tabledata "Exchange Contact" = RIMD,
+#endif
                   tabledata "Exchange Object" = RIMD,
+#if not CLEAN28
                   tabledata "Exchange Sync" = RIMD,
+#endif
                   tabledata "Experience Tier Buffer" = RIMD,
                   tabledata "Experience Tier Setup" = RIMD,
                   tabledata "Extended Text Header" = RIMD,
@@ -445,6 +444,7 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Field Monitoring Setup" = Rm,
                   tabledata "Filter Item Attributes Buffer" = RIMD,
                   tabledata "Finance Cue" = RIMD,
+                  tabledata "Financial Report Audit Log" = Rimd,
                   tabledata "Flow Service Configuration" = Rimd,
                   tabledata "Flow User Environment Buffer" = RIMD,
                   tabledata "Flow User Environment Config" = RIMD,
@@ -512,6 +512,7 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Item Attribute" = RIMD,
                   tabledata "Item Attribute Translation" = RIMD,
                   tabledata "Item Attribute Value" = RIMD,
+                  tabledata "Item Var. Attr. Value Mapping" = RIMD,
                   tabledata "Item Attribute Value Selection" = RIMD,
                   tabledata "Item Availability Buffer" = RIMD,
                   tabledata "Item Availability by Date" = RIM,
@@ -661,9 +662,7 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Purch. Cr. Memo Hdr." = IM,
                   tabledata "Purch. Inv. Entity Aggregate" = RIMD,
                   tabledata "Purch. Inv. Line Aggregate" = RIMD,
-#if not CLEAN25
                   tabledata "Purch. Price Line Disc. Buff." = RIMD,
-#endif
                   tabledata "Purch. Rcpt. Header" = IM,
                   tabledata "Purchase Cue" = RIMD,
                   tabledata "Purchase Order Entity Buffer" = RIMD,
@@ -705,14 +704,10 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Reservation Wksh. Line" = RIMD,
                   tabledata "Reservation Worksheet Log" = RIMD,
                   tabledata Resource = RIMD,
-#if not CLEAN25
                   tabledata "Resource Cost" = IM,
-#endif
                   tabledata "Resource Group" = RIMD,
-#if not CLEAN25
                   tabledata "Resource Price" = IM,
                   tabledata "Resource Price Change" = RIMD,
-#endif
                   tabledata "Resource Register" = RIMD,
                   tabledata "Resource Unit of Measure" = IM,
                   tabledata "Resources Setup" = IM,
@@ -732,9 +727,7 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Sales Invoice Entity Aggregate" = RIMD,
                   tabledata "Sales Invoice Line Aggregate" = RIMD,
                   tabledata "Sales Order Entity Buffer" = RIMD,
-#if not CLEAN25
                   tabledata "Sales Price and Line Disc Buff" = RIMD,
-#endif
                   tabledata "Sales Quote Entity Buffer" = RIMD,
                   tabledata "Sales Shipment Buffer" = RIMD,
                   tabledata "SB Owner Cue" = RIMD,

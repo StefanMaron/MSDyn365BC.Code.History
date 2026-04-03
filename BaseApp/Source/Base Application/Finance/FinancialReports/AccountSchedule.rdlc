@@ -1407,7 +1407,7 @@
       <Width>27.16389cm</Width>
       <Page>
         <PageHeader>
-          <Height>4.51456cm</Height>
+          <Height>6.07797cm</Height>
           <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
@@ -1443,7 +1443,7 @@
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>2.54cm</Top>
+              <Top>4.10342cm</Top>
               <Height>0.423cm</Height>
               <Width>12.5cm</Width>
               <Style>
@@ -1466,7 +1466,7 @@
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>3.386cm</Top>
+              <Top>4.94942cm</Top>
               <Height>0.423cm</Height>
               <Width>12.5cm</Width>
               <ZIndex>1</ZIndex>
@@ -1494,7 +1494,7 @@
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>2.963cm</Top>
+              <Top>4.52642cm</Top>
               <Height>0.423cm</Height>
               <Width>12.5cm</Width>
               <ZIndex>2</ZIndex>
@@ -1525,7 +1525,7 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>1.44639cm</Top>
+              <Top>3.00981cm</Top>
               <Height>0.38806cm</Height>
               <Width>12.5cm</Width>
               <ZIndex>3</ZIndex>
@@ -1551,7 +1551,7 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>1.05833cm</Top>
+              <Top>2.62175cm</Top>
               <Height>11pt</Height>
               <Width>12.5cm</Width>
               <ZIndex>4</ZIndex>
@@ -1567,8 +1567,9 @@
                     <TextRun>
                       <Value EvaluationMode="Auto">=Fields!AccScheduleName_Description.Value</Value>
                       <Style>
-                        <FontFamily>Segoe UI Semibold</FontFamily>
+                        <FontFamily>Segoe UI</FontFamily>
                         <FontSize>14pt</FontSize>
+                        <FontWeight>SemiBold</FontWeight>
                       </Style>
                     </TextRun>
                   </TextRuns>
@@ -1577,6 +1578,7 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
+              <Top>1.56342cm</Top>
               <Height>20pt</Height>
               <Width>354.33071pt</Width>
               <ZIndex>5</ZIndex>
@@ -1603,7 +1605,7 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.84667cm</Top>
+              <Top>2.41009cm</Top>
               <Left>20.43436cm</Left>
               <Height>0.38806cm</Height>
               <Width>6.67778cm</Width>
@@ -1631,7 +1633,7 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.07056cm</Top>
+              <Top>1.63398cm</Top>
               <Left>20.43436cm</Left>
               <Height>11pt</Height>
               <Width>6.67778cm</Width>
@@ -1659,7 +1661,7 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.45861cm</Top>
+              <Top>2.02203cm</Top>
               <Left>20.43436cm</Left>
               <Height>0.38806cm</Height>
               <Width>6.67778cm</Width>
@@ -1690,6 +1692,7 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
+              <Top>1.56342cm</Top>
               <Left>20.43436cm</Left>
               <Height>2pt</Height>
               <Width>6.67778cm</Width>
@@ -1719,7 +1722,7 @@
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>0.70556cm</Top>
+              <Top>2.26898cm</Top>
               <Height>10pt</Height>
               <Width>12.5cm</Width>
               <ZIndex>10</ZIndex>
@@ -1748,7 +1751,7 @@
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox82</rd:DefaultName>
-              <Top>1.83445cm</Top>
+              <Top>3.39787cm</Top>
               <Height>20pt</Height>
               <Width>12.5cm</Width>
               <ZIndex>11</ZIndex>
@@ -1775,7 +1778,7 @@
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox82</rd:DefaultName>
-              <Top>3.809cm</Top>
+              <Top>5.37242cm</Top>
               <Height>20pt</Height>
               <Width>12.5cm</Width>
               <ZIndex>12</ZIndex>
@@ -1785,6 +1788,108 @@
                 </Border>
               </Style>
             </Textbox>
+            <Rectangle Name="CompanyLogoContainer">
+              <ReportItems>
+                <Rectangle Name="CompanyLogoLeftBox">
+                  <ReportItems>
+                    <Image Name="CompanyLogoLeft">
+                      <Source>Database</Source>
+                      <Value>=System.Convert.ToBase64String(Fields!CompanyPicture.Value)</Value>
+                      <MIMEType>image/bmp</MIMEType>
+                      <Sizing>FitProportional</Sizing>
+                      <Height>14mm</Height>
+                      <Width>60mm</Width>
+                      <Visibility>
+                        <Hidden>=iif(First(Fields!CompanyLogoPosition.Value, "DataSet_Result") = 1, False, True)</Hidden>
+                      </Visibility>
+                      <Style>
+                        <Border>
+                          <Style>None</Style>
+                        </Border>
+                      </Style>
+                    </Image>
+                  </ReportItems>
+                  <KeepTogether>true</KeepTogether>
+                  <Top>0.03175cm</Top>
+                  <Left>0.05806cm</Left>
+                  <Height>1.4cm</Height>
+                  <Width>6cm</Width>
+                  <Style>
+                    <Border />
+                  </Style>
+                </Rectangle>
+                <Rectangle Name="CompanyLogoRightBox">
+                  <ReportItems>
+                    <Image Name="CompanyLogoRight">
+                      <Source>Database</Source>
+                      <Value>=System.Convert.ToBase64String(Fields!CompanyPicture.Value)</Value>
+                      <MIMEType>image/bmp</MIMEType>
+                      <Sizing>FitProportional</Sizing>
+                      <Height>14mm</Height>
+                      <Width>60mm</Width>
+                      <Visibility>
+                        <Hidden>=iif(First(Fields!CompanyLogoPosition.Value, "DataSet_Result") = 3, False, True)</Hidden>
+                      </Visibility>
+                      <Style>
+                        <Border>
+                          <Style>None</Style>
+                        </Border>
+                      </Style>
+                    </Image>
+                  </ReportItems>
+                  <KeepTogether>true</KeepTogether>
+                  <Top>0.03175cm</Top>
+                  <Left>21.11214cm</Left>
+                  <Height>1.4cm</Height>
+                  <Width>6cm</Width>
+                  <ZIndex>1</ZIndex>
+                  <Style>
+                    <Border />
+                  </Style>
+                </Rectangle>
+                <Rectangle Name="CompanyLogoMiddleBox">
+                  <ReportItems>
+                    <Image Name="CompanyLogoMiddle">
+                      <Source>Database</Source>
+                      <Value>=System.Convert.ToBase64String(Fields!CompanyPicture.Value)</Value>
+                      <MIMEType>image/bmp</MIMEType>
+                      <Sizing>FitProportional</Sizing>
+                      <Top>0cm</Top>
+                      <Left>0mm</Left>
+                      <Height>14mm</Height>
+                      <Width>60mm</Width>
+                      <Visibility>
+                        <Hidden>=iif(First(Fields!CompanyLogoPosition.Value, "DataSet_Result") = 2, False, True)</Hidden>
+                      </Visibility>
+                      <Style>
+                        <Border>
+                          <Style>None</Style>
+                        </Border>
+                      </Style>
+                    </Image>
+                  </ReportItems>
+                  <KeepTogether>true</KeepTogether>
+                  <Top>0.03175cm</Top>
+                  <Left>10.59333cm</Left>
+                  <Height>1.4cm</Height>
+                  <Width>6cm</Width>
+                  <ZIndex>2</ZIndex>
+                  <Style>
+                    <Border />
+                  </Style>
+                </Rectangle>
+              </ReportItems>
+              <KeepTogether>true</KeepTogether>
+              <Height>1.47734cm</Height>
+              <Width>27.16389cm</Width>
+              <ZIndex>13</ZIndex>
+              <Visibility>
+                <Hidden>=iif(First(Fields!CompanyLogoPosition.Value, "DataSet_Result") = 0, True, False)</Hidden>
+              </Visibility>
+              <Style>
+                <Border />
+              </Style>
+            </Rectangle>
           </ReportItems>
           <Style />
         </PageHeader>
@@ -1952,6 +2057,12 @@ End Function
         </Field>
         <Field Name="ClosingParagraph">
           <DataField>ClosingParagraph</DataField>
+        </Field>
+        <Field Name="CompanyPicture">
+          <DataField>CompanyPicture</DataField>
+        </Field>
+        <Field Name="CompanyLogoPosition">
+          <DataField>CompanyLogoPosition</DataField>
         </Field>
         <Field Name="NextPageGroupNo">
           <DataField>NextPageGroupNo</DataField>

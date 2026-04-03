@@ -1892,6 +1892,7 @@ codeunit 137055 "SCM Warehouse Pick"
         ExpectedPickQty2: Decimal;
     begin
         // [SCENARIO 563605] Warehouse pick can be registered when another sales order has item tracking assigned for excessive quantity (not yet picked)
+        // Bug fix: CalcQtyPickedNotShipped should not count surplus reservation entries from item tracking assignment without actual warehouse picks
         Initialize();
 
         // [GIVEN] Create Location with Require Shipment = Yes, Require Pick = Yes (non-directed put-away and pick)

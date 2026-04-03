@@ -16,9 +16,9 @@ using Microsoft.Purchases.Setup;
 using Microsoft.Purchases.Vendor;
 using System;
 using System.IO;
-using System.Xml;
 using System.Telemetry;
 using System.Utilities;
+using System.Xml;
 
 report 13413 "Exp. SEPA CT pain.001.001.09"
 {
@@ -533,17 +533,9 @@ report 13413 "Exp. SEPA CT pain.001.001.09"
             exit(GLSetup."LCY Code");
         exit(CurrencyCode);
     end;
-#if not CLEAN25
-    [IntegrationEvent(false, false)]
-    [Obsolete('File is not downloaded anymore, use OnBeforeDownloadFromBlob event to get xml file content.', '25.0')]
-    local procedure OnBeforeFileDownload(FileName: Text; var CancelDownload: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDownloadFromBlob(var TempBlob: Codeunit "Temp Blob"; var CancelDownload: Boolean)
     begin
     end;
 }
-

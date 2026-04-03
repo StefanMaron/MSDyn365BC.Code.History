@@ -148,6 +148,8 @@ table 1706 "Deferral Posting Buffer"
         /// </summary>
         field(14; Amount; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount';
             DataClassification = SystemMetadata;
         }
@@ -157,6 +159,7 @@ table 1706 "Deferral Posting Buffer"
         field(15; "Amount (LCY)"; Decimal)
         {
             Caption = 'Amount (LCY)';
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             DataClassification = SystemMetadata;
         }
@@ -233,6 +236,8 @@ table 1706 "Deferral Posting Buffer"
         /// </summary>
         field(24; "Sales/Purch Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Sales/Purch Amount';
             DataClassification = SystemMetadata;
         }
@@ -242,6 +247,7 @@ table 1706 "Deferral Posting Buffer"
         field(25; "Sales/Purch Amount (LCY)"; Decimal)
         {
             Caption = 'Sales/Purch Amount (LCY)';
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             DataClassification = SystemMetadata;
         }

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -19,6 +19,7 @@ table 5364 "CRM Businessunit"
         field(1; BusinessUnitId; Guid)
         {
             Caption = 'Business Unit';
+            ToolTip = 'Specifies the ID of the business unit.';
             Description = 'Unique identifier of the business unit.';
             ExternalAccess = Insert;
             ExternalName = 'businessunitid';
@@ -36,6 +37,7 @@ table 5364 "CRM Businessunit"
         field(3; Name; Text[160])
         {
             Caption = 'Name';
+            ToolTip = 'Specifies the Name of the business unit.';
             Description = 'Name of the business unit.';
             ExternalName = 'name';
             ExternalType = 'String';
@@ -103,6 +105,7 @@ table 5364 "CRM Businessunit"
         }
         field(12; CreditLimit; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Credit Limit';
             Description = 'Credit limit for the business unit.';
             ExternalName = 'creditlimit';
@@ -321,6 +324,7 @@ table 5364 "CRM Businessunit"
         }
         field(40; Address1_Latitude; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Address 1: Latitude';
             Description = 'Latitude for address 1.';
             ExternalName = 'address1_latitude';
@@ -335,6 +339,7 @@ table 5364 "CRM Businessunit"
         }
         field(42; Address1_Longitude; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Address 1: Longitude';
             Description = 'Longitude for address 1.';
             ExternalName = 'address1_longitude';
@@ -478,6 +483,7 @@ table 5364 "CRM Businessunit"
         }
         field(61; Address2_Latitude; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Address 2: Latitude';
             Description = 'Latitude for address 2.';
             ExternalName = 'address2_latitude';
@@ -492,6 +498,7 @@ table 5364 "CRM Businessunit"
         }
         field(63; Address2_Longitude; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Address 2: Longitude';
             Description = 'Longitude for address 2.';
             ExternalName = 'address2_longitude';
@@ -627,6 +634,7 @@ table 5364 "CRM Businessunit"
         }
         field(79; ExchangeRate; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Exchange Rate';
             Description = 'Exchange rate for the currency associated with the businessunit with respect to the base currency.';
             ExternalAccess = Read;

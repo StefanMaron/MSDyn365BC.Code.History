@@ -581,6 +581,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cost Accounting - Codeunit - NamedType ExpectedTotBalanceError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2061240834 - NamedType 3160204665" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The allowed date range is invalid. The "Allow From" date %1 must not be after the "Allow To" date %2 on %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Allow From caption, %2 - Allow To caption, %3 - Setup name]D;]A;(LookupHint=Codeunit ERM Cost Accounting - Codeunit - NamedType InvalidAllowedDateRangeErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2061240834 - NamedType 2411482461" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Cost type %1 should be assigned to G/L account %2.]]></Val>

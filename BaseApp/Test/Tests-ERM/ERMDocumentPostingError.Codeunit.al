@@ -533,7 +533,7 @@ codeunit 134384 "ERM Document Posting Error"
         // [FEATURE] [Sales] [VAT] [Price Including VAT]
         // [SCENARIO 367912] Stan can post sales order with negative line when the total "Amount Including VAT" is 0 and "Price Incl. VAT" = TRUE
         Initialize();
-
+        UpdateSalesReceivablesetup(false);
         CreateTwoVATPostingSetups(VATPostingSetup, LibraryRandom.RandIntInRange(10, 20), 0);
 
         LineAmount := LibraryRandom.RandIntInRange(100, 200);
@@ -557,7 +557,7 @@ codeunit 134384 "ERM Document Posting Error"
         SalesLine[2].Modify(true);
 
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
+        UpdateSalesReceivablesetup(true);
         VATBase := Round(LineAmount / (1 + VATPostingSetup[1]."VAT %" / 100));
         VerifyVATEntryAmountByVATPostingSetup(
           VATPostingSetup[1], -VATBase, -Round(VATBase * VATPostingSetup[1]."VAT %" / 100));
@@ -781,8 +781,16 @@ codeunit 134384 "ERM Document Posting Error"
         VATEntry.FindFirst();
         VATEntry.TestField(Amount, ExpectedAmount);
         VATEntry.TestField(Base, ExpectedBase);
-
         Assert.RecordCount(VATEntry, 1);
+    end;
+
+    local procedure UpdateSalesReceivablesetup(InvoiceRounding: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Invoice Rounding", InvoiceRounding);
+        SalesReceivablesSetup.Modify(true);
     end;
 
     [ConfirmHandler]

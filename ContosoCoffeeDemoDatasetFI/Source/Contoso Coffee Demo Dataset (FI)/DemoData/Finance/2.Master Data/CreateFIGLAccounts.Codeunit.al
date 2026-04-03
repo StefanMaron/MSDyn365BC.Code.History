@@ -5,16 +5,16 @@
 
 namespace Microsoft.DemoData.Finance;
 
-using Microsoft.DemoTool.Helpers;
-using Microsoft.Finance.GeneralLedger.Account;
-using Microsoft.Inventory.Setup;
 using Microsoft.DemoData.Common;
-using Microsoft.DemoData.Service;
-using Microsoft.DemoData.Manufacturing;
 using Microsoft.DemoData.FixedAsset;
 using Microsoft.DemoData.HumanResources;
 using Microsoft.DemoData.Jobs;
+using Microsoft.DemoData.Manufacturing;
+using Microsoft.DemoData.Service;
+using Microsoft.DemoTool.Helpers;
+using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Foundation.Enums;
+using Microsoft.Inventory.Setup;
 
 codeunit 13405 "Create FI GL Accounts"
 {
@@ -681,6 +681,8 @@ codeunit 13405 "Create FI GL Accounts"
         ContosoGLAccount.AddAccountForLocalization(PROFITLOSSFORTHEFINANCIALYEARName(), '9999');
 
         ModifyGLAccountForW1();
+
+        Codeunit.Run(Codeunit::"Create Deferral Template FI");
     end;
 
     local procedure ModifyGLAccountForW1()

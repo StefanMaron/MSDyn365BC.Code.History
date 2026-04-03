@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -35,6 +35,7 @@ table 5343 "CRM Opportunity"
         field(3; OpportunityRatingCode; Option)
         {
             Caption = 'Rating';
+            ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
             Description = 'Select the expected value or priority of the opportunity based on revenue, customer status, or closing probability.';
             ExternalName = 'opportunityratingcode';
             ExternalType = 'Picklist';
@@ -75,6 +76,7 @@ table 5343 "CRM Opportunity"
         field(7; Name; Text[2048])
         {
             Caption = 'Topic';
+            ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
             Description = 'Type a subject or descriptive name, such as the expected order or company name, for the opportunity.';
             ExternalName = 'name';
             ExternalType = 'String';
@@ -96,7 +98,9 @@ table 5343 "CRM Opportunity"
         }
         field(10; EstimatedValue; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Est. Revenue';
+            ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
             Description = 'Type the estimated revenue amount to indicate the potential sale or value of the opportunity for revenue forecasting. This field can be either system-populated or editable based on the selection in the Revenue field.';
             ExternalName = 'estimatedvalue';
             ExternalType = 'Money';
@@ -140,6 +144,7 @@ table 5343 "CRM Opportunity"
         field(15; EstimatedCloseDate; Date)
         {
             Caption = 'Est. Close Date';
+            ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
             Description = 'Enter the expected closing date of the opportunity to help make accurate revenue forecasts.';
             ExternalName = 'estimatedclosedate';
             ExternalType = 'DateTime';
@@ -147,6 +152,7 @@ table 5343 "CRM Opportunity"
         field(16; CloseProbability; Integer)
         {
             Caption = 'Probability';
+            ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
             Description = 'Type a number from 0 to 100 that represents the likelihood of closing the opportunity. This can aid the sales team in their efforts to convert the opportunity in a sale.';
             ExternalName = 'closeprobability';
             ExternalType = 'Integer';
@@ -155,6 +161,7 @@ table 5343 "CRM Opportunity"
         }
         field(17; ActualValue; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Actual Revenue';
             Description = 'Type the actual revenue amount for the opportunity for reporting and analysis of estimated versus actual sales. Field defaults to the Est. Revenue value when an opportunity is won.';
             ExternalName = 'actualvalue';
@@ -230,6 +237,7 @@ table 5343 "CRM Opportunity"
         field(26; StateCode; Option)
         {
             Caption = 'Status';
+            ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
             Description = 'Shows whether the opportunity is open, won, or lost. Won and lost opportunities are read-only and can''t be edited until they are reactivated.';
             ExternalAccess = Modify;
             ExternalName = 'statecode';
@@ -242,6 +250,7 @@ table 5343 "CRM Opportunity"
         field(27; StatusCode; Option)
         {
             Caption = 'Status Reason';
+            ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
             Description = 'Select the opportunity''s status.';
             ExternalName = 'statuscode';
             ExternalType = 'Status';
@@ -348,6 +357,7 @@ table 5343 "CRM Opportunity"
         }
         field(39; ExchangeRate; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Exchange Rate';
             Description = 'Shows the conversion rate of the record''s currency. The exchange rate is used to convert all money fields in the record from the local currency to the system''s default currency.';
             ExternalAccess = Read;
@@ -397,6 +407,7 @@ table 5343 "CRM Opportunity"
         }
         field(45; ActualValue_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Actual Revenue (Base)';
             Description = 'Shows the Actual Revenue field converted to the system''s default base currency for reporting purposes. The calculation uses the exchange rate specified in the Currencies area.';
             ExternalAccess = Read;
@@ -405,6 +416,7 @@ table 5343 "CRM Opportunity"
         }
         field(46; EstimatedValue_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Est. Revenue (Base)';
             Description = 'Shows the Actual Revenue field converted to the system''s default base currency for reporting purposes. The calculation uses the exchange rate specified in the Currencies area.';
             ExternalAccess = Read;
@@ -413,6 +425,7 @@ table 5343 "CRM Opportunity"
         }
         field(47; TotalTax; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Total Tax';
             Description = 'Shows the total of the Tax amounts specified on all products included in the opportunity, included in the Total Amount field calculation for the opportunity.';
             ExternalAccess = Modify;
@@ -421,6 +434,7 @@ table 5343 "CRM Opportunity"
         }
         field(48; DiscountPercentage; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Opportunity Discount (%)';
             Description = 'Type the discount rate that should be applied to the Product Totals field to include additional savings for the customer in the opportunity.';
             ExternalName = 'discountpercentage';
@@ -428,7 +442,9 @@ table 5343 "CRM Opportunity"
         }
         field(49; TotalAmount; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Total Amount';
+            ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
             Description = 'Shows the total amount due, calculated as the sum of the products, discounts, freight, and taxes for the opportunity.';
             ExternalAccess = Modify;
             ExternalName = 'totalamount';
@@ -436,6 +452,7 @@ table 5343 "CRM Opportunity"
         }
         field(50; DiscountAmount; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Opportunity Discount Amount';
             Description = 'Type the discount amount for the opportunity if the customer is eligible for special savings.';
             ExternalName = 'discountamount';
@@ -443,6 +460,7 @@ table 5343 "CRM Opportunity"
         }
         field(51; TotalAmountLessFreight; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Total Pre-Freight Amount';
             Description = 'Shows the total product amount for the opportunity, minus any discounts. This value is added to freight and tax amounts in the calculation for the total amount of the opportunity.';
             ExternalAccess = Modify;
@@ -451,6 +469,7 @@ table 5343 "CRM Opportunity"
         }
         field(52; FreightAmount; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Freight Amount';
             Description = 'Type the cost of freight or shipping for the products included in the opportunity for use in calculating the Total Amount field.';
             ExternalName = 'freightamount';
@@ -458,6 +477,7 @@ table 5343 "CRM Opportunity"
         }
         field(53; TotalLineItemDiscountAmount; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Total Line Item Discount Amount';
             Description = 'Shows the total of the Manual Discount amounts specified on all products included in the opportunity. This value is reflected in the Total Detail Amount field on the opportunity and is added to any discount amount or rate specified on the opportunity.';
             ExternalAccess = Modify;
@@ -466,6 +486,7 @@ table 5343 "CRM Opportunity"
         }
         field(54; TotalLineItemAmount; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Total Detail Amount';
             Description = 'Shows the sum of all existing and write-in products included on the opportunity, based on the specified price list and quantities.';
             ExternalAccess = Modify;
@@ -474,6 +495,7 @@ table 5343 "CRM Opportunity"
         }
         field(55; TotalDiscountAmount; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Total Discount Amount';
             Description = 'Shows the total discount amount, based on the discount price and rate entered on the opportunity.';
             ExternalAccess = Modify;
@@ -482,6 +504,7 @@ table 5343 "CRM Opportunity"
         }
         field(56; TotalLineItemAmount_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Total Detail Amount (Base)';
             Description = 'Shows the Total Detail Amount field converted to the system''s default base currency for reporting purposes. The calculation uses the exchange rate specified in the Currencies area.';
             ExternalAccess = Read;
@@ -490,6 +513,7 @@ table 5343 "CRM Opportunity"
         }
         field(57; TotalDiscountAmount_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Total Discount Amount (Base)';
             Description = 'Shows the Total Discount Amount field converted to the system''s default base currency for reporting purposes. The calculation uses the exchange rate specified in the Currencies area.';
             ExternalAccess = Read;
@@ -498,6 +522,7 @@ table 5343 "CRM Opportunity"
         }
         field(58; TotalTax_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Total Tax (Base)';
             Description = 'Shows the Total Tax field converted to the system''s default base currency for reporting purposes. The calculation uses the exchange rate specified in the Currencies area.';
             ExternalAccess = Read;
@@ -506,6 +531,7 @@ table 5343 "CRM Opportunity"
         }
         field(59; DiscountAmount_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Opportunity Discount Amount (Base)';
             Description = 'Shows the Opportunity Discount Amount field converted to the system''s default base currency for reporting purposes. The calculation uses the exchange rate specified in the Currencies area.';
             ExternalAccess = Read;
@@ -514,6 +540,7 @@ table 5343 "CRM Opportunity"
         }
         field(60; TotalLineItemDiscountAmount_Ba; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Total Line Item Discount Amount (Base)';
             Description = 'Shows the Total Line Item Discount Amount field to the system''s default base currency for reporting purposes. The calculation uses the exchange rate specified in the Currencies area.';
             ExternalAccess = Read;
@@ -522,6 +549,7 @@ table 5343 "CRM Opportunity"
         }
         field(61; TotalAmount_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Total Amount (Base)';
             Description = 'Shows the Total Amount field converted to the system''s default base currency for reporting purposes. The calculation uses the exchange rate specified in the Currencies area.';
             ExternalAccess = Read;
@@ -530,6 +558,7 @@ table 5343 "CRM Opportunity"
         }
         field(62; TotalAmountLessFreight_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Total Pre-Freight Amount (Base)';
             Description = 'Shows the Total Pre-Freight Amount field converted to the system''s default base currency for reporting purposes. The calculation uses the exchange rate specified in the Currencies area.';
             ExternalAccess = Read;
@@ -538,6 +567,7 @@ table 5343 "CRM Opportunity"
         }
         field(63; FreightAmount_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Freight Amount (Base)';
             Description = 'Shows the Freight Amount field converted to the system''s default base currency for reporting purposes. The calculation uses the exchange rate specified in the Currencies area.';
             ExternalAccess = Read;
@@ -610,6 +640,7 @@ table 5343 "CRM Opportunity"
         field(71; Need; Option)
         {
             Caption = 'Need';
+            ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
             Description = 'Choose how high the level of need is for the lead''s company.';
             ExternalName = 'need';
             ExternalType = 'Picklist';
@@ -631,6 +662,7 @@ table 5343 "CRM Opportunity"
         }
         field(73; BudgetAmount; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Budget Amount';
             Description = 'Type a value between 0 and 1,000,000,000,000 to indicate the lead''s potential available budget.';
             ExternalName = 'budgetamount';
@@ -638,6 +670,7 @@ table 5343 "CRM Opportunity"
         }
         field(74; BudgetAmount_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Budget Amount (Base)';
             Description = 'Shows the budget amount converted to the system''s base currency.';
             ExternalAccess = Read;
@@ -656,6 +689,7 @@ table 5343 "CRM Opportunity"
         {
             CalcFormula = lookup("CRM Account".Name where(AccountId = field(ParentAccountId)));
             Caption = 'ParentAccountIdName';
+            ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
             ExternalAccess = Read;
             ExternalName = 'parentaccountidname';
             ExternalType = 'String';
@@ -673,6 +707,7 @@ table 5343 "CRM Opportunity"
         {
             CalcFormula = lookup("CRM Contact".FullName where(ContactId = field(ParentContactId)));
             Caption = 'ParentContactIdName';
+            ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
             ExternalAccess = Read;
             ExternalName = 'parentcontactidname';
             ExternalType = 'String';

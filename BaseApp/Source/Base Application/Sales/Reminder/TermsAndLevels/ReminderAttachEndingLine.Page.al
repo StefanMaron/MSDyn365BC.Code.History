@@ -1,9 +1,12 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Reminder;
 
+/// <summary>
+/// Manages the ending text lines for reminder PDF attachment documents.
+/// </summary>
 page 547 "Reminder Attach Ending Line"
 {
     PageType = ListPart;
@@ -25,7 +28,6 @@ page 547 "Reminder Attach Ending Line"
                 field(Text; Rec.Text)
                 {
                     Caption = 'Text';
-                    ToolTip = 'Specifies the text of the reminder attachment ending line for the selected language.';
                     ApplicationArea = All;
                 }
             }

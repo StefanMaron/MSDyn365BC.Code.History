@@ -1,21 +1,21 @@
 namespace Microsoft.SubscriptionBilling;
 
-using System.Utilities;
-using System.EMail;
-using System.Environment.Configuration;
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.CRM.Contact;
+using Microsoft.CRM.Outlook;
+using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.UOM;
-using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Item.Attribute;
+using Microsoft.Purchases.Document;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Pricing;
-using Microsoft.Purchases.Document;
-using Microsoft.CRM.Contact;
-using Microsoft.CRM.BusinessRelation;
-using Microsoft.CRM.Outlook;
-using Microsoft.Inventory.Item;
-using Microsoft.Inventory.Item.Attribute;
+using System.EMail;
+using System.Environment.Configuration;
+using System.Utilities;
 
 table 8057 "Subscription Header"
 {
@@ -369,14 +369,13 @@ table 8057 "Subscription Header"
         {
             Caption = 'Quantity';
             InitValue = 1;
-            NotBlank = true;
             AutoFormatType = 0;
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
             begin
-                if Quantity <= 0 then
-                    Error(QtyZeroOrNegativeErr);
+                if Quantity < 0 then
+                    Error(QtyNegativeErr);
                 if (Quantity <> 1) and ("Serial No." <> '') then
                     Error(SerialQtyErr);
                 Rec.ArchiveServiceCommitments();
@@ -402,6 +401,7 @@ table 8057 "Subscription Header"
                     if ServiceCommitmentsExist() then
                         Error(CannotChangeWhileServiceCommitmentExistsErr, FieldCaption(Type), ServiceCommitment.TableCaption);
                     "Source No." := '';
+                    "Variant Code" := '';
                     Description := '';
                     "Unit of Measure" := '';
                 end;
@@ -419,11 +419,12 @@ table 8057 "Subscription Header"
                 Item: Record Item;
                 GLAccount: Record "G/L Account";
                 ServiceCommitment: Record "Subscription Line";
-                ContractsItemManagement: Codeunit "Sub. Contracts Item Management";
             begin
-                if "Source No." <> xRec."Source No." then
+                if "Source No." <> xRec."Source No." then begin
                     if ServiceCommitmentsExist() then
                         Error(CannotChangeWhileServiceCommitmentExistsErr, FieldCaption("Source No."), ServiceCommitment.TableCaption);
+                    "Variant Code" := '';
+                end;
                 if "Source No." <> '' then
                     case Type of
                         Type::Item:
@@ -432,7 +433,7 @@ table 8057 "Subscription Header"
                                     Error(EntityDoesNotExistErr, Item.TableCaption, "Source No.");
                                 if Item.Blocked or Item."Subscription Option" in ["Item Service Commitment Type"::"Sales without Service Commitment", "Item Service Commitment Type"::"Sales without Service Commitment"] then
                                     Error(ItemBlockedOrWithoutServiceCommitmentsErr, "Source No.");
-                                Description := ContractsItemManagement.GetItemTranslation("Source No.", '', "End-User Customer No.");
+                                Description := ContractsItemManagement.GetItemTranslation("Source No.", "Variant Code", "End-User Customer No.");
                                 Validate("Unit of Measure", Item."Sales Unit of Measure");
                                 if CurrFieldNo = FieldNo("Source No.") then
                                     InsertServiceCommitmentsFromStandardServCommPackages();
@@ -719,13 +720,23 @@ table 8057 "Subscription Header"
         field(96; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = "Item Variant".Code where("Item No." = field("Source No."));
+            TableRelation = "Item Variant".Code where("Item No." = field("Source No."), Blocked = const(false));
+            ValidateTableRelation = false;
 
             trigger OnValidate()
+            var
+                ItemVariant: Record "Item Variant";
             begin
+                TestField(Type, Type::Item);
+                if Rec."Variant Code" <> '' then begin
+                    ItemVariant.SetLoadFields(Description, Blocked);
+                    ItemVariant.Get("Source No.", "Variant Code");
+                    ItemVariant.TestField(Blocked, false);
+                end;
                 Rec.ArchiveServiceCommitments();
                 if Rec."Variant Code" <> xRec."Variant Code" then
-                    RecalculateServiceCommitments(FieldCaption("Variant Code"), false);
+                    RecalculateServiceCommitments(FieldCaption("Variant Code"), true);
+                Description := ContractsItemManagement.GetItemTranslation("Source No.", "Variant Code", "End-User Customer No.");
             end;
         }
         field(107; "No. Series"; Code[20])
@@ -928,6 +939,7 @@ table 8057 "Subscription Header"
         Cust: Record Customer;
         PostCode: Record "Post Code";
         NoSeries: Codeunit "No. Series";
+        ContractsItemManagement: Codeunit "Sub. Contracts Item Management";
         ConfirmManagement: Codeunit "Confirm Management";
         Confirmed: Boolean;
         BilltoCustomerNoChanged: Boolean;
@@ -935,7 +947,7 @@ table 8057 "Subscription Header"
         SkipBillToContact: Boolean;
         SkipInsertServiceCommitments: Boolean;
         ConfirmChangeQst: Label 'Do you want to change %1?', Comment = '%1 = a Field Caption like Currency Code';
-        QtyZeroOrNegativeErr: Label 'The quantity cannot be zero or negative.';
+        QtyNegativeErr: Label 'The quantity cannot be negative.';
         EndUserCustomerTxt: Label 'End-User Customer';
         BillToCustomerTxt: Label 'Bill-to Customer';
         SerialQtyErr: Label 'Only Subscriptions with quantity 1 may have a serial number.';
@@ -1756,7 +1768,6 @@ table 8057 "Subscription Header"
         ServiceCommitment: Record "Subscription Line";
         ServiceCommPackageLine: Record "Subscription Package Line";
         Item: Record Item;
-        ContractsItemManagement: Codeunit "Sub. Contracts Item Management";
     begin
         Item.Get("Source No.");
         if ServiceCommitmentPackage.FindSet() then
@@ -2081,10 +2092,9 @@ table 8057 "Subscription Header"
         SetRange("Source No.", ItemNo);
     end;
 
-    internal procedure InsertFromItemNoAndCustomerContract(var ServiceObject: Record "Subscription Header"; ItemNo: Code[20]; SourceQuantity: Decimal; ProvisionStartDate: Date; CustomerContract: Record "Customer Subscription Contract")
+    internal procedure InsertFromItemNoAndCustomerContract(var ServiceObject: Record "Subscription Header"; ItemNo: Code[20]; VariantCode: Code[10]; SourceQuantity: Decimal; ProvisionStartDate: Date; CustomerContract: Record "Customer Subscription Contract")
     var
         Item: Record Item;
-        ContractsItemManagement: Codeunit "Sub. Contracts Item Management";
     begin
         if ItemNo = '' then
             exit;
@@ -2093,7 +2103,10 @@ table 8057 "Subscription Header"
         ServiceObject.SetHideValidationDialog(true);
         ServiceObject.Type := ServiceObject.Type::Item;
         ServiceObject."Source No." := ItemNo;
-        ServiceObject.Description := ContractsItemManagement.GetItemTranslation(ItemNo, '', CustomerContract."Sell-to Customer No.");
+        ServiceObject."Variant Code" := VariantCode;
+        if Item.IsVariantMandatory() then
+            ServiceObject.TestField("Variant Code");
+        ServiceObject.Description := ContractsItemManagement.GetItemTranslation(ItemNo, VariantCode, CustomerContract."Sell-to Customer No.");
         ServiceObject."Unit of Measure" := Item."Base Unit of Measure";
         ServiceObject.Quantity := SourceQuantity;
         ServiceObject.Validate("End-User Customer No.", CustomerContract."Sell-to Customer No.");
@@ -2202,14 +2215,18 @@ table 8057 "Subscription Header"
     local procedure GetRecalculateLinesDialog(ChangedFieldName: Text): Text
     var
         RecalculateLinesQst: Label 'If you change %1, the existing Subscription Lines prices will be recalculated.\\Do you want to continue?', Comment = '%1: FieldCaption';
-        RecalculateLinesFromQuantityQst: Label 'If you change %1, only the Amount for existing service commitments will be recalculated.\\Do you want to continue?', Comment = '%1= Changed Field Name.';
-        RecalculateLinesFromVariantCodeQst: Label 'The %1 has been changed.\\Do you want to update the price and description?', Comment = '%1= Changed Field Name.';
+        RecalculateLinesFromQuantityQst: Label 'If you change the %1, the amount for open subscription lines will be recalculated.\\Do you want to continue?', Comment = '%1: FieldCaption';
+        PauseSubscriptionQst: Label 'If you set the %1 to 0, the billing will pause until further notice but the subscription lines are not terminated.\\Do you want to continue?', Comment = '%1: FieldCaption';
+        RecalculateLinesFromVariantCodeQst: Label 'The %1 has been changed.\\Do you want to update the price?', Comment = '%1= Changed Field Name.';
     begin
         case ChangedFieldName of
             Rec.FieldName(Rec."Variant Code"):
                 exit(StrSubstNo(RecalculateLinesFromVariantCodeQst, ChangedFieldName));
             Rec.FieldName(Rec.Quantity):
-                exit(StrSubstNo(RecalculateLinesFromQuantityQst, ChangedFieldName));
+                if Rec.Quantity = 0 then
+                    exit(StrSubstNo(PauseSubscriptionQst, ChangedFieldName))
+                else
+                    exit(StrSubstNo(RecalculateLinesFromQuantityQst, ChangedFieldName));
             else
                 exit(StrSubstNo(RecalculateLinesQst, ChangedFieldName));
         end;

@@ -1,13 +1,13 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Projects.RoleCenters;
 
-using Microsoft.Projects.Project.Job;
-using Microsoft.Projects.Resources.Resource;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.SyncEngine;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Projects.Resources.Resource;
 
 table 9057 "Job Cue"
 {
@@ -25,6 +25,7 @@ table 9057 "Job Cue"
         {
             CalcFormula = count(Job where("Scheduled Res. Qty." = filter(0)));
             Caption = 'Projects w/o Resource';
+            ToolTip = 'Specifies the number of projects without an assigned resource that are displayed in the Project Cue on the Role Center. The documents are filtered by today''s date.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -33,6 +34,7 @@ table 9057 "Job Cue"
             CalcFormula = count(Job where(Status = filter(Planning | Quote | Open),
                                            "Next Invoice Date" = field("Date Filter")));
             Caption = 'Upcoming Invoices';
+            ToolTip = 'Specifies the number of upcoming invoices that are displayed in the Project Cue on the Role Center. The documents are filtered by today''s date.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -41,6 +43,7 @@ table 9057 "Job Cue"
             CalcFormula = count(Job where(Status = const(Open),
                                            "Next Invoice Date" = field("Date Filter2")));
             Caption = 'Invoices Due - Not Created';
+            ToolTip = 'Specifies the number of invoices that are due but not yet created that are displayed in the Project Cue on the Role Center. The documents are filtered by today''s date.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -48,6 +51,7 @@ table 9057 "Job Cue"
         {
             CalcFormula = count(Job where("WIP Entries Exist" = const(true)));
             Caption = 'WIP Not Posted';
+            ToolTip = 'Specifies the amount of work in process that has not been posted that is displayed in the Service Cue on the Role Center. The documents are filtered by today''s date.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -57,6 +61,7 @@ table 9057 "Job Cue"
                                            "WIP Completion Calculated" = const(false),
                                            "WIP Completion Posted" = const(false)));
             Caption = 'Completed - WIP Not Calculated';
+            ToolTip = 'Specifies the total of work in process that is complete but not calculated that is displayed in the Project Cue on the Role Center. The documents are filtered by today''s date.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -64,11 +69,9 @@ table 9057 "Job Cue"
         {
             CalcFormula = count(Resource where("Qty. on Order (Job)" = filter(0),
                                                 "Qty. Quoted (Job)" = filter(0),
-#if not CLEAN25
-                                                "Qty. on Service Order" = filter(0),
-#endif
                                                 "Date Filter" = field("Date Filter")));
             Caption = 'Available Resources';
+            ToolTip = 'Specifies the number of available resources that are displayed in the Project Cue on the Role Center. The documents are filtered by today''s date.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -76,6 +79,7 @@ table 9057 "Job Cue"
         {
             CalcFormula = count("Resource Group" where("No. of Resources Assigned" = filter(0)));
             Caption = 'Unassigned Resource Groups';
+            ToolTip = 'Specifies the number of unassigned resource groups that are displayed in the Project Cue on the Role Center. The documents are filtered by today''s date.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -83,6 +87,7 @@ table 9057 "Job Cue"
         {
             CalcFormula = count(Job where("Over Budget" = filter(= true)));
             Caption = 'Projects Over Budget';
+            ToolTip = 'Specifies the number of projects where the usage cost exceeds the budgeted cost.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -110,13 +115,8 @@ table 9057 "Job Cue"
             Caption = 'Coupled Data Synch Errors';
             FieldClass = FlowField;
             ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-#if not CLEAN25
-            ObsoleteState = Pending;
-            ObsoleteTag = '25.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '28.0';
-#endif
         }
         field(25; "FS Integration Errors"; Integer)
         {
@@ -124,13 +124,8 @@ table 9057 "Job Cue"
             Caption = 'Field Service Integration Errors';
             FieldClass = FlowField;
             ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-#if not CLEAN25
-            ObsoleteState = Pending;
-            ObsoleteTag = '25.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '28.0';
-#endif
         }
 #endif
     }
@@ -147,4 +142,3 @@ table 9057 "Job Cue"
     {
     }
 }
-

@@ -9,6 +9,14 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Integration.Dataverse;
 using System.Text;
 
+/// <summary>
+/// Provides a list view interface for managing currency records and their exchange rates.
+/// Supports currency administration, exchange rate navigation, and integration with external rate services.
+/// </summary>
+/// <remarks>
+/// Source Table: Currency (4). Key actions include creating new currencies, viewing exchange rates,
+/// and configuring currency exchange rate services for automatic updates.
+/// </remarks>
 page 5 Currencies
 {
     AdditionalSearchTerms = 'Multiple Foreign Currencies, Monetary Page, Exchange Page, Forex Overview, Money Page, Cash Page, Trade Currencies, Financial Unit Page, Transaction Money Page, Business Currency Page, Capital Type Page';
@@ -53,6 +61,13 @@ page 5 Currencies
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the symbol for the currency, for example, $ for US dollars.';
                 }
+                field(CurrencySymbolPosition; Rec."Currency Symbol Position")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the position of the currency symbol in relation to the amount.';
+                    Caption = 'Currency Symbol Position';
+                    importance = Additional;
+                }
 
                 field(ExchangeRateDate; ExchangeRateDate)
                 {
@@ -69,6 +84,7 @@ page 5 Currencies
                 field(ExchangeRateAmt; ExchangeRateAmt)
                 {
                     ApplicationArea = Suite;
+                    AutoFormatType = 0;
                     Caption = 'Exchange Rate';
                     DecimalPlaces = 0 : 7;
                     Editable = false;
@@ -208,6 +224,7 @@ page 5 Currencies
                 field(CurrencyFactor; CurrencyFactor)
                 {
                     ApplicationArea = Suite;
+                    AutoFormatType = 0;
                     Caption = 'Currency Factor';
                     DecimalPlaces = 1 : 6;
                     ToolTip = 'Specifies the relationship between the additional reporting currency and the local currency. Amounts are recorded in both LCY and the additional reporting currency, using the relevant exchange rate and the currency factor.';

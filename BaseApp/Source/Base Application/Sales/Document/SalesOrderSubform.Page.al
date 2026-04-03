@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -31,6 +31,9 @@ using System.Environment.Configuration;
 using System.Integration.Excel;
 using System.Utilities;
 
+/// <summary>
+/// Displays the line items subform for a sales order document.
+/// </summary>
 page 46 "Sales Order Subform"
 {
     AutoSplitKey = true;
@@ -144,31 +147,26 @@ page 46 "Sales Order Subform"
                 field("IC Partner Code"; Rec."IC Partner Code")
                 {
                     ApplicationArea = Intercompany;
-                    ToolTip = 'Specifies the code of the intercompany partner that the transaction is related to if the entry was created from an intercompany transaction.';
                     Visible = false;
                 }
                 field("IC Partner Ref. Type"; Rec."IC Partner Ref. Type")
                 {
                     ApplicationArea = Intercompany;
-                    ToolTip = 'Specifies the item or account in your IC partner''s company that corresponds to the item or account on the line.';
                     Visible = false;
                 }
                 field("IC Partner Reference"; Rec."IC Partner Reference")
                 {
                     ApplicationArea = Intercompany;
-                    ToolTip = 'Specifies the IC partner. If the line is being sent to one of your intercompany partners, this field is used together with the IC Partner Ref. Type field to indicate the item or account in your partner''s company that corresponds to the line.';
                     Visible = false;
                 }
                 field("IC Item Reference"; Rec."IC Item Reference No.")
                 {
                     ApplicationArea = Intercompany;
-                    ToolTip = 'Specifies the IC item reference. If the line is being sent to one of your intercompany partners, this field is used together with the IC Partner Ref. Type field to indicate the item or account in your partner''s company that corresponds to the line.';
                     Visible = false;
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the variant of the item on the line.';
                     ShowMandatory = VariantCodeMandatory;
                     Visible = false;
 
@@ -185,25 +183,21 @@ page 46 "Sales Order Subform"
                 field("Substitution Available"; Rec."Substitution Available")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies that a substitute is available for the item on the sales line.';
                     Visible = false;
                 }
                 field("Purchasing Code"; Rec."Purchasing Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the code for a special procurement method, such as drop shipment.';
                     Visible = false;
                 }
                 field(Nonstock; Rec.Nonstock)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies that this item is a catalog item.';
                     Visible = false;
                 }
                 field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -214,7 +208,6 @@ page 46 "Sales Order Subform"
                 field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -225,7 +218,6 @@ page 46 "Sales Order Subform"
                 field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the vendor''s VAT specification to link transactions made for this vendor with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -237,7 +229,6 @@ page 46 "Sales Order Subform"
                 field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT product posting group. Links business transactions made for the item, resource, or G/L account with the general ledger, to account for VAT amounts resulting from trade with that record.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -258,11 +249,11 @@ page 46 "Sales Order Subform"
                         UpdateEditableOnRow();
 
                         Rec.RestoreLookupSelection();
+                        NoOnAfterValidate();
 
                         if Rec."No." = xRec."No." then
                             exit;
 
-                        NoOnAfterValidate();
                         Rec.ShowShortcutDimCode(ShortcutDimCode);
                         UpdateTypeText();
                         DeltaUpdateTotals();
@@ -278,25 +269,21 @@ page 46 "Sales Order Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies information in addition to the description.';
                     Visible = false;
                 }
                 field("Drop Shipment"; Rec."Drop Shipment")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies if your vendor ships the items directly to your customer.';
                     Visible = false;
                 }
                 field("Special Order"; Rec."Special Order")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies that the item on the sales line is a special-order item.';
                     Visible = false;
                 }
                 field("Return Reason Code"; Rec."Return Reason Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the code explaining why the item was returned.';
                     Visible = false;
                 }
                 field("Location Code"; Rec."Location Code")
@@ -306,7 +293,6 @@ page 46 "Sales Order Subform"
                     Enabled = not IsBlankNumber;
                     QuickEntry = false;
                     ShowMandatory = LocationCodeMandatory;
-                    ToolTip = 'Specifies the inventory location from which the items sold should be picked and where the inventory decrease is registered.';
                     Visible = LocationCodeVisible;
 
                     trigger OnValidate()
@@ -318,13 +304,11 @@ page 46 "Sales Order Subform"
                 field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies the bin where the items are picked or put away.';
                     Visible = false;
                 }
                 field(Control50; Rec.Reserve)
                 {
                     ApplicationArea = Reservation;
-                    ToolTip = 'Specifies whether a reservation can be made for items on this line.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -339,7 +323,6 @@ page 46 "Sales Order Subform"
                     Editable = not IsCommentLine;
                     Enabled = not IsCommentLine;
                     ShowMandatory = (Rec.Type <> Rec.Type::" ") and (Rec."No." <> '');
-                    ToolTip = 'Specifies how many units are being sold.';
 
                     AboutTitle = 'How much is being ordered';
                     AboutText = 'The quantity on a line specifies how much of an item a customer is ordering. This quantity determines whether the order qualifies for special prices or discounts.';
@@ -357,7 +340,6 @@ page 46 "Sales Order Subform"
                 {
                     ApplicationArea = Assembly;
                     BlankZero = true;
-                    ToolTip = 'Specifies how many units of the sales line quantity that you want to supply by assembly.';
                     Visible = true;
 
                     trigger OnDrillDown()
@@ -375,7 +357,6 @@ page 46 "Sales Order Subform"
                     ApplicationArea = Reservation;
                     BlankZero = true;
                     QuickEntry = false;
-                    ToolTip = 'Specifies how many units of the item on the line have been reserved.';
                 }
                 field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
@@ -383,7 +364,6 @@ page 46 "Sales Order Subform"
                     Editable = UnitofMeasureCodeIsChangeable;
                     Enabled = UnitofMeasureCodeIsChangeable;
                     QuickEntry = false;
-                    ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
 
                     trigger OnValidate()
                     begin
@@ -393,7 +373,6 @@ page 46 "Sales Order Subform"
                 field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the unit of measure for the item or resource on the sales line.';
                     Visible = false;
                 }
                 field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
@@ -417,7 +396,6 @@ page 46 "Sales Order Subform"
                     Editable = not IsBlankNumber;
                     Enabled = not IsBlankNumber;
                     ShowMandatory = (Rec.Type <> Rec.Type::" ") and (Rec."No." <> '');
-                    ToolTip = 'Specifies the price for one unit on the sales line.';
 
                     trigger OnValidate()
                     begin
@@ -428,13 +406,11 @@ page 46 "Sales Order Subform"
                 {
                     ApplicationArea = SalesTax;
                     Editable = false;
-                    ToolTip = 'Specifies if the customer or vendor is liable for sales tax.';
                     Visible = false;
                 }
                 field("Tax Area Code"; Rec."Tax Area Code")
                 {
                     ApplicationArea = SalesTax;
-                    ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
 
                     trigger OnValidate()
                     begin
@@ -447,7 +423,6 @@ page 46 "Sales Order Subform"
                     Editable = not IsCommentLine;
                     Enabled = not IsCommentLine;
                     ShowMandatory = Rec."Tax Area Code" <> '';
-                    ToolTip = 'Specifies the tax group that is used to calculate and post sales tax.';
 
                     trigger OnValidate()
                     begin
@@ -460,7 +435,6 @@ page 46 "Sales Order Subform"
                     BlankZero = true;
                     Editable = not IsBlankNumber;
                     Enabled = not IsBlankNumber;
-                    ToolTip = 'Specifies the discount percentage that is granted for the item on the line.';
 
                     trigger OnValidate()
                     begin
@@ -474,7 +448,6 @@ page 46 "Sales Order Subform"
                     Editable = not IsBlankNumber;
                     Enabled = not IsBlankNumber;
                     ShowMandatory = (Rec.Type <> Rec.Type::" ") and (Rec."No." <> '');
-                    ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
 
                     trigger OnValidate()
                     begin
@@ -485,7 +458,6 @@ page 46 "Sales Order Subform"
                 {
                     ApplicationArea = All;
                     Caption = 'Allocation Account No.';
-                    ToolTip = 'Specifies the allocation account number that will be used to distribute the amounts during the posting process.';
                     Visible = UseAllocationAccountNumber;
                     trigger OnValidate()
                     var
@@ -505,7 +477,6 @@ page 46 "Sales Order Subform"
                 field("Line Discount Amount"; Rec."Line Discount Amount")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the discount amount that is granted for the item on the line.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -516,25 +487,21 @@ page 46 "Sales Order Subform"
                 field("Prepayment %"; Rec."Prepayment %")
                 {
                     ApplicationArea = Prepayments;
-                    ToolTip = 'Specifies the prepayment percentage to use to calculate the prepayment for sales.';
                     Visible = false;
                 }
                 field("Prepmt. Line Amount"; Rec."Prepmt. Line Amount")
                 {
                     ApplicationArea = Prepayments;
-                    ToolTip = 'Specifies the prepayment amount of the line in the currency of the sales document if a prepayment percentage is specified for the sales line.';
                     Visible = false;
                 }
                 field("Prepmt. Amt. Inv."; Rec."Prepmt. Amt. Inv.")
                 {
                     ApplicationArea = Prepayments;
-                    ToolTip = 'Specifies the prepayment amount that has already been invoiced to the customer for this sales line.';
                     Visible = false;
                 }
                 field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the invoice line is included when the invoice discount is calculated.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -559,14 +526,12 @@ page 46 "Sales Order Subform"
                 field("Inv. Disc. Amount to Invoice"; Rec."Inv. Disc. Amount to Invoice")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the actual invoice discount amount that will be posted for the line in next invoice.';
                     Visible = false;
                 }
                 field("Qty. to Ship"; Rec."Qty. to Ship")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
-                    ToolTip = 'Specifies the quantity of items that remain to be shipped.';
 
                     AboutTitle = 'Partially shipping the order?';
                     AboutText = 'If you want to ship only parts of the order, adjust the *Qty. to Ship* value to that quantity. By common default, the total quantity is shipped.';
@@ -585,7 +550,6 @@ page 46 "Sales Order Subform"
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     QuickEntry = false;
-                    ToolTip = 'Specifies how many units of the item on the line have been posted as shipped.';
 
                     trigger OnDrillDown()
                     var
@@ -602,7 +566,6 @@ page 46 "Sales Order Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
-                    ToolTip = 'Specifies the quantity that remains to be invoiced. It is calculated as Quantity - Qty. Invoiced.';
 
                     AboutTitle = 'Invoicing more or less than you ship?';
                     AboutText = 'Adjust the *Qty. to Invoice* to specify the quantity you want to invoice now. If that is more than you ship, use the prepayment functionality.';
@@ -617,7 +580,6 @@ page 46 "Sales Order Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
-                    ToolTip = 'Specifies how many units of the item on the line have been posted as invoiced.';
 
                     trigger OnDrillDown()
                     var
@@ -633,19 +595,16 @@ page 46 "Sales Order Subform"
                 field("Prepmt Amt to Deduct"; Rec."Prepmt Amt to Deduct")
                 {
                     ApplicationArea = Prepayments;
-                    ToolTip = 'Specifies the prepayment amount that has already been deducted from ordinary invoices posted for this sales order line.';
                     Visible = false;
                 }
                 field("Prepmt Amt Deducted"; Rec."Prepmt Amt Deducted")
                 {
                     ApplicationArea = Prepayments;
-                    ToolTip = 'Specifies the prepayment amount that has already been deducted from ordinary invoices posted for this sales order line.';
                     Visible = false;
                 }
                 field("Allow Item Charge Assignment"; Rec."Allow Item Charge Assignment")
                 {
                     ApplicationArea = ItemCharges;
-                    ToolTip = 'Specifies that you can assign item charges to this line.';
                     Visible = false;
                 }
                 field("Qty. to Assign"; Rec."Qty. to Assign")
@@ -667,7 +626,6 @@ page 46 "Sales Order Subform"
                     ApplicationArea = ItemCharges;
                     QuickEntry = false;
                     StyleExpr = ItemChargeToHandleStyleExpression;
-                    ToolTip = 'Specifies how many items the item charge will be assigned to on the line. It can be either equal to Qty. to Assign or to zero. If it is zero, the item charge will not be assigned to the line.';
 
                     trigger OnDrillDown()
                     begin
@@ -681,7 +639,6 @@ page 46 "Sales Order Subform"
                     ApplicationArea = ItemCharges;
                     BlankZero = true;
                     QuickEntry = false;
-                    ToolTip = 'Specifies the quantity of the item charge that was assigned to a specified item when you posted this sales line.';
 
                     trigger OnDrillDown()
                     begin
@@ -693,7 +650,6 @@ page 46 "Sales Order Subform"
                 field("Requested Delivery Date"; Rec."Requested Delivery Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the date that the customer has asked for the order to be delivered.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -704,7 +660,6 @@ page 46 "Sales Order Subform"
                 field("Promised Delivery Date"; Rec."Promised Delivery Date")
                 {
                     ApplicationArea = OrderPromising;
-                    ToolTip = 'Specifies the date that you have promised to deliver the order, as a result of the Order Promising function.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -716,7 +671,6 @@ page 46 "Sales Order Subform"
                 {
                     ApplicationArea = Planning;
                     QuickEntry = false;
-                    ToolTip = 'Specifies the planned date that the shipment will be delivered at the customer''s address. If the customer requests a delivery date, the program calculates whether the items will be available for delivery on this date. If the items are available, the planned delivery date will be the same as the requested delivery date. If not, the program calculates the date that the items are available for delivery and enters this date in the Planned Delivery Date field.';
 
                     trigger OnValidate()
                     begin
@@ -726,7 +680,6 @@ page 46 "Sales Order Subform"
                 field("Planned Shipment Date"; Rec."Planned Shipment Date")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the date that the shipment should ship from the warehouse. If the customer requests a delivery date, the program calculates the planned shipment date by subtracting the shipping time from the requested delivery date. If the customer does not request a delivery date or the requested delivery date cannot be met, the program calculates the content of this field by adding the shipment time to the shipping date.';
 
                     trigger OnValidate()
                     begin
@@ -737,7 +690,6 @@ page 46 "Sales Order Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     QuickEntry = false;
-                    ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
 
                     trigger OnValidate()
                     begin
@@ -747,31 +699,26 @@ page 46 "Sales Order Subform"
                 field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
                     Visible = false;
                 }
                 field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
                     Visible = false;
                 }
                 field("Shipping Time"; Rec."Shipping Time")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies how long it takes from when the items are shipped from the warehouse to when they are delivered.';
                     Visible = false;
                 }
                 field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies which work type the resource applies to when the sale is related to a project.';
                     Visible = false;
                 }
                 field("Whse. Outstanding Qty."; Rec."Whse. Outstanding Qty.")
                 {
                     ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies how many units on the sales order line remain to be handled in warehouse documents.';
                     Visible = false;
                 }
                 field("Whse. Outstanding Qty. (Base)"; Rec."Whse. Outstanding Qty. (Base)")
@@ -783,7 +730,6 @@ page 46 "Sales Order Subform"
                 field("ATO Whse. Outstanding Qty."; Rec."ATO Whse. Outstanding Qty.")
                 {
                     ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies how many assemble-to-order units on the sales order line need to be assembled and handled in warehouse documents.';
                     Visible = false;
                 }
                 field("ATO Whse. Outstd. Qty. (Base)"; Rec."ATO Whse. Outstd. Qty. (Base)")
@@ -795,37 +741,31 @@ page 46 "Sales Order Subform"
                 field("Outbound Whse. Handling Time"; Rec."Outbound Whse. Handling Time")
                 {
                     ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies a date formula for the time it takes to get items ready to ship from this location. The time element is used in the calculation of the delivery date as follows: Shipment Date + Outbound Warehouse Handling Time = Planned Shipment Date + Shipping Time = Planned Delivery Date.';
                     Visible = false;
                 }
                 field("Blanket Order No."; Rec."Blanket Order No.")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the number of the blanket order that the record originates from.';
                     Visible = false;
                 }
                 field("Blanket Order Line No."; Rec."Blanket Order Line No.")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the number of the blanket order line that the record originates from.';
                     Visible = false;
                 }
                 field("FA Posting Date"; Rec."FA Posting Date")
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the date that will be used on related fixed asset ledger entries.';
                     Visible = false;
                 }
                 field("Depr. until FA Posting Date"; Rec."Depr. until FA Posting Date")
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies if depreciation was calculated until the FA posting date of the line.';
                     Visible = false;
                 }
                 field("Depreciation Book Code"; Rec."Depreciation Book Code")
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the code for the depreciation book to which the line will be posted if you have selected Fixed Asset in the Type field for this line.';
                     Visible = false;
                 }
                 field("Use Duplication List"; Rec."Use Duplication List")
@@ -837,19 +777,16 @@ page 46 "Sales Order Subform"
                 field("Duplicate in Depreciation Book"; Rec."Duplicate in Depreciation Book")
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies a depreciation book code if you want the journal line to be posted to that depreciation book, as well as to the depreciation book in the Depreciation Book Code field.';
                     Visible = false;
                 }
                 field("Appl.-from Item Entry"; Rec."Appl.-from Item Entry")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied from.';
                     Visible = false;
                 }
                 field("Appl.-to Item Entry"; Rec."Appl.-to Item Entry")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied -to.';
                     Visible = false;
                 }
                 field("Deferral Code"; Rec."Deferral Code")
@@ -857,7 +794,6 @@ page 46 "Sales Order Subform"
                     ApplicationArea = Suite;
                     Enabled = (Rec.Type <> Rec.Type::"Fixed Asset") and (Rec.Type <> Rec.Type::" ");
                     TableRelation = "Deferral Template"."Deferral Code";
-                    ToolTip = 'Specifies the deferral template that governs how revenue earned with this sales document is deferred to the different accounting periods when the good or service was delivered.';
                     Visible = false;
 
                     trigger OnAssistEdit()
@@ -870,13 +806,11 @@ page 46 "Sales Order Subform"
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
                 field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible2;
                 }
                 field(ShortcutDimCode3; ShortcutDimCode[3])
@@ -967,52 +901,44 @@ page 46 "Sales Order Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the document number.';
                     Visible = false;
                 }
                 field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the line number.';
                     Visible = false;
                 }
                 field("Gross Weight"; Rec."Gross Weight")
                 {
                     Caption = 'Unit Gross Weight';
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the gross weight of one unit of the item. In the sales statistics window, the gross weight on the line is included in the total gross weight of all the lines for the particular sales document.';
                     Visible = false;
                 }
                 field("Net Weight"; Rec."Net Weight")
                 {
                     Caption = 'Unit Net Weight';
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the net weight of one unit of the item. In the sales statistics window, the net weight on the line is included in the total net weight of all the lines for the particular sales document.';
                     Visible = false;
                 }
                 field("Unit Volume"; Rec."Unit Volume")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the volume of one unit of the item. In the sales statistics window, the volume of one unit of the item on the line is included in the total volume of all the lines for the particular sales document.';
                     Visible = false;
                 }
                 field("Units per Parcel"; Rec."Units per Parcel")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of units per parcel of the item. In the sales statistics window, the number of units per parcel on the line helps to determine the total number of units for all the lines for the particular sales document.';
                     Visible = false;
                 }
                 field("Attached to Line No."; Rec."Attached to Line No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the line number to which this sales line is attached.';
                     Visible = false;
                 }
                 field("Attached Lines Count"; Rec."Attached Lines Count")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of non-inventory product lines attached to the sales line.';
                     Visible = AttachingLinesEnabled;
                 }
             }
@@ -1052,6 +978,7 @@ page 46 "Sales Order Subform"
                     }
                     field("Invoice Disc. Pct."; InvoiceDiscountPct)
                     {
+                        AutoFormatType = 0;
                         ApplicationArea = Basic, Suite;
                         Caption = 'Invoice Discount %';
                         DecimalPlaces = 0 : 3;
@@ -1132,7 +1059,6 @@ page 46 "Sales Order Subform"
                 {
                     Caption = 'F&unctions';
                     Image = "Action";
-#if not CLEAN25
                     action(GetPrice)
                     {
                         AccessByPermission = TableData "Sales Price" = R;
@@ -1142,9 +1068,6 @@ page 46 "Sales Order Subform"
                         Image = Price;
                         ToolTip = 'Insert the lowest possible price in the Unit Price field according to any special price that you have set up.';
                         Visible = not ExtendedPriceEnabled;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                        ObsoleteTag = '17.0';
 
                         trigger OnAction()
                         begin
@@ -1160,16 +1083,12 @@ page 46 "Sales Order Subform"
                         Image = LineDiscount;
                         ToolTip = 'Insert the best possible discount in the Line Discount field according to any special discounts that you have set up.';
                         Visible = not ExtendedPriceEnabled;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                        ObsoleteTag = '17.0';
 
                         trigger OnAction()
                         begin
                             ShowLineDisc();
                         end;
                     }
-#endif
                     action(GetPrices)
                     {
                         AccessByPermission = TableData "Sales Price Access" = R;
@@ -1283,6 +1202,18 @@ page 46 "Sales Order Subform"
                         trigger OnAction()
                         begin
                             ShowNonstockItems();
+                        end;
+                    }
+                    action(ReserveFromInventory)
+                    {
+                        ApplicationArea = Reservation;
+                        Caption = 'Reserve from Inventory';
+                        Image = LineReserve;
+                        ToolTip = 'Reserve items for the selected line from inventory.';
+
+                        trigger OnAction()
+                        begin
+                            ReserveSelectedLines();
                         end;
                     }
                 }
@@ -1906,6 +1837,17 @@ page 46 "Sales Order Subform"
             SalesSetup."Auto Post Non-Invt. via Whse." = SalesSetup."Auto Post Non-Invt. via Whse."::"Attached/Assigned";
     end;
 
+    local procedure ReserveSelectedLines()
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        CurrPage.SetSelectionFilter(SalesLine);
+        Rec.ReserveFromInventory(SalesLine);
+    end;
+
+    /// <summary>
+    /// Approves and calculates the invoice discount for the current line.
+    /// </summary>
     procedure ApproveCalcInvDisc()
     begin
         CODEUNIT.Run(CODEUNIT::"Sales-Disc. (Yes/No)", Rec);
@@ -1932,6 +1874,9 @@ page 46 "Sales Order Subform"
         CurrPage.Update(false);
     end;
 
+    /// <summary>
+    /// Calculates the invoice discount for the current line.
+    /// </summary>
     procedure CalcInvDisc()
     var
         SalesCalcDiscount: Codeunit "Sales-Calc. Discount";
@@ -1940,6 +1885,9 @@ page 46 "Sales Order Subform"
         DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
+    /// <summary>
+    /// Explodes the bill of materials for the current item line.
+    /// </summary>
     procedure ExplodeBOM()
     begin
         if Rec."Prepmt. Amt. Inv." <> 0 then
@@ -1948,6 +1896,9 @@ page 46 "Sales Order Subform"
         DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
+    /// <summary>
+    /// Opens the related purchase order form for drop shipment orders.
+    /// </summary>
     procedure OpenPurchOrderForm()
     var
         PurchHeader: Record "Purchase Header";
@@ -1967,6 +1918,9 @@ page 46 "Sales Order Subform"
         PurchOrder.Run();
     end;
 
+    /// <summary>
+    /// Opens the related special order purchase order or posted receipt.
+    /// </summary>
     procedure OpenSpecialPurchOrderForm()
     var
         PurchHeader: Record "Purchase Header";
@@ -1995,6 +1949,10 @@ page 46 "Sales Order Subform"
         end;
     end;
 
+    /// <summary>
+    /// Inserts extended text for the current line if available.
+    /// </summary>
+    /// <param name="Unconditionally">Whether to insert text without conditions.</param>
     procedure InsertExtendedText(Unconditionally: Boolean)
     begin
         OnBeforeInsertExtendedText(Rec);
@@ -2009,37 +1967,59 @@ page 46 "Sales Order Subform"
             UpdateForm(true);
     end;
 
+    /// <summary>
+    /// Shows the nonstock items page for the current line.
+    /// </summary>
     procedure ShowNonstockItems()
     begin
         Rec.ShowNonstock();
     end;
 
+    /// <summary>
+    /// Shows the order tracking page for the current line.
+    /// </summary>
     procedure ShowTracking()
     begin
         Rec.ShowOrderTracking();
     end;
 
+    /// <summary>
+    /// Shows the item charge assignment page for the current line.
+    /// </summary>
     procedure ItemChargeAssgnt()
     begin
         Rec.ShowItemChargeAssgnt();
     end;
 
+    /// <summary>
+    /// Updates the current page with optional record save.
+    /// </summary>
+    /// <param name="SetSaveRecord">Whether to save the record before updating.</param>
     procedure UpdateForm(SetSaveRecord: Boolean)
     begin
         CurrPage.Update(SetSaveRecord);
     end;
 
+    /// <summary>
+    /// Shows available prices for the current line item.
+    /// </summary>
     procedure ShowPrices()
     begin
         Rec.PickPrice();
         UpdateForm(true);
     end;
 
+    /// <summary>
+    /// Shows available line discounts for the current line item.
+    /// </summary>
     procedure ShowLineDisc()
     begin
         Rec.PickDiscount();
     end;
 
+    /// <summary>
+    /// Opens the order promising lines page for the current line.
+    /// </summary>
     procedure OrderPromisingLine()
     var
         OrderPromisingLine: Record "Order Promising Line" temporary;
@@ -2054,6 +2034,9 @@ page 46 "Sales Order Subform"
         OrderPromisingLines.RunModal();
     end;
 
+    /// <summary>
+    /// Handles post-validation logic after the No. field is validated.
+    /// </summary>
     procedure NoOnAfterValidate()
     begin
         OnBeforeNoOnAfterValidate(Rec, xRec);
@@ -2087,6 +2070,9 @@ page 46 "Sales Order Subform"
         SaveAndAutoAsmToOrder();
     end;
 
+    /// <summary>
+    /// Handles post-validation logic after the Location Code field is validated.
+    /// </summary>
     procedure LocationCodeOnAfterValidate()
     begin
         SaveAndAutoAsmToOrder();
@@ -2177,6 +2163,9 @@ page 46 "Sales Order Subform"
         end;
     end;
 
+    /// <summary>
+    /// Shows the document line tracking page for the current line.
+    /// </summary>
     procedure ShowDocumentLineTracking()
     var
         DocumentLineTrackingPage: Page "Document Line Tracking";
@@ -2199,11 +2188,17 @@ page 46 "Sales Order Subform"
         DocumentTotals.GetTotalSalesHeaderAndCurrency(Rec, TotalSalesHeader, Currency);
     end;
 
+    /// <summary>
+    /// Clears the total sales header variable.
+    /// </summary>
     procedure ClearTotalSalesHeader();
     begin
         Clear(TotalSalesHeader);
     end;
 
+    /// <summary>
+    /// Calculates the document totals for all sales lines.
+    /// </summary>
     procedure CalculateTotals()
     var
         IsHandled: Boolean;
@@ -2221,6 +2216,9 @@ page 46 "Sales Order Subform"
         DocumentTotals.RefreshSalesLine(Rec);
     end;
 
+    /// <summary>
+    /// Performs an incremental update of document totals based on line changes.
+    /// </summary>
     procedure DeltaUpdateTotals()
     var
         IsHandled: Boolean;
@@ -2238,11 +2236,17 @@ page 46 "Sales Order Subform"
             Rec.SendLineInvoiceDiscountResetNotification();
     end;
 
+    /// <summary>
+    /// Forces a recalculation of document totals on the next update.
+    /// </summary>
     procedure ForceTotalsCalculation()
     begin
         DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
+    /// <summary>
+    /// Redistributes invoice discount amounts across lines after validation.
+    /// </summary>
     procedure RedistributeTotalsOnAfterValidate()
     var
         SalesHeader: Record "Sales Header";
@@ -2257,6 +2261,9 @@ page 46 "Sales Order Subform"
         CurrPage.Update(false);
     end;
 
+    /// <summary>
+    /// Updates the editable state of fields on the current row.
+    /// </summary>
     procedure UpdateEditableOnRow()
     begin
         IsCommentLine := not Rec.HasTypeToFillMandatoryFields();
@@ -2273,6 +2280,9 @@ page 46 "Sales Order Subform"
         OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
     end;
 
+    /// <summary>
+    /// Updates the type text display based on the current line type.
+    /// </summary>
     procedure UpdateTypeText()
     var
         RecRef: RecordRef;

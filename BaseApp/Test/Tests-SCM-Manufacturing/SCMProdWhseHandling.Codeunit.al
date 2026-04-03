@@ -4,24 +4,24 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Test;
 
-using Microsoft.Inventory.Journal;
-using System.TestLibraries.Utilities;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Posting;
+using Microsoft.Inventory.Setup;
+using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Document;
-using Microsoft.Warehouse.Activity;
 using Microsoft.Manufacturing.Journal;
-using Microsoft.Warehouse.Structure;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
+using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.WorkCenter;
-using Microsoft.Warehouse.Setup;
-using Microsoft.Inventory.Setup;
-using Microsoft.Inventory.Ledger;
-using Microsoft.Inventory.Tracking;
+using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Request;
-using Microsoft.Inventory.Posting;
+using Microsoft.Warehouse.Setup;
+using Microsoft.Warehouse.Structure;
+using System.TestLibraries.Utilities;
 
 codeunit 137298 "SCM Prod. Whse. Handling"
 {

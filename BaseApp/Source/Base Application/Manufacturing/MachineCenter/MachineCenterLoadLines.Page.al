@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -39,10 +39,10 @@ page 99000890 "Machine Center Load Lines"
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Period Name';
-                    ToolTip = 'Specifies the name of the period shown in the line.';
                 }
                 field(Capacity; Rec.Capacity)
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Manufacturing;
                     Caption = 'Capacity';
                     DecimalPlaces = 0 : 5;
@@ -61,6 +61,7 @@ page 99000890 "Machine Center Load Lines"
                 }
                 field(AllocatedQty; Rec."Allocated Qty.")
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Manufacturing;
                     Caption = 'Allocated Qty.';
                     DecimalPlaces = 0 : 5;
@@ -80,13 +81,14 @@ page 99000890 "Machine Center Load Lines"
                 }
                 field(CapacityAvailable; Rec."Availability After Orders")
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     Caption = 'Availability After Orders';
                     DecimalPlaces = 0 : 5;
-                    ToolTip = 'Specifies the available capacity of this machine center that is not used in the planning of a given time period.';
                 }
                 field(CapacityEfficiency; Rec.Load)
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Manufacturing;
                     Caption = 'Load';
                     DecimalPlaces = 0 : 5;

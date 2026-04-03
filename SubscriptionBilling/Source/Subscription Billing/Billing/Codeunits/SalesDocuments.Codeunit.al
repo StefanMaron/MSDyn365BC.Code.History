@@ -1,18 +1,18 @@
 namespace Microsoft.SubscriptionBilling;
 
-using Microsoft.Sales.Document;
-using Microsoft.Sales.Posting;
-using Microsoft.Sales.History;
-using Microsoft.Sales.Receivables;
-using Microsoft.Purchases.Posting;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Inventory;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Warehouse.Activity;
-using Microsoft.Finance.GeneralLedger.Posting;
-using Microsoft.Finance.GeneralLedger.Journal;
-using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Purchases.Posting;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Posting;
+using Microsoft.Sales.Receivables;
 using Microsoft.Utilities;
+using Microsoft.Warehouse.Activity;
 
 codeunit 8063 "Sales Documents"
 {
@@ -52,7 +52,7 @@ codeunit 8063 "Sales Documents"
             SalesLine.SetRange("Document No.", Rec."No.");
             if SalesLine.FindSet() then
                 repeat
-                    ResetServiceCommitmentAndDeleteBillingLinesForSalesLine(SalesLine);
+                    ResetServiceCommitmentAndDeleteBillingLinesForCreditMemoSalesLine(SalesLine);
                 until SalesLine.Next() = 0;
         end else
             if AutoResetServiceCommitmentAndDeleteBillingLinesForSalesDocument(Rec."No.") then begin
@@ -97,7 +97,7 @@ codeunit 8063 "Sales Documents"
                 InvoiceNo := GetAppliesToDocNo(SalesHeader);
 
         if (Rec."Document Type" = Rec."Document Type"::"Credit Memo") and (InvoiceNo <> '') then
-            ResetServiceCommitmentAndDeleteBillingLinesForSalesLine(Rec)
+            ResetServiceCommitmentAndDeleteBillingLinesForCreditMemoSalesLine(Rec)
         else
             if AutoResetServiceCommitmentAndDeleteBillingLinesForSalesDocument(Rec."Document No.") then
                 ResetServiceCommitmentAndDeleteAllBillingLinesForDocument(Rec)
@@ -141,7 +141,7 @@ codeunit 8063 "Sales Documents"
         end;
     end;
 
-    local procedure ResetServiceCommitmentAndDeleteBillingLinesForSalesLine(SalesLine: Record "Sales Line")
+    local procedure ResetServiceCommitmentAndDeleteBillingLinesForCreditMemoSalesLine(SalesLine: Record "Sales Line")
     var
         BillingLine: Record "Billing Line";
     begin
@@ -426,6 +426,41 @@ codeunit 8063 "Sales Documents"
 
         if TempSalesLine."Qty. to Ship" <> 0 then
             TempSalesLine.Validate("Qty. to Invoice", 0);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", OnBeforeCheckHeaderPostingType, '', false, false)]
+    local procedure SkipInvoiceOrShipFlagCheckForSubscriptionBillingOnBeforeCheckHeaderPostingType(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+        // Allow posting without Invoice or Ship flags being set for subscription billing documents
+        if SalesHeader."Recurring Billing" then
+            IsHandled := true;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Sales Document", OnBeforeSalesLineFind, '', false, false)]
+    local procedure SkipQuantityCheckForSubscriptionBillingOnBeforeSalesLineFind(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+        // Skip quantity check for subscription billing documents
+        if SalesHeader."Recurring Billing" then
+            IsHandled := true;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", OnBeforeCalcInvoice, '', false, false)]
+    local procedure ForceInvoiceCreationForZeroQtyDocumentOnBeforeCalcInvoice(SalesHeader: Record "Sales Header"; var TempSalesLineGlobal: Record "Sales Line" temporary; var NewInvoice: Boolean; var IsHandled: Boolean)
+    begin
+        // For subscription billing documents with zero quantity lines, force invoice creation
+        // so that the posted invoice header is always generated
+        if SalesHeader."Recurring Billing" then begin
+            NewInvoice := true;
+            IsHandled := true;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", OnPostSalesLineOnAfterSetEverythingInvoiced, '', false, false)]
+    local procedure SetEverythingInvoicedForZeroQtyDocumentOnAfterSetEverythingInvoiced(SalesHeader: Record "Sales Header"; var EverythingInvoiced: Boolean)
+    begin
+        // Treat zero-qty subscription billing lines as fully invoiced so BC cleans up the source document
+        if SalesHeader."Recurring Billing" then
+            EverythingInvoiced := true;
     end;
 
     local procedure CheckResetValueForServiceCommitmentItems(var TempSalesLine: Record "Sales Line") ResetValueForServiceCommitmentItems: Boolean
