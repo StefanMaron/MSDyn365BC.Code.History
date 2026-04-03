@@ -127,6 +127,8 @@ page 12405 "G/L Account Turnover"
                 }
                 field("BalanceAmounts[BalanceType::StartBal]"; BalanceAmounts[BalanceType::StartBal])
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     Caption = 'Starting Balance';
@@ -139,12 +141,16 @@ page 12405 "G/L Account Turnover"
                 }
                 field(StartingBalanceDebit; BalanceAmounts[BalanceType::StartBalDebit])
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     BlankZero = true;
                     Caption = 'Starting Debit Balance';
                     Visible = false;
                 }
                 field(StartingBalanceCredit; BalanceAmounts[BalanceType::StartBalCredit])
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     BlankZero = true;
                     Caption = 'Starting Credit Balance';
                     Visible = false;
@@ -185,12 +191,16 @@ page 12405 "G/L Account Turnover"
                 }
                 field(EndingBalanceDebit; BalanceAmounts[BalanceType::EndBalDebit])
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     BlankZero = true;
                     Caption = 'Ending Debit Balance';
                     Visible = false;
                 }
                 field(EndingBalanceCredit; BalanceAmounts[BalanceType::EndBalCredit])
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     BlankZero = true;
                     Caption = 'Ending Credit Balance';
                     Visible = false;
@@ -205,6 +215,8 @@ page 12405 "G/L Account Turnover"
                 }
                 field("BalanceAmounts[BalanceType::StartBalACY]"; BalanceAmounts[BalanceType::StartBalACY])
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     BlankZero = true;
                     Caption = 'ACY Balance at Begin Period';
                     Visible = false;

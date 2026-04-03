@@ -18,11 +18,15 @@ table 12402 "G/L Corresp. Posting Buffer"
         }
         field(3; "G/L Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'G/L Amount';
             DataClassification = SystemMetadata;
         }
         field(4; "G/L Corresp. Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'G/L Corresp. Amount';
             DataClassification = SystemMetadata;
         }

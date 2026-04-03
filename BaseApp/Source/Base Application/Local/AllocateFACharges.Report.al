@@ -100,6 +100,8 @@ report 14912 "Allocate FA Charges"
                     }
                     field(AmountToAllocate; AmountToAllocate)
                     {
+                        AutoFormatType = 1;
+                        AutoFormatExpression = '';
                         ApplicationArea = FixedAssets;
                         Caption = 'Amount';
                         ToolTip = 'Specifies the amount.';

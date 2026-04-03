@@ -6,9 +6,12 @@ namespace Microsoft.Sales.Customer;
 
 using Microsoft.Foundation.Period;
 using Microsoft.Inventory.Costing;
-using Microsoft.Sales.Receivables;
 using Microsoft.Sales.History;
+using Microsoft.Sales.Receivables;
 
+/// <summary>
+/// Displays comprehensive customer statistics including sales, costs, profit, and payment history.
+/// </summary>
 page 151 "Customer Statistics"
 {
     Caption = 'Customer Statistics';
@@ -80,6 +83,7 @@ page 151 "Customer Statistics"
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Total (LCY)';
                     Importance = Promoted;
                     Style = Strong;
@@ -93,6 +97,8 @@ page 151 "Customer Statistics"
                 field("Balance Due (LCY)"; Rec.CalcOverdueBalance())
                 {
                     ApplicationArea = Basic, Suite;
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     CaptionClass = Format(StrSubstNo(Text000, Format(CurrentDate)));
 
                     trigger OnDrillDown()
@@ -110,6 +116,8 @@ page 151 "Customer Statistics"
                 field(GetInvoicedPrepmtAmountLCY; Rec.GetInvoicedPrepmtAmountLCY())
                 {
                     ApplicationArea = Prepayments;
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Invoiced Prepayment Amount (LCY)';
                     ToolTip = 'Specifies your sales income from the customer based on invoiced prepayments.';
                 }
@@ -132,6 +140,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Sales (LCY)';
                             ToolTip = 'Specifies your total sales turnover in the fiscal year.';
                         }
@@ -139,6 +148,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Original Costs (LCY)';
                             ToolTip = 'Specifies the original costs that were associated with the sales when they were originally posted.';
                         }
@@ -146,12 +156,14 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Original Profit (LCY)';
                             ToolTip = 'Specifies the original profit that was associated with the sales when they were originally posted.';
                         }
                         field("ProfitPct[1]"; ProfitPct[1])
                         {
                             ApplicationArea = Basic, Suite;
+                            AutoFormatType = 0;
                             Caption = 'Original Profit %';
                             DecimalPlaces = 1 : 1;
                             ToolTip = 'Specifies the original percentage of profit that was associated with the sales when they were originally posted.';
@@ -160,6 +172,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Adjusted Costs (LCY)';
                             ToolTip = 'Specifies the costs that have been adjusted for changes in the purchase prices of the goods.';
                         }
@@ -167,12 +180,14 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Adjusted Profit (LCY)';
                             ToolTip = 'Specifies the profit, taking into consideration changes in the purchase prices of the goods.';
                         }
                         field("AdjProfitPct[1]"; AdjProfitPct[1])
                         {
                             ApplicationArea = Basic, Suite;
+                            AutoFormatType = 0;
                             Caption = 'Adjusted Profit %';
                             DecimalPlaces = 1 : 1;
                             ToolTip = 'Specifies the percentage of profit for all sales, including changes that occurred in the purchase prices of the goods.';
@@ -181,6 +196,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Cost Adjmt. Amounts (LCY)';
                             ToolTip = 'Specifies the sum of the differences between original costs of the goods and the adjusted costs.';
                         }
@@ -188,6 +204,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Inv. Discounts (LCY)';
                             ToolTip = 'Specifies the sum of invoice discount amounts granted the customer.';
                         }
@@ -195,6 +212,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Inv. Amounts (LCY)';
                             ToolTip = 'Specifies the sum of amounts that have been invoiced to the customer.';
                         }
@@ -202,6 +220,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Reminder Amounts (LCY)';
                             ToolTip = 'Specifies the sum of amounts that the customer has been reminded to pay.';
                         }
@@ -209,6 +228,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Fin. Charges (LCY)';
                             ToolTip = 'Specifies the sum of amounts that the customer has been charged on finance charge memos.';
                         }
@@ -216,6 +236,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Cr. Memo Amounts (LCY)';
                             ToolTip = 'Specifies the sum of amounts that have been refunded to the customer.';
                         }
@@ -223,6 +244,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Payments (LCY)';
                             ToolTip = 'Specifies the sum of payments received from the customer in the current fiscal year.';
                         }
@@ -230,6 +252,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Refunds (LCY)';
                             ToolTip = 'Specifies the sum of refunds paid to the customer.';
                         }
@@ -237,6 +260,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Other Amounts (LCY)';
                             ToolTip = 'Specifies the sum of other amounts for the customer.';
                         }
@@ -244,6 +268,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Pmt. Discounts (LCY)';
                             ToolTip = 'Specifies the sum of payment discounts granted to the customer.';
                         }
@@ -251,6 +276,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Pmt. Disc. Tol. (LCY)';
                             ToolTip = 'Specifies the sum of payment discount tolerance for the customer.';
                         }
@@ -258,6 +284,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Pmt. Tolerances (LCY)';
                             ToolTip = 'Specifies the sum of payment tolerance for the customer.';
                         }
@@ -287,6 +314,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Sales (LCY)';
                             ToolTip = 'Specifies your total sales turnover in the fiscal year.';
                         }
@@ -294,6 +322,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Original Costs (LCY)';
                             ToolTip = 'Specifies the original costs that were associated with the sales when they were originally posted.';
                         }
@@ -301,12 +330,14 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Original Profit (LCY)';
                             ToolTip = 'Specifies the original profit that was associated with the sales when they were originally posted.';
                         }
                         field("ProfitPct[2]"; ProfitPct[2])
                         {
                             ApplicationArea = Basic, Suite;
+                            AutoFormatType = 0;
                             Caption = 'Original Profit %';
                             DecimalPlaces = 1 : 1;
                             ToolTip = 'Specifies the original percentage of profit that was associated with the sales when they were originally posted.';
@@ -315,6 +346,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Adjusted Costs (LCY)';
                             ToolTip = 'Specifies the costs that have been adjusted for changes in the purchase prices of the goods.';
                         }
@@ -322,12 +354,14 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Adjusted Profit (LCY)';
                             ToolTip = 'Specifies the profit, taking into consideration changes in the purchase prices of the goods.';
                         }
                         field("AdjProfitPct[2]"; AdjProfitPct[2])
                         {
                             ApplicationArea = Basic, Suite;
+                            AutoFormatType = 0;
                             Caption = 'Adjusted Profit %';
                             DecimalPlaces = 1 : 1;
                             ToolTip = 'Specifies the percentage of profit for all sales, including changes that occurred in the purchase prices of the goods.';
@@ -336,6 +370,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Adjustment Costs (LCY)';
                             ToolTip = 'Specifies the sum of adjustment amounts.';
                         }
@@ -343,6 +378,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Inv. Discounts (LCY)';
                             ToolTip = 'Specifies the sum of invoice discount amounts granted the customer.';
                         }
@@ -350,6 +386,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Inv. Amounts (LCY)';
                             ToolTip = 'Specifies the sum of amounts that have been invoiced to the customer.';
                         }
@@ -357,6 +394,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Reminder Amounts (LCY)';
                             ToolTip = 'Specifies the sum of amounts that the customer has been reminded to pay.';
                         }
@@ -364,6 +402,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Fin. Charges (LCY)';
                             ToolTip = 'Specifies the sum of amounts that the customer has been charged on finance charge memos.';
                         }
@@ -371,6 +410,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Cr. Memo Amounts (LCY)';
                             ToolTip = 'Specifies the sum of amounts that have been refunded to the customer.';
                         }
@@ -378,6 +418,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Payments (LCY)';
                             ToolTip = 'Specifies the sum of payments received from the customer in the current fiscal year.';
                         }
@@ -385,6 +426,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Refunds (LCY)';
                             ToolTip = 'Specifies the sum of refunds paid to the customer.';
                         }
@@ -392,6 +434,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Other Amounts (LCY)';
                             ToolTip = 'Specifies the sum of other amounts for the customer.';
                         }
@@ -399,6 +442,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Pmt. Discounts (LCY)';
                             ToolTip = 'Specifies the sum of payment discounts granted to the customer.';
                         }
@@ -406,6 +450,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Pmt. Disc. Tolerance (LCY)';
                             ToolTip = 'Specifies the sum of payment discount tolerance for the customer.';
                         }
@@ -413,6 +458,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Payment Tolerances (LCY)';
                             ToolTip = 'Specifies the sum of payment tolerance for the customer.';
                         }
@@ -442,6 +488,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Sales (LCY)';
                             ToolTip = 'Specifies your total sales turnover in the fiscal year.';
                         }
@@ -449,6 +496,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Original Costs (LCY)';
                             ToolTip = 'Specifies the original costs that were associated with the sales when they were originally posted.';
                         }
@@ -456,12 +504,14 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Original Profit (LCY)';
                             ToolTip = 'Specifies the original profit that was associated with the sales when they were originally posted.';
                         }
                         field("ProfitPct[3]"; ProfitPct[3])
                         {
                             ApplicationArea = Basic, Suite;
+                            AutoFormatType = 0;
                             Caption = 'Original Profit %';
                             DecimalPlaces = 1 : 1;
                             ToolTip = 'Specifies the original percentage of profit that was associated with the sales when they were originally posted.';
@@ -470,6 +520,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Adjusted Costs (LCY)';
                             ToolTip = 'Specifies the costs that have been adjusted for changes in the purchase prices of the goods.';
                         }
@@ -477,12 +528,14 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Adjusted Profit (LCY)';
                             ToolTip = 'Specifies the profit, taking into consideration changes in the purchase prices of the goods.';
                         }
                         field("AdjProfitPct[3]"; AdjProfitPct[3])
                         {
                             ApplicationArea = Basic, Suite;
+                            AutoFormatType = 0;
                             Caption = 'Adjusted Profit %';
                             DecimalPlaces = 1 : 1;
                             ToolTip = 'Specifies the percentage of profit for all sales, including changes that occurred in the purchase prices of the goods.';
@@ -491,6 +544,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Adjustment Costs (LCY)';
                             ToolTip = 'Specifies the sum of adjustment amounts.';
                         }
@@ -498,6 +552,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Inv. Discounts (LCY)';
                             ToolTip = 'Specifies the sum of invoice discount amounts granted the customer.';
                         }
@@ -505,6 +560,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Inv. Amounts (LCY)';
                             ToolTip = 'Specifies the sum of amounts that have been invoiced to the customer.';
                         }
@@ -512,6 +568,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Reminder Amounts (LCY)';
                             ToolTip = 'Specifies the sum of amounts that the customer has been reminded to pay.';
                         }
@@ -519,6 +576,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Fin. Charges (LCY)';
                             ToolTip = 'Specifies the sum of amounts that the customer has been charged on finance charge memos.';
                         }
@@ -526,6 +584,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Cr. Memo Amounts (LCY)';
                             ToolTip = 'Specifies the sum of amounts that have been refunded to the customer.';
                         }
@@ -533,6 +592,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Payments (LCY)';
                             ToolTip = 'Specifies the sum of payments received from the customer in the current fiscal year.';
                         }
@@ -540,6 +600,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Refunds (LCY)';
                             ToolTip = 'Specifies the sum of refunds paid to the customer.';
                         }
@@ -547,6 +608,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Other Amounts (LCY)';
                             ToolTip = 'Specifies the sum of other amounts for the customer.';
                         }
@@ -554,6 +616,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Pmt. Discounts (LCY)';
                             ToolTip = 'Specifies the sum of payment discounts granted to the customer.';
                         }
@@ -561,6 +624,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Pmt. Disc. Tolerance (LCY)';
                             ToolTip = 'Specifies the sum of payment discount tolerance for the customer.';
                         }
@@ -568,6 +632,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Payment Tolerances (LCY)';
                             ToolTip = 'Specifies the sum of payment tolerance for the customer.';
                         }
@@ -596,6 +661,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Sales (LCY)';
                             ToolTip = 'Specifies your total sales turnover in the fiscal year.';
                         }
@@ -603,6 +669,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Original Costs (LCY)';
                             ToolTip = 'Specifies the original costs that were associated with the sales when they were originally posted.';
                         }
@@ -610,12 +677,14 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Original Profit (LCY)';
                             ToolTip = 'Specifies the original profit that was associated with the sales when they were originally posted.';
                         }
                         field("ProfitPct[4]"; ProfitPct[4])
                         {
                             ApplicationArea = Basic, Suite;
+                            AutoFormatType = 0;
                             Caption = 'Original Profit %';
                             DecimalPlaces = 1 : 1;
                             ToolTip = 'Specifies the original percentage of profit that was associated with the sales when they were originally posted.';
@@ -624,6 +693,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Adjusted Costs (LCY)';
                             ToolTip = 'Specifies the costs that have been adjusted for changes in the purchase prices of the goods.';
                         }
@@ -631,12 +701,14 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Adjusted Profit (LCY)';
                             ToolTip = 'Specifies the profit, taking into consideration changes in the purchase prices of the goods.';
                         }
                         field("AdjProfitPct[4]"; AdjProfitPct[4])
                         {
                             ApplicationArea = Basic, Suite;
+                            AutoFormatType = 0;
                             Caption = 'Adjusted Profit %';
                             DecimalPlaces = 1 : 1;
                             ToolTip = 'Specifies the percentage of profit for all sales, including changes that occurred in the purchase prices of the goods.';
@@ -645,6 +717,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Adjustment Costs (LCY)';
                             ToolTip = 'Specifies the sum of adjustment amounts.';
                         }
@@ -652,6 +725,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Inv. Discounts (LCY)';
                             ToolTip = 'Specifies the sum of invoice discount amounts granted the customer.';
                         }
@@ -659,6 +733,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Inv. Amounts (LCY)';
                             ToolTip = 'Specifies the sum of amounts that have been invoiced to the customer.';
                         }
@@ -666,6 +741,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Reminder Amounts (LCY)';
                             ToolTip = 'Specifies the sum of amounts that the customer has been reminded to pay.';
                         }
@@ -673,6 +749,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Fin. Charges (LCY)';
                             ToolTip = 'Specifies the sum of amounts that the customer has been charged on finance charge memos.';
                         }
@@ -680,6 +757,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Cr. Memo Amounts (LCY)';
                             ToolTip = 'Specifies the sum of amounts that have been refunded to the customer.';
                         }
@@ -687,6 +765,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Payments (LCY)';
                             ToolTip = 'Specifies the sum of payments received from the customer in the current fiscal year.';
                         }
@@ -694,6 +773,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Refunds (LCY)';
                             ToolTip = 'Specifies the sum of refunds paid to the customer.';
                         }
@@ -701,6 +781,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Other Amounts (LCY)';
                             ToolTip = 'Specifies the sum of other amounts for the customer.';
                         }
@@ -708,6 +789,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Pmt. Discounts (LCY)';
                             ToolTip = 'Specifies the sum of payment discounts granted to the customer.';
                         }
@@ -715,6 +797,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Pmt. Disc. Tolerance (LCY)';
                             ToolTip = 'Specifies the sum of payment discount tolerance for the customer.';
                         }
@@ -722,6 +805,7 @@ page 151 "Customer Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Payment Tolerances (LCY)';
                             ToolTip = 'Specifies the sum of payment tolerance for the customer.';
                         }
@@ -892,6 +976,10 @@ page 151 "Customer Statistics"
                 Count += 1;
     end;
 
+    /// <summary>
+    /// Raises an event after setting the date filter on the customer record for statistics calculation.
+    /// </summary>
+    /// <param name="Customer">The customer record with the date filter applied.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetDateFilter(var Customer: Record Customer)
     begin

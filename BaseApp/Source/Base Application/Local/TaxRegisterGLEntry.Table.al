@@ -37,6 +37,8 @@ table 17209 "Tax Register G/L Entry"
         }
         field(15; "Amount (Document)"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Amount (Document)';
             Editable = false;
@@ -47,17 +49,23 @@ table 17209 "Tax Register G/L Entry"
         }
         field(21; Amount; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Amount';
         }
         field(23; "Credit Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Credit Amount';
             Editable = false;
         }
         field(25; "Debit Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Debit Amount';
             Editable = false;

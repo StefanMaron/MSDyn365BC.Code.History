@@ -4,13 +4,8 @@ table 14917 "CD No. Format"
 {
     Caption = 'CD No. Format';
     ObsoleteReason = 'Moved to CD Tracking extension table CD Number Header.';
-#if CLEAN25
     ObsoleteState = Removed;
     ObsoleteTag = '28.0';
-#else
-    ObsoleteState = Pending;
-    ObsoleteTag = '18.0';
-#endif
     DataClassification = CustomerContent;
 
     fields

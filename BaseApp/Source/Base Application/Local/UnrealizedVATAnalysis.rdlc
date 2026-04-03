@@ -5058,9 +5058,6 @@ End Function</Code>
         <Field Name="IsInvoice">
           <DataField>IsInvoice</DataField>
         </Field>
-        <Field Name="VAT_Entry__Posting_Date_">
-          <DataField>VAT_Entry__Posting_Date_</DataField>
-        </Field>
         <Field Name="VAT_Entry__VAT_Reporting_Date_">
           <DataField>VAT_Entry__VAT_Reporting_Date_</DataField>
         </Field>
@@ -5210,9 +5207,6 @@ End Function</Code>
         </Field>
         <Field Name="CurrReport_PAGENOCaption">
           <DataField>CurrReport_PAGENOCaption</DataField>
-        </Field>
-        <Field Name="VAT_Entry__Posting_Date_Caption">
-          <DataField>VAT_Entry__Posting_Date_Caption</DataField>
         </Field>
         <Field Name="VAT_Entry__VAT_Reporting_Date_Caption">
           <DataField>VAT_Entry__VAT_Reporting_Date_Caption</DataField>

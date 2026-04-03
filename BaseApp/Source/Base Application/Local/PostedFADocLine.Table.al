@@ -53,18 +53,23 @@ table 12472 "Posted FA Doc. Line"
         field(14; Amount; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount';
         }
         field(15; "Book Value"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Book Value';
         }
         field(16; "Value %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Value %';
         }
         field(18; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
         }

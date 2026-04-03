@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -42,6 +42,7 @@ table 5621 "FA Journal Line"
         field(4; "Depreciation Book Code"; Code[10])
         {
             Caption = 'Depreciation Book Code';
+            ToolTip = 'Specifies the code for the depreciation book to which the line will be posted if you have selected Fixed Asset in the Type field for this line.';
             TableRelation = "Depreciation Book";
 
             trigger OnValidate()
@@ -55,6 +56,7 @@ table 5621 "FA Journal Line"
         field(5; "FA Posting Type"; Enum "FA Journal Line FA Posting Type")
         {
             Caption = 'FA Posting Type';
+            ToolTip = 'Specifies the posting type, if Account Type field contains Fixed Asset.';
 
             trigger OnValidate()
             var
@@ -75,6 +77,7 @@ table 5621 "FA Journal Line"
         field(6; "FA No."; Code[20])
         {
             Caption = 'FA No.';
+            ToolTip = 'Specifies the number of the related fixed asset.';
             TableRelation = "Fixed Asset";
 
             trigger OnValidate()
@@ -111,14 +114,17 @@ table 5621 "FA Journal Line"
         field(7; "FA Posting Date"; Date)
         {
             Caption = 'FA Posting Date';
+            ToolTip = 'Specifies the posting date of the related fixed asset transaction, such as a depreciation.';
         }
         field(8; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
+            ToolTip = 'Specifies the same date as the FA Posting Date field when the line is posted.';
         }
         field(9; "Document Type"; Enum "FA Journal Line Document Type")
         {
             Caption = 'Document Type';
+            ToolTip = 'Specifies the appropriate document type for the amount you want to post.';
         }
         field(10; "Document Date"; Date)
         {
@@ -127,6 +133,7 @@ table 5621 "FA Journal Line"
         field(11; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+            ToolTip = 'Specifies a document number for the journal line.';
         }
         field(12; "External Document No."; Code[35])
         {
@@ -135,11 +142,14 @@ table 5621 "FA Journal Line"
         field(13; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the fixed asset.';
         }
         field(14; Amount; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount';
+            ToolTip = 'Specifies the total amount the journal line consists of.';
 
             trigger OnValidate()
             var
@@ -162,7 +172,9 @@ table 5621 "FA Journal Line"
         field(15; "Debit Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Debit Amount';
+            ToolTip = 'Specifies the total of the ledger entries that represent debits.';
 
             trigger OnValidate()
             begin
@@ -174,7 +186,9 @@ table 5621 "FA Journal Line"
         field(16; "Credit Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Credit Amount';
+            ToolTip = 'Specifies the total of the ledger entries that represent credits.';
 
             trigger OnValidate()
             begin
@@ -186,10 +200,13 @@ table 5621 "FA Journal Line"
         field(17; "Salvage Value"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Salvage Value';
+            ToolTip = 'Specifies the estimated residual value of a fixed asset when it can no longer be used.';
         }
         field(18; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
 
@@ -221,14 +238,17 @@ table 5621 "FA Journal Line"
         {
             BlankZero = true;
             Caption = 'No. of Depreciation Days';
+            ToolTip = 'Specifies the number of depreciation days if you have selected the Depreciation or Custom 1 option in the FA Posting Type field.';
         }
         field(21; "Depr. until FA Posting Date"; Boolean)
         {
             Caption = 'Depr. until FA Posting Date';
+            ToolTip = 'Specifies if depreciation was calculated until the FA posting date of the line.';
         }
         field(22; "Depr. Acquisition Cost"; Boolean)
         {
             Caption = 'Depr. Acquisition Cost';
+            ToolTip = 'Specifies if, when this line was posted, the additional acquisition cost posted on the line was depreciated in proportion to the amount by which the fixed asset had already been depreciated.';
         }
         field(24; "FA Posting Group"; Code[20])
         {
@@ -238,6 +258,7 @@ table 5621 "FA Journal Line"
         field(26; "Maintenance Code"; Code[10])
         {
             Caption = 'Maintenance Code';
+            ToolTip = 'Specifies a maintenance code.';
             TableRelation = Maintenance;
 
             trigger OnValidate()
@@ -250,6 +271,7 @@ table 5621 "FA Journal Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
                                                           Blocked = const(false));
 
@@ -262,6 +284,7 @@ table 5621 "FA Journal Line"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
                                                           Blocked = const(false));
 
@@ -273,6 +296,7 @@ table 5621 "FA Journal Line"
         field(30; "Insurance No."; Code[20])
         {
             Caption = 'Insurance No.';
+            ToolTip = 'Specifies an insurance code if you have selected the Acquisition Cost option in the FA Posting Type field.';
             TableRelation = Insurance;
 
             trigger OnValidate()
@@ -283,6 +307,7 @@ table 5621 "FA Journal Line"
         field(31; "Budgeted FA No."; Code[20])
         {
             Caption = 'Budgeted FA No.';
+            ToolTip = 'Specifies the number of a fixed asset with the Budgeted Asset check box selected. When you post the journal or document line, an additional entry is created for the budgeted fixed asset where the amount has the opposite sign.';
             TableRelation = "Fixed Asset";
 
             trigger OnValidate()
@@ -296,6 +321,7 @@ table 5621 "FA Journal Line"
         field(32; "Use Duplication List"; Boolean)
         {
             Caption = 'Use Duplication List';
+            ToolTip = 'Specifies whether the line is to be posted to all depreciation books, using different journal batches and with a check mark in the Part of Duplication List field.';
 
             trigger OnValidate()
             begin
@@ -305,6 +331,7 @@ table 5621 "FA Journal Line"
         field(33; "Duplicate in Depreciation Book"; Code[10])
         {
             Caption = 'Duplicate in Depreciation Book';
+            ToolTip = 'Specifies a depreciation book code if you want the journal line to be posted to that depreciation book, as well as to the depreciation book in the Depreciation Book Code field.';
             TableRelation = "Depreciation Book";
 
             trigger OnValidate()
@@ -315,11 +342,13 @@ table 5621 "FA Journal Line"
         field(34; "FA Reclassification Entry"; Boolean)
         {
             Caption = 'FA Reclassification Entry';
+            ToolTip = 'Specifies if the entry was generated from a fixed asset reclassification journal.';
         }
         field(35; "FA Error Entry No."; Integer)
         {
             BlankZero = true;
             Caption = 'FA Error Entry No.';
+            ToolTip = 'Specifies the number of a posted FA ledger entry to mark as an error entry.';
             TableRelation = "FA Ledger Entry";
         }
         field(36; "Reason Code"; Code[10])
@@ -335,20 +364,24 @@ table 5621 "FA Journal Line"
         field(38; "Recurring Method"; Option)
         {
             Caption = 'Recurring Method';
+            ToolTip = 'Specifies a recurring method, if you have indicated that the journal is recurring.';
             OptionCaption = ' ,F Fixed,V Variable';
             OptionMembers = " ","F Fixed","V Variable";
         }
         field(39; "Recurring Frequency"; DateFormula)
         {
             Caption = 'Recurring Frequency';
+            ToolTip = 'Specifies a recurring frequency if you indicated that the journal is a recurring.';
         }
         field(41; "Expiration Date"; Date)
         {
             Caption = 'Expiration Date';
+            ToolTip = 'Specifies the last date on which the recurring journal will be posted.';
         }
         field(42; "Index Entry"; Boolean)
         {
             Caption = 'Index Entry';
+            ToolTip = 'Specifies whether to post an indexation.';
         }
         field(43; "Posting No. Series"; Code[20])
         {
@@ -439,6 +472,7 @@ table 5621 "FA Journal Line"
         }
         field(12450; "Actual Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Actual Quantity';
 
             trigger OnValidate()
@@ -449,6 +483,7 @@ table 5621 "FA Journal Line"
         }
         field(12451; "Calc. Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Calc. Quantity';
             Editable = false;
 
@@ -460,10 +495,14 @@ table 5621 "FA Journal Line"
         }
         field(12452; "Actual Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Actual Amount';
         }
         field(12453; "Calc. Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Calc. Amount';
             Editable = false;
         }
@@ -482,6 +521,8 @@ table 5621 "FA Journal Line"
         }
         field(17300; "Depr. Amount w/o Normalization"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Depr. Amount w/o Normalization';
         }
@@ -491,6 +532,8 @@ table 5621 "FA Journal Line"
         }
         field(17302; "Actual  Remaining Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Actual  Remaining Amount';
         }
         field(17303; "Tax Difference Code"; Code[10])

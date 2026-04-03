@@ -56,6 +56,7 @@ table 12401 "G/L Correspondence Entry"
         field(8; Amount; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount';
         }
         field(9; "User ID"; Code[50])

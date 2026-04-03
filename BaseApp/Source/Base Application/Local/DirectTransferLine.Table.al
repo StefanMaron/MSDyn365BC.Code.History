@@ -1,11 +1,12 @@
+#if not CLEANSCHEMA28
 #pragma warning disable AA0247
 table 12459 "Direct Transfer Line"
 {
     Caption = 'Direct Transfer Line';
     LookupPageID = "Posted Transfer Receipt Lines";
-    ObsoleteState = Pending;
+    ObsoleteState = Removed;
     ObsoleteReason = 'Direct Transfer feature merge to W1.';
-    ObsoleteTag = '18.0';
+    ObsoleteTag = '28.0';
     DataClassification = CustomerContent;
 
     fields
@@ -25,6 +26,7 @@ table 12459 "Direct Transfer Line"
         }
         field(4; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
         }
@@ -60,11 +62,13 @@ table 12459 "Direct Transfer Line"
         }
         field(12; "Quantity (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity (Base)';
             DecimalPlaces = 0 : 5;
         }
         field(14; "Qty. per Unit of Measure"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. per Unit of Measure';
             DecimalPlaces = 0 : 5;
             InitValue = 1;
@@ -76,16 +80,19 @@ table 12459 "Direct Transfer Line"
         }
         field(16; "Gross Weight"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Gross Weight';
             DecimalPlaces = 0 : 5;
         }
         field(17; "Net Weight"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Net Weight';
             DecimalPlaces = 0 : 5;
         }
         field(18; "Unit Volume"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Unit Volume';
             DecimalPlaces = 0 : 5;
         }
@@ -96,6 +103,7 @@ table 12459 "Direct Transfer Line"
         }
         field(22; "Units per Parcel"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Units per Parcel';
             DecimalPlaces = 0 : 5;
         }
@@ -148,13 +156,8 @@ table 12459 "Direct Transfer Line"
         {
             Caption = 'Product Group Code';
             ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-#if CLEAN25
             ObsoleteState = Removed;
             ObsoleteTag = '28.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '17.0';
-#endif
         }
 #endif
         field(7300; "Transfer-from Bin Code"; Code[20])
@@ -184,4 +187,4 @@ table 12459 "Direct Transfer Line"
         }
     }
 }
-
+#endif

@@ -45,6 +45,7 @@ table 12400 "G/L Correspondence"
         field(9; Amount; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("G/L Correspondence Entry".Amount where("Debit Account No." = field("Debit Account No."),
                                                                        "Debit Account No." = field(filter("Debit Totaling")),
                                                                        "Credit Account No." = field("Credit Account No."),
@@ -92,6 +93,7 @@ table 12400 "G/L Correspondence"
         }
         field(20; "Amount (ACY)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("G/L Correspondence Entry"."Amount (ACY)" where("Debit Account No." = field("Debit Account No."),
                                                                                "Debit Account No." = field(filter("Debit Totaling")),
                                                                                "Credit Account No." = field("Credit Account No."),

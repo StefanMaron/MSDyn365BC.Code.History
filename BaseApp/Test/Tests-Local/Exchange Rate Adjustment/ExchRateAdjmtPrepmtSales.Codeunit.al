@@ -9,10 +9,8 @@
     end;
 
     var
-        LibraryInventory: Codeunit "Library - Inventory";
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
-        LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
@@ -23,34 +21,6 @@
         WrongValueErr: Label 'Wrong value in %1.%2, Entry No.= %3.', Comment = '%1=table caption,%2=field caption';
         EntryDoesNotExistErr: Label 'Cannot find entry in table %1 with filters %2.';
         ItemTrackingLinesOption: Option NewLot,SetLot;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure InvToCancelPrepmtCurrRaise()
-    begin
-        ApplyInvCurrToPrepmt(true, true); // pass true for Cancel Prepmt and Currency Exchange Rate raise
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure InvToCancelPrepmtCurrFail()
-    begin
-        ApplyInvCurrToPrepmt(false, true);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure UnapInvToCancelPrepmtCurrRaise()
-    begin
-        UnapplyInvCurrToPrepmt(true, true);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure UnapInvToCancelPrepmtCurrFail()
-    begin
-        UnapplyInvCurrToPrepmt(false, true);
-    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -82,23 +52,9 @@
 
     [Test]
     [Scope('OnPrem')]
-    procedure RefundToCancelPrepmtRaise()
-    begin
-        ApplyInvAndRefundToPrepmt(true, true);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure RefundToNormalPrepmtRaise()
     begin
         ApplyInvAndRefundToPrepmt(true, false);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure RefundToCancelPrepmtFail()
-    begin
-        ApplyInvAndRefundToPrepmt(false, true);
     end;
 
     [Test]
@@ -110,23 +66,9 @@
 
     [Test]
     [Scope('OnPrem')]
-    procedure UnapplyRefToCancelPrepmtRaise()
-    begin
-        UnapplyInvAndRefundToPrepmt(true, true);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure UnapplyRefToNormalPrepmtRaise()
     begin
         UnapplyInvAndRefundToPrepmt(true, false);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure UnapplyRefToCancelPrepmtFail()
-    begin
-        UnapplyInvAndRefundToPrepmt(false, true);
     end;
 
     [Test]
@@ -187,35 +129,6 @@
 
     [Test]
     [Scope('OnPrem')]
-    procedure UnapplyPrepmtToInvWithCancelPrepmtAdjmt()
-    var
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        CurrencyCode: Code[10];
-        InvNo: Code[20];
-        PmtNo: Code[20];
-        EntryAmount: array[3] of Decimal;
-    begin
-        // [FEATURE] [Cancel Curr. Prepmt. Adjmt.] [Unapply]
-        // [SCENARIO 362788] Prepayment Difference G/L Entry is created when unapplying prepayment with "Cancel Curr. Prepmt. Adjmt" option
-
-        Initialize();
-        // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option is on
-        SetCancelPrepmtAdjmtInGLSetup(true, true);
-        // [GIVEN] Posted Prepayment and invoice in FCY with different exchange rates
-        PostInvAndPrepmtWithCurrency(
-          InvNo, PmtNo, EntryAmount, CurrencyCode, true, true);
-        // [GIVEN] Apply Prepayment to Invoice
-        ApplyCustomerPaymentToInvoice(PmtNo, InvNo);
-
-        // [WHEN] Unapply entries
-        UnApplyCustomerPayment(PmtNo);
-
-        // [THEN] Unapplied Detailed Customer Ledg. Entry with "Prepmt. Diff." = Yes has a related G/L Entry with same Amount (LCY).
-        VerifyPrepmtDiffGLEntry(CustLedgEntry."Document Type"::Invoice, InvNo);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure ApplyUnrealPrepmtToInvWithCancelPrepmtAdjmt()
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -272,282 +185,6 @@
         // [THEN] G/L Entry with "Sales VAT. Unreal Account" and "Debit Amount" = -"X" is created
         VerifyDebitCreditGLEntry(
           GenJnlLine."Document Type"::Invoice, PrepmtDocNo, VATPostingSetup."Sales VAT Unreal. Account", -VATAmount, 0);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CrMemoItemChrgAssgntPostPmtToInvApplWithPrepmtDiffFCYExchUp()
-    var
-        CustomerNo: Code[20];
-        ItemNo: Code[20];
-        InvoiceNo: Code[20];
-        PaymentNo: Code[20];
-        ItemChrgCrMemoNo: Code[20];
-        InvoiceILENo: Integer;
-        ItemChrgAmountExclVAT: Decimal;
-        ItemChrgAmountInclVAT: Decimal;
-        PrepmtDiffAmountLCY: Decimal;
-    begin
-        // [FEATURE] [Item Charge] [Prepayment Difference] [FCY]
-        // [SCENARIO 377194] Sales Credit Memo's Item Charge Assignment has Prepayment Difference Amount Excl. VAT for Prepayment to Invoice application with different exch. rates (up) and Cancel Prepmt. Adjmt.
-        Initialize();
-
-        // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option is on.
-        SetCancelPrepmtAdjmtInGLSetup(true, true);
-        // [GIVEN] Released Item Invoice "I" with FCY = 1000$ = 800$ + 200$ (VAT25%) = 60000 LCY = 48000 + 12000 (1$ = 60 LCY).
-        // [GIVEN] Posted Prepayment FCY = 500$ = 400$ + 100$ = 25000 LCY = 20000 + 5000 (1$ = 50 LCY).
-        // [GIVEN] Post Invoice.
-        PrepmtDiffAmountLCY := PostPartItemInvAndPrepmtWithCurrency(InvoiceNo, PaymentNo, CustomerNo, ItemNo, true, true);
-
-        // [WHEN] Apply Prepayment to Invoice. Prepayment Difference LCY = 5000 = 4000 + 1000
-        ApplyCustomerPaymentToInvoice(PaymentNo, InvoiceNo);
-
-        // [THEN] Sales Credit Memo with Item Charge is created with "Amount Including VAT" = 5000.
-        ItemChrgCrMemoNo := GetItemChrgCrMemoDocNo(CustomerNo, ItemChrgAmountExclVAT, ItemChrgAmountInclVAT);
-        Assert.AreEqual(PrepmtDiffAmountLCY, ItemChrgAmountInclVAT, '');
-
-        // [THEN] Value Entry is created for Sales Credit Memo's Item Charge and has "Item Ledger Entry No." = <SalesInvoiceILE>, "Sales Amount (Actual)" = -4000.
-        InvoiceILENo := GetSaleILENo(ItemNo, GetShipmentDocNo(CustomerNo, ItemNo));
-        VerifyValueEntrySalesAmountActual(ItemNo, ItemChrgCrMemoNo, InvoiceILENo, -ItemChrgAmountExclVAT);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure InvItemChrgAssgntPostPmtToInvApplWithPrepmtDiffFCYExchDown()
-    var
-        CustomerNo: Code[20];
-        ItemNo: Code[20];
-        InvoiceNo: Code[20];
-        PaymentNo: Code[20];
-        ItemChrgInvNo: Code[20];
-        InvoiceILENo: Integer;
-        ItemChrgAmountExclVAT: Decimal;
-        ItemChrgAmountInclVAT: Decimal;
-        PrepmtDiffAmountLCY: Decimal;
-    begin
-        // [FEATURE] [Item Charge] [Prepayment Difference] [FCY]
-        // [SCENARIO 377194] Sales Invoice's Item Charge Assignment has Prepayment Difference Amount Excl. VAT for Prepayment to Invoice application with different exch. rates (down) and Cancel Prepmt. Adjmt.
-        Initialize();
-
-        // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option is on
-        SetCancelPrepmtAdjmtInGLSetup(true, true);
-        // [GIVEN] Released Item Invoice "I" with FCY = 1000$ = 800$ + 200$ (VAT25%) = 60000 LCY = 48000 + 12000 (1$ = 60 LCY).
-        // [GIVEN] Posted Prepayment FCY = 500$ = 400$ + 100$ = 35000 LCY = 28000 + 7000 (1$ = 70 LCY).
-        // [GIVEN] Post Invoice.
-        PrepmtDiffAmountLCY := PostPartItemInvAndPrepmtWithCurrency(InvoiceNo, PaymentNo, CustomerNo, ItemNo, false, true);
-
-        // [WHEN] Apply Prepayment to Invoice. Prepayment Difference LCY = 5000 = 4000 + 1000
-        ApplyCustomerPaymentToInvoice(PaymentNo, InvoiceNo);
-
-        // [THEN] Sales Invoice with Item Charge is created with "Amount Including VAT" = 5000.
-        ItemChrgInvNo := GetItemChrgInvDocNo(CustomerNo, ItemChrgAmountExclVAT, ItemChrgAmountInclVAT);
-        Assert.AreEqual(PrepmtDiffAmountLCY, ItemChrgAmountInclVAT, '');
-
-        // [THEN] Value Entry is created for Sales Invoice's Item Charge and has "Item Ledger Entry No." = <SalesInvoiceILE>, "Sales Amount (Actual)" = 4000.
-        InvoiceILENo := GetSaleILENo(ItemNo, GetShipmentDocNo(CustomerNo, ItemNo));
-        VerifyValueEntrySalesAmountActual(ItemNo, ItemChrgInvNo, InvoiceILENo, ItemChrgAmountExclVAT);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinesModalPageHandler,ItemTrackingSummaryModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure ApplicationOfCustomerPrepaymentToIinvoiceForTrackedIitem()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        ExchRateAmount: array[3] of Decimal;
-        InvoiceNo: Code[20];
-        PaymentNo: Code[20];
-    begin
-        // [FEATURE] [FCY] [Item tracking] [Application]
-        // [SCENARIO 273345] When "Cancel Curr. Prepmt. Adjmt." in "General Ledger Setup" is on the application of customer prepayment to invoice for tracked item is successful.
-        Initialize();
-
-        // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option is on
-        SetCancelPrepmtAdjmtInGLSetup(true, true);
-
-        // [GIVEN] Sales order "S" with item line and specified currency
-        CreateSalesOrderWithTrackedItem(
-          SalesHeader, SalesLine, LibrarySales.CreateCustomerNo(), CreateLotItemInventory(LibraryRandom.RandIntInRange(20, 100)),
-          LibraryRandom.RandIntInRange(2, 10), CalcDate('<1M>', WorkDate()),
-          PrepareSetup(true, ExchRateAmount, false));
-        LibrarySales.ReleaseSalesDocument(SalesHeader);
-
-        // [GIVEN] Post prepayment "P" for the sales order "S"
-        PaymentNo := CreatePostPrepayment(WorkDate(), SalesLine, SalesHeader."Currency Code", -SalesLine."Amount Including VAT");
-
-        // [GIVEN] Post "S",  posted invoice "N" is created
-        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        // [WHEN] Apply Prepayment "P" to Invoice "N"
-        ApplyCustomerPaymentToInvoice(PaymentNo, InvoiceNo);
-
-        // [THEN] There are both "Detailed Cust. Ledg. Entry" of type Application - with "Document Type" = Payment and "Document No." = "P" and "Document Type" = Invoice and "Document No." = "N"
-        VerifyPrepmtApplication(SalesHeader."Sell-to Customer No.", SalesLine."No.", PaymentNo);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinesModalPageHandler,ItemTrackingSummaryModalPageHandler,GetShipmentLinesModalPageHandler,ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure ApplicationOfCustomerPrepaymentToIinvoiceBySeparateDocumentForTrackedItem()
-    var
-        OrderSalesHeader: Record "Sales Header";
-        OrderSalesLine: Record "Sales Line";
-        InvoiceSalesHeader: Record "Sales Header";
-        ExchRateAmount: array[3] of Decimal;
-        InvoiceNo: Code[20];
-        PaymentNo: Code[20];
-    begin
-        // [FEATURE] [FCY] [Item tracking] [Application]
-        // [SCENARIO 277017] When "Cancel Curr. Prepmt. Adjmt." in "General Ledger Setup" is on the application of customer prepayment to invoice for tracked item made as separate document is successful.
-        Initialize();
-
-        // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option is on
-        SetCancelPrepmtAdjmtInGLSetup(true, true);
-
-        // [GIVEN] Sales order "S" with item line and specified currency
-        CreateSalesOrderWithTrackedItem(
-          OrderSalesHeader, OrderSalesLine, LibrarySales.CreateCustomerNo(), CreateLotItemInventory(LibraryRandom.RandIntInRange(20, 100)),
-          LibraryRandom.RandIntInRange(2, 10), WorkDate(), PrepareSetup(true, ExchRateAmount, false));
-
-        // [GIVEN] Post "S" shipment
-        LibrarySales.PostSalesDocument(OrderSalesHeader, true, false);
-
-        // [GIVEN] Create and post invoice "N" from "S"
-        CreateSalesInvoice(
-          InvoiceSalesHeader, OrderSalesHeader."Sell-to Customer No.", OrderSalesHeader."Currency Code", CalcDate('<1M>', WorkDate()));
-        InvoiceNo := LibrarySales.PostSalesDocument(InvoiceSalesHeader, false, true);
-
-        // [GIVEN] Post prepayment "P" for the sales order "S"
-        PaymentNo :=
-          CreatePostPrepayment(
-            WorkDate(), OrderSalesLine, OrderSalesHeader."Currency Code", -OrderSalesLine."Amount Including VAT");
-
-        // [WHEN] Apply Prepayment "P" to Invoice "N"
-        ApplyCustomerPaymentToInvoice(PaymentNo, InvoiceNo);
-
-        // [THEN] There are both "Detailed Cust. Ledg. Entry" of type Application - with "Document Type" = Payment and "Document No." = "P" and "Document Type" = Invoice and "Document No." = "N"
-        VerifyPrepmtApplication(OrderSalesHeader."Sell-to Customer No.", OrderSalesLine."No.", PaymentNo);
-    end;
-
-    [Test]
-    [HandlerFunctions('GetShipmentLinesModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure CustomerPrepmtAppliedExchRateGainLossPostedAsItemChargeWithCancelPrepmtAdjmtInTA()
-    var
-        ItemJournalLine: Record "Item Journal Line";
-        SalesHeader: Record "Sales Header";
-        OrderSalesLine: Record "Sales Line";
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        SourceCurrencyCode: Code[10];
-        ExchRateAmount: array[3] of Decimal;
-        PostedInvoiceNo: Code[20];
-        PaymentNo: Code[20];
-    begin
-        // [FEATURE] [Invoice] [Currency] [Exchange Rates] [Cancel Prepmt. Adjmt. in TA]
-        // [SCENARIO 281292] When applying customer prepayment to invoice with option "Cancel Prepmt. Adjmt. in TA", exchange rate gain/loss is posted as item charge
-
-        Initialize();
-
-        // [GIVEN] Enable "Cancel Prepmt. Adjmt. in TA" in general ledger setup
-        SetCancelPrepmtAdjmtInGLSetup(true, true);
-
-        // [GIVEN] Setup exchange rates for EUR: 1.5 on 16.02.2020, 2.1 on 16.03.2020, 2.8 on 16.04.2020
-        SourceCurrencyCode := PrepareSetup(true, ExchRateAmount, true);
-
-        // [GIVEN] Sales order for 10 pcs of item "I" with "Direct Unit Cost" = 100 EUR on 16.03. Post shipment.
-        CreateItemSalesDocWithCurrency(
-          SalesHeader, OrderSalesLine, SalesHeader."Document Type"::Order, CalcDate('<1M>', WorkDate()), SourceCurrencyCode);
-        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, OrderSalesLine."No.", '', '', OrderSalesLine.Quantity);
-        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
-        LibrarySales.PostSalesDocument(SalesHeader, true, false);
-
-        // [GIVEN] Create a separate invoice on 16.04 and get lines from the posted shipment. Post invoice.
-        CreateSalesHeaderWithCurrency(
-          SalesHeader, SalesHeader."Document Type"::Invoice, CalcDate('<2M>', WorkDate()),
-          SourceCurrencyCode, SalesHeader."Sell-to Customer No.");
-        GetShipmentLines(SalesHeader);
-        PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
-
-        // [GIVEN] Post customer prepayment on 16.02
-        PaymentNo := CreatePostPrepayment(WorkDate(), OrderSalesLine, SourceCurrencyCode, -OrderSalesLine."Amount Including VAT");
-
-        // [WHEN] Apply prepayment to invoice
-        ApplyCustomerPaymentToInvoice(PaymentNo, PostedInvoiceNo);
-
-        // [THEN] No item ledger entries are posted
-        ItemLedgerEntry.SetRange("Item No.", OrderSalesLine."No.");
-        ItemLedgerEntry.SetRange(Open, true);
-        Assert.RecordIsEmpty(ItemLedgerEntry);
-
-        // [THEN] Value Entry with item charge "EXCLTACOST" is created
-        // [THEN] "Cost Amount (Actual)" in value entry is 10 * 100 * (2.8 - 1.5) = 1300
-        VerifyPrepaymentAdjmtValueEntry(OrderSalesLine, ExchRateAmount[1], ExchRateAmount[3]);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure UnapplyPrepmtToInvWithCancelPrepmtAdjmtAndGLCorresp()
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        SalesInvoiceLine: Record "Sales Invoice Line";
-        VATEntry: Record "VAT Entry";
-        GLEntry: Record "G/L Entry";
-        GLCorrespondenceEntry: Record "G/L Correspondence Entry";
-        CurrencyCode: Code[10];
-        InvoiceNo: Code[20];
-        PaymentNo: Code[20];
-        EntryAmount: array[3] of Decimal;
-    begin
-        // [FEATURE] [Prepayment Difference] [Cancel Curr. Prepmt. Adjmt.] [G/L Correspondence] [Unapply]
-        // [SCENARIO 390954] Unapply Prepayment from invoice with "Cancel Curr. Prepmt. Adjmt" and "Automatic G/L Correspondence"
-        Initialize();
-
-        // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option = Yes, "Automatic G/L Correspondence" = Yes in G/L Setup
-        SetCancelPrepmtAdjmtInGLSetup(true, false);
-        SetAutomaticGLCorrInGLSetup();
-
-        // [GIVEN] Posted Prepayment on 15/01/2021 and invoice for "GLAcc" on 15/02/2021 in FCY with diff. exch. rates and prepmt. diff. = 120, VAT % = 20
-        PostInvAndPrepmtWithCurrency(InvoiceNo, PaymentNo, EntryAmount, CurrencyCode, true, true);
-
-        SalesInvoiceHeader.Get(InvoiceNo);
-        SalesInvoiceLine.SetRange("Document No.", InvoiceNo);
-        SalesInvoiceLine.FindFirst();
-        GLEntry.SetRange("Document No.", InvoiceNo);
-        GLEntry.SetRange("G/L Account No.", SalesInvoiceLine."No.");
-        Assert.RecordCount(GLEntry, 1);
-        GLCorrespondenceEntry.SetRange("Credit Source No.", SalesInvoiceHeader."Sell-to Customer No.");
-        GLCorrespondenceEntry.SetRange("Credit Account No.", SalesInvoiceLine."No.");
-        Assert.RecordCount(GLCorrespondenceEntry, 1);
-
-        // [GIVEN] Apply Prepayment to Invoice
-        ApplyCustomerPaymentToInvoice(PaymentNo, InvoiceNo);
-
-        VATEntry.SetRange("Document No.", InvoiceNo);
-        VATEntry.SetRange("Prepmt. Diff.", true);
-        VATEntry.FindFirst();
-        Assert.RecordCount(VATEntry, 1);
-        Assert.RecordCount(GLEntry, 2);
-        Assert.RecordCount(GLCorrespondenceEntry, 2);
-
-        // [WHEN] Unapply entries
-        UnApplyCustomerPayment(PaymentNo);
-
-        // [THEN] G/L Entry and G/L correspondence entries unapplied for "GLAcc" account with Amount = 120
-        Assert.RecordCount(VATEntry, 2);
-        Assert.RecordCount(GLEntry, 3);
-        Assert.RecordCount(GLCorrespondenceEntry, 3);
-        GLEntry.FindLast();
-        GLEntry.TestField(Amount, -VATEntry.Base - VATEntry.Amount);
-        GLCorrespondenceEntry.FindLast();
-        GLCorrespondenceEntry.TestField(Amount, VATEntry.Base + VATEntry.Amount);
-
-        // [THEN] Sales Invoice for prepmt. difference created with Amount Incl. VAT = 120
-        SalesInvoiceHeader.SetRange("Sell-to Customer No.", VATEntry."Bill-to/Pay-to No.");
-        SalesInvoiceHeader.SetRange(Closed, true);
-        SalesInvoiceHeader.FindFirst();
-        SalesInvoiceHeader.CalcFields("Amount Including VAT");
-        SalesInvoiceHeader.TestField("Amount Including VAT", VATEntry.Base + VATEntry.Amount);
     end;
 
     local procedure Initialize()
@@ -645,15 +282,6 @@
         SalesReceivablesSetup.Modify(true);
     end;
 
-    local procedure SetAutomaticGLCorrInGLSetup()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-    begin
-        GeneralLedgerSetup.Get();
-        GeneralLedgerSetup.Validate("Automatic G/L Correspondence", true);
-        GeneralLedgerSetup.Modify(true);
-    end;
-
     local procedure ApplyInvCurrToPrepmt(IsRaise: Boolean; IsCancelPrepmt: Boolean)
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
@@ -712,15 +340,6 @@
         LibraryERM.ApplyCustomerLedgerEntry(
           CustLedgerEntry."Document Type"::Payment, PaymentDocNo,
           CustLedgerEntry."Document Type"::Refund, RefundDocNo);
-    end;
-
-    local procedure GetShipmentLines(SalesHeader: Record "Sales Header")
-    var
-        SalesLine: Record "Sales Line";
-    begin
-        SalesLine.Validate("Document Type", SalesHeader."Document Type");
-        SalesLine.Validate("Document No.", SalesHeader."No.");
-        LibrarySales.GetShipmentLines(SalesLine);
     end;
 
     local procedure UnApplyCustomerPayment(PaymentDocNo: Code[20])
@@ -858,25 +477,6 @@
         InvNo := PostInvoice(SalesLine);
     end;
 
-    local procedure PostPartItemInvAndPrepmtWithCurrency(var InvNo: Code[20]; var PmtNo: Code[20]; var CustomerNo: Code[20]; var ItemNo: Code[20]; IsRaise: Boolean; IsCancelPrepmt: Boolean): Decimal
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        SourceCurrencyCode: Code[10];
-        ExchRateAmount: array[3] of Decimal;
-        PmtAmount: Decimal;
-    begin
-        SourceCurrencyCode := PrepareSetup(IsCancelPrepmt, ExchRateAmount, IsRaise);
-        CreateItemSalesDocWithCurrency(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, CalcDate('<1M>', WorkDate()), SourceCurrencyCode);
-        PmtAmount := Round(SalesLine."Amount Including VAT" / 3, 1);
-        PmtNo := CreatePostPrepayment(WorkDate(), SalesLine, SourceCurrencyCode, -PmtAmount);
-        InvNo := PostInvoice(SalesLine);
-        CustomerNo := SalesHeader."Sell-to Customer No.";
-        ItemNo := SalesLine."No.";
-        exit(PmtAmount * Abs(ExchRateAmount[1] - ExchRateAmount[2]));
-    end;
-
     local procedure PostInvAndUnrealPrepmt(var InvNo: Code[20]; var PmtNo: Code[20]; var VATPostingSetup: Record "VAT Posting Setup"): Decimal
     var
         SalesHeader: Record "Sales Header";
@@ -969,32 +569,6 @@
         VATPostingSetup.Modify(true);
     end;
 
-    local procedure CreateItemNo(): Code[20]
-    var
-        Item: Record Item;
-    begin
-        LibraryInventory.CreateItem(Item);
-        UpdateItemCost(Item);
-        exit(Item."No.");
-    end;
-
-    local procedure CreateLotItemNo(): Code[20]
-    var
-        Item: Record Item;
-    begin
-        LibraryItemTracking.CreateLotItem(Item);
-        UpdateItemCost(Item);
-        exit(Item."No.");
-    end;
-
-    local procedure UpdateItemCost(var Item: Record Item)
-    begin
-        Item.Validate("Costing Method", Item."Costing Method"::Standard);
-        Item.Validate("Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
-        Item.Validate("Unit Price", Item."Unit Cost");
-        Item.Modify(true);
-    end;
-
     local procedure CreatePostPrepayment(PostingDate: Date; SalesLine: Record "Sales Line"; CurrencyCode: Code[10]; PmtAmount: Decimal): Code[20]
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -1034,60 +608,6 @@
         GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"G/L Account");
         GenJnlLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJnlLine.Modify(true);
-    end;
-
-    local procedure CreateItemSalesDocWithCurrency(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; PostingDate: Date; CurrencyCode: Code[10])
-    begin
-        CreateSalesHeaderWithCurrency(SalesHeader, DocumentType, PostingDate, CurrencyCode, LibrarySales.CreateCustomerNo());
-
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemNo(), LibraryRandom.RandIntInRange(2, 10));
-        LibrarySales.ReleaseSalesDocument(SalesHeader);
-    end;
-
-    local procedure CreateSalesHeaderWithCurrency(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; PostingDate: Date; CurrencyCode: Code[10]; CustomerNo: Code[20])
-    begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-        SalesHeader.Validate("Posting Date", PostingDate);
-        SalesHeader.Validate("Currency Code", CurrencyCode);
-        SalesHeader.Modify(true);
-    end;
-
-    local procedure CreateLotItemInventory(Quantity: Decimal) ItemNo: Code[20]
-    var
-        ItemJournalLine: Record "Item Journal Line";
-    begin
-        ItemNo := CreateLotItemNo();
-        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, '', '', Quantity);
-        LibraryVariableStorage.Enqueue(ItemTrackingLinesOption::NewLot);
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
-        LibraryVariableStorage.Enqueue(Quantity);
-        ItemJournalLine.OpenItemTrackingLines(false);
-        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
-    end;
-
-    local procedure CreateSalesOrderWithTrackedItem(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; Date: Date; CurrencyCode: Code[10])
-    begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
-        SalesHeader.Validate("Posting Date", Date);
-        SalesHeader.Validate("Currency Code", CurrencyCode);
-        SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
-        LibraryVariableStorage.Enqueue(ItemTrackingLinesOption::SetLot);
-        SalesLine.OpenItemTrackingLines();
-    end;
-
-    local procedure CreateSalesInvoice(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; CurrencyCode: Code[10]; PostingDate: Date)
-    var
-        SalesLine: Record "Sales Line";
-    begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
-        SalesHeader.Validate("Currency Code", CurrencyCode);
-        SalesHeader.Validate("Posting Date", PostingDate);
-        SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::" ", '', 0);
-        LibrarySales.GetShipmentLines(SalesLine);
     end;
 
     local procedure GetEntryType(IsGain: Boolean): Enum "Detailed CV Ledger Entry Type"
@@ -1174,60 +694,6 @@
         exit(NoSeries.PeekNextNo(SalesReceivablesSetup."Posted Prepayment Nos."));
     end;
 
-    local procedure GetShipmentDocNo(CustomerNo: Code[20]; ItemNo: Code[20]): Code[20]
-    var
-        SalesShipmentLine: Record "Sales Shipment Line";
-    begin
-        SalesShipmentLine.SetRange("Sell-to Customer No.", CustomerNo);
-        SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
-        SalesShipmentLine.SetRange("No.", ItemNo);
-        SalesShipmentLine.FindFirst();
-        exit(SalesShipmentLine."Document No.");
-    end;
-
-    local procedure GetSaleILENo(ItemNo: Code[20]; DocumentNo: Code[20]): Integer
-    var
-        ItemLedgerEntry: Record "Item Ledger Entry";
-    begin
-        ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
-        ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        ItemLedgerEntry.FindFirst();
-        exit(ItemLedgerEntry."Entry No.");
-    end;
-
-    local procedure GetItemChrgInvDocNo(CustomerNo: Code[20]; var AmountExclVAT: Decimal; var AmountInclVAT: Decimal): Code[20]
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        SalesInvoiceLine: Record "Sales Invoice Line";
-    begin
-        SalesInvoiceLine.SetRange("Sell-to Customer No.", CustomerNo);
-        SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::"Charge (Item)");
-        SalesInvoiceLine.FindFirst();
-
-        SalesInvoiceHeader.Get(SalesInvoiceLine."Document No.");
-        SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT");
-        AmountExclVAT := SalesInvoiceHeader.Amount;
-        AmountInclVAT := SalesInvoiceHeader."Amount Including VAT";
-        exit(SalesInvoiceHeader."No.");
-    end;
-
-    local procedure GetItemChrgCrMemoDocNo(CustomerNo: Code[20]; var AmountExclVAT: Decimal; var AmountInclVAT: Decimal): Code[20]
-    var
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        SalesCrMemoLine: Record "Sales Cr.Memo Line";
-    begin
-        SalesCrMemoLine.SetRange("Sell-to Customer No.", CustomerNo);
-        SalesCrMemoLine.SetRange(Type, SalesCrMemoLine.Type::"Charge (Item)");
-        SalesCrMemoLine.FindFirst();
-
-        SalesCrMemoHeader.Get(SalesCrMemoLine."Document No.");
-        SalesCrMemoHeader.CalcFields(Amount, "Amount Including VAT");
-        AmountExclVAT := SalesCrMemoHeader.Amount;
-        AmountInclVAT := SalesCrMemoHeader."Amount Including VAT";
-        exit(SalesCrMemoHeader."No.");
-    end;
-
     local procedure CalcAndVerifyCorrEntries(CurrencyCode: Code[10]; PostingDate: Date; IsRaise: Boolean; IsCancelPrepmt: Boolean; PmtNo: Code[20]; RefundNo: Code[20]; CorrAmount: Decimal; Sign: Integer)
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
@@ -1287,12 +753,6 @@
         DtldCustLedgEntry.SetRange("Entry Type", EntryType);
         Assert.IsTrue(
           DtldCustLedgEntry.FindLast(), StrSubstNo(EntryDoesNotExistErr, DtldCustLedgEntry.TableCaption(), DtldCustLedgEntry.GetFilters));
-    end;
-
-    local procedure FindSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line"; ItemNo: Code[20])
-    begin
-        SalesInvoiceLine.SetRange("No.", ItemNo);
-        SalesInvoiceLine.FindFirst();
     end;
 
     local procedure FilterGLEntry(var GLEntry: Record "G/L Entry"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; GLAccNo: Code[20])
@@ -1367,22 +827,6 @@
           StrSubstNo(WrongValueErr, DtldCustLedgEntry.TableCaption(), DtldCustLedgEntry.FieldCaption("Amount (LCY)"), DtldCustLedgEntry."Entry No."));
     end;
 
-    local procedure VerifyPrepmtDiffGLEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
-    var
-        CustPostingGroup: Record "Customer Posting Group";
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
-    begin
-        FindCustLedgEntry(CustLedgEntry, DocType, DocNo);
-        DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
-        DtldCustLedgEntry.SetRange("Prepmt. Diff.", true);
-        DtldCustLedgEntry.SetRange(Unapplied, true);
-        Assert.IsTrue(DtldCustLedgEntry.FindLast(), StrSubstNo(EntryDoesNotExistErr, DtldCustLedgEntry.TableCaption(), DtldCustLedgEntry.GetFilters));
-        CustPostingGroup.Get(CustLedgEntry."Customer Posting Group");
-        VerifyGLEntry(
-          DocType, DocNo, CustPostingGroup."Receivables Account", DtldCustLedgEntry."Amount (LCY)");
-    end;
-
     local procedure VerifyAdjGLEntries(DocNo: Code[20]; CurrencyCode: Code[10]; IsRaise: Boolean; IsCancelPrepmt: Boolean; ExpectedAmount: Decimal)
     var
         Currency: Record Currency;
@@ -1432,61 +876,6 @@
     begin
         FilterGLEntry(GLEntry, DocType, DocNo, GLAccNo);
         Assert.RecordIsEmpty(GLEntry);
-    end;
-
-    local procedure VerifyPrepaymentAdjmtValueEntry(SalesLine: Record "Sales Line"; PrepmtExchRate: Decimal; InvoiceExchRate: Decimal)
-    var
-        Item: Record Item;
-        InventoryPostingGroup: Record "Inventory Posting Group";
-        ValueEntry: Record "Value Entry";
-    begin
-        Item.Get(SalesLine."No.");
-        InventoryPostingGroup.Get(Item."Inventory Posting Group");
-        ValueEntry.SetRange("Item No.", Item."No.");
-        ValueEntry.SetRange("Item Charge No.", InventoryPostingGroup."Sales PD Charge FCY (Item)");
-        ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Sales Credit Memo");
-        ValueEntry.FindFirst();
-
-        ValueEntry.TestField(
-          "Sales Amount (Actual)",
-          Round(SalesLine.Amount * PrepmtExchRate) - Round(SalesLine.Amount * InvoiceExchRate));
-    end;
-
-    local procedure VerifyValueEntrySalesAmountActual(ItemNo: Code[20]; DocumentNo: Code[20]; ILENo: Integer; ExpectedAmount: Decimal)
-    var
-        ValueEntry: Record "Value Entry";
-    begin
-        ValueEntry.SetRange("Item No.", ItemNo);
-        ValueEntry.SetRange("Document No.", DocumentNo);
-        ValueEntry.SetRange("Item Ledger Entry No.", ILENo);
-        ValueEntry.FindFirst();
-        Assert.AreEqual(ExpectedAmount, ValueEntry."Sales Amount (Actual)", ValueEntry.FieldCaption("Sales Amount (Actual)"));
-    end;
-
-    local procedure VerifyDetailedCustLedgEntry(CustomerNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
-    var
-        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
-    begin
-        DetailedCustLedgEntry.SetRange("Customer No.", CustomerNo);
-        DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
-        DetailedCustLedgEntry.SetRange("Document Type", DocumentType);
-        DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
-        Assert.RecordIsNotEmpty(DetailedCustLedgEntry);
-    end;
-
-    local procedure VerifyPrepmtApplication(CustomerNo: Code[20]; ItemNo: Code[20]; PaymentNo: Code[20])
-    var
-        SalesInvoiceLine: Record "Sales Invoice Line";
-        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
-    begin
-        FindSalesInvoiceLine(SalesInvoiceLine, ItemNo);
-        VerifyDetailedCustLedgEntry(
-          CustomerNo, DetailedCustLedgEntry."Entry Type"::Application,
-          DetailedCustLedgEntry."Document Type"::Payment, PaymentNo);
-        VerifyDetailedCustLedgEntry(
-          CustomerNo, DetailedCustLedgEntry."Entry Type"::Application,
-          DetailedCustLedgEntry."Document Type"::Invoice,
-          SalesInvoiceLine."Document No.");
     end;
 
     [ModalPageHandler]

@@ -64,6 +64,8 @@ page 14947 "VAT Reinstatement Worksheet"
                 }
                 field("""Unrealized VAT Amount"" - ""Realized VAT Amount"""; Rec."Unrealized VAT Amount" - Rec."Realized VAT Amount")
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = Basic, Suite;
                     Caption = 'Remaining VAT Amount';
                     Editable = false;

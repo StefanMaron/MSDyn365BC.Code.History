@@ -40,6 +40,7 @@ table 12474 "Item/FA Precious Metal"
         }
         field(7; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
         }
         field(8; "Nomenclature No."; Text[30])
@@ -52,6 +53,7 @@ table 12474 "Item/FA Precious Metal"
         }
         field(10; Mass; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Mass';
         }
     }

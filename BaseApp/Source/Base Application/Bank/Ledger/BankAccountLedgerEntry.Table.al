@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -38,6 +38,7 @@ table 271 "Bank Account Ledger Entry"
         field(1; "Entry No."; Integer)
         {
             Caption = 'Entry No.';
+            ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
         }
         /// <summary>
         /// Bank account number this transaction is posted to.
@@ -45,6 +46,7 @@ table 271 "Bank Account Ledger Entry"
         field(3; "Bank Account No."; Code[20])
         {
             Caption = 'Bank Account No.';
+            ToolTip = 'Specifies the number of the bank account used for the entry.';
             TableRelation = "Bank Account";
         }
         /// <summary>
@@ -53,6 +55,7 @@ table 271 "Bank Account Ledger Entry"
         field(4; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
+            ToolTip = 'Specifies the posting date for the entry.';
         }
         /// <summary>
         /// Type of document that generated this bank transaction (Payment, Invoice, etc.).
@@ -60,6 +63,7 @@ table 271 "Bank Account Ledger Entry"
         field(5; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
+            ToolTip = 'Specifies the document type on the bank account entry. The document type will be Payment, Refund, or the field will be blank.';
         }
         /// <summary>
         /// Document number that generated this bank account transaction.
@@ -67,6 +71,7 @@ table 271 "Bank Account Ledger Entry"
         field(6; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+            ToolTip = 'Specifies the document number on the bank account entry.';
         }
         /// <summary>
         /// Description text explaining the nature of the bank transaction.
@@ -74,6 +79,7 @@ table 271 "Bank Account Ledger Entry"
         field(7; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies the description of the bank account entry.';
         }
         /// <summary>
         /// Currency code for transactions in foreign currencies, blank for local currency.
@@ -81,6 +87,7 @@ table 271 "Bank Account Ledger Entry"
         field(11; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
+            ToolTip = 'Specifies the currency that is used on the entry.';
             TableRelation = Currency;
         }
         /// <summary>
@@ -91,6 +98,7 @@ table 271 "Bank Account Ledger Entry"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
+            ToolTip = 'Specifies the amount of the entry denominated in the applicable foreign currency.';
         }
         /// <summary>
         /// Remaining amount available for application in bank reconciliation processes.
@@ -100,6 +108,7 @@ table 271 "Bank Account Ledger Entry"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Remaining Amount';
+            ToolTip = 'Specifies the amount that remains to be applied to. The amount is denominated in the applicable foreign currency.';
         }
         /// <summary>
         /// Transaction amount converted to local currency for consolidated reporting.
@@ -125,6 +134,7 @@ table 271 "Bank Account Ledger Entry"
         {
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
+            ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         /// <summary>
@@ -134,6 +144,7 @@ table 271 "Bank Account Ledger Entry"
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
+            ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         /// <summary>
@@ -142,6 +153,7 @@ table 271 "Bank Account Ledger Entry"
         field(25; "Our Contact Code"; Code[20])
         {
             Caption = 'Our Contact Code';
+            ToolTip = 'Specifies the code for the employee who is responsible for the bank account.';
             TableRelation = "Salesperson/Purchaser";
         }
         /// <summary>
@@ -150,6 +162,7 @@ table 271 "Bank Account Ledger Entry"
         field(27; "User ID"; Code[50])
         {
             Caption = 'User ID';
+            ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
         }
@@ -159,6 +172,7 @@ table 271 "Bank Account Ledger Entry"
         field(28; "Source Code"; Code[10])
         {
             Caption = 'Source Code';
+            ToolTip = 'Specifies the source code that specifies where the entry was created.';
             TableRelation = "Source Code";
         }
         /// <summary>
@@ -167,6 +181,7 @@ table 271 "Bank Account Ledger Entry"
         field(36; Open; Boolean)
         {
             Caption = 'Open';
+            ToolTip = 'Specifies whether the amount on the bank account entry has been fully applied to, or if there is a remaining amount that must be applied to.';
         }
         /// <summary>
         /// Indicates whether the transaction amount is positive (receipts) or negative (payments).
@@ -174,6 +189,7 @@ table 271 "Bank Account Ledger Entry"
         field(43; Positive; Boolean)
         {
             Caption = 'Positive';
+            ToolTip = 'Specifies if the bank ledger entry is positive.';
         }
         /// <summary>
         /// Entry number of the bank account ledger entry that closed this entry.
@@ -210,6 +226,7 @@ table 271 "Bank Account Ledger Entry"
         field(50; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
+            ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
             TableRelation = "Reason Code";
         }
         /// <summary>
@@ -218,6 +235,7 @@ table 271 "Bank Account Ledger Entry"
         field(51; "Bal. Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
+            ToolTip = 'Specifies the type of account that a balancing entry is posted to, such as BANK for a cash account.';
         }
         /// <summary>
         /// Number of the balancing account used in the original transaction.
@@ -225,6 +243,7 @@ table 271 "Bank Account Ledger Entry"
         field(52; "Bal. Account No."; Code[20])
         {
             Caption = 'Bal. Account No.';
+            ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account that the balancing entry is posted to, such as a cash account for cash purchases.';
             TableRelation = if ("Bal. Account Type" = const("G/L Account")) "G/L Account"
             else
             if ("Bal. Account Type" = const(Customer)) Customer
@@ -248,6 +267,7 @@ table 271 "Bank Account Ledger Entry"
         field(55; "Statement Status"; Option)
         {
             Caption = 'Statement Status';
+            ToolTip = 'Specifies the statement status of the bank account ledger entry.';
             OptionCaption = 'Open,Bank Acc. Entry Applied,Check Entry Applied,Closed';
             OptionMembers = Open,"Bank Acc. Entry Applied","Check Entry Applied",Closed;
         }
@@ -257,6 +277,7 @@ table 271 "Bank Account Ledger Entry"
         field(56; "Statement No."; Code[20])
         {
             Caption = 'Statement No.';
+            ToolTip = 'Specifies the bank account statement that the ledger entry has been applied to, if the Statement Status is Bank Account Ledger Applied.';
             TableRelation = "Bank Acc. Reconciliation Line"."Statement No." where("Bank Account No." = field("Bank Account No."));
         }
         /// <summary>
@@ -265,6 +286,7 @@ table 271 "Bank Account Ledger Entry"
         field(57; "Statement Line No."; Integer)
         {
             Caption = 'Statement Line No.';
+            ToolTip = 'Specifies the number of the statement line that has been applied to by this ledger entry line.';
             TableRelation = "Bank Acc. Reconciliation Line"."Statement Line No." where("Bank Account No." = field("Bank Account No."),
                                                                                         "Statement No." = field("Statement No."));
         }
@@ -277,6 +299,7 @@ table 271 "Bank Account Ledger Entry"
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Debit Amount';
+            ToolTip = 'Specifies the total of the ledger entries that represent debits.';
         }
         /// <summary>
         /// Credit amount in the original currency for negative transactions.
@@ -287,6 +310,7 @@ table 271 "Bank Account Ledger Entry"
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Credit Amount';
+            ToolTip = 'Specifies the total of the ledger entries that represent credits.';
         }
         /// <summary>
         /// Debit amount in local currency for positive transactions.
@@ -322,6 +346,7 @@ table 271 "Bank Account Ledger Entry"
         field(63; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+            ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
         }
         /// <summary>
         /// Indicates whether this bank account ledger entry has been reversed.
@@ -329,6 +354,7 @@ table 271 "Bank Account Ledger Entry"
         field(64; Reversed; Boolean)
         {
             Caption = 'Reversed';
+            ToolTip = 'Specifies if the entry has been part of a reverse transaction.';
         }
         /// <summary>
         /// Entry number of the bank account ledger entry that reversed this entry.
@@ -337,6 +363,7 @@ table 271 "Bank Account Ledger Entry"
         {
             BlankZero = true;
             Caption = 'Reversed by Entry No.';
+            ToolTip = 'Specifies the number of the correcting entry that replaced the original entry in the reverse transaction.';
             TableRelation = "Bank Account Ledger Entry";
         }
         /// <summary>
@@ -346,6 +373,7 @@ table 271 "Bank Account Ledger Entry"
         {
             BlankZero = true;
             Caption = 'Reversed Entry No.';
+            ToolTip = 'Specifies the number of the original entry that was undone by the reverse transaction.';
             TableRelation = "Bank Account Ledger Entry";
         }
         /// <summary>
@@ -364,6 +392,7 @@ table 271 "Bank Account Ledger Entry"
         {
             CalcFormula = count("Check Ledger Entry" where("Bank Account Ledger Entry No." = field("Entry No.")));
             Caption = 'Check Ledger Entries';
+            ToolTip = 'Specifies the check ledger entries that are associated with the bank account ledger entry.';
             FieldClass = FlowField;
         }
         /// <summary>
@@ -372,6 +401,7 @@ table 271 "Bank Account Ledger Entry"
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
+            ToolTip = 'Specifies a reference to a combination of dimension values. The actual values are stored in the Dimension Set Entry table.';
             Editable = false;
             TableRelation = "Dimension Set Entry";
 
@@ -387,6 +417,7 @@ table 271 "Bank Account Ledger Entry"
         {
             CaptionClass = '1,2,3';
             Caption = 'Shortcut Dimension 3 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 3, which is one of dimension codes that you set up in the General Ledger Setup window.';
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
@@ -399,6 +430,7 @@ table 271 "Bank Account Ledger Entry"
         {
             CaptionClass = '1,2,4';
             Caption = 'Shortcut Dimension 4 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 4, which is one of dimension codes that you set up in the General Ledger Setup window.';
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
@@ -411,6 +443,7 @@ table 271 "Bank Account Ledger Entry"
         {
             CaptionClass = '1,2,5';
             Caption = 'Shortcut Dimension 5 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 5, which is one of dimension codes that you set up in the General Ledger Setup window.';
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
@@ -423,6 +456,7 @@ table 271 "Bank Account Ledger Entry"
         {
             CaptionClass = '1,2,6';
             Caption = 'Shortcut Dimension 6 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 6, which is one of dimension codes that you set up in the General Ledger Setup window.';
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
@@ -435,6 +469,7 @@ table 271 "Bank Account Ledger Entry"
         {
             CaptionClass = '1,2,7';
             Caption = 'Shortcut Dimension 7 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 7, which is one of dimension codes that you set up in the General Ledger Setup window.';
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
@@ -447,6 +482,7 @@ table 271 "Bank Account Ledger Entry"
         {
             CaptionClass = '1,2,8';
             Caption = 'Shortcut Dimension 8 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 8, which is one of dimension codes that you set up in the General Ledger Setup window.';
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),

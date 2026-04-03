@@ -36,6 +36,8 @@ table 17208 "Tax Register Accumulation"
         }
         field(15; Amount; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Amount';
             Editable = false;
@@ -46,6 +48,8 @@ table 17208 "Tax Register Accumulation"
         }
         field(35; "Amount Period"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount Period';
         }
         field(36; "Amount Date Filter"; Code[30])

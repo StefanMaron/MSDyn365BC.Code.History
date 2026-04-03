@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -39,6 +39,7 @@ table 5600 "Fixed Asset"
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
+            ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
             OptimizeForTextSearch = true;
 
             trigger OnValidate()
@@ -72,6 +73,7 @@ table 5600 "Fixed Asset"
         field(3; "Search Description"; Code[100])
         {
             Caption = 'Search Description';
+            ToolTip = 'Specifies a search description for the fixed asset.';
             OptimizeForTextSearch = true;
         }
         field(4; "Description 2"; Text[50])
@@ -82,6 +84,7 @@ table 5600 "Fixed Asset"
         field(5; "FA Class Code"; Code[10])
         {
             Caption = 'FA Class Code';
+            ToolTip = 'Specifies the class that the fixed asset belongs to.';
             TableRelation = "FA Class";
 
             trigger OnValidate()
@@ -105,6 +108,7 @@ table 5600 "Fixed Asset"
         field(6; "FA Subclass Code"; Code[10])
         {
             Caption = 'FA Subclass Code';
+            ToolTip = 'Specifies the subclass of the class that the fixed asset belongs to.';
             TableRelation = "FA Subclass";
 
             trigger OnValidate()
@@ -165,6 +169,7 @@ table 5600 "Fixed Asset"
         field(10; "FA Location Code"; Code[10])
         {
             Caption = 'FA Location Code';
+            ToolTip = 'Specifies the location, such as a building, where the fixed asset is located.';
             TableRelation = "FA Location";
 
             trigger OnValidate()
@@ -185,22 +190,26 @@ table 5600 "Fixed Asset"
         field(11; "Vendor No."; Code[20])
         {
             Caption = 'Vendor No.';
+            ToolTip = 'Specifies the number of the vendor from which you purchased this fixed asset.';
             TableRelation = Vendor;
         }
         field(12; "Main Asset/Component"; Enum "FA Component Type")
         {
             Caption = 'Main Asset/Component';
+            ToolTip = 'Specifies if the fixed asset is a main fixed asset or a component of a fixed asset.';
             Editable = false;
         }
         field(13; "Component of Main Asset"; Code[20])
         {
             Caption = 'Component of Main Asset';
+            ToolTip = 'Specifies the number of the main fixed asset.';
             Editable = false;
             TableRelation = "Fixed Asset";
         }
         field(14; "Budgeted Asset"; Boolean)
         {
             Caption = 'Budgeted Asset';
+            ToolTip = 'Specifies if the asset is for budgeting purposes.';
 
             trigger OnValidate()
             begin
@@ -210,10 +219,12 @@ table 5600 "Fixed Asset"
         field(15; "Warranty Date"; Date)
         {
             Caption = 'Warranty Date';
+            ToolTip = 'Specifies the warranty expiration date of the fixed asset.';
         }
         field(16; "Responsible Employee"; Code[20])
         {
             Caption = 'Responsible Employee';
+            ToolTip = 'Specifies which employee is responsible for the fixed asset.';
             TableRelation = Employee;
 
             trigger OnValidate()
@@ -224,11 +235,13 @@ table 5600 "Fixed Asset"
         field(17; "Serial No."; Text[50])
         {
             Caption = 'Serial No.';
+            ToolTip = 'Specifies the fixed asset''s serial number.';
             OptimizeForTextSearch = true;
         }
         field(18; "Last Date Modified"; Date)
         {
             Caption = 'Last Date Modified';
+            ToolTip = 'Specifies when the fixed asset card was last modified.';
             Editable = false;
         }
         field(19; Insured; Boolean)
@@ -236,6 +249,7 @@ table 5600 "Fixed Asset"
             CalcFormula = exist("Ins. Coverage Ledger Entry" where("FA No." = field("No."),
                                                                     "Disposed FA" = const(false)));
             Caption = 'Insured';
+            ToolTip = 'Specifies that the fixed asset is linked to an insurance policy.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -250,23 +264,28 @@ table 5600 "Fixed Asset"
         field(21; Blocked; Boolean)
         {
             Caption = 'Blocked';
+            ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
         }
         field(23; "Maintenance Vendor No."; Code[20])
         {
             Caption = 'Maintenance Vendor No.';
+            ToolTip = 'Specifies the number of the vendor who performs repairs and maintenance on the fixed asset.';
             TableRelation = Vendor;
         }
         field(24; "Under Maintenance"; Boolean)
         {
             Caption = 'Under Maintenance';
+            ToolTip = 'Specifies if the fixed asset is currently being repaired.';
         }
         field(25; "Next Service Date"; Date)
         {
             Caption = 'Next Service Date';
+            ToolTip = 'Specifies the next scheduled service date for the fixed asset. This is used as a filter in the Maintenance - Next Service report.';
         }
         field(26; Inactive; Boolean)
         {
             Caption = 'Inactive';
+            ToolTip = 'Specifies that the fixed asset is inactive (for example, if the asset is not in service or is obsolete).';
         }
         field(27; "FA Posting Date Filter"; Date)
         {
@@ -306,11 +325,13 @@ table 5600 "Fixed Asset"
             CalcFormula = exist("FA Depreciation Book" where("FA No." = field("No."),
                                                               "Acquisition Date" = filter(<> 0D)));
             Caption = 'Acquired';
+            ToolTip = 'Specifies if the fixed asset has been acquired.';
             FieldClass = FlowField;
         }
         field(140; Image; Media)
         {
             Caption = 'Image';
+            ToolTip = 'Specifies the picture that has been inserted for the fixed asset.';
         }
         field(9001; "FA Location Id"; Guid)
         {
@@ -528,6 +549,8 @@ table 5600 "Fixed Asset"
         }
         field(12418; "Unrealized VAT Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("VAT Entry"."Remaining Unrealized Amount" where("Object Type" = const("Fixed Asset"),
                                                                                "Object No." = field("No."),
                                                                                Type = const(Purchase)));
@@ -549,6 +572,7 @@ table 5600 "Fixed Asset"
         field(12427; "G/L Starting Balance"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("G/L Entry".Amount where("Source Type" = const("Fixed Asset"),
                                                         "Source No." = field("No."),
                                                         "G/L Account No." = field("G/L Account No. Filter"),
@@ -562,6 +586,7 @@ table 5600 "Fixed Asset"
         field(12428; "G/L Net Change"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("G/L Entry".Amount where("Source Type" = const("Fixed Asset"),
                                                         "Source No." = field("No."),
                                                         "G/L Account No." = field("G/L Account No. Filter"),
@@ -575,6 +600,7 @@ table 5600 "Fixed Asset"
         field(12429; "G/L Debit Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("G/L Entry"."Debit Amount" where("Source Type" = const("Fixed Asset"),
                                                                 "Source No." = field("No."),
                                                                 "G/L Account No." = field("G/L Account No. Filter"),
@@ -588,6 +614,7 @@ table 5600 "Fixed Asset"
         field(12430; "G/L Credit Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("G/L Entry"."Credit Amount" where("Source Type" = const("Fixed Asset"),
                                                                  "Source No." = field("No."),
                                                                  "G/L Account No." = field("G/L Account No. Filter"),
@@ -601,6 +628,7 @@ table 5600 "Fixed Asset"
         field(12431; "G/L Balance to Date"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("G/L Entry".Amount where("Source Type" = const("Fixed Asset"),
                                                         "Source No." = field("No."),
                                                         "G/L Account No." = field("G/L Account No. Filter"),
@@ -631,6 +659,7 @@ table 5600 "Fixed Asset"
         }
         field(12454; "Vehicle Capacity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Vehicle Capacity';
         }
         field(12455; "Vehicle Engine No."; Code[20])
@@ -643,14 +672,17 @@ table 5600 "Fixed Asset"
         }
         field(12457; "Vehicle Passport Weight"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Vehicle Passport Weight';
         }
         field(12458; "Run after Release Date"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Run after Release Date';
         }
         field(12459; "Run after Renovation Date"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Run after Renovation Date';
         }
         field(12460; "Vehicle Writeoff Date"; Date)
@@ -694,6 +726,8 @@ table 5600 "Fixed Asset"
         }
         field(12496; "Accrued Depr. Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Accrued Depr. Amount';
             MinValue = 0;
         }
@@ -739,6 +773,8 @@ table 5600 "Fixed Asset"
         }
         field(14926; "Book Value per Share"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Book Value per Share';
             DecimalPlaces = 2 : 2;
             MaxValue = 1;
@@ -752,6 +788,8 @@ table 5600 "Fixed Asset"
         }
         field(14928; "Tax Amount Paid Abroad"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Tax Amount Paid Abroad';
         }
         field(17301; "Tax Difference Code"; Code[10])
@@ -762,6 +800,8 @@ table 5600 "Fixed Asset"
         }
         field(17302; "Tax Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             CalcFormula = sum("Tax Diff. Ledger Entry"."Tax Amount" where("Tax Diff. Code" = field("Tax Difference Code"),
                                                                            "Source Type" = const("Future Expense"),

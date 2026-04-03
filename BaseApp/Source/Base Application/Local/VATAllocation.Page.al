@@ -77,6 +77,8 @@ page 14926 "VAT Allocation"
                 ShowCaption = false;
                 field(AllocationAmount; AllocationAmount + Rec.Amount - xRec.Amount)
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = All;
                     Caption = 'Amount';
                     Editable = false;
@@ -85,6 +87,8 @@ page 14926 "VAT Allocation"
                 }
                 field(TotalAllocationAmount; TotalAllocationAmount + Rec.Amount - xRec.Amount)
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = All;
                     Caption = 'Total Amount';
                     Editable = false;

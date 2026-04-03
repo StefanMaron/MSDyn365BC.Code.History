@@ -832,7 +832,6 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
                (VATLedgerLine."Full Sales Tax Amount" = 0)));
     end;
 
-    [Scope('OnPrem')]
     procedure SetParameters(NewCustFilter: Code[250]; NewVATProdGroupFilter: Code[250]; NewVATBusGroupFilter: Code[250]; NewSorting: Option " ","Document Date","Document No.","Customer No."; NewClearOperation: Boolean; NewShowRealVAT: Boolean; NewShowUnrealVAT: Boolean; NewShowCustPrepmt: Boolean; NewShowAmtDiff: Boolean; NewShowVendPrepmt: Boolean)
     begin
         CustFilter := NewCustFilter;

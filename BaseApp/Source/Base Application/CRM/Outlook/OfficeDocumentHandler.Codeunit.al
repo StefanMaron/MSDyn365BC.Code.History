@@ -301,6 +301,7 @@ codeunit 1637 "Office Document Handler"
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        PageManagement: Codeunit "Page Management";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -310,25 +311,17 @@ codeunit 1637 "Office Document Handler"
 
         if not TempOfficeDocumentSelection.Posted then
             if SalesHeader.Get(TempOfficeDocumentSelection."Document Type", TempOfficeDocumentSelection."Document No.") then
-                case SalesHeader."Document Type" of
-                    SalesHeader."Document Type"::Quote:
-                        PAGE.Run(PAGE::"Sales Quote", SalesHeader);
-                    SalesHeader."Document Type"::Order:
-                        PAGE.Run(PAGE::"Sales Order", SalesHeader);
-                    SalesHeader."Document Type"::Invoice:
-                        PAGE.Run(PAGE::"Sales Invoice", SalesHeader);
-                    SalesHeader."Document Type"::"Credit Memo":
-                        PAGE.Run(PAGE::"Sales Credit Memo", SalesHeader);
-                end else
+                PageManagement.PageRun(SalesHeader)
+            else
                 // No SalesHeader record found
                 DocumentDoesNotExist(TempOfficeAddinContext."Document No.")
         else begin
             if TempOfficeDocumentSelection."Document Type" = TempOfficeDocumentSelection."Document Type"::Invoice then
                 if SalesInvoiceHeader.Get(TempOfficeDocumentSelection."Document No.") then
-                    PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvoiceHeader);
+                    PageManagement.PageRun(SalesInvoiceHeader);
             if TempOfficeDocumentSelection."Document Type" = TempOfficeDocumentSelection."Document Type"::"Credit Memo" then
                 if SalesCrMemoHeader.Get(TempOfficeDocumentSelection."Document No.") then
-                    PAGE.Run(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
+                    PageManagement.PageRun(SalesCrMemoHeader);
         end;
     end;
 

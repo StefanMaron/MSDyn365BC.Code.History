@@ -13,13 +13,8 @@ tableextension 14958 "Package No. Information RU" extends "Package No. Informati
             Caption = 'Current No.';
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not used.';
-#if not CLEAN25
-            ObsoleteState = Pending;
-            ObsoleteTag = '25.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '28.0';
-#endif            
         }
 #endif
     }

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -7,14 +7,14 @@ namespace Microsoft.Foundation.Reporting;
 using Microsoft.Assembly.Document;
 using Microsoft.Bank.Reconciliation;
 using Microsoft.Bank.Statement;
-using Microsoft.FixedAssets.Journal;
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.FixedAssets.Journal;
 using Microsoft.Inventory.Counting.Document;
 using Microsoft.Inventory.Counting.History;
-using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Counting.Recording;
 using Microsoft.Inventory.Document;
 using Microsoft.Inventory.History;
+using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Purchases.Archive;
@@ -366,25 +366,7 @@ codeunit 229 "Document-Print"
         ReportSelections.PrintReport(ReportSelections.Usage::Inv1, TransHeader);
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by procedure PrintServiceContract in codeunit Serv. Report Management', '25.0')]
-    procedure PrintServiceContract(ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header")
-    var
-        ServDocumentPrint: Codeunit "Serv. Document Print";
-    begin
-        ServDocumentPrint.PrintServiceContract(ServiceContractHeader);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Replaced by procedure PrintServiceHeader in codeunit Serv. Report Management', '25.0')]
-    procedure PrintServiceHeader(ServiceHeader: Record Microsoft.Service.Document."Service Header")
-    var
-        ServDocumentPrint: Codeunit "Serv. Document Print";
-    begin
-        ServDocumentPrint.PrintServiceHeader(ServiceHeader);
-    end;
-#endif
 
     procedure PrintAsmHeader(AsmHeader: Record "Assembly Header")
     var
@@ -805,25 +787,7 @@ codeunit 229 "Document-Print"
         end;
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by same procedure in codeunit Serv. Report Management ', '25.0')]
-    procedure GetServContractTypeUsage(ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"): Enum "Report Selection Usage"
-    var
-        ServDocumentPrint: Codeunit "Serv. Document Print";
-    begin
-        exit(ServDocumentPrint.GetServContractTypeUsage(ServiceContractHeader));
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Replaced by same procedure in codeunit Serv. Report Management ', '25.0')]
-    procedure GetServHeaderDocTypeUsage(ServiceHeader: Record Microsoft.Service.Document."Service Header"): Enum "Report Selection Usage"
-    var
-        ServDocumentPrint: Codeunit "Serv. Document Print";
-    begin
-        exit(ServDocumentPrint.GetServHeaderDocTypeUsage(ServiceHeader));
-    end;
-#endif
 
     procedure GetAsmHeaderDocTypeUsage(AsmHeader: Record "Assembly Header"): Enum "Report Selection Usage"
     var
@@ -960,15 +924,6 @@ codeunit 229 "Document-Print"
         end;
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by same procedure in codeunit Serv. Report Management', '25.0')]
-    procedure CalcServDisc(var ServHeader: Record Microsoft.Service.Document."Service Header")
-    var
-        ServDocumentPrint: Codeunit "Serv. Document Print";
-    begin
-        ServDocumentPrint.CalcServDisc(ServHeader);
-    end;
-#endif
 
     local procedure CheckNoReportSelectionThrowError(var ReportSelections: Record "Report Selections"; InvtDocumentHeader: Record "Invt. Document Header")
     var
@@ -1013,25 +968,7 @@ codeunit 229 "Document-Print"
         ReportSelectionInventory.RunModal();
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by same procedure in codeunit Serv. Report Management ', '25.0')]
-    procedure PrintServiceHeaderToDocumentAttachment(var ServiceHeader: Record Microsoft.Service.Document."Service Header");
-    var
-        ServDocumentPrint: Codeunit "Serv. Document Print";
-    begin
-        ServDocumentPrint.PrintServiceHeaderToDocumentAttachment(ServiceHeader);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Replaced by same procedure in codeunit Serv. Report Management ', '25.0')]
-    procedure PrintServiceContractToDocumentAttachment(var ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header");
-    var
-        ServDocumentPrint: Codeunit "Serv. Document Print";
-    begin
-        ServDocumentPrint.PrintServiceContractToDocumentAttachment(ServiceContractHeader);
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDoPrintSalesHeader(var SalesHeader: Record "Sales Header"; SendAsEmail: Boolean)
@@ -1058,18 +995,6 @@ codeunit 229 "Document-Print"
     begin
     end;
 
-#if not CLEAN25
-    internal procedure RunOnBeforeCalcServDisc(var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var IsHandled: Boolean)
-    begin
-        OnBeforeCalcServDisc(ServiceHeader, IsHandled);
-    end;
-
-    [Obsolete('Replaced by same event in codeunit Serv. Report Management', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcServDisc(var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcPurchDisc(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
@@ -1121,31 +1046,7 @@ codeunit 229 "Document-Print"
     begin
     end;
 
-#if not CLEAN25
-    internal procedure RunOnBeforePrintServiceContract(var ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; ReportUsage: Integer; var IsPrinted: Boolean)
-    begin
-        OnBeforePrintServiceContract(ServiceContractHeader, ReportUsage, IsPrinted);
-    end;
 
-    [Obsolete('Replaced by same event in codeunit Serv. Report Management', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforePrintServiceContract(var ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; ReportUsage: Integer; var IsPrinted: Boolean)
-    begin
-    end;
-#endif
-
-#if not CLEAN25
-    internal procedure RunOnBeforePrintServiceHeader(var ServiceHeader: Record Microsoft.Service.Document."Service Header"; ReportUsage: Integer; var IsPrinted: Boolean)
-    begin
-        OnBeforePrintServiceHeader(ServiceHeader, ReportUsage, IsPrinted);
-    end;
-
-    [Obsolete('Replaced by same event in codeunit Serv. Report Management', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforePrintServiceHeader(var ServiceHeader: Record Microsoft.Service.Document."Service Header"; ReportUsage: Integer; var IsPrinted: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintAsmHeader(var AssemblyHeader: Record "Assembly Header"; ReportUsage: Integer; var IsPrinted: Boolean)
@@ -1192,31 +1093,7 @@ codeunit 229 "Document-Print"
     begin
     end;
 
-#if not CLEAN25
-    internal procedure RunOnGetServHeaderDocTypeUsageElseCase(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var TypeUsage: Integer; var IsHandled: Boolean)
-    begin
-        OnGetServHeaderDocTypeUsageElseCase(ServiceHeader, TypeUsage, IsHandled);
-    end;
 
-    [Obsolete('Replaced by same event in codeunit Serv. Report Management', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnGetServHeaderDocTypeUsageElseCase(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var TypeUsage: Integer; var IsHandled: Boolean)
-    begin
-    end;
-#endif
-
-#if not CLEAN25
-    internal procedure RunOnGetServContractTypeUsageElseCase(ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; var TypeUsage: Integer; var IsHandled: Boolean)
-    begin
-        OnGetServContractTypeUsageElseCase(ServiceContractHeader, TypeUsage, IsHandled);
-    end;
-
-    [Obsolete('Replaced by same event in codeunit Serv. Report Management', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnGetServContractTypeUsageElseCase(ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; var TypeUsage: Integer; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnGetSalesArchDocTypeUsageElseCase(SalesHeaderArchive: Record "Sales Header Archive"; var TypeUsage: Integer; var IsHandled: Boolean)
@@ -1258,4 +1135,3 @@ codeunit 229 "Document-Print"
     begin
     end;
 }
-

@@ -131,6 +131,7 @@ codeunit 99000899 "Mfg. Create Invt.Pick/Movement"
                         NewWarehouseActivityLine."Qty. Rounding Precision" := ProdOrderComponent."Qty. Rounding Precision";
                         NewWarehouseActivityLine."Qty. Rounding Precision (Base)" := ProdOrderComponent."Qty. Rounding Precision (Base)";
                         NewWarehouseActivityLine.Description := ProdOrderComponent.Description;
+                        NewWarehouseActivityLine."Description 2" := ProdOrderComponent."Description 2";
                         NewWarehouseActivityLine."Source Document" := NewWarehouseActivityLine."Source Document"::"Prod. Consumption";
                         NewWarehouseActivityLine."Due Date" := ProdOrderComponent."Due Date";
                         if WarehouseActivityHeader.Type = WarehouseActivityHeader.Type::"Invt. Pick" then

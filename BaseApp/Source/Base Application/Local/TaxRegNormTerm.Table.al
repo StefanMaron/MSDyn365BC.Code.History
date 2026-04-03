@@ -85,6 +85,7 @@ table 17240 "Tax Reg. Norm Term"
         }
         field(6; "Rounding Precision"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Rounding Precision';
             DecimalPlaces = 0 :;
 

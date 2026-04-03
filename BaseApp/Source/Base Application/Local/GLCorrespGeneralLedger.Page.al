@@ -132,6 +132,8 @@ page 12403 "G/L Corresp. General Ledger"
                 }
                 field("BalanceAmounts[BalanceType::StartBal]"; BalanceAmounts[BalanceType::StartBal])
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     Caption = 'Starting Balance';
@@ -144,6 +146,8 @@ page 12403 "G/L Corresp. General Ledger"
                 }
                 field(StartingBalanceDebit; BalanceAmounts[BalanceType::StartBalDebit])
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     BlankZero = true;
                     Caption = 'Starting Balance Debit';
                     ToolTip = 'Specifies the balance for debits at the beginning of the period.';
@@ -151,6 +155,8 @@ page 12403 "G/L Corresp. General Ledger"
                 }
                 field(StartingBalanceCredit; BalanceAmounts[BalanceType::StartBalCredit])
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     BlankZero = true;
                     Caption = 'Starting Balance Credit';
                     ToolTip = 'Specifies the balance for credits at the beginning of the period.';
@@ -174,6 +180,8 @@ page 12403 "G/L Corresp. General Ledger"
                 }
                 field(DebitAmount; DebitAmount)
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     CaptionClass = DebitAmountColumnName;
@@ -189,6 +197,8 @@ page 12403 "G/L Corresp. General Ledger"
                 }
                 field(CreditAmount; CreditAmount)
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     CaptionClass = CreditAmountColumnName;
@@ -204,6 +214,8 @@ page 12403 "G/L Corresp. General Ledger"
                 }
                 field(EndingBalance; BalanceAmounts[BalanceType::EndBal])
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     Caption = 'Ending Balance';
@@ -216,6 +228,8 @@ page 12403 "G/L Corresp. General Ledger"
                 }
                 field(EndingBalanceDebit; BalanceAmounts[BalanceType::EndBalDebit])
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     BlankZero = true;
                     Caption = 'Ending Balance Debit';
                     ToolTip = 'Specifies the balance for debits at the end of the period.';
@@ -223,6 +237,8 @@ page 12403 "G/L Corresp. General Ledger"
                 }
                 field(EndingBalanceCredit; BalanceAmounts[BalanceType::EndBalCredit])
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     BlankZero = true;
                     Caption = 'Ending Balance Credit';
                     ToolTip = 'Specifies the balance for credits at the end of the period.';

@@ -1692,33 +1692,6 @@ codeunit 136302 "Job Consumption Purchase"
 
     [Test]
     [Scope('OnPrem')]
-    procedure JobCurrencyOnPurchaseOrderLine()
-    var
-        JobTask: Record "Job Task";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        CurrencyCode: Code[10];
-    begin
-        // [SCENARIO] correct Job Currency Code and Job Currency Factor populated on Purchase Line created with Job having Currency code.
-
-        // [GIVEN] Find a Currency and update it on Job Card.
-        Initialize();
-        CurrencyCode := FindFCY();
-        CreateJobWithJobTask(JobTask);
-        UpdateCurrencyOnJob(JobTask."Job No.", CurrencyCode);
-
-        // [WHEN] Create Purchase Order with Job.
-        CreatePurchaseDocumentWithJobTask(
-          PurchaseHeader, JobTask, PurchaseHeader."Document Type"::Order, PurchaseLine.Type::Item, CreateItem());
-
-        // [THEN] Verify that Job Currency Code and Job Currency Factor updated correctly on Purchase Line.
-        GetPurchaseLines(PurchaseHeader, PurchaseLine);
-        PurchaseLine.TestField("Job Currency Code", CurrencyCode);
-        PurchaseLine.TestField("Job Currency Factor", CalculateCurrencyFactor(CurrencyCode));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure UpdateJobCurrencyAfterReceivingPurchaseOrder()
     var
         GeneralPostingSetup: Record "General Posting Setup";
@@ -4516,7 +4489,7 @@ codeunit 136302 "Job Consumption Purchase"
                 StrSubstNo(ValueMustMatchErr, UnplannedDemand.FieldCaption("Quantity (Base)"), Quantity[2]));
     end;
 
-    [Test]
+   [Test]
     procedure CorrectiveCredMemoPreservesJobUnitPrice()
     var
         JobTask: Record "Job Task";
@@ -4574,10 +4547,8 @@ codeunit 136302 "Job Consumption Purchase"
     local procedure Initialize()
     var
         WarehouseEmployee: Record "Warehouse Employee";
-#if not CLEAN25
         PurchasePrice: Record "Purchase Price";
         SalesPrice: Record "Sales Price";
-#endif
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Job Consumption Purchase");
@@ -4597,11 +4568,9 @@ codeunit 136302 "Job Consumption Purchase"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryInventory.UpdateGenProdPostingSetup();
-#if not CLEAN25
         // Removing special prices
         PurchasePrice.DeleteAll(true);
         SalesPrice.DeleteAll(true);
-#endif
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
@@ -4767,15 +4736,6 @@ codeunit 136302 "Job Consumption Purchase"
         JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
         AttachJobToPurchaseDocument(JobTask, PurchaseHeader, JobPlanningLine."Line No.");
         UpdatePurchLineQtyToReceive(PurchaseHeader, QtyToReceive);
-    end;
-
-    local procedure CalculateCurrencyFactor(CurrencyCode: Code[10]): Decimal
-    var
-        CurrencyExchangeRate: Record "Currency Exchange Rate";
-    begin
-        CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst();
-        exit(CurrencyExchangeRate."Exchange Rate Amount" / CurrencyExchangeRate."Relational Exch. Rate Amount");
     end;
 
     local procedure CalculateJobLedgerEntryQuantity(DocumentNo: Code[20]; JobNo: Code[20]) Quantity: Decimal

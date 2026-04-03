@@ -1254,7 +1254,6 @@ report 12455 "Create VAT Purchase Ledger"
         exit(Format(Date));
     end;
 
-    [Scope('OnPrem')]
     procedure SetParameters(NewVendFilter: Code[250]; NewVATProdGroupFilter: Code[250]; NewVATBusGroupFilter: Code[250]; NewSorting: Option " ","Document Date","Document No.","Last Date"; NewUseExternal: Boolean; NewClearOperation: Boolean; NewStartPageNo: Integer; NewOtherPercents: Option "Do Not Show",Summarized,Detailed; NewShowRealVAT: Boolean; NewShowUnrealVAT: Boolean; NewShowAmtDiff: Boolean; NewShowCustPrepmt: Boolean)
     begin
         VendFilter := NewVendFilter;

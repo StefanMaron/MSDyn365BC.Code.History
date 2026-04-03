@@ -20,6 +20,7 @@ report 14973 "Copy to VAT Reinst. Journal"
                     Caption = 'Options';
                     field(Factor; Factor)
                     {
+                        AutoFormatType = 0;
                         ApplicationArea = Basic, Suite;
                         Caption = 'VAT Amount Factor';
                     }

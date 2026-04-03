@@ -33,20 +33,6 @@ codeunit 144717 "ERM FA-4 Report Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure SingleLinePostedFAWriteOffFA4()
-    begin
-        FAPostedWriteoffAct(Report::"FA Posted Writeoff Act FA-4", false);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure MultipleLinePostedFAWriteOffFA4()
-    begin
-        FAPostedWriteoffAct(Report::"FA Posted Writeoff Act FA-4", true);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure SingleLineFAWriteOffFA4a()
     begin
         FAWriteoffAct(Report::"FA Writeoff Act FA-4a", false);

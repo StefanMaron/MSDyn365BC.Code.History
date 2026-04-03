@@ -4,6 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Reports;
 
+/// <summary>
+/// Generates an aging summary showing customer balances grouped into configurable time periods based on due dates.
+/// </summary>
+
 using Microsoft.Finance.Currency;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
@@ -388,6 +392,12 @@ report 105 "Customer - Summary Aging"
         LineTotalCustBalanceCaptionLbl: Label 'Balance';
         Total_LCY_CaptionLbl: Label 'Total (LCY)';
 
+    /// <summary>
+    /// Initializes the report request options for the Customer Summary Aging report.
+    /// </summary>
+    /// <param name="StartingDate">The starting date for the aging periods.</param>
+    /// <param name="SetPeriodLength">The period length formula as text.</param>
+    /// <param name="ShowAmountInLCY">True to show amounts in local currency.</param>
     procedure InitializeRequest(StartingDate: Date; SetPeriodLength: Text[1024]; ShowAmountInLCY: Boolean)
     begin
         PeriodStartDate[2] := StartingDate;
@@ -395,11 +405,21 @@ report 105 "Customer - Summary Aging"
         PrintAmountsInLCY := ShowAmountInLCY;
     end;
 
+    /// <summary>
+    /// Raised before filling aging columns when processing integer records.
+    /// </summary>
+    /// <param name="Customer">The current customer record.</param>
+    /// <param name="DtldCustLedgEntry">The detailed customer ledger entry for filtering.</param>
     [IntegrationEvent(false, false)]
     procedure OnBeforeFillColumnsInteger(var Customer: Record Customer; var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
     begin
     end;
 
+    /// <summary>
+    /// Raised before filling aging columns when processing customer records.
+    /// </summary>
+    /// <param name="Customer">The current customer record.</param>
+    /// <param name="DtldCustLedgEntry">The detailed customer ledger entry for filtering.</param>
     [IntegrationEvent(false, false)]
     procedure OnBeforeFillColumnsCustomer(var Customer: Record Customer; var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
     begin

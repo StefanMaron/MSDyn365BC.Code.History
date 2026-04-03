@@ -10,6 +10,7 @@ codeunit 137501 "SCM Available to Pick UT"
     end;
 
     var
+        LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
@@ -34,6 +35,7 @@ codeunit 137501 "SCM Available to Pick UT"
         NoActiveProductionBOMVersionFoundErr: Label 'There is no active Production BOM for the item %1.', Comment = '%1 - Item No.';
         BlockMovementGlobal: Option " ",Inbound,Outbound,All;
         BinCodeDictionary: Dictionary of [Text, List of [Code[20]]];
+        PickableQtyErr: Label '%1 must be %2 in %3.', Comment = '%1= Field Name,%2= Field Value,%3= Page Caption.';
 
     [Normal]
     local procedure Initialize()
@@ -3102,6 +3104,145 @@ codeunit 137501 "SCM Available to Pick UT"
         Assert.ExpectedError(StrSubstNo(NoActiveProductionBOMVersionFoundErr, ProdItem."No."));
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandlerWithAssignTo,CreatePickFromWhseShowCalcSummaryShiptReqHandler')]
+    procedure PickFromWarehouseShipmentWithFEFOPickSummaryHasCorrectAvailableToPick()
+    var
+        Bin: Record Bin;
+        BinType: Record "Bin Type";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        WhseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        Item: Record Item;
+        Location: Record Location;
+        WhseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        WarehousePickSummaryTestPage: TestPage "Warehouse Pick Summary";
+        Type: Enum "Item Journal Template Type";
+        Quantity: array[2] of Decimal;
+    begin
+        // [SCENARIO 540550] When creating Pick from a Warehouse Shipment with FEFO, the Pick Summary page shows right Available to pick.
+        Initialize();
+
+        // [GIVEN] Setup Location with Bins and Validate pick according to FEFO to true.
+        SetupLocationWithBins(Location, LibraryRandom.RandIntInRange(1, 1));
+        Location.Validate("Pick According to FEFO", true);
+        Location.Modify(true);
+
+        // [GIVEN] Create Item with Lot tracking.
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Find Bin Type for Put Away and Pick.
+        BinType.SetRange("Put Away", true);
+        BinType.SetRange("Pick", true);
+        BinType.FindFirst();
+
+        // [GIVEN] Find Bin for Put Away and Pick in the Location.
+        Bin.SetRange("Location Code", Location.Code);
+        Bin.SetRange("Bin Type Code", BinType.Code);
+        Bin.FindFirst();
+
+        // [GIVEN] Clear LibraryVariableStorage and Set up Quantities.
+        LibraryVariableStorage.Clear();
+        Quantity[1] := LibraryRandom.RandIntInRange(10, 10);
+        Quantity[2] := LibraryRandom.RandIntInRange(5, 5);
+
+        // [GIVEN] Select Warehouse Journal Template and Batch.
+        LibraryWarehouse.SelectWhseJournalTemplateName(WarehouseJournalTemplate, WarehouseJournalTemplate.Type::Item);
+
+        // [GIVEN] Create Warehouse Journal Batch.
+        LibraryWarehouse.CreateWhseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Name, Location.Code);
+
+        // [GIVEN] Create Warehouse Journal Line for first quantity.
+        LibraryWarehouse.CreateWhseJournalLine(
+            WarehouseJournalLine,
+            WarehouseJournalBatch."Journal Template Name",
+            WarehouseJournalBatch.Name,
+            Location.Code,
+            Bin."Zone Code",
+            Bin.Code,
+            WarehouseJournalLine."Entry Type"::"Positive Adjmt.",
+            Item."No.",
+            Quantity[1]);
+        LibraryVariableStorage.Enqueue(WarehouseJournalLine.Quantity);
+
+        // [GIVEN] Open Item Tracking Lines for Warehouse Journal Line.
+        WarehouseJournalLine.OpenItemTrackingLines();
+
+        // [GIVEN] Create Warehouse Journal Line for second quantity.
+        LibraryWarehouse.CreateWhseJournalLine(
+            WarehouseJournalLine,
+            WarehouseJournalBatch."Journal Template Name",
+            WarehouseJournalBatch.Name,
+            Location.Code,
+            Bin."Zone Code",
+            Bin.Code,
+            WarehouseJournalLine."Entry Type"::"Positive Adjmt.",
+            Item."No.",
+            Quantity[2]);
+        LibraryVariableStorage.Enqueue(WarehouseJournalLine.Quantity);
+
+        // [GIVEN] Open Item Tracking Lines for Warehouse Journal Line.
+        WarehouseJournalLine.OpenItemTrackingLines();
+
+        // [GIVEN] Register Whse. Journal Line.
+        LibraryWarehouse.RegisterWhseJournalLine(WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Location.Code, true);
+
+        // [GIVEN] Select Item Journal Template and Batch and Validate No. Series.
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, Type);
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+        ItemJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
+        ItemJournalBatch.Modify(true);
+
+        // [GIVEN] Clear and Create Item Journal Line.
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+
+        // [GIVEN] Calculate Whse Adjustment for Item.
+        LibraryWarehouse.CalculateWhseAdjustment(Item, ItemJournalBatch);
+
+        // [GIVEN] Post Item Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+
+        // [GIVEN] Create Sales Order with a Customer.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Create Sales Line with Item and Location.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(5));
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Release Sales Document and Create Warehouse Shipment from Sales Order.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] Find Warehouse Shipment Line.
+        WhseShipmentLine.SetRange("Source Document", WhseShipmentLine."Source Document"::"Sales Order");
+        WhseShipmentLine.SetRange("Source No.", SalesHeader."No.");
+        WhseShipmentLine.FindFirst();
+
+        // [GIVEN] Find Warehouse Shipment Header.
+        WhseShipmentHeader.Get(WhseShipmentLine."No.");
+
+        // [GIVEN] Create Warehouse Pick from Warehouse Shipment.
+        CreateWhsePickAndTrapSummary(WhseShipmentHeader, WarehousePickSummaryTestPage);
+        WarehousePickSummaryTestPage.First();
+
+        // [THEN] Available to Pick should be equal to quantities in the Bin.
+        Assert.AreEqual(
+            Quantity[1] + Quantity[2],
+            WarehousePickSummaryTestPage.SummaryPart."Qty. in Pickable Bins".AsDecimal(),
+            StrSubstNo(
+                PickableQtyErr,
+                WarehousePickSummaryTestPage.SummaryPart."Qty. in Pickable Bins".Caption(),
+                Quantity[1] + Quantity[2],
+                WarehousePickSummaryTestPage.Caption()));
+        WarehousePickSummaryTestPage.Close();
+    end;
+
     local procedure SetupWhseActivityLineForShowItemAvailability(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
         Initialize();
@@ -3724,6 +3865,14 @@ codeunit 137501 "SCM Available to Pick UT"
         CreatePickFromProdOrderReqPage.OK().Invoke();
     end;
 
+    [RequestPageHandler]
+    procedure CreatePickFromWhseShowCalcSummaryShiptReqHandler(var CreatePickFromWhseShptReqPage: TestRequestPage "Whse.-Shipment - Create Pick")
+    begin
+        CreatePickFromWhseShptReqPage.DoNotFillQtytoHandle.SetValue(true);
+        CreatePickFromWhseShptReqPage.ShowSummaryField.SetValue(true);
+        CreatePickFromWhseShptReqPage.OK().Invoke();
+    end;
+
     [ConfirmHandler]
     procedure ConfirmHandlerTrue(ConfirmMessage: Text[1024]; var Reply: Boolean)
     begin
@@ -3779,5 +3928,13 @@ codeunit 137501 "SCM Available to Pick UT"
     begin
         ProductionBOM."No.".AssertEquals(LibraryVariableStorage.DequeueText());
     end;
-}
 
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingPageHandlerWithAssignTo(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
+    begin
+        WhseItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateRandomText(10));
+        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueInteger());
+        WhseItemTrackingLines.OK().Invoke();
+    end;
+}

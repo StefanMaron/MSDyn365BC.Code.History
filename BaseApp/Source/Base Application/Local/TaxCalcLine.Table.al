@@ -118,6 +118,7 @@ table 17310 "Tax Calc. Line"
         }
         field(7; Value; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Value';
         }
         field(8; "Date Filter"; Date)
@@ -152,6 +153,7 @@ table 17310 "Tax Calc. Line"
         }
         field(12; "Rounding Precision"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Rounding Precision';
             DecimalPlaces = 0 :;
 

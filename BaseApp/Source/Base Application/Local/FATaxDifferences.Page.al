@@ -43,6 +43,8 @@ page 17337 "FA Tax Differences"
                 }
                 field(AmountBase; AmountBase)
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = FixedAssets;
                     Caption = 'Amount (Base)';
 
@@ -65,6 +67,8 @@ page 17337 "FA Tax Differences"
                 }
                 field(AmountTax; AmountTax)
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = FixedAssets;
                     Caption = 'Amount (Tax)';
 
@@ -87,11 +91,15 @@ page 17337 "FA Tax Differences"
                 }
                 field(DifferenceAmount; DifferenceAmount)
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = FixedAssets;
                     Caption = 'Difference Amount';
                 }
                 field(DifferenceAmountCalc; DifferenceAmountCalc)
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = FixedAssets;
                     Caption = 'Difference Amount (Calc.)';
 

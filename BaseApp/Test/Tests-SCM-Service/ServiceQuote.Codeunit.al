@@ -30,7 +30,7 @@ codeunit 136115 "Service Quote"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
-        LibraryUtility: Codeunit "Library - Utility";
+        LibraryUtilityOnPrem: Codeunit "Library - Utility OnPrem";
         LibraryJobQueue: Codeunit "Library - Job Queue";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -92,7 +92,7 @@ codeunit 136115 "Service Quote"
         ServiceQuote.SaveAsExcel(FilePath);
 
         // 3. Verify: Verify that saved file has some data.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
+        LibraryUtilityOnPrem.CheckFileNotEmpty(FilePath);
     end;
 
     [Test]
@@ -238,7 +238,7 @@ codeunit 136115 "Service Quote"
         ServiceOrder.SaveAsExcel(FilePath);
 
         // 3. Verify: Verify that saved file has some data.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
+        LibraryUtilityOnPrem.CheckFileNotEmpty(FilePath);
     end;
 
     [Test]

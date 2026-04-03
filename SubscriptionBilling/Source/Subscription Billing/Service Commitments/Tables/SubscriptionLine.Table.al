@@ -1,13 +1,13 @@
 namespace Microsoft.SubscriptionBilling;
 
-using System.Utilities;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Foundation.Calendar;
 using Microsoft.Inventory.Item;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Pricing;
-using Microsoft.Finance.Dimension;
-using Microsoft.Finance.Currency;
-using Microsoft.Finance.GeneralLedger.Account;
+using System.Utilities;
 
 table 8059 "Subscription Line"
 {
@@ -436,6 +436,14 @@ table 8059 "Subscription Line"
         {
             Caption = 'Period Calculation';
         }
+        field(60; "Variant Code"; Code[10])
+        {
+            Caption = 'Variant Code';
+            ToolTip = 'Specifies the Variant Code of the Subscription.';
+            FieldClass = FlowField;
+            CalcFormula = lookup("Subscription Header"."Variant Code" where("No." = field("Subscription Header No.")));
+            Editable = false;
+        }
         field(107; "Closed"; Boolean)
         {
             Caption = 'Closed';
@@ -849,7 +857,6 @@ table 8059 "Subscription Line"
             if MaxServiceAmount <> 0 then
                 "Discount %" := Round(100 - (Amount / MaxServiceAmount * 100), 0.00001);
         end else begin
-            ServiceObject.TestField(Quantity);
             Amount := Price * ServiceObject.Quantity;
             if not "Usage Based Billing" then
                 Amount := Round(Amount, Currency."Amount Rounding Precision");
@@ -859,7 +866,10 @@ table 8059 "Subscription Line"
                     "Discount Amount" := Round("Discount Amount", Currency."Amount Rounding Precision");
             end;
             if CalledByFieldNo = FieldNo("Discount Amount") then
-                "Discount %" := Round("Discount Amount" / Amount * 100, 0.00001);
+                if Amount <> 0 then
+                    "Discount %" := Round("Discount Amount" / Amount * 100, 0.00001)
+                else
+                    "Discount %" := 0;
             if ("Discount Amount" > MaxServiceAmount) and ("Discount Amount" <> 0) then
                 Error(CannotBeGreaterThanErr, FieldCaption("Discount Amount"), Format(MaxServiceAmount));
             Amount := Amount - "Discount Amount";
@@ -984,7 +994,13 @@ table 8059 "Subscription Line"
                     ServiceCommitment.SetRange("Subscription Header No.", Rec."Subscription Header No.");
                     if ServiceCommitment.Count > 1 then
                         Message(MultipleServiceCommitmentsUpdatedMsg, Rec."Subscription Header No.");
-                end
+                end;
+            FieldNo("Variant Code"):
+                begin
+                    ServiceObject.Get(Rec."Subscription Header No.");
+                    ServiceObject.Validate("Variant Code", "Variant Code");
+                    ServiceObject.Modify(true);
+                end;
             else begin
                 case CalledByFieldNo of
                     FieldNo("Invoicing Item No."):
@@ -1738,7 +1754,7 @@ table 8059 "Subscription Line"
         exit(not UsageDataBilling.IsEmpty());
     end;
 
-    local procedure SetUsageDataBillingFilters(var UsageDataBilling: Record "Usage Data Billing"; BillingFromDate: Date; BillingToDate: Date)
+    internal procedure SetUsageDataBillingFilters(var UsageDataBilling: Record "Usage Data Billing"; BillingFromDate: Date; BillingToDate: Date)
     begin
         UsageDataBilling.SetRange("Subscription Header No.", Rec."Subscription Header No.");
         UsageDataBilling.SetRange("Subscription Line Entry No.", Rec."Entry No.");

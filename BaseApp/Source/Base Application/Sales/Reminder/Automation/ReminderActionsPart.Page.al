@@ -1,9 +1,12 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Reminder;
 
+/// <summary>
+/// Displays the list of automation actions configured for a reminder action group as a subpage part.
+/// </summary>
 page 6755 "Reminder Actions Part"
 {
     PageType = ListPart;
@@ -26,14 +29,12 @@ page 6755 "Reminder Actions Part"
                 {
                     ApplicationArea = All;
                     Caption = 'Order';
-                    ToolTip = 'Specifies the order in which the actions will be performed.';
                     Editable = false;
                 }
                 field(ActionType; Rec.Type)
                 {
                     ApplicationArea = All;
                     Caption = 'Type';
-                    ToolTip = 'Specifies the type of the action.';
                     Editable = false;
 
                     trigger OnValidate()
@@ -45,7 +46,6 @@ page 6755 "Reminder Actions Part"
                 {
                     ApplicationArea = All;
                     Caption = 'Code';
-                    ToolTip = 'Specifies the code of the action.';
                     Editable = false;
                 }
                 field(Summary; SummaryText)
@@ -59,7 +59,6 @@ page 6755 "Reminder Actions Part"
                 {
                     ApplicationArea = All;
                     Caption = 'Stop on error';
-                    ToolTip = 'Specifies if the job should stop if an error occurs during this action. If not selected, the job will attempt to process all records and actions.';
                 }
             }
         }
@@ -192,6 +191,9 @@ page 6755 "Reminder Actions Part"
         exit(SelectedReminderActionInterface);
     end;
 
+    /// <summary>
+    /// Creates a new reminder action by prompting the user to select an action type and configure it.
+    /// </summary>
     procedure CreateNewReminderAction()
     var
         NewReminderAction: Record "Reminder Action";

@@ -104,6 +104,7 @@ table 17236 "Tax Register Setup"
         }
         field(17202; "Default Depr. Bonus %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Default Depr. Bonus %';
             MaxValue = 100;
             MinValue = 0;
@@ -132,6 +133,7 @@ table 17236 "Tax Register Setup"
         }
         field(17215; "Min. Group Balance"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Min. Group Balance';
             MinValue = 0;
         }

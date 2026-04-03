@@ -18,6 +18,8 @@ table 26585 "Acc. Sched. Expression Buffer"
         }
         field(3; Amount; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount';
             DataClassification = SystemMetadata;
         }

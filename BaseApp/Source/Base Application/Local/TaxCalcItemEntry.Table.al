@@ -155,40 +155,50 @@ table 17317 "Tax Calc. Item Entry"
         }
         field(51; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Quantity';
         }
         field(52; "Amount (Tax)"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Amount (Tax)';
         }
         field(53; "Credit Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Credit Quantity';
             Editable = false;
         }
         field(54; "Credit Amount (Tax)"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Credit Amount (Tax)';
             Editable = false;
         }
         field(55; "Debit Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Debit Quantity';
             Editable = false;
         }
         field(56; "Debit Amount (Tax)"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Debit Amount (Tax)';
             Editable = false;
         }
         field(57; "Outstand. Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             CalcFormula = sum("Item Application Entry".Quantity where("Batch Item Ledger Entry No." = field("Appl. Entry No."),
                                                                        "Posting Date" = field(upperlimit("Date Filter"))));
@@ -198,6 +208,8 @@ table 17317 "Tax Calc. Item Entry"
         }
         field(58; "Amount (Actual)"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount (Actual)';
             Editable = false;
         }
@@ -209,12 +221,16 @@ table 17317 "Tax Calc. Item Entry"
         }
         field(60; "Credit Amount (Actual)"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Credit Amount (Actual)';
             Editable = false;
         }
         field(61; "Debit Amount (Actual)"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Debit Amount (Actual)';
             Editable = false;

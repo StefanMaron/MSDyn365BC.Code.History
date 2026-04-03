@@ -5,13 +5,8 @@ table 12408 "CD No. Information"
     Caption = 'CD No. Information';
     DataCaptionFields = Type, "No.", "Variant Code", "CD No.", Description;
     ObsoleteReason = 'Replaced by Package No. Information and FA CD No. Information tables.';
-#if CLEAN25
     ObsoleteState = Removed;
     ObsoleteTag = '28.0';
-#else
-    ObsoleteState = Pending;
-    ObsoleteTag = '18.0';
-#endif
     DataClassification = CustomerContent;
 
     fields
@@ -53,6 +48,7 @@ table 12408 "CD No. Information"
         }
         field(7; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
         }
 #if not CLEANSCHEMA28
@@ -61,13 +57,8 @@ table 12408 "CD No. Information"
             Caption = 'CD Header No.';
             TableRelation = "CD No. Header";
             ObsoleteReason = 'CD No. Header has been moved to CD Tracking extension.';
-#if CLEAN25
             ObsoleteState = Removed;
             ObsoleteTag = '28.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '25.0';
-#endif
         }
 #endif
         field(10; Description; Text[100])
@@ -120,6 +111,7 @@ table 12408 "CD No. Information"
         }
         field(30; Inventory; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Item Ledger Entry".Quantity where("Item No." = field("No."),
                                                                   "Variant Code" = field("Variant Code"),
                                                                   "Package No." = field("CD No."),
@@ -131,6 +123,7 @@ table 12408 "CD No. Information"
         }
         field(31; "Positive Adjmt."; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Item Ledger Entry".Quantity where("Item No." = field("No."),
                                                                   "Variant Code" = field("Variant Code"),
                                                                   "Package No." = field("CD No."),
@@ -142,6 +135,7 @@ table 12408 "CD No. Information"
         }
         field(32; Purchases; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Item Ledger Entry".Quantity where("Item No." = field("No."),
                                                                   "Variant Code" = field("Variant Code"),
                                                                   "Package No." = field("CD No."),
@@ -153,6 +147,7 @@ table 12408 "CD No. Information"
         }
         field(33; "Negative Adjmt."; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = - sum("Item Ledger Entry".Quantity where("Item No." = field("No."),
                                                                    "Variant Code" = field("Variant Code"),
                                                                    "Package No." = field("CD No."),
@@ -164,6 +159,7 @@ table 12408 "CD No. Information"
         }
         field(34; Sales; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = - sum("Item Ledger Entry".Quantity where("Item No." = field("No."),
                                                                    "Variant Code" = field("Variant Code"),
                                                                    "Package No." = field("CD No."),
@@ -195,5 +191,5 @@ table 12408 "CD No. Information"
         }
     }
 }
- 
+
 #endif

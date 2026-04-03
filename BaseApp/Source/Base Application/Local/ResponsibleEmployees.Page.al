@@ -276,6 +276,7 @@ page 35601 "Responsible Employees"
         }
         area(reporting)
         {
+#if not CLEAN28
             action("Vendor - List")
             {
                 ApplicationArea = Basic, Suite;
@@ -285,7 +286,11 @@ page 35601 "Responsible Employees"
                 //PromotedCategory = "Report";
                 RunObject = Report "Vendor - List";
                 ToolTip = 'View various kinds of basic information for vendors, such as vendor posting group, discount and payment information, priority level and the vendor''s default currency, and the vendor''s current balance (in LCY). The report can be used, for example, to maintain the information in the Vendor table.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report is obsolete and will be removed in a future release.';
+                ObsoleteTag = '28.0';
             }
+#endif
             action("Vendor Register")
             {
                 ApplicationArea = Basic, Suite;

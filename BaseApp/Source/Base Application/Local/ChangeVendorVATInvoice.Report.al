@@ -65,11 +65,15 @@ report 14907 "Change Vendor VAT Invoice"
                         }
                         field(VATBase; VATBase)
                         {
+                            AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'VAT Base (LCY)';
                             Editable = false;
                         }
                         field(VATAmt; VATAmount)
                         {
+                            AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'VAT Amount (LCY)';
 
                             trigger OnValidate()

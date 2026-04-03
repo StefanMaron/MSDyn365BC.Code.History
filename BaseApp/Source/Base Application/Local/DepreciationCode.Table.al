@@ -18,6 +18,7 @@ table 12473 "Depreciation Code"
         }
         field(3; "Depreciation Quota"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Depreciation Quota';
         }
         field(4; "Check Number"; Integer)
@@ -93,6 +94,7 @@ table 12473 "Depreciation Code"
         }
         field(9; "Service Life"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Service Life';
         }
     }

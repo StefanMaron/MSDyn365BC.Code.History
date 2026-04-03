@@ -4,10 +4,13 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Archive;
 
+using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Dimension;
 using System.Security.User;
-using Microsoft.EServices.EDocument;
 
+/// <summary>
+/// Lists all archived sales quote versions for viewing and reference.
+/// </summary>
 page 9348 "Sales Quote Archives"
 {
     ApplicationArea = Basic, Suite;

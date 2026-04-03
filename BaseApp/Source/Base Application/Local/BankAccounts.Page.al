@@ -269,6 +269,7 @@ page 35630 "Bank Accounts"
                 RunObject = Report "Trial Balance by Period";
                 ToolTip = 'View a detailed trial balance for selected checks within a selected period.';
             }
+#if not CLEAN28
             action("Trial Balance")
             {
                 ApplicationArea = Basic, Suite;
@@ -278,7 +279,11 @@ page 35630 "Bank Accounts"
                 //PromotedCategory = "Report";
                 RunObject = Report "Trial Balance";
                 ToolTip = 'View a detailed trial balance for the selected bank account.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report is obsolete and will be removed in a future release.';
+                ObsoleteTag = '28.0';
             }
+#endif
         }
         area(Promoted)
         {

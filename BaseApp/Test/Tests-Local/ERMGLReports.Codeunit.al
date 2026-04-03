@@ -66,33 +66,6 @@ codeunit 144101 "ERM G/L Reports"
     end;
 
     [Test]
-    [HandlerFunctions('GLCorrEntriesAnalysisReportHandler')]
-    [Scope('OnPrem')]
-    procedure GLCorrespEntriesAnalysisReport()
-    var
-        GLAccount: Record "G/L Account";
-        GenJnlLine: Record "Gen. Journal Line";
-        GLCorrEntriesAnalysis: Report "G/L Corresp Entries Analysis";
-        DebitGLAccNo: Code[20];
-        DebitAmount: Decimal;
-        CreditAmount: Decimal;
-    begin
-        InitGLAccountWithBalance(DebitGLAccNo, DebitAmount);
-        CreditAmount := CreatePostGenJnlLine(GenJnlLine."Account Type"::"G/L Account", DebitGLAccNo, -1);
-
-        SetGLAccountFilters(GLAccount, DebitGLAccNo);
-        Clear(GLCorrEntriesAnalysis);
-        GLCorrEntriesAnalysis.SetTableView(GLAccount);
-        GLCorrEntriesAnalysis.Run();
-
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists('GLAccForReport_No_', DebitGLAccNo);
-        LibraryReportDataset.AssertElementWithValueExists('CorrespByDebit_Amount', DebitAmount);
-        LibraryReportDataset.AssertElementWithValueExists('CorrespByCredit_Amount', CreditAmount);
-        LibraryReportDataset.AssertElementWithValueExists('BalanceEnding', Abs(DebitAmount - CreditAmount));
-    end;
-
-    [Test]
     [HandlerFunctions('GLAccountTurnoverHandler')]
     [Scope('OnPrem')]
     procedure GLAccountTurnoverReport()

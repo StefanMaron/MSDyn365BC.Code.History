@@ -62,6 +62,7 @@ table 17311 "Tax Calc. Term"
         }
         field(9; "Rounding Precision"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Rounding Precision';
             DecimalPlaces = 0 :;
 

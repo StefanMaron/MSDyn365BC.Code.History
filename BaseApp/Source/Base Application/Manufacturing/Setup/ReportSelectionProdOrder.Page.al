@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -48,10 +48,6 @@ page 99000917 "Report Selection - Prod. Order"
                 {
                     ApplicationArea = Manufacturing;
                     DrillDown = false;
-                }
-                field(Default; Rec.Default)
-                {
-                    ToolTip = 'Specifies if the report ID is the default for the report selection.';
                 }
             }
         }

@@ -44,13 +44,11 @@ codeunit 12422 "Corrective Document Mgt."
             Currency.InitRoundingPrecision();
     end;
 
-    [Scope('OnPrem')]
     procedure SetSalesHeader(DocType: Option; DocNo: Code[20])
     begin
         GetSalesHeader(DocType, DocNo);
     end;
 
-    [Scope('OnPrem')]
     procedure SetCorrectionType(SelectedCorrectionType: Option)
     begin
         CorrectionType := SelectedCorrectionType;
@@ -228,7 +226,6 @@ codeunit 12422 "Corrective Document Mgt."
             until ValueEntry.Next() = 0;
     end;
 
-    [Scope('OnPrem')]
     procedure CreateSalesLinesFromPstdInv(var SourceSalesInvLine: Record "Sales Invoice Line")
     var
         InventorySetup: Record "Inventory Setup";
@@ -279,7 +276,6 @@ codeunit 12422 "Corrective Document Mgt."
             until SalesInvLine.Next() = 0;
     end;
 
-    [Scope('OnPrem')]
     procedure CreateSalesLinesFromPstdCrMemo(var SourceSalesCrMemoLine: Record "Sales Cr.Memo Line")
     var
         SalesLine: Record "Sales Line";

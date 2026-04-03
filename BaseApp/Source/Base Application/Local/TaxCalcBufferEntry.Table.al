@@ -18,12 +18,15 @@ table 17316 "Tax Calc. Buffer Entry"
         }
         field(3; "Tax Factor"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Tax Factor';
             DataClassification = SystemMetadata;
             DecimalPlaces = 5 : 5;
         }
         field(4; "Tax Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Tax Amount';
             DataClassification = SystemMetadata;
             DecimalPlaces = 2 :;

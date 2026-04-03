@@ -23,6 +23,7 @@ table 12049 "G/L Correspondence Buffer"
         field(7; Amount; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount';
             DataClassification = SystemMetadata;
         }

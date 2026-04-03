@@ -20,6 +20,8 @@ table 17323 "Tax Diff. FA Posting Buffer"
         }
         field(3; "Initial Amount"; Decimal)
         {
+            AutoFormatType = 0;
+            AutoFormatExpression = '';
             Caption = 'Initial Amount';
             DataClassification = SystemMetadata;
         }

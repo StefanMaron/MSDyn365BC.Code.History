@@ -36,6 +36,8 @@ table 17314 "Tax Calc. Accumulation"
         }
         field(15; Amount; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Amount';
             DecimalPlaces = 2 : 2;
@@ -47,6 +49,8 @@ table 17314 "Tax Calc. Accumulation"
         }
         field(35; "Amount Period"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount Period';
             DecimalPlaces = 2 : 2;
         }

@@ -57,36 +57,50 @@ table 17210 "Tax Register CV Entry"
         }
         field(179; "CV Debit Balance Amnt 2-4"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'CV Debit Balance Amnt 2-4';
         }
         field(180; "CV Credit Balance Amnt 1"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'CV Credit Balance Amnt 1';
         }
         field(181; "CV Credit Balance Amnt 2"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'CV Credit Balance Amnt 2';
         }
         field(182; "CV Debit Balance Amnt 1"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'CV Debit Balance Amnt 1';
         }
         field(183; "CV Debit Balance Amnt 2"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'CV Debit Balance Amnt 2';
         }
         field(184; "CV Debit Balance Amnt 3"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'CV Debit Balance Amnt 3';
         }
         field(185; "CV Debit Balance Amnt 4"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'CV Debit Balance Amnt 4';
         }

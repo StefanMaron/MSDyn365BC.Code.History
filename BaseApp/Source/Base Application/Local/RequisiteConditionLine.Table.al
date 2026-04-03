@@ -4,13 +4,8 @@ table 26561 "Requisite Condition Line"
 {
     Caption = 'Requisite Condition Line';
     ObsoleteReason = 'Obsolete functionality';
-#if CLEAN25
     ObsoleteState = Removed;
     ObsoleteTag = '28.0';
-#else
-    ObsoleteState = Pending;
-    ObsoleteTag = '19.0';
-#endif
     DataClassification = CustomerContent;
 
     fields

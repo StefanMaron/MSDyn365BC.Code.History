@@ -179,6 +179,7 @@ table 14901 "Vendor Agreement"
         field(58; Balance; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
             CalcFormula = - sum("Detailed Vendor Ledg. Entry".Amount where("Vendor No." = field("Vendor No."),
                                                                            "Agreement No." = field("No.")));
             Caption = 'Balance';
@@ -188,6 +189,7 @@ table 14901 "Vendor Agreement"
         field(59; "Balance (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = - sum("Detailed Vendor Ledg. Entry"."Amount (LCY)" where("Vendor No." = field("Vendor No."),
                                                                                    "Agreement No." = field("No.")));
             Caption = 'Balance (LCY)';
@@ -210,6 +212,7 @@ table 14901 "Vendor Agreement"
         field(61; "Net Change (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("Detailed Vendor Ledg. Entry"."Amount (LCY)" where("Vendor No." = field("Vendor No."),
                                                                                   "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
                                                                                   "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
@@ -269,6 +272,7 @@ table 14901 "Vendor Agreement"
         field(99; "Debit Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             CalcFormula = sum("Detailed Vendor Ledg. Entry"."Debit Amount (LCY)" where("Vendor No." = field("Vendor No."),
                                                                                         "Entry Type" = filter(<> Application),
@@ -283,6 +287,7 @@ table 14901 "Vendor Agreement"
         field(100; "Credit Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             CalcFormula = sum("Detailed Vendor Ledg. Entry"."Credit Amount (LCY)" where("Vendor No." = field("Vendor No."),
                                                                                          "Entry Type" = filter(<> Application),
@@ -353,6 +358,7 @@ table 14901 "Vendor Agreement"
         field(12427; "G/L Starting Balance"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
             CalcFormula = sum("G/L Entry".Amount where("Source Type" = const(Vendor),
                                                         "Source No." = field("Vendor No."),
                                                         "Agreement No." = field("No."),
@@ -367,6 +373,7 @@ table 14901 "Vendor Agreement"
         field(12428; "G/L Net Change"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
             CalcFormula = sum("G/L Entry".Amount where("Source Type" = const(Vendor),
                                                         "Source No." = field("Vendor No."),
                                                         "Agreement No." = field("No."),
@@ -381,6 +388,7 @@ table 14901 "Vendor Agreement"
         field(12429; "G/L Debit Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
             CalcFormula = sum("G/L Entry"."Debit Amount" where("Source Type" = const(Vendor),
                                                                 "Source No." = field("Vendor No."),
                                                                 "G/L Account No." = field("G/L Account Filter"),
@@ -395,6 +403,7 @@ table 14901 "Vendor Agreement"
         field(12430; "G/L Credit Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
             CalcFormula = sum("G/L Entry"."Credit Amount" where("Source Type" = const(Vendor),
                                                                  "Source No." = field("Vendor No."),
                                                                  "G/L Account No." = field("G/L Account Filter"),
@@ -409,6 +418,7 @@ table 14901 "Vendor Agreement"
         field(12431; "G/L Balance to Date"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
             CalcFormula = sum("G/L Entry".Amount where("Source Type" = const(Vendor),
                                                         "Source No." = field("Vendor No."),
                                                         "G/L Account No." = field("G/L Account Filter"),

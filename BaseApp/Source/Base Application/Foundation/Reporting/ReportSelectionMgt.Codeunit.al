@@ -72,6 +72,7 @@ codeunit 1901 "Report Selection Mgt."
         InitReportSelection("Report Selection Usage"::"P.Blanket");
         InitReportSelection("Report Selection Usage"::"P.Order");
         InitReportSelection("Report Selection Usage"::"P.Invoice");
+        InitReportSelection("Report Selection Usage"::"P.Self Billing Invoice");
         InitReportSelection("Report Selection Usage"::"P.Return");
         InitReportSelection("Report Selection Usage"::"P.Cr.Memo");
         InitReportSelection("Report Selection Usage"::"P.Receipt");
@@ -271,6 +272,8 @@ codeunit 1901 "Report Selection Mgt."
                     InsertRepSelection("Report Selection Usage"::"P.Invoice", '2', REPORT::"Posted Purch. FA Receipt FA-14", false, false, false);
                     InsertRepSelection("Report Selection Usage"::"P.Invoice", '3', REPORT::"Pstd. Purch. Factura-Invoice", false, false, false);
                 end;
+            "Report Selection Usage"::"P.Self Billing Invoice":
+                InsertRepSelection("Report Selection Usage"::"P.Self Billing Invoice", '1', REPORT::"Self Billing Invoice", true, false, false);
             "Report Selection Usage"::"P.Return":
                 InsertRepSelection("Report Selection Usage"::"P.Return", '1', REPORT::"Return Order", true, false, true);
             "Report Selection Usage"::"P.Cr.Memo":

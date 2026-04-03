@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Integration.Graph;
 
+using Microsoft.API.Upgrade;
 using Microsoft.Integration.Entity;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
@@ -11,12 +12,11 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Posting;
 using Microsoft.Utilities;
 using System.Reflection;
-using Microsoft.API.Upgrade;
 
 codeunit 5511 "Graph Mgt - Purch. Cr. Memo"
 {
     Permissions = tabledata "Purch. Cr. Memo Hdr." = rimd,
-                  tabledata "Purch. Cr. Memo Entity Buffer" = r;
+                  tabledata "Purch. Cr. Memo Entity Buffer" = rimd;
 
     trigger OnRun()
     begin

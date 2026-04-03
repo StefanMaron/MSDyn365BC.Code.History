@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -24,6 +24,7 @@ table 7500 "Item Attribute"
         field(2; Name; Text[250])
         {
             Caption = 'Name';
+            ToolTip = 'Specifies the name of the item attribute.';
             NotBlank = true;
 
             trigger OnValidate()
@@ -42,10 +43,12 @@ table 7500 "Item Attribute"
         field(6; Blocked; Boolean)
         {
             Caption = 'Blocked';
+            ToolTip = 'Specifies that the attribute cannot be assigned to an item. Items to which the attribute is already assigned are not affected.';
         }
         field(7; Type; Option)
         {
             Caption = 'Type';
+            ToolTip = 'Specifies the type of the item attribute.';
             InitValue = Text;
             OptionCaption = 'Option,Text,Integer,Decimal,Date';
             OptionMembers = Option,Text,"Integer",Decimal,Date;
@@ -64,6 +67,7 @@ table 7500 "Item Attribute"
         field(8; "Unit of Measure"; Text[30])
         {
             Caption = 'Unit of Measure';
+            ToolTip = 'Specifies the name of the item or resource''s unit of measure, such as piece or hour.';
 
             trigger OnValidate()
             begin
@@ -125,9 +129,9 @@ table 7500 "Item Attribute"
         NameAlreadyExistsErr: Label 'The item attribute with name ''%1'' already exists.', Comment = '%1 - arbitrary name';
         ReuseValueTranslationsQst: Label 'There are values and translations for item attribute ''%1''.\\Do you want to reuse them after changing the item attribute name to ''%2''?', Comment = '%1 - arbitrary name,%2 - arbitrary name';
         ChangingAttributeTypeErr: Label 'You cannot change the type of item attribute ''%1'', because it is either in use or it has predefined values.', Comment = '%1 - arbirtrary text';
-        DeleteUsedAttributeQst: Label 'This item attribute has been assigned to at least one item.\\Are you sure you want to delete it?';
-        RenameUsedAttributeQst: Label 'This item attribute has been assigned to at least one item.\\Are you sure you want to rename it?';
-        ChangeUsedAttributeUoMQst: Label 'This item attribute has been assigned to at least one item.\\Are you sure you want to change its unit of measure?';
+        DeleteUsedAttributeQst: Label 'This item attribute has been assigned to at least one item or item variant.\\Are you sure you want to delete it?';
+        RenameUsedAttributeQst: Label 'This item attribute has been assigned to at least one item or item variant.\\Are you sure you want to rename it?';
+        ChangeUsedAttributeUoMQst: Label 'This item attribute has been assigned to at least one item or item variant.\\Are you sure you want to change its unit of measure?';
         ChangeToOptionQst: Label 'Predefined values can be defined only for item attributes of type Option.\\Do you want to change the type of this item attribute to Option?';
 
     procedure GetTranslatedName(LanguageID: Integer) TranslatedName: Text[250]
@@ -183,9 +187,16 @@ table 7500 "Item Attribute"
     procedure HasBeenUsed() AttributeHasBeenUsed: Boolean
     var
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
+        ItemVariantAttributeValueMapping: Record "Item Var. Attr. Value Mapping";
     begin
         ItemAttributeValueMapping.SetRange("Item Attribute ID", ID);
         AttributeHasBeenUsed := not ItemAttributeValueMapping.IsEmpty();
+
+        if not AttributeHasBeenUsed then begin
+            ItemVariantAttributeValueMapping.SetRange("Item Attribute ID", ID);
+            AttributeHasBeenUsed := not ItemVariantAttributeValueMapping.IsEmpty();
+        end;
+
         OnAfterHasBeenUsed(Rec, AttributeHasBeenUsed);
     end;
 
@@ -249,10 +260,14 @@ table 7500 "Item Attribute"
     var
         ItemAttributeValue: Record "Item Attribute Value";
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
+        ItemVariantAttributeValueMapping: Record "Item Var. Attr. Value Mapping";
         ItemAttrValueTranslation: Record "Item Attr. Value Translation";
     begin
         ItemAttributeValueMapping.SetRange("Item Attribute ID", ID);
         ItemAttributeValueMapping.DeleteAll();
+
+        ItemVariantAttributeValueMapping.SetRange("Item Attribute ID", ID);
+        ItemVariantAttributeValueMapping.DeleteAll();
 
         ItemAttributeValue.SetRange("Attribute ID", ID);
         ItemAttributeValue.DeleteAll();

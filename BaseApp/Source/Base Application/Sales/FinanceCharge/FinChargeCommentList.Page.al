@@ -1,9 +1,12 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.FinanceCharge;
 
+/// <summary>
+/// Displays a read-only list of comments attached to finance charge memos.
+/// </summary>
 page 455 "Fin. Charge Comment List"
 {
     AutoSplitKey = true;
@@ -25,22 +28,18 @@ page 455 "Fin. Charge Comment List"
                 field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the type of document the comment is attached to: either Finance Charge Memo or Issued Finance Charge Memo.';
                 }
                 field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
                 field(Date; Rec.Date)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the date the comment was created.';
                 }
                 field(Comment; Rec.Comment)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the comment itself.';
                 }
             }
         }
@@ -56,6 +55,11 @@ page 455 "Fin. Charge Comment List"
         Text001: Label 'Fin. Charge Memo';
 #pragma warning restore AA0074
 
+    /// <summary>
+    /// Generates a caption for the finance charge comment list page.
+    /// </summary>
+    /// <param name="FinChrgCommentLine">The finance charge comment line to generate caption for.</param>
+    /// <returns>The page caption text.</returns>
     procedure Caption(FinChrgCommentLine: Record "Fin. Charge Comment Line"): Text
     begin
         if FinChrgCommentLine."No." = '' then

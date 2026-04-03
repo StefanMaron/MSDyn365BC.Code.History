@@ -54,16 +54,22 @@ table 14909 "Invent. Act Line"
         }
         field(15; "Total Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Total Amount';
             Editable = false;
         }
         field(16; "Confirmed Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Confirmed Amount';
             Editable = false;
         }
         field(17; "Not Confirmed Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Not Confirmed Amount';
 
             trigger OnValidate()
@@ -73,6 +79,8 @@ table 14909 "Invent. Act Line"
         }
         field(18; "Overdue Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Overdue Amount';
 
             trigger OnValidate()

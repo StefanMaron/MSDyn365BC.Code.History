@@ -202,6 +202,7 @@ page 12437 "VAT Settlement Journal"
                 {
                     ApplicationArea = All;
                     AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'VAT Balance';
                     Editable = false;
                     ToolTip = 'Specifies the VAT amount.';
@@ -211,6 +212,7 @@ page 12437 "VAT Settlement Journal"
                 {
                     ApplicationArea = All;
                     AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Total VAT Balance';
                     Editable = false;
                     ToolTip = 'Specifies the total VAT amount.';

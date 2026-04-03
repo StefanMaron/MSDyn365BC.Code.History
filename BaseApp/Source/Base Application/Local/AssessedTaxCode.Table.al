@@ -30,6 +30,7 @@ table 14921 "Assessed Tax Code"
         }
         field(5; "Rate %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Rate %';
             DecimalPlaces = 2 : 2;
             MinValue = 0;
@@ -64,6 +65,8 @@ table 14921 "Assessed Tax Code"
         }
         field(8; "Decreasing Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Decreasing Amount';
             DecimalPlaces = 2 : 2;
             MinValue = 0;

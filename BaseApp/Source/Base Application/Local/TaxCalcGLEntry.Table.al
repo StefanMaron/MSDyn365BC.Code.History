@@ -39,6 +39,8 @@ table 17315 "Tax Calc. G/L Entry"
         }
         field(10; Amount; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Amount';
         }
@@ -118,6 +120,7 @@ table 17315 "Tax Calc. G/L Entry"
         }
         field(51; "Tax Factor"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = lookup("Tax Calc. Buffer Entry"."Tax Factor" where("Entry No." = field("Entry No."),
                                                                               Code = field("Code Filter")));
             Caption = 'Tax Factor';
@@ -126,6 +129,8 @@ table 17315 "Tax Calc. G/L Entry"
         }
         field(52; "Tax Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = lookup("Tax Calc. Buffer Entry"."Tax Amount" where("Entry No." = field("Entry No."),
                                                                               Code = field("Code Filter")));
             Caption = 'Tax Amount';

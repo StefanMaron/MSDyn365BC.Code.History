@@ -1,12 +1,13 @@
+#if not CLEANSCHEMA28
 #pragma warning disable AA0247
 table 12458 "Direct Transfer Header"
 {
     Caption = 'Direct Transfer Header';
     DataCaptionFields = "No.";
     LookupPageID = "Posted Direct Transfers";
-    ObsoleteState = Pending;
+    ObsoleteState = Removed;
     ObsoleteReason = 'Direct Transfer feature merge to W1.';
-    ObsoleteTag = '18.0';
+    ObsoleteTag = '28.0';
     DataClassification = CustomerContent;
 
     fields
@@ -167,4 +168,4 @@ table 12458 "Direct Transfer Header"
     }
 
 }
-
+#endif

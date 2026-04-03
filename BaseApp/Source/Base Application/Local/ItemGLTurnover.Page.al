@@ -50,6 +50,7 @@ page 12449 "Item G/L Turnover"
                 }
                 field(StartingQuantity; StartingQuantity)
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     Caption = 'Starting Quantity';
@@ -62,6 +63,7 @@ page 12449 "Item G/L Turnover"
                 }
                 field(DebitQuantity; DebitQuantity)
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     Caption = 'Debit Quantity';
@@ -74,6 +76,7 @@ page 12449 "Item G/L Turnover"
                 }
                 field(CreditQuantity; CreditQuantity)
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     Caption = 'Credit Quantity';
@@ -86,6 +89,7 @@ page 12449 "Item G/L Turnover"
                 }
                 field(EndingQuantity; EndingQuantity)
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     Caption = 'Ending Quantity';
@@ -98,6 +102,8 @@ page 12449 "Item G/L Turnover"
                 }
                 field(StartingCost; StartingCost)
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     Caption = 'Starting Cost';
@@ -109,6 +115,8 @@ page 12449 "Item G/L Turnover"
                 }
                 field(DebitCost; DebitCost)
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     Caption = 'Debit Cost';
@@ -121,6 +129,8 @@ page 12449 "Item G/L Turnover"
                 }
                 field(CreditCost; CreditCost)
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     Caption = 'Credit Cost';
@@ -132,6 +142,8 @@ page 12449 "Item G/L Turnover"
                 }
                 field(EndingCost; EndingCost)
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ending Cost';
 

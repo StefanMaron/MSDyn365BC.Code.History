@@ -31,4 +31,5 @@ enum 347 "Report Selection Usage Purchase"
     value(17; "Advance Statement") { Caption = 'Advance Statement'; }
     value(18; "UnPosted Invoice") { Caption = 'UnPosted Invoice'; }
     value(19; "UnPosted Cr. Memo") { Caption = 'UnPosted Cr. Memo'; }
+    value(20; "Self Billing Invoice") { Caption = 'Self Billing Invoice'; }
 }

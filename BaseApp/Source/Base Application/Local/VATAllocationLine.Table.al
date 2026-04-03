@@ -150,11 +150,14 @@ table 14925 "VAT Allocation Line"
         }
         field(6; "VAT Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'VAT Amount';
             Editable = false;
         }
         field(7; "Allocation %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Allocation %';
             MaxValue = 100;
             MinValue = 0;
@@ -166,6 +169,8 @@ table 14925 "VAT Allocation Line"
         }
         field(8; Amount; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount';
 
             trigger OnValidate()
@@ -272,6 +277,8 @@ table 14925 "VAT Allocation Line"
         }
         field(17; "VAT Base Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'VAT Base Amount';
         }
         field(18; "VAT Bus. Posting Group"; Code[20])

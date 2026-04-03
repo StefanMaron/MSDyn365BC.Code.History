@@ -5,9 +5,9 @@
 namespace Microsoft.Inventory.Costing;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.FixedAssets.Depreciation;
 using Microsoft.FixedAssets.FixedAsset;
-using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.FixedAssets.Ledger;
 
 table 48 "Invt. Posting Buffer"
@@ -41,6 +41,8 @@ table 48 "Invt. Posting Buffer"
         }
         field(5; Amount; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount';
             DataClassification = SystemMetadata;
         }

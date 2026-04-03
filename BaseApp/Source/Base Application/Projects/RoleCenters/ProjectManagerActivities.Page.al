@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -11,10 +11,6 @@ using Microsoft.Projects.Project.WIP;
 using System;
 using System.Environment;
 using System.Visualization;
-#if not CLEAN25
-using Microsoft.Integration.SyncEngine;
-using Microsoft.Integration.Dataverse;
-#endif
 
 page 9068 "Project Manager Activities"
 {
@@ -36,13 +32,11 @@ page 9068 "Project Manager Activities"
                 {
                     ApplicationArea = Jobs;
                     DrillDownPageID = "Job List";
-                    ToolTip = 'Specifies the number of upcoming invoices that are displayed in the Project Cue on the Role Center. The documents are filtered by today''s date.';
                 }
                 field("Invoices Due - Not Created"; Rec."Invoices Due - Not Created")
                 {
                     ApplicationArea = Jobs;
                     DrillDownPageID = "Job List";
-                    ToolTip = 'Specifies the number of invoices that are due but not yet created that are displayed in the Project Cue on the Role Center. The documents are filtered by today''s date.';
                 }
 
                 actions
@@ -64,13 +58,11 @@ page 9068 "Project Manager Activities"
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Job List";
-                    ToolTip = 'Specifies the amount of work in process that has not been posted that is displayed in the Service Cue on the Role Center. The documents are filtered by today''s date.';
                 }
                 field("Completed - WIP Not Calculated"; Rec."Completed - WIP Not Calculated")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Job List";
-                    ToolTip = 'Specifies the total of work in process that is complete but not calculated that is displayed in the Project Cue on the Role Center. The documents are filtered by today''s date.';
                 }
 
                 actions
@@ -101,7 +93,6 @@ page 9068 "Project Manager Activities"
                     Caption = 'Over Budget';
                     DrillDownPageID = "Job List";
                     Editable = false;
-                    ToolTip = 'Specifies the number of projects where the usage cost exceeds the budgeted cost.';
                 }
             }
             cuegroup("Get started")
@@ -166,37 +157,6 @@ page 9068 "Project Manager Activities"
                     }
                 }
             }
-#if not CLEAN25
-            cuegroup("Data Integration")
-            {
-                Caption = 'Data Integration';
-                Visible = false;
-                ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '25.0';
-
-                field("CDS Integration Errors"; Rec."FS Integration Errors")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Integration Errors';
-                    DrillDownPageID = "Integration Synch. Error List";
-                    ToolTip = 'Specifies the number of errors related to data integration with Dynamics 365 Field Service.';
-                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-                }
-                field("Coupled Data Synch Errors"; Rec."Coupled Data Synch Errors")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Coupled Data Synchronization Errors';
-                    DrillDownPageID = "CRM Skipped Records";
-                    ToolTip = 'Specifies the number of errors that occurred in the latest synchronization of coupled data between Business Central and Dynamics 365 Field Service.';
-                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-                }
-            }
-#endif
         }
     }
 
@@ -294,4 +254,3 @@ page 9068 "Project Manager Activities"
     begin
     end;
 }
-

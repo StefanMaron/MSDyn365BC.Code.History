@@ -113,6 +113,7 @@ table 14902 "Customer Agreement"
         field(20; "Credit Limit (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = "Currency Code";
             Caption = 'Credit Limit (LCY)';
 
             trigger OnValidate()
@@ -223,6 +224,7 @@ table 14902 "Customer Agreement"
         field(58; Balance; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = "Currency Code";
             CalcFormula = sum("Detailed Cust. Ledg. Entry".Amount where("Customer No." = field("Customer No."),
                                                                          "Agreement No." = field("No.")));
             Caption = 'Balance';
@@ -232,6 +234,7 @@ table 14902 "Customer Agreement"
         field(59; "Balance (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" where("Customer No." = field("Customer No."),
                                                                                  "Agreement No." = field("No.")));
             Caption = 'Balance (LCY)';
@@ -254,6 +257,7 @@ table 14902 "Customer Agreement"
         field(61; "Net Change (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" where("Customer No." = field("Customer No."),
                                                                                  "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
                                                                                  "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
@@ -313,6 +317,7 @@ table 14902 "Customer Agreement"
         field(99; "Debit Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             CalcFormula = sum("Detailed Cust. Ledg. Entry"."Debit Amount (LCY)" where("Customer No." = field("Customer No."),
                                                                                        "Entry Type" = filter(<> Application),
@@ -327,6 +332,7 @@ table 14902 "Customer Agreement"
         field(100; "Credit Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             CalcFormula = sum("Detailed Cust. Ledg. Entry"."Credit Amount (LCY)" where("Customer No." = field("Customer No."),
                                                                                         "Entry Type" = filter(<> Application),
@@ -400,6 +406,7 @@ table 14902 "Customer Agreement"
         field(12424; "G/L Starting Balance"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = "Currency Code";
             CalcFormula = sum("G/L Entry".Amount where("Source Type" = const(Customer),
                                                         "Source No." = field("Customer No."),
                                                         "G/L Account No." = field("G/L Account Filter"),
@@ -414,6 +421,7 @@ table 14902 "Customer Agreement"
         field(12425; "G/L Net Change"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = "Currency Code";
             CalcFormula = sum("G/L Entry".Amount where("Source Type" = const(Customer),
                                                         "Source No." = field("Customer No."),
                                                         "G/L Account No." = field("G/L Account Filter"),
@@ -428,6 +436,7 @@ table 14902 "Customer Agreement"
         field(12426; "G/L Debit Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = "Currency Code";
             CalcFormula = sum("G/L Entry"."Debit Amount" where("Source Type" = const(Customer),
                                                                 "Source No." = field("Customer No."),
                                                                 "G/L Account No." = field("G/L Account Filter"),
@@ -442,6 +451,7 @@ table 14902 "Customer Agreement"
         field(12427; "G/L Credit Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = "Currency Code";
             CalcFormula = sum("G/L Entry"."Credit Amount" where("Source Type" = const(Customer),
                                                                  "Source No." = field("Customer No."),
                                                                  "G/L Account No." = field("G/L Account Filter"),
@@ -456,6 +466,7 @@ table 14902 "Customer Agreement"
         field(12428; "G/L Balance to Date"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = "Currency Code";
             CalcFormula = sum("G/L Entry".Amount where("Source Type" = const(Customer),
                                                         "Source No." = field("Customer No."),
                                                         "G/L Account No." = field("G/L Account Filter"),

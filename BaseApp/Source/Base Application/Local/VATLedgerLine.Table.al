@@ -54,42 +54,61 @@ table 12405 "VAT Ledger Line"
         }
         field(10; "Amount Including VAT"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount Including VAT';
         }
         field(11; Base20; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Base20';
         }
         field(12; Amount20; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount20';
         }
         field(13; Base10; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Base10';
         }
         field(14; Amount10; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount10';
         }
         field(15; Base0; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Base0';
         }
         field(16; "Base VAT Exempt"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Base VAT Exempt';
         }
         field(17; "Full VAT Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Full VAT Amount';
         }
         field(18; "Excise Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Excise Amount';
         }
         field(19; "VAT Percent"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'VAT Percent';
         }
         field(20; Method; Option)
@@ -167,14 +186,20 @@ table 12405 "VAT Ledger Line"
         }
         field(36; "Full Sales Tax Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Full Sales Tax Amount';
         }
         field(37; "Sales Tax Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Sales Tax Amount';
         }
         field(38; "Sales Tax Base"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Sales Tax Base';
         }
         field(39; "No. of Sales Ledger Lines"; Integer)
@@ -214,10 +239,14 @@ table 12405 "VAT Ledger Line"
         }
         field(43; Base18; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Base18';
         }
         field(44; Amount18; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount18';
         }
         field(45; "Reg. Reason Code"; Code[10])
@@ -315,6 +344,8 @@ table 12405 "VAT Ledger Line"
         }
         field(12496; Amount; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount';
         }
     }

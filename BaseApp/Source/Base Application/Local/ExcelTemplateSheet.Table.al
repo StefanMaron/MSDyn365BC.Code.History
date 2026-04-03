@@ -17,6 +17,7 @@ table 14930 "Excel Template Sheet"
         }
         field(3; "Paper Height"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Paper Height';
         }
     }

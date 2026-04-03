@@ -13,7 +13,7 @@ codeunit 144016 "ERM G/L Correspodence"
         LibrarySales: Codeunit "Library - Sales";
         LibraryJournals: Codeunit "Library - Journals";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryCosting: Codeunit "Library - Costing";
+        LibraryPostInventoryToGL: Codeunit "Library - Post Inventory To GL";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
@@ -224,7 +224,7 @@ codeunit 144016 "ERM G/L Correspodence"
         GeneralPostingSetup.Get(Vendor."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
 
         // [GIVEN] Post inventory cost to G/L with "Per Posting Group" option.
-        LibraryCosting.PostInvtCostToGL(true, WorkDate(), DocNo);
+        LibraryPostInventoryToGL.PostInvtCostToGL(true, WorkDate(), DocNo);
 
         // [WHEN] Create G/L Correspondence.
         GLEntry.SetRange("Document No.", DocNo);

@@ -46,6 +46,8 @@ table 17211 "Tax Register FA Entry"
         }
         field(61; "Acquisition Cost"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("FA Ledger Entry".Amount where("FA No." = field("FA No."),
                                                               "Depreciation Book Code" = field("Depreciation Book Code"),
                                                               "FA Posting Category" = const(" "),
@@ -57,6 +59,8 @@ table 17211 "Tax Register FA Entry"
         }
         field(62; "Valuation Changes"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("FA Ledger Entry".Amount where("FA No." = field("FA No."),
                                                               "Depreciation Book Code" = field("Depreciation Book Code"),
                                                               "FA Posting Category" = const(" "),
@@ -81,6 +85,7 @@ table 17211 "Tax Register FA Entry"
         }
         field(65; "No. of Depreciation Months"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             CalcFormula = lookup("FA Depreciation Book"."No. of Depreciation Months" where("FA No." = field("FA No."),
                                                                                             "Depreciation Book Code" = field("Depreciation Book Code")));
@@ -114,6 +119,8 @@ table 17211 "Tax Register FA Entry"
         }
         field(72; "Depreciation Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("FA Ledger Entry".Amount where("FA No." = field("FA No."),
                                                               "Depreciation Book Code" = field("Depreciation Book Code"),
                                                               "FA Posting Category" = const(" "),
@@ -152,6 +159,8 @@ table 17211 "Tax Register FA Entry"
         }
         field(84; "Book Value Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("FA Ledger Entry".Amount where("FA No." = field("FA No."),
                                                               "Depreciation Book Code" = field("Depreciation Book Code"),
                                                               "Part of Book Value" = const(true),
@@ -162,6 +171,8 @@ table 17211 "Tax Register FA Entry"
         }
         field(85; "Sales Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = - sum("FA Ledger Entry".Amount where("FA No." = field("FA No."),
                                                                "Depreciation Book Code" = field("Depreciation Book Code"),
                                                                "FA Posting Category" = const(" "),
@@ -172,6 +183,8 @@ table 17211 "Tax Register FA Entry"
         }
         field(86; "Sales Gain/Loss"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = - sum("FA Ledger Entry".Amount where("FA No." = field("FA No."),
                                                                "Depreciation Book Code" = field("Depreciation Book Code"),
                                                                "FA Posting Category" = const(" "),
@@ -183,6 +196,8 @@ table 17211 "Tax Register FA Entry"
         }
         field(87; "Sales Original Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = - sum("FA Ledger Entry".Amount where("FA No." = field("FA No."),
                                                                "Depreciation Book Code" = field("Depreciation Book Code"),
                                                                "FA Posting Category" = const(Disposal),
@@ -193,6 +208,8 @@ table 17211 "Tax Register FA Entry"
         }
         field(88; "Sales Depreciation Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("FA Ledger Entry".Amount where("FA No." = field("FA No."),
                                                               "Depreciation Book Code" = field("Depreciation Book Code"),
                                                               "FA Posting Category" = const(Disposal),
@@ -204,6 +221,8 @@ table 17211 "Tax Register FA Entry"
         }
         field(89; "Total Depreciation Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("FA Ledger Entry".Amount where("FA No." = field("FA No."),
                                                               "Depreciation Book Code" = field("Depreciation Book Code"),
                                                               "FA Posting Category" = const(" "),
@@ -223,6 +242,8 @@ table 17211 "Tax Register FA Entry"
         }
         field(91; "Depr. Group Elimination"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = - sum("FA Ledger Entry".Amount where("FA No." = field("FA No."),
                                                                "Depreciation Book Code" = field("Depreciation Book Code"),
                                                                "FA Posting Category" = const(" "),
@@ -234,6 +255,8 @@ table 17211 "Tax Register FA Entry"
         }
         field(92; "Depreciation Bonus Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("FA Ledger Entry".Amount where("FA No." = field("FA No."),
                                                               "Depreciation Book Code" = field("Depreciation Book Code"),
                                                               "FA Posting Category" = const(" "),
@@ -245,6 +268,8 @@ table 17211 "Tax Register FA Entry"
         }
         field(93; "Depr. Bonus Recovery Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("FA Ledger Entry".Amount where("FA No." = field("FA No."),
                                                               "Depreciation Book Code" = field("Depreciation Book Code"),
                                                               "FA Posting Category" = const(" "),
@@ -266,6 +291,8 @@ table 17211 "Tax Register FA Entry"
         }
         field(95; "Acquis. Cost for Released FA"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("FA Ledger Entry".Amount where("FA No." = field("FA No."),
                                                               "Depreciation Book Code" = field("Depreciation Book Code"),
                                                               "FA Posting Category" = const(" "),

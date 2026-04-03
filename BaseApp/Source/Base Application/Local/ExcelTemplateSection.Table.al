@@ -21,6 +21,7 @@ table 14931 "Excel Template Section"
         }
         field(4; Height; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Height';
         }
     }

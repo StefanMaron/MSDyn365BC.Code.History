@@ -398,39 +398,6 @@ codeunit 147123 "ERM VAT Posting Preview"
         Assert.IsFalse(SalesCrMemoHeader.Get(SalesHeader."Posting No."), StrSubstNo(PreviewDocExistsErr, SalesCrMemoHeader.TableCaption()));
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure PreviewFCYCustomerApplication()
-    var
-        SalesHeader: Record "Sales Header";
-        GenJnlLine: Record "Gen. Journal Line";
-        GLPostingPreview: TestPage "G/L Posting Preview";
-        CurrencyCode: Code[10];
-        GLAccountNo: Code[20];
-        InvNo: Code[20];
-        InvPostingDate: Date;
-        TotalAmount: Decimal;
-    begin
-        // [FEATURE] [Prepayment] [FCY] [Sales] [Prepayment Difference]
-        // [SCENARIO 372032] Preview Page should show currency conversion G/L entries when FCY invoice applied to prepayment
-
-        Initialize();
-        // [GIVEN] Posted Sales Invoice in FCY and G/L Account = "X"
-        // [GIVEN] Posted Prepayment in FCY with different currency factor
-        CurrencyCode := SetupCurrExchRates(InvPostingDate);
-        TotalAmount := CreateReleaseSalesInvWithCurrency(SalesHeader, GLAccountNo, CurrencyCode, InvPostingDate);
-        PostSalesPrepaymentWithCurrency(
-          GenJnlLine, WorkDate(), SalesHeader."Sell-to Customer No.", CurrencyCode, -TotalAmount, SalesHeader."No.");
-        InvNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        GLPostingPreview.Trap();
-        // [WHEN] Run Posting Preview for Application Invoice to Prepayment
-        asserterror ApplySalesInvToPrepaymentPreviewMode(InvNo, GenJnlLine."Document No.");
-
-        // [THEN] Preview page shows G/L Entry for Prepayment Difference with "G/L Account No." = "X"
-        VerifyGLEntryWithAccountExists(GLPostingPreview, GLAccountNo);
-    end;
-
     local procedure Initialize()
     var
         InvtSetup: Record "Inventory Setup";
@@ -506,27 +473,10 @@ codeunit 147123 "ERM VAT Posting Preview"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateReleaseSalesInvWithCurrency(var SalesHeader: Record "Sales Header"; var GLAccountNo: Code[20]; CurrencyCode: Code[10]; PostingDate: Date): Decimal
-    var
-        SalesLine: Record "Sales Line";
-    begin
-        LibrarySales.CreateFCYSalesInvoiceWithGLAcc(SalesHeader, SalesLine, '', '', PostingDate, CurrencyCode);
-        LibrarySales.ReleaseSalesDocument(SalesHeader);
-        GLAccountNo := SalesLine."No.";
-        exit(SalesLine."Amount Including VAT");
-    end;
-
     local procedure PostPurchasePrepaymentWithCurrency(var GenJnlLine: Record "Gen. Journal Line"; PostingDate: Date; VendorNo: Code[20]; CurrencyCode: Code[10]; EntryAmount: Decimal)
     begin
         LibraryERM.CreateVendorPrepmtGenJnlLineFCY(
           GenJnlLine, VendorNo, PostingDate, EntryAmount, CurrencyCode);
-        LibraryERM.PostGeneralJnlLine(GenJnlLine);
-    end;
-
-    local procedure PostSalesPrepaymentWithCurrency(var GenJnlLine: Record "Gen. Journal Line"; PostingDate: Date; CustomerNo: Code[20]; CurrencyCode: Code[10]; EntryAmount: Decimal; PrepaymentDocNo: Code[20])
-    begin
-        LibraryERM.CreateCustomerPrepmtGenJnlLineFCY(
-          GenJnlLine, CustomerNo, PostingDate, PrepaymentDocNo, EntryAmount, CurrencyCode);
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
     end;
 
@@ -537,15 +487,6 @@ codeunit 147123 "ERM VAT Posting Preview"
         LibraryERM.PreviewApplyVendorLedgerEntry(
           VendLedgEntry."Document Type"::Invoice, InvNo,
           VendLedgEntry."Document Type"::Payment, PrepmtNo);
-    end;
-
-    local procedure ApplySalesInvToPrepaymentPreviewMode(ApplyingDocNo: Code[20]; AppliesToDocNo: Code[20])
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-    begin
-        LibraryERM.PreviewApplyCustomerLedgerEntry(
-          CustLedgerEntry."Document Type"::Invoice, ApplyingDocNo,
-          CustLedgerEntry."Document Type"::Payment, AppliesToDocNo);
     end;
 
     local procedure ApplySalesPaymentToInvoicePreviewMode(PaymentDocNo: Code[20]; InvoiceDocNo: Code[20])

@@ -7,6 +7,9 @@ namespace Microsoft.Sales.Customer;
 using Microsoft.Foundation.Period;
 using Microsoft.Sales.Receivables;
 
+/// <summary>
+/// Displays statistics on customer ledger entries grouped by document type and accounting period.
+/// </summary>
 page 302 "Customer Entry Statistics"
 {
     Caption = 'Customer Entry Statistics';
@@ -390,6 +393,7 @@ page 302 "Customer Entry Statistics"
                         field(AvgCollectionPeriodDays_ThisPeriod; AvgDaysToPay[1])
                         {
                             ApplicationArea = Basic, Suite;
+                            AutoFormatType = 0;
                             Caption = 'Avg. Collection Period (Days)';
                             DecimalPlaces = 0 : 0;
                             ToolTip = 'Specifies the time it usually takes to collect payment from the customer. The value is determined by subtracting the posting dates from the corresponding payment dates and dividing the total by the number of invoices.';
@@ -398,6 +402,7 @@ page 302 "Customer Entry Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Largest Balance (LCY)';
                             ToolTip = 'Specifies the largest balance that the customer has had.';
                         }
@@ -455,6 +460,7 @@ page 302 "Customer Entry Statistics"
                         field(AvgCollectionPeriodDays_ThisYear; AvgDaysToPay[2])
                         {
                             ApplicationArea = Basic, Suite;
+                            AutoFormatType = 0;
                             Caption = 'Avg. Collection Period (Days)';
                             DecimalPlaces = 0 : 0;
                             ToolTip = 'Specifies the time it usually takes to collect payment from the customer. The value is determined by subtracting the posting dates from the corresponding payment dates and dividing the total by the number of invoices.';
@@ -463,6 +469,7 @@ page 302 "Customer Entry Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Largest Balance';
                             ToolTip = 'Specifies the largest balance that the customer has had.';
                         }
@@ -520,6 +527,7 @@ page 302 "Customer Entry Statistics"
                         field(AvgCollectionPeriodDays_LastYear; AvgDaysToPay[3])
                         {
                             ApplicationArea = Basic, Suite;
+                            AutoFormatType = 0;
                             Caption = 'Avg. Collection Period (Days)';
                             DecimalPlaces = 0 : 0;
                             ToolTip = 'Specifies the time it usually takes to collect payment from the customer. The value is determined by subtracting the posting dates from the corresponding payment dates and dividing the total by the number of invoices.';
@@ -528,6 +536,7 @@ page 302 "Customer Entry Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Largest Balance';
                             ToolTip = 'Specifies the largest balance that the customer has had.';
                         }
@@ -544,6 +553,7 @@ page 302 "Customer Entry Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Remaining Amt. (LCY)';
                             ToolTip = 'Specifies the amount that remains to be paid.';
                         }
@@ -551,6 +561,7 @@ page 302 "Customer Entry Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Remaining Amt. (LCY)';
                             ToolTip = 'Specifies the amount that remains to be paid.';
                         }
@@ -558,6 +569,7 @@ page 302 "Customer Entry Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Remaining Amt. (LCY)';
                             ToolTip = 'Specifies the amount that remains to be paid.';
                         }
@@ -565,6 +577,7 @@ page 302 "Customer Entry Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Remaining Amt. (LCY)';
                             ToolTip = 'Specifies the amount that remains to be paid.';
                         }
@@ -572,6 +585,7 @@ page 302 "Customer Entry Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Remaining Amt. (LCY)';
                             ToolTip = 'Specifies the amount that remains to be paid.';
                         }
@@ -579,6 +593,7 @@ page 302 "Customer Entry Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Remaining Amt. (LCY)';
                             ToolTip = 'Specifies the amount that remains to be paid.';
                         }
@@ -586,6 +601,7 @@ page 302 "Customer Entry Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Remaining Amt. (LCY)';
                             ToolTip = 'Specifies the net remaining amount of all the lines in the customer entry.';
                         }
@@ -732,16 +748,28 @@ page 302 "Customer Entry Statistics"
         NoOfInv := NoOfInv + 1;
     end;
 
+    /// <summary>
+    /// Raised after setting filters on customer ledger entries for amount calculation.
+    /// </summary>
+    /// <param name="CustLedgerEntry">The customer ledger entry record with filters applied.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecordOnAfterCustLedgEntrySetFiltersCalcAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Raised after setting filters on customer ledger entries for remaining amount calculation.
+    /// </summary>
+    /// <param name="CustLedgerEntry">The customer ledger entry record with filters applied.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecordOnAfterCustLedgEntrySetFiltersCalcRemainingAmountLCY(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Raised after setting filters on customer ledger entries for days to pay calculation.
+    /// </summary>
+    /// <param name="CustLedgerEntry">The customer ledger entry record with filters applied.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecordOnAfterCustLedgEntrySetFiltersCalcDaysToPay(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin

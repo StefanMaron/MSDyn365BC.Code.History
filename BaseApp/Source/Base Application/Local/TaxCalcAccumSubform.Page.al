@@ -28,6 +28,8 @@ page 17322 "Tax Calc. Accum. Subform"
                 }
                 field(Amount; Rec.Amount)
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the tax calculation accumulation. ';
 

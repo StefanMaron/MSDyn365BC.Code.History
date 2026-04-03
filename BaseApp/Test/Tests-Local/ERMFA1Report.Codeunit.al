@@ -834,6 +834,7 @@ codeunit 144711 "ERM FA-1 Report"
     var
         FADeprBook: Record "FA Depreciation Book";
         NoOfDeprMonths: Decimal;
+        DecimalValue: Decimal;
     begin
         FADeprBook.SetRange("FA No.", FANo);
         FADeprBook.FindFirst();
@@ -842,10 +843,14 @@ codeunit 144711 "ERM FA-1 Report"
         Assert.AreEqual(
           Format(FADeprBook."No. of Depreciation Months", 0, DecimalFormatWithPlacesTxt),
           Format(NoOfDeprMonths, 0, DecimalFormatWithPlacesTxt), IncorrectCellValueErr);
-        LibraryReportValidation.VerifyCellValueByRef('AO', 61, 2, Format(FADeprBook.Depreciation));
-        LibraryReportValidation.VerifyCellValueByRef('AW', 61, 2, Format(FADeprBook."Book Value"));
-        LibraryReportValidation.VerifyCellValueByRef('BE', 61, 2, Format(FADeprBook."Acquisition Cost"));
-        LibraryReportValidation.VerifyCellValueByRef('BM', 61, 2, Format(FADeprBook."Initial Acquisition Cost"));
+        DecimalValue := FADeprBook.Depreciation;
+        LibraryReportValidation.VerifyCellValueByRef('AO', 61, 2, Format(DecimalValue, 0, 9));
+        DecimalValue := FADeprBook."Book Value";
+        LibraryReportValidation.VerifyCellValueByRef('AW', 61, 2, Format(DecimalValue, 0, 9));
+        DecimalValue := FADeprBook."Acquisition Cost";
+        LibraryReportValidation.VerifyCellValueByRef('BE', 61, 2, Format(DecimalValue, 0, 9));
+        DecimalValue := FADeprBook."Initial Acquisition Cost";
+        LibraryReportValidation.VerifyCellValueByRef('BM', 61, 2, Format(DecimalValue, 0, 9));
         LibraryReportValidation.VerifyCellValueByRef('CC', 61, 2, Format(FADeprBook."Depreciation Method"));
         LibraryReportValidation.VerifyCellValueByRef('CO', 61, 2, Format(Round(100 / (12 * FADeprBook."No. of Depreciation Years"), 0.01)));
     end;
@@ -862,4 +867,3 @@ codeunit 144711 "ERM FA-1 Report"
         LibraryReportValidation.VerifyEmptyCellByRef('BE', 61, 2);
     end;
 }
-

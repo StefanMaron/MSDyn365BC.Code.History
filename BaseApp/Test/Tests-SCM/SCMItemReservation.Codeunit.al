@@ -12,6 +12,7 @@ codeunit 137406 "SCM Item Reservation"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryCosting: Codeunit "Library - Costing";
+        LibraryPostInventoryToGL: Codeunit "Library - Post Inventory To GL";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
@@ -86,6 +87,7 @@ codeunit 137406 "SCM Item Reservation"
     var
         ItemJournalLine: Record "Item Journal Line";
         ProductionBOMLine: Record "Production BOM Line";
+        Library_ERMCountryData: Codeunit "Library - ERM Country Data";
         ProductionOrderNo: Code[20];
         ItemNo: Code[20];
         Quantity: Decimal;
@@ -104,8 +106,9 @@ codeunit 137406 "SCM Item Reservation"
         CalculateAndPostConsumption(ProductionOrderNo);
 
         // [WHEN] Run Adjust Cost Item Entries and Post Inventory Cost to General Ledger.
+        Library_ERMCountryData.UpdateJournalTemplMandatory(false);
         LibraryCosting.AdjustCostItemEntries(ItemNo, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
+        LibraryPostInventoryToGL.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Verify G/L Entry.
         VerifyGLEntry(ProductionOrderNo, -Quantity * ProductionBOMLine."Quantity per" * ItemJournalLine."Unit Amount");

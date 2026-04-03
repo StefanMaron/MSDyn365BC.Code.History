@@ -46,33 +46,6 @@ codeunit 144712 "ERM TORG-29 Report"
           TempValueEntryResid, TempValueEntryRcpt, TempValueEntryShpt);
     end;
 
-#if not CLEAN25
-    [Test]
-    [Scope('OnPrem')]
-    procedure ResidOnStartWithPriceAmountType()
-    var
-        TempValueEntry: Record "Value Entry" temporary;
-        ErrorBuffer: Record "Value Entry" temporary;
-        ItemNo: Code[20];
-        LocationCode: Code[10];
-        PostingDate: Date;
-        ResidOnstart: Decimal;
-        SalesPrice: Decimal;
-        EntriesCount: Integer;
-        ErrorsCount: Integer;
-    begin
-        InitData(PostingDate, ItemNo, LocationCode);
-        SalesPrice := MockSalesPrice(ItemNo, PostingDate);
-        MockCostAmountValueEntries(TempValueEntry, ItemNo, LocationCode, PostingDate, 1);
-        PostingDate := CalcDate('<1M>', PostingDate);
-        TORG29Helper.CreateTempReceipts(
-          TempValueEntry, ErrorBuffer, EntriesCount, ErrorsCount, ResidOnstart, PostingDate, PostingDate,
-          LocationCode, AmountType::Price, ReceiptsDetailing::Document, "Sales Price Type"::"All Customers", '', false);
-        TempValueEntry.CalcSums("Item Ledger Entry Quantity");
-        Assert.AreEqual(
-          Round(SalesPrice * TempValueEntry."Item Ledger Entry Quantity"), ResidOnstart, WrongResidOnStartErr);
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -150,35 +123,6 @@ codeunit 144712 "ERM TORG-29 Report"
           StrSubstNo(WrongValueErr, TempRcptValueEntry.FieldCaption("Valued Quantity")));
     end;
 
-#if not CLEAN25
-    [Test]
-    [Scope('OnPrem')]
-    procedure ReceiptsWithPriceAmountType()
-    var
-        TempValueEntry: Record "Value Entry" temporary;
-        TempRcptValueEntry: Record "Value Entry" temporary;
-        ErrorBuffer: Record "Value Entry" temporary;
-        ItemNo: Code[20];
-        LocationCode: Code[10];
-        PostingDate: Date;
-        ResidOnstart: Decimal;
-        SalesPrice: Decimal;
-        EntriesCount: Integer;
-        ErrorsCount: Integer;
-    begin
-        InitData(PostingDate, ItemNo, LocationCode);
-        SalesPrice := MockSalesPrice(ItemNo, PostingDate);
-        MockCostAmountValueEntries(TempValueEntry, ItemNo, LocationCode, PostingDate, 1);
-        TORG29Helper.CreateTempReceipts(
-          TempRcptValueEntry, ErrorBuffer, EntriesCount, ErrorsCount, ResidOnstart, PostingDate, PostingDate,
-          LocationCode, AmountType::Price, ReceiptsDetailing::Document, "Sales Price Type"::"All Customers", '', false);
-        TempValueEntry.CalcSums("Item Ledger Entry Quantity");
-        TempRcptValueEntry.CalcSums("Valued Quantity");
-        Assert.AreEqual(
-          TempRcptValueEntry."Valued Quantity", Round(SalesPrice * TempValueEntry."Item Ledger Entry Quantity"),
-          StrSubstNo(WrongValueErr, TempRcptValueEntry.FieldCaption("Valued Quantity")));
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -255,34 +199,6 @@ codeunit 144712 "ERM TORG-29 Report"
           StrSubstNo(WrongValueErr, TempShptValueEntry.FieldCaption("Valued Quantity")));
     end;
 
-#if not CLEAN25
-    [Test]
-    [Scope('OnPrem')]
-    procedure ShptsWithPriceAmountType()
-    var
-        TempValueEntry: Record "Value Entry" temporary;
-        TempShptValueEntry: Record "Value Entry" temporary;
-        ErrorBuffer: Record "Value Entry" temporary;
-        ItemNo: Code[20];
-        LocationCode: Code[10];
-        PostingDate: Date;
-        SalesPrice: Decimal;
-        EntriesCount: Integer;
-        ErrorsCount: Integer;
-    begin
-        InitData(PostingDate, ItemNo, LocationCode);
-        SalesPrice := MockSalesPrice(ItemNo, PostingDate);
-        MockCostAmountValueEntries(TempValueEntry, ItemNo, LocationCode, PostingDate, -1);
-        TORG29Helper.CreateTempShipment(
-          TempShptValueEntry, ErrorBuffer, EntriesCount, ErrorsCount, PostingDate, PostingDate,
-          LocationCode, AmountType::Price, ShipmentDetailing::Document, "Sales Price Type"::"All Customers", '', false);
-        TempValueEntry.CalcSums("Item Ledger Entry Quantity");
-        TempShptValueEntry.CalcSums("Valued Quantity");
-        Assert.AreEqual(
-          TempShptValueEntry."Valued Quantity", -Round(SalesPrice * TempValueEntry."Item Ledger Entry Quantity"),
-          StrSubstNo(WrongValueErr, TempShptValueEntry.FieldCaption("Valued Quantity")));
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -360,22 +276,6 @@ codeunit 144712 "ERM TORG-29 Report"
         exit(PriceListLine."Unit Price");
     end;
 
-#if not CLEAN25
-    local procedure MockSalesPrice(ItemNo: Code[20]; PostingDate: Date): Decimal
-    var
-        SalesPrice: Record "Sales Price";
-    begin
-        SalesPrice.Init();
-        SalesPrice."Item No." := ItemNo;
-        SalesPrice."Sales Type" := SalesPrice."Sales Type"::"All Customers";
-        SalesPrice."Sales Code" := '';
-        SalesPrice."Starting Date" := PostingDate;
-        SalesPrice."Ending Date" := PostingDate;
-        SalesPrice."Unit Price" := LibraryRandom.RandDec(100, 2);
-        SalesPrice.Insert();
-        exit(SalesPrice."Unit Price");
-    end;
-#endif
 
     local procedure MockEmployee(): Code[20]
     var
@@ -542,4 +442,3 @@ codeunit 144712 "ERM TORG-29 Report"
         until ValueEntry.Next() = 0;
     end;
 }
-

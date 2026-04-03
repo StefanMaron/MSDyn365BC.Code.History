@@ -37,11 +37,13 @@ table 14942 "G/L Corr. Analysis View Entry"
         }
         field(10; Amount; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Amount';
         }
         field(11; "Amount (ACY)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Amount (ACY)';
         }
         field(20; "Debit Dimension 1 Value Code"; Code[20])

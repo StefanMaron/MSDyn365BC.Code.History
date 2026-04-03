@@ -98,6 +98,7 @@ table 17204 "Tax Register Term"
         }
         field(9; "Rounding Precision"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Rounding Precision';
             DecimalPlaces = 0 :;
 

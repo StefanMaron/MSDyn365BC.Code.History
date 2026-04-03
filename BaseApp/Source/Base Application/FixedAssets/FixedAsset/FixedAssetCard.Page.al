@@ -38,7 +38,6 @@ page 5600 "Fixed Asset Card"
                 {
                     ApplicationArea = All;
                     Importance = Standard;
-                    ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
 
                     trigger OnAssistEdit()
                     begin
@@ -93,26 +92,22 @@ page 5600 "Fixed Asset Card"
                 field("Search Description"; Rec."Search Description")
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies a search description for the fixed asset.';
                 }
                 field("Responsible Employee"; Rec."Responsible Employee")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
                     Importance = Promoted;
-                    ToolTip = 'Specifies which employee is responsible for the fixed asset.';
                 }
                 field(Inactive; Rec.Inactive)
                 {
                     ApplicationArea = FixedAssets;
                     Importance = Additional;
-                    ToolTip = 'Specifies that the fixed asset is inactive (for example, if the asset is not in service or is obsolete).';
                 }
                 field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = FixedAssets;
                     Importance = Additional;
-                    ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                 }
                 field("Last Date Modified"; Rec."Last Date Modified")
                 {
@@ -196,24 +191,20 @@ page 5600 "Fixed Asset Card"
                 {
                     ApplicationArea = FixedAssets;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the number of the vendor from which you purchased this fixed asset.';
                 }
                 field("Maintenance Vendor No."; Rec."Maintenance Vendor No.")
                 {
                     ApplicationArea = FixedAssets;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the number of the vendor who performs repairs and maintenance on the fixed asset.';
                 }
                 field("Under Maintenance"; Rec."Under Maintenance")
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies if the fixed asset is currently being repaired.';
                 }
                 field("Next Service Date"; Rec."Next Service Date")
                 {
                     ApplicationArea = FixedAssets;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the next scheduled service date for the fixed asset. This is used as a filter in the Maintenance - Next Service report.';
                 }
                 field("Last Renovation Date"; Rec."Last Renovation Date")
                 {
@@ -223,12 +214,10 @@ page 5600 "Fixed Asset Card"
                 field("Warranty Date"; Rec."Warranty Date")
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the warranty expiration date of the fixed asset.';
                 }
                 field(Insured; Rec.Insured)
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies that the fixed asset is linked to an insurance policy.';
                 }
             }
             group(Depreciation)
@@ -393,19 +382,6 @@ page 5600 "Fixed Asset Card"
                 Caption = 'Fixed Asset Picture';
                 SubPageLink = "No." = field("No.");
             }
-#if not CLEAN25
-            part("Attached Documents"; "Document Attachment Factbox")
-            {
-                ObsoleteTag = '25.0';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
-                ApplicationArea = All;
-                Visible = false;
-                Caption = 'Attachments';
-                SubPageLink = "Table ID" = const(Database::"Fixed Asset"),
-                              "No." = field("No.");
-            }
-#endif
             part("Attached Documents List"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = All;
@@ -666,14 +642,19 @@ page 5600 "Fixed Asset Card"
         }
         area(reporting)
         {
+#if not CLEAN28
             action(Details)
             {
                 ApplicationArea = FixedAssets;
-                Caption = 'Details';
+                Caption = 'Details (Obsolete)';
                 Image = View;
                 RunObject = Report "Fixed Asset - Details";
                 ToolTip = 'View detailed information about the fixed asset ledger entries that have been posted to a specified depreciation book for each fixed asset.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report has been replaced by the report Fixed Asset Details (Excel). This report will be removed in a future release.';
+                ObsoleteTag = '28.0';
             }
+#endif
             action("FA Book Value")
             {
                 ApplicationArea = FixedAssets;
@@ -690,22 +671,30 @@ page 5600 "Fixed Asset Card"
                 RunObject = Report "Fixed Asset - Book Value 02";
                 ToolTip = 'View detailed information about acquisition cost, depreciation, appreciation, write-down and book value for both individual fixed assets and groups of fixed assets. For each of these categories, amounts are calculated at the beginning and at the end of a specified period, as well as for the period itself.';
             }
+#if not CLEAN28
             action(Analysis)
             {
                 ApplicationArea = FixedAssets;
-                Caption = 'Analysis';
+                Caption = 'Analysis (Obsolete)';
                 Image = "Report";
                 RunObject = Report "Fixed Asset - Analysis";
                 ToolTip = 'View an analysis of your fixed assets with various types of data for both individual fixed assets and groups of fixed assets.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report has been replaced by the report Fixed Asset Analysis (Excel). This report will be removed in a future release.';
+                ObsoleteTag = '28.0';
             }
             action("Projected Value")
             {
                 ApplicationArea = FixedAssets;
-                Caption = 'Projected Value';
+                Caption = 'Projected Value (Obsolete)';
                 Image = "Report";
                 RunObject = Report "Fixed Asset - Projected Value";
                 ToolTip = 'View the calculated future depreciation and book value. You can print the report for one depreciation book at a time.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report has been replaced by the report Fixed Asset Projected Value (Excel). This report will be removed in a future release.';
+                ObsoleteTag = '28.0';
             }
+#endif
             action("G/L Analysis")
             {
                 ApplicationArea = FixedAssets;
@@ -785,15 +774,26 @@ page 5600 "Fixed Asset Card"
             {
                 Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
 
+#if not CLEAN28
                 actionref(Analysis_Promoted; Analysis)
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This report has been replaced by the report Fixed Asset Analysis (Excel). This report will be removed in a future release.';
+                    ObsoleteTag = '28.0';
                 }
                 actionref("Projected Value_Promoted"; "Projected Value")
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This report has been replaced by the report Fixed Asset Projected Value (Excel). This report will be removed in a future release.';
+                    ObsoleteTag = '28.0';
                 }
                 actionref(Details_Promoted; Details)
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This report has been replaced by the report Fixed Asset Details (Excel). This report will be removed in a future release.';
+                    ObsoleteTag = '28.0';
                 }
+#endif
             }
         }
     }
@@ -802,4 +802,3 @@ page 5600 "Fixed Asset Card"
     protected var
         FixedAsset: Record "Fixed Asset";
 }
-

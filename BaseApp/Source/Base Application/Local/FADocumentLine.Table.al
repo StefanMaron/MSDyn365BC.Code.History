@@ -92,6 +92,8 @@ table 12477 "FA Document Line"
         }
         field(14; Amount; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount';
 
             trigger OnValidate()
@@ -101,14 +103,18 @@ table 12477 "FA Document Line"
         }
         field(15; "Book Value"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Book Value';
         }
         field(16; "Value %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Value %';
         }
         field(18; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
 
             trigger OnValidate()

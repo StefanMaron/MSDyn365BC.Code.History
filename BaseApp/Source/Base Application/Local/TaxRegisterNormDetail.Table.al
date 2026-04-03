@@ -31,6 +31,7 @@ table 17222 "Tax Register Norm Detail"
         }
         field(5; Maximum; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Maximum';
             DecimalPlaces = 2 : 2;
             MinValue = 0;
@@ -43,12 +44,14 @@ table 17222 "Tax Register Norm Detail"
         }
         field(6; Norm; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Norm';
             DecimalPlaces = 2 : 5;
             MinValue = 0;
         }
         field(7; "Norm Above Maximum"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Norm Above Maximum';
             DecimalPlaces = 2 : 2;
             MinValue = 0;

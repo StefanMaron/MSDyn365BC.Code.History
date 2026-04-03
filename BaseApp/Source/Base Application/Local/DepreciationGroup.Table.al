@@ -18,15 +18,18 @@ table 12476 "Depreciation Group"
         }
         field(3; "Tax Depreciation Rate"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Tax Depreciation Rate';
         }
         field(4; "Depreciation Factor"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Depreciation Factor';
             InitValue = 1;
         }
         field(5; "Depr. Bonus %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Depr. Bonus %';
             MaxValue = 100;
             MinValue = 0;

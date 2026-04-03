@@ -24,12 +24,12 @@ page 209 "Units of Measure"
                 ShowCaption = false;
                 field("Code"; Rec.Code)
                 {
-                    ApplicationArea = Invoicing, Basic, Suite;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the unit of measure, which you can select on item and resource cards from where it is copied to.';
                 }
                 field(Description; Rec.Description)
                 {
-                    ApplicationArea = Invoicing, Basic, Suite;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the unit of measure.';
                 }
                 field("OKEI Code"; Rec."OKEI Code")
@@ -39,7 +39,7 @@ page 209 "Units of Measure"
                 }
                 field("International Standard Code"; Rec."International Standard Code")
                 {
-                    ApplicationArea = Invoicing, Basic, Suite;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unit of measure code expressed according to the UNECERec20 standard in connection with electronic sending of sales documents. For example, when sending sales documents through the PEPPOL service, the value in this field is used to populate the UnitCode element in the Product group.';
                 }
                 field("Coupled to Dataverse"; Rec."Coupled to Dataverse")
@@ -259,4 +259,3 @@ page 209 "Units of Measure"
     protected var
         CRMIntegrationEnabled: Boolean;
 }
-

@@ -56,6 +56,7 @@ table 17242 "Tax Reg. Norm Accumulation"
         }
         field(10; Amount; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Amount';
             Editable = false;
@@ -89,6 +90,8 @@ table 17242 "Tax Reg. Norm Accumulation"
         }
         field(16; "Amount Period"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount Period';
         }
     }

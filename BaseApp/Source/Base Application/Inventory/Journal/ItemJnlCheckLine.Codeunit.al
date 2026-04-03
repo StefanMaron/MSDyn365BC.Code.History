@@ -8,13 +8,13 @@ using Microsoft.CRM.Team;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Preview;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.FixedAssets.Depreciation;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Setup;
 using Microsoft.Warehouse.Journal;
 using System.Security.User;
-using Microsoft.FixedAssets.Depreciation;
 
 codeunit 21 "Item Jnl.-Check Line"
 {
@@ -194,7 +194,9 @@ codeunit 21 "Item Jnl.-Check Line"
         if ItemJournalLine."Red Storno" and InvtSetup."Enable Red Storno" and not ItemJnlLineReserve.ReservEntryExist(ItemJournalLine) then
             RedStornoPostingCheck(ItemJournalLine);
         if (ItemJournalLine."Entry Type" in
-            [ItemJournalLine."Entry Type"::Purchase, ItemJournalLine."Entry Type"::Sale, ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemJournalLine."Entry Type"::"Negative Adjmt."]) and
+            [ItemJournalLine."Entry Type"::Purchase, ItemJournalLine."Entry Type"::Sale, ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemJournalLine."Entry Type"::"Negative Adjmt.", ItemJournalLine."Entry Type"::Consumption, ItemJournalLine."Entry Type"::Output]) and
+           (not ItemJournalLine.IsSourceProductionJournal()) and
+           (not ItemJournalLine.IsSourceCapacityJournal()) and
            (not GenJnlPostPreview.IsActive())
         then
             ItemJournalLine.CheckItemJournalLineRestriction();

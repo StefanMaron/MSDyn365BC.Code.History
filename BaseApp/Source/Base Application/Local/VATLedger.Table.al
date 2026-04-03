@@ -263,38 +263,56 @@ table 12404 "VAT Ledger"
         }
         field(35; "Total VAT Amt VAT Purch Ledger"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Total VAT Amt VAT Purch Ledger';
         }
         field(36; "Tot Base18 Amt VAT Sales Ledg"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Tot Base18 Amt VAT Sales Ledg';
         }
         field(37; "Tot Base 10 Amt VAT Sales Ledg"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Tot Base 10 Amt VAT Sales Ledg';
         }
         field(38; "Tot Base 0 Amt VAT Sales Ledg"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Tot Base 0 Amt VAT Sales Ledg';
         }
         field(39; "Total VAT18 Amt VAT Sales Ledg"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Total VAT18 Amt VAT Sales Ledg';
         }
         field(40; "Total VAT10 Amt VAT Sales Ledg"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Total VAT10 Amt VAT Sales Ledg';
         }
         field(41; "Total VATExempt Amt VAT S Ledg"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Total VATExempt Amt VAT S Ledg';
         }
         field(42; "Tot Base20 Amt VAT Sales Ledg"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Tot Base20 Amt VAT Sales Ledg';
         }
         field(43; "Total VAT20 Amt VAT Sales Ledg"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Total VAT20 Amt VAT Sales Ledg';
         }
     }

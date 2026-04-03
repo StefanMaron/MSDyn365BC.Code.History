@@ -17,6 +17,7 @@ codeunit 137049 "SCM Reservation"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryCosting: Codeunit "Library - Costing";
+        LibraryPostInventoryToGL: Codeunit "Library - Post Inventory To GL";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -1031,7 +1032,7 @@ codeunit 137049 "SCM Reservation"
 
         // Exercise: Run Adjust Cost and Post Inventory Cost to G/L.
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
+        LibraryPostInventoryToGL.PostInvtCostToGL(false, WorkDate(), '');
 
         // Verify: Verify Total amount in G/L for Inventory Account.
         VerifyGLEntry(Item."No.");
@@ -1090,7 +1091,7 @@ codeunit 137049 "SCM Reservation"
 
         // Exercise: Run Adjust Cost and Post Inventory Cost to G/L.
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
+        LibraryPostInventoryToGL.PostInvtCostToGL(false, WorkDate(), '');
 
         // Verify: Verify amount for component in G/L for Inventory Account.
         VerifyGLEntry(ChildItemNo);

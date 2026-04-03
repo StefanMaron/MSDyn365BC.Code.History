@@ -56,6 +56,7 @@ table 14906 "Letter of Attorney Line"
         }
         field(15; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
         }
         field(20; "Unit of Measure"; Text[50])

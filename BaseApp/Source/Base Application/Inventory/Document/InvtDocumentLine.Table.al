@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -39,14 +39,17 @@ table 5851 "Invt. Document Line"
         field(1; "Document Type"; Enum "Invt. Doc. Document Type")
         {
             Caption = 'Document Type';
+            ToolTip = 'Specifies the type of the related document.';
         }
         field(2; "Line No."; Integer)
         {
             Caption = 'Line No.';
+            ToolTip = 'Specifies the number of the line.';
         }
         field(3; "Item No."; Code[20])
         {
             Caption = 'Item No.';
+            ToolTip = 'Specifies the number of the item.';
             TableRelation = Item;
 
             trigger OnValidate()
@@ -109,6 +112,7 @@ table 5851 "Invt. Document Line"
         field(5; "Document Date"; Date)
         {
             Caption = 'Document Date';
+            ToolTip = 'Specifies the date when the related document was created.';
 
             trigger OnValidate()
             begin
@@ -118,14 +122,17 @@ table 5851 "Invt. Document Line"
         field(7; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+            ToolTip = 'Specifies the number of the related document.';
         }
         field(8; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies the description of the item.';
         }
         field(9; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
+            ToolTip = 'Specifies the warehouse or other place where the involved items are handled or stored.';
             TableRelation = Location;
 
             trigger OnValidate()
@@ -157,7 +164,9 @@ table 5851 "Invt. Document Line"
         }
         field(13; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
+            ToolTip = 'Specifies the number of units for this item.';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -183,7 +192,9 @@ table 5851 "Invt. Document Line"
         field(16; "Unit Amount"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Amount';
+            ToolTip = 'Specifies the price per unit for this item.';
 
             trigger OnValidate()
             begin
@@ -201,7 +212,9 @@ table 5851 "Invt. Document Line"
         field(17; "Unit Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost';
+            ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
 
             trigger OnValidate()
             begin
@@ -217,7 +230,9 @@ table 5851 "Invt. Document Line"
         field(18; Amount; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount';
+            ToolTip = 'Specifies the transaction amount for this line.';
 
             trigger OnValidate()
             begin
@@ -247,6 +262,7 @@ table 5851 "Invt. Document Line"
         field(29; "Applies-to Entry"; Integer)
         {
             Caption = 'Applies-to Entry';
+            ToolTip = 'Specifies if the quantity on the journal line should be applied to an already-posted document.';
 
             trigger OnLookup()
             begin
@@ -286,6 +302,7 @@ table 5851 "Invt. Document Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
                                                           Blocked = const(false));
 
@@ -298,6 +315,7 @@ table 5851 "Invt. Document Line"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
                                                           Blocked = const(false));
 
@@ -308,7 +326,9 @@ table 5851 "Invt. Document Line"
         }
         field(37; "Indirect Cost %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Indirect Cost %';
+            ToolTip = 'Specifies the percentage of the item''s last purchase cost that includes indirect costs, such as freight that is associated with the purchase of the item.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 
@@ -327,27 +347,32 @@ table 5851 "Invt. Document Line"
         }
         field(38; "Gross Weight"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Gross Weight';
             DecimalPlaces = 0 : 5;
         }
         field(39; "Net Weight"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Net Weight';
             DecimalPlaces = 0 : 5;
         }
         field(40; "Units per Parcel"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Units per Parcel';
             DecimalPlaces = 0 : 5;
         }
         field(41; "Unit Volume"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Unit Volume';
             DecimalPlaces = 0 : 5;
         }
         field(42; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
+            ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
             TableRelation = "Reason Code";
         }
         field(55; "Last Item Ledger Entry No."; Integer)
@@ -397,6 +422,7 @@ table 5851 "Invt. Document Line"
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
+            ToolTip = 'Specifies the variant of the item on the line.';
             TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
 
             trigger OnValidate()
@@ -430,6 +456,7 @@ table 5851 "Invt. Document Line"
         field(5403; "Bin Code"; Code[20])
         {
             Caption = 'Bin Code';
+            ToolTip = 'Specifies the bin where the items are picked or put away.';
 
             trigger OnLookup()
             var
@@ -471,6 +498,7 @@ table 5851 "Invt. Document Line"
         }
         field(5404; "Qty. per Unit of Measure"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. per Unit of Measure';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -478,6 +506,7 @@ table 5851 "Invt. Document Line"
         }
         field(5405; "Qty. Rounding Precision"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Rounding Precision';
             InitValue = 0;
             DecimalPlaces = 0 : 5;
@@ -487,6 +516,7 @@ table 5851 "Invt. Document Line"
         }
         field(5406; "Qty. Rounding Precision (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Rounding Precision (Base)';
             InitValue = 0;
             DecimalPlaces = 0 : 5;
@@ -497,6 +527,7 @@ table 5851 "Invt. Document Line"
         field(5407; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
+            ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
             TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
 
             trigger OnValidate()
@@ -518,6 +549,7 @@ table 5851 "Invt. Document Line"
         }
         field(5413; "Quantity (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity (Base)';
             DecimalPlaces = 0 : 5;
 
@@ -529,30 +561,35 @@ table 5851 "Invt. Document Line"
         }
         field(5470; "Reserved Quantity Inbnd."; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Reservation Entry".Quantity where("Source ID" = field("Document No."),
                                                                   "Source Ref. No." = field("Line No."),
                                                                   "Source Type" = const(5851),
                                                                   "Source Subtype" = filter("0" | "3"),
                                                                   "Reservation Status" = const(Reservation)));
             Caption = 'Reserved Quantity Inbnd.';
+            ToolTip = 'Specifies the quantity of the item reserved at the transfer-to location.';
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
         }
         field(5471; "Reserved Quantity Outbnd."; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = - sum("Reservation Entry".Quantity where("Source ID" = field("Document No."),
                                                                    "Source Ref. No." = field("Line No."),
                                                                    "Source Type" = const(5851),
                                                                    "Source Subtype" = filter("1" | "2"),
                                                                    "Reservation Status" = const(Reservation)));
             Caption = 'Reserved Quantity Outbnd.';
+            ToolTip = 'Specifies the quantity of the item reserved at the transfer-from location.';
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
         }
         field(5472; "Reserved Qty. Inbnd. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Reservation Entry"."Quantity (Base)" where("Source ID" = field("Document No."),
                                                                            "Source Ref. No." = field("Line No."),
                                                                            "Source Type" = const(5851),
@@ -565,6 +602,7 @@ table 5851 "Invt. Document Line"
         }
         field(5473; "Reserved Qty. Outbnd. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = - sum("Reservation Entry"."Quantity (Base)" where("Source ID" = field("Document No."),
                                                                             "Source Ref. No." = field("Line No."),
                                                                             "Source Type" = const(5851),
@@ -600,6 +638,7 @@ table 5851 "Invt. Document Line"
         {
             AccessByPermission = TableData "Item Reference" = R;
             Caption = 'Item Reference No.';
+            ToolTip = 'Specifies a reference to the item number as defined by the item''s barcode.';
             ExtendedDatatype = Barcode;
 
             trigger OnLookup()
@@ -636,6 +675,7 @@ table 5851 "Invt. Document Line"
         field(5807; "Applies-from Entry"; Integer)
         {
             Caption = 'Applies-from Entry';
+            ToolTip = 'Specifies the entry number of the Sales Ledger or Purchase Ledger from which the document line was applied.';
             MinValue = 0;
 
             trigger OnLookup()
@@ -664,6 +704,7 @@ table 5851 "Invt. Document Line"
         field(5811; "Applied Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Applied Amount';
             Editable = false;
         }

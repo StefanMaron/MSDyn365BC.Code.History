@@ -8,6 +8,7 @@ using Microsoft.Assembly.Document;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Foundation.Navigate;
+using Microsoft.Foundation.Task;
 using Microsoft.Integration.D365Sales;
 using Microsoft.Intercompany;
 using Microsoft.Inventory.Item;
@@ -17,10 +18,6 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-#if CLEAN25
-using Microsoft.Pricing.Reports;
-using Microsoft.Pricing.Worksheet;
-#endif
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Vendor;
@@ -31,9 +28,6 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
-#if CLEAN25
-using Microsoft.Sales.Pricing;
-#endif
 using Microsoft.Sales.Reminder;
 using Microsoft.Sales.Reports;
 using System.Automation;
@@ -41,8 +35,10 @@ using System.Email;
 using System.Integration.PowerBI;
 using System.Threading;
 using System.Visualization;
-using Microsoft.Foundation.Task;
 
+/// <summary>
+/// Provides the Role Center page for sales order processors with access to sales documents, activities, and reports.
+/// </summary>
 page 9006 "Order Processor Role Center"
 {
     Caption = 'Sales Order Processor';
@@ -684,7 +680,6 @@ page 9006 "Order Processor Role Center"
                     RunObject = Page "Sales Journal";
                     ToolTip = 'Open a sales journal where you can batch post sales transactions to G/L, bank, customer, vendor and fixed assets accounts.';
                 }
-#if not CLEAN25
                 action("Sales Price &Worksheet")
                 {
                     ApplicationArea = Basic, Suite;
@@ -693,25 +688,11 @@ page 9006 "Order Processor Role Center"
                     RunPageView = where("Object Type" = const(Page), "Object ID" = const(7023)); // "Sales Price Worksheet";
                     RunObject = Page "Role Center Page Dispatcher";
                     ToolTip = 'Manage sales prices for individual customers, for a group of customers, for all customers, or for a campaign.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '19.0';
                 }
-#else
-                action("Price &Worksheet")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Price &Worksheet';
-                    Image = PriceWorksheet;
-                    RunObject = Page "Price Worksheet";
-                    ToolTip = 'Opens the page where you can add new price lines manually or copy them from the existing price lists or suggest new lines based on data in the product cards.';
-                }
-#endif
             }
             group(Action42)
             {
                 Caption = 'Sales';
-#if not CLEAN25
                 action("&Prices")
                 {
                     ApplicationArea = Basic, Suite;
@@ -720,9 +701,6 @@ page 9006 "Order Processor Role Center"
                     RunPageView = where("Object Type" = const(Page), "Object ID" = const(7002)); // "Sales Prices";
                     RunObject = Page "Role Center Page Dispatcher";
                     ToolTip = 'Set up different prices for items that you sell to the customer. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the Sales Price Lists action.';
-                    ObsoleteTag = '19.0';
                 }
                 action("&Line Discounts")
                 {
@@ -732,20 +710,7 @@ page 9006 "Order Processor Role Center"
                     RunPageView = where("Object Type" = const(Page), "Object ID" = const(7004)); // "Sales Line Discounts";
                     RunObject = Page "Role Center Page Dispatcher";
                     ToolTip = 'Set up different discounts for items that you sell to the customer. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the Sales Price Lists action.';
-                    ObsoleteTag = '19.0';
                 }
-#else
-                action("Price Lists")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = '&Prices';
-                    Image = SalesPrices;
-                    RunObject = Page "Sales Price Lists";
-                    ToolTip = 'View or set up sales price lists for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
-                }
-#endif
             }
             group(Reports)
             {
@@ -762,14 +727,19 @@ page 9006 "Order Processor Role Center"
                         RunObject = Report "Customer - Order Summary";
                         ToolTip = 'View the quantity not yet shipped for each customer in three periods of 30 days each, starting from a selected date. There are also columns with orders to be shipped before and after the three periods and a column with the total order detail for each customer. The report can be used to analyze a company''s expected sales volume.';
                     }
+#if not CLEAN28
                     action("Customer - &Top 10 List")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Customer - &Top 10 List';
+                        Caption = 'Customer - &Top 10 List (Obsolete)';
                         Image = "Report";
                         RunObject = Report "Customer - Top 10 List";
                         ToolTip = 'View which customers purchase the most or owe the most in a selected period. Only customers that have either purchases during the period or a balance at the end of the period will be included.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report has been replaced by the report Customer - Top List (Excel). This report will be removed in a future release.';
+                        ObsoleteTag = '28.0';
                     }
+#endif
                     action("Customer/&Item Sales")
                     {
                         ApplicationArea = Basic, Suite;
@@ -791,7 +761,6 @@ page 9006 "Order Processor Role Center"
                         RunObject = Report "Salesperson - Sales Statistics";
                         ToolTip = 'View amounts for sales, profit, invoice discount, and payment discount, as well as profit percentage, for each salesperson for a selected period. The report also shows the adjusted profit and adjusted profit percentage, which reflect any changes to the original costs of the items in the sales.';
                     }
-#if not CLEAN25 
                     action("Price &List")
                     {
                         ApplicationArea = Basic, Suite;
@@ -800,20 +769,7 @@ page 9006 "Order Processor Role Center"
                         RunPageView = where("Object Type" = const(Report), "Object ID" = const(715)); // "Price List";
                         RunObject = Page "Role Center Page Dispatcher";
                         ToolTip = 'View a list of your items and their prices, for example, to send to customers. You can create the list for specific customers, campaigns, currencies, or other criteria.';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                        ObsoleteTag = '19.0';
                     }
-#else
-                    action("Price &List")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Item Price &List';
-                        Image = "Report";
-                        RunObject = Report "Item Price List";
-                        ToolTip = 'View a list of your items and their prices, for example, to send to customers. You can create the list for specific customers, campaigns, currencies, or other criteria.';
-                    }
-#endif
                     action("Inventory - Sales &Back Orders")
                     {
                         ApplicationArea = Basic, Suite;

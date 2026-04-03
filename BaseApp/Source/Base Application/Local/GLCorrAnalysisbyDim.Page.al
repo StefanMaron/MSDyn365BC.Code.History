@@ -192,6 +192,8 @@ page 14940 "G/L Corr. Analysis by Dim."
                 }
                 field(DebitAmount; DebitAmount)
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = Basic, Suite;
                     Caption = 'Debit Amount';
                     Editable = false;
@@ -204,6 +206,8 @@ page 14940 "G/L Corr. Analysis by Dim."
                 }
                 field(CreditAmount; CreditAmount)
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = Basic, Suite;
                     Caption = 'Credit Amount';
                     Editable = false;

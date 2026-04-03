@@ -4,19 +4,19 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Assembly.Test;
 
-using Microsoft.Inventory.Ledger;
-using System.Environment.Configuration;
 using Microsoft.Assembly.Document;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Item;
-using Microsoft.Inventory.Location;
-using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Journal;
-using Microsoft.Inventory.Availability;
-using Microsoft.Sales.Document;
-using Microsoft.Purchases.Document;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Setup;
-using Microsoft.Foundation.NoSeries;
+using Microsoft.Purchases.Document;
+using Microsoft.Sales.Document;
+using System.Environment.Configuration;
 
 codeunit 137906 "SCM Assembly Availability"
 {

@@ -73,36 +73,42 @@ table 14927 "VAT Document Entry Buffer"
         field(15; "Original Amt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Original Amt. (LCY)';
             DataClassification = SystemMetadata;
         }
         field(16; "Remaining Amt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Remaining Amt. (LCY)';
             DataClassification = SystemMetadata;
         }
         field(17; "Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount (LCY)';
             DataClassification = SystemMetadata;
         }
         field(18; "Sales/Purchase (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Sales/Purchase (LCY)';
             DataClassification = SystemMetadata;
         }
         field(19; "Profit (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Profit (LCY)';
             DataClassification = SystemMetadata;
         }
         field(20; "Inv. Discount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Inv. Discount (LCY)';
             DataClassification = SystemMetadata;
         }
@@ -193,6 +199,7 @@ table 14927 "VAT Document Entry Buffer"
             AutoFormatType = 1;
             Caption = 'Pmt. Disc. Given (LCY)';
             DataClassification = SystemMetadata;
+            AutoFormatExpression = '';
         }
         field(43; Positive; Boolean)
         {
@@ -260,6 +267,7 @@ table 14927 "VAT Document Entry Buffer"
         field(54; "Closed by Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Closed by Amount (LCY)';
             DataClassification = SystemMetadata;
         }
@@ -282,6 +290,7 @@ table 14927 "VAT Document Entry Buffer"
         field(60; "Debit Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Debit Amount (LCY)';
             DataClassification = SystemMetadata;
@@ -289,6 +298,7 @@ table 14927 "VAT Document Entry Buffer"
         field(61; "Credit Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Credit Amount (LCY)';
             DataClassification = SystemMetadata;
@@ -324,30 +334,33 @@ table 14927 "VAT Document Entry Buffer"
         field(71; "Rounding Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
             Caption = 'Rounding Amount';
             DataClassification = SystemMetadata;
         }
         field(72; "Rounding Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Rounding Amount (LCY)';
             DataClassification = SystemMetadata;
         }
         field(73; "Adjusted Currency Factor"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 0;
             Caption = 'Adjusted Currency Factor';
             DataClassification = SystemMetadata;
         }
         field(74; "Original Currency Factor"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 0;
             Caption = 'Original Currency Factor';
             DataClassification = SystemMetadata;
         }
         field(75; "Original Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
             Caption = 'Original Amount';
             DataClassification = SystemMetadata;
         }
@@ -370,6 +383,7 @@ table 14927 "VAT Document Entry Buffer"
         }
         field(79; "Max. Payment Tolerance"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Max. Payment Tolerance';
             DataClassification = SystemMetadata;
         }
@@ -380,16 +394,20 @@ table 14927 "VAT Document Entry Buffer"
         }
         field(81; "Accepted Payment Tolerance"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Accepted Payment Tolerance';
             DataClassification = SystemMetadata;
         }
         field(82; "Accepted Pmt. Disc. Tolerance"; Boolean)
         {
+            AutoFormatType = 0;
             Caption = 'Accepted Pmt. Disc. Tolerance';
             DataClassification = SystemMetadata;
         }
         field(83; "Pmt. Tolerance (LCY)"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Pmt. Tolerance (LCY)';
             DataClassification = SystemMetadata;
         }
@@ -519,6 +537,8 @@ table 14927 "VAT Document Entry Buffer"
         }
         field(14925; "Realized VAT Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("VAT Entry".Amount where("CV Ledg. Entry No." = field("Entry No."),
                                                         Type = field("Entry Type"),
                                                         "Posting Date" = field("Date Filter"),
@@ -531,6 +551,8 @@ table 14927 "VAT Document Entry Buffer"
         }
         field(14926; "Unrealized VAT Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("VAT Entry"."Unrealized Amount" where(Type = field("Entry Type"),
                                                                      "CV Ledg. Entry No." = field("Entry No."),
                                                                      "Posting Date" = field("Date Filter"),
@@ -543,6 +565,8 @@ table 14927 "VAT Document Entry Buffer"
         }
         field(14927; "Realized VAT Base"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("VAT Entry".Base where("CV Ledg. Entry No." = field("Entry No."),
                                                       Type = field("Entry Type"),
                                                       "Posting Date" = field("Date Filter"),
@@ -555,6 +579,8 @@ table 14927 "VAT Document Entry Buffer"
         }
         field(14928; "Unrealized VAT Base"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("VAT Entry"."Unrealized Base" where(Type = field("Entry Type"),
                                                                    "CV Ledg. Entry No." = field("Entry No."),
                                                                    "Posting Date" = field("Date Filter"),
@@ -567,6 +593,8 @@ table 14927 "VAT Document Entry Buffer"
         }
         field(14929; "VAT Amount To Allocate"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("VAT Allocation Line".Amount where("CV Ledger Entry No." = field("Entry No."),
                                                                   "VAT Settlement Type" = field("Type Filter"),
                                                                   "VAT Bus. Posting Group" = field("VAT Bus. Posting Group Filter"),
@@ -586,6 +614,8 @@ table 14927 "VAT Document Entry Buffer"
         }
         field(14932; "Allocated VAT Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Allocated VAT Amount';
             DataClassification = SystemMetadata;
 

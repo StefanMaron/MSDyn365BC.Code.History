@@ -10,21 +10,24 @@ using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Foundation.UOM;
-using Microsoft.Foundation.Attachment;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
-using System.Text;
-using System.Utilities;
 using System.IO;
 using System.Telemetry;
+using System.Text;
+using System.Utilities;
 
+/// <summary>
+/// Provides helper functions for extracting and formatting data for PEPPOL electronic invoice generation.
+/// </summary>
 codeunit 1605 "PEPPOL Management"
 {
 
@@ -36,6 +39,7 @@ codeunit 1605 "PEPPOL Management"
         ProcessedDocType: Enum "PEPPOL Processing Type";
         SalespersonTxt: Label 'Salesperson';
         InvoiceDisAmtTxt: Label 'Invoice Discount Amount';
+        PaymentDisAmtTxt: Label 'Payment Discount Amount';
         LineDisAmtTxt: Label 'Line Discount Amount';
         GLNTxt: Label 'GLN', Locked = true;
         VATTxt: Label 'VAT', Locked = true;
@@ -44,6 +48,7 @@ codeunit 1605 "PEPPOL Management"
         LocalPaymentSchemeIDTxt: Label 'LOCAL', Locked = true;
         BICTxt: Label 'BIC', Locked = true;
         AllowanceChargeReasonCodeTxt: Label '104', Locked = true;
+        AllowanceChargePaymentDiscountReasonCodeTxt: Label '95', Locked = true;
         PaymentMeansFundsTransferCodeTxt: Label '31', Locked = true;
         GTINTxt: Label '0160', Locked = true;
         UoMforPieceINUNECERec20ListIDTxt: Label 'EA', Locked = true;
@@ -53,6 +58,21 @@ codeunit 1605 "PEPPOL Management"
         ExportPathGreaterThan250Err: Label 'The export path is longer than 250 characters.';
         PeppolTelemetryTok: Label 'PEPPOL', Locked = true;
 
+    /// <summary>
+    /// Retrieves general invoice information from a sales header for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record to extract information from.</param>
+    /// <param name="ID">Returns the document number.</param>
+    /// <param name="IssueDate">Returns the document date in XML format.</param>
+    /// <param name="InvoiceTypeCode">Returns the invoice type code.</param>
+    /// <param name="InvoiceTypeCodeListID">Returns the invoice type code list identifier.</param>
+    /// <param name="Note">Returns the document note.</param>
+    /// <param name="TaxPointDate">Returns the tax point date.</param>
+    /// <param name="DocumentCurrencyCode">Returns the document currency code.</param>
+    /// <param name="DocumentCurrencyCodeListID">Returns the currency code list identifier.</param>
+    /// <param name="TaxCurrencyCode">Returns the tax currency code.</param>
+    /// <param name="TaxCurrencyCodeListID">Returns the tax currency code list identifier.</param>
+    /// <param name="AccountingCost">Returns the accounting cost reference.</param>
     procedure GetGeneralInfo(SalesHeader: Record "Sales Header"; var ID: Text; var IssueDate: Text; var InvoiceTypeCode: Text; var InvoiceTypeCodeListID: Text; var Note: Text; var TaxPointDate: Text; var DocumentCurrencyCode: Text; var DocumentCurrencyCodeListID: Text; var TaxCurrencyCode: Text; var TaxCurrencyCodeListID: Text; var AccountingCost: Text)
     var
         GLSetup: Record "General Ledger Setup";
@@ -78,6 +98,17 @@ codeunit 1605 "PEPPOL Management"
         OnAfterGetGeneralInfoProcedure(SalesHeader, ID, IssueDate, InvoiceTypeCode, Note, TaxPointDate, DocumentCurrencyCode, AccountingCost);
     end;
 
+    /// <summary>
+    /// Retrieves general invoice information from a sales header for PEPPOL BIS export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record to extract information from.</param>
+    /// <param name="ID">Returns the document number.</param>
+    /// <param name="IssueDate">Returns the document date in XML format.</param>
+    /// <param name="InvoiceTypeCode">Returns the invoice type code.</param>
+    /// <param name="Note">Returns the document note.</param>
+    /// <param name="TaxPointDate">Returns the tax point date.</param>
+    /// <param name="DocumentCurrencyCode">Returns the document currency code.</param>
+    /// <param name="AccountingCost">Returns the accounting cost reference.</param>
     procedure GetGeneralInfoBIS(SalesHeader: Record "Sales Header"; var ID: Text; var IssueDate: Text; var InvoiceTypeCode: Text; var Note: Text; var TaxPointDate: Text; var DocumentCurrencyCode: Text; var AccountingCost: Text)
     begin
         ID := SalesHeader."No.";
@@ -92,12 +123,22 @@ codeunit 1605 "PEPPOL Management"
           SalesHeader, ID, IssueDate, InvoiceTypeCode, Note, TaxPointDate, DocumentCurrencyCode, AccountingCost);
     end;
 
+    /// <summary>
+    /// Retrieves the invoice period start and end dates.
+    /// </summary>
+    /// <param name="StartDate">Returns the invoice period start date.</param>
+    /// <param name="EndDate">Returns the invoice period end date.</param>
     procedure GetInvoicePeriodInfo(var StartDate: Text; var EndDate: Text)
     begin
         StartDate := '';
         EndDate := '';
     end;
 
+    /// <summary>
+    /// Retrieves the order reference information from a sales header.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record to extract information from.</param>
+    /// <param name="OrderReferenceID">Returns the external document number as order reference.</param>
     procedure GetOrderReferenceInfo(SalesHeader: Record "Sales Header"; var OrderReferenceID: Text)
     begin
         OrderReferenceID := SalesHeader."External Document No.";
@@ -105,6 +146,11 @@ codeunit 1605 "PEPPOL Management"
         OnAfterGetOrderReferenceInfo(SalesHeader, OrderReferenceID);
     end;
 
+    /// <summary>
+    /// Retrieves the order reference information from a sales header for BIS format, using document number as fallback.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record to extract information from.</param>
+    /// <param name="OrderReferenceID">Returns the external document number or the document number if external number is empty.</param>
     procedure GetOrderReferenceInfoBIS(SalesHeader: Record "Sales Header"; var OrderReferenceID: Text)
     begin
         OrderReferenceID := SalesHeader."External Document No.";
@@ -112,6 +158,14 @@ codeunit 1605 "PEPPOL Management"
             OrderReferenceID := SalesHeader."No.";
     end;
 
+    /// <summary>
+    /// Retrieves the contract document reference information from a sales header.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record to extract information from.</param>
+    /// <param name="ContractDocumentReferenceID">Returns the document number as contract reference.</param>
+    /// <param name="DocumentTypeCode">Returns the document type code.</param>
+    /// <param name="ContractRefDocTypeCodeListID">Returns the document type code list identifier.</param>
+    /// <param name="DocumentType">Returns the document type description.</param>
     procedure GetContractDocRefInfo(SalesHeader: Record "Sales Header"; var ContractDocumentReferenceID: Text; var DocumentTypeCode: Text; var ContractRefDocTypeCodeListID: Text; var DocumentType: Text)
     begin
         ContractDocumentReferenceID := SalesHeader."No.";
@@ -122,6 +176,19 @@ codeunit 1605 "PEPPOL Management"
         OnAfterGetContractDocRefInfo(SalesHeader, ContractDocumentReferenceID, DocumentTypeCode, ContractRefDocTypeCodeListID, DocumentType);
     end;
 
+    /// <summary>
+    /// Retrieves document attachment information for PEPPOL export including Base64 encoded content.
+    /// </summary>
+    /// <param name="AttachmentNumber">Specifies the attachment sequence number to retrieve.</param>
+    /// <param name="DocumentAttachments">Specifies the document attachments record set.</param>
+    /// <param name="Salesheader">Specifies the sales header record.</param>
+    /// <param name="AdditionalDocumentReferenceID">Returns the attachment document reference identifier.</param>
+    /// <param name="AdditionalDocRefDocumentType">Returns the document type description.</param>
+    /// <param name="URI">Returns the document URI.</param>
+    /// <param name="Filename">Returns the attachment filename with extension.</param>
+    /// <param name="MimeCode">Returns the MIME type code for the attachment.</param>
+    /// <param name="EmbeddedDocumentBinaryObject">Returns the Base64 encoded attachment content.</param>
+    /// <param name="NewProcessedDocType">Specifies the document type being processed.</param>
     procedure GetAdditionalDocRefInfo(AttachmentNumber: Integer; var DocumentAttachments: Record "Document Attachment"; Salesheader: Record "Sales Header"; var AdditionalDocumentReferenceID: Text; var AdditionalDocRefDocumentType: Text; var URI: Text; var Filename: Text; var MimeCode: Text; var EmbeddedDocumentBinaryObject: Text; NewProcessedDocType: Option Sale,Service)
     var
         Base64Convert: Codeunit "Base64 Convert";
@@ -173,6 +240,16 @@ codeunit 1605 "PEPPOL Management"
           AdditionalDocumentReferenceID, AdditionalDocRefDocumentType, URI, MimeCode, EmbeddedDocumentBinaryObject, SalesHeader, ProcessedDocType.AsInteger(), DocumentAttachments, Filename);
     end;
 
+    /// <summary>
+    /// Retrieves additional document reference information for PEPPOL export.
+    /// </summary>
+    /// <param name="Salesheader">Specifies the sales header record.</param>
+    /// <param name="AdditionalDocumentReferenceID">Returns the document reference identifier.</param>
+    /// <param name="AdditionalDocRefDocumentType">Returns the document type description.</param>
+    /// <param name="URI">Returns the document URI.</param>
+    /// <param name="MimeCode">Returns the MIME type code.</param>
+    /// <param name="EmbeddedDocumentBinaryObject">Returns the Base64 encoded content.</param>
+    /// <param name="NewProcessedDocType">Specifies the document type being processed.</param>
     procedure GetAdditionalDocRefInfo(Salesheader: Record "Sales Header"; var AdditionalDocumentReferenceID: Text; var AdditionalDocRefDocumentType: Text; var URI: Text; var MimeCode: Text; var EmbeddedDocumentBinaryObject: Text; NewProcessedDocType: Option Sale,Service)
     var
         DocumentAttachments: Record "Document Attachment";
@@ -188,6 +265,11 @@ codeunit 1605 "PEPPOL Management"
           AdditionalDocumentReferenceID, AdditionalDocRefDocumentType, URI, MimeCode, EmbeddedDocumentBinaryObject, SalesHeader, ProcessedDocType.AsInteger(), DocumentAttachments, Filename);
     end;
 
+    /// <summary>
+    /// Retrieves the buyer reference from a sales header.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record to extract information from.</param>
+    /// <returns>Returns the Your Reference field value as buyer reference.</returns>
     procedure GetBuyerReference(SalesHeader: Record "Sales Header") BuyerReference: Text
     begin
         BuyerReference := SalesHeader."Your Reference";
@@ -257,11 +339,23 @@ codeunit 1605 "PEPPOL Management"
         exit(TempBlob.HasValue());
     end;
 
+    /// <summary>
+    /// Retrieves the accounting supplier party information for PEPPOL export.
+    /// </summary>
+    /// <param name="SupplierEndpointID">Returns the supplier endpoint identifier (GLN or VAT registration number).</param>
+    /// <param name="SupplierSchemeID">Returns the scheme identifier for the endpoint.</param>
+    /// <param name="SupplierName">Returns the company name.</param>
     procedure GetAccountingSupplierPartyInfo(var SupplierEndpointID: Text; var SupplierSchemeID: Text; var SupplierName: Text)
     begin
         GetAccountingSupplierPartyInfoByFormat(SupplierEndpointID, SupplierSchemeID, SupplierName, false);
     end;
 
+    /// <summary>
+    /// Retrieves the accounting supplier party information for PEPPOL BIS export.
+    /// </summary>
+    /// <param name="SupplierEndpointID">Returns the supplier endpoint identifier (GLN or VAT registration number).</param>
+    /// <param name="SupplierSchemeID">Returns the scheme identifier for the endpoint.</param>
+    /// <param name="SupplierName">Returns the company name.</param>
     procedure GetAccountingSupplierPartyInfoBIS(var SupplierEndpointID: Text; var SupplierSchemeID: Text; var SupplierName: Text)
     begin
         GetAccountingSupplierPartyInfoByFormat(SupplierEndpointID, SupplierSchemeID, SupplierName, true);
@@ -286,6 +380,17 @@ codeunit 1605 "PEPPOL Management"
         OnAfterGetAccountingSupplierPartyInfoByFormat(SupplierEndpointID, SupplierSchemeID, SupplierName, IsBISBilling);
     end;
 
+    /// <summary>
+    /// Retrieves the supplier postal address information for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record to determine responsibility center.</param>
+    /// <param name="StreetName">Returns the street name.</param>
+    /// <param name="SupplierAdditionalStreetName">Returns the additional street name.</param>
+    /// <param name="CityName">Returns the city name.</param>
+    /// <param name="PostalZone">Returns the postal code.</param>
+    /// <param name="CountrySubentity">Returns the county or region.</param>
+    /// <param name="IdentificationCode">Returns the country ISO code.</param>
+    /// <param name="ListID">Returns the country code list identifier.</param>
     procedure GetAccountingSupplierPartyPostalAddr(SalesHeader: Record "Sales Header"; var StreetName: Text; var SupplierAdditionalStreetName: Text; var CityName: Text; var PostalZone: Text; var CountrySubentity: Text; var IdentificationCode: Text; var ListID: Text)
     var
         CompanyInfo: Record "Company Information";
@@ -312,6 +417,12 @@ codeunit 1605 "PEPPOL Management"
         ListID := GetISO3166_1Alpha2();
     end;
 
+    /// <summary>
+    /// Retrieves the supplier tax scheme information for PEPPOL export.
+    /// </summary>
+    /// <param name="CompanyID">Returns the company VAT registration number.</param>
+    /// <param name="CompanyIDSchemeID">Returns the VAT scheme identifier.</param>
+    /// <param name="TaxSchemeID">Returns the tax scheme identifier.</param>
     procedure GetAccountingSupplierPartyTaxScheme(var CompanyID: Text; var CompanyIDSchemeID: Text; var TaxSchemeID: Text)
     var
         CompanyInfo: Record "Company Information";
@@ -322,6 +433,13 @@ codeunit 1605 "PEPPOL Management"
         TaxSchemeID := VATTxt;
     end;
 
+    /// <summary>
+    /// Retrieves the supplier tax scheme information for PEPPOL BIS export, excluding outside scope VAT.
+    /// </summary>
+    /// <param name="VATAmtLine">Specifies the VAT amount line record to filter tax categories.</param>
+    /// <param name="CompanyID">Returns the company VAT registration number.</param>
+    /// <param name="CompanyIDSchemeID">Returns the VAT scheme identifier.</param>
+    /// <param name="TaxSchemeID">Returns the tax scheme identifier.</param>
     procedure GetAccountingSupplierPartyTaxSchemeBIS(var VATAmtLine: Record "VAT Amount Line"; var CompanyID: Text; var CompanyIDSchemeID: Text; var TaxSchemeID: Text)
     begin
         VATAmtLine.SetFilter("Tax Category", '<>%1', GetTaxCategoryO());
@@ -332,6 +450,15 @@ codeunit 1605 "PEPPOL Management"
         CompanyIDSchemeID := '';
     end;
 
+    /// <summary>
+    /// Retrieves the supplier legal entity information for PEPPOL export.
+    /// </summary>
+    /// <param name="PartyLegalEntityRegName">Returns the registered company name.</param>
+    /// <param name="PartyLegalEntityCompanyID">Returns the company identifier (GLN or VAT number).</param>
+    /// <param name="PartyLegalEntitySchemeID">Returns the scheme identifier.</param>
+    /// <param name="SupplierRegAddrCityName">Returns the registered address city.</param>
+    /// <param name="SupplierRegAddrCountryIdCode">Returns the country ISO code.</param>
+    /// <param name="SupplRegAddrCountryIdListId">Returns the country code list identifier.</param>
     procedure GetAccountingSupplierPartyLegalEntity(var PartyLegalEntityRegName: Text; var PartyLegalEntityCompanyID: Text; var PartyLegalEntitySchemeID: Text; var SupplierRegAddrCityName: Text; var SupplierRegAddrCountryIdCode: Text; var SupplRegAddrCountryIdListId: Text)
     begin
         GetAccountingSupplierPartyLegalEntityByFormat(
@@ -339,6 +466,15 @@ codeunit 1605 "PEPPOL Management"
           SupplierRegAddrCityName, SupplierRegAddrCountryIdCode, SupplRegAddrCountryIdListId, false);
     end;
 
+    /// <summary>
+    /// Retrieves the supplier legal entity information for PEPPOL BIS export.
+    /// </summary>
+    /// <param name="PartyLegalEntityRegName">Returns the registered company name.</param>
+    /// <param name="PartyLegalEntityCompanyID">Returns the company identifier (GLN or VAT number).</param>
+    /// <param name="PartyLegalEntitySchemeID">Returns the scheme identifier.</param>
+    /// <param name="SupplierRegAddrCityName">Returns the registered address city.</param>
+    /// <param name="SupplierRegAddrCountryIdCode">Returns the country ISO code.</param>
+    /// <param name="SupplRegAddrCountryIdListId">Returns the country code list identifier.</param>
     procedure GetAccountingSupplierPartyLegalEntityBIS(var PartyLegalEntityRegName: Text; var PartyLegalEntityCompanyID: Text; var PartyLegalEntitySchemeID: Text; var SupplierRegAddrCityName: Text; var SupplierRegAddrCountryIdCode: Text; var SupplRegAddrCountryIdListId: Text)
     begin
         GetAccountingSupplierPartyLegalEntityByFormat(
@@ -369,6 +505,15 @@ codeunit 1605 "PEPPOL Management"
         OnAfterGetAccountingSupplierPartyLegalEntityByFormat(PartyLegalEntityRegName, PartyLegalEntityCompanyID, PartyLegalEntitySchemeID, SupplierRegAddrCityName, SupplierRegAddrCountryIdCode, SupplRegAddrCountryIdListId, IsBISBilling);
     end;
 
+    /// <summary>
+    /// Retrieves the supplier party contact information from the salesperson assigned to the document.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record to get salesperson information.</param>
+    /// <param name="ContactID">Returns the contact identifier.</param>
+    /// <param name="ContactName">Returns the salesperson name.</param>
+    /// <param name="Telephone">Returns the salesperson phone number.</param>
+    /// <param name="Telefax">Returns the company telex number.</param>
+    /// <param name="ElectronicMail">Returns the salesperson email address.</param>
     procedure GetAccountingSupplierPartyContact(SalesHeader: Record "Sales Header"; var ContactID: Text; var ContactName: Text; var Telephone: Text; var Telefax: Text; var ElectronicMail: Text)
     var
         CompanyInfo: Record "Company Information";
@@ -384,12 +529,26 @@ codeunit 1605 "PEPPOL Management"
         OnAfterGetAccountingSupplierPartyContact(SalesHeader, ContactID, ContactName, Telephone, Telefax, ElectronicMail);
     end;
 
+    /// <summary>
+    /// Retrieves the supplier party identification ID.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="PartyIdentificationID">Returns the party identification ID.</param>
     procedure GetAccountingSupplierPartyIdentificationID(SalesHeader: Record "Sales Header"; var PartyIdentificationID: Text)
     begin
         PartyIdentificationID := '';
         OnAfterGetAccountingSupplierPartyIdentificationID(SalesHeader, PartyIdentificationID);
     end;
 
+    /// <summary>
+    /// Retrieves the accounting customer party information for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record to extract customer information.</param>
+    /// <param name="CustomerEndpointID">Returns the customer endpoint identifier (GLN or VAT number).</param>
+    /// <param name="CustomerSchemeID">Returns the scheme identifier for the endpoint.</param>
+    /// <param name="CustomerPartyIdentificationID">Returns the customer party identification (GLN).</param>
+    /// <param name="CustomerPartyIDSchemeID">Returns the party identification scheme.</param>
+    /// <param name="CustomerName">Returns the bill-to customer name.</param>
     procedure GetAccountingCustomerPartyInfo(SalesHeader: Record "Sales Header"; var CustomerEndpointID: Text; var CustomerSchemeID: Text; var CustomerPartyIdentificationID: Text; var CustomerPartyIDSchemeID: Text; var CustomerName: Text)
     begin
         GetAccountingCustomerPartyInfoByFormat(
@@ -397,6 +556,15 @@ codeunit 1605 "PEPPOL Management"
           CustomerPartyIdentificationID, CustomerPartyIDSchemeID, CustomerName, false);
     end;
 
+    /// <summary>
+    /// Retrieves the accounting customer party information for PEPPOL BIS export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record to extract customer information.</param>
+    /// <param name="CustomerEndpointID">Returns the customer endpoint identifier (GLN or VAT number).</param>
+    /// <param name="CustomerSchemeID">Returns the scheme identifier for the endpoint.</param>
+    /// <param name="CustomerPartyIdentificationID">Returns the customer party identification (GLN).</param>
+    /// <param name="CustomerPartyIDSchemeID">Returns the party identification scheme.</param>
+    /// <param name="CustomerName">Returns the bill-to customer name.</param>
     procedure GetAccountingCustomerPartyInfoBIS(SalesHeader: Record "Sales Header"; var CustomerEndpointID: Text; var CustomerSchemeID: Text; var CustomerPartyIdentificationID: Text; var CustomerPartyIDSchemeID: Text; var CustomerName: Text)
     begin
         GetAccountingCustomerPartyInfoByFormat(
@@ -425,6 +593,17 @@ codeunit 1605 "PEPPOL Management"
         OnAfterGetAccountingCustomerPartyInfoByFormat(SalesHeader, CustomerEndpointID, CustomerSchemeID, CustomerPartyIdentificationID, CustomerPartyIDSchemeID, CustomerName, IsBISBilling);
     end;
 
+    /// <summary>
+    /// Retrieves the customer postal address information from the bill-to address.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record to extract address information.</param>
+    /// <param name="CustomerStreetName">Returns the bill-to street address.</param>
+    /// <param name="CustomerAdditionalStreetName">Returns the bill-to address line 2.</param>
+    /// <param name="CustomerCityName">Returns the bill-to city.</param>
+    /// <param name="CustomerPostalZone">Returns the bill-to post code.</param>
+    /// <param name="CustomerCountrySubentity">Returns the bill-to county.</param>
+    /// <param name="CustomerIdentificationCode">Returns the country ISO code.</param>
+    /// <param name="CustomerListID">Returns the country code list identifier.</param>
     procedure GetAccountingCustomerPartyPostalAddr(SalesHeader: Record "Sales Header"; var CustomerStreetName: Text; var CustomerAdditionalStreetName: Text; var CustomerCityName: Text; var CustomerPostalZone: Text; var CustomerCountrySubentity: Text; var CustomerIdentificationCode: Text; var CustomerListID: Text)
     begin
         CustomerStreetName := SalesHeader."Bill-to Address";
@@ -436,12 +615,26 @@ codeunit 1605 "PEPPOL Management"
         CustomerListID := GetISO3166_1Alpha2();
     end;
 
+    /// <summary>
+    /// Retrieves the customer tax scheme information for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record to extract tax information.</param>
+    /// <param name="CustPartyTaxSchemeCompanyID">Returns the customer VAT registration number.</param>
+    /// <param name="CustPartyTaxSchemeCompIDSchID">Returns the VAT scheme identifier.</param>
+    /// <param name="CustTaxSchemeID">Returns the tax scheme identifier.</param>
     procedure GetAccountingCustomerPartyTaxScheme(SalesHeader: Record "Sales Header"; var CustPartyTaxSchemeCompanyID: Text; var CustPartyTaxSchemeCompIDSchID: Text; var CustTaxSchemeID: Text)
     begin
         GetAccountingCustomerPartyTaxSchemeByFormat(
           SalesHeader, CustPartyTaxSchemeCompanyID, CustPartyTaxSchemeCompIDSchID, CustTaxSchemeID, false);
     end;
 
+    /// <summary>
+    /// Retrieves the customer tax scheme information for PEPPOL BIS export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record to extract tax information.</param>
+    /// <param name="CustPartyTaxSchemeCompanyID">Returns the customer VAT registration number.</param>
+    /// <param name="CustPartyTaxSchemeCompIDSchID">Returns the VAT scheme identifier.</param>
+    /// <param name="CustTaxSchemeID">Returns the tax scheme identifier.</param>
     procedure GetAccountingCustomerPartyTaxSchemeBIS(SalesHeader: Record "Sales Header"; var CustPartyTaxSchemeCompanyID: Text; var CustPartyTaxSchemeCompIDSchID: Text; var CustTaxSchemeID: Text)
     begin
         GetAccountingCustomerPartyTaxSchemeByFormat(
@@ -476,12 +669,26 @@ codeunit 1605 "PEPPOL Management"
         CustTaxSchemeID := VATTxt;
     end;
 
+    /// <summary>
+    /// Retrieves the customer legal entity information for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record to extract customer information.</param>
+    /// <param name="CustPartyLegalEntityRegName">Returns the customer registered name.</param>
+    /// <param name="CustPartyLegalEntityCompanyID">Returns the customer company identifier.</param>
+    /// <param name="CustPartyLegalEntityIDSchemeID">Returns the company ID scheme identifier.</param>
     procedure GetAccountingCustomerPartyLegalEntity(SalesHeader: Record "Sales Header"; var CustPartyLegalEntityRegName: Text; var CustPartyLegalEntityCompanyID: Text; var CustPartyLegalEntityIDSchemeID: Text)
     begin
         GetAccountingCustomerPartyLegalEntityByFormat(
           SalesHeader, CustPartyLegalEntityRegName, CustPartyLegalEntityCompanyID, CustPartyLegalEntityIDSchemeID, false);
     end;
 
+    /// <summary>
+    /// Retrieves the customer legal entity information for PEPPOL BIS export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record to extract customer information.</param>
+    /// <param name="CustPartyLegalEntityRegName">Returns the customer registered name.</param>
+    /// <param name="CustPartyLegalEntityCompanyID">Returns the customer company identifier.</param>
+    /// <param name="CustPartyLegalEntityIDSchemeID">Returns the company ID scheme identifier.</param>
     procedure GetAccountingCustomerPartyLegalEntityBIS(SalesHeader: Record "Sales Header"; var CustPartyLegalEntityRegName: Text; var CustPartyLegalEntityCompanyID: Text; var CustPartyLegalEntityIDSchemeID: Text)
     begin
         GetAccountingCustomerPartyLegalEntityByFormat(
@@ -507,6 +714,15 @@ codeunit 1605 "PEPPOL Management"
         OnAfterGetAccountingCustomerPartyLegalEntityByFormat(SalesHeader, CustPartyLegalEntityRegName, CustPartyLegalEntityCompanyID, CustPartyLegalEntityIDSchemeID, IsBISBilling);
     end;
 
+    /// <summary>
+    /// Retrieves the customer party contact information for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record to extract contact information.</param>
+    /// <param name="CustContactID">Returns the customer reference identifier.</param>
+    /// <param name="CustContactName">Returns the bill-to contact name.</param>
+    /// <param name="CustContactTelephone">Returns the customer phone number.</param>
+    /// <param name="CustContactTelefax">Returns the customer telex number.</param>
+    /// <param name="CustContactElectronicMail">Returns the customer email address.</param>
     procedure GetAccountingCustomerPartyContact(SalesHeader: Record "Sales Header"; var CustContactID: Text; var CustContactName: Text; var CustContactTelephone: Text; var CustContactTelefax: Text; var CustContactElectronicMail: Text)
     var
         Customer: Record Customer;
@@ -526,6 +742,14 @@ codeunit 1605 "PEPPOL Management"
         OnAfterGetAccountingCustomerPartyContact(SalesHeader, Customer, CustContactID, CustContactName, CustContactTelephone, CustContactTelefax, CustContactElectronicMail);
     end;
 
+    /// <summary>
+    /// Retrieves the payee party information for PEPPOL export.
+    /// </summary>
+    /// <param name="PayeePartyID">Returns the payee party identifier (GLN).</param>
+    /// <param name="PayeePartyIDSchemeID">Returns the party ID scheme identifier.</param>
+    /// <param name="PayeePartyNameName">Returns the company name.</param>
+    /// <param name="PayeePartyLegalEntityCompanyID">Returns the company VAT registration number.</param>
+    /// <param name="PayeePartyLegalCompIDSchemeID">Returns the VAT scheme identifier.</param>
     procedure GetPayeePartyInfo(var PayeePartyID: Text; var PayeePartyIDSchemeID: Text; var PayeePartyNameName: Text; var PayeePartyLegalEntityCompanyID: Text; var PayeePartyLegalCompIDSchemeID: Text)
     var
         CompanyInfo: Record "Company Information";
@@ -539,6 +763,13 @@ codeunit 1605 "PEPPOL Management"
         PayeePartyLegalCompIDSchemeID := GetVATScheme(CompanyInfo."Country/Region Code");
     end;
 
+    /// <summary>
+    /// Retrieves the tax representative party information for PEPPOL export.
+    /// </summary>
+    /// <param name="TaxRepPartyNameName">Returns the tax representative party name.</param>
+    /// <param name="PayeePartyTaxSchemeCompanyID">Returns the tax scheme company identifier.</param>
+    /// <param name="PayeePartyTaxSchCompIDSchemeID">Returns the company ID scheme identifier.</param>
+    /// <param name="PayeePartyTaxSchemeTaxSchemeID">Returns the tax scheme identifier.</param>
     procedure GetTaxRepresentativePartyInfo(var TaxRepPartyNameName: Text; var PayeePartyTaxSchemeCompanyID: Text; var PayeePartyTaxSchCompIDSchemeID: Text; var PayeePartyTaxSchemeTaxSchemeID: Text)
     begin
         TaxRepPartyNameName := '';
@@ -547,6 +778,12 @@ codeunit 1605 "PEPPOL Management"
         PayeePartyTaxSchemeTaxSchemeID := '';
     end;
 
+    /// <summary>
+    /// Retrieves the delivery information for PEPPOL export.
+    /// </summary>
+    /// <param name="ActualDeliveryDate">Returns the actual delivery date.</param>
+    /// <param name="DeliveryID">Returns the delivery identifier.</param>
+    /// <param name="DeliveryIDSchemeID">Returns the delivery ID scheme identifier.</param>
     procedure GetDeliveryInfo(var ActualDeliveryDate: Text; var DeliveryID: Text; var DeliveryIDSchemeID: Text)
     begin
         ActualDeliveryDate := '';
@@ -554,6 +791,13 @@ codeunit 1605 "PEPPOL Management"
         DeliveryIDSchemeID := '';
     end;
 
+    /// <summary>
+    /// Retrieves the delivery information with GLN for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record to extract delivery information.</param>
+    /// <param name="ActualDeliveryDate">Returns the shipment date.</param>
+    /// <param name="DeliveryID">Returns the delivery GLN.</param>
+    /// <param name="DeliveryIDSchemeID">Returns the GLN scheme identifier.</param>
     procedure GetGLNDeliveryInfo(SalesHeader: Record "Sales Header"; var ActualDeliveryDate: Text; var DeliveryID: Text; var DeliveryIDSchemeID: Text)
     begin
         ActualDeliveryDate := Format(SalesHeader."Shipment Date", 0, 9);
@@ -567,6 +811,11 @@ codeunit 1605 "PEPPOL Management"
         OnAfterGetGLNDeliveryInfo(SalesHeader, ActualDeliveryDate, DeliveryID, DeliveryIDSchemeID);
     end;
 
+    /// <summary>
+    /// Retrieves the GLN for the sales header from ship-to address or customer.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record to extract the GLN from.</param>
+    /// <returns>Returns the GLN from ship-to address if available, otherwise from customer.</returns>
     procedure GetGLNForHeader(SalesHeader: Record "Sales Header"): Code[13]
     var
         Customer: Record Customer;
@@ -580,6 +829,17 @@ codeunit 1605 "PEPPOL Management"
         exit('');
     end;
 
+    /// <summary>
+    /// Retrieves the delivery address information from the ship-to address.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record to extract delivery address.</param>
+    /// <param name="DeliveryStreetName">Returns the ship-to street address.</param>
+    /// <param name="DeliveryAdditionalStreetName">Returns the ship-to address line 2.</param>
+    /// <param name="DeliveryCityName">Returns the ship-to city.</param>
+    /// <param name="DeliveryPostalZone">Returns the ship-to post code.</param>
+    /// <param name="DeliveryCountrySubentity">Returns the ship-to county.</param>
+    /// <param name="DeliveryCountryIdCode">Returns the country ISO code.</param>
+    /// <param name="DeliveryCountryListID">Returns the country code list identifier.</param>
     procedure GetDeliveryAddress(SalesHeader: Record "Sales Header"; var DeliveryStreetName: Text; var DeliveryAdditionalStreetName: Text; var DeliveryCityName: Text; var DeliveryPostalZone: Text; var DeliveryCountrySubentity: Text; var DeliveryCountryIdCode: Text; var DeliveryCountryListID: Text)
     begin
         DeliveryStreetName := SalesHeader."Ship-to Address";
@@ -591,6 +851,17 @@ codeunit 1605 "PEPPOL Management"
         DeliveryCountryListID := GetISO3166_1Alpha2();
     end;
 
+    /// <summary>
+    /// Retrieves the payment means information for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record to extract payment information.</param>
+    /// <param name="PaymentMeansCode">Returns the payment means code.</param>
+    /// <param name="PaymentMeansListID">Returns the payment means list identifier.</param>
+    /// <param name="PaymentDueDate">Returns the payment due date.</param>
+    /// <param name="PaymentChannelCode">Returns the payment channel code.</param>
+    /// <param name="PaymentID">Returns the payment identifier.</param>
+    /// <param name="PrimaryAccountNumberID">Returns the primary account number.</param>
+    /// <param name="NetworkID">Returns the network identifier.</param>
     procedure GetPaymentMeansInfo(SalesHeader: Record "Sales Header"; var PaymentMeansCode: Text; var PaymentMeansListID: Text; var PaymentDueDate: Text; var PaymentChannelCode: Text; var PaymentID: Text; var PrimaryAccountNumberID: Text; var NetworkID: Text)
     begin
         PaymentMeansCode := PaymentMeansFundsTransferCodeTxt;
@@ -603,6 +874,15 @@ codeunit 1605 "PEPPOL Management"
         OnAfterGetPaymentMeansInfo(SalesHeader, PaymentMeansCode, PaymentMeansListID, PaymentDueDate, PaymentChannelCode, PaymentID, PrimaryAccountNumberID, NetworkID);
     end;
 
+    /// <summary>
+    /// Retrieves the payee financial account information for PEPPOL export.
+    /// </summary>
+    /// <param name="PayeeFinancialAccountID">Returns the payee bank account number or IBAN.</param>
+    /// <param name="PaymentMeansSchemeID">Returns the payment scheme identifier (IBAN or LOCAL).</param>
+    /// <param name="FinancialInstitutionBranchID">Returns the bank branch number.</param>
+    /// <param name="FinancialInstitutionID">Returns the SWIFT code.</param>
+    /// <param name="FinancialInstitutionSchemeID">Returns the financial institution scheme (BIC).</param>
+    /// <param name="FinancialInstitutionName">Returns the bank name.</param>
     procedure GetPaymentMeansPayeeFinancialAcc(var PayeeFinancialAccountID: Text; var PaymentMeansSchemeID: Text; var FinancialInstitutionBranchID: Text; var FinancialInstitutionID: Text; var FinancialInstitutionSchemeID: Text; var FinancialInstitutionName: Text)
     var
         CompanyInfo: Record "Company Information";
@@ -625,6 +905,12 @@ codeunit 1605 "PEPPOL Management"
         OnAfterGetPaymentMeansPayeeFinancialAcc(CompanyInfo, PayeeFinancialAccountID, PaymentMeansSchemeID);
     end;
 
+    /// <summary>
+    /// Retrieves the payee financial account information for PEPPOL BIS export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="PayeeFinancialAccountID">Returns the payee bank account number or IBAN.</param>
+    /// <param name="FinancialInstitutionBranchID">Returns the bank branch number.</param>
     procedure GetPaymentMeansPayeeFinancialAccBIS(SalesHeader: Record "Sales Header"; var PayeeFinancialAccountID: Text; var FinancialInstitutionBranchID: Text)
     var
         CompanyInfo: Record "Company Information";
@@ -640,25 +926,17 @@ codeunit 1605 "PEPPOL Management"
         OnAfterGetPaymentMeansPayeeFinancialAccBIS(SalesHeader, PayeeFinancialAccountID, FinancialInstitutionBranchID);
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by GetPaymentMeansPayeeFinancialAccBIS with SalesHeader parameter.', '25.0')]
-    procedure GetPaymentMeansPayeeFinancialAccBIS(var PayeeFinancialAccountID: Text; var FinancialInstitutionBranchID: Text)
-    var
-        CompanyInfo: Record "Company Information";
-        SalesHeader: Record "Sales Header";
-    begin
-        CompanyInfo.Get();
-        if CompanyInfo.IBAN <> '' then
-            PayeeFinancialAccountID := DelChr(CompanyInfo.IBAN, '=', ' ')
-        else
-            if CompanyInfo."Bank Account No." <> '' then
-                PayeeFinancialAccountID := CompanyInfo."Bank Account No.";
-        FinancialInstitutionBranchID := CompanyInfo."Bank Branch No.";
 
-        OnAfterGetPaymentMeansPayeeFinancialAccBIS(SalesHeader, PayeeFinancialAccountID, FinancialInstitutionBranchID);
-    end;
-#endif
-
+    /// <summary>
+    /// Retrieves the financial institution address information for PEPPOL export.
+    /// </summary>
+    /// <param name="FinancialInstitutionStreetName">Returns the financial institution street name.</param>
+    /// <param name="AdditionalStreetName">Returns the additional street name.</param>
+    /// <param name="FinancialInstitutionCityName">Returns the city name.</param>
+    /// <param name="FinancialInstitutionPostalZone">Returns the postal code.</param>
+    /// <param name="FinancialInstCountrySubentity">Returns the country subentity.</param>
+    /// <param name="FinancialInstCountryIdCode">Returns the country identification code.</param>
+    /// <param name="FinancialInstCountryListID">Returns the country list identifier.</param>
     procedure GetPaymentMeansFinancialInstitutionAddr(var FinancialInstitutionStreetName: Text; var AdditionalStreetName: Text; var FinancialInstitutionCityName: Text; var FinancialInstitutionPostalZone: Text; var FinancialInstCountrySubentity: Text; var FinancialInstCountryIdCode: Text; var FinancialInstCountryListID: Text)
     begin
         FinancialInstitutionStreetName := '';
@@ -670,6 +948,11 @@ codeunit 1605 "PEPPOL Management"
         FinancialInstCountryListID := '';
     end;
 
+    /// <summary>
+    /// Retrieves the payment terms information for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record to extract payment terms.</param>
+    /// <param name="PaymentTermsNote">Returns the payment terms description.</param>
     procedure GetPaymentTermsInfo(SalesHeader: Record "Sales Header"; var PaymentTermsNote: Text)
     var
         PmtTerms: Record "Payment Terms";
@@ -684,6 +967,21 @@ codeunit 1605 "PEPPOL Management"
         PaymentTermsNote := PmtTerms.Description;
     end;
 
+    /// <summary>
+    /// Retrieves the allowance charge information for invoice discount.
+    /// </summary>
+    /// <param name="VATAmtLine">Specifies the VAT amount line with discount information.</param>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="ChargeIndicator">Returns false for allowance.</param>
+    /// <param name="AllowanceChargeReasonCode">Returns the allowance charge reason code.</param>
+    /// <param name="AllowanceChargeListID">Returns the charge list identifier.</param>
+    /// <param name="AllowanceChargeReason">Returns the allowance charge reason text.</param>
+    /// <param name="Amount">Returns the invoice discount amount.</param>
+    /// <param name="AllowanceChargeCurrencyID">Returns the currency code.</param>
+    /// <param name="TaxCategoryID">Returns the tax category identifier.</param>
+    /// <param name="TaxCategorySchemeID">Returns the tax category scheme identifier.</param>
+    /// <param name="Percent">Returns the VAT percentage.</param>
+    /// <param name="AllowanceChargeTaxSchemeID">Returns the tax scheme identifier.</param>
     procedure GetAllowanceChargeInfo(VATAmtLine: Record "VAT Amount Line"; SalesHeader: Record "Sales Header"; var ChargeIndicator: Text; var AllowanceChargeReasonCode: Text; var AllowanceChargeListID: Text; var AllowanceChargeReason: Text; var Amount: Text; var AllowanceChargeCurrencyID: Text; var TaxCategoryID: Text; var TaxCategorySchemeID: Text; var Percent: Text; var AllowanceChargeTaxSchemeID: Text)
     begin
         if VATAmtLine."Invoice Discount Amount" = 0 then begin
@@ -703,6 +1001,55 @@ codeunit 1605 "PEPPOL Management"
         AllowanceChargeTaxSchemeID := VATTxt;
     end;
 
+    /// <summary>
+    /// Retrieves the allowance charge information for payment discount.
+    /// </summary>
+    /// <param name="VATAmtLine">Specifies the VAT amount line with payment discount information.</param>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="ChargeIndicator">Returns false for allowance.</param>
+    /// <param name="AllowanceChargeReasonCode">Returns the payment discount reason code.</param>
+    /// <param name="AllowanceChargeListID">Returns the charge list identifier.</param>
+    /// <param name="AllowanceChargeReason">Returns the payment discount reason text.</param>
+    /// <param name="Amount">Returns the payment discount amount.</param>
+    /// <param name="AllowanceChargeCurrencyID">Returns the currency code.</param>
+    /// <param name="TaxCategoryID">Returns the tax category identifier.</param>
+    /// <param name="TaxCategorySchemeID">Returns the tax category scheme identifier.</param>
+    /// <param name="Percent">Returns the VAT percentage.</param>
+    /// <param name="AllowanceChargeTaxSchemeID">Returns the tax scheme identifier.</param>
+    procedure GetAllowanceChargeInfoPaymentDiscount(VATAmtLine: Record "VAT Amount Line"; SalesHeader: Record "Sales Header"; var ChargeIndicator: Text; var AllowanceChargeReasonCode: Text; var AllowanceChargeListID: Text; var AllowanceChargeReason: Text; var Amount: Text; var AllowanceChargeCurrencyID: Text; var TaxCategoryID: Text; var TaxCategorySchemeID: Text; var Percent: Text; var AllowanceChargeTaxSchemeID: Text)
+    begin
+        if VATAmtLine."Pmt. Discount Amount" = 0 then begin
+            ChargeIndicator := '';
+            exit;
+        end;
+
+        ChargeIndicator := 'false';
+        AllowanceChargeReasonCode := AllowanceChargePaymentDiscountReasonCodeTxt;
+        AllowanceChargeListID := GetUNCL4465ListID();
+        AllowanceChargeReason := PaymentDisAmtTxt;
+        Amount := Format(VATAmtLine."Pmt. Discount Amount", 0, 9);
+        AllowanceChargeCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
+        TaxCategoryID := VATAmtLine."Tax Category";
+        TaxCategorySchemeID := '';
+        Percent := Format(VATAmtLine."VAT %", 0, 9);
+        AllowanceChargeTaxSchemeID := VATTxt;
+    end;
+
+    /// <summary>
+    /// Retrieves the allowance charge information for PEPPOL BIS export, clearing percent for outside scope VAT.
+    /// </summary>
+    /// <param name="VATAmtLine">Specifies the VAT amount line with discount information.</param>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="ChargeIndicator">Returns false for allowance.</param>
+    /// <param name="AllowanceChargeReasonCode">Returns the allowance charge reason code.</param>
+    /// <param name="AllowanceChargeListID">Returns the charge list identifier.</param>
+    /// <param name="AllowanceChargeReason">Returns the allowance charge reason text.</param>
+    /// <param name="Amount">Returns the invoice discount amount.</param>
+    /// <param name="AllowanceChargeCurrencyID">Returns the currency code.</param>
+    /// <param name="TaxCategoryID">Returns the tax category identifier.</param>
+    /// <param name="TaxCategorySchemeID">Returns the tax category scheme identifier.</param>
+    /// <param name="Percent">Returns the VAT percentage or empty for outside scope VAT.</param>
+    /// <param name="AllowanceChargeTaxSchemeID">Returns the tax scheme identifier.</param>
     procedure GetAllowanceChargeInfoBIS(VATAmtLine: Record "VAT Amount Line"; SalesHeader: Record "Sales Header"; var ChargeIndicator: Text; var AllowanceChargeReasonCode: Text; var AllowanceChargeListID: Text; var AllowanceChargeReason: Text; var Amount: Text; var AllowanceChargeCurrencyID: Text; var TaxCategoryID: Text; var TaxCategorySchemeID: Text; var Percent: Text; var AllowanceChargeTaxSchemeID: Text)
     begin
         GetAllowanceChargeInfo(
@@ -712,6 +1059,17 @@ codeunit 1605 "PEPPOL Management"
             Percent := '';
     end;
 
+    /// <summary>
+    /// Retrieves the tax exchange rate information when document currency differs from local currency.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record to extract currency information.</param>
+    /// <param name="SourceCurrencyCode">Returns the document currency code.</param>
+    /// <param name="SourceCurrencyCodeListID">Returns the source currency code list identifier.</param>
+    /// <param name="TargetCurrencyCode">Returns the local currency code.</param>
+    /// <param name="TargetCurrencyCodeListID">Returns the target currency code list identifier.</param>
+    /// <param name="CalculationRate">Returns the currency exchange rate factor.</param>
+    /// <param name="MathematicOperatorCode">Returns the mathematic operator (Multiply).</param>
+    /// <param name="Date">Returns the posting date.</param>
     procedure GetTaxExchangeRateInfo(SalesHeader: Record "Sales Header"; var SourceCurrencyCode: Text; var SourceCurrencyCodeListID: Text; var TargetCurrencyCode: Text; var TargetCurrencyCodeListID: Text; var CalculationRate: Text; var MathematicOperatorCode: Text; var Date: Text)
     var
         GLSetup: Record "General Ledger Setup";
@@ -729,6 +1087,13 @@ codeunit 1605 "PEPPOL Management"
         Date := Format(SalesHeader."Posting Date", 0, 9);
     end;
 
+    /// <summary>
+    /// Retrieves the tax total information from VAT amount lines.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="VATAmtLine">Specifies the VAT amount line record to calculate totals.</param>
+    /// <param name="TaxAmount">Returns the total VAT amount.</param>
+    /// <param name="TaxTotalCurrencyID">Returns the currency code.</param>
     procedure GetTaxTotalInfo(SalesHeader: Record "Sales Header"; var VATAmtLine: Record "VAT Amount Line"; var TaxAmount: Text; var TaxTotalCurrencyID: Text)
     begin
         VATAmtLine.CalcSums(VATAmtLine."VAT Amount");
@@ -738,11 +1103,26 @@ codeunit 1605 "PEPPOL Management"
         OnAfterGetTaxTotalInfo(SalesHeader, VATAmtLine, TaxAmount);
     end;
 
+    /// <summary>
+    /// Retrieves the tax subtotal information for a VAT amount line.
+    /// </summary>
+    /// <param name="VATAmtLine">Specifies the VAT amount line record.</param>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="TaxableAmount">Returns the VAT base amount minus payment discount.</param>
+    /// <param name="TaxAmountCurrencyID">Returns the currency code for taxable amount.</param>
+    /// <param name="SubtotalTaxAmount">Returns the VAT amount.</param>
+    /// <param name="TaxSubtotalCurrencyID">Returns the currency code for subtotal.</param>
+    /// <param name="TransactionCurrencyTaxAmount">Returns the tax amount in local currency.</param>
+    /// <param name="TransCurrTaxAmtCurrencyID">Returns the local currency code.</param>
+    /// <param name="TaxTotalTaxCategoryID">Returns the tax category identifier.</param>
+    /// <param name="schemeID">Returns the tax scheme identifier.</param>
+    /// <param name="TaxCategoryPercent">Returns the VAT percentage.</param>
+    /// <param name="TaxTotalTaxSchemeID">Returns the tax scheme identifier.</param>
     procedure GetTaxSubtotalInfo(VATAmtLine: Record "VAT Amount Line"; SalesHeader: Record "Sales Header"; var TaxableAmount: Text; var TaxAmountCurrencyID: Text; var SubtotalTaxAmount: Text; var TaxSubtotalCurrencyID: Text; var TransactionCurrencyTaxAmount: Text; var TransCurrTaxAmtCurrencyID: Text; var TaxTotalTaxCategoryID: Text; var schemeID: Text; var TaxCategoryPercent: Text; var TaxTotalTaxSchemeID: Text)
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        TaxableAmount := Format(VATAmtLine."VAT Base", 0, 9);
+        TaxableAmount := Format(VATAmtLine."VAT Base" - VATAmtLine."Pmt. Discount Amount", 0, 9);
         TaxAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
         SubtotalTaxAmount := Format(VATAmtLine."VAT Amount", 0, 9);
         TaxSubtotalCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
@@ -767,6 +1147,13 @@ codeunit 1605 "PEPPOL Management"
           TaxCategoryPercent, TaxTotalTaxSchemeID);
     end;
 
+    /// <summary>
+    /// Retrieves the tax total information in local currency when document uses foreign currency.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="TaxAmount">Returns the total VAT amount in local currency.</param>
+    /// <param name="TaxCurrencyID">Returns the tax currency identifier.</param>
+    /// <param name="TaxTotalCurrencyID">Returns the tax total currency identifier.</param>
     procedure GetTaxTotalInfoLCY(SalesHeader: Record "Sales Header"; var TaxAmount: Text; var TaxCurrencyID: Text; var TaxTotalCurrencyID: Text)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -792,6 +1179,28 @@ codeunit 1605 "PEPPOL Management"
         OnAfterGetTaxTotalInfoLCY(SalesHeader, TaxAmount, TaxCurrencyID, TaxTotalCurrencyID);
     end;
 
+    /// <summary>
+    /// Retrieves the legal monetary totals including line extension, tax amounts, and payable amount.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="TempSalesLine">Specifies the temporary sales line for invoice rounding.</param>
+    /// <param name="VATAmtLine">Specifies the VAT amount line record for totals calculation.</param>
+    /// <param name="LineExtensionAmount">Returns the total line extension amount.</param>
+    /// <param name="LegalMonetaryTotalCurrencyID">Returns the currency code.</param>
+    /// <param name="TaxExclusiveAmount">Returns the amount excluding VAT.</param>
+    /// <param name="TaxExclusiveAmountCurrencyID">Returns the currency code for tax exclusive amount.</param>
+    /// <param name="TaxInclusiveAmount">Returns the amount including VAT.</param>
+    /// <param name="TaxInclusiveAmountCurrencyID">Returns the currency code for tax inclusive amount.</param>
+    /// <param name="AllowanceTotalAmount">Returns the total allowance amount.</param>
+    /// <param name="AllowanceTotalAmountCurrencyID">Returns the currency code for allowance.</param>
+    /// <param name="ChargeTotalAmount">Returns the total charge amount.</param>
+    /// <param name="ChargeTotalAmountCurrencyID">Returns the currency code for charges.</param>
+    /// <param name="PrepaidAmount">Returns the prepaid amount.</param>
+    /// <param name="PrepaidCurrencyID">Returns the currency code for prepaid amount.</param>
+    /// <param name="PayableRoundingAmount">Returns the rounding amount.</param>
+    /// <param name="PayableRndingAmountCurrencyID">Returns the currency code for rounding.</param>
+    /// <param name="PayableAmount">Returns the total payable amount.</param>
+    /// <param name="PayableAmountCurrencyID">Returns the currency code for payable amount.</param>
     procedure GetLegalMonetaryInfo(SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; var VATAmtLine: Record "VAT Amount Line"; var LineExtensionAmount: Text; var LegalMonetaryTotalCurrencyID: Text; var TaxExclusiveAmount: Text; var TaxExclusiveAmountCurrencyID: Text; var TaxInclusiveAmount: Text; var TaxInclusiveAmountCurrencyID: Text; var AllowanceTotalAmount: Text; var AllowanceTotalAmountCurrencyID: Text; var ChargeTotalAmount: Text; var ChargeTotalAmountCurrencyID: Text; var PrepaidAmount: Text; var PrepaidCurrencyID: Text; var PayableRoundingAmount: Text; var PayableRndingAmountCurrencyID: Text; var PayableAmount: Text; var PayableAmountCurrencyID: Text)
     begin
         VATAmtLine.Reset();
@@ -810,13 +1219,13 @@ codeunit 1605 "PEPPOL Management"
               Format(VATAmtLine."Amount Including VAT" - Round(VATAmtLine."Amount Including VAT", 0.01), 0, 9);
             PayableRndingAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
 
-            PayableAmount := Format(Round(VATAmtLine."Amount Including VAT", 0.01), 0, 9);
+            PayableAmount := Format(Round(VATAmtLine."Amount Including VAT" - VATAmtLine."Pmt. Discount Amount", 0.01), 0, 9);
             PayableAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
         end else begin
             PayableRoundingAmount := Format(TempSalesLine."Amount Including VAT", 0, 9);
             PayableRndingAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
 
-            PayableAmount := Format(Round(VATAmtLine."Amount Including VAT" + TempSalesLine."Amount Including VAT", 0.01), 0, 9);
+            PayableAmount := Format(Round(VATAmtLine."Amount Including VAT" + TempSalesLine."Amount Including VAT" - VATAmtLine."Pmt. Discount Amount", 0.01), 0, 9);
             PayableAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
         end;
 
@@ -826,18 +1235,33 @@ codeunit 1605 "PEPPOL Management"
     end;
 
 
+    /// <summary>
+    /// Retrieves the document-level monetary amounts for legal monetary totals.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="VATAmtLine">Specifies the VAT amount line record with calculated totals.</param>
+    /// <param name="LineExtensionAmount">Returns the line extension amount.</param>
+    /// <param name="LegalMonetaryTotalCurrencyID">Returns the currency code.</param>
+    /// <param name="TaxExclusiveAmount">Returns the tax exclusive amount.</param>
+    /// <param name="TaxExclusiveAmountCurrencyID">Returns the currency code for tax exclusive amount.</param>
+    /// <param name="TaxInclusiveAmount">Returns the tax inclusive amount.</param>
+    /// <param name="TaxInclusiveAmountCurrencyID">Returns the currency code for tax inclusive amount.</param>
+    /// <param name="AllowanceTotalAmount">Returns the allowance total amount.</param>
+    /// <param name="AllowanceTotalAmountCurrencyID">Returns the currency code for allowance.</param>
+    /// <param name="ChargeTotalAmount">Returns the charge total amount.</param>
+    /// <param name="ChargeTotalAmountCurrencyID">Returns the currency code for charges.</param>
     procedure GetLegalMonetaryDocAmounts(SalesHeader: Record "Sales Header"; var VATAmtLine: Record "VAT Amount Line"; var LineExtensionAmount: Text; var LegalMonetaryTotalCurrencyID: Text; var TaxExclusiveAmount: Text; var TaxExclusiveAmountCurrencyID: Text; var TaxInclusiveAmount: Text; var TaxInclusiveAmountCurrencyID: Text; var AllowanceTotalAmount: Text; var AllowanceTotalAmountCurrencyID: Text; var ChargeTotalAmount: Text; var ChargeTotalAmountCurrencyID: Text)
     begin
         LineExtensionAmount := Format(Round(VATAmtLine."VAT Base", 0.01) + Round(VATAmtLine."Invoice Discount Amount", 0.01), 0, 9);
         LegalMonetaryTotalCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
 
-        TaxExclusiveAmount := Format(Round(VATAmtLine."VAT Base", 0.01), 0, 9);
+        TaxExclusiveAmount := Format(Round(VATAmtLine."VAT Base" - VATAmtLine."Pmt. Discount Amount", 0.01), 0, 9);
         TaxExclusiveAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
 
-        TaxInclusiveAmount := Format(Round(VATAmtLine."Amount Including VAT", 0.01, '>'), 0, 9); // Should be two decimal places
+        TaxInclusiveAmount := Format(Round(VATAmtLine."Amount Including VAT" - VATAmtLine."Pmt. Discount Amount", 0.01, '>'), 0, 9); // Should be two decimal places
         TaxInclusiveAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
 
-        AllowanceTotalAmount := Format(Round(VATAmtLine."Invoice Discount Amount", 0.01), 0, 9);
+        AllowanceTotalAmount := Format(Round(VATAmtLine."Invoice Discount Amount" + VATAmtLine."Pmt. Discount Amount", 0.01), 0, 9);
         AllowanceTotalAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
         TaxInclusiveAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
 
@@ -845,12 +1269,26 @@ codeunit 1605 "PEPPOL Management"
         ChargeTotalAmountCurrencyID := '';
     end;
 
+    /// <summary>
+    /// Retrieves the general line information for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesLine">Specifies the sales line record.</param>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="InvoiceLineID">Returns the line number.</param>
+    /// <param name="InvoiceLineNote">Returns the line type as note.</param>
+    /// <param name="InvoicedQuantity">Returns the quantity.</param>
+    /// <param name="InvoiceLineExtensionAmount">Returns the line amount.</param>
+    /// <param name="LineExtensionAmountCurrencyID">Returns the currency code.</param>
+    /// <param name="InvoiceLineAccountingCost">Returns the accounting cost reference.</param>
     procedure GetLineGeneralInfo(SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var InvoiceLineID: Text; var InvoiceLineNote: Text; var InvoicedQuantity: Text; var InvoiceLineExtensionAmount: Text; var LineExtensionAmountCurrencyID: Text; var InvoiceLineAccountingCost: Text)
+    var
+        SalesLineLineAmount: Decimal;
     begin
         InvoiceLineID := Format(SalesLine."Line No.", 0, 9);
         InvoiceLineNote := DelChr(Format(SalesLine.Type), '<>');
         InvoicedQuantity := Format(SalesLine.Quantity, 0, 9);
-        InvoiceLineExtensionAmount := Format(SalesLine."VAT Base Amount" + SalesLine."Inv. Discount Amount", 0, 9);
+        SalesLineLineAmount := SalesLine."Line Amount";
+        InvoiceLineExtensionAmount := Format(SalesLineLineAmount, 0, 9);
         LineExtensionAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
         InvoiceLineAccountingCost := '';
 
@@ -859,6 +1297,12 @@ codeunit 1605 "PEPPOL Management"
           InvoiceLineExtensionAmount, InvoiceLineAccountingCost);
     end;
 
+    /// <summary>
+    /// Retrieves the unit of measure code information for a sales line.
+    /// </summary>
+    /// <param name="SalesLine">Specifies the sales line record.</param>
+    /// <param name="unitCode">Returns the international standard unit code.</param>
+    /// <param name="unitCodeListID">Returns the unit code list identifier.</param>
     procedure GetLineUnitCodeInfo(SalesLine: Record "Sales Line"; var unitCode: Text; var unitCodeListID: Text)
     var
         UOM: Record "Unit of Measure";
@@ -885,16 +1329,30 @@ codeunit 1605 "PEPPOL Management"
         end;
     end;
 
+    /// <summary>
+    /// Retrieves the invoice period information for a line.
+    /// </summary>
+    /// <param name="InvLineInvoicePeriodStartDate">Returns the invoice line period start date.</param>
+    /// <param name="InvLineInvoicePeriodEndDate">Returns the invoice line period end date.</param>
     procedure GetLineInvoicePeriodInfo(var InvLineInvoicePeriodStartDate: Text; var InvLineInvoicePeriodEndDate: Text)
     begin
         InvLineInvoicePeriodStartDate := '';
         InvLineInvoicePeriodEndDate := '';
     end;
 
+    /// <summary>
+    /// Placeholder for line order reference information retrieval.
+    /// </summary>
     procedure GetLineOrderLineRefInfo()
     begin
     end;
 
+    /// <summary>
+    /// Retrieves the line delivery information.
+    /// </summary>
+    /// <param name="InvoiceLineActualDeliveryDate">Returns the actual delivery date for the line.</param>
+    /// <param name="InvoiceLineDeliveryID">Returns the delivery identifier.</param>
+    /// <param name="InvoiceLineDeliveryIDSchemeID">Returns the delivery ID scheme identifier.</param>
     procedure GetLineDeliveryInfo(var InvoiceLineActualDeliveryDate: Text; var InvoiceLineDeliveryID: Text; var InvoiceLineDeliveryIDSchemeID: Text)
     begin
         InvoiceLineActualDeliveryDate := '';
@@ -902,6 +1360,16 @@ codeunit 1605 "PEPPOL Management"
         InvoiceLineDeliveryIDSchemeID := '';
     end;
 
+    /// <summary>
+    /// Retrieves the line delivery postal address information.
+    /// </summary>
+    /// <param name="InvoiceLineDeliveryStreetName">Returns the delivery street name.</param>
+    /// <param name="InvLineDeliveryAddStreetName">Returns the additional delivery street name.</param>
+    /// <param name="InvoiceLineDeliveryCityName">Returns the delivery city name.</param>
+    /// <param name="InvoiceLineDeliveryPostalZone">Returns the delivery postal code.</param>
+    /// <param name="InvLnDeliveryCountrySubentity">Returns the delivery country subentity.</param>
+    /// <param name="InvLnDeliveryCountryIdCode">Returns the delivery country code.</param>
+    /// <param name="InvLineDeliveryCountryListID">Returns the country list identifier.</param>
     procedure GetLineDeliveryPostalAddr(var InvoiceLineDeliveryStreetName: Text; var InvLineDeliveryAddStreetName: Text; var InvoiceLineDeliveryCityName: Text; var InvoiceLineDeliveryPostalZone: Text; var InvLnDeliveryCountrySubentity: Text; var InvLnDeliveryCountryIdCode: Text; var InvLineDeliveryCountryListID: Text)
     begin
         InvoiceLineDeliveryStreetName := '';
@@ -913,12 +1381,26 @@ codeunit 1605 "PEPPOL Management"
         InvLineDeliveryCountryListID := GetISO3166_1Alpha2();
     end;
 
+    /// <summary>
+    /// Retrieves the delivery party name.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="DeliveryPartyName">Returns the delivery party name.</param>
     procedure GetDeliveryPartyName(SalesHeader: Record "Sales Header"; var DeliveryPartyName: Text)
     begin
         DeliveryPartyName := '';
         OnAfterGetDeliveryPartyName(SalesHeader, DeliveryPartyName);
     end;
 
+    /// <summary>
+    /// Retrieves the line allowance charge information for line discount.
+    /// </summary>
+    /// <param name="SalesLine">Specifies the sales line record.</param>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="InvLnAllowanceChargeIndicator">Returns false for allowance.</param>
+    /// <param name="InvLnAllowanceChargeReason">Returns the line discount reason.</param>
+    /// <param name="InvLnAllowanceChargeAmount">Returns the line discount amount.</param>
+    /// <param name="InvLnAllowanceChargeAmtCurrID">Returns the currency code.</param>
     procedure GetLineAllowanceChargeInfo(SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var InvLnAllowanceChargeIndicator: Text; var InvLnAllowanceChargeReason: Text; var InvLnAllowanceChargeAmount: Text; var InvLnAllowanceChargeAmtCurrID: Text)
     begin
         InvLnAllowanceChargeIndicator := '';
@@ -934,12 +1416,30 @@ codeunit 1605 "PEPPOL Management"
         InvLnAllowanceChargeAmtCurrID := GetSalesDocCurrencyCode(SalesHeader);
     end;
 
+    /// <summary>
+    /// Retrieves the line tax total amount.
+    /// </summary>
+    /// <param name="SalesLine">Specifies the sales line record.</param>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="InvoiceLineTaxAmount">Returns the VAT amount for the line.</param>
+    /// <param name="currencyID">Returns the currency code.</param>
     procedure GetLineTaxTotal(SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var InvoiceLineTaxAmount: Text; var currencyID: Text)
     begin
         InvoiceLineTaxAmount := Format(SalesLine."Amount Including VAT" - SalesLine.Amount, 0, 9);
         currencyID := GetSalesDocCurrencyCode(SalesHeader);
     end;
 
+    /// <summary>
+    /// Retrieves the item information for a sales line.
+    /// </summary>
+    /// <param name="SalesLine">Specifies the sales line record.</param>
+    /// <param name="Description">Returns the item description 2.</param>
+    /// <param name="Name">Returns the item description.</param>
+    /// <param name="SellersItemIdentificationID">Returns the item number.</param>
+    /// <param name="StandardItemIdentificationID">Returns the item GTIN.</param>
+    /// <param name="StdItemIdIDSchemeID">Returns the GTIN scheme identifier.</param>
+    /// <param name="OriginCountryIdCode">Returns the country of origin code.</param>
+    /// <param name="OriginCountryIdCodeListID">Returns the country code list identifier.</param>
     procedure GetLineItemInfo(SalesLine: Record "Sales Line"; var Description: Text; var Name: Text; var SellersItemIdentificationID: Text; var StandardItemIdentificationID: Text; var StdItemIdIDSchemeID: Text; var OriginCountryIdCode: Text; var OriginCountryIdCodeListID: Text)
     var
         Item: Record Item;
@@ -965,6 +1465,13 @@ codeunit 1605 "PEPPOL Management"
         OnAfterGetLineItemInfo(SalesLine, Description, Name, SellersItemIdentificationID, StandardItemIdentificationID, StdItemIdIDSchemeID, OriginCountryIdCode, OriginCountryIdCodeListID);
     end;
 
+    /// <summary>
+    /// Retrieves the item commodity classification information.
+    /// </summary>
+    /// <param name="CommodityCode">Returns the commodity code.</param>
+    /// <param name="CommodityCodeListID">Returns the commodity code list identifier.</param>
+    /// <param name="ItemClassificationCode">Returns the item classification code.</param>
+    /// <param name="ItemClassificationCodeListID">Returns the item classification code list identifier.</param>
     procedure GetLineItemCommodityClassficationInfo(var CommodityCode: Text; var CommodityCodeListID: Text; var ItemClassificationCode: Text; var ItemClassificationCodeListID: Text)
     begin
         CommodityCode := '';
@@ -974,6 +1481,14 @@ codeunit 1605 "PEPPOL Management"
         ItemClassificationCodeListID := '';
     end;
 
+    /// <summary>
+    /// Retrieves the classified tax category information for a sales line.
+    /// </summary>
+    /// <param name="SalesLine">Specifies the sales line record.</param>
+    /// <param name="ClassifiedTaxCategoryID">Returns the tax category identifier.</param>
+    /// <param name="ItemSchemeID">Returns the item scheme identifier.</param>
+    /// <param name="InvoiceLineTaxPercent">Returns the VAT percentage.</param>
+    /// <param name="ClassifiedTaxCategorySchemeID">Returns the tax category scheme identifier.</param>
     procedure GetLineItemClassfiedTaxCategory(SalesLine: Record "Sales Line"; var ClassifiedTaxCategoryID: Text; var ItemSchemeID: Text; var InvoiceLineTaxPercent: Text; var ClassifiedTaxCategorySchemeID: Text)
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -992,6 +1507,14 @@ codeunit 1605 "PEPPOL Management"
         ClassifiedTaxCategorySchemeID := VATTxt;
     end;
 
+    /// <summary>
+    /// Retrieves the classified tax category information for PEPPOL BIS, clearing percent for outside scope VAT.
+    /// </summary>
+    /// <param name="SalesLine">Specifies the sales line record.</param>
+    /// <param name="ClassifiedTaxCategoryID">Returns the tax category identifier.</param>
+    /// <param name="ItemSchemeID">Returns the item scheme identifier.</param>
+    /// <param name="InvoiceLineTaxPercent">Returns the VAT percentage or empty for outside scope VAT.</param>
+    /// <param name="ClassifiedTaxCategorySchemeID">Returns the tax category scheme identifier.</param>
     procedure GetLineItemClassfiedTaxCategoryBIS(SalesLine: Record "Sales Line"; var ClassifiedTaxCategoryID: Text; var ItemSchemeID: Text; var InvoiceLineTaxPercent: Text; var ClassifiedTaxCategorySchemeID: Text)
     begin
         GetLineItemClassfiedTaxCategory(
@@ -1000,6 +1523,12 @@ codeunit 1605 "PEPPOL Management"
             InvoiceLineTaxPercent := '';
     end;
 
+    /// <summary>
+    /// Retrieves the additional item property information from item variant.
+    /// </summary>
+    /// <param name="SalesLine">Specifies the sales line record.</param>
+    /// <param name="AdditionalItemPropertyName">Returns the variant code as property name.</param>
+    /// <param name="AdditionalItemPropertyValue">Returns the variant description as property value.</param>
     procedure GetLineAdditionalItemPropertyInfo(SalesLine: Record "Sales Line"; var AdditionalItemPropertyName: Text; var AdditionalItemPropertyValue: Text)
     var
         ItemVariant: Record "Item Variant";
@@ -1018,6 +1547,15 @@ codeunit 1605 "PEPPOL Management"
         AdditionalItemPropertyValue := ItemVariant.Description;
     end;
 
+    /// <summary>
+    /// Retrieves the line price information.
+    /// </summary>
+    /// <param name="SalesLine">Specifies the sales line record.</param>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="InvoiceLinePriceAmount">Returns the unit price excluding VAT.</param>
+    /// <param name="InvLinePriceAmountCurrencyID">Returns the currency code.</param>
+    /// <param name="BaseQuantity">Returns the base quantity (1).</param>
+    /// <param name="UnitCode">Returns the unit of measure code.</param>
     procedure GetLinePriceInfo(SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var InvoiceLinePriceAmount: Text; var InvLinePriceAmountCurrencyID: Text; var BaseQuantity: Text; var UnitCode: Text)
     var
         unitCodeListID: Text;
@@ -1036,6 +1574,14 @@ codeunit 1605 "PEPPOL Management"
           SalesLine, SalesHeader, InvoiceLinePriceAmount, BaseQuantity, UnitCode);
     end;
 
+    /// <summary>
+    /// Retrieves the line price allowance charge information.
+    /// </summary>
+    /// <param name="PriceChargeIndicator">Returns the charge indicator.</param>
+    /// <param name="PriceAllowanceChargeAmount">Returns the allowance charge amount.</param>
+    /// <param name="PriceAllowanceAmountCurrencyID">Returns the currency code.</param>
+    /// <param name="PriceAllowanceChargeBaseAmount">Returns the base amount for allowance.</param>
+    /// <param name="PriceAllowChargeBaseAmtCurrID">Returns the currency code for base amount.</param>
     procedure GetLinePriceAllowanceChargeInfo(var PriceChargeIndicator: Text; var PriceAllowanceChargeAmount: Text; var PriceAllowanceAmountCurrencyID: Text; var PriceAllowanceChargeBaseAmount: Text; var PriceAllowChargeBaseAmtCurrID: Text)
     begin
         PriceChargeIndicator := '';
@@ -1065,6 +1611,12 @@ codeunit 1605 "PEPPOL Management"
             Salesperson.Get(SalesHeader."Salesperson Code");
     end;
 
+    /// <summary>
+    /// Retrieves the billing reference information for a credit memo.
+    /// </summary>
+    /// <param name="SalesCrMemoHeader">Specifies the sales credit memo header record.</param>
+    /// <param name="InvoiceDocRefID">Returns the referenced invoice document number.</param>
+    /// <param name="InvoiceDocRefIssueDate">Returns the referenced invoice posting date.</param>
     procedure GetCrMemoBillingReferenceInfo(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var InvoiceDocRefID: Text; var InvoiceDocRefIssueDate: Text)
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -1085,6 +1637,11 @@ codeunit 1605 "PEPPOL Management"
         exit(CountryRegion."ISO Code");
     end;
 
+    /// <summary>
+    /// Calculates and accumulates VAT totals from a sales line into the VAT amount line buffer.
+    /// </summary>
+    /// <param name="SalesLine">Specifies the sales line record to process.</param>
+    /// <param name="VATAmtLine">Returns the accumulated VAT amount line totals.</param>
     procedure GetTotals(SalesLine: Record "Sales Line"; var VATAmtLine: Record "VAT Amount Line")
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -1103,6 +1660,7 @@ codeunit 1605 "PEPPOL Management"
         if SalesLine."Allow Invoice Disc." then
             VATAmtLine."Inv. Disc. Base Amount" := SalesLine."Line Amount";
         VATAmtLine."Invoice Discount Amount" := SalesLine."Inv. Discount Amount";
+        VATAmtLine."Pmt. Discount Amount" += SalesLine."Pmt. Discount Amount";
 
         IsHandled := false;
         OnGetTotalsOnBeforeInsertVATAmtLine(SalesLine, VATAmtLine, VATPostingSetup, IsHandled);
@@ -1113,6 +1671,11 @@ codeunit 1605 "PEPPOL Management"
             end;
     end;
 
+    /// <summary>
+    /// Retrieves and accumulates tax categories from sales lines into a buffer.
+    /// </summary>
+    /// <param name="SalesLine">Specifies the sales line record to process.</param>
+    /// <param name="VATProductPostingGroupCategory">Returns the accumulated tax categories.</param>
     procedure GetTaxCategories(SalesLine: Record "Sales Line"; var VATProductPostingGroupCategory: Record "VAT Product Posting Group")
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -1129,6 +1692,11 @@ codeunit 1605 "PEPPOL Management"
         if VATProductPostingGroupCategory.Insert() then;
     end;
 
+    /// <summary>
+    /// Retrieves the invoice rounding line if it exists.
+    /// </summary>
+    /// <param name="TempSalesLine">Returns the invoice rounding line if found.</param>
+    /// <param name="SalesLine">Specifies the sales line record to check.</param>
     procedure GetInvoiceRoundingLine(var TempSalesLine: Record "Sales Line" temporary; SalesLine: Record "Sales Line")
     begin
         if TempSalesLine."Line No." <> 0 then
@@ -1140,6 +1708,12 @@ codeunit 1605 "PEPPOL Management"
         end;
     end;
 
+    /// <summary>
+    /// Retrieves the tax exemption reason for specific tax categories.
+    /// </summary>
+    /// <param name="VATProductPostingGroupCategory">Specifies the VAT product posting group category buffer.</param>
+    /// <param name="TaxExemptionReasonTxt">Returns the tax exemption reason description.</param>
+    /// <param name="TaxCategoryID">Specifies the tax category identifier to look up.</param>
     procedure GetTaxExemptionReason(var VATProductPostingGroupCategory: Record "VAT Product Posting Group"; var TaxExemptionReasonTxt: Text; TaxCategoryID: Text)
     begin
         TaxExemptionReasonTxt := '';
@@ -1149,6 +1723,10 @@ codeunit 1605 "PEPPOL Management"
             TaxExemptionReasonTxt := VATProductPostingGroupCategory.Description;
     end;
 
+    /// <summary>
+    /// Returns the PEPPOL telemetry token for feature usage tracking.
+    /// </summary>
+    /// <returns>Returns the PEPPOL telemetry token value.</returns>
     procedure GetPeppolTelemetryTok(): Text
     begin
         exit(PeppolTelemetryTok);
@@ -1189,6 +1767,10 @@ codeunit 1605 "PEPPOL Management"
         exit('UNECERec20');
     end;
 
+    /// <summary>
+    /// Returns the unit of measure code for piece in UNECE Rec 20 list (EA).
+    /// </summary>
+    /// <returns>Returns the EA unit code.</returns>
     [Scope('OnPrem')]
     procedure GetUoMforPieceINUNECERec20ListID(): Code[10]
     begin
@@ -1214,6 +1796,11 @@ codeunit 1605 "PEPPOL Management"
         exit(GetVATScheme(CountryRegionCode));
     end;
 
+    /// <summary>
+    /// Retrieves the VAT scheme for a country/region.
+    /// </summary>
+    /// <param name="CountryRegionCode">Specifies the country/region code.</param>
+    /// <returns>Returns the VAT scheme for the specified country/region.</returns>
     procedure GetVATScheme(CountryRegionCode: Code[10]): Text
     var
         CountryRegion: Record "Country/Region";
@@ -1352,6 +1939,11 @@ codeunit 1605 "PEPPOL Management"
         exit(CountryRegion."ISO Code" = 'DK');
     end;
 
+    /// <summary>
+    /// Initializes the XML export by creating a temporary file for output.
+    /// </summary>
+    /// <param name="OutFile">Returns the file handle for the output file.</param>
+    /// <param name="XmlServerPath">Returns the server path for the XML file.</param>
     [Scope('OnPrem')]
     procedure InitializeXMLExport(var OutFile: File; var XmlServerPath: Text)
     var
@@ -1368,6 +1960,12 @@ codeunit 1605 "PEPPOL Management"
             OutFile.Open(XmlServerPath);
     end;
 
+    /// <summary>
+    /// Checks if a sales line is an invoice rounding line.
+    /// </summary>
+    /// <param name="SalesLine">Specifies the sales line to check.</param>
+    /// <param name="CustomerNo">Specifies the customer number to determine the posting group.</param>
+    /// <returns>Returns true if the line is an invoice rounding line, false otherwise.</returns>
     procedure IsRoundingLine(SalesLine: Record "Sales Line"; CustomerNo: Code[20]): Boolean;
     var
         Customer: Record Customer;
@@ -1383,26 +1981,13 @@ codeunit 1605 "PEPPOL Management"
         exit(false);
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by same procedure in codeunit ServPEPPOLManagement', '25.0')]
-    procedure MapServiceLineTypeToSalesLineType(ServiceLineType: Enum Microsoft.Service.Document."Service Line Type"): Integer
-    var
-        ServPEPPOLManagement: Codeunit "Serv. PEPPOL Management";
-    begin
-        exit(ServPEPPOLManagement.MapServiceLineTypeToSalesLineType(ServiceLineType).AsInteger());
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Replaced by same procedure in codeunit ServPEPPOLManagement', '25.0')]
-    procedure MapServiceLineTypeToSalesLineTypeEnum(ServiceLineType: Enum Microsoft.Service.Document."Service Line Type"): Enum "Sales Line Type"
-    var
-        ServPEPPOLManagement: Codeunit "Serv. PEPPOL Management";
-    begin
-        exit(ServPEPPOLManagement.MapServiceLineTypeToSalesLineType(ServiceLineType));
-    end;
-#endif
 
+    /// <summary>
+    /// Transfers fields from a posted document header to a sales header record.
+    /// </summary>
+    /// <param name="FromRecord">Specifies the source record (typically posted invoice or credit memo header).</param>
+    /// <param name="ToSalesHeader">Returns the sales header with transferred fields.</param>
     procedure TransferHeaderToSalesHeader(FromRecord: Variant; var ToSalesHeader: Record "Sales Header")
     var
         ToRecord: Variant;
@@ -1415,6 +2000,11 @@ codeunit 1605 "PEPPOL Management"
         ToSalesHeader := ToRecord;
     end;
 
+    /// <summary>
+    /// Transfers fields from a posted document line to a sales line record.
+    /// </summary>
+    /// <param name="FromRecord">Specifies the source record (typically posted invoice or credit memo line).</param>
+    /// <param name="ToSalesLine">Returns the sales line with transferred fields.</param>
     procedure TransferLineToSalesLine(FromRecord: Variant; var ToSalesLine: Record "Sales Line")
     var
         ToRecord: Variant;
@@ -1533,24 +2123,14 @@ codeunit 1605 "PEPPOL Management"
         ToFieldRef.Value := FromFieldRef.Value();
     end;
 
-#if not CLEAN25
-    [Obsolete('Service documents separated to codeunit ServPEPPOLManagement', '25.0')]
-    procedure FindNextInvoiceRec(var SalesInvoiceHeader: Record "Sales Invoice Header"; var ServiceInvoiceHeader: Record Microsoft.Service.History."Service Invoice Header"; var SalesHeader: Record "Sales Header"; ProcessedDocType: Option Sale,Service; Position: Integer) Found: Boolean
-    var
-        ServPEPPOLManagement: Codeunit "Serv. PEPPOL Management";
-    begin
-        case ProcessedDocType of
-            ProcessedDocType::Sale:
-                Found := FindNextSalesInvoiceRec(SalesInvoiceHeader, SalesHeader, Position);
-            ProcessedDocType::Service:
-                Found := ServPEPPOLManagement.FindNextServiceInvoiceRec(ServiceInvoiceHeader, SalesHeader, Position);
-        end;
-        SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
 
-        OnAfterFindNextInvoiceRec(SalesInvoiceHeader, ServiceInvoiceHeader, SalesHeader, ProcessedDocType, Position, Found);
-    end;
-#endif
-
+    /// <summary>
+    /// Finds the next sales invoice record and transfers its fields to a sales header.
+    /// </summary>
+    /// <param name="SalesInvoiceHeader">Specifies the sales invoice header to iterate.</param>
+    /// <param name="SalesHeader">Returns the sales header with transferred fields.</param>
+    /// <param name="Position">Specifies the position (1 for first, other for next).</param>
+    /// <returns>Returns true if a record was found, false otherwise.</returns>
     procedure FindNextSalesInvoiceRec(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header"; Position: Integer) Found: Boolean
     begin
         if Position = 1 then
@@ -1564,23 +2144,14 @@ codeunit 1605 "PEPPOL Management"
         OnAfterFindNextSalesInvoiceRec(SalesInvoiceHeader, SalesHeader, Position, Found);
     end;
 
-#if not CLEAN25
-    [Obsolete('Service documents separated to codeunit ServPEPPOLManagement', '25.0')]
-    procedure FindNextInvoiceLineRec(var SalesInvoiceLine: Record "Sales Invoice Line"; var ServiceInvoiceLine: Record Microsoft.Service.History."Service Invoice Line"; var SalesLine: Record "Sales Line"; ProcessedDocType: Option Sale,Service; Position: Integer) Found: Boolean
-    var
-        ServPEPPOLManagement: Codeunit "Serv. PEPPOL Management";
-    begin
-        case ProcessedDocType of
-            ProcessedDocType::Sale:
-                exit(FindNextSalesInvoiceLineRec(SalesInvoiceLine, SalesLine, Position));
-            ProcessedDocType::Service:
-                exit(ServPEPPOLManagement.FindNextServiceInvoiceLineRec(ServiceInvoiceLine, SalesLine, Position));
-        end;
 
-        OnAfterFindNextInvoiceLineRec(SalesInvoiceLine, ServiceInvoiceLine, SalesLine, ProcessedDocType, Found);
-    end;
-#endif
-
+    /// <summary>
+    /// Finds the next sales invoice line record and transfers its fields to a sales line.
+    /// </summary>
+    /// <param name="SalesInvoiceLine">Specifies the sales invoice line to iterate.</param>
+    /// <param name="SalesLine">Returns the sales line with transferred fields.</param>
+    /// <param name="Position">Specifies the position (1 for first, other for next).</param>
+    /// <returns>Returns true if a record was found, false otherwise.</returns>
     procedure FindNextSalesInvoiceLineRec(var SalesInvoiceLine: Record "Sales Invoice Line"; var SalesLine: Record "Sales Line"; Position: Integer): Boolean
     var
         Found: Boolean;
@@ -1596,24 +2167,14 @@ codeunit 1605 "PEPPOL Management"
         exit(Found);
     end;
 
-#if not CLEAN25
-    [Obsolete('Service documents separated to codeunit ServPEPPOLManagement', '25.0')]
-    procedure FindNextCreditMemoRec(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ServiceCrMemoHeader: Record Microsoft.Service.History."Service Cr.Memo Header"; var SalesHeader: Record "Sales Header"; ProcessedDocType: Option Sale,Service; Position: Integer) Found: Boolean
-    var
-        ServPEPPOLManagement: Codeunit "Serv. PEPPOL Management";
-    begin
-        case ProcessedDocType of
-            ProcessedDocType::Sale:
-                exit(FindNextSalesCreditMemoRec(SalesCrMemoHeader, SalesHeader, Position));
-            ProcessedDocType::Service:
-                exit(ServPEPPOLManagement.FindNextServiceCreditMemoRec(ServiceCrMemoHeader, SalesHeader, Position));
-        end;
-        SalesHeader."Document Type" := SalesHeader."Document Type"::"Credit Memo";
 
-        OnAfterFindNextCreditMemoRec(SalesCrMemoHeader, ServiceCrMemoHeader, SalesHeader, ProcessedDocType, Position, Found);
-    end;
-#endif
-
+    /// <summary>
+    /// Finds the next sales credit memo record and transfers its fields to a sales header.
+    /// </summary>
+    /// <param name="SalesCrMemoHeader">Specifies the sales credit memo header to iterate.</param>
+    /// <param name="SalesHeader">Returns the sales header with transferred fields.</param>
+    /// <param name="Position">Specifies the position (1 for first, other for next).</param>
+    /// <returns>Returns true if a record was found, false otherwise.</returns>
     procedure FindNextSalesCreditMemoRec(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var SalesHeader: Record "Sales Header"; Position: Integer) Found: Boolean
     begin
         if Position = 1 then
@@ -1628,37 +2189,14 @@ codeunit 1605 "PEPPOL Management"
         OnAfterFindNextSalesCreditMemoRec(SalesCrMemoHeader, SalesHeader, Position, Found);
     end;
 
-#if not CLEAN25
-    [Obsolete('Service documents separated to codeunit ServPEPPOLManagement', '25.0')]
-    procedure FindNextCreditMemoLineRec(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var ServiceCrMemoLine: Record Microsoft.Service.History."Service Cr.Memo Line"; var SalesLine: Record "Sales Line"; ProcessedDocType: Option Sale,Service; Position: Integer) Found: Boolean
-    begin
-        case ProcessedDocType of
-            ProcessedDocType::Sale:
-                begin
-                    if Position = 1 then
-                        Found := SalesCrMemoLine.Find('-')
-                    else
-                        Found := SalesCrMemoLine.Next() <> 0;
-                    if Found then
-                        SalesLine.TransferFields(SalesCrMemoLine);
-                end;
-            ProcessedDocType::Service:
-                begin
-                    if Position = 1 then
-                        Found := ServiceCrMemoLine.Find('-')
-                    else
-                        Found := ServiceCrMemoLine.Next() <> 0;
-                    if Found then begin
-                        TransferLineToSalesLine(ServiceCrMemoLine, SalesLine);
-                        SalesLine.Type := MapServiceLineTypeToSalesLineTypeEnum(ServiceCrMemoLine.Type);
-                    end;
-                end;
-        end;
 
-        OnAfterFindNextCreditMemoLineRec(SalesCrMemoLine, ServiceCrMemoLine, SalesLine, ProcessedDocType, Position, Found);
-    end;
-#endif
-
+    /// <summary>
+    /// Finds the next sales credit memo line record and transfers its fields to a sales line.
+    /// </summary>
+    /// <param name="SalesCrMemoLine">Specifies the sales credit memo line to iterate.</param>
+    /// <param name="SalesLine">Returns the sales line with transferred fields.</param>
+    /// <param name="Position">Specifies the position (1 for first, other for next).</param>
+    /// <returns>Returns true if a record was found, false otherwise.</returns>
     procedure FindNextSalesCreditMemoLineRec(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var SalesLine: Record "Sales Line"; Position: Integer) Found: Boolean
     begin
         if Position = 1 then
@@ -1671,198 +2209,439 @@ codeunit 1605 "PEPPOL Management"
         OnAfterFindNextSalesCrMemoLineRec(SalesCrMemoLine, SalesLine, Position, Found);
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by event OnAfterFindNextSalesInvoiceLineRec', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterFindNextInvoiceLineRec(var SalesInvoiceLine: Record "Sales Invoice Line"; var ServiceInvoiceLine: Record Microsoft.Service.History."Service Invoice Line"; var SalesLine: Record "Sales Line"; ProcessedDocType: Option Sale,Service; var Found: Boolean)
-    begin
-    end;
-#endif
 
+    /// <summary>
+    /// Raised after finding the next sales invoice line record during PEPPOL export iteration.
+    /// </summary>
+    /// <param name="SalesInvoiceLine">Specifies the sales invoice line record found.</param>
+    /// <param name="SalesLine">Specifies the sales line record with transferred fields.</param>
+    /// <param name="Found">Indicates whether a record was found.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindNextSalesInvoiceLineRec(var SalesInvoiceLine: Record "Sales Invoice Line"; var SalesLine: Record "Sales Line"; var Found: Boolean)
     begin
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by event OnAfterFindNextSalesInvoiceRec', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterFindNextInvoiceRec(var SalesInvoiceHeader: Record "Sales Invoice Header"; var ServiceInvoiceHeader: Record Microsoft.Service.History."Service Invoice Header"; var SalesHeader: Record "Sales Header"; ProcessedDocType: Option Sale,Service; Position: Integer; var Found: Boolean)
-    begin
-    end;
-#endif
 
+    /// <summary>
+    /// Raised after finding the next sales invoice header record during PEPPOL export iteration.
+    /// </summary>
+    /// <param name="SalesInvoiceHeader">Specifies the sales invoice header record found.</param>
+    /// <param name="SalesHeader">Specifies the sales header record with transferred fields.</param>
+    /// <param name="Position">Specifies the position in the iteration (1 for first).</param>
+    /// <param name="Found">Indicates whether a record was found.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindNextSalesInvoiceRec(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header"; Position: Integer; var Found: Boolean)
     begin
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by event OnAfterFindNextSalesCreditMemoRec', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterFindNextCreditMemoRec(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ServiceCrMemoHeader: Record Microsoft.Service.History."Service Cr.Memo Header"; var SalesHeader: Record "Sales Header"; ProcessedDocType: Option Sale,Service; Position: Integer; var Found: Boolean)
-    begin
-    end;
-#endif
 
+    /// <summary>
+    /// Raised after finding the next sales credit memo header record during PEPPOL export iteration.
+    /// </summary>
+    /// <param name="SalesCrMemoHeader">Specifies the sales credit memo header record found.</param>
+    /// <param name="SalesHeader">Specifies the sales header record with transferred fields.</param>
+    /// <param name="Position">Specifies the position in the iteration (1 for first).</param>
+    /// <param name="Found">Indicates whether a record was found.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindNextSalesCreditMemoRec(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var SalesHeader: Record "Sales Header"; Position: Integer; var Found: Boolean)
     begin
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by event OnAfterFindNextSalesCreditMemoLineRec', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterFindNextCreditMemoLineRec(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var ServiceCrMemoLine: Record Microsoft.Service.History."Service Cr.Memo Line"; var SalesLine: Record "Sales Line"; ProcessedDocType: Option Sale,Service; Position: Integer; var Found: Boolean)
-    begin
-    end;
-#endif
 
+    /// <summary>
+    /// Raised after finding the next sales credit memo line record during PEPPOL export iteration.
+    /// </summary>
+    /// <param name="SalesCrMemoLine">Specifies the sales credit memo line record found.</param>
+    /// <param name="SalesLine">Specifies the sales line record with transferred fields.</param>
+    /// <param name="Position">Specifies the position in the iteration (1 for first).</param>
+    /// <param name="Found">Indicates whether a record was found.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindNextSalesCrMemoLineRec(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var SalesLine: Record "Sales Line"; Position: Integer; var Found: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving accounting customer party information for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="CustomerEndpointID">Specifies the customer endpoint identifier.</param>
+    /// <param name="CustomerSchemeID">Specifies the scheme identifier for the endpoint.</param>
+    /// <param name="CustomerPartyIdentificationID">Specifies the customer party identification.</param>
+    /// <param name="CustomerPartyIDSchemeID">Specifies the party identification scheme.</param>
+    /// <param name="CustomerName">Specifies the customer name.</param>
+    /// <param name="IsBISBilling">Indicates whether this is BIS billing format.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetAccountingCustomerPartyInfoByFormat(SalesHeader: Record "Sales Header"; var CustomerEndpointID: Text; var CustomerSchemeID: Text; var CustomerPartyIdentificationID: Text; var CustomerPartyIDSchemeID: Text; var CustomerName: Text; IsBISBilling: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving accounting customer party legal entity information for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="CustPartyLegalEntityRegName">Specifies the customer registered name.</param>
+    /// <param name="CustPartyLegalEntityCompanyID">Specifies the customer company identifier.</param>
+    /// <param name="CustPartyLegalEntityIDSchemeID">Specifies the company ID scheme identifier.</param>
+    /// <param name="IsBISBilling">Indicates whether this is BIS billing format.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetAccountingCustomerPartyLegalEntityByFormat(SalesHeader: Record "Sales Header"; var CustPartyLegalEntityRegName: Text; var CustPartyLegalEntityCompanyID: Text; var CustPartyLegalEntityIDSchemeID: Text; IsBISBilling: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving accounting supplier party contact information for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="ContactID">Specifies the contact identifier.</param>
+    /// <param name="ContactName">Specifies the contact name.</param>
+    /// <param name="Telephone">Specifies the telephone number.</param>
+    /// <param name="Telefax">Specifies the telefax number.</param>
+    /// <param name="ElectronicMail">Specifies the email address.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetAccountingSupplierPartyContact(SalesHeader: Record "Sales Header"; var ContactID: Text; var ContactName: Text; var Telephone: Text; var Telefax: Text; var ElectronicMail: Text)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving accounting customer party contact information for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="Customer">Specifies the customer record.</param>
+    /// <param name="CustContactID">Specifies the customer contact identifier.</param>
+    /// <param name="CustContactName">Specifies the customer contact name.</param>
+    /// <param name="CustContactTelephone">Specifies the customer telephone number.</param>
+    /// <param name="CustContactTelefax">Specifies the customer telefax number.</param>
+    /// <param name="CustContactElectronicMail">Specifies the customer email address.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetAccountingCustomerPartyContact(SalesHeader: Record "Sales Header"; Customer: Record Customer; var CustContactID: Text; var CustContactName: Text; var CustContactTelephone: Text; var CustContactTelefax: Text; var CustContactElectronicMail: Text)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving additional document reference information for PEPPOL export.
+    /// </summary>
+    /// <param name="AdditionalDocumentReferenceID">Specifies the document reference identifier.</param>
+    /// <param name="AdditionalDocRefDocumentType">Specifies the document type description.</param>
+    /// <param name="URI">Specifies the document URI.</param>
+    /// <param name="MimeCode">Specifies the MIME type code.</param>
+    /// <param name="EmbeddedDocumentBinaryObject">Specifies the Base64 encoded content.</param>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="ProcessedDocType">Specifies the document type being processed.</param>
+    /// <param name="DocumentAttachments">Specifies the document attachments record.</param>
+    /// <param name="FileName">Specifies the attachment filename.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetAdditionalDocRefInfo(var AdditionalDocumentReferenceID: Text; var AdditionalDocRefDocumentType: Text; var URI: Text; var MimeCode: Text; var EmbeddedDocumentBinaryObject: Text; SalesHeader: Record "Sales Header"; ProcessedDocType: Option Sale,Service; var DocumentAttachments: Record "Document Attachment"; var FileName: Text)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving general invoice information for PEPPOL BIS export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="ID">Specifies the document number.</param>
+    /// <param name="IssueDate">Specifies the document date.</param>
+    /// <param name="InvoiceTypeCode">Specifies the invoice type code.</param>
+    /// <param name="Note">Specifies the document note.</param>
+    /// <param name="TaxPointDate">Specifies the tax point date.</param>
+    /// <param name="DocumentCurrencyCode">Specifies the document currency code.</param>
+    /// <param name="AccountingCost">Specifies the accounting cost reference.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetGeneralInfo(SalesHeader: Record "Sales Header"; var ID: Text; var IssueDate: Text; var InvoiceTypeCode: Text; var Note: Text; var TaxPointDate: Text; var DocumentCurrencyCode: Text; var AccountingCost: Text)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving general invoice information for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="ID">Specifies the document number.</param>
+    /// <param name="IssueDate">Specifies the document date.</param>
+    /// <param name="InvoiceTypeCode">Specifies the invoice type code.</param>
+    /// <param name="Note">Specifies the document note.</param>
+    /// <param name="TaxPointDate">Specifies the tax point date.</param>
+    /// <param name="DocumentCurrencyCode">Specifies the document currency code.</param>
+    /// <param name="AccountingCost">Specifies the accounting cost reference.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetGeneralInfoProcedure(SalesHeader: Record "Sales Header"; var ID: Text; var IssueDate: Text; var InvoiceTypeCode: Text; var Note: Text; var TaxPointDate: Text; var DocumentCurrencyCode: Text; var AccountingCost: Text)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving GLN delivery information for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="ActualDeliveryDate">Specifies the shipment date.</param>
+    /// <param name="DeliveryID">Specifies the delivery GLN.</param>
+    /// <param name="DeliveryIDSchemeID">Specifies the GLN scheme identifier.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetGLNDeliveryInfo(SalesHeader: Record "Sales Header"; var ActualDeliveryDate: Text; var DeliveryID: Text; var DeliveryIDSchemeID: Text)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving delivery party name for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="DeliveryPartyNameValue">Specifies the delivery party name.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetDeliveryPartyName(SalesHeader: Record "Sales Header"; var DeliveryPartyNameValue: Text)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving legal monetary information including invoice rounding for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="TempSalesLine">Specifies the temporary sales line for invoice rounding.</param>
+    /// <param name="VATAmtLine">Specifies the VAT amount line record.</param>
+    /// <param name="LineExtensionAmount">Specifies the total line extension amount.</param>
+    /// <param name="TaxExclusiveAmount">Specifies the amount excluding VAT.</param>
+    /// <param name="TaxInclusiveAmount">Specifies the amount including VAT.</param>
+    /// <param name="AllowanceTotalAmount">Specifies the total allowance amount.</param>
+    /// <param name="ChargeTotalAmount">Specifies the total charge amount.</param>
+    /// <param name="PrepaidAmount">Specifies the prepaid amount.</param>
+    /// <param name="PayableRoundingAmount">Specifies the rounding amount.</param>
+    /// <param name="PayableAmount">Specifies the total payable amount.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetLegalMonetaryInfoWithInvRounding(SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; var VATAmtLine: Record "VAT Amount Line"; var LineExtensionAmount: Text; var TaxExclusiveAmount: Text; var TaxInclusiveAmount: Text; var AllowanceTotalAmount: Text; var ChargeTotalAmount: Text; var PrepaidAmount: Text; var PayableRoundingAmount: Text; var PayableAmount: Text)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving general line information for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesLine">Specifies the sales line record.</param>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="InvoiceLineID">Specifies the line number.</param>
+    /// <param name="InvoiceLineNote">Specifies the line type as note.</param>
+    /// <param name="InvoicedQuantity">Specifies the quantity.</param>
+    /// <param name="InvoiceLineExtensionAmount">Specifies the line amount.</param>
+    /// <param name="InvoiceLineAccountingCost">Specifies the accounting cost reference.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetLineGeneralInfo(SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var InvoiceLineID: Text; var InvoiceLineNote: Text; var InvoicedQuantity: Text; var InvoiceLineExtensionAmount: Text; var InvoiceLineAccountingCost: Text)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving line price information for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesLine">Specifies the sales line record.</param>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="InvoiceLinePriceAmount">Specifies the unit price excluding VAT.</param>
+    /// <param name="BaseQuantity">Specifies the base quantity.</param>
+    /// <param name="UnitCode">Specifies the unit of measure code.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetLinePriceInfo(SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var InvoiceLinePriceAmount: Text; var BaseQuantity: Text; var UnitCode: Text)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving order reference information for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="OrderReferenceID">Specifies the order reference identifier.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetOrderReferenceInfo(SalesHeader: Record "Sales Header"; var OrderReferenceID: Text)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving payment means information for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="PaymentMeansCode">Specifies the payment means code.</param>
+    /// <param name="PaymentMeansListID">Specifies the payment means list identifier.</param>
+    /// <param name="PaymentDueDate">Specifies the payment due date.</param>
+    /// <param name="PaymentChannelCode">Specifies the payment channel code.</param>
+    /// <param name="PaymentID">Specifies the payment identifier.</param>
+    /// <param name="PrimaryAccountNumberID">Specifies the primary account number.</param>
+    /// <param name="NetworkID">Specifies the network identifier.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetPaymentMeansInfo(SalesHeader: Record "Sales Header"; var PaymentMeansCode: Text; var PaymentMeansListID: Text; var PaymentDueDate: Text; var PaymentChannelCode: Text; var PaymentID: Text; var PrimaryAccountNumberID: Text; var NetworkID: Text)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving payee financial account information for PEPPOL export.
+    /// </summary>
+    /// <param name="CompanyInfo">Specifies the company information record.</param>
+    /// <param name="PayeeFinancialAccountID">Specifies the payee bank account number or IBAN.</param>
+    /// <param name="FinancialInstitutionBranchID">Specifies the bank branch number.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetPaymentMeansPayeeFinancialAcc(CompanyInfo: Record "Company Information"; var PayeeFinancialAccountID: Text; var FinancialInstitutionBranchID: Text)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving payee financial account information for PEPPOL BIS export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="PayeeFinancialAccountID">Specifies the payee bank account number or IBAN.</param>
+    /// <param name="FinancialInstitutionBranchID">Specifies the bank branch number.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetPaymentMeansPayeeFinancialAccBIS(SalesHeader: Record "Sales Header"; var PayeeFinancialAccountID: Text; var FinancialInstitutionBranchID: Text)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving tax total information for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="VATAmtLine">Specifies the VAT amount line record.</param>
+    /// <param name="TaxAmount">Specifies the total VAT amount.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetTaxTotalInfo(SalesHeader: Record "Sales Header"; var VATAmtLine: Record "VAT Amount Line"; var TaxAmount: Text)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving tax total information in local currency for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="TaxAmount">Specifies the total VAT amount in local currency.</param>
+    /// <param name="TaxCurrencyID">Specifies the tax currency identifier.</param>
+    /// <param name="TaxTotalCurrencyID">Specifies the tax total currency identifier.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetTaxTotalInfoLCY(SalesHeader: Record "Sales Header"; var TaxAmount: Text; var TaxCurrencyID: Text; var TaxTotalCurrencyID: Text)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving tax subtotal information for PEPPOL export.
+    /// </summary>
+    /// <param name="VATAmtLine">Specifies the VAT amount line record.</param>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="TaxableAmount">Specifies the VAT base amount.</param>
+    /// <param name="SubtotalTaxAmount">Specifies the VAT amount.</param>
+    /// <param name="TransactionCurrencyTaxAmount">Specifies the tax amount in local currency.</param>
+    /// <param name="TaxTotalTaxCategoryID">Specifies the tax category identifier.</param>
+    /// <param name="schemeID">Specifies the tax scheme identifier.</param>
+    /// <param name="TaxCategoryPercent">Specifies the VAT percentage.</param>
+    /// <param name="TaxTotalTaxSchemeID">Specifies the tax scheme identifier.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetTaxSubtotalInfo(VATAmtLine: Record "VAT Amount Line"; SalesHeader: Record "Sales Header"; var TaxableAmount: Text; var SubtotalTaxAmount: Text; var TransactionCurrencyTaxAmount: Text; var TaxTotalTaxCategoryID: Text; var schemeID: Text; var TaxCategoryPercent: Text; var TaxTotalTaxSchemeID: Text)
     begin
     end;
 
+    /// <summary>
+    /// Raised before inserting a VAT amount line when calculating totals.
+    /// </summary>
+    /// <param name="SalesLine">Specifies the sales line record being processed.</param>
+    /// <param name="VATAmtLine">Specifies the VAT amount line being inserted.</param>
+    /// <param name="VATPostingSetup">Specifies the VAT posting setup record.</param>
+    /// <param name="IsHandled">Set to true to skip the default insert logic.</param>
     [IntegrationEvent(false, false)]
     local procedure OnGetTotalsOnBeforeInsertVATAmtLine(SalesLine: Record "Sales Line"; var VATAmtLine: Record "VAT Amount Line"; VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving line item information for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesLine">Specifies the sales line record.</param>
+    /// <param name="Description">Specifies the item description 2.</param>
+    /// <param name="Name">Specifies the item description.</param>
+    /// <param name="SellersItemIdentificationID">Specifies the item number.</param>
+    /// <param name="StandardItemIdentificationID">Specifies the item GTIN.</param>
+    /// <param name="StdItemIdIDSchemeID">Specifies the GTIN scheme identifier.</param>
+    /// <param name="OriginCountryIdCode">Specifies the country of origin code.</param>
+    /// <param name="OriginCountryIdCodeListID">Specifies the country code list identifier.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetLineItemInfo(SalesLine: Record "Sales Line"; var Description: Text; var Name: Text; var SellersItemIdentificationID: Text; var StandardItemIdentificationID: Text; var StdItemIdIDSchemeID: Text; var OriginCountryIdCode: Text; var OriginCountryIdCodeListID: Text)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving contract document reference information for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="ContractDocumentReferenceID">Specifies the contract reference identifier.</param>
+    /// <param name="DocumentTypeCode">Specifies the document type code.</param>
+    /// <param name="ContractRefDocTypeCodeListID">Specifies the document type code list identifier.</param>
+    /// <param name="DocumentType">Specifies the document type description.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetContractDocRefInfo(SalesHeader: Record "Sales Header"; var ContractDocumentReferenceID: Text; var DocumentTypeCode: Text; var ContractRefDocTypeCodeListID: Text; var DocumentType: Text)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving accounting supplier party legal entity information for PEPPOL export.
+    /// </summary>
+    /// <param name="PartyLegalEntityRegName">Specifies the registered company name.</param>
+    /// <param name="PartyLegalEntityCompanyID">Specifies the company identifier.</param>
+    /// <param name="PartyLegalEntitySchemeID">Specifies the scheme identifier.</param>
+    /// <param name="SupplierRegAddrCityName">Specifies the registered address city.</param>
+    /// <param name="SupplierRegAddrCountryIdCode">Specifies the country ISO code.</param>
+    /// <param name="SupplRegAddrCountryIdListId">Specifies the country code list identifier.</param>
+    /// <param name="IsBISBilling">Indicates whether this is BIS billing format.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetAccountingSupplierPartyLegalEntityByFormat(var PartyLegalEntityRegName: Text; var PartyLegalEntityCompanyID: Text; var PartyLegalEntitySchemeID: Text; var SupplierRegAddrCityName: Text; var SupplierRegAddrCountryIdCode: Text; var SupplRegAddrCountryIdListId: Text; IsBISBilling: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Raised after transferring fields from a posted document header to a sales header record.
+    /// </summary>
+    /// <param name="FromRecord">Specifies the source record.</param>
+    /// <param name="ToRecord">Specifies the target sales header record.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterRecRefTransferFieldsOnTransferHeaderToSalesHeader(FromRecord: Variant; var ToRecord: Variant)
     begin
     end;
 
+    /// <summary>
+    /// Raised after transferring fields from a posted document line to a sales line record.
+    /// </summary>
+    /// <param name="FromRecord">Specifies the source record.</param>
+    /// <param name="ToRecord">Specifies the target sales line record.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterRecRefTransferFieldsOnTransferLineToSalesLine(FromRecord: Variant; var ToRecord: Variant)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving accounting supplier party information for PEPPOL export.
+    /// </summary>
+    /// <param name="SupplierEndpointID">Specifies the supplier endpoint identifier.</param>
+    /// <param name="SupplierSchemeID">Specifies the scheme identifier for the endpoint.</param>
+    /// <param name="SupplierName">Specifies the company name.</param>
+    /// <param name="IsBISBilling">Indicates whether this is BIS billing format.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetAccountingSupplierPartyInfoByFormat(var SupplierEndpointID: Text; var SupplierSchemeID: Text; var SupplierName: Text; IsBISBilling: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving accounting supplier party identification ID for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="PartyIdentificationID">Specifies the party identification ID.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetAccountingSupplierPartyIdentificationID(SalesHeader: Record "Sales Header"; var PartyIdentificationID: Text)
     begin
     end;
 
+    /// <summary>
+    /// Raised after retrieving buyer reference for PEPPOL export.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="BuyerReference">Specifies the buyer reference value.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetBuyerReference(SalesHeader: Record "Sales Header"; var BuyerReference: Text)
     begin
     end;
 
+    /// <summary>
+    /// Raised before generating a PDF attachment as an additional document reference.
+    /// </summary>
+    /// <param name="SalesHeader">Specifies the sales header record.</param>
+    /// <param name="AdditionalDocumentReferenceID">Specifies the document reference identifier.</param>
+    /// <param name="AdditionalDocRefDocumentType">Specifies the document type description.</param>
+    /// <param name="URI">Specifies the document URI.</param>
+    /// <param name="MimeCode">Specifies the MIME type code.</param>
+    /// <param name="Filename">Specifies the attachment filename.</param>
+    /// <param name="EmbeddedDocumentBinaryObject">Specifies the Base64 encoded content.</param>
+    /// <param name="IsHandled">Set to true to skip the default PDF generation logic.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGeneratePDFAttachmentAsAdditionalDocRef(SalesHeader: Record "Sales Header"; var AdditionalDocumentReferenceID: Text; var AdditionalDocRefDocumentType: Text; var URI: Text; var MimeCode: Text; var Filename: Text; var EmbeddedDocumentBinaryObject: Text; var IsHandled: Boolean)
     begin
@@ -1908,4 +2687,3 @@ codeunit 1605 "PEPPOL Management"
     begin
     end;
 }
-

@@ -191,6 +191,7 @@ table 17239 "Tax Reg. Norm Template Line"
         }
         field(15; "Rounding Precision"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Rounding Precision';
             DecimalPlaces = 0 :;
 

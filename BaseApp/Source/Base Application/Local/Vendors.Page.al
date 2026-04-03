@@ -426,7 +426,6 @@ page 35603 Vendors
                         PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN25
                 action(Prices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -437,9 +436,6 @@ page 35603 Vendors
                     RunPageLink = "Vendor No." = field("No.");
                     RunPageView = sorting("Vendor No.");
                     ToolTip = 'View or set up different prices for items that you buy from the vendor. An item price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '19.0';
                 }
                 action("Line Discounts")
                 {
@@ -451,11 +447,7 @@ page 35603 Vendors
                     RunPageLink = "Vendor No." = field("No.");
                     RunPageView = sorting("Vendor No.");
                     ToolTip = 'View or set up different discounts for items that you buy from the vendor. An item discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '19.0';
                 }
-#endif
                 action("Prepa&yment Percentages")
                 {
                     ApplicationArea = Prepayments;
@@ -637,6 +629,8 @@ page 35603 Vendors
         }
         area(reporting)
         {
+#if not CLEAN28
+
             action("Vendor - List")
             {
                 ApplicationArea = Basic, Suite;
@@ -646,7 +640,11 @@ page 35603 Vendors
                 //PromotedCategory = "Report";
                 RunObject = Report "Vendor - List";
                 ToolTip = 'View various kinds of basic information for vendors, such as vendor posting group, discount and payment information, priority level and the vendor''s default currency, and the vendor''s current balance (in LCY). The report can be used, for example, to maintain the information in the Vendor table.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report is obsolete and will be removed in a future release.';
+                ObsoleteTag = '28.0';
             }
+#endif
             action("Vendor Register")
             {
                 ApplicationArea = Basic, Suite;
@@ -666,6 +664,7 @@ page 35603 Vendors
                 RunObject = Report "Vendor - Detail Trial Balance";
                 ToolTip = 'View the balance for vendors with balances on a specified date, for example, at the close of an accounting period or for an audit.';
             }
+#if not CLEAN28
             action("Vendor - Summary Aging")
             {
                 Caption = 'Vendor - Summary Aging';
@@ -674,7 +673,11 @@ page 35603 Vendors
                 //PromotedCategory = "Report";
                 RunObject = Report "Vendor - Summary Aging";
                 ToolTip = 'View a summary of the payables owed to each vendor, divided into three time periods.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report is obsolete and will be removed in a future release.';
+                ObsoleteTag = '28.0';
             }
+#endif
             action("Vendor - Order Summary")
             {
                 ApplicationArea = Basic, Suite;
@@ -711,6 +714,7 @@ page 35603 Vendors
                 RunObject = Report "Vendor - Labels";
                 ToolTip = 'View mailing labels with the vendors'' names and addresses.';
             }
+#if not CLEAN28
             action("Vendor - Top 10 List")
             {
                 ApplicationArea = Suite;
@@ -718,7 +722,11 @@ page 35603 Vendors
                 Image = "Report";
                 RunObject = Report "Vendor - Top 10 List";
                 ToolTip = 'View a list of the vendors from whom you purchase the most or to whom you owe the most.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report is obsolete and will be removed in a future release.';
+                ObsoleteTag = '28.0';
             }
+#endif
             action("Purchase Statistics")
             {
                 ApplicationArea = Basic, Suite;
@@ -739,13 +747,18 @@ page 35603 Vendors
                 RunObject = Report "Vendor/Item Purchases";
                 ToolTip = 'View a list of item entries for each vendor in a selected period.';
             }
+#if not CLEAN28
             action("Payments on Hold")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Payments on Hold';
                 Image = "Report";
                 RunObject = Report "Payments on Hold";
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report is obsolete and will be removed in a future release.';
+                ObsoleteTag = '28.0';
             }
+#endif
             action("Vendor Item Catalog")
             {
                 ApplicationArea = Basic, Suite;
@@ -763,13 +776,18 @@ page 35603 Vendors
                 RunObject = Report "Vendor - Balance to Date";
                 ToolTip = 'View a detail balance for selected vendors.';
             }
+#if not CLEAN28
             action("Aged Accounts Payable")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Aged Accounts Payable';
                 Image = "Report";
                 RunObject = Report "Aged Accounts Payable";
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report is obsolete and will be removed in a future release.';
+                ObsoleteTag = '28.0';
             }
+#endif
             action("Vendor - Trial Balance")
             {
                 ApplicationArea = Basic, Suite;
@@ -836,18 +854,31 @@ page 35603 Vendors
                 actionref("Vendor - Purchase List_Promoted"; "Vendor - Purchase List")
                 {
                 }
+#if not CLEAN28
                 actionref("Vendor - Top 10 List_Promoted"; "Vendor - Top 10 List")
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This report is obsolete and will be removed in a future release.';
+                    ObsoleteTag = '28.0';
                 }
                 actionref("Payments on Hold_Promoted"; "Payments on Hold")
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This report is obsolete and will be removed in a future release.';
+                    ObsoleteTag = '28.0';
                 }
+#endif
                 actionref("Vendor - Balance to Date_Promoted"; "Vendor - Balance to Date")
                 {
                 }
+#if not CLEAN28
                 actionref("Aged Accounts Payable_Promoted"; "Aged Accounts Payable")
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This report is obsolete and will be removed in a future release.';
+                    ObsoleteTag = '28.0';
                 }
+#endif
             }
             group(Category_Category6)
             {

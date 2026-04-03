@@ -116,6 +116,7 @@ table 17305 "Tax Diff. Journal Line"
         }
         field(11; "Tax Factor"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Tax Factor';
 
@@ -134,6 +135,8 @@ table 17305 "Tax Diff. Journal Line"
         }
         field(13; "Amount (Base)"; Decimal)
         {
+            AutoFormatType = 0;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Amount (Base)';
 
@@ -144,6 +147,8 @@ table 17305 "Tax Diff. Journal Line"
         }
         field(14; "Amount (Tax)"; Decimal)
         {
+            AutoFormatType = 0;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Amount (Tax)';
 
@@ -154,6 +159,8 @@ table 17305 "Tax Diff. Journal Line"
         }
         field(15; Difference; Decimal)
         {
+            AutoFormatType = 0;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Difference';
 
@@ -177,36 +184,48 @@ table 17305 "Tax Diff. Journal Line"
         }
         field(16; "Tax Amount"; Decimal)
         {
+            AutoFormatType = 0;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Tax Amount';
             Editable = false;
         }
         field(17; "Asset Tax Amount"; Decimal)
         {
+            AutoFormatType = 0;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Asset Tax Amount';
             Editable = false;
         }
         field(18; "Liability Tax Amount"; Decimal)
         {
+            AutoFormatType = 0;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Liability Tax Amount';
             Editable = false;
         }
         field(19; "Disposal Tax Amount"; Decimal)
         {
+            AutoFormatType = 0;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Disposal Tax Amount';
             Editable = false;
         }
         field(20; "DTA Starting Balance"; Decimal)
         {
+            AutoFormatType = 0;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'DTA Starting Balance';
             Editable = false;
         }
         field(21; "DTL Starting Balance"; Decimal)
         {
+            AutoFormatType = 0;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'DTL Starting Balance';
             Editable = false;
@@ -256,18 +275,24 @@ table 17305 "Tax Diff. Journal Line"
         }
         field(27; "DTA Ending Balance"; Decimal)
         {
+            AutoFormatType = 0;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'DTA Ending Balance';
             Editable = false;
         }
         field(28; "DTL Ending Balance"; Decimal)
         {
+            AutoFormatType = 0;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'DTL Ending Balance';
             Editable = false;
         }
         field(29; "YTD Amount (Base)"; Decimal)
         {
+            AutoFormatType = 0;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'YTD Amount (Base)';
 
@@ -278,6 +303,8 @@ table 17305 "Tax Diff. Journal Line"
         }
         field(30; "YTD Amount (Tax)"; Decimal)
         {
+            AutoFormatType = 0;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'YTD Amount (Tax)';
 
@@ -288,6 +315,8 @@ table 17305 "Tax Diff. Journal Line"
         }
         field(31; "YTD Difference"; Decimal)
         {
+            AutoFormatType = 0;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'YTD Difference';
 

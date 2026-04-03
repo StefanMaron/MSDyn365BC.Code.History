@@ -1,19 +1,19 @@
 namespace System.Security.AccessControl;
 
-using System.Apps;
-using Microsoft.CRM.Campaign;
-using System.Environment;
-using Microsoft.Foundation.Company;
-using Microsoft.CRM.Contact;
 using Microsoft.CRM.BusinessRelation;
+using Microsoft.CRM.Campaign;
+using Microsoft.CRM.Contact;
+using Microsoft.Foundation.Company;
 using Microsoft.Integration.Dataverse;
-using Microsoft.Sales.Receivables;
-using Microsoft.Sales.Customer;
 using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Pricing;
-using Microsoft.Sales.Document;
+using Microsoft.Sales.Receivables;
+using System.Apps;
+using System.Environment;
 using System.Security.User;
 
 permissionset 2911 "D365 ACCOUNTANTS"
@@ -43,9 +43,7 @@ permissionset 2911 "D365 ACCOUNTANTS"
                   tabledata "Sales Cr.Memo Header" = R,
                   tabledata "Sales Discount Access" = Rimd,
                   tabledata "Sales Invoice Header" = R,
-#if not CLEAN25
                   tabledata "Sales Line Discount" = Rimd,
-#endif
                   tabledata "Sales Prepayment %" = D,
                   tabledata "Sales Shipment Header" = R,
                   tabledata "Standard Customer Sales Code" = RD,

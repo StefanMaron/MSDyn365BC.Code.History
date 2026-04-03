@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -32,15 +32,18 @@ table 6550 "Whse. Item Tracking Line"
         field(2; "Item No."; Code[20])
         {
             Caption = 'Item No.';
+            ToolTip = 'Specifies the same as the field in the Item Tracking Lines window.';
             TableRelation = Item;
         }
         field(3; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
+            ToolTip = 'Specifies the same as the field in the Item Tracking Lines window.';
             TableRelation = Location;
         }
         field(4; "Quantity (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity (Base)';
             DecimalPlaces = 0 : 5;
 
@@ -60,6 +63,7 @@ table 6550 "Whse. Item Tracking Line"
         field(7; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies the same as the field with the same name in the Item Tracking Lines window.';
         }
         field(10; "Source Type"; Integer)
         {
@@ -90,6 +94,7 @@ table 6550 "Whse. Item Tracking Line"
         field(24; "Serial No."; Code[50])
         {
             Caption = 'Serial No.';
+            ToolTip = 'Specifies the same as the field in the Item Tracking Lines window.';
 
             trigger OnValidate()
             begin
@@ -104,6 +109,7 @@ table 6550 "Whse. Item Tracking Line"
         }
         field(29; "Qty. per Unit of Measure"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. per Unit of Measure';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -112,10 +118,12 @@ table 6550 "Whse. Item Tracking Line"
         field(40; "Warranty Date"; Date)
         {
             Caption = 'Warranty Date';
+            ToolTip = 'Specifies the same as the field in the Item Tracking Lines window.';
         }
         field(41; "Expiration Date"; Date)
         {
             Caption = 'Expiration Date';
+            ToolTip = 'Specifies the same as the field in the Item Tracking Lines window.';
 
             trigger OnValidate()
             begin
@@ -124,6 +132,7 @@ table 6550 "Whse. Item Tracking Line"
         }
         field(50; "Qty. to Handle (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. to Handle (Base)';
             DecimalPlaces = 0 : 5;
 
@@ -143,23 +152,27 @@ table 6550 "Whse. Item Tracking Line"
         }
         field(51; "Qty. to Invoice (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. to Invoice (Base)';
             DecimalPlaces = 0 : 5;
         }
         field(52; "Quantity Handled (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity Handled (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(53; "Quantity Invoiced (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity Invoiced (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(60; "Qty. to Handle"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. to Handle';
             DecimalPlaces = 0 : 5;
         }
@@ -180,6 +193,7 @@ table 6550 "Whse. Item Tracking Line"
         field(80; "New Serial No."; Code[50])
         {
             Caption = 'New Serial No.';
+            ToolTip = 'Specifies a new serial number that replaces the number in the Serial No. field, when you post the warehouse item reclassification journal.';
 
             trigger OnValidate()
             begin
@@ -189,6 +203,7 @@ table 6550 "Whse. Item Tracking Line"
         field(81; "New Lot No."; Code[50])
         {
             Caption = 'New Lot No.';
+            ToolTip = 'Specifies a new lot number that replaces the number in the Lot No. field, when you post the warehouse item reclassification journal.';
         }
         field(90; "Source Type Filter"; Option)
         {
@@ -199,11 +214,13 @@ table 6550 "Whse. Item Tracking Line"
         }
         field(91; "Qty. Registered (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Registered (Base)';
             DecimalPlaces = 0 : 5;
         }
         field(92; "Put-away Qty. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Warehouse Activity Line"."Qty. Outstanding (Base)" where("Activity Type" = filter("Put-away"),
 #pragma warning disable AL0603
                                                                                          "Whse. Document Type" = field("Source Type Filter"),
@@ -220,6 +237,7 @@ table 6550 "Whse. Item Tracking Line"
         }
         field(93; "Pick Qty. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Warehouse Activity Line"."Qty. Outstanding (Base)" where("Activity Type" = filter(Pick | Movement),
 #pragma warning disable AL0603
                                                                                          "Whse. Document Type" = field("Source Type Filter"),
@@ -241,6 +259,7 @@ table 6550 "Whse. Item Tracking Line"
         field(5400; "Lot No."; Code[50])
         {
             Caption = 'Lot No.';
+            ToolTip = 'Specifies the same as the field in the Item Tracking Lines window.';
 
             trigger OnValidate()
             begin
@@ -255,15 +274,18 @@ table 6550 "Whse. Item Tracking Line"
         field(5401; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
+            ToolTip = 'Specifies the variant of the item on the line.';
             TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
         }
         field(6505; "New Expiration Date"; Date)
         {
             Caption = 'New Expiration Date';
+            ToolTip = 'Specifies the same as the field in the Item Tracking Lines window.';
         }
         field(6515; "Package No."; Code[50])
         {
             Caption = 'Package No.';
+            ToolTip = 'Specifies a new package number that replaces the package number, when you post the warehouse item reclassification journal.';
             CaptionClass = '6,1';
 
             trigger OnValidate()
@@ -278,6 +300,7 @@ table 6550 "Whse. Item Tracking Line"
         field(6516; "New Package No."; Code[50])
         {
             Caption = 'New Package No.';
+            ToolTip = 'Specifies a new package number that replaces the number in the Package No. field, when you post the warehouse item reclassification journal.';
             CaptionClass = '6,2';
         }
     }

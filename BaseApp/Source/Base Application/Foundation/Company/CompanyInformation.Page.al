@@ -227,6 +227,10 @@ page 1 "Company Information"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the employee number of the Human Resource manager of the company.';
                 }
+                field(DefaultLanguage; Rec."Default Language code")
+                {
+                    ApplicationArea = Basic, Suite;
+                }
             }
             group(Payments)
             {

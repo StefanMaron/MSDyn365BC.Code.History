@@ -100,6 +100,8 @@ table 17206 "Tax Register Calc. Buffer"
         }
         field(20; Amount; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount';
             DataClassification = SystemMetadata;
         }

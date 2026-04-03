@@ -56,6 +56,8 @@ table 17300 "Tax Difference"
         }
         field(12; "Tax Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             CalcFormula = sum("Tax Diff. Ledger Entry"."Tax Amount" where("Tax Diff. Code" = field(Code),
                                                                            "Posting Date" = field("Date Filter")));

@@ -1106,7 +1106,7 @@ codeunit 137023 "SCM Reservation Worksheet"
         SalesLine: Record "Sales Line";
         LotNo: array[4] of Code[50];
     begin
-        // [SCENARIO 605508] Making reservation from reservation worksheet should work for different lot combinations without "Cannot Match Item Tracking" error
+        // [SCENARIO 603402] Making reservation from reservation worksheet should work for different lot combinations without "Cannot Match Item Tracking" error
         Initialize();
 
         // [GIVEN] Lot-tracked Item
@@ -1441,7 +1441,7 @@ codeunit 137023 "SCM Reservation Worksheet"
         SalesLine.Modify();
     end;
 
-    local procedure PrepareInventory(LotNo: array[4] of Code[50]; ItemNo: Code[20]; LocationCode: Code[10])
+    local procedure PrepareInventory(var LotNo: array[4] of Code[50]; ItemNo: Code[20]; LocationCode: Code[10])
     var
         ItemJournalLine: Record "Item Journal Line";
         ReservationEntry: Record "Reservation Entry";

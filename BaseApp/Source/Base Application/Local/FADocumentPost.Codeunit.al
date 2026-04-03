@@ -341,7 +341,6 @@ codeunit 12471 "FA Document-Post"
         GenJnlLine2."Journal Batch Name" := BatchName;
     end;
 
-    [Scope('OnPrem')]
     procedure SetPreviewMode(NewPreviewMode: Boolean)
     begin
         PreviewMode := NewPreviewMode;

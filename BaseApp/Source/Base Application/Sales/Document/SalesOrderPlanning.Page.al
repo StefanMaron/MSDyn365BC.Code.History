@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -13,6 +13,9 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Purchases.Document;
 
+/// <summary>
+/// Displays planning information for sales order lines including availability and supply options.
+/// </summary>
 page 99000883 "Sales Order Planning"
 {
     Caption = 'Sales Order Planning';
@@ -33,33 +36,27 @@ page 99000883 "Sales Order Planning"
                 field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the item number of the sales order line.';
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
                 field("Planning Status"; Rec."Planning Status")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the planning status of the production order, depending on the actual sales order.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the description of the item in the sales order line.';
                 }
                 field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                 }
                 field("Planned Quantity"; Rec."Planned Quantity")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the quantity planned in this line.';
                     Visible = false;
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -76,22 +73,18 @@ page 99000883 "Sales Order Planning"
                 {
                     ApplicationArea = Planning;
                     DecimalPlaces = 0 : 5;
-                    ToolTip = 'Specifies how many of the actual items are available.';
                 }
                 field("Next Planning Date"; Rec."Next Planning Date")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the next planning date.';
                 }
                 field("Expected Delivery Date"; Rec."Expected Delivery Date")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the expected delivery date.';
                 }
                 field("Needs Replanning"; Rec."Needs Replanning")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies if it is necessary or not to reschedule this line.';
                     Visible = false;
                 }
             }
@@ -323,11 +316,18 @@ page 99000883 "Sales Order Planning"
         Text000: Label 'All Lines to last Shipment Date,Each line own Shipment Date';
 #pragma warning restore AA0074
 
+    /// <summary>
+    /// Sets the sales order to display planning information for.
+    /// </summary>
+    /// <param name="SalesOrderNo">The sales order number to retrieve.</param>
     procedure SetSalesOrder(SalesOrderNo: Code[20])
     begin
         SalesHeader.Get(SalesHeader."Document Type"::Order, SalesOrderNo);
     end;
 
+    /// <summary>
+    /// Builds the planning form by creating lines for all items in the sales order.
+    /// </summary>
     procedure BuildForm()
     begin
         Rec.Reset();
@@ -446,6 +446,10 @@ page 99000883 "Sales Order Planning"
                 CalcDate(Item."Lead Time Calculation", NextPlanningDate))
     end;
 
+    /// <summary>
+    /// Returns the caption text for the page showing the sales order number and customer name.
+    /// </summary>
+    /// <returns>Returns the page caption combining sales order number and bill-to name.</returns>
     procedure Caption(): Text
     begin
         exit(StrSubstNo('%1 %2', SalesHeader."No.", SalesHeader."Bill-to Name"));

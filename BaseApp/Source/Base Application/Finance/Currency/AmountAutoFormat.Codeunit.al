@@ -38,9 +38,9 @@ codeunit 347 "Amount Auto Format"
         Resolved := true;
         case AutoFormatType of
             AutoFormatType::AmountFormat:
-                Result := GetAmountFormat(AutoFormatExpr, GeneralLedgerSetup."Show Currency"::Never);
+                Result := GetAmountFormat(AutoFormatExpr, GeneralLedgerSetup."Show Currency");
             AutoFormatType::UnitAmountFormat:
-                Result := GetUnitAmountFormat(AutoFormatExpr, GeneralLedgerSetup."Show Currency"::Never);
+                Result := GetUnitAmountFormat(AutoFormatExpr, GeneralLedgerSetup."Show Currency");
             AutoFormatType::AmountFormatNoSymbol:
                 Result := GetAmountFormat(AutoFormatExpr, enum::"Show Currency"::Never);
             AutoFormatType::UnitAmountFormatNoSymbol:

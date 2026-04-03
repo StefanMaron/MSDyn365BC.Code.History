@@ -48,11 +48,14 @@ table 17212 "Tax Register Item Entry"
         }
         field(14; "Qty. (Document)"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Qty. (Document)';
         }
         field(15; "Amount (Document)"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Amount (Document)';
             Editable = false;
@@ -63,40 +66,50 @@ table 17212 "Tax Register Item Entry"
         }
         field(20; "Qty. (Batch)"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Qty. (Batch)';
         }
         field(21; "Amount (Batch)"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Amount (Batch)';
         }
         field(22; "Credit Qty."; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Credit Qty.';
             Editable = false;
         }
         field(23; "Credit Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Credit Amount';
             Editable = false;
         }
         field(24; "Debit Qty."; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Debit Qty.';
             Editable = false;
         }
         field(25; "Debit Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Debit Amount';
             Editable = false;
         }
         field(26; "Outstand. Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             CalcFormula = sum("Item Application Entry".Quantity where("Batch Item Ledger Entry No." = field("Appl. Entry No."),
                                                                        "Posting Date" = field(upperlimit("Date Filter"))));
@@ -106,6 +119,8 @@ table 17212 "Tax Register Item Entry"
         }
         field(27; "Original Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Original Amount';
             Editable = false;
         }
@@ -121,17 +136,22 @@ table 17212 "Tax Register Item Entry"
         }
         field(30; "Batch Qty."; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Batch Qty.';
         }
         field(31; "Batch Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Batch Amount';
             Editable = false;
         }
         field(32; "Debit Unit Cost"; Decimal)
         {
+            AutoFormatType = 2;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Debit Unit Cost';
         }
@@ -146,6 +166,8 @@ table 17212 "Tax Register Item Entry"
         }
         field(100; "Cost Amount (Actual)"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             CalcFormula = sum("Value Entry"."Cost Amount (Actual)" where("Item Ledger Entry No." = field("Ledger Entry No.")));
             Caption = 'Cost Amount (Actual)';

@@ -6,7 +6,11 @@ namespace Microsoft.Upgrade;
 
 #if not CLEAN26
 using Microsoft.Inventory.Item;
+#endif
+#if not CLEAN27
 using Microsoft.Inventory.Location;
+#endif
+#if not CLEAN26
 using Microsoft.Inventory.Planning;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.Setup;

@@ -26,6 +26,8 @@ page 14945 "G/L Corr. by Dimension"
                 }
                 field(CalculateAmount; CalcAmount())
                 {
+                    AutoFormatType = 0;
+                    AutoFormatExpression = '';
                     ApplicationArea = Basic, Suite;
                     Caption = 'Amount';
                     ToolTip = 'Specifies the amount.';

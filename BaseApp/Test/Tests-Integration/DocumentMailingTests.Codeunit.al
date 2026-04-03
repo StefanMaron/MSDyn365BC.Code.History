@@ -16,7 +16,7 @@ codeunit 135060 "Document Mailing Tests"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        LibraryWorkflow: Codeunit "Library - Workflow";
+        LibraryEmail: Codeunit "Library - Email";
         LibraryInventory: Codeunit "Library - Inventory";
         IsInitialized: Boolean;
         IsMailManagementOnBeforeIsEnabledActive: Boolean;
@@ -332,7 +332,7 @@ codeunit 135060 "Document Mailing Tests"
     begin
         // [SCENARIO 421871] Send Purchase Order when Vendor's email and email from Document Layout are blank and Document Sending Profile has E-Mail = "Yes (Use Default Settings)".
         Initialize();
-        LibraryWorkflow.SetUpEmailAccount();
+        LibraryEmail.SetUpEmailAccount();
         ConnectorMock.FailOnSend(true);
 
         // [GIVEN] Default Document Sending Profile with E-Mail = "Yes (Use Default Settings)".

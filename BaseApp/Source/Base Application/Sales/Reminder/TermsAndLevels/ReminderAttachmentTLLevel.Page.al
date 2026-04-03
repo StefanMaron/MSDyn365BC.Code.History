@@ -1,9 +1,12 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Reminder;
 
+/// <summary>
+/// Displays and edits attachment text lines for a specific reminder level.
+/// </summary>
 page 549 "Reminder Attachment T.L. Level"
 {
     PageType = ListPlus;
@@ -42,7 +45,6 @@ page 549 "Reminder Attachment T.L. Level"
                     ApplicationArea = All;
                     Importance = Promoted;
                     Caption = 'Language Code';
-                    ToolTip = 'Specifies the language code of the beginning and ending lines.';
                     Enabled = false;
                     Editable = false;
                 }

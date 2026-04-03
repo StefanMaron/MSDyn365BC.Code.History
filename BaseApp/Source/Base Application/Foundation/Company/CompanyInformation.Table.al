@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -10,11 +10,11 @@ using Microsoft.Finance.VAT.Registration;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Calendar;
 using Microsoft.Foundation.Enums;
+using Microsoft.HumanResources.Employee;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Utilities;
 using System.Email;
-using Microsoft.HumanResources.Employee;
 using System.Globalization;
 using System.Utilities;
 
@@ -394,6 +394,12 @@ table 79 "Company Information"
         field(200; "Alternative Language Code"; Code[10])
         {
             Caption = 'Alternative Language Code';
+            TableRelation = Language;
+        }
+        field(201; "Default Language Code"; Code[10])
+        {
+            Caption = 'Default Language Code';
+            ToolTip = 'Specifies a default language code to be used for e.g. printing sales and purchase documents instead of the user language.';
             TableRelation = Language;
         }
         field(300; "Brand Color Value"; Code[10])
@@ -789,18 +795,14 @@ table 79 "Company Information"
 
         NotValidIBANErr: Label 'The number %1 that you entered may not be a valid International Bank Account Number (IBAN). Do you want to continue?', Comment = '%1 - an actual IBAN';
         NoPaymentInfoQst: Label 'No payment information is provided in %1. Do you want to update it now?', Comment = '%1 = Company Information';
-#pragma warning disable AA0470
-        NoPaymentInfoMsg: Label 'No payment information is provided in %1. Review the report.';
-#pragma warning restore AA0470
-        BankDir: Record "Bank Directory";
-        StdRepMgt: Codeunit "Local Report Management";
 #pragma warning disable AA0074
 #pragma warning disable AA0470
+        NoPaymentInfoMsg: Label 'No payment information is provided in %1. Review the report.';
+        BankDir: Record "Bank Directory";
+        StdRepMgt: Codeunit "Local Report Management";
         Text14900: Label 'Currency %1 exchange rate in company %2 on %3 already exists. Do you want to replace it?';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0470
         GLNCheckDigitErr: Label 'The %1 is not valid.';
+#pragma warning restore AA0074
 #pragma warning restore AA0470
         DevBetaModeTxt: Label 'DEV_BETA', Locked = true;
         ContactUsFullTxt: Label 'Questions? Contact us at %1 or %2.', Comment = '%1 = phone number, %2 = email';
@@ -1064,6 +1066,22 @@ table 79 "Company Information"
             "Brand Color Value" := '';
     end;
 
+    procedure FormatVATRegistrationNo(VATRegistrationNo: Text; CountryCode: Code[10]): Text
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        if VATRegistrationNo = '' then
+            exit;
+
+        VATRegistrationNo := DelChr(VATRegistrationNo);
+
+        if CountryRegion.Get(CountryCode) and (CountryRegion."ISO Code" <> '') then
+            if StrPos(VATRegistrationNo, CountryRegion."ISO Code") <> 1 then
+                VATRegistrationNo := CountryRegion."ISO Code" + VATRegistrationNo;
+
+        exit(VATRegistrationNo);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSystemIndicator(var Text: Text[250]; var Style: Option Standard,Accent1,Accent2,Accent3,Accent4,Accent5,Accent6,Accent7,Accent8,Accent9)
     begin
@@ -1129,4 +1147,5 @@ table 79 "Company Information"
     local procedure OnBeforeValidateShipToPostCode(var CompanyInformation: Record "Company Information"; var IsHandled: Boolean)
     begin
     end;
+
 }

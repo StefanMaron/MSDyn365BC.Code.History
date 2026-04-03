@@ -67,7 +67,6 @@ page 5604 "FA Ledger Entries"
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
-                    ToolTip = 'Specifies the code for the depreciation book to which the line will be posted if you have selected Fixed Asset in the Type field for this line.';
                 }
                 field("FA Posting Group"; Rec."FA Posting Group")
                 {
@@ -141,13 +140,11 @@ page 5604 "FA Ledger Entries"
                 field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                     Visible = false;
                 }
                 field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = false;
                 }
                 field(RunningBalance; CalcRunningFABalance.GetFABalance(Rec))
@@ -156,6 +153,7 @@ page 5604 "FA Ledger Entries"
                     Caption = 'Running Balance';
                     ToolTip = 'Specifies the running balance.';
                     AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Visible = false;
                 }
                 field("Reclassification Entry"; Rec."Reclassification Entry")
@@ -168,34 +166,29 @@ page 5604 "FA Ledger Entries"
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
-                    ToolTip = 'Specifies this entry is an index entry.';
                     Visible = false;
                 }
                 field("No. of Depreciation Days"; Rec."No. of Depreciation Days")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
-                    ToolTip = 'Specifies the number of depreciation days that were used for calculating depreciation for the fixed asset entry.';
                 }
                 field("Bal. Account Type"; Rec."Bal. Account Type")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
-                    ToolTip = 'Specifies the type of account that a balancing entry is posted to, such as BANK for a cash account.';
                     Visible = false;
                 }
                 field("Bal. Account No."; Rec."Bal. Account No.")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
-                    ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account that the balancing entry is posted to, such as a cash account for cash purchases.';
                     Visible = false;
                 }
                 field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
-                    ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
                     Visible = false;
 
                     trigger OnDrillDown()
@@ -209,35 +202,30 @@ page 5604 "FA Ledger Entries"
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
-                    ToolTip = 'Specifies the source code that specifies where the entry was created.';
                     Visible = false;
                 }
                 field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
-                    ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                     Visible = false;
                 }
                 field(Reversed; Rec.Reversed)
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
-                    ToolTip = 'Specifies whether the entry has been part of a reverse transaction (correction) made by the Reverse function.';
                     Visible = false;
                 }
                 field("Reversed by Entry No."; Rec."Reversed by Entry No.")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
-                    ToolTip = 'Specifies the number of the correcting entry.';
                     Visible = false;
                 }
                 field("Reversed Entry No."; Rec."Reversed Entry No.")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
-                    ToolTip = 'Specifies the number of the original entry that was undone by the reverse transaction.';
                     Visible = false;
                 }
                 field("Posting Date"; Rec."Posting Date")
@@ -250,13 +238,11 @@ page 5604 "FA Ledger Entries"
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
-                    ToolTip = 'Specifies the entry number of the corresponding G/L entry that was created in the general ledger for this fixed asset transaction.';
                 }
                 field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
-                    ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
                 }
                 field("Initial Acquisition"; Rec."Initial Acquisition")
                 {
@@ -304,7 +290,6 @@ page 5604 "FA Ledger Entries"
                 field("Dimension Set ID"; Rec."Dimension Set ID")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies a reference to a combination of dimension values. The actual values are stored in the Dimension Set Entry table.';
                     Visible = false;
                 }
                 field("Shortcut Dimension 3 Code"; Rec."Shortcut Dimension 3 Code")

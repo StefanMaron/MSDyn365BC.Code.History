@@ -24,21 +24,29 @@ table 17324 "Tax Diff. FA Buffer"
         }
         field(4; Difference; Decimal)
         {
+            AutoFormatType = 0;
+            AutoFormatExpression = '';
             Caption = 'Difference';
             DataClassification = SystemMetadata;
         }
         field(5; "Amount (Base)"; Decimal)
         {
+            AutoFormatType = 0;
+            AutoFormatExpression = '';
             Caption = 'Amount (Base)';
             DataClassification = SystemMetadata;
         }
         field(6; "Amount (Tax)"; Decimal)
         {
+            AutoFormatType = 0;
+            AutoFormatExpression = '';
             Caption = 'Amount (Tax)';
             DataClassification = SystemMetadata;
         }
         field(7; "Tax Amount"; Decimal)
         {
+            AutoFormatType = 0;
+            AutoFormatExpression = '';
             Caption = 'Tax Amount';
             DataClassification = SystemMetadata;
         }

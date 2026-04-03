@@ -56,6 +56,7 @@ table 12403 "Gen. Journal Line Archive"
         }
         field(10; "VAT %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'VAT %';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -105,16 +106,19 @@ table 12403 "Gen. Journal Line Archive"
         field(16; "Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount (LCY)';
         }
         field(17; "Balance (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Balance (LCY)';
             Editable = false;
         }
         field(18; "Currency Factor"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Currency Factor';
             DecimalPlaces = 0 : 15;
             Editable = false;
@@ -123,16 +127,19 @@ table 12403 "Gen. Journal Line Archive"
         field(19; "Sales/Purch. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Sales/Purch. (LCY)';
         }
         field(20; "Profit (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Profit (LCY)';
         }
         field(21; "Inv. Discount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Inv. Discount (LCY)';
         }
         field(22; "Bill-to/Pay-to No."; Code[20])
@@ -206,6 +213,7 @@ table 12403 "Gen. Journal Line Archive"
         }
         field(40; "Payment Discount %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Payment Discount %';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
@@ -219,6 +227,7 @@ table 12403 "Gen. Journal Line Archive"
         }
         field(43; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
         }
@@ -334,6 +343,7 @@ table 12403 "Gen. Journal Line Archive"
         }
         field(68; "Bal. VAT %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Bal. VAT %';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -469,6 +479,7 @@ table 12403 "Gen. Journal Line Archive"
         }
         field(98; "FA Add.-Currency Factor"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'FA Add.-Currency Factor';
             DecimalPlaces = 0 : 15;
             MinValue = 0;
@@ -482,23 +493,27 @@ table 12403 "Gen. Journal Line Archive"
         field(100; "Source Currency Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = "Source Currency Code";
             Caption = 'Source Currency Amount';
             Editable = false;
         }
         field(101; "Source Curr. VAT Base Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = "Source Currency Code";
             Caption = 'Source Curr. VAT Base Amount';
             Editable = false;
         }
         field(102; "Source Curr. VAT Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = "Source Currency Code";
             Caption = 'Source Curr. VAT Amount';
             Editable = false;
         }
         field(103; "VAT Base Discount %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'VAT Base Discount %';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -508,24 +523,28 @@ table 12403 "Gen. Journal Line Archive"
         field(104; "VAT Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'VAT Amount (LCY)';
             Editable = false;
         }
         field(105; "VAT Base Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'VAT Base Amount (LCY)';
             Editable = false;
         }
         field(106; "Bal. VAT Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Bal. VAT Amount (LCY)';
             Editable = false;
         }
         field(107; "Bal. VAT Base Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Bal. VAT Base Amount (LCY)';
             Editable = false;
         }
@@ -661,32 +680,37 @@ table 12403 "Gen. Journal Line Archive"
         field(1002; "Job Unit Price (LCY)"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Job Unit Price (LCY)';
         }
         field(1003; "Job Total Price (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Job Total Price (LCY)';
         }
         field(1004; "Job Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Job Quantity';
             DecimalPlaces = 0 : 5;
         }
         field(1005; "Job Unit Cost (LCY)"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Job Unit Cost (LCY)';
             Editable = false;
         }
         field(1006; "Job Line Discount %"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 0;
             Caption = 'Job Line Discount %';
         }
         field(1007; "Job Line Disc. Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Job Line Disc. Amount (LCY)';
         }
         field(1008; "Job Unit Of Measure Code"; Code[10])
@@ -742,16 +766,19 @@ table 12403 "Gen. Journal Line Archive"
         field(1016; "Job Total Cost (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Job Total Cost (LCY)';
             Editable = false;
         }
         field(1017; "Job Line Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Job Line Amount (LCY)';
         }
         field(1018; "Job Currency Factor"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Job Currency Factor';
         }
         field(1019; "Job Currency Code"; Code[10])
@@ -786,6 +813,7 @@ table 12403 "Gen. Journal Line Archive"
         field(5603; "Salvage Value"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = "Currency Code";
             Caption = 'Salvage Value';
         }
         field(5604; "No. of Depreciation Days"; Integer)
@@ -899,11 +927,13 @@ table 12403 "Gen. Journal Line Archive"
         field(12411; "Debit Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Debit Amount (LCY)';
         }
         field(12412; "Credit Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Credit Amount (LCY)';
         }
         field(12413; "Prepmt. Diff."; Boolean)
@@ -945,6 +975,8 @@ table 12403 "Gen. Journal Line Archive"
         }
         field(12420; "Paid Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = "Currency Code";
             Caption = 'Paid Amount';
             Editable = false;
         }
@@ -997,6 +1029,8 @@ table 12403 "Gen. Journal Line Archive"
         }
         field(12427; "Advance VAT Base Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = "Currency Code";
             Caption = 'Advance VAT Base Amount';
         }
         field(12428; "Document Line No."; Integer)
@@ -1134,6 +1168,8 @@ table 12403 "Gen. Journal Line Archive"
         }
         field(14926; "Unrealized Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = "Currency Code";
             Caption = 'Unrealized Amount';
         }
         field(14927; "VAT Allocation Type"; Option)

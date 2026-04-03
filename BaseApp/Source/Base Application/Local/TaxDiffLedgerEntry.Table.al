@@ -54,6 +54,7 @@ table 17306 "Tax Diff. Ledger Entry"
         }
         field(11; "Tax Factor"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Tax Factor';
         }
         field(12; "Tax Diff. Posting Group"; Code[20])
@@ -62,46 +63,64 @@ table 17306 "Tax Diff. Ledger Entry"
         }
         field(13; "Amount (Base)"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount (Base)';
         }
         field(14; "Amount (Tax)"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount (Tax)';
         }
         field(15; Difference; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Difference';
         }
         field(16; "Tax Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Tax Amount';
             Editable = false;
         }
         field(17; "Asset Tax Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Asset Tax Amount';
             Editable = false;
         }
         field(18; "Liability Tax Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Liability Tax Amount';
             Editable = false;
         }
         field(19; "Disposal Tax Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Disposal Tax Amount';
             Editable = false;
         }
         field(20; "DTA Starting Balance"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'DTA Starting Balance';
         }
         field(21; "DTL Starting Balance"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'DTL Starting Balance';
         }
         field(22; "Disposal Date"; Date)
@@ -132,26 +151,36 @@ table 17306 "Tax Diff. Ledger Entry"
         }
         field(27; "DTA Ending Balance"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'DTA Ending Balance';
             Editable = false;
         }
         field(28; "DTL Ending Balance"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'DTL Ending Balance';
             Editable = false;
         }
         field(29; "YTD Amount (Base)"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'YTD Amount (Base)';
         }
         field(30; "YTD Amount (Tax)"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'YTD Amount (Tax)';
         }
         field(31; "YTD Difference"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'YTD Difference';
         }

@@ -1,11 +1,12 @@
+#if not CLEANSCHEMA28
 #pragma warning disable AA0247
 table 12450 "Item Document Header"
 {
     Caption = 'Item Document Header';
     DataCaptionFields = "Document Type", "No.";
-    ObsoleteState = Pending;
+    ObsoleteState = Removed;
     ObsoleteReason = 'Replaced by Inventory Documents feature.';
-    ObsoleteTag = '18.0';
+    ObsoleteTag = '28.0';
     DataClassification = CustomerContent;
 
     fields
@@ -124,4 +125,4 @@ table 12450 "Item Document Header"
     }
 
 }
-
+#endif

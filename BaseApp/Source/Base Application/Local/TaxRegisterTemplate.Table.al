@@ -164,6 +164,7 @@ table 17202 "Tax Register Template"
         }
         field(7; Value; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Value';
         }
         field(8; "Date Filter"; Date)
@@ -213,6 +214,7 @@ table 17202 "Tax Register Template"
         }
         field(12; "Rounding Precision"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Rounding Precision';
             DecimalPlaces = 0 :;
 

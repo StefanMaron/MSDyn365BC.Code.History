@@ -1,11 +1,12 @@
+#if not CLEANSCHEMA28
 #pragma warning disable AA0247
 table 12451 "Item Receipt Header"
 {
     Caption = 'Item Receipt Header';
     DataCaptionFields = "No.", "Posting Description";
-    ObsoleteState = Pending;
+    ObsoleteState = Removed;
     ObsoleteReason = 'Replaced by Inventory Documents feature.';
-    ObsoleteTag = '18.0';
+    ObsoleteTag = '28.0';
     DataClassification = CustomerContent;
 
     fields
@@ -109,4 +110,4 @@ table 12451 "Item Receipt Header"
     {
     }
 }
-
+#endif

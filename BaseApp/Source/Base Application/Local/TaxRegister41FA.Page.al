@@ -64,6 +64,7 @@ page 17232 "Tax Register (4.1) FA"
                 }
                 field(CalcQtyMonthsUsefulLife; Rec.CalcQtyMonthsUsefulLife())
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Basic, Suite;
                     Caption = 'No. Month Expensive';
                     DecimalPlaces = 2 : 8;

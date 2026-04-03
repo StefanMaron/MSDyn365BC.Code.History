@@ -620,7 +620,6 @@ report 5692 "Calculate Depreciation"
             ErrorMessageMgt.Activate(ErrorMessageHandler);
     end;
 
-    [Scope('OnPrem')]
     procedure InitializeRequest2(NewDeprBookCode: Code[10]; NewPostingDate: Date; NewDeprUntilDate: Date; NewDocumentNo: Code[20]; NewPostingDescription: Text[100]; NewUseForceNoOfDays: Boolean; NewDaysInPeriod: Integer; NewBalAccount: Boolean; ChangeDetails: Boolean; NewDeprBonus: Boolean)
     begin
         ClearAll();

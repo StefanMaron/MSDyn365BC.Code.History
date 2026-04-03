@@ -1,10 +1,11 @@
+#if not CLEANSCHEMA28
 #pragma warning disable AA0247
 table 12453 "Item Document Line"
 {
     Caption = 'Item Document Line';
-    ObsoleteState = Pending;
+    ObsoleteState = Removed;
     ObsoleteReason = 'Replaced by Inventory Documents feature.';
-    ObsoleteTag = '18.0';
+    ObsoleteTag = '28.0';
     DataClassification = CustomerContent;
 
     fields
@@ -53,22 +54,26 @@ table 12453 "Item Document Line"
         }
         field(13; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
         }
         field(16; "Unit Amount"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Amount';
         }
         field(17; "Unit Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost';
         }
         field(18; Amount; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount';
         }
         field(23; "Salespers./Purch. Code"; Code[20])
@@ -105,27 +110,32 @@ table 12453 "Item Document Line"
         }
         field(37; "Indirect Cost %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Indirect Cost %';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
         }
         field(38; "Gross Weight"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Gross Weight';
             DecimalPlaces = 0 : 5;
         }
         field(39; "Net Weight"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Net Weight';
             DecimalPlaces = 0 : 5;
         }
         field(40; "Units per Parcel"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Units per Parcel';
             DecimalPlaces = 0 : 5;
         }
         field(41; "Unit Volume"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Unit Volume';
             DecimalPlaces = 0 : 5;
         }
@@ -158,6 +168,7 @@ table 12453 "Item Document Line"
         field(72; "Unit Cost (ACY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = GetAdditionalCurrencyCode();
             Caption = 'Unit Cost (ACY)';
             Editable = false;
         }
@@ -178,6 +189,7 @@ table 12453 "Item Document Line"
         }
         field(5404; "Qty. per Unit of Measure"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. per Unit of Measure';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -190,11 +202,13 @@ table 12453 "Item Document Line"
         }
         field(5413; "Quantity (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity (Base)';
             DecimalPlaces = 0 : 5;
         }
         field(5470; "Reserved Quantity Inbnd."; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Reservation Entry".Quantity where("Source ID" = field("Document No."),
                                                                   "Source Ref. No." = field("Line No."),
                                                                   "Source Type" = const(12453),
@@ -207,6 +221,7 @@ table 12453 "Item Document Line"
         }
         field(5471; "Reserved Quantity Outbnd."; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = - sum("Reservation Entry".Quantity where("Source ID" = field("Document No."),
                                                                    "Source Ref. No." = field("Line No."),
                                                                    "Source Type" = const(12453),
@@ -219,6 +234,7 @@ table 12453 "Item Document Line"
         }
         field(5472; "Reserved Qty. Inbnd. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Reservation Entry"."Quantity (Base)" where("Source ID" = field("Document No."),
                                                                            "Source Ref. No." = field("Line No."),
                                                                            "Source Type" = const(12453),
@@ -231,6 +247,7 @@ table 12453 "Item Document Line"
         }
         field(5473; "Reserved Qty. Outbnd. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = - sum("Reservation Entry"."Quantity (Base)" where("Source ID" = field("Document No."),
                                                                             "Source Ref. No." = field("Line No."),
                                                                             "Source Type" = const(12453),
@@ -275,6 +292,7 @@ table 12453 "Item Document Line"
         field(5811; "Applied Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Applied Amount';
             Editable = false;
         }
@@ -285,6 +303,7 @@ table 12453 "Item Document Line"
         field(5813; "Amount (ACY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = GetAdditionalCurrencyCode();
             Caption = 'Amount (ACY)';
         }
         field(5819; "Applies-to Value Entry"; Integer)
@@ -319,4 +338,14 @@ table 12453 "Item Document Line"
     fieldgroups
     {
     }
+
+    var
+        GLSetup: Record "General Ledger Setup";
+
+    local procedure GetAdditionalCurrencyCode(): Text[10]
+    begin
+        GLSetup.Get();
+        exit(GLSetup."Additional Reporting Currency");
+    end;
 }
+#endif

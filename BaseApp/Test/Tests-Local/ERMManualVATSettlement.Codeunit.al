@@ -1088,68 +1088,6 @@
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure SalesIncrPrepmtDiffDebitCreditVATSettlement()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-        GenJnlLine: Record "Gen. Journal Line";
-        VATEntry: Record "VAT Entry";
-        GenJnlPostBatch: Codeunit "Gen. Jnl.-Post Batch";
-        OldCancelPrepmtAdjmtInTA: Boolean;
-        Factor: Decimal;
-    begin
-        // [FEATURE] [Sales] [Prepayment] [Cancel Prepmt. Adjmt. in TA] [G/L Correspondence]
-        // [SCENARIO 363275] G/L Correspondence Entry for Prepmt. Diff. VAT Settlement posted with Debit Sales VAT Acc. and Credit Sales VAT Unreal Acc. when FCY increased
-
-        Initialize();
-        OldCancelPrepmtAdjmtInTA := UpdateCancelPrepmtAdjmtInTA(true);
-        Factor := 3;
-        // [GIVEN] Prepmt. Diff. VAT Settlement Journal Line with "Initial VAT Entry No." = "VAT Entry No." of applied invoice
-        SetupSalesPrepmtDiffDebitCreditVATSettlementScenario(VATPostingSetup, GenJnlLine, Factor);
-
-        // [WHEN] Post Prepmt. Diff. VAT Settlement Journal Line
-        GenJnlPostBatch.VATSettlement(GenJnlLine);
-
-        // [THEN] G/L Corr. Entry posted where Debit Acc. = "Sales VAT Acc.", Credit Acc. = "Sales VAT Unreal Acc." and Amount = Prepmt. Diff. VAT Entry Amount
-        VerifySalesVATSettlementGLCorrEntry(
-          VATPostingSetup, FindVATSettlementVATEntry(GenJnlLine, true, VATEntry.Type::Sale));
-
-        // Tear Down
-        UpdateCancelPrepmtAdjmtInTA(OldCancelPrepmtAdjmtInTA);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure SalesDecrPrepmtDiffDebitCreditVATSettlement()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-        GenJnlLine: Record "Gen. Journal Line";
-        VATEntry: Record "VAT Entry";
-        GenJnlPostBatch: Codeunit "Gen. Jnl.-Post Batch";
-        OldCancelPrepmtAdjmtInTA: Boolean;
-        Factor: Decimal;
-    begin
-        // [FEATURE] [Sales] [Prepayment] [Cancel Prepmt. Adjmt. in TA] [G/L Correspondence]
-        // [SCENARIO 363275] G/L Correspondence Entry for Prepmt. Diff. VAT Settlement posted with Debit Sales VAT Acc. and Credit Sales VAT Unreal Acc. when FCY decreased
-
-        Initialize();
-        OldCancelPrepmtAdjmtInTA := UpdateCancelPrepmtAdjmtInTA(true);
-        Factor := 1 / 3;
-        // [GIVEN] Prepmt. Diff. VAT Settlement Journal Line with "Initial VAT Entry No." = "VAT Entry No." of applied invoice
-        SetupSalesPrepmtDiffDebitCreditVATSettlementScenario(VATPostingSetup, GenJnlLine, Factor);
-
-        // [WHEN] Post Prepmt. Diff. VAT Settlement Journal Line
-        GenJnlPostBatch.VATSettlement(GenJnlLine);
-
-        // [THEN] G/L Corr. Entry posted where Debit Acc. = "Sales VAT Acc.", Credit Acc. = "Sales VAT Unreal Acc." and Amount = Prepmt. Diff. VAT Entry Amount
-        VerifySalesVATSettlementGLCorrEntry(
-          VATPostingSetup, FindVATSettlementVATEntry(GenJnlLine, true, VATEntry.Type::Sale));
-
-        // Tear Down
-        UpdateCancelPrepmtAdjmtInTA(OldCancelPrepmtAdjmtInTA);
-    end;
-
-    [Test]
     [HandlerFunctions('ChangeVendorVATInvoiceReportHandler')]
     [Scope('OnPrem')]
     procedure ChangeVendorVATInvoiceLongCode()
@@ -1224,43 +1162,6 @@
         GenJnlLine.SetRange("Prepmt. Diff.", true);
         GenJnlLine.FindFirst();
         GenJnlLine.Validate("Initial VAT Entry No.", FindVATSettlementVATEntry(GenJnlLine, false, VATEntry.Type::Purchase));
-        GenJnlLine.Modify(true);
-    end;
-
-    local procedure SetupSalesPrepmtDiffDebitCreditVATSettlementScenario(var VATPostingSetup: Record "VAT Posting Setup"; var GenJnlLine: Record "Gen. Journal Line"; Factor: Decimal)
-    var
-        SalesHeader: Record "Sales Header";
-        VATEntry: Record "VAT Entry";
-        GenJnlPostBatch: Codeunit "Gen. Jnl.-Post Batch";
-        CurrencyCode: Code[10];
-        PrepmtNo: Code[20];
-        InvNo: Code[20];
-        PostingDate: array[2] of Date;
-        TotalInvAmount: Decimal;
-    begin
-        // Prepayment with FCY applied to Invoice with FCY and different posting date
-        CreateVATPostingSetup(VATPostingSetup);
-        UpdateVATPostingSetup_VATSettl(VATPostingSetup, LibraryRandom.RandIntInRange(10, 25));
-        SetupPostingDateAndCurrExchRates(PostingDate, CurrencyCode, Factor);
-        TotalInvAmount :=
-          CreateReleaseSalesInvoiceWithCurrency(SalesHeader, PostingDate[EntryType::Invoice], CurrencyCode, VATPostingSetup);
-        UpdateCustPrepmtAccountWithVATPostingSetup(SalesHeader."Customer Posting Group", VATPostingSetup);
-        PrepmtNo :=
-          CreatePostPrepaymentWithCurrency(PostingDate[EntryType::Prepayment], CurrencyCode,
-            GenJnlLine."Account Type"::Customer, SalesHeader."Bill-to Customer No.", -TotalInvAmount, SalesHeader."No.");
-        InvNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        ApplySalesPrepmtToInv(PrepmtNo, InvNo);
-        // Posted initial VAT Settlement Entry No. = "X"
-        SuggestVATSettlement(InvNo, VATPostingSetup, VATSettlType::Sale, GenJnlLine, true, PostingDate[EntryType::Invoice]);
-        UpdateVATSettlmentJnlLineDocNo(GenJnlLine);
-        GenJnlLine.SetRange("Prepmt. Diff.", false);
-        GenJnlLine.FindFirst();
-        GenJnlPostBatch.VATSettlement(GenJnlLine);
-
-        // Prepmt. Diff. VAT Settlement Jounrnal Line with "Initial VAT Entry No." = "X"
-        GenJnlLine.SetRange("Prepmt. Diff.", true);
-        GenJnlLine.FindFirst();
-        GenJnlLine.Validate("Initial VAT Entry No.", FindVATSettlementVATEntry(GenJnlLine, false, VATEntry.Type::Sale));
         GenJnlLine.Modify(true);
     end;
 
@@ -1501,35 +1402,6 @@
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo);
         LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", SalesInvoiceNo, true, false);
-    end;
-
-    local procedure CreateReleaseSalesInvoiceWithCurrency(var SalesHeader: Record "Sales Header"; PostingDate: Date; CurrencyCode: Code[10]; VATPostingSetup: Record "VAT Posting Setup"): Decimal
-    var
-        GeneralPostingSetup: Record "General Posting Setup";
-        Customer: Record Customer;
-        GLAccount: Record "G/L Account";
-        SalesLine: Record "Sales Line";
-        GLAccNo: Code[20];
-    begin
-        LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
-        LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
-        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        Customer.Modify(true);
-        LibrarySales.CreateSalesHeader(
-          SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-        SalesHeader.Validate("Posting Date", PostingDate);
-        SalesHeader.Validate("Currency Code", CurrencyCode);
-        SalesHeader.Modify(true);
-        GLAccNo :=
-          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase);
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccNo, LibraryRandom.RandIntInRange(100, 1000));
-        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
-        SalesLine.Modify(true);
-        LibrarySales.ReleaseSalesDocument(SalesHeader);
-        SalesHeader.CalcFields("Amount Including VAT");
-        exit(SalesHeader."Amount Including VAT");
     end;
 
     local procedure CreatePostPurchInvIC(VendorNo: Code[20]; Items: array[2] of Code[20]; ItemChargeNo: Code[20]; NoOfLines: Integer; NoOfItems: Integer): Code[20]
@@ -2153,18 +2025,6 @@
         GenJnlLine.SetRange("Document No.");
     end;
 
-    local procedure UpdateCustPrepmtAccountWithVATPostingSetup(CustPostGroupCode: Code[20]; VATPostingSetup: Record "VAT Posting Setup")
-    var
-        CustPostGroup: Record "Customer Posting Group";
-        GLAccount: Record "G/L Account";
-    begin
-        CustPostGroup.Get(CustPostGroupCode);
-        GLAccount.Get(CustPostGroup."Prepayment Account");
-        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        GLAccount.Modify(true);
-    end;
-
     local procedure ApplyPurchPrepmtToInv(PrepmtNo: Code[20]; InvNo: Code[20])
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
@@ -2172,15 +2032,6 @@
         LibraryERM.ApplyVendorLedgerEntry(
           VendLedgEntry."Document Type"::Payment, PrepmtNo,
           VendLedgEntry."Document Type"::Invoice, InvNo);
-    end;
-
-    local procedure ApplySalesPrepmtToInv(PrepmtNo: Code[20]; InvNo: Code[20])
-    var
-        CustLedgEntry: Record "Cust. Ledger Entry";
-    begin
-        LibraryERM.ApplyCustomerLedgerEntry(
-          CustLedgEntry."Document Type"::Payment, PrepmtNo,
-          CustLedgEntry."Document Type"::Invoice, InvNo);
     end;
 
     local procedure CreateAndPostFAReleaseDoc(FANo: Code[20]; PostingDate: Date)
@@ -2326,22 +2177,5 @@
           VATEntry.Amount, GLCorrespondenceEntry.Amount, GLCorrespondenceEntry.FieldCaption(Amount));
     end;
 
-    local procedure VerifySalesVATSettlementGLCorrEntry(VATPostingSetup: Record "VAT Posting Setup"; VATEntryNo: Integer)
-    var
-        VATEntry: Record "VAT Entry";
-        GLCorrespondenceEntry: Record "G/L Correspondence Entry";
-    begin
-        VATEntry.Get(VATEntryNo);
-        GLCorrespondenceEntry.SetRange("Transaction No.", VATEntry."Transaction No.");
-        GLCorrespondenceEntry.FindLast();
-        Assert.AreEqual(
-          VATPostingSetup."Sales VAT Unreal. Account", GLCorrespondenceEntry."Debit Account No.",
-          GLCorrespondenceEntry.FieldCaption("Debit Account No."));
-        Assert.AreEqual(
-          VATPostingSetup."Sales VAT Account", GLCorrespondenceEntry."Credit Account No.",
-          GLCorrespondenceEntry.FieldCaption("Credit Account No."));
-        Assert.AreEqual(
-          -VATEntry.Amount, GLCorrespondenceEntry.Amount, GLCorrespondenceEntry.FieldCaption(Amount));
-    end;
 }
 

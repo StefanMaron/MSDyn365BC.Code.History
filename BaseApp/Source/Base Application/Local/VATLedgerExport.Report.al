@@ -315,7 +315,6 @@ report 12460 "VAT Ledger Export"
         Totals: array[9, 2] of Decimal;
         FileNameSilent: Text;
 
-    [Scope('OnPrem')]
     procedure InitializeReport(NewVATLedgerType: Option; NewVATLedgerCode: Code[20]; NewAddSheet: Boolean)
     begin
         VATLedgerType := NewVATLedgerType;
@@ -719,7 +718,6 @@ report 12460 "VAT Ledger Export"
         Totals[9] [2] += Abs(VATLedgLine.Amount20);
     end;
 
-    [Scope('OnPrem')]
     procedure SetFileNameSilent(NewFileNameSilent: Text)
     begin
         FileNameSilent := NewFileNameSilent;

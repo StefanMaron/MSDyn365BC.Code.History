@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Azure.Storage;
+
 using System;
 using System.Text;
 using System.Utilities;

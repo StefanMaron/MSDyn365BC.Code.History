@@ -74,6 +74,7 @@ table 14926 "Default VAT Allocation Line"
         }
         field(7; "Allocation %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Allocation %';
             MaxValue = 100;
             MinValue = 0;
@@ -86,6 +87,8 @@ table 14926 "Default VAT Allocation Line"
         }
         field(8; Amount; Decimal)
         {
+            AutoFormatType = 0;
+            AutoFormatExpression = '';
             Caption = 'Amount';
 
             trigger OnValidate()

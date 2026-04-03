@@ -15,6 +15,15 @@ using Microsoft.HumanResources.Payables;
 using Microsoft.Purchases.Payables;
 using Microsoft.Sales.Receivables;
 
+/// <summary>
+/// Interactive interface for reviewing and executing reversal operations on posted ledger entries.
+/// Provides comprehensive entry validation, confirmation dialogs, and posting integration for transaction and register reversals.
+/// </summary>
+/// <remarks>
+/// Key workflows: Entry selection and validation, reversal confirmation, posting execution with optional G/L register printing.
+/// Integration: Bank account statement reversals, detailed ledger entry validation, and extensible posting framework.
+/// Extensibility: Integration events for custom entry type handling and text formatting customization.
+/// </remarks>
 page 183 "Reverse Transaction Entries"
 {
     Caption = 'Reverse Entries';
@@ -438,12 +447,20 @@ page 183 "Reverse Transaction Entries"
         ReverseTransactionEntriesLbl: Label 'Reverse Transaction Entries';
         ReverseRegisterEntriesLbl: Label 'Reverse Register Entries';
 
+    /// <summary>
+    /// Sets the bank account statement context for bank reconciliation reversal operations.
+    /// </summary>
+    /// <param name="NewBankAccountStatement">Bank account statement record to associate with the reversal</param>
     procedure SetBankAccountStatement(NewBankAccountStatement: Record "Bank Account Statement")
     begin
         BankAccountStatement := NewBankAccountStatement;
         UndoBankStatementVisible := true;
     end;
 
+    /// <summary>
+    /// Populates the page with reversal entries from a temporary record set for user review.
+    /// </summary>
+    /// <param name="TempReversalEntry">Temporary reversal entry records to display on the page</param>
     procedure SetReversalEntries(var TempReversalEntry: Record "Reversal Entry" temporary)
     begin
         if not TempReversalEntry.FindSet() then
@@ -455,6 +472,10 @@ page 183 "Reverse Transaction Entries"
         until TempReversalEntry.Next() = 0;
     end;
 
+    /// <summary>
+    /// Executes the reversal posting process for selected transaction entries.
+    /// </summary>
+    /// <param name="PrintRegister">Specifies whether to print the register after posting</param>
     procedure Post(PrintRegister: Boolean)
     var
         ReversalPost: Codeunit "Reversal-Post";
@@ -567,6 +588,12 @@ page 183 "Reverse Transaction Entries"
             ReversalEntry2.SetReverseFilter(Rec."G/L Register No.", Rec."Reversal Type");
     end;
 
+    /// <summary>
+    /// Integration event raised before generating entry type display text for reversal entries.
+    /// </summary>
+    /// <param name="ReversalEntry">The reversal entry record for which to generate display text</param>
+    /// <param name="Text">Variable to store the generated entry type text</param>
+    /// <param name="IsHandled">Set to true to skip default entry type text generation</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetEntryTypeText(var ReversalEntry: Record "Reversal Entry"; var Text: Text; var IsHandled: Boolean)
     begin

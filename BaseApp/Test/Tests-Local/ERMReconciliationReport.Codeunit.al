@@ -559,84 +559,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('VendorReconciliationActRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure VendorAppliedPaymentsOldAndNew()
-    var
-        Vendor: Record Vendor;
-        PaymentAmount: array[2] of Decimal;
-        InvoiceAmount: array[2] of Decimal;
-        DebitTurnover: Decimal;
-        TotalCreditBalance: Decimal;
-    begin
-        // [FEATURE] [Purchase]
-        // [SCENARIO 298588] Applied payments of current period are included in Vendor's Debit Turnover in case when applied payments for previous period exist
-        Initialize();
-
-        // [GIVEN] Created Vendor "V01"
-        LibraryPurchase.CreateVendor(Vendor);
-
-        // [GIVEN] Posted Purchase Invoice "PI01" for Vendor with Amount = 1000 for previous period
-        // [GIVEN] Posted Payment for Vendor with Amount = 500 for current period applied to "PI01"
-        CreatePostPurchInvoiceWithPostApplyPayment(
-          Vendor."No.", InvoiceAmount[1], PaymentAmount[1], LibraryRandom.RandDate(-10), WorkDate());
-
-        // [GIVEN] Posted Purchase Invoice "PI02" for Vendor with Amount = 8000 for current period
-        // [GIVEN] Posted Payment for Vendor with Amount = 5000 for current period applied to "PI02"
-        CreatePostPurchInvoiceWithPostApplyPayment(
-          Vendor."No.", InvoiceAmount[2], PaymentAmount[2], WorkDate(), WorkDate());
-        DebitTurnover := PaymentAmount[1] + PaymentAmount[2];
-        TotalCreditBalance := InvoiceAmount[1] + InvoiceAmount[2] - DebitTurnover;
-
-        // [WHEN] Print Report "Vendor - Reconciliation Act" for current period for Vendor "V01"
-        PrintVendorReconciliationRequestPage(Vendor."No.", WorkDate(), true);
-
-        // [THEN] Report prints "Debit Turnover" = 5500
-        // [THEN] Report prints "Total Balance" = 3500
-        VerifyVendorReconciliationAct_298588(DebitTurnover, TotalCreditBalance);
-    end;
-
-    [Test]
-    [HandlerFunctions('CustomerReconciliationActDetailRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure VendorAppliedPaymentsOldAndNewOnCustReconAct()
-    var
-        Customer: Record Customer;
-        Vendor: Record Vendor;
-        PaymentAmount: array[2] of Decimal;
-        InvoiceAmount: array[2] of Decimal;
-        DebitTurnover: Decimal;
-        TotalCreditBalance: Decimal;
-    begin
-        // [FEATURE] [Purchase]
-        // [SCENARIO 298588] Applied payments of current period are included in Vendor's Debit Turnover in case when applied payments for previous period exist
-        Initialize();
-
-        // [GIVEN] Created Vendor "V01"
-        // [GIVEN] Created Customer "CU01" with "Vendor No." = "V01"
-        CreateCustomerVendor(Vendor, Customer);
-
-        // [GIVEN] Posted Purchase Invoice "PI01" for Vendor with Amount = 1000 for previous period
-        // [GIVEN] Posted Payment for Vendor with Amount = 500 for current period applied to "PI01"
-        CreatePostPurchInvoiceWithPostApplyPayment(
-          Vendor."No.", InvoiceAmount[1], PaymentAmount[1], LibraryRandom.RandDate(-10), WorkDate());
-
-        // [GIVEN] Posted Purchase Invoice "PI02" for Vendor with Amount = 8000 for current period
-        // [GIVEN] Posted Payment for Vendor with Amount = 5000 for current period applied to "PI02"
-        CreatePostPurchInvoiceWithPostApplyPayment(
-          Vendor."No.", InvoiceAmount[2], PaymentAmount[2], WorkDate(), WorkDate());
-        DebitTurnover := PaymentAmount[1] + PaymentAmount[2];
-        TotalCreditBalance := InvoiceAmount[1] + InvoiceAmount[2] - DebitTurnover;
-
-        // [WHEN] Print Report "Customer - Reconciliation Act" for current period for Customer "CU01"
-        PrintCustomerReconciliationRequestPage(Customer."No.", '', WorkDate(), true);
-
-        // [THEN] Report prints "Debit Turnover" = 5500
-        // [THEN] Report prints "Total Balance" = 3500
-        VerifyCustomerReconciliationAct_298588(DebitTurnover, TotalCreditBalance);
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure SalesInvoiceWithFullDiscountNoErrorInCustRecon()
     var
@@ -742,15 +664,6 @@
         PurchaseLine.Modify(true);
         InvoiceAmount := PurchaseLine."Amount Including VAT";
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
-    end;
-
-    local procedure CreatePostPurchInvoiceWithPostApplyPayment(VendorNo: Code[20]; var InvoiceAmount: Decimal; var PaymentAmount: Decimal; InvoicePostingDate: Date; PaymentPostingDate: Date)
-    var
-        InvoiceNo: Code[20];
-    begin
-        InvoiceNo := CreatePostPurchInvoice(VendorNo, InvoiceAmount, InvoicePostingDate);
-        PaymentAmount := InvoiceAmount * LibraryRandom.RandDec(1, 2);
-        CreateApplyPostVendorPaymentWithPostingDate(VendorNo, InvoiceNo, PaymentAmount, PaymentPostingDate);
     end;
 
     local procedure CreateApplyPostCustomerPayment(PostingDate: Date; CustomerNo: Code[20]; InvoiceNo: Code[20]; AgreementNo: Code[20]; LineAmount: Decimal)
@@ -1272,20 +1185,6 @@
         LibraryReportValidation.VerifyCellValue(RowNo, 14, AmountAsText(CreditAmount));
     end;
 
-    local procedure VerifyVendorReconciliationAct_298588(ExpectedDebitTurnover: Decimal; ExpectedTotalBalance: Decimal)
-    begin
-        // Aggregated customer initial balance is shown (Debit only),
-        LibraryReportValidation.VerifyCellValueByRef('L', 31, 1, AmountAsText(ExpectedDebitTurnover));
-        LibraryReportValidation.VerifyCellValueByRef('N', 32, 1, AmountAsText(ExpectedTotalBalance));
-    end;
-
-    local procedure VerifyCustomerReconciliationAct_298588(ExpectedDebitTurnover: Decimal; ExpectedTotalBalance: Decimal)
-    begin
-        // Aggregated customer initial balance is shown (Debit only),
-        LibraryReportValidation.VerifyCellValueByRef('L', 33, 1, AmountAsText(ExpectedDebitTurnover));
-        LibraryReportValidation.VerifyCellValueByRef('N', 34, 1, AmountAsText(ExpectedTotalBalance));
-    end;
-
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerYes(Text: Text[1024]; var Reply: Boolean)
@@ -1309,12 +1208,5 @@
         Report.OK().Invoke();
     end;
 
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure CustomerReconciliationActDetailRequestPageHandler(var CustomerReconciliationAct: TestRequestPage "Customer - Reconciliation Act")
-    begin
-        CustomerReconciliationAct.ShowDetails.SetValue(0);
-        CustomerReconciliationAct.OK().Invoke();
-    end;
 }
 

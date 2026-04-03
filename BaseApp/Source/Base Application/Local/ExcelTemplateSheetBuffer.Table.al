@@ -13,11 +13,13 @@ table 14932 "Excel Template Sheet Buffer"
         }
         field(2; "Paper Height"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Paper Height';
             DataClassification = SystemMetadata;
         }
         field(4; "Current Paper Height"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Current Paper Height';
             DataClassification = SystemMetadata;
         }

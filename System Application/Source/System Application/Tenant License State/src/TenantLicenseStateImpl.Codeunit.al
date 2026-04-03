@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Environment;
+
 using System.Security.AccessControl;
 using System.Telemetry;
 

@@ -39,6 +39,7 @@ codeunit 134381 "ERM Dimension Priority"
         TestMethodName: Text[30];
         Step: Integer;
         TestVSTF257960A: Label 'VSTF257960A';
+        DimensionCodeErr: Label 'Dimension Code must be %1 in %2.', Comment = '%1= Dimension Value Code,%2= Table Name';
 
     [Test]
     [Scope('OnPrem')]
@@ -866,6 +867,82 @@ codeunit 134381 "ERM Dimension Priority"
         Assert.IsFalse(AsmLine."Avail. Warning", AvailWarningNoMsg);
 
         NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    procedure ProdOrderComponentDimensionsInPlanningWorksheet()
+    var
+        Dimension: Record Dimension;
+        CompDimensionValue: Record "Dimension Value";
+        ProdDimensionValue: Record "Dimension Value";
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        RequisitionLine: Record "Requisition Line";
+        PlanningComponent: Record "Planning Component";
+        ReqWkshTemplateName: Code[10];
+        Direction: Option Forward,Backward;
+    begin
+        // [SCENARIO 598811] Verify production order component dimensions are correctly transferred to planning worksheet components
+        Initialize();
+
+        // [GIVEN] Create Dimension and set as Global Dimension 1.
+        LibraryDimension.CreateDimension(Dimension);
+        LibraryERM.SetGlobalDimensionCode(1, Dimension.Code);
+
+        // [GIVEN] Component Item with Default Dimension Value (e.g., SALESPERSON = JO)
+        CreateItemWithDefaultDimension(CompItem, CompDimensionValue, Dimension.Code);
+
+        // [GIVEN] Create Production BOM
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", LibraryRandom.RandIntInRange(1, 1));
+
+        // [GIVEN] Create Prod. Item with different Default Dimension Value.
+        CreateItemWithDefaultDimension(ProdItem, ProdDimensionValue, Dimension.Code);
+        ProdItem."Replenishment System" := ProdItem."Replenishment System"::"Prod. Order";
+        ProdItem."Manufacturing Policy" := ProdItem."Manufacturing Policy"::"Make-to-Order";
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [GIVEN] Create Planning Worksheet Template and Name.
+        ReqWkshTemplateName := LibraryPlanning.SelectRequisitionTemplateName();
+        LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplateName);
+
+        // [WHEN] Create Planning Line for Parent Item.
+        LibraryPlanning.CreateRequisitionLine(RequisitionLine, ReqWkshTemplateName, RequisitionWkshName.Name);
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+        RequisitionLine.Validate("No.", ProdItem."No.");
+        RequisitionLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));
+        RequisitionLine.Validate("Ending Date", WorkDate());
+        RequisitionLine.Modify(true);
+
+        // [WHEN] Refresh Planning Line to create Componenets.
+        LibraryPlanning.RefreshPlanningLine(RequisitionLine, Direction::Backward, true, true);
+
+        // [GIVEN] Find Planning Component
+        PlanningComponent.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
+        PlanningComponent.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
+        PlanningComponent.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
+        PlanningComponent.SetRange("Item No.", CompItem."No.");
+        PlanningComponent.FindFirst();
+
+        // [THEN] Verify Planning Component has Component Item's dimension.
+        Assert.AreEqual(
+            CompDimensionValue.Code,
+            PlanningComponent."Shortcut Dimension 1 Code",
+            StrSubstNo(
+                DimensionCodeErr,
+                CompDimensionValue.Code,
+                PlanningComponent.TableCaption()));
+
+        // [THEN] Verify Requisition Line still has Parent Item's dimension
+        Assert.AreEqual(
+            ProdDimensionValue.Code,
+            RequisitionLine."Shortcut Dimension 1 Code",
+            StrSubstNo(
+                DimensionCodeErr,
+                ProdDimensionValue.Code,
+                RequisitionLine.TableCaption()));
     end;
 
     local procedure Initialize()

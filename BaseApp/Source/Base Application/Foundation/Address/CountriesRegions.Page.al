@@ -23,7 +23,7 @@ page 10 "Countries/Regions"
                 ShowCaption = false;
                 field("Code"; Rec.Code)
                 {
-                    ApplicationArea = Invoicing, Basic, Suite;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
                 }
                 field("Local Country/Region Code"; Rec."Local Country/Region Code")
@@ -33,7 +33,7 @@ page 10 "Countries/Regions"
                 }
                 field(Name; Rec.Name)
                 {
-                    ApplicationArea = Invoicing, Basic, Suite;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
                 }
                 field("Local Name"; Rec."Local Name")
@@ -184,4 +184,3 @@ page 10 "Countries/Regions"
         }
     }
 }
-
