@@ -57,6 +57,9 @@ codeunit 139197 DocumentSendingPostTests
         CustomerProfileSelectionInstrTxt: Label 'Customers on the selected documents might use different document sending profiles. Choose one of the following options: ';
         VendorProfileSelectionInstrTxt: Label 'Vendors on the selected documents might use different document sending profiles. Choose one of the following options: ';
         InterruptedByEventSubscriberErr: Label 'Interrupted by an event subscriber';
+        ReportNo_SalesShptHeaderTxt: Label 'No_SalesShptHeader';
+        IT_ReportNo_SalesShptHeaderTxt: Label 'No_SalesShipHdr';
+        ReportNo_ReturnRcptHeaderTxt: Label 'No_ReturnRcptHeader';
 
     [Test]
     [HandlerFunctions('PostAndSendHandlerNo')]
@@ -3794,13 +3797,452 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('SelectSendingOptionHandler,EmailDialogHandlerNo,CloseEmailEditorHandler')]
+    procedure TestCustomEmailForPostedSalesShipments()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        DocumentSendingProfile: Record "Document Sending Profile";
+        PostedSalesShipment: TestPage "Posted Sales Shipment";
+        PostedSalesShipments: TestPage "Posted Sales Shipments";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify custom email must be sent for Posted Sales Shipments.
+        Initialize();
+
+        // [GIVEN] Create Customer with email.
+        CreateCustomerWithEmail(Customer);
+
+        // [GIVEN] Create and Post Sales Order.
+        CreateAndPostSalesOrderWithShipment(PostedDocumentVariant, Customer, SalesHeader."Document Type"::Order);
+        SalesShipmentHeader := PostedDocumentVariant;
+
+        // [GIVEN] Initialize Document Sending Profile for Email with PDF attachment.
+        InitializeDocumentSendingProfile(
+            DocumentSendingProfile,
+            DocumentSendingProfile."E-Mail Attachment"::PDF,
+            DocumentSendingProfile.Printer::No,
+            DocumentSendingProfile."E-Mail"::"Yes (Prompt for Settings)");
+
+        // [GIVEN] Enqueue Document Sending Profile for SelectSendingOptionHandler.
+        LibraryVariableStorage.Enqueue(DocumentSendingProfile);
+
+        // [GIVEN] Enqueue Customer email and Sales Shipment No. for EmailDialogHandlerNo.
+        LibraryVariableStorage.Enqueue(Customer."E-Mail");
+        LibraryVariableStorage.Enqueue(SalesShipmentHeader."No.");
+
+        // [WHEN] Invoke Send action on Posted Sales Shipment.
+        PostedSalesShipment.OpenEdit();
+        PostedSalesShipment.GotoRecord(SalesShipmentHeader);
+        PostedSalesShipment.SendCustom.Invoke();
+        PostedSalesShipment.Close();
+
+        // [THEN] Verify Email Editor is opened with correct email address and Sales Shipment No.
+
+        // [GIVEN] Enqueue Document Sending Profile for SelectSendingOptionHandler.
+        LibraryVariableStorage.Enqueue(DocumentSendingProfile);
+
+        // [GIVEN] Enqueue Customer email and Sales Shipment No. for EmailDialogHandlerNo.
+        LibraryVariableStorage.Enqueue(Customer."E-Mail");
+        LibraryVariableStorage.Enqueue(SalesShipmentHeader."No.");
+
+        // [WHEN] Invoke Send action on Posted Sales Shipments list.
+        PostedSalesShipments.OpenView();
+        PostedSalesShipments.GotoRecord(SalesShipmentHeader);
+        PostedSalesShipments.SendCustom.Invoke();
+
+        // [THEN] Verify Email Editor is opened with correct email address and Sales Shipment No.
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectSendingOptionHandler,PrintSalesShipmentHandler')]
+    procedure TestPrintPostedSalesShipments()
+    var
+        Customer: Record Customer;
+        DocumentSendingProfile: Record "Document Sending Profile";
+        SalesHeader: Record "Sales Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        PostedSalesShipments: TestPage "Posted Sales Shipments";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify Posted Sales Shipment can be printed with Send action button.
+        Initialize();
+
+        // [GIVEN] Create Customer with email.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create and Post Sales Order.
+        CreateAndPostSalesOrderWithShipment(PostedDocumentVariant, Customer, SalesHeader."Document Type"::Order);
+        SalesShipmentHeader := PostedDocumentVariant;
+
+        // [GIVEN] Initialize Document Sending Profile for Printer with PDF & Electronic Document.
+        InitializeDocumentSendingProfile(
+            DocumentSendingProfile,
+            DocumentSendingProfile."E-Mail Attachment"::"PDF & Electronic Document",
+            DocumentSendingProfile.Printer::"Yes (Prompt for Settings)",
+            DocumentSendingProfile."E-Mail"::No);
+
+        // [GIVEN] Enqueue Document Sending Profile for SelectSendingOptionHandler.
+        LibraryVariableStorage.Enqueue(DocumentSendingProfile);
+
+        // [WHEN] Invoke Send action on Posted Sales Shipments list.
+        PostedSalesShipments.OpenView();
+        PostedSalesShipments.GotoRecord(SalesShipmentHeader);
+        PostedSalesShipments.SendCustom.Invoke();
+
+        // [THEN] Verify Posted Sales Shipment is printed.
+        LibraryReportDataset.LoadDataSetFile();
+        AssertValidSalesShipmentNo(SalesShipmentHeader."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectSendingOptionHandler,EmailDialogHandlerNo,CloseEmailEditorHandler')]
+    procedure TestEmailPostedSalesShipments()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        DocumentSendingProfile: Record "Document Sending Profile";
+        PostedSalesShipment: TestPage "Posted Sales Shipment";
+        PostedSalesShipments: TestPage "Posted Sales Shipments";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify Posted Sales Shipment can be printed with Send action button.
+        Initialize();
+
+        // [GIVEN] Create Customer with email.
+        CreateCustomerWithEmail(Customer);
+
+        // [GIVEN] Create and Post Sales Order.
+        CreateAndPostSalesOrderWithShipment(PostedDocumentVariant, Customer, SalesHeader."Document Type"::Order);
+        SalesShipmentHeader := PostedDocumentVariant;
+
+        // [GIVEN] Initialize Document Sending Profile for Email with PDF attachment.
+        InitializeDocumentSendingProfile(
+            DocumentSendingProfile,
+            DocumentSendingProfile."E-Mail Attachment"::PDF,
+            DocumentSendingProfile.Printer::No,
+            DocumentSendingProfile."E-Mail"::"Yes (Prompt for Settings)");
+
+        // [GIVEN] Enqueue Document Sending Profile for SelectSendingOptionHandler.
+        LibraryVariableStorage.Enqueue(DocumentSendingProfile);
+
+        // [GIVEN] Enqueue Customer email and Sales Shipment No. for EmailDialogHandlerNo.
+        LibraryVariableStorage.Enqueue(Customer."E-Mail");
+        LibraryVariableStorage.Enqueue(SalesShipmentHeader."No.");
+
+        // [WHEN] Invoke Send action on Posted Sales Shipment.
+        PostedSalesShipment.OpenEdit();
+        PostedSalesShipment.GotoRecord(SalesShipmentHeader);
+        PostedSalesShipment.SendCustom.Invoke();
+        PostedSalesShipment.Close();
+
+        // [THEN] Verify Email Editor is opened with correct email address and Sales Shipment No.
+
+        // [GIVEN] Enqueue Document Sending Profile for SelectSendingOptionHandler.
+        LibraryVariableStorage.Enqueue(DocumentSendingProfile);
+
+        // [GIVEN] Enqueue Customer email and Sales Shipment No. for EmailDialogHandlerNo.
+        LibraryVariableStorage.Enqueue(Customer."E-Mail");
+        LibraryVariableStorage.Enqueue(SalesShipmentHeader."No.");
+
+        // [WHEN] Invoke Send action on Posted Sales Shipments list.
+        PostedSalesShipments.OpenView();
+        PostedSalesShipments.GotoRecord(SalesShipmentHeader);
+        PostedSalesShipments.SendCustom.Invoke();
+
+        // [THEN] Verify Email Editor is opened with correct email address and Sales Shipment No.
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectSendingOptionHandler,EmailDialogHandlerNo,CloseEmailEditorHandler')]
+    procedure TestCustomEmailPostedSalesShipment()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        DocumentSendingProfile: Record "Document Sending Profile";
+        PostedSalesShipment: TestPage "Posted Sales Shipment";
+        PostedSalesShipments: TestPage "Posted Sales Shipments";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify custom email must be sent for Posted Sales Shipment.
+        Initialize();
+
+        // [GIVEN] Create Customer with Email.
+        CreateCustomerWithEmail(Customer);
+
+        // [GIVEN] Create and Post Sales Order.
+        CreateAndPostSalesOrderWithShipment(PostedDocumentVariant, Customer, SalesHeader."Document Type"::Order);
+        SalesShipmentHeader := PostedDocumentVariant;
+
+        // [GIVEN] Initialize Document Sending Profile for Email with PDF attachment.
+        InitializeDocumentSendingProfile(
+            DocumentSendingProfile,
+            DocumentSendingProfile."E-Mail Attachment"::PDF,
+            DocumentSendingProfile.Printer::No,
+            DocumentSendingProfile."E-Mail"::"Yes (Prompt for Settings)");
+
+        // [GIVEN] Enqueue Document Sending Profile for SelectSendingOptionHandler.
+        LibraryVariableStorage.Enqueue(DocumentSendingProfile);
+
+        // [GIVEN] Enqueue Customer email and Sales Shipment No. for EmailDialogHandlerNo.
+        LibraryVariableStorage.Enqueue(Customer."E-Mail");
+        LibraryVariableStorage.Enqueue(SalesShipmentHeader."No.");
+
+        // [WHEN] Invoke Send action on Posted Sales Shipment.
+        PostedSalesShipment.OpenEdit();
+        PostedSalesShipment.GotoRecord(SalesShipmentHeader);
+        PostedSalesShipment.SendCustom.Invoke();
+        PostedSalesShipment.Close();
+
+        // [THEN] Verify Email Editor is opened with correct email address and Sales Shipment No.
+
+        // [GIVEN] Enqueue Document Sending Profile for SelectSendingOptionHandler.
+        LibraryVariableStorage.Enqueue(DocumentSendingProfile);
+
+        // [GIVEN] Enqueue Customer email and Sales Shipment No. for EmailDialogHandlerNo.
+        LibraryVariableStorage.Enqueue(Customer."E-Mail");
+        LibraryVariableStorage.Enqueue(SalesShipmentHeader."No.");
+
+        // [WHEN] Invoke Send action on Posted Sales Shipments list.
+        PostedSalesShipments.OpenView();
+        PostedSalesShipments.GotoRecord(SalesShipmentHeader);
+        PostedSalesShipments.SendCustom.Invoke();
+
+        // [THEN] Verify Email Editor is opened with correct email address and Sales Shipment No.
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectSendingOptionHandler,EmailDialogHandlerNo,CloseEmailEditorHandler')]
+    procedure TestCustomEmailForPostedReturnReceipt()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        DocumentSendingProfile: Record "Document Sending Profile";
+        PostedReturnReceipt: TestPage "Posted Return Receipt";
+        PostedReturnReceipts: TestPage "Posted Return Receipts";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify custom email must be sent for Posted Return Receipts.
+        Initialize();
+
+        // [GIVEN] Create Customer with email.
+        CreateCustomerWithEmail(Customer);
+
+        // [GIVEN] Create and Post Return Order.
+        CreateAndPostReturnOrderWithReceiving(PostedDocumentVariant, Customer, SalesHeader."Document Type"::"Return Order");
+        ReturnReceiptHeader := PostedDocumentVariant;
+
+        // [GIVEN] Initialize Document Sending Profile for Email with PDF attachment.
+        InitializeDocumentSendingProfile(
+            DocumentSendingProfile,
+            DocumentSendingProfile."E-Mail Attachment"::PDF,
+            DocumentSendingProfile.Printer::No,
+            DocumentSendingProfile."E-Mail"::"Yes (Prompt for Settings)");
+
+        // [GIVEN] Enqueue Document Sending Profile for SelectSendingOptionHandler.
+        LibraryVariableStorage.Enqueue(DocumentSendingProfile);
+
+        // [GIVEN] Enqueue Customer email and Return Receipt No. for EmailDialogHandlerNo.
+        LibraryVariableStorage.Enqueue(Customer."E-Mail");
+        LibraryVariableStorage.Enqueue(ReturnReceiptHeader."No.");
+
+        // [WHEN] Invoke Send action on Posted Return Receipt.
+        PostedReturnReceipt.OpenEdit();
+        PostedReturnReceipt.GotoRecord(ReturnReceiptHeader);
+        PostedReturnReceipt.SendCustom.Invoke();
+        PostedReturnReceipt.Close();
+
+        // [THEN] Verify Email Editor is opened with correct email address and Return Receipt No.
+
+        // [GIVEN] Enqueue Document Sending Profile for SelectSendingOptionHandler.
+        LibraryVariableStorage.Enqueue(DocumentSendingProfile);
+
+        // [GIVEN] Enqueue Customer email and Return Receipt No. for EmailDialogHandlerNo.
+        LibraryVariableStorage.Enqueue(Customer."E-Mail");
+        LibraryVariableStorage.Enqueue(ReturnReceiptHeader."No.");
+
+        // [WHEN] Invoke Send action on Posted Return Receipts list.
+        PostedReturnReceipts.OpenView();
+        PostedReturnReceipts.GotoRecord(ReturnReceiptHeader);
+        PostedReturnReceipts.SendCustom.Invoke();
+
+        // [THEN] Verify Email Editor is opened with correct email address and Return Receipt No.
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectSendingOptionHandler,PrintSalesReturnReceiptHandler')]
+    procedure TestPrintPostedReturnReceipts()
+    var
+        Customer: Record Customer;
+        DocumentSendingProfile: Record "Document Sending Profile";
+        SalesHeader: Record "Sales Header";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        PostedReturnReceipts: TestPage "Posted Return Receipts";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify Posted Return Receipt can be printed with Send action button.
+        Initialize();
+
+        // [GIVEN] Select "Sales - Return Receipt" report in report selections for Sales Return Receipt.
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"S.Ret.Rcpt.", Report::"Sales - Return Receipt");
+
+        // [GIVEN] Create Customer with email.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create and Post Return Order.
+        CreateAndPostReturnOrderWithReceiving(PostedDocumentVariant, Customer, SalesHeader."Document Type"::"Return Order");
+        ReturnReceiptHeader := PostedDocumentVariant;
+
+        // [GIVEN] Initialize Document Sending Profile for Printer with PDF & Electronic Document.
+        InitializeDocumentSendingProfile(
+            DocumentSendingProfile,
+            DocumentSendingProfile."E-Mail Attachment"::"PDF & Electronic Document",
+            DocumentSendingProfile.Printer::"Yes (Prompt for Settings)",
+            DocumentSendingProfile."E-Mail"::No);
+
+        // [GIVEN] Enqueue Document Sending Profile for SelectSendingOptionHandler.
+        LibraryVariableStorage.Enqueue(DocumentSendingProfile);
+
+        // [WHEN] Invoke Send action on Posted Return Receipts list.
+        PostedReturnReceipts.OpenView();
+        PostedReturnReceipts.GotoRecord(ReturnReceiptHeader);
+        PostedReturnReceipts.SendCustom.Invoke();
+
+        // [THEN] Verify Posted Return Receipt is printed.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(ReportNo_ReturnRcptHeaderTxt, ReturnReceiptHeader."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectSendingOptionHandler,EmailDialogHandlerNo,CloseEmailEditorHandler')]
+    procedure TestEmailPostedReturnReceipts()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        DocumentSendingProfile: Record "Document Sending Profile";
+        PostedReturnReceipt: TestPage "Posted Return Receipt";
+        PostedReturnReceipts: TestPage "Posted Return Receipts";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify Posted Return Receipt can be printed with Send action button.
+        Initialize();
+
+        // [GIVEN] Create Customer with email.
+        CreateCustomerWithEmail(Customer);
+
+        // [GIVEN] Create and Post Return Order.
+        CreateAndPostReturnOrderWithReceiving(PostedDocumentVariant, Customer, SalesHeader."Document Type"::"Return Order");
+        ReturnReceiptHeader := PostedDocumentVariant;
+
+        // [GIVEN] Initialize Document Sending Profile for Email with PDF attachment.
+        InitializeDocumentSendingProfile(
+            DocumentSendingProfile,
+            DocumentSendingProfile."E-Mail Attachment"::PDF,
+            DocumentSendingProfile.Printer::No,
+            DocumentSendingProfile."E-Mail"::"Yes (Prompt for Settings)");
+
+        // [GIVEN] Enqueue Document Sending Profile for SelectSendingOptionHandler.
+        LibraryVariableStorage.Enqueue(DocumentSendingProfile);
+
+        // [GIVEN] Enqueue Customer email and Return Receipt No. for EmailDialogHandlerNo.
+        LibraryVariableStorage.Enqueue(Customer."E-Mail");
+        LibraryVariableStorage.Enqueue(ReturnReceiptHeader."No.");
+
+        // [WHEN] Invoke Send action on Posted Return Receipt.
+        PostedReturnReceipt.OpenEdit();
+        PostedReturnReceipt.GotoRecord(ReturnReceiptHeader);
+        PostedReturnReceipt.SendCustom.Invoke();
+        PostedReturnReceipt.Close();
+
+        // [THEN] Verify Email Editor is opened with correct email address and Return Receipt No.
+
+        // [GIVEN] Enqueue Document Sending Profile for SelectSendingOptionHandler.
+        LibraryVariableStorage.Enqueue(DocumentSendingProfile);
+
+        // [GIVEN] Enqueue Customer email and Return Receipt No. for EmailDialogHandlerNo.
+        LibraryVariableStorage.Enqueue(Customer."E-Mail");
+        LibraryVariableStorage.Enqueue(ReturnReceiptHeader."No.");
+
+        // [WHEN] Invoke Send action on Posted Return Receipts list.
+        PostedReturnReceipts.OpenView();
+        PostedReturnReceipts.GotoRecord(ReturnReceiptHeader);
+        PostedReturnReceipts.SendCustom.Invoke();
+
+        // [THEN] Verify Email Editor is opened with correct email address and Return Receipt No.
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectSendingOptionHandler,EmailDialogHandlerNo,CloseEmailEditorHandler')]
+    procedure TestCustomEmailPostedReturnReceipt()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        DocumentSendingProfile: Record "Document Sending Profile";
+        PostedReturnReceipt: TestPage "Posted Return Receipt";
+        PostedReturnReceipts: TestPage "Posted Return Receipts";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify custom email must be sent for Posted Return Receipt.
+        Initialize();
+
+        // [GIVEN] Create Customer with Email.
+        CreateCustomerWithEmail(Customer);
+
+        // [GIVEN] Create and Post Return Order.
+        CreateAndPostReturnOrderWithReceiving(PostedDocumentVariant, Customer, SalesHeader."Document Type"::"Return Order");
+        ReturnReceiptHeader := PostedDocumentVariant;
+
+        // [GIVEN] Initialize Document Sending Profile for Email with PDF attachment.
+        InitializeDocumentSendingProfile(
+            DocumentSendingProfile,
+            DocumentSendingProfile."E-Mail Attachment"::PDF,
+            DocumentSendingProfile.Printer::No,
+            DocumentSendingProfile."E-Mail"::"Yes (Prompt for Settings)");
+
+        // [GIVEN] Enqueue Document Sending Profile for SelectSendingOptionHandler.
+        LibraryVariableStorage.Enqueue(DocumentSendingProfile);
+
+        // [GIVEN] Enqueue Customer email and Return Receipt No. for EmailDialogHandlerNo.
+        LibraryVariableStorage.Enqueue(Customer."E-Mail");
+        LibraryVariableStorage.Enqueue(ReturnReceiptHeader."No.");
+
+        // [WHEN] Invoke Send action on Posted Return Receipt.
+        PostedReturnReceipt.OpenEdit();
+        PostedReturnReceipt.GotoRecord(ReturnReceiptHeader);
+        PostedReturnReceipt.SendCustom.Invoke();
+        PostedReturnReceipt.Close();
+
+        // [THEN] Verify Email Editor is opened with correct email address and Return Receipt No.
+
+        // [GIVEN] Enqueue Document Sending Profile for SelectSendingOptionHandler.
+        LibraryVariableStorage.Enqueue(DocumentSendingProfile);
+
+        // [GIVEN] Enqueue Customer email and Return Receipt No. for EmailDialogHandlerNo.
+        LibraryVariableStorage.Enqueue(Customer."E-Mail");
+        LibraryVariableStorage.Enqueue(ReturnReceiptHeader."No.");
+
+        // [WHEN] Invoke Send action on Posted Return Receipts list.
+        PostedReturnReceipts.OpenView();
+        PostedReturnReceipts.GotoRecord(ReturnReceiptHeader);
+        PostedReturnReceipts.SendCustom.Invoke();
+
+        // [THEN] Verify Email Editor is opened with correct email address and Return Receipt No.
+    end;
+
     local procedure Initialize()
     var
         CompanyInfo: Record "Company Information";
         SalesHeader: Record "Sales Header";
-        LibraryWorkflow: Codeunit "Library - Workflow";
+        LibraryEmail: Codeunit "Library - Email";
     begin
-        LibraryWorkflow.SetUpEmailAccount();
+        LibraryEmail.SetUpEmailAccount();
         LibraryTestInitialize.OnTestInitialize(Codeunit::DocumentSendingPostTests);
 
         BindActiveDirectoryMockEvents();
@@ -4527,6 +4969,52 @@ codeunit 139197 DocumentSendingPostTests
         Assert.AreEqual(ElectronicDocumentVisible, SelectSendingOptions."Electronic Document".Visible(), '');
     end;
 
+    local procedure CreateAndPostSalesOrderWithShipment(var PostedDocumentVariant: Variant; var Customer: Record Customer; DocumentType: Enum "Sales Document Type")
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesPost: Codeunit "Sales-Post";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
+        UpdateYourReferenceSalesHeader(SalesHeader, LibraryUtility.GenerateGUID());
+
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        SalesPost.GetPostedDocumentRecord(SalesHeader, PostedDocumentVariant);
+    end;
+
+    local procedure CreateAndPostReturnOrderWithReceiving(var PostedDocumentVariant: Variant; var Customer: Record Customer; DocumentType: Enum "Sales Document Type")
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesPost: Codeunit "Sales-Post";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
+        UpdateYourReferenceSalesHeader(SalesHeader, LibraryUtility.GenerateGUID());
+
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        SalesPost.GetPostedDocumentRecord(SalesHeader, PostedDocumentVariant);
+    end;
+
+    local procedure AssertValidSalesShipmentNo(ExpectedValue: Text)
+    begin
+        case true of
+            LibraryReportDataset.SearchForElementByValue(ReportNo_SalesShptHeaderTxt, ExpectedValue):
+                Assert.IsTrue(true, '');
+            LibraryReportDataset.SearchForElementByValue(IT_ReportNo_SalesShptHeaderTxt, ExpectedValue):
+                Assert.IsTrue(true, '');
+            else
+                Assert.IsTrue(false, StrSubstNo(ElementNameErr, ExpectedValue));
+        end;
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostAndSendHandlerYes(var PostandSendConfirm: TestPage "Post and Send Confirmation")
@@ -5015,6 +5503,26 @@ codeunit 139197 DocumentSendingPostTests
     procedure PurchaseQuoteReportRequestPageHandler(var PurchaseQuote: TestRequestPage "Purchase - Quote")
     begin
         PurchaseQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    procedure PrintSalesShipmentHandler(var SalesShipmentRequestPage: TestRequestPage "Sales - Shipment")
+    var
+        FileName: Text;
+    begin
+        FileName := LibraryReportDataset.GetFileName();
+        LibraryVariableStorage.Enqueue(FileName);
+        SalesShipmentRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), FileName);
+    end;
+
+    [RequestPageHandler]
+    procedure PrintSalesReturnReceiptHandler(var SalesReturnReceiptRequestPage: TestRequestPage "Sales - Return Receipt")
+    var
+        FileName: Text;
+    begin
+        FileName := LibraryReportDataset.GetFileName();
+        LibraryVariableStorage.Enqueue(FileName);
+        SalesReturnReceiptRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), FileName);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Doc. Management", 'OnBeforeRetrieveDocumentItemTracking', '', false, false)]

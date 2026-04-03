@@ -482,6 +482,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit VAT Date CZL - NamedType EmptyOrigDocVATDateErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3753419350 - NamedType 1850145959" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[VAT Return Period is closed for the selected date. Please select another date.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit VAT Date CZL - NamedType VATReturnToClosedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3753419350 - NamedType 3521568129" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[VAT_SETTL]]></Val>

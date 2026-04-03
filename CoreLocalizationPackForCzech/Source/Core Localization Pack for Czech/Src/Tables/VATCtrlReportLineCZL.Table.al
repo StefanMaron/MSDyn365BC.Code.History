@@ -4,12 +4,12 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Reporting;
 
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Navigate;
-using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
-using Microsoft.Finance.Currency;
 
 table 31107 "VAT Ctrl. Report Line CZL"
 {
@@ -111,6 +111,7 @@ table 31107 "VAT Ctrl. Report Line CZL"
         field(35; Base; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Base';
             Editable = false;
             DataClassification = CustomerContent;
@@ -118,6 +119,7 @@ table 31107 "VAT Ctrl. Report Line CZL"
         field(36; Amount; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount';
             Editable = false;
             DataClassification = CustomerContent;

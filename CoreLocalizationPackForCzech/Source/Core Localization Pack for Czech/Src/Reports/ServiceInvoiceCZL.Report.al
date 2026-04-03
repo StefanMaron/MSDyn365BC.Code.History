@@ -5,6 +5,7 @@
 namespace Microsoft.Service.History;
 
 using Microsoft.Bank.BankAccount;
+using Microsoft.CRM.Team;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
@@ -17,15 +18,14 @@ using Microsoft.HumanResources.Employee;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Reminder;
-using Microsoft.Service.Setup;
 using Microsoft.Sales.Setup;
+using Microsoft.Service.Setup;
+using Microsoft.Utilities;
 using System.Email;
 using System.Globalization;
 using System.Security.User;
-using System.Utilities;
-using Microsoft.CRM.Team;
-using Microsoft.Utilities;
 using System.Text;
+using System.Utilities;
 
 report 31197 "Service Invoice CZL"
 {
@@ -536,9 +536,9 @@ report 31197 "Service Invoice CZL"
 
                 ServiceInvLine.CalcVATAmountLines("Service Invoice Header", TempVATAmountLine);
                 TempVATAmountLine.UpdateVATEntryLCYAmountsCZL("Service Invoice Header");
-                if ("Currency Factor" <> 0) and ("Currency Factor" <> 1) then begin
+                if ("VAT Currency Factor CZL" <> 0) and ("VAT Currency Factor CZL" <> 1) then begin
                     CurrencyExchangeRate.FindCurrency("Posting Date", "Currency Code", 1);
-                    CalculatedExchRate := Round(1 / "Currency Factor" * CurrencyExchangeRate."Exchange Rate Amount", 0.00001);
+                    CalculatedExchRate := Round(1 / "VAT Currency Factor CZL" * CurrencyExchangeRate."Exchange Rate Amount", 0.00001);
                     ExchRateText :=
                       StrSubstNo(ExchRateLbl, CalculatedExchRate, "General Ledger Setup"."LCY Code",
                         CurrencyExchangeRate."Exchange Rate Amount", "Currency Code");

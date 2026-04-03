@@ -4,6 +4,8 @@ using System;
 
 codeunit 3000 DotNet_Array
 {
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     trigger OnRun()
     begin

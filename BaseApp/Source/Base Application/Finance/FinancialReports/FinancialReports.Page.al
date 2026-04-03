@@ -6,6 +6,14 @@ namespace Microsoft.Finance.FinancialReports;
 
 using Microsoft.Finance.Analysis;
 
+/// <summary>
+/// Financial reports list page providing management interface for configuring and running financial reports.
+/// Combines account schedule row definitions with column layouts to create comprehensive financial statements.
+/// </summary>
+/// <remarks>
+/// Supports drill-down to account schedule overview, analysis view integration for enhanced reporting,
+/// and template-based financial statement generation including balance sheets and income statements.
+/// </remarks>
 page 108 "Financial Reports"
 {
     AboutText = 'With the Financial Reports feature, you can get insights into the financial data shown on your chart of accounts (COA). Using row and column definitions, you can set up financial reports to analyse figures in general ledger (G/L) accounts, and compare general ledger entries with budget entries.';
@@ -38,6 +46,10 @@ page 108 "Financial Reports"
                     end;
                 }
                 field(Description; Rec.Description)
+                {
+                    ApplicationArea = Basic, Suite;
+                }
+                field(CategoryCode; Rec.CategoryCode)
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -95,7 +107,43 @@ page 108 "Financial Reports"
                         ColumnLayoutName.Modify();
                     end;
                 }
+                field(DimPerspective; Rec.DimPerspective)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the dimension perspective to be used for the financial report.';
+
+                    trigger OnValidate()
+                    begin
+                        GetPerspectiveAnalysisView();
+                    end;
+                }
+                field(PerspectiveAnalysisView; PerspectiveAnalysisView)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Perspective Analysis View Name';
+                    TableRelation = "Analysis View";
+                    ToolTip = 'Specifies the name of the analysis view you want the dimension perspectives to be based on. Using an analysis view is optional.';
+
+                    trigger OnValidate()
+                    var
+                        AnalysisView: Record "Analysis View";
+                        DimPerspectiveName: Record "Dimension Perspective Name";
+                    begin
+                        DimPerspectiveName.Get(Rec.DimPerspective);
+                        if PerspectiveAnalysisView <> '' then begin
+                            AnalysisView.Get(PerspectiveAnalysisView);
+                            DimPerspectiveName."Analysis View Name" := AnalysisView.Code;
+                        end else
+                            Clear(DimPerspectiveName."Analysis View Name");
+                        DimPerspectiveName.Modify();
+                    end;
+                }
+                field(Status; Rec.Status) { }
                 field("Internal Description"; Rec."Internal Description")
+                {
+                    ApplicationArea = Basic, Suite;
+                }
+                field("Last Run by User"; Rec."Last Run by User")
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -129,6 +177,8 @@ page 108 "Financial Reports"
                 ToolTip = 'View the selected financial report with data.';
                 AboutTitle = 'View Financial Report';
                 AboutText = 'This action will open the financial report in a sandbox like environment, where all changes are saved to the user and not the report';
+                ShortCutKey = 'Return';
+
                 trigger OnAction()
                 var
                     AccScheduleOverview: Page "Acc. Schedule Overview";
@@ -143,7 +193,6 @@ page 108 "Financial Reports"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Edit Row Definition';
                 Image = Edit;
-                ShortCutKey = 'Return';
                 ToolTip = 'Edit the row definition of the selected financial report.';
 
                 trigger OnAction()
@@ -169,6 +218,38 @@ page 108 "Financial Reports"
                     ColumnLayout.SetColumnLayoutName(Rec."Financial Report Column Group");
                     ColumnLayout.Run();
                 end;
+            }
+            action(EditDimPerspective)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Edit Dimension Perspective';
+                Image = Edit;
+                ToolTip = 'Edit the selected dimension perspective.';
+
+                trigger OnAction()
+                var
+                    DimPerspectiveLine: Record "Dimension Perspective Line";
+                begin
+                    Rec.TestField(DimPerspective);
+                    DimPerspectiveLine.SetRange(Name, Rec.DimPerspective);
+                    Page.Run(0, DimPerspectiveLine);
+                end;
+            }
+            action(ShowAllRowDefinitions)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Show All Row Definitions';
+                Image = List;
+                ToolTip = 'Open the Row Definitions list page.';
+                RunObject = page "Account Schedule Names";
+            }
+            action(ShowAllColumnDefinitions)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Show All Column Definitions';
+                Image = List;
+                ToolTip = 'Open the Column Definitions list page.';
+                RunObject = page "Column Layout Names";
             }
             action(CopyFinancialReport)
             {
@@ -216,6 +297,28 @@ page 108 "Financial Reports"
                     FinancialReportMgt.XMLExchangeExport(Rec);
                 end;
             }
+            action(ShowAllCategories)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Show All Categories';
+                Image = List;
+                RunObject = page "Financial Report Categories";
+                ToolTip = 'View or edit financial report categories.';
+            }
+            action(EditCategory)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Edit Category';
+                Image = Edit;
+                ToolTip = 'Edit the category of the selected financial report.';
+                trigger OnAction()
+                var
+                    FinancialReportCategory: Record "Financial Report Category";
+                begin
+                    if FinancialReportCategory.Get(Rec.CategoryCode) then
+                        Page.Run(Page::"Financial Report Category", FinancialReportCategory);
+                end;
+            }
         }
         area(navigation)
         {
@@ -236,6 +339,38 @@ page 108 "Financial Reports"
                     AccSchedOverview.SetFinancialReportName(Rec.Name);
                     AccSchedOverview.Run();
                 end;
+            }
+            action(Schedules)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Schedules';
+                ToolTip = 'View or edit when the financial report is scheduled to be exported or emailed.';
+                Image = CheckList;
+
+                trigger OnAction()
+                var
+                    FinancialReportSchedule: Record "Financial Report Schedule";
+                begin
+                    FinancialReportSchedule.SetRange("Financial Report Name", Rec.Name);
+                    Page.Run(0, FinancialReportSchedule);
+                end;
+            }
+            action("Audit Logs")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Audit Logs';
+                Image = Log;
+                ToolTip = 'Opens the Financial Report Audit Logs for the selected report.';
+                RunObject = Page "Financial Report Audit Logs";
+                RunPageLink = "Report Name" = field(Name);
+            }
+            action("All Audit Logs")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'All Audit Logs';
+                Image = Log;
+                ToolTip = 'Opens the Financial Report Audit Logs showing all entries.';
+                RunObject = Page "Financial Report Audit Logs";
             }
         }
         area(reporting)
@@ -264,10 +399,16 @@ page 108 "Financial Reports"
 
             group(Category_Edit)
             {
-                Caption = 'Edit definitions';
+                Caption = 'Definitions';
                 actionref(Overview_Promoted; Overview) { }
                 actionref(EditRowGroup_Promoted; EditRowGroup) { }
                 actionref(EditColumnGroup_Promoted; EditColumnGroup) { }
+                actionref(EditDimPerspective_Promoted; EditDimPerspective) { }
+                actionref(EditCategory_Promoted; EditCategory) { }
+                actionref(ShowAllRowDefinitions_Promoted; ShowAllRowDefinitions) { }
+                actionref(ShowAllColumnDefinitions_Promoted; ShowAllColumnDefinitions) { }
+                actionref(ShowAllCategories_Promoted; ShowAllCategories) { }
+                actionref(Schedules_Promoted; Schedules) { }
             }
             group(CopyExportImport)
             {
@@ -275,6 +416,13 @@ page 108 "Financial Reports"
                 actionref(CopyFinancialReport_Promoted; CopyFinancialReport) { }
                 actionref(ExportFinancialReport_Promoted; ExportFinancialReport) { }
                 actionref(ImportFinancialReport_Promoted; ImportFinancialReport) { }
+            }
+            group(Audit)
+            {
+                Caption = 'Audit';
+                ShowAs = SplitButton;
+                actionref("Audit Logs_Promoted"; "Audit Logs") { }
+                actionref("All Audit Logs_Promoted"; "All Audit Logs") { }
             }
         }
     }
@@ -284,6 +432,27 @@ page 108 "Financial Reports"
         FinancialReportMgt: Codeunit "Financial Report Mgt.";
     begin
         FinancialReportMgt.Initialize();
+    end;
+
+    trigger OnOpenPage()
+    var
+        FinancialReportStatus: Record "Financial Report Status";
+        LastFilterGroup: Integer;
+    begin
+        if not FinancialReportStatus.WritePermission() then begin
+            LastFilterGroup := Rec.FilterGroup();
+            Rec.FilterGroup(4);
+            Rec.SetRange("Status Blocked", false);
+            Rec.FilterGroup(LastFilterGroup);
+        end;
+    end;
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    var
+        FinancialReportMgt: Codeunit "Financial Report Mgt.";
+    begin
+        Clear(PerspectiveAnalysisView);
+        Rec.Status := FinancialReportMgt.GetDefaultStatus();
     end;
 
     trigger OnAfterGetCurrRecord()
@@ -296,6 +465,10 @@ page 108 "Financial Reports"
         UpdateCalculatedFields();
     end;
 
+    /// <summary>
+    /// Updates calculated fields for analysis view names from row and column definitions.
+    /// Retrieves analysis view assignments from account schedule and column layout records.
+    /// </summary>
     local procedure UpdateCalculatedFields()
     var
         AccScheduleName: Record "Acc. Schedule Name";
@@ -310,9 +483,22 @@ page 108 "Financial Reports"
         if Rec."Financial Report Column Group" <> '' then
             if ColumnLayoutName.Get(Rec."Financial Report Column Group") then
                 AnalysisViewColumn := ColumnLayoutName."Analysis View Name";
+
+        GetPerspectiveAnalysisView();
+    end;
+
+    local procedure GetPerspectiveAnalysisView()
+    var
+        DimPerspectiveName: Record "Dimension Perspective Name";
+    begin
+        Clear(PerspectiveAnalysisView);
+        if Rec.DimPerspective <> '' then
+            if DimPerspectiveName.Get(Rec.DimPerspective) then
+                PerspectiveAnalysisView := DimPerspectiveName."Analysis View Name";
     end;
 
     var
         AnalysisViewRow: Text;
         AnalysisViewColumn: Text;
+        PerspectiveAnalysisView: Text;
 }

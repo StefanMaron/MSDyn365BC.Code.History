@@ -178,6 +178,7 @@ codeunit 99000858 "Mfg. Get Demand To Reserve"
             ReservationWkshLine."Variant Code" := TempProdOrderComponent."Variant Code";
             ReservationWkshLine."Location Code" := TempProdOrderComponent."Location Code";
             ReservationWkshLine.Description := TempProdOrderComponent.Description;
+            ReservationWkshLine."Description 2" := TempProdOrderComponent."Description 2";
 
             ReservationWkshLine."Demand Date" := TempProdOrderComponent."Due Date";
             ReservationWkshLine."Unit of Measure Code" := TempProdOrderComponent."Unit of Measure Code";

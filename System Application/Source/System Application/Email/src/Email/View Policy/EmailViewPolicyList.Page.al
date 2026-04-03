@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Email;
+
 using System.Security.AccessControl;
 using System.Security.User;
 using System.Telemetry;

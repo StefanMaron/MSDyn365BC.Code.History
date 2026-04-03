@@ -4,16 +4,16 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument.Processing.Import;
 
-using Microsoft.eServices.EDocument;
-using Microsoft.Foundation.UOM;
-using Microsoft.Purchases.Vendor;
-using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Bank.Reconciliation;
-using Microsoft.eServices.EDocument.Service.Participant;
-using Microsoft.Inventory.Item;
-using Microsoft.Purchases.Document;
-using Microsoft.eServices.EDocument.Processing.Interfaces;
+using Microsoft.eServices.EDocument;
 using Microsoft.eServices.EDocument.Processing.Import.Purchase;
+using Microsoft.eServices.EDocument.Processing.Interfaces;
+using Microsoft.eServices.EDocument.Service.Participant;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Vendor;
 using System.Log;
 
 
@@ -45,7 +45,7 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineProvider, IUnitOfMeasur
         if EDocumentHasNoVendorInformation then
             exit;
 
-        if Vendor.Get(EDocumentImportHelper.FindVendor('', EDocumentPurchaseHeader."Vendor GLN", EDocumentPurchaseHeader."Vendor VAT Id")) then
+        if Vendor.Get(EDocumentImportHelper.FindVendor('', EDocumentPurchaseHeader."Vendor GLN", CopyStr(EDocumentPurchaseHeader."Vendor VAT Id", 1, 20))) then
             exit;
 
         ServiceParticipant.SetRange("Participant Type", ServiceParticipant."Participant Type"::Vendor);
@@ -82,7 +82,6 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineProvider, IUnitOfMeasur
         ActivityLog
             .Init(Database::"E-Document Purchase Line", FieldNo, SystemId)
             .SetExplanation(Reasoning)
-            .SetConfidence('High') // Default to high confidence
             .SetReferenceSource(PageId, RecordRef)
             .SetReferenceTitle(RefTitle);
     end;
@@ -115,7 +114,7 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineProvider, IUnitOfMeasur
             EDocumentPurchaseLine.Validate("[BC] Item Reference No.", ItemReference."Reference No.");
             EDocImpSessionTelemetry.SetLineBool(EDocumentPurchaseLine.SystemId, 'Item Reference ', true);
 
-            SetActivityLog(EDocumentPurchaseLine.SystemId, EDocumentPurchaseLine.FieldNo("[BC] Item Reference No."), StrSubstNo(ItemReferenceReasonMsg, VendorNo), ItemReference, Page::"Item References", StrSubstNo(ItemReferenceSourceMsg, ItemReference."Reference No."), ActivityLog);
+            SetActivityLog(EDocumentPurchaseLine.SystemId, EDocumentPurchaseLine.FieldNo("[BC] Purchase Type No."), StrSubstNo(ItemReferenceReasonMsg, VendorNo), ItemReference, Page::"Item References", StrSubstNo(ItemReferenceSourceMsg, ItemReference."Reference No."), ActivityLog);
             EDocActivityLogSession.Set(EDocActivityLogSession.ItemRefTok(), ActivityLog);
             exit;
         end;

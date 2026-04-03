@@ -219,6 +219,11 @@ table 6100 "E-Document Purchase Header"
             Caption = 'Vendor Contact Name';
             DataClassification = CustomerContent;
         }
+        field(38; "Posting Description"; Text[100])
+        {
+            Caption = 'Posting Description';
+            DataClassification = CustomerContent;
+        }
         #endregion Purchase fields
 
         #region Business Central Data - Validated fields [101-200]
@@ -282,6 +287,6 @@ table 6100 "E-Document Purchase Header"
 
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
-        DeleteDraftPerformedTxt: Label 'User deleted the draft.';
+        DeleteDraftPerformedTxt: Label 'User deleted the draft.', Locked = true;
 
 }

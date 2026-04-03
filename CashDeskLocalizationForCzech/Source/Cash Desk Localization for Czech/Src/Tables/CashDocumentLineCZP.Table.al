@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -452,6 +452,8 @@ table 11733 "Cash Document Line CZP"
         }
         field(20; Amount; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
             Caption = 'Amount';
             DataClassification = CustomerContent;
 
@@ -463,6 +465,8 @@ table 11733 "Cash Document Line CZP"
         }
         field(21; "Amount (LCY)"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount (LCY)';
             DataClassification = CustomerContent;
 
@@ -783,6 +787,7 @@ table 11733 "Cash Document Line CZP"
         field(55; "VAT Base Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'VAT Base Amount (LCY)';
             Editable = false;
             DataClassification = CustomerContent;
@@ -790,6 +795,7 @@ table 11733 "Cash Document Line CZP"
         field(56; "Amount Including VAT (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount Including VAT (LCY)';
             Editable = false;
             DataClassification = CustomerContent;
@@ -797,6 +803,7 @@ table 11733 "Cash Document Line CZP"
         field(57; "VAT Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'VAT Amount (LCY)';
             Editable = false;
             DataClassification = CustomerContent;
@@ -811,6 +818,7 @@ table 11733 "Cash Document Line CZP"
         }
         field(60; "VAT %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'VAT %';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -828,13 +836,8 @@ table 11733 "Cash Document Line CZP"
             Caption = 'VAT Difference (LCY)';
             DataClassification = CustomerContent;
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-#if CLEAN25
             ObsoleteState = Removed;
             ObsoleteTag = '28.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
 #endif
         field(63; "System-Created Entry"; Boolean)
@@ -924,6 +927,16 @@ table 11733 "Cash Document Line CZP"
         {
             Caption = 'FA Posting Type';
             DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                if "Account Type" <> "Account Type"::"Fixed Asset" then
+                    exit;
+
+                if "FA Posting Type" = "FA Posting Type"::"Acquisition Cost" then
+                    if FASetup.IsFAAcquisitionAsCustom2CZL() then
+                        "FA Posting Type" := "FA Posting Type"::"Custom 2";
+            end;
         }
         field(91; "Depreciation Book Code"; Code[10])
         {
@@ -984,6 +997,7 @@ table 11733 "Cash Document Line CZP"
         }
         field(110; "Non-Deductible VAT %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Non-Deductible VAT %';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -996,6 +1010,7 @@ table 11733 "Cash Document Line CZP"
         }
         field(111; "Non-Deductible VAT Base"; Decimal)
         {
+            AutoFormatType = 1;
             AutoFormatExpression = Rec."Currency Code";
             Caption = 'Non-Deductible VAT Base';
             Editable = false;
@@ -1003,6 +1018,7 @@ table 11733 "Cash Document Line CZP"
         }
         field(112; "Non-Deductible VAT Amount"; Decimal)
         {
+            AutoFormatType = 1;
             AutoFormatExpression = Rec."Currency Code";
             Caption = 'Non-Deductible VAT Amount';
             Editable = false;
@@ -1010,34 +1026,40 @@ table 11733 "Cash Document Line CZP"
         }
         field(113; "Non-Deductible VAT Base LCY"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Non-Deductible VAT Base LCY';
             Editable = false;
             DataClassification = CustomerContent;
         }
         field(114; "Non-Deductible VAT Amount LCY"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Non-Deductible VAT Amount LCY';
             Editable = false;
             DataClassification = CustomerContent;
         }
         field(115; "Non-Deductible VAT Base ACY"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
+            AutoFormatExpression = GetAdditionalReportingCurrency();
             Caption = 'Non-Deductible VAT Base ACY';
             Editable = false;
             DataClassification = CustomerContent;
         }
         field(116; "Non-Deductible VAT Amount ACY"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
+            AutoFormatExpression = GetAdditionalReportingCurrency();
             Caption = 'Non-Deductible VAT Amount ACY';
             Editable = false;
             DataClassification = CustomerContent;
         }
         field(117; "Non-Deductible VAT Diff."; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
             Caption = 'Non-Deductible VAT Difference';
             Editable = false;
             DataClassification = CustomerContent;
@@ -1089,6 +1111,7 @@ table 11733 "Cash Document Line CZP"
         }
         field(1004; "Project Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             AccessByPermission = TableData Job = R;
             Caption = 'Project Quantity';
             DecimalPlaces = 0 : 5;
@@ -1253,6 +1276,7 @@ table 11733 "Cash Document Line CZP"
         CashDeskEventCZP: Record "Cash Desk Event CZP";
         TempCashDocumentLineCZP: Record "Cash Document Line CZP" temporary;
         FixedAsset: Record "Fixed Asset";
+        FASetup: Record "FA Setup";
         DimensionManagement: Codeunit DimensionManagement;
         ConfirmManagement: Codeunit "Confirm Management";
         RenameErr: Label 'You cannot rename a %1.', Comment = '%1 = TableCaption';
@@ -1788,7 +1812,6 @@ table 11733 "Cash Document Line CZP"
     var
         PostedGLAccount: Record "G/L Account";
         FAPostingGroup: Record "FA Posting Group";
-        FASetup: Record "FA Setup";
         FADepreciationBook: Record "FA Depreciation Book";
         SetFADeprBook: Record "FA Depreciation Book";
         FADeprBook: Record "FA Depreciation Book";
@@ -1821,7 +1844,7 @@ table 11733 "Cash Document Line CZP"
                 exit;
         end;
         if "FA Posting Type" = "FA Posting Type"::" " then
-            "FA Posting Type" := "FA Posting Type"::"Acquisition Cost";
+            "FA Posting Type" := FASetup.IsFAAcquisitionAsCustom2CZL() ? "FA Posting Type"::"Custom 2" : "FA Posting Type"::"Acquisition Cost";
         FADepreciationBook.Get("Account No.", "Depreciation Book Code");
         FADepreciationBook.TestField("FA Posting Group");
         FAPostingGroup.Get(FADepreciationBook."FA Posting Group");
@@ -1834,7 +1857,6 @@ table 11733 "Cash Document Line CZP"
                 PostedGLAccount.Get(FAPostingGroup."Acquisition Cost Account");
             end;
         PostedGLAccount.CheckGLAcc();
-        PostedGLAccount.TestField("Gen. Prod. Posting Group");
         "Posting Group" := FADepreciationBook."FA Posting Group";
         Validate("Gen. Posting Type", PostedGLAccount."Gen. Posting Type");
         Validate("VAT Bus. Posting Group", PostedGLAccount."VAT Bus. Posting Group");
@@ -1962,10 +1984,6 @@ table 11733 "Cash Document Line CZP"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
-#if not CLEAN25
-        CrossApplicationMgtCZL: Codeunit "Cross Application Mgt. CZL";
-        AppliesToAdvanceLetterNo: Code[20];
-#endif
     begin
         if "Account No." = '' then
             exit;
@@ -2000,17 +2018,6 @@ table 11733 "Cash Document Line CZP"
                             EmployeeLedgerEntry.CollectSuggestedApplicationCZL(Rec, CrossApplicationBufferCZL);
                     end;
             end;
-#if not CLEAN25
-#pragma warning disable AL0432
-        if "Account Type" = "Account Type"::Vendor then begin
-            OnBeforeFindRelatedAmoutToApply(Rec, AppliesToAdvanceLetterNo);
-            if AppliesToAdvanceLetterNo <> '' then
-                CrossApplicationMgtCZL.OnGetSuggestedAmountForPurchAdvLetterHeader(
-                    AppliesToAdvanceLetterNo, CrossApplicationBufferCZL,
-                    Database::"Cash Document Line CZP", "Cash Document No.", "Line No.");
-        end;
-#pragma warning restore AL0432
-#endif
 
         OnAfterCollectSuggestedApplication(Rec, CrossApplicationBufferCZL);
     end;
@@ -2174,6 +2181,12 @@ table 11733 "Cash Document Line CZP"
         end;
     end;
 
+    local procedure GetAdditionalReportingCurrency(): Code[10]
+    begin
+        GeneralLedgerSetup.GetRecordOnce();
+        exit(GeneralLedgerSetup."Additional Reporting Currency");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsEETTransaction(CashDocumentLineCZP: Record "Cash Document Line CZP"; var EETTransaction: Boolean; var IsHandled: Boolean)
     begin
@@ -2188,13 +2201,6 @@ table 11733 "Cash Document Line CZP"
     local procedure OnAfterIsEETCashRegister(CashDocumentLineCZP: Record "Cash Document Line CZP"; var EETCashRegister: Boolean)
     begin
     end;
-#if not CLEAN25
-    [Obsolete('The event is obsolete and will be removed in the future version. Use OnAfterCollectSuggestedApplication instead.', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindRelatedAmoutToApply(CashDocumentLineCZP: Record "Cash Document Line CZP"; var AppliesToAdvanceLetterNo: Code[20]);
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDim(var CashDocumentLineCZP: Record "Cash Document Line CZP"; var IsHandled: Boolean)

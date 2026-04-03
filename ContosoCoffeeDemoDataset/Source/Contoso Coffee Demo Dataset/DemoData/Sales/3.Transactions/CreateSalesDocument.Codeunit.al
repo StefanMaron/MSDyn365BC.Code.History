@@ -5,13 +5,13 @@
 
 namespace Microsoft.DemoData.Sales;
 
-using Microsoft.Sales.Document;
-using Microsoft.DemoTool.Helpers;
-using Microsoft.DemoData.Foundation;
-using Microsoft.DemoData.Inventory;
 using Microsoft.DemoData.Bank;
 using Microsoft.DemoData.Finance;
+using Microsoft.DemoData.Foundation;
+using Microsoft.DemoData.Inventory;
+using Microsoft.DemoTool.Helpers;
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Sales.Document;
 
 codeunit 5418 "Create Sales Document"
 {

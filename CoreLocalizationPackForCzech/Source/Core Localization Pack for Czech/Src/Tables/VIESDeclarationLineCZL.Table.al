@@ -4,11 +4,11 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Reporting;
 
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
-using Microsoft.Finance.Currency;
-using Microsoft.Finance.GeneralLedger.Setup;
 
 table 31076 "VIES Declaration Line CZL"
 {
@@ -102,6 +102,8 @@ table 31076 "VIES Declaration Line CZL"
         }
         field(12; "Amount (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             Caption = 'Amount (LCY)';
             DecimalPlaces = 0 : 0;
             DataClassification = CustomerContent;
@@ -150,6 +152,7 @@ table 31076 "VIES Declaration Line CZL"
         }
         field(17; "Number of Supplies"; Decimal)
         {
+            AutoFormatType = 0;
             BlankNumbers = DontBlank;
             Caption = 'Number of Supplies';
             DecimalPlaces = 0 : 0;

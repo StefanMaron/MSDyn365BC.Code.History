@@ -522,7 +522,6 @@ codeunit 137402 "SCM Costing Batch"
           GetNumberOfStandardCostWorksheetLines(StandardCostWorksheetName) > CountRowsBeforeRollup, StandardCostWorksheetMustExist);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SuggestItemPriceOnWorksheetWithSalesTypeCustomer()
@@ -584,7 +583,6 @@ codeunit 137402 "SCM Costing Batch"
         // Verify: Verify Sales Price Worksheet must exist.
         VerifySalesPriceWorksheet(SalesType, SalesCode, CurrencyCode, Item."No.");
     end;
-#endif
 
     [Test]
     [HandlerFunctions('AverageCostCalcOverviewHandler')]
@@ -756,7 +754,6 @@ codeunit 137402 "SCM Costing Batch"
         VerifyCopyStandardCostWorkSheet(StandardCostWorksheetName2, StandardCostWorksheet.Type::"Machine Center", MachineCenter."No.");
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SuggestSalesPriceOnWorksheetWithSalesTypeCustomer()
@@ -812,7 +809,6 @@ codeunit 137402 "SCM Costing Batch"
         // Verify: Verify Sales Price Worksheet must exist.
         VerifySalesPriceWorksheet(SalesType, SalesCode, '', Item."No.");
     end;
-#endif
 
     [Test]
     [HandlerFunctions('AdjustItemCostPricesHandler')]
@@ -1732,7 +1728,6 @@ codeunit 137402 "SCM Costing Batch"
         Clear(DecreaseQuantity);
     end;
 
-#if not CLEAN25
     local procedure CreateCampaign(): Code[20]
     var
         Campaign: Record Campaign;
@@ -1741,7 +1736,7 @@ codeunit 137402 "SCM Costing Batch"
         LibraryMarketing.CreateCampaign(Campaign);
         exit(Campaign."No.");
     end;
-#endif
+
     local procedure CreateAndModifyItem(var Item: Record Item; CostingMethod: Enum "Costing Method"; StandardCost: Decimal; UnitCost: Decimal)
     begin
         CreateItem(Item);
@@ -1818,7 +1813,6 @@ codeunit 137402 "SCM Costing Batch"
         ItemNo := Item."No.";
     end;
 
-#if not CLEAN25
     local procedure CreateCurrency(): Code[10]
     var
         Currency: Record Currency;
@@ -1827,7 +1821,7 @@ codeunit 137402 "SCM Costing Batch"
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
         exit(Currency.Code);
     end;
-#endif
+
     local procedure CreateCustomer(): Code[20]
     var
         Customer: Record Customer;
@@ -1836,7 +1830,6 @@ codeunit 137402 "SCM Costing Batch"
         exit(Customer."No.");
     end;
 
-#if not CLEAN25
     local procedure CreateCustomerPriceGroup(): Code[10]
     var
         CustomerPriceGroup: Record "Customer Price Group";
@@ -1844,7 +1837,7 @@ codeunit 137402 "SCM Costing Batch"
         LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
         exit(CustomerPriceGroup.Code);
     end;
-#endif
+
     local procedure CreateItem(var Item: Record Item)
     begin
         LibraryInventory.CreateItem(Item);
@@ -1918,7 +1911,6 @@ codeunit 137402 "SCM Costing Batch"
         RoutingHeader.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure CreateSalesPrice(Item: Record Item; SalesType: Enum "Sales Price Type"; SalesCode: Code[20])
     var
         SalesPrice: Record "Sales Price";
@@ -1929,7 +1921,6 @@ codeunit 137402 "SCM Costing Batch"
         SalesPrice.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesPrice.Modify(true);
     end;
-#endif
 
     local procedure CreateStandardCostWorksheetName(): Code[10]
     var
@@ -2280,7 +2271,6 @@ codeunit 137402 "SCM Costing Batch"
           StrSubstNo(ValidationError, Item.FieldCaption("Sales (LCY)"), SalesLCY));
     end;
 
-#if not CLEAN25
     local procedure VerifySalesPriceWorksheet(SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; CurrencyCode: Code[10]; ItemNo: Code[20])
     var
         SalesPriceWorksheet: Record "Sales Price Worksheet";
@@ -2291,7 +2281,6 @@ codeunit 137402 "SCM Costing Batch"
         SalesPriceWorksheet.SetRange("Item No.", ItemNo);
         SalesPriceWorksheet.FindFirst();
     end;
-#endif
 
     local procedure VerifyStandardCostWorksheet(StandardCostWorksheetName: Code[10]; Type: Enum "Standard Cost Source Type"; No: Code[20])
     var

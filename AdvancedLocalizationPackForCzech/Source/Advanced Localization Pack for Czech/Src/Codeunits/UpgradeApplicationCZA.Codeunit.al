@@ -123,6 +123,7 @@ codeunit 31251 "Upgrade Application CZA"
         DefaultDimensionDataTransfer.SetTables(Database::"Default Dimension", Database::"Default Dimension");
         DefaultDimensionDataTransfer.AddSourceFilter(DefaultDimension.FieldNo("Automatic Create CZA"), '=%1', true);
         DefaultDimensionDataTransfer.AddConstantValue(DefaultDimensionValuePosting::" ", DefaultDimension.FieldNo("Value Posting"));
+        DefaultDimensionDataTransfer.UpdateAuditFields := false;
         DefaultDimensionDataTransfer.CopyFields();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitionsCZA.GetAutoCreateDefaultDimensionValuePostingUpgradeTag());

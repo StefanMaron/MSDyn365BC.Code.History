@@ -6,6 +6,7 @@ namespace Microsoft.Sales.History;
 
 using Microsoft.Bank.Setup;
 using Microsoft.Finance.Currency;
+using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 
@@ -84,6 +85,7 @@ tableextension 11727 "Sales Cr.Memo Header CZL" extends "Sales Cr.Memo Header"
         }
         field(11750; "Additional Currency Factor CZL"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Additional Currency Factor';
             DecimalPlaces = 0 : 15;
             MinValue = 0;
@@ -91,6 +93,7 @@ tableextension 11727 "Sales Cr.Memo Header CZL" extends "Sales Cr.Memo Header"
         }
         field(11774; "VAT Currency Factor CZL"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'VAT Currency Factor';
             DataClassification = CustomerContent;
             DecimalPlaces = 0 : 15;
@@ -164,4 +167,31 @@ tableextension 11727 "Sales Cr.Memo Header CZL" extends "Sales Cr.Memo Header"
             DataClassification = CustomerContent;
         }
     }
+
+    var
+        PopUpVATLCYCorrection: Boolean;
+
+    procedure SetPopUpVATLCYCorrectionCZL(NewPopUpVATLCYCorrection: Boolean)
+    begin
+        PopUpVATLCYCorrection := NewPopUpVATLCYCorrection;
+    end;
+
+    procedure GetPopUpVATLCYCorrectionCZL(): Boolean
+    begin
+        exit(PopUpVATLCYCorrection);
+    end;
+
+    procedure MakeVATLCYCorrectionCZL()
+    var
+        VATLCYCorrectionCZL: Page "VAT LCY Correction CZL";
+    begin
+        VATLCYCorrectionCZL.InitGlobals(Rec);
+        VATLCYCorrectionCZL.Run();
+    end;
+
+    procedure IsVATLCYCorrectionAllowedCZL(): Boolean
+    begin
+        Rec.CalcFields("Amount Including VAT", "Amount");
+        exit((Rec."Currency Code" <> '') and ((Rec."Amount Including VAT" - Rec."Amount") <> 0));
+    end;
 }

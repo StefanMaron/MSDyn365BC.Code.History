@@ -5,11 +5,11 @@
 
 namespace Microsoft.Integration.Shopify;
 
+using System.Apps;
 using System.Azure.KeyVault;
 using System.Environment;
 using System.Security.Authentication;
 using System.Utilities;
-using System.Apps;
 
 /// <summary>
 /// Codeunit Shpfy Authentication Mgt. (ID 30199).
@@ -65,7 +65,7 @@ codeunit 30199 "Shpfy Authentication Mgt."
     end;
 
     [NonDebuggable]
-    internal procedure InstallShopifyApp(InstalllToStore: Text)
+    internal procedure InstallShopifyApp(InstallToStore: Text; var Shop: Record "Shpfy Shop")
     var
         OAuth2: Codeunit "OAuth2";
         ShopifyAuthentication: Page "Shpfy Authentication";
@@ -79,15 +79,23 @@ codeunit 30199 "Shpfy Authentication Mgt."
         InstallURLTxt: Label 'https://%1/admin/oauth/authorize?scope=%2&redirect_uri=%3&state=%4&grant_options[]=%5', Comment = '%1 = Store, %2 = Scope, %3 = RedirectUrl, %4 = State, %5 = GrantOptions', Locked = true;
         InstallURLWithClientIdParamTok: Label '%1&client_id=%2', Comment = '%1 = InstallURLTxt, %2 = ClientId', Locked = true;
         NotMatchingStateErr: Label 'The state parameter value does not match.';
+        StoreMismatchLbl: Label 'The store URL returned from Shopify differs from the URL you entered. You can find your store''s internal URL in Shopify Admin under Domains settings. Do you want to update the store URL to match?';
     begin
         OAuth2.GetDefaultRedirectURL(RedirectUrl);
         State := Random(999);
-        Url := StrSubstNo(InstallURLTxt, InstalllToStore, GetScope(), RedirectUrl, State, GrandOptionsTxt);
+        Url := StrSubstNo(InstallURLTxt, InstallToStore, GetScope(), RedirectUrl, State, GrandOptionsTxt);
         FullUrl := StrSubstNo(InstallURLWithClientIdParamTok, Url, GetClientId());
         ShopifyAuthentication.SetOAuth2Properties(FullUrl);
         Commit();
         ShopifyAuthentication.RunModal();
         Store := ShopifyAuthentication.Store();
+
+        if Store <> InstallToStore then
+            if Confirm(StoreMismatchLbl) then
+                Shop.SetStoreName(Store)
+            else
+                Error('');
+
         AuthorizationCode := ShopifyAuthentication.GetAuthorizationCode();
         if AuthorizationCode.IsEmpty() then
             if ShopifyAuthentication.GetAuthError() <> '' then
@@ -174,25 +182,20 @@ codeunit 30199 "Shpfy Authentication Mgt."
     end;
 
     internal procedure AssertValidShopUrl(ShopUrl: Text)
-    begin
-        if not IsValidShopUrl(ShopUrl) then
-            Error(InvalidShopUrlErr);
-    end;
-
-    local procedure IsValidShopUrl(ShopUrl: Text): Boolean
     var
-        Regex: Codeunit Regex;
+        URI: Codeunit Uri;
         PatternLbl: Label '^(https)\:\/\/[a-zA-Z0-9][a-zA-Z0-9\-]*\.myshopify\.com[\/]*$', Locked = true;
     begin
-        exit(Regex.IsMatch(ShopUrl, PatternLbl))
+        if not URI.IsValidURIPattern(ShopUrl, PatternLbl) then
+            Error(InvalidShopUrlErr);
     end;
 
     procedure IsValidHostName(Hostname: Text): Boolean
     var
-        Regex: Codeunit Regex;
+        URI: Codeunit Uri;
         PatternLbl: Label '^[a-zA-Z0-9][a-zA-Z0-9\-]*\.myshopify\.com$', Locked = true;
     begin
-        exit(Regex.IsMatch(Hostname, PatternLbl))
+        exit(URI.IsValidURIPattern(Hostname, PatternLbl));
     end;
 
     procedure CorrectShopUrl(var ShopUrl: Text[250])

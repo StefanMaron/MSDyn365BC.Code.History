@@ -573,7 +573,6 @@ codeunit 135022 "Data Migration Facade Tests"
         UnbindSubscription(DataMigrationFacadeTests);
     end;
 
-#if not CLEAN25
     [Test]
     //[HandlerFunctions('ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -971,7 +970,6 @@ codeunit 135022 "Data Migration Facade Tests"
 
         UnbindSubscription(DataMigrationFacadeTests);
     end;
-#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -1627,7 +1625,7 @@ codeunit 135022 "Data Migration Facade Tests"
         GLAccount."No." := AccountNo;
         GLAccount.Insert();
     end;
-#if not CLEAN25
+
     local procedure VerifyPriceListHeader(PriceListLine: Record "Price List Line")
     var
         PriceListHeader: Record "Price List Header";
@@ -1642,7 +1640,7 @@ codeunit 135022 "Data Migration Facade Tests"
         PriceListHeader.TestField("Starting Date", PriceListLine."Starting Date");
         PriceListHeader.TestField("Ending Date", PriceListLine."Ending Date");
     end;
-#endif
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)

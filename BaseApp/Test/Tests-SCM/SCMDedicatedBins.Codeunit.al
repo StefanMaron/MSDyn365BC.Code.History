@@ -28,7 +28,7 @@ codeunit 137502 "SCM Dedicated Bins"
         VSTF190324Msg1: Label 'There is nothing to create.';
         MSG_INVT_PICK_CREATED: Label 'Number of Invt. Pick activities created: 1 out of a total of 1.';
         ChangeValueEntriesQst: Label 'Do you really want to change %1 although value entries exist?';
-        LocationSetErr: Label 'The location code should already be set.';
+        LocationSetErr: Label 'Location code should have been set already';
 
     [Normal]
     local procedure Initialize()

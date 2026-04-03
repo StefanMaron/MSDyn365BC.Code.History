@@ -5,9 +5,6 @@
 namespace Microsoft.Finance.AdvancePayments;
 
 using Microsoft.Bank.BankAccount;
-#if not CLEAN25
-using Microsoft.Bank.Documents;
-#endif
 using Microsoft.Bank.Setup;
 using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Contact;
@@ -664,6 +661,7 @@ table 31008 "Purch. Adv. Letter Header CZZ"
         }
         field(71; "Currency Factor"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Currency Factor';
             DataClassification = CustomerContent;
             DecimalPlaces = 0 : 15;
@@ -714,14 +712,17 @@ table 31008 "Purch. Adv. Letter Header CZZ"
         field(200; "Amount Including VAT"; Decimal)
 #pragma warning restore AA0232
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
             Caption = 'Amount Including VAT';
             Editable = false;
-            AutoFormatExpression = "Currency Code";
             FieldClass = FlowField;
             CalcFormula = sum("Purch. Adv. Letter Line CZZ"."Amount Including VAT" where("Document No." = field("No.")));
         }
         field(201; "Amount Including VAT (LCY)"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount Including VAT (LCY)';
             Editable = false;
             FieldClass = FlowField;
@@ -729,6 +730,8 @@ table 31008 "Purch. Adv. Letter Header CZZ"
         }
         field(202; Amount; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
             Caption = 'Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -736,6 +739,8 @@ table 31008 "Purch. Adv. Letter Header CZZ"
         }
         field(205; "To Pay"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
             Caption = 'To Pay Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -743,6 +748,8 @@ table 31008 "Purch. Adv. Letter Header CZZ"
         }
         field(206; "To Pay (LCY)"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'To Pay Amount (LCY)';
             Editable = false;
             FieldClass = FlowField;
@@ -750,6 +757,8 @@ table 31008 "Purch. Adv. Letter Header CZZ"
         }
         field(210; "To Use"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
             Caption = 'To Use Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -757,6 +766,8 @@ table 31008 "Purch. Adv. Letter Header CZZ"
         }
         field(211; "To Use (LCY)"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'To Use Amount (LCY)';
             Editable = false;
             FieldClass = FlowField;
@@ -837,18 +848,6 @@ table 31008 "Purch. Adv. Letter Header CZZ"
                     IncomingDocument.SetPurchaseAdvanceCZZ(Rec);
             end;
         }
-#if not CLEAN25
-        field(31040; "Amount on Iss. Payment Order"; Decimal)
-        {
-            Caption = 'Amount on Issued Payment Order';
-            FieldClass = FlowField;
-            CalcFormula = sum("Iss. Payment Order Line CZB".Amount where("Purch. Advance Letter No. CZZ" = field("No.")));
-            Editable = false;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'This field is obsolete and will be removed in a future release. The CalcSuggestedAmountToApply function should be used instead.';
-            ObsoleteTag = '25.0';
-        }
-#endif
         field(31112; "Original Document VAT Date"; Date)
         {
             Caption = 'Original Document VAT Date';

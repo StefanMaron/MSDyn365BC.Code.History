@@ -395,6 +395,12 @@ table 79 "Company Information"
             Caption = 'Alternative Language Code';
             TableRelation = Language;
         }
+        field(201; "Default Language Code"; Code[10])
+        {
+            Caption = 'Default Language Code';
+            ToolTip = 'Specifies a default language code to be used for e.g. printing sales and purchase documents instead of the user language.';
+            TableRelation = Language;
+        }
         field(300; "Brand Color Value"; Code[10])
         {
             Caption = 'Brand Color Value';
@@ -730,6 +736,22 @@ table 79 "Company Information"
             "Brand Color Value" := '';
     end;
 
+    procedure FormatVATRegistrationNo(VATRegistrationNo: Text; CountryCode: Code[10]): Text
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        if VATRegistrationNo = '' then
+            exit;
+
+        VATRegistrationNo := DelChr(VATRegistrationNo);
+
+        if CountryRegion.Get(CountryCode) and (CountryRegion."ISO Code" <> '') then
+            if StrPos(VATRegistrationNo, CountryRegion."ISO Code") <> 1 then
+                VATRegistrationNo := CountryRegion."ISO Code" + VATRegistrationNo;
+
+        exit(VATRegistrationNo);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSystemIndicator(var Text: Text[250]; var Style: Option Standard,Accent1,Accent2,Accent3,Accent4,Accent5,Accent6,Accent7,Accent8,Accent9)
     begin
@@ -795,4 +817,5 @@ table 79 "Company Information"
     local procedure OnBeforeValidateShipToPostCode(var CompanyInformation: Record "Company Information"; var IsHandled: Boolean)
     begin
     end;
+
 }

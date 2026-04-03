@@ -4,12 +4,12 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument.DemoData;
 
-using Microsoft.Purchases.Document;
-using System.Utilities;
 using Microsoft.eServices.EDocument;
-using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 using Microsoft.eServices.EDocument.Processing.Import;
+using Microsoft.eServices.EDocument.Processing.Import.Purchase;
+using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Posting;
+using System.Utilities;
 
 /// <summary>
 /// The purpose of the codeunit is to generate inbound e-document invoices
@@ -64,16 +64,12 @@ codeunit 5429 "Contoso Inbound E-Document"
     /// </summary>
     procedure Generate()
     var
-        EDocPurchaseLine: Record "E-Document Purchase Line";
         EDocumentService: Record "E-Document Service";
+        EDocPurchaseLine: Record "E-Document Purchase Line";
         EDocument: Record "E-Document";
         TempBlob: Codeunit "Temp Blob";
-        NoLinesAddedLbl: Label 'No lines have been added to lines buffer to generate inbound e-document invoice.';
     begin
-        EDocPurchaseHeader.TestField("[BC] Vendor No.");
-        EDocPurchaseLine.SetRange("E-Document Entry No.", 0);
-        if EDocPurchaseLine.IsEmpty() then
-            Error(NoLinesAddedLbl);
+        EDocSamplePurchaseInvoice.UpdateTotalVATInEDocPurchaseHeader(EDocPurchaseHeader, EDocPurchaseLine);
         EDocumentService := GetEDocService();
         TempBlob := SaveSamplePurchInvReportToPDF();
         EDocument := CreateEDocument(TempBlob, EDocumentService);

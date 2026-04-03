@@ -6,6 +6,10 @@ namespace Microsoft.Finance.SalesTax;
 
 using Microsoft.Finance.VAT.Ledger;
 
+/// <summary>
+/// Management page for tax jurisdiction configuration including account mappings and calculation rules.
+/// Provides comprehensive setup for governmental tax authorities with detailed account assignments.
+/// </summary>
 page 466 "Tax Jurisdictions"
 {
     ApplicationArea = SalesTax;
@@ -34,6 +38,7 @@ page 466 "Tax Jurisdictions"
                 field("Default Sales and Use Tax"; DefaultTax)
                 {
                     ApplicationArea = SalesTax;
+                    AutoFormatType = 0;
                     Caption = 'Default Sales and Use Tax';
                     Enabled = DefaultTaxIsEnabled;
                     Style = Subordinate;

@@ -28,8 +28,8 @@ using Microsoft.Utilities;
 using System.EMail;
 using System.Globalization;
 using System.Security.User;
-using System.Utilities;
 using System.Text;
+using System.Utilities;
 
 report 31018 "Sales - Invoice with Adv. CZZ"
 {
@@ -680,7 +680,7 @@ report 31018 "Sales - Invoice with Adv. CZZ"
                 Clear(ExchRateText);
                 if "Currency Code" <> '' then begin
                     CurrencyExchangeRate.FindCurrency("Posting Date", "Currency Code", 1);
-                    CalculatedExchRate := Round(1 / "Currency Factor" * CurrencyExchangeRate."Exchange Rate Amount", 0.00001);
+                    CalculatedExchRate := Round(1 / "VAT Currency Factor CZL" * CurrencyExchangeRate."Exchange Rate Amount", 0.00001);
                     ExchRateText :=
                       StrSubstNo(ExchRateLbl, CalculatedExchRate, "General Ledger Setup"."LCY Code",
                         CurrencyExchangeRate."Exchange Rate Amount", "Currency Code");

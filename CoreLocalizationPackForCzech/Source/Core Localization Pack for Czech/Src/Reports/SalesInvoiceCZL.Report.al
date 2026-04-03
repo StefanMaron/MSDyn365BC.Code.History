@@ -27,8 +27,8 @@ using Microsoft.Utilities;
 using System.Email;
 using System.Globalization;
 using System.Security.User;
-using System.Utilities;
 using System.Text;
+using System.Utilities;
 
 report 31189 "Sales Invoice CZL"
 {
@@ -613,9 +613,9 @@ report 31189 "Sales Invoice CZL"
 
                 SalesInvLine.CalcVATAmountLines("Sales Invoice Header", TempVATAmountLine);
                 TempVATAmountLine.UpdateVATEntryLCYAmountsCZL("Sales Invoice Header");
-                if ("Currency Factor" <> 0) and ("Currency Factor" <> 1) then begin
+                if ("VAT Currency Factor CZL" <> 0) and ("VAT Currency Factor CZL" <> 1) then begin
                     CurrencyExchangeRate.FindCurrency("Posting Date", "Currency Code", 1);
-                    CalculatedExchRate := Round(1 / "Currency Factor" * CurrencyExchangeRate."Exchange Rate Amount", 0.00001);
+                    CalculatedExchRate := Round(1 / "VAT Currency Factor CZL" * CurrencyExchangeRate."Exchange Rate Amount", 0.00001);
                     ExchRateText := StrSubstNo(ExchRateLbl, CalculatedExchRate, "General Ledger Setup"."LCY Code",
                                         CurrencyExchangeRate."Exchange Rate Amount", "Currency Code");
                 end else

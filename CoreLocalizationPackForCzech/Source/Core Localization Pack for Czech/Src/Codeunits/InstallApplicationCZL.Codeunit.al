@@ -810,8 +810,10 @@ codeunit 11748 "Install Application CZL"
         SourceCodeSetup: Record "Source Code Setup";
         PrevSourceCodeSetup: Record "Source Code Setup";
     begin
-        if not SourceCodeSetup.Get() then
+        if not SourceCodeSetup.Get() then begin
             SourceCodeSetup.Init();
+            SourceCodeSetup.Insert();
+        end;
         PrevSourceCodeSetup := SourceCodeSetup;
         InsertSourceCode(SourceCodeSetup."Purchase VAT Delay CZL", PurchaseVATDelaySourceCodeTxt, PurchaseVATDelaySourceCodeDescriptionTxt);
         InsertSourceCode(SourceCodeSetup."Sales VAT Delay CZL", SalesVATDelaySourceCodeTxt, SalesVATDelaySourceCodeDescriptionTxt);

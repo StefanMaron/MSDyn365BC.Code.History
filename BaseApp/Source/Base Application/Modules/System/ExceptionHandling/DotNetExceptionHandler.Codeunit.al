@@ -4,6 +4,8 @@ using System;
 
 codeunit 1291 "DotNet Exception Handler"
 {
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     trigger OnRun()
     begin

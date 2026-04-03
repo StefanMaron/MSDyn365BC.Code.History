@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -22,6 +22,7 @@ using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Company;
+using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.ExtendedText;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.PaymentTerms;
@@ -75,10 +76,12 @@ table 5900 "Service Header"
         field(1; "Document Type"; Enum "Service Document Type")
         {
             Caption = 'Document Type';
+            ToolTip = 'Specifies the type of the service document on the line.';
         }
         field(2; "Customer No."; Code[20])
         {
             Caption = 'Customer No.';
+            ToolTip = 'Specifies the number of the customer who owns the items in the service document.';
             TableRelation = Customer;
 
             trigger OnValidate()
@@ -224,6 +227,7 @@ table 5900 "Service Header"
         field(3; "No."; Code[20])
         {
             Caption = 'No.';
+            ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
 
             trigger OnValidate()
             begin
@@ -237,6 +241,7 @@ table 5900 "Service Header"
         field(4; "Bill-to Customer No."; Code[20])
         {
             Caption = 'Bill-to Customer No.';
+            ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
             NotBlank = true;
             TableRelation = Customer;
 
@@ -333,6 +338,7 @@ table 5900 "Service Header"
         field(5; "Bill-to Name"; Text[100])
         {
             Caption = 'Bill-to Name';
+            ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
         }
         field(6; "Bill-to Name 2"; Text[50])
         {
@@ -342,14 +348,17 @@ table 5900 "Service Header"
         field(7; "Bill-to Address"; Text[100])
         {
             Caption = 'Bill-to Address';
+            ToolTip = 'Specifies the address of the customer to whom you will send the invoice.';
         }
         field(8; "Bill-to Address 2"; Text[50])
         {
             Caption = 'Bill-to Address 2';
+            ToolTip = 'Specifies an additional line of the address.';
         }
         field(9; "Bill-to City"; Text[30])
         {
             Caption = 'Bill-to City';
+            ToolTip = 'Specifies the city of the address.';
             TableRelation = if ("Bill-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Bill-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Bill-to Country/Region Code"));
@@ -374,14 +383,17 @@ table 5900 "Service Header"
         field(10; "Bill-to Contact"; Text[100])
         {
             Caption = 'Bill-to Contact';
+            ToolTip = 'Specifies the name of the contact person at the customer''s billing address.';
         }
         field(11; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
+            ToolTip = 'Specifies a customer reference, which will be used when printing service documents.';
         }
         field(12; "Ship-to Code"; Code[10])
         {
             Caption = 'Ship-to Code';
+            ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
             TableRelation = "Ship-to Address".Code where("Customer No." = field("Customer No."));
 
             trigger OnValidate()
@@ -478,22 +490,27 @@ table 5900 "Service Header"
         field(13; "Ship-to Name"; Text[100])
         {
             Caption = 'Ship-to Name';
+            ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
         }
         field(14; "Ship-to Name 2"; Text[50])
         {
             Caption = 'Ship-to Name 2';
+            ToolTip = 'Specifies an additional part of thethe name of the customer at the address that the items are shipped to.';
         }
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
+            ToolTip = 'Specifies the address that the items are shipped to.';
         }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
+            ToolTip = 'Specifies an additional part of the ship-to address, in case it is a long address.';
         }
         field(17; "Ship-to City"; Text[30])
         {
             Caption = 'Ship-to City';
+            ToolTip = 'Specifies the city of the address that the items are shipped to.';
             TableRelation = if ("Ship-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Ship-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Ship-to Country/Region Code"));
@@ -518,10 +535,12 @@ table 5900 "Service Header"
         field(18; "Ship-to Contact"; Text[100])
         {
             Caption = 'Ship-to Contact';
+            ToolTip = 'Specifies the name of the contact person at the address that the items are shipped to.';
         }
         field(19; "Order Date"; Date)
         {
             Caption = 'Order Date';
+            ToolTip = 'Specifies the date when the order was created.';
             NotBlank = true;
 
             trigger OnValidate()
@@ -575,6 +594,7 @@ table 5900 "Service Header"
         field(20; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
+            ToolTip = 'Specifies the date when the service document should be posted.';
 
             trigger OnValidate()
             var
@@ -633,6 +653,7 @@ table 5900 "Service Header"
         field(23; "Payment Terms Code"; Code[10])
         {
             Caption = 'Payment Terms Code';
+            ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
             TableRelation = "Payment Terms";
 
             trigger OnValidate()
@@ -643,10 +664,13 @@ table 5900 "Service Header"
         field(24; "Due Date"; Date)
         {
             Caption = 'Due Date';
+            ToolTip = 'Specifies when the invoice is due.';
         }
         field(25; "Payment Discount %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Payment Discount %';
+            ToolTip = 'Specifies the percentage of payment discount given, if the customer pays by the date entered in the Pmt. Discount Date field.';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
             MinValue = 0;
@@ -664,10 +688,12 @@ table 5900 "Service Header"
         field(26; "Pmt. Discount Date"; Date)
         {
             Caption = 'Pmt. Discount Date';
+            ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
         }
         field(27; "Shipment Method Code"; Code[10])
         {
             Caption = 'Shipment Method Code';
+            ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
             TableRelation = "Shipment Method";
 
             trigger OnValidate()
@@ -678,6 +704,7 @@ table 5900 "Service Header"
         field(28; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
+            ToolTip = 'Specifies the code of the location (for example, warehouse or distribution center) of the items specified on the service item lines.';
             TableRelation = Location;
 
             trigger OnValidate()
@@ -695,6 +722,7 @@ table 5900 "Service Header"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
                                                           Blocked = const(false));
 
@@ -708,6 +736,7 @@ table 5900 "Service Header"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
                                                           Blocked = const(false));
 
@@ -720,6 +749,7 @@ table 5900 "Service Header"
         field(31; "Customer Posting Group"; Code[20])
         {
             Caption = 'Customer Posting Group';
+            ToolTip = 'Specifies the customer''s market type to link business transactions to.';
             TableRelation = "Customer Posting Group";
 
             trigger OnValidate()
@@ -730,6 +760,7 @@ table 5900 "Service Header"
         field(32; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
+            ToolTip = 'Specifies the currency code for various amounts on the service lines.';
             TableRelation = Currency;
 
             trigger OnValidate()
@@ -756,6 +787,7 @@ table 5900 "Service Header"
         }
         field(33; "Currency Factor"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Currency Factor';
             DecimalPlaces = 0 : 15;
             Editable = false;
@@ -780,6 +812,7 @@ table 5900 "Service Header"
         field(35; "Prices Including VAT"; Boolean)
         {
             Caption = 'Prices Including VAT';
+            ToolTip = 'Specifies if the Unit Price and Line Amount fields on document lines should be shown with or without VAT.';
 
             trigger OnValidate()
             var
@@ -897,6 +930,7 @@ table 5900 "Service Header"
         field(43; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
+            ToolTip = 'Specifies the code of the salesperson assigned to this service document.';
             TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
@@ -924,10 +958,12 @@ table 5900 "Service Header"
         field(52; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
+            ToolTip = 'Specifies the type of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
         }
         field(53; "Applies-to Doc. No."; Code[20])
         {
             Caption = 'Applies-to Doc. No.';
+            ToolTip = 'Specifies the number of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
 
             trigger OnLookup()
             var
@@ -1065,6 +1101,7 @@ table 5900 "Service Header"
         field(71; "Combine Shipments"; Boolean)
         {
             Caption = 'Combine Shipments';
+            ToolTip = 'Specifies whether the order will be included when you use the Combine Shipments function.';
         }
         field(73; "Reason Code"; Code[10])
         {
@@ -1090,10 +1127,12 @@ table 5900 "Service Header"
         field(75; "EU 3-Party Trade"; Boolean)
         {
             Caption = 'EU 3-Party Trade';
+            ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
         }
         field(76; "Transaction Type"; Code[10])
         {
             Caption = 'Transaction Type';
+            ToolTip = 'Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.';
             TableRelation = "Transaction Type";
 
             trigger OnValidate()
@@ -1104,6 +1143,7 @@ table 5900 "Service Header"
         field(77; "Transport Method"; Code[10])
         {
             Caption = 'Transport Method';
+            ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
             TableRelation = "Transport Method";
 
             trigger OnValidate()
@@ -1119,6 +1159,7 @@ table 5900 "Service Header"
         field(79; Name; Text[100])
         {
             Caption = 'Name';
+            ToolTip = 'Specifies the name of the customer to whom the items on the document will be shipped.';
         }
         field(80; "Name 2"; Text[50])
         {
@@ -1128,6 +1169,7 @@ table 5900 "Service Header"
         field(81; Address; Text[100])
         {
             Caption = 'Address';
+            ToolTip = 'Specifies the address of the customer to whom the service will be shipped.';
 
             trigger OnValidate()
             begin
@@ -1137,6 +1179,7 @@ table 5900 "Service Header"
         field(82; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
+            ToolTip = 'Specifies additional address information.';
 
             trigger OnValidate()
             begin
@@ -1146,6 +1189,7 @@ table 5900 "Service Header"
         field(83; City; Text[30])
         {
             Caption = 'City';
+            ToolTip = 'Specifies the city of the address.';
             TableRelation = if ("Country/Region Code" = const('')) "Post Code".City
             else
             if ("Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Country/Region Code"));
@@ -1170,10 +1214,12 @@ table 5900 "Service Header"
         field(84; "Contact Name"; Text[100])
         {
             Caption = 'Contact Name';
+            ToolTip = 'Specifies the name of the contact who will receive the service.';
         }
         field(85; "Bill-to Post Code"; Code[20])
         {
             Caption = 'Bill-to Post Code';
+            ToolTip = 'Specifies the postal code of the customer''s billing address.';
             TableRelation = if ("Bill-to Country/Region Code" = const('')) "Post Code"
             else
             if ("Bill-to Country/Region Code" = filter(<> '')) "Post Code" where("Country/Region Code" = field("Bill-to Country/Region Code"));
@@ -1199,10 +1245,12 @@ table 5900 "Service Header"
         {
             CaptionClass = '5,3,' + "Bill-to Country/Region Code";
             Caption = 'Bill-to County';
+            ToolTip = 'Specifies the county in the customer''s address.';
         }
         field(87; "Bill-to Country/Region Code"; Code[10])
         {
             Caption = 'Bill-to Country/Region Code';
+            ToolTip = 'Specifies the country/region in the customer''s address.';
             TableRelation = "Country/Region";
 
             trigger OnValidate()
@@ -1216,6 +1264,7 @@ table 5900 "Service Header"
         field(88; "Post Code"; Code[20])
         {
             Caption = 'Post Code';
+            ToolTip = 'Specifies the postal code.';
             TableRelation = if ("Country/Region Code" = const('')) "Post Code"
             else
             if ("Country/Region Code" = filter(<> '')) "Post Code" where("Country/Region Code" = field("Country/Region Code"));
@@ -1241,6 +1290,7 @@ table 5900 "Service Header"
         {
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
+            ToolTip = 'Specifies the county in the customer''s address.';
 
             trigger OnValidate()
             begin
@@ -1250,6 +1300,7 @@ table 5900 "Service Header"
         field(90; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';
+            ToolTip = 'Specifies the country/region of the address.';
             TableRelation = "Country/Region";
 
             trigger OnValidate()
@@ -1266,6 +1317,7 @@ table 5900 "Service Header"
         field(91; "Ship-to Post Code"; Code[20])
         {
             Caption = 'Ship-to Post Code';
+            ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
             TableRelation = if ("Ship-to Country/Region Code" = const('')) "Post Code"
             else
             if ("Ship-to Country/Region Code" = filter(<> '')) "Post Code" where("Country/Region Code" = field("Ship-to Country/Region Code"));
@@ -1291,10 +1343,12 @@ table 5900 "Service Header"
         {
             CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
+            ToolTip = 'Specifies the county in the customer''s address.';
         }
         field(93; "Ship-to Country/Region Code"; Code[10])
         {
             Caption = 'Ship-to Country/Region Code';
+            ToolTip = 'Specifies the country/region in the customer''s address.';
             TableRelation = "Country/Region";
         }
         field(94; "Bal. Account Type"; Enum "Payment Balance Account Type")
@@ -1304,6 +1358,7 @@ table 5900 "Service Header"
         field(97; "Exit Point"; Code[10])
         {
             Caption = 'Exit Point';
+            ToolTip = 'Specifies the point of exit through which you ship the items out of your country/region, for reporting to Intrastat.';
             TableRelation = "Entry/Exit Point";
 
             trigger OnValidate()
@@ -1318,6 +1373,7 @@ table 5900 "Service Header"
         field(99; "Document Date"; Date)
         {
             Caption = 'Document Date';
+            ToolTip = 'Specifies the date when the related document was created.';
 
             trigger OnValidate()
             begin
@@ -1328,9 +1384,16 @@ table 5900 "Service Header"
                 Validate("Payment Terms Code");
             end;
         }
+#if not CLEAN28
+#pragma warning disable AS0136
+#endif
         field(100; "External Document No."; Code[35])
+#if not CLEAN28
+#pragma warning restore AS0136
+#endif
         {
             Caption = 'External Document No.';
+            ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
 
             trigger OnValidate()
             var
@@ -1352,6 +1415,7 @@ table 5900 "Service Header"
         field(101; "Area"; Code[10])
         {
             Caption = 'Area';
+            ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
             TableRelation = Area;
 
             trigger OnValidate()
@@ -1362,6 +1426,7 @@ table 5900 "Service Header"
         field(102; "Transaction Specification"; Code[10])
         {
             Caption = 'Transaction Specification';
+            ToolTip = 'Specifies a specification of the document''s transaction, for the purpose of reporting to INTRASTAT.';
             TableRelation = "Transaction Specification";
 
             trigger OnValidate()
@@ -1372,6 +1437,7 @@ table 5900 "Service Header"
         field(104; "Payment Method Code"; Code[10])
         {
             Caption = 'Payment Method Code';
+            ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
             TableRelation = "Payment Method";
 
             trigger OnValidate()
@@ -1400,6 +1466,7 @@ table 5900 "Service Header"
         {
             AccessByPermission = TableData "Shipping Agent Services" = R;
             Caption = 'Shipping Agent Code';
+            ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
             TableRelation = "Shipping Agent";
 
             trigger OnValidate()
@@ -1462,6 +1529,7 @@ table 5900 "Service Header"
         field(114; "Tax Area Code"; Code[20])
         {
             Caption = 'Tax Area Code';
+            ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
             TableRelation = "Tax Area";
 
             trigger OnValidate()
@@ -1472,6 +1540,7 @@ table 5900 "Service Header"
         field(115; "Tax Liable"; Boolean)
         {
             Caption = 'Tax Liable';
+            ToolTip = 'Specifies if the customer or vendor is liable for sales tax.';
 
             trigger OnValidate()
             begin
@@ -1482,6 +1551,7 @@ table 5900 "Service Header"
         field(116; "VAT Bus. Posting Group"; Code[20])
         {
             Caption = 'VAT Bus. Posting Group';
+            ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
             TableRelation = "VAT Business Posting Group";
 
             trigger OnValidate()
@@ -1497,6 +1567,7 @@ table 5900 "Service Header"
         field(118; "Applies-to ID"; Code[50])
         {
             Caption = 'Applies-to ID';
+            ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
 
             trigger OnValidate()
             var
@@ -1519,6 +1590,7 @@ table 5900 "Service Header"
         }
         field(119; "VAT Base Discount %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'VAT Base Discount %';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
@@ -1569,6 +1641,7 @@ table 5900 "Service Header"
         field(120; Status; Enum "Service Document Status")
         {
             Caption = 'Status';
+            ToolTip = 'Specifies the service order status, which reflects the repair or maintenance status of all service items on the service order.';
 
             trigger OnValidate()
             var
@@ -1671,6 +1744,7 @@ table 5900 "Service Header"
         }
         field(122; "Invoice Discount Value"; Decimal)
         {
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Invoice Discount Value';
             Editable = false;
@@ -1678,16 +1752,19 @@ table 5900 "Service Header"
         field(129; "Company Bank Account Code"; Code[20])
         {
             Caption = 'Bank Account Code';
+            ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
             TableRelation = "Bank Account" where("Currency Code" = field("Currency Code"));
         }
         field(130; "Release Status"; Enum "Service Doc. Release Status")
         {
             Caption = 'Release Status';
+            ToolTip = 'Specifies if items in the Service Lines window are ready to be handled in warehouse activities.';
             Editable = false;
         }
         field(131; "VAT Reporting Date"; Date)
         {
             Caption = 'VAT Date';
+            ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
             Editable = false;
 
             trigger OnValidate()
@@ -1713,6 +1790,11 @@ table 5900 "Service Header"
                 else
                     ServDocExchangeMgt.SetServiceDoc(Rec, IncomingDocument);
             end;
+        }
+        field(176; "Tax System Type"; Enum "Tax System Type")
+        {
+            Caption = 'Tax System Type';
+            Editable = false;
         }
         field(178; "Journal Templ. Name"; Code[10])
         {
@@ -1750,6 +1832,7 @@ table 5900 "Service Header"
         field(1200; "Direct Debit Mandate ID"; Code[35])
         {
             Caption = 'Direct Debit Mandate ID';
+            ToolTip = 'Specifies the direct-debit mandate that the customer has signed to allow direct debit collection of payments.';
             TableRelation = "SEPA Direct Debit Mandate" where("Customer No." = field("Bill-to Customer No."),
                                                                Closed = const(false),
                                                                Blocked = const(false));
@@ -1761,6 +1844,7 @@ table 5900 "Service Header"
                                                                           "No." = field("No."),
                                                                           "Doc. No. Occurrence" = field("Doc. No. Occurrence")));
             Caption = 'No. of Archived Versions';
+            ToolTip = 'Specifies the number of archived versions for this document.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -1772,6 +1856,7 @@ table 5900 "Service Header"
         field(5052; "Contact No."; Code[20])
         {
             Caption = 'Contact No.';
+            ToolTip = 'Specifies the number of the contact to whom you will deliver the service.';
             TableRelation = Contact;
 
             trigger OnLookup()
@@ -1846,6 +1931,7 @@ table 5900 "Service Header"
         field(5053; "Bill-to Contact No."; Code[20])
         {
             Caption = 'Bill-to Contact No.';
+            ToolTip = 'Specifies the number of the contact person at the customer''s billing address.';
             TableRelation = Contact;
 
             trigger OnLookup()
@@ -1918,6 +2004,7 @@ table 5900 "Service Header"
         field(5700; "Responsibility Center"; Code[10])
         {
             Caption = 'Responsibility Center';
+            ToolTip = 'Specifies the code of the responsibility center, such as a distribution hub, that is associated with the involved user, company, customer, or vendor.';
             TableRelation = "Responsibility Center";
 
             trigger OnValidate()
@@ -1958,6 +2045,7 @@ table 5900 "Service Header"
         field(5750; "Shipping Advice"; Enum "Sales Header Shipping Advice")
         {
             Caption = 'Shipping Advice';
+            ToolTip = 'Specifies information about whether the customer will accept a partial shipment of the order.';
 
             trigger OnValidate()
             var
@@ -1991,6 +2079,7 @@ table 5900 "Service Header"
         {
             AccessByPermission = TableData "Shipping Agent Services" = R;
             Caption = 'Shipping Time';
+            ToolTip = 'Specifies how long it takes from when the items are shipped from the warehouse to when they are delivered.';
 
             trigger OnValidate()
             begin
@@ -2002,6 +2091,7 @@ table 5900 "Service Header"
         field(5794; "Shipping Agent Service Code"; Code[10])
         {
             Caption = 'Shipping Agent Service Code';
+            ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
             TableRelation = "Shipping Agent Services".Code where("Shipping Agent Code" = field("Shipping Agent Code"));
 
             trigger OnValidate()
@@ -2019,10 +2109,12 @@ table 5900 "Service Header"
         field(5902; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a short description of the service document, such as Order 2001.';
         }
         field(5904; "Service Order Type"; Code[10])
         {
             Caption = 'Service Order Type';
+            ToolTip = 'Specifies the type of this service order.';
             TableRelation = "Service Order Type";
 
             trigger OnValidate()
@@ -2038,6 +2130,7 @@ table 5900 "Service Header"
         field(5905; "Link Service to Service Item"; Boolean)
         {
             Caption = 'Link Service to Service Item';
+            ToolTip = 'Specifies that service lines for items and resources must be linked to a service item line.';
 
             trigger OnValidate()
             begin
@@ -2057,10 +2150,12 @@ table 5900 "Service Header"
         field(5907; Priority; Enum "Service Priority")
         {
             Caption = 'Priority';
+            ToolTip = 'Specifies the priority of the service order.';
             Editable = false;
         }
         field(5911; "Allocated Hours"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Service Order Allocation"."Allocated Hours" where("Document Type" = field("Document Type"),
                                                                                   "Document No." = field("No."),
                                                                                   "Allocation Date" = field("Date Filter"),
@@ -2068,6 +2163,7 @@ table 5900 "Service Header"
                                                                                   Status = filter(Active | Finished),
                                                                                   "Resource Group No." = field("Resource Group Filter")));
             Caption = 'Allocated Hours';
+            ToolTip = 'Specifies the number of hours allocated to the items in this service order.';
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
@@ -2075,6 +2171,7 @@ table 5900 "Service Header"
         field(5915; "Phone No."; Text[30])
         {
             Caption = 'Phone No.';
+            ToolTip = 'Specifies the phone number of the customer in this service order.';
             ExtendedDatatype = PhoneNo;
 
             trigger OnValidate()
@@ -2085,6 +2182,7 @@ table 5900 "Service Header"
         field(5916; "E-Mail"; Text[80])
         {
             Caption = 'Email';
+            ToolTip = 'Specifies the email address of the customer in this service order.';
             ExtendedDatatype = EMail;
 
             trigger OnValidate()
@@ -2098,6 +2196,7 @@ table 5900 "Service Header"
         field(5917; "Phone No. 2"; Text[30])
         {
             Caption = 'Phone No. 2';
+            ToolTip = 'Specifies your customer''s alternate phone number.';
             ExtendedDatatype = PhoneNo;
 
             trigger OnValidate()
@@ -2115,12 +2214,14 @@ table 5900 "Service Header"
                                                            "Document No." = field("No."),
                                                            "No. of Active/Finished Allocs" = const(0)));
             Caption = 'No. of Unallocated Items';
+            ToolTip = 'Specifies the number of service items in this order that are not allocated to resources.';
             Editable = false;
             FieldClass = FlowField;
         }
         field(5923; "Order Time"; Time)
         {
             Caption = 'Order Time';
+            ToolTip = 'Specifies the time when the service order was created.';
             NotBlank = true;
 
             trigger OnValidate()
@@ -2146,12 +2247,14 @@ table 5900 "Service Header"
         }
         field(5924; "Default Response Time (Hours)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Default Response Time (Hours)';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
         }
         field(5925; "Actual Response Time (Hours)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Actual Response Time (Hours)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -2159,6 +2262,7 @@ table 5900 "Service Header"
         }
         field(5926; "Service Time (Hours)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Service Time (Hours)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -2166,16 +2270,19 @@ table 5900 "Service Header"
         field(5927; "Response Date"; Date)
         {
             Caption = 'Response Date';
+            ToolTip = 'Specifies the estimated date when work on the order should start, that is, when the service order status changes from Pending, to In Process.';
             Editable = false;
         }
         field(5928; "Response Time"; Time)
         {
             Caption = 'Response Time';
+            ToolTip = 'Specifies the estimated time when work on the order starts, that is, when the service order status changes from Pending, to In Process.';
             Editable = false;
         }
         field(5929; "Starting Date"; Date)
         {
             Caption = 'Starting Date';
+            ToolTip = 'Specifies the starting date of the service, that is, the date when the order status changes from Pending, to In Process for the first time.';
 
             trigger OnValidate()
             var
@@ -2222,6 +2329,7 @@ table 5900 "Service Header"
         field(5930; "Starting Time"; Time)
         {
             Caption = 'Starting Time';
+            ToolTip = 'Specifies the starting time of the service, that is, the time when the order status changes from Pending, to In Process for the first time.';
 
             trigger OnValidate()
             var
@@ -2267,6 +2375,7 @@ table 5900 "Service Header"
         field(5931; "Finishing Date"; Date)
         {
             Caption = 'Finishing Date';
+            ToolTip = 'Specifies the finishing date of the service, that is, the date when the Status field changes to Finished.';
 
             trigger OnValidate()
             var
@@ -2324,6 +2433,7 @@ table 5900 "Service Header"
         field(5932; "Finishing Time"; Time)
         {
             Caption = 'Finishing Time';
+            ToolTip = 'Specifies the finishing time of the service, that is, the time when the Status field changes to Finished.';
 
             trigger OnValidate()
             var
@@ -2390,12 +2500,14 @@ table 5900 "Service Header"
                                                                   "Document No." = field("No."),
                                                                   "Resource Group No." = field("Resource Group Filter")));
             Caption = 'Reallocation Needed';
+            ToolTip = 'Specifies that you must reallocate resources to at least one service item in this service order.';
             Editable = false;
             FieldClass = FlowField;
         }
         field(5936; "Notify Customer"; Option)
         {
             Caption = 'Notify Customer';
+            ToolTip = 'Specifies how the customer wants to receive notifications about service completion.';
             OptionCaption = 'No,By Phone 1,By Phone 2,By Fax,By Email';
             OptionMembers = No,"By Phone 1","By Phone 2","By Fax","By Email";
         }
@@ -2405,6 +2517,7 @@ table 5900 "Service Header"
             AutoFormatType = 2;
             BlankZero = true;
             Caption = 'Max. Labor Unit Price';
+            ToolTip = 'Specifies the maximum unit price that can be set for a resource (for example, a technician) on all service lines linked to this order.';
 
             trigger OnValidate()
             begin
@@ -2418,6 +2531,7 @@ table 5900 "Service Header"
         field(5938; "Warning Status"; Option)
         {
             Caption = 'Warning Status';
+            ToolTip = 'Specifies the response time warning status for the order.';
             OptionCaption = ' ,First Warning,Second Warning,Third Warning';
             OptionMembers = " ","First Warning","Second Warning","Third Warning";
         }
@@ -2430,12 +2544,14 @@ table 5900 "Service Header"
                                                                   "Allocation Date" = field("Date Filter"),
                                                                   Status = filter(Active | Finished)));
             Caption = 'No. of Allocations';
+            ToolTip = 'Specifies the number of resource allocations to service items in this order.';
             Editable = false;
             FieldClass = FlowField;
         }
         field(5940; "Contract No."; Code[20])
         {
             Caption = 'Contract No.';
+            ToolTip = 'Specifies the number of the contract associated with the order.';
             TableRelation = "Service Contract Header"."Contract No." where("Contract Type" = const(Contract),
                                                                             "Customer No." = field("Customer No."),
                                                                             "Ship-to Code" = field("Ship-to Code"),
@@ -2555,6 +2671,7 @@ table 5900 "Service Header"
         field(5956; "Ship-to E-Mail"; Text[80])
         {
             Caption = 'Ship-to Email';
+            ToolTip = 'Specifies the email address at the address that the items are shipped to.';
             ExtendedDatatype = EMail;
 
             trigger OnValidate()
@@ -2573,11 +2690,13 @@ table 5900 "Service Header"
         field(5958; "Ship-to Phone"; Text[30])
         {
             Caption = 'Ship-to Phone';
+            ToolTip = 'Specifies the telephone number of the company''s shipping address.';
             ExtendedDatatype = PhoneNo;
         }
         field(5959; "Ship-to Phone 2"; Text[30])
         {
             Caption = 'Ship-to Phone 2';
+            ToolTip = 'Specifies an additional phone number at address that the items are shipped to.';
             ExtendedDatatype = PhoneNo;
         }
         field(5966; "Service Zone Filter"; Code[10])
@@ -2589,6 +2708,7 @@ table 5900 "Service Header"
         field(5968; "Service Zone Code"; Code[10])
         {
             Caption = 'Service Zone Code';
+            ToolTip = 'Specifies the service zone code of the customer''s ship-to address in the service order.';
             Editable = false;
             TableRelation = "Service Zone".Code;
 
@@ -2614,6 +2734,7 @@ table 5900 "Service Header"
         field(5981; "Expected Finishing Date"; Date)
         {
             Caption = 'Expected Finishing Date';
+            ToolTip = 'Specifies the date when service on the order is expected to be finished.';
         }
         field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
         {
@@ -2631,6 +2752,7 @@ table 5900 "Service Header"
         field(9000; "Assigned User ID"; Code[50])
         {
             Caption = 'Assigned User ID';
+            ToolTip = 'Specifies the ID of the user who is responsible for the document.';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = "User Setup";
 
@@ -2648,6 +2770,7 @@ table 5900 "Service Header"
         field(9001; "Quote No."; Code[20])
         {
             Caption = 'Quote No.';
+            ToolTip = 'Specifies the number of the service quote that the service order was created from. You can track the number to service quote documents that you have printed, saved, or emailed.';
             Editable = false;
         }
     }
@@ -5508,9 +5631,6 @@ table 5900 "Service Header"
             GenJournalLine."Journal Template Name" := "Journal Templ. Name";
 
         OnAfterCopyToGenJnlLine(GenJournalLine, Rec);
-#if not CLEAN25
-        GenJournalLine.RunOnAfterCopyGenJnlLineFromServHeader(Rec, GenJournalLine);
-#endif
     end;
 
     /// <summary>
@@ -5525,9 +5645,6 @@ table 5900 "Service Header"
         GenJournalLine."Allow Application" := "Bal. Account No." = '';
 
         OnAfterCopyToGenJnlLineApplyTo(GenJournalLine, Rec);
-#if not CLEAN25
-        GenJournalLine.RunOnAfterCopyGenJnlLineFromServHeaderApplyTo(Rec, GenJournalLine);
-#endif
     end;
 
     /// <summary>
@@ -5544,9 +5661,6 @@ table 5900 "Service Header"
         GenJournalLine."Direct Debit Mandate ID" := "Direct Debit Mandate ID";
 
         OnAfterCopyToGenJnlLinePayment(GenJournalLine, Rec);
-#if not CLEAN25
-        GenJournalLine.RunOnAfterCopyGenJnlLineFromServHeaderPayment(Rec, GenJournalLine);
-#endif
     end;
 
     /// <summary>
@@ -5574,9 +5688,6 @@ table 5900 "Service Header"
                 ItemJournalLine."Country/Region Code" := Rec."Country/Region Code";
 
         OnAfterCopyToItemJnlLine(ItemJournalLine, Rec);
-#if not CLEAN25
-        ItemJournalLine.RunOnAfterCopyItemJnlLineFromServHeader(ItemJournalLine, Rec);
-#endif
     end;
 
     procedure CopyToResJournalLine(var ResJournalLine: Record "Res. Journal Line")
@@ -5586,9 +5697,6 @@ table 5900 "Service Header"
         ResJournalLine."Order No." := Rec."No.";
 
         OnAfterCopyToResJournalLine(ResJournalLine, Rec);
-#if not CLEAN25
-        ResJournalLine.RunOnAfterCopyResJnlLineFromServHeader(Rec, ResJournalLine);
-#endif
     end;
 
     procedure SetWorkDescription(NewWorkDescription: Text)

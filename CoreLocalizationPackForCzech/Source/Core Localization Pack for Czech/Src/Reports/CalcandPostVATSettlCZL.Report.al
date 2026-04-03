@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -115,20 +115,6 @@ report 11971 "Calc. and Post VAT Settl. CZL"
             column(AmountCaption; "VAT Entry".FieldCaption(Amount))
             {
             }
-#if not CLEAN25
-            column(UnrealizedBaseCaption; "VAT Entry".FieldCaption("Unrealized Base"))
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'This field is obsolete and will be removed in a future version.';
-                ObsoleteTag = '25.0';
-            }
-            column(UnrealizedAmountCaption; "VAT Entry".FieldCaption("Unrealized Amount"))
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'This field is obsolete and will be removed in a future version.';
-                ObsoleteTag = '25.0';
-            }
-#endif
             column(OriginalVATBaseCaption; "VAT Entry".FieldCaption("Original VAT Base CZL"))
             {
             }
@@ -206,40 +192,6 @@ report 11971 "Calc. and Post VAT Settl. CZL"
                         column(UserID_VATEntry; "User ID")
                         {
                         }
-#if not CLEAN25
-                        column(UnrealizedAmount_VATEntry; "Unrealized Amount")
-                        {
-                            AutoFormatExpression = GetCurrency();
-                            AutoFormatType = 1;
-                            ObsoleteState = Pending;
-                            ObsoleteReason = 'This field is obsolete and will be removed in a future version.';
-                            ObsoleteTag = '25.0';
-                        }
-                        column(UnrealizedBase_VATEntry; "Unrealized Base")
-                        {
-                            AutoFormatExpression = GetCurrency();
-                            AutoFormatType = 1;
-                            ObsoleteState = Pending;
-                            ObsoleteReason = 'This field is obsolete and will be removed in a future version.';
-                            ObsoleteTag = '25.0';
-                        }
-                        column(AddCurrUnrlzdAmt_VATEntry; "Add.-Currency Unrealized Amt.")
-                        {
-                            AutoFormatExpression = GetCurrency();
-                            AutoFormatType = 1;
-                            ObsoleteState = Pending;
-                            ObsoleteReason = 'This field is obsolete and will be removed in a future version.';
-                            ObsoleteTag = '25.0';
-                        }
-                        column(AddCurrUnrlzdBas_VATEntry; "Add.-Currency Unrealized Base")
-                        {
-                            AutoFormatExpression = GetCurrency();
-                            AutoFormatType = 1;
-                            ObsoleteState = Pending;
-                            ObsoleteReason = 'This field is obsolete and will be removed in a future version.';
-                            ObsoleteTag = '25.0';
-                        }
-#endif
                         column(OriginalVATAmount_VATEntry; "Original VAT Amount CZL")
                         {
                             AutoFormatExpression = GetCurrency();
@@ -642,14 +594,35 @@ report 11971 "Calc. and Post VAT Settl. CZL"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Starting Date';
-                        TableRelation = "VAT Period CZL";
                         ToolTip = 'Specifies the first date in the period from which VAT entries are processed in the batch job.';
 
                         trigger OnValidate()
                         begin
-                            VATPeriodCZL.Get(EntrdStartDate);
-                            if VATPeriodCZL.Next() > 0 then
-                                EndDateReq := CalcDate('<-1D>', VATPeriodCZL."Starting Date");
+                            if EntrdStartDate <> 0D then
+                                EndDateReq := GetVATPeriodEndDate();
+                        end;
+
+                        trigger OnLookup(var Text: Text): Boolean
+#if not CLEAN28
+                        var
+                            ReplaceVATPeriodMgtCZL: Codeunit "Replace VAT Period Mgt. CZL";
+#endif
+                        begin
+#if not CLEAN28
+#pragma warning disable AL0432
+                            if not ReplaceVATPeriodMgtCZL.IsEnabled() then begin
+                                if not RunVATPeriods(VATPeriodCZL) then
+                                    exit(false);
+                                EntrdStartDate := VATPeriodCZL."Starting Date";
+                                EndDateReq := GetVATPeriodEndDate();
+                                exit;
+                            end;
+#pragma warning restore AL0432
+#endif
+                            if not RunVATReturnPeriodList(VATReturnPeriod) then
+                                exit(false);
+                            EntrdStartDate := VATReturnPeriod."Start Date";
+                            EndDateReq := VATReturnPeriod."End Date";
                         end;
                     }
                     field(EndingDate; EndDateReq)
@@ -709,10 +682,26 @@ report 11971 "Calc. and Post VAT Settl. CZL"
         }
     }
     trigger OnPostReport()
+#if not CLEAN28
+    var
+        ReplaceVATPeriodMgtCZL: Codeunit "Replace VAT Period Mgt. CZL";
+#endif
     begin
-        if PostSettlement and VATPeriodCZL.Get(EntrdStartDate) then begin
-            VATPeriodCZL.Closed := true;
-            VATPeriodCZL.Modify();
+#if not CLEAN28
+        if not ReplaceVATPeriodMgtCZL.IsEnabled() then begin
+            if PostSettlement and VATPeriodCZL.Get(EntrdStartDate) then begin
+                VATPeriodCZL.Closed := true;
+                VATPeriodCZL.Modify();
+            end;
+            OnAfterPostReport();
+            exit;
+        end;
+#endif
+        VATReturnPeriod.Reset();
+        VATReturnPeriod.SetRange("Start Date", EntrdStartDate);
+        if PostSettlement and VATReturnPeriod.FindLast() then begin
+            VATReturnPeriod.Validate(Status, VATReturnPeriod.Status::Closed);
+            VATReturnPeriod.Modify();
         end;
         OnAfterPostReport();
     end;
@@ -755,7 +744,12 @@ report 11971 "Calc. and Post VAT Settl. CZL"
         TaxJurisdiction: Record "Tax Jurisdiction";
         GeneralLedgerSetup: Record "General Ledger Setup";
         VATPostingSetup: Record "VAT Posting Setup";
+#if not CLEAN28
+#pragma warning disable AL0432
         VATPeriodCZL: Record "VAT Period CZL";
+#pragma warning restore AL0432
+#endif
+        VATReturnPeriod: Record "VAT Return Period";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         EntrdStartDate: Date;
         EndDateReq: Date;
@@ -809,7 +803,6 @@ report 11971 "Calc. and Post VAT Settl. CZL"
         PrintVATEntries := ShowVATEntries;
         PostSettlement := Post;
         Initialized := true;
-        if VATPeriodCZL.Get(EntrdStartDate) then;
     end;
 
     procedure InitializeRequest2(NewUseAmtsInAddCurr: Boolean)
@@ -966,6 +959,54 @@ report 11971 "Calc. and Post VAT Settl. CZL"
                 else
                     exit(TaxJurisdiction."Tax Account (Sales)");
         end;
+    end;
+
+    local procedure GetVATPeriodEndDate(): Date
+#if not CLEAN28
+    var
+        ReplaceVATPeriodMgtCZL: Codeunit "Replace VAT Period Mgt. CZL";
+#endif
+    begin
+#if not CLEAN28
+#pragma warning disable AL0432
+        if not ReplaceVATPeriodMgtCZL.IsEnabled() then begin
+            VATPeriodCZL.Get(EntrdStartDate);
+            if VATPeriodCZL.Next() > 0 then
+                exit(CalcDate('<-1D>', VATPeriodCZL."Starting Date"));
+            exit(0D);
+        end;
+#pragma warning restore AL0432
+#endif
+        VATReturnPeriod.Reset();
+        VATReturnPeriod.SetRange("Start Date", EntrdStartDate);
+        VATReturnPeriod.FindLast();
+        exit(VATReturnPeriod."End Date");
+    end;
+#if not CLEAN28
+#pragma warning disable AL0432
+
+    local procedure RunVATPeriods(var OutVATPeriodCZL: Record "VAT Period CZL"): Boolean
+    var
+        VATPeriodsCZL: Page "VAT Periods CZL";
+    begin
+        VATPeriodsCZL.LookupMode := true;
+        if VATPeriodsCZL.RunModal() <> Action::LookupOK then
+            exit(false);
+        VATPeriodsCZL.GetRecord(OutVATPeriodCZL);
+        exit(true);
+    end;
+#pragma warning restore AL0432
+#endif
+
+    local procedure RunVATReturnPeriodList(var OutVATReturnPeriod: Record "VAT Return Period"): Boolean
+    var
+        VATReturnPeriodList: Page "VAT Return Period List";
+    begin
+        VATReturnPeriodList.LookupMode := true;
+        if VATReturnPeriodList.RunModal() <> Action::LookupOK then
+            exit(false);
+        VATReturnPeriodList.GetRecord(OutVATReturnPeriod);
+        exit(true);
     end;
 
     [IntegrationEvent(false, false)]

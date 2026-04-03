@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -27,11 +27,13 @@ table 5880 "Pstd. Phys. Invt. Order Line"
         field(1; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+            ToolTip = 'Specifies the physical inventory order that the line exists on.';
             TableRelation = "Pstd. Phys. Invt. Order Hdr";
         }
         field(2; "Line No."; Integer)
         {
             Caption = 'Line No.';
+            ToolTip = 'Specifies the line on the physical inventory order line.';
         }
         field(12; "On Recording Lines"; Boolean)
         {
@@ -41,43 +43,52 @@ table 5880 "Pstd. Phys. Invt. Order Line"
         field(20; "Item No."; Code[20])
         {
             Caption = 'Item No.';
+            ToolTip = 'Specifies the item on the physical inventory order line.';
             TableRelation = Item;
         }
         field(21; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
+            ToolTip = 'Specifies the variant of the item on the physical inventory order line.';
             TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
         }
         field(22; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
+            ToolTip = 'Specifies the location of the item on the physical inventory order line.';
             TableRelation = Location;
         }
         field(23; "Bin Code"; Code[20])
         {
             Caption = 'Bin Code';
+            ToolTip = 'Specifies the Bin Code of the table physical inventory order line.';
             TableRelation = Bin.Code where("Location Code" = field("Location Code"));
         }
         field(30; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies the description of the item on the physical inventory order line.';
         }
         field(31; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
+            ToolTip = 'Specifies an additional part of the description of the item on the physical inventory order line.';
         }
         field(32; "Unit of Measure"; Text[50])
         {
             Caption = 'Unit of Measure';
+            ToolTip = 'Specifies the unit of measure, such as bottle or piece, that is used for the item on the physical inventory order line.';
         }
         field(40; "Base Unit of Measure Code"; Code[10])
         {
             Caption = 'Base Unit of Measure Code';
+            ToolTip = 'Specifies the base unit of measure that is set up for the item on the physical inventory order line.';
             Editable = false;
             TableRelation = "Unit of Measure";
         }
         field(50; "Qty. Expected (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Expected (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -90,9 +101,11 @@ table 5880 "Pstd. Phys. Invt. Order Line"
         field(53; "Use Item Tracking"; Boolean)
         {
             Caption = 'Use Item Tracking';
+            ToolTip = 'Specifies that the counting of the item is done by counting its serial, lot and package numbers.';
         }
         field(54; "Qty. Exp. Tracking (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Pstd.Exp.Invt.Order.Tracking"."Quantity (Base)" where("Order No" = field("Document No."),
                                                                                       "Order Line No." = field("Line No.")));
             Caption = 'Qty. Exp. Item Tracking (Base)';
@@ -109,26 +122,33 @@ table 5880 "Pstd. Phys. Invt. Order Line"
         field(60; "Unit Amount"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Amount';
+            ToolTip = 'Specifies the sum of unit costs of the item quantity on the line.';
         }
         field(62; "Unit Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost';
+            ToolTip = 'Specifies the cost of one unit of the item on the line.';
         }
         field(70; "No. Finished Rec.-Lines"; Integer)
         {
             Caption = 'No. Finished Rec.-Lines';
+            ToolTip = 'Specifies how many of the related physical inventory recordings are closed.';
             Editable = false;
         }
         field(71; "Qty. Recorded (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Recorded (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(72; "Quantity (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -136,18 +156,21 @@ table 5880 "Pstd. Phys. Invt. Order Line"
         field(73; "Entry Type"; Option)
         {
             Caption = 'Entry Type';
+            ToolTip = 'Specifies the Entry Type of the physical inventory order line.';
             Editable = false;
             OptionCaption = ' ,Positive Adjmt.,Negative Adjmt.';
             OptionMembers = " ","Positive Adjmt.","Negative Adjmt.";
         }
         field(74; "Pos. Qty. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Pos. Qty. (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(75; "Neg. Qty. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Neg. Qty. (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -160,12 +183,14 @@ table 5880 "Pstd. Phys. Invt. Order Line"
         field(80; "Recorded Without Order"; Boolean)
         {
             Caption = 'Recorded Without Order';
+            ToolTip = 'Specifies that no physical inventory order lines existed for the recorded item, and that the line was generated based on the related recording.';
             Editable = false;
         }
         field(90; "Shortcut Dimension 1 Code"; Code[20])
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
 
             trigger OnLookup()
             begin
@@ -176,6 +201,7 @@ table 5880 "Pstd. Phys. Invt. Order Line"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
 
             trigger OnLookup()
             begin
@@ -185,6 +211,7 @@ table 5880 "Pstd. Phys. Invt. Order Line"
         field(100; "Shelf No."; Code[10])
         {
             Caption = 'Shelf No.';
+            ToolTip = 'Specifies the shelf number where the item is placed.';
         }
         field(110; "Gen. Bus. Posting Group"; Code[20])
         {

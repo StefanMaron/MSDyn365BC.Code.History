@@ -19,7 +19,6 @@ using System.Automation;
 using System.Telemetry;
 using System.Utilities;
 
-
 codeunit 6102 "E-Doc. Export"
 {
     Permissions =
@@ -58,19 +57,27 @@ codeunit 6102 "E-Doc. Export"
         OnAfterEDocumentCheck(EDocSourceRecRef, EDocumentProcessingPhase);
     end;
 
-    internal procedure CreateEDocument(DocumentHeader: RecordRef; WorkFlow: Record Workflow; EDocumentType: Enum "E-Document Type")
+    internal procedure CreateEDocument(DocumentHeader: RecordRef; DocumentSendingProfile: Record "Document Sending Profile"; EDocumentType: Enum "E-Document Type")
     var
+        WorkFlow: Record Workflow;
         EDocument: Record "E-Document";
         EDocumentService: Record "E-Document Service";
         EDocumentServiceStatus: Record "E-Document Service Status";
         EDocWorkFlowProcessing: Codeunit "E-Document WorkFlow Processing";
         EDocumentBackgroundJobs: Codeunit "E-Document Background Jobs";
     begin
+        if not WorkFlow.Get(DocumentSendingProfile."Electronic Service Flow") then
+            Error(DocumentSendingProfileWithWorkflowErr, DocumentSendingProfile."Electronic Service Flow", Format(DocumentSendingProfile."Electronic Document"::"Extended E-Document Service Flow"), DocumentSendingProfile.Code);
+
+        WorkFlow.TestField(Enabled);
+        if DocumentSendingProfile."Electronic Document" <> DocumentSendingProfile."Electronic Document"::"Extended E-Document Service Flow" then
+            exit;
+
         if not EDocWorkFlowProcessing.GetServicesFromEntryPointResponseInWorkflow(WorkFlow, EDocumentService) then
             exit;
 
-        WorkFlow.TestField(Enabled);
         EDocument."Workflow Code" := WorkFlow.Code;
+        EDocument."Document Sending Profile" := DocumentSendingProfile.Code;
 
         if not CreateEDocument(EDocument, DocumentHeader, EDocumentService, EDocumentType) then
             exit;
@@ -96,7 +103,7 @@ codeunit 6102 "E-Doc. Export"
     /// If services do not support the document type they are filtered out
     ///
     /// </summary>
-    internal procedure CreateEDocument(var EDocument: Record "E-Document"; var DocumentHeader: RecordRef; var EDocumentService: Record "E-Document Service"; EDocumentType: Enum "E-Document Type"): Boolean
+    procedure CreateEDocument(var EDocument: Record "E-Document"; var DocumentHeader: RecordRef; var EDocumentService: Record "E-Document Service"; EDocumentType: Enum "E-Document Type"): Boolean
     var
         EDocumentLog: Codeunit "E-Document Log";
         SupportedServices: List of [Code[20]];
@@ -251,13 +258,15 @@ codeunit 6102 "E-Doc. Export"
         PurchDocumentType: Enum "Purchase Document Type";
         RemainingAmount, InterestAmount, AdditionalFee, VATAmount : Decimal;
     begin
-        EDocument.Init();
         EDocument.Validate("Document Record ID", SourceDocumentHeader.RecordId);
         EDocument.Validate(Status, EDocument.Status::"In Progress");
-        DocumentSendingProfile.Get(EDocumentProcessing.GetDocSendingProfileForDocRef(SourceDocumentHeader).Code);
-        EDocument."Document Sending Profile" := DocumentSendingProfile.Code;
-        EDocument."Workflow Code" := DocumentSendingProfile."Electronic Service Flow";
         EDocument.Direction := EDocument.Direction::Outgoing;
+
+        if EDocument."Document Sending Profile" = '' then begin
+            DocumentSendingProfile.Get(EDocumentProcessing.GetDocSendingProfileForDocRef(SourceDocumentHeader).Code);
+            EDocument."Document Sending Profile" := DocumentSendingProfile.Code;
+            EDocument."Workflow Code" := DocumentSendingProfile."Electronic Service Flow";
+        end;
 
         case SourceDocumentHeader.Number of
             Database::"Sales Header", Database::"Sales Invoice Header", Database::"Sales Cr.Memo Header",
@@ -456,7 +465,7 @@ codeunit 6102 "E-Doc. Export"
         Telemetry.LogMessage('0000LBI', EDocTelemetryCreateBatchScopeEndLbl, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All);
     end;
 
-    local procedure IsDocumentTypeSupported(EDocService: Record "E-Document Service"; EDocumentType: Enum "E-Document Type"): Boolean
+    procedure IsDocumentTypeSupported(EDocService: Record "E-Document Service"; EDocumentType: Enum "E-Document Type"): Boolean
     var
         EDocServiceSupportedType: Record "E-Doc. Service Supported Type";
         EDocSourceType: Enum "E-Document Type";

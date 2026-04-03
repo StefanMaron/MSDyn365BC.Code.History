@@ -24,328 +24,6 @@
       <rd:DataSourceID>71c4312a-30d4-44c6-a28f-b973d4f8fa9d</rd:DataSourceID>
     </DataSource>
   </DataSources>
-  <DataSets>
-    <DataSet Name="DataSet_Result">
-      <Query>
-        <DataSourceName>DataSource</DataSourceName>
-        <CommandText />
-      </Query>
-      <Fields>
-        <Field Name="GroupCaption">
-          <DataField>GroupCaption</DataField>
-        </Field>
-        <Field Name="LastDataItem">
-          <DataField>LastDataItem</DataField>
-        </Field>
-        <Field Name="SalesInvHdrExists">
-          <DataField>SalesInvHdrExists</DataField>
-        </Field>
-        <Field Name="SalesCrMemoHdrExists">
-          <DataField>SalesCrMemoHdrExists</DataField>
-        </Field>
-        <Field Name="PurchInvHdrExists">
-          <DataField>PurchInvHdrExists</DataField>
-        </Field>
-        <Field Name="PurchCrMemoHdrExists">
-          <DataField>PurchCrMemoHdrExists</DataField>
-        </Field>
-        <Field Name="GeneralDocExists">
-          <DataField>GeneralDocExists</DataField>
-        </Field>
-        <Field Name="CompanyInformation_Name">
-          <DataField>CompanyInformation_Name</DataField>
-        </Field>
-        <Field Name="GlobalDimension2CodeCaption">
-          <DataField>GlobalDimension2CodeCaption</DataField>
-        </Field>
-        <Field Name="GlobalDimension1CodeCaption">
-          <DataField>GlobalDimension1CodeCaption</DataField>
-        </Field>
-        <Field Name="SalesInvoiceHeader_No">
-          <DataField>SalesInvoiceHeader_No</DataField>
-        </Field>
-        <Field Name="SalesInvoiceHeader_SelltoCustomerName">
-          <DataField>SalesInvoiceHeader_SelltoCustomerName</DataField>
-        </Field>
-        <Field Name="SalesInvoiceHeader_DueDate">
-          <DataField>SalesInvoiceHeader_DueDate</DataField>
-        </Field>
-        <Field Name="SalesInvoiceHeader_Amount">
-          <DataField>SalesInvoiceHeader_Amount</DataField>
-        </Field>
-        <Field Name="SalesInvoiceHeader_AmountFormat">
-          <DataField>SalesInvoiceHeader_AmountFormat</DataField>
-        </Field>
-        <Field Name="SalesInvoiceHeader_CurrencyCode">
-          <DataField>SalesInvoiceHeader_CurrencyCode</DataField>
-        </Field>
-        <Field Name="SalesInvoiceHeader_PostingDate">
-          <DataField>SalesInvoiceHeader_PostingDate</DataField>
-        </Field>
-        <Field Name="SalesInvoiceHeader_VATDate">
-          <DataField>SalesInvoiceHeader_VATDate</DataField>
-        </Field>
-        <Field Name="SalesInvoiceHeader_DocumentDate">
-          <DataField>SalesInvoiceHeader_DocumentDate</DataField>
-        </Field>
-        <Field Name="SalesInvoiceHeader_FCYRate">
-          <DataField>SalesInvoiceHeader_FCYRate</DataField>
-        </Field>
-        <Field Name="SalesInvoiceHeader_FCYRateFormat">
-          <DataField>SalesInvoiceHeader_FCYRateFormat</DataField>
-        </Field>
-        <Field Name="SalesInvoiceEntry_CreditAmount">
-          <DataField>SalesInvoiceEntry_CreditAmount</DataField>
-        </Field>
-        <Field Name="SalesInvoiceEntry_CreditAmountFormat">
-          <DataField>SalesInvoiceEntry_CreditAmountFormat</DataField>
-        </Field>
-        <Field Name="SalesInvoiceEntry_DebitAmount">
-          <DataField>SalesInvoiceEntry_DebitAmount</DataField>
-        </Field>
-        <Field Name="SalesInvoiceEntry_DebitAmountFormat">
-          <DataField>SalesInvoiceEntry_DebitAmountFormat</DataField>
-        </Field>
-        <Field Name="SalesInvoiceEntry_GlobalDimension2Code">
-          <DataField>SalesInvoiceEntry_GlobalDimension2Code</DataField>
-        </Field>
-        <Field Name="SalesInvoiceEntry_GlobalDimension1Code">
-          <DataField>SalesInvoiceEntry_GlobalDimension1Code</DataField>
-        </Field>
-        <Field Name="SalesInvoiceEntry_GLAccountNo">
-          <DataField>SalesInvoiceEntry_GLAccountNo</DataField>
-        </Field>
-        <Field Name="SalesInvoiceEntry_UserName">
-          <DataField>SalesInvoiceEntry_UserName</DataField>
-        </Field>
-        <Field Name="SalesInvoiceEntry_GroupText">
-          <DataField>SalesInvoiceEntry_GroupText</DataField>
-        </Field>
-        <Field Name="SalesCrMemoHeader_No">
-          <DataField>SalesCrMemoHeader_No</DataField>
-        </Field>
-        <Field Name="SalesCrMemoHeader_DueDate">
-          <DataField>SalesCrMemoHeader_DueDate</DataField>
-        </Field>
-        <Field Name="SalesCrMemoHeader_SelltoCustomerName">
-          <DataField>SalesCrMemoHeader_SelltoCustomerName</DataField>
-        </Field>
-        <Field Name="SalesCrMemoHeader_Amount">
-          <DataField>SalesCrMemoHeader_Amount</DataField>
-        </Field>
-        <Field Name="SalesCrMemoHeader_AmountFormat">
-          <DataField>SalesCrMemoHeader_AmountFormat</DataField>
-        </Field>
-        <Field Name="SalesCrMemoHeader_CurrencyCode">
-          <DataField>SalesCrMemoHeader_CurrencyCode</DataField>
-        </Field>
-        <Field Name="SalesCrMemoHeader_FCYRate">
-          <DataField>SalesCrMemoHeader_FCYRate</DataField>
-        </Field>
-        <Field Name="SalesCrMemoHeader_FCYRateFormat">
-          <DataField>SalesCrMemoHeader_FCYRateFormat</DataField>
-        </Field>
-        <Field Name="SalesCrMemoHeader_PostingDate">
-          <DataField>SalesCrMemoHeader_PostingDate</DataField>
-        </Field>
-        <Field Name="SalesCrMemoHeader_VATDate">
-          <DataField>SalesCrMemoHeader_VATDate</DataField>
-        </Field>
-        <Field Name="SalesCrMemoHeader_DocumentDate">
-          <DataField>SalesCrMemoHeader_DocumentDate</DataField>
-        </Field>
-        <Field Name="SalesCrMemoEntry_CreditAmount">
-          <DataField>SalesCrMemoEntry_CreditAmount</DataField>
-        </Field>
-        <Field Name="SalesCrMemoEntry_CreditAmountFormat">
-          <DataField>SalesCrMemoEntry_CreditAmountFormat</DataField>
-        </Field>
-        <Field Name="SalesCrMemoEntry_DebitAmount">
-          <DataField>SalesCrMemoEntry_DebitAmount</DataField>
-        </Field>
-        <Field Name="SalesCrMemoEntry_DebitAmountFormat">
-          <DataField>SalesCrMemoEntry_DebitAmountFormat</DataField>
-        </Field>
-        <Field Name="SalesCrMemoEntry_GlobalDimension2Code">
-          <DataField>SalesCrMemoEntry_GlobalDimension2Code</DataField>
-        </Field>
-        <Field Name="SalesCrMemoEntry_GlobalDimension1Code">
-          <DataField>SalesCrMemoEntry_GlobalDimension1Code</DataField>
-        </Field>
-        <Field Name="SalesCrMemoEntry_GLAccountNo">
-          <DataField>SalesCrMemoEntry_GLAccountNo</DataField>
-        </Field>
-        <Field Name="SalesCrMemoEntry_UserName">
-          <DataField>SalesCrMemoEntry_UserName</DataField>
-        </Field>
-        <Field Name="SalesCrMemoEntry_GroupText">
-          <DataField>SalesCrMemoEntry_GroupText</DataField>
-        </Field>
-        <Field Name="PurchInvHeader_No">
-          <DataField>PurchInvHeader_No</DataField>
-        </Field>
-        <Field Name="PurchInvHeader_DueDate">
-          <DataField>PurchInvHeader_DueDate</DataField>
-        </Field>
-        <Field Name="PurchInvHeader_BuyfromVendorName">
-          <DataField>PurchInvHeader_BuyfromVendorName</DataField>
-        </Field>
-        <Field Name="PurchInvHeader_VendorInvoiceNo">
-          <DataField>PurchInvHeader_VendorInvoiceNo</DataField>
-        </Field>
-        <Field Name="PurchInvHeader_Amount">
-          <DataField>PurchInvHeader_Amount</DataField>
-        </Field>
-        <Field Name="PurchInvHeader_AmountFormat">
-          <DataField>PurchInvHeader_AmountFormat</DataField>
-        </Field>
-        <Field Name="PurchInvHeader_CurrencyCode">
-          <DataField>PurchInvHeader_CurrencyCode</DataField>
-        </Field>
-        <Field Name="PurchInvHeader_FCYRate">
-          <DataField>PurchInvHeader_FCYRate</DataField>
-        </Field>
-        <Field Name="PurchInvHeader_FCYRateFormat">
-          <DataField>PurchInvHeader_FCYRateFormat</DataField>
-        </Field>
-        <Field Name="PurchInvHeader_PostingDate">
-          <DataField>PurchInvHeader_PostingDate</DataField>
-        </Field>
-        <Field Name="PurchInvHeader_VATDate">
-          <DataField>PurchInvHeader_VATDate</DataField>
-        </Field>
-        <Field Name="PurchInvHeader_DocumentDate">
-          <DataField>PurchInvHeader_DocumentDate</DataField>
-        </Field>
-        <Field Name="PurchInvEntry_CreditAmount">
-          <DataField>PurchInvEntry_CreditAmount</DataField>
-        </Field>
-        <Field Name="PurchInvEntry_CreditAmountFormat">
-          <DataField>PurchInvEntry_CreditAmountFormat</DataField>
-        </Field>
-        <Field Name="PurchInvEntry_DebitAmount">
-          <DataField>PurchInvEntry_DebitAmount</DataField>
-        </Field>
-        <Field Name="PurchInvEntry_DebitAmountFormat">
-          <DataField>PurchInvEntry_DebitAmountFormat</DataField>
-        </Field>
-        <Field Name="PurchInvEntry_GlobalDimension2Code">
-          <DataField>PurchInvEntry_GlobalDimension2Code</DataField>
-        </Field>
-        <Field Name="PurchInvEntry_GlobalDimension1Code">
-          <DataField>PurchInvEntry_GlobalDimension1Code</DataField>
-        </Field>
-        <Field Name="PurchInvEntry_GLAccountNo">
-          <DataField>PurchInvEntry_GLAccountNo</DataField>
-        </Field>
-        <Field Name="PurchInvEntry_UserName">
-          <DataField>PurchInvEntry_UserName</DataField>
-        </Field>
-        <Field Name="PurchInvEntry_GroupText">
-          <DataField>PurchInvEntry_GroupText</DataField>
-        </Field>
-        <Field Name="PurchCrMemoHdr_No">
-          <DataField>PurchCrMemoHdr_No</DataField>
-        </Field>
-        <Field Name="PurchCrMemoHdr_DueDate">
-          <DataField>PurchCrMemoHdr_DueDate</DataField>
-        </Field>
-        <Field Name="PurchCrMemoHdr_BuyfromVendorName">
-          <DataField>PurchCrMemoHdr_BuyfromVendorName</DataField>
-        </Field>
-        <Field Name="PurchCrMemoHdr_VendorCrMemoNo">
-          <DataField>PurchCrMemoHdr_VendorCrMemoNo</DataField>
-        </Field>
-        <Field Name="PurchCrMemoHdr_Amount">
-          <DataField>PurchCrMemoHdr_Amount</DataField>
-        </Field>
-        <Field Name="PurchCrMemoHdr_AmountFormat">
-          <DataField>PurchCrMemoHdr_AmountFormat</DataField>
-        </Field>
-        <Field Name="PurchCrMemoHdr_FCYRate">
-          <DataField>PurchCrMemoHdr_FCYRate</DataField>
-        </Field>
-        <Field Name="PurchCrMemoHdr_FCYRateFormat">
-          <DataField>PurchCrMemoHdr_FCYRateFormat</DataField>
-        </Field>
-        <Field Name="PurchCrMemoHdr_CurrencyCode">
-          <DataField>PurchCrMemoHdr_CurrencyCode</DataField>
-        </Field>
-        <Field Name="PurchCrMemoHdr_PostingDate">
-          <DataField>PurchCrMemoHdr_PostingDate</DataField>
-        </Field>
-        <Field Name="PurchCrMemoHdr_VATDate">
-          <DataField>PurchCrMemoHdr_VATDate</DataField>
-        </Field>
-        <Field Name="PurchCrMemoHdr_DocumentDate">
-          <DataField>PurchCrMemoHdr_DocumentDate</DataField>
-        </Field>
-        <Field Name="PurchCrMemoEntry_CreditAmount">
-          <DataField>PurchCrMemoEntry_CreditAmount</DataField>
-        </Field>
-        <Field Name="PurchCrMemoEntry_CreditAmountFormat">
-          <DataField>PurchCrMemoEntry_CreditAmountFormat</DataField>
-        </Field>
-        <Field Name="PurchCrMemoEntry_DebitAmount">
-          <DataField>PurchCrMemoEntry_DebitAmount</DataField>
-        </Field>
-        <Field Name="PurchCrMemoEntry_DebitAmountFormat">
-          <DataField>PurchCrMemoEntry_DebitAmountFormat</DataField>
-        </Field>
-        <Field Name="PurchCrMemoEntry_GlobalDimension2Code">
-          <DataField>PurchCrMemoEntry_GlobalDimension2Code</DataField>
-        </Field>
-        <Field Name="PurchCrMemoEntry_GlobalDimension1Code">
-          <DataField>PurchCrMemoEntry_GlobalDimension1Code</DataField>
-        </Field>
-        <Field Name="PurchCrMemoEntry_GLAccountNo">
-          <DataField>PurchCrMemoEntry_GLAccountNo</DataField>
-        </Field>
-        <Field Name="PurchCrMemoEntry_UserName">
-          <DataField>PurchCrMemoEntry_UserName</DataField>
-        </Field>
-        <Field Name="PurchCrMemoEntry_GroupText">
-          <DataField>PurchCrMemoEntry_GroupText</DataField>
-        </Field>
-        <Field Name="GeneralDoc_DocumentNo">
-          <DataField>GeneralDoc_DocumentNo</DataField>
-        </Field>
-        <Field Name="GeneralDocEntry_CreditAmount">
-          <DataField>GeneralDocEntry_CreditAmount</DataField>
-        </Field>
-        <Field Name="GeneralDocEntry_CreditAmountFormat">
-          <DataField>GeneralDocEntry_CreditAmountFormat</DataField>
-        </Field>
-        <Field Name="GeneralDocEntry_DebitAmount">
-          <DataField>GeneralDocEntry_DebitAmount</DataField>
-        </Field>
-        <Field Name="GeneralDocEntry_DebitAmountFormat">
-          <DataField>GeneralDocEntry_DebitAmountFormat</DataField>
-        </Field>
-        <Field Name="GeneralDocEntry_GlobalDimension2Code">
-          <DataField>GeneralDocEntry_GlobalDimension2Code</DataField>
-        </Field>
-        <Field Name="GeneralDocEntry_GlobalDimension1Code">
-          <DataField>GeneralDocEntry_GlobalDimension1Code</DataField>
-        </Field>
-        <Field Name="GeneralDocEntry_Description">
-          <DataField>GeneralDocEntry_Description</DataField>
-        </Field>
-        <Field Name="GeneralDocEntry_GLAccountNo">
-          <DataField>GeneralDocEntry_GLAccountNo</DataField>
-        </Field>
-        <Field Name="GeneralDocEntry_PostingDate">
-          <DataField>GeneralDocEntry_PostingDate</DataField>
-        </Field>
-        <Field Name="GeneralDocEntry_UserName">
-          <DataField>GeneralDocEntry_UserName</DataField>
-        </Field>
-        <Field Name="GeneralDocEntry_GroupText">
-          <DataField>GeneralDocEntry_GroupText</DataField>
-        </Field>
-      </Fields>
-    </DataSet>
-  </DataSets>
   <ReportSections>
     <ReportSection>
       <Body>
@@ -12497,4 +12175,326 @@ End Function
 </Code>
   <Language>=User!Language</Language>
   <ConsumeContainerWhitespace>true</ConsumeContainerWhitespace>
+  <DataSets>
+    <DataSet Name="DataSet_Result">
+      <Fields>
+        <Field Name="GroupCaption">
+          <DataField>GroupCaption</DataField>
+        </Field>
+        <Field Name="LastDataItem">
+          <DataField>LastDataItem</DataField>
+        </Field>
+        <Field Name="SalesInvHdrExists">
+          <DataField>SalesInvHdrExists</DataField>
+        </Field>
+        <Field Name="SalesCrMemoHdrExists">
+          <DataField>SalesCrMemoHdrExists</DataField>
+        </Field>
+        <Field Name="PurchInvHdrExists">
+          <DataField>PurchInvHdrExists</DataField>
+        </Field>
+        <Field Name="PurchCrMemoHdrExists">
+          <DataField>PurchCrMemoHdrExists</DataField>
+        </Field>
+        <Field Name="GeneralDocExists">
+          <DataField>GeneralDocExists</DataField>
+        </Field>
+        <Field Name="CompanyInformation_Name">
+          <DataField>CompanyInformation_Name</DataField>
+        </Field>
+        <Field Name="GlobalDimension2CodeCaption">
+          <DataField>GlobalDimension2CodeCaption</DataField>
+        </Field>
+        <Field Name="GlobalDimension1CodeCaption">
+          <DataField>GlobalDimension1CodeCaption</DataField>
+        </Field>
+        <Field Name="SalesInvoiceHeader_No">
+          <DataField>SalesInvoiceHeader_No</DataField>
+        </Field>
+        <Field Name="SalesInvoiceHeader_SelltoCustomerName">
+          <DataField>SalesInvoiceHeader_SelltoCustomerName</DataField>
+        </Field>
+        <Field Name="SalesInvoiceHeader_DueDate">
+          <DataField>SalesInvoiceHeader_DueDate</DataField>
+        </Field>
+        <Field Name="SalesInvoiceHeader_Amount">
+          <DataField>SalesInvoiceHeader_Amount</DataField>
+        </Field>
+        <Field Name="SalesInvoiceHeader_AmountFormat">
+          <DataField>SalesInvoiceHeader_AmountFormat</DataField>
+        </Field>
+        <Field Name="SalesInvoiceHeader_CurrencyCode">
+          <DataField>SalesInvoiceHeader_CurrencyCode</DataField>
+        </Field>
+        <Field Name="SalesInvoiceHeader_PostingDate">
+          <DataField>SalesInvoiceHeader_PostingDate</DataField>
+        </Field>
+        <Field Name="SalesInvoiceHeader_VATDate">
+          <DataField>SalesInvoiceHeader_VATDate</DataField>
+        </Field>
+        <Field Name="SalesInvoiceHeader_DocumentDate">
+          <DataField>SalesInvoiceHeader_DocumentDate</DataField>
+        </Field>
+        <Field Name="SalesInvoiceHeader_FCYRate">
+          <DataField>SalesInvoiceHeader_FCYRate</DataField>
+        </Field>
+        <Field Name="SalesInvoiceHeader_FCYRateFormat">
+          <DataField>SalesInvoiceHeader_FCYRateFormat</DataField>
+        </Field>
+        <Field Name="SalesInvoiceEntry_CreditAmount">
+          <DataField>SalesInvoiceEntry_CreditAmount</DataField>
+        </Field>
+        <Field Name="SalesInvoiceEntry_CreditAmountFormat">
+          <DataField>SalesInvoiceEntry_CreditAmountFormat</DataField>
+        </Field>
+        <Field Name="SalesInvoiceEntry_DebitAmount">
+          <DataField>SalesInvoiceEntry_DebitAmount</DataField>
+        </Field>
+        <Field Name="SalesInvoiceEntry_DebitAmountFormat">
+          <DataField>SalesInvoiceEntry_DebitAmountFormat</DataField>
+        </Field>
+        <Field Name="SalesInvoiceEntry_GlobalDimension2Code">
+          <DataField>SalesInvoiceEntry_GlobalDimension2Code</DataField>
+        </Field>
+        <Field Name="SalesInvoiceEntry_GlobalDimension1Code">
+          <DataField>SalesInvoiceEntry_GlobalDimension1Code</DataField>
+        </Field>
+        <Field Name="SalesInvoiceEntry_GLAccountNo">
+          <DataField>SalesInvoiceEntry_GLAccountNo</DataField>
+        </Field>
+        <Field Name="SalesInvoiceEntry_UserName">
+          <DataField>SalesInvoiceEntry_UserName</DataField>
+        </Field>
+        <Field Name="SalesInvoiceEntry_GroupText">
+          <DataField>SalesInvoiceEntry_GroupText</DataField>
+        </Field>
+        <Field Name="SalesCrMemoHeader_No">
+          <DataField>SalesCrMemoHeader_No</DataField>
+        </Field>
+        <Field Name="SalesCrMemoHeader_DueDate">
+          <DataField>SalesCrMemoHeader_DueDate</DataField>
+        </Field>
+        <Field Name="SalesCrMemoHeader_SelltoCustomerName">
+          <DataField>SalesCrMemoHeader_SelltoCustomerName</DataField>
+        </Field>
+        <Field Name="SalesCrMemoHeader_Amount">
+          <DataField>SalesCrMemoHeader_Amount</DataField>
+        </Field>
+        <Field Name="SalesCrMemoHeader_AmountFormat">
+          <DataField>SalesCrMemoHeader_AmountFormat</DataField>
+        </Field>
+        <Field Name="SalesCrMemoHeader_CurrencyCode">
+          <DataField>SalesCrMemoHeader_CurrencyCode</DataField>
+        </Field>
+        <Field Name="SalesCrMemoHeader_FCYRate">
+          <DataField>SalesCrMemoHeader_FCYRate</DataField>
+        </Field>
+        <Field Name="SalesCrMemoHeader_FCYRateFormat">
+          <DataField>SalesCrMemoHeader_FCYRateFormat</DataField>
+        </Field>
+        <Field Name="SalesCrMemoHeader_PostingDate">
+          <DataField>SalesCrMemoHeader_PostingDate</DataField>
+        </Field>
+        <Field Name="SalesCrMemoHeader_VATDate">
+          <DataField>SalesCrMemoHeader_VATDate</DataField>
+        </Field>
+        <Field Name="SalesCrMemoHeader_DocumentDate">
+          <DataField>SalesCrMemoHeader_DocumentDate</DataField>
+        </Field>
+        <Field Name="SalesCrMemoEntry_CreditAmount">
+          <DataField>SalesCrMemoEntry_CreditAmount</DataField>
+        </Field>
+        <Field Name="SalesCrMemoEntry_CreditAmountFormat">
+          <DataField>SalesCrMemoEntry_CreditAmountFormat</DataField>
+        </Field>
+        <Field Name="SalesCrMemoEntry_DebitAmount">
+          <DataField>SalesCrMemoEntry_DebitAmount</DataField>
+        </Field>
+        <Field Name="SalesCrMemoEntry_DebitAmountFormat">
+          <DataField>SalesCrMemoEntry_DebitAmountFormat</DataField>
+        </Field>
+        <Field Name="SalesCrMemoEntry_GlobalDimension2Code">
+          <DataField>SalesCrMemoEntry_GlobalDimension2Code</DataField>
+        </Field>
+        <Field Name="SalesCrMemoEntry_GlobalDimension1Code">
+          <DataField>SalesCrMemoEntry_GlobalDimension1Code</DataField>
+        </Field>
+        <Field Name="SalesCrMemoEntry_GLAccountNo">
+          <DataField>SalesCrMemoEntry_GLAccountNo</DataField>
+        </Field>
+        <Field Name="SalesCrMemoEntry_UserName">
+          <DataField>SalesCrMemoEntry_UserName</DataField>
+        </Field>
+        <Field Name="SalesCrMemoEntry_GroupText">
+          <DataField>SalesCrMemoEntry_GroupText</DataField>
+        </Field>
+        <Field Name="PurchInvHeader_No">
+          <DataField>PurchInvHeader_No</DataField>
+        </Field>
+        <Field Name="PurchInvHeader_DueDate">
+          <DataField>PurchInvHeader_DueDate</DataField>
+        </Field>
+        <Field Name="PurchInvHeader_BuyfromVendorName">
+          <DataField>PurchInvHeader_BuyfromVendorName</DataField>
+        </Field>
+        <Field Name="PurchInvHeader_VendorInvoiceNo">
+          <DataField>PurchInvHeader_VendorInvoiceNo</DataField>
+        </Field>
+        <Field Name="PurchInvHeader_Amount">
+          <DataField>PurchInvHeader_Amount</DataField>
+        </Field>
+        <Field Name="PurchInvHeader_AmountFormat">
+          <DataField>PurchInvHeader_AmountFormat</DataField>
+        </Field>
+        <Field Name="PurchInvHeader_CurrencyCode">
+          <DataField>PurchInvHeader_CurrencyCode</DataField>
+        </Field>
+        <Field Name="PurchInvHeader_FCYRate">
+          <DataField>PurchInvHeader_FCYRate</DataField>
+        </Field>
+        <Field Name="PurchInvHeader_FCYRateFormat">
+          <DataField>PurchInvHeader_FCYRateFormat</DataField>
+        </Field>
+        <Field Name="PurchInvHeader_PostingDate">
+          <DataField>PurchInvHeader_PostingDate</DataField>
+        </Field>
+        <Field Name="PurchInvHeader_VATDate">
+          <DataField>PurchInvHeader_VATDate</DataField>
+        </Field>
+        <Field Name="PurchInvHeader_DocumentDate">
+          <DataField>PurchInvHeader_DocumentDate</DataField>
+        </Field>
+        <Field Name="PurchInvEntry_CreditAmount">
+          <DataField>PurchInvEntry_CreditAmount</DataField>
+        </Field>
+        <Field Name="PurchInvEntry_CreditAmountFormat">
+          <DataField>PurchInvEntry_CreditAmountFormat</DataField>
+        </Field>
+        <Field Name="PurchInvEntry_DebitAmount">
+          <DataField>PurchInvEntry_DebitAmount</DataField>
+        </Field>
+        <Field Name="PurchInvEntry_DebitAmountFormat">
+          <DataField>PurchInvEntry_DebitAmountFormat</DataField>
+        </Field>
+        <Field Name="PurchInvEntry_GlobalDimension2Code">
+          <DataField>PurchInvEntry_GlobalDimension2Code</DataField>
+        </Field>
+        <Field Name="PurchInvEntry_GlobalDimension1Code">
+          <DataField>PurchInvEntry_GlobalDimension1Code</DataField>
+        </Field>
+        <Field Name="PurchInvEntry_GLAccountNo">
+          <DataField>PurchInvEntry_GLAccountNo</DataField>
+        </Field>
+        <Field Name="PurchInvEntry_UserName">
+          <DataField>PurchInvEntry_UserName</DataField>
+        </Field>
+        <Field Name="PurchInvEntry_GroupText">
+          <DataField>PurchInvEntry_GroupText</DataField>
+        </Field>
+        <Field Name="PurchCrMemoHdr_No">
+          <DataField>PurchCrMemoHdr_No</DataField>
+        </Field>
+        <Field Name="PurchCrMemoHdr_DueDate">
+          <DataField>PurchCrMemoHdr_DueDate</DataField>
+        </Field>
+        <Field Name="PurchCrMemoHdr_BuyfromVendorName">
+          <DataField>PurchCrMemoHdr_BuyfromVendorName</DataField>
+        </Field>
+        <Field Name="PurchCrMemoHdr_VendorCrMemoNo">
+          <DataField>PurchCrMemoHdr_VendorCrMemoNo</DataField>
+        </Field>
+        <Field Name="PurchCrMemoHdr_Amount">
+          <DataField>PurchCrMemoHdr_Amount</DataField>
+        </Field>
+        <Field Name="PurchCrMemoHdr_AmountFormat">
+          <DataField>PurchCrMemoHdr_AmountFormat</DataField>
+        </Field>
+        <Field Name="PurchCrMemoHdr_FCYRate">
+          <DataField>PurchCrMemoHdr_FCYRate</DataField>
+        </Field>
+        <Field Name="PurchCrMemoHdr_FCYRateFormat">
+          <DataField>PurchCrMemoHdr_FCYRateFormat</DataField>
+        </Field>
+        <Field Name="PurchCrMemoHdr_CurrencyCode">
+          <DataField>PurchCrMemoHdr_CurrencyCode</DataField>
+        </Field>
+        <Field Name="PurchCrMemoHdr_PostingDate">
+          <DataField>PurchCrMemoHdr_PostingDate</DataField>
+        </Field>
+        <Field Name="PurchCrMemoHdr_VATDate">
+          <DataField>PurchCrMemoHdr_VATDate</DataField>
+        </Field>
+        <Field Name="PurchCrMemoHdr_DocumentDate">
+          <DataField>PurchCrMemoHdr_DocumentDate</DataField>
+        </Field>
+        <Field Name="PurchCrMemoEntry_CreditAmount">
+          <DataField>PurchCrMemoEntry_CreditAmount</DataField>
+        </Field>
+        <Field Name="PurchCrMemoEntry_CreditAmountFormat">
+          <DataField>PurchCrMemoEntry_CreditAmountFormat</DataField>
+        </Field>
+        <Field Name="PurchCrMemoEntry_DebitAmount">
+          <DataField>PurchCrMemoEntry_DebitAmount</DataField>
+        </Field>
+        <Field Name="PurchCrMemoEntry_DebitAmountFormat">
+          <DataField>PurchCrMemoEntry_DebitAmountFormat</DataField>
+        </Field>
+        <Field Name="PurchCrMemoEntry_GlobalDimension2Code">
+          <DataField>PurchCrMemoEntry_GlobalDimension2Code</DataField>
+        </Field>
+        <Field Name="PurchCrMemoEntry_GlobalDimension1Code">
+          <DataField>PurchCrMemoEntry_GlobalDimension1Code</DataField>
+        </Field>
+        <Field Name="PurchCrMemoEntry_GLAccountNo">
+          <DataField>PurchCrMemoEntry_GLAccountNo</DataField>
+        </Field>
+        <Field Name="PurchCrMemoEntry_UserName">
+          <DataField>PurchCrMemoEntry_UserName</DataField>
+        </Field>
+        <Field Name="PurchCrMemoEntry_GroupText">
+          <DataField>PurchCrMemoEntry_GroupText</DataField>
+        </Field>
+        <Field Name="GeneralDoc_DocumentNo">
+          <DataField>GeneralDoc_DocumentNo</DataField>
+        </Field>
+        <Field Name="GeneralDocEntry_CreditAmount">
+          <DataField>GeneralDocEntry_CreditAmount</DataField>
+        </Field>
+        <Field Name="GeneralDocEntry_CreditAmountFormat">
+          <DataField>GeneralDocEntry_CreditAmountFormat</DataField>
+        </Field>
+        <Field Name="GeneralDocEntry_DebitAmount">
+          <DataField>GeneralDocEntry_DebitAmount</DataField>
+        </Field>
+        <Field Name="GeneralDocEntry_DebitAmountFormat">
+          <DataField>GeneralDocEntry_DebitAmountFormat</DataField>
+        </Field>
+        <Field Name="GeneralDocEntry_GlobalDimension2Code">
+          <DataField>GeneralDocEntry_GlobalDimension2Code</DataField>
+        </Field>
+        <Field Name="GeneralDocEntry_GlobalDimension1Code">
+          <DataField>GeneralDocEntry_GlobalDimension1Code</DataField>
+        </Field>
+        <Field Name="GeneralDocEntry_Description">
+          <DataField>GeneralDocEntry_Description</DataField>
+        </Field>
+        <Field Name="GeneralDocEntry_GLAccountNo">
+          <DataField>GeneralDocEntry_GLAccountNo</DataField>
+        </Field>
+        <Field Name="GeneralDocEntry_PostingDate">
+          <DataField>GeneralDocEntry_PostingDate</DataField>
+        </Field>
+        <Field Name="GeneralDocEntry_UserName">
+          <DataField>GeneralDocEntry_UserName</DataField>
+        </Field>
+        <Field Name="GeneralDocEntry_GroupText">
+          <DataField>GeneralDocEntry_GroupText</DataField>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>DataSource</DataSourceName>
+        <CommandText />
+      </Query>
+    </DataSet>
+  </DataSets>
 </Report>

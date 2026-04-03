@@ -35,6 +35,9 @@ using System.Integration.PowerBI;
 using System.Integration.Word;
 using System.Text;
 
+/// <summary>
+/// Lists all customers with filtering and navigation capabilities.
+/// </summary>
 page 22 "Customer List"
 {
     ApplicationArea = Basic, Suite, Service;
@@ -264,19 +267,6 @@ page 22 "Customer List"
                 SubPageLink = "No." = field("No.");
                 Visible = CRMIsCoupledToRecord and CRMIntegrationEnabled;
             }
-#if not CLEAN25
-            part("Attached Documents"; "Document Attachment Factbox")
-            {
-                ObsoleteTag = '25.0';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
-                ApplicationArea = All;
-                Visible = false;
-                Caption = 'Attachments';
-                SubPageLink = "Table ID" = const(Database::Customer),
-                              "No." = field("No.");
-            }
-#endif
             part("Attached Documents List"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = All;
@@ -752,7 +742,6 @@ page 22 "Customer List"
                     RunPageLink = Code = field("Invoice Disc. Code");
                     ToolTip = 'Set up different discounts that are applied to invoices for the customer. An invoice discount is automatically granted to the customer when the total on a sales invoice exceeds a certain amount.';
                 }
-#if not CLEAN25
                 action(Sales_Prices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -760,9 +749,6 @@ page 22 "Customer List"
                     Image = Price;
                     ToolTip = 'View or set up different prices for items that you sell to the customer. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
                     Visible = not ExtendedPriceEnabled;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '18.0';
 
                     trigger OnAction()
                     begin
@@ -776,16 +762,12 @@ page 22 "Customer List"
                     Image = LineDiscount;
                     ToolTip = 'View or set up different discounts for items that you sell to the customer. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
                     Visible = not ExtendedPriceEnabled;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '18.0';
 
                     trigger OnAction()
                     begin
                         ShowLineDiscounts();
                     end;
                 }
-#endif
                 action("Prepa&yment Percentages")
                 {
                     ApplicationArea = Prepayments;
@@ -1032,7 +1014,6 @@ page 22 "Customer List"
                         PriceUXManagement.ShowPriceListLines(PriceSource, Enum::"Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN25
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1040,9 +1021,6 @@ page 22 "Customer List"
                     Image = LineDiscount;
                     Visible = false;
                     ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action PriceLists shows all sales price lists with prices and discounts';
-                    ObsoleteTag = '18.0';
 
                     trigger OnAction()
                     var
@@ -1060,9 +1038,6 @@ page 22 "Customer List"
                     Scope = Repeater;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View or set up different prices for items that you sell to the selected customer. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     begin
@@ -1077,16 +1052,12 @@ page 22 "Customer List"
                     Scope = Repeater;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View or set up different discounts for items that you sell to the customer. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     begin
                         ShowLineDiscounts();
                     end;
                 }
-#endif
             }
             group("Request Approval")
             {
@@ -1246,14 +1217,20 @@ page 22 "Customer List"
                 {
                     Caption = 'Sales Reports';
                     Image = "Report";
+#if not CLEAN28
                     action(ReportCustomerTop10List)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Customer - Top 10 List';
+                        Caption = 'Customer - Top 10 List (Obsolete)';
                         Image = "Report";
                         RunObject = Report "Customer - Top 10 List";
                         ToolTip = 'View which customers purchase the most or owe the most in a selected period. Only customers that have either purchases during the period or a balance at the end of the period will be included.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report has been replaced by the report Customer - Top List (Excel). This report will be removed in a future release.';
+                        ObsoleteTag = '28.0';
                     }
+#endif
+#if not CLEAN28
                     action(ReportCustomerSalesList)
                     {
                         ApplicationArea = Basic, Suite;
@@ -1261,7 +1238,12 @@ page 22 "Customer List"
                         Image = "Report";
                         RunObject = Report "Customer - Sales List";
                         ToolTip = 'View customer sales for a period, for example, to report sales activity to customs and tax authorities. You can choose to include only customers with total sales that exceed a minimum amount. You can also specify whether you want the report to show address details for each customer.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report is obsolete and will be removed in a future version.';
+                        ObsoleteTag = '28.0';
                     }
+#endif
+#if not CLEAN28
                     action(ReportSalesStatistics)
                     {
                         ApplicationArea = Basic, Suite;
@@ -1269,7 +1251,11 @@ page 22 "Customer List"
                         Image = "Report";
                         RunObject = Report "Sales Statistics";
                         ToolTip = 'View customers'' total costs, sales, and profits over time, for example, to analyze earnings trends. The report shows amounts for original and adjusted costs, sales, profits, invoice discounts, payment discounts, and profit percentage in three adjustable periods.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report is obsolete and will be removed in a future version.';
+                        ObsoleteTag = '28.0';
                     }
+#endif
                 }
                 group(FinanceReports)
                 {
@@ -1337,14 +1323,19 @@ page 22 "Customer List"
                         RunObject = Report "Customer Detailed Aging";
                         ToolTip = 'View, print, or save a detailed list of each customer''s total payments due, divided into three time periods. The report can be used to decide when to issue reminders, to evaluate a customer''s creditworthiness, or to prepare liquidity analyses.';
                     }
+#if not CLEAN28
                     action(ReportAgedAccountsReceivable)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Aged Accounts Receivable';
+                        Caption = 'Aged Accounts Receivable (Obsolete)';
                         Image = "Report";
                         RunObject = Report "Aged Accounts Receivable";
                         ToolTip = 'View an overview of when customer payments are due or overdue, divided into four periods. You must specify the date you want aging calculated from and the length of the period that each column will contain data for.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report has been replaced by the report Aged Accounts Receivable (Excel). This report will be removed in a future release.';
+                        ObsoleteTag = '28.0';
                     }
+#endif
                     action(ReportCustomerPaymentReceipt)
                     {
                         ApplicationArea = Suite;
@@ -1366,6 +1357,7 @@ page 22 "Customer List"
             group(General)
             {
                 Caption = 'General';
+#if not CLEAN28
                 action("Customer List")
                 {
                     ApplicationArea = Suite;
@@ -1373,7 +1365,11 @@ page 22 "Customer List"
                     Image = "Report";
                     RunObject = Report "Customer - List";
                     ToolTip = 'View various kinds of basic information for customers, such as customer posting group, discount group, finance charge and payment information, salesperson, the customer''s default currency and credit limit (in LCY), and the customer''s current balance (in LCY).';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This report is obsolete and will be removed in a future version.';
+                    ObsoleteTag = '28.0';
                 }
+#endif
                 action("Customer Register")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1382,14 +1378,19 @@ page 22 "Customer List"
                     RunObject = Report "Customer Register";
                     ToolTip = 'View posted customer ledger entries divided into, and sorted according to, registers. By using a filter, you can select exactly the entries in the registers that you need to see. If you have created many entries and you do not set a filter, the report will print a large amount of information.';
                 }
+#if not CLEAN28
                 action("Customer - Top 10 List")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Customer - Top 10 List';
+                    Caption = 'Customer - Top 10 List (Obsolete)';
                     Image = "Report";
                     RunObject = Report "Customer - Top 10 List";
                     ToolTip = 'View which customers purchase the most or owe the most in a selected period. Only customers that have either purchases during the period or a balance at the end of the period will be included.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This report has been replaced by the report Customer - Top List (Excel). This report will be removed in a future release.';
+                    ObsoleteTag = '28.0';
                 }
+#endif
             }
             group(Sales)
             {
@@ -1411,6 +1412,7 @@ page 22 "Customer List"
                     RunObject = Report "Customer - Order Detail";
                     ToolTip = 'View a list of orders divided by customer. The order amounts are totaled for each customer and for the entire list. The report can be used, for example, to obtain an overview of sales over the short term or to analyze possible shipment problems.';
                 }
+#if not CLEAN28
                 action("Customer - Sales List")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1418,7 +1420,12 @@ page 22 "Customer List"
                     Image = "Report";
                     RunObject = Report "Customer - Sales List";
                     ToolTip = 'View customer sales for a period, for example, to report sales activity to customs and tax authorities. You can choose to include only customers with total sales that exceed a minimum amount. You can also specify whether you want the report to show address details for each customer.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This report is obsolete and will be removed in a future version.';
+                    ObsoleteTag = '28.0';
                 }
+#endif
+#if not CLEAN28
                 action("Sales Statistics")
                 {
                     ApplicationArea = Suite;
@@ -1426,7 +1433,11 @@ page 22 "Customer List"
                     Image = "Report";
                     RunObject = Report "Sales Statistics";
                     ToolTip = 'View customers'' total costs, sales, and profits over time, for example, to analyze earnings trends. The report shows amounts for original and adjusted costs, sales, profits, invoice discounts, payment discounts, and profit percentage in three adjustable periods.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This report is obsolete and will be removed in a future version.';
+                    ObsoleteTag = '28.0';
                 }
+#endif
                 action("Customer/Item Sales")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1543,22 +1554,12 @@ page 22 "Customer List"
             {
                 Caption = 'Prices & Discounts', Comment = 'Generated from the PromotedActionCategories property index 8.';
 
-#if not CLEAN25
                 actionref(Prices_Prices_Promoted; Prices_Prices)
                 {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
-#endif
-#if not CLEAN25
                 actionref(Prices_LineDiscounts_Promoted; Prices_LineDiscounts)
                 {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
-#endif
                 actionref(PriceLists_Promoted; PriceLists)
                 {
                 }
@@ -1586,12 +1587,12 @@ page 22 "Customer List"
                 actionref("Customer - Order Summary_Promoted"; "Customer - Order Summary")
                 {
                 }
-#if not CLEAN25
+#if not CLEAN28
                 actionref("Customer - Sales List_Promoted"; "Customer - Sales List")
                 {
                     Visible = false;
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteReason = 'This report is obsolete and will be removed in a future version.';
                     ObsoleteTag = '21.0';
                 }
 #endif
@@ -1704,6 +1705,10 @@ page 22 "Customer List"
         EventFilter: Text;
         CaptionTxt: Text;
 
+    /// <summary>
+    /// Gets a filter expression representing the currently selected customers.
+    /// </summary>
+    /// <returns>A filter expression for the selected customers.</returns>
     procedure GetSelectionFilter(): Text
     var
         Cust: Record Customer;
@@ -1718,6 +1723,10 @@ page 22 "Customer List"
         exit(SelectionFilterForCustomer);
     end;
 
+    /// <summary>
+    /// Sets the customer record variable to the current page selection.
+    /// </summary>
+    /// <param name="Cust">Variable to receive the selection filter.</param>
     procedure SetSelection(var Cust: Record Customer)
     begin
         CurrPage.SetSelectionFilter(Cust);
@@ -1734,8 +1743,6 @@ page 22 "Customer List"
         EnabledApprovalWorkflowsExist := WorkflowManagement.EnabledWorkflowExist(DATABASE::Customer, EventFilter);
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure ShowLineDiscounts()
     var
         SalesLineDiscount: Record "Sales Line Discount";
@@ -1746,7 +1753,6 @@ page 22 "Customer List"
         Page.Run(Page::"Sales Line Discounts", SalesLineDiscount);
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure ShowPrices()
     var
         SalesPrice: Record "Sales Price";
@@ -1756,17 +1762,24 @@ page 22 "Customer List"
         SalesPrice.SetRange("Sales Code", Rec."No.");
         Page.Run(Page::"Sales Prices", SalesPrice);
     end;
-#endif
 
+    /// <summary>
+    /// Raises an event to allow customization of the customer list page caption.
+    /// </summary>
+    /// <param name="InText">The caption text to be modified.</param>
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure SetCaption(var InText: Text)
     begin
     end;
 
+    /// <summary>
+    /// Raises an event after getting the selection filter from the customer list.
+    /// </summary>
+    /// <param name="Customer">The customer records that are selected.</param>
+    /// <param name="SelectionFilterForCustomer">The selection filter text for the selected customers.</param>
     [IntegrationEvent(false, false)]
     procedure OnAfterGetSelectionFilter(var Customer: Record Customer; var SelectionFilterForCustomer: Text)
     begin
     end;
 }
-

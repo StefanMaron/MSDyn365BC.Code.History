@@ -421,6 +421,12 @@ codeunit 31072 "User Setup Adv. Management CZL"
         UserSetup.TestField("Allow VAT Date Changing CZL");
     end;
 
+    procedure CheckOrigDocVATDateChanging()
+    begin
+        GetUserSetup();
+        UserSetup.TestField("Allow Orig Doc VAT Date Ch CZL");
+    end;
+
     procedure IsExtDocNoChangingAllowed(): Boolean
     begin
         if not GetUserSetup() then

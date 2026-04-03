@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -8,6 +8,9 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Sales.Customer;
 
+/// <summary>
+/// Displays statistical information for an issued reminder including amounts, fees, and VAT breakdowns.
+/// </summary>
 page 441 "Issued Reminder Statistics"
 {
     Caption = 'Issued Reminder Statistics';
@@ -27,10 +30,11 @@ page 441 "Issued Reminder Statistics"
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
-                    ToolTip = 'Specifies the total of the remaining amounts on the reminder lines.';
                 }
                 field(Interest; Interest)
                 {
+                    AutoFormatExpression = Rec."Currency Code";
+                    AutoFormatType = 1;
                     ApplicationArea = Basic, Suite;
                     Caption = 'Interest Amount';
                     DrillDown = false;
@@ -40,10 +44,11 @@ page 441 "Issued Reminder Statistics"
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
-                    ToolTip = 'Specifies the total of the additional fee amounts on the reminder lines.';
                 }
                 field(VatAmount; VatAmount)
                 {
+                    AutoFormatExpression = Rec."Currency Code";
+                    AutoFormatType = 1;
                     ApplicationArea = Basic, Suite;
                     Caption = 'VAT Amount';
                     DrillDown = false;
@@ -51,9 +56,10 @@ page 441 "Issued Reminder Statistics"
                 }
                 field("Add. Fee per Line"; Rec."Add. Fee per Line")
                 {
+                    AutoFormatExpression = Rec."Currency Code";
+                    AutoFormatType = 1;
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
-                    ToolTip = 'Specifies that the fee is distributed on individual reminder lines.';
                 }
                 field(ReminderTotal; ReminderTotal)
                 {
@@ -87,6 +93,8 @@ page 441 "Issued Reminder Statistics"
                 }
                 field(CreditLimitLCYExpendedPct; CreditLimitLCYExpendedPct)
                 {
+                    AutoFormatExpression = '';
+                    AutoFormatType = 1;
                     ApplicationArea = Basic, Suite;
                     Caption = 'Expended % of Credit Limit (LCY)';
                     ExtendedDatatype = Ratio;

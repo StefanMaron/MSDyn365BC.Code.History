@@ -5,6 +5,8 @@ using System.DateTime;
 
 codeunit 3005 DotNet_XMLConvert
 {
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     trigger OnRun()
     begin

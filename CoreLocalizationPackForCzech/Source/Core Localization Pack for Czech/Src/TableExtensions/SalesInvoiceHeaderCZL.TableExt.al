@@ -8,6 +8,7 @@ using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Setup;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Company;
 
 tableextension 11726 "Sales Invoice Header CZL" extends "Sales Invoice Header"
@@ -104,6 +105,7 @@ tableextension 11726 "Sales Invoice Header CZL" extends "Sales Invoice Header"
         }
         field(11750; "Additional Currency Factor CZL"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Additional Currency Factor';
             DecimalPlaces = 0 : 15;
             MinValue = 0;
@@ -111,6 +113,7 @@ tableextension 11726 "Sales Invoice Header CZL" extends "Sales Invoice Header"
         }
         field(11774; "VAT Currency Factor CZL"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'VAT Currency Factor';
             DataClassification = CustomerContent;
             DecimalPlaces = 0 : 15;
@@ -178,6 +181,33 @@ tableextension 11726 "Sales Invoice Header CZL" extends "Sales Invoice Header"
             DataClassification = CustomerContent;
         }
     }
+
+    var
+        PopUpVATLCYCorrection: Boolean;
+
+    procedure SetPopUpVATLCYCorrectionCZL(NewPopUpVATLCYCorrection: Boolean)
+    begin
+        PopUpVATLCYCorrection := NewPopUpVATLCYCorrection;
+    end;
+
+    procedure GetPopUpVATLCYCorrectionCZL(): Boolean
+    begin
+        exit(PopUpVATLCYCorrection);
+    end;
+
+    procedure MakeVATLCYCorrectionCZL()
+    var
+        VATLCYCorrectionCZL: Page "VAT LCY Correction CZL";
+    begin
+        VATLCYCorrectionCZL.InitGlobals(Rec);
+        VATLCYCorrectionCZL.Run();
+    end;
+
+    procedure IsVATLCYCorrectionAllowedCZL(): Boolean
+    begin
+        Rec.CalcFields("Amount Including VAT", "Amount");
+        exit((Rec."Currency Code" <> '') and ((Rec."Amount Including VAT" - Rec."Amount") <> 0));
+    end;
 
     procedure UpdateBankInfoCZL(BankAccountCode: Code[20]; BankAccountNo: Text[30]; BankBranchNo: Text[20]; BankName: Text[100]; TransitNo: Text[20]; IBANCode: Code[50]; SWIFTCode: Code[20])
     begin

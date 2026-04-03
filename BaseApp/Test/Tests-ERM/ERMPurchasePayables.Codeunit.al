@@ -25,10 +25,8 @@
         LibraryService: Codeunit "Library - Service";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-#if not CLEAN25
         LibraryCosting: Codeunit "Library - Costing";
         LibraryApplicationArea: Codeunit "Library - Application Area";
-#endif
         LibraryUtility: Codeunit "Library - Utility";
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryResource: Codeunit "Library - Resource";
@@ -42,7 +40,6 @@
         FilterMsg: Label 'There should be record within the filter.';
         NoFilterMsg: Label 'There should be no record within the filter.';
         PurchOrderArchiveRespCenterErr: Label 'Purchase Order Archives displays documents for Responisbility Center that should not be shown for current user';
-#if not CLEAN25
         PurchaseDocStatusErr: Label 'Status must be equal to ''Open''  in Purchase Header: Document Type=%1, No.=%2. Current value is ''Released''';
         MultipleVendorsSelectedErr: Label 'More than one vendor uses these purchase prices. To copy prices, the Vendor No. Filter field must contain one vendor only.';
         InvalidItemNoFilterErr: Label 'Invalid Item No. filter for page %1.', Comment = '%1 - page caption';
@@ -51,7 +48,6 @@
         CreateNewTxt: Label 'Create New...';
         FieldEnabledErr: Label 'Field %1 must be enabled.', Comment = '%1 - field name';
         IsNotFoundErr: Label 'is not found on the page';
-#endif
         DateFormulaReverseErr: Label 'Date formula has been reversed incorrectly.';
         NotificationBatchPurchHeaderMsg: Label 'An error or warning occured during operation Batch processing of Purchase Header records.';
         VendorInvNoErr: Label 'You need to enter the document number of the document from the vendor in the Vendor Invoice No. field';
@@ -945,7 +941,6 @@
         VerifyPurchaseOrder(PurchaseHeaderNo, VendorNo, ItemNo, Quantity);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure PurchasePriceAndLineDiscount()
@@ -982,7 +977,7 @@
         CopyFromToPriceListLine.CopyFrom(PurchasePrice, PriceListLine);
         CopyFromToPriceListLine.CopyFrom(PurchaseLineDiscount, PriceListLine);
     end;
-#endif
+
     [Test]
     [Scope('OnPrem')]
     procedure ResponsibilityCenterOnPurchaseOrder()
@@ -1104,7 +1099,6 @@
         VerifyVATAmount(DocumentNo);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure StartingDateAsWorkDateOnPurchasePrice()
@@ -1124,7 +1118,7 @@
         Initialize();
         StartingDateOnPurchasePrice('T', Today);
     end;
-#endif
+
     [Test]
     [Scope('OnPrem')]
     procedure SugVendPmtWithPosVendBal()
@@ -1310,7 +1304,6 @@
         SetPurchAllowMultiplePostingGroups(false);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure PurchasePriceMinimumQuantityWithMaxValue()
@@ -1517,7 +1510,7 @@
         // [THEN] Update fails with an error: "Status must be equal to Open in Purchase Header"
         Assert.ExpectedError(StrSubstNo(PurchaseDocStatusErr, PurchaseHeader."Document Type", PurchaseHeader."No."));
     end;
-#endif
+
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -1669,7 +1662,6 @@
         PurchaseLine.TestField("No.", StandardText.Code);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure UI_CannotCopyPricesWhenVendorNoFilterHasMultipleVendors()
@@ -1832,7 +1824,6 @@
         PurchasePrice.SetRange("Vendor No.", CopyToVendorNo);
         Assert.RecordCount(PurchasePrice, 2);
     end;
-#endif
 
 #if not CLEAN26
     [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
@@ -1974,7 +1965,6 @@
         LibraryVariableStorage.Clear();
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure PurchPricesAndDiscountsActionsFromItemCard()
@@ -2231,7 +2221,6 @@
         // TearDown
         LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -2533,7 +2522,6 @@
         Assert.AreEqual(DateFormula, ReversedDateFormula, DateFormulaReverseErr);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure PurchPriceWithZeroDirectUnitCost()
@@ -2569,7 +2557,7 @@
         // [THEN] Direct Unit Cost = 0
         PurchaseLine.TestField("Direct Unit Cost", 0);
     end;
-#endif
+
     [Test]
     [Scope('OnPrem')]
     procedure TariffNumbersApplicationArea()
@@ -3607,7 +3595,6 @@
         PurchaseLine.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure CreatePurchaseLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount"; PurchasePrice: Record "Purchase Price")
     begin
         LibraryERM.CreateLineDiscForVendor(
@@ -3616,7 +3603,6 @@
         PurchaseLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         PurchaseLineDiscount.Modify(true);
     end;
-#endif
 
     local procedure CreatePurchaseDoc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocType: Enum "Purchase Document Type"; VendorNo: Code[20])
     begin
@@ -3645,7 +3631,6 @@
         exit(NoSeries.PeekNextNo(PurchaseHeader."Posting No. Series"));
     end;
 
-#if not CLEAN25
     local procedure CreatePurchaseOrder(var PurchaseLine: Record "Purchase Line"; PurchasePrice: Record "Purchase Price")
     var
         PurchaseHeader: Record "Purchase Header";
@@ -3658,7 +3643,6 @@
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, PurchasePrice."Item No.", PurchasePrice."Minimum Quantity" * 2);
     end;
-#endif
 
     local procedure CreatePurchaseOrderWithItem(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
@@ -3681,7 +3665,6 @@
         exit(PurchaseOrderNo);
     end;
 
-#if not CLEAN25
     local procedure CreatePurchasePrice(var PurchasePrice: Record "Purchase Price")
     var
         Item: Record Item;
@@ -3694,7 +3677,6 @@
         PurchasePrice.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));  // Used Random Value for Direct Unit Cost.
         PurchasePrice.Modify(true);
     end;
-#endif
 
     local procedure CreatePurchaseLineFromPurchaseOrderPage(ItemNo: Code[20]; PurchaseHeaderNo: Code[20]; VendorNo: Code[20]; Quantity: Decimal)
     var
@@ -3943,7 +3925,6 @@
         exit(ResponsibilityCenter.Code);
     end;
 
-#if not CLEAN25
     local procedure CreatePurchasePriceWithMinimumQuantity(var PurchasePrice: Record "Purchase Price"; MinQty: Decimal)
     begin
         PurchasePrice.Init();
@@ -3959,7 +3940,7 @@
         PurchasePrice.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchasePrice.Modify(true);
     end;
-#endif
+
     local procedure GetStatusStyleText(Status: Enum "Purchase Document Status"): Text
     var
         PurchaseHeader: Record "Purchase Header";
@@ -3969,7 +3950,6 @@
         exit(PurchaseHeader.GetStatusStyleText());
     end;
 
-#if not CLEAN25
     local procedure OpenPurchasePricesPage(var PurchasePrices: TestPage "Purchase Prices"; VendorNo: Code[20]; StartingDateFilter: Text[30])
     var
         VendorList: TestPage "Vendor List";
@@ -3980,7 +3960,6 @@
         VendorList.Prices.Invoke();
         PurchasePrices.StartingDateFilter.SetValue(StartingDateFilter);
     end;
-#endif
 
     local procedure OpenPurchaseLinefactBox(PurchaseHeader: Record "Purchase Header")
     var
@@ -4031,7 +4010,6 @@
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, LineType, No, LibraryRandom.RandInt(10));
     end;
 
-#if not CLEAN25
     local procedure StartingDateOnPurchasePrice(StartingDateFilter: Text[1]; StartingDate: Date)
     var
         Vendor: Record Vendor;
@@ -4046,7 +4024,6 @@
         // Verify: Verify that correct date comes in "Starting Date Filter".
         PurchasePrices.StartingDateFilter.AssertEquals(StartingDate);
     end;
-#endif
 
     local procedure SuggestVendorPayment(var GenJournalLine: Record "Gen. Journal Line"; LastPmtDate: Date; VendorNo: Code[20]; SummarizePerVendor: Boolean)
     var
@@ -4233,7 +4210,7 @@
         PurchaseLine.TestField("No.", ItemNo);
         PurchaseLine.TestField(Quantity, Quantity);
     end;
-#if not CLEAN25
+
     local procedure VerifyPriceAndLineDiscountOnPurchaseLine(PurchaseLine: Record "Purchase Line"; Quantity: Decimal; DirectUnitCost: Decimal; LineDiscountPercentage: Decimal)
     var
         PurchaseLine2: Record "Purchase Line";
@@ -4246,7 +4223,7 @@
         PurchaseLine2.TestField("Direct Unit Cost", DirectUnitCost);
         PurchaseLine2.TestField("Line Discount %", LineDiscountPercentage);
     end;
-#endif
+
     local procedure VerifyVATAmount(DocumentNo: Code[20])
     var
         VATEntry: Record "VAT Entry";
@@ -4266,7 +4243,6 @@
         VATEntry.TestField(Amount, ExpectedAmount);
     end;
 
-#if not CLEAN25
     local procedure VerifyCopiedPurchPrice(CopiedFromPurchasePrice: Record "Purchase Price"; VendNo: Code[20])
     var
         PurchasePrice: Record "Purchase Price";
@@ -4303,7 +4279,6 @@
         PurchaseLineDiscount.FindFirst();
         PurchaseLineDiscount.TestField("Line Discount %", DiscountPct);
     end;
-#endif
 
     local procedure VerifyChangeLogFieldValue(RecordRef: RecordRef; FieldNo: Integer; OldValue: Text; NewValue: Text)
     var
@@ -4833,7 +4808,6 @@
         VATAmountLine."VAT Amount".SetValue(VATAmount);
     end;
 
-#if not CLEAN25
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetPurchasePricePageHandler(var GetPurchasePrice: TestPage "Get Purchase Price") // Native
@@ -4841,7 +4815,6 @@
         GetPurchasePrice.First();
         GetPurchasePrice.OK().Invoke();
     end;
-#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]
@@ -4851,7 +4824,6 @@
         GetPriceLine.OK().Invoke();
     end;
 
-#if not CLEAN25
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchPricesSelectPriceOfVendorModalPageHandler(var PurchasePrices: TestPage "Purchase Prices")
@@ -4920,7 +4892,6 @@
           PurchasesPriceandLineDisc."Vendor No.".Enabled(),
           StrSubstNo(FieldEnabledErr, PurchasesPriceandLineDisc."Vendor No.".Caption));
     end;
-#endif
 
     [StrMenuHandler]
     [Scope('OnPrem')]
@@ -4929,7 +4900,6 @@
         Choice := LibraryVariableStorage.DequeueInteger();
     end;
 
-#if not CLEAN25
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure NewPurchPriceMPH(var PurchasePrices: TestPage "Purchase Prices")
@@ -4947,7 +4917,6 @@
         PurchaseLineDiscounts."Line Discount %".SetValue(LibraryVariableStorage.DequeueDecimal());
         PurchaseLineDiscounts.OK().Invoke();
     end;
-#endif
 
     [SendNotificationHandler]
     [Scope('OnPrem')]

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -15,6 +15,9 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Utilities;
 
+/// <summary>
+/// Lists all posted sales invoices for viewing, printing, and navigation.
+/// </summary>
 page 143 "Posted Sales Invoices"
 {
     AdditionalSearchTerms = 'posted bill';
@@ -44,12 +47,10 @@ page 143 "Posted Sales Invoices"
                     ApplicationArea = Basic, Suite;
                     AboutTitle = 'The final invoice number (No.)';
                     AboutText = 'This is the invoice number uniquely identifying each posted sale. Your customers see this number on the invoices they receive from you.';
-                    ToolTip = 'Specifies the posted sales invoice number. Each posted sales invoice gets a unique number. Typically, the number is generated based on a number series.';
                 }
                 field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the number of the related order.';
                     Visible = false;
                 }
                 field("Sell-to Customer No."; Rec."Sell-to Customer No.")
@@ -61,22 +62,18 @@ page 143 "Posted Sales Invoices"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Customer Name';
-                    ToolTip = 'Specifies the name of the customer that you shipped the items on the invoice to.';
                 }
                 field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the currency code of the invoice.';
                 }
                 field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the date on which the invoice is due for payment.';
                 }
                 field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the total, in the currency of the invoice, of the amounts on all the invoice lines. The amount does not include VAT.';
 
                     trigger OnDrillDown()
                     begin
@@ -86,7 +83,6 @@ page 143 "Posted Sales Invoices"
                 field("Amount Including VAT"; Rec."Amount Including VAT")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the total of the amounts, including VAT, on all the lines on the document.';
 
                     trigger OnDrillDown()
                     begin
@@ -103,7 +99,6 @@ page 143 "Posted Sales Invoices"
                 field("Sell-to Post Code"; Rec."Sell-to Post Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the postal code of the customer''s main address.';
                     Visible = false;
                 }
                 field("Sell-to Country/Region Code"; Rec."Sell-to Country/Region Code")
@@ -115,7 +110,6 @@ page 143 "Posted Sales Invoices"
                 field("Sell-to Contact"; Rec."Sell-to Contact")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the contact person at the customer''s main address.';
                     Visible = false;
                 }
                 field("Bill-to Customer No."; Rec."Bill-to Customer No.")
@@ -126,13 +120,11 @@ page 143 "Posted Sales Invoices"
                 field("Bill-to Name"; Rec."Bill-to Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
                 field("Bill-to Post Code"; Rec."Bill-to Post Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the postal code of the customer''s billing address.';
                     Visible = false;
                 }
                 field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
@@ -144,7 +136,6 @@ page 143 "Posted Sales Invoices"
                 field("Bill-to Contact"; Rec."Bill-to Contact")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the contact person at the customer''s billing address.';
                     Visible = false;
                 }
                 field("Ship-to Code"; Rec."Ship-to Code")
@@ -156,13 +147,11 @@ page 143 "Posted Sales Invoices"
                 field("Ship-to Name"; Rec."Ship-to Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     Visible = false;
                 }
                 field("Ship-to Post Code"; Rec."Ship-to Post Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
                     Visible = false;
                 }
                 field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
@@ -186,30 +175,25 @@ page 143 "Posted Sales Invoices"
                 field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies which salesperson is associated with the invoice.';
                     Visible = false;
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
                 field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
-                    ToolTip = 'Specifies the code for the location from which the items were shipped.';
                 }
                 field("No. Printed"; Rec."No. Printed")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies how many times the document has been printed.';
                 }
                 field("Document Date"; Rec."Document Date")
                 {
@@ -232,7 +216,6 @@ page 143 "Posted Sales Invoices"
                 field("Payment Discount %"; Rec."Payment Discount %")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the payment discount percent granted if payment is made on or before the date in the Pmt. Discount Date field.';
                     Visible = false;
                 }
                 field("Shipment Method Code"; Rec."Shipment Method Code")
@@ -258,7 +241,6 @@ page 143 "Posted Sales Invoices"
                     HideValue = not Rec.Cancelled;
                     Style = Unfavorable;
                     StyleExpr = Rec.Cancelled;
-                    ToolTip = 'Specifies if the posted sales invoice has been either corrected or canceled.';
 
                     trigger OnDrillDown()
                     begin
@@ -271,7 +253,6 @@ page 143 "Posted Sales Invoices"
                     HideValue = not Rec.Corrective;
                     Style = Unfavorable;
                     StyleExpr = Rec.Corrective;
-                    ToolTip = 'Specifies if the posted sales invoice is a corrective document.';
 
                     trigger OnDrillDown()
                     begin
@@ -281,14 +262,12 @@ page 143 "Posted Sales Invoices"
                 field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                     Visible = false;
                 }
                 field("Document Exchange Status"; Rec."Document Exchange Status")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = DocExchStatusStyle;
-                    ToolTip = 'Specifies the status of the document if you are using a document exchange service to send it as an electronic document. The status values are reported by the document exchange service.';
                     Visible = DocExchStatusVisible;
 
                     trigger OnDrillDown()
@@ -301,26 +280,12 @@ page 143 "Posted Sales Invoices"
                 field("Coupled to Dataverse"; Rec."Coupled to Dataverse")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies that the posted sales order is coupled to a sales order in Dynamics 365 Sales.';
                     Visible = CRMIntegrationEnabled;
                 }
             }
         }
         area(factboxes)
         {
-#if not CLEAN25
-            part("Attached Documents"; "Document Attachment Factbox")
-            {
-                ObsoleteTag = '25.0';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
-                ApplicationArea = All;
-                Visible = false;
-                Caption = 'Attachments';
-                SubPageLink = "Table ID" = const(Database::"Sales Invoice Header"),
-                              "No." = field("No.");
-            }
-#endif
             part("Attached Documents List"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = All;
@@ -840,10 +805,11 @@ page 143 "Posted Sales Invoices"
     local procedure DoDrillDown()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        PageManagement: Codeunit "Page Management";
     begin
         SalesInvoiceHeader.Copy(Rec);
         SalesInvoiceHeader.SetRange("No.");
-        PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvoiceHeader);
+        PageManagement.PageRun(SalesInvoiceHeader);
     end;
 
     var
@@ -874,4 +840,3 @@ page 143 "Posted Sales Invoices"
     begin
     end;
 }
-

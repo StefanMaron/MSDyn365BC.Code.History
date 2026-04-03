@@ -84,6 +84,8 @@ pageextension 11759 "VAT Entries Preview CZL" extends "VAT Entries Preview"
         {
             field("Deductible VAT Base CZL"; Rec.CalcDeductibleVATBaseCZL())
             {
+                AutoFormatExpression = '';
+                AutoFormatType = 1;
                 Caption = 'Deductible VAT Base';
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the VAT base increased by the amount of unapplied input VAT.';
@@ -91,12 +93,16 @@ pageextension 11759 "VAT Entries Preview CZL" extends "VAT Entries Preview"
             }
             field("Original VAT Base CZL"; Rec."Original VAT Base CZL")
             {
+                AutoFormatExpression = '';
+                AutoFormatType = 1;
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the VAT base of the entry before the deduction by the coefficient.';
                 Visible = NonDeductibleVATVisible;
             }
             field("Original VAT Amount CZL"; Rec."Original VAT Amount CZL")
             {
+                AutoFormatExpression = '';
+                AutoFormatType = 1;
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the VAT amount of the entry before the deduction by the coefficient.';
                 Visible = NonDeductibleVATVisible;

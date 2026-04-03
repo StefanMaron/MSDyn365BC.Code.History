@@ -5,12 +5,12 @@
 namespace Microsoft.Foundation.Company;
 
 using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Foundation.Address;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Intrastat;
 using Microsoft.Purchases.Vendor;
 using System.Email;
 using System.Reflection;
-using Microsoft.Foundation.Address;
 
 table 31105 "Statutory Reporting Setup CZL"
 {
@@ -57,12 +57,16 @@ table 31105 "Statutory Reporting Setup CZL"
         }
         field(16; "Equity Capital"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 2;
             Caption = 'Equity Capital';
             DataClassification = CustomerContent;
             BlankZero = true;
         }
         field(17; "Paid Equity Capital"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 2;
             Caption = 'Paid Equity Capital';
             DataClassification = CustomerContent;
             BlankZero = true;
@@ -114,6 +118,8 @@ table 31105 "Statutory Reporting Setup CZL"
         }
         field(41; "Simplified Tax Document Limit"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 2;
             Caption = 'Simplified Tax Document Limit';
             DataClassification = CustomerContent;
         }
