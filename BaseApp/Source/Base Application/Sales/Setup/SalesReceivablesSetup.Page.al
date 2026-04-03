@@ -7,6 +7,9 @@ namespace Microsoft.Sales.Setup;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
 using Microsoft.Finance.GeneralLedger.Setup;
+#if not CLEAN28
+using Microsoft.Finance.VAT.Reporting;
+#endif
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Pricing.Calculation;
@@ -15,10 +18,10 @@ using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.Pricing;
 using Microsoft.Sales.Reminder;
 using Microsoft.Utilities;
-#if not CLEAN28
-using Microsoft.Finance.VAT.Reporting;
-#endif
 
+/// <summary>
+/// Provides the user interface for configuring sales and receivables settings, including general options, pricing, number series, background posting, and archiving preferences.
+/// </summary>
 page 459 "Sales & Receivables Setup"
 {
     ApplicationArea = Basic, Suite;
@@ -174,7 +177,6 @@ page 459 "Sales & Receivables Setup"
                 field("Posting Date Check on Posting"; Rec."Posting Date Check on Posting")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if you want the program to warn you when you post a sales document with a posting date that is different from the Work Date.';
                 }
                 field("Allow Document Deletion Before"; Rec."Allow Document Deletion Before")
                 {

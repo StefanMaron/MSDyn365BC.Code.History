@@ -4,6 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Reports;
 
+/// <summary>
+/// Generates a summary of outstanding sales orders by customer showing order amounts grouped by expected shipment period.
+/// </summary>
+
 using Microsoft.Finance.Currency;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
@@ -553,17 +557,12 @@ report 107 "Customer - Order Summary"
         TotalSalesOrderAmount: Decimal;
         TotalSalesAmtOnOrder: array[5] of Decimal;
         PeriodStartDate: array[5] of Date;
-        SalesAmtOnOrderLCY: array[5] of Decimal;
-        SalesAmtOnOrderLCY1: array[5] of Decimal;
         PrintAmountsInLCY: Boolean;
         AllAmountsAreInLCYTxt: Text;
         Period1Text: Text;
         Period2Text: Text;
         Period3Text: Text;
         TotalText: Text;
-        PeriodNo: Integer;
-        SalesAmtOnOrder: array[5] of Decimal;
-        SalesAmtOnOrder1: array[5] of Decimal;
         i: Integer;
         GroupNumber: Integer;
         LineNo: Integer;
@@ -573,6 +572,13 @@ report 107 "Customer - Order Summary"
         AllAmountsAreInLCYCaptionLbl: Label 'All amounts are in LCY';
         TotalCaptionLbl: Label 'Total';
         TotalLCYCaptionLbl: Label 'Total (LCY)';
+
+    protected var
+        SalesAmtOnOrderLCY: array[5] of Decimal;
+        SalesAmtOnOrderLCY1: array[5] of Decimal;
+        PeriodNo: Integer;
+        SalesAmtOnOrder: array[5] of Decimal;
+        SalesAmtOnOrder1: array[5] of Decimal;
 
 #if not CLEAN27    
         [Obsolete('RDLC Only layout field caption. To be removed along with the RDLC layout', '27.0')]
@@ -592,6 +598,11 @@ report 107 "Customer - Order Summary"
         [Obsolete('RDLC Only layout field caption. To be removed along with the RDLC layout', '27.0')]
         AfterCaptionLbl: Label 'after...';
 #endif
+    /// <summary>
+    /// Initializes the report request options for the Customer Order Summary report.
+    /// </summary>
+    /// <param name="StartingDate">The starting date for the summary periods.</param>
+    /// <param name="ShowAmountInLCY">True to show amounts in local currency.</param>
     procedure InitializeRequest(StartingDate: Date; ShowAmountInLCY: Boolean)
     begin
         PeriodStartDate[1] := StartingDate;

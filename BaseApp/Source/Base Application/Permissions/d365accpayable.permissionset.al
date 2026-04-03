@@ -1,49 +1,47 @@
 namespace System.Security.AccessControl;
 
-using Microsoft.Finance.Analysis;
-using Microsoft.Projects.Project.Ledger;
-using Microsoft.Inventory.Item;
-using Microsoft.Foundation.Period;
-using Microsoft.Bank.Payment;
-using Microsoft.Bank.Reconciliation;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Ledger;
+using Microsoft.Bank.Payment;
+using Microsoft.Bank.Reconciliation;
 using Microsoft.Bank.Statement;
+using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Currency;
-using Microsoft.Sales.Receivables;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.VAT.Registration;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Foundation.Period;
+using Microsoft.HumanResources.Payables;
 using Microsoft.Inventory.Analysis;
-using Microsoft.Purchases.Document;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
-using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
-using System.Threading;
-using System.Environment.Configuration;
-using Microsoft.Purchases.Vendor;
-using Microsoft.HumanResources.Payables;
-using Microsoft.Purchases.Payables;
-using Microsoft.Utilities;
-using Microsoft.Finance.VAT.Setup;
-using Microsoft.Warehouse.History;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
-using Microsoft.Purchases.History;
-using Microsoft.Purchases.Pricing;
-using Microsoft.Purchases.Archive;
-using Microsoft.Purchases.Remittance;
-using Microsoft.Inventory.Requisition;
-#if not CLEAN25
+using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Resources.Pricing;
-#endif
 using Microsoft.Projects.Resources.Resource;
+using Microsoft.Purchases.Archive;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Payables;
+using Microsoft.Purchases.Pricing;
+using Microsoft.Purchases.Remittance;
+using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
-using Microsoft.Finance.VAT.Registration;
+using Microsoft.Sales.Receivables;
+using Microsoft.Utilities;
+using Microsoft.Warehouse.History;
+using System.Environment.Configuration;
 using System.IO;
+using System.Threading;
 
 permissionset 5289 "D365 ACC. PAYABLE"
 {
@@ -68,6 +66,7 @@ permissionset 5289 "D365 ACC. PAYABLE"
                   tabledata "Currency Exchange Rate" = D,
                   tabledata "Cust. Ledger Entry" = R,
                   tabledata "Date Compr. Register" = Rimd,
+                  tabledata "Detailed Matched Order Line" = RMID,
                   tabledata "Detailed Cust. Ledg. Entry" = R,
                   tabledata "Exch. Rate Adjmt. Reg." = Rimd,
                   tabledata "Exch. Rate Adjmt. Ledg. Entry" = Rimd,
@@ -87,6 +86,7 @@ permissionset 5289 "D365 ACC. PAYABLE"
                   tabledata "Job Ledger Entry" = Rimd,
                   tabledata "Job Queue Category" = RIMD,
                   tabledata "Lot No. Information" = RIMD,
+                  tabledata "Matched Order Line" = RMID,
                   tabledata "Notification Entry" = RIMD,
                   tabledata "Order Address" = RIMD,
                   tabledata "Package No. Information" = RIMD,
@@ -95,6 +95,7 @@ permissionset 5289 "D365 ACC. PAYABLE"
                   tabledata "Payment Matching Details" = RIMD,
                   tabledata "Payment Rec. Related Entry" = RIMD,
                   tabledata "Pmt. Rec. Applied-to Entry" = RIMD,
+                  tabledata "Posted Matched Order Line" = RIMD,
                   tabledata "Posted Payment Recon. Hdr" = RIMD,
                   tabledata "Posted Payment Recon. Line" = RIMD,
                   tabledata "Posted Whse. Receipt Header" = R,
@@ -118,18 +119,14 @@ permissionset 5289 "D365 ACC. PAYABLE"
                   tabledata "Purchase Header Archive" = RIMD,
                   tabledata "Purchase Line" = RIMD,
                   tabledata "Purchase Line Archive" = RIMD,
-#if not CLEAN25
                   tabledata "Purchase Line Discount" = RIMD,
                   tabledata "Purchase Price" = RIMD,
-#endif
                   tabledata "Purchase Price Access" = RIMD,
                   tabledata "Record Buffer" = Rimd,
                   tabledata "Remit Address" = RIMD,
                   tabledata "Requisition Line" = RIMD,
-#if not CLEAN25
                   tabledata "Resource Cost" = R,
                   tabledata "Resource Price" = R,
-#endif
                   tabledata "Resource Unit of Measure" = R,
                   tabledata "Sales Header" = RmD,
                   tabledata "Sales Invoice Line" = Rimd,

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -20,6 +20,9 @@ using System.Environment.Configuration;
 using System.Text;
 using System.Threading;
 
+/// <summary>
+/// Displays a list of sales invoices for managing customer billing documents.
+/// </summary>
 page 9301 "Sales Invoice List"
 {
     ApplicationArea = Basic, Suite;
@@ -65,106 +68,88 @@ page 9301 "Sales Invoice List"
                 field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
                 field("Sell-to Post Code"; Rec."Sell-to Post Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the postal code of the customer''s main address.';
                     Visible = false;
                 }
                 field("Sell-to Country/Region Code"; Rec."Sell-to Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the country/region code of the customer''s main address.';
                     Visible = false;
                 }
                 field("Sell-to Contact"; Rec."Sell-to Contact")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the contact person at the customer''s main address.';
                 }
                 field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
                 field("Bill-to Name"; Rec."Bill-to Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
                 field("Bill-to Post Code"; Rec."Bill-to Post Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the postal code of the customer''s billing address.';
                     Visible = false;
                 }
                 field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the country/region code of the customer''s billing address.';
                     Visible = false;
                 }
                 field("Bill-to Contact"; Rec."Bill-to Contact")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the contact person at the customer''s billing address.';
                     Visible = false;
                 }
                 field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
                     Visible = false;
                 }
                 field("Ship-to Name"; Rec."Ship-to Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     Visible = false;
                 }
                 field("Ship-to Post Code"; Rec."Ship-to Post Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
                     Visible = false;
                 }
                 field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the country/region code of the address that the items are shipped to.';
                     Visible = false;
                 }
                 field("Ship-to Contact"; Rec."Ship-to Contact")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the contact person at the address that the items are shipped to.';
                     Visible = false;
                 }
                 field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the date when the posting of the sales document will be recorded.';
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
                 field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
-                    ToolTip = 'Specifies the location from where items are to be shipped. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
                 }
                 field("Quote No."; Rec."Quote No.")
                 {
@@ -181,18 +166,15 @@ page 9301 "Sales Invoice List"
                 field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
                 field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the currency of amounts on the sales document.';
                     Visible = false;
                 }
                 field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
                 field("Campaign No."; Rec."Campaign No.")
@@ -204,20 +186,17 @@ page 9301 "Sales Invoice List"
                 field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
                     Visible = false;
                     StyleExpr = StatusStyleTxt;
                 }
                 field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                     Visible = false;
                 }
                 field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies when the sales invoice must be paid.';
                 }
                 field("Payment Discount %"; Rec."Payment Discount %")
                 {
@@ -228,31 +207,26 @@ page 9301 "Sales Invoice List"
                 field("Shipment Method Code"; Rec."Shipment Method Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
                     Visible = false;
                 }
                 field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
                     Visible = false;
                 }
                 field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
                     Visible = false;
                 }
                 field("Package Tracking No."; Rec."Package Tracking No.")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the shipping agent''s package number.';
                     Visible = false;
                 }
                 field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                     Visible = false;
                 }
                 field("Job Queue Status"; Rec."Job Queue Status")
@@ -275,7 +249,6 @@ page 9301 "Sales Invoice List"
                 field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the sum of amounts on all the lines in the document. This will include invoice discounts.';
                 }
                 field("Amount Including VAT"; Rec."Amount Including VAT")
                 {
@@ -285,32 +258,17 @@ page 9301 "Sales Invoice List"
                 field("Posting Description"; Rec."Posting Description")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies additional posting information for the document. After you post the document, the description can add detail to vendor and customer ledger entries.';
                     Visible = false;
                 }
                 field("Your Reference"; Rec."Your Reference")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the customer''s reference. The content will be printed on sales documents.';
                     Visible = false;
                 }
             }
         }
         area(factboxes)
         {
-#if not CLEAN25
-            part(AttachedDocuments; "Document Attachment Factbox")
-            {
-                ObsoleteTag = '25.0';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
-                ApplicationArea = All;
-                Caption = 'Attachments';
-                SubPageLink = "Table ID" = const(Database::"Sales Header"),
-                              "No." = field("No."),
-                              "Document Type" = field("Document Type");
-            }
-#endif
             part("Attached Documents List"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = All;
@@ -708,14 +666,19 @@ page 9301 "Sales Invoice List"
                         RunObject = Report "Customer Detailed Aging";
                         ToolTip = 'View, print, or save a detailed list of each customer''s total payments due, divided into three time periods. The report can be used to decide when to issue reminders, to evaluate a customer''s creditworthiness, or to prepare liquidity analyses.';
                     }
+#if not CLEAN28
                     action("Aged Accounts Receivable")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Aged Accounts Receivable';
+                        Caption = 'Aged Accounts Receivable (Obsolete)';
                         Image = "Report";
                         RunObject = Report "Aged Accounts Receivable";
                         ToolTip = 'View an overview of when customer payments are due or overdue, divided into four periods. You must specify the date you want aging calculated from and the length of the period that each column will contain data for.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report has been replaced by the report Aged Accounts Receivable (Excel). This report will be removed in a future release.';
+                        ObsoleteTag = '28.0';
                     }
+#endif
                     action("Customer - Payment Receipt")
                     {
                         ApplicationArea = Suite;
@@ -729,14 +692,20 @@ page 9301 "Sales Invoice List"
                 {
                     Caption = 'Sales Reports';
                     Image = "Report";
+#if not CLEAN28
                     action("Customer - Top 10 List")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Customer - Top 10 List';
+                        Caption = 'Customer - Top 10 List (Obsolete)';
                         Image = "Report";
                         RunObject = Report "Customer - Top 10 List";
                         ToolTip = 'View which customers purchase the most or owe the most in a selected period. Only customers that have either purchases during the period or a balance at the end of the period will be included.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report has been replaced by the report Customer - Top List (Excel). This report will be removed in a future release.';
+                        ObsoleteTag = '28.0';
                     }
+#endif
+#if not CLEAN28
                     action("Customer - Sales List")
                     {
                         ApplicationArea = Basic, Suite;
@@ -744,7 +713,12 @@ page 9301 "Sales Invoice List"
                         Image = "Report";
                         RunObject = Report "Customer - Sales List";
                         ToolTip = 'View customer sales for a period, for example, to report sales activity to customs and tax authorities. You can choose to include only customers with total sales that exceed a minimum amount. You can also specify whether you want the report to show address details for each customer.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report is obsolete and will be removed in a future version.';
+                        ObsoleteTag = '28.0';
                     }
+#endif
+#if not CLEAN28
                     action("Sales Statistics")
                     {
                         ApplicationArea = Basic, Suite;
@@ -752,7 +726,11 @@ page 9301 "Sales Invoice List"
                         Image = "Report";
                         RunObject = Report "Sales Statistics";
                         ToolTip = 'View the customer''s total cost, sale, and profit over time, for example, to analyze earnings trends. The report shows amounts for original and adjusted cost, sales, profit, invoice discount, payment discount, and profit percentage in three adjustable periods.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report is obsolete and will be removed in a future version.';
+                        ObsoleteTag = '28.0';
                     }
+#endif
                 }
             }
         }
@@ -876,6 +854,9 @@ page 9301 "Sales Invoice List"
     protected var
         JobQueueActive: Boolean;
 
+    /// <summary>
+    /// Shows a preview of the posting result for the selected invoice.
+    /// </summary>
     procedure ShowPreview()
     var
         SelectedSalesHeader: Record "Sales Header";

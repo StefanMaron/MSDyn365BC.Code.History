@@ -37,14 +37,13 @@ page 7026 "Price Calculation Method Card"
         }
     }
 
-#if not CLEAN25
     trigger OnInit()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
     begin
         FeaturePriceCalculation.FailIfFeatureDisabled();
     end;
-#endif
+
     procedure Set(CurrMethod: Enum "Price Calculation Method")
     var
         PriceCalculationSetup: Record "Price Calculation Setup";

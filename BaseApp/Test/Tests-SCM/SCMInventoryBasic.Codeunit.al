@@ -53,12 +53,11 @@ codeunit 137280 "SCM Inventory Basic"
         VatProdPostingGrMostNotMatchErr: Label '%1 must not be that same as in the %2';
         ItemUOMErr: Label 'The field %1';
         UOMErr: Label '%1 should be taken from appropriate table';
-#if not CLEAN25
         ControlVisibilityErr: Label 'Control visibility should be %1';
-#endif
         UnspecifiedLocationTxt: Label 'UNSPECIFIED';
         IsNotFoundOnThePageTxt: Label 'is not found on the page';
         UnexpectedValueErr: Label 'Unexpected value of field %1 in table %2', Comment = '%1: Field name, %2: Table name';
+        CurrentWorkDate: Date;
 
     [Test]
     [HandlerFunctions('ItemCreationMessageHandler')]
@@ -1842,7 +1841,6 @@ codeunit 137280 "SCM Inventory Basic"
             ItemSubstitution."Substitute Type"::Item, Item."No."), 'Item Substitution not found.');
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SalesPriceWorksheetControlNotVisibleOnPhone()
@@ -1874,7 +1872,6 @@ codeunit 137280 "SCM Inventory Basic"
         Assert.IsFalse(
           ItemList."Sales Price Worksheet".Visible(), StrSubstNo(ControlVisibilityErr, false));
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -2669,6 +2666,709 @@ codeunit 137280 "SCM Inventory Basic"
         VerifyExtDocNoInValueEntry(DocumentNo, PurchaseHeader."Vendor Invoice No.");
     end;
 
+    [Test]
+    procedure CheckItemStatistics_InventoryValues()
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemStatistics2: TestPage "Item Statistics 2";
+        QtyInventory, QtyExpiredInventory : Decimal;
+        ItemCost: Decimal;
+        ItemPrice: Decimal;
+        SalesQty: Decimal;
+        ExpectedCurrentValue: Decimal;
+        ExpectedExpiredValue: Decimal;
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO] Check 'Current Inventory Value' and 'Expired Stock Value' on Item Statistics page
+        // [FEATURE] [Item Statistics]
+        Initialize();
+
+        // [GIVEN] Create Item with Cost and Price.
+        ItemCost := LibraryRandom.RandIntInRange(200, 300);
+        ItemPrice := ItemCost + LibraryRandom.RandIntInRange(200, 300);
+        CreateItemWithCostAndPrice(Item, ItemCost, ItemPrice);
+
+        QtyInventory := LibraryRandom.RandIntInRange(100, 200);
+        QtyExpiredInventory := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Create inventory
+        CreateAndPostPurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.", QtyInventory, ItemCost);
+
+        // [GIVEN] Add expired inventory
+        CreateAndPostPurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.", QtyExpiredInventory, ItemCost);
+        DocumentNo := PurchaseHeader."Last Receiving No.";
+
+        // Find the Item Ledger Entry for the expired inventory and set the Expiration Date to today.
+        FindItemLedgEntry(ItemLedgerEntry, Item."No.", ItemLedgerEntry."Entry Type"::Purchase, ItemLedgerEntry."Document Type"::"Purchase Receipt", DocumentNo);
+        ItemLedgerEntry.Validate("Expiration Date", CalcDate('<-1D>', WorkDate()));
+        ItemLedgerEntry.Modify(true);
+
+        // [GIVEN] Create Sales.
+        SalesQty := LibraryRandom.RandInt(10);
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo(),
+          SalesLine.Type::Item, Item."No.", SalesQty);
+
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // [WHEN] Open Item Statistics page for the item.
+        ItemStatistics2.Trap();
+        OpenItemStatisticsPageFromItemCard(Item."No.");
+
+        // Expired Inventory Value = Expired Inventory * Item Cost
+        ExpectedExpiredValue := QtyExpiredInventory * ItemCost;
+
+        // Current Value = Total available Inventory  * Item Cost
+        ExpectedCurrentValue := (QtyInventory - SalesQty) * ItemCost + ExpectedExpiredValue;
+
+        // [THEN] Verify the current inventory value.
+        ItemStatistics2."Current Inventory Value".AssertEquals(ExpectedCurrentValue);
+
+        // [THEN] Verify the expired inventory value.
+        ItemStatistics2."Expired Stock Value".AssertEquals(ExpectedExpiredValue);
+
+        ItemStatistics2.Close();
+    end;
+
+    [Test]
+    procedure CheckItemStatistics_NetSales()
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        ItemStatistics2: TestPage "Item Statistics 2";
+        NewWorkDate: Date;
+        QtyInventory: Decimal;
+        ItemCost: Decimal;
+        ItemPrice: Decimal;
+        LastYearSalesQty, LastMonthSalesQty, ThisMonthSalesQty : Decimal;
+        ExpectedNetSalesAmtLastMonth, ExpectedNetSalesAmtThisMonth, ExpectedNetSalesAmtLastYear, ExpectedNetSalesAmtThisYear, ExpectedNetSalesAmt : Decimal;
+    begin
+        // [SCENARIO] Check Net Sales Amount on Item Statistics page
+        // [FEATURE] [Item Statistics]
+        Initialize();
+
+        // [GIVEN] Move the Work Date back 3 years and add an item with inventory.
+        NewWorkDate := CalcDate('<-3Y>', CurrentWorkDate);
+        WorkDate(NewWorkDate);
+
+        // [GIVEN] Create Item with Cost and Price.
+        ItemCost := LibraryRandom.RandIntInRange(200, 300);
+        ItemPrice := ItemCost + LibraryRandom.RandIntInRange(200, 300);
+        CreateItemWithCostAndPrice(Item, ItemCost, ItemPrice);
+
+        QtyInventory := LibraryRandom.RandIntInRange(100, 200);
+
+        // [GIVEN] Create inventory
+        CreateAndPostPurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.", QtyInventory, ItemCost);
+
+        // [GIVEN] Move the Work Date to last year, create and post sales orders.
+        NewWorkDate := CalcDate('<-1Y>', CurrentWorkDate);
+        WorkDate(NewWorkDate);
+
+        LastYearSalesQty := LibraryRandom.RandInt(10);
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo(),
+          SalesLine.Type::Item, Item."No.", LastYearSalesQty);
+
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // [GIVEN] Move the Work Date to last month, create and post sales orders.
+        NewWorkDate := CalcDate('<-1M>', CurrentWorkDate);
+        WorkDate(NewWorkDate);
+
+        LastMonthSalesQty := LibraryRandom.RandInt(10);
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo(),
+          SalesLine.Type::Item, Item."No.", LastMonthSalesQty);
+
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // [GIVEN] Move the Work Date to current date, create and post sales orders.
+        WorkDate(CurrentWorkDate);
+        ThisMonthSalesQty := LibraryRandom.RandInt(10);
+
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo(),
+          SalesLine.Type::Item, Item."No.", ThisMonthSalesQty);
+
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // [WHEN] Open Item Statistics page for the item.
+        ItemStatistics2.Trap();
+        OpenItemStatisticsPageFromItemCard(Item."No.");
+
+        // Net Sales Amount last month = Total qty. sold last month * Item Price
+        ExpectedNetSalesAmtLastMonth := LastMonthSalesQty * ItemPrice;
+
+        // Net Sales Amount This month = Total qty. sold this month * Item Price
+        ExpectedNetSalesAmtThisMonth := ThisMonthSalesQty * ItemPrice;
+
+        // Net Sales Amount last Year = Total qty. sold last year * Item Price
+        ExpectedNetSalesAmtLastYear := LastYearSalesQty * ItemPrice;
+
+        // Net Sales Amount This Year = Total qty. sold this year * Item Price 
+        // If WorkDate is in January, Last month sales belongs to last year's calculation.
+        if Date2DMY(CurrentWorkDate, 2) <> 1 then
+            ExpectedNetSalesAmtThisYear := ExpectedNetSalesAmtLastMonth + ExpectedNetSalesAmtThisMonth
+        else begin
+            // Net Sales Amount This Year = Total qty. sold this year * Item Price
+            ExpectedNetSalesAmtThisYear := ExpectedNetSalesAmtThisMonth;
+
+            // Net Sales Amount last Year = Total qty. sold last year * Item Price
+            ExpectedNetSalesAmtLastYear += ExpectedNetSalesAmtLastMonth;
+        end;
+
+        // Net Sales Amount lifetime = Total qty. sold * Item Price
+        ExpectedNetSalesAmt := ExpectedNetSalesAmtThisYear + ExpectedNetSalesAmtLastYear;
+
+        // [THEN] Verify the net sales amount for this month.
+        ItemStatistics2."NetSalesLCY[1]".AssertEquals(ExpectedNetSalesAmtThisMonth);
+
+        // [THEN] Verify the net sales amount for this year.
+        ItemStatistics2."NetSalesLCY[2]".AssertEquals(ExpectedNetSalesAmtThisYear);
+
+        // [THEN] Verify the net sales amount for last year.
+        ItemStatistics2."NetSalesLCY[3]".AssertEquals(ExpectedNetSalesAmtLastYear);
+
+        // [THEN] Verify the net sales amount for lifetime.
+        ItemStatistics2."NetSalesLCY[4]".AssertEquals(ExpectedNetSalesAmt);
+
+        ItemStatistics2.Close();
+    end;
+
+    [Test]
+    procedure CheckItemStatistics_SalesGrowth()
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        ItemStatistics2: TestPage "Item Statistics 2";
+        NewWorkDate: Date;
+        QtyInventory: Decimal;
+        ItemCost: Decimal;
+        ItemPrice: Decimal;
+        LastLastYearSalesQty, LastYearSalesQty, LastMonthSalesQty, ThisMonthSalesQty : Decimal;
+        NetSalesAmtLastMonth, NetSalesAmtThisMonth, NetSalesAmtLastYear, NetSalesAmtLastLastYear, NetSalesAmtThisYear : Decimal;
+        ExpectedSalesGrowthThisMonth, ExpectedSalesGrowthThisYear, ExpectedSalesGrowthLastYear : Decimal;
+    begin
+        // [SCENARIO] Check Sales Growth Rate on Item Statistics page
+        // [FEATURE] [Item Statistics]
+        Initialize();
+        CreateAccountingPeriod();
+
+        // [GIVEN] Move the Work Date back 3 years and add an item with inventory.
+        NewWorkDate := CalcDate('<-3Y>', CurrentWorkDate);
+        WorkDate(NewWorkDate);
+
+        // [GIVEN] Create Item with Cost and Price.
+        ItemCost := LibraryRandom.RandIntInRange(200, 300);
+        ItemPrice := ItemCost + LibraryRandom.RandIntInRange(200, 300);
+        CreateItemWithCostAndPrice(Item, ItemCost, ItemPrice);
+
+        QtyInventory := LibraryRandom.RandIntInRange(100, 200);
+
+        // [GIVEN] Create inventory
+        CreateAndPostPurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.", QtyInventory, ItemCost);
+
+        // [GIVEN] Move the Work Date to 2 years back, create and post sales orders that contribute to MoM sales growth.
+        NewWorkDate := CalcDate('<-2Y>', CurrentWorkDate);
+        WorkDate(NewWorkDate);
+
+        LastLastYearSalesQty := LibraryRandom.RandInt(10);
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo(),
+          SalesLine.Type::Item, Item."No.", LastLastYearSalesQty);
+
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // [GIVEN] Move the Work Date to last year, create and post sales orders that contribute to MoM sales growth.
+        NewWorkDate := CalcDate('<-1Y>', CurrentWorkDate);
+        WorkDate(NewWorkDate);
+
+        LastYearSalesQty := LibraryRandom.RandInt(10);
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo(),
+          SalesLine.Type::Item, Item."No.", LastYearSalesQty);
+
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // [GIVEN] Move the Work Date to last month, create and post sales orders that contribute to MoM sales growth.
+        NewWorkDate := CalcDate('<-1M>', CurrentWorkDate);
+        WorkDate(NewWorkDate);
+
+        LastMonthSalesQty := LibraryRandom.RandInt(10);
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo(),
+          SalesLine.Type::Item, Item."No.", LastMonthSalesQty);
+
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // [GIVEN] Move the Work Date to current date, create and post sales orders that contribute to MoM sales growth.
+        WorkDate(CurrentWorkDate);
+        ThisMonthSalesQty := LibraryRandom.RandInt(10);
+
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo(),
+          SalesLine.Type::Item, Item."No.", ThisMonthSalesQty);
+
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // [WHEN] Open Item Statistics page for the item.
+        ItemStatistics2.Trap();
+        OpenItemStatisticsPageFromItemCard(Item."No.");
+
+        NetSalesAmtLastMonth := LastMonthSalesQty * ItemPrice;
+        NetSalesAmtThisMonth := ThisMonthSalesQty * ItemPrice;
+
+        // Net Sales Amount This Year = Total qty. sold this year * Item Price
+        // If WorkDate is in January, Last month sales belongs to last year's calculation.
+        if Date2DMY(CurrentWorkDate, 2) <> 1 then begin
+            NetSalesAmtThisYear := NetSalesAmtLastMonth + NetSalesAmtThisMonth;
+            NetSalesAmtLastYear := LastYearSalesQty * ItemPrice;
+        end else begin
+            NetSalesAmtThisYear := NetSalesAmtThisMonth;
+            NetSalesAmtLastYear := (LastYearSalesQty + LastMonthSalesQty) * ItemPrice;
+        end;
+
+        NetSalesAmtLastLastYear := LastLastYearSalesQty * ItemPrice;
+
+        ExpectedSalesGrowthThisMonth := ((NetSalesAmtThisMonth - NetSalesAmtLastMonth) / NetSalesAmtLastMonth);
+        ExpectedSalesGrowthThisYear := ((NetSalesAmtThisYear - NetSalesAmtLastYear) / NetSalesAmtLastYear);
+        ExpectedSalesGrowthLastYear := ((NetSalesAmtLastYear - NetSalesAmtLastLastYear) / NetSalesAmtLastLastYear);
+
+        // [THEN] Verify the sales growth rate for this period.
+        ItemStatistics2."SalesGrowthRate[1]".AssertEquals(ExpectedSalesGrowthThisMonth);
+
+        // [THEN] Verify the sales growth rate for this fiscal year.
+        ItemStatistics2."SalesGrowthRate[2]".AssertEquals(ExpectedSalesGrowthThisYear);
+
+        // [THEN] Verify the sales growth rate for last fiscal year.
+        ItemStatistics2."SalesGrowthRate[3]".AssertEquals(ExpectedSalesGrowthLastYear);
+
+        ItemStatistics2.Close();
+    end;
+
+    [Test]
+    procedure CheckItemStatistics_GrossMargin()
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        ItemStatistics2: TestPage "Item Statistics 2";
+        NewWorkDate: Date;
+        QtyInventory: Decimal;
+        ItemCost: Decimal;
+        ItemPrice: Decimal;
+        LastLastYearSalesQty, LastYearSalesQty, LastMonthSalesQty, ThisMonthSalesQty : Decimal;
+        NetSalesAmtLastMonth, NetSalesAmtThisMonth, NetSalesAmtLastYear, NetSalesAmtLastLastYear, NetSalesAmtThisYear : Decimal;
+        NetCostAmtLastMonth, NetCostAmtThisMonth, NetCostAmtLastYear, NetCostAmtLastLastYear, NetCostAmtThisYear : Decimal;
+        ExpectedGrossMarginThisMonth, ExpectedGrossMarginThisYear, ExpectedGrossMarginLastYear, ExpectedGrossMarginLifetime : Decimal;
+    begin
+        // [SCENARIO] Check Gross Margin on Item Statistics page
+        // [FEATURE] [Item Statistics]
+        Initialize();
+        CreateAccountingPeriod();
+
+        // [GIVEN] Move the Work Date back 3 years and add an item with inventory.
+        NewWorkDate := CalcDate('<-3Y>', CurrentWorkDate);
+        WorkDate(NewWorkDate);
+
+        // [GIVEN] Create Item with Cost and Price.
+        ItemCost := LibraryRandom.RandIntInRange(200, 300);
+        ItemPrice := ItemCost + LibraryRandom.RandIntInRange(200, 300);
+        CreateItemWithCostAndPrice(Item, ItemCost, ItemPrice);
+
+        QtyInventory := LibraryRandom.RandIntInRange(100, 200);
+
+        // [GIVEN] Create inventory
+        CreateAndPostPurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.", QtyInventory, ItemCost);
+
+        // [GIVEN] Move the Work Date to 2 years back, create and post sales orders that contribute to MoM sales growth.
+        NewWorkDate := CalcDate('<-2Y>', CurrentWorkDate);
+        WorkDate(NewWorkDate);
+
+        LastLastYearSalesQty := LibraryRandom.RandInt(10);
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo(),
+          SalesLine.Type::Item, Item."No.", LastLastYearSalesQty);
+
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // [GIVEN] Move the Work Date to last year, create and post sales orders that contribute to MoM sales growth.
+        NewWorkDate := CalcDate('<-1Y>', CurrentWorkDate);
+        WorkDate(NewWorkDate);
+
+        LastYearSalesQty := LibraryRandom.RandInt(10);
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo(),
+          SalesLine.Type::Item, Item."No.", LastYearSalesQty);
+
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // [GIVEN] Move the Work Date to last month, create and post sales orders that contribute to MoM sales growth.
+        NewWorkDate := CalcDate('<-1M>', CurrentWorkDate);
+        WorkDate(NewWorkDate);
+
+        LastMonthSalesQty := LibraryRandom.RandInt(10);
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo(),
+          SalesLine.Type::Item, Item."No.", LastMonthSalesQty);
+
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // [GIVEN] Move the Work Date to current date, create and post sales orders that contribute to MoM sales growth.
+        WorkDate(CurrentWorkDate);
+        ThisMonthSalesQty := LibraryRandom.RandInt(10);
+
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo(),
+          SalesLine.Type::Item, Item."No.", ThisMonthSalesQty);
+
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // [WHEN] Open Item Statistics page for the item.
+        ItemStatistics2.Trap();
+        OpenItemStatisticsPageFromItemCard(Item."No.");
+
+        NetSalesAmtLastMonth := LastMonthSalesQty * ItemPrice;
+        NetSalesAmtThisMonth := ThisMonthSalesQty * ItemPrice;
+        NetCostAmtLastMonth := LastMonthSalesQty * ItemCost;
+        NetCostAmtThisMonth := ThisMonthSalesQty * ItemCost;
+
+        // Net Sales Amount This Year = Total qty. sold this year * Item Price
+        // Net Cost Amount This Year = Total qty. sold this year * Item Cost
+        // If WorkDate is in January, Last month sales belongs to last year's calculation.
+        if Date2DMY(CurrentWorkDate, 2) <> 1 then begin
+            NetSalesAmtThisYear := NetSalesAmtLastMonth + NetSalesAmtThisMonth;
+            NetSalesAmtLastYear := LastYearSalesQty * ItemPrice;
+            NetCostAmtThisYear := NetCostAmtLastMonth + NetCostAmtThisMonth;
+            NetCostAmtLastYear := LastYearSalesQty * ItemCost;
+        end else begin
+            NetSalesAmtThisYear := NetSalesAmtThisMonth;
+            NetSalesAmtLastYear := (LastYearSalesQty + LastMonthSalesQty) * ItemPrice;
+            NetCostAmtThisYear := NetCostAmtThisMonth;
+            NetCostAmtLastYear := (LastYearSalesQty + LastMonthSalesQty) * ItemCost;
+        end;
+
+        NetSalesAmtLastLastYear := LastLastYearSalesQty * ItemPrice;
+        NetCostAmtLastLastYear := LastLastYearSalesQty * ItemCost;
+
+        ExpectedGrossMarginThisMonth := ((NetSalesAmtThisMonth - NetCostAmtThisMonth) / NetSalesAmtThisMonth);
+        ExpectedGrossMarginThisYear := (NetSalesAmtThisYear - NetCostAmtThisYear) / NetSalesAmtThisYear;
+        ExpectedGrossMarginLastYear := (NetSalesAmtLastYear - NetCostAmtLastYear) / NetSalesAmtLastYear;
+        ExpectedGrossMarginLifetime := (NetSalesAmtThisYear + NetSalesAmtLastYear + NetSalesAmtLastLastYear - NetCostAmtThisYear - NetCostAmtLastYear - NetCostAmtLastLastYear)
+                                      / (NetSalesAmtThisYear + NetSalesAmtLastYear + NetSalesAmtLastLastYear);
+
+        // [THEN] Verify the gross margin for this period.
+        ItemStatistics2."GrossMargin[1]".AssertEquals(ExpectedGrossMarginThisMonth);
+
+        // [THEN] Verify the gross margin for this fiscal year.
+        ItemStatistics2."GrossMargin[2]".AssertEquals(ExpectedGrossMarginThisYear);
+
+        // [THEN] Verify the gross margin for last fiscal year.
+        ItemStatistics2."GrossMargin[3]".AssertEquals(ExpectedGrossMarginLastYear);
+
+        // [THEN] Verify the gross margin for lifetime.
+        ItemStatistics2."GrossMargin[4]".AssertEquals(ExpectedGrossMarginLifetime);
+
+        ItemStatistics2.Close();
+    end;
+
+    [Test]
+    procedure CheckItemStatistics_ReturnRate()
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        ItemStatistics2: TestPage "Item Statistics 2";
+        NewWorkDate: Date;
+        QtyInventory: Decimal;
+        ItemCost: Decimal;
+        ItemPrice: Decimal;
+        LastYearSalesQty, LastMonthSalesQty, ThisMonthSalesQty : Decimal;
+        LastYearReturnQty, LastMonthReturnQty, ThisMonthReturnQty : Decimal;
+        ExpectedReturnRateThisMonth, ExpectedReturnRateThisYear, ExpectedReturnRateLastYear, ExpectedReturnRateLifetime : Decimal;
+    begin
+        // [SCENARIO] Check Return Rate on Item Statistics page
+        // [FEATURE] [Item Statistics]
+        Initialize();
+        CreateAccountingPeriod();
+
+        // [GIVEN] Move the Work Date back 3 years and add an item with inventory.
+        NewWorkDate := CalcDate('<-3Y>', CurrentWorkDate);
+        WorkDate(NewWorkDate);
+
+        // [GIVEN] Create Item with Cost and Price.
+        ItemCost := LibraryRandom.RandIntInRange(200, 300);
+        ItemPrice := ItemCost + LibraryRandom.RandIntInRange(200, 300);
+        CreateItemWithCostAndPrice(Item, ItemCost, ItemPrice);
+
+        QtyInventory := LibraryRandom.RandIntInRange(100, 200);
+
+        // [GIVEN] Create inventory
+        CreateAndPostPurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.", QtyInventory, ItemCost);
+
+        // [GIVEN] Move the Work Date to last year, create and post sales orders that contribute to MoM sales growth.
+        NewWorkDate := CalcDate('<-1Y>', CurrentWorkDate);
+        WorkDate(NewWorkDate);
+
+        LastYearSalesQty := LibraryRandom.RandInt(10);
+        LastYearReturnQty := LibraryRandom.RandInt(LastYearSalesQty);
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo(),
+          SalesLine.Type::Item, Item."No.", LastYearSalesQty);
+
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // Return
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::"Return Order", LibrarySales.CreateCustomerNo(),
+          SalesLine.Type::Item, Item."No.", LastYearReturnQty);
+
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // [GIVEN] Move the Work Date to last month, create and post sales orders that contribute to MoM sales growth.
+        NewWorkDate := CalcDate('<-1M>', CurrentWorkDate);
+        WorkDate(NewWorkDate);
+
+        LastMonthSalesQty := LibraryRandom.RandInt(10);
+        LastMonthReturnQty := LibraryRandom.RandInt(LastMonthSalesQty);
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo(),
+          SalesLine.Type::Item, Item."No.", LastMonthSalesQty);
+
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // Return
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::"Return Order", LibrarySales.CreateCustomerNo(),
+          SalesLine.Type::Item, Item."No.", LastMonthReturnQty);
+
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // [GIVEN] Move the Work Date to current date, create and post sales orders that contribute to MoM sales growth.
+        WorkDate(CurrentWorkDate);
+        ThisMonthSalesQty := LibraryRandom.RandInt(10);
+        ThisMonthReturnQty := LibraryRandom.RandInt(ThisMonthSalesQty); // Return qty should be less than or equal to sales qty
+
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo(),
+          SalesLine.Type::Item, Item."No.", ThisMonthSalesQty);
+
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // Return
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::"Return Order", LibrarySales.CreateCustomerNo(),
+          SalesLine.Type::Item, Item."No.", ThisMonthReturnQty);
+
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // [WHEN] Open Item Statistics page for the item.
+        ItemStatistics2.Trap();
+        OpenItemStatisticsPageFromItemCard(Item."No.");
+
+        ExpectedReturnRateThisMonth := ThisMonthReturnQty / ThisMonthSalesQty;
+
+        // Return Rate This Year = This year return qty / This year sales qty
+        // If WorkDate is in January, Last month return belongs to last year's calculation.
+        if Date2DMY(CurrentWorkDate, 2) <> 1 then begin
+            ExpectedReturnRateThisYear := (ThisMonthReturnQty + LastMonthReturnQty) / (ThisMonthSalesQty + LastMonthSalesQty);
+            ExpectedReturnRateLastYear := LastYearReturnQty / LastYearSalesQty;
+        end else begin
+            ExpectedReturnRateThisYear := ThisMonthReturnQty / ThisMonthSalesQty;
+            ExpectedReturnRateLastYear := (LastYearReturnQty + LastMonthReturnQty) / (LastYearSalesQty + LastMonthSalesQty);
+        end;
+        ExpectedReturnRateLifetime := (ThisMonthReturnQty + LastMonthReturnQty + LastYearReturnQty) / (ThisMonthSalesQty + LastMonthSalesQty + LastYearSalesQty);
+
+        // [THEN] Verify the return rate for this month.
+        ItemStatistics2."ReturnRate[1]".AssertEquals(ExpectedReturnRateThisMonth);
+
+        // [THEN] Verify the return rate for this year.
+        ItemStatistics2."ReturnRate[2]".AssertEquals(ExpectedReturnRateThisYear);
+
+        // [THEN] Verify the return rate for last year.
+        ItemStatistics2."ReturnRate[3]".AssertEquals(ExpectedReturnRateLastYear);
+
+        // [THEN] Verify the return rate for lifetime.
+        ItemStatistics2."ReturnRate[4]".AssertEquals(ExpectedReturnRateLifetime);
+
+        ItemStatistics2.Close();
+    end;
+
+    [Test]
+    procedure CheckItemStatisticsCache_UpdatesOnNewMonth()
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        SalesLine: Record "Sales Line";
+        ItemStatistics2: TestPage "Item Statistics 2";
+        ItemCost: Decimal;
+        ItemPrice: Decimal;
+        QtyInventory: Decimal;
+        ExpectedCurrentValue: Decimal;
+    begin
+        // [SCENARIO] Item Statistics Cache updates when moving to a new month
+        // [FEATURE] [Item Statistics]
+        Initialize();
+
+        // [GIVEN] One item with cost and price and some inventory
+        ItemCost := LibraryRandom.RandIntInRange(200, 300);
+        ItemPrice := ItemCost + LibraryRandom.RandIntInRange(200, 300);
+        CreateItemWithCostAndPrice(Item, ItemCost, ItemPrice);
+
+        QtyInventory := LibraryRandom.RandIntInRange(100, 200);
+        CreateAndPostPurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.", QtyInventory, ItemCost);
+
+        // [WHEN] Open its statistics
+        ItemStatistics2.Trap();
+        OpenItemStatisticsPageFromItemCard(Item."No.");
+
+        // [THEN] Verify the current inventory value
+        ExpectedCurrentValue := QtyInventory * ItemCost;
+        ItemStatistics2."Current Inventory Value".AssertEquals(ExpectedCurrentValue);
+        ItemStatistics2.Close();
+
+        // [GIVEN] Inventory has all been sold
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo(),
+          SalesLine.Type::Item, Item."No.", QtyInventory);
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // [GIVEN] Date is moved to next month
+        WorkDate(CalcDate('<+1M>', WorkDate()));
+
+        // [WHEN] Open its statistics
+        ItemStatistics2.Trap();
+        OpenItemStatisticsPageFromItemCard(Item."No.");
+
+        // [THEN] Verify the current inventory value is zero
+        ItemStatistics2."Current Inventory Value".AssertEquals(0);
+        ItemStatistics2.Close();
+    end;
+
+    [Test]
+    procedure CheckItemStatisticsCache_UpdatesOnNewValueEntry()
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemStatistics2: TestPage "Item Statistics 2";
+        ItemCost: Decimal;
+        ItemPrice: Decimal;
+        QtyInventory: Decimal;
+        QtyAdditional: Decimal;
+        ExpectedCurrentValue: Decimal;
+    begin
+        // [SCENARIO] Item Statistics Cache updates Current Inventory Value when a new Value Entry is created
+        // [FEATURE] [Item Statistics]
+        Initialize();
+
+        // [GIVEN] Create Item with Cost and Price and initial inventory
+        ItemCost := LibraryRandom.RandIntInRange(200, 300);
+        ItemPrice := ItemCost + LibraryRandom.RandIntInRange(200, 300);
+        CreateItemWithCostAndPrice(Item, ItemCost, ItemPrice);
+
+        QtyInventory := LibraryRandom.RandIntInRange(50, 100);
+        CreateAndPostPurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.", QtyInventory, ItemCost);
+
+        // [GIVEN] Open Item Statistics and verify initial inventory value
+        ItemStatistics2.Trap();
+        OpenItemStatisticsPageFromItemCard(Item."No.");
+        ExpectedCurrentValue := QtyInventory * ItemCost;
+        ItemStatistics2."Current Inventory Value".AssertEquals(ExpectedCurrentValue);
+        ItemStatistics2.Close();
+
+        // [WHEN] Add more inventory
+        QtyAdditional := LibraryRandom.RandIntInRange(10, 20);
+        CreateAndPostItemJournalLine(ItemJournalLine, Item."No.", '', QtyAdditional);
+
+        // [WHEN] Open Item Statistics again
+        ItemStatistics2.Trap();
+        OpenItemStatisticsPageFromItemCard(Item."No.");
+
+        // [THEN] Verify the current inventory value reflects the new entry
+        ExpectedCurrentValue := (QtyInventory + QtyAdditional) * ItemCost;
+        ItemStatistics2."Current Inventory Value".AssertEquals(ExpectedCurrentValue);
+        ItemStatistics2.Close();
+    end;
+
+    [Test]
+    procedure CheckItemStatisticsCache_UpdatesOnNewItemLedgerEntry()
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        SalesLine: Record "Sales Line";
+        ItemStatistics2: TestPage "Item Statistics 2";
+        ItemCost: Decimal;
+        ItemPrice: Decimal;
+        QtyInventory: Decimal;
+        SalesQty: Decimal;
+        ReturnQty: Decimal;
+        ExpectedReturnRateThisMonth: Decimal;
+    begin
+        // [SCENARIO] Item Statistics Cache updates Return Rate when new Item Ledger Entries are created
+        // [FEATURE] [Item Statistics]
+        Initialize();
+
+        // [GIVEN] Create Item with Cost and Price
+        ItemCost := LibraryRandom.RandIntInRange(200, 300);
+        ItemPrice := ItemCost + LibraryRandom.RandIntInRange(200, 300);
+        CreateItemWithCostAndPrice(Item, ItemCost, ItemPrice);
+
+        // [GIVEN] Add inventory
+        QtyInventory := LibraryRandom.RandIntInRange(100, 200);
+        CreateAndPostPurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.", QtyInventory, ItemCost);
+
+        // [WHEN] Open Item Statistics
+        ItemStatistics2.Trap();
+        OpenItemStatisticsPageFromItemCard(Item."No.");
+
+        // [THEN] Check that item statistics shows correct value for return rate (all zeroes)
+        ItemStatistics2."ReturnRate[1]".AssertEquals(0);
+        ItemStatistics2."ReturnRate[2]".AssertEquals(0);
+        ItemStatistics2."ReturnRate[3]".AssertEquals(0);
+        ItemStatistics2."ReturnRate[4]".AssertEquals(0);
+        ItemStatistics2.Close();
+
+        // [GIVEN] Sell some inventory
+        SalesQty := LibraryRandom.RandIntInRange(20, 30);
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo(),
+          SalesLine.Type::Item, Item."No.", SalesQty);
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // [GIVEN] Some inventory is returned
+        ReturnQty := LibraryRandom.RandInt(SalesQty);
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::"Return Order", LibrarySales.CreateCustomerNo(),
+          SalesLine.Type::Item, Item."No.", ReturnQty);
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // [WHEN] Open Item Statistics again
+        ItemStatistics2.Trap();
+        OpenItemStatisticsPageFromItemCard(Item."No.");
+
+        // [THEN] Check that item statistics shows correct value for return rate (non-zeroes for the latest ones)
+        ExpectedReturnRateThisMonth := ReturnQty / SalesQty;
+        ItemStatistics2."ReturnRate[1]".AssertEquals(ExpectedReturnRateThisMonth);
+        ItemStatistics2."ReturnRate[2]".AssertEquals(ExpectedReturnRateThisMonth);
+        ItemStatistics2."ReturnRate[4]".AssertEquals(ExpectedReturnRateThisMonth);
+        ItemStatistics2.Close();
+    end;
+
     local procedure Initialize()
     var
         NonstockItemSetup: Record "Nonstock Item Setup";
@@ -2679,15 +3379,26 @@ codeunit 137280 "SCM Inventory Basic"
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
 
+        if CurrentWorkDate <> 0D then
+            WorkDate(CurrentWorkDate);
+
         // Lazy Setup.
         if isInitialized then
             exit;
+
+        CurrentWorkDate := WorkDate();
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Basic");
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalData();
         LibraryTemplates.EnableTemplatesFeature();
+        LibrarySales.SetOrderNoSeriesInSetup();
+        LibrarySales.SetReturnOrderNoSeriesInSetup();
+        LibrarySales.SetPostedNoSeriesInSetup();
+        LibraryPurchase.SetOrderNoSeriesInSetup();
+        LibraryPurchase.SetPostedNoSeriesInSetup();
         NonstockItemSetup.DeleteAll();
         NonstockItemSetup.Init();
         NonstockItemSetup.Insert();
@@ -2696,6 +3407,7 @@ codeunit 137280 "SCM Inventory Basic"
         Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibrarySetupStorage.Save(DATABASE::"Nonstock Item Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Basic");
     end;
@@ -2714,6 +3426,35 @@ codeunit 137280 "SCM Inventory Basic"
         Clear(GlobalLineOption);
         Clear(GlobalItemChargeAssignment);
         Clear(GlobalItemTracking);
+    end;
+
+    local procedure CreateAccountingPeriod()
+    var
+        AccountingPeriod: Record "Accounting Period";
+        NewWorkDate: array[3] of Date;
+        NewWorkDateIndex: Integer;
+    begin
+        NewWorkDate[1] := CalcDate('<-1Y>', WorkDate());
+        NewWorkDate[2] := CalcDate('<-2Y>', WorkDate());
+        NewWorkDate[3] := CalcDate('<-3Y>', WorkDate());
+
+        for NewWorkDateIndex := 1 to 3 do
+            if AccountingPeriod.GetFiscalYearStartDate(NewWorkDate[NewWorkDateIndex]) = 0D then begin
+                AccountingPeriod.Init();
+                AccountingPeriod."Starting Date" := CalcDate('<-CY>', NewWorkDate[NewWorkDateIndex]);
+                AccountingPeriod."New Fiscal Year" := true;
+                AccountingPeriod.Insert();
+            end;
+    end;
+
+    local procedure FindItemLedgEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; DocType: Enum "Item Ledger Document Type";
+                                                                                                                        DocNo: Code[20])
+    begin
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", EntryType);
+        ItemLedgerEntry.SetRange("Document Type", DocType);
+        ItemLedgerEntry.SetRange("Document No.", DocNo);
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure CreateAndModifyItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Quantity: Decimal)
@@ -2772,6 +3513,29 @@ codeunit 137280 "SCM Inventory Basic"
         Item.Validate("Last Direct Cost", Item."Unit Price");
         Item.Modify(true);
         exit(Item."No.");
+    end;
+
+    local procedure CreateItemWithCostAndPrice(var Item: Record Item; ItemCost: Decimal; ItemPrice: Decimal)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Standard Cost", ItemCost);
+        Item.Validate("Unit Price", ItemPrice);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateAndPostPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; Quantity: Decimal; ItemCost: Decimal)
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        // Add inventory
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
+        PurchaseLine.Validate("Direct Unit Cost", ItemCost);
+
+        PurchaseLine.Modify(true);
+
+        UpdateDocAmtInPurchaseOrder(PurchaseHeader);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
     local procedure CreateItemWithSubstitution(var ItemSubstitution: Record "Item Substitution")
@@ -3343,6 +4107,16 @@ codeunit 137280 "SCM Inventory Basic"
         repeat
             ValueEntry.TestField("External Document No.", ExternalDocumentNo);
         until ValueEntry.Next() = 0;
+    end;
+
+    local procedure OpenItemStatisticsPageFromItemCard(ItemNo: Code[20])
+    var
+        ItemCard: TestPage "Item Card";
+    begin
+        ItemCard.OpenView();
+        ItemCard.Filter.SetFilter("No.", ItemNo);
+        ItemCard.First();
+        ItemCard.ItemStatistics.Invoke();
     end;
 
     [PageHandler]

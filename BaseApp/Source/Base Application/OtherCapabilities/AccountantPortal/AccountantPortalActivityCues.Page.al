@@ -3,9 +3,9 @@ namespace Microsoft.AccountantPortal;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Company;
 using Microsoft.RoleCenters;
-using System.Visualization;
 using System.Automation;
 using System.Text;
+using System.Visualization;
 
 page 1314 "AccountantPortal Activity Cues"
 {
@@ -29,6 +29,8 @@ page 1314 "AccountantPortal Activity Cues"
                 field(OverduePurchInvoiceAmountDecimal; OverduePurchInvoiceAmountDecimal)
                 {
                     ApplicationArea = Basic, Suite;
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'OverduePurchInvoiceAmountDecimal', Locked = true;
                     ToolTip = 'Specifies the sum of your overdue payments to vendors.';
                 }
@@ -58,6 +60,8 @@ page 1314 "AccountantPortal Activity Cues"
                 field(OverdueSalesInvoiceAmountDecimal; OverdueSalesInvoiceAmountDecimal)
                 {
                     ApplicationArea = Basic, Suite;
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'OverdueSalesInvoiceAmountDecimal', Locked = true;
                     ToolTip = 'Specifies the sum of overdue payments from customers.';
                 }

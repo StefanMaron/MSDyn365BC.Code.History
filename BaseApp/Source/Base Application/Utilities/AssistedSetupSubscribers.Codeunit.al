@@ -7,17 +7,20 @@ namespace Microsoft.Utilities;
 using Microsoft.AccountantPortal;
 using Microsoft.Bank.Setup;
 using Microsoft.CashFlow.Forecast;
-using Microsoft.System.Threading;
 using Microsoft.CRM.Outlook;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Company;
+#if not CLEAN28
 using Microsoft.Foundation.Reporting;
+#endif
 using Microsoft.Integration.D365Sales;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Projects.Timesheet;
+using Microsoft.System.Threading;
 using System.AI;
+using System.Apps;
 using System.Automation;
 using System.Azure.Identity;
 using System.Email;
@@ -29,7 +32,6 @@ using System.Integration;
 using System.Integration.Excel;
 using System.Media;
 using System.Security.User;
-using System.Apps;
 
 codeunit 1814 "Assisted Setup Subscribers"
 {
@@ -75,10 +77,12 @@ codeunit 1814 "Assisted Setup Subscribers"
         SetupExchangeRatesHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115182', Locked = true;
         SetupExchangeRatesVideoTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2117931', Locked = true;
         SetupExchangeRatesDescriptionTxt: Label 'View or update currencies and exchange rates if you buy or sell in currencies other than your local currency or record G/L transactions in different currencies.';
+#if not CLEAN28
         CustomizeDocumentLayoutsTitleTxt: Label 'Customize document layouts';
         CustomizeDocumentLayoutsShortTitleTxt: Label 'Customize document layouts', MaxLength = 50;
         CustomizeDocumentLayoutsHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115464', Locked = true;
         CustomizeDocumentLayoutsDescTxt: Label 'Make invoices and other documents look right for your business.';
+#endif
         CustomerAppWorkflowTitleTxt: Label 'Set up a customer approval workflow';
         CustomerAppWorkflowShortTitleTxt: Label 'Set up customer approval workflow', MaxLength = 50;
         CustomerAppWorkflowDescriptionTxt: Label 'Create approval workflows that automatically notify an approver when a user tries to create or change a customer.';
@@ -141,11 +145,6 @@ codeunit 1814 "Assisted Setup Subscribers"
         SetupPaymentServicesShortTitleTxt: Label 'Set up payment services', MaxLength = 50;
         SetupPaymentServicesHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115183', Locked = true;
         SetupPaymentServicesDescriptionTxt: Label 'Connect to a payment service so that your customers can pay you electronically.';
-#if not CLEAN25
-        SetupConsolidationReportingTitleTxt: Label 'Process Consolidations';
-        SetupConsolidationReportingShortTitleTxt: Label 'Consolidate companies', MaxLength = 50;
-        SetupConsolidationReportingDescriptionTxt: Label 'Consolidate the general ledger entries of two or more separate companies (subsidiaries) into a consolidated company.';
-#endif
         AccessAllFeaturesTxt: Label 'Access all features';
         VideoAccessAllFeaturesTxt: Label 'https://go.microsoft.com/fwlink/?linkid=857610', Locked = true;
         AnalyzeDataUsingAccSchedulesTxt: Label 'Analyze data using account schedules';
@@ -180,6 +179,7 @@ codeunit 1814 "Assisted Setup Subscribers"
         SetupJobQueueNotificationShortTitleTxt: Label 'Set up Job Queue Notifications', MaxLength = 50;
         SetupJobQueueNotificationDescriptionTxt: Label 'Set up Job Queue Notifications to receive notifications when jobs are failed.';
         SetupJobQueueNotificationHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2282396', Locked = true;
+
 
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", 'OnRegisterAssistedSetup', '', false, false)]
@@ -368,15 +368,6 @@ codeunit 1814 "Assisted Setup Subscribers"
         GlobalLanguage(Language.GetDefaultApplicationLanguageId());
         GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
             Page::"Payment Services", Language.GetDefaultApplicationLanguageId(), SetupPaymentServicesTitleTxt);
-#if not CLEAN25
-        GlobalLanguage(CurrentGlobalLanguage);
-
-        GuidedExperience.InsertAssistedSetup(SetupConsolidationReportingTitleTxt, SetupConsolidationReportingShortTitleTxt, SetupConsolidationReportingDescriptionTxt, 5, ObjectType::Page,
-            Page::"Company Consolidation Wizard", AssistedSetupGroup::FinancialReporting, '', VideoCategory::Uncategorized, '');
-        GlobalLanguage(Language.GetDefaultApplicationLanguageId());
-        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
-            Page::"Company Consolidation Wizard", Language.GetDefaultApplicationLanguageId(), SetupConsolidationReportingTitleTxt);
-#endif
         GlobalLanguage(CurrentGlobalLanguage);
 
         GuidedExperience.InsertAssistedSetup(SetupJobQueueNotificationTitleTxt, SetupJobQueueNotificationShortTitleTxt, SetupJobQueueNotificationDescriptionTxt, 5, ObjectType::Page,
@@ -429,13 +420,18 @@ codeunit 1814 "Assisted Setup Subscribers"
         GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
             Page::"Time Sheet Setup Wizard", Language.GetDefaultApplicationLanguageId(), SetupTimeSheetsTitleTxt);
         GlobalLanguage(CurrentGlobalLanguage);
-
+#if not CLEAN28
+#pragma warning disable AL0432
         GuidedExperience.InsertAssistedSetup(CustomizeDocumentLayoutsTitleTxt, CustomizeDocumentLayoutsShortTitleTxt, CustomizeDocumentLayoutsDescTxt, 10, ObjectType::Page,
             Page::"Custom Report Layouts", AssistedSetupGroup::FirstInvoice, '', VideoCategory::FirstInvoice, CustomizeDocumentLayoutsHelpTxt);
+#pragma warning restore AL0432
         GlobalLanguage(Language.GetDefaultApplicationLanguageId());
+#pragma warning disable AL0432
         GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
             Page::"Custom Report Layouts", Language.GetDefaultApplicationLanguageId(), CustomizeDocumentLayoutsTitleTxt);
+#pragma warning restore AL0432
         GlobalLanguage(CurrentGlobalLanguage);
+#endif
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", 'OnReRunOfCompletedAssistedSetup', '', false, false)]

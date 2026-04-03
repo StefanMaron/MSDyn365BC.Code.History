@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -50,6 +50,7 @@ page 498 Reservation
                 }
                 field(QtyToReserveBase; QtyToReserveBase)
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Reservation;
                     Caption = 'Quantity to Reserve';
                     DecimalPlaces = 0 : 5;
@@ -58,6 +59,7 @@ page 498 Reservation
                 }
                 field(QtyReservedBase; QtyReservedBase)
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Reservation;
                     Caption = 'Reserved Quantity';
                     DecimalPlaces = 0 : 5;
@@ -66,6 +68,7 @@ page 498 Reservation
                 }
                 field(UnreservedQuantity; QtyToReserveBase - QtyReservedBase)
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Reservation;
                     Caption = 'Unreserved Quantity';
                     DecimalPlaces = 0 : 5;
@@ -81,10 +84,10 @@ page 498 Reservation
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
-                    ToolTip = 'Specifies which type of line or entry is summarized in the entry summary.';
                 }
                 field("Total Quantity"; ReservMgt.FormatQty(Rec."Total Quantity"))
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Reservation;
                     BlankZero = true;
                     Caption = 'Total Quantity';
@@ -99,6 +102,7 @@ page 498 Reservation
                 }
                 field(TotalReservedQuantity; ReservMgt.FormatQty(Rec."Total Reserved Quantity"))
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Reservation;
                     BlankZero = true;
                     Caption = 'Total Reserved Quantity';
@@ -113,6 +117,7 @@ page 498 Reservation
                 }
                 field(QtyAllocatedInWarehouse; ReservMgt.FormatQty(Rec."Qty. Alloc. in Warehouse"))
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Warehouse;
                     BlankZero = true;
                     Caption = 'Qty. Allocated in Warehouse';
@@ -124,6 +129,7 @@ page 498 Reservation
                 field("ReservMgt.FormatQty(""Res. Qty. on Picks & Shipmts."")"; ReservMgt.FormatQty(Rec."Res. Qty. on Picks & Shipmts."))
 #pragma warning restore AA0100
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Warehouse;
                     BlankZero = true;
                     Caption = 'Reserved Qty. on Picks and Shipments';
@@ -134,6 +140,7 @@ page 498 Reservation
                 }
                 field(TotalAvailableQuantity; ReservMgt.FormatQty(Rec."Total Available Quantity"))
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Reservation;
                     BlankZero = true;
                     Caption = 'Total Available Quantity';
@@ -145,11 +152,11 @@ page 498 Reservation
                 {
                     ApplicationArea = Reservation;
                     DecimalPlaces = 0 : 5;
-                    ToolTip = 'Specifies the quantity of the item that is reserved but does not have specific item tracking numbers in the reservation.';
                     Visible = false;
                 }
                 field("Current Reserved Quantity"; ReservMgt.FormatQty(ReservedThisLine(Rec)))
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Reservation;
                     BlankZero = true;
                     Caption = 'Current Reserved Quantity';
@@ -440,34 +447,6 @@ page 498 Reservation
         UpdateReservFrom();
 
         // Invoke events for compatibility with 15.X, to be removed after obsoleting events below
-#if not CLEAN25
-        case SourceRecRef.Number of
-            Database::Microsoft.Sales.Document."Sales Line":
-                OnAfterSetSalesLine(Rec, ReservEntry);
-            Database::Microsoft.Inventory.Requisition."Requisition Line":
-                OnAfterSetReqLine(Rec, ReservEntry);
-            Database::Microsoft.Purchases.Document."Purchase Line":
-                OnAfterSetPurchLine(Rec, ReservEntry);
-            Database::Microsoft.Inventory.Journal."Item Journal Line":
-                OnAfterSetItemJnlLine(Rec, ReservEntry);
-            Database::Microsoft.Manufacturing.Document."Prod. Order Line":
-                OnAfterSetProdOrderLine(Rec, ReservEntry);
-            Database::Microsoft.Manufacturing.Document."Prod. Order Component":
-                OnAfterSetProdOrderComponent(Rec, ReservEntry);
-            Database::Microsoft.Assembly.Document."Assembly Header":
-                OnAfterSetAssemblyHeader(Rec, ReservEntry);
-            Database::Microsoft.Assembly.Document."Assembly Line":
-                OnAfterSetAssemblyLine(Rec, ReservEntry);
-            Database::Microsoft.Inventory.Planning."Planning Component":
-                OnAfterSetPlanningComponent(Rec, ReservEntry);
-            Database::Microsoft.Service.Document."Service Line":
-                OnAfterSetServiceLine(Rec, ReservEntry);
-            Database::Microsoft.Projects.Project.Planning."Job Planning Line":
-                OnAfterSetJobPlanningLine(Rec, ReservEntry);
-            Database::Microsoft.Inventory.Transfer."Transfer Line":
-                OnAfterSetTransLine(Rec, ReservEntry);
-        end;
-#endif
     end;
 
     procedure SetReservEntry(ReservEntry2: Record "Reservation Entry")
@@ -759,101 +738,17 @@ page 498 Reservation
     begin
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by event in codeunit SalesLineReserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterSetSalesLine(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
-    begin
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Replaced by event in codeunit ReqLineReserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterSetReqLine(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
-    begin
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Replaced by event in codeunit PurchLineReserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterSetPurchLine(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
-    begin
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Replaced by event in codeunit TransferLineReserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterSetTransLine(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
-    begin
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Replaced by event in codeunit ServiceLineReserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterSetServiceLine(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
-    begin
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Replaced by event in codeunit ProdOrderLineReserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterSetProdOrderLine(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
-    begin
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Replaced by event in codeunit ProdOrderCompReserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterSetProdOrderComponent(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
-    begin
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Replaced by event in codeunit ItemJnlLineReserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterSetItemJnlLine(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
-    begin
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Replaced by event in codeunit JobPlanningLineReserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterSetJobPlanningLine(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
-    begin
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Replaced by event in codeunit AssemblyHeaderReserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterSetAssemblyHeader(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
-    begin
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Replaced by event in codeunit AssemblyLineReserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterSetAssemblyLine(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
-    begin
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Replaced by event in codeunit PlngComponentReserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterSetPlanningComponent(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAutoReserve(ReservEntry: Record "Reservation Entry"; var FullAutoReservation: Boolean; QtyToReserve: Decimal; QtyReserved: Decimal; QtyToReserveBase: Decimal; QtyReservedBase: Decimal; var IsHandled: Boolean);
@@ -915,4 +810,3 @@ page 498 Reservation
     begin
     end;
 }
-

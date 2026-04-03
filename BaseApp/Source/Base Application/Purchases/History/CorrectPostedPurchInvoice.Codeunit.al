@@ -1160,13 +1160,5 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     end;
 
 #pragma warning disable AS0018
-#if not CLEAN25
-    [Obsolete('OnBeforeTestPurchaseInvoiceHeaderAmount is not supported anymore.', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeTestPurchaseInvoiceHeaderAmount(var PurchInvHeader: Record "Purch. Inv. Header"; Cancelling: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 #pragma warning restore AS0018
 }
-

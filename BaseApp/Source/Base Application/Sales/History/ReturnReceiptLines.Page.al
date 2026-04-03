@@ -7,7 +7,11 @@ namespace Microsoft.Sales.History;
 using Microsoft.Finance.Dimension;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
+using Microsoft.Utilities;
 
+/// <summary>
+/// Lists posted sales return receipt lines with navigation to related documents and orders.
+/// </summary>
 page 6667 "Return Receipt Lines"
 {
     Caption = 'Return Receipt Lines';
@@ -27,106 +31,87 @@ page 6667 "Return Receipt Lines"
                     ApplicationArea = SalesReturnOrder;
                     HideValue = DocumentNoHideValue;
                     StyleExpr = 'Strong';
-                    ToolTip = 'Specifies the number of the related document.';
                 }
                 field("Sell-to Customer No."; Rec."Sell-to Customer No.")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the number of the customer.';
                 }
                 field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the customer.';
                 }
                 field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
                 field(Type; Rec.Type)
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the line type.';
                 }
                 field("No."; Rec."No.")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies either the name of or the description of the item, general ledger account or item charge.';
                 }
                 field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies information in addition to the description.';
                     Visible = false;
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
                 field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies a code for the location where you want the items to be placed when they are received.';
                     Visible = true;
                 }
                 field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the bin where the items are picked or put away.';
                     Visible = false;
                 }
                 field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the number of units of the item, general ledger account, or item charge on the line.';
                 }
                 field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
                 field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the name of the item or resource''s unit of measure, such as piece or hour.';
                     Visible = false;
                 }
                 field("Appl.-to Item Entry"; Rec."Appl.-to Item Entry")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied to.';
                     Visible = false;
                 }
                 field("Quantity Invoiced"; Rec."Quantity Invoiced")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies how many units of the item on the line have been posted as invoiced.';
                 }
                 field("Return Order No."; Rec."Return Order No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the return order number this line is associated with.';
                     Visible = false;
                 }
             }
@@ -165,9 +150,10 @@ page 6667 "Return Receipt Lines"
                     trigger OnAction()
                     var
                         ReturnRcptHeader: Record "Return Receipt Header";
+                        PageManagement: Codeunit "Page Management";
                     begin
                         ReturnRcptHeader.Get(Rec."Document No.");
-                        PAGE.Run(PAGE::"Posted Return Receipt", ReturnRcptHeader);
+                        PageManagement.PageRun(ReturnRcptHeader);
                     end;
                 }
                 action(Dimensions)
@@ -224,6 +210,12 @@ page 6667 "Return Receipt Lines"
         AssignmentType: Option Sale,Purchase;
         DocumentNoHideValue: Boolean;
 
+    /// <summary>
+    /// Initializes the page for sales item charge assignment.
+    /// </summary>
+    /// <param name="NewItemChargeAssgnt">The sales item charge assignment to initialize from.</param>
+    /// <param name="NewSellToCustomerNo">The sell-to customer number.</param>
+    /// <param name="NewUnitCost">The unit cost for the charge assignment.</param>
     procedure InitializeSales(NewItemChargeAssgnt: Record "Item Charge Assignment (Sales)"; NewSellToCustomerNo: Code[20]; NewUnitCost: Decimal)
     begin
         ItemChargeAssgntSales := NewItemChargeAssgnt;
@@ -232,6 +224,11 @@ page 6667 "Return Receipt Lines"
         AssignmentType := AssignmentType::Sale;
     end;
 
+    /// <summary>
+    /// Initializes the page for purchase item charge assignment.
+    /// </summary>
+    /// <param name="NewItemChargeAssgnt">The purchase item charge assignment to initialize from.</param>
+    /// <param name="NewUnitCost">The unit cost for the charge assignment.</param>
     procedure InitializePurchase(NewItemChargeAssgnt: Record "Item Charge Assignment (Purch)"; NewUnitCost: Decimal)
     begin
         ItemChargeAssgntPurch := NewItemChargeAssgnt;

@@ -35,8 +35,6 @@ codeunit 137061 "SCM Purchases & Payables"
         CostAmountActualErr: Label 'Cost Amount (Actual) must be same.';
         SalesAmountExpectedErr: Label 'Sales Amount (Expected) must be same.';
         SalesAmountActualErr: Label 'Sales Amount (Actual) must be same.';
-        DropshipmentMsg: Label 'A drop shipment from a purchase order cannot be received and invoiced at the same time.';
-        AssociatedSalesOrderErr: Label 'You cannot invoice this purchase order before the associated sales orders have been invoiced.';
         ChangedOnSalesLineErr: Label 'Location Code gets changed on sales line.';
         ChangedOnPurchaseLineErr: Label 'Location Code gets changed on purchase line.';
         ChangedOnReservationEntryErr: Label 'Location Code gets changed on Reservation Entry for sales & purchases.';
@@ -170,6 +168,7 @@ codeunit 137061 "SCM Purchases & Payables"
         SalesHeader: Record "Sales Header";
         Purchasing: Record Purchasing;
         PurchaseHeader: Record "Purchase Header";
+        PurchaseInvoiceHeader: Record "Purch. Inv. Header";
     begin
         // Processing a drop shipment sales order - only receive purchase.
         // Setup.
@@ -191,19 +190,15 @@ codeunit 137061 "SCM Purchases & Payables"
         PurchaseHeader.Validate("Vendor Invoice No.",
           LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Vendor Invoice No."), DATABASE::"Purchase Header"));
         PurchaseHeader.Modify(true);
-        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
-        // have to reset the posting no. to avoid error in next test.
-        PurchaseHeader."Posting No." := '';
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
-        // Verify: verify error msg.
-        Assert.IsTrue(
-          StrPos(GetLastErrorText, AssociatedSalesOrderErr) > 0, GetLastErrorText);
-        ClearLastError();
+        // [THEN] Verify that the Posted Purchase Invoice has been created.
+        PurchaseInvoiceHeader.SetRange("Order No.", PurchaseHeader."No.");
+        Assert.RecordIsNotEmpty(PurchaseInvoiceHeader);
 
-        // Exercise: Post Sales Invoice and Purchase invoice.
+        // Exercise: Post Sales Invoice.
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         // Verify: verify the amounts in Item Ledger Entry.
         VerifySalesEntry(Item."No.", SalesHeader."No.", 0, 0, Item."Unit Price", 0, Item."Unit Cost");
@@ -218,8 +213,10 @@ codeunit 137061 "SCM Purchases & Payables"
         SalesHeader: Record "Sales Header";
         Purchasing: Record Purchasing;
         PurchaseHeader: Record "Purchase Header";
+        PurchaseInvoiceHeader: Record "Purch. Inv. Header";
     begin
         // Processing a drop shipment sales order - receive & invoice purchase.
+        // [SCENARIO 614781] Verify that the purchase order can be received and invoiced at the same time for drop shipment.
         // Setup.
         Initialize();
         CreateItem(Item);
@@ -232,12 +229,11 @@ codeunit 137061 "SCM Purchases & Payables"
         PurchaseHeader.Modify(true);
 
         // Post receipt of the created Purchase Order.
-        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        // Verify: verify error msg.
-        Assert.IsTrue(
-          StrPos(GetLastErrorText, DropshipmentMsg) > 0, GetLastErrorText);
-        ClearLastError();
+        // [THEN] Verify that the Posted Purchase Invoice has been created.
+        PurchaseInvoiceHeader.SetRange("Order No.", PurchaseHeader."No.");
+        Assert.RecordIsNotEmpty(PurchaseInvoiceHeader);
     end;
 
     [Test]

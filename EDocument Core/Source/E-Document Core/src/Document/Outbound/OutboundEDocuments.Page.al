@@ -4,8 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument;
 
-using Microsoft.Foundation.Attachment;
 using Microsoft.eServices.EDocument.Service;
+using Microsoft.Foundation.Attachment;
 
 page 6106 "Outbound E-Documents"
 {
@@ -98,13 +98,4 @@ page 6106 "Outbound E-Documents"
             actionref(Promoted_EDocumentServices; EDocumentServices) { }
         }
     }
-
-    trigger OnOpenPage()
-    var
-        EDocumentsSetup: Record "E-Documents Setup";
-    begin
-        if not EDocumentsSetup.IsNewEDocumentExperienceActive() then
-            Error('');
-    end;
-
 }

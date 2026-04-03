@@ -1162,10 +1162,7 @@ codeunit 134159 "Test Price Calculation - V16"
         VerifyJobSources(Job, PurchaseLinePrice, 0, 0, 0);
     end;
 
-#if not CLEAN25
-#pragma warning disable AS0072
     [Test]
-    [Obsolete('Not Used.', '23.0')]
     procedure T050_ApplyDiscountSalesLineCalculateDiscIfAllowLineDiscFalseV15()
     var
         Customer: Record Customer;
@@ -1220,8 +1217,6 @@ codeunit 134159 "Test Price Calculation - V16"
         SalesLine.TestField("Allow Line Disc.", false);
         SalesLine.TestField("Line Discount %", ExpectedDiscount);
     end;
-#pragma warning restore AS0072
-#endif
 
     [Test]
     procedure T051_ApplyDiscountSalesLineCalculateDiscIfAllowLineDiscFalseV16()
@@ -6100,7 +6095,6 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceListLine.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure CreateCustomerItemDiscount(var SalesLineDiscount: Record "Sales Line Discount"; CustomerCode: Code[20]; Item: Record Item; Discount: Decimal)
     begin
         LibraryERM.CreateLineDiscForCustomer(
@@ -6109,7 +6103,6 @@ codeunit 134159 "Test Price Calculation - V16"
         SalesLineDiscount.Validate("Line Discount %", Discount);
         SalesLineDiscount.Modify(true);
     end;
-#endif
 
     local procedure CreateDiscountLine(var PriceListLine: Record "Price List Line"; Customer: Record Customer; Item: Record Item)
     begin

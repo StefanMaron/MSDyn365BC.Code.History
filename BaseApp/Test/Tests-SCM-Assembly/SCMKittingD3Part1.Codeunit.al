@@ -4,20 +4,20 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Assembly.Test;
 
-using Microsoft.Assembly.Setup;
-using Microsoft.Inventory.Setup;
 using Microsoft.Assembly.Document;
+using Microsoft.Assembly.History;
+using Microsoft.Assembly.Posting;
+using Microsoft.Assembly.Setup;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Inventory.BOM;
+using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Setup;
+using Microsoft.Projects.Resources.Resource;
 using Microsoft.Utilities;
 using System.Environment.Configuration;
-using Microsoft.Finance.Dimension;
-using Microsoft.Inventory.Location;
-using Microsoft.Inventory.BOM;
-using Microsoft.Projects.Resources.Resource;
-using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Assembly.History;
-using Microsoft.Inventory.Costing;
-using Microsoft.Assembly.Posting;
 
 codeunit 137092 "SCM Kitting - D3 - Part 1"
 {
@@ -39,6 +39,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryCosting: Codeunit "Library - Costing";
+        LibraryPostInventoryToGL: Codeunit "Library - Post Inventory to GL";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryDimension: Codeunit "Library - Dimension";
@@ -96,7 +97,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
 
         WorkDate2 := LibraryPlanning.SetSafetyWorkDate(); // to avoid Due Date Before Work Date message.
         LibraryCosting.AdjustCostItemEntries('', '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate2, '');
+        LibraryPostInventoryToGL.PostInvtCostToGL(false, WorkDate2, '');
         Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting - D3 - Part 1");
@@ -1098,7 +1099,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
             DocNo := PostedAssemblyHeader."No."
         else
             DocNo := '';
-        LibraryAssembly.PostInvtCostToGL(PerPostingGroup, PostedAssemblyHeader."Item No.", DocNo,
+        LibraryPostInventoryToGL.PostInvtCostToGL(PerPostingGroup, PostedAssemblyHeader."Item No.", DocNo,
           TemporaryPath + PostedAssemblyHeader."No." + '.pdf');
         if PostWithoutAdj then
             LibraryCosting.AdjustCostItemEntries(PostedAssemblyHeader."Item No.", '');

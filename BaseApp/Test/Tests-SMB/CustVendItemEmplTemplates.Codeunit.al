@@ -2236,6 +2236,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         ItemField.SetRange(TableNo, Database::Item);
         ItemField.SetRange(Class, ItemField.Class::Normal);
         ItemField.SetRange(ObsoleteState, ItemField.ObsoleteState::No);
+        ItemField.SetRange("No.", 1, 9999); // Only check w1 fields
         if ItemField.FindSet() then
             repeat
                 if not FieldExclusionList.Contains(ItemField."No.") then
@@ -3512,6 +3513,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         FieldExclusionList.Add(Item.FieldNo("Variant Mandatory if Exists"));
         FieldExclusionList.Add(Item.FieldNo("No."));
         FieldExclusionList.Add(Item.FieldNo("No. 2"));
+        FieldExclusionList.Add(Item.FieldNo("Alternative Item No."));
         FieldExclusionList.Add(Item.FieldNo("Description"));
         FieldExclusionList.Add(Item.FieldNo("Search Description"));
         FieldExclusionList.Add(Item.FieldNo("Description 2"));

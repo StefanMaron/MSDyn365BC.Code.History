@@ -5,7 +5,7 @@ codeunit 134279 "Bank Rec. Test Report UT"
     TestPermissions = Disabled;
 
     var
-        Assert: Codeunit Assert;
+        Assert: Codeunit "Library Assert";
         LibraryERM: Codeunit "Library - ERM";
 
     /// <summary>

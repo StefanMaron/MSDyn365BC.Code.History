@@ -7,6 +7,9 @@ namespace Microsoft.Sales.Reminder;
 using Microsoft.Foundation.Reporting;
 using System.Reflection;
 
+/// <summary>
+/// Configures which reports are used when printing or emailing reminders and finance charges.
+/// </summary>
 page 524 "Report Selection - Reminder"
 {
     ApplicationArea = Suite;
@@ -76,13 +79,17 @@ page 524 "Report Selection - Reminder"
                     ApplicationArea = Basic, Suite;
                     Visible = CustomLayoutsExist;
 
+#if not CLEAN28
                     trigger OnDrillDown()
                     var
                         CustomReportLayout: Record "Custom Report Layout";
                     begin
+#pragma warning disable AL0432
                         if CustomReportLayout.LookupLayoutOK(Rec."Report ID") then
+#pragma warning restore AL0432
                             Rec.Validate("Email Body Layout Code", CustomReportLayout.Code);
                     end;
+#endif
                 }
             }
         }

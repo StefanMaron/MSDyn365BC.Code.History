@@ -1,4 +1,3 @@
-#if not CLEAN25
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -11,9 +10,6 @@ report 1193 "Implement Res. Price Change"
 {
     Caption = 'Implement Res. Price Change';
     ProcessingOnly = true;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-    ObsoleteTag = '16.0';
 
     dataset
     {
@@ -93,4 +89,3 @@ report 1193 "Implement Res. Price Change"
         Text006: Label 'The resource prices have now been updated in accordance with the suggested price changes.\\Do you want to delete the suggested price changes?';
 #pragma warning restore AA0074
 }
-#endif

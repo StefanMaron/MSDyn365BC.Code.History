@@ -1,44 +1,36 @@
-#if not CLEANSCHEMA28 
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Pricing;
 
-#if not CLEAN25
 using Microsoft.CRM.Campaign;
-#endif
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Inventory.Item;
-#if not CLEAN25
 using Microsoft.Sales.Customer;
-#endif
 
+/// <summary>
+/// Stores sales prices for items by customer type, currency, and validity period with support for quantity breaks.
+/// </summary>
 table 7002 "Sales Price"
 {
     Caption = 'Sales Price';
-#if not CLEAN25
-    LookupPageID = "Sales Prices";
-    ObsoleteState = Pending;
-    ObsoleteTag = '16.0';
-#else
-    ObsoleteState = Removed;
-    ObsoleteTag = '28.0';
-#endif    
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price List Line';
     DataClassification = CustomerContent;
 
     fields
     {
+        /// <summary>
+        /// Specifies the item that the sales price applies to.
+        /// </summary>
         field(1; "Item No."; Code[20])
         {
             Caption = 'Item No.';
+            ToolTip = 'Specifies the number of the item for which the sales price is valid.';
             NotBlank = true;
             TableRelation = Item;
 
-#if not CLEAN25
             trigger OnValidate()
             var
                 IsHandled: Boolean;
@@ -62,12 +54,14 @@ table 7002 "Sales Price"
 
                 UpdateValuesFromItem();
             end;
-#endif
         }
+        /// <summary>
+        /// Specifies the customer, customer price group, or campaign that the sales price applies to.
+        /// </summary>
         field(2; "Sales Code"; Code[20])
         {
             Caption = 'Sales Code';
-#if not CLEAN25
+            ToolTip = 'Specifies the code that belongs to the Sales Type.';
             TableRelation = if ("Sales Type" = const("Customer Price Group")) "Customer Price Group"
             else
             if ("Sales Type" = const(Customer)) Customer
@@ -105,16 +99,23 @@ table 7002 "Sales Price"
                             end;
                     end;
             end;
-#endif
         }
+        /// <summary>
+        /// Specifies the currency that the sales price is valid for. A blank value indicates the local currency.
+        /// </summary>
         field(3; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
+            ToolTip = 'Specifies the code for the currency of the sales price.';
             TableRelation = Currency;
         }
+        /// <summary>
+        /// Specifies the date from which the sales price is valid.
+        /// </summary>
         field(4; "Starting Date"; Date)
         {
             Caption = 'Starting Date';
+            ToolTip = 'Specifies the date from which the sales price is valid.';
 
             trigger OnValidate()
             begin
@@ -129,32 +130,50 @@ table 7002 "Sales Price"
                         Error(Text002, "Sales Type");
             end;
         }
+        /// <summary>
+        /// Specifies the unit price for the item when sold under this pricing agreement.
+        /// </summary>
         field(5; "Unit Price"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 2;
             Caption = 'Unit Price';
+            ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
             MinValue = 0;
         }
+        /// <summary>
+        /// Indicates whether the unit price includes VAT.
+        /// </summary>
         field(7; "Price Includes VAT"; Boolean)
         {
             Caption = 'Price Includes VAT';
+            ToolTip = 'Specifies if the sales price includes VAT.';
         }
+        /// <summary>
+        /// Indicates whether invoice discounts can be applied when this sales price is used.
+        /// </summary>
         field(10; "Allow Invoice Disc."; Boolean)
         {
             Caption = 'Allow Invoice Disc.';
+            ToolTip = 'Specifies if an invoice discount will be calculated when the sales price is offered.';
             InitValue = true;
         }
+        /// <summary>
+        /// Specifies the VAT business posting group used for price calculations when the price includes VAT.
+        /// </summary>
         field(11; "VAT Bus. Posting Gr. (Price)"; Code[20])
         {
             Caption = 'VAT Bus. Posting Gr. (Price)';
             TableRelation = "VAT Business Posting Group";
         }
+        /// <summary>
+        /// Specifies the type of sales target for the price, such as customer, customer price group, all customers, or campaign.
+        /// </summary>
         field(13; "Sales Type"; Enum "Sales Price Type")
         {
             Caption = 'Sales Type';
+            ToolTip = 'Specifies the sales price type, which defines whether the price is for an individual, group, all customers, or a campaign.';
 
-#if not CLEAN25
             trigger OnValidate()
             begin
                 if "Sales Type" <> xRec."Sales Type" then begin
@@ -162,17 +181,25 @@ table 7002 "Sales Price"
                     UpdateValuesFromItem();
                 end;
             end;
-#endif
         }
+        /// <summary>
+        /// Specifies the minimum quantity that must be ordered to qualify for this sales price.
+        /// </summary>
         field(14; "Minimum Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Minimum Quantity';
+            ToolTip = 'Specifies the minimum sales quantity required to warrant the sales price.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
         }
+        /// <summary>
+        /// Specifies the last date on which the sales price is valid.
+        /// </summary>
         field(15; "Ending Date"; Date)
         {
             Caption = 'Ending Date';
+            ToolTip = 'Specifies the calendar date when the sales price agreement ends.';
 
             trigger OnValidate()
             begin
@@ -196,6 +223,9 @@ table 7002 "Sales Price"
             ObsoleteTag = '26.0';
         }
 #endif
+        /// <summary>
+        /// Indicates whether the sales price is coupled to a record in Dynamics 365 Sales.
+        /// </summary>
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
@@ -203,19 +233,31 @@ table 7002 "Sales Price"
             Editable = false;
             CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(7002)));
         }
+        /// <summary>
+        /// Specifies the unit of measure that the sales price applies to for the item.
+        /// </summary>
         field(5400; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
+            ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
             TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
         }
+        /// <summary>
+        /// Specifies the item variant that the sales price applies to.
+        /// </summary>
         field(5700; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
+            ToolTip = 'Specifies the variant of the item on the line.';
             TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
         }
+        /// <summary>
+        /// Indicates whether line discounts can be applied when this sales price is used.
+        /// </summary>
         field(7001; "Allow Line Disc."; Boolean)
         {
             Caption = 'Allow Line Disc.';
+            ToolTip = 'Specifies if a line discount will be calculated when the sales price is offered.';
             InitValue = true;
         }
     }
@@ -258,7 +300,6 @@ table 7002 "Sales Price"
     end;
 
     var
-#if not CLEAN25
         CustPriceGr: Record "Customer Price Group";
         Cust: Record Customer;
         Campaign: Record Campaign;
@@ -266,22 +307,14 @@ table 7002 "Sales Price"
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text001: Label '%1 must be blank.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#endif
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text000: Label '%1 cannot be after %2';
         Text002: Label 'If Sales Type = %1, then you can only change Starting Date and Ending Date from the Campaign Card.';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
 
-#if not CLEAN25
     protected var
         Item: Record Item;
-#endif
 
-#if not CLEAN25
     local procedure UpdateValuesFromItem()
     begin
         if Item.Get("Item No.") then begin
@@ -293,6 +326,11 @@ table 7002 "Sales Price"
         end;
     end;
 
+    /// <summary>
+    /// Copies sales prices to a specific customer by creating customer-specific price records.
+    /// </summary>
+    /// <param name="SalesPrice">The sales price records to copy.</param>
+    /// <param name="CustNo">The customer number to assign to the new sales price records.</param>
     procedure CopySalesPriceToCustomersSalesPrice(var SalesPrice: Record "Sales Price"; CustNo: Code[20])
     var
         NewSalesPrice: Record "Sales Price";
@@ -321,8 +359,4 @@ table 7002 "Sales Price"
     local procedure OnValidateSalesCodeOnAfterGetCustomerPriceGroup(var Salesprice: Record "Sales Price"; CustPriceGroup: Record "Customer Price Group")
     begin
     end;
-#endif
 }
-
-
-#endif

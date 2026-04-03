@@ -9,6 +9,10 @@ using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Foundation.Enums;
 
+/// <summary>
+/// Generates reconciliation analysis between G/L entries and VAT entries for audit and compliance purposes.
+/// Compares posted amounts across G/L and VAT ledgers to identify discrepancies and ensure data integrity.
+/// </summary>
 report 743 "VAT Reconciliation Report"
 {
     DefaultLayout = RDLC;

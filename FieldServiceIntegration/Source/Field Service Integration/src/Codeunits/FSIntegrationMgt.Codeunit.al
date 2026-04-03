@@ -4,12 +4,12 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Integration.DynamicsFieldService;
 
-using Microsoft.Integration.Dataverse;
-using Microsoft.Integration.D365Sales;
-using Microsoft.Service.Setup;
-using System;
-using Microsoft.Utilities;
 using Microsoft.Foundation.NoSeries;
+using Microsoft.Integration.D365Sales;
+using Microsoft.Integration.Dataverse;
+using Microsoft.Service.Setup;
+using Microsoft.Utilities;
+using System;
 
 codeunit 6615 "FS Integration Mgt."
 {
@@ -413,6 +413,8 @@ codeunit 6615 "FS Integration Mgt."
                 ServiceConnection.Status := ServiceConnection.Status::Connected
             else
                 ServiceConnection.Status := ServiceConnection.Status::Error;
+
+        CRMIntegrationManagement.CheckCRMConnectionURL(FSConnectionSetup."Server Address");
         ServiceConnection.InsertServiceConnectionExtended(
           ServiceConnection, RecRef.RecordId, FSConnectionSetup.TableCaption(), FSConnectionSetup."Server Address", Page::"FS Connection Setup", Page::"FS Connection Setup Wizard");
     end;

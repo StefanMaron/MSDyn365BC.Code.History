@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -6,6 +6,10 @@ namespace Microsoft.Bank.Reconciliation;
 
 using Microsoft.Bank.Statement;
 
+/// <summary>
+/// Dialog page for undoing payment reconciliation statements.
+/// Provides interface for reversing posted reconciliation transactions.
+/// </summary>
 page 1300 "Pmt. Rec. Undo Statement"
 {
     Caption = 'Reverse Payment Reconciliation Journal';
@@ -26,19 +30,16 @@ page 1300 "Pmt. Rec. Undo Statement"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Bank Account No.';
-                ToolTip = 'Specifies the number of the bank account that has been reconciled with this Bank Account Statement.';
             }
             field(BankAccountName; Rec."Bank Account Name")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Bank Account Name';
-                ToolTip = 'Specifies the name of the bank account that has been reconciled.';
             }
             field(StatementNo; Rec."Statement No.")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Statement No.';
-                ToolTip = 'Specifies the number of the bank''s statement that has been reconciled with the bank account.';
                 trigger OnDrillDown()
                 begin
                     Page.Run(Page::"Bank Account Statement", Rec);
@@ -48,7 +49,6 @@ page 1300 "Pmt. Rec. Undo Statement"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Statement Date';
-                ToolTip = 'Specifies the date on the bank''s statement that has been reconciled with the bank account.';
             }
         }
     }

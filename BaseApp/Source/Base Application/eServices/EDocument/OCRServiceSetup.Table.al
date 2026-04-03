@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -26,6 +26,7 @@ table 1270 "OCR Service Setup"
         field(2; "User Name"; Text[50])
         {
             Caption = 'User Name';
+            ToolTip = 'Specifies the user name that represents your company''s login to the OCR service.';
             DataClassification = EndUserIdentifiableInformation;
         }
         field(3; "Password Key"; Guid)
@@ -35,11 +36,13 @@ table 1270 "OCR Service Setup"
         field(4; "Sign-up URL"; Text[250])
         {
             Caption = 'Sign-up URL';
+            ToolTip = 'Specifies the web page where you sign up for the OCR service.';
             ExtendedDatatype = URL;
         }
         field(5; "Service URL"; Text[250])
         {
             Caption = 'Service URL';
+            ToolTip = 'Specifies the address of the OCR service. The service specified in the Service URL field is called when you send and receive files for OCR.';
             ExtendedDatatype = URL;
 
             trigger OnValidate()
@@ -56,6 +59,7 @@ table 1270 "OCR Service Setup"
         field(6; "Sign-in URL"; Text[250])
         {
             Caption = 'Sign-in URL';
+            ToolTip = 'Specifies the sign-in page for the OCR service. This is the web page where you enter your company''s user name, password, and authorization key to sign in to the service.';
             ExtendedDatatype = URL;
         }
         field(7; "Authorization Key"; Guid)
@@ -65,16 +69,19 @@ table 1270 "OCR Service Setup"
         field(8; "Customer Name"; Text[80])
         {
             Caption = 'Customer Name';
+            ToolTip = 'Specifies your company''s name at the provider of the OCR service.';
             Editable = false;
         }
         field(9; "Customer ID"; Text[50])
         {
             Caption = 'Customer ID';
+            ToolTip = 'Specifies your company''s customer ID at the provider of the OCR service.';
             Editable = false;
         }
         field(10; "Customer Status"; Text[30])
         {
             Caption = 'Customer Status';
+            ToolTip = 'Specifies your company''s status at the provider of the OCR service.';
             Editable = false;
         }
         field(11; "Organization ID"; Text[50])
@@ -85,6 +92,7 @@ table 1270 "OCR Service Setup"
         field(12; "Default OCR Doc. Template"; Code[20])
         {
             Caption = 'Default OCR Doc. Template';
+            ToolTip = 'Specifies the OCR template that must be used by default for electronic documents that are received from the OCR service. You can change the OCR template on the individual incoming document card before sending the related file to the OCR service.';
             TableRelation = "OCR Service Document Template";
 
             trigger OnLookup()
@@ -114,6 +122,7 @@ table 1270 "OCR Service Setup"
         field(13; Enabled; Boolean)
         {
             Caption = 'Enabled';
+            ToolTip = 'Specifies if the service is enabled.';
 
             trigger OnValidate()
             var
@@ -151,6 +160,7 @@ table 1270 "OCR Service Setup"
         field(14; "Master Data Sync Enabled"; Boolean)
         {
             Caption = 'Master Data Sync Enabled';
+            ToolTip = 'Specifies whether or not the master data sync has been enabled.';
 
             trigger OnValidate()
             begin
@@ -164,6 +174,7 @@ table 1270 "OCR Service Setup"
         field(15; "Master Data Last Sync"; DateTime)
         {
             Caption = 'Master Data Last Sync';
+            ToolTip = 'Specifies the last time when the master data was synched.';
         }
     }
 
@@ -213,18 +224,6 @@ table 1270 "OCR Service Setup"
         TelemetryCategoryTok: Label 'AL OCR Service', Locked = true;
         OCRServiceConsentProvidedLbl: Label 'OCR Service - consent provided by UserSecurityId %1 for company %2.', Comment = '%1 - User Security ID, %2 - Company name', Locked = true;
 
-#if not CLEAN25
-    [Scope('OnPrem')]
-    [Obsolete('Replaced by SavePassword(var PasswordKey: Guid; PasswordText: SecretText)', '25.0')]
-    [NonDebuggable]
-    procedure SavePassword(var PasswordKey: Guid; PasswordText: Text)
-    var
-        PasswordAsSecretText: SecretText;
-    begin
-        PasswordAsSecretText := PasswordText;
-        SavePassword(PasswordKey, PasswordAsSecretText);
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure SavePassword(var PasswordKey: Guid; PasswordText: SecretText)
@@ -236,16 +235,6 @@ table 1270 "OCR Service Setup"
 
         IsolatedStorageManagement.Set(PasswordKey, PasswordText, DATASCOPE::Company);
     end;
-#if not CLEAN25
-
-    [NonDebuggable]
-    [Scope('OnPrem')]
-    [Obsolete('Replaced by GetPasswordAsSecretText', '25.0')]
-    procedure GetPassword(PasswordKey: Guid): Text
-    begin
-        exit(GetPasswordAsSecretText(PasswordKey).Unwrap());
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure GetPasswordAsSecretText(PasswordKey: Guid): SecretText
@@ -386,4 +375,3 @@ table 1270 "OCR Service Setup"
         Session.LogMessage('00008A8', OCRServiceCreatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
     end;
 }
-

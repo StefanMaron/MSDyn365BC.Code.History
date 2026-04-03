@@ -94,23 +94,17 @@ codeunit 132600 "Report Layout"
         REPORT.Run(REPORT::"Compare Production Cost Shares");
     end;
 
+#if not CLEAN28
     [Test]
     [HandlerFunctions('RHSalesStatistics')]
     [Scope('OnPrem')]
+    [Obsolete('Sales Statistics report is deprecated.', '28.0')]
     procedure TestSalesStatistics()
     begin
         Initialize();
         REPORT.Run(REPORT::"Sales Statistics");
     end;
-
-    [Test]
-    [HandlerFunctions('RHAgedAccountsPayable')]
-    [Scope('OnPrem')]
-    procedure TestAgedAccountsPayable()
-    begin
-        Initialize();
-        REPORT.Run(REPORT::"Aged Accounts Payable");
-    end;
+#endif
 
     [Test]
     [HandlerFunctions('RHFixedAssetAcquisitionList')]
@@ -148,6 +142,7 @@ codeunit 132600 "Report Layout"
         REPORT.Run(REPORT::"FA Posting Group - Net Change");
     end;
 
+#if not CLEAN28
     [Test]
     [HandlerFunctions('RHItemAgeCompositionQty')]
     [Scope('OnPrem')]
@@ -156,6 +151,7 @@ codeunit 132600 "Report Layout"
         Initialize();
         REPORT.Run(REPORT::"Item Age Composition - Qty.");
     end;
+#endif
 
     [Test]
     [HandlerFunctions('RHItemAgeCompositionValue')]
@@ -183,7 +179,7 @@ codeunit 132600 "Report Layout"
         Initialize();
         REPORT.Run(REPORT::"Cost Acctg. Stmt. per Period");
     end;
-
+#if not CLEAN28
     [Test]
     [HandlerFunctions('RHInventoryAvailabilityPlan')]
     [Scope('OnPrem')]
@@ -192,8 +188,17 @@ codeunit 132600 "Report Layout"
         Initialize();
         REPORT.Run(REPORT::"Inventory - Availability Plan");
     end;
+#endif
 
-#if not CLEAN25
+    [Test]
+    [HandlerFunctions('RHInvAvailabilityPlan')]
+    [Scope('OnPrem')]
+    procedure TestInvAvailabilityPlan()
+    begin
+        Initialize();
+        REPORT.Run(REPORT::"Inv. Availability Plan");
+    end;
+
     [Test]
     [HandlerFunctions('RHPriceList')]
     [Scope('OnPrem')]
@@ -208,7 +213,6 @@ codeunit 132600 "Report Layout"
         Commit();
         REPORT.Run(REPORT::"Price List");
     end;
-#endif
 
     [Test]
     [HandlerFunctions('RHGLConsolidationEliminations')]
@@ -283,15 +287,6 @@ codeunit 132600 "Report Layout"
     end;
 
     [Test]
-    [HandlerFunctions('RHAgedAccountsReceivable')]
-    [Scope('OnPrem')]
-    procedure TestAgedAccountsReceivable()
-    begin
-        Initialize();
-        REPORT.Run(REPORT::"Aged Accounts Receivable");
-    end;
-
-    [Test]
     [HandlerFunctions('RHCustomerSummaryAgingSimp')]
     [Scope('OnPrem')]
     procedure TestCustomerSummaryAgingSimp()
@@ -334,15 +329,6 @@ codeunit 132600 "Report Layout"
     begin
         Initialize();
         REPORT.Run(REPORT::"Dimensions - Detail");
-    end;
-
-    [Test]
-    [HandlerFunctions('RHTrialBalance')]
-    [Scope('OnPrem')]
-    procedure TestTrialBalance()
-    begin
-        Initialize();
-        REPORT.Run(REPORT::"Trial Balance");
     end;
 
     [Test]
@@ -435,32 +421,17 @@ codeunit 132600 "Report Layout"
         REPORT.Run(REPORT::"Dimensions - Total");
     end;
 
-    [Test]
-    [HandlerFunctions('RHTrialBalBudget')]
-    [Scope('OnPrem')]
-    procedure TestTrialBalBudget()
-    begin
-        Initialize();
-        REPORT.Run(REPORT::"Trial Balance/Budget");
-    end;
-
-    [Test]
-    [HandlerFunctions('RHFixedAssetProjValue')]
-    [Scope('OnPrem')]
-    procedure TestFixedAssetProjValue()
-    begin
-        Initialize();
-        REPORT.Run(REPORT::"Fixed Asset - Projected Value");
-    end;
-
+#if not CLEAN28
     [Test]
     [HandlerFunctions('RHSalesReservationAvail')]
     [Scope('OnPrem')]
+    [Obsolete('Sales Reservation Avail. report is deprecated.', '28.0')]
     procedure TestSalesReservationAvail()
     begin
         Initialize();
         REPORT.Run(REPORT::"Sales Reservation Avail.");
     end;
+#endif
 
     [Test]
     [HandlerFunctions('RHCostAcctgAnalysis')]
@@ -664,23 +635,17 @@ codeunit 132600 "Report Layout"
         CompareProductionCostShares.SaveAsExcel(FormatFileName(CompareProductionCostShares.Caption));
     end;
 
+#if not CLEAN28
     [RequestPageHandler]
     [Scope('OnPrem')]
+    [Obsolete('Sales Statistics report is deprecated.', '28.0')]
     procedure RHSalesStatistics(var SalesStatistics: TestRequestPage "Sales Statistics")
     begin
         SalesStatistics.StartingDate.SetValue(WorkDate());
         SalesStatistics.PeriodLength.SetValue('1M');
         SalesStatistics.SaveAsPdf(FormatFileName(SalesStatistics.Caption));
     end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure RHAgedAccountsPayable(var AgedAccountsPayable: TestRequestPage "Aged Accounts Payable")
-    begin
-        AgedAccountsPayable.AgedAsOf.SetValue(WorkDate());
-        AgedAccountsPayable.PeriodLength.SetValue('1M');
-        AgedAccountsPayable.SaveAsPdf(FormatFileName(AgedAccountsPayable.Caption));
-    end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
@@ -717,6 +682,7 @@ codeunit 132600 "Report Layout"
         FAPostingGroupNetChange.SaveAsPdf(FormatFileName(FAPostingGroupNetChange.Caption));
     end;
 
+#if not CLEAN28
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHItemAgeCompositionQty(var ItemAgeCompositionQty: TestRequestPage "Item Age Composition - Qty.")
@@ -725,6 +691,7 @@ codeunit 132600 "Report Layout"
         ItemAgeCompositionQty.PeriodLength.SetValue('1M');
         ItemAgeCompositionQty.SaveAsPdf(FormatFileName(ItemAgeCompositionQty.Caption));
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
@@ -732,7 +699,7 @@ codeunit 132600 "Report Layout"
     begin
         ItemAgeCompositionValue.EndingDate.SetValue(WorkDate());
         ItemAgeCompositionValue.PeriodLength.SetValue('1M');
-        ItemAgeCompositionValue.SaveAsPdf(FormatFileName(ItemAgeCompositionValue.Caption));
+        ItemAgeCompositionValue.SaveAsExcel(FormatFileName(ItemAgeCompositionValue.Caption));
     end;
 
     [RequestPageHandler]
@@ -753,7 +720,7 @@ codeunit 132600 "Report Layout"
         CostAcctgStmtperPeriod.ShowAddCurrency.SetValue(true);
         CostAcctgStmtperPeriod.SaveAsPdf(FormatFileName(CostAcctgStmtperPeriod.Caption));
     end;
-
+#if not CLEAN28
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHInventoryAvailabilityPlan(var InventoryAvailabilityPlan: TestRequestPage "Inventory - Availability Plan")
@@ -763,8 +730,18 @@ codeunit 132600 "Report Layout"
         InventoryAvailabilityPlan.UseStockkeepUnit.SetValue(true);
         InventoryAvailabilityPlan.SaveAsPdf(FormatFileName(InventoryAvailabilityPlan.Caption));
     end;
+#endif
 
-#if not CLEAN25
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHInvAvailabilityPlan(var InvAvailabilityPlan: TestRequestPage "Inv. Availability Plan")
+    begin
+        InvAvailabilityPlan.StartingDate.SetValue(WorkDate());
+        InvAvailabilityPlan.PeriodLength.SetValue('1M');
+        InvAvailabilityPlan.UseStockkeepUnit.SetValue(true);
+        InvAvailabilityPlan.SaveAsExcel(FormatFileName(InvAvailabilityPlan.Caption));
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHPriceList(var PriceList: TestRequestPage "Price List")
@@ -773,7 +750,6 @@ codeunit 132600 "Report Layout"
         PriceList.Date.SetValue(WorkDate());
         PriceList.SaveAsPdf(FormatFileName(PriceList.Caption));
     end;
-#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
@@ -872,20 +848,6 @@ codeunit 132600 "Report Layout"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure RHAgedAccountsReceivable(var AgedAccountsReceivable: TestRequestPage "Aged Accounts Receivable")
-    var
-        AgingBy: Option "Due Date","Posting Date","Document Date";
-    begin
-        AgedAccountsReceivable.AgedAsOf.SetValue(CalcDate('<+2Y>', WorkDate()));
-        AgedAccountsReceivable.Agingby.SetValue(AgingBy::"Posting Date");
-        AgedAccountsReceivable.PeriodLength.SetValue('2M');
-        AgedAccountsReceivable.AmountsinLCY.SetValue(true);
-        AgedAccountsReceivable.perCustomer.SetValue(true);
-        AgedAccountsReceivable.SaveAsPdf(FormatFileName(AgedAccountsReceivable.Caption));
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
     procedure RHCustomerSummaryAgingSimp(var CustomerSummaryAgingSimp: TestRequestPage "Customer - Summary Aging Simp.")
     begin
         CustomerSummaryAgingSimp.StartingDate.SetValue(CalcDate('<+10Y>', WorkDate()));
@@ -930,14 +892,6 @@ codeunit 132600 "Report Layout"
         DimensionsDetail.AnalysisViewCode.SetValue(AnalysisView.Code);
         DimensionsDetail.DtFilter.SetValue(WorkDate());
         DimensionsDetail.SaveAsPdf(FormatFileName(DimensionsDetail.Caption));
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure RHTrialBalance(var TrialBalance: TestRequestPage "Trial Balance")
-    begin
-        TrialBalance."G/L Account".SetFilter("Date Filter", StrSubstNo('%1..%2', Format(WorkDate()), Format(CalcDate('<+3Y>', WorkDate()))));
-        TrialBalance.SaveAsPdf(FormatFileName(TrialBalance.Caption));
     end;
 
     [RequestPageHandler]
@@ -1073,37 +1027,17 @@ codeunit 132600 "Report Layout"
         DimensionsTotal.SaveAsPdf(FormatFileName(DimensionsTotal.Caption));
     end;
 
+#if not CLEAN28
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure RHTrialBalBudget(var TrialBalBudget: TestRequestPage "Trial Balance/Budget")
-    begin
-        TrialBalBudget."G/L Account".SetFilter("Date Filter", Format(WorkDate()));
-        TrialBalBudget.SaveAsPdf(FormatFileName(TrialBalBudget.Caption));
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure RHFixedAssetProjValue(var FixedAssetProjValue: TestRequestPage "Fixed Asset - Projected Value")
-    var
-        GLBudgetName: Record "G/L Budget Name";
-    begin
-        GLBudgetName.FindFirst();
-        FixedAssetProjValue.FirstDeprDate.SetValue(WorkDate());
-        FixedAssetProjValue.LastDeprDate.SetValue(WorkDate());
-        FixedAssetProjValue.CopyToGLBudgetName.SetValue(GLBudgetName.Name);
-        FixedAssetProjValue.InsertBalAccount.SetValue(true);
-        FixedAssetProjValue.PrintPerFixedAsset.SetValue(true);
-        FixedAssetProjValue.SaveAsPdf(FormatFileName(FixedAssetProjValue.Caption));
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
+    [Obsolete('Sales Reservation Avail. report is deprecated.', '28.0')]
     procedure RHSalesReservationAvail(var SalesReservationAvail: TestRequestPage "Sales Reservation Avail.")
     begin
         SalesReservationAvail.ShowSalesLines.SetValue(true);
         SalesReservationAvail.ShowReservationEntries.SetValue(true);
         SalesReservationAvail.SaveAsPdf(FormatFileName(SalesReservationAvail.Caption));
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
@@ -1198,4 +1132,3 @@ codeunit 132600 "Report Layout"
         ContractPriceUpdateTest.SaveAsPdf(FormatFileName(ContractPriceUpdateTest.Caption));
     end;
 }
-

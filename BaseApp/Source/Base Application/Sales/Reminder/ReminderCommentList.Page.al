@@ -1,9 +1,12 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Reminder;
 
+/// <summary>
+/// Displays a read-only list of comments associated with a reminder or issued reminder document.
+/// </summary>
 page 443 "Reminder Comment List"
 {
     AutoSplitKey = true;
@@ -25,22 +28,18 @@ page 443 "Reminder Comment List"
                 field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the type of document the comment is attached to: either Reminder or Issued Reminder.';
                 }
                 field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
                 field(Date; Rec.Date)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the date the comment was created.';
                 }
                 field(Comment; Rec.Comment)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the comment itself.';
                 }
             }
         }
@@ -56,6 +55,11 @@ page 443 "Reminder Comment List"
         Text001: Label 'Reminder';
 #pragma warning restore AA0074
 
+    /// <summary>
+    /// Gets the page caption text based on the reminder comment line.
+    /// </summary>
+    /// <param name="ReminderCommentLine">The reminder comment line to generate caption for.</param>
+    /// <returns>The caption text for the page.</returns>
     procedure Caption(ReminderCommentLine: Record "Reminder Comment Line"): Text
     begin
         if ReminderCommentLine."No." = '' then

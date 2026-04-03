@@ -249,6 +249,8 @@ page 593 "Change Log Setup (Table) List"
                 Rec := AllObjWithCaption;
                 Rec.Insert();
             until AllObjWithCaption.Next() = 0;
+
+        Rec.FindFirst();
     end;
 
     procedure IsChangeLogSettingsUpdated(): Boolean
