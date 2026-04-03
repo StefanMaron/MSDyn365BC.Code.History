@@ -1,13 +1,13 @@
 namespace Microsoft.Bank.Deposit;
 
-using Microsoft.Sales.Setup;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Currency;
-using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.Dimension;
-using System.Globalization;
+using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.NoSeries;
+using Microsoft.Sales.Setup;
+using System.Globalization;
 
 table 1690 "Bank Deposit Header"
 {
@@ -81,6 +81,7 @@ table 1690 "Bank Deposit Header"
         }
         field(4; "Currency Factor"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Currency Factor';
             DecimalPlaces = 0 : 15;
             Editable = false;
@@ -346,10 +347,10 @@ table 1690 "Bank Deposit Header"
             if "No." = '' then begin
                 TestNoSeries();
                 NoSeriesCode := GetNoSeriesCode();
-                    "No. Series" := NoSeriesCode;
-                    if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                        "No. Series" := xRec."No. Series";
-                    "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+                "No. Series" := NoSeriesCode;
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
             end;
 
         OnInitInsertOnBeforeInitRecord(xRec);

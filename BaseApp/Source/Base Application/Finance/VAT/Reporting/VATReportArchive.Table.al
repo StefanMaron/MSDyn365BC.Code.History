@@ -9,6 +9,10 @@ using System.IO;
 using System.Security.AccessControl;
 using System.Utilities;
 
+/// <summary>
+/// Stores archived VAT report submission and response messages with their associated metadata.
+/// Provides long-term storage and retrieval capabilities for VAT report submission and response data.
+/// </summary>
 table 747 "VAT Report Archive"
 {
     Caption = 'VAT Report Archive';
@@ -17,33 +21,54 @@ table 747 "VAT Report Archive"
 
     fields
     {
+        /// <summary>
+        /// Type of VAT report being archived (VAT Return, EC Sales List, etc.).
+        /// </summary>
         field(1; "VAT Report Type"; Enum "VAT Report Configuration")
         {
             Caption = 'VAT Report Type';
         }
+        /// <summary>
+        /// Number of the VAT report being archived from the VAT Report Header.
+        /// </summary>
         field(2; "VAT Report No."; Code[20])
         {
             Caption = 'VAT Report No.';
             TableRelation = "VAT Report Header"."No.";
         }
+        /// <summary>
+        /// User who submitted the VAT report to the tax authorities.
+        /// </summary>
         field(4; "Submitted By"; Code[50])
         {
             Caption = 'Submitted By';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
         }
+        /// <summary>
+        /// Compressed submission message data sent to tax authorities.
+        /// </summary>
         field(5; "Submission Message BLOB"; BLOB)
         {
             Caption = 'Submission Message BLOB';
         }
+        /// <summary>
+        /// Date when the VAT report was submitted to tax authorities.
+        /// </summary>
         field(6; "Submittion Date"; Date)
         {
             Caption = 'Submittion Date';
         }
+        /// <summary>
+        /// Compressed response message data received from tax authorities.
+        /// </summary>
         field(7; "Response Message BLOB"; BLOB)
         {
             Caption = 'Response Message BLOB';
         }
+        /// <summary>
+        /// Date and time when response was received from tax authorities.
+        /// </summary>
         field(8; "Response Received Date"; DateTime)
         {
             Caption = 'Response Received Date';
@@ -108,6 +133,14 @@ table 747 "VAT Report Archive"
         exit(true);
     end;
 #else
+    /// <summary>
+    /// Archives the submission message for a VAT report with compression and user tracking.
+    /// Creates new archive record with submission details and compressed message data.
+    /// </summary>
+    /// <param name="VATReportTypeValue">VAT report type option value</param>
+    /// <param name="VATReportNoValue">VAT report number</param>
+    /// <param name="TempBlobSubmissionMessage">Submission message data to archive</param>
+    /// <returns>True if archiving succeeded, false if validation failed or record exists</returns>
     procedure ArchiveSubmissionMessage(VATReportTypeValue: Option; VATReportNoValue: Code[20]; TempBlobSubmissionMessage: Codeunit "Temp Blob"): Boolean
     var
         VATReportArchive: Record "VAT Report Archive";
@@ -153,6 +186,14 @@ table 747 "VAT Report Archive"
         exit(true);
     end;
 #else
+    /// <summary>
+    /// Archives the response message received from tax authorities for an existing VAT report submission.
+    /// Updates existing archive record with response data and timestamp.
+    /// </summary>
+    /// <param name="VATReportTypeValue">VAT report type option value</param>
+    /// <param name="VATReportNoValue">VAT report number</param>
+    /// <param name="TempBlobResponseMessage">Response message data to archive</param>
+    /// <returns>True if archiving succeeded, false if archive record not found or no response data</returns>
     procedure ArchiveResponseMessage(VATReportTypeValue: Option; VATReportNoValue: Code[20]; TempBlobResponseMessage: Codeunit "Temp Blob"): Boolean
     var
         VATReportArchive: Record "VAT Report Archive";
@@ -199,6 +240,12 @@ table 747 "VAT Report Archive"
         DownloadZipFile(ZipFileName, TempBlob);
     end;
 #else
+    /// <summary>
+    /// Downloads the archived submission message as a compressed ZIP file.
+    /// Includes document attachments if available, otherwise downloads BLOB data.
+    /// </summary>
+    /// <param name="VATReportTypeValue">VAT report type option value</param>
+    /// <param name="VATReportNoValue">VAT report number to download submission for</param>
     procedure DownloadSubmissionMessage(VATReportTypeValue: Option; VATReportNoValue: Code[20])
     var
         VATReportArchive: Record "VAT Report Archive";
@@ -253,6 +300,12 @@ table 747 "VAT Report Archive"
         DownloadZipFile(ZipFileName, TempBlob);
     end;
 #else
+    /// <summary>
+    /// Downloads the archived response message as a compressed ZIP file.
+    /// Includes document attachments if available, otherwise downloads BLOB data.
+    /// </summary>
+    /// <param name="VATReportTypeValue">VAT report type option value</param>
+    /// <param name="VATReportNoValue">VAT report number to download response for</param>
     procedure DownloadResponseMessage(VATReportTypeValue: Option; VATReportNoValue: Code[20])
     var
         VATReportArchive: Record "VAT Report Archive";
@@ -297,6 +350,11 @@ table 747 "VAT Report Archive"
         DownloadFromStream(ZipInStream, '', '', '', ToFile);
     end;
 
+    /// <summary>
+    /// Sets the submission message BLOB field from a Temp Blob codeunit.
+    /// Transfers BLOB data using RecordRef for field manipulation.
+    /// </summary>
+    /// <param name="TempBlob">Source Temp Blob containing submission message data</param>
     procedure SetSubmissionMessageBLOBFromBlob(TempBlob: Codeunit "Temp Blob")
     var
         RecordRef: RecordRef;
@@ -306,6 +364,11 @@ table 747 "VAT Report Archive"
         RecordRef.SetTable(Rec);
     end;
 
+    /// <summary>
+    /// Sets the response message BLOB field from a Temp Blob codeunit.
+    /// Transfers BLOB data using RecordRef for field manipulation.
+    /// </summary>
+    /// <param name="TempBlob">Source Temp Blob containing response message data</param>
     procedure SetResponseMessageBLOBFromBlob(TempBlob: Codeunit "Temp Blob")
     var
         RecordRef: RecordRef;

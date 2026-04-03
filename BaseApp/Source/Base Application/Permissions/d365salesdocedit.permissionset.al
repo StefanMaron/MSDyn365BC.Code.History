@@ -1,64 +1,62 @@
 ﻿namespace System.Security.AccessControl;
 
-using Microsoft.Projects.TimeSheet;
-using Microsoft.Foundation.AuditCodes;
-using Microsoft.Foundation.Shipping;
-using Microsoft.Foundation.Task;
-using Microsoft.Finance.VAT.Calculation;
-using Microsoft.Finance.VAT.Setup;
-using Microsoft.Finance.VAT.RateChange;
-using System.Automation;
 using Microsoft.Assembly.Document;
 using Microsoft.Bank.BankAccount;
-using Microsoft.Warehouse.Structure;
-using Microsoft.CRM.Opportunity;
-using Microsoft.Foundation.Company;
-using Microsoft.CRM.Contact;
-using Microsoft.CRM.BusinessRelation;
-using Microsoft.CRM.Duplicates;
 using Microsoft.CostAccounting.Account;
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.CRM.Contact;
+using Microsoft.CRM.Duplicates;
+using Microsoft.CRM.Opportunity;
+using Microsoft.CRM.Task;
 using Microsoft.Finance.Currency;
-using Microsoft.Sales.Customer;
-using Microsoft.Sales.Receivables;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Company;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Foundation.Shipping;
+using Microsoft.Foundation.Task;
+using Microsoft.HumanResources.Employee;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Inventory.Item.Substitution;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Planning;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
-using Microsoft.HumanResources.Employee;
-using Microsoft.Finance.GeneralLedger.Account;
-using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Inventory.Item;
-using Microsoft.Purchases.Document;
-using Microsoft.Inventory.Item.Catalog;
-using Microsoft.Inventory.Tracking;
-using System.Threading;
-using Microsoft.Foundation.NoSeries;
-using System.Environment.Configuration;
-using Microsoft.Purchases.Vendor;
-using Microsoft.Foundation.PaymentTerms;
-using Microsoft.Inventory.Planning;
-using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
-using Microsoft.Purchases.Remittance;
-#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
-#endif
 using Microsoft.Projects.Resources.Resource;
-using Microsoft.Sales.History;
-using Microsoft.Sales.Document;
+using Microsoft.Projects.TimeSheet;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Remittance;
+using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Archive;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
 using Microsoft.Sales.Pricing;
+using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Setup;
-using Microsoft.Finance.GeneralLedger.Journal;
-using Microsoft.Inventory.Location;
-using Microsoft.Inventory.Item.Substitution;
-using Microsoft.Finance.SalesTax;
-using Microsoft.CRM.Task;
-using System.Security.User;
-using Microsoft.Inventory.Ledger;
-using Microsoft.Warehouse.Ledger;
 using Microsoft.Utilities;
-using Microsoft.Inventory.Intrastat;
+using Microsoft.Warehouse.Ledger;
+using Microsoft.Warehouse.Structure;
+using System.Automation;
+using System.Environment.Configuration;
 using System.IO;
+using System.Security.User;
+using System.Threading;
 
 permissionset 9783 "D365 SALES DOC, EDIT"
 {
@@ -121,10 +119,8 @@ permissionset 9783 "D365 SALES DOC, EDIT"
                   tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Record Buffer" = Rimd,
                   tabledata "Remit Address" = RIMD,
-#if not CLEAN25
                   tabledata "Resource Cost" = R,
                   tabledata "Resource Price" = R,
-#endif
                   tabledata "Resource Unit of Measure" = R,
                   tabledata "Restricted Record" = RIMD,
                   tabledata "Return Reason" = R,
@@ -139,17 +135,11 @@ permissionset 9783 "D365 SALES DOC, EDIT"
                   tabledata "Sales Invoice Line" = Rimd,
                   tabledata "Sales Line" = RIMD,
                   tabledata "Sales Line Archive" = RIMD,
-#if not CLEAN25
                   tabledata "Sales Line Discount" = RIMD,
-#endif
                   tabledata "Sales Planning Line" = Rimd,
-#if not CLEAN25
                   tabledata "Sales Price" = RIMD,
-#endif
                   tabledata "Sales Price Access" = RIMD,
-#if not CLEAN25
                   tabledata "Sales Price Worksheet" = RIMD,
-#endif
                   tabledata "Sales Shipment Header" = RimD,
                   tabledata "Sales Shipment Line" = Rimd,
                   tabledata "Sales & Receivables Setup" = R,

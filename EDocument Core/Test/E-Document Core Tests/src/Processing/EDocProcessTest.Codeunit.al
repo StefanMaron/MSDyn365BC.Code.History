@@ -1,3 +1,30 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.eServices.EDocument.Test;
+
+using Microsoft.Bank.Reconciliation;
+using Microsoft.eServices.EDocument;
+using Microsoft.eServices.EDocument.Integration;
+using Microsoft.eServices.EDocument.Processing;
+using Microsoft.eServices.EDocument.Processing.Import;
+using Microsoft.eServices.EDocument.Processing.Import.Purchase;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.Company;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Inventory.Location;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Payables;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using System.IO;
+using System.TestLibraries.Utilities;
+
 codeunit 139883 "E-Doc Process Test"
 {
     Subtype = Test;
@@ -14,7 +41,6 @@ codeunit 139883 "E-Doc Process Test"
         LibraryLowerPermission: Codeunit "Library - Lower Permissions";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryRandom: Codeunit "Library - Random";
         IsInitialized: Boolean;
 
 
@@ -167,6 +193,7 @@ codeunit 139883 "E-Doc Process Test"
         EDocumentPurchaseHeader.SetRecFilter();
         EDocumentPurchaseHeader.FindFirst();
         Assert.AreEqual(PurchaseHeader."No.", EDocumentPurchaseHeader."[BC] Purchase Order No.", 'The purchase order should be found when explicitly specified in the E-Document.');
+        EDocument.SetRecFilter();
 
         PurchaseHeader.SetRecFilter();
         PurchaseHeader.Delete();
@@ -303,6 +330,60 @@ codeunit 139883 "E-Doc Process Test"
         EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
 
         Assert.RecordIsEmpty(PurchaseHeader);
+    end;
+
+    [Test]
+    procedure FinishDraftFromReadyForDraftStateSucceeds()
+    var
+        EDocument: Record "E-Document";
+        EDocImportParameters: Record "E-Doc. Import Parameters";
+        PurchaseHeader: Record "Purchase Header";
+        EDocLogRecord: Record "E-Document Log";
+        EDocumentPurchaseHeader: Record "E-Document Purchase Header";
+        EDocumentPurchaseLine: Record "E-Document Purchase Line";
+        EDocImport: Codeunit "E-Doc. Import";
+        EDocumentLog: Codeunit "E-Document Log";
+        EDocumentProcessing: Codeunit "E-Document Processing";
+    begin
+        // [SCENARIO] When finalize action is invoked from Ready for draft state, the system should automatically run Prepare draft first and then Finish draft
+        Initialize(Enum::"Service Integration"::"Mock");
+        LibraryEDoc.CreateInboundEDocument(EDocument, EDocumentService);
+        EDocument."Document Type" := "E-Document Type"::"Purchase Invoice";
+        EDocument.Modify();
+        EDocumentService."Import Process" := "E-Document Import Process"::"Version 2.0";
+        EDocumentService.Modify();
+
+        EDocumentPurchaseHeader."E-Document Entry No." := EDocument."Entry No";
+        EDocumentPurchaseHeader."Vendor VAT Id" := Vendor."VAT Registration No.";
+        EDocumentPurchaseHeader.Insert();
+        EDocumentPurchaseLine."E-Document Entry No." := EDocument."Entry No";
+        EDocumentPurchaseLine."Product Code" := '1234';
+        EDocumentPurchaseLine.Description := 'Test description';
+        EDocumentPurchaseLine.Insert();
+
+        EDocumentLog.SetBlob('Test', Enum::"E-Doc. File Format"::XML, 'Data');
+        EDocumentLog.SetFields(EDocument, EDocumentService);
+        EDocLogRecord := EDocumentLog.InsertLog(Enum::"E-Document Service Status"::Imported, Enum::"Import E-Doc. Proc. Status"::Readable);
+
+        EDocument."Structured Data Entry No." := EDocLogRecord."E-Doc. Data Storage Entry No.";
+        EDocument.Modify();
+
+        // [GIVEN] E-Document is in Ready for draft state
+        EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::"Ready for draft");
+        EDocument.CalcFields("Import Processing Status");
+        Assert.AreEqual(Enum::"Import E-Doc. Proc. Status"::"Ready for draft", EDocument."Import Processing Status", 'The status should be Ready for draft before processing.');
+
+        // [WHEN] Finish draft step is executed (simulating finalize action)
+        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Finish draft";
+        EDocImportParameters."Processing Customizations" := "E-Doc. Proc. Customizations"::"Mock Create Purchase Invoice";
+        EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
+
+        // [THEN] The document is processed (the system ran Prepare draft automatically and then Finish draft)
+        EDocument.CalcFields("Import Processing Status");
+        Assert.AreEqual(Enum::"Import E-Doc. Proc. Status"::Processed, EDocument."Import Processing Status", 'The status should be Processed after finalize action from Ready for draft state.');
+
+        PurchaseHeader.SetRange("E-Document Link", EDocument.SystemId);
+        Assert.IsFalse(PurchaseHeader.IsEmpty(), 'The purchase header should be created.');
     end;
 
     #region HistoricalMatchingTest
@@ -622,54 +703,11 @@ codeunit 139883 "E-Doc Process Test"
         if ItemReference.Delete() then;
     end;
 
-    [Test]
-    procedure ItemReferenceFieldAccepts50Characters()
-    var
-        EDocument: Record "E-Document";
-        Vendor2: Record Vendor;
-        Item: Record Item;
-        ItemCard: TestPage "Item Card";
-        ItemReferenceEntries: TestPage "Item Reference Entries";
-        LongItemReferenceNo: Code[50];
-    begin
-        // [SCENARIO 592862] Item Reference No. field should accept 50 characters to match standard BC Item Reference table
-        Initialize(Enum::"Service Integration"::"Mock");
-        LibraryEDoc.CreateInboundEDocument(EDocument, EDocumentService);
-
-        // [GIVEN] A vendor and item with a 50-character item reference number
-        Vendor2."No." := LibraryRandom.RandText(10);
-        Vendor2."VAT Registration No." := LibraryRandom.RandText(16);
-        Vendor2.Insert();
-
-        // [WHEN] Creating an item reference with a 50-character reference number
-        LongItemReferenceNo := LibraryRandom.RandText(50);
-        LibraryInventory.CreateItem(Item);
-        ItemCard.OpenView();
-        ItemCard.GoToRecord(Item);
-        ItemReferenceEntries.Trap();
-        ItemCard."Item Re&ferences".Invoke();
-        ItemReferenceEntries.New();
-        ItemReferenceEntries."Reference Type".SetValue("Item Reference Type"::Vendor);
-        ItemReferenceEntries."Reference Type No.".SetValue(Vendor2."No.");
-        ItemReferenceEntries."Reference No.".SetValue(LongItemReferenceNo);
-        ItemReferenceEntries.Close();
-
-        // [THEN] Verify that the item reference number was modified and saved correctly 
-        ItemReferenceEntries.Trap();
-        ItemCard."Item Re&ferences".Invoke();
-        ItemReferenceEntries.First();
-        ItemReferenceEntries."Reference No.".AssertEquals(LongItemReferenceNo);
-        ItemReferenceEntries."Reference No.".SetValue(LibraryRandom.RandText(50));
-        ItemReferenceEntries.Close();
-        ItemCard.Close();
-    end;
-
     local procedure Initialize(Integration: Enum "Service Integration")
     var
         TransformationRule: Record "Transformation Rule";
         EDocument: Record "E-Document";
         EDocDataStorage: Record "E-Doc. Data Storage";
-        EDocumentsSetup: Record "E-Documents Setup";
         EDocumentServiceStatus: Record "E-Document Service Status";
         EDocPurchLineFieldSetup: Record "ED Purchase Line Field Setup";
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -710,7 +748,6 @@ codeunit 139883 "E-Doc Process Test"
         EDocumentService."Import Process" := "E-Document Import Process"::"Version 2.0";
         EDocumentService."Read into Draft Impl." := "E-Doc. Read into Draft"::PEPPOL;
         EDocumentService.Modify();
-        EDocumentsSetup.InsertNewExperienceSetup();
 
         TransformationRule.DeleteAll();
         TransformationRule.CreateDefaultTransformations();
@@ -718,7 +755,9 @@ codeunit 139883 "E-Doc Process Test"
         IsInitialized := true;
     end;
 
+#pragma warning disable AA0244
     local procedure CreateItemReference(Vendor: Record Vendor; Item: Record Item) ItemReference: Record "Item Reference"
+#pragma warning restore AA0244
     begin
         ItemReference."Item No." := Item."No.";
         ItemReference."Variant Code" := '';

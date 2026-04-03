@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -25,12 +25,10 @@ page 99000902 "Item Availability Line List"
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name for this entry.';
                 }
                 field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the quantity for this entry.';
 
                     trigger OnDrillDown()
                     begin
@@ -121,9 +119,6 @@ page 99000902 "Item Availability Line List"
 
     local procedure LookupEntries()
     var
-#if not CLEAN25
-        SalesLine: Record Microsoft.Sales.Document."Sales Line";
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -145,22 +140,11 @@ page 99000902 "Item Availability Line List"
                     OnItemLedgerEntrySetFilter(ItemLedgerEntry);
                     PAGE.RunModal(0, ItemLedgerEntry);
                 end;
-#if not CLEAN25
-            else
-                OnLookupExtensionTable(Item, Rec."Table No.", Rec.QuerySource, SalesLine);
-#endif
         end;
 
         OnAfterLookupEntries(Item, Rec."Table No.", Rec);
     end;
 
-#if not CLEAN25
-    [Obsolete('Procedure moved to table Item Availability Line scope', '25.0')]
-    procedure InsertEntry(TableNo: Integer; FieldNo: Integer; TableName: Text[100]; Qty: Decimal)
-    begin
-        Rec.InsertEntry(TableNo, FieldNo, TableName, Qty, QtyByUnitOfMeasure, Sign);
-    end;
-#endif
 
     procedure SetQtyByUnitOfMeasure(NewQtyByUnitOfMeasure: Decimal);
     begin
@@ -192,13 +176,6 @@ page 99000902 "Item Availability Line List"
     begin
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by event OnAfterLookupEntries()', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnLookupExtensionTable(var Item: Record Item; TableID: Integer; QuerySource: Integer; SalesLine: Record Microsoft.Sales.Document."Sales Line")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupEntries(ItemAvailabilityLine: Record "Item Availability Line"; var Item: Record Item; var IsHandled: Boolean)
@@ -210,16 +187,4 @@ page 99000902 "Item Availability Line List"
     begin
     end;
 
-#if not CLEAN25
-    internal procedure RunOnLookupEntriesOnAfterPurchLineSetFilters(var Item: Record Item; var PurchLine: Record Microsoft.Purchases.Document."Purchase Line")
-    begin
-        OnLookupEntriesOnAfterPurchLineSetFilters(Item, PurchLine);
-    end;
-
-    [Obsolete('Replaced by same event on codeunit PurchAvailabilityMgt', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnLookupEntriesOnAfterPurchLineSetFilters(var Item: Record Item; var PurchLine: Record Microsoft.Purchases.Document."Purchase Line")
-    begin
-    end;
-#endif
 }

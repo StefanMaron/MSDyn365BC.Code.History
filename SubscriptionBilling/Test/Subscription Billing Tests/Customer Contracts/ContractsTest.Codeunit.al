@@ -31,6 +31,7 @@ codeunit 148155 "Contracts Test"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryInventory: Codeunit "Library - Inventory";
         IsInitialized: Boolean;
         CustShipToCodeErr: Label 'Ship-to Code should be the same as Sell-to Customer';
 
@@ -457,6 +458,7 @@ codeunit 148155 "Contracts Test"
     [HandlerFunctions('ExchangeRateSelectionModalPageHandler,ConfirmHandlerYes,MessageHandler')]
     procedure CheckValueChangesOnCustomerContractLines()
     var
+        ItemVariant: Record "Item Variant";
         Currency: Record Currency;
         Customer: Record Customer;
         CustomerContract: Record "Customer Subscription Contract";
@@ -493,12 +495,17 @@ codeunit 148155 "Contracts Test"
         ServiceObjectQuantity := LibraryRandom.RandDecInDecimalRange(1, 100, 2);
         CustomerContractPage.Lines."Service Object Quantity".SetValue(ServiceObjectQuantity);
         ServiceObject.Get(CustomerContractLine."Subscription Header No.");
-        Assert.AreEqual(ServiceObject.Quantity, ServiceObjectQuantity, 'Service Object Quantity not transferred from Customer Subscription Contract Line.');
+        Assert.AreEqual(ServiceObjectQuantity, ServiceObject.Quantity, 'Service Object Quantity not transferred from Customer Subscription Contract Line.');
 
         DescriptionText := LibraryRandom.RandText(100);
         CustomerContractPage.Lines."Service Object Description".SetValue(DescriptionText);
         ServiceObject.Get(CustomerContractLine."Subscription Header No.");
-        Assert.AreEqual(ServiceObject.Description, DescriptionText, 'Service Object Description not transferred from Customer Subscription Contract Line.');
+        Assert.AreEqual(DescriptionText, ServiceObject.Description, 'Service Object Description not transferred from Customer Subscription Contract Line.');
+
+        LibraryInventory.CreateItemVariant(ItemVariant, ServiceObject."Source No.");
+        CustomerContractPage.Lines."Variant Code".SetValue(ItemVariant."Code");
+        ServiceObject.Get(CustomerContractLine."Subscription Header No.");
+        Assert.AreEqual(ItemVariant."Code", ServiceObject."Variant Code", 'Variant Code not transferred from Customer Subscription Contract Line.');
 
         OldServiceCommitment.Get(CustomerContractLine."Subscription Line Entry No.");
 

@@ -4,6 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Customer;
 
+/// <summary>
+/// Lists all ship-to addresses for a customer with online map integration.
+/// </summary>
 page 301 "Ship-to Address List"
 {
     Caption = 'Ship-to Address List';
@@ -52,11 +55,16 @@ page 301 "Ship-to Address List"
                 {
                     ApplicationArea = Basic, Suite;
                 }
+#if not CLEAN28
                 field(County; Rec.County)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the counties in a list of alternative shipping addresses for the customer.';
+                    ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '28.0';
                 }
+#endif
                 field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;

@@ -5,30 +5,18 @@
 #if CLEAN27
 namespace app.app;
 
-using Microsoft.Projects.Resources.Resource;
 using Microsoft.Foundation.Address;
+using Microsoft.Projects.Resources.Resource;
 
 pageextension 50005 "Resource Card" extends "Resource Card"
 {
 
     layout
     {
-        modify(Address)
-        {
-            trigger OnBeforeValidate()
-            var
-                PostcodeBusinessLogic: Codeunit "Postcode Business Logic GB";
-            begin
-                PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
-            end;
-        }
         modify("Post Code")
         {
             trigger OnBeforeValidate()
-            var
-                PostcodeBusinessLogic: Codeunit "Postcode Business Logic GB";
             begin
-                PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
                 ShowPostcodeLookup(false);
             end;
         }

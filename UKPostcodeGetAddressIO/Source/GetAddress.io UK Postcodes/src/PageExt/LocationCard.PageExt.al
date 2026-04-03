@@ -5,29 +5,17 @@
 #if CLEAN27
 namespace app.app;
 
-using Microsoft.Inventory.Location;
 using Microsoft.Foundation.Address;
+using Microsoft.Inventory.Location;
 
 pageextension 50010 "Location Card" extends "Location Card"
 {
     layout
     {
-        modify(Address)
-        {
-            trigger OnBeforeValidate()
-            var
-                PostcodeBusinessLogic: Codeunit "Postcode Business Logic GB";
-            begin
-                PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
-            end;
-        }
         modify("Post Code")
         {
             trigger OnBeforeValidate()
-            var
-                PostcodeBusinessLogic: Codeunit "Postcode Business Logic GB";
             begin
-                PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
                 ShowPostcodeLookup(false);
             end;
         }

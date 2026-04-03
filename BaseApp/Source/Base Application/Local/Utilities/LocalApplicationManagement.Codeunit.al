@@ -1,15 +1,19 @@
+#if not CLEAN28
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Utilities;
 
+using Microsoft.Finance.VAT.Setup;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
-using Microsoft.Finance.VAT.Setup;
 
 codeunit 10529 "Local Application Management"
 {
+    ObsoleteReason = 'Moved to Reports GB app';
+    ObsoleteState = Pending;
+    ObsoleteTag = '28.0';
 
     trigger OnRun()
     begin
@@ -57,4 +61,5 @@ codeunit 10529 "Local Application Management"
         IsHandled := true;
     end;
 }
+#endif
 

@@ -1,12 +1,12 @@
 namespace Microsoft.eServices.EDocument.OrderMatch.Copilot;
 
-using System.Azure.KeyVault;
-using System.AI;
+using Microsoft.eServices.EDocument;
+using Microsoft.eServices.EDocument.OrderMatch;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Setup;
-using Microsoft.eServices.EDocument.OrderMatch;
+using System.AI;
+using System.Azure.KeyVault;
 using System.Environment;
-using Microsoft.eServices.EDocument;
 using System.Telemetry;
 
 codeunit 6163 "E-Doc. PO Copilot Matching"
@@ -219,7 +219,7 @@ codeunit 6163 "E-Doc. PO Copilot Matching"
     end;
 
 
-    local procedure PotentialMatchingPurchaseOrderLine(var TempEDocumentImportedLine: Record "E-Doc. Imported Line" temporary; var TempPurchaseLine: Record "Purchase Line" temporary; var PurchaseOrderLines: Record "Purchase Line" temporary) PotentialMatchingPurchaseOrderLine: Boolean
+    local procedure PotentialMatchingPurchaseOrderLine(var TempEDocumentImportedLine: Record "E-Doc. Imported Line" temporary; var TempPurchaseLine: Record "Purchase Line" temporary; var PurchaseOrderLines: Record "Purchase Line" temporary) PotentialMatching: Boolean
     var
     begin
         if TempPurchaseLine.FindSet() then
@@ -227,7 +227,7 @@ codeunit 6163 "E-Doc. PO Copilot Matching"
                 if IsPOLineWithinCostThreshold(TempEDocumentImportedLine, TempPurchaseLine) and DoesLinesHaveQuantityToMatch(TempEDocumentImportedLine, TempPurchaseLine) then begin
                     PurchaseOrderLines.TransferFields(TempPurchaseLine);
                     PurchaseOrderLines.Insert();
-                    PotentialMatchingPurchaseOrderLine := true;
+                    PotentialMatching := true;
                 end
             until TempPurchaseLine.Next() = 0;
     end;

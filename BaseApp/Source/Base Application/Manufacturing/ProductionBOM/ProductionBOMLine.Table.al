@@ -35,6 +35,7 @@ table 99000772 "Production BOM Line"
         field(10; Type; Enum "Production BOM Line Type")
         {
             Caption = 'Type';
+            ToolTip = 'Specifies the type of production BOM line.';
 
             trigger OnValidate()
             begin
@@ -49,6 +50,7 @@ table 99000772 "Production BOM Line"
         field(11; "No."; Code[20])
         {
             Caption = 'No.';
+            ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
             TableRelation = if (Type = const(Item)) Item where(Type = filter(Inventory | "Non-Inventory"))
             else
             if (Type = const("Production BOM")) "Production BOM Header";
@@ -70,6 +72,7 @@ table 99000772 "Production BOM Line"
                             begin
                                 Item.Get("No.");
                                 Description := Item.Description;
+                                "Description 2" := Item."Description 2";
                                 Item.TestField("Base Unit of Measure");
                                 "Unit of Measure Code" := Item."Base Unit of Measure";
                                 "Scrap %" := Item."Scrap %";
@@ -82,6 +85,7 @@ table 99000772 "Production BOM Line"
                                 ProductionBOMHeader.Get("No.");
                                 ProductionBOMHeader.TestField("Unit of Measure Code");
                                 Description := ProductionBOMHeader.Description;
+                                "Description 2" := ProductionBOMHeader."Description 2";
                                 "Unit of Measure Code" := ProductionBOMHeader."Unit of Measure Code";
                                 OnValidateNoOnAfterAssignProdBOMFields(Rec, ProductionBOMHeader, xRec, CurrFieldNo);
                             end;
@@ -93,10 +97,12 @@ table 99000772 "Production BOM Line"
         field(12; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the production BOM line.';
         }
         field(13; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
+            ToolTip = 'Specifies how each unit of the item is measured, such as in pieces or tons. By default, the value in the Base Unit of Measure field on the item card is inserted.';
             TableRelation = if (Type = const(Item)) "Item Unit of Measure".Code where("Item No." = field("No."))
             else
             if (Type = const("Production BOM")) "Unit of Measure";
@@ -110,6 +116,7 @@ table 99000772 "Production BOM Line"
         }
         field(14; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -117,18 +124,22 @@ table 99000772 "Production BOM Line"
         field(15; Position; Code[10])
         {
             Caption = 'Position';
+            ToolTip = 'Specifies the position of the component on the bill of material.';
         }
         field(16; "Position 2"; Code[10])
         {
             Caption = 'Position 2';
+            ToolTip = 'Specifies more exactly whether the component is to appear at a certain position in the BOM to represent a certain production process.';
         }
         field(17; "Position 3"; Code[10])
         {
             Caption = 'Position 3';
+            ToolTip = 'Specifies the third reference number for the component position on a bill of material, such as the alternate position number of a component on a print card.';
         }
         field(18; "Lead-Time Offset"; DateFormula)
         {
             Caption = 'Lead-Time Offset';
+            ToolTip = 'Specifies the total number of days required to produce this item.';
 
             trigger OnValidate()
             begin
@@ -138,6 +149,7 @@ table 99000772 "Production BOM Line"
         field(19; "Routing Link Code"; Code[10])
         {
             Caption = 'Routing Link Code';
+            ToolTip = 'Specifies the routing link code.';
             TableRelation = "Routing Link";
 
             trigger OnValidate()
@@ -157,8 +169,10 @@ table 99000772 "Production BOM Line"
         }
         field(20; "Scrap %"; Decimal)
         {
+            AutoFormatType = 0;
             BlankNumbers = BlankNeg;
             Caption = 'Scrap %';
+            ToolTip = 'Specifies the percentage of the item that you expect to be scrapped in the production process.';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
 
@@ -170,6 +184,7 @@ table 99000772 "Production BOM Line"
         field(21; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
+            ToolTip = 'Specifies the variant of the item on the line.';
             TableRelation = if (Type = const(Item)) "Item Variant".Code where("Item No." = field("No."));
 
             trigger OnValidate()
@@ -180,9 +195,10 @@ table 99000772 "Production BOM Line"
                     exit;
                 TestField(Type, Type::Item);
                 TestField("No.");
-                ItemVariant.SetLoadFields(Description);
+                ItemVariant.SetLoadFields(Description, "Description 2");
                 ItemVariant.Get("No.", "Variant Code");
                 Description := ItemVariant.Description;
+                "Description 2" := ItemVariant."Description 2";
             end;
         }
         field(22; Comment; Boolean)
@@ -194,9 +210,16 @@ table 99000772 "Production BOM Line"
             Editable = false;
             FieldClass = FlowField;
         }
+        field(23; "Description 2"; Text[50])
+        {
+            Caption = 'Description 2';
+            DataClassification = CustomerContent;
+            ToolTip = 'Specifies additional description text.';
+        }
         field(28; "Starting Date"; Date)
         {
             Caption = 'Starting Date';
+            ToolTip = 'Specifies the date from which this production BOM is valid.';
 
             trigger OnValidate()
             begin
@@ -209,6 +232,7 @@ table 99000772 "Production BOM Line"
         field(29; "Ending Date"; Date)
         {
             Caption = 'Ending Date';
+            ToolTip = 'Specifies the date from which this production BOM is no longer valid.';
 
             trigger OnValidate()
             begin
@@ -226,7 +250,9 @@ table 99000772 "Production BOM Line"
         }
         field(40; Length; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Length';
+            ToolTip = 'Specifies the length of one item unit when measured in the specified unit of measure.';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -236,7 +262,9 @@ table 99000772 "Production BOM Line"
         }
         field(41; Width; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Width';
+            ToolTip = 'Specifies the width of one item unit when measured in the specified unit of measure.';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -246,7 +274,9 @@ table 99000772 "Production BOM Line"
         }
         field(42; Weight; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Weight';
+            ToolTip = 'Specifies the weight of one item unit when measured in the specified unit of measure.';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -256,7 +286,9 @@ table 99000772 "Production BOM Line"
         }
         field(43; Depth; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Depth';
+            ToolTip = 'Specifies the depth of one item unit when measured in the specified unit of measure.';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -267,6 +299,7 @@ table 99000772 "Production BOM Line"
         field(44; "Calculation Formula"; Enum "Quantity Calculation Formula")
         {
             Caption = 'Calculation Formula';
+            ToolTip = 'Specifies how to calculate the Quantity field.';
 
             trigger OnValidate()
             var
@@ -297,7 +330,9 @@ table 99000772 "Production BOM Line"
         }
         field(45; "Quantity per"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity per';
+            ToolTip = 'Specifies how many units of the component are required to produce the parent item.';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()

@@ -9,13 +9,20 @@ using Microsoft.CashFlow.Forecast;
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
+#if CLEAN28
+using Microsoft.Foundation.Period;
+#endif
 using System.Text;
 using System.Utilities;
 
 report 852 "Cash Flow Dimensions - Detail"
 {
     DefaultLayout = RDLC;
+#if not CLEAN28
+    RDLCLayout = './CashFlow/Reports/CashFlowDimensionsDetailGB.rdlc';
+#else
     RDLCLayout = './CashFlow/Reports/CashFlowDimensionsDetail.rdlc';
+#endif
     ApplicationArea = Dimensions;
     Caption = 'Cash Flow Dimensions - Detail';
     UsageCategory = ReportsAndAnalysis;
@@ -37,21 +44,26 @@ report 852 "Cash Flow Dimensions - Detail"
             column(DateFilter; DateFilter)
             {
             }
+#if not CLEAN28
             column(USERID; UserId)
             {
             }
+#endif
             column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
+#if not CLEAN28
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
+#endif
             column(HeaderText; HeaderText)
             {
             }
             column(DimFilterText; DimFilterText)
             {
             }
+#if not CLEAN28
             column(PrintEmptyLines; PrintEmptyLines)
             {
             }
@@ -70,6 +82,23 @@ report 852 "Cash Flow Dimensions - Detail"
             column(CashFlow_Dimensions___DetailCaption; CashFlow_Dimensions___DetailCaptionLbl)
             {
             }
+#else
+            column(PeriodCaption; PeriodCaptionLbl)
+            {
+            }
+            column(AnalysisViewCaption; AnalysisViewCaptionLbl)
+            {
+            }
+            column(LastUpdatedCaption; LastUpdatedCaptionLbl)
+            {
+            }
+            column(PageCaption; PageCaptionLbl)
+            {
+            }
+            column(CashFlowDimensionsDetailCaption; CashFlowDimensionsDetailCaptionLbl)
+            {
+            }
+#endif
             column(FiltersCaption; FiltersCaptionLbl)
             {
             }
@@ -79,6 +108,7 @@ report 852 "Cash Flow Dimensions - Detail"
             column(DescriptionCaption; DescriptionCaptionLbl)
             {
             }
+#if not CLEAN28
             column(Document_No_Caption; Document_No_CaptionLbl)
             {
             }
@@ -91,6 +121,20 @@ report 852 "Cash Flow Dimensions - Detail"
             column(Entry_No_Caption; Entry_No_CaptionLbl)
             {
             }
+#else
+            column(DocumentNoCaption; DocumentNoCaptionLbl)
+            {
+            }
+            column(CashFlowDateCaption; CashFlowDateCaptionLbl)
+            {
+            }
+            column(CashFlowAccountNoCaption; CashFlowAccountNoCaptionLbl)
+            {
+            }
+            column(EntryNoCaption; EntryNoCaptionLbl)
+            {
+            }
+#endif
             dataitem(Level1; "Integer")
             {
                 DataItemTableView = sorting(Number);
@@ -103,9 +147,11 @@ report 852 "Cash Flow Dimensions - Detail"
                 column(DimValName1; DimValName[1])
                 {
                 }
+#if not CLEAN28
                 column(Level1_Number; Number)
                 {
                 }
+#endif
                 dataitem(Level2; "Integer")
                 {
                     DataItemTableView = sorting(Number);
@@ -136,9 +182,11 @@ report 852 "Cash Flow Dimensions - Detail"
                     column(TempCFLedgEntryEntryNo; TempCFForecastEntry."Entry No.")
                     {
                     }
+#if not CLEAN28
                     column(Level2_Number; Number)
                     {
                     }
+#endif
                     dataitem(Level3; "Integer")
                     {
                         DataItemTableView = sorting(Number);
@@ -151,6 +199,7 @@ report 852 "Cash Flow Dimensions - Detail"
                         column(DimValName3; DimValName[3])
                         {
                         }
+#if not CLEAN28
                         column(TempCFLedgEntry__CashFlow_Account_No___Control15; TempCFForecastEntry."Cash Flow Account No.")
                         {
                         }
@@ -172,6 +221,23 @@ report 852 "Cash Flow Dimensions - Detail"
                         column(Level3_Number; Number)
                         {
                         }
+#else
+                        column(TempCFLedgEntryCashFlowDt_Level3; TempCFForecastEntry."Cash Flow Date")
+                        {
+                        }
+                        column(TempCFLedgEntryDocNo_Level3; TempCFForecastEntry."Document No.")
+                        {
+                        }
+                        column(TempCFLedgEntryDesc_Level3; TempCFForecastEntry.Description)
+                        {
+                        }
+                        column(TempCFLedgEntryAmt_Level3; TempCFForecastEntry."Amount (LCY)")
+                        {
+                        }
+                        column(TempCFLedgEntryEntryNo_Level3; TempCFForecastEntry."Entry No.")
+                        {
+                        }
+#endif
                         dataitem(Level4; "Integer")
                         {
                             DataItemTableView = sorting(Number);
@@ -184,6 +250,7 @@ report 852 "Cash Flow Dimensions - Detail"
                             column(DimValName4; DimValName[4])
                             {
                             }
+#if not CLEAN28
                             column(TempCFLedgEntry__CashFlow_Account_No___Control32; TempCFForecastEntry."Cash Flow Account No.")
                             {
                             }
@@ -205,9 +272,27 @@ report 852 "Cash Flow Dimensions - Detail"
                             column(Level4_Number; Number)
                             {
                             }
+#else
+                            column(TempCFLedgEntryCashFlowDt_Level4; TempCFForecastEntry."Cash Flow Date")
+                            {
+                            }
+                            column(TempCFLedgEntryDocNo_Level4; TempCFForecastEntry."Document No.")
+                            {
+                            }
+                            column(TempCFLedgEntryDesc_Level4; TempCFForecastEntry.Description)
+                            {
+                            }
+                            column(TempCFLedgEntryAmt_Level4; TempCFForecastEntry."Amount (LCY)")
+                            {
+                            }
+                            column(TempCFLedgEntryEntryNo_Level4; TempCFForecastEntry."Entry No.")
+                            {
+                            }
+#endif
                             dataitem(Level5; "Integer")
                             {
                                 DataItemTableView = sorting(Number);
+#if not CLEAN28
                                 column(TempCFLedgEntry_Amount_Control53; TempCFForecastEntry."Amount (LCY)")
                                 {
                                 }
@@ -229,6 +314,11 @@ report 852 "Cash Flow Dimensions - Detail"
                                 column(Level5_Number; Number)
                                 {
                                 }
+#else
+                                column(TempCFLedgEntryEntryNo_Level5; TempCFForecastEntry."Entry No.")
+                                {
+                                }
+#endif
 
                                 trigger OnAfterGetRecord()
                                 begin
@@ -246,6 +336,7 @@ report 852 "Cash Flow Dimensions - Detail"
                             dataitem(Level4e; "Integer")
                             {
                                 DataItemTableView = sorting(Number) where(Number = const(1));
+#if not CLEAN28
                                 column(DimCode_4__Control41; DimCode[4])
                                 {
                                 }
@@ -255,13 +346,16 @@ report 852 "Cash Flow Dimensions - Detail"
                                 column(DimValName_4__Control38; DimValName[4])
                                 {
                                 }
+#endif
                                 column(Total4; Total[4])
                                 {
                                     AutoFormatType = 1;
                                 }
+#if not CLEAN28
                                 column(Level4e_Number; Number)
                                 {
                                 }
+#endif
 
                                 trigger OnPostDataItem()
                                 begin
@@ -290,6 +384,7 @@ report 852 "Cash Flow Dimensions - Detail"
                         dataitem(Level3e; "Integer")
                         {
                             DataItemTableView = sorting(Number) where(Number = const(1));
+#if not CLEAN28
                             column(DimCode_3__Control44; DimCode[3])
                             {
                             }
@@ -299,13 +394,16 @@ report 852 "Cash Flow Dimensions - Detail"
                             column(DimValName_3__Control60; DimValName[3])
                             {
                             }
+#endif
                             column(Total3; Total[3])
                             {
                                 AutoFormatType = 1;
                             }
+#if not CLEAN28
                             column(Level3e_Number; Number)
                             {
                             }
+#endif
 
                             trigger OnPostDataItem()
                             begin
@@ -334,6 +432,7 @@ report 852 "Cash Flow Dimensions - Detail"
                     dataitem(Level2e; "Integer")
                     {
                         DataItemTableView = sorting(Number) where(Number = const(1));
+#if not CLEAN28
                         column(DimCode_2__Control63; DimCode[2])
                         {
                         }
@@ -343,13 +442,16 @@ report 852 "Cash Flow Dimensions - Detail"
                         column(DimValName_2__Control65; DimValName[2])
                         {
                         }
+#endif
                         column(Total2; Total[2])
                         {
                             AutoFormatType = 1;
                         }
+#if not CLEAN28
                         column(Level2e_Number; Number)
                         {
                         }
+#endif
 
                         trigger OnPostDataItem()
                         begin
@@ -382,6 +484,7 @@ report 852 "Cash Flow Dimensions - Detail"
                     {
                         AutoFormatType = 1;
                     }
+#if not CLEAN28
                     column(DimValName_1__Control70; DimValName[1])
                     {
                     }
@@ -394,6 +497,7 @@ report 852 "Cash Flow Dimensions - Detail"
                     column(Level1e_Number; Number)
                     {
                     }
+#endif
 
                     trigger OnPostDataItem()
                     begin
@@ -418,6 +522,9 @@ report 852 "Cash Flow Dimensions - Detail"
 
             trigger OnAfterGetRecord()
             var
+#if CLEAN28
+                AccountingPeriod: Record "Accounting Period";
+#endif
                 i: Integer;
                 StartDate: Date;
                 EndDate: Date;
@@ -455,6 +562,18 @@ report 852 "Cash Flow Dimensions - Detail"
                             StartDate := CalcDate('<CY+1D-1Y>', StartDate);
                             EndDate := ClosingDate(CalcDate('<CY>', EndDate));
                         end;
+#if CLEAN28
+                    "Date Compression"::Period:
+                    begin
+                        AccountingPeriod.SetRange("Starting Date", 0D, StartDate);
+                        if AccountingPeriod.Find('+') then
+                            StartDate := AccountingPeriod."Starting Date";
+                        AccountingPeriod.SetRange("Starting Date", EndDate, DMY2Date(31, 12, 9999));
+                        if AccountingPeriod.Find('-') then
+                            if AccountingPeriod.Next() <> 0 then
+                                EndDate := ClosingDate(AccountingPeriod."Starting Date" - 1);
+                    end;
+#endif
                 end;
                 AnalysisViewEntry.SetRange("Posting Date", StartDate, EndDate);
 
@@ -710,19 +829,35 @@ report 852 "Cash Flow Dimensions - Detail"
 #pragma warning restore AA0470
         Text006: Label '(no business unit)';
         Text007: Label 'Cash Flow Forecast Filter';
+#if not CLEAN28
         DateFilterCaptionLbl: Label 'Period';
         CashFlow_Analysis_View_CodeCaptionLbl: Label 'Analysis View';
         ViewLastUpdatedTextCaptionLbl: Label 'Last Date Updated';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         CashFlow_Dimensions___DetailCaptionLbl: Label 'Cash Flow Dimensions - Detail';
+#endif
 #pragma warning restore AA0074
+#if CLEAN28
+        PeriodCaptionLbl: Label 'Period';
+        AnalysisViewCaptionLbl: Label 'Analysis View';
+        LastUpdatedCaptionLbl: Label 'Last Date Updated';
+        PageCaptionLbl: Label 'Page';
+        CashFlowDimensionsDetailCaptionLbl: Label 'Cash Flow Dimensions - Detail';
+#endif 
         FiltersCaptionLbl: Label 'Filters';
         AmountCaptionLbl: Label 'Amount';
         DescriptionCaptionLbl: Label 'Description';
+#if not CLEAN28
         Document_No_CaptionLbl: Label 'Document No.';
         CashFlow_DateCaptionLbl: Label 'Cash Flow Date';
         CashFlow_Account_No_CaptionLbl: Label 'Cash Flow Account No.';
         Entry_No_CaptionLbl: Label 'Entry No.';
+#else
+        DocumentNoCaptionLbl: Label 'Document No.';
+        CashFlowDateCaptionLbl: Label 'Cash Flow Date';
+        CashFlowAccountNoCaptionLbl: Label 'Cash Flow Account No.';
+        EntryNoCaptionLbl: Label 'Entry No.';
+#endif
 
     local procedure CalcLine(Level: Integer): Boolean
     var

@@ -20,18 +20,23 @@ using Microsoft.Sales.Comment;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Posting;
+#if not CLEAN28
 using Microsoft.Sales.Reports;
+#endif
 using Microsoft.Sales.Setup;
+using Microsoft.Utilities;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.InventoryDocument;
 using Microsoft.Warehouse.Request;
-using Microsoft.Utilities;
 using System.Automation;
 using System.Integration.PowerBI;
 using System.Text;
 using System.Threading;
 
+/// <summary>
+/// Displays a list of sales orders for managing customer order processing and fulfillment.
+/// </summary>
 page 9305 "Sales Order List"
 {
     ApplicationArea = Basic, Suite, Assembly;
@@ -298,20 +303,6 @@ page 9305 "Sales Order List"
         }
         area(factboxes)
         {
-#if not CLEAN25
-            part("Attached Documents"; "Document Attachment Factbox")
-            {
-                ObsoleteTag = '25.0';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
-                ApplicationArea = All;
-                Visible = false;
-                Caption = 'Attachments';
-                SubPageLink = "Table ID" = const(Database::"Sales Header"),
-                              "No." = field("No."),
-                              "Document Type" = field("Document Type");
-            }
-#endif
             part("Attached Documents List"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = All;
@@ -1042,6 +1033,7 @@ page 9305 "Sales Order List"
                 RunObject = Query "Sales Order Analysis";
                 ToolTip = 'Analyze (group, summarize, pivot) your Sales Order performance against customers and goods/services sold, including outstanding vs. posted quantities and amounts.';
             }
+#if not CLEAN28
             action("Sales Reservation Avail.")
             {
                 ApplicationArea = Reservation;
@@ -1049,7 +1041,11 @@ page 9305 "Sales Order List"
                 Image = "Report";
                 RunObject = Report "Sales Reservation Avail.";
                 ToolTip = 'View, print, or save an overview of availability of items for shipment on sales documents, filtered on shipment status.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report is obsolete and will be removed in a future version.';
+                ObsoleteTag = '28.0';
             }
+#endif
         }
         area(Promoted)
         {
@@ -1271,6 +1267,9 @@ page 9305 "Sales Order List"
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
 
+    /// <summary>
+    /// Shows a preview of the posting result for the selected order.
+    /// </summary>
     procedure ShowPreview()
     var
         SelectedSalesHeader: Record "Sales Header";
@@ -1304,6 +1303,9 @@ page 9305 "Sales Order List"
         CurrPage.Update(false);
     end;
 
+    /// <summary>
+    /// Sets a flag to only show orders with VAT lines.
+    /// </summary>
     procedure SkipShowingLinesWithoutVAT()
     begin
         OnlyShowHeadersWithVat := true;

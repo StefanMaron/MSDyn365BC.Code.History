@@ -375,23 +375,17 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
 
         InvoicePostingBuffer."Journal Templ. Name" := PurchLine.GetJnlTemplateName();
 
-#if not CLEAN25
-        InvoicePostingBuffer.RunOnAfterPreparePurchase(PurchLine, InvoicePostingBuffer);
-#endif
         PurchPostInvoiceEvents.RunOnAfterPrepareInvoicePostingBuffer(PurchLine, InvoicePostingBuffer);
     end;
 
     local procedure UpdateEntryDescriptionFromPurchaseLine(var PurchaseLine: Record "Purchase Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
-    var
-        PurchaseHeader: Record "Purchase Header";
     begin
         PurchSetup.Get();
-        PurchaseHeader.get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         InvoicePostingBuffer.UpdateEntryDescription(
             PurchSetup."Copy Line Descr. to G/L Entry",
             PurchaseLine."Line No.",
             PurchaseLine.Description,
-            PurchaseHeader."Posting Description");
+            PurchaseLine.GetPurchHeader()."Posting Description");
     end;
 
     procedure SetSalesTax(var PurchaseLine: Record "Purchase Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
@@ -742,6 +736,8 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
         GenJnlLine."Orig. Pmt. Disc. Possible(LCY)" :=
             CurrExchRate.ExchangeAmtFCYToLCY(
                 PurchHeader.GetUseDate(), PurchHeader."Currency Code", -TotalPurchLine."Pmt. Discount Amount", PurchHeader."Currency Factor");
+
+        PurchPostInvoiceEvents.RunOnAfterInitGenJnlLineAmountFieldsFromTotalLines(GenJnlLine, PurchHeader, TotalPurchLine, TotalPurchLineLCY);
     end;
 
     procedure PostBalancingEntry(PurchHeaderVar: Variant; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
@@ -1260,6 +1256,9 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
             FA2 := FA;
             FA2."No." := '';
             FA2.Insert(true);
+
+            AddDefaultDimensionsToFA(FA, FA2);
+
             TempFA := FA2;
             TempFA.Insert();
             Clear(FADeprBook);
@@ -1271,6 +1270,24 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
                     FADeprBook2.Insert(true);
                 until FADeprBook.Next() = 0;
         end;
+    end;
+
+    local procedure AddDefaultDimensionsToFA(FA: Record "Fixed Asset"; var FA2: Record "Fixed Asset")
+    var
+        DefaultDimension: Record "Default Dimension";
+        DefaultDimension2: Record "Default Dimension";
+    begin
+        DefaultDimension.SetRange("Table ID", DATABASE::"Fixed Asset");
+        DefaultDimension.SetRange("No.", FA."No.");
+        if DefaultDimension.FindSet() then
+            repeat
+                DefaultDimension2 := DefaultDimension;
+                DefaultDimension2."No." := FA2."No.";
+                DefaultDimension2.Insert();
+            until DefaultDimension.Next() = 0;
+        FA2."Global Dimension 1 Code" := FA."Global Dimension 1 Code";
+        FA2."Global Dimension 2 Code" := FA."Global Dimension 2 Code";
+        FA2.Modify(true);
     end;
 
     local procedure CalcSplitAmount(var Amount: Decimal; var Amount2: Decimal; TotalAmount: Decimal; I: Integer; SplitNo: Integer)
@@ -1303,6 +1320,8 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
             FA2."No." := '';
             FA2."No." := PostingPreviewFANoTok + Format(i);
             FA2.Insert(false);
+
+            AddDefaultDimensionsToFA(FA, FA2);
 
             TempFA := FA2;
             TempFA.Insert();

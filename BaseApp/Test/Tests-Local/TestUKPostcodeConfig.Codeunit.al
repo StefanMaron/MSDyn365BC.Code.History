@@ -1,6 +1,10 @@
+#if not CLEAN28
 codeunit 144501 "Test UK Postcode Config"
 {
     Subtype = Test;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to GetAddress.io UK Postcodes';
+    ObsoleteTag = '28.0';
 
     trigger OnRun()
     begin
@@ -157,4 +161,5 @@ codeunit 144501 "Test UK Postcode Config"
         Reply := false;
     end;
 }
+#endif
 

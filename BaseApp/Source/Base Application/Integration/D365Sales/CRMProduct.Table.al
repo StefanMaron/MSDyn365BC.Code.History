@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -44,6 +44,7 @@ table 5348 "CRM Product"
         field(4; Name; Text[100])
         {
             Caption = 'Name';
+            ToolTip = 'Specifies the name of the record.';
             Description = 'Name of the product.';
             ExternalName = 'name';
             ExternalType = 'String';
@@ -94,7 +95,9 @@ table 5348 "CRM Product"
         }
         field(10; Price; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'List Price';
+            ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
             Description = 'List price of the product.';
             ExternalName = 'price';
             ExternalType = 'Money';
@@ -109,6 +112,7 @@ table 5348 "CRM Product"
         field(12; ProductNumber; Text[100])
         {
             Caption = 'Product ID';
+            ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
             Description = 'User-defined product ID.';
             ExternalName = 'productnumber';
             ExternalType = 'String';
@@ -122,13 +126,16 @@ table 5348 "CRM Product"
         }
         field(14; CurrentCost; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Current Cost';
+            ToolTip = 'Specifies the item''s unit cost.';
             Description = 'Current cost for the product item. Used in price calculations.';
             ExternalName = 'currentcost';
             ExternalType = 'Money';
         }
         field(15; StockVolume; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Stock Volume';
             Description = 'Stock volume of the product.';
             ExternalName = 'stockvolume';
@@ -136,13 +143,16 @@ table 5348 "CRM Product"
         }
         field(16; StandardCost; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Standard Cost';
+            ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
             Description = 'Standard cost of the product.';
             ExternalName = 'standardcost';
             ExternalType = 'Money';
         }
         field(17; StockWeight; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Stock Weight';
             Description = 'Stock weight of the product.';
             ExternalName = 'stockweight';
@@ -159,6 +169,7 @@ table 5348 "CRM Product"
         }
         field(19; QuantityOnHand; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity On Hand';
             Description = 'Quantity of the product in stock.';
             ExternalName = 'quantityonhand';
@@ -329,6 +340,7 @@ table 5348 "CRM Product"
         }
         field(39; ExchangeRate; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Exchange Rate';
             Description = 'Exchange rate for the currency associated with the product with respect to the base currency.';
             ExternalAccess = Read;
@@ -370,6 +382,7 @@ table 5348 "CRM Product"
         }
         field(44; CurrentCost_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Current Cost (Base)';
             Description = 'Base currency equivalent of the current cost for the product item.';
             ExternalAccess = Read;
@@ -378,6 +391,7 @@ table 5348 "CRM Product"
         }
         field(45; Price_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'List Price (Base)';
             Description = 'Base currency equivalent of the list price of the product';
             ExternalAccess = Read;
@@ -386,6 +400,7 @@ table 5348 "CRM Product"
         }
         field(46; StandardCost_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Standard Cost (Base)';
             Description = 'Base currency equivalent of the standard cost of the product.';
             ExternalAccess = Read;

@@ -1,6 +1,10 @@
+#if not CLEAN28
 #pragma warning disable AA0247
 codeunit 9997 "Upgrade Tag Def - Country"
 {
+    ObsoleteReason = 'This codeunit is no longer needed.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '28.0';
 
     trigger OnRun()
     begin
@@ -28,4 +32,5 @@ codeunit 9997 "Upgrade Tag Def - Country"
         exit('MS-473083-GB-GetUpgradePaymentPracticesTag-20230713');
     end;
 }
+#endif
 

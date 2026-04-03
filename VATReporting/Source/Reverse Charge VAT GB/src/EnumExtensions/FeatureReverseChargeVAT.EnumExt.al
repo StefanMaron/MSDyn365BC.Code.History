@@ -11,6 +11,7 @@ enumextension 10553 "Feature - Reverse Charge VAT" extends "Feature To Update"
 {
 #pragma warning disable AS0082
 #pragma warning disable AS0125
+#pragma warning disable AS0072
     value(10553; VATReverseCharge)
     {
         Implementation = "Feature Data Update" = "Feature - Reverse Charge VAT";
@@ -20,5 +21,6 @@ enumextension 10553 "Feature - Reverse Charge VAT" extends "Feature To Update"
     }
 #pragma warning restore AS0082
 #pragma warning restore AS0125
+#pragma warning disable AS0072
 }
 #endif

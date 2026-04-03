@@ -1,5 +1,4 @@
-#if not CLEANSCHEMA28 
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -10,25 +9,23 @@ using Microsoft.Finance.Currency;
 using Microsoft.Inventory.Item;
 using Microsoft.Sales.Customer;
 
+/// <summary>
+/// Stores sales line discounts by item or item discount group, customer type, and validity period.
+/// </summary>
 table 7004 "Sales Line Discount"
 {
     Caption = 'Sales Line Discount';
-#if not CLEAN25
-    LookupPageID = "Sales Line Discounts";
-    ObsoleteState = Pending;
-    ObsoleteTag = '16.0';
-#else
-    ObsoleteState = Removed;
-    ObsoleteTag = '28.0';
-#endif    
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price List Line';
     DataClassification = CustomerContent;
 
     fields
     {
+        /// <summary>
+        /// Specifies the item number or item discount group code that the line discount applies to.
+        /// </summary>
         field(1; "Code"; Code[20])
         {
             Caption = 'Code';
+            ToolTip = 'Specifies one of two values, depending on the value in the Type field.';
             NotBlank = true;
             TableRelation = if (Type = const(Item)) Item
             else
@@ -48,9 +45,13 @@ table 7004 "Sales Line Discount"
                 end;
             end;
         }
+        /// <summary>
+        /// Specifies the customer, customer discount group, or campaign that the line discount applies to.
+        /// </summary>
         field(2; "Sales Code"; Code[20])
         {
             Caption = 'Sales Code';
+            ToolTip = 'Specifies one of the following values, depending on the value in the Sales Type field.';
             TableRelation = if ("Sales Type" = const("Customer Disc. Group")) "Customer Discount Group"
             else
             if ("Sales Type" = const(Customer)) Customer
@@ -72,14 +73,22 @@ table 7004 "Sales Line Discount"
                     end;
             end;
         }
+        /// <summary>
+        /// Specifies the currency that the line discount is valid for. A blank value indicates the local currency.
+        /// </summary>
         field(3; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
+            ToolTip = 'Specifies the currency code of the sales line discount price.';
             TableRelation = Currency;
         }
+        /// <summary>
+        /// Specifies the date from which the line discount is valid.
+        /// </summary>
         field(4; "Starting Date"; Date)
         {
             Caption = 'Starting Date';
+            ToolTip = 'Specifies the date from which the sales line discount is valid.';
 
             trigger OnValidate()
             begin
@@ -92,16 +101,24 @@ table 7004 "Sales Line Discount"
                     Error(Text003, FieldCaption("Starting Date"), FieldCaption("Ending Date"), FieldCaption("Sales Type"), "Sales Type");
             end;
         }
+        /// <summary>
+        /// Specifies the discount percentage to apply to the sales line.
+        /// </summary>
         field(5; "Line Discount %"; Decimal)
         {
-            AutoFormatType = 2;
+            AutoFormatType = 0;
             Caption = 'Line Discount %';
+            ToolTip = 'Specifies the discount percentage to use to calculate the sales line discount.';
             MaxValue = 100;
             MinValue = 0;
         }
+        /// <summary>
+        /// Specifies the type of sales target for the discount, such as customer, customer discount group, all customers, or campaign.
+        /// </summary>
         field(13; "Sales Type"; Option)
         {
             Caption = 'Sales Type';
+            ToolTip = 'Specifies the sales type of the sales line discount. The sales type defines whether the sales price is for an individual customer, customer discount group, all customers, or for a campaign.';
             OptionCaption = 'Customer,Customer Disc. Group,All Customers,Campaign';
             OptionMembers = Customer,"Customer Disc. Group","All Customers",Campaign;
 
@@ -111,14 +128,23 @@ table 7004 "Sales Line Discount"
                     Validate("Sales Code", '');
             end;
         }
+        /// <summary>
+        /// Specifies the minimum quantity that must be ordered to qualify for the line discount.
+        /// </summary>
         field(14; "Minimum Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Minimum Quantity';
+            ToolTip = 'Specifies the minimum quantity that the customer must purchase in order to gain the agreed discount.';
             MinValue = 0;
         }
+        /// <summary>
+        /// Specifies the last date on which the line discount is valid.
+        /// </summary>
         field(15; "Ending Date"; Date)
         {
             Caption = 'Ending Date';
+            ToolTip = 'Specifies the date to which the sales line discount is valid.';
 
             trigger OnValidate()
             begin
@@ -130,9 +156,13 @@ table 7004 "Sales Line Discount"
                     Error(Text003, FieldCaption("Starting Date"), FieldCaption("Ending Date"), FieldCaption("Sales Type"), "Sales Type");
             end;
         }
+        /// <summary>
+        /// Specifies whether the line discount applies to an item or an item discount group.
+        /// </summary>
         field(21; Type; Enum "Sales Line Discount Type")
         {
             Caption = 'Type';
+            ToolTip = 'Specifies the type of item that the sales discount line is valid for. That is, either an item or an item discount group.';
 
             trigger OnValidate()
             begin
@@ -140,14 +170,22 @@ table 7004 "Sales Line Discount"
                     Validate(Code, '');
             end;
         }
+        /// <summary>
+        /// Specifies the unit of measure that the line discount applies to for the item.
+        /// </summary>
         field(5400; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
+            ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
             TableRelation = if (Type = const(Item)) "Item Unit of Measure".Code where("Item No." = field(Code));
         }
+        /// <summary>
+        /// Specifies the item variant that the line discount applies to.
+        /// </summary>
         field(5700; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
+            ToolTip = 'Specifies the variant of the item on the line.';
             TableRelation = if (Type = const(Item)) "Item Variant".Code where("Item No." = field(Code));
 
             trigger OnValidate()
@@ -203,6 +241,3 @@ table 7004 "Sales Line Discount"
 #pragma warning restore AA0074
 
 }
-
- 
-#endif

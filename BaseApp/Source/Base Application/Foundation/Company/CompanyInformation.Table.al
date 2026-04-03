@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -366,10 +366,21 @@ table 79 "Company Information"
         {
             Caption = 'EORI Number';
         }
+#if not CLEANSCHEMA31
         field(93; "Suppl. VAT Registration No."; Text[40])
         {
             Caption = 'Supplementary VAT Registration No.';
+#if not CLEAN28
+            ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '28.0';
+#else
+            ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+            ObsoleteState = removed;
+            ObsoleteTag = '31.0';
+#endif
         }
+#endif
         field(95; "Use GLN in Electronic Document"; Boolean)
         {
             Caption = 'Use GLN in Electronic Documents';
@@ -397,6 +408,12 @@ table 79 "Company Information"
         field(200; "Alternative Language Code"; Code[10])
         {
             Caption = 'Alternative Language Code';
+            TableRelation = Language;
+        }
+        field(201; "Default Language Code"; Code[10])
+        {
+            Caption = 'Default Language Code';
+            ToolTip = 'Specifies a default language code to be used for e.g. printing sales and purchase documents instead of the user language.';
             TableRelation = Language;
         }
         field(300; "Brand Color Value"; Code[10])
@@ -877,6 +894,22 @@ table 79 "Company Information"
             "Brand Color Value" := '';
     end;
 
+    procedure FormatVATRegistrationNo(VATRegistrationNo: Text; CountryCode: Code[10]): Text
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        if VATRegistrationNo = '' then
+            exit;
+
+        VATRegistrationNo := DelChr(VATRegistrationNo);
+
+        if CountryRegion.Get(CountryCode) and (CountryRegion."ISO Code" <> '') then
+            if StrPos(VATRegistrationNo, CountryRegion."ISO Code") <> 1 then
+                VATRegistrationNo := CountryRegion."ISO Code" + VATRegistrationNo;
+
+        exit(VATRegistrationNo);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSystemIndicator(var Text: Text[250]; var Style: Option Standard,Accent1,Accent2,Accent3,Accent4,Accent5,Accent6,Accent7,Accent8,Accent9)
     begin
@@ -942,4 +975,5 @@ table 79 "Company Information"
     local procedure OnBeforeValidateShipToPostCode(var CompanyInformation: Record "Company Information"; var IsHandled: Boolean)
     begin
     end;
+
 }

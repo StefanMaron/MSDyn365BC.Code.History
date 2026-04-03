@@ -8,9 +8,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
-#if not CLEAN25
 using Microsoft.Purchases.Pricing;
-#endif
 using Microsoft.Purchases.Vendor;
 using Microsoft.Utilities;
 
@@ -78,7 +76,6 @@ report 320 "Vendor Item Catalog"
             column(ExtendedPriceFeatureEnabled; ExtendedPriceEnabled)
             {
             }
-#if not CLEAN25
             dataitem("Purchase Price"; "Purchase Price")
             {
                 DataItemLink = "Vendor No." = field("No.");
@@ -122,7 +119,6 @@ report 320 "Vendor Item Catalog"
                     InitGlobals("Vendor No.", "Item No.", "Variant Code");
                 end;
             }
-#endif
             dataitem(PriceListLine; "Price List Line")
             {
                 DataItemLink = "Source No." = field("No.");

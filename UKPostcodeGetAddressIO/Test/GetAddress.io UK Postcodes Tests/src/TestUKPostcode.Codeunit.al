@@ -98,7 +98,11 @@ codeunit 139500 "Test UK Postcode"
     [Scope('OnPrem')]
     procedure TestFieldsAreRetrievedFromPostcodeSearchPage()
     var
+#if not CLEAN28
         PostcodeSearch: Page "Postcode Search";
+#else
+        PostcodeSearch: Page "Postcode Search GB";
+#endif
         Postcode: Text;
         DeliveryPoint: Text;
     begin
@@ -125,7 +129,11 @@ codeunit 139500 "Test UK Postcode"
     [Scope('OnPrem')]
     procedure TestPostcodeValuesAreSetForPostcodeSearchPageWhenOpened()
     var
+#if not CLEAN28
         PostcodeSearch: Page "Postcode Search";
+#else
+        PostcodeSearch: Page "Postcode Search GB";
+#endif
     begin
         // Check that values are correctly passed into a page
         // [GIVEN]
@@ -160,49 +168,6 @@ codeunit 139500 "Test UK Postcode"
         // [THEN] no window opens, values are retrieved
         Assert.AreEqual('ADDRESS', TempAutocompleteAddress.Address, 'Value was not retrieved correctly');
         DeleteConfiguration();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestNotificationDontShowAgain()
-    var
-        PostcodeNotificationMemory: Record "Postcode Notification Memory";
-        PostcodeBusinessLogic: Codeunit "Postcode Business Logic GB";
-        DummyNotification: Notification;
-    begin
-        // [GIVEN] basic user, that hasn't had any interaction with postcode notificaitons
-        LibraryLowerPermissions.SetO365Basic();
-        Assert.RecordIsEmpty(PostcodeNotificationMemory);
-
-        // [WHEN] user clicks "don't show again"
-        PostcodeBusinessLogic.NotificationOnDontShowAgain(DummyNotification);
-
-        // [THEN] no window opens, record is present NOT to show notification again
-        Assert.RecordCount(PostcodeNotificationMemory, 1);
-
-        PostcodeNotificationMemory.DeleteAll(); // Cleanup
-    end;
-
-    [Test]
-    [HandlerFunctions('PostcodeConfigurationPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestNotificationConfigure()
-    var
-        PostcodeNotificationMemory: Record "Postcode Notification Memory";
-        PostcodeBusinessLogic: Codeunit "Postcode Business Logic GB";
-        DummyNotification: Notification;
-    begin
-        // [GIVEN] basic user, that hasn't had any interaction with postcode notificaitons
-        LibraryLowerPermissions.SetO365BusFull();
-        Assert.RecordIsEmpty(PostcodeNotificationMemory);
-
-        // [WHEN] User clicks configure
-        PostcodeBusinessLogic.NotificationOnConfigure(DummyNotification);
-
-        // [THEN] service config window opens, record is present NOT to show notification again
-        Assert.RecordCount(PostcodeNotificationMemory, 1);
-
-        PostcodeNotificationMemory.DeleteAll(); // Cleanup
     end;
 
     local procedure Initialize()
@@ -263,14 +228,22 @@ codeunit 139500 "Test UK Postcode"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
+#if not CLEAN28
     procedure PostcodeSearchInputCancelPageHandler(var PostcodeSearchPage: TestPage "Postcode Search")
+#else
+    procedure PostcodeSearchInputCancelPageHandler(var PostcodeSearchPage: TestPage "Postcode Search GB")
+#endif
     begin
         PostcodeSearchPage.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
+#if not CLEAN28
     procedure PostcodeSearchInputEnterPostcodeAndOKPageHandler(var PostcodeSearchPage: TestPage "Postcode Search")
+#else
+    procedure PostcodeSearchInputEnterPostcodeAndOKPageHandler(var PostcodeSearchPage: TestPage "Postcode Search GB")
+#endif
     begin
         PostcodeSearchPage.PostcodeField.Value(LibraryVariableStorage.DequeueText());
         PostcodeSearchPage.DeliveryPoint.Value(LibraryVariableStorage.DequeueText());
@@ -288,17 +261,15 @@ codeunit 139500 "Test UK Postcode"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
+#if not CLEAN28
     procedure PostcodeIsAutocompletedOnPostcodeSearchIfProvided(var PostcodeSearch: TestPage "Postcode Search")
+#else
+    procedure PostcodeIsAutocompletedOnPostcodeSearchIfProvided(var PostcodeSearch: TestPage "Postcode Search GB")
+#endif
     begin
         Assert.AreEqual('POSTCODE', PostcodeSearch.PostcodeField.Value, 'Postcode is not correctly passed into a page.');
         Assert.AreEqual('DELIVERYPOINT', PostcodeSearch.DeliveryPoint.Value, 'Delivery point is not correctly passed into a page.');
     end;
 
-    [PageHandler]
-    [Scope('OnPrem')]
-    procedure PostcodeConfigurationPageHandler(var PostcodeConfigurationPage: TestPage "Postcode Configuration Page")
-    begin
-        PostcodeConfigurationPage.Cancel().Invoke();
-    end;
 }
 #endif

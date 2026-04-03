@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -26,25 +26,34 @@ table 338 "Entry Summary"
         field(3; "Summary Type"; Text[80])
         {
             Caption = 'Summary Type';
+            ToolTip = 'Specifies which type of line or entry is summarized in the entry summary.';
         }
         field(4; "Total Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Total Quantity';
+            ToolTip = 'Specifies the total quantity of the item in inventory.';
             DecimalPlaces = 0 : 5;
         }
         field(5; "Total Reserved Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Total Reserved Quantity';
+            ToolTip = 'Specifies the total quantity of the relevant item that is reserved on documents or entries of the type on the line.';
             DecimalPlaces = 0 : 5;
         }
         field(6; "Total Available Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Total Available Quantity';
+            ToolTip = 'Specifies the quantity available for the user to request, in entries of the type on the line.';
             DecimalPlaces = 0 : 5;
         }
         field(7; "Current Reserved Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Current Reserved Quantity';
+            ToolTip = 'Specifies the quantity of items in the entry that are reserved for the line that the Reservation window is opened from.';
             DecimalPlaces = 0 : 5;
         }
         field(8; "Source Subtype"; Integer)
@@ -53,43 +62,53 @@ table 338 "Entry Summary"
         }
         field(15; "Qty. Alloc. in Warehouse"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Alloc. in Warehouse';
             DecimalPlaces = 0 : 5;
         }
         field(16; "Res. Qty. on Picks & Shipmts."; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Res. Qty. on Picks & Shipmts.';
             DecimalPlaces = 0 : 5;
         }
         field(6500; "Serial No."; Code[50])
         {
             Caption = 'Serial No.';
+            ToolTip = 'Specifies the serial number for which availability is presented in the Item Tracking Summary window.';
             Editable = false;
         }
         field(6501; "Lot No."; Code[50])
         {
             Caption = 'Lot No.';
+            ToolTip = 'Specifies the lot number for which availability is presented in the Item Tracking Summary window.';
             Editable = false;
         }
         field(6502; "Warranty Date"; Date)
         {
             Caption = 'Warranty Date';
+            ToolTip = 'Specifies the warranty expiration date, if any, of the item carrying the item tracking number.';
             Editable = false;
         }
         field(6503; "Expiration Date"; Date)
         {
             Caption = 'Expiration Date';
+            ToolTip = 'Specifies the expiration date, if any, of the item carrying the item tracking number.';
             Editable = false;
         }
         field(6504; "Total Requested Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Total Requested Quantity';
+            ToolTip = 'Specifies the total quantity of the serial, lot or package number that is requested in all documents.';
             DecimalPlaces = 0 : 5;
         }
         field(6505; "Selected Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Selected Quantity';
+            ToolTip = 'Specifies the quantity of each serial, lot or package number that you want to use to fulfill the demand for the transaction.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 
@@ -110,16 +129,21 @@ table 338 "Entry Summary"
         }
         field(6506; "Current Pending Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Current Pending Quantity';
+            ToolTip = 'Specifies the quantity from the item tracking line that is selected on the document but not yet committed to the database.';
             DecimalPlaces = 0 : 5;
         }
         field(6507; "Current Requested Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Current Requested Quantity';
         }
         field(6508; "Bin Content"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Bin Content';
+            ToolTip = 'Specifies the quantity of the item in the bin specified in the document line.';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
@@ -130,11 +154,14 @@ table 338 "Entry Summary"
         }
         field(6510; "Non-specific Reserved Qty."; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Non-specific Reserved Qty.';
+            ToolTip = 'Specifies the quantity of the item that is reserved but does not have specific item tracking numbers in the reservation.';
             Editable = false;
         }
         field(6511; "Double-entry Adjustment"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Double-entry Adjustment';
             Editable = false;
         }
@@ -146,10 +173,12 @@ table 338 "Entry Summary"
         field(6515; "Package No."; Code[50])
         {
             Caption = 'Package No.';
+            ToolTip = 'Specifies the package number for which availability is presented in the Item Tracking Summary window.';
             CaptionClass = '6,1';
         }
         field(6516; "Qty. Rounding Precision (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Rounding Precision';
             InitValue = 0;
             DecimalPlaces = 0 : 5;

@@ -11,17 +11,21 @@ codeunit 144052 "UT REP Purchase & Sales"
     end;
 
     var
+#if not CLEAN28
         Assert: Codeunit Assert;
-#if not CLEAN27        
+#endif
+#if not CLEAN27
         LibraryApplicationArea: Codeunit "Library - Application Area";
 #endif        
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryRandom: Codeunit "Library - Random";
+#if not CLEAN28
         LibraryERM: Codeunit "Library - ERM";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryJournals: Codeunit "Library - Journals";
+#endif
         CompanyInfoPhoneNoCap: Label 'CompanyInfoPhoneNo';
         IssuedReminderHeaderCap: Label 'No_IssuedReminderHeader';
         CurrentSaveValuesId: Integer;
@@ -320,6 +324,7 @@ codeunit 144052 "UT REP Purchase & Sales"
     end;
 #endif
 
+#if not CLEAN28
     [Test]
     [Scope('OnPrem')]
     procedure PrintRemittanceAdviceReportSelectionsNotExist()
@@ -438,6 +443,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         // Tear down
         ReportSelections.Delete();
     end;
+#endif
 
     local procedure OnAfterGetRecordCreateReminders(UseHeaderLevel: Boolean)
     var
@@ -675,6 +681,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         exit(GeneralPostingSetup."Gen. Prod. Posting Group");
     end;
 
+#if not CLEAN28
     local procedure CreatePaymentGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -691,6 +698,7 @@ codeunit 144052 "UT REP Purchase & Sales"
             GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), GenJournalLine."Bal. Account Type"::"G/L Account",
             LibraryERM.CreateGLAccountNo(), LineAmount);
     end;
+#endif
 
     local procedure CreateDimensionSetEntry(var DimensionSetEntry: Record "Dimension Set Entry")
     var
@@ -827,6 +835,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         CustomerPostingGroupCode := CreateCustomerPostingGroup(VATPostingSetup."VAT Prod. Posting Group");
     end;
 
+#if not CLEAN28
     local procedure CreateReportSelections(var ReportSelections: Record "Report Selections"; ReportUsage: Enum "Report Selection Usage"; SequenceCode: Code[10]; ReportID: Integer)
     begin
         ReportSelections.Init();
@@ -835,6 +844,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         ReportSelections.Validate("Report ID", ReportID);
         ReportSelections.Insert(true);
     end;
+#endif
 
     local procedure RunCreateRemindersReport(CustomerNo: Code[20]; UseHeaderLevel: Boolean)
     var

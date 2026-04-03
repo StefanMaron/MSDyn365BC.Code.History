@@ -4,6 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.AllocationAccount;
 
+/// <summary>
+/// Interface for modifying allocation distributions and creating manual overrides for allocation accounts.
+/// Enables users to adjust calculated allocation amounts and percentages before posting.
+/// </summary>
 page 2678 "Redistribute Acc. Allocations"
 {
     PageType = Worksheet;
@@ -20,6 +24,8 @@ page 2678 "Redistribute Acc. Allocations"
                 ShowCaption = false;
                 field(AmountToAllocate; AmountToAllocate)
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Original Amount to Allocate';
                     ApplicationArea = All;
                     ToolTip = 'Specifies the amount to be allocated to the Destination Account.';
@@ -34,6 +40,8 @@ page 2678 "Redistribute Acc. Allocations"
                 }
                 field(RemainingAmountToAllocate; DifferenceAmount)
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Remaining Amount to Allocate';
                     ApplicationArea = All;
                     ToolTip = 'Specifies the remaining amount to be allocated to one of the lines.';
@@ -44,6 +52,7 @@ page 2678 "Redistribute Acc. Allocations"
                 {
                     Caption = 'Quantity to Allocate';
                     ApplicationArea = All;
+                    AutoFormatType = 0;
                     Visible = QuantityVisible;
                     ToolTip = 'Specifies the quantity to be allocated to the Destination Account.';
                     Editable = false;
@@ -52,6 +61,7 @@ page 2678 "Redistribute Acc. Allocations"
                 {
                     Caption = 'Remaining Quantity to Allocate';
                     ApplicationArea = All;
+                    AutoFormatType = 0;
                     Visible = QuantityVisible;
                     ToolTip = 'Specifies the remaining quantity to be allocated to one of the lines.';
                     StyleExpr = DifferenceQuantityStyle;
@@ -218,11 +228,19 @@ page 2678 "Redistribute Acc. Allocations"
         exit(true);
     end;
 
+    /// <summary>
+    /// Sets the parent system ID for linking allocation modifications to the source document.
+    /// </summary>
+    /// <param name="NewParentSystemId">System ID of the parent document record</param>
     procedure SetParentSystemId(NewParentSystemId: Guid)
     begin
         ParentSystemId := NewParentSystemId;
     end;
 
+    /// <summary>
+    /// Sets the parent table ID for linking allocation modifications to the source document table.
+    /// </summary>
+    /// <param name="NewParentTableId">Table ID of the parent document</param>
     procedure SetParentTableId(NewParentTableId: Integer)
     begin
         ParentTableId := NewParentTableId;

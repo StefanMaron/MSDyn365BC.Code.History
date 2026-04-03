@@ -1,4 +1,4 @@
-﻿#if not CLEANSCHEMA28 
+#if not CLEANSCHEMA28 
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -9,13 +9,8 @@ table 10533 "MTD-Liability"
 {
     Caption = 'VAT Liability';
     ObsoleteReason = 'Moved to extension';
-#if CLEAN25
     ObsoleteState = Removed;
     ObsoleteTag = '28.0';
-#else
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
-#endif
     DataClassification = CustomerContent;
 
     fields
@@ -36,10 +31,12 @@ table 10533 "MTD-Liability"
         }
         field(4; "Original Amount"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Original Amount';
         }
         field(5; "Outstanding Amount"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Outstanding Amount';
         }
         field(6; "Due Date"; Date)
@@ -61,5 +58,5 @@ table 10533 "MTD-Liability"
     }
 }
 
- 
+
 #endif

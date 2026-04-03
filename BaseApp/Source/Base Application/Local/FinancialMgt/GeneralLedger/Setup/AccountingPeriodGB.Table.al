@@ -1,19 +1,28 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEANSCHEMA31
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.GeneralLedger.Setup;
 
 using Microsoft.Foundation.Period;
+using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Setup;
 using System.Utilities;
-using Microsoft.Inventory.Costing;
 
 table 10560 "Accounting Period GB"
 {
     Caption = 'Accounting Period GB';
     LookupPageID = "Accounting Periods";
     DataClassification = CustomerContent;
+    ObsoleteReason = 'No longer required';
+#if CLEAN28
+    ObsoleteState = Removed;
+    ObsoleteTag = '31.0';
+#else
+    ObsoleteState = Pending;
+    ObsoleteTag = '28.0';
+#endif
 
     fields
     {
@@ -184,4 +193,5 @@ table 10560 "Accounting Period GB"
         end;
     end;
 }
+#endif
 

@@ -6,6 +6,15 @@ namespace Microsoft.Finance.Consolidation;
 
 using Microsoft.Finance.Currency;
 
+/// <summary>
+/// Configuration page for setting up business unit currency relationships and exchange rate management.
+/// Manages currency assignments and exchange rate setup for multi-currency consolidation scenarios.
+/// </summary>
+/// <remarks>
+/// Card page for configuring business unit currency settings and exchange rate relationships.
+/// Enables setup of currency codes, exchange rate sources, and currency conversion parameters for consolidation.
+/// Critical for accurate multi-currency consolidation processing and currency conversion management.
+/// </remarks>
 page 150 "Setup Business Unit Currency"
 {
     PageType = Card;
@@ -56,6 +65,7 @@ page 150 "Setup Business Unit Currency"
             field(AverageCurrencyFactor; IncomeCurrencyFactor)
             {
                 ApplicationArea = Basic, Suite;
+                AutoFormatType = 0;
                 Caption = 'Average Currency Factor';
                 ToolTip = 'Specifies the exchange rate to use for income statement accounts. Income statement G/L Entries from the business unit will be divided by this factor.';
                 Editable = NeedsCurrencyTranslation;
@@ -77,6 +87,7 @@ page 150 "Setup Business Unit Currency"
             field(ClosingCurrencyFactor; BalanceCurrencyFactor)
             {
                 ApplicationArea = Basic, Suite;
+                AutoFormatType = 0;
                 Caption = 'Closing Currency Factor';
                 ToolTip = 'Specifies the exchange rate to use for balance accounts. Balance sheet G/L Entries from the business unit will be divided by this factor.';
                 Editable = NeedsCurrencyTranslation;
@@ -100,6 +111,7 @@ page 150 "Setup Business Unit Currency"
                 field(LastClosingCurrencyFactor; LastBalanceCurrencyFactor)
                 {
                     ApplicationArea = Basic, Suite;
+                    AutoFormatType = 0;
                     Caption = 'Last Closing Currency Factor';
                     ToolTip = 'Specifies the last closing currency factor used for the business unit. This is used to adjust the balance accounts with the new currency exchange rate. It is automatically filled after consolidating the business unit. ';
                     Editable = NeedsCurrencyTranslation;

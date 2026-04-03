@@ -4,30 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace System.Environment.Configuration;
 
-#if not CLEAN25
 using Microsoft.Pricing.Calculation;
-#endif
 
 enumextension 2611 "Feature To Update - BaseApp" extends "Feature To Update"
 {
-#if not CLEAN25
     value(7049; SalesPrices)
     {
         Implementation = "Feature Data Update" = "Feature - Price Calculation";
-        ObsoleteState = Pending;
-        ObsoleteReason = 'Feature SalesPrices will be enabled by default in version 22.0.';
-        ObsoleteTag = '19.0';
     }
-#endif
-#if not CLEAN25
-    value(5878; GLCurrencyRevaluation)
-    {
-        Implementation = "Feature Data Update" = "Feature-GLCurrencyRevaluation";
-        ObsoleteState = Pending;
-        ObsoleteReason = 'Feature G/L Currency REvaluation will be enabled by default in version 27.0.';
-        ObsoleteTag = '24.0';
-    }
-#endif
 #if not CLEAN26
     value(5892; Manufacturing_FlushingMethod_ActivateManualWoPick)
     {
@@ -35,6 +19,15 @@ enumextension 2611 "Feature To Update - BaseApp" extends "Feature To Update"
         ObsoleteState = Pending;
         ObsoleteReason = 'Feature ''Manual Flushing Method without requiring pick'' will be enabled by default in version 29.0.';
         ObsoleteTag = '26.0';
+    }
+#endif
+#if not CLEAN28
+    value(8200; FinancialReportDefaults)
+    {
+        Implementation = "Feature Data Update" = Microsoft.Finance.FinancialReports."Feature - Fin. Report Default";
+        ObsoleteState = Pending;
+        ObsoleteReason = 'Financial Report defaults feature will be always enabled in version 29.0';
+        ObsoleteTag = '28.0';
     }
 #endif
 }

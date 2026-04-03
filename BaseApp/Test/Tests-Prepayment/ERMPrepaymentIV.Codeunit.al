@@ -2258,6 +2258,49 @@ codeunit 134103 "ERM Prepayment IV"
     end;
 
     [Test]
+    procedure OrderWithPricesInclVAT_CalcInvDiscEnabled_PrepaymentInvoice_Test()
+    var
+        Customer: Record Customer;
+        LineGLAccount: Record "G/L Account";
+        Item: Record Item;
+        OrderSalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        OrderSalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Sales Prepayment]
+        // [SCENARIO] It must be possible to post a prepayment for sales order with an Invoice Discount.
+        // The recalculation of the invoice discount must not prevent the posting of the prepayment invoice.
+        Initialize();
+
+        // [GIVEN] Calc. Inv. Discount enabled
+        SetCalcInvDiscount(true);
+
+        // [GIVEN] G/L Account "A" has "Full VAT" setup, G/L Account "PA" is used as Prepayment Account and has "Full VAT" setup
+        LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, Enum::"Tax Calculation Type"::"Normal VAT");
+
+        // [GIVEN] General Posting Setup is prepared for Inv. Discount 
+        UpdateGeneralPostingSetupForSalesInvDiscount(LineGLAccount."Gen. Bus. Posting Group", LineGLAccount."Gen. Prod. Posting Group");
+
+        // [GIVEN] Customer with Inv. Disc. Setup
+        CreateCustomerWithInvDiscount(LineGLAccount, Customer);
+
+        // [GIVEN] Item with correct posting setup
+        Item.Get(CreateItemWithPostingSetup(LineGLAccount));
+
+        // [GIVEN] Created Sales Order line with Item and "Prepayment %" = 100
+        CreatePrepmtSalesOrderFoprItemWith100Percent(Customer, true, Item, OrderSalesHeader, OrderSalesLine);
+
+        // [GIVEN]
+        OrderSalesHeader.CalcFields("Recalculate Invoice Disc.");
+        Assert.IsTrue(OrderSalesHeader."Recalculate Invoice Disc.", 'The value for the field "Recalculate Invoice Disc." should be true');
+
+        // [WHEN] When Prepayment Invoice is posted
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesPrepaymentInvoice(OrderSalesHeader));
+
+        // [THEN] We're happy when there's no error
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure SalesPrepmt100PctWithSevLinesAndPartialInv()
     var
@@ -2976,6 +3019,69 @@ codeunit 134103 "ERM Prepayment IV"
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Prepayment IV");
+    end;
+
+    local procedure SetCalcInvDiscount(CalcInvDiscount: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Calc. Inv. Discount", CalcInvDiscount);
+        SalesReceivablesSetup.Modify(true);
+    end;
+
+    local procedure UpdateGeneralPostingSetupForSalesInvDiscount(GenBusPosingGroup: Code[20]; GenProdPosingGroup: Code[20])
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        GeneralPostingSetup.Get(GenBusPosingGroup, GenProdPosingGroup);
+        if GeneralPostingSetup."Sales Inv. Disc. Account" = '' then
+            GeneralPostingSetup.Validate("Sales Inv. Disc. Account", LibraryERM.CreateGLAccountNo());
+        GeneralPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateCustomerWithInvDiscount(LineGLAccount: Record "G/L Account"; var Customer: Record Customer)
+    begin
+        Customer.Get(CreateCustomerWithPostingGroups(LineGLAccount."Gen. Bus. Posting Group", LineGLAccount."VAT Bus. Posting Group"));
+        CreateCustomerInvDiscount(Customer."No.");
+    end;
+
+    local procedure CreateCustomerInvDiscount(CustomerNo: Code[20]): Code[20]
+    var
+        CustInvoiceDisc: Record "Cust. Invoice Disc.";
+    begin
+        LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, CustomerNo, '', 0);  // Set Zero for Charge Amount.
+        CustInvoiceDisc.Validate("Discount %", LibraryRandom.RandDec(10, 2));  // Take Random Discount.
+        CustInvoiceDisc.Modify(true);
+        exit(CustomerNo);
+    end;
+
+    local procedure CreateItemWithPostingSetup(LineGLAccount: Record "G/L Account"): Code[20]
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Price", 10 * LibraryRandom.RandDec(99, 3));
+        Item.Validate("Gen. Prod. Posting Group", LineGLAccount."Gen. Prod. Posting Group");
+        Item.Validate("VAT Prod. Posting Group", LineGLAccount."VAT Prod. Posting Group");
+        Item.Modify(true);
+        exit(Item."No.");
+    end;
+
+    local procedure CreatePrepmtSalesOrderFoprItemWith100Percent(Customer: Record Customer; PriceInclVat: Boolean; Item: Record Item; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+        CreatePrepmtSalesOrder(Customer, PriceInclVat, 100, SalesLine.Type::Item, Item."No.", SalesHeader, SalesLine);
+    end;
+
+    local procedure CreatePrepmtSalesOrder(Customer: Record Customer; PriceInclVat: Boolean; PrepaymentPercent: Decimal; SalesLineType: Enum "Sales Line Type"; No: Code[20]; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("Prices Including VAT", PriceInclVat);
+        SalesHeader.Validate("Prepayment %", PrepaymentPercent);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLineType, No, LibraryRandom.RandInt(50));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
     end;
 
     local procedure CreateCustomSalesLinesScenario363330(SalesHeader: Record "Sales Header"; LineGLAccountNo: Code[20])
@@ -4640,4 +4746,3 @@ codeunit 134103 "ERM Prepayment IV"
             until GLAccount.Next() = 0;
     end;
 }
-

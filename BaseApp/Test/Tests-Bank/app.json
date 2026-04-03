@@ -12,6 +12,12 @@
       "version": "$(app_minimumVersion)"
     },
     {
+      "id": "d852d5d2-a39d-4179-baeb-f99a19e32510",
+      "name": "Application Test Library",
+      "publisher": "Microsoft",
+      "version": "$(app_minimumVersion)"
+    },
+    {
       "id": "5095f467-0a01-4b99-99d1-9ff1237d286f",
       "publisher": "Microsoft",
       "name": "Library Variable Storage",

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -23,6 +23,7 @@ table 99000880 "Order Promising Line"
         field(10; "Item No."; Code[20])
         {
             Caption = 'Item No.';
+            ToolTip = 'Specifies the item number of the item that is on the promised order.';
             TableRelation = Item;
         }
         field(11; "Variant Code"; Code[10])
@@ -39,38 +40,47 @@ table 99000880 "Order Promising Line"
         }
         field(13; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
+            ToolTip = 'Specifies the number of units, calculated by subtracting the reserved quantity from the outstanding quantity in the Sales Line table.';
             DecimalPlaces = 0 : 5;
         }
         field(14; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
+            ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
             Editable = false;
             TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
         }
         field(15; "Qty. per Unit of Measure"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. per Unit of Measure';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(16; "Unavailable Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Unavailable Quantity';
+            ToolTip = 'Specifies the quantity of items that are not available for the requested delivery date on the order.';
             DecimalPlaces = 0 : 5;
         }
         field(17; "Quantity (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity (Base)';
             DecimalPlaces = 0 : 5;
         }
         field(18; "Unavailable Quantity (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Unavailable Quantity (Base)';
             DecimalPlaces = 0 : 5;
         }
         field(19; "Required Quantity (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Required Quantity (Base)';
             DecimalPlaces = 0 : 5;
         }
@@ -97,15 +107,19 @@ table 99000880 "Order Promising Line"
         field(30; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies the description of the entry.';
         }
         field(31; "Required Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Required Quantity';
+            ToolTip = 'Specifies the quantity required for order promising lines.';
             DecimalPlaces = 0 : 5;
         }
         field(40; "Requested Delivery Date"; Date)
         {
             Caption = 'Requested Delivery Date';
+            ToolTip = 'Specifies the requested delivery date for the entry.';
 
             trigger OnValidate()
             begin
@@ -115,6 +129,7 @@ table 99000880 "Order Promising Line"
         field(41; "Planned Delivery Date"; Date)
         {
             Caption = 'Planned Delivery Date';
+            ToolTip = 'Specifies the planned date that the shipment will be delivered at the customer''s address. If the customer requests a delivery date, the program calculates whether the items will be available for delivery on this date. If the items are available, the planned delivery date will be the same as the requested delivery date. If not, the program calculates the date that the items are available for delivery and enters this date in the Planned Delivery Date field.';
 
             trigger OnValidate()
             begin
@@ -125,10 +140,12 @@ table 99000880 "Order Promising Line"
         field(42; "Original Shipment Date"; Date)
         {
             Caption = 'Original Shipment Date';
+            ToolTip = 'Specifies the shipment date of the entry.';
         }
         field(43; "Earliest Shipment Date"; Date)
         {
             Caption = 'Earliest Shipment Date';
+            ToolTip = 'Specifies the Capable to Promise function as the earliest possible shipment date for the item.';
 
             trigger OnValidate()
             begin
@@ -138,11 +155,13 @@ table 99000880 "Order Promising Line"
         field(44; "Requested Shipment Date"; Date)
         {
             Caption = 'Requested Shipment Date';
+            ToolTip = 'Specifies the delivery date that the customer requested, minus the shipping time.';
             Editable = false;
         }
         field(45; "Unavailability Date"; Date)
         {
             Caption = 'Unavailability Date';
+            ToolTip = 'Specifies the date when the order promising line is no longer available.';
         }
     }
 
@@ -161,35 +180,8 @@ table 99000880 "Order Promising Line"
     {
     }
 
-#if not CLEAN25
-    [Obsolete('Replaced by procedure TransferToOrderPromisingLine() in codeunit Sales Availability Mgt.', '25.0')]
-    procedure TransferFromSalesLine(var SalesLine: Record Microsoft.Sales.Document."Sales Line")
-    var
-        SalesAvailabilityMgt: Codeunit Microsoft.Sales.Document."Sales Availability Mgt.";
-    begin
-        SalesAvailabilityMgt.TransferToOrderPromisingLine(Rec, SalesLine);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Replaced by procedure TransferToOrderPromisingLine() in codeunit Serv. Availability Mgt.', '25.0')]
-    procedure TransferFromServLine(var ServLine: Record Microsoft.Service.Document."Service Line")
-    var
-        ServAvailabilityMgt: Codeunit Microsoft.Service.Document."Serv. Availability Mgt.";
-    begin
-        ServAvailabilityMgt.TransferToOrderPromisingLine(Rec, ServLine);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Replaced by procedure TransferToOrderPromisingLine() in codeunit Job Planning Availability Mgt.', '25.0')]
-    procedure TransferFromJobPlanningLine(var JobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line")
-    var
-        JobPlanningAvailabilityMgt: Codeunit Microsoft.Projects.Project.Planning."Job Planning Availability Mgt.";
-    begin
-        JobPlanningAvailabilityMgt.TransferToOrderPromisingLine(Rec, JobPlanningLine);
-    end;
-#endif
 
     procedure GetLastEntryNo(): Integer;
     var
@@ -245,43 +237,6 @@ table 99000880 "Order Promising Line"
     begin
     end;
 
-#if not CLEAN25
-    internal procedure RunOnAfterTransferFromSalesLine(var OrderPromisingLine: Record "Order Promising Line"; SalesLine: Record Microsoft.Sales.Document."Sales Line")
-    begin
-        OnAfterTransferFromSalesLine(OrderPromisingLine, SalesLine);
-    end;
 
-    [Obsolete('Replaced by event OnAfterTransferToOrderPromisingLine in codeunit Sales Availability Mgt.', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromSalesLine(var OrderPromisingLine: Record "Order Promising Line"; SalesLine: Record Microsoft.Sales.Document."Sales Line")
-    begin
-    end;
-#endif
 
-#if not CLEAN25
-    internal procedure RunOnAfterTransferFromServLine(var OrderPromisingLine: Record "Order Promising Line"; ServiceLine: Record Microsoft.Service.Document."Service Line")
-    begin
-        OnAfterTransferFromServLine(OrderPromisingLine, ServiceLine);
-    end;
-
-    [Obsolete('Replaced by event OnAfterTransferToOrderPromisingLine in codeunit Serv. Availability Mgt.', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromServLine(var OrderPromisingLine: Record "Order Promising Line"; ServiceLine: Record Microsoft.Service.Document."Service Line")
-    begin
-    end;
-#endif
-
-#if not CLEAN25
-    internal procedure RunOnAfterTransferFromJobPlanningLine(var OrderPromisingLine: Record "Order Promising Line"; JobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line")
-    begin
-        OnAfterTransferFromJobPlanningLine(OrderPromisingLine, JobPlanningLine);
-    end;
-
-    [Obsolete('Replaced by event OnAfterTransferToOrderPromisingLine in codeunit Job Planning Availability Mgt.', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromJobPlanningLine(var OrderPromisingLine: Record "Order Promising Line"; JobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line")
-    begin
-    end;
-#endif
 }
-

@@ -164,11 +164,16 @@ page 1 "Company Information"
                         VATRegistrationLogMgt.AssistEditCompanyInfoVATReg();
                     end;
                 }
+#if not CLEAN28
                 field("Suppl. VAT Registration No."; Rec."Suppl. VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company''s supplementary VAT registration number.';
+                    ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '28.0';
                 }
+#endif
                 field(GLN; Rec.GLN)
                 {
                     ApplicationArea = Basic, Suite;
@@ -233,6 +238,10 @@ page 1 "Company Information"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies your company''s web site.';
+                }
+                field(DefaultLanguage; Rec."Default Language code")
+                {
+                    ApplicationArea = Basic, Suite;
                 }
             }
             group(Payments)

@@ -5,8 +5,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Reporting;
 
-using System.Environment;
 using Microsoft.Utilities;
+using System.Environment;
 
 codeunit 10523 "GovTalk Setup"
 {

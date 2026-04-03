@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -6,13 +6,16 @@ namespace Microsoft.Sales.Reminder;
 
 using System.Telemetry;
 
+/// <summary>
+/// Displays and manages reminder terms configurations including posting options and fee settings.
+/// </summary>
 page 431 "Reminder Terms"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Reminder Terms';
     PageType = List;
     SourceTable = "Reminder Terms";
-#if not CLEAN26
+#if not CLEAN27
     UsageCategory = Administration;
 #else
     UsageCategory = None;
@@ -28,17 +31,14 @@ page 431 "Reminder Terms"
                 field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a code to identify this set of reminder terms.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a description of the reminder terms.';
                 }
                 field("Max. No. of Reminders"; Rec."Max. No. of Reminders")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the maximum number of reminders that can be created for an invoice.';
                 }
                 field("Post Interest"; Rec."Post Interest")
                 {
@@ -63,7 +63,6 @@ page 431 "Reminder Terms"
                 field("Note About Line Fee on Report"; Rec."Note About Line Fee on Report")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies that any notes about line fees will be added to the reminder.';
                 }
             }
         }

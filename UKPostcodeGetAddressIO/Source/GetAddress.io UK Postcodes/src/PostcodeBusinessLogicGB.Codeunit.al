@@ -18,7 +18,7 @@ codeunit 9099 "Postcode Business Logic GB"
     var
         PostcodeServiceManager: Codeunit "Postcode Service Manager";
         SavePostcode: Boolean;
-        UKPostcodeAutocompleteLbl: Label 'UK Postcode Service';
+        UKPostcodeAutocompleteLbl: Label 'Postcode Service';
         NoDataRetrievedErr: Label 'Postal code service did not return any results.';
         SavePostcodeSet: Boolean;
         DiscoverabilityMessageMsg: Label 'You can retrieve and validate addresses based on postcodes.';
@@ -26,6 +26,7 @@ codeunit 9099 "Postcode Business Logic GB"
         DontShowAgainTok: Label 'Don''t show again';
         NotificationIdTok: Label '3c379efc-509e-4f20-8c0e-e65f9d535a04', Locked = true;
         DisabledTok: Label 'Disabled', Locked = true;
+        ServiceNameTxt: Label 'GetAddress.io', Locked = true;
 
     procedure ShowLookupWindow(var TempEnteredAutocompleteAddress: Record "Autocomplete Address" temporary; ShowInputPage: Boolean; var TempAutocompleteAddress: Record "Autocomplete Address" temporary): Boolean
     var
@@ -44,6 +45,11 @@ codeunit 9099 "Postcode Business Logic GB"
         // -- Address selection window opened with a list of possible addresses
         // -  - Address selection is canceled => EXIT(FALSE), do not show postcode input page
         // -  - Address selection is confirmed => set the address and EXIT(TRUE)
+        if not IsConfigured() then
+            exit;
+
+        if PostcodeServiceManager.GetActiveService() <> ServiceNameTxt then
+            exit;
 
         if not ShowInputPage then
             TempEnteredAutocompleteAddress.Address := '';
@@ -86,7 +92,7 @@ codeunit 9099 "Postcode Business Logic GB"
 
     procedure ShowDiscoverabilityNotificationIfNeccessary()
     var
-        PostcodeNotificationMemory: Record "Postcode Notification Memory";
+        PostcodeNotificationMemory: Record "Postcode Notif. Memory";
         TempServiceListNameValueBuffer: Record "Name/Value Buffer" temporary;
         PostcodeServiceConfig: Record "Postcode Service Config";
         DiscoverabilityNotification: Notification;
@@ -112,7 +118,7 @@ codeunit 9099 "Postcode Business Logic GB"
 
     procedure NotificationOnConfigure(Notification: Notification)
     begin
-        PAGE.Run(PAGE::"Postcode Configuration Page");
+        PAGE.Run(PAGE::"Postcode Configuration Page W1");
         DisableNotificationForUser();
     end;
 
@@ -122,8 +128,11 @@ codeunit 9099 "Postcode Business Logic GB"
     end;
 
     procedure IsConfigured(): Boolean
+    var
+        Configured: Boolean;
     begin
-        exit(PostcodeServiceManager.IsConfigured());
+        PostcodeServiceManager.IsServiceConfigured(ServiceNameTxt, Configured);
+        exit(Configured);
     end;
 
     procedure SetSavePostcode(NewValue: Boolean)
@@ -170,7 +179,7 @@ codeunit 9099 "Postcode Business Logic GB"
 
     local procedure DisableNotificationForUser()
     var
-        PostcodeNotificationMemory: Record "Postcode Notification Memory";
+        PostcodeNotificationMemory: Record "Postcode Notif. Memory";
     begin
         if PostcodeNotificationMemory.Get(UserId) then
             exit;
@@ -182,7 +191,7 @@ codeunit 9099 "Postcode Business Logic GB"
 
     local procedure ShowPostcodeInputFields(var Postcode: Text[20]; var DeliveryPoint: Text[100]): Boolean
     var
-        PostcodeSearch: Page "Postcode Search";
+        PostcodeSearch: Page "Postcode Search GB";
     begin
         PostcodeSearch.SetValues(Postcode, '');
         if PostcodeSearch.RunModal() = ACTION::Cancel then
@@ -218,11 +227,14 @@ codeunit 9099 "Postcode Business Logic GB"
     local procedure RegisterServiceOnRegisterServiceConnection(var ServiceConnection: Record "Service Connection")
     var
         PostcodeServiceConfig: Record "Postcode Service Config";
+        Configured: Boolean;
     begin
-        if PostcodeServiceManager.IsConfigured() then
+        PostcodeServiceManager.IsServiceConfigured(ServiceNameTxt, Configured);
+        if Configured then
             ServiceConnection.Status := ServiceConnection.Status::Enabled
         else
-            ServiceConnection.Status := ServiceConnection.Status::Disabled;
+           if ServiceConnection.Status = ServiceConnection.Status::" " then
+               ServiceConnection.Status := ServiceConnection.Status::Disabled;
 
         if not PostcodeServiceConfig.FindFirst() then begin
             PostcodeServiceConfig.Init();
@@ -231,7 +243,7 @@ codeunit 9099 "Postcode Business Logic GB"
         end;
 
         ServiceConnection.InsertServiceConnection(ServiceConnection, PostcodeServiceConfig.RecordId,
-          UKPostcodeAutocompleteLbl, '', PAGE::"Postcode Configuration Page");
+          UKPostcodeAutocompleteLbl, '', PAGE::"Postcode Configuration Page W1");
     end;
 }
 

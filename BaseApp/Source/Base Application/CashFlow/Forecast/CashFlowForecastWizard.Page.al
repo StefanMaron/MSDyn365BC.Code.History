@@ -312,7 +312,9 @@ page 1818 "Cash Flow Forecast Wizard"
         EnableControls(false);
         UpdateFrequency := UpdateFrequency::Daily;
         TaxablePeriod := TaxablePeriod::Quarterly;
+#if not CLEAN28
         Evaluate(TaxPaymentWindow, '<CM + 1M + 7D>');
+#endif
         LiquidFundsGLAccountFilter := GetLiquidFundsGLAccountFilter();
         AzureAIEnabled := true;
     end;

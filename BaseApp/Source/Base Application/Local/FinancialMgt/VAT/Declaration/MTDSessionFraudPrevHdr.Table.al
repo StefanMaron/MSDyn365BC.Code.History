@@ -1,4 +1,4 @@
-﻿#if not CLEANSCHEMA28 
+#if not CLEANSCHEMA28 
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -9,13 +9,8 @@ table 10538 "MTD-Session Fraud Prev. Hdr"
 {
     Caption = 'HMRC Missing Fraud Prevention Header';
     ObsoleteReason = 'Moved to extension Making Tax Digital';
-#if CLEAN25
     ObsoleteState = Removed;
     ObsoleteTag = '28.0';
-#else
-    ObsoleteState = Pending;
-    ObsoleteTag = '19.0';
-#endif
     DataClassification = CustomerContent;
 
     fields

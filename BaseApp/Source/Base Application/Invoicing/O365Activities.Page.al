@@ -316,22 +316,16 @@ page 1310 "O365 Activities"
                     }
                 }
             }
+#if not CLEAN28
             usercontrol(SATAsyncLoader; SatisfactionSurveyAsync)
             {
                 ApplicationArea = Basic, Suite;
-                trigger ResponseReceived(Status: Integer; Response: Text)
-                var
-                    SatisfactionSurveyMgt: Codeunit "Satisfaction Survey Mgt.";
-                begin
-                    SatisfactionSurveyMgt.TryShowSurvey(Status, Response);
-                end;
-
-                trigger ControlAddInReady();
-                begin
-                    IsAddInReady := true;
-                    CheckIfSurveyEnabled();
-                end;
+                Visible = false;
+                ObsoleteReason = 'The Satisfaction Survey feature will be removed in a future release.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '28.0';
             }
+#endif
         }
     }
 
@@ -408,6 +402,7 @@ page 1310 "O365 Activities"
         end;
 
         Rec.SetFilter("Due Next Week Filter", '%1..%2', CalcDate('<1D>', WorkDate()), CalcDate('<1W>', WorkDate()));
+        CalculateCueFieldValues();  // starts page-background tasks
 
         HasCamera := Camera.IsAvailable();
 
@@ -432,8 +427,6 @@ page 1310 "O365 Activities"
 
         RoleCenterNotificationMgt.ShowNotifications();
         ConfPersonalizationMgt.RaiseOnOpenRoleCenterEvent();
-
-        CalculateCueFieldValues();
     end;
 
     var
@@ -454,14 +447,11 @@ page 1310 "O365 Activities"
         ShowIntercompanyActivities: Boolean;
         TileGettingStartedVisible: Boolean;
         ReplayGettingStartedVisible: Boolean;
-        HideSatisfactionSurvey: Boolean;
         WhatIsNewTourVisible: Boolean;
         ShowD365SIntegrationCues: Boolean;
         ShowDataIntegrationCues: Boolean;
         ShowIntegrationErrorsCue: Boolean;
         HideWizardForDevices: Boolean;
-        IsAddInReady: Boolean;
-        IsPageReady: Boolean;
         RecordForUpdateCachedCueValuesIsLocked: Boolean;
         TaskIdCalculateCue: Integer;
         IntegrationErrorsCue: Text;
@@ -643,22 +633,16 @@ page 1310 "O365 Activities"
             exit(false);
         UserTours := UserTours.Create();
         UserTours.NotifyShowTourWizard();
-        if O365GettingStartedMgt.IsGettingStartedSupported() then
-            if O365GettingStartedMgt.WizardHasToBeLaunched(false) then
-                HideSatisfactionSurvey := true;
         exit(true);
     end;
 
     trigger UserTours::ShowTourWizard(hasTourCompleted: Boolean)
     begin
         if O365GettingStartedMgt.IsGettingStartedSupported() then
-            if O365GettingStartedMgt.LaunchWizard(false, hasTourCompleted) then begin
-                HideSatisfactionSurvey := true;
+            if O365GettingStartedMgt.LaunchWizard(false, hasTourCompleted) then
                 exit;
-            end;
 
-        if StartWhatIsNewTour(hasTourCompleted) then
-            HideSatisfactionSurvey := true;
+        StartWhatIsNewTour(hasTourCompleted);
     end;
 
     trigger UserTours::IsTourInProgressResultReady(isInProgress: Boolean)
@@ -667,32 +651,11 @@ page 1310 "O365 Activities"
 
     trigger PageNotifier::PageReady()
     begin
-        IsPageReady := true;
         if not HideWizardForDevices then
             if O365GettingStartedMgt.WizardShouldBeOpenedForDevices then begin
-                HideSatisfactionSurvey := true;
                 Commit();
                 PAGE.RunModal(PAGE::"O365 Getting Started Device");
             end;
-        CheckIfSurveyEnabled();
-    end;
-
-    local procedure CheckIfSurveyEnabled()
-    var
-        SatisfactionSurveyMgt: Codeunit "Satisfaction Survey Mgt.";
-        CheckUrl: Text;
-    begin
-        if not IsAddInReady then
-            exit;
-        if not IsPageReady then
-            exit;
-        if HideSatisfactionSurvey then
-            exit;
-        if not SatisfactionSurveyMgt.DeactivateSurvey() then
-            exit;
-        if not SatisfactionSurveyMgt.TryGetCheckUrl(CheckUrl) then
-            exit;
-        CurrPage.SATAsyncLoader.SendRequest(CheckUrl, SatisfactionSurveyMgt.GetRequestTimeoutAsync());
     end;
 
     [IntegrationEvent(false, false)]

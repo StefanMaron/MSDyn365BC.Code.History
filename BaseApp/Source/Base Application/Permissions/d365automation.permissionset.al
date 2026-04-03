@@ -1,43 +1,8 @@
 namespace System.Security.AccessControl;
 
+using Microsoft;
 using Microsoft.AccountantPortal;
-using Microsoft.Booking;
-using Microsoft.Intercompany.Comment;
-using Microsoft.Projects.Project.Archive;
-using Microsoft.Projects.Project.Job;
-using Microsoft.Inventory.Location;
-using Microsoft.Projects.TimeSheet;
-using Microsoft.CostAccounting.Setup;
-using Microsoft.Bank.Payment;
-using Microsoft.Foundation.Reporting;
-using Microsoft.EServices.EDocument;
-using Microsoft.Foundation.Attachment;
-using Microsoft.Foundation.Navigate;
-using Microsoft.Finance.VAT.Reporting;
-using Microsoft.Finance.VAT.Ledger;
-using Microsoft.eServices.OnlineMap;
-using Microsoft.Finance.Payroll;
-using Microsoft.Inventory.Reconciliation;
-using Microsoft.Projects.Project.Journal;
-#if not CLEAN25
-using Microsoft.Projects.Project.Pricing;
-#endif
-using Microsoft.Projects.Project.Ledger;
-using Microsoft.Projects.Project.Planning;
-using Microsoft.Projects.Project.Posting;
-using Microsoft.Projects.Project.WIP;
-using Microsoft.Projects.Project.Setup;
-using System.Security.Authentication;
-using System.Globalization;
-using Microsoft.Foundation.AuditCodes;
-using Microsoft.Foundation.Shipping;
-using Microsoft.Foundation.UOM;
-using Microsoft.Foundation.Task;
-using Microsoft.Finance.VAT.Calculation;
-using Microsoft.Finance.VAT.Setup;
-using Microsoft.Finance.VAT.Clause;
-using Microsoft.Finance.VAT.RateChange;
-using Microsoft.Finance.VAT.Registration;
+using Microsoft.API;
 using Microsoft.Assembly.Comment;
 using Microsoft.Assembly.Document;
 using Microsoft.Assembly.History;
@@ -47,22 +12,23 @@ using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
 using Microsoft.Bank.DirectDebit;
 using Microsoft.Bank.Ledger;
+using Microsoft.Bank.Payment;
 using Microsoft.Bank.PositivePay;
 using Microsoft.Bank.Reconciliation;
 using Microsoft.Bank.Setup;
 using Microsoft.Bank.Statement;
+using Microsoft.Booking;
 using Microsoft.CashFlow.Account;
 using Microsoft.CashFlow.Comment;
 using Microsoft.CashFlow.Forecast;
 using Microsoft.CashFlow.Setup;
 using Microsoft.CashFlow.Worksheet;
-using Microsoft.Foundation.Period;
-using Microsoft.RoleCenters;
 using Microsoft.CostAccounting.Account;
 using Microsoft.CostAccounting.Allocation;
 using Microsoft.CostAccounting.Budget;
 using Microsoft.CostAccounting.Journal;
 using Microsoft.CostAccounting.Ledger;
+using Microsoft.CostAccounting.Setup;
 using Microsoft.CRM.Analysis;
 using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Campaign;
@@ -78,13 +44,15 @@ using Microsoft.CRM.Segment;
 using Microsoft.CRM.Setup;
 using Microsoft.CRM.Task;
 using Microsoft.CRM.Team;
+using Microsoft.EServices.EDocument;
+using Microsoft.eServices.OnlineMap;
 using Microsoft.Finance.AllocationAccount;
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Consolidation;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Deferral;
-using Microsoft.Finance.Dimension.Correction;
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.Dimension.Correction;
 using Microsoft.Finance.FinancialReports;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Budget;
@@ -93,9 +61,17 @@ using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Reports;
 using Microsoft.Finance.GeneralLedger.Reversal;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.Payroll;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.RoleCenters;
 using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.Clause;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Finance.VAT.Registration;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.VAT.Setup;
 using Microsoft.FixedAssets.Depreciation;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.FixedAssets.Insurance;
@@ -105,11 +81,22 @@ using Microsoft.FixedAssets.Maintenance;
 using Microsoft.FixedAssets.Posting;
 using Microsoft.FixedAssets.Setup;
 using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Attachment;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.BatchProcessing;
+using Microsoft.Foundation.Calendar;
 using Microsoft.Foundation.Comment;
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.ExtendedText;
+using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Foundation.Period;
+using Microsoft.Foundation.Reporting;
+using Microsoft.Foundation.Shipping;
+using Microsoft.Foundation.Task;
+using Microsoft.Foundation.UOM;
+using Microsoft.HumanResources.Absence;
 using Microsoft.HumanResources.Comment;
 using Microsoft.HumanResources.Employee;
 using Microsoft.HumanResources.Payables;
@@ -117,13 +104,11 @@ using Microsoft.HumanResources.Setup;
 using Microsoft.Integration.D365Sales;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.Entity;
-#if not CLEAN25
-using Microsoft.Integration.FieldService;
-#endif
 using Microsoft.Integration.Graph;
-using Microsoft.Integration.SyncEngine;
 using Microsoft.Integration.PowerBI;
+using Microsoft.Integration.SyncEngine;
 using Microsoft.Intercompany.BankAccount;
+using Microsoft.Intercompany.Comment;
 using Microsoft.Intercompany.Dimension;
 using Microsoft.Intercompany.GLAccount;
 using Microsoft.Intercompany.Inbox;
@@ -132,8 +117,8 @@ using Microsoft.Intercompany.Partner;
 using Microsoft.Intercompany.Setup;
 using Microsoft.Inventory.Analysis;
 using Microsoft.Inventory.Availability;
-using Microsoft.Inventory.BOM.Tree;
 using Microsoft.Inventory.BOM;
+using Microsoft.Inventory.BOM.Tree;
 using Microsoft.Inventory.Comment;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Counting.Comment;
@@ -144,14 +129,17 @@ using Microsoft.Inventory.Counting.Recording;
 using Microsoft.Inventory.Counting.Tracking;
 using Microsoft.Inventory.Document;
 using Microsoft.Inventory.History;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Attribute;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Item.Picture;
 using Microsoft.Inventory.Item.Substitution;
-using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
+using Microsoft.Inventory.Reconciliation;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
@@ -161,17 +149,25 @@ using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
+using Microsoft.Projects.Project.Archive;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Projects.Project.Journal;
+using Microsoft.Projects.Project.Ledger;
+using Microsoft.Projects.Project.Planning;
+using Microsoft.Projects.Project.Posting;
+using Microsoft.Projects.Project.Pricing;
+using Microsoft.Projects.Project.Setup;
+using Microsoft.Projects.Project.WIP;
 using Microsoft.Projects.Resources.Analysis;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Ledger;
-#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
-#endif
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.Resources.Setup;
 using Microsoft.Projects.RoleCenters;
-using Microsoft.Purchases.Archive;
+using Microsoft.Projects.TimeSheet;
 using Microsoft.Purchases.Analysis;
+using Microsoft.Purchases.Archive;
 using Microsoft.Purchases.Comment;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
@@ -181,6 +177,7 @@ using Microsoft.Purchases.Remittance;
 using Microsoft.Purchases.RoleCenters;
 using Microsoft.Purchases.Setup;
 using Microsoft.Purchases.Vendor;
+using Microsoft.RoleCenters;
 using Microsoft.Sales.Analysis;
 using Microsoft.Sales.Archive;
 using Microsoft.Sales.Comment;
@@ -193,8 +190,9 @@ using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Reminder;
 using Microsoft.Sales.RoleCenters;
 using Microsoft.Sales.Setup;
-using Microsoft.Warehouse.Activity.History;
+using Microsoft.Utilities;
 using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.Activity.History;
 using Microsoft.Warehouse.ADCS;
 using Microsoft.Warehouse.Comment;
 using Microsoft.Warehouse.CrossDock;
@@ -218,13 +216,15 @@ using System.DateTime;
 using System.Device;
 using System.Diagnostics;
 using System.Email;
-using System.Environment.Configuration;
 using System.Environment;
-using System.Integration.PowerBI;
+using System.Environment.Configuration;
+using System.Globalization;
 using System.Integration;
+using System.Integration.PowerBI;
 using System.IO;
 using System.Privacy;
 using System.Reflection;
+using System.Security.Authentication;
 using System.Security.Encryption;
 using System.Security.User;
 using System.TestTools;
@@ -232,17 +232,10 @@ using System.TestTools.TestRunner;
 using System.Text;
 using System.Threading;
 using System.Tooling;
+using System.Upgrade;
 using System.Utilities;
 using System.Visualization;
 using System.Xml;
-using System.Upgrade;
-using Microsoft.Utilities;
-using Microsoft.Inventory.Intrastat;
-using Microsoft.Foundation.Calendar;
-using Microsoft.Foundation.BatchProcessing;
-using Microsoft.HumanResources.Absence;
-using Microsoft.API;
-using Microsoft;
 
 permissionset 5117 "D365 AUTOMATION"
 {
@@ -289,6 +282,7 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata Key = Rimd,
                   tabledata "License Information" = imd,
                   tabledata "License Permission" = imd,
+                  tabledata "Matched Order Line" = Rimd,
                   tabledata Media = imd,
                   tabledata "Media Resources" = Rimd,
                   tabledata "Media Set" = imd,
@@ -326,6 +320,7 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Web Service" = RIMD,
                   tabledata "Windows Language" = imd,
                   tabledata "AAD Application" = RIMD,
+                  tabledata "ABC Analysis Setup" = RIMD,
                   tabledata "Acc. Sched. Cell Value" = RIMD,
                   tabledata "Acc. Sched. Chart Setup Line" = RIMD,
                   tabledata "Acc. Sched. KPI Buffer" = RIMD,
@@ -335,7 +330,13 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Acc. Schedule Line Entity" = RIMD,
                   tabledata "Acc. Schedule Name" = RIMD,
                   tabledata "Financial Report" = RIMD,
+                  tabledata "Financial Report Export Log" = RIMD,
+                  tabledata "Financial Report Recipient" = RIMD,
+                  tabledata "Financial Report Schedule" = RIMD,
                   tabledata "Financial Report User Filters" = RIMD,
+                  tabledata "Financial Report Category" = RIMD,
+                  tabledata "Financial Report Audit Log" = Rimd,
+                  tabledata "Financial Report Status" = RIMD,
                   tabledata "Account Schedules Chart Setup" = RIMD,
                   tabledata "Account Use Buffer" = RIMD,
                   tabledata "Account Payable Cue" = RIMD,
@@ -625,22 +626,6 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "CRM Transactioncurrency" = RIMD,
                   tabledata "CRM Uom" = RIMD,
                   tabledata "CRM Uomschedule" = RIMD,
-#if not CLEAN25
-                  tabledata "FS Connection Setup" = RIMD,
-                  tabledata "FS Bookable Resource" = RIMD,
-                  tabledata "FS Bookable Resource Booking" = RIMD,
-                  tabledata "FS BookableResourceBookingHdr" = RIMD,
-                  tabledata "FS Customer Asset" = RIMD,
-                  tabledata "FS Customer Asset Category" = RIMD,
-                  tabledata "FS Project Task" = RIMD,
-                  tabledata "FS Resource Pay Type" = RIMD,
-                  tabledata "FS Work Order" = RIMD,
-                  tabledata "FS Work Order Incident" = RIMD,
-                  tabledata "FS Work Order Product" = RIMD,
-                  tabledata "FS Work Order Service" = RIMD,
-                  tabledata "FS Work Order Substatus" = RIMD,
-                  tabledata "FS Work Order Type" = RIMD,
-#endif
                   tabledata "CSV Buffer" = RIMD,
                   tabledata "Curr. Exch. Rate Update Setup" = RIMD,
                   tabledata Currency = RIMD,
@@ -705,6 +690,7 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Detailed Cust. Ledg. Entry" = Rimd,
                   tabledata "Detailed CV Ledg. Entry Buffer" = RIMD,
                   tabledata "Detailed Employee Ledger Entry" = Rimd,
+                  tabledata "Detailed Matched Order Line" = RMID,
                   tabledata "Detailed Vendor Ledg. Entry" = Rimd,
                   tabledata "Dim Correct Selection Criteria" = R,
                   tabledata "Dim Correction Blocked Setup" = R,
@@ -770,11 +756,17 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Excel Template Storage" = RIMD,
                   tabledata "Exch. Rate Adjmt. Reg." = Rimd,
                   tabledata "Exch. Rate Adjmt. Ledg. Entry" = Rimd,
+#if not CLEAN28
                   tabledata "Exchange Contact" = RIMD,
+#endif
                   tabledata "Exchange Folder" = RIMD,
                   tabledata "Exchange Object" = RIMD,
                   tabledata "Exchange Service Setup" = RIMD,
+                  tabledata "Contact Sync User" = RIMD,
+                  tabledata "Outlook Contacts" = RIMD,
+#if not CLEAN28
                   tabledata "Exchange Sync" = RIMD,
+#endif
                   tabledata "Exp. Invt. Order Tracking" = RIMD,
                   tabledata "Experience Tier Buffer" = RIMD,
                   tabledata "Experience Tier Setup" = RIMD,
@@ -960,6 +952,7 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Item Attribute Translation" = RIMD,
                   tabledata "Item Attribute Value" = RIMD,
                   tabledata "Item Attribute Value Mapping" = RIMD,
+                  tabledata "Item Var. Attr. Value Mapping" = RIMD,
                   tabledata "Item Attribute Value Selection" = RIMD,
                   tabledata "Item Availability Buffer" = RIMD,
                   tabledata "Item Availability by Date" = RIMD,
@@ -1001,10 +994,8 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Job Cue" = RIMD,
                   tabledata "Job Difference Buffer" = Rimd,
                   tabledata "Job Entry No." = RIMD,
-#if not CLEAN25
                   tabledata "Job G/L Account Price" = RIMD,
                   tabledata "Job Item Price" = RIMD,
-#endif
                   tabledata "Job Journal Batch" = RIMD,
                   tabledata "Job Journal Line" = RIMD,
                   tabledata "Job Journal Quantity" = RIMD,
@@ -1024,9 +1015,7 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Job Queue Notification Setup" = RIMD,
                   tabledata "Job Queue Notified Admin" = RIMD,
                   tabledata "Job Register" = Rimd,
-#if not CLEAN25
                   tabledata "Job Resource Price" = RIMD,
-#endif
                   tabledata "Job Responsibility" = RIMD,
                   tabledata "Job Task" = RIMD,
                   tabledata "Job Task Archive" = RIMD,
@@ -1190,6 +1179,7 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Posted Invt. Pick Line" = RIMD,
                   tabledata "Posted Invt. Put-away Header" = RIMD,
                   tabledata "Posted Invt. Put-away Line" = RIMD,
+                  tabledata "Posted Matched Order Line" = RMID,
                   tabledata "Posted Payment Recon. Hdr" = RIMD,
                   tabledata "Posted Payment Recon. Line" = RIMD,
                   tabledata "Posted Whse. Receipt Header" = RIMD,
@@ -1230,9 +1220,7 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Purch. Inv. Header" = RimD,
                   tabledata "Purch. Inv. Line" = Rimd,
                   tabledata "Purch. Inv. Line Aggregate" = RIMD,
-#if not CLEAN25
                   tabledata "Purch. Price Line Disc. Buff." = RIMD,
-#endif
                   tabledata "Purch. Rcpt. Header" = RIMD,
                   tabledata "Purch. Rcpt. Line" = Rimd,
                   tabledata "Purchase Cue" = RIMD,
@@ -1241,14 +1229,10 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Purchase Header Archive" = RIMD,
                   tabledata "Purchase Line" = RIMD,
                   tabledata "Purchase Line Archive" = RIMD,
-#if not CLEAN25
                   tabledata "Purchase Line Discount" = RIMD,
-#endif
                   tabledata "Purchase Order Entity Buffer" = RIMD,
                   tabledata "Purchase Prepayment %" = RIMD,
-#if not CLEAN25
                   tabledata "Purchase Price" = RIMD,
-#endif
                   tabledata "Purchase Price Access" = RIMD,
                   tabledata "Purchases & Payables Setup" = RIMD,
                   tabledata Purchasing = RIMD,
@@ -1271,7 +1255,7 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Recorded Event Buffer" = RIMD,
                   tabledata "Referenced XML Schema" = RIMD,
                   tabledata "Registered Invt. Movement Hdr." = RimD,
-                  tabledata "Registered Invt. Movement Line" = Rimd,
+                  tabledata "Registered Invt. Movement Line" = RimD,
                   tabledata "Registered Whse. Activity Hdr." = Rimd,
                   tabledata "Registered Whse. Activity Line" = Rimd,
                   tabledata "Relationship Mgmt. Cue" = RIMD,
@@ -1316,14 +1300,10 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Reservation Entry" = RIMD,
                   tabledata "Reservation Entry Buffer" = RIMD,
                   tabledata Resource = RIMD,
-#if not CLEAN25
                   tabledata "Resource Cost" = RIMD,
-#endif
                   tabledata "Resource Group" = RIMD,
-#if not CLEAN25
                   tabledata "Resource Price" = RIMD,
                   tabledata "Resource Price Change" = RIMD,
-#endif
                   tabledata "Resource Register" = RIMD,
                   tabledata "Resource Unit of Measure" = RIMD,
                   tabledata "Resources Setup" = RIMD,
@@ -1361,20 +1341,14 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Sales Invoice Line Aggregate" = RIMD,
                   tabledata "Sales Line" = RIMD,
                   tabledata "Sales Line Archive" = RIMD,
-#if not CLEAN25
                   tabledata "Sales Line Discount" = RIMD,
-#endif
                   tabledata "Sales Order Entity Buffer" = RIMD,
                   tabledata "Sales Planning Line" = Rimd,
                   tabledata "Sales Prepayment %" = RIMD,
-#if not CLEAN25
                   tabledata "Sales Price" = RIMD,
-#endif
                   tabledata "Sales Price Access" = RIMD,
-#if not CLEAN25
                   tabledata "Sales Price and Line Disc Buff" = RIMD,
                   tabledata "Sales Price Worksheet" = RIMD,
-#endif
                   tabledata "Sales Quote Entity Buffer" = RIMD,
                   tabledata "Sales Shipment Buffer" = RIMD,
                   tabledata "Sales Shipment Header" = RimD,

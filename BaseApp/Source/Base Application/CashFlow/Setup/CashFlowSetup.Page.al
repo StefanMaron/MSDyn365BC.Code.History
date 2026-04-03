@@ -172,12 +172,12 @@ page 846 "Cash Flow Setup"
                     var
                         AuditLog: Codeunit "Audit Log";
                         CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
-                        CashFlowForecastConsentProvidedLbl: Label 'Cash Flow Forecast feature, Azure AI - consent provided.', Locked = true;
+                        CashFlowForecastConsentProvidedLbl: Label 'Cash Flow Forecast feature, Azure AI - consent provided by UserSecurityId %1.', Locked = true;
                     begin
                         if not xRec."Azure AI Enabled" and Rec."Azure AI Enabled" then
                             Rec."Azure AI Enabled" := CustomerConsentMgt.ConsentToMicrosoftServiceWithAI();
                         if Rec."Azure AI Enabled" then
-                            AuditLog.LogAuditMessage(CashFlowForecastConsentProvidedLbl, SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
+                            AuditLog.LogAuditMessage(StrSubstNo(CashFlowForecastConsentProvidedLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
                     end;
                 }
                 field("Total Proc. Time"; Format(AzureAIUsage.GetTotalProcessingTime(AzureAIService::"Machine Learning")))
@@ -240,10 +240,12 @@ page 846 "Cash Flow Setup"
     begin
         TaxAccountTypeValid := Rec.HasValidTaxAccountInfo();
         SetApiKey();
+#if not CLEAN28
         if Format(Rec."Tax Payment Window") = '' then begin
             Evaluate(Rec."Tax Payment Window", '<CM + 1M + 7D>');
             Rec.Modify();
         end;
+#endif
     end;
 
     trigger OnOpenPage()

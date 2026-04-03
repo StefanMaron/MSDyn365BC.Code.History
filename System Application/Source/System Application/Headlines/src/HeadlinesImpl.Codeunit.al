@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Visualization;
+
 using System;
 using System.Security.AccessControl;
 using System.Security.User;

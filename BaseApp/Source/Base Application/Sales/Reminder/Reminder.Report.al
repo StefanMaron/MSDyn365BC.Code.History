@@ -18,13 +18,13 @@ using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
 using Microsoft.Sales.Customer;
+using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Setup;
 using System.Email;
 using System.Globalization;
-using System.Utilities;
 using System.Text;
-using Microsoft.Sales.FinanceCharge;
+using System.Utilities;
 
 report 117 Reminder
 {
@@ -45,12 +45,42 @@ report 117 Reminder
             column(DueDateCaption; DueDateCaptionLbl)
             {
             }
+#if not CLEAN28
             column(ShowMIRLines; ShowMIRLines)
             {
             }
             column(DocumentDateCaption; DocumentDateCaptionLbl)
             {
             }
+#else
+            column(VATAmountCaption; VATAmountCaptionLbl)
+            {
+            }
+            column(VATBaseCaption; VATBaseCaptionLbl)
+            {
+            }
+            column(VATPercentCaption; VATPercentCaptionLbl)
+            {
+            }
+            column(TotalCaption; TotalCaptionLbl)
+            {
+            }
+            column(PageCaption; PageCaptionLbl)
+            {
+            }
+            column(DocDateCaption; DocDateCaptionLbl)
+            {
+            }
+            column(HomePageCaption; HomePageCaptionLbl)
+            {
+            }
+            column(EMailCaption; EMailCaptionLbl)
+            {
+            }
+            column(ShowMIRLines; ShowMIRLines)
+            {
+            }
+#endif
             column(ContactPhoneNoLbl; ContactPhoneNoLbl)
             {
             }
@@ -72,15 +102,25 @@ report 117 Reminder
             dataitem("Integer"; "Integer")
             {
                 DataItemTableView = sorting(Number) where(Number = const(1));
+#if not CLEAN28
                 column(CompanyInfo2Picture; CompanyInfo2.Picture)
                 {
                 }
                 column(CompanyInfo1Picture; CompanyInfo1.Picture)
                 {
                 }
+#else
+                column(CompanyInfo1Picture; CompanyInfo1.Picture)
+                {
+                }
+                column(CompanyInfo2Picture; CompanyInfo2.Picture)
+                {
+                }
+#endif
                 column(CompanyInfo3Picture; CompanyInfo3.Picture)
                 {
                 }
+#if not CLEAN28
                 column(DueDate_IssuedReminderHeader; Format("Issued Reminder Header"."Due Date"))
                 {
                 }
@@ -90,18 +130,39 @@ report 117 Reminder
                 column(YourRef_IssuedReminderHeader; "Issued Reminder Header"."Your Reference")
                 {
                 }
+#else
+                column(DueDate_IssuedReminderHdr; Format("Issued Reminder Header"."Due Date"))
+                {
+                }
+                column(PostDate_IssuedReminderHdr; Format("Issued Reminder Header"."Posting Date"))
+                {
+                }
+                column(No1_IssuedReminderHdr; "Issued Reminder Header"."No.")
+                {
+                }
+                column(YourRef_IssueReminderHdr; "Issued Reminder Header"."Your Reference")
+                {
+                }
+#endif
                 column(Contact_IssuedReminderHdr; "Issued Reminder Header".Contact)
                 {
                 }
                 column(ReferenceText; ReferenceText)
                 {
                 }
+#if not CLEAN28
                 column(VATRegNo_IssuedReminderHeader; "Issued Reminder Header".GetCustomerVATRegistrationNumber())
                 {
                 }
+#else
+                column(VatRegNo_IssueReminderHdr; "Issued Reminder Header".GetCustomerVATRegistrationNumber())
+                {
+                }
+#endif
                 column(VATNoText; VATNoText)
                 {
                 }
+#if not CLEAN28
                 column(DocDate_IssuedReminderHeader; Format("Issued Reminder Header"."Document Date"))
                 {
                 }
@@ -111,21 +172,43 @@ report 117 Reminder
                 column(CompanyInfoBankAccountNo; CompanyBankAccount."Bank Account No.")
                 {
                 }
+#else
+                column(DocDate_IssueReminderHdr; Format("Issued Reminder Header"."Document Date"))
+                {
+                }
+                column(CustNo_IssueReminderHdr; "Issued Reminder Header"."Customer No.")
+                {
+                }
+                column(CompanyInfoBankAccNo; CompanyBankAccount."Bank Account No.")
+                {
+                }
+#endif
                 column(CompanyInfoIBAN; CompanyBankAccount.IBAN)
                 {
                 }
                 column(CompanyInfoBankName; CompanyBankAccount.Name)
                 {
                 }
+#if CLEAN28
+                column(CompanyInfoGiroNo; CompanyInfo."Giro No.")
+                {
+                }
+#endif
                 column(CompanyInfoVATRegNo; CompanyInfo.GetVATRegistrationNumber())
                 {
                 }
                 column(CompanyInfoHomePage; CompanyInfo."Home Page")
                 {
                 }
+#if not CLEAN28
                 column(CompanyInfoEmail; CompanyInfo."E-Mail")
                 {
                 }
+#else
+                column(CompanyInfoEMail; CompanyInfo."E-Mail")
+                {
+                }
+#endif
                 column(CustAddr8; CustAddr[8])
                 {
                 }
@@ -177,27 +260,40 @@ report 117 Reminder
                 column(CompanyAddr1; CompanyAddr[1])
                 {
                 }
+#if not CLEAN28
                 column(PageCaption; PageCaptionLbl)
                 {
                 }
                 column(CompanyInfoBankBranchNo; CompanyInfo."Bank Branch No.")
                 {
                 }
+#else
+                column(TextPage; TextPageLbl)
+                {
+                }
+#endif
                 column(PostingDateCaption; PostingDateCaptionLbl)
                 {
                 }
                 column(ReminderNoCaption; ReminderNoCaptionLbl)
                 {
                 }
+#if not CLEAN28
                 column(BankAccountNoCaption; BankAccountNoCaptionLbl)
                 {
                 }
+#else
+                column(BankAccNoCaption; BankAccNoCaptionLbl)
+                {
+                }
+#endif
                 column(IBANCaption; IBANCaptionLbl)
                 {
                 }
                 column(BankNameCaption; BankNameCaptionLbl)
                 {
                 }
+#if not CLEAN28
                 column(VATRegNoCaption; "Issued Reminder Header".GetCustomerVATRegistrationNumberLbl())
                 {
                 }
@@ -207,12 +303,21 @@ report 117 Reminder
                 column(HomePageCaption; HomePageCaptionLbl)
                 {
                 }
+#else
+                column(GiroNoCaption; GiroNoCaptionLbl)
+                {
+                }
+                column(VATRegNoCaption; "Issued Reminder Header".GetCustomerVATRegistrationNumberLbl())
+                {
+                }
+#endif
                 column(PhoneNoCaption; PhoneNoCaptionLbl)
                 {
                 }
                 column(ReminderCaption; ReminderCaptionLbl)
                 {
                 }
+#if not CLEAN28
                 column(CompanyVATRegistrationNoCaption; CompanyInfo.GetVATRegistrationNumberLbl())
                 {
                 }
@@ -222,6 +327,14 @@ report 117 Reminder
                 column(CustNo_IssuedReminderHeaderCaption; "Issued Reminder Header".FieldCaption("Customer No."))
                 {
                 }
+#else
+                column(CustNo_IssueReminderHdrCaption; "Issued Reminder Header".FieldCaption("Customer No."))
+                {
+                }
+                column(CompanyVATRegistrationNoCaption; CompanyInfo.GetVATRegistrationNumberLbl())
+                {
+                }
+#endif
                 dataitem(DimensionLoop; "Integer")
                 {
                     DataItemLinkReference = "Issued Reminder Header";
@@ -298,20 +411,35 @@ report 117 Reminder
                     column(DueDate_IssuedReminderLine; Format("Due Date"))
                     {
                     }
+#if not CLEAN28
                     column(OrgAmt_IssuedReminderLine; "Original Amount")
                     {
                         AutoFormatExpression = GetCurrencyCodeFromHeader();
                         AutoFormatType = 1;
                     }
+#else
+                    column(OriginalAmt_IssuedReminderLine; "Original Amount")
+                    {
+                        AutoFormatExpression = GetCurrencyCodeFromHeader();
+                        AutoFormatType = 1;
+                    }
+#endif
                     column(DocType_IssuedReminderLine; "Document Type")
                     {
                     }
+#if not CLEAN28
                     column(No_IssuedReminderLine; "No.")
                     {
                     }
+#else
+                    column(LineNo_IssuedReminderLine; "No.")
+                    {
+                    }
+#endif
                     column(ShowInternalInfo; ShowInternalInfo)
                     {
                     }
+#if not CLEAN28
                     column(VATAmtIssRemHdrAddFeeInclVAT; (TotalRemIntAmount + "VAT Amount" + "Issued Reminder Header"."Additional Fee" - AddFeeInclVAT) / (VATInterest / 100 + 1))
                     {
                         AutoFormatExpression = "Issued Reminder Line".GetCurrencyCodeFromHeader();
@@ -323,6 +451,11 @@ report 117 Reminder
                     column(TotalRemIntAmount; TotalRemIntAmount)
                     {
                     }
+#else
+                    column(NNCInterestAmt; NNC_InterestAmount)
+                    {
+                    }
+#endif
                     column(TotalText; TotalText)
                     {
                     }
@@ -335,15 +468,22 @@ report 117 Reminder
                     column(TotalInclVATText; TotalInclVATText)
                     {
                     }
+#if not CLEAN28
                     column(NNCVATAmount; NNC_VATAmount)
                     {
                     }
+#else
+                    column(NNCVATAmt; NNC_VATAmount)
+                    {
+                    }
+#endif
                     column(NNCTotalInclVAT; NNC_TotalInclVAT)
                     {
                     }
                     column(TotalVATAmt; TotalVATAmount)
                     {
                     }
+#if not CLEAN28
                     column(Rem_IssuedReminderLine; "Reminder No.")
                     {
                     }
@@ -353,15 +493,32 @@ report 117 Reminder
                     column(VATAmountCaption; VATAmountCaptionLbl)
                     {
                     }
+#else
+                    column(RemNo_IssuedReminderLine; "Reminder No.")
+                    {
+                    }
+                    column(DocumentDateCaption1; DocumentDateCaption1Lbl)
+                    {
+                    }
+                    column(InterestAmountCaption; InterestAmountCaptionLbl)
+                    {
+                    }
+#endif
                     column(RemAmt_IssuedReminderLineCaption; FieldCaption("Remaining Amount"))
                     {
                     }
                     column(DocNo_IssuedReminderLineCaption; FieldCaption("Document No."))
                     {
                     }
+#if not CLEAN28
                     column(OrgAmt_IssuedReminderLineCaption; FieldCaption("Original Amount"))
                     {
                     }
+#else
+                    column(OriginalAmt_IssuedReminderLineCaption; FieldCaption("Original Amount"))
+                    {
+                    }
+#endif
                     column(DocType_IssuedReminderLineCaption; FieldCaption("Document Type"))
                     {
                     }
@@ -448,12 +605,21 @@ report 117 Reminder
                     DataItemLink = "Reminder No." = field("No.");
                     DataItemLinkReference = "Issued Reminder Header";
                     DataItemTableView = sorting("Reminder No.", "Line No.");
+#if not CLEAN28
                     column(Desc2_IssuedReminderLine; Description)
                     {
                     }
                     column(LineNo2_IssuedReminderLine; "Line No.")
                     {
                     }
+#else
+                    column(Desc1_IssuedReminderLine; Description)
+                    {
+                    }
+                    column(LineNo1_IssuedReminderLine; "Line No.")
+                    {
+                    }
+#endif
 
                     trigger OnPreDataItem()
                     begin
@@ -474,11 +640,19 @@ report 117 Reminder
                 dataitem(VATCounter; "Integer")
                 {
                     DataItemTableView = sorting(Number);
+#if not CLEAN28
                     column(VATAmtLineAmtInclVAT; TempVATAmountLine."Amount Including VAT")
                     {
                         AutoFormatExpression = "Issued Reminder Line".GetCurrencyCodeFromHeader();
                         AutoFormatType = 1;
                     }
+#else
+                    column(VATAmtLineAmtIncludVAT; TempVATAmountLine."Amount Including VAT")
+                    {
+                        AutoFormatExpression = "Issued Reminder Line".GetCurrencyCodeFromHeader();
+                        AutoFormatType = 1;
+                    }
+#endif
                     column(VALVATAmount; VALVATAmount)
                     {
                         AutoFormatExpression = "Issued Reminder Line".GetCurrencyCodeFromHeader();
@@ -489,6 +663,7 @@ report 117 Reminder
                         AutoFormatExpression = "Issued Reminder Line".GetCurrencyCodeFromHeader();
                         AutoFormatType = 1;
                     }
+#if not CLEAN28
                     column(VALVATBaseVALVATAmount; VALVATBase + VALVATAmount)
                     {
                         AutoFormatExpression = "Issued Reminder Line".GetCurrencyCodeFromHeader();
@@ -512,12 +687,30 @@ report 117 Reminder
                     column(VATAmountSpecificationCaption; VATAmountSpecificationCaptionLbl)
                     {
                     }
+#else
+                    column(VALVATBaseVALVATAmt; VALVATBase + VALVATAmount)
+                    {
+                        AutoFormatExpression = "Issued Reminder Line".GetCurrencyCodeFromHeader();
+                        AutoFormatType = 1;
+                    }
+                    column(VATAmtLineVAT; TempVATAmountLine."VAT %")
+                    {
+                    }
+                    column(AmountIncVATCaption; AmountIncVATCaptionLbl)
+                    {
+                    }
+                    column(VATAmtSpecCaption; VATAmtSpecCaptionLbl)
+                    {
+                    }
+#endif
                     column(ContinuedCaption; ContinuedCaptionLbl)
                     {
                     }
+#if not CLEAN28
                     column(TotalCaption; TotalCaptionLbl)
                     {
                     }
+#endif
 
                     trigger OnAfterGetRecord()
                     begin
@@ -598,6 +791,7 @@ report 117 Reminder
                     {
                         AutoFormatType = 1;
                     }
+#if not CLEAN28
                     column(VATAmtLineVAT1; TempVATAmountLine."VAT %")
                     {
                         DecimalPlaces = 0 : 5;
@@ -611,6 +805,12 @@ report 117 Reminder
                     column(VATPercentCaption1; VATPercentCaption1Lbl)
                     {
                     }
+#else
+                    column(VATAmtLineVATCtrl107; TempVATAmountLine."VAT %")
+                    {
+                        DecimalPlaces = 0 : 5;
+                    }
+#endif
                     column(ContinuedCaption1; ContinuedCaption1Lbl)
                     {
                     }
@@ -679,9 +879,11 @@ report 117 Reminder
                     column(FinalTotalInclVAT; NNC_TotalInclVAT)
                     {
                     }
+#if not CLEAN28
                     column(TotalCaption1; TotalCaption1Lbl)
                     {
                     }
+#endif
 
                     trigger OnPreDataItem()
                     var
@@ -906,6 +1108,7 @@ report 117 Reminder
         case SalesSetup."Logo Position on Documents" of
             SalesSetup."Logo Position on Documents"::"No Logo":
                 ;
+#if not CLEAN28
             SalesSetup."Logo Position on Documents"::Left:
                 begin
                     CompanyInfo3.Get();
@@ -921,6 +1124,23 @@ report 117 Reminder
                     CompanyInfo2.Get();
                     CompanyInfo2.CalcFields(Picture);
                 end;
+#else
+                SalesSetup."Logo Position on Documents"::Left:
+                begin
+                    CompanyInfo1.Get();
+                    CompanyInfo1.CalcFields(Picture);
+                end;
+            SalesSetup."Logo Position on Documents"::Center:
+                begin
+                    CompanyInfo2.Get();
+                    CompanyInfo2.CalcFields(Picture);
+                end;
+            SalesSetup."Logo Position on Documents"::Right:
+                begin
+                    CompanyInfo3.Get();
+                    CompanyInfo3.CalcFields(Picture);
+                end;
+#endif
         end;
 
         "Issued Reminder Header".OnGetReportParameters(LogInteraction, ShowNotDueAmounts, ShowMIRLines, Report::Reminder, ReportParametersInitialized);
@@ -1011,35 +1231,73 @@ report 117 Reminder
         VALVATBase: Decimal;
         VALVATAmount: Decimal;
         VATClauseText: Text;
+#if not CLEAN28
         TotalRemIntAmount: Decimal;
+#endif
         LogInteractionEnable: Boolean;
+#if not CLEAN28
         DueDateCaptionLbl: Label 'Due Date';
         DocumentDateCaptionLbl: Label 'Document Date';
         PageCaptionLbl: Label 'Page';
+#else
+        TextPageLbl: Label 'Page';
+#endif
         PostingDateCaptionLbl: Label 'Posting Date';
         ReminderNoCaptionLbl: Label 'Reminder No.';
+#if not CLEAN28
         BankAccountNoCaptionLbl: Label 'Account No.';
+#else
+        BankAccNoCaptionLbl: Label 'Account No.';
+#endif
         IBANCaptionLbl: Label 'IBAN';
         BankNameCaptionLbl: Label 'Bank';
+#if not CLEAN28
         EmailCaptionLbl: Label 'E-Mail';
         HomePageCaptionLbl: Label 'Home Page';
+#else
+        GiroNoCaptionLbl: Label 'Giro No.';
+#endif
         PhoneNoCaptionLbl: Label 'Phone No.';
         ReminderCaptionLbl: Label 'Reminder';
+#if not CLEAN28
         BankBranchNoCaptionLbl: Label 'Bank Branch No.';
+#endif
         HeaderDimensionsCaptionLbl: Label 'Header Dimensions';
+#if CLEAN28
+        DocumentDateCaption1Lbl: Label 'Document Date';
+#endif
         InterestAmountCaptionLbl: Label 'Interest Amount';
+#if not CLEAN28
         VATAmountCaptionLbl: Label 'VAT Amount';
         AmountIncludingVATCaptionLbl: Label 'Amount Including VAT';
         VATAmountCaption1Lbl: Label 'VAT Amount';
+#else
+        AmountIncVATCaptionLbl: Label 'Amount Including VAT';
+        VATAmtSpecCaptionLbl: Label 'VAT Amount Specification';
+#endif
 #pragma warning disable AA0074
         VATClausesCap: Label 'VAT Clause';
 #pragma warning restore AA0074
         VATIdentifierLbl: Label 'VAT Identifier';
+#if CLEAN28
+        ContinuedCaptionLbl: Label 'Continued';
+        ContinuedCaption1Lbl: Label 'Continued';
+        DueDateCaptionLbl: Label 'Due Date';
+        VATAmountCaptionLbl: Label 'VAT Amount';
+#endif
         VATBaseCaptionLbl: Label 'VAT Base';
         VATPercentCaptionLbl: Label 'VAT %';
+#if not CLEAN28
         VATAmountSpecificationCaptionLbl: Label 'VAT Amount Specification';
         ContinuedCaptionLbl: Label 'Continued';
+#endif
         TotalCaptionLbl: Label 'Total';
+#if CLEAN28
+        PageCaptionLbl: Label 'Page';
+        DocDateCaptionLbl: Label 'Document Date';
+        HomePageCaptionLbl: Label 'Home Page';
+        EMailCaptionLbl: Label 'Email';
+#endif
         ContactPhoneNoLbl: Label 'Contact Phone No.';
         ContactMobilePhoneNoLbl: Label 'Contact Mobile Phone No.';
         ContactEmailLbl: Label 'Contact E-Mail';
@@ -1050,11 +1308,13 @@ report 117 Reminder
         DescriptionTxt: Text;
         RemainingAmt: Text;
         ReportParametersInitialized: Boolean;
+#if not CLEAN28
         VATAmountCaption2Lbl: Label 'VAT Amount';
         VATBase1CaptionLbl: Label 'VAT Base';
         VATPercentCaption1Lbl: Label 'VAT %';
         ContinuedCaption1Lbl: Label 'Continued';
         TotalCaption1Lbl: Label 'Total';
+#endif
 
     protected var
         TempVATAmountLine: Record "VAT Amount Line" temporary;

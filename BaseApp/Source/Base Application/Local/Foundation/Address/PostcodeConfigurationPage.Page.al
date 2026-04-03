@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+#if not CLEAN28
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -14,6 +15,9 @@ page 10501 "Postcode Configuration Page"
     PageType = StandardDialog;
     SourceTable = "Postcode Service Config";
     UsageCategory = Administration;
+    ObsoleteReason = 'Page has been moved to W1 Base App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '28.0';
 
     layout
     {
@@ -28,7 +32,7 @@ page 10501 "Postcode Configuration Page"
                     ShowCaption = false;
                     field(SelectedService; ServiceKeyText)
                     {
-                        ApplicationArea = Invoicing, Basic, Suite;
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Address Provider';
                         Editable = false;
 
@@ -106,4 +110,4 @@ page 10501 "Postcode Configuration Page"
         DisabledTok: Label 'Disabled';
         ServiceKeyText: Text;
 }
-
+#endif

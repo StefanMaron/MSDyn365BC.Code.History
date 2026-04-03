@@ -26,10 +26,9 @@ using System.Utilities;
 
 report 406 "Purchase - Invoice"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Purchases/History/PurchaseInvoice.rdlc';
     Caption = 'Purchase - Invoice';
     PreviewMode = PrintLayout;
+    DefaultRenderingLayout = "PurchaseInvoice.rdlc";
     WordMergeDataItem = "Purch. Inv. Header";
 
     dataset
@@ -893,6 +892,17 @@ report 406 "Purchase - Invoice"
             InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
+    }
+
+    rendering
+    {
+        layout("PurchaseInvoice.rdlc")
+        {
+            Type = RDLC;
+            LayoutFile = './Purchases/History/PurchaseInvoice.rdlc';
+            Caption = 'Purchase Invoice (RDLC)';
+            Summary = 'The Purchase Invoice (RDLC) is the most detailed layout and provides most flexible layout options.';
+        }
     }
 
     labels

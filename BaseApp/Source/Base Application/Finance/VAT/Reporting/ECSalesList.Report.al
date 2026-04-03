@@ -14,6 +14,10 @@ using System.IO;
 using System.Utilities;
 #endif
 
+/// <summary>
+/// Generates European Community Sales List report for EU trade reporting requirements.
+/// Provides detailed listing of sales to EU customers with VAT registration numbers and transaction values.
+/// </summary>
 report 130 "EC Sales List"
 {
     DefaultLayout = RDLC;
@@ -479,6 +483,11 @@ report 130 "EC Sales List"
         exit(TextAmt);
     end;
 
+    /// <summary>
+    /// Initializes report layout option for EU sales list generation.
+    /// Configures report format and display preferences.
+    /// </summary>
+    /// <param name="NewReportLayout">Report layout option to apply</param>
     procedure InitializeRequest(NewReportLayout: Option)
     begin
         ReportLayout := NewReportLayout;

@@ -16,8 +16,8 @@ using Microsoft.Inventory.Location;
 using Microsoft.Purchases.Posting;
 using Microsoft.Purchases.Vendor;
 using System.Globalization;
-using System.Utilities;
 using System.Telemetry;
+using System.Utilities;
 
 report 10579 "Blanket Purchase Order GB"
 {

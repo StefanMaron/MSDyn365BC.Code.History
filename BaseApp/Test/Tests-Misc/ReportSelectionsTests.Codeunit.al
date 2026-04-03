@@ -36,8 +36,13 @@ codeunit 134421 "Report Selections Tests"
         EmailAddressErr: Label 'Destination email address does not match expected address.';
         StatementTitlePdfTxt: Label 'Statement';
         ReportTitleTemplatePdfTxt: Label '%1 for %2 as of %3.pdf';
+#if not CLEAN28
         LayoutCodeShouldNotChangedErr: Label 'Layout code should not change.';
+#endif
         SendToEmailTxt: Label 'test@test.com';
+        MSXLbl: Label 'MS-X%1', Comment = '%1 = Random Value';
+        DocxLbl: Label 'docx';
+        MustSelectAndEmailBodyOrAttahmentErr: Label 'You must select an email body or attachment in report selection for %1.', Comment = '%1 = Usage, for example Sales Invoice';
 
     [Test]
     [HandlerFunctions('StandardSalesInvoiceRequestPageHandler')]
@@ -1911,6 +1916,7 @@ codeunit 134421 "Report Selections Tests"
         Assert.RecordIsNotEmpty(CustomReportSelection);
     end;
 
+#if not CLEAN28
     [Test]
     [HandlerFunctions('CustomReportLayoutsHandlerCancel')]
     [Scope('OnPrem')]
@@ -1951,6 +1957,7 @@ codeunit 134421 "Report Selections Tests"
         ReportLayoutSelection.Get(StandardSalesInvoiceReportID(), CompanyName);
         Assert.AreEqual(LayoutCode, ReportLayoutSelection."Custom Report Layout Code", LayoutCodeShouldNotChangedErr);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -2019,10 +2026,14 @@ codeunit 134421 "Report Selections Tests"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         ReportSelections: Record "Report Selections";
         DocumentSendingProfile: Record "Document Sending Profile";
+        LibraryEmail: Codeunit "Library - Email";
     begin
         // [FEATURE] [Email] [Vendor Remittance] [Vendor Ledger Entry]
         // [SCENARIO 609331] Vendor remittance advice emails should be logged in vendor's sent emails
         Initialize();
+
+        // [GIVEN] Setup email account for testing
+        LibraryEmail.SetUpEmailAccount();
 
         // [GIVEN] Setup report selection for vendor remittance
         ReportSelections.SetRange(Usage, ReportSelections.Usage::"V.Remittance");
@@ -2070,6 +2081,581 @@ codeunit 134421 "Report Selections Tests"
         // No assertion needed - if we reach this point, the fix is working
     end;
 
+    [Test]
+    [HandlerFunctions('SelectSendingOptionHandler,EmailEditorHandler,CloseEmailEditorHandler')]
+    procedure TestSendPostedSalesShipmentToEMailAndPDF()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        PostedSalesShipment: TestPage "Posted Sales Shipment";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify Posted Sales Shipment can be sent by Email with PDF attachment.
+        LibraryVariableStorage.Clear();
+        Initialize();
+
+        // [GIVEN] Setup Report Selections.
+        SetupSalesShipmentReportSelections(true, true);
+
+        // [GIVEN] Create and Post Sales Order.
+        CreateAndPostSalesOrderWithShipment(PostedDocumentVariant, Customer, SalesHeader."Document Type"::Order);
+        SalesShipmentHeader := PostedDocumentVariant;
+
+        // [GIVEN] Open Posted Sales Shipment.
+        PostedSalesShipment.OpenEdit();
+        PostedSalesShipment.GotoRecord(SalesShipmentHeader);
+
+        // [WHEN] Invoke Send action.
+        PostedSalesShipment.SendCustom.Invoke();
+
+        // [THEN] Verify that the email is sent with PDF attachment.
+        VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, PostedSalesShipment."No.".Value);
+    end;
+
+    [Test]
+    procedure TestSendEmailSalesShipmentWithNoBodyNoAttachmentThrowsError()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        ReportUsage: Enum "Report Selection Usage";
+        PostedSalesShipment: TestPage "Posted Sales Shipment";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify Posted Sales Shipment cannot be sent by Email with no body or attachment.
+        Initialize();
+
+        // [GIVEN] Create and Post Sales Order.
+        CreateAndPostSalesOrderWithShipment(PostedDocumentVariant, Customer, SalesHeader."Document Type"::Order);
+        SalesShipmentHeader := PostedDocumentVariant;
+
+        // [GIVEN] Open Posted Sales Shipment.
+        PostedSalesShipment.OpenEdit();
+        PostedSalesShipment.GotoRecord(SalesShipmentHeader);
+
+        // [GIVEN] Setup Report Selections.
+        SetupSalesShipmentReportSelections(false, false);
+
+        // [WHEN] Invoke Send action.
+        asserterror PostedSalesShipment.Email.Invoke();
+
+        // [THEN] Verify that the error is raised.
+        Assert.ExpectedError(StrSubstNo(MustSelectAndEmailBodyOrAttahmentErr, ReportUsage::"S.Shipment"));
+    end;
+
+    [Test]
+    [HandlerFunctions('EmailEditorHandlerCustomMessage,CloseEmailEditorHandler')]
+    procedure TestSendEmailForSalesShipmentWithAttachment()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        PostedSalesShipment: TestPage "Posted Sales Shipment";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify Posted Sales Shipment can be sent by Email with attachment.
+        Initialize();
+
+        // [GIVEN] Setup Report Selections.
+        SetupSalesShipmentReportSelections(true, false);
+
+        // [GIVEN] Create and Post Sales Order.
+        CreateAndPostSalesOrderWithShipment(PostedDocumentVariant, Customer, SalesHeader."Document Type"::Order);
+        SalesShipmentHeader := PostedDocumentVariant;
+
+        // [GIVEN] Open Posted Sales Shipment.
+        PostedSalesShipment.OpenEdit();
+        PostedSalesShipment.GotoRecord(SalesShipmentHeader);
+
+        // [WHEN] Invoke Send action.
+        PostedSalesShipment.Email.Invoke();
+
+        // [THEN] Verify that the email is sent with attachment.
+        VerifySendEmailPage(CustomMessageTypeTxt, '', PostedSalesShipment."No.".Value);
+    end;
+
+    [Test]
+    [HandlerFunctions('EmailEditorHandler,CloseEmailEditorHandler')]
+    procedure TestSendEmailForSalesShipmentWithBody()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        PostedSalesShipment: TestPage "Posted Sales Shipment";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify Posted Sales Shipment can be sent by Email with body.
+        Initialize();
+
+        // [GIVEN] Setup Report Selections.
+        SetupSalesShipmentReportSelections(false, true);
+
+        // [GIVEN] Create and Post Sales Order.
+        CreateAndPostSalesOrderWithShipment(PostedDocumentVariant, Customer, SalesHeader."Document Type"::Order);
+        SalesShipmentHeader := PostedDocumentVariant;
+
+        // [GIVEN] Open Posted Sales Shipment.
+        PostedSalesShipment.OpenEdit();
+        PostedSalesShipment.GotoRecord(SalesShipmentHeader);
+
+        // [WHEN] Invoke Send action.
+        PostedSalesShipment.Email.Invoke();
+
+        // [THEN] Verify that the email is sent with body.
+        VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, '') // the attachemnt name will not be added if the attachment file path is ''
+    end;
+
+    [Test]
+    [HandlerFunctions('EmailEditorHandler,CloseEmailEditorHandler')]
+    procedure TestSendEmailForSalesShipmentWithBodyAndAttachment()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        PostedSalesShipment: TestPage "Posted Sales Shipment";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify Posted Sales Shipment can be sent by Email with body and attachment.
+        Initialize();
+
+        // [GIVEN] Setup Report Selections.
+        SetupSalesShipmentReportSelections(true, true);
+
+        // [GIVEN] Create and Post Sales Order.
+        CreateAndPostSalesOrderWithShipment(PostedDocumentVariant, Customer, SalesHeader."Document Type"::Order);
+        SalesShipmentHeader := PostedDocumentVariant;
+
+        // [GIVEN] Open Posted Sales Shipment.
+        PostedSalesShipment.OpenEdit();
+        PostedSalesShipment.GotoRecord(SalesShipmentHeader);
+
+        // [WHEN] Invoke Send action.
+        PostedSalesShipment.Email.Invoke();
+
+        // [THEN] Verify that the email is sent with body and attachment.
+        VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, PostedSalesShipment."No.".Value);
+    end;
+
+    [Test]
+    [HandlerFunctions('EmailEditorHandlerCustomMessage,CloseEmailEditorHandler')]
+    procedure TestCustomEmailForSalesShipmentWithAttachment()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        PostedSalesShipment: TestPage "Posted Sales Shipment";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify Posted Sales Shipment can be sent by Email with custom message and attachment.
+        Initialize();
+
+        // [GIVEN] Setup Report Selections.
+        SetupSalesShipmentReportSelections(false, false);
+
+        // [GIVEN] Create and Post Sales Order.
+        CreateAndPostSalesOrderWithShipment(PostedDocumentVariant, Customer, SalesHeader."Document Type"::Order);
+        SalesShipmentHeader := PostedDocumentVariant;
+
+        // [GIVEN] Open Posted Sales Shipment.
+        PostedSalesShipment.OpenEdit();
+        PostedSalesShipment.GotoRecord(SalesShipmentHeader);
+
+        // [GIVEN] Update custom report selections.
+        UpdateSalesShipmentCustomReportSelections(SalesShipmentHeader."Sell-to Customer No.", true, false, '');
+
+        // [WHEN] Invoke Send action.
+        PostedSalesShipment.Email.Invoke();
+
+        // [THEN] Verify that the email is sent with custom message.
+        VerifySendEmailPage(CustomMessageTypeTxt, '', PostedSalesShipment."No.".Value);
+    end;
+
+    [Test]
+    [HandlerFunctions('EmailEditorHandler,CloseEmailEditorHandler')]
+    procedure TestCustomEmailForSalesShipmentWithBody()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        PostedSalesShipment: TestPage "Posted Sales Shipment";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify Posted Sales Shipment can be sent by Email with custom message and body.
+        Initialize();
+
+        // [GIVEN] Setup Report Selections.
+        SetupSalesShipmentReportSelections(false, false);
+
+        // [GIVEN] Create and Post Sales Order.
+        CreateAndPostSalesOrderWithShipment(PostedDocumentVariant, Customer, SalesHeader."Document Type"::Order);
+        SalesShipmentHeader := PostedDocumentVariant;
+
+        // [GIVEN] Open Posted Sales Shipment.
+        PostedSalesShipment.OpenEdit();
+        PostedSalesShipment.GotoRecord(SalesShipmentHeader);
+
+        // [GIVEN] Update custom report selections.
+        UpdateSalesShipmentCustomReportSelections(SalesShipmentHeader."Sell-to Customer No.", false, true, '');
+
+        // [WHEN] Invoke Send action.
+        PostedSalesShipment.Email.Invoke();
+
+        // [THEN] Verify that the email is sent with custom message and body.
+        VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, '') // the attachemnt name will not be added if the attachment file path is ''
+    end;
+
+    [Test]
+    [HandlerFunctions('EmailEditorHandler,CloseEmailEditorHandler')]
+    procedure TestCustomEmailForSalesShipmentWithBodyAndAttachment()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        PostedSalesShipment: TestPage "Posted Sales Shipment";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify Posted Sales Shipment can be sent by Email with custom message, body and attachment.
+        Initialize();
+
+        // [GIVEN] Setup Report Selections.
+        SetupSalesShipmentReportSelections(false, false);
+
+        // [GIVEN] Create and Post Sales Order.
+        CreateAndPostSalesOrderWithShipment(PostedDocumentVariant, Customer, SalesHeader."Document Type"::Order);
+        SalesShipmentHeader := PostedDocumentVariant;
+
+        // [GIVEN] Open Posted Sales Shipment.
+        PostedSalesShipment.OpenEdit();
+        PostedSalesShipment.GotoRecord(SalesShipmentHeader);
+
+        // [GIVEN] Update custom report selections.
+        UpdateSalesShipmentCustomReportSelections(SalesShipmentHeader."Sell-to Customer No.", true, true, '');
+
+        // [WHEN] Invoke Send action.
+        PostedSalesShipment.Email.Invoke();
+
+        // [THEN] Verify that the email is sent with custom message, body and attachment.
+        VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, PostedSalesShipment."No.".Value);
+    end;
+
+    [Test]
+    [HandlerFunctions('TestEmailEditorHandler,CloseEmailEditorHandler')]
+    procedure TestChangingMessageTypeForSalesShipment()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        PostedSalesShipment: TestPage "Posted Sales Shipment";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify Posted Sales Shipment for changing message type.
+        Initialize();
+
+        // [GIVEN] Setup Report Selections.
+        SetupSalesShipmentReportSelections(true, true);
+
+        // [GIVEN] Create and Post Sales Order.
+        CreateAndPostSalesOrderWithShipment(PostedDocumentVariant, Customer, SalesHeader."Document Type"::Order);
+        SalesShipmentHeader := PostedDocumentVariant;
+
+        // [GIVEN] Open Posted Sales Shipment.
+        PostedSalesShipment.OpenEdit();
+        PostedSalesShipment.GotoRecord(SalesShipmentHeader);
+
+        // [WHEN] Invoke Send action.
+        PostedSalesShipment.Email.Invoke();
+
+        // [THEN] Verify message type with Email Handler.
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectSendingOptionHandler,EmailEditorHandler,CloseEmailEditorHandler')]
+    procedure TestSendPostedReturnReceiptToEMailAndPDF()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        PostedReturnReceipt: TestPage "Posted Return Receipt";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify Posted Return Receipt can be sent by Email with PDF attachment.
+        Initialize();
+
+        // [GIVEN] Setup Report Selections.
+        SetupSalesReturnReceiptReportSelections(true, true);
+
+        // [GIVEN] Create and Post Return Order.
+        CreateAndPostSalesReturnOrderWithReceipt(PostedDocumentVariant, Customer, SalesHeader."Document Type"::"Return Order");
+        ReturnReceiptHeader := PostedDocumentVariant;
+
+        // [GIVEN] Open Posted Return Receipt.
+        PostedReturnReceipt.OpenEdit();
+        PostedReturnReceipt.GotoRecord(ReturnReceiptHeader);
+
+        // [WHEN] Invoke Send action.
+        PostedReturnReceipt.SendCustom.Invoke();
+
+        // [THEN] Verify that the email is sent with PDF attachment.
+        VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, PostedReturnReceipt."No.".Value);
+    end;
+
+    [Test]
+    procedure TestSendEmailReturnReceiptWithNoBodyNoAttachmentThrowsError()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        ReportUsage: Enum "Report Selection Usage";
+        PostedReturnReceipt: TestPage "Posted Return Receipt";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify Posted Return Receipt cannot be sent by Email with no body or attachment.
+        Initialize();
+
+        // [GIVEN] Create and Post Return Order.
+        CreateAndPostSalesReturnOrderWithReceipt(PostedDocumentVariant, Customer, SalesHeader."Document Type"::"Return Order");
+        ReturnReceiptHeader := PostedDocumentVariant;
+
+        // [GIVEN] Open Posted Return Receipt.
+        PostedReturnReceipt.OpenEdit();
+        PostedReturnReceipt.GotoRecord(ReturnReceiptHeader);
+
+        // [GIVEN] Setup Report Selections.
+        SetupSalesReturnReceiptReportSelections(false, false);
+
+        // [WHEN] Invoke Send action.
+        asserterror PostedReturnReceipt.Email.Invoke();
+
+        // [THEN] Verify that the error is raised.
+        Assert.ExpectedError(StrSubstNo(MustSelectAndEmailBodyOrAttahmentErr, ReportUsage::"S.Ret.Rcpt."));
+    end;
+
+    [Test]
+    [HandlerFunctions('EmailEditorHandlerCustomMessage,CloseEmailEditorHandler')]
+    procedure TestSendEmailForReturnReceiptWithAttachment()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        PostedReturnReceipt: TestPage "Posted Return Receipt";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify Posted Return Receipt can be sent by Email with attachment.
+        Initialize();
+
+        // [GIVEN] Setup Report Selections.
+        SetupSalesReturnReceiptReportSelections(true, false);
+
+        // [GIVEN] Create and Post Return Order.
+        CreateAndPostSalesReturnOrderWithReceipt(PostedDocumentVariant, Customer, SalesHeader."Document Type"::"Return Order");
+        ReturnReceiptHeader := PostedDocumentVariant;
+
+        // [GIVEN] Open Posted Return Receipt.
+        PostedReturnReceipt.OpenEdit();
+        PostedReturnReceipt.GotoRecord(ReturnReceiptHeader);
+
+        // [WHEN] Invoke Send action.
+        PostedReturnReceipt.Email.Invoke();
+
+        // [THEN] Verify that the email is sent with attachment.
+        VerifySendEmailPage(CustomMessageTypeTxt, '', PostedReturnReceipt."No.".Value);
+    end;
+
+    [Test]
+    [HandlerFunctions('EmailEditorHandler,CloseEmailEditorHandler')]
+    procedure TestSendEmailForReturnReceiptWithBody()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        PostedReturnReceipt: TestPage "Posted Return Receipt";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify Posted Return Receipt can be sent by Email with body.
+        Initialize();
+
+        // [GIVEN] Setup Report Selections.
+        SetupSalesReturnReceiptReportSelections(false, true);
+
+        // [GIVEN] Create and Post Return Order.
+        CreateAndPostSalesReturnOrderWithReceipt(PostedDocumentVariant, Customer, SalesHeader."Document Type"::"Return Order");
+        ReturnReceiptHeader := PostedDocumentVariant;
+
+        // [GIVEN] Open Posted Return Receipt.
+        PostedReturnReceipt.OpenEdit();
+        PostedReturnReceipt.GotoRecord(ReturnReceiptHeader);
+
+        // [WHEN] Invoke Send action.
+        PostedReturnReceipt.Email.Invoke();
+
+        // [THEN] Verify that the email is sent with body.
+        VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, '') // the attachemnt name will not be added if the attachment file path is ''
+    end;
+
+    [Test]
+    [HandlerFunctions('EmailEditorHandler,CloseEmailEditorHandler')]
+    procedure TestSendEmailForReturnReceiptWithBodyAndAttachment()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        PostedReturnReceipt: TestPage "Posted Return Receipt";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify Posted Return Receipt can be sent by Email with body and attachment.
+        Initialize();
+
+        // [GIVEN] Setup Report Selections.
+        SetupSalesReturnReceiptReportSelections(true, true);
+
+        // [GIVEN] Create and Post Return Order.
+        CreateAndPostSalesReturnOrderWithReceipt(PostedDocumentVariant, Customer, SalesHeader."Document Type"::"Return Order");
+        ReturnReceiptHeader := PostedDocumentVariant;
+
+        // [GIVEN] Open Posted Return Receipt.
+        PostedReturnReceipt.OpenEdit();
+        PostedReturnReceipt.GotoRecord(ReturnReceiptHeader);
+
+        // [WHEN] Invoke Send action.
+        PostedReturnReceipt.Email.Invoke();
+
+        // [THEN] Verify that the email is sent with body and attachment.
+        VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, PostedReturnReceipt."No.".Value);
+    end;
+
+    [Test]
+    [HandlerFunctions('EmailEditorHandlerCustomMessage,CloseEmailEditorHandler')]
+    procedure TestCustomEmailForReturnReceiptWithAttachment()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        PostedReturnReceipt: TestPage "Posted Return Receipt";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify Posted Return Receipt can be sent by Email with custom message and attachment.
+        Initialize();
+
+        // [GIVEN] Setup Report Selections.
+        SetupSalesReturnReceiptReportSelections(false, false);
+
+        // [GIVEN] Create and Post Return Order.
+        CreateAndPostSalesReturnOrderWithReceipt(PostedDocumentVariant, Customer, SalesHeader."Document Type"::"Return Order");
+        ReturnReceiptHeader := PostedDocumentVariant;
+
+        // [GIVEN] Open Posted Return Receipt.
+        PostedReturnReceipt.OpenEdit();
+        PostedReturnReceipt.GotoRecord(ReturnReceiptHeader);
+
+        // [GIVEN] Update custom report selections.
+        UpdateSalesReturnReceiptCustomReportSelections(ReturnReceiptHeader."Sell-to Customer No.", true, false, '');
+
+        // [WHEN] Invoke Send action.
+        PostedReturnReceipt.Email.Invoke();
+
+        // [THEN] Verify that the email is sent with custom message.
+        VerifySendEmailPage(CustomMessageTypeTxt, '', PostedReturnReceipt."No.".Value);
+    end;
+
+    [Test]
+    [HandlerFunctions('EmailEditorHandler,CloseEmailEditorHandler')]
+    procedure TestCustomEmailForReturnReceiptWithBody()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        PostedReturnReceipt: TestPage "Posted Return Receipt";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify Posted Return Receipt can be sent by Email with custom message and body.
+        Initialize();
+
+        // [GIVEN] Setup Report Selections.
+        SetupSalesReturnReceiptReportSelections(false, false);
+
+        // [GIVEN] Create and Post Return Order.
+        CreateAndPostSalesReturnOrderWithReceipt(PostedDocumentVariant, Customer, SalesHeader."Document Type"::"Return Order");
+        ReturnReceiptHeader := PostedDocumentVariant;
+
+        // [GIVEN] Open Posted Return Receipt.
+        PostedReturnReceipt.OpenEdit();
+        PostedReturnReceipt.GotoRecord(ReturnReceiptHeader);
+
+        // [GIVEN] Update custom report selections.
+        UpdateSalesReturnReceiptCustomReportSelections(ReturnReceiptHeader."Sell-to Customer No.", false, true, '');
+
+        // [WHEN] Invoke Send action.
+        PostedReturnReceipt.Email.Invoke();
+
+        // [THEN] Verify that the email is sent with custom message and body.
+        VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, '') // the attachemnt name will not be added if the attachment file path is ''
+    end;
+
+    [Test]
+    [HandlerFunctions('EmailEditorHandler,CloseEmailEditorHandler')]
+    procedure TestCustomEmailForReturnReceiptWithBodyAndAttachment()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        PostedReturnReceipt: TestPage "Posted Return Receipt";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify Posted Return Receipt can be sent by Email with custom message, body and attachment.
+        Initialize();
+
+        // [GIVEN] Setup Report Selections.
+        SetupSalesReturnReceiptReportSelections(false, false);
+
+        // [GIVEN] Create and Post Return Order.
+        CreateAndPostSalesReturnOrderWithReceipt(PostedDocumentVariant, Customer, SalesHeader."Document Type"::"Return Order");
+        ReturnReceiptHeader := PostedDocumentVariant;
+
+        // [GIVEN] Open Posted Return Receipt.
+        PostedReturnReceipt.OpenEdit();
+        PostedReturnReceipt.GotoRecord(ReturnReceiptHeader);
+
+        // [GIVEN] Update custom report selections.
+        UpdateSalesReturnReceiptCustomReportSelections(ReturnReceiptHeader."Sell-to Customer No.", true, true, '');
+
+        // [WHEN] Invoke Send action.
+        PostedReturnReceipt.Email.Invoke();
+
+        // [THEN] Verify that the email is sent with custom message, body and attachment.
+        VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, PostedReturnReceipt."No.".Value);
+    end;
+
+    [Test]
+    [HandlerFunctions('TestEmailEditorHandler,CloseEmailEditorHandler')]
+    procedure TestChangingMessageTypeForReturnReceipt()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        PostedReturnReceipt: TestPage "Posted Return Receipt";
+        PostedDocumentVariant: Variant;
+    begin
+        // [SCENARIO 425426] Verify Posted Return Receipt for changing message type.
+        Initialize();
+
+        // [GIVEN] Setup Report Selections.
+        SetupSalesReturnReceiptReportSelections(true, true);
+
+        // [GIVEN] Create and Post Sales Return Order.
+        CreateAndPostSalesReturnOrderWithReceipt(PostedDocumentVariant, Customer, SalesHeader."Document Type"::"Return Order");
+        ReturnReceiptHeader := PostedDocumentVariant;
+
+        // [GIVEN] Open Posted Return Receipt.
+        PostedReturnReceipt.OpenEdit();
+        PostedReturnReceipt.GotoRecord(ReturnReceiptHeader);
+
+        // [WHEN] Invoke Send action.
+        PostedReturnReceipt.Email.Invoke();
+
+        // [THEN] Verify message type with Email Handler.
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -2078,7 +2664,7 @@ codeunit 134421 "Report Selections Tests"
         InventorySetup: Record "Inventory Setup";
         CompanyInformation: Record "Company Information";
         ReportLayoutSelection: Record "Report Layout Selection";
-        LibraryWorkflow: Codeunit "Library - Workflow";
+        LibraryEmail: Codeunit "Library - Email";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Report Selections Tests");
 
@@ -2089,7 +2675,7 @@ codeunit 134421 "Report Selections Tests"
         ReportLayoutSelection.DeleteAll();
         CreateDefaultReportSelection();
         LibrarySetupStorage.Restore();
-        LibraryWorkflow.SetUpEmailAccount();
+        LibraryEmail.SetUpEmailAccount();
 
         if Initialized then
             exit;
@@ -2347,6 +2933,8 @@ codeunit 134421 "Report Selections Tests"
         CreateReportSelection(ReportSelections.Usage::"S.Invoice", '1', REPORT::"Standard Sales - Invoice");
         CreateReportSelection(ReportSelections.Usage::"P.Order", '2', REPORT::"Standard Purchase - Order");
         CreateReportSelection(ReportSelections.Usage::"S.Quote", '3', REPORT::"Standard Sales - Quote");
+        CreateReportSelection(ReportSelections.Usage::"S.Shipment", '4', Report::"Standard Sales - Shipment");
+        CreateReportSelection(ReportSelections.Usage::"S.Ret.Rcpt.", '5', Report::"Standard Sales - Return Rcpt.");
     end;
 
     local procedure CreateReportSelection(Usage: Enum "Report Selection Usage"; Sequence: Code[10]; ReportID: Integer)
@@ -2667,9 +3255,203 @@ codeunit 134421 "Report Selections Tests"
         Customer.Modify();
     end;
 
+#if not CLEAN28
     local procedure StandardSalesInvoiceReportID(): Integer
     begin
         exit(Report::"Standard Sales - Invoice");
+    end;
+#endif
+
+    local procedure SetupSalesShipmentReportSelections(UseForEmailAttachment: Boolean; UseForEmailBody: Boolean)
+    var
+        OldReportSelections: Record "Report Selections";
+        CustomReportLayout: Record "Custom Report Layout";
+    begin
+        GeSalesShipmentCustomBodyLayout(CustomReportLayout);
+
+        OldReportSelections.Reset();
+        OldReportSelections.SetRange(Usage, OldReportSelections.Usage::"S.Shipment");
+        OldReportSelections.FindFirst();
+
+        UpdateReportSelections(OldReportSelections.Usage::"S.Shipment", CustomReportLayout."Report ID", UseForEmailAttachment, UseForEmailBody, CustomReportLayout.Code);
+    end;
+
+    local procedure GeSalesShipmentCustomBodyLayout(var CustomReportLayout: Record "Custom Report Layout")
+    var
+        ReportLayoutList: Record "Report Layout List";
+        TempBlob: Codeunit "Temp Blob";
+        InStr: InStream;
+        OutStr: OutStream;
+    begin
+        CustomReportLayout.SetRange("Report ID", GetStandardSalesShipmentReportID());
+        CustomReportLayout.SetRange(Type, CustomReportLayout.Type::Word);
+        if CustomReportLayout.FindLast() then
+            exit;
+
+        ReportLayoutList.SetRange("Report ID", GetStandardSalesShipmentReportID());
+        ReportLayoutList.SetRange("Layout Format", ReportLayoutList."Layout Format"::Word);
+        ReportLayoutList.FindFirst();
+
+        TempBlob.CreateOutStream(OutStr);
+        ReportLayoutList.Layout.ExportStream(OutStr);
+        TempBlob.CreateInStream(InStr);
+
+        CustomReportLayout.Init();
+        CustomReportLayout."Report ID" := GetStandardSalesShipmentReportID();
+        CustomReportLayout.Code := CopyStr(StrSubstNo(MSXLbl, LibraryRandom.RandIntInRange(100, 200)), 1, 10);
+        CustomReportLayout."File Extension" := DocxLbl;
+        CustomReportLayout.Type := CustomReportLayout.Type::Word;
+        CustomReportLayout.Layout.CreateOutStream(OutStr);
+
+        CopyStream(OutStr, InStr);
+
+        CustomReportLayout.Insert();
+    end;
+
+    local procedure UpdateSalesShipmentCustomReportSelections(NewCustNo: Code[20]; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; SendToAddress: Text[200])
+    var
+        CustomReportSelection: Record "Custom Report Selection";
+        CustomReportLayout: Record "Custom Report Layout";
+    begin
+        GeSalesShipmentCustomBodyLayout(CustomReportLayout);
+        InsertCustomReportSelectionCustomer(
+            CustomReportSelection,
+            NewCustNo,
+            CustomReportLayout."Report ID",
+            UseForEmailAttachment,
+            UseForEmailBody,
+            '',
+            SendToAddress,
+            CustomReportSelection.Usage::"S.Shipment");
+
+        if UseForEmailAttachment then
+            CustomReportSelection.Validate("Custom Report Layout Code", CustomReportLayout.Code);
+
+        if UseForEmailBody then
+            CustomReportSelection.Validate("Email Body Layout Code", CustomReportLayout.Code);
+
+        CustomReportSelection.Modify(true);
+    end;
+
+    local procedure GetStandardSalesShipmentReportID(): Integer
+    begin
+        exit(Report::"Standard Sales - Shipment");
+    end;
+
+    local procedure CreateAndPostSalesOrderWithShipment(var PostedDocumentVariant: Variant; var Customer: Record Customer; DocumentType: Enum "Sales Document Type")
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesPost: Codeunit "Sales-Post";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
+        UpdateYourReferenceSalesHeader(SalesHeader, LibraryUtility.GenerateGUID());
+
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        SalesPost.GetPostedDocumentRecord(SalesHeader, PostedDocumentVariant);
+    end;
+
+    local procedure SetupSalesReturnReceiptReportSelections(UseForEmailAttachment: Boolean; UseForEmailBody: Boolean)
+    var
+        OldReportSelections: Record "Report Selections";
+        CustomReportLayout: Record "Custom Report Layout";
+    begin
+        GeSalesReturnReceiptCustomBodyLayout(CustomReportLayout);
+
+        OldReportSelections.Reset();
+        OldReportSelections.SetRange(Usage, OldReportSelections.Usage::"S.Ret.Rcpt.");
+        OldReportSelections.FindFirst();
+
+        UpdateReportSelections(OldReportSelections.Usage::"S.Ret.Rcpt.", CustomReportLayout."Report ID", UseForEmailAttachment, UseForEmailBody, CustomReportLayout.Code);
+    end;
+
+    local procedure GeSalesReturnReceiptCustomBodyLayout(var CustomReportLayout: Record "Custom Report Layout")
+    var
+        ReportLayoutList: Record "Report Layout List";
+        TempBlob: Codeunit "Temp Blob";
+        InStr: InStream;
+        OutStr: OutStream;
+    begin
+        CustomReportLayout.SetRange("Report ID", GetStandardSalesReturnReceiptReportID());
+        CustomReportLayout.SetRange(Type, CustomReportLayout.Type::Word);
+        if CustomReportLayout.FindLast() then
+            exit;
+
+        ReportLayoutList.SetRange("Report ID", GetStandardSalesReturnReceiptReportID());
+        ReportLayoutList.SetRange("Layout Format", ReportLayoutList."Layout Format"::Word);
+        ReportLayoutList.FindFirst();
+
+        TempBlob.CreateOutStream(OutStr);
+        ReportLayoutList.Layout.ExportStream(OutStr);
+        TempBlob.CreateInStream(InStr);
+
+        CustomReportLayout.Init();
+        CustomReportLayout."Report ID" := GetStandardSalesReturnReceiptReportID();
+        CustomReportLayout.Code := CopyStr(StrSubstNo(MSXLbl, LibraryRandom.RandIntInRange(300, 400)), 1, 10);
+        CustomReportLayout."File Extension" := DocxLbl;
+        CustomReportLayout.Type := CustomReportLayout.Type::Word;
+        CustomReportLayout.Layout.CreateOutStream(OutStr);
+
+        CopyStream(OutStr, InStr);
+
+        CustomReportLayout.Insert();
+    end;
+
+    local procedure UpdateSalesReturnReceiptCustomReportSelections(NewCustNo: Code[20]; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; SendToAddress: Text[200])
+    var
+        CustomReportSelection: Record "Custom Report Selection";
+        CustomReportLayout: Record "Custom Report Layout";
+    begin
+        GeSalesReturnReceiptCustomBodyLayout(CustomReportLayout);
+        InsertCustomReportSelectionCustomer(
+            CustomReportSelection,
+            NewCustNo,
+            CustomReportLayout."Report ID",
+            UseForEmailAttachment,
+            UseForEmailBody,
+            '',
+            SendToAddress,
+            CustomReportSelection.Usage::"S.Ret.Rcpt.");
+
+        if UseForEmailAttachment then
+            CustomReportSelection.Validate("Custom Report Layout Code", CustomReportLayout.Code);
+
+        if UseForEmailBody then
+            CustomReportSelection.Validate("Email Body Layout Code", CustomReportLayout.Code);
+
+        CustomReportSelection.Modify(true);
+    end;
+
+    local procedure GetStandardSalesReturnReceiptReportID(): Integer
+    begin
+        exit(Report::"Standard Sales - Return Rcpt.");
+    end;
+
+    local procedure CreateAndPostSalesReturnOrderWithReceipt(var PostedDocumentVariant: Variant; var Customer: Record Customer; DocumentType: Enum "Sales Document Type")
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesPost: Codeunit "Sales-Post";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
+        UpdateYourReferenceSalesHeader(SalesHeader, LibraryUtility.GenerateGUID());
+
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        SalesPost.GetPostedDocumentRecord(SalesHeader, PostedDocumentVariant);
+    end;
+
+    local procedure UpdateYourReferenceSalesHeader(var SalesHeader: Record "Sales Header"; YourReference: Text[35])
+    begin
+        SalesHeader."Your Reference" := YourReference;
+        SalesHeader.Modify();
     end;
 
     [RequestPageHandler]
@@ -2864,12 +3646,14 @@ codeunit 134421 "Report Selections Tests"
         CustomerReportSelections.Usage2.SetValue('Pro Forma Invoice');
     end;
 
+#if not CLEAN28
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CustomReportLayoutsHandlerCancel(var CustomReportLayouts: TestPage "Custom Report Layouts")
     begin
         CustomReportLayouts.Cancel().Invoke();
     end;
+#endif
 
     [ModalPageHandler]
     procedure InvoiceCustomerReportSelectionsHandler(var CustomerReportSelections: TestPage "Customer Report Selections")

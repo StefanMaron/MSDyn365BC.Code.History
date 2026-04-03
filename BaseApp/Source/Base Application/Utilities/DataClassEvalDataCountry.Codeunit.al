@@ -4,15 +4,19 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Utilities;
 
+#if not CLEAN28
+using Microsoft.Bank.Ledger;
+using Microsoft.Finance.GeneralLedger.Setup;
+#endif
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.HumanResources.Absence;
 using Microsoft.HumanResources.Employee;
 using Microsoft.HumanResources.Payables;
 using Microsoft.Sales.Archive;
-using System.Privacy;
-using Microsoft.Bank.Ledger;
+#if not CLEAN28
 using Microsoft.Sales.FinanceCharge;
-using Microsoft.Finance.GeneralLedger.Setup;
+#endif
+using System.Privacy;
 
 codeunit 1752 "Data Class. Eval. Data Country"
 {
@@ -37,17 +41,16 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"GovTalk Setup");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"GovTalk Message Parts");
 #endif
+#if not CLEAN28
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"BACS Ledger Entry");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"BACS Register");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Fin. Charge Interest Rate");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Accounting Period GB");
+#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Alt. Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cause of Absence");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
-#if not CLEAN25
-        ClassifyMakingTaxDigital();
-#endif
         OnAfterClassifyCountrySpecificTables();
     end;
 
@@ -249,19 +252,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"VAT Return Period");
     end;
 
-#if not CLEAN25  
-    local procedure ClassifyMakingTaxDigital()
-    var
-        DataClassificationEvalData: Codeunit "Data Classification Eval. Data";
-    begin
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"MTD-Return Details");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"MTD-Liability");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"MTD-Payment");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"MTD-Missing Fraud Prev. Hdr");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"MTD-Session Fraud Prev. Hdr");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"MTD-Default Fraud Prev. Hdr");
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterClassifyCountrySpecificTables()

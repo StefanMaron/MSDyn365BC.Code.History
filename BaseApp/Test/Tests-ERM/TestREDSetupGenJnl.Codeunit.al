@@ -547,7 +547,9 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         if Abs(DeferralLine.Amount) > Abs(DeferralHeader."Amount to Defer") then
             asserterror;
     end;
-    
+
+#if not CLEAN28
+    [Obsolete('Table "Accounting Period GB" will be removed in future release', '28.0')]
     [Test]
     [Scope('OnPrem')]
     procedure CreateGLTrxandVerifyStartingDate()
@@ -606,6 +608,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
                 asserterror;
         end;
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
