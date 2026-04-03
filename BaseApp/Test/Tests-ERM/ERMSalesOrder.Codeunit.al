@@ -25,9 +25,7 @@
         LibraryResource: Codeunit "Library - Resource";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryApplicationArea: Codeunit "Library - Application Area";
-#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
-#endif
         WorkflowSetup: Codeunit "Workflow Setup";
         LibraryWorkflow: Codeunit "Library - Workflow";
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
@@ -75,6 +73,8 @@
         SalesLineQtyErr: Label 'Sales Line %1 must be equal to %2', Comment = '%1= Field ,%2= Value';
         OptionString: Option PostedReturnReceipt,PostedInvoices,PostedShipments,PostedCrMemo;
         ConfirmMsg: Label 'The quantity to undo might differ from the original shipment because the invoice was cancelled. Do you want to proceed with the undo?';
+        ReservedQtyShouldMatchLineQtyErr: Label 'Reserved quantity should match line quantity.';
+        ReservedQtyExpectedErr: Label 'Reserved quantity should be %1', Comment = '%1 = Expected Quantity.';
 
     [Test]
     [Scope('OnPrem')]
@@ -268,7 +268,6 @@
         LibrarySales.SetStockoutWarning(true);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountOnSalesOrder()
@@ -302,7 +301,6 @@
         // Tear Down: Cleanup of Setup Done.
         LibrarySales.SetStockoutWarning(true);
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1250,7 +1248,6 @@
         VerifyValueEntry(SalesInvoiceHeader."No.", SalesHeader.Amount);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountOnSalesInvoice()
@@ -1305,7 +1302,6 @@
           SumLineDiscountAmount(TempSalesLine, SalesHeader."No."), TotalLineDiscountInGLEntry(TempSalesLine, SalesInvoiceHeader."No."),
           StrSubstNo(ValueErr, TempSalesLine.FieldCaption("Line Discount Amount")));
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -5478,6 +5474,7 @@
         LibrarySales.ReopenSalesDocument(SalesHeader);
 
         // [WHEN] Delete the Sales Line with Type as Charge Item
+        SalesLine1.Find();
         SalesLine1.Delete(true);
 
         // [THEN] No error is thrown
@@ -5967,6 +5964,41 @@
     end;
 
     [Test]
+    procedure TestDeleteSalesOrderSalesOrderEntityBufferDeleted()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+        SalesHeader: Record "Sales Header";
+        SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
+        APIMockEvents: Codeunit "API Mock Events";
+    begin
+        // [SCENARIO] Sales Order is deleted and Sales Order Entity Buffer is also deleted
+        Initialize();
+        BindSubscription(APIMockEvents);
+
+        APIMockEvents.SetIsAPIEnabled(true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Sales Header.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [GIVEN] Create Sales Line with Quanity as 1.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1, 1));
+
+        // [WHEN] Delete Sales Header
+        SalesHeader.Delete(true);
+
+        // [THEN] Sales Order Entity Buffer is also deleted
+        Assert.IsFalse(SalesOrderEntityBuffer.Get(SalesHeader."No."), 'Sales Order Entity Buffer should be deleted');
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandlerYes')]
     procedure VerifyQuantityToShipOnSalesOrderUpdatedWithGLAccountWithCorrectiveCreditMemo()
     var
@@ -6019,6 +6051,78 @@
 
         // [THEN] Verify Sales Order Qty. to Ship and Qty. to Invoice are updated in Sales line.
         VerifySalesOrderAfterPartialPostCorrectiveCreditMemo(SalesHeader."No.", Quantity);
+    end;
+
+    [Test]
+    procedure TestReserveFromInventoryOnSalesLine()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 617913] Verify the Reserve from inventory creates reservation matching sales line quantity.
+        Initialize();
+
+        // [GIVEN] Create an item and add to inventory.
+        LibraryInventory.CreateItem(Item);
+        AddItemToInventory(Item."No.", LibraryRandom.RandIntInRange(5, 50));
+
+        // [GIVEN] Create sales order with the item.
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        // [GIVEN] Set shipment date to ensure reservation can work.
+        SalesLine.Validate("Shipment Date", WorkDate());
+        SalesLine.Modify(true);
+
+        // [WHEN] Reserve from inventory on the sales line.
+        SalesLine.SetRange("Document Type", SalesLine."Document Type");
+        SalesLine.SetRange("Document No.", SalesLine."Document No.");
+        SalesLine.SetRange("Line No.", SalesLine."Line No.");
+        SalesLine.ReserveFromInventory(SalesLine);
+
+        // [THEN] Verify the reservation is created.
+        SalesLine.CalcFields("Reserved Quantity");
+        Assert.AreEqual(SalesLine.Quantity, SalesLine."Reserved Quantity", ReservedQtyShouldMatchLineQtyErr);
+    end;
+
+    [Test]
+    procedure TestReserveFromInventoryPartialQuantitySalesLine()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ExpectedQty: Decimal;
+    begin
+        // [SCENARIO 617913] Verify the Reserve partial quantity from inventory on sales line.
+        Initialize();
+        ExpectedQty := LibraryRandom.RandIntInRange(3, 10);
+
+        // [GIVEN] Create an item and add to inventory.
+        LibraryInventory.CreateItem(Item);
+        AddItemToInventory(Item."No.", LibraryRandom.RandIntInRange(ExpectedQty + 1, 50));
+
+        // [GIVEN] Create sales order with the item.
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", ExpectedQty);
+
+        // [GIVEN] Set shipment date to ensure reservation can work.
+        SalesLine.Validate("Shipment Date", WorkDate());
+        SalesLine.Modify(true);
+
+        // [WHEN] Reserve from inventory on the sales line.
+        SalesLine.SetRange("Document Type", SalesLine."Document Type");
+        SalesLine.SetRange("Document No.", SalesLine."Document No.");
+        SalesLine.SetRange("Line No.", SalesLine."Line No.");
+        SalesLine.ReserveFromInventory(SalesLine);
+
+        // [THEN] Verify the reservation is created for the full quantity.
+        SalesLine.CalcFields("Reserved Quantity");
+        Assert.AreEqual(ExpectedQty, SalesLine."Reserved Quantity", StrSubstNo(ReservedQtyExpectedErr, ExpectedQty));
     end;
 
     local procedure Initialize()
@@ -6453,7 +6557,6 @@
         ReturnReceiptLine.FindFirst();
     end;
 
-#if not CLEAN25
     local procedure SalesLinesWithMinimumQuantity(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; SalesLineDiscount: Record "Sales Line Discount")
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -6467,7 +6570,6 @@
               SalesLineDiscount."Minimum Quantity" + LibraryRandom.RandDec(10, 2));
         end;
     end;
-#endif
 
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     var
@@ -6781,7 +6883,7 @@
             SalesLine.Insert();
         until SalesLine2.Next() = 0;
     end;
-#if not CLEAN25
+
     local procedure TotalLineDiscountInGLEntry(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]): Decimal
     var
         GLEntry: Record "G/L Entry";
@@ -6793,7 +6895,7 @@
         GLEntry.SetRange("G/L Account No.", GeneralPostingSetup."Sales Line Disc. Account");
         exit(TotalAmountInGLEntry(GLEntry));
     end;
-#endif
+
     local procedure TotalInvoiceDiscountInGLEntry(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]): Decimal
     var
         GLEntry: Record "G/L Entry";
@@ -6912,7 +7014,6 @@
         CustInvoiceDisc.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure SetupLineDiscount(var SalesLineDiscount: Record "Sales Line Discount")
     var
         Item: Record Item;
@@ -6927,7 +7028,6 @@
         SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(99, 2));
         SalesLineDiscount.Modify(true);
     end;
-#endif
 
     local procedure UpdateSalesReceivableSetup()
     var
@@ -6985,7 +7085,7 @@
         SalesLine.Validate("Qty. to Invoice", QtyToInvoice);
         SalesLine.Modify(true);
     end;
-#if not CLEAN25
+
     local procedure SumLineDiscountAmount(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]) LineDiscountAmount: Decimal
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -6994,7 +7094,7 @@
             LineDiscountAmount += SalesLine."Line Discount Amount";
         until SalesLine.Next() = 0;
     end;
-#endif
+
     local procedure SumInvoiceDiscountAmount(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]) InvoiceDiscountAmount: Decimal
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -7445,7 +7545,7 @@
           InvoiceDiscountAmount, SalesLine."Inv. Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, SalesLine.FieldCaption("Inv. Discount Amount"), InvoiceDiscountAmount, SalesLine.TableCaption()));
     end;
-#if not CLEAN25
+
     local procedure VerifyLineDiscountAmount(SalesLine: Record "Sales Line"; DocumentNo: Code[20]; LineDiscountAmount: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -7464,7 +7564,7 @@
           LineDiscountAmount, SalesLine."Line Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, SalesLine.FieldCaption("Line Discount Amount"), LineDiscountAmount, SalesLine.TableCaption()));
     end;
-#endif
+
     local procedure VerifyPostedSalesInvoice(DocumentNo: Code[20]; LineDiscountAmount: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -7606,7 +7706,7 @@
               StrSubstNo(VATAmountErr, VATAmountSalesLine, SalesLine.TableCaption()));
         until SalesLine.Next() = 0;
     end;
-#if not CLEAN25
+
     local procedure VerifyLineDiscountOnInvoice(SalesLine: Record "Sales Line")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -7621,7 +7721,7 @@
               StrSubstNo(AmountErr, SalesLine.FieldCaption("Line Discount Amount"), LineDiscountAmount, SalesLine.TableCaption()));
         until SalesLine.Next() = 0;
     end;
-#endif
+
     local procedure VerifyInvoiceDiscountOnInvoice(SalesLine: Record "Sales Line"; CustInvoiceDisc: Record "Cust. Invoice Disc.")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -8248,6 +8348,14 @@
             Assert.AreEqual(ExpectedQuantity, SalesLine."Qty. to Invoice", StrSubstNo(
                 SalesLineQtyErr, SalesLine.FieldName("Qty. to Invoice"), ExpectedQuantity));
         until SalesLine.Next() = 0;
+    end;
+
+    local procedure AddItemToInventory(ItemNo: Code[20]; Qty: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, '', '', Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostUpdateOrderLineModifyTempLine', '', false, false)]

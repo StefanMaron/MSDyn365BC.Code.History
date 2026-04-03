@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -57,7 +57,9 @@ table 5354 "CRM Salesorderdetail"
         }
         field(6; QuantityShipped; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity Shipped';
+            ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
             Description = 'Type the amount or quantity of the product that was shipped for the order.';
             ExternalName = 'quantityshipped';
             ExternalType = 'Decimal';
@@ -73,7 +75,9 @@ table 5354 "CRM Salesorderdetail"
         }
         field(8; QuantityBackordered; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity Back Ordered';
+            ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
             Description = 'Type the amount or quantity of the product that is back ordered for the order.';
             ExternalName = 'quantitybackordered';
             ExternalType = 'Decimal';
@@ -88,7 +92,9 @@ table 5354 "CRM Salesorderdetail"
         }
         field(10; QuantityCancelled; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity Canceled';
+            ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
             Description = 'Type the amount or quantity of the product that was canceled.';
             ExternalName = 'quantitycancelled';
             ExternalType = 'Decimal';
@@ -110,7 +116,9 @@ table 5354 "CRM Salesorderdetail"
         }
         field(13; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
+            ToolTip = 'Specifies the quantity of the item on the sales line.';
             Description = 'Type the amount or quantity of the product ordered by the customer.';
             ExternalName = 'quantity';
             ExternalType = 'Decimal';
@@ -128,7 +136,9 @@ table 5354 "CRM Salesorderdetail"
         }
         field(15; ManualDiscountAmount; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Manual Discount';
+            ToolTip = 'Specifies that the sales order is subject to manual discount.';
             Description = 'Type the manual discount amount for the order product to deduct any negotiated or other savings from the product total on the order.';
             ExternalName = 'manualdiscountamount';
             ExternalType = 'Money';
@@ -136,13 +146,16 @@ table 5354 "CRM Salesorderdetail"
         field(16; ProductDescription; Text[250])
         {
             Caption = 'Write-In Product';
+            ToolTip = 'Specifies if the item is a write-in product.';
             Description = 'Type a name or description to identify the type of write-in product included in the order.';
             ExternalName = 'productdescription';
             ExternalType = 'String';
         }
         field(17; VolumeDiscountAmount; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Volume Discount';
+            ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
             Description = 'Shows the discount amount per unit if a specified volume is purchased. Configure volume discounts in the Product Catalog in the Settings area.';
             ExternalAccess = Read;
             ExternalName = 'volumediscountamount';
@@ -150,14 +163,18 @@ table 5354 "CRM Salesorderdetail"
         }
         field(18; PricePerUnit; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Price Per Unit';
+            ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
             Description = 'Type the price per unit of the order product. The default is the value in the price list specified on the order for existing products.';
             ExternalName = 'priceperunit';
             ExternalType = 'Money';
         }
         field(19; BaseAmount; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Amount';
+            ToolTip = 'Specifies the net amount of all the lines.';
             Description = 'Shows the total price of the order product, based on the price per unit, volume discount, and quantity.';
             ExternalAccess = Modify;
             ExternalName = 'baseamount';
@@ -165,7 +182,9 @@ table 5354 "CRM Salesorderdetail"
         }
         field(20; ExtendedAmount; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Extended Amount';
+            ToolTip = 'Specifies the sales amount without rounding.';
             Description = 'Shows the total amount due for the order product, based on the sum of the unit price, quantity, discounts, and tax.';
             ExternalAccess = Modify;
             ExternalName = 'extendedamount';
@@ -189,13 +208,16 @@ table 5354 "CRM Salesorderdetail"
         field(23; ShipTo_Name; Text[200])
         {
             Caption = 'Ship To Name';
+            ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
             Description = 'Type a name for the customer''s shipping address, such as "Headquarters" or "Field office", to identify the address.';
             ExternalName = 'shipto_name';
             ExternalType = 'String';
         }
         field(24; Tax; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Tax';
+            ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
             Description = 'Type the tax amount for the order product.';
             ExternalName = 'tax';
             ExternalType = 'Money';
@@ -203,6 +225,7 @@ table 5354 "CRM Salesorderdetail"
         field(25; CreatedOn; DateTime)
         {
             Caption = 'Created On';
+            ToolTip = 'Specifies when the sales order was created.';
             Description = 'Shows the date and time when the record was created. The date and time are displayed in the time zone selected in Microsoft Dynamics CRM options.';
             ExternalAccess = Read;
             ExternalName = 'createdon';
@@ -211,6 +234,7 @@ table 5354 "CRM Salesorderdetail"
         field(26; ShipTo_Line1; Text[250])
         {
             Caption = 'Ship To Street 1';
+            ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
             Description = 'Type the first line of the customer''s shipping address.';
             ExternalName = 'shipto_line1';
             ExternalType = 'String';
@@ -236,6 +260,7 @@ table 5354 "CRM Salesorderdetail"
         field(29; ShipTo_Line2; Text[250])
         {
             Caption = 'Ship To Street 2';
+            ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
             Description = 'Type the second line of the customer''s shipping address.';
             ExternalName = 'shipto_line2';
             ExternalType = 'String';
@@ -243,6 +268,7 @@ table 5354 "CRM Salesorderdetail"
         field(30; ShipTo_Line3; Text[250])
         {
             Caption = 'Ship To Street 3';
+            ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
             Description = 'Type the third line of the shipping address.';
             ExternalName = 'shipto_line3';
             ExternalType = 'String';
@@ -250,6 +276,7 @@ table 5354 "CRM Salesorderdetail"
         field(31; ModifiedOn; DateTime)
         {
             Caption = 'Modified On';
+            ToolTip = 'Specifies when the sales order was last modified.';
             Description = 'Shows the date and time when the record was last updated. The date and time are displayed in the time zone selected in Microsoft Dynamics CRM options.';
             ExternalAccess = Read;
             ExternalName = 'modifiedon';
@@ -258,6 +285,7 @@ table 5354 "CRM Salesorderdetail"
         field(32; ShipTo_City; Text[80])
         {
             Caption = 'Ship To City';
+            ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
             Description = 'Type the city for the customer''s shipping address.';
             ExternalName = 'shipto_city';
             ExternalType = 'String';
@@ -265,6 +293,7 @@ table 5354 "CRM Salesorderdetail"
         field(33; ShipTo_StateOrProvince; Text[50])
         {
             Caption = 'Ship To State/Province';
+            ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
             Description = 'Type the state or province for the shipping address.';
             ExternalName = 'shipto_stateorprovince';
             ExternalType = 'String';
@@ -272,6 +301,7 @@ table 5354 "CRM Salesorderdetail"
         field(34; ShipTo_Country; Text[80])
         {
             Caption = 'Ship To Country/Region';
+            ToolTip = 'Specifies the country/region of the address.';
             Description = 'Type the country or region for the customer''s shipping address.';
             ExternalName = 'shipto_country';
             ExternalType = 'String';
@@ -279,6 +309,7 @@ table 5354 "CRM Salesorderdetail"
         field(35; ShipTo_PostalCode; Text[20])
         {
             Caption = 'Ship To ZIP/Postal Code';
+            ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
             Description = 'Type the ZIP Code or postal code for the shipping address.';
             ExternalName = 'shipto_postalcode';
             ExternalType = 'String';
@@ -286,6 +317,7 @@ table 5354 "CRM Salesorderdetail"
         field(36; WillCall; Boolean)
         {
             Caption = 'Ship To';
+            ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
             Description = 'Select whether the order product should be shipped to the specified address or held until the customer calls with further pick up or delivery instructions.';
             ExternalName = 'willcall';
             ExternalType = 'Boolean';
@@ -293,6 +325,7 @@ table 5354 "CRM Salesorderdetail"
         field(37; ShipTo_Telephone; Text[50])
         {
             Caption = 'Ship To Phone';
+            ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
             Description = 'Type the phone number for the customer''s shipping address.';
             ExternalName = 'shipto_telephone';
             ExternalType = 'String';
@@ -300,6 +333,7 @@ table 5354 "CRM Salesorderdetail"
         field(38; ShipTo_Fax; Text[50])
         {
             Caption = 'Ship To Fax';
+            ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
             Description = 'Type the fax number for the customer''s shipping address.';
             ExternalName = 'shipto_fax';
             ExternalType = 'String';
@@ -307,6 +341,7 @@ table 5354 "CRM Salesorderdetail"
         field(39; ShipTo_FreightTermsCode; Option)
         {
             Caption = 'Freight Terms';
+            ToolTip = 'Specifies the shipment method.';
             Description = 'Select the freight terms to make sure shipping orders are processed correctly.';
             ExternalName = 'shipto_freighttermscode';
             ExternalType = 'Picklist';
@@ -319,6 +354,7 @@ table 5354 "CRM Salesorderdetail"
         {
             CalcFormula = lookup("CRM Product".Name where(ProductId = field(ProductId)));
             Caption = 'ProductIdName';
+            ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
             ExternalAccess = Read;
             ExternalName = 'productidname';
             ExternalType = 'String';
@@ -328,6 +364,7 @@ table 5354 "CRM Salesorderdetail"
         {
             CalcFormula = lookup("CRM Uom".Name where(UoMId = field(UoMId)));
             Caption = 'UoMIdName';
+            ToolTip = 'Specifies the unit in which the item is held in inventory.';
             ExternalAccess = Read;
             ExternalName = 'uomidname';
             ExternalType = 'String';
@@ -337,6 +374,7 @@ table 5354 "CRM Salesorderdetail"
         {
             CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(SalesRepId)));
             Caption = 'SalesRepIdName';
+            ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
             ExternalAccess = Read;
             ExternalName = 'salesrepidname';
             ExternalType = 'String';
@@ -375,6 +413,7 @@ table 5354 "CRM Salesorderdetail"
         field(46; ShipTo_ContactName; Text[150])
         {
             Caption = 'Ship To Contact Name';
+            ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
             Description = 'Type the primary contact name at the customer''s shipping address.';
             ExternalName = 'shipto_contactname';
             ExternalType = 'String';
@@ -444,7 +483,9 @@ table 5354 "CRM Salesorderdetail"
         }
         field(55; ExchangeRate; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Exchange Rate';
+            ToolTip = 'Specifies the currency exchange rate.';
             Description = 'Shows the conversion rate of the record''s currency. The exchange rate is used to convert all money fields in the record from the local currency to the system''s default currency.';
             ExternalAccess = Read;
             ExternalName = 'exchangerate';
@@ -469,6 +510,7 @@ table 5354 "CRM Salesorderdetail"
         }
         field(58; BaseAmount_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Amount (Base)';
             Description = 'Shows the Amount field converted to the system''s default base currency. The calculation uses the exchange rate specified in the Currencies area.';
             ExternalAccess = Read;
@@ -477,6 +519,7 @@ table 5354 "CRM Salesorderdetail"
         }
         field(59; PricePerUnit_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Price Per Unit (Base)';
             Description = 'Shows the Price Per Unit field converted to the system''s default base currency for reporting purposes. The calculation uses the exchange rate specified in the Currencies area.';
             ExternalAccess = Read;
@@ -487,6 +530,7 @@ table 5354 "CRM Salesorderdetail"
         {
             CalcFormula = lookup("CRM Transactioncurrency".CurrencyName where(TransactionCurrencyId = field(TransactionCurrencyId)));
             Caption = 'TransactionCurrencyIdName';
+            ToolTip = 'Specifies the currency that amounts are shown in.';
             ExternalAccess = Read;
             ExternalName = 'transactioncurrencyidname';
             ExternalType = 'String';
@@ -494,6 +538,7 @@ table 5354 "CRM Salesorderdetail"
         }
         field(61; VolumeDiscountAmount_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Volume Discount (Base)';
             Description = 'Shows the Volume Discount field converted to the system''s default base currency for reporting purposes. The calculation uses the exchange rate specified in the Currencies area.';
             ExternalAccess = Read;
@@ -502,6 +547,7 @@ table 5354 "CRM Salesorderdetail"
         }
         field(62; ExtendedAmount_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Extended Amount (Base)';
             Description = 'Shows the Extended Amount field converted to the system''s default base currency. The calculation uses the exchange rate specified in the Currencies area.';
             ExternalAccess = Read;
@@ -510,6 +556,7 @@ table 5354 "CRM Salesorderdetail"
         }
         field(63; Tax_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Tax (Base)';
             Description = 'Shows the Tax field converted to the system''s default base currency for reporting purposes. The calculation uses the exchange rate specified in the Currencies area.';
             ExternalAccess = Read;
@@ -518,6 +565,7 @@ table 5354 "CRM Salesorderdetail"
         }
         field(64; ManualDiscountAmount_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Manual Discount (Base)';
             Description = 'Shows the Manual Discount field converted to the system''s default base currency for reporting purposes. The calculation uses the exchange rate specified in the Currencies area.';
             ExternalAccess = Read;

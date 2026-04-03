@@ -8,8 +8,10 @@ using Microsoft.Assembly.Document;
 using Microsoft.EServices.EDocument;
 using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.Shipping;
+using Microsoft.Foundation.Task;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Transfer;
+using Microsoft.Manufacturing.Document;
 using Microsoft.Purchases.Vendor;
 using Microsoft.RoleCenters;
 using Microsoft.Sales.Customer;
@@ -26,8 +28,6 @@ using System.Automation;
 using System.Email;
 using System.Threading;
 using System.Visualization;
-using Microsoft.Foundation.Task;
-using Microsoft.Manufacturing.Document;
 
 page 9009 "Whse. Worker WMS Role Center"
 {

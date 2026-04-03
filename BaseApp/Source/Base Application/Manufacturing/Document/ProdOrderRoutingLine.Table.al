@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -36,16 +36,19 @@ table 5409 "Prod. Order Routing Line"
         field(1; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';
+            ToolTip = 'Specifies the routing number.';
             TableRelation = "Routing Header";
         }
         field(3; "Routing Reference No."; Integer)
         {
             Caption = 'Routing Reference No.';
+            ToolTip = 'Specifies that the routing reference number.';
             Editable = false;
         }
         field(4; "Operation No."; Code[10])
         {
             Caption = 'Operation No.';
+            ToolTip = 'Specifies the operation number.';
             NotBlank = true;
 
             trigger OnValidate()
@@ -62,6 +65,7 @@ table 5409 "Prod. Order Routing Line"
         field(5; "Next Operation No."; Code[30])
         {
             Caption = 'Next Operation No.';
+            ToolTip = 'Specifies the next operation number.';
 
             trigger OnValidate()
             var
@@ -79,6 +83,7 @@ table 5409 "Prod. Order Routing Line"
         field(6; "Previous Operation No."; Code[30])
         {
             Caption = 'Previous Operation No.';
+            ToolTip = 'Specifies the previous operation number.';
 
             trigger OnValidate()
             begin
@@ -88,6 +93,7 @@ table 5409 "Prod. Order Routing Line"
         field(7; Type; Enum "Capacity Type")
         {
             Caption = 'Type';
+            ToolTip = 'Specifies the type of operation.';
 
             trigger OnValidate()
             begin
@@ -103,6 +109,7 @@ table 5409 "Prod. Order Routing Line"
         field(8; "No."; Code[20])
         {
             Caption = 'No.';
+            ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
             TableRelation = if (Type = const("Work Center")) "Work Center"
             else
             if (Type = const("Machine Center")) "Machine Center";
@@ -179,10 +186,13 @@ table 5409 "Prod. Order Routing Line"
         field(11; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies the description of the operation.';
         }
         field(12; "Setup Time"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Setup Time';
+            ToolTip = 'Specifies the setup time of the operation.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 
@@ -193,7 +203,9 @@ table 5409 "Prod. Order Routing Line"
         }
         field(13; "Run Time"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Run Time';
+            ToolTip = 'Specifies the run time of the operation.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 
@@ -204,7 +216,9 @@ table 5409 "Prod. Order Routing Line"
         }
         field(14; "Wait Time"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Wait Time';
+            ToolTip = 'Specifies the wait time after processing.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 
@@ -215,7 +229,9 @@ table 5409 "Prod. Order Routing Line"
         }
         field(15; "Move Time"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Move Time';
+            ToolTip = 'Specifies the move time.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 
@@ -226,7 +242,9 @@ table 5409 "Prod. Order Routing Line"
         }
         field(16; "Fixed Scrap Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Fixed Scrap Quantity';
+            ToolTip = 'Specifies the fixed scrap quantity.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 
@@ -237,7 +255,9 @@ table 5409 "Prod. Order Routing Line"
         }
         field(17; "Lot Size"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Lot Size';
+            ToolTip = 'Specifies the lot size.';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -247,7 +267,9 @@ table 5409 "Prod. Order Routing Line"
         }
         field(18; "Scrap Factor %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Scrap Factor %';
+            ToolTip = 'Specifies the scrap factor in percent.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 
@@ -259,6 +281,7 @@ table 5409 "Prod. Order Routing Line"
         field(19; "Setup Time Unit of Meas. Code"; Code[10])
         {
             Caption = 'Setup Time Unit of Meas. Code';
+            ToolTip = 'Specifies the setup time unit of measure.';
             TableRelation = "Capacity Unit of Measure";
 
             trigger OnValidate()
@@ -269,6 +292,7 @@ table 5409 "Prod. Order Routing Line"
         field(20; "Run Time Unit of Meas. Code"; Code[10])
         {
             Caption = 'Run Time Unit of Meas. Code';
+            ToolTip = 'Specifies the run time unit of measure.';
             TableRelation = "Capacity Unit of Measure";
 
             trigger OnValidate()
@@ -279,6 +303,7 @@ table 5409 "Prod. Order Routing Line"
         field(21; "Wait Time Unit of Meas. Code"; Code[10])
         {
             Caption = 'Wait Time Unit of Meas. Code';
+            ToolTip = 'Specifies the unit of measure code that applies to the wait time.';
             TableRelation = "Capacity Unit of Measure";
 
             trigger OnValidate()
@@ -289,6 +314,7 @@ table 5409 "Prod. Order Routing Line"
         field(22; "Move Time Unit of Meas. Code"; Code[10])
         {
             Caption = 'Move Time Unit of Meas. Code';
+            ToolTip = 'Specifies the unit of measure code that applies to the move time.';
             TableRelation = "Capacity Unit of Measure";
 
             trigger OnValidate()
@@ -296,21 +322,31 @@ table 5409 "Prod. Order Routing Line"
                 CalcStartingEndingDates(Direction::Forward);
             end;
         }
+        field(23; "Description 2"; Text[50])
+        {
+            Caption = 'Description 2';
+            DataClassification = CustomerContent;
+            ToolTip = 'Specifies additional description text.';
+        }
         field(27; "Minimum Process Time"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Minimum Process Time';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
         }
         field(28; "Maximum Process Time"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Maximum Process Time';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
         }
         field(30; "Concurrent Capacities"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Concurrent Capacities';
+            ToolTip = 'Specifies the concurrent capacity of the operation.';
             DecimalPlaces = 0 : 5;
             InitValue = 1;
             MinValue = 0;
@@ -322,7 +358,9 @@ table 5409 "Prod. Order Routing Line"
         }
         field(31; "Send-Ahead Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Send-Ahead Quantity';
+            ToolTip = 'Specifies the send-ahead quantity of the operation.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 
@@ -334,6 +372,7 @@ table 5409 "Prod. Order Routing Line"
         field(34; "Routing Link Code"; Code[10])
         {
             Caption = 'Routing Link Code';
+            ToolTip = 'Specifies a routing link code.';
             TableRelation = "Routing Link";
 
             trigger OnValidate()
@@ -371,6 +410,7 @@ table 5409 "Prod. Order Routing Line"
         field(35; "Standard Task Code"; Code[10])
         {
             Caption = 'Standard Task Code';
+            ToolTip = 'Specifies the standard task code that applies to the operation.';
             TableRelation = "Standard Task";
 
             trigger OnValidate()
@@ -397,6 +437,7 @@ table 5409 "Prod. Order Routing Line"
 
                 StandardTask.Get("Standard Task Code");
                 Description := StandardTask.Description;
+                "Description 2" := StandardTask."Description 2";
 
                 DeleteRelations();
 
@@ -467,7 +508,9 @@ table 5409 "Prod. Order Routing Line"
         field(40; "Unit Cost per"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost per';
+            ToolTip = 'Specifies the unit cost for this operation if it is different than the unit cost on the work center card.';
             MinValue = 0;
 
             trigger OnValidate()
@@ -498,12 +541,14 @@ table 5409 "Prod. Order Routing Line"
         }
         field(52; "Fixed Scrap Qty. (Accum.)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Fixed Scrap Qty. (Accum.)';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(53; "Scrap Factor % (Accumulated)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Scrap Factor % (Accumulated)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -515,6 +560,8 @@ table 5409 "Prod. Order Routing Line"
         }
         field(56; "Direct Unit Cost"; Decimal)
         {
+            AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Direct Unit Cost';
             DecimalPlaces = 2 : 5;
 
@@ -525,6 +572,7 @@ table 5409 "Prod. Order Routing Line"
         }
         field(57; "Indirect Cost %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Indirect Cost %';
             DecimalPlaces = 0 : 5;
 
@@ -539,6 +587,7 @@ table 5409 "Prod. Order Routing Line"
         }
         field(58; "Overhead Rate"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Overhead Rate';
             DecimalPlaces = 0 : 5;
 
@@ -550,6 +599,7 @@ table 5409 "Prod. Order Routing Line"
         field(70; "Starting Time"; Time)
         {
             Caption = 'Starting Time';
+            ToolTip = 'Specifies the starting time of the routing line (operation).';
 
             trigger OnValidate()
             begin
@@ -559,6 +609,7 @@ table 5409 "Prod. Order Routing Line"
         field(71; "Starting Date"; Date)
         {
             Caption = 'Starting Date';
+            ToolTip = 'Specifies the starting date of the routing line (operation).';
 
             trigger OnValidate()
             begin
@@ -568,6 +619,7 @@ table 5409 "Prod. Order Routing Line"
         field(72; "Ending Time"; Time)
         {
             Caption = 'Ending Time';
+            ToolTip = 'Specifies the ending time of the routing line (operation).';
 
             trigger OnValidate()
             begin
@@ -577,6 +629,7 @@ table 5409 "Prod. Order Routing Line"
         field(73; "Ending Date"; Date)
         {
             Caption = 'Ending Date';
+            ToolTip = 'Specifies the ending date of the routing line (operation).';
 
             trigger OnValidate()
             begin
@@ -586,10 +639,12 @@ table 5409 "Prod. Order Routing Line"
         field(74; Status; Enum "Production Order Status")
         {
             Caption = 'Status';
+            ToolTip = 'Specifies the status of the routing line.';
         }
         field(75; "Prod. Order No."; Code[20])
         {
             Caption = 'Prod. Order No.';
+            ToolTip = 'Specifies the number of the related production order.';
             Editable = false;
             NotBlank = true;
             TableRelation = "Production Order"."No." where(Status = field(Status));
@@ -600,6 +655,7 @@ table 5409 "Prod. Order Routing Line"
         }
         field(77; "Input Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Input Quantity';
             DecimalPlaces = 0 : 5;
         }
@@ -611,6 +667,7 @@ table 5409 "Prod. Order Routing Line"
         field(79; "Routing Status"; Enum "Prod. Order Routing Status")
         {
             Caption = 'Routing Status';
+            ToolTip = 'Specifies the status of the routing line, such as Planned, In Progress, or Finished.';
 
             trigger OnValidate()
             var
@@ -650,11 +707,14 @@ table 5409 "Prod. Order Routing Line"
         field(90; "Expected Operation Cost Amt."; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Expected Operation Cost Amt.';
+            ToolTip = 'Specifies the total cost of operations. It is automatically calculated from the capacity need, when a production order is refreshed or replanned.';
             Editable = false;
         }
         field(91; "Expected Capacity Need"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Expected Capacity Need';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -663,12 +723,15 @@ table 5409 "Prod. Order Routing Line"
         field(96; "Expected Capacity Ovhd. Cost"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Expected Capacity Ovhd. Cost';
+            ToolTip = 'Specifies the capacity overhead. It is automatically calculated from the capacity need, when a production order is refreshed or replanned.';
             Editable = false;
         }
         field(98; "Starting Date-Time"; DateTime)
         {
             Caption = 'Starting Date-Time';
+            ToolTip = 'Specifies the starting date and the starting time, which are combined in a format called "starting date-time".';
 
             trigger OnValidate()
             begin
@@ -680,6 +743,7 @@ table 5409 "Prod. Order Routing Line"
         field(99; "Ending Date-Time"; DateTime)
         {
             Caption = 'Ending Date-Time';
+            ToolTip = 'Specifies the ending date and the ending time, which are combined in a format called "ending date-time".';
 
             trigger OnValidate()
             begin
@@ -691,29 +755,34 @@ table 5409 "Prod. Order Routing Line"
         field(100; "Schedule Manually"; Boolean)
         {
             Caption = 'Schedule Manually';
+            ToolTip = 'Specifies that the underlying capacity need is recalculated each time a change is made in the schedule of the routing.';
         }
         field(101; "Location Code"; Code[10])
         {
             AccessByPermission = TableData Location = R;
             Caption = 'Location Code';
+            ToolTip = 'Specifies the location where the machine or work center on the production order routing line operates.';
             Editable = false;
         }
         field(7301; "Open Shop Floor Bin Code"; Code[20])
         {
             AccessByPermission = TableData "Warehouse Source Filter" = R;
             Caption = 'Open Shop Floor Bin Code';
+            ToolTip = 'Specifies the corresponding bin at the machine or work center, if the location code matches the setup of that machine or work center.';
             Editable = false;
         }
         field(7302; "To-Production Bin Code"; Code[20])
         {
             AccessByPermission = TableData "Warehouse Source Filter" = R;
             Caption = 'To-Production Bin Code';
+            ToolTip = 'Specifies the bin that holds components with a flushing method, that involves a warehouse activity to bring the items to the bin.';
             Editable = false;
         }
         field(7303; "From-Production Bin Code"; Code[20])
         {
             AccessByPermission = TableData "Warehouse Source Filter" = R;
             Caption = 'From-Production Bin Code';
+            ToolTip = 'Specifies the corresponding bin at the machine or work center if the location code matches the setup of that machine or work center.';
             Editable = false;
         }
 #if not CLEANSCHEMA30
@@ -746,6 +815,7 @@ table 5409 "Prod. Order Routing Line"
 #if not CLEAN27
         field(12181; "Qty. WIP on Subcontractors"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Capacity Ledger Entry"."WIP Item Qty." where("Order Type" = const(Production),
                                                                              "Order No." = field("Prod. Order No."),
                                                                              "Routing Reference No." = field("Routing Reference No."),
@@ -762,6 +832,7 @@ table 5409 "Prod. Order Routing Line"
         }
         field(12182; "Qty. WIP on Transfer Order"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Transfer Line"."WIP Outstanding Qty. (Base)" where("Prod. Order No." = field("Prod. Order No."),
                                                                                    "Routing No." = field("Routing No."),
                                                                                    "Routing Reference No." = field("Routing Reference No."),
@@ -795,6 +866,7 @@ table 5409 "Prod. Order Routing Line"
 #endif
         field(7304; "Posted Output Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Posted Output Quantity';
             ToolTip = 'Specifies the total output quantity that has been posted to the capacity ledger. Value expressed in base unit of measure.';
             FieldClass = FlowField;
@@ -807,6 +879,7 @@ table 5409 "Prod. Order Routing Line"
         }
         field(7305; "Posted Scrap Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Posted Scrap Quantity';
             ToolTip = 'Specifies the total scrap quantity that has been posted to the capacity ledger. Value expressed in base unit of measure.';
             FieldClass = FlowField;
@@ -819,6 +892,7 @@ table 5409 "Prod. Order Routing Line"
         }
         field(7306; "Posted Run Time"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Posted Run Time';
             ToolTip = 'Specifies the total run time that has been posted to the capacity ledger.';
             FieldClass = FlowField;
@@ -831,6 +905,7 @@ table 5409 "Prod. Order Routing Line"
         }
         field(7307; "Posted Setup Time"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Posted Setup Time';
             ToolTip = 'Specifies the total set up time that has been posted to the capacity ledger.';
             FieldClass = FlowField;
@@ -1045,6 +1120,7 @@ table 5409 "Prod. Order Routing Line"
         "Work Center No." := PlanningRoutingLine."Work Center No.";
         "Work Center Group Code" := PlanningRoutingLine."Work Center Group Code";
         Description := PlanningRoutingLine.Description;
+        "Description 2" := PlanningRoutingLine."Description 2";
         "Setup Time" := PlanningRoutingLine."Setup Time";
         "Run Time" := PlanningRoutingLine."Run Time";
         "Wait Time" := PlanningRoutingLine."Wait Time";
@@ -1099,6 +1175,7 @@ table 5409 "Prod. Order Routing Line"
         "Work Center No." := RoutingLine."Work Center No.";
         "Work Center Group Code" := RoutingLine."Work Center Group Code";
         Description := RoutingLine.Description;
+        "Description 2" := RoutingLine."Description 2";
         "Setup Time" := RoutingLine."Setup Time";
         "Run Time" := RoutingLine."Run Time";
         "Wait Time" := RoutingLine."Wait Time";
@@ -1188,8 +1265,10 @@ table 5409 "Prod. Order Routing Line"
             "Run Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
             "Wait Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
             "Move Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
-            if (not SkipUpdateDescription) and ("Standard Task Code" = '') then
+            if (not SkipUpdateDescription) and ("Standard Task Code" = '') then begin
                 Description := WorkCenter.Name;
+                "Description 2" := WorkCenter."Name 2";
+            end;
             "Flushing Method" := WorkCenter."Flushing Method";
             "Unit Cost per" := WorkCenter."Unit Cost";
             "Direct Unit Cost" := WorkCenter."Direct Unit Cost";
@@ -1215,8 +1294,10 @@ table 5409 "Prod. Order Routing Line"
         SkipUpdateDescription := false;
         OnMachineCtrTransferFieldsOnAfterWorkCenterTransferFields(Rec, WorkCenter, MachineCenter, SkipUpdateDescription, xRec, IsHandled);
         if not IsHandled then begin
-            if not SkipUpdateDescription then
+            if not SkipUpdateDescription then begin
                 Description := MachineCenter.Name;
+                "Description 2" := MachineCenter."Name 2";
+            end;
             "Setup Time" := MachineCenter."Setup Time";
             "Wait Time" := MachineCenter."Wait Time";
             "Move Time" := MachineCenter."Move Time";

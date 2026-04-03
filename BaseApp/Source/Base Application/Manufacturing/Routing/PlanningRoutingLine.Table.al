@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -44,6 +44,7 @@ table 99000830 "Planning Routing Line"
         field(4; "Operation No."; Code[10])
         {
             Caption = 'Operation No.';
+            ToolTip = 'Specifies the operation number for this planning routing line.';
             NotBlank = true;
 
             trigger OnValidate()
@@ -60,6 +61,7 @@ table 99000830 "Planning Routing Line"
         field(5; "Next Operation No."; Code[30])
         {
             Caption = 'Next Operation No.';
+            ToolTip = 'Specifies the next operation number if you use parallel routings.';
 
             trigger OnValidate()
             begin
@@ -72,6 +74,7 @@ table 99000830 "Planning Routing Line"
         field(6; "Previous Operation No."; Code[30])
         {
             Caption = 'Previous Operation No.';
+            ToolTip = 'Specifies the previous operation number and shows the operation that is run directly before the operation.';
 
             trigger OnValidate()
             begin
@@ -81,6 +84,7 @@ table 99000830 "Planning Routing Line"
         field(7; Type; Enum "Capacity Type")
         {
             Caption = 'Type';
+            ToolTip = 'Specifies the type of operation.';
 
             trigger OnValidate()
             begin
@@ -94,6 +98,7 @@ table 99000830 "Planning Routing Line"
         field(8; "No."; Code[20])
         {
             Caption = 'No.';
+            ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
             TableRelation = if (Type = const("Work Center")) "Work Center"
             else
             if (Type = const("Machine Center")) "Machine Center";
@@ -139,10 +144,13 @@ table 99000830 "Planning Routing Line"
         field(11; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the task related to this routing line.';
         }
         field(12; "Setup Time"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Setup Time';
+            ToolTip = 'Specifies the setup time using the unit of measure from the Setup Time Unit of Measure field on the work or machine center card.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 
@@ -153,7 +161,9 @@ table 99000830 "Planning Routing Line"
         }
         field(13; "Run Time"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Run Time';
+            ToolTip = 'Specifies the run time of the operation.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 
@@ -164,7 +174,9 @@ table 99000830 "Planning Routing Line"
         }
         field(14; "Wait Time"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Wait Time';
+            ToolTip = 'Specifies the wait time.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 
@@ -175,7 +187,9 @@ table 99000830 "Planning Routing Line"
         }
         field(15; "Move Time"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Move Time';
+            ToolTip = 'Specifies the move time using the unit of measure in the Move Time Unit of Measure field on the machine or work center card.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 
@@ -186,7 +200,9 @@ table 99000830 "Planning Routing Line"
         }
         field(16; "Fixed Scrap Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Fixed Scrap Quantity';
+            ToolTip = 'Specifies a fixed scrap quantity for this routing line.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 
@@ -197,7 +213,9 @@ table 99000830 "Planning Routing Line"
         }
         field(17; "Lot Size"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Lot Size';
+            ToolTip = 'Specifies the number of items that are included in the same operation at the same time. The run time on routing lines is reduced proportionally to the lot size. For example, if the lot size is two pieces, the run time will be reduced by half.';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -207,7 +225,9 @@ table 99000830 "Planning Routing Line"
         }
         field(18; "Scrap Factor %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Scrap Factor %';
+            ToolTip = 'Specifies the scrap factor as a percentage.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 
@@ -256,21 +276,31 @@ table 99000830 "Planning Routing Line"
                 CalcStartingEndingDates();
             end;
         }
+        field(23; "Description 2"; Text[50])
+        {
+            Caption = 'Description 2';
+            DataClassification = CustomerContent;
+            ToolTip = 'Specifies additional description text.';
+        }
         field(27; "Minimum Process Time"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Minimum Process Time';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
         }
         field(28; "Maximum Process Time"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Maximum Process Time';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
         }
         field(30; "Concurrent Capacities"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Concurrent Capacities';
+            ToolTip = 'Specifies the quantity of machines or personnel that can perform their expected functions simultaneously.';
             DecimalPlaces = 0 : 5;
             InitValue = 1;
             MinValue = 0;
@@ -282,7 +312,9 @@ table 99000830 "Planning Routing Line"
         }
         field(31; "Send-Ahead Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Send-Ahead Quantity';
+            ToolTip = 'Specifies the output of the operation that must be completed before the next operation can be started.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 
@@ -310,12 +342,15 @@ table 99000830 "Planning Routing Line"
 
                 StandardTask.Get("Standard Task Code");
                 Description := StandardTask.Description;
+                "Description 2" := StandardTask."Description 2";
             end;
         }
         field(40; "Unit Cost per"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost per';
+            ToolTip = 'Specifies the unit cost for this operation if it is different than the unit cost on the work center or machine center card.';
             MinValue = 0;
         }
         field(41; Recalculate; Boolean)
@@ -335,14 +370,16 @@ table 99000830 "Planning Routing Line"
         }
         field(52; "Fixed Scrap Qty. (Accum.)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Fixed Scrap Qty. (Accum.)';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(53; "Scrap Factor % (Accumulated)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Scrap Factor % (Accumulated)';
-            DecimalPlaces = 1 : 1;
+            DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(55; "Sequence No. (Actual)"; Integer)
@@ -352,6 +389,8 @@ table 99000830 "Planning Routing Line"
         }
         field(56; "Direct Unit Cost"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Direct Unit Cost';
             DecimalPlaces = 2 : 5;
 
@@ -362,6 +401,7 @@ table 99000830 "Planning Routing Line"
         }
         field(57; "Indirect Cost %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Indirect Cost %';
             DecimalPlaces = 0 : 5;
 
@@ -374,6 +414,7 @@ table 99000830 "Planning Routing Line"
         }
         field(58; "Overhead Rate"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Overhead Rate';
             DecimalPlaces = 0 : 5;
 
@@ -384,6 +425,7 @@ table 99000830 "Planning Routing Line"
         }
         field(61; "Output Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Output Quantity';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -391,6 +433,7 @@ table 99000830 "Planning Routing Line"
         field(70; "Starting Time"; Time)
         {
             Caption = 'Starting Time';
+            ToolTip = 'Specifies the starting time for the operation for this planning routing line.';
 
             trigger OnValidate()
             begin
@@ -421,6 +464,7 @@ table 99000830 "Planning Routing Line"
         field(71; "Starting Date"; Date)
         {
             Caption = 'Starting Date';
+            ToolTip = 'Specifies the starting date for the operation for this planning routing line.';
 
             trigger OnValidate()
             begin
@@ -430,6 +474,7 @@ table 99000830 "Planning Routing Line"
         field(72; "Ending Time"; Time)
         {
             Caption = 'Ending Time';
+            ToolTip = 'Specifies the ending time of the operation for this planning routing line.';
 
             trigger OnValidate()
             begin
@@ -457,6 +502,7 @@ table 99000830 "Planning Routing Line"
         field(73; "Ending Date"; Date)
         {
             Caption = 'Ending Date';
+            ToolTip = 'Specifies the ending date of the operation for this planning routing line.';
 
             trigger OnValidate()
             begin
@@ -469,6 +515,7 @@ table 99000830 "Planning Routing Line"
         }
         field(77; "Input Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Input Quantity';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -481,6 +528,7 @@ table 99000830 "Planning Routing Line"
         field(98; "Starting Date-Time"; DateTime)
         {
             Caption = 'Starting Date-Time';
+            ToolTip = 'Specifies the starting date and the starting time, which are combined in a format called "starting date-time".';
 
             trigger OnValidate()
             begin
@@ -492,6 +540,7 @@ table 99000830 "Planning Routing Line"
         field(99; "Ending Date-Time"; DateTime)
         {
             Caption = 'Ending Date-Time';
+            ToolTip = 'Specifies the ending date and the ending time, which are combined in a format called "ending date-time".';
 
             trigger OnValidate()
             begin
@@ -517,17 +566,20 @@ table 99000830 "Planning Routing Line"
         field(99000909; "Expected Operation Cost Amt."; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Expected Operation Cost Amt.';
             Editable = false;
         }
         field(99000910; "Expected Capacity Ovhd. Cost"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Expected Capacity Ovhd. Cost';
             Editable = false;
         }
         field(99000911; "Expected Capacity Need"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Expected Capacity Need';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -647,6 +699,7 @@ table 99000830 "Planning Routing Line"
             "Wait Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
             "Move Time Unit of Meas. Code" := WorkCenter."Unit of Measure Code";
             Description := WorkCenter.Name;
+            "Description 2" := WorkCenter."Name 2";
             "Unit Cost per" := WorkCenter."Unit Cost";
             "Direct Unit Cost" := WorkCenter."Direct Unit Cost";
             "Indirect Cost %" := WorkCenter."Indirect Cost %";
@@ -666,6 +719,7 @@ table 99000830 "Planning Routing Line"
         OnMachineCtrTransferFieldsOnAfterWorkCenterTransferFields(Rec, xRec, WorkCenter, MachineCenter, IsHandled);
         if not IsHandled then begin
             Description := MachineCenter.Name;
+            "Description 2" := MachineCenter."Name 2";
             "Setup Time" := MachineCenter."Setup Time";
             "Wait Time" := MachineCenter."Wait Time";
             "Move Time" := MachineCenter."Move Time";
@@ -869,6 +923,7 @@ table 99000830 "Planning Routing Line"
         Type := ProdOrderRoutingLine.Type;
         "No." := ProdOrderRoutingLine."No.";
         Description := ProdOrderRoutingLine.Description;
+        "Description 2" := ProdOrderRoutingLine."Description 2";
         "Work Center No." := ProdOrderRoutingLine."Work Center No.";
         "Work Center Group Code" := ProdOrderRoutingLine."Work Center Group Code";
         "Setup Time" := ProdOrderRoutingLine."Setup Time";
@@ -934,6 +989,7 @@ table 99000830 "Planning Routing Line"
         "Work Center No." := RoutingLine."Work Center No.";
         "Work Center Group Code" := RoutingLine."Work Center Group Code";
         Description := RoutingLine.Description;
+        "Description 2" := RoutingLine."Description 2";
         "Setup Time" := RoutingLine."Setup Time";
         "Run Time" := RoutingLine."Run Time";
         "Wait Time" := RoutingLine."Wait Time";

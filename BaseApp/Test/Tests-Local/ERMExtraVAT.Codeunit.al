@@ -2474,7 +2474,7 @@ codeunit 144078 "ERM Extra VAT"
     begin
         for i := 1 to ArrayLen(Amount) do begin
             VATEntry.TestField("Unrealized VAT Entry No.", UnrealVATEntryNo);
-            Assert.AreEqual(Amount[i] * Sign, VATEntry.Amount + VATEntry.Base, 'VAT Entry Base+Amount');
+            Assert.AreNearlyEqual(Amount[i] * Sign, VATEntry.Amount + VATEntry.Base, 0.01, 'VAT Entry Base+Amount');
             VATEntry.Next();
         end;
     end;

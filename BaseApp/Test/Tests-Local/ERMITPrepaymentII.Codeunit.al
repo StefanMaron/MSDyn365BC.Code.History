@@ -733,7 +733,7 @@ codeunit 144173 "ERM IT Prepayment II"
           VATPostingSetup."Unrealized VAT Type"::Percentage);  // Using Random for Prepayment %.
         LibraryPurchase.PostPrepaymentInvoice(PurchaseHeader);
         FindPurchaseLine(PurchaseLine, PurchaseHeader."No.");
-        PurchaseHeader.Validate("Check Total", Round(PurchaseLine."Amount Including VAT" * PurchaseLine."Prepayment %" / 100));
+        PurchaseHeader.Validate("Check Total", PurchaseLine."Prepmt. Amt. Incl. VAT");
         PurchaseHeader.Modify(true);
 
         // Exercise.
@@ -866,8 +866,6 @@ codeunit 144173 "ERM IT Prepayment II"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
-        VATEntry: Record "VAT Entry";
-        DocumentNo: Code[20];
     begin
         // Test to verify VAT Entry after Posting Purchase Prepayment when VAT is changed on Purchase Line.
 
@@ -880,15 +878,14 @@ codeunit 144173 "ERM IT Prepayment II"
         PurchaseLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         PurchaseLine.Modify(true);
-        DocumentNo := GetPostedDocumentNo(PurchaseHeader."Posting No. Series");
 
         // Exercise.
         LibraryPurchase.PostPrepaymentInvoice(PurchaseHeader);
 
-        // Verify: Verify values on VAT Entry.
-        VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst();
-        VATEntry.TestField(Amount, 0);
+        //Verify: Verify Purchase Invoice Header and VAT Entry.
+        VerifyPurchaseInvoiceHeader(PurchaseHeader, true);  // True for Prepayment Invoice.
+        VerifyVATEntry(
+          PurchaseHeader."Last Prepayment No.", PurchaseLine."VAT Prod. Posting Group", CalculateAmountPurchase(PurchaseLine), CalculateBasePurchase(PurchaseLine), 0, 0);  // Value 0 required for VAT Entry Unrealized Amount and VAT Entry Unrealized Base.
 
         // Tear Down.
         DeleteVATPostingSetup(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group");

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -17,7 +17,6 @@ using Microsoft.Sales.Setup;
 using Microsoft.Service.Document;
 using Microsoft.Service.Pricing;
 using Microsoft.Service.Setup;
-using System.Environment.Configuration;
 
 codeunit 817 "Service Post Invoice" implements "Invoice Posting"
 {
@@ -27,7 +26,6 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
         TempInvoicePostingBuffer: Record "Invoice Posting Buffer" temporary;
         TotalServiceLine: Record "Service Line";
         TotalServiceLineLCY: Record "Service Line";
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         ServicePostInvoiceEvents: Codeunit "Service Post Invoice Events";
         FALineNo: Integer;
         HideProgressWindow: Boolean;
@@ -76,6 +74,7 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
         ServiceLineACY: Record "Service Line";
+        GLSetup: Record "General Ledger Setup";
         GenPostingSetup: Record "General Posting Setup";
         InvoicePostingBuffer: Record "Invoice Posting Buffer";
         TotalVAT: Decimal;
@@ -96,8 +95,7 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
         if IsHandled then
             exit;
 
-        SalesSetup.Get();
-        if not ApplicationAreaMgmt.IsSalesTaxEnabled() then
+        if GLSetup.UseVat() then
             if (ServiceLine."Gen. Bus. Posting Group" <> GenPostingSetup."Gen. Bus. Posting Group") or
                (ServiceLine."Gen. Prod. Posting Group" <> GenPostingSetup."Gen. Prod. Posting Group")
             then begin
@@ -105,6 +103,7 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
                 GenPostingSetup.TestField(Blocked, false);
                 ServicePostInvoiceEvents.RunOnPrepareLineAfterGetGenPostingSetup(GenPostingSetup, ServiceHeader, ServiceLine, ServiceLineACY);
             end;
+        ServicePostInvoiceEvents.RunOnPrepareLineOnAfterGetGenPostingSetup(ServiceLine, ServiceLineACY, GenPostingSetup);
 
         PrepareInvoicePostingBuffer(ServiceLine, InvoicePostingBuffer);
 
@@ -115,6 +114,7 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
         TotalVATBase := ServiceLine."VAT Base Amount";
         TotalVATBaseACY := ServiceLineACY."VAT Base Amount";
 
+        SalesSetup.Get();
         if SalesSetup."Discount Posting" in
            [SalesSetup."Discount Posting"::"Invoice Discounts", SalesSetup."Discount Posting"::"All Discounts"]
         then begin
@@ -272,9 +272,6 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
 
         UpdateEntryDescriptionFromServiceLine(ServiceLine, InvoicePostingBuffer);
 
-#if not CLEAN25
-        InvoicePostingBuffer.RunOnAfterPrepareService(ServiceLine, InvoicePostingBuffer);
-#endif
         ServicePostInvoiceEvents.RunOnAfterPrepareInvoicePostingBuffer(ServiceLine, InvoicePostingBuffer);
 #if not CLEAN26
         OnAfterPrepareInvoicePostingBuffer(ServiceLine, InvoicePostingBuffer);

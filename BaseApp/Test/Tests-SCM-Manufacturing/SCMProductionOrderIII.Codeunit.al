@@ -4,52 +4,52 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Test;
 
-using Microsoft.Inventory.Location;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Foundation.Enums;
+using Microsoft.Foundation.Navigate;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Availability;
+using Microsoft.Inventory.Costing;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Item.Substitution;
 using Microsoft.Inventory.Journal;
-using Microsoft.Warehouse.Journal;
-using System.TestLibraries.Utilities;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Planning;
+using Microsoft.Inventory.Requisition;
+using Microsoft.Inventory.Setup;
+using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Document;
-using Microsoft.Inventory.Item;
-using Microsoft.Warehouse.Structure;
-using Microsoft.Warehouse.Ledger;
-using Microsoft.Sales.Document;
-using Microsoft.Inventory.Requisition;
-using Microsoft.Purchases.Document;
-using Microsoft.Manufacturing.Setup;
-using Microsoft.Sales.Setup;
-using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Manufacturing.Family;
-using Microsoft.Warehouse.Document;
-using Microsoft.Warehouse.Activity;
-using Microsoft.Warehouse.Activity.History;
 using Microsoft.Manufacturing.Journal;
-using Microsoft.Inventory.Setup;
-using Microsoft.Inventory.Ledger;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Inventory.Availability;
-using Microsoft.Warehouse.Setup;
-using Microsoft.Inventory.Item.Substitution;
 using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Foundation.UOM;
-using Microsoft.Finance.Currency;
-using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Pricing.PriceList;
-using System.Utilities;
-using Microsoft.Inventory.Costing;
+using Microsoft.Manufacturing.Routing;
+using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.StandardCost;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.PriceList;
+using Microsoft.Pricing.Source;
+using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Vendor;
-using Microsoft.Finance.VAT.Setup;
-using Microsoft.Foundation.Navigate;
-using Microsoft.Inventory.Planning;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.Setup;
+using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.Activity.History;
+using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.InventoryDocument;
-using Microsoft.Foundation.Enums;
+using Microsoft.Warehouse.Journal;
+using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Request;
-using Microsoft.Finance.GeneralLedger.Ledger;
-using Microsoft.Pricing.Source;
-using Microsoft.Pricing.Asset;
+using Microsoft.Warehouse.Setup;
+using Microsoft.Warehouse.Structure;
+using System.TestLibraries.Utilities;
+using System.Utilities;
 
 codeunit 137079 "SCM Production Order III"
 {
@@ -90,6 +90,7 @@ codeunit 137079 "SCM Production Order III"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryERM: Codeunit "Library - ERM";
         LibraryCosting: Codeunit "Library - Costing";
+        LibraryPostInventoryToGL: Codeunit "Library - Post Inventory To GL";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         ShopCalendarMgt: Codeunit "Shop Calendar Management";
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
@@ -5294,7 +5295,7 @@ codeunit 137079 "SCM Production Order III"
         // [THEN] Open Purchase Order Page
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         PurchaseOrder.OpenEdit();
-        PurchaseOrder.GotoRecord(PurchaseHeader);
+        PurchaseOrder.Filter.SetFilter("no.", PurchaseHeader."No.");
 
         // [VERIFY] Verify: Lookup to purchase prices from the Purchase Line Factbox open without any error
         PurchaseOrder.Control3.PurchasePrices.Lookup();
@@ -6197,7 +6198,7 @@ codeunit 137079 "SCM Production Order III"
             StrSubstNo(EntryMustBeEqualErr, ValueEntry.FieldCaption("Cost Posted to G/L"), 0, ValueEntry."Entry No.", ValueEntry.TableCaption()));
 
         // [WHEN] Run "Post Inventory Cost to G/L".
-        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
+        LibraryPostInventoryToGL.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Verify "Direct Cost Non-Inv. App. Acc." must be updated for "Direct Cost - Non Inventory" and "Cost Posted to G/L" must be updated in Value Entry.
         VerifyGLEntriesForNonInventoryAppliedAccount(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::"Direct Cost - Non Inventory", OutputItem, NonInvUnitCost * Quantity);
@@ -6774,7 +6775,7 @@ codeunit 137079 "SCM Production Order III"
             StrSubstNo(EntryMustBeEqualErr, ValueEntry.FieldCaption("Cost Posted to G/L"), 0, ValueEntry."Entry No.", ValueEntry.TableCaption()));
 
         // [WHEN] Run "Post Inventory Cost to G/L".
-        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
+        LibraryPostInventoryToGL.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Verify "Mat. Non-Inv. Variance Acc." must be updated for "Variance Type"-"Material - Non Inventory" and "Cost Posted to G/L" must be updated in Value Entry.
         VerifyGLEntriesForNonInventoryVarianceAccount(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::Variance, OutputItem, NonInvUnitCost * ConsumptionQuantity);
@@ -7394,6 +7395,38 @@ codeunit 137079 "SCM Production Order III"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure RegisterPartialPutAwayAfterSortingWhseActivityLine()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        QtyToHandle: Decimal;
+        WareHouseActionType: Enum "Warehouse Action Type";
+    begin
+        // [SCENARIO 598381] Regiter partial Whse Put-away successfully when sorting set on Qty. to Handle
+        Initialize();
+
+        // [GIVEN] Create an Item
+        CreateItem(Item);
+
+        // [GIVEN] Create Whse. Receipt form Purchase Order
+        CreateWhseReceiptFromPurchaseOrder(PurchaseHeader, Item."No.", LocationWhite.Code, LibraryRandom.RandInt(20));
+
+        // [GIVEN] Post Warehouse Receipt
+        PostWarehouseReceipt(PurchaseHeader."No.");
+
+        // [WHEN] Update Qty. to Handle, sort the Wharehouse Activity Line on Qty. to Handle and register Warehouse Activity
+        QtyToHandle := LibraryRandom.RandInt(5);
+        UpdateQuantityToHandleAndRegisterWarehouseActivity(PurchaseHeader."No.", WarehouseActivityHeader.Type::"Put-away", QtyToHandle);
+
+        // [THEN] Verify registered Warehouse Activity Lines
+        VerifyRegisteredWhseActivityLine(PurchaseHeader."No.", WarehouseActivityHeader.Type::"Put-away", WareHouseActionType::Take, QtyToHandle);
+        VerifyRegisteredWhseActivityLine(PurchaseHeader."No.", WarehouseActivityHeader.Type::"Put-away", WareHouseActionType::Place, QtyToHandle);
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandler,MessageHandlerWithoutValidation')]
     procedure VerifyReverseItemLedgerEntryShouldBeCreatedForConsumptionWithSamePostedValue()
     var
@@ -7414,7 +7447,7 @@ codeunit 137079 "SCM Production Order III"
         ItemLedgerEntries.OpenEdit();
         ItemLedgerEntries.Filter.SetFilter("Document No.", ProdOrderComponent."Prod. Order No.");
         ItemLedgerEntries.Filter.SetFilter("Entry Type", Format(ItemLedgerEntry."Entry Type"::Consumption));
-    
+
         // [WHEN] Invoke "Reverse" action.
         ItemLedgerEntries.Reverse.Invoke();
 
@@ -7664,35 +7697,38 @@ codeunit 137079 "SCM Production Order III"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    [HandlerFunctions('ConfirmHandler')]
-    procedure RegisterPartialPutAwayAfterSortingWhseActivityLine()
+    [HandlerFunctions('ConfirmHandler,MessageHandlerWithoutValidation,ProductionJournalPageHandler3')]
+    procedure ReversalProductionConsumptionForNonInventoryItemWithCost()
     var
-        Item: Record Item;
-        PurchaseHeader: Record "Purchase Header";
-        WarehouseActivityHeader: Record "Warehouse Activity Header";
-        QtyToHandle: Decimal;
-        WareHouseActionType: Enum "Warehouse Action Type";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ItemLedgerEntries: TestPage "Item Ledger Entries";
     begin
-        // [SCENARIO 598381] Regiter partial Whse Put-away successfully when sorting set on Qty. to Handle
+        // [SCENARIO 608995] Reversal of production consumption of non-inv item reverses the Non-Inv Cost.
         Initialize();
 
-        // [GIVEN] Create an Item
-        CreateItem(Item);
+        // [GIVEN] Create Production Order With Component.
+        CreateProdOrderAddNewComponentAndCreateConsumption(ProdOrderComponent);
 
-        // [GIVEN] Create Whse. Receipt form Purchase Order
-        CreateWhseReceiptFromPurchaseOrder(PurchaseHeader, Item."No.", LocationWhite.Code, LibraryRandom.RandInt(20));
+        // [GIVEN] Post Consumption Journal Line for this Component.
+        LibraryInventory.PostItemJournalLine(ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
 
-        // [GIVEN] Post Warehouse Receipt
-        PostWarehouseReceipt(PurchaseHeader."No.");
+        // [GIVEN] OpenEdit Item Ledger Entries.
+        ItemLedgerEntries.OpenEdit();
+        ItemLedgerEntries.Filter.SetFilter("Document No.", ProdOrderComponent."Prod. Order No.");
+        ItemLedgerEntries.Filter.SetFilter("Entry Type", Format(ItemLedgerEntry."Entry Type"::Consumption));
 
-        // [WHEN] Update Qty. to Handle, sort the Wharehouse Activity Line on Qty. to Handle and register Warehouse Activity
-        QtyToHandle := LibraryRandom.RandInt(5);
-        UpdateQuantityToHandleAndRegisterWarehouseActivity(PurchaseHeader."No.", WarehouseActivityHeader.Type::"Put-away", QtyToHandle);
+        // [WHEN] Invoke "Reverse" action.
+        ItemLedgerEntries.Reverse.Invoke();
 
-        // [THEN] Verify registered Warehouse Activity Lines
-        VerifyRegisteredWhseActivityLine(PurchaseHeader."No.", WarehouseActivityHeader.Type::"Put-away", WareHouseActionType::Take, QtyToHandle);
-        VerifyRegisteredWhseActivityLine(PurchaseHeader."No.", WarehouseActivityHeader.Type::"Put-away", WareHouseActionType::Place, QtyToHandle);
+        // [THEN] Verify Reverse Entry is reversed of Item Ledger Entry with Non-Inventory Cost.
+        ItemLedgerEntry.SetRange("Order Type", "Inventory Order Type"::Production);
+        ItemLedgerEntry.SetRange("Order No.", ProdOrderComponent."Prod. Order No.");
+        ItemLedgerEntry.SetRange("Order Line No.", ProdOrderComponent."Prod. Order Line No.");
+        ItemLedgerEntry.SetRange("Entry Type", "Item Ledger Entry Type"::Consumption);
+        ItemLedgerEntry.SetFilter("Cost Amount (Non-Invtbl.)", '<>0');
+        ItemLedgerEntry.FindLast();
+        Assert.RecordIsNotEmpty(ItemLedgerEntry);
     end;
 
     [Test]
@@ -8069,6 +8105,88 @@ codeunit 137079 "SCM Production Order III"
     end;
 
     [Test]
+    procedure CapacityOverheadValueEntriesHaveLocationCode()
+    var
+        Bins: array[2] of Record Bin;
+        Item: Record Item;
+        ChildItem: Record Item;
+        WorkCenter: Record "Work Center";
+        ProductionOrder: Record "Production Order";
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+        ItemJournalLine: Record "Item Journal Line";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        ValueEntry: Record "Value Entry";
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 616812] Value Entries for capacity and overhead costs should have Location Code populated from production order
+        Initialize();
+
+        // [GIVEN] Create production item with BOM and Routing.
+        CreateItemsSetup(Item, ChildItem, LibraryRandom.RandIntInRange(2, 5));
+
+        // [GIVEN] Create Bins in the Location.
+        LibraryWarehouse.CreateBin(Bins[1], LocationRed.Code, '', '', '');
+        LibraryWarehouse.CreateBin(Bins[2], LocationRed.Code, '', '', '');
+
+        // [GIVEN] Create a location with inventory posting setup
+        if not InventoryPostingSetup.Get(LocationRed.Code, '') then begin
+            InventoryPostingSetup.Init();
+            InventoryPostingSetup.Validate("Location Code", LocationRed.Code);
+            InventoryPostingSetup.Validate("Invt. Posting Group Code", '');
+            InventoryPostingSetup.Insert(true);
+        end;
+
+        // [GIVEN] Create work center with overhead cost.
+        CreateWorkCenter(WorkCenter, false);
+        WorkCenter.Validate("Unit Cost", LibraryRandom.RandDecInRange(10, 20, 2));
+        WorkCenter.Validate("Overhead Rate", LibraryRandom.RandDecInRange(5, 10, 2));
+        WorkCenter.Validate("Unit Cost Calculation", WorkCenter."Unit Cost Calculation"::Units);
+        WorkCenter.Modify(true);
+
+        // [GIVEN] Create and certify routing with operation.
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        CreateRoutingLine(RoutingLine, RoutingHeader, WorkCenter."No.");
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+
+        // [GIVEN] Update Item with Routing.
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
+
+        // [GIVEN] Create inventory for child item at the location
+        Quantity := LibraryRandom.RandIntInRange(50, 100);
+        CreateAndPostItemJournalLine(ChildItem."No.", Quantity, LocationRed.Code, Bins[1].Code);
+
+        // [GIVEN] Create and refresh released production order with location
+        CreateAndRefreshReleasedProductionOrder(
+            ProductionOrder,
+            Item."No.",
+            Quantity,
+            LocationRed.Code,
+            Bins[2].Code);
+
+        // [WHEN] Post production journal (consumption and output with overhead)
+        LibraryInventory.ClearItemJournal(ConsumptionItemJournalTemplate, ConsumptionItemJournalBatch);
+        LibraryManufacturing.CalculateConsumption(
+            ProductionOrder."No.",
+            ConsumptionItemJournalTemplate.Name,
+            ConsumptionItemJournalBatch.Name);
+
+        // [WHEN] Post Consumption Journal.
+        SelectItemJournalLine(ItemJournalLine, ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+        ItemJournalLine.Validate(Quantity, LibraryRandom.RandIntInRange(10, 20));
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+
+        // [THEN] Verify that Value Entries for capacity ledger entries have Location Code populated
+        ValueEntry.SetRange("Order Type", ValueEntry."Order Type"::Production);
+        ValueEntry.SetRange("Order No.", ProductionOrder."No.");
+        ValueEntry.SetRange("Location Code", LocationRed.Code);
+        Assert.RecordIsNotEmpty(ValueEntry);
+    end;
+
+    [Test]
     [HandlerFunctions('PostProductionJournalHandlerWithUpdateQuantity,ConfirmHandlerTRUE,MessageHandler')]
     [Scope('OnPrem')]
     procedure PostPartialProductionJournalWithItemFlushingPickAndBackward()
@@ -8325,7 +8443,11 @@ codeunit 137079 "SCM Production Order III"
         end;
     end;
 
-    local procedure CreateProdItemWithScrapAndFlushingMethod(var Item: Record Item; var ChildItemNo: Code[20]; FlushingMethod: Enum "Flushing Method"; QtyPer: Decimal; MultipleRoutingLine: Boolean; ScrapFactor: Decimal; FixedScrapQuantity: Decimal; Tracking: Boolean)
+    local procedure CreateProdItemWithScrapAndFlushingMethod(var Item: Record Item; var ChildItemNo: Code[20]; FlushingMethod: Enum "Flushing Method"; QtyPer: Decimal;
+                                                                                                                                   MultipleRoutingLine: Boolean;
+                                                                                                                                   ScrapFactor: Decimal;
+                                                                                                                                   FixedScrapQuantity: Decimal;
+                                                                                                                                   Tracking: Boolean)
     var
         ChildItem: Record Item;
     begin
@@ -8629,7 +8751,10 @@ codeunit 137079 "SCM Production Order III"
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
-    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; BinCode: Code[20])
+    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20];
+                                                                                                                Quantity: Decimal;
+                                                                                                                LocationCode: Code[10];
+                                                                                                                BinCode: Code[20])
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::Item, SourceNo, Quantity);
         ProductionOrder.Validate("Location Code", LocationCode);
@@ -8855,7 +8980,8 @@ codeunit 137079 "SCM Production Order III"
         CreateAndPostItemJournalLine(ChildItem2."No.", LibraryRandom.RandInt(100), '', '');
     end;
 
-    local procedure CreateAndRefreshProductionOrderWithSourceTypeFamily(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; Quantity: Decimal)
+    local procedure CreateAndRefreshProductionOrderWithSourceTypeFamily(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20];
+                                                                                                                                    Quantity: Decimal)
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::Family, SourceNo, Quantity);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
@@ -9091,7 +9217,9 @@ codeunit 137079 "SCM Production Order III"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
     end;
 
-    local procedure CreateRoutingWithScrapAndFlushingMethod(var Item: Record Item; FlushingMethod: Enum "Flushing Method"; MultipleRoutingLine: Boolean; ScrapFactor: Decimal; FixedScrapQuantity: Decimal)
+    local procedure CreateRoutingWithScrapAndFlushingMethod(var Item: Record Item; FlushingMethod: Enum "Flushing Method"; MultipleRoutingLine: Boolean;
+                                                                                                       ScrapFactor: Decimal;
+                                                                                                       FixedScrapQuantity: Decimal)
     var
         WorkCenter: Record "Work Center";
         RoutingHeader: Record "Routing Header";
@@ -9379,7 +9507,9 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderLine.FindFirst();
     end;
 
-    local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type")
+    local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10];
+                                                                                                                        SourceNo: Code[20];
+                                                                                                                        ActionType: Enum "Warehouse Action Type")
     begin
         FindWarehouseActivityNo(WarehouseActivityLine, SourceNo, ActivityType);
         WarehouseActivityLine.SetRange("Location Code", LocationCode);
@@ -9735,7 +9865,8 @@ codeunit 137079 "SCM Production Order III"
         CalculateWhseAdjustmentAndPostCreatedItemJournalLine(Item, ItemJournalBatch);
     end;
 
-    local procedure UpdateQuantityOnWarehouseActivityLine(SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type"; Quantity: Decimal; LocationCode: Code[10])
+    local procedure UpdateQuantityOnWarehouseActivityLine(SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type"; Quantity: Decimal;
+                                                                                              LocationCode: Code[10])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -9996,7 +10127,12 @@ codeunit 137079 "SCM Production Order III"
         NewProdOrderComponent.Validate("Location Code", OldProdOrderComponent."Location Code");
     end;
 
-    local procedure VerifyValueEntryForEntryType(EntryType: Enum "Cost Entry Type"; DocumentNo: Code[20]; ItemLedgerEntryQuantity: Decimal; CostPostedToGL: Decimal; InvoicedQuantity: Decimal; CostPerUnit: Decimal; CostAmountActual: Decimal)
+    local procedure VerifyValueEntryForEntryType(EntryType: Enum "Cost Entry Type"; DocumentNo: Code[20];
+                                                                ItemLedgerEntryQuantity: Decimal;
+                                                                CostPostedToGL: Decimal;
+                                                                InvoicedQuantity: Decimal;
+                                                                CostPerUnit: Decimal;
+                                                                CostAmountActual: Decimal)
     var
         ValueEntry: Record "Value Entry";
     begin
@@ -10026,7 +10162,9 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderLine.TestField("Due Date", DueDate);
     end;
 
-    local procedure VerifyItemLedgerEntry(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    local procedure VerifyItemLedgerEntry(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20];
+                                                         Quantity: Decimal;
+                                                         LocationCode: Code[10])
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -10114,7 +10252,8 @@ codeunit 137079 "SCM Production Order III"
         RecreatedPurchaseLine.TestField("VAT Bus. Posting Group", VATBusPostingGroupCode);
     end;
 
-    local procedure VerifyRequisitionLine(No: Code[20]; ActionMessage: Enum "Action Message Type"; Quantity: Decimal; DueDate: Date)
+    local procedure VerifyRequisitionLine(No: Code[20]; ActionMessage: Enum "Action Message Type"; Quantity: Decimal;
+                                                                           DueDate: Date)
     var
         RequisitionLine: Record "Requisition Line";
     begin
@@ -10289,7 +10428,8 @@ codeunit 137079 "SCM Production Order III"
         until ValueEntry.Next() = 0;
     end;
 
-    local procedure VerifyProdOrderComponent(ProdOrderNo: Code[20]; Status: Enum "Production Order Status"; ItemNo: Code[20]; QtyPicked: Decimal)
+    local procedure VerifyProdOrderComponent(ProdOrderNo: Code[20]; Status: Enum "Production Order Status"; ItemNo: Code[20];
+                                                                                QtyPicked: Decimal)
     var
         ProdOrderComponent: Record "Prod. Order Component";
     begin
@@ -10451,7 +10591,8 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderComponent.Modify(true);
     end;
 
-    local procedure CreateAndPostItemJournal(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Qty: Decimal)
+    local procedure CreateAndPostItemJournal(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20];
+                                                            Qty: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -10492,7 +10633,9 @@ codeunit 137079 "SCM Production Order III"
         Assert.RecordCount(ProdOrderCapacityNeed, NoOfRecords);
     end;
 
-    local procedure FindLastItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; InventoryOrderType: Enum "Inventory Order Type"; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer; ItemLedgerEntryType: Enum "Item Ledger Entry Type")
+    local procedure FindLastItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; InventoryOrderType: Enum "Inventory Order Type"; ProdOrderNo: Code[20];
+                                                                                                                     ProdOrderLineNo: Integer;
+                                                                                                                     ItemLedgerEntryType: Enum "Item Ledger Entry Type")
     begin
         ItemLedgerEntry.SetRange("Order Type", InventoryOrderType);
         ItemLedgerEntry.SetRange("Order No.", ProdOrderNo);
@@ -10501,7 +10644,8 @@ codeunit 137079 "SCM Production Order III"
         ItemLedgerEntry.FindLast();
     end;
 
-    local procedure FindLastCapacityLedgerEntry(var CapacityLedgerEntry: Record "Capacity Ledger Entry"; InventoryOrderType: Enum "Inventory Order Type"; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer)
+    local procedure FindLastCapacityLedgerEntry(var CapacityLedgerEntry: Record "Capacity Ledger Entry"; InventoryOrderType: Enum "Inventory Order Type"; ProdOrderNo: Code[20];
+                                                                                                                                 ProdOrderLineNo: Integer)
     begin
         CapacityLedgerEntry.SetRange("Order Type", InventoryOrderType);
         CapacityLedgerEntry.SetRange("Order No.", ProdOrderNo);
@@ -10605,7 +10749,9 @@ codeunit 137079 "SCM Production Order III"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure FilterValueEntryWithItemLedgerEntryType(var ValueEntry: Record "Value Entry"; ProdOrderNo: Code[20]; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; EntryType: Enum "Cost Entry Type"; ItemNo: Code[20]; ItemLedgerEntryQuantity: Decimal)
+    local procedure FilterValueEntryWithItemLedgerEntryType(var ValueEntry: Record "Value Entry"; ProdOrderNo: Code[20]; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; EntryType: Enum "Cost Entry Type";
+                                                                                                                                                  ItemNo: Code[20];
+                                                                                                                                                  ItemLedgerEntryQuantity: Decimal)
     begin
         ValueEntry.SetRange("Document No.", ProdOrderNo);
         ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgerEntryType);
@@ -10623,7 +10769,10 @@ codeunit 137079 "SCM Production Order III"
         ItemLedgerEntry.FindFirst();
     end;
 
-    local procedure VerifyCostAmountNonInventoryForValueEntry(ProductionOrder: Record "Production Order"; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; CostEntryType: Enum "Cost Entry Type"; Item: Record Item; Quantity: Decimal; CostAmountNonInv: Decimal)
+    local procedure VerifyCostAmountNonInventoryForValueEntry(ProductionOrder: Record "Production Order"; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; CostEntryType: Enum "Cost Entry Type";
+                                                                                                                                   Item: Record Item;
+                                                                                                                                   Quantity: Decimal;
+                                                                                                                                   CostAmountNonInv: Decimal)
     var
         ValueEntry: Record "Value Entry";
     begin
@@ -10634,7 +10783,11 @@ codeunit 137079 "SCM Production Order III"
             StrSubstNo(EntryMustBeEqualErr, ValueEntry.FieldCaption("Cost Amount (Non-Invtbl.)"), CostAmountNonInv, ValueEntry."Entry No.", ValueEntry.TableCaption()));
     end;
 
-    local procedure VerifyCostAmountExpectedAndActualForValueEntry(ProductionOrder: Record "Production Order"; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; CostEntryType: Enum "Cost Entry Type"; Item: Record Item; Quantity: Decimal; CostAmountExpected: Decimal; CostAmountActual: Decimal)
+    local procedure VerifyCostAmountExpectedAndActualForValueEntry(ProductionOrder: Record "Production Order"; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; CostEntryType: Enum "Cost Entry Type";
+                                                                                                                                        Item: Record Item;
+                                                                                                                                        Quantity: Decimal;
+                                                                                                                                        CostAmountExpected: Decimal;
+                                                                                                                                        CostAmountActual: Decimal)
     var
         ValueEntry: Record "Value Entry";
     begin
@@ -10652,7 +10805,9 @@ codeunit 137079 "SCM Production Order III"
             StrSubstNo(EntryMustBeEqualErr, ValueEntry.FieldCaption("Cost Amount (Actual)"), CostAmountActual, ValueEntry."Entry No.", ValueEntry.TableCaption()));
     end;
 
-    local procedure VerifyCostAmountExpectedAndActualForItemLedgerEntry(ProductionOrder: Record "Production Order"; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; Item: Record Item; CostAmountExpected: Decimal; CostAmountActual: Decimal)
+    local procedure VerifyCostAmountExpectedAndActualForItemLedgerEntry(ProductionOrder: Record "Production Order"; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; Item: Record Item;
+                                                                                                                                             CostAmountExpected: Decimal;
+                                                                                                                                             CostAmountActual: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -10668,7 +10823,9 @@ codeunit 137079 "SCM Production Order III"
             StrSubstNo(EntryMustBeEqualErr, ItemLedgerEntry.FieldCaption("Cost Amount (Actual)"), CostAmountActual, ItemLedgerEntry."Entry No.", ItemLedgerEntry.TableCaption()));
     end;
 
-    local procedure VerifyGLEntriesForNonInventoryAppliedAccount(ProductionOrder: Record "Production Order"; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; CostEntryType: Enum "Cost Entry Type"; Item: Record Item; ExpectedValue: Decimal)
+    local procedure VerifyGLEntriesForNonInventoryAppliedAccount(ProductionOrder: Record "Production Order"; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; CostEntryType: Enum "Cost Entry Type";
+                                                                                                                                      Item: Record Item;
+                                                                                                                                      ExpectedValue: Decimal)
     var
         TempGLEntry: Record "G/L Entry" temporary;
         GenPostingSetup: Record "General Posting Setup";
@@ -10685,7 +10842,9 @@ codeunit 137079 "SCM Production Order III"
         VerifyGLEntriesWithAccountNoAndExpectedAmount(TempGLEntry, InventoryPostingSetup."Inventory Account", ExpectedValue);
     end;
 
-    local procedure VerifyGLEntriesForNonInventoryVarianceAccount(ProductionOrder: Record "Production Order"; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; CostEntryType: Enum "Cost Entry Type"; Item: Record Item; ExpectedValue: Decimal)
+    local procedure VerifyGLEntriesForNonInventoryVarianceAccount(ProductionOrder: Record "Production Order"; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; CostEntryType: Enum "Cost Entry Type";
+                                                                                                                                       Item: Record Item;
+                                                                                                                                       ExpectedValue: Decimal)
     var
         TempGLEntry: Record "G/L Entry" temporary;
         GenPostingSetup: Record "General Posting Setup";
@@ -10831,7 +10990,8 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderComponent.OpenItemTrackingLines();
     end;
 
-    local procedure VerifyRegisteredWhseActivityLine(SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type"; QtyToHandle: Decimal)
+    local procedure VerifyRegisteredWhseActivityLine(SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type";
+                                                                                           QtyToHandle: Decimal)
     var
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
     begin
@@ -11074,6 +11234,73 @@ codeunit 137079 "SCM Production Order III"
         Assert.IsFalse(ReservationEntry.IsEmpty(), StrSubstNo(ReservationEntryMustExistErr, ReservationEntry.TableCaption));
     end;
 
+    local procedure CreateProdOrderAddNewComponentAndCreateConsumption(var ProdOrderComponent: Record "Prod. Order Component")
+    var
+        Location: Record Location;
+        ProductionOrder: Record "Production Order";
+        Item: Record Item;
+        ChildItem: Record Item;
+        ProdOrderLine: Record "Prod. Order Line";
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+    begin
+        LibraryWarehouse.CreateLocation(Location);
+        CreateNonInventoryItemSetup(Item, ChildItem, LibraryRandom.RandInt(10));
+
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), Location.Code, '');
+
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Item No.", Item."No.");
+        ProdOrderLine.FindFirst();
+
+        CreateInventoryPostingSetup(InventoryPostingSetup, ProdOrderLine."Location Code", ProdOrderLine."Inventory Posting Group");
+
+        LibraryManufacturing.CreateProductionOrderComponent(
+            ProdOrderComponent,
+            ProdOrderLine.Status,
+            ProdOrderLine."Prod. Order No.",
+            ProdOrderLine."Line No.");
+        ProdOrderComponent.Validate("Item No.", ChildItem."No.");
+        ProdOrderComponent.Validate("Quantity per", LibraryRandom.RandInt(1));
+        ProdOrderComponent.Modify(true);
+
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+    end;
+
+    local procedure CreateNonInventoryItemSetup(var Item: Record Item; var Item2: Record Item; QuantityPer: Decimal)
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+    begin
+        // Create Child Item.
+        CreateItem(Item2);
+        Item2.Validate(Type, Item2.Type::"Non-Inventory");
+        Item2.Modify(true);
+
+        // Create Production BOM, Parent Item and attach Production BOM.
+        CreateCertifiedProductionBOM(ProductionBOMHeader, Item2, QuantityPer);
+        CreateProductionItem(Item, ProductionBOMHeader."No.");
+    end;
+
+    local procedure CreateInventoryPostingSetup(var InventoryPostingSetup: Record "Inventory Posting Setup"; LocationCode: Code[10]; InventoryPostingGroupCode: Code[20])
+    var
+        Location: Record Location;
+    begin
+        LibraryInventory.CreateInventoryPostingSetup(InventoryPostingSetup, LocationCode, InventoryPostingGroupCode);
+
+        InventoryPostingSetup."Inventory Account" := LibraryERM.CreateGLAccountNo();
+        InventoryPostingSetup."Inventory Account (Interim)" := LibraryERM.CreateGLAccountNo();
+        InventoryPostingSetup."WIP Account" := LibraryERM.CreateGLAccountNo();
+        InventoryPostingSetup."Material Variance Account" := LibraryERM.CreateGLAccountNo();
+        InventoryPostingSetup."Capacity Variance Account" := LibraryERM.CreateGLAccountNo();
+        InventoryPostingSetup."Mfg. Overhead Variance Account" := LibraryERM.CreateGLAccountNo();
+        InventoryPostingSetup."Cap. Overhead Variance Account" := LibraryERM.CreateGLAccountNo();
+        InventoryPostingSetup."Subcontracted Variance Account" := LibraryERM.CreateGLAccountNo();
+        InventoryPostingSetup."View All Accounts on Lookup" := true;
+        InventoryPostingSetup.Modify();
+        Location.Get(InventoryPostingSetup."Location Code");
+        LibraryInventory.UpdateInventoryPostingSetup(Location);
+    end;
+
     local procedure CreateCurrencyWithExchangeRateAndSetAsACY(ExchangeRateAmount: Decimal): Code[10]
     var
         Currency: Record Currency;
@@ -11084,7 +11311,9 @@ codeunit 137079 "SCM Production Order III"
         exit(Currency.Code);
     end;
 
-    local procedure VerifyCostAmountACYForValueEntry(ProductionOrder: Record "Production Order"; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; CostEntryType: Enum "Cost Entry Type"; Item: Record Item; ExpectedACY: Decimal)
+    local procedure VerifyCostAmountACYForValueEntry(ProductionOrder: Record "Production Order"; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; CostEntryType: Enum "Cost Entry Type";
+                                                                                                                          Item: Record Item;
+                                                                                                                          ExpectedACY: Decimal)
     var
         ValueEntry: Record "Value Entry";
     begin

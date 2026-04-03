@@ -491,15 +491,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Details Purchase - NamedType AmountLCYCap)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 874492549 - NamedType 4287808521" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Integer_Number]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Details Purchase - NamedType IntegerNumberCap)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 874492549 - NamedType 4004740047" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No_Vendor]]></Val>
@@ -507,15 +498,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Details Purchase - NamedType VendoNoCap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 874492549 - NamedType 4016457642" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Vendor__Balance__LCY__Caption]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Details Purchase - NamedType VendorBalanceLCYCap)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 874492549 - NamedType 638225456" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

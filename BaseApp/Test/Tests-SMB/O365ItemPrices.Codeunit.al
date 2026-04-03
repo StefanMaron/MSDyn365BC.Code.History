@@ -1,12 +1,8 @@
-#if not CLEAN25
 #pragma warning disable AS0072
 codeunit 138019 "O365 Item Prices"
 {
     Subtype = Test;
     TestPermissions = Disabled;
-    ObsoleteReason = 'Not used.';
-    ObsoleteState = Pending;
-    ObsoleteTag = '23.0';
 
     trigger OnRun()
     begin
@@ -1599,4 +1595,3 @@ codeunit 138019 "O365 Item Prices"
         SalesLineDiscounts.OK().Invoke();
     end;
 }
-#endif

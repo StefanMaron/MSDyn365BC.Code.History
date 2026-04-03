@@ -7,6 +7,10 @@ namespace Microsoft.Finance.VAT.Reporting;
 using Microsoft.Foundation.NoSeries;
 using System.Reflection;
 
+/// <summary>
+/// Configuration settings for VAT reporting functionality including number series, automation, and submission parameters.
+/// Controls VAT return processing behavior, period management automation, and reporting validation rules.
+/// </summary>
 table 743 "VAT Report Setup"
 {
     Caption = 'VAT Report Setup';
@@ -15,40 +19,64 @@ table 743 "VAT Report Setup"
 
     fields
     {
+        /// <summary>
+        /// Single record primary key for VAT report setup configuration.
+        /// </summary>
         field(1; "Primary key"; Code[10])
         {
             AllowInCustomizations = Never;
             Caption = 'Primary key';
         }
+        /// <summary>
+        /// Number series for generating VAT report numbers for general report types.
+        /// </summary>
         field(2; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
             TableRelation = "No. Series";
         }
+        /// <summary>
+        /// Allows modification of submitted VAT reports when enabled.
+        /// </summary>
         field(3; "Modify Submitted Reports"; Boolean)
         {
             Caption = 'Allow Modification';
         }
+        /// <summary>
+        /// Number series for generating VAT return period records.
+        /// </summary>
         field(20; "VAT Return Period No. Series"; Code[20])
         {
             Caption = 'VAT Return Period No. Series';
             TableRelation = "No. Series";
         }
+        /// <summary>
+        /// Version of the VAT report format configuration to use for new reports.
+        /// </summary>
         field(21; "Report Version"; Code[10])
         {
             Caption = 'Report Version';
         }
+        /// <summary>
+        /// Frequency for automatic VAT return period updates via job queue processing.
+        /// </summary>
         field(23; "Update Period Job Frequency"; Option)
         {
             Caption = 'Update Period Job Frequency';
             OptionCaption = 'Never,Daily,Weekly';
             OptionMembers = Never,Daily,Weekly;
         }
+        /// <summary>
+        /// Codeunit ID for manual VAT return period retrieval processing.
+        /// </summary>
         field(24; "Manual Receive Period CU ID"; Integer)
         {
             Caption = 'Manual Receive Period CU ID';
             TableRelation = "CodeUnit Metadata".ID;
         }
+        /// <summary>
+        /// Caption of the manual receive period codeunit for display purposes.
+        /// </summary>
         field(25; "Manual Receive Period CU Cap"; Text[250])
         {
             CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Codeunit),
@@ -57,11 +85,17 @@ table 743 "VAT Report Setup"
             Editable = false;
             FieldClass = FlowField;
         }
+        /// <summary>
+        /// Codeunit ID for automatic VAT return period retrieval via job queue.
+        /// </summary>
         field(26; "Auto Receive Period CU ID"; Integer)
         {
             Caption = 'Auto Receive Period CU ID';
             TableRelation = "CodeUnit Metadata".ID;
         }
+        /// <summary>
+        /// Caption of the automatic receive period codeunit for display purposes.
+        /// </summary>
         field(27; "Auto Receive Period CU Cap"; Text[250])
         {
             CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Codeunit),
@@ -70,11 +104,17 @@ table 743 "VAT Report Setup"
             Editable = false;
             FieldClass = FlowField;
         }
+        /// <summary>
+        /// Codeunit ID for receiving submitted VAT return information from tax authorities.
+        /// </summary>
         field(28; "Receive Submitted Return CU ID"; Integer)
         {
             Caption = 'Receive Submitted Return CU ID';
             TableRelation = "CodeUnit Metadata".ID;
         }
+        /// <summary>
+        /// Caption of the receive submitted return codeunit for display purposes.
+        /// </summary>
         field(29; "Receive Submitted Return CUCap"; Text[250])
         {
             CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Codeunit),
@@ -83,6 +123,9 @@ table 743 "VAT Report Setup"
             Editable = false;
             FieldClass = FlowField;
         }
+        /// <summary>
+        /// Date formula for calculating VAT return period reminder notifications.
+        /// </summary>
         field(30; "Period Reminder Calculation"; DateFormula)
         {
             Caption = 'Period Reminder Calculation';
@@ -93,10 +136,16 @@ table 743 "VAT Report Setup"
                     Error(PositivePeriodReminderCalcErr);
             end;
         }
+        /// <summary>
+        /// Indicates whether VAT base amounts should be included in VAT reports.
+        /// </summary>
         field(31; "Report VAT Base"; Boolean)
         {
             Caption = 'Report VAT Base';
         }
+        /// <summary>
+        /// Indicates whether VAT notes should be included in VAT reports.
+        /// </summary>
         field(32; "Report VAT Note"; Boolean)
         {
             Caption = 'Report VAT Note';
@@ -139,6 +188,11 @@ table 743 "VAT Report Setup"
     var
         PositivePeriodReminderCalcErr: Label 'The Period Reminder Calculation should be a positive formula. For example, "1M" should be used instead of "-1M".';
 
+    /// <summary>
+    /// Checks whether a period reminder calculation formula has been configured.
+    /// Used to determine if reminder processing should be enabled.
+    /// </summary>
+    /// <returns>True if period reminder calculation is configured, false otherwise</returns>
     procedure IsPeriodReminderCalculation(): Boolean
     var
         DummyDateFormula: DateFormula;

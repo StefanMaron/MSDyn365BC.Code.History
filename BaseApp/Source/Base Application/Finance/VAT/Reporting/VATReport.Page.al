@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -6,6 +6,10 @@ namespace Microsoft.Finance.VAT.Reporting;
 
 using Microsoft.Foundation.Attachment;
 
+/// <summary>
+/// Primary interface for creating, managing, and submitting VAT returns to tax authorities.
+/// Provides comprehensive workflow management from line suggestion through submission and response handling.
+/// </summary>
 page 740 "VAT Report"
 {
     Caption = 'VAT Report';
@@ -95,22 +99,6 @@ page 740 "VAT Report"
         }
         area(factboxes)
         {
-#if not CLEAN25
-            part("Attached Documents"; "Document Attachment Factbox")
-            {
-                ObsoleteTag = '25.0';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
-                ApplicationArea = All;
-                Visible = false;
-                Caption = 'Attachments';
-                SubPageLink = "Table ID" = const(Database::"VAT Report Header"),
-                              "No." = field("No."),
-#pragma warning disable AL0603
-                              "VAT Report Config. Code" = field("VAT Report Config. Code");
-#pragma warning restore AL0603
-            }
-#endif
             part("Attached Documents List"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = All;
@@ -267,4 +255,3 @@ page 740 "VAT Report"
         ReportPrintable: Boolean;
 
 }
-

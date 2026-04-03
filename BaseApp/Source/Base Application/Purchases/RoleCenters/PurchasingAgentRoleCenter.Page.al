@@ -9,6 +9,7 @@ using Microsoft.Assembly.History;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Foundation.Navigate;
+using Microsoft.Foundation.Task;
 using Microsoft.Inventory.Analysis;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
@@ -16,23 +17,17 @@ using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Requisition;
-using Microsoft.Purchases.Analysis;
-using Microsoft.Purchases.Document;
-using Microsoft.Foundation.Task;
-using Microsoft.Purchases.History;
-#if CLEAN25
-using Microsoft.Purchases.Pricing;
-#endif
-using Microsoft.Purchases.Reports;
-using Microsoft.Purchases.Vendor;
-#if not CLEAN25
-using Microsoft.RoleCenters;
-#endif
-using Microsoft.Sales.Document;
-using System.Threading;
 #if not CLEAN27
 using Microsoft.Manufacturing.Document;
 #endif
+using Microsoft.Purchases.Analysis;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Reports;
+using Microsoft.Purchases.Vendor;
+using Microsoft.RoleCenters;
+using Microsoft.Sales.Document;
+using System.Threading;
 
 page 9007 "Purchasing Agent Role Center"
 {
@@ -109,14 +104,19 @@ page 9007 "Purchasing Agent Role Center"
     {
         area(reporting)
         {
+#if not CLEAN28
             action("Vendor - T&op 10 List")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Vendor - T&op 10 List';
+                Caption = 'Vendor - T&op 10 List (Obsolete)';
                 Image = "Report";
                 RunObject = Report "Vendor - Top 10 List";
                 ToolTip = 'View a list of the vendors from whom you purchase the most or to whom you owe the most.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report has been replaced by the report Vendor - Top List (Excel). This report will be removed in a future release.';
+                ObsoleteTag = '28.0';
             }
+#endif
             action("Vendor/&Item Purchases")
             {
                 ApplicationArea = Basic, Suite;
@@ -128,12 +128,25 @@ page 9007 "Purchasing Agent Role Center"
             separator(Action28)
             {
             }
+#if not CLEAN28
             action("Inventory - &Availability Plan")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Inventory - &Availability Plan';
+                Caption = 'Inventory - &Availability Plan (Obsolete)';
                 Image = ItemAvailability;
                 RunObject = Report "Inventory - Availability Plan";
+                ToolTip = 'View a list of the quantity of each item in customer, purchase, and transfer orders and the quantity available in inventory. The list is divided into columns that cover six periods with starting and ending dates as well as the periods before and after those periods. The list is useful when you are planning your inventory purchases.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report has been replaced by the report Inventory - Availability Plan (Excel). This report will be removed in a future release.';
+                ObsoleteTag = '28.0';
+            }
+#endif
+            action("Inventory - &Availability Plan Excel")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Inventory - &Availability Plan (Excel)';
+                Image = ItemAvailability;
+                RunObject = Report "Inv. Availability Plan";
                 ToolTip = 'View a list of the quantity of each item in customer, purchase, and transfer orders and the quantity available in inventory. The list is divided into columns that cover six periods with starting and ending dates as well as the periods before and after those periods. The list is useful when you are planning your inventory purchases.';
             }
             action("Inventory &Purchase Orders")
@@ -468,7 +481,6 @@ page 9007 "Purchasing Agent Role Center"
                                     Recurring = const(false));
                 ToolTip = 'Calculate a supply plan to fulfill item demand with purchases or transfers.';
             }
-#if not CLEAN25
             action("Pur&chase Prices")
             {
                 ApplicationArea = Basic, Suite;
@@ -477,9 +489,6 @@ page 9007 "Purchasing Agent Role Center"
                 RunPageView = where("Object Type" = const(Page), "Object ID" = const(7012)); // "Purchase Prices";
                 RunObject = Page "Role Center Page Dispatcher";
                 ToolTip = 'View or set up different prices for items that you buy from the vendor. An item price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                ObsoleteTag = '19.0';
             }
             action("Purchase &Line Discounts")
             {
@@ -489,20 +498,7 @@ page 9007 "Purchasing Agent Role Center"
                 RunPageView = where("Object Type" = const(Page), "Object ID" = const(7014)); // "Purchase Line Discounts";
                 RunObject = Page "Role Center Page Dispatcher";
                 ToolTip = 'View or set up different discounts for items that you buy from the vendor. An item discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                ObsoleteTag = '19.0';
             }
-#else
-            action("Purchase Price Lists")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = '&Prices';
-                Image = Price;
-                RunObject = Page "Purchase Price Lists";
-                ToolTip = 'View or set up price lists for products that you buy from the vendor. A product price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
-            }
-#endif
             separator(History)
             {
                 Caption = 'History';
@@ -520,4 +516,3 @@ page 9007 "Purchasing Agent Role Center"
         }
     }
 }
-

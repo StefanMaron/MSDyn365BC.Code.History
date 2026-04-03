@@ -4,14 +4,23 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Setup;
 
-using Microsoft.Finance.VAT.Clause;
 using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.Clause;
 using Microsoft.Finance.VAT.RateChange;
 using Microsoft.Finance.VAT.Reporting;
 #if not CLEAN27
 using System.Environment.Configuration;
 #endif
 
+/// <summary>
+/// VAT setup configuration page providing access to global VAT settings and non-deductible VAT functionality.
+/// Central administration interface for configuring VAT behavior, date controls, and advanced VAT features across Business Central.
+/// </summary>
+/// <remarks>
+/// Key features: Non-deductible VAT setup, VAT date range configuration, alternative customer VAT registration handling.
+/// Navigation: Provides access to VAT posting groups, VAT posting setups, VAT reports, and VAT rate change tools.
+/// User workflow: Administrative setup for VAT functionality with links to related VAT configuration pages.
+/// </remarks>
 page 187 "VAT Setup"
 {
     ApplicationArea = Basic, Suite;

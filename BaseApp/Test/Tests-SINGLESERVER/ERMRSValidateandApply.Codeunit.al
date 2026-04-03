@@ -22,6 +22,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        APIMockEvents: Codeunit "API Mock Events";
         isInitialized: Boolean;
         MigrationError: Label 'There are errors in Migration Data Error.';
         NoMigrationError: Label 'There must be errors in Migration Data Error.';
@@ -1797,7 +1798,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM RS Validate and Apply");
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryRapidStart.SetAPIServicesEnabled(false);
+        APIMockEvents.SetAPIServicesEnabled(false);
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM RS Validate and Apply");

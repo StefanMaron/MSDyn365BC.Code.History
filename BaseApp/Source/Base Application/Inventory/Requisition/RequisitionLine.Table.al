@@ -19,7 +19,6 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Projects.Project.Job;
@@ -30,6 +29,7 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Structure;
+using System.Automation;
 using System.Security.AccessControl;
 
 table 246 "Requisition Line"
@@ -38,7 +38,7 @@ table 246 "Requisition Line"
     DataCaptionFields = "Journal Batch Name", "Line No.";
     DrillDownPageID = "Requisition Lines";
     LookupPageID = "Requisition Lines";
-#if not CLEAN27
+#if not CLEAN28
     Permissions = TableData Microsoft.Manufacturing.Routing."Routing Header" = r,
                   TableData Microsoft.Manufacturing.ProductionBOM."Production BOM Header" = r;
 #endif
@@ -49,20 +49,24 @@ table 246 "Requisition Line"
         field(1; "Worksheet Template Name"; Code[10])
         {
             Caption = 'Worksheet Template Name';
+            ToolTip = 'Specifies the name of the requisition worksheet template.';
             TableRelation = "Req. Wksh. Template";
         }
         field(2; "Journal Batch Name"; Code[10])
         {
             Caption = 'Journal Batch Name';
+            ToolTip = 'Specifies the name of the journal batch, a personalized journal layout, that the entries were posted from.';
             TableRelation = "Requisition Wksh. Name".Name where("Worksheet Template Name" = field("Worksheet Template Name"));
         }
         field(3; "Line No."; Integer)
         {
             Caption = 'Line No.';
+            ToolTip = 'Specifies the number of the requisition worksheet line.';
         }
         field(4; Type; Enum "Requisition Line Type")
         {
             Caption = 'Type';
+            ToolTip = 'Specifies the type of requisition worksheet line you are creating.';
 
             trigger OnValidate()
             var
@@ -87,6 +91,7 @@ table 246 "Requisition Line"
         field(5; "No."; Code[20])
         {
             Caption = 'No.';
+            ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
             TableRelation = if (Type = const("G/L Account")) "G/L Account"
             else
             if (Type = const(Item)) Item;
@@ -142,14 +147,18 @@ table 246 "Requisition Line"
         field(6; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies text that describes the entry.';
         }
         field(7; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
+            ToolTip = 'Specifies additional text describing the entry, or a remark about the requisition worksheet line.';
         }
         field(8; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
+            ToolTip = 'Specifies the number of units of the item.';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -189,6 +198,7 @@ table 246 "Requisition Line"
         field(9; "Vendor No."; Code[20])
         {
             Caption = 'Vendor No.';
+            ToolTip = 'Specifies the number of the vendor who will ship the items in the purchase order.';
             TableRelation = Vendor;
             ValidateTableRelation = false;
 
@@ -296,10 +306,12 @@ table 246 "Requisition Line"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 2;
             Caption = 'Direct Unit Cost';
+            ToolTip = 'Specifies the cost of one unit of the selected item or resource.';
         }
         field(12; "Due Date"; Date)
         {
             Caption = 'Due Date';
+            ToolTip = 'Specifies the date when you can expect to receive the items.';
 
             trigger OnValidate()
             var
@@ -329,6 +341,7 @@ table 246 "Requisition Line"
         field(13; "Requester ID"; Code[50])
         {
             Caption = 'Requester ID';
+            ToolTip = 'Specifies the ID of the user who is ordering the items on the line.';
             TableRelation = User."User Name";
             ValidateTableRelation = false;
 
@@ -342,11 +355,13 @@ table 246 "Requisition Line"
         field(14; Confirmed; Boolean)
         {
             Caption = 'Confirmed';
+            ToolTip = 'Specifies whether the items on the line have been approved for purchase.';
         }
         field(15; "Shortcut Dimension 1 Code"; Code[20])
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
                                                           Blocked = const(false));
 
@@ -359,6 +374,7 @@ table 246 "Requisition Line"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
                                                           Blocked = const(false));
 
@@ -370,6 +386,7 @@ table 246 "Requisition Line"
         field(17; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
+            ToolTip = 'Specifies a code for an inventory location where the items that are being ordered will be registered.';
             TableRelation = Location where("Use As In-Transit" = const(false));
 
             trigger OnValidate()
@@ -404,20 +421,24 @@ table 246 "Requisition Line"
         {
             BlankZero = true;
             Caption = 'Recurring Method';
+            ToolTip = 'Specifies a recurring method, if you have indicated in the Recurring field that the worksheet is a recurring requisition worksheet.';
             OptionCaption = ',Fixed,Variable';
             OptionMembers = ,"Fixed",Variable;
         }
         field(19; "Expiration Date"; Date)
         {
             Caption = 'Expiration Date';
+            ToolTip = 'Specifies the last date on which the recurring requisition worksheet will be converted to a purchase order.';
         }
         field(20; "Recurring Frequency"; DateFormula)
         {
             Caption = 'Recurring Frequency';
+            ToolTip = 'Specifies a recurring frequency, if it is indicated in the Recurring field that the worksheet is a recurring requisition worksheet.';
         }
         field(21; "Order Date"; Date)
         {
             Caption = 'Order Date';
+            ToolTip = 'Specifies the date when the related order was created.';
 
             trigger OnValidate()
             begin
@@ -432,6 +453,7 @@ table 246 "Requisition Line"
         field(22; "Vendor Item No."; Text[50])
         {
             Caption = 'Vendor Item No.';
+            ToolTip = 'Specifies the number that the vendor uses for this item.';
         }
         field(23; "Sales Order No."; Code[20])
         {
@@ -457,6 +479,7 @@ table 246 "Requisition Line"
         field(25; "Sell-to Customer No."; Code[20])
         {
             Caption = 'Sell-to Customer No.';
+            ToolTip = 'Specifies the number of the customer.';
             Editable = false;
             TableRelation = Customer;
 
@@ -473,6 +496,7 @@ table 246 "Requisition Line"
         field(26; "Ship-to Code"; Code[10])
         {
             Caption = 'Ship-to Code';
+            ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
             Editable = false;
             TableRelation = "Ship-to Address".Code where("Customer No." = field("Sell-to Customer No."));
 
@@ -499,11 +523,13 @@ table 246 "Requisition Line"
         field(28; "Order Address Code"; Code[10])
         {
             Caption = 'Order Address Code';
+            ToolTip = 'Specifies the order address of the related vendor.';
             TableRelation = "Order Address".Code where("Vendor No." = field("Vendor No."));
         }
         field(29; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
+            ToolTip = 'Specifies the currency code for the requisition lines.';
             TableRelation = Currency;
 
             trigger OnValidate()
@@ -526,6 +552,7 @@ table 246 "Requisition Line"
         }
         field(30; "Currency Factor"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Currency Factor';
             DecimalPlaces = 0 : 15;
             MinValue = 0;
@@ -551,6 +578,7 @@ table 246 "Requisition Line"
         }
         field(31; "Reserved Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Reservation Entry".Quantity where("Source ID" = field("Worksheet Template Name"),
                                                                   "Source Ref. No." = field("Line No."),
                                                                   "Source Type" = const(246),
@@ -559,6 +587,7 @@ table 246 "Requisition Line"
                                                                   "Source Prod. Order Line" = const(0),
                                                                   "Reservation Status" = const(Reservation)));
             Caption = 'Reserved Quantity';
+            ToolTip = 'Specifies how many units of this item have been reserved.';
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
@@ -566,6 +595,7 @@ table 246 "Requisition Line"
         field(43; "Purchaser Code"; Code[20])
         {
             Caption = 'Purchaser Code';
+            ToolTip = 'Specifies which purchaser is assigned to the vendor.';
             TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
@@ -577,6 +607,7 @@ table 246 "Requisition Line"
         {
             AccessByPermission = TableData "Drop Shpt. Post. Buffer" = R;
             Caption = 'Drop Shipment';
+            ToolTip = 'Specifies if demand is for drop shipment or not.';
             Editable = false;
         }
         field(480; "Dimension Set ID"; Integer)
@@ -598,6 +629,7 @@ table 246 "Requisition Line"
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
+            ToolTip = 'Specifies the variant of the item on the line.';
             TableRelation = if (Type = const(Item)) "Item Variant".Code where("Item No." = field("No."));
 
             trigger OnValidate()
@@ -639,6 +671,7 @@ table 246 "Requisition Line"
         field(5403; "Bin Code"; Code[20])
         {
             Caption = 'Bin Code';
+            ToolTip = 'Specifies the bin of the item on the line.';
             TableRelation = Bin.Code where("Location Code" = field("Location Code"),
                                             "Item Filter" = field("No."),
                                             "Variant Filter" = field("Variant Code"));
@@ -666,6 +699,7 @@ table 246 "Requisition Line"
         }
         field(5404; "Qty. per Unit of Measure"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. per Unit of Measure';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -673,6 +707,7 @@ table 246 "Requisition Line"
         }
         field(5405; "Qty. Rounding Precision"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Rounding Precision';
             InitValue = 0;
             DecimalPlaces = 0 : 5;
@@ -682,6 +717,7 @@ table 246 "Requisition Line"
         }
         field(5406; "Qty. Rounding Precision (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Rounding Precision (Base)';
             InitValue = 0;
             DecimalPlaces = 0 : 5;
@@ -692,6 +728,7 @@ table 246 "Requisition Line"
         field(5407; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
+            ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
             TableRelation = if (Type = const(Item)) "Item Unit of Measure".Code where("Item No." = field("No."))
             else
             "Unit of Measure";
@@ -718,6 +755,7 @@ table 246 "Requisition Line"
         }
         field(5408; "Quantity (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity (Base)';
             DecimalPlaces = 0 : 5;
 
@@ -737,6 +775,7 @@ table 246 "Requisition Line"
         }
         field(5431; "Reserved Qty. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Reservation Entry"."Quantity (Base)" where("Source ID" = field("Worksheet Template Name"),
                                                                            "Source Ref. No." = field("Line No."),
                                                                            "Source Type" = const(246),
@@ -765,11 +804,13 @@ table 246 "Requisition Line"
         field(5522; "Demand Order No."; Code[20])
         {
             Caption = 'Demand Order No.';
+            ToolTip = 'Specifies the number of the demanded order that represents the planning line.';
             Editable = false;
         }
         field(5525; "Demand Line No."; Integer)
         {
             Caption = 'Demand Line No.';
+            ToolTip = 'Specifies the line number of the demand, such as a sales order line.';
             Editable = false;
         }
         field(5526; "Demand Ref. No."; Integer)
@@ -787,29 +828,36 @@ table 246 "Requisition Line"
         field(5530; "Demand Date"; Date)
         {
             Caption = 'Demand Date';
+            ToolTip = 'Specifies the demanded date of the demand that the planning line represents.';
             Editable = false;
         }
         field(5532; "Demand Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Demand Quantity';
+            ToolTip = 'Specifies the quantity on the demand that the planning line represents.';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(5533; "Demand Quantity (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Demand Quantity (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(5538; "Needed Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Needed Quantity';
+            ToolTip = 'Specifies the demand quantity that is not available and must be ordered to meet the demand represented on the planning line.';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(5539; "Needed Quantity (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Needed Quantity (Base)';
             DecimalPlaces = 0 : 5;
@@ -818,6 +866,7 @@ table 246 "Requisition Line"
         field(5540; Reserve; Boolean)
         {
             Caption = 'Reserve';
+            ToolTip = 'Specifies whether the item on the planning line has a setting of Always in the Reserve field on its item card.';
 
             trigger OnValidate()
             begin
@@ -832,6 +881,7 @@ table 246 "Requisition Line"
         }
         field(5541; "Qty. per UOM (Demand)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. per UOM (Demand)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -845,6 +895,7 @@ table 246 "Requisition Line"
         field(5552; "Supply From"; Code[20])
         {
             Caption = 'Supply From';
+            ToolTip = 'Specifies a value, according to the selected replenishment system, before a supply order can be created for the line.';
             TableRelation = if ("Replenishment System" = const(Purchase)) Vendor
             else
             if ("Replenishment System" = const(Transfer)) Location where("Use As In-Transit" = const(false));
@@ -896,7 +947,9 @@ table 246 "Requisition Line"
         }
         field(5563; "Demand Qty. Available"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Demand Qty. Available';
+            ToolTip = 'Specifies how many of the demand quantity are available.';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
@@ -919,11 +972,13 @@ table 246 "Requisition Line"
         field(5703; "Purchasing Code"; Code[10])
         {
             Caption = 'Purchasing Code';
+            ToolTip = 'Specifies the code for a special procurement method, such as drop shipment.';
             TableRelation = Purchasing;
         }
         field(5706; "Transfer-from Code"; Code[10])
         {
             Caption = 'Transfer-from Code';
+            ToolTip = 'Specifies the code of the location that items are transferred from.';
             TableRelation = Location where("Use As In-Transit" = const(false));
 
             trigger OnValidate()
@@ -936,15 +991,19 @@ table 246 "Requisition Line"
         {
             AccessByPermission = TableData "Transfer Header" = R;
             Caption = 'Transfer Shipment Date';
+            ToolTip = 'Specifies the shipment date of the transfer order proposal.';
             Editable = false;
         }
         field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
         {
             Caption = 'Price Calculation Method';
+            ToolTip = 'Specifies the method that will be used for unit cost calculation in the line.';
         }
         field(7002; "Line Discount %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Line Discount %';
+            ToolTip = 'Specifies the discount percentage that is granted for the item on the line.';
             MaxValue = 100;
             MinValue = 0;
         }
@@ -955,6 +1014,7 @@ table 246 "Requisition Line"
                                                        "No." = field("No."),
                                                        "Outstanding Quantity" = filter(<> 0)));
             Caption = 'Blanket Purch. Order Exists';
+            ToolTip = 'Specifies if a blanket purchase order exists for the item on the requisition line.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -964,10 +1024,12 @@ table 246 "Requisition Line"
         field(99000755; "MPS Order"; Boolean)
         {
             Caption = 'MPS Order';
+            ToolTip = 'Specifies whether the requisition worksheet line is an MPS order, that is, whether it is linked to a demand forecast or a sales order.';
         }
         field(99000756; "Planning Flexibility"; Enum "Reservation Planning Flexibility")
         {
             Caption = 'Planning Flexibility';
+            ToolTip = 'Specifies whether the supply represented by this line is considered by the planning system when calculating action messages.';
 
             trigger OnValidate()
             begin
@@ -982,27 +1044,33 @@ table 246 "Requisition Line"
         field(99000882; "Gen. Prod. Posting Group"; Code[20])
         {
             Caption = 'Gen. Prod. Posting Group';
+            ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
             TableRelation = "Gen. Product Posting Group";
         }
         field(99000883; "Gen. Business Posting Group"; Code[20])
         {
             Caption = 'Gen. Business Posting Group';
+            ToolTip = 'Specifies the code of the general business posting group to be used for the item when you post the planning worksheet.';
             TableRelation = "Gen. Business Posting Group";
         }
         field(99000884; "Low-Level Code"; Integer)
         {
             Caption = 'Low-Level Code';
+            ToolTip = 'Specifies the planning level of this item entry in the planning worksheet.';
             Editable = false;
         }
         field(99000888; "Original Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Original Quantity';
+            ToolTip = 'Specifies the quantity stated on the production or purchase order, when an action message proposes to change the quantity on an order.';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(99000889; "Finished Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Finished Quantity';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1010,6 +1078,7 @@ table 246 "Requisition Line"
         }
         field(99000890; "Remaining Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Remaining Quantity';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1018,11 +1087,13 @@ table 246 "Requisition Line"
         field(99000891; "Original Due Date"; Date)
         {
             Caption = 'Original Due Date';
+            ToolTip = 'Specifies the due date stated on the production or purchase order, when an action message proposes to reschedule an order.';
             Editable = false;
         }
         field(99000894; "Starting Date"; Date)
         {
             Caption = 'Starting Date';
+            ToolTip = 'Specifies the starting date of the manufacturing process, if the planned supply is a production order.';
 
             trigger OnValidate()
             begin
@@ -1035,6 +1106,7 @@ table 246 "Requisition Line"
         field(99000895; "Starting Time"; Time)
         {
             Caption = 'Starting Time';
+            ToolTip = 'Specifies the starting time of the manufacturing process.';
 
             trigger OnValidate()
             var
@@ -1067,6 +1139,7 @@ table 246 "Requisition Line"
         field(99000896; "Ending Date"; Date)
         {
             Caption = 'Ending Date';
+            ToolTip = 'Specifies the ending date of the manufacturing process, if the planned supply is a production order.';
 
             trigger OnValidate()
             begin
@@ -1081,6 +1154,7 @@ table 246 "Requisition Line"
         field(99000897; "Ending Time"; Time)
         {
             Caption = 'Ending Time';
+            ToolTip = 'Specifies the ending time for the manufacturing process.';
 
             trigger OnValidate()
             var
@@ -1110,18 +1184,22 @@ table 246 "Requisition Line"
         }
         field(99000899; "Indirect Cost %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Indirect Cost %';
             DecimalPlaces = 0 : 5;
         }
         field(99000900; "Overhead Rate"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Overhead Rate';
             DecimalPlaces = 0 : 5;
         }
         field(99000901; "Unit Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost';
+            ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
             MinValue = 0;
 
             trigger OnValidate()
@@ -1149,14 +1227,17 @@ table 246 "Requisition Line"
         }
         field(99000902; "Cost Amount"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 0;
+            AutoFormatExpression = '';
             Caption = 'Cost Amount';
+            ToolTip = 'Specifies the total costs for the requisition worksheet line.';
             Editable = false;
             MinValue = 0;
         }
         field(99000903; "Replenishment System"; Enum "Replenishment System")
         {
             Caption = 'Replenishment System';
+            ToolTip = 'Specifies which kind of order to use to create replenishment orders and order proposals.';
 
             trigger OnValidate()
             var
@@ -1198,6 +1279,7 @@ table 246 "Requisition Line"
         field(99000904; "Ref. Order No."; Code[20])
         {
             Caption = 'Ref. Order No.';
+            ToolTip = 'Specifies the number of the relevant production or purchase order.';
             Editable = false;
             TableRelation = if ("Ref. Order Type" = const(Purchase)) "Purchase Header"."No." where("Document Type" = const(Order))
             else
@@ -1217,18 +1299,21 @@ table 246 "Requisition Line"
         field(99000905; "Ref. Order Type"; Enum "Requisition Ref. Order Type")
         {
             Caption = 'Ref. Order Type';
+            ToolTip = 'Specifies whether the order is a purchase order, a production order, or a transfer order.';
             Editable = false;
         }
         field(99000906; "Ref. Order Status"; Enum Microsoft.Manufacturing.Document."Production Order Status")
         {
             BlankZero = true;
             Caption = 'Ref. Order Status';
+            ToolTip = 'Specifies the status of the production order.';
             Editable = false;
         }
         field(99000907; "Ref. Line No."; Integer)
         {
             BlankZero = true;
             Caption = 'Ref. Line No.';
+            ToolTip = 'Specifies the number of the purchase or production order line.';
             Editable = false;
         }
         field(99000908; "No. Series"; Code[20])
@@ -1239,7 +1324,8 @@ table 246 "Requisition Line"
         }
         field(99000910; "Expected Component Cost Amt."; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 0;
+            AutoFormatExpression = '';
             CalcFormula = sum("Planning Component"."Cost Amount" where("Worksheet Template Name" = field("Worksheet Template Name"),
                                                                         "Worksheet Batch Name" = field("Journal Batch Name"),
                                                                         "Worksheet Line No." = field("Line No.")));
@@ -1249,12 +1335,14 @@ table 246 "Requisition Line"
         }
         field(99000911; "Finished Qty. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Finished Qty. (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(99000912; "Remaining Qty. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Remaining Qty. (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1267,6 +1355,7 @@ table 246 "Requisition Line"
         field(99000914; "Planning Level"; Integer)
         {
             Caption = 'Planning Level';
+            ToolTip = 'Indicates the planning level of the item in multi-level production orders. The planning level is calculated only for items that have Make-to-Order specified in the Manufacturing Policy field.';
             Editable = false;
         }
         field(99000915; "Planning Line Origin"; Enum "Planning Line Origin Type")
@@ -1277,6 +1366,7 @@ table 246 "Requisition Line"
         field(99000916; "Action Message"; Enum "Action Message Type")
         {
             Caption = 'Action Message';
+            ToolTip = 'Specifies an action to take to rebalance the demand-supply situation.';
 
             trigger OnValidate()
             var
@@ -1298,6 +1388,7 @@ table 246 "Requisition Line"
         field(99000917; "Accept Action Message"; Boolean)
         {
             Caption = 'Accept Action Message';
+            ToolTip = 'Specifies whether to accept the action message proposed for the line.';
 
             trigger OnValidate()
             begin
@@ -1307,6 +1398,7 @@ table 246 "Requisition Line"
         }
         field(99000918; "Net Quantity (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Net Quantity (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1314,6 +1406,7 @@ table 246 "Requisition Line"
         field(99000919; "Starting Date-Time"; DateTime)
         {
             Caption = 'Starting Date-Time';
+            ToolTip = 'Specifies the starting date and the starting time, which are combined in a format called "starting date-time".';
 
             trigger OnValidate()
             begin
@@ -1326,6 +1419,7 @@ table 246 "Requisition Line"
         field(99000920; "Ending Date-Time"; DateTime)
         {
             Caption = 'Ending Date-Time';
+            ToolTip = 'Specifies the ending date and the ending time, which are combined in a format called "ending date-time".';
 
             trigger OnValidate()
             begin
@@ -1412,12 +1506,16 @@ table 246 "Requisition Line"
 
     trigger OnDelete()
     var
+        RequisitionWkshName: Record "Requisition Wksh. Name";
         IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeOnDelete(Rec, IsHandled);
         if IsHandled then
             exit;
+
+        if RequisitionWkshName.Get(Rec."Worksheet Template Name", Rec."Journal Batch Name") then
+            ApprovalsMgmt.PreventDeletingRecordWithOpenApprovalEntry(RequisitionWkshName);
 
         ReqLine.Reset();
         ReqLine.Get("Worksheet Template Name", "Journal Batch Name", "Line No.");
@@ -1449,6 +1547,8 @@ table 246 "Requisition Line"
         ReqWkshTemplate.Get("Worksheet Template Name");
         ReqWkshName.Get("Worksheet Template Name", "Journal Batch Name");
 
+        ApprovalsMgmt.PreventInsertRecIfOpenApprovalEntryExist(ReqWkshName);
+
         Rec.ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
         Rec.ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
 
@@ -1457,6 +1557,7 @@ table 246 "Requisition Line"
 
     trigger OnModify()
     begin
+        PreventModifyRecIfOpenApprovalEntryExist();
         ReqLineReserve.VerifyChange(Rec, xRec);
     end;
 
@@ -1478,6 +1579,7 @@ table 246 "Requisition Line"
         GetPlanningParameters: Codeunit "Planning-Get Parameters";
         WMSManagement: Codeunit "WMS Management";
         ConfirmManagement: Codeunit System.Utilities."Confirm Management";
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         BlockReservation: Boolean;
         DoNotUpdateOrderReceiptDate: Boolean;
 
@@ -1994,6 +2096,8 @@ table 246 "Requisition Line"
         until RequisitionLine.Next() = 0;
 
         DeleteRelations(true);
+
+        OnAfterClearPlanningWorksheet(Rec);
     end;
 
     internal procedure ClearOrderPlanningWorksheet()
@@ -2393,7 +2497,6 @@ table 246 "Requisition Line"
     procedure GetDimFromRefOrderLine(AddToExisting: Boolean)
     var
         PurchLine: Record "Purchase Line";
-        ProdOrderLine: Record "Prod. Order Line";
         TransferLine: Record "Transfer Line";
         DimSetIDArr: array[10] of Integer;
         i: Integer;
@@ -2409,9 +2512,6 @@ table 246 "Requisition Line"
             "Ref. Order Type"::Purchase:
                 if PurchLine.Get(PurchLine."Document Type"::Order, "Ref. Order No.", "Ref. Line No.") then
                     DimSetIDArr[i] := PurchLine."Dimension Set ID";
-            "Ref. Order Type"::"Prod. Order":
-                if ProdOrderLine.Get("Ref. Order Status", "Ref. Order No.", "Ref. Line No.") then
-                    DimSetIDArr[i] := ProdOrderLine."Dimension Set ID";
             "Ref. Order Type"::Transfer:
                 begin
                     IsHandled := false;
@@ -2766,6 +2866,9 @@ table 246 "Requisition Line"
         Level := 1;
         "Action Message" := ReqLine."Action Message"::New;
         "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
+        "Drop Shipment" := UnplannedDemand."Drop Shipment";
+
+        UpdateSalesOrderDetailForDropShipment();
 
         UpdateDim();
 
@@ -3332,6 +3435,25 @@ table 246 "Requisition Line"
         end;
     end;
 
+    local procedure UpdateSalesOrderDetailForDropShipment()
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        if Rec."Demand Type" <> Database::"Sales Line" then
+            exit;
+
+        if not Rec."Drop Shipment" then
+            exit;
+
+        SalesLine.SetLoadFields("Sell-to Customer No.");
+        if not SalesLine.Get(Rec."Demand Subtype", Rec."Demand Order No.", Rec."Demand Line No.") then
+            exit;
+
+        Rec."Sales Order No." := SalesLine."Document No.";
+        Rec."Sales Order Line No." := SalesLine."Line No.";
+        Rec."Sell-to Customer No." := SalesLine."Sell-to Customer No.";
+    end;
+
     procedure ReserveBindingOrder(TrackingSpecification: Record "Tracking Specification"; SourceDescription: Text[100]; ExpectedDate: Date; ReservQty: Decimal; ReservQtyBase: Decimal; UpdateReserve: Boolean)
     begin
         OnReserveBindingOrder(Rec, TrackingSpecification, SourceDescription, ExpectedDate, ReservQty, ReservQtyBase, UpdateReserve);
@@ -3388,6 +3510,19 @@ table 246 "Requisition Line"
         DoNotUpdateOrderReceiptDate := NewUpdateOrderReceiptDate;
     end;
 
+    local procedure PreventModifyRecIfOpenApprovalEntryExist()
+    var
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+    begin
+        if RequisitionWkshName.Get("Worksheet Template Name", "Journal Batch Name") then
+            ApprovalsMgmt.PreventModifyRecIfOpenApprovalEntryExistForCurrentUser(RequisitionWkshName);
+    end;
+
+    procedure CheckRequisitionWkshLineRestriction()
+    begin
+        OnCheckRequisitionWkshLinePostRestrictions();
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var RequisitionLine: Record "Requisition Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; CurrFieldNo: Integer)
     begin
@@ -3400,6 +3535,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromItem(var RequisitionLine: Record "Requisition Line"; Item: Record Item; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterClearPlanningWorksheet(var RequisitionLine: Record "Requisition Line")
     begin
     end;
 
@@ -3934,7 +4074,7 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetDimFromRefOrderLineElseCase(var RequisitionLine: Record "Requisition Line"; DimSetIDArr: array[10] of Integer; i: Integer)
+    local procedure OnGetDimFromRefOrderLineElseCase(var RequisitionLine: Record "Requisition Line"; var DimSetIDArr: array[10] of Integer; i: Integer)
     begin
     end;
 
@@ -4030,6 +4170,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateItemReferenceDescription(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCheckRequisitionWkshLinePostRestrictions()
     begin
     end;
 

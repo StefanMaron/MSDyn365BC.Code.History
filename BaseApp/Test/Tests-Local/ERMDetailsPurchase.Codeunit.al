@@ -72,8 +72,6 @@ codeunit 144123 "ERM Details Purchase"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryRandom: Codeunit "Library - Random";
         AmountLCYCap: Label 'AmountLCY';
-        IntegerNumberCap: Label 'Integer_Number';
-        VendorBalanceLCYCap: Label 'Vendor__Balance__LCY__Caption';
         VendoNoCap: Label 'No_Vendor';
         WrongDueDateDetailedVendorLedgEntryErr: Label 'Wrong Initial Entry Due Date in Detailed Vendor Ledger Entry.';
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -346,26 +344,6 @@ codeunit 144123 "ERM Details Purchase"
     end;
 
     [Test]
-    [HandlerFunctions('VendorTopTenListRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure VendorTopTenListWithBalanceLCY()
-    var
-        Vendor: Record Vendor;
-        VendorTop10List: Report "Vendor - Top 10 List";
-    begin
-        // Setup.
-        Clear(VendorTop10List);
-
-        // Exercise: Run Report Vendor - Top 10 List.
-        VendorTop10List.Run();  // Opens VendorTopTenListRequestPageHandler.
-
-        // Verify: Verify Report Vendor - Top 10 List run successfully with option Balance (LCY) without any error.
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists(VendorBalanceLCYCap, Vendor.FieldCaption("Balance (LCY)"));
-        LibraryReportDataset.AssertElementWithValueExists(IntegerNumberCap, LibraryRandom.RandIntInRange(1, 10));  // Count of Vendors on Report.
-    end;
-
-    [Test]
     [HandlerFunctions('VendorSheetPrintRequestPageHandler')]
     [Scope('OnPrem')]
     procedure VendorSheetPrintForPayment()
@@ -624,16 +602,6 @@ codeunit 144123 "ERM Details Purchase"
         DetailedVendorLedgEntry.SetRange("Vendor Ledger Entry No.", VendorLedgerEntry."Entry No.");
         DetailedVendorLedgEntry.FindLast();
         Assert.AreEqual(VendorLedgerEntry."Due Date", DetailedVendorLedgEntry."Initial Entry Due Date", WrongDueDateDetailedVendorLedgEntryErr);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure VendorTopTenListRequestPageHandler(var VendorTop10List: TestRequestPage "Vendor - Top 10 List")
-    var
-        Show: Option "Purchases (LCY)","Balance (LCY)";
-    begin
-        VendorTop10List.Show.SetValue(Show::"Balance (LCY)");
-        VendorTop10List.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

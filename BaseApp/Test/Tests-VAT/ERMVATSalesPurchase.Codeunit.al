@@ -67,9 +67,7 @@
         asserterror VATAmountLine.CheckVATDifference('', true);
 
         // Verify: Verify Error Raised on Validation of VAT Amount on VAT Amount Line.
-        Assert.ExpectedError(
-          StrSubstNo(
-            VATAmountErr, VATAmountLine.FieldCaption("VAT Difference"), GeneralLedgerSetup.FieldCaption("Max. VAT Difference Allowed")));
+        Assert.ExpectedError(StrSubstNo(VATAmountErr, VATAmountLine.FieldCaption("VAT Difference"), GeneralLedgerSetup.FieldCaption("Max. VAT Difference Allowed")));
     end;
 
     [Test]
@@ -92,10 +90,7 @@
         asserterror VATAmountLine.CheckVATDifference(CurrencyCode, true);
 
         // Verify: Verify Error Raised on Validation of VAT Amount on VAT Amount Line.
-        Assert.ExpectedError(
-          StrSubstNo(
-            CurrVATAmountErr, VATAmountLine.FieldCaption("VAT Difference"), CurrencyCode,
-            GeneralLedgerSetup.FieldCaption("Max. VAT Difference Allowed")));
+        Assert.ExpectedError(StrSubstNo(CurrVATAmountErr, VATAmountLine.FieldCaption("VAT Difference"), CurrencyCode, GeneralLedgerSetup.FieldCaption("Max. VAT Difference Allowed")));
     end;
 
     [Test]
@@ -472,8 +467,7 @@
         CreatePurchDocWithPartQtyToRcpt(PurchaseHeader, PurchaseLine, '', 1, PurchaseHeader."Document Type"::Order);
         PurchaseLine.Validate("VAT Difference", VATDifference);
         PurchaseLine.Modify(true);
-        VATAmount :=
-          Round(PurchaseLine."Qty. to Invoice" * PurchaseLine."Direct Unit Cost" * PurchaseLine."VAT %" / 100) + VATDifference;
+        VATAmount := Round(PurchaseLine."Qty. to Invoice" * PurchaseLine."Direct Unit Cost" * PurchaseLine."VAT %" / 100) + VATDifference;
         PostedDocumentNo := NoSeries.PeekNextNo(PurchaseHeader."Posting No. Series");
 
         // Exercise: Post Purchase Order with Ship and Invoice.
@@ -1311,9 +1305,7 @@
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, false);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        LibrarySales.CreateSalesHeader(
-          SalesHeader2, SalesHeader2."Document Type"::Invoice,
-          LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader2."Document Type"::Invoice, LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
         RunCopySalesDocument(SalesHeader2, DocumentNo, "Sales Document Type From"::"Posted Invoice", false, true);
         VATAmount := VATAmountCalculation(BaseAmount, SalesHeader2);
 
@@ -1321,9 +1313,7 @@
         LibrarySales.PostSalesDocument(SalesHeader2, true, true);
 
         // Verify: Verify that VAT Entries are created after Posting.
-        VerifyVATAndBaseAmount(
-          DocumentNo, SalesLine."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group",
-          BaseAmount, VATAmount, VATEntry.Type::Sale);
+        VerifyVATAndBaseAmount(DocumentNo, SalesLine."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group", BaseAmount, VATAmount, VATEntry.Type::Sale);
 
         // Tear Down: Set Default Value in General Ledger Setup, Sales and Receivables Setup for Invoice Rounding.
         ModifyInvRoundingInGLSetup(OldInvRoundingPrecision);
@@ -1413,9 +1403,7 @@
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, true, true);
 
         // Verify: Verify that VAT Entries are created after Posting.
-        VerifyVATAndBaseAmount(
-          DocumentNo, PurchaseLine."Gen. Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group",
-          BaseAmount, VATAmount, VATEntry.Type::Purchase);
+        VerifyVATAndBaseAmount(DocumentNo, PurchaseLine."Gen. Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group", BaseAmount, VATAmount, VATEntry.Type::Purchase);
 
         // Tear Down: Set Default Value in General Ledger Setup, Purchases & Paybles Setup for Invoice Rounding.
         ModifyInvRoundingInGLSetup(GeneralLedgerSetup."Inv. Rounding Precision (LCY)");
@@ -1457,9 +1445,7 @@
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader2, true, true);
 
         // Verify: Verify that VAT Entries are created after Posting.
-        VerifyVATAndBaseAmount(
-          DocumentNo, SalesLine."Gen. Prod. Posting Group", SalesLine."VAT Prod. Posting Group", BaseAmount,
-          VATAmount, VATEntry.Type::Sale);
+        VerifyVATAndBaseAmount(DocumentNo, SalesLine."Gen. Prod. Posting Group", SalesLine."VAT Prod. Posting Group", BaseAmount, VATAmount, VATEntry.Type::Sale);
 
         // Tear Down: Set Default Value in General Ledger Setup, Saels & Receivables Setup for Invoice Rounding.
         ModifyInvRoundingInGLSetup(GeneralLedgerSetup."Inv. Rounding Precision (LCY)");
@@ -2020,13 +2006,9 @@
         // [GIVEN] Sales Order of amount = 3408 with VAT % = 7.7 and the same VAT is used in Invoice Rounding G/L Account
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATPct);
-        LibrarySales.CreateSalesHeader(
-          SalesHeader, SalesHeader."Document Type"::Order,
-          LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
         UpdateInvoiceRoundingAccCustomer(SalesHeader."Sell-to Customer No.", VATPostingSetup."VAT Prod. Posting Group");
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item,
-          LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"), 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"), 1);
         SalesLine.Validate("Unit Price", SalesAmount);
         SalesLine.Modify(true);
 
@@ -2076,9 +2058,7 @@
           PurchaseHeader, PurchaseHeader."Document Type"::Order,
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
         UpdateInvoiceRoundingAccVendor(PurchaseHeader."Buy-from Vendor No.", VATPostingSetup."VAT Prod. Posting Group");
-        LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
-          LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"), 1);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"), 1);
         PurchaseLine.Validate("Direct Unit Cost", PurchaseAmount);
         PurchaseLine.Modify(true);
 
@@ -3750,7 +3730,7 @@
         VerifyVATBusAndGenBusGroupOnVATEntry(DocumentNo, Vendor."VAT Bus. Posting Group", Vendor."Gen. Bus. Posting Group");
     end;
 
-    local procedure UpdateVATDiffInVATAmountLine(VATAmountLine: Record "VAT Amount Line"; VATDifference: Decimal)
+    local procedure UpdateVATDiffInVATAmountLine(var VATAmountLine: Record "VAT Amount Line"; VATDifference: Decimal)
     begin
         VATAmountLine.Validate("VAT Amount", VATAmountLine."VAT Amount" + VATDifference);
         VATAmountLine.Modify(true);
@@ -3816,7 +3796,7 @@
         VATAmount := SalesLine."VAT %" * BaseAmount / 100;
     end;
 
-    local procedure ValidateAndVerifyVATAmount(VATAmountLine: Record "VAT Amount Line")
+    local procedure ValidateAndVerifyVATAmount(var VATAmountLine: Record "VAT Amount Line")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin

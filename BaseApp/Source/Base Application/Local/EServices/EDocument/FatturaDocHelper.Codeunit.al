@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -1371,29 +1371,6 @@ codeunit 12184 "Fattura Doc. Helper"
         end;
     end;
 
-#if not CLEAN25
-    [Obsolete('Moved to codeunit ServFatturaSubscribers', '25.0')]
-    procedure UpdateFatturaDocTypeInServDoc(var ServiceHeader: Record Microsoft.Service.Document."Service Header")
-    var
-        Customer: Record Customer;
-    begin
-        if ServiceHeader."Bill-to Customer No." <> '' then begin
-            Customer.Get(ServiceHeader."Bill-to Customer No.");
-            CompanyInformation.Get();
-            if Customer."VAT Registration No." = CompanyInformation."VAT Registration No." then begin
-                ServiceHeader."Fattura Document Type" := GetSelfBillingCode();
-                exit;
-            end;
-        end;
-
-        case ServiceHeader."Document Type" of
-            ServiceHeader."Document Type"::Order, ServiceHeader."Document Type"::Invoice:
-                ServiceHeader."Fattura Document Type" := GetInvoiceCode();
-            ServiceHeader."Document Type"::"Credit Memo":
-                ServiceHeader."Fattura Document Type" := GetCrMemoCode();
-        end;
-    end;
-#endif
 
     procedure UpdateFatturaDocTypeInVATEntry(EntryNo: Integer; FatturaDocType: Code[20])
     var
@@ -1502,16 +1479,6 @@ codeunit 12184 "Fattura Doc. Helper"
         end;
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by same procedure in codeunit Serv. Fattura Subscribers', '25.0')]
-    [Scope('OnPrem')]
-    procedure AssignFatturaDocTypeFromVATPostingSetupToServiceHeader(var ServiceHeader: Record Microsoft.Service.Document."Service Header"; Confirmation: Boolean)
-    var
-        ServFatturaSubscribers: Codeunit "Serv. Fattura Subscribers";
-    begin
-        ServFatturaSubscribers.AssignFatturaDocTypeFromVATPostingSetupToServiceHeader(ServiceHeader, Confirmation);
-    end;
-#endif
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Quote to Invoice", 'OnBeforeInsertSalesInvoiceHeader', '', false, false)]
     local procedure AssignFatturaDocTypeOnBeforeInsertSalesInvoiceHeader(var SalesInvoiceHeader: Record "Sales Header"; QuoteSalesHeader: Record "Sales Header")
@@ -1599,4 +1566,3 @@ codeunit 12184 "Fattura Doc. Helper"
     begin
     end;
 }
-

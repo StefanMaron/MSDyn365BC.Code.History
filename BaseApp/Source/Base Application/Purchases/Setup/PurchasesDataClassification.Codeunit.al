@@ -9,9 +9,7 @@ using Microsoft.Purchases.Comment;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Payables;
-#if not CLEAN25
 using Microsoft.Purchases.Pricing;
-#endif
 using Microsoft.Purchases.Remittance;
 using Microsoft.Purchases.RoleCenters;
 using Microsoft.Purchases.Vendor;
@@ -66,10 +64,8 @@ codeunit 1763 "Purchases-Data Classification"
         DataClassificationMgt.SetTableFieldsToNormal(Database::"Vendor Templ.");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Purch. Comment Line Archive");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Item Charge Assignment (Purch)");
-#if not CLEAN25
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Purchase Price");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Purchase Line Discount");
-#endif
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Purchase Cue");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"Over-Receipt Code");
     end;

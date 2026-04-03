@@ -1,4 +1,4 @@
-﻿codeunit 134908 "ERM VAT Serv. Charge"
+codeunit 134908 "ERM VAT Serv. Charge"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -105,7 +105,7 @@
     begin
         // Check that Purchase Line not lead to Service charge Line after Create Purchase Order and Change Direct Unit Cost.
         Initialize();
-        CreatePurchCreditMemoInvDisc(PurchaseHeader, -1);
+        CreatePurchCreditMemoInvDisc(PurchaseHeader, -2);
 
         // Verify: Verify Purchase Line.
         Assert.IsFalse(FindPurchaseLine(PurchaseLine, PurchaseHeader."No."), 'Purchase Line must not exist');
@@ -227,12 +227,12 @@
         // [GIVEN] Prepayment Sales Order with 100 % with Amount = 1000 and Service Charge = 100
         CreateSalesOrderWithPrepaymentAndServiceCharge(SalesHeader, 100, LibraryRandom.RandDecInRange(10, 20, 2));
         LibrarySales.CalcSalesDiscount(SalesHeader);
-        SalesHeader.CalcFields(Amount);
 
         // [WHEN] Post Prepayment Invoice
         SalesInvoiceHeader.Get(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader));
 
         // [THEN] Prepayment Invoice is posted with Amount = 1100
+        SalesHeader.CalcFields(Amount);
         SalesInvoiceHeader.CalcFields(Amount);
         SalesInvoiceHeader.TestField(Amount, SalesHeader.Amount);
     end;
@@ -253,12 +253,11 @@
         CreateSalesOrderWithPrepaymentAndServiceCharge(
           SalesHeader, LibraryRandom.RandDecInRange(50, 100, 2), LibraryRandom.RandDecInRange(10, 20, 2));
         LibrarySales.CalcSalesDiscount(SalesHeader);
-        SalesHeader.CalcFields(Amount);
-
         // [WHEN] Post Prepayment Invoice
         SalesInvoiceHeader.Get(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader));
 
         // [THEN] Prepayment Invoice is posted with Amount = 5500
+        SalesHeader.CalcFields(Amount);
         SalesInvoiceHeader.CalcFields(Amount);
         SalesInvoiceHeader.TestField(Amount, Round(SalesHeader.Amount * SalesHeader."Prepayment %" / 100));
     end;
@@ -564,6 +563,7 @@
         LibraryERMCountryData.UpdatePrepaymentAccounts();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibrarySales.SetOrderNoSeriesInSetup();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         IsInitialized := true;
@@ -883,4 +883,3 @@
         Reply := true;
     end;
 }
-

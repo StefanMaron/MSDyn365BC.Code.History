@@ -9,6 +9,10 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using System.Utilities;
 
+/// <summary>
+/// Provides printing functionality for VAT reports with formatted output layout.
+/// Serves as base report structure for VAT report printing and customization.
+/// </summary>
 report 740 "VAT Report Print"
 {
     DefaultLayout = RDLC;

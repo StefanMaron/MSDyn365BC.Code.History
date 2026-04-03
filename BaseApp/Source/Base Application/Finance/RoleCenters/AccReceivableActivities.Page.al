@@ -4,11 +4,11 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.RoleCenters;
 
+using Microsoft.Bank.Payment;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Receivables;
-using Microsoft.Bank.Payment;
 
 page 9034 "Acc. Receivable Activities"
 {

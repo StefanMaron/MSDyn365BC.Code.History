@@ -123,7 +123,7 @@ codeunit 144205 "FatturaPA Attachments"
         // [GIVEN] Insert 1st attachment for the posted document using file "PATH\FILE1.EXT1" with plain text = "TEXT1"
         // [GIVEN] Insert 2nd attachment for the posted document using file "PATH\FILE2.EXT2" with plain text = "TEXT2"
         for i := 1 to ArrayLen(FileName) do
-            MockAttachment(RecRef, FileName[i], Extension[i], Base64String[i], LibraryRandom.RandIntInRange(100, 200));
+            MockAttachment(RecRef, FileName[i], Extension[i], Base64String[i], LibraryRandom.RandIntInRange(10, 20));
 
         // [WHEN] Export Fattura PA for the posted document
         ExportFaturaPA(RecRef, TempBlob);

@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Receivables;
 
+using Microsoft.Bank.Payment;
 using Microsoft.Bank.Reconciliation;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Dimension;
@@ -18,8 +19,10 @@ using Microsoft.Sales.Setup;
 using System.Diagnostics;
 using System.Security.User;
 using System.Utilities;
-using Microsoft.Bank.Payment;
 
+/// <summary>
+/// Displays all customer ledger entries with options to view details, apply entries, navigate to related documents, and perform entry management tasks.
+/// </summary>
 page 25 "Customer Ledger Entries"
 {
     ApplicationArea = Basic, Suite;
@@ -161,9 +164,10 @@ page 25 "Customer Ledger Entries"
                 field(RunningBalanceLCY; CalcRunningCustBalance.GetCustomerBalanceLCY(Rec))
                 {
                     ApplicationArea = Basic, Suite;
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Running Balance (LCY)';
                     ToolTip = 'Specifies the running balance in LCY.';
-                    AutoFormatType = 1;
                     Visible = false;
                 }
                 field("Remaining Amount"; Rec."Remaining Amount")

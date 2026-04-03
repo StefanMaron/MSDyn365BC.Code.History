@@ -10,6 +10,7 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Clause;
+using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.PaymentTerms;
@@ -26,7 +27,6 @@ using Microsoft.Utilities;
 using System.Email;
 using System.Globalization;
 using System.Utilities;
-using Microsoft.Finance.VAT.Setup;
 
 report 5911 "Service - Invoice"
 {

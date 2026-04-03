@@ -5,9 +5,9 @@
 namespace Microsoft.Bank.DirectDebit;
 
 using Microsoft.Bank.BankAccount;
-using Microsoft.Foundation.Enums;
 using Microsoft.Bank.Payment;
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Foundation.Enums;
 
 codeunit 12177 "SEPA - DD Export Mgt."
 {

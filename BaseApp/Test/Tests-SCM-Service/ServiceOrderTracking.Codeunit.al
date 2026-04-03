@@ -5,7 +5,6 @@
 namespace Microsoft.Service.Test;
 
 using Microsoft.Foundation.Navigate;
-using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
@@ -15,7 +14,6 @@ using Microsoft.Purchases.Document;
 using Microsoft.Sales.Customer;
 using Microsoft.Service.Document;
 using Microsoft.Service.History;
-using Microsoft.Service.Setup;
 using System.TestLibraries.Utilities;
 
 codeunit 136129 "Service Order Tracking"
@@ -388,26 +386,22 @@ codeunit 136129 "Service Order Tracking"
     [Scope('OnPrem')]
     procedure LastNoUsedInServiceOrder()
     var
-        NoSeriesLine: Record "No. Series Line";
         ServiceHeader: Record "Service Header";
-        LastNoUsed: Code[20];
     begin
         // Check Last No. Used In No. Series for Service Invoice when Item created with Item Tracking Code.
 
         // Setup: Create and Update Service Line with Item with Item Tracking Code.
         Initialize();
-        FindNoSeriesLine(NoSeriesLine);
-        LastNoUsed := NoSeriesLine."Last No. Used";
         CreateAndUpdateServiceLine(
           ServiceLine, CreateItemWithItemTrackingCode(FindItemTrackingCode(false, true)), LibraryRandom.RandInt(10));
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
 
-        // Exercise: Post Service Order.
+        // Exercise: Post Service Order. Will allocate and save a document no.
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
         // Verify: Verify Last No. Used in No. Series of Service Invoice.
-        FindNoSeriesLine(NoSeriesLine);
-        NoSeriesLine.TestField("Last No. Used", LastNoUsed);
+        ServiceHeader.Find();
+	ServiceHeader.TestField("Posting No.");
     end;
 
     [Test]
@@ -696,15 +690,6 @@ codeunit 136129 "Service Order Tracking"
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Purchase);
         ItemLedgerEntry.FindFirst();
-    end;
-
-    local procedure FindNoSeriesLine(var NoSeriesLine: Record "No. Series Line")
-    var
-        ServiceMgtSetup: Record "Service Mgt. Setup";
-    begin
-        ServiceMgtSetup.Get();
-        NoSeriesLine.SetRange("Series Code", ServiceMgtSetup."Posted Service Invoice Nos.");
-        NoSeriesLine.FindFirst();
     end;
 
     local procedure UpdateServiceLine(var ServiceLine: Record "Service Line"; LocationCode: Code[10]; Quantity: Decimal)

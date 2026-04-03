@@ -1,4 +1,3 @@
-#if not CLEAN25
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -9,11 +8,6 @@ using System.Environment.Configuration;
 
 pageextension 7049 "Price Calc. Update Parameters" extends "Schedule Feature Data Update"
 {
-    ObsoleteState = Pending;
-    ObsoleteReason = 'SalesPrice feature will be enabled by default in version 22.0.';
-#pragma warning disable AS0072
-    ObsoleteTag = '19.0';
-#pragma warning restore AS0072
 
     layout
     {
@@ -23,18 +17,11 @@ pageextension 7049 "Price Calc. Update Parameters" extends "Schedule Feature Dat
             {
                 ShowCaption = false;
                 Visible = SalesPrices;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'SalesPrice feature will be enabled by default in version 22.0.';
-                ObsoleteTag = '19.0';
                 field("Use Default Price Lists"; Rec."Use Default Price Lists")
                 {
                     ApplicationArea = All;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'SalesPrice feature will be enabled by default in version 22.0.';
-#pragma warning disable AS0072
-                    ObsoleteTag = '19.0';
-#pragma warning restore AS0072
                     ToolTip = 'Specifies if the old pricing data should be split to separate price lists.';
+
                     trigger OnValidate()
                     begin
                         SetSplitDataDescription();
@@ -48,11 +35,6 @@ pageextension 7049 "Price Calc. Update Parameters" extends "Schedule Feature Dat
                     Editable = false;
                     MultiLine = true;
                     ToolTip = 'Specifies the description of how "Split Data to Price Lists" affects the data update task.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'SalesPrice feature will be enabled by default in version 22.0.';
-#pragma warning disable AS0072
-                    ObsoleteTag = '19.0';
-#pragma warning restore AS0072
                 }
             }
         }
@@ -83,4 +65,3 @@ pageextension 7049 "Price Calc. Update Parameters" extends "Schedule Feature Dat
             SplitDataDescription := SplitDescriptionMsg;
     end;
 }
-#endif

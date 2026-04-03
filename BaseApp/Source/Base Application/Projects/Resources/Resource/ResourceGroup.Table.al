@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -25,11 +25,13 @@ table 152 "Resource Group"
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
+            ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
             NotBlank = true;
         }
         field(2; Name; Text[50])
         {
             Caption = 'Name';
+            ToolTip = 'Specifies a short description of the resource group.';
         }
         field(22; "Date Filter"; Date)
         {
@@ -38,6 +40,7 @@ table 152 "Resource Group"
         }
         field(23; Capacity; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Res. Capacity Entry".Capacity where("Resource Group No." = field("No."),
                                                                     Date = field("Date Filter")));
             Caption = 'Capacity';
@@ -46,6 +49,7 @@ table 152 "Resource Group"
         }
         field(24; "Qty. on Order (Job)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Job Planning Line"."Quantity (Base)" where(Status = const(Order),
                                                                            "Schedule Line" = const(true),
                                                                            Type = const(Resource),
@@ -58,6 +62,7 @@ table 152 "Resource Group"
         }
         field(25; "Qty. Quoted (Job)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Job Planning Line"."Quantity (Base)" where(Status = const(Quote),
                                                                            "Schedule Line" = const(true),
                                                                            Type = const(Resource),
@@ -76,6 +81,7 @@ table 152 "Resource Group"
         }
         field(27; "Usage (Qty.)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Res. Ledger Entry".Quantity where("Entry Type" = const(Usage),
                                                                   Chargeable = field("Chargeable Filter"),
                                                                   "Unit of Measure Code" = field("Unit of Measure Filter"),
@@ -89,6 +95,7 @@ table 152 "Resource Group"
         field(28; "Usage (Cost)"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             CalcFormula = sum("Res. Ledger Entry"."Total Cost" where("Entry Type" = const(Usage),
                                                                       Chargeable = field("Chargeable Filter"),
                                                                       "Unit of Measure Code" = field("Unit of Measure Filter"),
@@ -101,6 +108,7 @@ table 152 "Resource Group"
         field(29; "Usage (Price)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("Res. Ledger Entry"."Total Price" where("Entry Type" = const(Usage),
                                                                        Chargeable = field("Chargeable Filter"),
                                                                        "Unit of Measure Code" = field("Unit of Measure Filter"),
@@ -112,6 +120,7 @@ table 152 "Resource Group"
         }
         field(30; "Sales (Qty.)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = - sum("Res. Ledger Entry".Quantity where("Entry Type" = const(Sale),
                                                                    "Resource Group No." = field("No."),
                                                                    "Unit of Measure Code" = field("Unit of Measure Filter"),
@@ -124,6 +133,7 @@ table 152 "Resource Group"
         field(31; "Sales (Cost)"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             CalcFormula = - sum("Res. Ledger Entry"."Total Cost" where("Entry Type" = const(Sale),
                                                                        "Resource Group No." = field("No."),
                                                                        "Unit of Measure Code" = field("Unit of Measure Filter"),
@@ -135,6 +145,7 @@ table 152 "Resource Group"
         field(32; "Sales (Price)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = - sum("Res. Ledger Entry"."Total Price" where("Entry Type" = const(Sale),
                                                                         "Resource Group No." = field("No."),
                                                                         "Unit of Measure Code" = field("Unit of Measure Filter"),

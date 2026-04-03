@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -36,21 +36,25 @@ table 6084 "Service Line Price Adjmt."
         field(5; "Service Item No."; Code[20])
         {
             Caption = 'Service Item No.';
+            ToolTip = 'Specifies the number of the service item that is registered in the Service Item table.';
             TableRelation = "Service Item";
         }
         field(6; "Serv. Price Adjmt. Gr. Code"; Code[10])
         {
             Caption = 'Serv. Price Adjmt. Gr. Code';
+            ToolTip = 'Specifies the code of the service price adjustment group that applies to the posted service line.';
             TableRelation = "Service Price Adjustment Group";
         }
         field(7; Type; Enum "Service Line Type")
         {
             Caption = 'Type';
+            ToolTip = 'Specifies the type of this line, which can be item, resource, cost, or general ledger Account.';
             Editable = false;
         }
         field(8; "No."; Code[20])
         {
             Caption = 'No.';
+            ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
             Editable = false;
             TableRelation = if (Type = const(Item)) Item
             else
@@ -61,11 +65,14 @@ table 6084 "Service Line Price Adjmt."
         field(9; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies the service item, resource, or service cost, of which the price is going to be adjusted.';
             Editable = false;
         }
         field(10; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
+            ToolTip = 'Specifies the value of the service line that will be adjusted.';
             Editable = false;
         }
         field(14; Amount; Decimal)
@@ -73,6 +80,7 @@ table 6084 "Service Line Price Adjmt."
             AutoFormatExpression = GetCurrency();
             AutoFormatType = 1;
             Caption = 'Amount';
+            ToolTip = 'Specifies the total net amount on the service line.';
             Editable = false;
         }
         field(15; "New Amount"; Decimal)
@@ -80,6 +88,7 @@ table 6084 "Service Line Price Adjmt."
             AutoFormatExpression = GetCurrency();
             AutoFormatType = 1;
             Caption = 'New Amount';
+            ToolTip = 'Specifies the amount to invoice.';
 
             trigger OnValidate()
             var
@@ -108,6 +117,7 @@ table 6084 "Service Line Price Adjmt."
             AutoFormatExpression = GetCurrency();
             AutoFormatType = 2;
             Caption = 'Unit Price';
+            ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
             Editable = false;
         }
         field(17; "New Unit Price"; Decimal)
@@ -115,6 +125,7 @@ table 6084 "Service Line Price Adjmt."
             AutoFormatExpression = GetCurrency();
             AutoFormatType = 2;
             Caption = 'New Unit Price';
+            ToolTip = 'Specifies the unit price of the item, resource, or cost specified on the service line.';
 
             trigger OnValidate()
             begin
@@ -138,7 +149,9 @@ table 6084 "Service Line Price Adjmt."
         }
         field(19; "Discount %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Discount %';
+            ToolTip = 'Specifies the discount percentage you want to provide on the amount on the corresponding service line.';
             Editable = false;
         }
         field(20; "Discount Amount"; Decimal)
@@ -146,6 +159,7 @@ table 6084 "Service Line Price Adjmt."
             AutoFormatExpression = GetCurrency();
             AutoFormatType = 1;
             Caption = 'Discount Amount';
+            ToolTip = 'Specifies the discount you want to provide on the amount on this service line.';
             Editable = false;
         }
         field(21; "Amount incl. VAT"; Decimal)
@@ -153,6 +167,7 @@ table 6084 "Service Line Price Adjmt."
             AutoFormatExpression = GetCurrency();
             AutoFormatType = 1;
             Caption = 'Amount incl. VAT';
+            ToolTip = 'Specifies the total amount that the service line is going to be adjusted, including VAT.';
             Editable = false;
         }
         field(22; "New Amount incl. VAT"; Decimal)
@@ -160,6 +175,7 @@ table 6084 "Service Line Price Adjmt."
             AutoFormatExpression = GetCurrency();
             AutoFormatType = 1;
             Caption = 'New Amount incl. VAT';
+            ToolTip = 'Specifies a new amount, including VAT.';
 
             trigger OnValidate()
             begin
@@ -177,12 +193,14 @@ table 6084 "Service Line Price Adjmt."
         }
         field(24; Weight; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Weight';
             Editable = false;
         }
         field(25; "Adjustment Type"; Option)
         {
             Caption = 'Adjustment Type';
+            ToolTip = 'Specifies the adjustment type for this line.';
             Editable = false;
             OptionCaption = 'Fixed,Maximum,Minimum';
             OptionMembers = "Fixed",Maximum,Minimum;
@@ -190,6 +208,7 @@ table 6084 "Service Line Price Adjmt."
         field(26; "Service Price Group Code"; Code[10])
         {
             Caption = 'Service Price Group Code';
+            ToolTip = 'Specifies the code of the service price adjustment group associated with the service item on this line.';
             Editable = false;
             TableRelation = "Service Price Group";
         }
@@ -200,11 +219,14 @@ table 6084 "Service Line Price Adjmt."
         }
         field(28; "Vat %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Vat %';
             Editable = false;
         }
         field(29; "New Amount Excl. VAT"; Decimal)
         {
+            AutoFormatExpression = GetCurrency();
+            AutoFormatType = 1;
             Caption = 'New Amount Excl. VAT';
             Editable = false;
         }
@@ -247,7 +269,7 @@ table 6084 "Service Line Price Adjmt."
         end;
     end;
 
-    local procedure GetCurrency(): Code[10]
+    procedure GetCurrency(): Code[10]
     begin
         GetServHeader();
         exit(ServHeader."Currency Code");

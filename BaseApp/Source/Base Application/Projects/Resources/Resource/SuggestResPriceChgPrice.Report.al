@@ -1,4 +1,3 @@
-#if not CLEAN25
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -13,9 +12,6 @@ report 1192 "Suggest Res. Price Chg.(Price)"
 {
     Caption = 'Suggest Res. Price Chg.(Price)';
     ProcessingOnly = true;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: Price Worksheet page';
-    ObsoleteTag = '16.0';
 
     dataset
     {
@@ -147,6 +143,7 @@ report 1192 "Suggest Res. Price Chg.(Price)"
                     field(PriceLowerLimit; PriceLowerLimit)
                     {
                         ApplicationArea = Jobs;
+                        AutoFormatType = 0;
                         Caption = 'Only Prices Above';
                         DecimalPlaces = 2 : 5;
                         ToolTip = 'Specifies an amount to determine the lowest unit price that is changed. Only prices that are higher than this are changed. If a price is lower than or equal to this amount, a line for it is created in the Resource Price Changes window, but with the same unit price as in the Resource Prices window.';
@@ -154,6 +151,7 @@ report 1192 "Suggest Res. Price Chg.(Price)"
                     field(UnitPricefactor; UnitPricefactor)
                     {
                         ApplicationArea = Jobs;
+                        AutoFormatType = 0;
                         Caption = 'Adjustment Factor';
                         DecimalPlaces = 0 : 5;
                         MinValue = 0;
@@ -237,4 +235,3 @@ report 1192 "Suggest Res. Price Chg.(Price)"
         CreateNewPrices := CreateNewPricesFrom;
     end;
 }
-#endif

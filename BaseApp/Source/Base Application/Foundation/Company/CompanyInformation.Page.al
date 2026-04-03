@@ -14,6 +14,7 @@ using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Calendar;
 using Microsoft.Foundation.NoSeries;
+using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Foundation.Reporting;
 using Microsoft.HumanResources.Setup;
 using Microsoft.Inventory.Location;
@@ -27,7 +28,6 @@ using System.Globalization;
 using System.Security.AccessControl;
 using System.Security.User;
 using System.Telemetry;
-using Microsoft.Foundation.PaymentTerms;
 
 page 1 "Company Information"
 {
@@ -198,6 +198,10 @@ page 1 "Company Information"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies your company''s web site.';
+                }
+                field(DefaultLanguage; Rec."Default Language code")
+                {
+                    ApplicationArea = Basic, Suite;
                 }
             }
             group(Payments)

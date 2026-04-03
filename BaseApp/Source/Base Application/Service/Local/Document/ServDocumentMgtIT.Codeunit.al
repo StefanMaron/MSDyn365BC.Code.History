@@ -4,16 +4,16 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Document;
 
-using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Foundation.Shipping;
 using Microsoft.EServices.EDocument;
-using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
-using Microsoft.Sales.Customer;
-using Microsoft.Service.History;
-using Microsoft.Service.Contract;
+using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Foundation.Shipping;
+using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
+using Microsoft.Service.Contract;
+using Microsoft.Service.History;
 using Microsoft.Utilities;
 
 codeunit 12140 "Serv. Document Mgt. IT"

@@ -4,34 +4,34 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Utilities;
 
+using Microsoft;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Payment;
+using Microsoft.EServices.EDocument;
+using Microsoft.Finance.FinancialReports;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.TransactionNature;
+using Microsoft.Finance.WithholdingTax;
+using Microsoft.FixedAssets.Depreciation;
+using Microsoft.Foundation.Company;
+using Microsoft.Foundation.PaymentTerms;
 using Microsoft.HumanResources.Absence;
 using Microsoft.HumanResources.Employee;
 using Microsoft.HumanResources.Payables;
-using Microsoft.Sales.Archive;
-using System.Privacy;
-using Microsoft.FixedAssets.Depreciation;
-using Microsoft.Finance.FinancialReports;
-using Microsoft.Finance.WithholdingTax;
-using Microsoft.Bank.Payment;
-using Microsoft.Inventory.Intrastat;
-using Microsoft.Purchases.Vendor;
 using Microsoft.Inventory.Costing;
-using Microsoft.Finance.VAT.Setup;
-using Microsoft.Finance.VAT.Ledger;
-using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Setup;
 #if not CLEAN27
 using Microsoft.Manufacturing.Document;
 #endif
-using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Inventory.Item;
-using Microsoft.Foundation.PaymentTerms;
-using Microsoft.Foundation.Company;
-using Microsoft.Bank.BankAccount;
-using Microsoft.EServices.EDocument;
-using Microsoft.Inventory.Setup;
-using Microsoft.Finance.VAT.TransactionNature;
-using Microsoft;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Archive;
+using System.Privacy;
 
 codeunit 1752 "Data Class. Eval. Data Country"
 {

@@ -1,9 +1,12 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Reminder;
 
+/// <summary>
+/// Manages the beginning and ending text lines displayed on reminder documents by level.
+/// </summary>
 page 433 "Reminder Text"
 {
     AutoSplitKey = true;
@@ -25,25 +28,21 @@ page 433 "Reminder Text"
                 field("Reminder Terms Code"; Rec."Reminder Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the reminder terms code this text applies to.';
                     Visible = false;
                 }
                 field("Reminder Level"; Rec."Reminder Level")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the reminder level this text applies to.';
                     Visible = false;
                 }
                 field(Position; Rec.Position)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether the text will appear at the beginning or the end of the reminder.';
                     Visible = false;
                 }
                 field(Text; Rec.Text)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the text that you want to insert in the reminder.';
                 }
             }
         }

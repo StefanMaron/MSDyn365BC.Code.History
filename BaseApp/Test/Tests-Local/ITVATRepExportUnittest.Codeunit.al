@@ -675,7 +675,7 @@
     procedure MultipleTransmissionFiles()
     var
         VATReportHeader: Record "VAT Report Header";
-        VATReportLine: Record "VAT Report Line";
+        VATReportLine, VATReportLine2 : Record "VAT Report Line";
         CustNo: Code[20];
         TextFile1: BigText;
         TextFile2: BigText;
@@ -700,7 +700,9 @@
         // [THEN] Verify generated file
         VerifyStructure(TextFile1, VATReportHeader, 1, 2);
         VerifyStructure(TextFile2, VATReportHeader, 2, 2);
-        VerifyExists(TextFile1, VATReportLine);
+        VATReportLine2.Get(VATReportLine."VAT Report No.", MaxRecordCount);
+        VerifyExists(TextFile1, VATReportLine2);
+        VerifyExists(TextFile2, VATReportLine);
     end;
 
     [Test]

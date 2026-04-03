@@ -779,6 +779,8 @@ codeunit 144200 "FatturaPA Test"
         ServiceInvoiceHeader: Record "Service Invoice Header";
         Customer: Record Customer;
         TaxRepresentativeVendor: Record Vendor;
+        PaymentMethod: Record "Payment Method";
+        PaymentTerms: Record "Payment Terms";
         TransmissionIntermediaryVendor: Record Vendor;
         TempBlob: Codeunit "Temp Blob";
         DocumentRecRef: RecordRef;
@@ -802,7 +804,9 @@ codeunit 144200 "FatturaPA Test"
         LibraryITLocalization.InsertFatturaElectronicFormats(FatturaPA_ElectronicFormatTxt);
 
         // [GIVEN] A posted Service Invoice for the given customer
-        DocumentNo := CreateAndPostServiceInvoice(DocumentRecRef, '', '', Customer."No.");
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+        DocumentNo := CreateAndPostServiceInvoice(DocumentRecRef, PaymentMethod.Code, PaymentTerms.Code, Customer."No.");
         ServiceInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
@@ -814,11 +818,15 @@ codeunit 144200 "FatturaPA Test"
         LibraryErrorMessage.LoadErrorMessages();
         LibraryErrorMessage.AssertLogIfMessageExists(
           SalesReceivablesSetup, SalesReceivablesSetup.FieldNo("Fattura PA Nos."), ErrorMessage."Message Type"::Error);
-        AssertPostedDocumentHeaderErrorMessages(DocumentRecRef);
         AssertCompanyErrorMessages();
         AssertCustomerErrorMessages(Customer);
         AssertTaxRepresentativeErrorMessages(TaxRepresentativeVendor);
         AssertTransmissionIntermediaryErrorMessages(TransmissionIntermediaryVendor);
+
+        LibraryErrorMessage.AssertLogIfMessageExists(PaymentTerms,
+          PaymentTerms.FieldNo("Fattura Payment Terms Code"), ErrorMessage."Message Type"::Error);
+        LibraryErrorMessage.AssertLogIfMessageExists(PaymentMethod,
+          PaymentMethod.FieldNo("Fattura PA Payment Method"), ErrorMessage."Message Type"::Error);
     end;
 
     [Test]
@@ -1533,6 +1541,7 @@ codeunit 144200 "FatturaPA Test"
         TempXMLBuffer: Record "XML Buffer" temporary;
         TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
+        OldUinitOfMeasureDescription: Text[50];
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 444574] UnitaMisura tag value when Item has Unit of Measure with Description value of length 50.
@@ -1546,7 +1555,7 @@ codeunit 144200 "FatturaPA Test"
         LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
         UpdateDescriptionOnUoM(
             SalesLine."Unit of Measure Code",
-            CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(UnitOfMeasure.Description)), 1, MaxStrLen(UnitOfMeasure.Description)));
+            CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(UnitOfMeasure.Description)), 1, MaxStrLen(UnitOfMeasure.Description)), OldUinitOfMeasureDescription);
         SalesLine.Validate("Unit of Measure Code");
         SalesLine.Modify(true);
 
@@ -1563,6 +1572,9 @@ codeunit 144200 "FatturaPA Test"
         AssertCurrentElementValue(
             TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/UnitaMisura',
             CopyStr(SalesLine."Unit of Measure", 1, 10));
+
+        // TearDown
+        UpdateDescriptionOnUoM(SalesLine."Unit of Measure Code", OldUinitOfMeasureDescription, OldUinitOfMeasureDescription);
     end;
 
     [Test]
@@ -2514,11 +2526,12 @@ codeunit 144200 "FatturaPA Test"
         Item.Modify(true);
     end;
 
-    local procedure UpdateDescriptionOnUoM(UnitOfMeasureCode: Code[10]; NewDescription: Text[50])
+    local procedure UpdateDescriptionOnUoM(UnitOfMeasureCode: Code[10]; NewDescription: Text[50]; var UnitofMeasureDescription: Text[50])
     var
         UnitOfMeasure: Record "Unit of Measure";
     begin
         UnitOfMeasure.Get(UnitOfMeasureCode);
+        UnitofMeasureDescription := UnitOfMeasure.Description;
         UnitOfMeasure.Validate(Description, NewDescription);
         UnitOfMeasure.Modify(true);
     end;
@@ -2893,13 +2906,14 @@ codeunit 144200 "FatturaPA Test"
 
     local procedure VerifyXSDSchemaForStream(XmlInStream: InStream)
     VAR
+        LibraryUtilityOnPrem: Codeunit "Library - Utility OnPrem";
         LibraryVerifyXMLSchema: Codeunit "Library - Verify XML Schema";
         Message: Text;
         SignatureXsdPath: Text;
         XsdPath: Text;
         InetRoot: Text;
     BEGIN
-        InetRoot := LibraryUtility.GetInetRoot() + InetRootRelativePathTxt;
+        InetRoot := LibraryUtilityOnPrem.GetInetRoot() + InetRootRelativePathTxt;
         SignatureXsdPath := InetRoot + SignatureXSDRelativePathTxt;
         XsdPath := InetRoot + XSDRelativePathTxt;
         LibraryVerifyXMLSchema.SetAdditionalSchemaPath(SignatureXsdPath);

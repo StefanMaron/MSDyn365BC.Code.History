@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -16,6 +16,7 @@ using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.NoSeries;
+using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Intercompany.Partner;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Remittance;
@@ -24,7 +25,6 @@ using Microsoft.Sales.Customer;
 using Microsoft.Utilities;
 using System.Security.AccessControl;
 using System.Utilities;
-using Microsoft.Foundation.PaymentTerms;
 
 table 25 "Vendor Ledger Entry"
 {
@@ -38,23 +38,28 @@ table 25 "Vendor Ledger Entry"
         field(1; "Entry No."; Integer)
         {
             Caption = 'Entry No.';
+            ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
         }
         field(3; "Vendor No."; Code[20])
         {
             Caption = 'Vendor No.';
+            ToolTip = 'Specifies the number of the vendor account that the entry is linked to.';
             TableRelation = Vendor;
         }
         field(4; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
+            ToolTip = 'Specifies the vendor entry''s posting date.';
         }
         field(5; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
+            ToolTip = 'Specifies the document type that the vendor entry belongs to.';
         }
         field(6; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+            ToolTip = 'Specifies the vendor entry''s document number.';
 
             trigger OnLookup()
             var
@@ -66,14 +71,17 @@ table 25 "Vendor Ledger Entry"
         field(7; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the vendor entry.';
         }
         field(8; "Vendor Name"; Text[100])
         {
             Caption = 'Vendor Name';
+            ToolTip = 'Specifies the name of the vendor account that the entry is linked to.';
         }
         field(11; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
+            ToolTip = 'Specifies the currency code for the amount on the line.';
             TableRelation = Currency;
         }
         field(13; Amount; Decimal)
@@ -84,6 +92,7 @@ table 25 "Vendor Ledger Entry"
                                                                           "Vendor Ledger Entry No." = field("Entry No."),
                                                                           "Posting Date" = field("Date Filter")));
             Caption = 'Amount';
+            ToolTip = 'Specifies the amount of the entry.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -94,12 +103,14 @@ table 25 "Vendor Ledger Entry"
             CalcFormula = sum("Detailed Vendor Ledg. Entry".Amount where("Vendor Ledger Entry No." = field("Entry No."),
                                                                           "Posting Date" = field("Date Filter")));
             Caption = 'Remaining Amount';
+            ToolTip = 'Specifies the amount that remains to be applied to before the entry is totally applied to.';
             Editable = false;
             FieldClass = FlowField;
         }
         field(15; "Original Amt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("Detailed Vendor Ledg. Entry"."Amount (LCY)" where("Vendor Ledger Entry No." = field("Entry No."),
                                                                                   "Entry Type" = filter("Initial Entry"),
                                                                                   "Posting Date" = field("Date Filter")));
@@ -110,6 +121,7 @@ table 25 "Vendor Ledger Entry"
         field(16; "Remaining Amt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("Detailed Vendor Ledg. Entry"."Amount (LCY)" where("Vendor Ledger Entry No." = field("Entry No."),
                                                                                   "Posting Date" = field("Date Filter")));
             Caption = 'Remaining Amt. (LCY)';
@@ -119,6 +131,7 @@ table 25 "Vendor Ledger Entry"
         field(17; "Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("Detailed Vendor Ledg. Entry"."Amount (LCY)" where("Ledger Entry Amount" = const(true),
                                                                                   "Vendor Ledger Entry No." = field("Entry No."),
                                                                                   "Posting Date" = field("Date Filter")));
@@ -129,11 +142,13 @@ table 25 "Vendor Ledger Entry"
         field(18; "Purchase (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Purchase (LCY)';
         }
         field(20; "Inv. Discount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Inv. Discount (LCY)';
         }
         field(21; "Buy-from Vendor No."; Code[20])
@@ -144,39 +159,46 @@ table 25 "Vendor Ledger Entry"
         field(22; "Vendor Posting Group"; Code[20])
         {
             Caption = 'Vendor Posting Group';
+            ToolTip = 'Specifies the vendor''s market type to link business transactions to.';
             TableRelation = "Vendor Posting Group";
         }
         field(23; "Global Dimension 1 Code"; Code[20])
         {
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
+            ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(24; "Global Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
+            ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(25; "Purchaser Code"; Code[20])
         {
             Caption = 'Purchaser Code';
+            ToolTip = 'Specifies which purchaser is assigned to the vendor.';
             TableRelation = "Salesperson/Purchaser";
         }
         field(27; "User ID"; Code[50])
         {
             Caption = 'User ID';
+            ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
         }
         field(28; "Source Code"; Code[10])
         {
             Caption = 'Source Code';
+            ToolTip = 'Specifies the source code that specifies where the entry was created.';
             TableRelation = "Source Code";
         }
         field(33; "On Hold"; Code[3])
         {
             Caption = 'On Hold';
+            ToolTip = 'Specifies that the related entry represents an unpaid invoice for which either a payment suggestion, a reminder, or a finance charge memo exists.';
 
             trigger OnValidate()
             var
@@ -211,10 +233,12 @@ table 25 "Vendor Ledger Entry"
         field(36; Open; Boolean)
         {
             Caption = 'Open';
+            ToolTip = 'Specifies whether the amount on the entry has been fully paid or there is still a remaining amount that must be applied to.';
         }
         field(37; "Due Date"; Date)
         {
             Caption = 'Due Date';
+            ToolTip = 'Specifies the due date on the entry.';
 
             trigger OnValidate()
             var
@@ -232,6 +256,7 @@ table 25 "Vendor Ledger Entry"
         field(38; "Pmt. Discount Date"; Date)
         {
             Caption = 'Pmt. Discount Date';
+            ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
 
             trigger OnValidate()
             begin
@@ -243,22 +268,26 @@ table 25 "Vendor Ledger Entry"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Original Pmt. Disc. Possible';
+            ToolTip = 'Specifies the discount that you can obtain if the entry is applied to before the payment discount date.';
             Editable = false;
         }
         field(40; "Pmt. Disc. Rcd.(LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Pmt. Disc. Rcd.(LCY)';
         }
         field(42; "Orig. Pmt. Disc. Possible(LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Org. Pmt. Disc. Possible (LCY)';
             Editable = false;
         }
         field(43; Positive; Boolean)
         {
             Caption = 'Positive';
+            ToolTip = 'Specifies if the entry to be applied is positive.';
         }
         field(44; "Closed by Entry No."; Integer)
         {
@@ -268,16 +297,19 @@ table 25 "Vendor Ledger Entry"
         field(45; "Closed at Date"; Date)
         {
             Caption = 'Closed at Date';
+            ToolTip = 'Specifies the date at which the vendor ledger entry was closed.';
         }
         field(46; "Closed by Amount"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Closed by Amount';
+            ToolTip = 'Specifies the amount that the entry was finally applied to (closed) with.';
         }
         field(47; "Applies-to ID"; Code[50])
         {
             Caption = 'Applies-to ID';
+            ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
 
             trigger OnValidate()
             begin
@@ -295,15 +327,18 @@ table 25 "Vendor Ledger Entry"
         field(50; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
+            ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
             TableRelation = "Reason Code";
         }
         field(51; "Bal. Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
+            ToolTip = 'Specifies the type of account that a balancing entry is posted to, such as BANK for a cash account.';
         }
         field(52; "Bal. Account No."; Code[20])
         {
             Caption = 'Bal. Account No.';
+            ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account that the balancing entry is posted to, such as a cash account for cash purchases.';
             TableRelation = if ("Bal. Account Type" = const("G/L Account")) "G/L Account"
             else
             if ("Bal. Account Type" = const(Customer)) Customer
@@ -321,6 +356,7 @@ table 25 "Vendor Ledger Entry"
         field(54; "Closed by Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Closed by Amount (LCY)';
         }
         field(58; "Debit Amount"; Decimal)
@@ -332,6 +368,7 @@ table 25 "Vendor Ledger Entry"
                                                                                   "Vendor Ledger Entry No." = field("Entry No."),
                                                                                   "Posting Date" = field("Date Filter")));
             Caption = 'Debit Amount';
+            ToolTip = 'Specifies the total of the ledger entries that represent debits.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -344,12 +381,14 @@ table 25 "Vendor Ledger Entry"
                                                                                    "Vendor Ledger Entry No." = field("Entry No."),
                                                                                    "Posting Date" = field("Date Filter")));
             Caption = 'Credit Amount';
+            ToolTip = 'Specifies the total of the ledger entries that represent credits.';
             Editable = false;
             FieldClass = FlowField;
         }
         field(60; "Debit Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             CalcFormula = sum("Detailed Vendor Ledg. Entry"."Debit Amount (LCY)" where("Ledger Entry Amount" = const(true),
                                                                                         "Vendor Ledger Entry No." = field("Entry No."),
@@ -361,6 +400,7 @@ table 25 "Vendor Ledger Entry"
         field(61; "Credit Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             CalcFormula = sum("Detailed Vendor Ledg. Entry"."Credit Amount (LCY)" where("Ledger Entry Amount" = const(true),
                                                                                          "Vendor Ledger Entry No." = field("Entry No."),
@@ -372,10 +412,12 @@ table 25 "Vendor Ledger Entry"
         field(62; "Document Date"; Date)
         {
             Caption = 'Document Date';
+            ToolTip = 'Specifies the vendor entry''s document date.';
         }
         field(63; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+            ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
         }
         field(64; "No. Series"; Code[20])
         {
@@ -385,6 +427,7 @@ table 25 "Vendor Ledger Entry"
         field(65; "Closed by Currency Code"; Code[10])
         {
             Caption = 'Closed by Currency Code';
+            ToolTip = 'Specifies the currency code of the entry that was applied to (and closed) this vendor ledger entry.';
             TableRelation = Currency;
         }
         field(66; "Closed by Currency Amount"; Decimal)
@@ -393,14 +436,17 @@ table 25 "Vendor Ledger Entry"
             AutoFormatExpression = "Closed by Currency Code";
             AutoFormatType = 1;
             Caption = 'Closed by Currency Amount';
+            ToolTip = 'Specifies the amount that was finally applied to (and closed) this vendor ledger entry.';
         }
         field(73; "Adjusted Currency Factor"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Adjusted Currency Factor';
             DecimalPlaces = 0 : 15;
         }
         field(74; "Original Currency Factor"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Original Currency Factor';
             DecimalPlaces = 0 : 15;
         }
@@ -412,6 +458,7 @@ table 25 "Vendor Ledger Entry"
                                                                           "Entry Type" = filter("Initial Entry"),
                                                                           "Posting Date" = field("Date Filter")));
             Caption = 'Original Amount';
+            ToolTip = 'Specifies the amount of the original entry.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -425,6 +472,7 @@ table 25 "Vendor Ledger Entry"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Remaining Pmt. Disc. Possible';
+            ToolTip = 'Specifies the remaining payment discount which can be received if the payment is made before the payment discount date.';
 
             trigger OnValidate()
             begin
@@ -441,6 +489,7 @@ table 25 "Vendor Ledger Entry"
         field(78; "Pmt. Disc. Tolerance Date"; Date)
         {
             Caption = 'Pmt. Disc. Tolerance Date';
+            ToolTip = 'Specifies the latest date the amount in the entry must be paid in order for payment discount tolerance to be granted.';
 
             trigger OnValidate()
             begin
@@ -452,6 +501,7 @@ table 25 "Vendor Ledger Entry"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Max. Payment Tolerance';
+            ToolTip = 'Specifies the maximum tolerated amount the entry can differ from the amount on the invoice or credit memo.';
 
             trigger OnValidate()
             begin
@@ -479,6 +529,7 @@ table 25 "Vendor Ledger Entry"
         field(83; "Pmt. Tolerance (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Pmt. Tolerance (LCY)';
         }
         field(84; "Amount to Apply"; Decimal)
@@ -486,6 +537,7 @@ table 25 "Vendor Ledger Entry"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount to Apply';
+            ToolTip = 'Specifies the amount to apply.';
 
             trigger OnValidate()
             begin
@@ -502,6 +554,7 @@ table 25 "Vendor Ledger Entry"
         field(85; "IC Partner Code"; Code[20])
         {
             Caption = 'IC Partner Code';
+            ToolTip = 'Specifies the code of the intercompany partner that the transaction is related to if the entry was created from an intercompany transaction.';
             TableRelation = "IC Partner";
         }
         field(86; "Applying Entry"; Boolean)
@@ -511,17 +564,20 @@ table 25 "Vendor Ledger Entry"
         field(87; Reversed; Boolean)
         {
             Caption = 'Reversed';
+            ToolTip = 'Specifies if the entry has been part of a reverse transaction.';
         }
         field(88; "Reversed by Entry No."; Integer)
         {
             BlankZero = true;
             Caption = 'Reversed by Entry No.';
+            ToolTip = 'Specifies the number of the correcting entry that replaced the original entry in the reverse transaction.';
             TableRelation = "Vendor Ledger Entry";
         }
         field(89; "Reversed Entry No."; Integer)
         {
             BlankZero = true;
             Caption = 'Reversed Entry No.';
+            ToolTip = 'Specifies the number of the original entry that was undone by the reverse transaction.';
             TableRelation = "Vendor Ledger Entry";
         }
         field(90; Prepayment; Boolean)
@@ -531,14 +587,17 @@ table 25 "Vendor Ledger Entry"
         field(170; "Creditor No."; Code[20])
         {
             Caption = 'Creditor No.';
+            ToolTip = 'Specifies the vendor who sent the purchase invoice.';
         }
         field(171; "Payment Reference"; Code[50])
         {
             Caption = 'Payment Reference';
+            ToolTip = 'Specifies the payment of the purchase invoice.';
         }
         field(172; "Payment Method Code"; Code[10])
         {
             Caption = 'Payment Method Code';
+            ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
             TableRelation = "Payment Method";
 
             trigger OnValidate()
@@ -552,16 +611,19 @@ table 25 "Vendor Ledger Entry"
         }
         field(175; "Invoice Received Date"; Date)
         {
+            ToolTip = 'Specifies the date when the vendor''s invoice was received.';
 
         }
         field(288; "Recipient Bank Account"; Code[20])
         {
             Caption = 'Recipient Bank Account';
+            ToolTip = 'Specifies the bank account to transfer the amount to.';
             TableRelation = "Vendor Bank Account".Code where("Vendor No." = field("Vendor No."));
         }
         field(289; "Message to Recipient"; Text[140])
         {
             Caption = 'Message to Recipient';
+            ToolTip = 'Specifies the message exported to the payment file when you use the Export Payments to File function in the Payment Journal window.';
 
             trigger OnValidate()
             var
@@ -578,11 +640,13 @@ table 25 "Vendor Ledger Entry"
         field(290; "Exported to Payment File"; Boolean)
         {
             Caption = 'Exported to Payment File';
+            ToolTip = 'Specifies that the entry was created as a result of exporting a payment journal line.';
             Editable = false;
         }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
+            ToolTip = 'Specifies a reference to a combination of dimension values. The actual values are stored in the Dimension Set Entry table.';
             Editable = false;
             TableRelation = "Dimension Set Entry";
 
@@ -595,6 +659,7 @@ table 25 "Vendor Ledger Entry"
         {
             CaptionClass = '1,2,3';
             Caption = 'Shortcut Dimension 3 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 3, which is one of dimension codes that you set up in the General Ledger Setup window.';
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
@@ -604,6 +669,7 @@ table 25 "Vendor Ledger Entry"
         {
             CaptionClass = '1,2,4';
             Caption = 'Shortcut Dimension 4 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 4, which is one of dimension codes that you set up in the General Ledger Setup window.';
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
@@ -613,6 +679,7 @@ table 25 "Vendor Ledger Entry"
         {
             CaptionClass = '1,2,5';
             Caption = 'Shortcut Dimension 5 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 5, which is one of dimension codes that you set up in the General Ledger Setup window.';
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
@@ -622,6 +689,7 @@ table 25 "Vendor Ledger Entry"
         {
             CaptionClass = '1,2,6';
             Caption = 'Shortcut Dimension 6 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 6, which is one of dimension codes that you set up in the General Ledger Setup window.';
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
@@ -631,6 +699,7 @@ table 25 "Vendor Ledger Entry"
         {
             CaptionClass = '1,2,7';
             Caption = 'Shortcut Dimension 7 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 7, which is one of dimension codes that you set up in the General Ledger Setup window.';
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
@@ -640,6 +709,7 @@ table 25 "Vendor Ledger Entry"
         {
             CaptionClass = '1,2,8';
             Caption = 'Shortcut Dimension 8 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 8, which is one of dimension codes that you set up in the General Ledger Setup window.';
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
@@ -648,6 +718,7 @@ table 25 "Vendor Ledger Entry"
         field(1000; "Remit-to Code"; Code[20])
         {
             Caption = 'Remit-to Code';
+            ToolTip = 'Specifies the address for the remit-to code.';
             TableRelation = "Remit Address".Code where("Vendor No." = field("Vendor No."));
         }
         field(12170; "Document Occurrence"; Integer)
@@ -668,10 +739,14 @@ table 25 "Vendor Ledger Entry"
         }
         field(12184; "Int. Arrears Amount to Pay"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = "Currency Code";
             Caption = 'Int. Arrears Amount to Pay';
         }
         field(12185; "Paid Int. Arrears Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = "Currency Code";
             Caption = 'Paid Int. Arrears Amount';
         }
     }
@@ -682,13 +757,13 @@ table 25 "Vendor Ledger Entry"
         {
             Clustered = true;
         }
-        key(Key2; "Vendor No.", "Posting Date", "Currency Code")
+        key(Key2; "Vendor No.", "Currency Code")
         {
             SumIndexFields = "Purchase (LCY)", "Inv. Discount (LCY)";
         }
         key(Key3; "Vendor No.", "Currency Code", "Posting Date")
         {
-            Enabled = false;
+            IncludedFields = "Purchase (LCY)", "Inv. Discount (LCY)";
         }
         key(Key4; "Document No.")
         {
@@ -702,12 +777,6 @@ table 25 "Vendor Ledger Entry"
         key(Key7; Open, "Due Date")
         {
         }
-        key(Key8; "Document Type", "Vendor No.", "Posting Date", "Currency Code")
-        {
-            MaintainSIFTIndex = false;
-            MaintainSQLIndex = false;
-            SumIndexFields = "Purchase (LCY)", "Inv. Discount (LCY)";
-        }
         key(Key9; "Closed by Entry No.")
         {
         }
@@ -716,22 +785,7 @@ table 25 "Vendor Ledger Entry"
         }
         key(Key11; "Vendor No.", "Global Dimension 1 Code", "Global Dimension 2 Code", "Posting Date", "Currency Code")
         {
-            Enabled = false;
-            SumIndexFields = "Purchase (LCY)", "Inv. Discount (LCY)";
-        }
-        key(Key12; "Vendor No.", Open, "Global Dimension 1 Code", "Global Dimension 2 Code", Positive, "Due Date", "Currency Code")
-        {
-            Enabled = false;
-        }
-        key(Key13; Open, "Global Dimension 1 Code", "Global Dimension 2 Code", "Due Date")
-        {
-            Enabled = false;
-        }
-        key(Key14; "Document Type", "Vendor No.", "Global Dimension 1 Code", "Global Dimension 2 Code", "Posting Date", "Currency Code")
-        {
-            Enabled = false;
-            MaintainSIFTIndex = false;
-            MaintainSQLIndex = false;
+            IncludedFields = "Purchase (LCY)", "Inv. Discount (LCY)";
         }
         key(Key15; "Vendor No.", "Applies-to ID", Open, Positive, "Due Date")
         {

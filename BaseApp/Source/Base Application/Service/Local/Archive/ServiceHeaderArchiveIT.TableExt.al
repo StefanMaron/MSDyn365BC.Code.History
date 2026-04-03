@@ -4,8 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Archive;
 
-using Microsoft.EServices.EDocument;
 using Microsoft.CRM.Contact;
+using Microsoft.EServices.EDocument;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Intrastat;
 using Microsoft.Purchases.Vendor;
@@ -181,6 +181,8 @@ tableextension 12140 "Service Header Archive IT" extends "Service Header Archive
         }
         field(12186; "Fattura Stamp Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Fattura Stamp Amount';
             DataClassification = CustomerContent;
         }

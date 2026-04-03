@@ -9,6 +9,10 @@ using Microsoft.Foundation.Address;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 
+/// <summary>
+/// Validates VAT report data for completeness and accuracy before release.
+/// Performs standard validation checks and manages error reporting for VAT submissions.
+/// </summary>
 codeunit 744 "VAT Report Validate"
 {
     TableNo = "VAT Report Header";

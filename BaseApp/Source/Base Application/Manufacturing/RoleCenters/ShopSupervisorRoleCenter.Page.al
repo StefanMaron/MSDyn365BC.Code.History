@@ -6,6 +6,7 @@ namespace Microsoft.Manufacturing.RoleCenters;
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Foundation.Navigate;
+using Microsoft.Foundation.Task;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
@@ -24,7 +25,6 @@ using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 using Microsoft.Warehouse.Activity;
-using Microsoft.Foundation.Task;
 using System.Threading;
 
 page 9012 "Shop Supervisor Role Center"
@@ -83,12 +83,25 @@ page 9012 "Shop Supervisor Role Center"
             separator(Action51)
             {
             }
+#if not CLEAN28
             action("Inventory - &Availability Plan")
             {
                 ApplicationArea = Manufacturing;
-                Caption = 'Inventory - &Availability Plan';
+                Caption = 'Inventory - &Availability Plan (Obsolete)';
                 Image = ItemAvailability;
                 RunObject = Report "Inventory - Availability Plan";
+                ToolTip = 'View a list of the quantity of each item in customer, purchase, and transfer orders and the quantity available in inventory. The list is divided into columns that cover six periods with starting and ending dates as well as the periods before and after those periods. The list is useful when you are planning your inventory purchases.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report has been replaced by the report Inventory - Availability Plan (Excel). This report will be removed in a future release.';
+                ObsoleteTag = '28.0';
+            }
+#endif
+            action("Inventory - &Availability Plan Excel")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Inventory - &Availability Plan (Excel)';
+                Image = ItemAvailability;
+                RunObject = Report "Inv. Availability Plan";
                 ToolTip = 'View a list of the quantity of each item in customer, purchase, and transfer orders and the quantity available in inventory. The list is divided into columns that cover six periods with starting and ending dates as well as the periods before and after those periods. The list is useful when you are planning your inventory purchases.';
             }
             separator(Action53)

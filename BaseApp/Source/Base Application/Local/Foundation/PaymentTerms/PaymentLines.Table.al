@@ -34,6 +34,7 @@ table 12170 "Payment Lines"
         }
         field(4; "Payment %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Payment %';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
@@ -49,6 +50,7 @@ table 12170 "Payment Lines"
         }
         field(7; "Discount %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Discount %';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
@@ -94,6 +96,7 @@ table 12170 "Payment Lines"
         }
         field(13; Amount; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Amount';
         }
         field(14; "Prepmt. Due Date Calculation"; DateFormula)
@@ -102,6 +105,7 @@ table 12170 "Payment Lines"
         }
         field(15; "Prepayment %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Prepayment %';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
@@ -376,7 +380,9 @@ table 12170 "Payment Lines"
             ;
             PaymentCounter := 0;
             FixedDueDates.Reset();
-            Vendor.Get(PurchaseHeader."Pay-to Vendor No.");
+            if (PurchaseHeader."Pay-to Vendor No." <> '') or (PurchaseHeader."Document Type" <> PurchaseHeader."Document Type"::Quote) then
+                Vendor.Get(PurchaseHeader."Pay-to Vendor No.");
+
             if Vendor."Apply Company Payment days" then begin
                 FixedDueDates.SetRange(Type, FixedDueDates.Type::Company);
                 FixedDueDates.SetRange(Code, '');
@@ -442,16 +448,6 @@ table 12170 "Payment Lines"
         end;
     end;
 
-#if not CLEAN25
-    [Obsolete('Moved to codeunit ServPaymentLinesMgt', '25.0')]
-    [Scope('OnPrem')]
-    procedure CreatePaymentLinesServices(ServiceHeader: Record Microsoft.Service.Document."Service Header")
-    var
-        ServPaymentLinesMgt: Codeunit "Serv. Payment Lines Mgt.";
-    begin
-        ServPaymentLinesMgt.CreatePaymentLinesServices(ServiceHeader);
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure DeletePaymentLines(RecVar: Variant)
@@ -527,31 +523,7 @@ table 12170 "Payment Lines"
     begin
     end;
 
-#if not CLEAN25
-    internal procedure RunOnCreatePaymentLinesServicesOnAfterSetDueDate(var PaymentLines: Record "Payment Lines"; var ServiceHeader: Record Microsoft.Service.Document."Service Header"; DeferringDueDates: Record "Deferring Due Dates")
-    begin
-        OnCreatePaymentLinesServicesOnAfterSetDueDate(PaymentLines, ServiceHeader, DeferringDueDates);
-    end;
 
-    [Obsolete('Moved to codeunit ServPaymentLinesMgt', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCreatePaymentLinesServicesOnAfterSetDueDate(var PaymentLines: Record "Payment Lines"; var ServiceHeader: Record Microsoft.Service.Document."Service Header"; DeferringDueDates: Record "Deferring Due Dates")
-    begin
-    end;
-#endif
-
-#if not CLEAN25
-    internal procedure RunOnCreatePaymentLinesServicesOnBeforePaymentLinesInsert(var PaymentLines: Record "Payment Lines"; ServiceHeader: Record Microsoft.Service.Document."Service Header"; PaymentLinesTerms: Record "Payment Lines")
-    begin
-        OnCreatePaymentLinesServicesOnBeforePaymentLinesInsert(PaymentLines, ServiceHeader, PaymentLinesTerms);
-    end;
-
-    [Obsolete('Moved to codeunit ServPaymentLinesMgt', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCreatePaymentLinesServicesOnBeforePaymentLinesInsert(var PaymentLines: Record "Payment Lines"; ServiceHeader: Record Microsoft.Service.Document."Service Header"; PaymentLinesTerms: Record "Payment Lines")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCreatePaymentLiensPurchasesOnAfterPopulatePaymentLines(var PaymentLines: Record "Payment Lines"; PaymentLinesTerms: Record "Payment Lines"; PurchaseHeader: Record "Purchase Header")
@@ -573,4 +545,3 @@ table 12170 "Payment Lines"
     begin
     end;
 }
-

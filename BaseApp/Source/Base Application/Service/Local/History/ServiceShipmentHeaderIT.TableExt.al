@@ -4,11 +4,11 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.History;
 
-using Microsoft.Purchases.Vendor;
 using Microsoft.CRM.Contact;
 using Microsoft.EServices.EDocument;
-using Microsoft.Foundation.Shipping;
 using Microsoft.Foundation.Company;
+using Microsoft.Foundation.Shipping;
+using Microsoft.Purchases.Vendor;
 
 tableextension 12458 "Service Shipment Header IT" extends "Service Shipment Header"
 {

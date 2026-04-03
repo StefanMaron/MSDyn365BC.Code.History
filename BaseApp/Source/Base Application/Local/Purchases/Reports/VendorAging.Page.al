@@ -5,8 +5,8 @@
 namespace Microsoft.Purchases.Reports;
 
 using Microsoft.Finance.Analysis;
-using Microsoft.Purchases.Vendor;
 using Microsoft.Foundation.Enums;
+using Microsoft.Purchases.Vendor;
 using System.Utilities;
 
 page 12148 "Vendor Aging"

@@ -1,3 +1,4 @@
+#if not CLEAN28
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -8,6 +9,7 @@ using Microsoft.DemoData.Common;
 using Microsoft.DemoData.Finance;
 using Microsoft.DemoData.Jobs;
 using Microsoft.DemoData.Purchases;
+using Microsoft.eServices.EDocument.DemoData;
 using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 using Microsoft.Purchases.Document;
 
@@ -16,6 +18,9 @@ codeunit 12199 "Create E-Doc Sample Inv. IT"
     Access = Internal;
     InherentEntitlements = X;
     InherentPermissions = X;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Create E-Doc. Sample Invoices Codeunit';
+    ObsoleteTag = '28.0';
 
     var
         EDocSamplePurchaseInvoice: Codeunit "E-Doc Sample Purchase Invoice";
@@ -32,7 +37,6 @@ codeunit 12199 "Create E-Doc Sample Inv. IT"
         BasicCoffeeEquipmentLbl: Label 'Basic coffee equipment mapped to vendor''s Item References';
         CoffeeBeansAndPartsLbl: Label 'Coffee beans and parts with shipping cost that needs human intervention';
     begin
-        EDocSamplePurchaseInvoice.SetMixLayoutsForPDFGeneration();
         EDocSamplePurchaseInvoice.AddInvoice(CreateVendor.ExportFabrikam(), '108239', CoffeeBeansAndPartsLbl, 2708.2);
         EDocSamplePurchaseInvoice.AddLine(
             Enum::"Purchase Line Type"::Item, CreateEDocumentMasterData.WholeDecafBeansColombia(), '', 50, 180, '', CreateCommonUnitOfMeasure.Piece());
@@ -55,3 +59,4 @@ codeunit 12199 "Create E-Doc Sample Inv. IT"
         EDocSamplePurchaseInvoice.Generate();
     end;
 }
+#endif

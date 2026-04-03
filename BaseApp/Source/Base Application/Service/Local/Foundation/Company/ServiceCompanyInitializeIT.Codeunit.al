@@ -4,9 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Setup;
 
+using Microsoft.EServices.EDocument;
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.Reporting;
-using Microsoft.EServices.EDocument;
 
 codeunit 12197 "Service Company Initialize IT"
 {

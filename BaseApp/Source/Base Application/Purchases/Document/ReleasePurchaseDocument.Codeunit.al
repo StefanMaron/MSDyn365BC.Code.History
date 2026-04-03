@@ -69,6 +69,12 @@ codeunit 415 "Release Purchase Document"
         if not (PreviewMode or SkipCheckReleaseRestrictions) then
             PurchaseHeader.CheckPurchaseReleaseRestrictions();
 
+        if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Quote then
+            if PurchaseHeader.CheckVendorCreated(true) then
+                PurchaseHeader.Get(PurchaseHeader."Document Type"::Quote, PurchaseHeader."No.")
+            else
+                exit;
+
         PurchaseHeader.TestField("Buy-from Vendor No.");
         GeneralLedgerSetup.GetRecordOnce();
         if GeneralLedgerSetup."Use Activity Code" then

@@ -26,12 +26,6 @@
       "name": "Azure AD Authentication",
       "publisher": "Microsoft",
       "version": "$(app_minimumVersion)"
-    },
-    {
-      "id": "163f82f9-7b3a-4e7d-85cc-11dd9adf75ad",
-      "name": "System DotNet Aliases",
-      "publisher": "Microsoft",
-      "version": "$(app_minimumVersion)"
     }
   ],
   "screenshots": [],

@@ -86,7 +86,7 @@ codeunit 134325 "ERM Purchase Quote"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PurchaseQuote: Report "Purchase - Quote";
-        LibraryUtility: Codeunit "Library - Utility";
+        LibraryUtilityOnPrem: Codeunit "Library - Utility OnPrem";
         FilePath: Text[1024];
     begin
         // Test that a Report generated from Purchase Quote.
@@ -103,7 +103,7 @@ codeunit 134325 "ERM Purchase Quote"
         PurchaseQuote.SaveAsExcel(FilePath);
 
         // Verify: Verify that saved files have some data.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
+        LibraryUtilityOnPrem.CheckFileNotEmpty(FilePath);
     end;
 
     [Test]

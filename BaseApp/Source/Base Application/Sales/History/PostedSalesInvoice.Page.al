@@ -13,14 +13,17 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Attachment;
+using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Inventory.Location;
 using Microsoft.Sales.Comment;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using System.Automation;
-using Microsoft.Foundation.PaymentTerms;
 
+/// <summary>
+/// Displays a single posted sales invoice document with header and line details.
+/// </summary>
 page 132 "Posted Sales Invoice"
 {
     Caption = 'Posted Sales Invoice';
@@ -60,7 +63,6 @@ page 132 "Posted Sales Invoice"
                     Editable = false;
                     Importance = Promoted;
                     TableRelation = Customer.Name;
-                    ToolTip = 'Specifies the name of the customer that you shipped the items on the invoice to.';
                 }
                 field("Sell-to Customer Name 2"; Rec."Sell-to Customer Name 2")
                 {
@@ -74,7 +76,6 @@ page 132 "Posted Sales Invoice"
                     ApplicationArea = VAT;
                     Editable = false;
                     Importance = Additional;
-                    ToolTip = 'Specifies the customer''s VAT registration number for customers.';
                     Visible = false;
                 }
                 group("Sell-to")
@@ -86,7 +87,6 @@ page 132 "Posted Sales Invoice"
                         Caption = 'Address';
                         Editable = false;
                         Importance = Additional;
-                        ToolTip = 'Specifies the address of the customer that the items on the invoice were shipped to.';
                     }
                     field("Sell-to Address 2"; Rec."Sell-to Address 2")
                     {
@@ -94,7 +94,6 @@ page 132 "Posted Sales Invoice"
                         Caption = 'Address 2';
                         Editable = false;
                         Importance = Additional;
-                        ToolTip = 'Specifies additional address information.';
                     }
                     field("Sell-to City"; Rec."Sell-to City")
                     {
@@ -102,7 +101,6 @@ page 132 "Posted Sales Invoice"
                         Caption = 'City';
                         Editable = false;
                         Importance = Additional;
-                        ToolTip = 'Specifies the city of the customer on the sales document.';
                     }
                     group(Control88)
                     {
@@ -114,7 +112,6 @@ page 132 "Posted Sales Invoice"
                             CaptionClass = '5,1,' + Rec."Sell-to Country/Region Code";
                             Editable = false;
                             Importance = Additional;
-                            ToolTip = 'Specifies the state, province or county as a part of the address.';
                         }
                     }
                     field("Sell-to Post Code"; Rec."Sell-to Post Code")
@@ -131,7 +128,6 @@ page 132 "Posted Sales Invoice"
                         Caption = 'Country/Region';
                         Editable = false;
                         Importance = Additional;
-                        ToolTip = 'Specifies the country or region of the address.';
                     }
                     field("Sell-to Contact No."; Rec."Sell-to Contact No.")
                     {
@@ -139,7 +135,6 @@ page 132 "Posted Sales Invoice"
                         Caption = 'Contact No.';
                         Editable = false;
                         Importance = Additional;
-                        ToolTip = 'Specifies a unique identifier for the contact person at the customer the invoice was sent to.';
                     }
                     field(SellToPhoneNo; SellToContact."Phone No.")
                     {
@@ -180,26 +175,23 @@ page 132 "Posted Sales Invoice"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the customer''s reference. The contents will be printed on sales documents.';
+                    Editable = false;
                 }
                 field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Additional;
-                    ToolTip = 'Specifies the date on which you created the sales document.';
                 }
                 field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the date on which the invoice was posted.';
                 }
                 field("VAT Reporting Date"; Rec."VAT Reporting Date")
                 {
                     ApplicationArea = VAT;
                     Editable = false;
-                    ToolTip = 'Specifies the VAT date on the invoice.';
                     Visible = false;
                 }
                 field("Due Date"; Rec."Due Date")
@@ -207,14 +199,12 @@ page 132 "Posted Sales Invoice"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the date on which the invoice is due for payment.';
                 }
                 field("Promised Pay Date"; Rec."Promised Pay Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the date on which the customer have promised to pay this invoice.';
                 }
                 group(Control3)
                 {
@@ -226,7 +216,6 @@ page 132 "Posted Sales Invoice"
                         Editable = false;
                         Importance = Additional;
                         StyleExpr = DocExchStatusStyle;
-                        ToolTip = 'Specifies the status of the document if you are using a document exchange service to send it as an electronic document. The status values are reported by the document exchange service.';
 
                         trigger OnDrillDown()
                         var
@@ -239,7 +228,6 @@ page 132 "Posted Sales Invoice"
                 field("Quote No."; Rec."Quote No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the sales quote document if a quote was used to start the sales process.';
                 }
                 field("Order No."; Rec."Order No.")
                 {
@@ -253,21 +241,18 @@ page 132 "Posted Sales Invoice"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Additional;
-                    ToolTip = 'Specifies the number of the sales document that the posted invoice was created for.';
                 }
                 field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Additional;
-                    ToolTip = 'Specifies the external document number that is entered on the sales header that this line was posted from.';
                 }
                 field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     Importance = Additional;
-                    ToolTip = 'Specifies which salesperson is associated with the invoice.';
                 }
                 field("Responsibility Center"; Rec."Responsibility Center")
                 {
@@ -275,14 +260,12 @@ page 132 "Posted Sales Invoice"
                     ApplicationArea = Suite;
                     Editable = false;
                     Importance = Additional;
-                    ToolTip = 'Specifies the code of the responsibility center associated with the user who created the invoice, your company, or the customer in the sales invoice.';
                 }
                 field("No. Printed"; Rec."No. Printed")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Additional;
-                    ToolTip = 'Specifies how many times the document has been printed.';
                 }
                 field("Activity Code"; Rec."Activity Code")
                 {
@@ -297,7 +280,6 @@ page 132 "Posted Sales Invoice"
                     StyleExpr = Rec.Cancelled;
                     AboutTitle = 'Canceled invoice';
                     AboutText = 'If an invoice is canceled, here''s a link to the associated credit memo that shows if the sales invoice was credited partly or in full.';
-                    ToolTip = 'Specifies if the posted sales invoice has been either corrected or canceled.';
 
                     trigger OnDrillDown()
                     begin
@@ -310,7 +292,6 @@ page 132 "Posted Sales Invoice"
                     Importance = Additional;
                     Style = Unfavorable;
                     StyleExpr = Rec.Corrective;
-                    ToolTip = 'Specifies if the posted sales invoice is a corrective document.';
 
                     trigger OnDrillDown()
                     begin
@@ -324,7 +305,6 @@ page 132 "Posted Sales Invoice"
                     Importance = Promoted;
                     AboutTitle = 'Closed means paid';
                     AboutText = 'A sales invoice is marked as *Closed* when the invoice is paid in full, or when a credit memo is applied for the remaining amount.';
-                    ToolTip = 'Specifies if the posted invoice is paid. The check box will also be selected if a credit memo for the remaining amount has been applied.';
                 }
                 field("Dispute Status"; Rec."Dispute Status")
                 {
@@ -360,7 +340,6 @@ page 132 "Posted Sales Invoice"
                     ApplicationArea = Suite;
                     Editable = false;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the currency code of the invoice.';
 
                     trigger OnAssistEdit()
                     var
@@ -380,28 +359,24 @@ page 132 "Posted Sales Invoice"
                     ApplicationArea = Suite;
                     Editable = false;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
                 }
                 field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Promoted;
-                    ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                 }
                 field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Promoted;
-                    ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount on the sales document.';
                 }
                 field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Additional;
-                    ToolTip = 'Specifies how the customer must pay for products on the sales document.';
                 }
                 field("Fattura Document Type"; Rec."Fattura Document Type")
                 {
@@ -435,58 +410,49 @@ page 132 "Posted Sales Invoice"
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
                 field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
                 field("Payment Discount %"; Rec."Payment Discount %")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the payment discount percent granted if payment is made on or before the date in the Pmt. Discount Date field.';
                 }
                 field("Pmt. Discount Date"; Rec."Pmt. Discount Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Additional;
-                    ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
                 }
                 field("Direct Debit Mandate ID"; Rec."Direct Debit Mandate ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the direct-debit mandate that the customer has signed to allow direct debit collection of payments.';
                 }
                 field("Customer Posting Group"; Rec."Customer Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the customer''s market type to link business transactions to.';
                     Visible = false;
                 }
                 field("Tax Liable"; Rec."Tax Liable")
                 {
                     ApplicationArea = SalesTax;
                     Editable = false;
-                    ToolTip = 'Specifies if the customer or vendor is liable for sales tax.';
                 }
                 field("Tax Area Code"; Rec."Tax Area Code")
                 {
                     ApplicationArea = SalesTax;
                     Editable = false;
-                    ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Editable = false;
                     Importance = Additional;
-                    ToolTip = 'Specifies the code for the location from which the items were shipped.';
                 }
             }
             group("Shipping and Billing")
@@ -501,7 +467,6 @@ page 132 "Posted Sales Invoice"
                         Caption = 'Method';
                         Editable = false;
                         Importance = Additional;
-                        ToolTip = 'Specifies the code that represents the shipment method for the invoice.';
                     }
                     field("Shipping Agent Code"; Rec."Shipping Agent Code")
                     {
@@ -509,7 +474,6 @@ page 132 "Posted Sales Invoice"
                         Caption = 'Agent';
                         Editable = false;
                         Importance = Additional;
-                        ToolTip = 'Specifies which shipping agent is used to transport the items on the sales document to the customer.';
                     }
                     field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                     {
@@ -517,14 +481,12 @@ page 132 "Posted Sales Invoice"
                         Caption = 'Agent Service';
                         Editable = false;
                         Importance = Additional;
-                        ToolTip = 'Specifies which shipping agent service is used to transport the items on the sales document to the customer.';
                     }
                     field("Package Tracking No."; Rec."Package Tracking No.")
                     {
                         ApplicationArea = Suite;
                         Editable = false;
                         Importance = Additional;
-                        ToolTip = 'Specifies the shipping agent''s package number.';
                     }
                 }
                 group("Ship-to")
@@ -536,7 +498,6 @@ page 132 "Posted Sales Invoice"
                         Caption = 'Address Code';
                         Editable = false;
                         Importance = Promoted;
-                        ToolTip = 'Specifies the address on purchase orders shipped with a drop shipment directly from the vendor to a customer.';
                     }
                     field("Ship-to Name"; Rec."Ship-to Name")
                     {
@@ -551,7 +512,6 @@ page 132 "Posted Sales Invoice"
                         Caption = 'Name 2';
                         Editable = false;
                         Importance = Additional;
-                        ToolTip = 'Specifies an additional part of the the name of the customer that you delivered the items to.';
                         Visible = false;
                     }
                     field("Ship-to Address"; Rec."Ship-to Address")
@@ -559,21 +519,18 @@ page 132 "Posted Sales Invoice"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Address';
                         Editable = false;
-                        ToolTip = 'Specifies the address that the items on the invoice were shipped to.';
                     }
                     field("Ship-to Address 2"; Rec."Ship-to Address 2")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Address 2';
                         Editable = false;
-                        ToolTip = 'Specifies additional address information.';
                     }
                     field("Ship-to City"; Rec."Ship-to City")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'City';
                         Editable = false;
-                        ToolTip = 'Specifies the city of the customer on the sales document.';
                     }
                     group(Control93)
                     {
@@ -585,7 +542,6 @@ page 132 "Posted Sales Invoice"
                         ApplicationArea = Basic, Suite;
                         CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                         Editable = false;
-                        ToolTip = 'Specifies the state, province or county as a part of the address.';
                     }
                     field("Ship-to Post Code"; Rec."Ship-to Post Code")
                     {
@@ -599,21 +555,18 @@ page 132 "Posted Sales Invoice"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Country/Region';
                         Editable = false;
-                        ToolTip = 'Specifies the country or region of the address.';
                     }
                     field("Ship-to Phone No."; Rec."Ship-to Phone No.")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Phone No.';
                         Editable = false;
-                        ToolTip = 'Specifies the telephone number of the company''s shipping address.';
                     }
                     field("Ship-to Contact"; Rec."Ship-to Contact")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Contact';
                         Editable = false;
-                        ToolTip = 'Specifies the name of the person you regularly contact at the address that the items were shipped to.';
                     }
                 }
                 group("Bill-to")
@@ -641,7 +594,6 @@ page 132 "Posted Sales Invoice"
                         Caption = 'Address';
                         Editable = false;
                         Importance = Additional;
-                        ToolTip = 'Specifies the address of the customer that the invoice was sent to.';
                     }
                     field("Bill-to Address 2"; Rec."Bill-to Address 2")
                     {
@@ -649,7 +601,6 @@ page 132 "Posted Sales Invoice"
                         Caption = 'Address 2';
                         Editable = false;
                         Importance = Additional;
-                        ToolTip = 'Specifies additional address information.';
                     }
                     field("Bill-to City"; Rec."Bill-to City")
                     {
@@ -657,7 +608,6 @@ page 132 "Posted Sales Invoice"
                         Caption = 'City';
                         Editable = false;
                         Importance = Additional;
-                        ToolTip = 'Specifies the city of the customer on the sales document.';
                     }
                     group(Control95)
                     {
@@ -669,7 +619,6 @@ page 132 "Posted Sales Invoice"
                             CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
                             Editable = false;
                             Importance = Additional;
-                            ToolTip = 'Specifies the state, province or county as a part of the address.';
                         }
                     }
                     field("Bill-to Post Code"; Rec."Bill-to Post Code")
@@ -686,7 +635,6 @@ page 132 "Posted Sales Invoice"
                         Caption = 'Country/Region';
                         Editable = false;
                         Importance = Additional;
-                        ToolTip = 'Specifies the country or region of the address.';
                     }
                     field("Bill-to Contact No."; Rec."Bill-to Contact No.")
                     {
@@ -694,7 +642,6 @@ page 132 "Posted Sales Invoice"
                         Caption = 'Contact No.';
                         Editable = false;
                         Importance = Additional;
-                        ToolTip = 'Specifies the number of the contact the invoice was sent to.';
                     }
                     field("Bill-to Contact"; Rec."Bill-to Contact")
                     {
@@ -739,7 +686,6 @@ page 132 "Posted Sales Invoice"
                 {
                     ApplicationArea = BasicEU;
                     Editable = false;
-                    ToolTip = 'Specifies whether the invoice was part of an EU 3-party trade transaction.';
                 }
                 field("Service Tariff No."; Rec."Service Tariff No.")
                 {
@@ -790,43 +736,26 @@ page 132 "Posted Sales Invoice"
                 {
                     ApplicationArea = BasicEU;
                     Editable = false;
-                    ToolTip = 'Specifies the transaction specification that was used in the invoice.';
                 }
                 field("Transport Method"; Rec."Transport Method")
                 {
                     ApplicationArea = BasicEU;
                     Editable = false;
-                    ToolTip = 'Specifies the transport method of the sales header that this line was posted from.';
                 }
                 field("Exit Point"; Rec."Exit Point")
                 {
                     ApplicationArea = BasicEU;
                     Editable = false;
-                    ToolTip = 'Specifies the point of exit through which you ship the items out of your country/region, for reporting to Intrastat.';
                 }
                 field("Area"; Rec.Area)
                 {
                     ApplicationArea = BasicEU;
                     Editable = false;
-                    ToolTip = 'Specifies the area code used in the invoice.';
                 }
             }
         }
         area(factboxes)
         {
-#if not CLEAN25
-            part("Attached Documents"; "Document Attachment Factbox")
-            {
-                ObsoleteTag = '25.0';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
-                ApplicationArea = All;
-                Visible = false;
-                Caption = 'Attachments';
-                SubPageLink = "Table ID" = const(Database::"Sales Invoice Header"),
-                              "No." = field("No.");
-            }
-#endif
             part("Attached Documents List"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = All;
@@ -1512,4 +1441,3 @@ page 132 "Posted Sales Invoice"
     begin
     end;
 }
-

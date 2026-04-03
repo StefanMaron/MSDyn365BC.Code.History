@@ -651,6 +651,11 @@ page 6410 "Workflow - Vendor Entity"
                     ApplicationArea = All;
                     Caption = 'Validate EU Vat Reg. No.', Locked = true;
                 }
+                field(copyBuyFromAddToQteFrom; Rec."Copy Buy-from Add. to Qte From")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Copy Buy-from Addr. to Qte From', Locked = true;
+                }
                 field(currencyId; Rec."Currency Id")
                 {
                     ApplicationArea = All;

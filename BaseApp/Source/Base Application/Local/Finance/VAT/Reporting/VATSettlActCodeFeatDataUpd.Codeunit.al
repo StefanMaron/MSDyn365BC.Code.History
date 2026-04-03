@@ -6,9 +6,9 @@
 
 namespace Microsoft.Finance.VAT.Reporting;
 
-using System.Environment.Configuration;
 using Microsoft.Foundation.Navigate;
 using System.Environment;
+using System.Environment.Configuration;
 using System.Upgrade;
 
 codeunit 12136 "VATSettl ActCode FeatDataUpd" implements "Feature Data Update"

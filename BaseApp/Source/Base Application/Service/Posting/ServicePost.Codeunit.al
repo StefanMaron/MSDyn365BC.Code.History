@@ -132,8 +132,14 @@ codeunit 5980 "Service-Post"
                 Window.Update(1, StrSubstNo('%1 %2', ServiceHeader."Document Type", ServiceHeader."No."));
             end;
 
-            if ServDocumentsMgt.SetNoSeries(ServiceHeader) then
+            if ServDocumentsMgt.SetNoSeries(ServiceHeader, PreviewMode) then begin
                 ServiceHeader.Modify();
+                if not SuppressCommit and not PreviewMode then
+                    Commit();
+            end;
+
+            if PreviewMode then
+                ServiceHeader.Consistent(false); // Safety net to prevent commits
 
             ServDocumentsMgt.CalcInvDiscount();
             ServiceHeader.Find();
@@ -211,10 +217,11 @@ codeunit 5980 "Service-Post"
             if not SuppressCommit then
                 Commit();
 
-            OnAfterPostServiceDoc(ServiceHeader, ServShipmentNo, ServInvoiceNo, ServCrMemoNo, ServDocumentsMgt, SuppressCommit, PassedShip, PassedConsume, PassedInvoice, WhseShip);
+            OnAfterPostServiceDoc(ServiceHeader, ServShipmentNo, ServInvoiceNo, ServCrMemoNo, ServDocumentsMgt, SuppressCommit, PassedShip, PassedConsume, PassedInvoice, WhseShip, Invoice);
 
             if GuiAllowed() then
                 Window.Close();
+
             UpdateAnalysisView.UpdateAll(0, true);
             UpdateItemAnalysisView.UpdateAll(0, true);
 
@@ -701,7 +708,7 @@ codeunit 5980 "Service-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostServiceDoc(var ServiceHeader: Record "Service Header"; ServShipmentNo: Code[20]; ServInvoiceNo: Code[20]; ServCrMemoNo: Code[20]; var ServDocumentsMgt: Codeunit "Serv-Documents Mgt."; CommitIsSuppressed: Boolean; PassedShip: Boolean; PassedConsume: Boolean; PassedInvoice: Boolean; WhseShip: Boolean)
+    local procedure OnAfterPostServiceDoc(var ServiceHeader: Record "Service Header"; ServShipmentNo: Code[20]; ServInvoiceNo: Code[20]; ServCrMemoNo: Code[20]; var ServDocumentsMgt: Codeunit "Serv-Documents Mgt."; CommitIsSuppressed: Boolean; PassedShip: Boolean; PassedConsume: Boolean; PassedInvoice: Boolean; WhseShip: Boolean; Invoice: Boolean)
     begin
     end;
 

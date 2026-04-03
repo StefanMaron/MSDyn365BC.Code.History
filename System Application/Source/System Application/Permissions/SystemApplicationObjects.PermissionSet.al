@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Security.AccessControl;
+
 using System.Apps;
 using System.Azure.Identity;
 using System.DataAdministration;

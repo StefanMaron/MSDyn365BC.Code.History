@@ -1,9 +1,12 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Reminder;
 
+/// <summary>
+/// Displays a list of reminder automation execution history with status and completion information.
+/// </summary>
 page 6756 "Reminder Action History"
 {
     PageType = List;
@@ -25,13 +28,11 @@ page 6756 "Reminder Action History"
                 {
                     ApplicationArea = All;
                     Caption = 'Run Id';
-                    ToolTip = 'Specifies the unique identifier of the reminder action group log entry. Each job will get an unique identifier.';
                 }
                 field("Reminder Action Group ID"; Rec."Reminder Action Group ID")
                 {
                     ApplicationArea = All;
                     Caption = 'Reminder Action Group';
-                    ToolTip = 'Specifies the reminder action group that was run.';
                 }
                 field(Status; Rec.Status)
                 {
@@ -39,7 +40,6 @@ page 6756 "Reminder Action History"
                     Caption = 'Status';
                     StyleExpr = Rec.Status = Rec.Status::Failed;
                     Style = Unfavorable;
-                    ToolTip = 'Specifies the status of the reminder action group log entry.';
                 }
                 field(StartedOn; Rec."Started On")
                 {

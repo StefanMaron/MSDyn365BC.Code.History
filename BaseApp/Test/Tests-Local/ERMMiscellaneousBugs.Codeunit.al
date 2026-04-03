@@ -1324,7 +1324,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
     procedure CustomerAgingMatrixPeriodBalance()
     var
         Customer: Record Customer;
-        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
         CustomerAging: TestPage "Customer Aging";
         AmountType: Option "Period Balance","Balance at Date";
         Amount: array[3] of Decimal;
@@ -1335,11 +1335,13 @@ codeunit 144105 "ERM Miscellaneous Bugs"
 
         // [GIVEN] Customer with 2 detailed ledger entries with "Initial Due Date" = "15.01.21"/"17.01.21", "Amount" = "10"/"15".
         LibrarySales.CreateCustomer(Customer);
-        MockDtldCustomerLedgerEntry(DetailedCustLedgEntry, Customer."No.", WorkDate());
-        Amount[1] := DetailedCustLedgEntry.Amount;
+        MockCustomerLedgerEntry(CustLedgerEntry, Customer."No.", WorkDate(), WorkDate());
+        Amount[1] := CustLedgerEntry.Amount;
+        MockDtldCustLedgerEntry(CustLedgerEntry."Entry No.", Amount[1]);
         Amount[2] := 0;
-        MockDtldCustomerLedgerEntry(DetailedCustLedgEntry, Customer."No.", WorkDate() + 2);
-        Amount[3] := DetailedCustLedgEntry.Amount;
+        MockCustomerLedgerEntry(CustLedgerEntry, Customer."No.", WorkDate(), WorkDate() + 2);
+        Amount[3] := CustLedgerEntry.Amount;
+        MockDtldCustLedgerEntry(CustLedgerEntry."Entry No.", Amount[3]);
 
         // [GIVEN] "Customer Aging" page is opened with "Date Filter" starting on "15.01.21", "Amount Type" set to "Period Balance".
         Customer.SetRange("Date Filter", WorkDate(), WorkDate() + 30);
@@ -1432,7 +1434,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
 
         Initialize();
 
-        VendorNo := CreateVendorWithholdCode();
+        VendorNo := CreateVendorWithhold();
         LibraryERM.CreateBankAccount(BankAccount);
         LibraryITLocalization.CreateBillPostingGroup(BillPostingGroup, BankAccount."No.", FindPaymentMethod());
         LibraryITLocalization.CreateVendorBillHeader(VendorBillHeader);
@@ -2134,6 +2136,19 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         exit(Vendor."No.");
     end;
 
+    local procedure CreateVendorWithhold(): Code[20]
+    var
+        Vendor: Record Vendor;
+        WithholdCodeLine: Record "Withhold Code Line";
+    begin
+        LibraryITLocalization.CreateWithholdCodeLine(WithholdCodeLine, CreateAndUpdateWithholdCode(), WorkDate());  // Using Random value for WithholdingTax and Taxable Base.
+        WithholdCodeLine.Validate("Withholding Tax %", LibraryRandom.RandInt(10));  // Using Random value for WithholdingTax.
+        WithholdCodeLine.Validate("Taxable Base %", LibraryRandom.RandInt(10));  // Using Random value for Taxable Base.
+        WithholdCodeLine.Modify(true);
+        CreateAndUpdateVendor(Vendor, false, WithholdCodeLine."Withhold Code", FindPaymentMethod());  // Using FALSE for Include In VAT Transac. Rep.
+        exit(Vendor."No.");
+    end;
+
     local procedure CreateVendorBillWithholdCodeSetup(var VendorBillHeader: Record "Vendor Bill Header") VendorNo: Code[20]
     var
         BankAccount: Record "Bank Account";
@@ -2342,18 +2357,6 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         SuggestAndVerifyVATReportLineCount(DocumentNo, 1);
     end;
 
-    local procedure MockDtldCustomerLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustomerNo: Code[20]; DueDate: Date)
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-    begin
-        LibrarySales.MockCustLedgerEntryWithAmount(CustLedgerEntry, CustomerNo);
-        DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
-        DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::"Initial Entry");
-        DetailedCustLedgEntry.FindFirst();
-        DetailedCustLedgEntry."Initial Entry Due Date" := DueDate;
-        DetailedCustLedgEntry.Modify();
-    end;
-
     local procedure MockVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; PostingDate: Date; DueDate: Date)
     begin
         VendorLedgerEntry.Init();
@@ -2384,6 +2387,38 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         DetailedVendorLedgEntry."Initial Entry Due Date" := VendorLedgerEntry."Due Date";
         DetailedVendorLedgEntry.Insert();
         exit(DetailedVendorLedgEntry."Entry No.");
+    end;
+
+    local procedure MockCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; PostingDate: Date; DueDate: Date)
+    begin
+        CustLedgerEntry.Init();
+        CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
+        CustLedgerEntry."Customer No." := CustomerNo;
+        CustLedgerEntry."Posting Date" := PostingDate;
+        CustLedgerEntry."Due Date" := DueDate;
+        CustLedgerEntry.Amount := LibraryRandom.RandDecInDecimalRange(10, 20, 2);
+        CustLedgerEntry."Amount (LCY)" := CustLedgerEntry.Amount;
+        CustLedgerEntry.Open := true;
+        CustLedgerEntry.Insert();
+    end;
+
+    local procedure MockDtldCustLedgerEntry(CustomerLedgerEntryNo: Integer; EntryAmount: Decimal): Integer
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+    begin
+        DetailedCustLedgEntry.Init();
+        DetailedCustLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, DetailedCustLedgEntry.FieldNo("Entry No."));
+        CustLedgerEntry.Get(CustomerLedgerEntryNo);
+        DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntry."Entry No.";
+        DetailedCustLedgEntry."Customer No." := CustLedgerEntry."Customer No.";
+        DetailedCustLedgEntry."Entry Type" := DetailedCustLedgEntry."Entry Type"::"Initial Entry";
+        DetailedCustLedgEntry.Amount := EntryAmount;
+        DetailedCustLedgEntry."Amount (LCY)" := EntryAmount;
+        DetailedCustLedgEntry."Posting Date" := CustLedgerEntry."Posting Date";
+        DetailedCustLedgEntry."Initial Entry Due Date" := CustLedgerEntry."Due Date";
+        DetailedCustLedgEntry.Insert();
+        exit(DetailedCustLedgEntry."Entry No.");
     end;
 
     local procedure SuggestAndVerifyVATReportLineCount(DocumentNo: Code[20]; ExpectedCount: Integer)

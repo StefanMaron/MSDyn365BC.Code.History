@@ -16,7 +16,6 @@ using Microsoft.CRM.Team;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.AllocationAccount;
 using Microsoft.Finance.Consolidation;
-using System.Threading;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Deferral;
 using Microsoft.Finance.Dimension;
@@ -51,8 +50,8 @@ using Microsoft.Intercompany.BankAccount;
 using Microsoft.Intercompany.GLAccount;
 using Microsoft.Intercompany.Journal;
 using Microsoft.Intercompany.Partner;
-using Microsoft.Inventory.Intrastat;
 using Microsoft.Intercompany.Setup;
+using Microsoft.Inventory.Intrastat;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Project.Planning;
@@ -71,11 +70,21 @@ using Microsoft.Sales.Reminder;
 using Microsoft.Sales.Setup;
 using Microsoft.Utilities;
 using System.Automation;
-using System.IO;
 using System.DateTime;
 using System.Environment.Configuration;
+using System.IO;
+using System.Threading;
 using System.Utilities;
 
+/// <summary>
+/// Stores general journal line transactions for all journal types including general, sales, purchase, cash receipt, and payment journals.
+/// Central table for financial transactions before posting to ledger entries with comprehensive validation and workflow integration.
+/// </summary>
+/// <remarks>
+/// Primary posting source for G/L entries, customer/vendor ledger entries, bank account ledger entries, and fixed asset entries.
+/// Key integrations: G/L posting routines, dimension management, currency handling, approval workflows, and allocation account processing.
+/// Extensibility: Multiple integration events throughout validation and posting processes enable custom business logic and third-party integrations.
+/// </remarks>
 table 81 "Gen. Journal Line"
 {
     Caption = 'Gen. Journal Line';
@@ -91,15 +100,24 @@ table 81 "Gen. Journal Line"
 
     fields
     {
+        /// <summary>
+        /// References the journal template that defines the journal type and posting behavior for this line.
+        /// </summary>
         field(1; "Journal Template Name"; Code[10])
         {
             Caption = 'Journal Template Name';
             TableRelation = "Gen. Journal Template";
         }
+        /// <summary>
+        /// Sequential line number within the journal batch for sorting and referencing journal lines.
+        /// </summary>
         field(2; "Line No."; Integer)
         {
             Caption = 'Line No.';
         }
+        /// <summary>
+        /// Specifies the type of account for the primary posting account in the transaction.
+        /// </summary>
         field(3; "Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
@@ -157,6 +175,9 @@ table 81 "Gen. Journal Line"
                 Validate("Deferral Code", '');
             end;
         }
+        /// <summary>
+        /// Account number for the primary posting account based on the specified account type.
+        /// </summary>
         field(4; "Account No."; Code[20])
         {
             Caption = 'Account No.';
@@ -248,6 +269,9 @@ table 81 "Gen. Journal Line"
                 end;
             end;
         }
+        /// <summary>
+        /// Date when the journal line will be posted to the general ledger and subsidiary ledgers.
+        /// </summary>
         field(5; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
@@ -281,6 +305,9 @@ table 81 "Gen. Journal Line"
                     Validate("Deferral Code");
             end;
         }
+        /// <summary>
+        /// Document type that determines posting behavior and validation rules for the transaction.
+        /// </summary>
         field(6; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
@@ -327,16 +354,26 @@ table 81 "Gen. Journal Line"
                     "Refers to Period" := "Refers to Period"::" ";
             end;
         }
+        /// <summary>
+        /// Document number for referencing and tracking the journal line transaction.
+        /// </summary>
         field(7; "Document No."; Code[20])
         {
             Caption = 'Document No.';
         }
+        /// <summary>
+        /// Text description of the journal line transaction for identification and reporting purposes.
+        /// </summary>
         field(8; Description; Text[100])
         {
             Caption = 'Description';
         }
+        /// <summary>
+        /// VAT percentage rate applied to the transaction amount for VAT calculation.
+        /// </summary>
         field(10; "VAT %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'VAT %';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -392,6 +429,9 @@ table 81 "Gen. Journal Line"
                     Validate("Deferral Code");
             end;
         }
+        /// <summary>
+        /// Account number for the balancing account that completes the double-entry transaction.
+        /// </summary>
         field(11; "Bal. Account No."; Code[20])
         {
             Caption = 'Bal. Account No.';
@@ -479,6 +519,9 @@ table 81 "Gen. Journal Line"
                 ValidateApplyRequirements(Rec);
             end;
         }
+        /// <summary>
+        /// Currency code for the transaction amount if different from the local currency.
+        /// </summary>
         field(12; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
@@ -531,6 +574,9 @@ table 81 "Gen. Journal Line"
                         PaymentToleranceMgt.PmtTolGenJnl(Rec);
             end;
         }
+        /// <summary>
+        /// Transaction amount in the specified currency including VAT where applicable.
+        /// </summary>
         field(13; Amount; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -542,6 +588,9 @@ table 81 "Gen. Journal Line"
                 ValidateAmount();
             end;
         }
+        /// <summary>
+        /// Debit amount when using debit/credit presentation instead of signed amounts.
+        /// </summary>
         field(14; "Debit Amount"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -560,6 +609,9 @@ table 81 "Gen. Journal Line"
                 end;
             end;
         }
+        /// <summary>
+        /// Credit amount when using debit/credit presentation instead of signed amounts.
+        /// </summary>
         field(15; "Credit Amount"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -578,9 +630,13 @@ table 81 "Gen. Journal Line"
                 end;
             end;
         }
+        /// <summary>
+        /// Transaction amount converted to local currency using exchange rates and currency factors.
+        /// </summary>
         field(16; "Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount (LCY)';
 
             trigger OnValidate()
@@ -620,14 +676,22 @@ table 81 "Gen. Journal Line"
                 end;
             end;
         }
+        /// <summary>
+        /// Running balance in local currency calculated from previous journal lines in the same batch.
+        /// </summary>
         field(17; "Balance (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Balance (LCY)';
             Editable = false;
         }
+        /// <summary>
+        /// Exchange rate factor used for currency conversion between foreign currency and local currency.
+        /// </summary>
         field(18; "Currency Factor"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Currency Factor';
             DecimalPlaces = 0 : 15;
             Editable = false;
@@ -640,21 +704,36 @@ table 81 "Gen. Journal Line"
                 Validate(Amount);
             end;
         }
+        /// <summary>
+        /// Sales or purchase amount in local currency for statistical and reporting purposes.
+        /// </summary>
         field(19; "Sales/Purch. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Sales/Purch. (LCY)';
         }
+        /// <summary>
+        /// Calculated profit amount in local currency from sales transactions.
+        /// </summary>
         field(20; "Profit (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Profit (LCY)';
         }
+        /// <summary>
+        /// Invoice discount amount in local currency applied to customer or vendor transactions.
+        /// </summary>
         field(21; "Inv. Discount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Inv. Discount (LCY)';
         }
+        /// <summary>
+        /// Bill-to customer number or pay-to vendor number for the transaction.
+        /// </summary>
         field(22; "Bill-to/Pay-to No."; Code[20])
         {
             Caption = 'Bill-to/Pay-to No.';
@@ -676,6 +755,9 @@ table 81 "Gen. Journal Line"
                     UpdateCountryCodeAndVATRegNo("Bill-to/Pay-to No.");
             end;
         }
+        /// <summary>
+        /// Posting group that determines which G/L accounts are used when posting this journal line.
+        /// </summary>
         field(23; "Posting Group"; Code[20])
         {
             Caption = 'Posting Group';
@@ -692,6 +774,9 @@ table 81 "Gen. Journal Line"
                 CheckPostingGroupChange();
             end;
         }
+        /// <summary>
+        /// First global dimension value code for analyzing transactions across departments or areas.
+        /// </summary>
         field(24; "Shortcut Dimension 1 Code"; Code[20])
         {
             CaptionClass = '1,2,1';
@@ -704,6 +789,9 @@ table 81 "Gen. Journal Line"
                 Rec.ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
             end;
         }
+        /// <summary>
+        /// Second global dimension value code for analyzing transactions across projects or cost centers.
+        /// </summary>
         field(25; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
@@ -716,6 +804,9 @@ table 81 "Gen. Journal Line"
                 Rec.ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
             end;
         }
+        /// <summary>
+        /// Salesperson or purchaser responsible for this transaction for commission and performance tracking.
+        /// </summary>
         field(26; "Salespers./Purch. Code"; Code[20])
         {
             Caption = 'Salespers./Purch. Code';
@@ -728,31 +819,49 @@ table 81 "Gen. Journal Line"
                 CreateDimFromDefaultDim(FieldNo("Salespers./Purch. Code"));
             end;
         }
+        /// <summary>
+        /// Indicates whether this journal line is pending approval in an approval workflow.
+        /// </summary>
         field(28; "Pending Approval"; Boolean)
         {
             Caption = 'Pending Approval';
             Editable = false;
         }
+        /// <summary>
+        /// Source code that identifies the origin of this journal line for audit trail purposes.
+        /// </summary>
         field(29; "Source Code"; Code[10])
         {
             Caption = 'Source Code';
             Editable = false;
             TableRelation = "Source Code";
         }
+        /// <summary>
+        /// Indicates whether this journal line was created automatically by the system.
+        /// </summary>
         field(30; "System-Created Entry"; Boolean)
         {
             Caption = 'System-Created Entry';
             Editable = false;
         }
+        /// <summary>
+        /// External reference number provided by customer or vendor for document tracking.
+        /// </summary>
         field(31; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
             DataClassification = CustomerContent;
         }
+        /// <summary>
+        /// Hold code that prevents posting until the hold condition is resolved.
+        /// </summary>
         field(34; "On Hold"; Code[3])
         {
             Caption = 'On Hold';
         }
+        /// <summary>
+        /// Document type of the entry being applied to for payment application and settlement.
+        /// </summary>
         field(35; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
@@ -769,6 +878,9 @@ table 81 "Gen. Journal Line"
                     Validate("Applies-to Doc. No.", '');
             end;
         }
+        /// <summary>
+        /// Document number of the entry being applied to for payment application and settlement.
+        /// </summary>
         field(36; "Applies-to Doc. No."; Code[20])
         {
             Caption = 'Applies-to Doc. No.';
@@ -930,21 +1042,34 @@ table 81 "Gen. Journal Line"
                 OnAfterValidateAppliesToDocNo(Rec, xRec, CurrFieldNo, SuppressCommit);
             end;
         }
+        /// <summary>
+        /// Due date for payment when the transaction involves customer or vendor accounts.
+        /// </summary>
         field(38; "Due Date"; Date)
         {
             Caption = 'Due Date';
         }
+        /// <summary>
+        /// Payment discount date until which the payment discount percentage applies.
+        /// </summary>
         field(39; "Pmt. Discount Date"; Date)
         {
             Caption = 'Pmt. Discount Date';
         }
+        /// <summary>
+        /// Payment discount percentage offered for early payment within the discount period.
+        /// </summary>
         field(40; "Payment Discount %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Payment Discount %';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
             MinValue = 0;
         }
+        /// <summary>
+        /// Project number for tracking costs and revenues related to specific projects.
+        /// </summary>
         field(42; "Job No."; Code[20])
         {
             Caption = 'Project No.';
@@ -979,8 +1104,12 @@ table 81 "Gen. Journal Line"
                 CreateDimFromDefaultDim(FieldNo("Job No."));
             end;
         }
+        /// <summary>
+        /// Quantity associated with the transaction for unit-based calculations and costing.
+        /// </summary>
         field(43; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
 
@@ -989,6 +1118,9 @@ table 81 "Gen. Journal Line"
                 Validate(Amount);
             end;
         }
+        /// <summary>
+        /// VAT amount calculated based on VAT percentage and base amount for the transaction.
+        /// </summary>
         field(44; "VAT Amount"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -1044,6 +1176,9 @@ table 81 "Gen. Journal Line"
                     Validate("Deferral Code");
             end;
         }
+        /// <summary>
+        /// VAT posting method indicating whether VAT entry is created automatically or manually.
+        /// </summary>
         field(45; "VAT Posting"; Option)
         {
             Caption = 'VAT Posting';
@@ -1051,6 +1186,9 @@ table 81 "Gen. Journal Line"
             OptionCaption = 'Automatic VAT Entry,Manual VAT Entry';
             OptionMembers = "Automatic VAT Entry","Manual VAT Entry";
         }
+        /// <summary>
+        /// Payment terms code that determines due date and payment discount conditions for the transaction.
+        /// </summary>
         field(47; "Payment Terms Code"; Code[10])
         {
             Caption = 'Payment Terms Code';
@@ -1079,6 +1217,9 @@ table 81 "Gen. Journal Line"
                         "Due Date" := "Posting Date";
             end;
         }
+        /// <summary>
+        /// Application identifier for grouping multiple journal lines for batch application to customer or vendor ledger entries.
+        /// </summary>
         field(48; "Applies-to ID"; Code[50])
         {
             Caption = 'Applies-to ID';
@@ -1092,11 +1233,17 @@ table 81 "Gen. Journal Line"
             end;
         }
 
+        /// <summary>
+        /// Business unit code for segmenting transactions by organizational divisions or units.
+        /// </summary>
         field(50; "Business Unit Code"; Code[20])
         {
             Caption = 'Business Unit Code';
             TableRelation = "Business Unit";
         }
+        /// <summary>
+        /// Journal batch name that groups related journal lines together for processing and posting.
+        /// </summary>
         field(51; "Journal Batch Name"; Code[10])
         {
             Caption = 'Journal Batch Name';
@@ -1107,11 +1254,17 @@ table 81 "Gen. Journal Line"
                 UpdateJournalBatchID();
             end;
         }
+        /// <summary>
+        /// Reason code that explains the business purpose or cause of the transaction.
+        /// </summary>
         field(52; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
         }
+        /// <summary>
+        /// Recurring method that determines how recurring journal entries are processed and calculated.
+        /// </summary>
         field(53; "Recurring Method"; Enum "Gen. Journal Recurring Method")
         {
             BlankZero = true;
@@ -1129,17 +1282,27 @@ table 81 "Gen. Journal Line"
                 ShowSetDimFiltersNotification();
             end;
         }
+        /// <summary>
+        /// Expiration date after which the recurring journal line will no longer be processed.
+        /// </summary>
         field(54; "Expiration Date"; Date)
         {
             Caption = 'Expiration Date';
         }
+        /// <summary>
+        /// Recurring frequency formula that defines the interval between recurring journal entries.
+        /// </summary>
         field(55; "Recurring Frequency"; DateFormula)
         {
             Caption = 'Recurring Frequency';
         }
+        /// <summary>
+        /// Allocated amount in local currency calculated from related allocation lines for this journal line.
+        /// </summary>
         field(56; "Allocated Amt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("Gen. Jnl. Allocation".Amount where("Journal Template Name" = field("Journal Template Name"),
                                                                    "Journal Batch Name" = field("Journal Batch Name"),
                                                                    "Journal Line No." = field("Line No.")));
@@ -1147,6 +1310,9 @@ table 81 "Gen. Journal Line"
             Editable = false;
             FieldClass = FlowField;
         }
+        /// <summary>
+        /// General posting type indicating whether the transaction is a purchase, sale, or settlement.
+        /// </summary>
         field(57; "Gen. Posting Type"; Enum "General Posting Type")
         {
             Caption = 'Gen. Posting Type';
@@ -1168,6 +1334,9 @@ table 81 "Gen. Journal Line"
                     Validate("Use Tax", false)
             end;
         }
+        /// <summary>
+        /// General business posting group that determines G/L accounts used for posting based on business type.
+        /// </summary>
         field(58; "Gen. Bus. Posting Group"; Code[20])
         {
             Caption = 'Gen. Bus. Posting Group';
@@ -1186,6 +1355,9 @@ table 81 "Gen. Journal Line"
                         Validate("VAT Bus. Posting Group", GenBusPostingGrp."Def. VAT Bus. Posting Group");
             end;
         }
+        /// <summary>
+        /// General product posting group that determines G/L accounts used for posting based on product type.
+        /// </summary>
         field(59; "Gen. Prod. Posting Group"; Code[20])
         {
             Caption = 'Gen. Prod. Posting Group';
@@ -1204,21 +1376,33 @@ table 81 "Gen. Journal Line"
                         Validate("VAT Prod. Posting Group", GenProdPostingGrp."Def. VAT Prod. Posting Group");
             end;
         }
+        /// <summary>
+        /// VAT calculation type that determines how VAT amounts are calculated for the transaction.
+        /// </summary>
         field(60; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
         }
+        /// <summary>
+        /// Indicates whether this transaction is part of a triangular trade within the European Union.
+        /// </summary>
         field(61; "EU 3-Party Trade"; Boolean)
         {
             Caption = 'EU 3-Party Trade';
             Editable = false;
         }
+        /// <summary>
+        /// Indicates whether this journal line can be applied to customer or vendor ledger entries.
+        /// </summary>
         field(62; "Allow Application"; Boolean)
         {
             Caption = 'Allow Application';
             InitValue = true;
         }
+        /// <summary>
+        /// Balancing account type that specifies the type of account used to balance this journal line.
+        /// </summary>
         field(63; "Bal. Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
@@ -1286,6 +1470,9 @@ table 81 "Gen. Journal Line"
                 end;
             end;
         }
+        /// <summary>
+        /// General posting type for the balancing account indicating whether it's a purchase, sale, or settlement.
+        /// </summary>
         field(64; "Bal. Gen. Posting Type"; Enum "General Posting Type")
         {
             Caption = 'Bal. Gen. Posting Type';
@@ -1315,6 +1502,9 @@ table 81 "Gen. Journal Line"
                     Validate("Bal. Use Tax", false);
             end;
         }
+        /// <summary>
+        /// General business posting group for the balancing account used to determine posting G/L accounts.
+        /// </summary>
         field(65; "Bal. Gen. Bus. Posting Group"; Code[20])
         {
             Caption = 'Bal. Gen. Bus. Posting Group';
@@ -1334,6 +1524,9 @@ table 81 "Gen. Journal Line"
                         Validate("Bal. VAT Bus. Posting Group", GenBusPostingGrp."Def. VAT Bus. Posting Group");
             end;
         }
+        /// <summary>
+        /// General product posting group for the balancing account used to determine posting G/L accounts.
+        /// </summary>
         field(66; "Bal. Gen. Prod. Posting Group"; Code[20])
         {
             Caption = 'Bal. Gen. Prod. Posting Group';
@@ -1353,13 +1546,20 @@ table 81 "Gen. Journal Line"
                         Validate("Bal. VAT Prod. Posting Group", GenProdPostingGrp."Def. VAT Prod. Posting Group");
             end;
         }
+        /// <summary>
+        /// VAT calculation type for the balancing account that determines how VAT amounts are calculated.
+        /// </summary>
         field(67; "Bal. VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'Bal. VAT Calculation Type';
             Editable = false;
         }
+        /// <summary>
+        /// VAT percentage rate applied to the balancing account for VAT calculation.
+        /// </summary>
         field(68; "Bal. VAT %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Bal. VAT %';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1418,6 +1618,9 @@ table 81 "Gen. Journal Line"
                 UpdateSalesPurchLCY();
             end;
         }
+        /// <summary>
+        /// VAT amount calculated for the balancing account based on VAT percentage and base amount.
+        /// </summary>
         field(69; "Bal. VAT Amount"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -1474,6 +1677,9 @@ table 81 "Gen. Journal Line"
                 UpdateSalesPurchLCY();
             end;
         }
+        /// <summary>
+        /// Bank payment type that specifies the method of payment when using bank accounts.
+        /// </summary>
         field(70; "Bank Payment Type"; Enum "Bank Payment Type")
         {
             AccessByPermission = TableData "Bank Account" = R;
@@ -1497,6 +1703,9 @@ table 81 "Gen. Journal Line"
                     Rec.DeletePaymentFileErrors();
             end;
         }
+        /// <summary>
+        /// VAT base amount on which VAT calculations are performed for the primary account.
+        /// </summary>
         field(71; "VAT Base Amount"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -1547,6 +1756,9 @@ table 81 "Gen. Journal Line"
                 Validate(Amount);
             end;
         }
+        /// <summary>
+        /// VAT base amount on which VAT calculations are performed for the balancing account.
+        /// </summary>
         field(72; "Bal. VAT Base Amount"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -1597,6 +1809,9 @@ table 81 "Gen. Journal Line"
                 Validate(Amount);
             end;
         }
+        /// <summary>
+        /// Indicates whether this journal line is a correction entry that reverses a previous transaction.
+        /// </summary>
         field(73; Correction; Boolean)
         {
             Caption = 'Correction';
@@ -1606,16 +1821,25 @@ table 81 "Gen. Journal Line"
                 Validate(Amount);
             end;
         }
+        /// <summary>
+        /// Indicates whether posted documents should be automatically printed after posting.
+        /// </summary>
         field(74; "Print Posted Documents"; Boolean)
         {
             Caption = 'Print Posted Documents';
         }
+        /// <summary>
+        /// Indicates whether a check has been printed for this journal line payment.
+        /// </summary>
         field(75; "Check Printed"; Boolean)
         {
             AccessByPermission = TableData "Check Ledger Entry" = R;
             Caption = 'Check Printed';
             Editable = false;
         }
+        /// <summary>
+        /// Document date from the source document or transaction date for reference purposes.
+        /// </summary>
         field(76; "Document Date"; Date)
         {
             Caption = 'Document Date';
@@ -1643,10 +1867,16 @@ table 81 "Gen. Journal Line"
                 Validate("Payment Terms Code");
             end;
         }
+        /// <summary>
+        /// External document number from vendor invoice, customer invoice, or other source document.
+        /// </summary>
         field(77; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
         }
+        /// <summary>
+        /// Source type that identifies the entity type that originated this journal line.
+        /// </summary>
         field(78; "Source Type"; Enum "Gen. Journal Source Type")
         {
             Caption = 'Source Type';
@@ -1661,6 +1891,9 @@ table 81 "Gen. Journal Line"
                     "Source No." := '';
             end;
         }
+        /// <summary>
+        /// Source number that identifies the specific entity that originated this journal line.
+        /// </summary>
         field(79; "Source No."; Code[20])
         {
             Caption = 'Source No.';
@@ -1682,6 +1915,9 @@ table 81 "Gen. Journal Line"
                     UpdateSource();
             end;
         }
+        /// <summary>
+        /// Number series code used to generate the posting document number when the journal line is posted.
+        /// </summary>
         field(80; "Posting No. Series"; Code[20])
         {
             Caption = 'Posting No. Series';
@@ -1695,6 +1931,9 @@ table 81 "Gen. Journal Line"
                 NoSeries.TestField("Date Order");
             end;
         }
+        /// <summary>
+        /// Tax area code that determines the tax jurisdiction and rates applicable to this transaction.
+        /// </summary>
         field(82; "Tax Area Code"; Code[20])
         {
             Caption = 'Tax Area Code';
@@ -1705,6 +1944,9 @@ table 81 "Gen. Journal Line"
                 Validate("VAT %");
             end;
         }
+        /// <summary>
+        /// Indicates whether this transaction is subject to tax liability and tax calculations.
+        /// </summary>
         field(83; "Tax Liable"; Boolean)
         {
             Caption = 'Tax Liable';
@@ -1714,6 +1956,9 @@ table 81 "Gen. Journal Line"
                 Validate("VAT %");
             end;
         }
+        /// <summary>
+        /// Tax group code that categorizes items or services for tax calculation purposes.
+        /// </summary>
         field(84; "Tax Group Code"; Code[20])
         {
             Caption = 'Tax Group Code';
@@ -1724,6 +1969,9 @@ table 81 "Gen. Journal Line"
                 Validate("VAT %");
             end;
         }
+        /// <summary>
+        /// Indicates whether use tax applies to this transaction for tax calculation purposes.
+        /// </summary>
         field(85; "Use Tax"; Boolean)
         {
             Caption = 'Use Tax';
@@ -1736,6 +1984,9 @@ table 81 "Gen. Journal Line"
                 Validate("VAT %");
             end;
         }
+        /// <summary>
+        /// Tax area code for the balancing account that determines applicable tax jurisdiction and rates.
+        /// </summary>
         field(86; "Bal. Tax Area Code"; Code[20])
         {
             Caption = 'Bal. Tax Area Code';
@@ -1746,6 +1997,9 @@ table 81 "Gen. Journal Line"
                 Validate("Bal. VAT %");
             end;
         }
+        /// <summary>
+        /// Indicates whether the balancing account is subject to tax liability and tax calculations.
+        /// </summary>
         field(87; "Bal. Tax Liable"; Boolean)
         {
             Caption = 'Bal. Tax Liable';
@@ -1755,6 +2009,9 @@ table 81 "Gen. Journal Line"
                 Validate("Bal. VAT %");
             end;
         }
+        /// <summary>
+        /// Tax group code for the balancing account used for tax calculation categorization.
+        /// </summary>
         field(88; "Bal. Tax Group Code"; Code[20])
         {
             Caption = 'Bal. Tax Group Code';
@@ -1765,6 +2022,9 @@ table 81 "Gen. Journal Line"
                 Validate("Bal. VAT %");
             end;
         }
+        /// <summary>
+        /// Indicates whether use tax applies to the balancing account for tax calculation purposes.
+        /// </summary>
         field(89; "Bal. Use Tax"; Boolean)
         {
             Caption = 'Bal. Use Tax';
@@ -1777,6 +2037,9 @@ table 81 "Gen. Journal Line"
                 Validate("Bal. VAT %");
             end;
         }
+        /// <summary>
+        /// VAT business posting group that determines VAT rates and accounts for business partner classification.
+        /// </summary>
         field(90; "VAT Bus. Posting Group"; Code[20])
         {
             Caption = 'VAT Bus. Posting Group';
@@ -1795,6 +2058,9 @@ table 81 "Gen. Journal Line"
                 end;
             end;
         }
+        /// <summary>
+        /// VAT product posting group determining VAT rates and calculation method for the journal line account.
+        /// </summary>
         field(91; "VAT Prod. Posting Group"; Code[20])
         {
             Caption = 'VAT Prod. Posting Group';
@@ -1856,6 +2122,9 @@ table 81 "Gen. Journal Line"
                 end;
             end;
         }
+        /// <summary>
+        /// VAT business posting group for the balancing account determining VAT calculation setup.
+        /// </summary>
         field(92; "Bal. VAT Bus. Posting Group"; Code[20])
         {
             Caption = 'Bal. VAT Bus. Posting Group';
@@ -1871,6 +2140,9 @@ table 81 "Gen. Journal Line"
                 Validate("Bal. VAT Prod. Posting Group");
             end;
         }
+        /// <summary>
+        /// VAT product posting group for the balancing account determining VAT rates and calculation method.
+        /// </summary>
         field(93; "Bal. VAT Prod. Posting Group"; Code[20])
         {
             Caption = 'Bal. VAT Prod. Posting Group';
@@ -1921,6 +2193,9 @@ table 81 "Gen. Journal Line"
                 ValidateIncludeInDT();
             end;
         }
+        /// <summary>
+        /// Additional currency posting option controlling how amounts are posted in additional reporting currency scenarios.
+        /// </summary>
         field(95; "Additional-Currency Posting"; Option)
         {
             Caption = 'Additional-Currency Posting';
@@ -1928,18 +2203,28 @@ table 81 "Gen. Journal Line"
             OptionCaption = 'None,Amount Only,Additional-Currency Amount Only';
             OptionMembers = "None","Amount Only","Additional-Currency Amount Only";
         }
+        /// <summary>
+        /// Fixed asset additional currency factor for currency conversion when posting FA transactions in additional reporting currency.
+        /// </summary>
         field(98; "FA Add.-Currency Factor"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'FA Add.-Currency Factor';
             DecimalPlaces = 0 : 15;
             MinValue = 0;
         }
+        /// <summary>
+        /// Source currency code when the journal line originates from a document in a different currency than the transaction currency.
+        /// </summary>
         field(99; "Source Currency Code"; Code[10])
         {
             Caption = 'Source Currency Code';
             Editable = false;
             TableRelation = Currency;
         }
+        /// <summary>
+        /// Transaction amount in the source currency when the journal line originates from a document in a different currency.
+        /// </summary>
         field(100; "Source Currency Amount"; Decimal)
         {
             AccessByPermission = TableData Currency = R;
@@ -1948,6 +2233,9 @@ table 81 "Gen. Journal Line"
             Caption = 'Source Currency Amount';
             Editable = false;
         }
+        /// <summary>
+        /// VAT base amount in source currency when the journal line originates from a different currency transaction.
+        /// </summary>
         field(101; "Source Curr. VAT Base Amount"; Decimal)
         {
             AccessByPermission = TableData Currency = R;
@@ -1956,6 +2244,9 @@ table 81 "Gen. Journal Line"
             Caption = 'Source Curr. VAT Base Amount';
             Editable = false;
         }
+        /// <summary>
+        /// VAT amount in source currency when the journal line originates from a different currency transaction.
+        /// </summary>
         field(102; "Source Curr. VAT Amount"; Decimal)
         {
             AccessByPermission = TableData Currency = R;
@@ -1964,48 +2255,77 @@ table 81 "Gen. Journal Line"
             Caption = 'Source Curr. VAT Amount';
             Editable = false;
         }
+        /// <summary>
+        /// VAT base discount percentage applied before VAT calculation for payment discount scenarios.
+        /// </summary>
         field(103; "VAT Base Discount %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'VAT Base Discount %';
             DecimalPlaces = 0 : 5;
             Editable = false;
             MaxValue = 100;
             MinValue = 0;
         }
+        /// <summary>
+        /// VAT amount converted to local currency for accounting and reporting purposes.
+        /// </summary>
         field(104; "VAT Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'VAT Amount (LCY)';
             Editable = false;
         }
+        /// <summary>
+        /// VAT base amount converted to local currency for accounting and VAT reporting purposes.
+        /// </summary>
         field(105; "VAT Base Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'VAT Base Amount (LCY)';
             Editable = false;
         }
+        /// <summary>
+        /// VAT amount for the balancing account converted to local currency for accounting and reporting purposes.
+        /// </summary>
         field(106; "Bal. VAT Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Bal. VAT Amount (LCY)';
             Editable = false;
         }
+        /// <summary>
+        /// VAT base amount for the balancing account converted to local currency for accounting and VAT reporting purposes.
+        /// </summary>
         field(107; "Bal. VAT Base Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Bal. VAT Base Amount (LCY)';
             Editable = false;
         }
+        /// <summary>
+        /// Indicates whether this journal line creates a reversing entry that will be automatically reversed on a future date.
+        /// </summary>
         field(108; "Reversing Entry"; Boolean)
         {
             Caption = 'Reversing Entry';
             Editable = false;
         }
+        /// <summary>
+        /// Allows posting of journal lines with zero amounts when normally restricted by posting setup.
+        /// </summary>
         field(109; "Allow Zero-Amount Posting"; Boolean)
         {
             Caption = 'Allow Zero-Amount Posting';
             Editable = false;
         }
+        /// <summary>
+        /// Ship-to address code for customers or order address code for vendors for delivery and communication purposes.
+        /// </summary>
         field(110; "Ship-to/Order Address Code"; Code[10])
         {
             Caption = 'Ship-to/Order Address Code';
@@ -2017,6 +2337,9 @@ table 81 "Gen. Journal Line"
             else
             if ("Bal. Account Type" = const(Vendor)) "Order Address".Code where("Vendor No." = field("Bill-to/Pay-to No."));
         }
+        /// <summary>
+        /// Calculated difference between expected and actual VAT amount allowing for VAT tolerance variations.
+        /// </summary>
         field(111; "VAT Difference"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -2024,6 +2347,9 @@ table 81 "Gen. Journal Line"
             Caption = 'VAT Difference';
             Editable = false;
         }
+        /// <summary>
+        /// Calculated difference between expected and actual VAT amount for the balancing account allowing for VAT tolerance variations.
+        /// </summary>
         field(112; "Bal. VAT Difference"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -2031,17 +2357,26 @@ table 81 "Gen. Journal Line"
             Caption = 'Bal. VAT Difference';
             Editable = false;
         }
+        /// <summary>
+        /// Intercompany partner code for IC transactions enabling cross-company business workflows and eliminations.
+        /// </summary>
         field(113; "IC Partner Code"; Code[20])
         {
             Caption = 'IC Partner Code';
             Editable = false;
             TableRelation = "IC Partner";
         }
+        /// <summary>
+        /// Intercompany direction indicating whether the transaction is inbound or outbound for IC processing workflows.
+        /// </summary>
         field(114; "IC Direction"; Enum "IC Direction Type")
         {
             Caption = 'IC Direction';
         }
 #if not CLEANSCHEMA25
+        /// <summary>
+        /// Obsolete field replaced by IC Account No. for intercompany G/L account references.
+        /// </summary>
         field(116; "IC Partner G/L Acc. No."; Code[20])
         {
             Caption = 'IC Partner G/L Acc. No.';
@@ -2051,11 +2386,17 @@ table 81 "Gen. Journal Line"
             ObsoleteTag = '25.0';
         }
 #endif
+        /// <summary>
+        /// Intercompany transaction number for tracking and matching IC transactions across partner companies.
+        /// </summary>
         field(117; "IC Partner Transaction No."; Integer)
         {
             Caption = 'IC Partner Transaction No.';
             Editable = false;
         }
+        /// <summary>
+        /// Sell-to customer number or buy-from vendor number for document reference and customer/vendor tracking.
+        /// </summary>
         field(118; "Sell-to/Buy-from No."; Code[20])
         {
             Caption = 'Sell-to/Buy-from No.';
@@ -2074,6 +2415,9 @@ table 81 "Gen. Journal Line"
                     UpdateCountryCodeAndVATRegNo("Sell-to/Buy-from No.");
             end;
         }
+        /// <summary>
+        /// VAT registration number of the customer or vendor for VAT reporting and compliance validation.
+        /// </summary>
         field(119; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
@@ -2085,6 +2429,9 @@ table 81 "Gen. Journal Line"
                 VATRegNoFormat.Test("VAT Registration No.", "Country/Region Code", '', 0);
             end;
         }
+        /// <summary>
+        /// Country or region code for the customer or vendor used for VAT validation and regulatory compliance.
+        /// </summary>
         field(120; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';
@@ -2096,21 +2443,33 @@ table 81 "Gen. Journal Line"
                 ValidateIncludeInDT();
             end;
         }
+        /// <summary>
+        /// Indicates whether this transaction is a prepayment that will be applied to future invoices.
+        /// </summary>
         field(121; Prepayment; Boolean)
         {
             Caption = 'Prepayment';
         }
+        /// <summary>
+        /// Indicates whether this entry represents a voided financial transaction for audit and compliance purposes.
+        /// </summary>
         field(122; "Financial Void"; Boolean)
         {
             Caption = 'Financial Void';
             Editable = false;
         }
+        /// <summary>
+        /// Indicates whether VAT setup information should be copied to related journal lines for consistency.
+        /// </summary>
         field(123; "Copy VAT Setup to Jnl. Lines"; Boolean)
         {
             Caption = 'Copy VAT Setup to Jnl. Lines';
             Editable = false;
             InitValue = true;
         }
+        /// <summary>
+        /// VAT base amount before payment discount is applied for accurate VAT calculation with discounts.
+        /// </summary>
         field(125; "VAT Base Before Pmt. Disc."; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -2118,17 +2477,27 @@ table 81 "Gen. Journal Line"
             Caption = 'VAT Base Before Pmt. Disc.';
             Editable = false;
         }
+        /// <summary>
+        /// Original payment discount amount available when the transaction was created for discount tracking.
+        /// </summary>
         field(126; "Orig. Pmt. Disc. Possible"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Original Pmt. Disc. Possible';
         }
+        /// <summary>
+        /// Original payment discount amount available in local currency for discount calculation and reporting.
+        /// </summary>
         field(127; "Orig. Pmt. Disc. Possible(LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Orig. Pmt. Disc. Possible (LCY)';
         }
+        /// <summary>
+        /// VAT reporting date for tax period assignment and VAT return compliance reporting.
+        /// </summary>
         field(128; "VAT Reporting Date"; Date)
         {
             Caption = 'VAT Date';
@@ -2144,10 +2513,16 @@ table 81 "Gen. Journal Line"
             Caption = 'Zero Source Currency Amount';
             Editable = false;
         }
+        /// <summary>
+        /// Intercompany account type for IC transactions determining posting account classification.
+        /// </summary>
         field(130; "IC Account Type"; Enum "IC Journal Account Type")
         {
             Caption = 'IC Account Type';
         }
+        /// <summary>
+        /// Intercompany account number for posting IC transactions to partner company accounts.
+        /// </summary>
         field(131; "IC Account No."; Code[20])
         {
             Caption = 'IC Account No.';
@@ -2166,16 +2541,25 @@ table 81 "Gen. Journal Line"
             else
             if ("Bal. Account Type" = const("IC Partner"), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("Bal. Account No."), Blocked = const(false));
         }
+        /// <summary>
+        /// Job queue processing status for batch posting operations and automated journal processing.
+        /// </summary>
         field(160; "Job Queue Status"; Enum "Document Job Queue Status")
         {
             Caption = 'Job Queue Status';
             Editable = false;
         }
+        /// <summary>
+        /// Unique identifier for the job queue entry processing this journal line in background operations.
+        /// </summary>
         field(161; "Job Queue Entry ID"; Guid)
         {
             Caption = 'Job Queue Entry ID';
             Editable = false;
         }
+        /// <summary>
+        /// Reference to incoming document entry for electronic invoice and document management integration.
+        /// </summary>
         field(165; "Incoming Document Entry No."; Integer)
         {
             Caption = 'Incoming Document Entry No.';
@@ -2196,14 +2580,23 @@ table 81 "Gen. Journal Line"
                     IncomingDocument.SetGenJournalLine(Rec);
             end;
         }
+        /// <summary>
+        /// Creditor identification number for SEPA credit transfers and electronic payment processing.
+        /// </summary>
         field(170; "Creditor No."; Code[20])
         {
             Caption = 'Creditor No.';
         }
+        /// <summary>
+        /// Payment reference number for electronic payments and bank reconciliation matching.
+        /// </summary>
         field(171; "Payment Reference"; Code[50])
         {
             Caption = 'Payment Reference';
         }
+        /// <summary>
+        /// Payment method code determining payment processing rules and export file formats.
+        /// </summary>
         field(172; "Payment Method Code"; Code[10])
         {
             Caption = 'Payment Method Code';
@@ -2223,10 +2616,16 @@ table 81 "Gen. Journal Line"
                     end;
             end;
         }
+        /// <summary>
+        /// External document number that this entry applies to for payment application and reconciliation.
+        /// </summary>
         field(173; "Applies-to Ext. Doc. No."; Code[35])
         {
             Caption = 'Applies-to Ext. Doc. No.';
         }
+        /// <summary>
+        /// Date when vendor invoice was received for payment terms calculation and approval workflow tracking.
+        /// </summary>
         field(175; "Invoice Received Date"; Date)
         {
 
@@ -2239,11 +2638,17 @@ table 81 "Gen. Journal Line"
                     TestField("Document Type", "Document Type"::Invoice);
             end;
         }
+        /// <summary>
+        /// Indicates whether the original description should be preserved during posting and account validation.
+        /// </summary>
         field(180; "Keep Description"; Boolean)
         {
             Caption = 'Keep Description';
             Editable = false;
         }
+        /// <summary>
+        /// Bank account code of the payment recipient for electronic payment routing and processing.
+        /// </summary>
         field(288; "Recipient Bank Account"; Code[20])
         {
             Caption = 'Recipient Bank Account';
@@ -2259,15 +2664,24 @@ table 81 "Gen. Journal Line"
             else
             if ("Bal. Account Type" = const(Employee)) Employee."No." where("Employee No. Filter" = field("Bal. Account No."));
         }
+        /// <summary>
+        /// Message text to be included with electronic payments for recipient identification and reference.
+        /// </summary>
         field(289; "Message to Recipient"; Text[140])
         {
             Caption = 'Message to Recipient';
         }
+        /// <summary>
+        /// Indicates whether this journal line has been exported to an electronic payment file for bank processing.
+        /// </summary>
         field(290; "Exported to Payment File"; Boolean)
         {
             Caption = 'Exported to Payment File';
             Editable = false;
         }
+        /// <summary>
+        /// Indicates whether payment export errors exist for this journal line preventing successful file generation.
+        /// </summary>
         field(291; "Has Payment Export Error"; Boolean)
         {
             CalcFormula = exist("Payment Jnl. Export Error Text" where("Journal Template Name" = field("Journal Template Name"),
@@ -2277,6 +2691,9 @@ table 81 "Gen. Journal Line"
             Editable = false;
             FieldClass = FlowField;
         }
+        /// <summary>
+        /// Dimension set identifier linking to dimension value combinations for analytical reporting and cost center tracking.
+        /// </summary>
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -2293,11 +2710,17 @@ table 81 "Gen. Journal Line"
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
         }
+        /// <summary>
+        /// Remit-to address code for vendor payments specifying alternative payment address.
+        /// </summary>
         field(1000; "Remit-to Code"; Code[20])
         {
             Caption = 'Remit-to Code';
             TableRelation = "Remit Address".Code where("Vendor No." = field("Sell-to/Buy-from No."));
         }
+        /// <summary>
+        /// Project task number for job-related transactions enabling project cost and revenue tracking.
+        /// </summary>
         field(1001; "Job Task No."; Code[20])
         {
             Caption = 'Project Task No.';
@@ -2327,23 +2750,35 @@ table 81 "Gen. Journal Line"
                 end;
             end;
         }
+        /// <summary>
+        /// Project unit price in local currency for cost calculation and project profitability analysis.
+        /// </summary>
         field(1002; "Job Unit Price (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Project Unit Price (LCY)';
             Editable = false;
         }
+        /// <summary>
+        /// Project total price in local currency calculated from quantity and unit price for revenue tracking.
+        /// </summary>
         field(1003; "Job Total Price (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Project Total Price (LCY)';
             Editable = false;
         }
+        /// <summary>
+        /// Project quantity for resource consumption tracking and project progress measurement.
+        /// </summary>
         field(1004; "Job Quantity"; Decimal)
         {
             AccessByPermission = TableData Job = R;
+            AutoFormatType = 0;
             Caption = 'Project Quantity';
             DecimalPlaces = 0 : 5;
 
@@ -2357,16 +2792,24 @@ table 81 "Gen. Journal Line"
                 end;
             end;
         }
+        /// <summary>
+        /// Project unit cost in local currency for cost tracking and project profitability analysis.
+        /// </summary>
         field(1005; "Job Unit Cost (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
+            AutoFormatExpression = '';
             AutoFormatType = 2;
             Caption = 'Project Unit Cost (LCY)';
             Editable = false;
         }
+        /// <summary>
+        /// Project line discount percentage applied to the line amount for project cost calculation.
+        /// </summary>
         field(1006; "Job Line Discount %"; Decimal)
         {
             AccessByPermission = TableData Job = R;
+            AutoFormatType = 0;
             Caption = 'Project Line Discount %';
 
             trigger OnValidate()
@@ -2378,9 +2821,13 @@ table 81 "Gen. Journal Line"
                 end;
             end;
         }
+        /// <summary>
+        /// Project line discount amount in local currency calculated from percentage and line amount.
+        /// </summary>
         field(1007; "Job Line Disc. Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Project Line Disc. Amount (LCY)';
             Editable = false;
 
@@ -2393,11 +2840,17 @@ table 81 "Gen. Journal Line"
                 end;
             end;
         }
+        /// <summary>
+        /// Unit of measure code for project quantities and resource consumption tracking.
+        /// </summary>
         field(1008; "Job Unit Of Measure Code"; Code[10])
         {
             Caption = 'Project Unit Of Measure Code';
             TableRelation = "Unit of Measure";
         }
+        /// <summary>
+        /// Project line type classification determining how the line is processed in project accounting and WIP calculations.
+        /// </summary>
         field(1009; "Job Line Type"; Enum "Job Line Type")
         {
             AccessByPermission = TableData Job = R;
@@ -2409,6 +2862,9 @@ table 81 "Gen. Journal Line"
                     Error(Text019, FieldCaption("Job Line Type"), FieldCaption("Job Planning Line No."));
             end;
         }
+        /// <summary>
+        /// Project unit price in project currency for billing and revenue recognition calculations.
+        /// </summary>
         field(1010; "Job Unit Price"; Decimal)
         {
             AccessByPermission = TableData Job = R;
@@ -2425,6 +2881,9 @@ table 81 "Gen. Journal Line"
                 end;
             end;
         }
+        /// <summary>
+        /// Project total price in project currency calculated from quantity and unit price for project billing.
+        /// </summary>
         field(1011; "Job Total Price"; Decimal)
         {
             AccessByPermission = TableData Job = R;
@@ -2433,6 +2892,9 @@ table 81 "Gen. Journal Line"
             Caption = 'Project Total Price';
             Editable = false;
         }
+        /// <summary>
+        /// Project unit cost in project currency for cost tracking and project profitability analysis.
+        /// </summary>
         field(1012; "Job Unit Cost"; Decimal)
         {
             AccessByPermission = TableData Job = R;
@@ -2441,6 +2903,9 @@ table 81 "Gen. Journal Line"
             Caption = 'Project Unit Cost';
             Editable = false;
         }
+        /// <summary>
+        /// Project total cost in project currency calculated from quantity and unit cost for cost accounting.
+        /// </summary>
         field(1013; "Job Total Cost"; Decimal)
         {
             AccessByPermission = TableData Job = R;
@@ -2449,6 +2914,9 @@ table 81 "Gen. Journal Line"
             Caption = 'Project Total Cost';
             Editable = false;
         }
+        /// <summary>
+        /// Project line discount amount in project currency for accurate project margin calculations.
+        /// </summary>
         field(1014; "Job Line Discount Amount"; Decimal)
         {
             AccessByPermission = TableData Job = R;
@@ -2465,6 +2933,9 @@ table 81 "Gen. Journal Line"
                 end;
             end;
         }
+        /// <summary>
+        /// Project line amount in project currency representing the final billable amount after discounts.
+        /// </summary>
         field(1015; "Job Line Amount"; Decimal)
         {
             AccessByPermission = TableData Job = R;
@@ -2481,17 +2952,25 @@ table 81 "Gen. Journal Line"
                 end;
             end;
         }
+        /// <summary>
+        /// Project total cost in local currency for cost accounting and project profitability reporting.
+        /// </summary>
         field(1016; "Job Total Cost (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Project Total Cost (LCY)';
             Editable = false;
         }
+        /// <summary>
+        /// Project line amount in local currency for financial reporting and margin analysis.
+        /// </summary>
         field(1017; "Job Line Amount (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Project Line Amount (LCY)';
             Editable = false;
 
@@ -2504,10 +2983,17 @@ table 81 "Gen. Journal Line"
                 end;
             end;
         }
+        /// <summary>
+        /// Project currency exchange factor for converting project amounts to local currency.
+        /// </summary>
         field(1018; "Job Currency Factor"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Project Currency Factor';
         }
+        /// <summary>
+        /// Project currency code for multi-currency project transactions and billing.
+        /// </summary>
         field(1019; "Job Currency Code"; Code[10])
         {
             Caption = 'Project Currency Code';
@@ -2521,6 +3007,9 @@ table 81 "Gen. Journal Line"
                     end;
             end;
         }
+        /// <summary>
+        /// Project planning line number linking journal consumption to specific project planning lines.
+        /// </summary>
         field(1020; "Job Planning Line No."; Integer)
         {
             AccessByPermission = TableData Job = R;
@@ -2567,9 +3056,13 @@ table 81 "Gen. Journal Line"
                     Validate("Job Remaining Qty.", 0);
             end;
         }
+        /// <summary>
+        /// Project remaining quantity available for consumption against the linked project planning line.
+        /// </summary>
         field(1030; "Job Remaining Qty."; Decimal)
         {
             AccessByPermission = TableData Job = R;
+            AutoFormatType = 0;
             Caption = 'Project Remaining Qty.';
             DecimalPlaces = 0 : 5;
 
@@ -2591,6 +3084,9 @@ table 81 "Gen. Journal Line"
                 end;
             end;
         }
+        /// <summary>
+        /// SEPA Direct Debit Mandate identifier for authorized direct debit collection processing.
+        /// </summary>
         field(1200; "Direct Debit Mandate ID"; Code[35])
         {
             Caption = 'Direct Debit Mandate ID';
@@ -2608,39 +3104,63 @@ table 81 "Gen. Journal Line"
                 "Recipient Bank Account" := SEPADirectDebitMandate."Customer Bank Account Code";
             end;
         }
+        /// <summary>
+        /// Data exchange entry number for electronic banking and payment file import integration.
+        /// </summary>
         field(1220; "Data Exch. Entry No."; Integer)
         {
             Caption = 'Data Exch. Entry No.';
             Editable = false;
             TableRelation = "Data Exch.";
         }
+        /// <summary>
+        /// Payer information text for electronic payment processing and bank statement reconciliation.
+        /// </summary>
         field(1221; "Payer Information"; Text[50])
         {
             Caption = 'Payer Information';
         }
+        /// <summary>
+        /// Transaction information text for electronic banking import and payment reference tracking.
+        /// </summary>
         field(1222; "Transaction Information"; Text[100])
         {
             Caption = 'Transaction Information';
         }
+        /// <summary>
+        /// Data exchange line number for tracking individual lines within imported electronic files.
+        /// </summary>
         field(1223; "Data Exch. Line No."; Integer)
         {
             Caption = 'Data Exch. Line No.';
             Editable = false;
         }
+        /// <summary>
+        /// Indicates whether payment application was performed automatically during bank statement import.
+        /// </summary>
         field(1224; "Applied Automatically"; Boolean)
         {
             Caption = 'Applied Automatically';
         }
+        /// <summary>
+        /// Linked table identifier for external system integration and data synchronization tracking.
+        /// </summary>
         field(1300; "Linked Table ID"; Integer)
         {
             Caption = 'Linked Table ID';
             Editable = false;
         }
+        /// <summary>
+        /// Linked system identifier for external system integration and record matching.
+        /// </summary>
         field(1301; "Linked System ID"; Guid)
         {
             Caption = 'Linked System ID';
             Editable = false;
         }
+        /// <summary>
+        /// Deferral template code for revenue and expense recognition scheduling across multiple accounting periods.
+        /// </summary>
         field(1700; "Deferral Code"; Code[10])
         {
             Caption = 'Deferral Code';
@@ -2673,33 +3193,51 @@ table 81 "Gen. Journal Line"
                     0, '', "Line No.", GetDeferralAmount(), DeferralPostDate, Description, "Currency Code");
             end;
         }
+        /// <summary>
+        /// Deferral schedule line number for tracking individual periods in revenue and expense deferral schedules.
+        /// </summary>
         field(1701; "Deferral Line No."; Integer)
         {
             Caption = 'Deferral Line No.';
         }
+        /// <summary>
+        /// Selected allocation account number for distributing amounts across multiple accounts based on predefined rules.
+        /// </summary>
         field(2676; "Selected Alloc. Account No."; Code[20])
         {
             Caption = 'Allocation Account No.';
             DataClassification = CustomerContent;
             TableRelation = "Allocation Account";
         }
+        /// <summary>
+        /// Indicates whether allocation account distributions have been manually modified by the user.
+        /// </summary>
         field(2677; "Alloc. Acc. Modified by User"; Boolean)
         {
             Caption = 'Allocation Account Distributions Modified';
             FieldClass = FlowField;
             CalcFormula = exist(Microsoft.Finance.AllocationAccount."Alloc. Acc. Manual Override" where("Parent System Id" = field(SystemId), "Parent Table Id" = const(Database::"Gen. Journal Line")));
         }
+        /// <summary>
+        /// Posting allocation account number used during the actual posting process for amount distribution.
+        /// </summary>
         field(2678; "Allocation Account No."; Code[20])
         {
             Caption = 'Posting Allocation Account No.';
             DataClassification = CustomerContent;
             TableRelation = "Allocation Account";
         }
+        /// <summary>
+        /// System identifier linking to allocation journal line for distribution tracking and audit purposes.
+        /// </summary>
         field(2679; "Alloc. Journal Line SystemId"; Guid)
         {
             Caption = 'Allocation Journal Line SystemId';
             DataClassification = SystemMetadata;
         }
+        /// <summary>
+        /// Campaign number for marketing campaign tracking and cost allocation analysis.
+        /// </summary>
         field(5050; "Campaign No."; Code[20])
         {
             Caption = 'Campaign No.';
@@ -2717,16 +3255,25 @@ table 81 "Gen. Journal Line"
                 CreateDimFromDefaultDim(FieldNo("Campaign No."));
             end;
         }
+        /// <summary>
+        /// Production order number for manufacturing cost allocation and work-in-progress tracking.
+        /// </summary>
         field(5400; "Prod. Order No."; Code[20])
         {
             Caption = 'Prod. Order No.';
             Editable = false;
         }
+        /// <summary>
+        /// Fixed asset posting date for FA depreciation calculations and FA ledger entry creation.
+        /// </summary>
         field(5600; "FA Posting Date"; Date)
         {
             AccessByPermission = TableData "Fixed Asset" = R;
             Caption = 'FA Posting Date';
         }
+        /// <summary>
+        /// Fixed asset posting type determining the nature of FA transaction and G/L account mapping.
+        /// </summary>
         field(5601; "FA Posting Type"; Enum "Gen. Journal Line FA Posting Type")
         {
             AccessByPermission = TableData "Fixed Asset" = R;
@@ -2760,6 +3307,9 @@ table 81 "Gen. Journal Line"
                 GetFAAddCurrExchRate();
             end;
         }
+        /// <summary>
+        /// Fixed asset depreciation book code for depreciation calculations and FA ledger management.
+        /// </summary>
         field(5602; "Depreciation Book Code"; Code[10])
         {
             Caption = 'Depreciation Book Code';
@@ -2789,28 +3339,44 @@ table 81 "Gen. Journal Line"
                 GetFAAddCurrExchRate();
             end;
         }
+        /// <summary>
+        /// Fixed asset expected salvage value at end of useful life for depreciation calculations.
+        /// </summary>
         field(5603; "Salvage Value"; Decimal)
         {
             AccessByPermission = TableData "Fixed Asset" = R;
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
             Caption = 'Salvage Value';
         }
+        /// <summary>
+        /// Number of depreciation days for custom depreciation period calculations.
+        /// </summary>
         field(5604; "No. of Depreciation Days"; Integer)
         {
             AccessByPermission = TableData "Fixed Asset" = R;
             BlankZero = true;
             Caption = 'No. of Depreciation Days';
         }
+        /// <summary>
+        /// Indicates whether to calculate depreciation until the FA posting date.
+        /// </summary>
         field(5605; "Depr. until FA Posting Date"; Boolean)
         {
             AccessByPermission = TableData "Fixed Asset" = R;
             Caption = 'Depr. until FA Posting Date';
         }
+        /// <summary>
+        /// Indicates whether to depreciate the acquisition cost portion of the FA transaction.
+        /// </summary>
         field(5606; "Depr. Acquisition Cost"; Boolean)
         {
             AccessByPermission = TableData "Fixed Asset" = R;
             Caption = 'Depr. Acquisition Cost';
         }
+        /// <summary>
+        /// Fixed asset maintenance code for tracking maintenance expenses and costs.
+        /// </summary>
         field(5609; "Maintenance Code"; Code[10])
         {
             Caption = 'Maintenance Code';
@@ -2822,6 +3388,9 @@ table 81 "Gen. Journal Line"
                     TestField("FA Posting Type", "FA Posting Type"::Maintenance);
             end;
         }
+        /// <summary>
+        /// Fixed asset insurance number for tracking insurance coverage and related costs.
+        /// </summary>
         field(5610; "Insurance No."; Code[20])
         {
             Caption = 'Insurance No.';
@@ -2833,6 +3402,9 @@ table 81 "Gen. Journal Line"
                     TestField("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
             end;
         }
+        /// <summary>
+        /// Budgeted fixed asset number for budget comparison and financial planning purposes.
+        /// </summary>
         field(5611; "Budgeted FA No."; Code[20])
         {
             Caption = 'Budgeted FA No.';
@@ -2848,6 +3420,9 @@ table 81 "Gen. Journal Line"
                 end;
             end;
         }
+        /// <summary>
+        /// Depreciation book code for FA posting duplication across multiple books.
+        /// </summary>
         field(5612; "Duplicate in Depreciation Book"; Code[10])
         {
             Caption = 'Duplicate in Depreciation Book';
@@ -2858,6 +3433,9 @@ table 81 "Gen. Journal Line"
                 "Use Duplication List" := false;
             end;
         }
+        /// <summary>
+        /// Indicates whether to use the duplication list for posting to multiple depreciation books.
+        /// </summary>
         field(5613; "Use Duplication List"; Boolean)
         {
             AccessByPermission = TableData "Fixed Asset" = R;
@@ -2868,37 +3446,61 @@ table 81 "Gen. Journal Line"
                 "Duplicate in Depreciation Book" := '';
             end;
         }
+        /// <summary>
+        /// Indicates whether this is a fixed asset reclassification entry between FA classes.
+        /// </summary>
         field(5614; "FA Reclassification Entry"; Boolean)
         {
             AccessByPermission = TableData "Fixed Asset" = R;
             Caption = 'FA Reclassification Entry';
         }
+        /// <summary>
+        /// Fixed asset error entry number for tracking FA posting errors and corrections.
+        /// </summary>
         field(5615; "FA Error Entry No."; Integer)
         {
             BlankZero = true;
             Caption = 'FA Error Entry No.';
             TableRelation = "FA Ledger Entry";
         }
+        /// <summary>
+        /// Indicates whether this is an index entry for FA ledger adjustments.
+        /// </summary>
         field(5616; "Index Entry"; Boolean)
         {
             Caption = 'Index Entry';
         }
+        /// <summary>
+        /// Source document line number for FA posting reference and traceability.
+        /// </summary>
         field(5617; "Source Line No."; Integer)
         {
             Caption = 'Source Line No.';
         }
+        /// <summary>
+        /// Comment field for additional FA transaction notes and documentation.
+        /// </summary>
         field(5618; Comment; Text[250])
         {
             Caption = 'Comment';
         }
+        /// <summary>
+        /// Indicates whether the check for this payment has been exported to the bank.
+        /// </summary>
         field(5701; "Check Exported"; Boolean)
         {
             Caption = 'Check Exported';
         }
+        /// <summary>
+        /// Indicates whether the check for this payment has been transmitted to the bank.
+        /// </summary>
         field(5702; "Check Transmitted"; Boolean)
         {
             Caption = 'Check Transmitted';
         }
+        /// <summary>
+        /// Date formula for calculating the reverse date in recurring journal entries.
+        /// </summary>
         field(5703; "Reverse Date Calculation"; DateFormula)
         {
             Caption = 'Reverse Date Calculation';
@@ -2916,8 +3518,12 @@ table 81 "Gen. Journal Line"
                     FieldError("Recurring Method");
             end;
         }
+        /// <summary>
+        /// Non-deductible VAT percentage for VAT compliance and partial VAT deduction calculations.
+        /// </summary>
         field(6200; "Non-Deductible VAT %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Non-Deductible VAT %';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -2928,6 +3534,9 @@ table 81 "Gen. Journal Line"
                 NonDeductibleVAT.Calculate(Rec, Currency);
             end;
         }
+        /// <summary>
+        /// Non-deductible VAT base amount in original transaction currency.
+        /// </summary>
         field(6201; "Non-Deductible VAT Base"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -2935,6 +3544,9 @@ table 81 "Gen. Journal Line"
             Caption = 'Non-Deductible VAT Base';
             Editable = false;
         }
+        /// <summary>
+        /// Non-deductible VAT amount in original transaction currency.
+        /// </summary>
         field(6202; "Non-Deductible VAT Amount"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -2942,18 +3554,29 @@ table 81 "Gen. Journal Line"
             Caption = 'Non-Deductible VAT Amount';
             Editable = false;
         }
+        /// <summary>
+        /// Non-deductible VAT base amount in local currency (LCY).
+        /// </summary>
         field(6203; "Non-Deductible VAT Base LCY"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Non-Deductible VAT Base LCY';
             Editable = false;
         }
+        /// <summary>
+        /// Non-deductible VAT amount in local currency (LCY).
+        /// </summary>
         field(6204; "Non-Deductible VAT Amount LCY"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Non-Deductible VAT Amount LCY';
             Editable = false;
         }
+        /// <summary>
+        /// Non-deductible VAT base amount in additional currency (ACY).
+        /// </summary>
         field(6205; "Non-Deductible VAT Base ACY"; Decimal)
         {
             AutoFormatExpression = GetAdditionalReportingCurrencyCode();
@@ -2961,6 +3584,9 @@ table 81 "Gen. Journal Line"
             Caption = 'Non-Deductible VAT Base ACY';
             Editable = false;
         }
+        /// <summary>
+        /// Non-deductible VAT amount in additional currency (ACY).
+        /// </summary>
         field(6206; "Non-Deductible VAT Amount ACY"; Decimal)
         {
             AutoFormatExpression = GetAdditionalReportingCurrencyCode();
@@ -2968,18 +3594,30 @@ table 81 "Gen. Journal Line"
             Caption = 'Non-Deductible VAT Amount ACY';
             Editable = false;
         }
+        /// <summary>
+        /// Fixed asset G/L account number for FA-related non-deductible VAT postings.
+        /// </summary>
         field(6207; "FA G/L Account No."; Code[20])
         {
             Caption = 'FA G/L Account No.';
             Editable = false;
         }
+        /// <summary>
+        /// Non-deductible VAT difference amount for rounding and adjustment calculations.
+        /// </summary>
         field(6208; "Non-Deductible VAT Diff."; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = "Currency Code";
             Caption = 'Non-Deductible VAT Difference';
             Editable = false;
         }
+        /// <summary>
+        /// Balancing non-deductible VAT percentage for balancing account VAT calculations.
+        /// </summary>
         field(6209; "Bal. Non-Ded. VAT %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Bal. Non-Deductible VAT %';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -2990,36 +3628,58 @@ table 81 "Gen. Journal Line"
                 NonDeductibleVAT.CalculateBalAcc(Rec, Currency);
             end;
         }
+        /// <summary>
+        /// Balancing non-deductible VAT base amount in transaction currency.
+        /// </summary>
         field(6210; "Bal. Non-Ded. VAT Base"; Decimal)
         {
+            AutoFormatType = 1;
             AutoFormatExpression = Rec."Currency Code";
             Caption = 'Bal. Non-Deductible VAT Base';
             Editable = false;
         }
+        /// <summary>
+        /// Balancing non-deductible VAT amount in transaction currency.
+        /// </summary>
         field(6211; "Bal. Non-Ded. VAT Amount"; Decimal)
         {
+            AutoFormatType = 1;
             AutoFormatExpression = Rec."Currency Code";
             Caption = 'Bal. Non-Deductible VAT Amount';
             Editable = false;
         }
+        /// <summary>
+        /// Balancing non-deductible VAT base amount in local currency (LCY).
+        /// </summary>
         field(6212; "Bal. Non-Ded. VAT Base LCY"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Bal. Non-Deductible VAT Base LCY';
             Editable = false;
         }
+        /// <summary>
+        /// Balancing non-deductible VAT amount in local currency (LCY).
+        /// </summary>
         field(6213; "Bal. Non-Ded. VAT Amount LCY"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Bal. Non-Deductible VAT Amount LCY';
             Editable = false;
         }
+        /// <summary>
+        /// Indicates whether non-deductible VAT should be included in fixed asset cost.
+        /// </summary>
         field(6230; "Non-Ded. VAT FA Cost"; Boolean)
         {
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Non-Ded. VAT FA Cost';
         }
+        /// <summary>
+        /// Account ID (GUID) for API integration and system identification purposes.
+        /// </summary>
         field(8001; "Account Id"; Guid)
         {
             Caption = 'Account Id';
@@ -3030,6 +3690,9 @@ table 81 "Gen. Journal Line"
                 UpdateAccountNo();
             end;
         }
+        /// <summary>
+        /// Customer ID (GUID) for API integration and system identification purposes.
+        /// </summary>
         field(8002; "Customer Id"; Guid)
         {
             Caption = 'Customer Id';
@@ -3040,6 +3703,9 @@ table 81 "Gen. Journal Line"
                 UpdateCustomerNo();
             end;
         }
+        /// <summary>
+        /// Applies-to Invoice ID (GUID) for API application and invoice matching.
+        /// </summary>
         field(8003; "Applies-to Invoice Id"; Guid)
         {
             Caption = 'Applies-to Invoice Id';
@@ -3051,14 +3717,23 @@ table 81 "Gen. Journal Line"
                 UpdateAppliesToInvoiceNo();
             end;
         }
+        /// <summary>
+        /// Contact Graph ID for external system and API integration purposes.
+        /// </summary>
         field(8004; "Contact Graph Id"; Text[250])
         {
             Caption = 'Contact Graph Id';
         }
+        /// <summary>
+        /// Last modified date and time for API synchronization and change tracking.
+        /// </summary>
         field(8005; "Last Modified DateTime"; DateTime)
         {
             Caption = 'Last Modified DateTime';
         }
+        /// <summary>
+        /// Journal Batch ID (GUID) for API integration and system identification purposes.
+        /// </summary>
         field(8006; "Journal Batch Id"; Guid)
         {
             Caption = 'Journal Batch Id';
@@ -3069,6 +3744,9 @@ table 81 "Gen. Journal Line"
                 UpdateJournalBatchName();
             end;
         }
+        /// <summary>
+        /// Payment Method ID (GUID) for API integration and system identification purposes.
+        /// </summary>
         field(8007; "Payment Method Id"; Guid)
         {
             Caption = 'Payment Method Id';
@@ -3079,6 +3757,9 @@ table 81 "Gen. Journal Line"
                 UpdatePaymentMethodCode();
             end;
         }
+        /// <summary>
+        /// Balance Account ID (GUID) for API integration and system identification purposes.
+        /// </summary>
         field(8008; "Balance Account Id"; Guid)
         {
             Caption = 'Balance Account Id';
@@ -3089,6 +3770,9 @@ table 81 "Gen. Journal Line"
                 UpdateBalanceAccountNo();
             end;
         }
+        /// <summary>
+        /// Vendor ID (GUID) for API integration and system identification purposes.
+        /// </summary>
         field(8009; "Vendor Id"; Guid)
         {
             Caption = 'Vendor Id';
@@ -3119,6 +3803,7 @@ table 81 "Gen. Journal Line"
         }
         field(12102; "Deductible %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Deductible %';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
@@ -3126,6 +3811,7 @@ table 81 "Gen. Journal Line"
         }
         field(12103; "Bal. Deductible %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Bal. Deductible %';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
@@ -3304,6 +3990,7 @@ table 81 "Gen. Journal Line"
         }
         field(12170; "Payment %"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Payment Lines"."Payment %" where("Sales/Purchase" = const(" "),
                                                                  Type = const("General Journal"),
                                                                  Code = field("Journal Batch Name"),
@@ -4346,6 +5033,9 @@ table 81 "Gen. Journal Line"
         OnAfterCheckDirectPosting(GLAccount, Rec);
     end;
 
+    /// <summary>
+    /// Updates the FA additional currency factor from the FA depreciation book setup.
+    /// </summary>
     procedure GetFAAddCurrExchRate()
     var
         DeprBook: Record "Depreciation Book";
@@ -4399,6 +5089,11 @@ table 81 "Gen. Journal Line"
         end;
     end;
 
+    /// <summary>
+    /// Returns the currency code for display purposes, substituting default text for empty currency.
+    /// </summary>
+    /// <param name="CurrencyCode">Currency code to display.</param>
+    /// <returns>Currency code or default display text if empty.</returns>
     procedure GetShowCurrencyCode(CurrencyCode: Code[10]): Code[10]
     begin
         if CurrencyCode <> '' then
@@ -4442,6 +5137,9 @@ table 81 "Gen. Journal Line"
         "Job Total Cost (LCY)" := 0;
     end;
 
+    /// <summary>
+    /// Clears customer and vendor application entry fields when account information changes.
+    /// </summary>
     procedure ClearCustVendApplnEntry()
     var
         TempCustLedgEntry: Record "Cust. Ledger Entry" temporary;
@@ -4532,6 +5230,10 @@ table 81 "Gen. Journal Line"
         OnAfterClearEmplApplnEntryFields(EmplLedgEntry);
     end;
 
+    /// <summary>
+    /// Checks if the currency has a fixed exchange rate for the posting date.
+    /// </summary>
+    /// <returns>True if currency has fixed exchange rate, false otherwise.</returns>
     procedure CheckFixedCurrency(): Boolean
     var
         CurrExchRate: Record "Currency Exchange Rate";
@@ -4561,6 +5263,10 @@ table 81 "Gen. Journal Line"
         exit(false);
     end;
 
+    /// <summary>
+    /// Creates dimensions from default dimension sources for the journal line.
+    /// </summary>
+    /// <param name="DefaultDimSource">List of dictionaries containing dimension source data.</param>
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     var
         IsHandled: Boolean;
@@ -7221,29 +7927,8 @@ table 81 "Gen. Journal Line"
         OnAfterCopyGenJnlLineFromSalesHeaderPayment(SalesHeader, Rec);
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by procedure CopyToGenJournalLine() in table Service Header', '25.0')]
-    procedure CopyFromServiceHeader(ServiceHeader: Record Microsoft.Service.Document."Service Header")
-    begin
-        ServiceHeader.CopyToGenJournalLine(Rec);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Replaced by procedure CopyToGenJournalLineApplyTo() in table Service Header', '25.0')]
-    procedure CopyFromServiceHeaderApplyTo(ServiceHeader: Record Microsoft.Service.Document."Service Header")
-    begin
-        ServiceHeader.CopyToGenJournalLineApplyTo(Rec);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Replaced by procedure CopyToGenJournalLinePayment() in table Service Header', '25.0')]
-    procedure CopyFromServiceHeaderPayment(ServiceHeader: Record Microsoft.Service.Document."Service Header")
-    begin
-        ServiceHeader.CopyToGenJournalLinePayment(Rec);
-    end;
-#endif
 
     procedure CopyFromPaymentCustLedgEntry(CustLedgEntry: Record "Cust. Ledger Entry")
     begin
@@ -8711,44 +9396,8 @@ table 81 "Gen. Journal Line"
     begin
     end;
 
-#if not CLEAN25
-    internal procedure RunOnAfterCopyGenJnlLineFromServHeader(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var GenJournalLine: Record "Gen. Journal Line")
-    begin
-        OnAfterCopyGenJnlLineFromServHeader(ServiceHeader, GenJournalLine);
-    end;
 
-    [Obsolete('Replaced by event OnAfterCopyToGenJnlLine in table Service Header', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyGenJnlLineFromServHeader(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var GenJournalLine: Record "Gen. Journal Line")
-    begin
-    end;
-#endif
 
-#if not CLEAN25
-    internal procedure RunOnAfterCopyGenJnlLineFromServHeaderApplyTo(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var GenJournalLine: Record "Gen. Journal Line")
-    begin
-        OnAfterCopyGenJnlLineFromServHeaderApplyTo(ServiceHeader, GenJournalLine);
-    end;
-
-    [Obsolete('Replaced by event OnAfterCopyToGenJnlLineApplyTo in table Service Header', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyGenJnlLineFromServHeaderApplyTo(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var GenJournalLine: Record "Gen. Journal Line")
-    begin
-    end;
-#endif
-
-#if not CLEAN25
-    internal procedure RunOnAfterCopyGenJnlLineFromServHeaderPayment(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var GenJournalLine: Record "Gen. Journal Line")
-    begin
-        OnAfterCopyGenJnlLineFromServHeaderPayment(ServiceHeader, GenJournalLine);
-    end;
-
-    [Obsolete('Replaced by event OnAfterCopyToGenJnlLinePayment in table Service Header', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyGenJnlLineFromServHeaderPayment(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var GenJournalLine: Record "Gen. Journal Line")
-    begin
-    end;
-#endif
 
     /// <summary>
     /// Event triggered after copying data from a prepayment invoice line buffer to the general journal line.

@@ -77,7 +77,6 @@ codeunit 144072 "UT COD VAT Exemption"
     end;
 
     [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure OnRunDocumentTypeCreditMemoServicePostError()
     var
@@ -88,7 +87,6 @@ codeunit 144072 "UT COD VAT Exemption"
     end;
 
     [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure OnRunDocumentTypeInvoiceServicePostError()
     var

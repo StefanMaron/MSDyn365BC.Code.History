@@ -16,7 +16,7 @@
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        LibraryWorkflow: Codeunit "Library - Workflow";
+        LibraryEmail: Codeunit "Library - Email";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryERM: Codeunit "Library - ERM";
         IsInitialized, HideEmailDialog : Boolean;
@@ -289,7 +289,7 @@
 
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         BindSubscription(LibraryJobQueue);
-        LibraryWorkflow.SetUpEmailAccount();
+        LibraryEmail.SetUpEmailAccount();
         ConnectorMock.FailOnSend(true);
         SalesInvoiceHeader.SendRecords();
 
@@ -401,7 +401,7 @@
         // [SCENARIO 421871] Send Posted Sales Invoice when Customer's email and email from Document Layout are blank and Document Sending Profile has E-Mail = "Yes (Use Default Settings)".
         Initialize();
         HideEmailDialog := false;
-        LibraryWorkflow.SetUpEmailAccount();
+        LibraryEmail.SetUpEmailAccount();
         ConnectorMock.FailOnSend(true);
 
         // [GIVEN] Default Document Sending Profile with E-Mail = "Yes (Use Default Settings)".
@@ -487,7 +487,7 @@
     begin
         // [SCENARIO 421871] Send Purchase Order when Vendor's email and email from Document Layout are blank and Document Sending Profile has E-Mail = "Yes (Use Default Settings)".
         Initialize();
-        LibraryWorkflow.SetUpEmailAccount();
+        LibraryEmail.SetUpEmailAccount();
         ConnectorMock.FailOnSend(true);
 
         // [GIVEN] Default Document Sending Profile with E-Mail = "Yes (Use Default Settings)".
@@ -533,7 +533,7 @@
     begin
         // [SCENARIO 426569] Send Posted Sales Invoice when Document Sending Profile has E-Mail Attachment = "PDF & Electronic Document" and Combine Email Documents = true.
         Initialize();
-        LibraryWorkflow.SetUpEmailAccount();
+        LibraryEmail.SetUpEmailAccount();
         ConnectorMock.FailOnSend(true);
 
         // [GIVEN] PEPPOL electronic format.
@@ -582,7 +582,7 @@
     begin
         // [SCENARIO 426569] Send Posted Sales Invoice when Document Sending Profile has E-Mail Attachment = "PDF & Electronic Document" and Combine Email Documents = false.
         Initialize();
-        LibraryWorkflow.SetUpEmailAccount();
+        LibraryEmail.SetUpEmailAccount();
         ConnectorMock.FailOnSend(true);
 
         // [GIVEN] PEPPOL electronic format.

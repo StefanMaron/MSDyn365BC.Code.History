@@ -8,14 +8,14 @@ using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
+#if not CLEAN27
+using Microsoft.Manufacturing.Document;
+#endif
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.WorkCenter;
 using System.Utilities;
-#if not CLEAN27
-using Microsoft.Manufacturing.Document;
-#endif
 
 report 99000756 "Detailed Calculation"
 {

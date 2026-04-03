@@ -4,15 +4,15 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Document;
 
+using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Sales.Document;
 using Microsoft.Purchases.History;
-using Microsoft.Foundation.Navigate;
+using Microsoft.Sales.Document;
 
 codeunit 99000834 "Purch. Line-Reserve"
 {
@@ -492,7 +492,7 @@ codeunit 99000834 "Purch. Line-Reserve"
         if not IsHandled then begin
             InitFromPurchLine(TrackingSpecification, PurchaseLine);
             if ((PurchaseLine."Document Type" = PurchaseLine."Document Type"::Invoice) and
-                (PurchaseLine."Receipt No." <> '')) or
+                PurchaseLine.IsMatchedToReceiptOrOrder()) or
             ((PurchaseLine."Document Type" = PurchaseLine."Document Type"::"Credit Memo") and
                 (PurchaseLine."Return Shipment No." <> ''))
             then
@@ -525,6 +525,31 @@ codeunit 99000834 "Purch. Line-Reserve"
         RunItemTrackingLinesPage(ItemTrackingLines);
     end;
 
+    procedure CallItemTracking(var PurchaseLine: Record "Purchase Line"; ItemLedgerEntryFilter: Text)
+    var
+        TrackingSpecification: Record "Tracking Specification";
+        ItemTrackingLines: Page "Item Tracking Lines";
+        ShouldProcessDropShipment: Boolean;
+    begin
+        InitFromPurchLine(TrackingSpecification, PurchaseLine);
+        ItemTrackingLines.SetRunMode(Enum::"Item Tracking Run Mode"::"Combined Ship/Rcpt");
+
+        ShouldProcessDropShipment := PurchaseLine."Drop Shipment";
+
+        if ShouldProcessDropShipment then begin
+            ItemTrackingLines.SetRunMode(Enum::"Item Tracking Run Mode"::"Drop Shipment");
+            if PurchaseLine."Sales Order No." <> '' then
+                ItemTrackingLines.SetSecondSourceRowID(
+                    ItemTrackingManagement.ComposeRowID(
+                        Database::"Sales Line", 1, PurchaseLine."Sales Order No.", '', 0, PurchaseLine."Sales Order Line No."));
+        end;
+
+        ItemTrackingLines.SetItemLedgerEntryFilter(ItemLedgerEntryFilter);
+        ItemTrackingLines.SetSourceSpec(TrackingSpecification, PurchaseLine."Expected Receipt Date");
+        ItemTrackingLines.SetInbound(PurchaseLine.IsInbound());
+        RunItemTrackingLinesPage(ItemTrackingLines);
+    end;
+
     local procedure RunItemTrackingLinesPage(var ItemTrackingLines: Page "Item Tracking Lines")
     var
         IsHandled: Boolean;
@@ -551,7 +576,7 @@ codeunit 99000834 "Purch. Line-Reserve"
         if PurchaseLine.Type <> PurchaseLine.Type::Item then
             exit;
         if ((PurchaseLine."Document Type" = PurchaseLine."Document Type"::Invoice) and
-            (PurchaseLine."Receipt No." <> '')) or
+            PurchaseLine.IsMatchedToReceiptOrOrder()) or
            ((PurchaseLine."Document Type" = PurchaseLine."Document Type"::"Credit Memo") and
             (PurchaseLine."Return Shipment No." <> ''))
         then
@@ -926,13 +951,6 @@ codeunit 99000834 "Purch. Line-Reserve"
         ReservQty: Decimal;
         IsReserved: Boolean;
     begin
-#if not CLEAN25
-        IsReserved := false;
-        sender.RunOnBeforeAutoReservePurchLine(
-          ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate, IsReserved, Search, NextStep, CalcReservEntry);
-        if IsReserved then
-            exit;
-#endif
         IsReserved := false;
         OnBeforeAutoReservePurchLine(
           ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate, IsReserved, Search, NextStep, CalcReservEntry);
@@ -1209,9 +1227,6 @@ codeunit 99000834 "Purch. Line-Reserve"
               PurchLine."Qty. Invoiced (Base)");
 
         OnAfterInitFromPurchLine(TransactionSpecification, PurchLine);
-#if not CLEAN25
-        TransactionSpecification.RunOnAfterInitFromPurchLine(TransactionSpecification, PurchLine);
-#endif
     end;
 
     [IntegrationEvent(false, false)]

@@ -11,6 +11,7 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Attachment;
+using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Purchases.Comment;
 using Microsoft.Purchases.Payables;
@@ -21,7 +22,6 @@ using System.Environment;
 using System.Environment.Configuration;
 using System.Privacy;
 using System.Security.User;
-using Microsoft.Foundation.PaymentTerms;
 
 page 49 "Purchase Quote"
 {
@@ -149,7 +149,6 @@ page 49 "Purchase Quote"
                         Caption = 'Post Code';
                         Importance = Additional;
                         QuickEntry = false;
-                        ToolTip = 'Specifies the post code of the vendor who delivered the items.';
                     }
                     field("Buy-from Country/Region Code"; Rec."Buy-from Country/Region Code")
                     {
@@ -227,11 +226,23 @@ page 49 "Purchase Quote"
                         CurrPage.Update();
                     end;
                 }
+                field("Buy-from Vendor Templ. Code"; Rec."Buy-from Vendor Templ. Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Vendor Template Code';
+                    Enabled = EnableNewBuyFromVendorTemplateCode;
+                    Importance = Additional;
+
+                    trigger OnValidate()
+                    begin
+                        ActivateFields();
+                        CurrPage.Update();
+                    end;
+                }
                 field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the date when the related document was created.';
                 }
                 field("Operation Occurred Date"; Rec."Operation Occurred Date")
                 {
@@ -248,29 +259,24 @@ page 49 "Purchase Quote"
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the number of archived versions for this document.';
                 }
                 field("Requested Receipt Date"; Rec."Requested Receipt Date")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the date that you want the vendor to deliver to the ship-to address. The value in the field is used to calculate the latest date you can order the items to have them delivered on the requested receipt date. If you do not need delivery on a specific date, you can leave the field blank.';
                 }
                 field("Vendor Order No."; Rec."Vendor Order No.")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the vendor''s order number.';
                 }
                 field("Vendor Shipment No."; Rec."Vendor Shipment No.")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the vendor''s shipment number.';
                 }
                 field("Purchaser Code"; Rec."Purchaser Code")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies which purchaser is assigned to the vendor.';
 
                     trigger OnValidate()
                     begin
@@ -295,13 +301,11 @@ page 49 "Purchase Quote"
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the code of the responsibility center, such as a distribution hub, that is associated with the involved user, company, customer, or vendor.';
                 }
                 field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
                 field("Operation Type"; Rec."Operation Type")
                 {
@@ -320,18 +324,15 @@ page 49 "Purchase Quote"
                     ApplicationArea = Suite;
                     Importance = Promoted;
                     StyleExpr = StatusStyleTxt;
-                    ToolTip = 'Specifies whether the record is open, waiting to be approved, invoiced for prepayment, or released to the next stage of processing.';
                 }
                 field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the language to be used on printouts for this document.';
                     Visible = false;
                 }
                 field("Format Region"; Rec."Format Region")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the format to be used on printouts for this document.';
                     Visible = false;
                 }
             }
@@ -373,12 +374,10 @@ page 49 "Purchase Quote"
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the date you expect the items to be available in your warehouse. If you leave the field blank, it will be calculated as follows: Planned Receipt Date + Safety Lead Time + Inbound Warehouse Handling Time = Expected Receipt Date.';
                 }
                 field("Prices Including VAT"; Rec."Prices Including VAT")
                 {
                     ApplicationArea = VAT;
-                    ToolTip = 'Specifies if the Unit Price and Line Amount fields on document lines should be shown with or without VAT.';
 
                     trigger OnValidate()
                     begin
@@ -388,30 +387,25 @@ page 49 "Purchase Quote"
                 field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
                 field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
-                    ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                 }
                 field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
                     Visible = IsPaymentMethodCodeVisible;
                 }
                 field("Transaction Type"; Rec."Transaction Type")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
 
                     trigger OnValidate()
                     begin
@@ -421,7 +415,6 @@ page 49 "Purchase Quote"
                 field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
 
                     trigger OnValidate()
                     begin
@@ -431,38 +424,31 @@ page 49 "Purchase Quote"
                 field("Journal Templ. Name"; Rec."Journal Templ. Name")
                 {
                     ApplicationArea = BasicBE;
-                    ToolTip = 'Specifies the name of the journal template in which the purchase header is to be posted.';
                     Visible = IsJournalTemplateNameVisible;
                 }
                 field("Shipment Method Code"; Rec."Shipment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
                 }
                 field("Payment Reference"; Rec."Payment Reference")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the payment of the purchase invoice.';
                 }
                 field("Creditor No."; Rec."Creditor No.")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the number of the vendor.';
                 }
                 field("On Hold"; Rec."On Hold")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies that the related entry represents an unpaid invoice for which either a payment suggestion, a reminder, or a finance charge memo exists.';
                 }
                 field("Tax Liable"; Rec."Tax Liable")
                 {
                     ApplicationArea = SalesTax;
-                    ToolTip = 'Specifies if this vendor charges you sales tax for purchases.';
                 }
                 field("Tax Area Code"; Rec."Tax Area Code")
                 {
                     ApplicationArea = SalesTax;
-                    ToolTip = 'Specifies the tax area code used for this purchase to calculate and post sales tax.';
 
                     trigger OnValidate()
                     begin
@@ -503,7 +489,6 @@ page 49 "Purchase Quote"
                                 {
                                     ApplicationArea = Location;
                                     Importance = Promoted;
-                                    ToolTip = 'Specifies the location where the items are to be placed when they are received. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
                                 }
                             }
                             field("Ship-to Name"; Rec."Ship-to Name")
@@ -520,7 +505,6 @@ page 49 "Purchase Quote"
                                 Caption = 'Name 2';
                                 Editable = ShipToOptions = ShipToOptions::"Custom Address";
                                 Importance = Additional;
-                                ToolTip = 'Specifies an additional part of the name of the customer that items on the purchase order were shipped to, as a drop shipment.';
                                 QuickEntry = false;
                                 Visible = false;
                             }
@@ -594,7 +578,6 @@ page 49 "Purchase Quote"
                                 Caption = 'Phone No.';
                                 Editable = ShipToOptions = ShipToOptions::"Custom Address";
                                 Importance = Additional;
-                                ToolTip = 'Specifies the telephone number of the company''s shipping address.';
                             }
                             field("Ship-to Contact"; Rec."Ship-to Contact")
                             {
@@ -609,6 +592,7 @@ page 49 "Purchase Quote"
                 }
                 group(Control51)
                 {
+                    Enabled = not EnableBuyFromVendorTemplateCode;
                     ShowCaption = false;
                     field(PayToOptions; PayToOptions)
                     {
@@ -632,7 +616,7 @@ page 49 "Purchase Quote"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Name';
                             Editable = PayToOptions = PayToOptions::"Another Vendor";
-                            Enabled = PayToOptions = PayToOptions::"Another Vendor";
+                            Enabled = EnablePayToVendorNo;
                             Importance = Promoted;
                             ToolTip = 'Specifies the name of the vendor that you received the invoice from.';
 
@@ -708,7 +692,6 @@ page 49 "Purchase Quote"
                             Enabled = (PayToOptions = PayToOptions::"Custom Address") or (Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.");
                             Importance = Additional;
                             QuickEntry = false;
-                            ToolTip = 'Specifies the post code of the vendor that you received the invoice from.';
                         }
                         field("Pay-to Country/Region Code"; Rec."Pay-to Country/Region Code")
                         {
@@ -778,41 +761,23 @@ page 49 "Purchase Quote"
                 field("Transaction Specification"; Rec."Transaction Specification")
                 {
                     ApplicationArea = BasicEU, BasicNO;
-                    ToolTip = 'Specifies a specification of the document''s transaction, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Transport Method"; Rec."Transport Method")
                 {
                     ApplicationArea = BasicEU, BasicNO;
-                    ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Entry Point"; Rec."Entry Point")
                 {
                     ApplicationArea = BasicEU, BasicNO;
-                    ToolTip = 'Specifies the code of the port of entry where the items pass into your country/region, for reporting to Intrastat.';
                 }
                 field("Area"; Rec.Area)
                 {
                     ApplicationArea = BasicEU, BasicNO;
-                    ToolTip = 'Specifies the destination country or region for the purpose of Intrastat reporting.';
                 }
             }
         }
         area(factboxes)
         {
-#if not CLEAN25
-            part("Attached Documents"; "Document Attachment Factbox")
-            {
-                ObsoleteTag = '25.0';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
-                ApplicationArea = All;
-                Visible = false;
-                Caption = 'Attachments';
-                SubPageLink = "Table ID" = const(Database::"Purchase Header"),
-                              "No." = field("No."),
-                              "Document Type" = field("Document Type");
-            }
-#endif
             part("Attached Documents List"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = All;
@@ -1598,6 +1563,8 @@ page 49 "Purchase Quote"
     var
         EnvironmentInformation: Codeunit "Environment Information";
     begin
+        EnablePayToVendorNo := true;
+        EnableBuyFromVendorTemplateCode := true;
         ShowShippingOptionsWithLocation := ApplicationAreaMgmtFacade.IsLocationEnabled() or ApplicationAreaMgmtFacade.IsAllDisabled();
         SetIsActivityCodeMandatory();
         IsSaaS := EnvironmentInformation.IsSaaS();
@@ -1635,6 +1602,8 @@ page 49 "Purchase Quote"
         ActivateFields();
 
         SetDocNoVisible();
+
+        SetEnableBuyFromVendorTemplateCode();
     end;
 
     var
@@ -1667,21 +1636,27 @@ page 49 "Purchase Quote"
         IsPurchaseLinesEditable: Boolean;
         IsJournalTemplateNameVisible: Boolean;
         IsPaymentMethodCodeVisible: Boolean;
+        EnableBuyFromVendorTemplateCode: Boolean;
+        EnableNewBuyFromVendorTemplateCode: Boolean;
 
     protected var
         IsActivityCodeMandatory: Boolean;
         ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
         PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
         DocNoVisible: Boolean;
+        EnablePayToVendorNo: Boolean;
 
     protected procedure ActivateFields()
     begin
+        EnablePayToVendorNo := Rec."Pay-to Vendor Templ. Code" = '';
+        EnableBuyFromVendorTemplateCode := Rec."Buy-from Vendor No." = '';
         IsBuyFromCountyVisible := FormatAddress.UseCounty(Rec."Buy-from Country/Region Code");
         IsPayToCountyVisible := FormatAddress.UseCounty(Rec."Pay-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
         GLSetup.Get();
         IsJournalTemplateNameVisible := GLSetup."Journal Templ. Name Mandatory";
         IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
+        SetEnableBuyFromVendorTemplateCode();
 
         OnAfterActivateFields();
     end;
@@ -1786,6 +1761,11 @@ page 49 "Purchase Quote"
         end;
 
         OnAfterCalculateCurrentShippingAndPayToOption(ShipToOptions, PayToOptions, Rec);
+    end;
+
+    local procedure SetEnableBuyFromVendorTemplateCode()
+    begin
+        EnableNewBuyFromVendorTemplateCode := Rec."Buy-from Vendor No." = '';
     end;
 
     [IntegrationEvent(true, false)]

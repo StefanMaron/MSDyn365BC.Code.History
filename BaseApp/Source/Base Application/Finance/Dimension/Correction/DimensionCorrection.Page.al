@@ -7,6 +7,9 @@ namespace Microsoft.Finance.Dimension.Correction;
 using System.Security.AccessControl;
 using System.Utilities;
 
+/// <summary>
+/// Main interface for managing dimension correction operations. Provides comprehensive functionality for creating, configuring, and monitoring dimension corrections.
+/// </summary>
 page 2588 "Dimension Correction"
 {
     PageType = ListPlus;

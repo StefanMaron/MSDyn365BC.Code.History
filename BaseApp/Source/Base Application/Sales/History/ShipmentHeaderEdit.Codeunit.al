@@ -7,6 +7,9 @@ namespace Microsoft.Sales.History;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Purchases.History;
 
+/// <summary>
+/// Provides functionality to edit shipping agent and package tracking fields on posted sales shipment headers.
+/// </summary>
 codeunit 391 "Shipment Header - Edit"
 {
     Permissions = TableData "Sales Shipment Header" = rm,
@@ -89,16 +92,6 @@ codeunit 391 "Shipment Header - Edit"
         TransferShptHeader2 := TransferShptHeader;
     end;
 
-#if not CLEAN25
-    [Obsolete('Moved to codeunit ServShipmentHeaderEdit', '25.0')]
-    [Scope('OnPrem')]
-    procedure ModifyServiceShipment(var ServiceShptHeader2: Record Microsoft.Service.History."Service Shipment Header")
-    var
-        ServShipmentHeaderEdit: Codeunit Microsoft.Service.History."Serv. Shipment Header - Edit";
-    begin
-        ServShipmentHeaderEdit.ModifyServiceShipment(ServiceShptHeader2);
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesShptHeaderModify(var SalesShptHeader: Record "Sales Shipment Header"; FromSalesShptHeader: Record "Sales Shipment Header")
@@ -120,22 +113,9 @@ codeunit 391 "Shipment Header - Edit"
     begin
     end;
 
-#if not CLEAN25
-    internal procedure RunOnBeforeServiceShptHeaderModify(var ServiceShipmentHeader: Record Microsoft.Service.History."Service Shipment Header"; ServiceShipmentHeader2: Record Microsoft.Service.History."Service Shipment Header")
-    begin
-        OnBeforeServiceShptHeaderModify(ServiceShipmentHeader, ServiceShipmentHeader2);
-    end;
-
-    [Obsolete('Moved to codeunit ServShipmentHeaderEdit', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceShptHeaderModify(var ServiceShipmentHeader: Record Microsoft.Service.History."Service Shipment Header"; ServiceShipmentHeader2: Record Microsoft.Service.History."Service Shipment Header")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeAssignValues(var SalesShipmentHeader: Record "Sales Shipment Header"; SalesShipmentHeaderRec: Record "Sales Shipment Header")
     begin
     end;
 }
-

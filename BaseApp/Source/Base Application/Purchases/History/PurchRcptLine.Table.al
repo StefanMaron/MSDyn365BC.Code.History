@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -54,12 +54,14 @@ table 121 "Purch. Rcpt. Line"
         field(2; "Buy-from Vendor No."; Code[20])
         {
             Caption = 'Buy-from Vendor No.';
+            ToolTip = 'Specifies the name of the vendor who delivered the items.';
             Editable = false;
             TableRelation = Vendor;
         }
         field(3; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+            ToolTip = 'Specifies the number of the related document.';
             TableRelation = "Purch. Rcpt. Header";
             trigger OnValidate()
             begin
@@ -73,11 +75,13 @@ table 121 "Purch. Rcpt. Line"
         field(5; Type; Enum "Purchase Line Type")
         {
             Caption = 'Type';
+            ToolTip = 'Specifies the line type.';
         }
         field(6; "No."; Code[20])
         {
             CaptionClass = GetCaptionClass(FieldNo("No."));
             Caption = 'No.';
+            ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
             TableRelation = if (Type = const("G/L Account")) "G/L Account"
             else
             if (Type = const(Item)) Item
@@ -91,6 +95,7 @@ table 121 "Purch. Rcpt. Line"
         field(7; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
+            ToolTip = 'Specifies a code for the location where you want the items to be placed when they are received.';
             TableRelation = Location where("Use As In-Transit" = const(false));
         }
         field(8; "Posting Group"; Code[20])
@@ -104,22 +109,28 @@ table 121 "Purch. Rcpt. Line"
         field(10; "Expected Receipt Date"; Date)
         {
             Caption = 'Expected Receipt Date';
+            ToolTip = 'Specifies the date you expect the items to be available in your warehouse. If you leave the field blank, it will be calculated as follows: Planned Receipt Date + Safety Lead Time + Inbound Warehouse Handling Time = Expected Receipt Date.';
         }
         field(11; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies either the name of or a description of the item or general ledger account.';
         }
         field(12; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
+            ToolTip = 'Specifies information in addition to the description.';
         }
         field(13; "Unit of Measure"; Text[50])
         {
             Caption = 'Unit of Measure';
+            ToolTip = 'Specifies the name of the item or resource''s unit of measure, such as piece or hour.';
         }
         field(15; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
+            ToolTip = 'Specifies the number of units of the item specified on the line.';
             DecimalPlaces = 0 : 5;
         }
         field(22; "Direct Unit Cost"; Decimal)
@@ -127,20 +138,24 @@ table 121 "Purch. Rcpt. Line"
             AutoFormatExpression = GetCurrencyCodeFromHeader();
             AutoFormatType = 2;
             Caption = 'Direct Unit Cost';
+            ToolTip = 'Specifies the cost of one unit of the selected item or resource.';
         }
         field(23; "Unit Cost (LCY)"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost (LCY)';
         }
         field(25; "VAT %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'VAT %';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(27; "Line Discount %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Line Discount %';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
@@ -149,6 +164,7 @@ table 121 "Purch. Rcpt. Line"
         field(31; "Unit Price (LCY)"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Price (LCY)';
         }
         field(32; "Allow Invoice Disc."; Boolean)
@@ -158,28 +174,37 @@ table 121 "Purch. Rcpt. Line"
         }
         field(34; "Gross Weight"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Gross Weight';
+            ToolTip = 'Specifies the gross weight of one unit of the item. In the purchase statistics window, the gross weight on the line is included in the total gross weight of all the lines for the particular purchase document.';
             DecimalPlaces = 0 : 5;
         }
         field(35; "Net Weight"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Net Weight';
+            ToolTip = 'Specifies the net weight of one unit of the item. In the purchase statistics window, the net weight on the line is included in the total net weight of all the lines for the particular purchase document.';
             DecimalPlaces = 0 : 5;
         }
         field(36; "Units per Parcel"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Units per Parcel';
+            ToolTip = 'Specifies the number of units per parcel of the item. In the purchase statistics window, the number of units per parcel on the line helps to determine the total number of units for all the lines for the particular purchase document.';
             DecimalPlaces = 0 : 5;
         }
         field(37; "Unit Volume"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Unit Volume';
+            ToolTip = 'Specifies the volume of one unit of the item. In the purchase statistics window, the volume of one unit of the item on the line is included in the total volume of all the lines for the particular purchase document.';
             DecimalPlaces = 0 : 5;
         }
         field(38; "Appl.-to Item Entry"; Integer)
         {
             AccessByPermission = TableData Item = R;
             Caption = 'Appl.-to Item Entry';
+            ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied to.';
         }
         field(39; "Item Rcpt. Entry No."; Integer)
         {
@@ -189,35 +214,44 @@ table 121 "Purch. Rcpt. Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(41; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(45; "Job No."; Code[20])
         {
             Caption = 'Project No.';
+            ToolTip = 'Specifies the number of the related project.';
             TableRelation = Job;
         }
         field(54; "Indirect Cost %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Indirect Cost %';
+            ToolTip = 'Specifies the percentage of the item''s last purchase cost that includes indirect costs, such as freight that is associated with the purchase of the item.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
         }
         field(58; "Qty. Rcd. Not Invoiced"; Decimal)
         {
+            AutoFormatType = 0;
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'Qty. Rcd. Not Invoiced';
+            ToolTip = 'Specifies the quantity of the received item that has been posted as received but that has not yet been posted as invoiced.';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(61; "Quantity Invoiced"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity Invoiced';
+            ToolTip = 'Specifies how many units of the item on the line have been posted as invoiced.';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
@@ -225,20 +259,24 @@ table 121 "Purch. Rcpt. Line"
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'Order No.';
+            ToolTip = 'Specifies the line number of the order that created the entry.';
         }
         field(66; "Order Line No."; Integer)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'Order Line No.';
+            ToolTip = 'Specifies the line number of the order that created the entry.';
         }
         field(68; "Pay-to Vendor No."; Code[20])
         {
             Caption = 'Pay-to Vendor No.';
+            ToolTip = 'Specifies the number of the vendor that you received the invoice from.';
             TableRelation = Vendor;
         }
         field(70; "Vendor Item No."; Text[50])
         {
             Caption = 'Vendor Item No.';
+            ToolTip = 'Specifies the number that the vendor uses for this item.';
         }
         field(71; "Sales Order No."; Code[20])
         {
@@ -324,17 +362,20 @@ table 121 "Purch. Rcpt. Line"
         {
             CalcFormula = lookup("Purch. Rcpt. Header"."Currency Code" where("No." = field("Document No.")));
             Caption = 'Currency Code';
+            ToolTip = 'Specifies the currency that is used on the entry.';
             Editable = false;
             FieldClass = FlowField;
         }
         field(97; "Blanket Order No."; Code[20])
         {
             Caption = 'Blanket Order No.';
+            ToolTip = 'Specifies the number of the blanket order that the record originates from.';
             TableRelation = "Purchase Header"."No." where("Document Type" = const("Blanket Order"));
         }
         field(98; "Blanket Order Line No."; Integer)
         {
             Caption = 'Blanket Order Line No.';
+            ToolTip = 'Specifies the number of the blanket order line that the record originates from.';
             TableRelation = "Purchase Line"."Line No." where("Document Type" = const("Blanket Order"),
                                                               "Document No." = field("Blanket Order No."));
         }
@@ -350,6 +391,7 @@ table 121 "Purch. Rcpt. Line"
             AutoFormatExpression = GetCurrencyCodeFromHeader();
             AutoFormatType = 2;
             Caption = 'Unit Cost';
+            ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
             Editable = false;
         }
         field(107; "IC Partner Ref. Type"; Enum "IC Partner Reference Type")
@@ -385,6 +427,7 @@ table 121 "Purch. Rcpt. Line"
         field(1001; "Job Task No."; Code[20])
         {
             Caption = 'Project Task No.';
+            ToolTip = 'Specifies the number of the related project task.';
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
         }
         field(1002; "Job Line Type"; Enum "Job Line Type")
@@ -393,11 +436,15 @@ table 121 "Purch. Rcpt. Line"
         }
         field(1003; "Job Unit Price"; Decimal)
         {
+            AutoFormatType = 2;
+            AutoFormatExpression = "Job Currency Code";
             BlankZero = true;
             Caption = 'Project Unit Price';
         }
         field(1004; "Job Total Price"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = "Job Currency Code";
             BlankZero = true;
             Caption = 'Project Total Price';
         }
@@ -417,6 +464,7 @@ table 121 "Purch. Rcpt. Line"
         }
         field(1007; "Job Line Discount %"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Project Line Discount %';
             DecimalPlaces = 0 : 5;
@@ -428,27 +476,32 @@ table 121 "Purch. Rcpt. Line"
             BlankZero = true;
             Caption = 'Project Unit Price (LCY)';
             AutoFormatType = 2;
+            AutoFormatExpression = '';
         }
         field(1009; "Job Total Price (LCY)"; Decimal)
         {
             BlankZero = true;
             Caption = 'Project Total Price (LCY)';
             AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(1010; "Job Line Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Project Line Amount (LCY)';
         }
         field(1011; "Job Line Disc. Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             BlankZero = true;
             Caption = 'Project Line Disc. Amount (LCY)';
         }
         field(1012; "Job Currency Factor"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Project Currency Factor';
         }
@@ -465,35 +518,42 @@ table 121 "Purch. Rcpt. Line"
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
+            ToolTip = 'Specifies the variant of the item on the line.';
             TableRelation = if (Type = const(Item)) "Item Variant".Code where("Item No." = field("No."));
         }
         field(5403; "Bin Code"; Code[20])
         {
             Caption = 'Bin Code';
+            ToolTip = 'Specifies the bin where the items are picked or put away.';
             TableRelation = Bin.Code where("Location Code" = field("Location Code"),
                                             "Item Filter" = field("No."),
                                             "Variant Filter" = field("Variant Code"));
         }
         field(5404; "Qty. per Unit of Measure"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. per Unit of Measure';
+            ToolTip = 'Specifies the quantity per unit of measure of the item that was received.';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(5407; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
+            ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
             TableRelation = if (Type = const(Item)) "Item Unit of Measure".Code where("Item No." = field("No."))
             else
             "Unit of Measure";
         }
         field(5415; "Quantity (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity (Base)';
             DecimalPlaces = 0 : 5;
         }
         field(5461; "Qty. Invoiced (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Invoiced (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -514,7 +574,7 @@ table 121 "Purch. Rcpt. Line"
         field(5603; "Salvage Value"; Decimal)
         {
             AutoFormatType = 1;
-            Caption = 'Salvage Value';
+            AutoFormatExpression = "Job Currency Code";
         }
         field(5605; "Depr. until FA Posting Date"; Boolean)
         {
@@ -557,6 +617,7 @@ table 121 "Purch. Rcpt. Line"
         {
             AccessByPermission = TableData "Item Reference" = R;
             Caption = 'Item Reference No.';
+            ToolTip = 'Specifies the referenced item number.';
         }
         field(5726; "Item Reference Unit of Measure"; Code[10])
         {
@@ -579,6 +640,7 @@ table 121 "Purch. Rcpt. Line"
         field(5710; Nonstock; Boolean)
         {
             Caption = 'Catalog';
+            ToolTip = 'Specifies that this item is a catalog item.';
         }
         field(5711; "Purchasing Code"; Code[10])
         {
@@ -596,29 +658,47 @@ table 121 "Purch. Rcpt. Line"
         field(5790; "Requested Receipt Date"; Date)
         {
             Caption = 'Requested Receipt Date';
+            ToolTip = 'Specifies the date that you want the vendor to deliver to the ship-to address. The value in the field is used to calculate the latest date you can order the items to have them delivered on the requested receipt date. If you do not need delivery on a specific date, you can leave the field blank.';
         }
         field(5791; "Promised Receipt Date"; Date)
         {
             Caption = 'Promised Receipt Date';
+            ToolTip = 'Specifies the date that the vendor has promised to deliver the order.';
         }
         field(5792; "Lead Time Calculation"; DateFormula)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'Lead Time Calculation';
+            ToolTip = 'Specifies a date formula for the amount of time it takes to replenish the item.';
         }
         field(5793; "Inbound Whse. Handling Time"; DateFormula)
         {
             AccessByPermission = TableData Location = R;
             Caption = 'Inbound Whse. Handling Time';
+            ToolTip = 'Specifies the time it takes to make items part of available inventory, after the items have been posted as received.';
         }
         field(5794; "Planned Receipt Date"; Date)
         {
             Caption = 'Planned Receipt Date';
+            ToolTip = 'Specifies the date when the item is planned to arrive in inventory. Forward calculation: planned receipt date = order date + vendor lead time (per the vendor calendar and rounded to the next working day in first the vendor calendar and then the location calendar). If no vendor calendar exists, then: planned receipt date = order date + vendor lead time (per the location calendar). Backward calculation: order date = planned receipt date - vendor lead time (per the vendor calendar and rounded to the previous working day in first the vendor calendar and then the location calendar). If no vendor calendar exists, then: order date = planned receipt date - vendor lead time (per the location calendar).';
         }
         field(5795; "Order Date"; Date)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'Order Date';
+            ToolTip = 'Specifies the date when the related order was created.';
+        }
+        field(5796; "Vendor Order No."; Code[35])
+        {
+            Caption = 'Vendor Order No.';
+        }
+        field(5797; "Vendor Shipment No."; Code[35])
+        {
+            Caption = 'Vendor Shipment No.';
+        }
+        field(5798; "Your Reference"; Text[35])
+        {
+            Caption = 'Your Reference';
         }
         field(5811; "Item Charge Base Amount"; Decimal)
         {
@@ -629,11 +709,13 @@ table 121 "Purch. Rcpt. Line"
         field(5817; Correction; Boolean)
         {
             Caption = 'Correction';
+            ToolTip = 'Specifies the entry as a corrective entry. You can use the field if you need to post a corrective entry to an account.';
             Editable = false;
         }
         field(6608; "Return Reason Code"; Code[10])
         {
             Caption = 'Return Reason Code';
+            ToolTip = 'Specifies the code explaining why the item was returned.';
             TableRelation = "Return Reason";
         }
         field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
@@ -650,6 +732,7 @@ table 121 "Purch. Rcpt. Line"
         }
         field(8509; "Over-Receipt Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Over-Receipt Quantity';
             Editable = false;
         }
@@ -661,6 +744,7 @@ table 121 "Purch. Rcpt. Line"
         }
         field(12101; "Deductible %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Deductible %';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
@@ -679,6 +763,7 @@ table 121 "Purch. Rcpt. Line"
         }
         field(99000755; "Overhead Rate"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Overhead Rate';
             DecimalPlaces = 0 : 5;
         }
@@ -717,12 +802,15 @@ table 121 "Purch. Rcpt. Line"
     trigger OnDelete()
     var
         PurchDocLineComments: Record "Purch. Comment Line";
+        MatchedOrderLineMgmt: Codeunit "Matched Order Line Mgmt.";
     begin
         PurchDocLineComments.SetRange("Document Type", PurchDocLineComments."Document Type"::Receipt);
         PurchDocLineComments.SetRange("No.", "Document No.");
         PurchDocLineComments.SetRange("Document Line No.", "Line No.");
         if not PurchDocLineComments.IsEmpty() then
             PurchDocLineComments.DeleteAll();
+
+        MatchedOrderLineMgmt.DeleteMatchedLinesForPurchReceipt(Rec);
     end;
 
     trigger OnInsert()
@@ -872,7 +960,7 @@ table 121 "Purch. Rcpt. Line"
             CopyFromPurchRcptLine(PurchLine, PurchOrderLine, TempPurchLine, NextLineNo);
 
             ShouldProcessAsRegularLine := not ExtTextLine;
-            OnInsertInvLineFromRcptLineOnAfterCalcShouldProcessAsRegularLine(Rec, ShouldProcessAsRegularLine);
+            OnInsertInvLineFromRcptLineOnAfterCalcShouldProcessAsRegularLine(Rec, PurchLine, PurchOrderLine, TempPurchLine, ShouldProcessAsRegularLine);
             if ShouldProcessAsRegularLine then begin
                 IsHandled := false;
                 OnInsertInvLineFromRcptLineOnBeforeValidateQuantity(Rec, PurchLine, IsHandled, PurchInvHeader);
@@ -1127,6 +1215,9 @@ table 121 "Purch. Rcpt. Line"
         if PurchLine."Document Type" = PurchLine."Document Type"::Order then begin
             "Order No." := PurchLine."Document No.";
             "Order Line No." := PurchLine."Line No.";
+            "Vendor Order No." := PurchRcptHeader."Vendor Order No.";
+            "Vendor Shipment No." := PurchRcptHeader."Vendor Shipment No.";
+            "Your Reference" := PurchRcptHeader."Your Reference";
         end;
         if (PurchLine.Quantity <> 0) and ("Job No." <> '') then begin
             Factor := PurchLine."Qty. to Receive" / PurchLine.Quantity;
@@ -1318,7 +1409,7 @@ table 121 "Purch. Rcpt. Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertInvLineFromRcptLineOnAfterCalcShouldProcessAsRegularLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; var ShouldProcessAsRegularLine: Boolean)
+    local procedure OnInsertInvLineFromRcptLineOnAfterCalcShouldProcessAsRegularLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; var PurchaseLine: Record "Purchase Line"; var PurchaseOrderLine: Record "Purchase Line"; var TempPurchLine: Record "Purchase Line"; var ShouldProcessAsRegularLine: Boolean)
     begin
     end;
 

@@ -8,21 +8,21 @@ using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Family;
 using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Family;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.Activity.History;
+using Microsoft.Warehouse.Availability;
 using Microsoft.Warehouse.CrossDock;
 using Microsoft.Warehouse.Journal;
+using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Tracking;
 using Microsoft.Warehouse.Worksheet;
-using Microsoft.Warehouse.Availability;
-using Microsoft.Warehouse.Activity.History;
-using Microsoft.Warehouse.Ledger;
 
 codeunit 5996 "Prod. Order Warehouse Mgt."
 {
@@ -736,9 +736,6 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
         if ProdOrderComponent.Find('-') then
             repeat
                 ProdOrderComponent.CalcFields("Pick Qty. (Base)");
-#if not CLEAN26
-                sender.RunOnCalcCrossDockToProdOrderComponentOnBeforeInsertCrossDockLine(ProdOrderComponent);
-#endif
                 OnCalcCrossDockToProdOrderComponentOnBeforeInsertCrossDockLine(ProdOrderComponent);
                 sender.InsertCrossDockOpp(
                     WhseCrossDockOpportunity,
@@ -929,6 +926,7 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
         WarehouseActivityLine."Item No." := ProdOrderCompLine."Item No.";
         WarehouseActivityLine."Variant Code" := ProdOrderCompLine."Variant Code";
         WarehouseActivityLine.Description := ProdOrderCompLine.Description;
+        WarehouseActivityLine."Description 2" := ProdOrderCompLine."Description 2";
         WarehouseActivityLine."Due Date" := ProdOrderCompLine."Due Date";
         WarehouseActivityLine."Whse. Document Type" := WarehouseActivityLine."Whse. Document Type"::Production;
         WarehouseActivityLine."Whse. Document No." := ProdOrderCompLine."Prod. Order No.";
@@ -1317,6 +1315,7 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
         WhseWkshLine."Unit of Measure Code" := ProdOrderCompLine."Unit of Measure Code";
         WhseWkshLine."Qty. per Unit of Measure" := ProdOrderCompLine."Qty. per Unit of Measure";
         WhseWkshLine.Description := ProdOrderCompLine.Description;
+        WhseWkshLine."Description 2" := ProdOrderCompLine."Description 2";
         WhseWkshLine."Due Date" := ProdOrderCompLine."Due Date";
         WhseWkshLine."Qty. Handled" := ProdOrderCompLine."Qty. Picked" + ProdOrderCompLine."Pick Qty.";
         WhseWkshLine."Qty. Handled (Base)" := ProdOrderCompLine."Qty. Picked (Base)" + ProdOrderCompLine."Pick Qty. (Base)";

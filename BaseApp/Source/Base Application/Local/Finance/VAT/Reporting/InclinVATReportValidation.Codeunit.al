@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -406,16 +406,6 @@ codeunit 12174 "Incl. in VAT Report Validation"
                 StrSubstNo(Text006, PurchaseHeader.FieldCaption("VAT Registration No."), PurchaseHeader.FieldCaption("Individual Person")), 0);
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by codeunit ServVATReportValidation', '25.0')]
-    [Scope('OnPrem')]
-    procedure ValidateServiceHeader(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var IncludeVATReportErrorLogParam: Record "Incl. in VAT Report Error Log" temporary)
-    var
-        ServVATReportValidation: Codeunit "Serv. VAT Report Validation";
-    begin
-        ServVATReportValidation.ValidateServiceHeader(ServiceHeader, IncludeVATReportErrorLogParam);
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure IsVATRegNoNeeded(CountryCode: Code[10]; IndividualPerson: Boolean; TaxRepresentativeNo: Code[20]): Boolean
@@ -440,4 +430,3 @@ codeunit 12174 "Incl. in VAT Report Validation"
     begin
     end;
 }
-

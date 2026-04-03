@@ -6,6 +6,10 @@ namespace Microsoft.Finance.VAT.Reporting;
 
 using Microsoft.Foundation.Address;
 
+/// <summary>
+/// Request page interface for configuring VAT report generation parameters and options.
+/// Provides user interface for setting up VAT report criteria, periods, and processing preferences.
+/// </summary>
 report 742 "VAT Report Request Page"
 {
     Caption = 'VAT Report Request Page';

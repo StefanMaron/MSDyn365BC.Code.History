@@ -7,6 +7,10 @@ namespace Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.VAT.Ledger;
 
+/// <summary>
+/// Automated line generation process for VAT reports based on posted VAT entries.
+/// Analyzes VAT ledger entries within specified periods and creates corresponding VAT report lines.
+/// </summary>
 report 741 "VAT Report Suggest Lines"
 {
     Caption = 'VAT Report Suggest Lines';

@@ -4,6 +4,8 @@ using System;
 
 codeunit 3013 DotNet_XmlDocument
 {
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     trigger OnRun()
     begin

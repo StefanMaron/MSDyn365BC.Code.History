@@ -1,30 +1,29 @@
 namespace System.Security.AccessControl;
 
-using Microsoft.Bank.BankAccount;
-using Microsoft.Utilities;
-using Microsoft.Inventory.Costing;
-using Microsoft.Bank.Payment;
 using Microsoft;
-using Microsoft.Foundation.Company;
-using Microsoft.FixedAssets.Depreciation;
-using Microsoft.Finance.WithholdingTax;
-using Microsoft.Purchases.Vendor;
-using Microsoft.Inventory.Intrastat;
-using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Payment;
 using Microsoft.EServices.EDocument;
-using Microsoft.Finance.GeneralLedger.Ledger;
-using Microsoft.Inventory.Item;
-using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.FinancialReports;
+using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.TransactionNature;
+using Microsoft.Finance.WithholdingTax;
+using Microsoft.FixedAssets.Depreciation;
+using Microsoft.Foundation.Company;
+using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Inventory.Costing;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Setup;
 #if not CLEAN27
 using Microsoft.Manufacturing.Document;
 #endif
-using Microsoft.Inventory.Setup;
-using Microsoft.Finance.VAT.Ledger;
-using Microsoft.Finance.VAT.Setup;
-using Microsoft.Finance.VAT.TransactionNature;
-
+using Microsoft.Purchases.Vendor;
+using Microsoft.Utilities;
 permissionset 1002 "LOCAL READ"
 {
     Access = Public;

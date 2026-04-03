@@ -4,9 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Document;
 
-using Microsoft.Inventory.Intrastat;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
+using Microsoft.Inventory.Intrastat;
 
 tableextension 12153 "Service Line IT" extends "Service Line"
 {
@@ -14,6 +14,7 @@ tableextension 12153 "Service Line IT" extends "Service Line"
     {
         field(12101; "Deductible %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Deductible %';
             DataClassification = CustomerContent;
             DecimalPlaces = 2 : 2;

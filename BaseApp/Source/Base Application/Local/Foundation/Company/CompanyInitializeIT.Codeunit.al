@@ -4,10 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.Company;
 
-using Microsoft.Foundation.Reporting;
-using Microsoft.EServices.EDocument;
-using Microsoft.Bank.Setup;
 using Microsoft.Bank.Payment;
+using Microsoft.Bank.Setup;
+using Microsoft.EServices.EDocument;
+using Microsoft.Foundation.Reporting;
 
 codeunit 12196 "Company Initialize IT"
 {

@@ -10,6 +10,7 @@ using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.Enums;
+using Microsoft.Inventory.Intrastat;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
@@ -17,7 +18,6 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
 using Microsoft.Service.History;
-using Microsoft.Inventory.Intrastat;
 
 tableextension 12216 "Service Decl. Line IT" extends "Service Declaration Line"
 {
@@ -85,6 +85,8 @@ tableextension 12216 "Service Decl. Line IT" extends "Service Declaration Line"
         }
         field(12220; Amount; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
             Caption = 'Amount';
         }
         field(12221; "Source Currency Amount"; Decimal)

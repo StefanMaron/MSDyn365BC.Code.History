@@ -1,7 +1,7 @@
 namespace System.Security.AccessControl;
 
-using Microsoft.Finance.VAT.Reporting;
 using Microsoft.EServices.EDocument;
+using Microsoft.Finance.VAT.Reporting;
 
 permissionset 9276 "VAT Report - Edit"
 {

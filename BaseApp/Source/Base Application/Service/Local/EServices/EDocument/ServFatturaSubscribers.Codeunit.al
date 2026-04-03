@@ -6,6 +6,7 @@ namespace Microsoft.EServices.EDocument;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Company;
@@ -14,7 +15,6 @@ using Microsoft.Sales.Receivables;
 using Microsoft.Service.Document;
 using Microsoft.Service.History;
 using Microsoft.Utilities;
-using Microsoft.Finance.VAT.Ledger;
 
 codeunit 12189 "Serv. Fattura Subscribers"
 {

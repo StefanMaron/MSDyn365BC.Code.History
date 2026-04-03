@@ -274,8 +274,8 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         PurchaseOrderTestpage.OpenNew();
         PurchaseOrderTestpage."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
         Assert.IsTrue(
-          PurchaseInvoiceTestPage.PurchLines."Include in VAT Transac. Rep.".Editable(),
-          'EDITABLE should be TRUE for the field ' + PurchaseInvoiceTestPage.PurchLines."Include in VAT Transac. Rep.".Caption);
+          PurchaseOrderTestpage.PurchLines."Include in VAT Transac. Rep.".Editable(),
+          'EDITABLE should be TRUE for the field ' + PurchaseOrderTestpage.PurchLines."Include in VAT Transac. Rep.".Caption);
         PurchaseOrderTestpage.Close();
         // Purchase Credit Memo.
         PurchaseCreditmemoTestPage.OpenNew();

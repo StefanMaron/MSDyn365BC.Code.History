@@ -4,15 +4,15 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Requisition;
 
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.WorkCenter;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Setup;
-using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Inventory.Location;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Manufacturing.Routing;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Manufacturing.WorkCenter;
 
 tableextension 99000860 "Mfg. Requisition Line" extends "Requisition Line"
 {
@@ -60,6 +60,7 @@ tableextension 99000860 "Mfg. Requisition Line" extends "Requisition Line"
         }
         field(12181; "Base UM Qty/Pricelist UM Qty"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Base UM Qty/Pricelist UM Qty';
             DataClassification = CustomerContent;
             DecimalPlaces = 0 : 5;
@@ -76,6 +77,7 @@ tableextension 99000860 "Mfg. Requisition Line" extends "Requisition Line"
         }
         field(12182; "Pricelist UM Qty/Base UM Qty"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Pricelist UM Qty/Base UM Qty';
             DataClassification = CustomerContent;
             DecimalPlaces = 0 : 5;
@@ -341,6 +343,7 @@ tableextension 99000860 "Mfg. Requisition Line" extends "Requisition Line"
         }
         field(99000892; "Scrap %"; Decimal)
         {
+            AutoFormatType = 0;
             AccessByPermission = TableData "Production Order" = R;
             Caption = 'Scrap %';
             DataClassification = CustomerContent;
@@ -388,6 +391,7 @@ tableextension 99000860 "Mfg. Requisition Line" extends "Requisition Line"
 #pragma warning restore AA0232
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("Planning Routing Line"."Expected Operation Cost Amt." where("Worksheet Template Name" = field("Worksheet Template Name"),
                                                                                             "Worksheet Batch Name" = field("Journal Batch Name"),
                                                                                             "Worksheet Line No." = field("Line No.")));

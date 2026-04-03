@@ -4,7 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.RoleCenters;
 
-
+using Microsoft.Bank.Payment;
 using Microsoft.Bank.Reconciliation;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Purchases.Document;
@@ -12,7 +12,6 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Receivables;
-using Microsoft.Bank.Payment;
 
 page 9036 "Bookkeeper Activities"
 {

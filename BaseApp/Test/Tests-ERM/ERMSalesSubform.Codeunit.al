@@ -5674,10 +5674,17 @@ codeunit 134393 "ERM Sales Subform"
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
         SalesInvoiceStatistics: TestPage "Sales Invoice Statistics";
         PostedInvoiceNo: Code[20];
+        InvRoundingPrecision: Decimal;
     begin
         // [FEATURE] [Service Item]
         // [SCENARIO 294617] Posted sales invoice statistics shows proper value of Adjusted Cost (LCY) Adjusted Profit (LCY) for item with type Service
         Initialize();
+
+        //Modify General Ledger Setup "Inv. Rounding Precision (LCY)" to 0.01 
+        GeneralLedgerSetup.get();
+        InvRoundingPrecision := GeneralLedgerSetup."Inv. Rounding Precision (LCY)";
+        GeneralLedgerSetup.Validate("Inv. Rounding Precision (LCY)", 0.01);
+        GeneralLedgerSetup.Modify(true);
 
         // [GIVEN] Item "I" with "Type" = "Service", Unit Cost = 60, Unit Price = 100
         LibraryInventory.CreateServiceTypeItem(Item);
@@ -5709,6 +5716,11 @@ codeunit 134393 "ERM Sales Subform"
           SalesInvoiceStatistics.AdjustedProfitLCY.AsDecimal(),
           LibraryERM.GetAmountRoundingPrecision(),
           'Invalid Adjusted Profit (LCY) value');
+
+       // TearDown: Update general ledger setup with old value.
+        GeneralLedgerSetup.get();
+        GeneralLedgerSetup.Validate("Inv. Rounding Precision (LCY)", InvRoundingPrecision);
+        GeneralLedgerSetup.Modify(true);
     end;
 
     [Test]
@@ -5721,10 +5733,17 @@ codeunit 134393 "ERM Sales Subform"
         PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
         SalesCreditMemoStatistics: TestPage "Sales Credit Memo Statistics";
         PostedCrMemoNo: Code[20];
+        InvRoundingPrecision: Decimal;
     begin
         // [FEATURE] [Service Item]
         // [SCENARIO 294617] Posted sales credit memo statistics shows proper value of Adjusted Cost (LCY) and Adjusted Profit (LCY) for item with type Service
         Initialize();
+
+        //Modify General Ledger Setup "Inv. Rounding Precision (LCY)" to 0.01 
+        GeneralLedgerSetup.get();
+        InvRoundingPrecision := GeneralLedgerSetup."Inv. Rounding Precision (LCY)";
+        GeneralLedgerSetup.Validate("Inv. Rounding Precision (LCY)", 0.01);
+        GeneralLedgerSetup.Modify(true);
 
         // [GIVEN] Item "I" with "Type" = "Service", Unit Cost = 60, Unit Price = 100
         LibraryInventory.CreateServiceTypeItem(Item);
@@ -5756,6 +5775,11 @@ codeunit 134393 "ERM Sales Subform"
           SalesCreditMemoStatistics.AdjustedProfitLCY.AsDecimal(),
           LibraryERM.GetAmountRoundingPrecision(),
           'Invalid Adjusted Profit (LCY) value');
+
+        // TearDown: Update general ledger setup with old value.
+        GeneralLedgerSetup.get();
+        GeneralLedgerSetup.Validate("Inv. Rounding Precision (LCY)", InvRoundingPrecision);
+        GeneralLedgerSetup.Modify(true);
     end;
 
     [Test]

@@ -9,6 +9,14 @@ using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Navigate;
 
+/// <summary>
+/// List page for viewing and managing VAT entries with comprehensive filtering and navigation capabilities.
+/// Provides access to VAT entry details, related documents, and G/L account adjustment functionality for audit and compliance.
+/// </summary>
+/// <remarks>
+/// Primary interface for VAT ledger analysis with support for unrealized VAT, non-deductible VAT, and multi-currency display.
+/// Integrates with navigation for finding related documents and supports incoming document management.
+/// </remarks>
 page 315 "VAT Entries"
 {
     ApplicationArea = Basic, Suite;
@@ -252,6 +260,21 @@ page 315 "VAT Entries"
                     ApplicationArea = Basic, Suite;
                     Visible = false;
                 }
+                field("External Document No."; Rec."External Document No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
+                field("Reason Code"; Rec."Reason Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
+                field("Source Code"; Rec."Source Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
                 field("Nondeductible Amount"; Rec."Nondeductible Amount")
                 {
                     ApplicationArea = Basic, Suite;
@@ -461,6 +484,12 @@ page 315 "VAT Entries"
         AdjustTitleMsg: Label 'Adjust G/L account number in VAT entries.\';
         ProgressMsg: Label 'Processed: @2@@@@@@@@@@@@@@@@@\';
 
+    /// <summary>
+    /// Integration event raised before executing the Navigate action for finding related entries and documents.
+    /// Enables custom navigation logic or additional processing before standard navigation begins.
+    /// </summary>
+    /// <param name="VATEntry">VAT entry record for which navigation is being performed</param>
+    /// <param name="IsHandled">Set to true to skip standard navigation processing</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeActionNavigate(var VATEntry: Record "VAT Entry"; var IsHandled: Boolean)
     begin

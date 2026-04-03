@@ -5,6 +5,8 @@ using System.Utilities;
 
 codeunit 3026 DotNet_Encoding
 {
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     trigger OnRun()
     begin
