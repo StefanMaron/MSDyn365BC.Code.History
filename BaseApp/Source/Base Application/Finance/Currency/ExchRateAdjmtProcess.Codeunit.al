@@ -20,13 +20,23 @@ using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.NoSeries;
+using Microsoft.HumanResources.Employee;
+using Microsoft.HumanResources.Payables;
 using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
-using Microsoft.HumanResources.Payables;
-using Microsoft.HumanResources.Employee;
 
+/// <summary>
+/// Manages exchange rate adjustment processing for foreign currency transactions.
+/// Provides functionality to revalue customer, vendor, bank account, and G/L account balances
+/// when exchange rates change, ensuring accurate financial reporting in the local currency.
+/// </summary>
+/// <remarks>
+/// Integrates with Customer Ledger Entries, Vendor Ledger Entries, Bank Account Ledger Entries,
+/// and G/L Entries for comprehensive currency revaluation. Supports dimension handling and
+/// generates adjustment entries through General Journal posting.
+/// </remarks>
 codeunit 699 "Exch. Rate Adjmt. Process"
 {
     EventSubscriberInstance = Manual;
@@ -315,6 +325,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         VATEntryNoTotal := VATEntry.Count();
         if VATEntryNoTotal = 0 then
             exit;
+        SetVATEntryFilters(VATEntry, ExchRateAdjmtParameters."Start Date", ExchRateAdjmtParameters."End Date");
         if VATPostingSetup.FindSet() then
             repeat
                 VATEntryNo := VATEntryNo + 1;
@@ -497,7 +508,6 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         TaxJurisdiction: Record "Tax Jurisdiction";
         VATEntry: Record "VAT Entry";
     begin
-        SetVATEntryFilters(VATEntry, ExchRateAdjmtParameters."Start Date", ExchRateAdjmtParameters."End Date");
         VATEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
 
@@ -1167,7 +1177,9 @@ codeunit 699 "Exch. Rate Adjmt. Process"
                 if ExchRateAdjmtParameters."Adjust Per Entry" then
                     TempExchRateAdjmtBuffer2.SetRange("Entry No.", TempExchRateAdjmtBuffer."Entry No.");
 
-                                Found := TempExchRateAdjmtBuffer2.FindFirst();
+                OnSummarizeExchRateAdjmtBufferOnAfterExchRateAdjmtBuffer2SetFilters(TempExchRateAdjmtBuffer2, TempExchRateAdjmtBuffer, ExchRateAdjmtParameters);
+
+                Found := TempExchRateAdjmtBuffer2.FindFirst();
 
                 if not Found then begin
                     TempExchRateAdjmtBuffer2.BuildPrimaryKey();
@@ -3121,4 +3133,10 @@ codeunit 699 "Exch. Rate Adjmt. Process"
     local procedure OnSetAdditionalReportingCurrencyOnBeforeCheckTaxJurisdiction(var TaxJurisdiction: Record "Tax Jurisdiction"; var IsHandled: Boolean);
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSummarizeExchRateAdjmtBufferOnAfterExchRateAdjmtBuffer2SetFilters(var TempExchRateAdjmtBuffer2: Record "Exch. Rate Adjmt. Buffer" temporary; var TempExchRateAdjmtBuffer: Record "Exch. Rate Adjmt. Buffer" temporary; var ExchRateAdjmtParameters: Record "Exch. Rate Adjmt. Parameters")
+    begin
+    end;
+
 }

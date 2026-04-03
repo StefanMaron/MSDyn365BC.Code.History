@@ -2296,14 +2296,25 @@ codeunit 141021 "ERM Electronic - Banking"
     var
         GenJournalLine: Record "Gen. Journal Line";
         Amount: Decimal;
+        WHTAMount: decimal;
+        Amount2: Decimal;
+        WHTAMount2: decimal;
     begin
         FindGenJournalLine(GenJournalLine, VendorNo);
+
+        //Calculate WHT amount for first line
         Amount := GenJournalLine.Amount;
+        WHTAMount := Round(CalculateWHTAmount('', '', Amount));
+        Amount := Amount - WHTAMount;
+
+        //Calculate WHT amount for second line
         GenJournalLine.SetFilter("Applies-to Doc. No.", '<>%1', GenJournalLine."Applies-to Doc. No.");
         FindGenJournalLine(GenJournalLine, VendorNo);
-        Amount := Amount + GenJournalLine.Amount;
-        Amount := Amount - CalculateWHTAmount('', '', Amount);  // WHT Business Posting Group,WHT Product Posting Group - Blank.
-        exit(ConvertWHTPrepaidAmountInText(Amount));
+        Amount2 := GenJournalLine.Amount;
+        WHTAMount2 := Round(CalculateWHTAmount('', '', Amount2));
+        Amount2 := Amount2 - WHTAMount2;   // WHT Business Posting Group,WHT Product Posting Group - Blank.
+
+        exit(ConvertWHTPrepaidAmountInText(Amount + Amount2));
     end;
 
     local procedure EFTPaymentCreateFile(var GenJournalLine: Record "Gen. Journal Line"): Text

@@ -10,6 +10,15 @@ using Microsoft.Foundation.Period;
 using Microsoft.Foundation.Reporting;
 using System.Utilities;
 
+/// <summary>
+/// Generates standard income statement report using predefined account schedule templates.
+/// Produces formatted profit and loss statement showing revenues, expenses, and net income.
+/// </summary>
+/// <remarks>
+/// Template-driven income statement report using standard account schedule configuration.
+/// Processes general ledger transactions through account schedule engine for standardized
+/// profit and loss presentation. Supports period-based analysis and comparative reporting.
+/// </remarks>
 report 28025 "Income Statement"
 {
     DefaultLayout = RDLC;

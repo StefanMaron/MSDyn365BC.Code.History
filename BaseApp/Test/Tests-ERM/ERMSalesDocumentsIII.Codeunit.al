@@ -30,9 +30,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryResource: Codeunit "Library - Resource";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
-#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
-#endif
         isInitialized: Boolean;
         AmountErr: Label '%1 must be %2 in %3.', Comment = '.';
         CustomerMustBeDeletedErr: Label 'Customer must be deleted.';
@@ -543,7 +541,6 @@ codeunit 134387 "ERM Sales Documents III"
         UpdateGeneralLedgerVATSetup(VATRoundingType);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure StartingDateAsWorkDateOnSalesPrice()
@@ -578,7 +575,7 @@ codeunit 134387 "ERM Sales Documents III"
         // Verify: Verify that correct date comes in "Starting Date Filter".
         SalesPrices.StartingDateFilter.AssertEquals(StartingDate);
     end;
-#endif
+
     [Test]
     [Scope('OnPrem')]
     procedure ErrorOnDeletePostedSalesRetOrder()
@@ -1861,7 +1858,6 @@ codeunit 134387 "ERM Sales Documents III"
         VATPostingSetup.Delete(true);
     end;
 
-#if not CLEAN25
     [Test]
     [HandlerFunctions('GetSalesPricePageHandler')]
     [Scope('OnPrem')]
@@ -2029,7 +2025,7 @@ codeunit 134387 "ERM Sales Documents III"
         // [THEN] Update fails with an error: "Status must be equal to Open in Sales Header"
         Assert.ExpectedTestFieldError(SalesHeader.FieldCaption(Status), Format(SalesHeader.Status::Open));
     end;
-#endif
+
     [Test]
     [Scope('OnPrem')]
     procedure ShippingTimeIsPopulatedOnValidatingSellToCustomerName()
@@ -2853,7 +2849,7 @@ codeunit 134387 "ERM Sales Documents III"
         SalesPost: Codeunit "Sales-Post";
         RecVar: Variant;
     begin
-        // [SCENARIO 260584] COD80.GetPostedDocumentRecords returns nothing for shipped only "Sales Header" with "Document Type" = "Return Order"
+        // [SCENARIO 260584] COD80.GetPostedDocumentRecords returns single filtered "Return Receipt Header" record for shipped only "Sales Header" with "Document Type" = "Return Order"
         Initialize();
 
         CreateSalesDocumentWithItem(SalesHeader, SalesHeader."Document Type"::"Return Order");
@@ -2862,7 +2858,7 @@ codeunit 134387 "ERM Sales Documents III"
         RecVar := 0D;
         SalesPost.GetPostedDocumentRecord(SalesHeader, RecVar);
 
-        Assert.IsTrue(RecVar.IsDate, '');
+        VerifyRecRefSingleRecord(RecVar, Database::"Return Receipt Header");
     end;
 
     [Test]
@@ -2934,7 +2930,6 @@ codeunit 134387 "ERM Sales Documents III"
         VerifyTransactionTypeWhenInsertSalesDocument(SalesHeader."Document Type"::Order);
     end;
 
-#if not CLEAN25
     [Test]
     [HandlerFunctions('PostedSalesDocumentLinesHandler')]
     [Scope('OnPrem')]
@@ -3019,7 +3014,7 @@ codeunit 134387 "ERM Sales Documents III"
         // [THEN] "Line Discount %" is 10
         SalesLine.TestField("Line Discount %", SalesLineDiscount."Line Discount %");
     end;
-#endif
+
     [Test]
     [Scope('OnPrem')]
     procedure InvoiceQuoteNoIsNotVisibleWhenBlank()
@@ -3484,7 +3479,6 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
-#if not CLEAN25
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue')]
     [Scope('OnPrem')]
@@ -3569,7 +3563,7 @@ codeunit 134387 "ERM Sales Documents III"
         // [THEN] Unit price in the sales line is zero - same as in existing sales price
         SalesLine.TestField("Unit Price", 0);
     end;
-#endif
+
     [Test]
     [Scope('OnPrem')]
     procedure UnitPriceFromItemCardMustBeRespectedWhenCreatingSalesOrderIfSalesPriceNOTExist()
@@ -4524,7 +4518,6 @@ codeunit 134387 "ERM Sales Documents III"
         Customer.TestField("Tax Area Code", '');
     end;
 
-#if not CLEAN25
     [Test]
     [HandlerFunctions('PostedSalesDocumentLinesHandler')]
     [Scope('OnPrem')]
@@ -4619,7 +4612,7 @@ codeunit 134387 "ERM Sales Documents III"
 
         // [THEN] No message appears
     end;
-#endif
+
     [Test]
     [HandlerFunctions('ItemSubstitutionEntriesHandler')]
     [Scope('OnPrem')]
@@ -5680,7 +5673,6 @@ codeunit 134387 "ERM Sales Documents III"
         VerifyQtyToAssignInDocumentLineForChargeItem(SalesHeaderInvoice, SalesLineChargeItem."No.", QtyToAssign);
     end;
 
-#if not CLEAN25
     [Test]
     [HandlerFunctions('PostedSalesDocumentLinesHandler')]
     [Scope('OnPrem')]
@@ -5718,7 +5710,6 @@ codeunit 134387 "ERM Sales Documents III"
         // [THEN] Sales Line suggested has "Unit Price" = 10 for Item "I1"
         Assert.AreEqual(InitialUnitPrice, SalesLine."Unit Price", SalesLine.FieldCaption("Unit Price"));
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -6809,7 +6800,6 @@ codeunit 134387 "ERM Sales Documents III"
         SalesLine.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure CreateSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; ItemNo: Code[20]; CustomerNo: Code[20]; MinQty: Decimal; DiscountPct: Decimal)
     begin
         LibraryERM.CreateLineDiscForCustomer(
@@ -6818,7 +6808,7 @@ codeunit 134387 "ERM Sales Documents III"
         SalesLineDiscount.Validate("Line Discount %", DiscountPct);
         SalesLineDiscount.Modify(true);
     end;
-#endif
+ 
     local procedure CreateSalesLineWithItem(var Item: Record Item; SalesHeader: Record "Sales Header"; QtyToShip: Decimal; VATProdPostingGroup: Code[20])
     var
         SalesLine: Record "Sales Line";
@@ -6892,7 +6882,6 @@ codeunit 134387 "ERM Sales Documents III"
         LibrarySales.PostSalesDocument(SalesHeader, true, PostInvoice);
     end;
 
-#if not CLEAN25
     local procedure CreateSalesPriceForItemAndAllCustomers(var SalesPrice: Record "Sales Price")
     var
         Item: Record Item;
@@ -6903,7 +6892,7 @@ codeunit 134387 "ERM Sales Documents III"
           SalesPrice, Item."No.", "Sales Price Type"::"All Customers", '', WorkDate(), '', '', '', 0, LibraryRandom.RandDec(100, 2));
         CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
     end;
-#endif
+
     local procedure CreateShippingAgent(var ShippingAgent: Record "Shipping Agent"; ShippingInternetAddress: Text[250]; var PackageTrackingNo: Text[50])
     begin
         LibraryInventory.CreateShippingAgent(ShippingAgent);
@@ -7429,7 +7418,6 @@ codeunit 134387 "ERM Sales Documents III"
         exit(CustomerNo);
     end;
 
-#if not CLEAN25
     local procedure OpenSalesPricesPage(SalesPrices: TestPage "Sales Prices"; CustomerNo: Code[20]; StartingDateFilter: Text[30])
     var
         CustomerList: TestPage "Customer List";
@@ -7440,7 +7428,7 @@ codeunit 134387 "ERM Sales Documents III"
         CustomerList.Sales_Prices.Invoke();
         SalesPrices.StartingDateFilter.SetValue(StartingDateFilter);
     end;
-#endif
+
     local procedure RunCertificateOfSupplyReport(CustomerNo: Code[20])
     var
         CertificateOfSupply: Record "Certificate of Supply";
@@ -8238,7 +8226,6 @@ codeunit 134387 "ERM Sales Documents III"
     begin
     end;
 
-#if not CLEAN25
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetSalesPricePageHandler(var GetSalesPrice: TestPage "Get Sales Price") // V15
@@ -8246,7 +8233,7 @@ codeunit 134387 "ERM Sales Documents III"
         GetSalesPrice.First();
         GetSalesPrice.OK().Invoke();
     end;
-#endif
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetPriceLinePageHandler(var GetPriceLine: TestPage "Get Price Line") // V16

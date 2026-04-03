@@ -20,7 +20,7 @@ codeunit 136208 "Marketing Interaction"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryApplicationArea: Codeunit "Library - Application Area";
-        LibraryWorkflow: Codeunit "Library - Workflow";
+        LibraryEmail: Codeunit "Library - Email";
         LibraryPermissions: Codeunit "Library - Permissions";
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
         isInitialized: Boolean;
@@ -1153,7 +1153,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [SCENARIO 178203] User sends email with Word document as attachment in Web client
         Initialize();
-        LibraryWorkflow.SetUpEmailAccount();
+        LibraryEmail.SetUpEmailAccount();
         ExpectedCount := InteractionLogEntry.Count() + 1;
         Clear(InteractionLogEntry);
 
@@ -1195,7 +1195,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [SCENARIO 178203] User sends email with text document as attachment in Web client
         Initialize();
-        LibraryWorkflow.SetUpEmailAccount();
+        LibraryEmail.SetUpEmailAccount();
         // [GIVEN] Interaction Template with text attachment
         FileExtension := 'TXT';
         // [GIVEN] Segment for email
@@ -1624,11 +1624,10 @@ codeunit 136208 "Marketing Interaction"
         SalesHeader: Record "Sales Header";
         InteractionLogEntry: Record "Interaction Log Entry";
         DocumentPrint: Codeunit "Document-Print";
-        LibraryWorkflow: Codeunit "Library - Workflow";
     begin
         // [SCENARIO 199993] Sending by mail sales order confirmation does not lead to generation of interaction log entry with Email Draft template
         Initialize();
-        LibraryWorkflow.SetUpEmailAccount();
+        LibraryEmail.SetUpEmailAccount();
 
         // [GIVEN] New interaction template XXX
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
@@ -1661,11 +1660,10 @@ codeunit 136208 "Marketing Interaction"
         InteractionTemplate: Record "Interaction Template";
         PurchaseHeader: Record "Purchase Header";
         InteractionLogEntry: Record "Interaction Log Entry";
-        LibraryWorkflow: Codeunit "Library - Workflow";
     begin
         // [SCENARIO 199993] Sending by mail Purchase order does not lead to generation of interaction log entry with Email Draft template
         Initialize();
-        LibraryWorkflow.SetUpEmailAccount();
+        LibraryEmail.SetUpEmailAccount();
 
         // [GIVEN] New interaction template XXX
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
@@ -2428,7 +2426,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [SCENARIO] Log a segment with a Word template using Send As Attachment toggle, will attach document to email and not insert in body.
         Initialize();
-        LibraryWorkflow.SetUpEmailAccount();
+        LibraryEmail.SetUpEmailAccount();
         ExpectedCount := InteractionLogEntry.Count() + 1;
         Clear(InteractionLogEntry);
 
@@ -2480,7 +2478,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [SCENARIO] User log segment and sends email with Word template using given wizard action
         Initialize();
-        LibraryWorkflow.SetUpEmailAccount();
+        LibraryEmail.SetUpEmailAccount();
 
         ExpectedCount := InteractionLogEntry.Count() + 1;
         Clear(InteractionLogEntry);

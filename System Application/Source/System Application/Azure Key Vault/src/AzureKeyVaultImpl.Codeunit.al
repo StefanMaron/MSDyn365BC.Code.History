@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Azure.KeyVault;
+
 using System.Environment;
 using System.Security.Encryption;
 

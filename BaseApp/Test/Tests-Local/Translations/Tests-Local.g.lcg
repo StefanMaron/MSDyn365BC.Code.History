@@ -1508,15 +1508,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Currency Rounding - NamedType FiscalYearBalanceCap)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3722003381 - NamedType 1904410257" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[G_L_Account___Balance_at_Date_]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Currency Rounding - NamedType GLAccBalanceAtDateCap)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3722003381 - NamedType 2697017947" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No_GLAcc]]></Val>

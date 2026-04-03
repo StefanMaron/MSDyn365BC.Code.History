@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -41,6 +41,7 @@ table 5965 "Service Contract Header"
         field(1; "Contract No."; Code[20])
         {
             Caption = 'Contract No.';
+            ToolTip = 'Specifies the number of the service contract or service contract quote.';
 
             trigger OnValidate()
             begin
@@ -54,10 +55,12 @@ table 5965 "Service Contract Header"
         field(2; "Contract Type"; Enum "Service Contract Type")
         {
             Caption = 'Contract Type';
+            ToolTip = 'Specifies the type of the contract.';
         }
         field(3; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the service contract.';
         }
         field(4; "Description 2"; Text[50])
         {
@@ -67,6 +70,7 @@ table 5965 "Service Contract Header"
         field(5; Status; Enum "Service Contract Status")
         {
             Caption = 'Status';
+            ToolTip = 'Specifies the status of the service contract or contract quote.';
             Editable = true;
 
             trigger OnValidate()
@@ -81,11 +85,13 @@ table 5965 "Service Contract Header"
         field(6; "Change Status"; Enum "Service Contract Change Status")
         {
             Caption = 'Change Status';
+            ToolTip = 'Specifies if a service contract or contract quote is locked or open for changes.';
             Editable = false;
         }
         field(7; "Customer No."; Code[20])
         {
             Caption = 'Customer No.';
+            ToolTip = 'Specifies the number of the customer who owns the service items in the service contract/contract quote.';
             NotBlank = true;
             TableRelation = Customer;
 
@@ -105,6 +111,7 @@ table 5965 "Service Contract Header"
         {
             CalcFormula = lookup(Customer.Name where("No." = field("Customer No.")));
             Caption = 'Name';
+            ToolTip = 'Specifies the name of the customer in the service contract.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -112,6 +119,7 @@ table 5965 "Service Contract Header"
         {
             CalcFormula = lookup(Customer.Address where("No." = field("Customer No.")));
             Caption = 'Address';
+            ToolTip = 'Specifies the customer''s address.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -119,6 +127,7 @@ table 5965 "Service Contract Header"
         {
             CalcFormula = lookup(Customer."Address 2" where("No." = field("Customer No.")));
             Caption = 'Address 2';
+            ToolTip = 'Specifies additional address information.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -126,6 +135,7 @@ table 5965 "Service Contract Header"
         {
             CalcFormula = lookup(Customer."Post Code" where("No." = field("Customer No.")));
             Caption = 'Post Code';
+            ToolTip = 'Specifies the postal code.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -133,20 +143,24 @@ table 5965 "Service Contract Header"
         {
             CalcFormula = lookup(Customer.City where("No." = field("Customer No.")));
             Caption = 'City';
+            ToolTip = 'Specifies the name of the city in where the customer is located.';
             Editable = false;
             FieldClass = FlowField;
         }
         field(13; "Contact Name"; Text[100])
         {
             Caption = 'Contact Name';
+            ToolTip = 'Specifies the name of the person you regularly contact when you do business with the customer in this service contract.';
         }
         field(14; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
+            ToolTip = 'Specifies the customer''s reference number.';
         }
         field(15; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
+            ToolTip = 'Specifies the code of the salesperson assigned to this service contract.';
             TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
@@ -162,6 +176,7 @@ table 5965 "Service Contract Header"
         field(16; "Bill-to Customer No."; Code[20])
         {
             Caption = 'Bill-to Customer No.';
+            ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
             TableRelation = Customer;
 
             trigger OnValidate()
@@ -242,6 +257,7 @@ table 5965 "Service Contract Header"
         {
             CalcFormula = lookup(Customer.Name where("No." = field("Bill-to Customer No.")));
             Caption = 'Bill-to Name';
+            ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -249,6 +265,7 @@ table 5965 "Service Contract Header"
         {
             CalcFormula = lookup(Customer.Address where("No." = field("Bill-to Customer No.")));
             Caption = 'Bill-to Address';
+            ToolTip = 'Specifies the address of the customer to whom you sent the invoice.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -256,6 +273,7 @@ table 5965 "Service Contract Header"
         {
             CalcFormula = lookup(Customer."Address 2" where("No." = field("Bill-to Customer No.")));
             Caption = 'Bill-to Address 2';
+            ToolTip = 'Specifies an additional line of the address.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -263,6 +281,7 @@ table 5965 "Service Contract Header"
         {
             CalcFormula = lookup(Customer."Post Code" where("No." = field("Bill-to Customer No.")));
             Caption = 'Bill-to Post Code';
+            ToolTip = 'Specifies the postal code of the customer''s billing address.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -270,12 +289,14 @@ table 5965 "Service Contract Header"
         {
             CalcFormula = lookup(Customer.City where("No." = field("Bill-to Customer No.")));
             Caption = 'Bill-to City';
+            ToolTip = 'Specifies the city of the address.';
             Editable = false;
             FieldClass = FlowField;
         }
         field(22; "Ship-to Code"; Code[10])
         {
             Caption = 'Ship-to Code';
+            ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
             TableRelation = "Ship-to Address".Code where("Customer No." = field("Customer No."));
 
             trigger OnValidate()
@@ -302,6 +323,7 @@ table 5965 "Service Contract Header"
             CalcFormula = lookup("Ship-to Address".Name where("Customer No." = field("Customer No."),
                                                                Code = field("Ship-to Code")));
             Caption = 'Ship-to Name';
+            ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -310,6 +332,7 @@ table 5965 "Service Contract Header"
             CalcFormula = lookup("Ship-to Address".Address where("Customer No." = field("Customer No."),
                                                                   Code = field("Ship-to Code")));
             Caption = 'Ship-to Address';
+            ToolTip = 'Specifies the address that the items are shipped to.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -318,6 +341,7 @@ table 5965 "Service Contract Header"
             CalcFormula = lookup("Ship-to Address"."Address 2" where("Customer No." = field("Customer No."),
                                                                       Code = field("Ship-to Code")));
             Caption = 'Ship-to Address 2';
+            ToolTip = 'Specifies an additional part of the ship-to address, in case it is a long address.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -326,6 +350,7 @@ table 5965 "Service Contract Header"
             CalcFormula = lookup("Ship-to Address"."Post Code" where("Customer No." = field("Customer No."),
                                                                       Code = field("Ship-to Code")));
             Caption = 'Ship-to Post Code';
+            ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -334,17 +359,20 @@ table 5965 "Service Contract Header"
             CalcFormula = lookup("Ship-to Address".City where("Customer No." = field("Customer No."),
                                                                Code = field("Ship-to Code")));
             Caption = 'Ship-to City';
+            ToolTip = 'Specifies the city of the address that the items are shipped to.';
             Editable = false;
             FieldClass = FlowField;
         }
         field(28; "Serv. Contract Acc. Gr. Code"; Code[10])
         {
             Caption = 'Serv. Contract Acc. Gr. Code';
+            ToolTip = 'Specifies the code associated with the service contract account group.';
             TableRelation = "Service Contract Account Group";
         }
         field(32; "Invoice Period"; Enum "Service Contract Header Invoice Period")
         {
             Caption = 'Invoice Period';
+            ToolTip = 'Specifies the invoice period for the service contract.';
 
             trigger OnValidate()
             var
@@ -399,6 +427,7 @@ table 5965 "Service Contract Header"
         field(33; "Last Invoice Date"; Date)
         {
             Caption = 'Last Invoice Date';
+            ToolTip = 'Specifies the date when this service contract was last invoiced.';
             Editable = false;
 
             trigger OnValidate()
@@ -448,6 +477,7 @@ table 5965 "Service Contract Header"
         field(34; "Next Invoice Date"; Date)
         {
             Caption = 'Next Invoice Date';
+            ToolTip = 'Specifies the date of the next invoice for this service contract.';
             Editable = false;
 
             trigger OnValidate()
@@ -532,6 +562,7 @@ table 5965 "Service Contract Header"
         field(35; "Starting Date"; Date)
         {
             Caption = 'Starting Date';
+            ToolTip = 'Specifies the starting date of the service contract.';
 
             trigger OnValidate()
             var
@@ -598,6 +629,7 @@ table 5965 "Service Contract Header"
         field(36; "Expiration Date"; Date)
         {
             Caption = 'Expiration Date';
+            ToolTip = 'Specifies the date when the service contract expires.';
 
             trigger OnValidate()
             begin
@@ -610,6 +642,7 @@ table 5965 "Service Contract Header"
         field(38; "First Service Date"; Date)
         {
             Caption = 'First Service Date';
+            ToolTip = 'Specifies the date of the first expected service for the service items in the contract.';
 
             trigger OnValidate()
             begin
@@ -640,21 +673,26 @@ table 5965 "Service Contract Header"
             AutoFormatType = 2;
             BlankZero = true;
             Caption = 'Max. Labor Unit Price';
+            ToolTip = 'Specifies the maximum unit price that can be set for a resource on all service orders and lines for the service contract.';
         }
         field(40; "Calcd. Annual Amount"; Decimal)
         {
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             CalcFormula = sum("Service Contract Line"."Line Amount" where("Contract Type" = field("Contract Type"),
                                                                            "Contract No." = field("Contract No.")));
             Caption = 'Calcd. Annual Amount';
+            ToolTip = 'Specifies the sum of the Line Amount field values on all contract lines associated with the service contract or contract quote, disregarding starting date and expiration date.';
             Editable = false;
             FieldClass = FlowField;
         }
         field(42; "Annual Amount"; Decimal)
         {
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Annual Amount';
+            ToolTip = 'Specifies the total amount for all service contract lines that will be invoiced annually for the service contract or contract quote, disregarding starting date and expiration date. Changes to this amount will be distributed among the service contract lines.';
             MinValue = 0;
 
             trigger OnValidate()
@@ -667,18 +705,22 @@ table 5965 "Service Contract Header"
         }
         field(43; "Amount per Period"; Decimal)
         {
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Amount per Period';
+            ToolTip = 'Specifies the amount that will be invoiced for each invoice period for the service contract.';
             Editable = false;
         }
         field(44; "Combine Invoices"; Boolean)
         {
             Caption = 'Combine Invoices';
+            ToolTip = 'Specifies you want to combine invoices for this service contract with invoices for other service contracts with the same bill-to customer.';
         }
         field(45; Prepaid; Boolean)
         {
             Caption = 'Prepaid';
+            ToolTip = 'Specifies that this service contract is prepaid.';
 
             trigger OnValidate()
             var
@@ -727,6 +769,7 @@ table 5965 "Service Contract Header"
         field(47; "Service Zone Code"; Code[10])
         {
             Caption = 'Service Zone Code';
+            ToolTip = 'Specifies the code of the service zone of the customer ship-to address.';
             TableRelation = "Service Zone";
         }
         field(48; "Language Code"; Code[10])
@@ -742,16 +785,19 @@ table 5965 "Service Contract Header"
         field(50; "Cancel Reason Code"; Code[10])
         {
             Caption = 'Cancel Reason Code';
+            ToolTip = 'Specifies a reason code for canceling the service contract.';
             TableRelation = "Reason Code";
         }
         field(51; "Last Price Update Date"; Date)
         {
             Caption = 'Last Price Update Date';
+            ToolTip = 'Specifies the date you last updated the contract prices.';
             Editable = false;
         }
         field(52; "Next Price Update Date"; Date)
         {
             Caption = 'Next Price Update Date';
+            ToolTip = 'Specifies the next date you want contract prices to be updated.';
 
             trigger OnValidate()
             begin
@@ -761,12 +807,15 @@ table 5965 "Service Contract Header"
         }
         field(53; "Last Price Update %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Last Price Update %';
+            ToolTip = 'Specifies the price update percentage you used the last time you updated the contract prices.';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(55; "Response Time (Hours)"; Decimal)
         {
+            AutoFormatType = 0;
             BlankZero = true;
             Caption = 'Response Time (Hours)';
             DecimalPlaces = 0 : 5;
@@ -793,6 +842,7 @@ table 5965 "Service Contract Header"
         field(56; "Contract Lines on Invoice"; Boolean)
         {
             Caption = 'Contract Lines on Invoice';
+            ToolTip = 'Specifies that you want the lines for this contract to appear as text on the invoice.';
         }
         field(57; "No. of Posted Invoices"; Integer)
         {
@@ -800,6 +850,7 @@ table 5965 "Service Contract Header"
                                                                    "Source Document No." = field("Contract No."),
                                                                    "Destination Document Type" = const("Posted Invoice")));
             Caption = 'No. of Posted Invoices';
+            ToolTip = 'Specifies the number of posted service invoices linked to the service contract.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -809,12 +860,14 @@ table 5965 "Service Contract Header"
                                                                    "Source Document No." = field("Contract No."),
                                                                    "Destination Document Type" = const(Invoice)));
             Caption = 'No. of Unposted Invoices';
+            ToolTip = 'Specifies the number of unposted service invoices linked to the service contract.';
             Editable = false;
             FieldClass = FlowField;
         }
         field(59; "Service Period"; DateFormula)
         {
             Caption = 'Service Period';
+            ToolTip = 'Specifies a default service period for the items in the contract.';
 
             trigger OnValidate()
             begin
@@ -848,11 +901,13 @@ table 5965 "Service Contract Header"
         field(60; "Payment Terms Code"; Code[10])
         {
             Caption = 'Payment Terms Code';
+            ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
             TableRelation = "Payment Terms";
         }
         field(62; "Invoice after Service"; Boolean)
         {
             Caption = 'Invoice after Service';
+            ToolTip = 'Specifies that you can only invoice the contract if you have posted a service order since last time you invoiced the contract.';
 
             trigger OnValidate()
             begin
@@ -872,10 +927,12 @@ table 5965 "Service Contract Header"
         field(63; "Quote Type"; Enum "Service Contract Quote Type")
         {
             Caption = 'Quote Type';
+            ToolTip = 'Specifies the type of the service contract quote.';
         }
         field(64; "Allow Unbalanced Amounts"; Boolean)
         {
             Caption = 'Allow Unbalanced Amounts';
+            ToolTip = 'Specifies if the contents of the Calcd. Annual Amount field are copied into the Annual Amount field in the service contract or contract quote.';
 
             trigger OnValidate()
             begin
@@ -888,11 +945,13 @@ table 5965 "Service Contract Header"
         field(65; "Contract Group Code"; Code[10])
         {
             Caption = 'Contract Group Code';
+            ToolTip = 'Specifies the contract group code assigned to the service contract.';
             TableRelation = "Contract Group";
         }
         field(66; "Service Order Type"; Code[10])
         {
             Caption = 'Service Order Type';
+            ToolTip = 'Specifies the service order type assigned to service orders linked to this contract.';
             TableRelation = "Service Order Type";
 
             trigger OnValidate()
@@ -904,6 +963,7 @@ table 5965 "Service Contract Header"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
                                                           Blocked = const(false));
 
@@ -918,6 +978,7 @@ table 5965 "Service Contract Header"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
                                                           Blocked = const(false));
 
@@ -931,10 +992,12 @@ table 5965 "Service Contract Header"
         field(69; "Accept Before"; Date)
         {
             Caption = 'Accept Before';
+            ToolTip = 'Specifies the date before which the customer must accept this contract quote.';
         }
         field(71; "Automatic Credit Memos"; Boolean)
         {
             Caption = 'Automatic Credit Memos';
+            ToolTip = 'Specifies that a credit memo is created when you remove a contract line.';
         }
         field(74; "Template No."; Code[20])
         {
@@ -948,6 +1011,7 @@ table 5965 "Service Contract Header"
         field(75; "Price Update Period"; DateFormula)
         {
             Caption = 'Price Update Period';
+            ToolTip = 'Specifies the price update period for this service contract.';
             InitValue = '1Y';
 
             trigger OnValidate()
@@ -970,15 +1034,18 @@ table 5965 "Service Contract Header"
         field(79; "Price Inv. Increase Code"; Code[20])
         {
             Caption = 'Price Inv. Increase Code';
+            ToolTip = 'Specifies the standard text code printed on service invoices, informing the customer which prices have been updated since the last invoice.';
             TableRelation = "Standard Text";
         }
         field(80; "Print Increase Text"; Boolean)
         {
             Caption = 'Print Increase Text';
+            ToolTip = 'Specifies the standard text code printed on service invoices, informing the customer which prices have been updated since the last invoice.';
         }
         field(81; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
+            ToolTip = 'Specifies the currency used to calculate the amounts in the documents related to this contract.';
             TableRelation = Currency;
 
             trigger OnValidate()
@@ -999,7 +1066,9 @@ table 5965 "Service Contract Header"
         }
         field(83; Probability; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Probability';
+            ToolTip = 'Specifies the probability of the customer approving the service contract quote.';
             DecimalPlaces = 0 : 5;
             InitValue = 100;
         }
@@ -1016,6 +1085,7 @@ table 5965 "Service Contract Header"
         field(85; "Responsibility Center"; Code[10])
         {
             Caption = 'Responsibility Center';
+            ToolTip = 'Specifies the code of the responsibility center, such as a distribution hub, that is associated with the involved user, company, customer, or vendor.';
             TableRelation = "Responsibility Center";
 
             trigger OnValidate()
@@ -1031,6 +1101,7 @@ table 5965 "Service Contract Header"
         field(86; "Phone No."; Text[30])
         {
             Caption = 'Phone No.';
+            ToolTip = 'Specifies the customer telephone number.';
             ExtendedDatatype = PhoneNo;
         }
         field(87; "Fax No."; Text[30])
@@ -1040,6 +1111,7 @@ table 5965 "Service Contract Header"
         field(88; "E-Mail"; Text[80])
         {
             Caption = 'Email';
+            ToolTip = 'Specifies the customer''s email address.';
             ExtendedDatatype = EMail;
 
             trigger OnValidate()
@@ -1054,6 +1126,7 @@ table 5965 "Service Contract Header"
             CalcFormula = lookup(Customer.County where("No." = field("Bill-to Customer No.")));
             CaptionClass = '5,3,' + "Bill-to Country/Region Code";
             Caption = 'Bill-to County';
+            ToolTip = 'Specifies the county code of the customer''s billing address.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -1071,6 +1144,7 @@ table 5965 "Service Contract Header"
                                                                  Code = field("Ship-to Code")));
             CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
+            ToolTip = 'Specifies the county of the address.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -1078,6 +1152,7 @@ table 5965 "Service Contract Header"
         {
             CalcFormula = lookup(Customer."Country/Region Code" where("No." = field("Customer No.")));
             Caption = 'Country/Region Code';
+            ToolTip = 'Specifies the country/region of the address.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -1085,6 +1160,7 @@ table 5965 "Service Contract Header"
         {
             CalcFormula = lookup(Customer."Country/Region Code" where("No." = field("Bill-to Customer No.")));
             Caption = 'Bill-to Country/Region Code';
+            ToolTip = 'Specifies the country/region code of the customer''s billing address.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -1093,6 +1169,7 @@ table 5965 "Service Contract Header"
             CalcFormula = lookup("Ship-to Address"."Country/Region Code" where("Customer No." = field("Customer No."),
                                                                                 Code = field("Ship-to Code")));
             Caption = 'Ship-to Country/Region Code';
+            ToolTip = 'Specifies the country/region code of the address.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -1115,6 +1192,7 @@ table 5965 "Service Contract Header"
             CalcFormula = lookup("Ship-to Address"."Name 2" where("Customer No." = field("Customer No."),
                                                                    Code = field("Ship-to Code")));
             Caption = 'Ship-to Name 2';
+            ToolTip = 'Specifies an additional part of the name of the customer that the items are shipped to.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -1130,6 +1208,7 @@ table 5965 "Service Contract Header"
         }
         field(100; "Contract Invoice Amount"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = - sum("Service Ledger Entry"."Amount (LCY)" where("Service Contract No." = field("Contract No."),
                                                                             "Entry Type" = const(Sale),
@@ -1143,6 +1222,7 @@ table 5965 "Service Contract Header"
         }
         field(101; "Contract Prepaid Amount"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = - sum("Service Ledger Entry"."Amount (LCY)" where("Service Contract No." = field("Contract No."),
                                                                             "Entry Type" = const(Sale),
@@ -1157,6 +1237,7 @@ table 5965 "Service Contract Header"
         }
         field(102; "Contract Discount Amount"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Service Ledger Entry"."Contract Disc. Amount" where("Service Contract No." = field("Contract No."),
                                                                                     "Entry Type" = const(Sale),
@@ -1170,6 +1251,7 @@ table 5965 "Service Contract Header"
         }
         field(103; "Contract Cost Amount"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Service Ledger Entry"."Cost Amount" where("Service Contract No." = field("Contract No."),
                                                                           "Entry Type" = const(Usage),
@@ -1183,6 +1265,7 @@ table 5965 "Service Contract Header"
         }
         field(104; "Contract Gain/Loss Amount"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Contract Gain/Loss Entry".Amount where("Contract No." = field("Contract No."),
                                                                        "Reason Code" = field("Reason Code Filter"),
@@ -1197,6 +1280,7 @@ table 5965 "Service Contract Header"
                                                                    "Source Document No." = field("Contract No."),
                                                                    "Destination Document Type" = const("Posted Credit Memo")));
             Caption = 'No. of Posted Credit Memos';
+            ToolTip = 'Specifies the number of posted credit memos linked to this service contract.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -1206,6 +1290,7 @@ table 5965 "Service Contract Header"
                                                                    "Source Document No." = field("Contract No."),
                                                                    "Destination Document Type" = const("Credit Memo")));
             Caption = 'No. of Unposted Credit Memos';
+            ToolTip = 'Specifies the number of unposted credit memos linked to the service contract.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -1240,6 +1325,7 @@ table 5965 "Service Contract Header"
         field(204; "Payment Method Code"; Code[10])
         {
             Caption = 'Payment Method Code';
+            ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
             TableRelation = "Payment Method";
 
             trigger OnValidate()
@@ -1260,6 +1346,7 @@ table 5965 "Service Contract Header"
         {
             CalcFormula = lookup("Ship-to Address"."Phone No." where("Customer No." = field("Customer No."), Code = field("Ship-to Code")));
             Caption = 'Ship-to Phone No.';
+            ToolTip = 'Specifies the telephone number of the company''s shipping address.';
             ExtendedDatatype = PhoneNo;
             Editable = false;
             FieldClass = FlowField;
@@ -1283,6 +1370,7 @@ table 5965 "Service Contract Header"
         field(1200; "Direct Debit Mandate ID"; Code[35])
         {
             Caption = 'Direct Debit Mandate ID';
+            ToolTip = 'Specifies the direct-debit mandate that the customer has signed to allow direct-debit collection of payments.';
             TableRelation = "SEPA Direct Debit Mandate" where("Customer No." = field("Bill-to Customer No."),
                                                                Closed = const(false),
                                                                Blocked = const(false));
@@ -1291,6 +1379,7 @@ table 5965 "Service Contract Header"
         field(5050; "Contact No."; Code[20])
         {
             Caption = 'Contact No.';
+            ToolTip = 'Specifies the number of the contact who will receive the service delivery.';
             TableRelation = Contact;
 
             trigger OnLookup()
@@ -1345,6 +1434,7 @@ table 5965 "Service Contract Header"
         field(5051; "Bill-to Contact No."; Code[20])
         {
             Caption = 'Bill-to Contact No.';
+            ToolTip = 'Specifies the number of the contact person at the customer''s billing address.';
             TableRelation = Contact;
 
             trigger OnLookup()
@@ -1399,6 +1489,7 @@ table 5965 "Service Contract Header"
         field(5052; "Bill-to Contact"; Text[100])
         {
             Caption = 'Bill-to Contact';
+            ToolTip = 'Specifies the name of the contact person at the customer''s billing address.';
         }
         field(5053; "Last Invoice Period End"; Date)
         {
@@ -1934,9 +2025,9 @@ table 5965 "Service Contract Header"
         if "Contract No." = '' then begin
             ServMgtSetup.TestField("Service Contract Nos.");
             "No. Series" := GetServiceContractNos();
-                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series";
-                "Contract No." := NoSeries.GetNextNo("No. Series");
+            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                "No. Series" := xRec."No. Series";
+            "Contract No." := NoSeries.GetNextNo("No. Series");
 
         end;
     end;

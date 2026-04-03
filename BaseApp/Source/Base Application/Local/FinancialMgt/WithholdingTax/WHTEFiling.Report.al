@@ -5,8 +5,8 @@
 namespace Microsoft.Finance.WithholdingTax;
 
 using Microsoft.Purchases.Vendor;
-using System.Utilities;
 using System.IO;
+using System.Utilities;
 
 report 16632 "WHT E-Filing"
 {

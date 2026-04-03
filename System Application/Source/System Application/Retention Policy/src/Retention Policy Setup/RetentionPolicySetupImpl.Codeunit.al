@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.DataAdministration;
+
 using System.Environment.Configuration;
 using System.Reflection;
 

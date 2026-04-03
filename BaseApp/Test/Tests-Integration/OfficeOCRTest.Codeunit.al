@@ -28,9 +28,6 @@ codeunit 139058 "Office OCR Test"
         SendDocumentToAttachmentsMsg: Label 'The document was not successfully attached to Attachments';
         SendIncomingDocApprovalRequestMsg: Label 'The Incoming Document Approval request for attachment was not successfully send';
         SendToOCRActionNotVisible_WorkflowExistsMsg: Label 'SendToOCR Action is not visible when there is an approval workflow for incoming documents';
-        PurchaseInvoiceIncomingEmailAttachEnabledMsg: Label 'Create Incoming Document from Email Attachments action is disabled when email attachments exit';
-        PurchaseInvoiceViewIncomingDocDisabledMsg: Label 'View Incoming Document action is enabled when there are no incoming documents linked to purchase invoice';
-        PurchaseInvoiceViewIncomingDocEnabledMsg: Label 'View Incoming Document action is disabled when there is an incoming document linked to purchase invoice';
         PurchaseInvoiceCreateFromFileVisibleMsg: Label 'Create from File is not visible when in Outlook Mobile App Add-in';
         PurchaseInvoiceCreateFromAttachmentVisibleMsg: Label 'Create from Attachment is not visible when in the Outlook Mobile App Add-in';
 
@@ -235,63 +232,6 @@ codeunit 139058 "Office OCR Test"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('MsgHandler')]
-    procedure SendToIncomingDocumentWithPurchaseInvoiceLink()
-    var
-        OfficeAddinContext: Record "Office Add-in Context";
-        Vendor: Record Vendor;
-        ExchangeObject: Record "Exchange Object";
-        PurchaseHeader: Record "Purchase Header";
-        VendorCard: TestPage "Vendor Card";
-        OfficeOCRIncomingDocuments: TestPage "Office OCR Incoming Documents";
-        PurchaseInvoice: TestPage "Purchase Invoice";
-        ContactNo: Code[20];
-        NewBusRelCode: Code[10];
-        VendorNo: Code[20];
-        TestEmail: Text[80];
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO] Stan is able to send an attachment in an outlook email to Incoming Document
-        Initialize(OfficeHostType.OutlookItemRead);
-
-        // [GIVEN] A Vendor in a system with or without OCR set up enabled and an email with attachments exists
-        TestEmail := RandomEmail();
-        VendorNo := CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode, true);
-        Vendor.SetRange("No.", VendorNo);
-        Vendor.Get(VendorNo);
-        OfficeAddinContext.SetRange(Email, TestEmail);
-
-        // [WHEN] The vendor card is opened up in Office Addin.
-        VendorCard.Trap();
-        LibraryOfficeHostProvider.CreateEmailAttachments('application/pdf', 1,
-          ExchangeObject.InitiatedAction::InitiateSendToIncomingDocuments, GetRecRefFromVendorNo(VendorNo));
-        RunMailEngine(OfficeAddinContext, OfficeHostType.OutlookItemRead);
-
-        // [THEN] A vendor card is opened
-        // [WHEN] A New Purchase Invoice is created from the vendor card
-        PurchaseInvoice.Trap();
-        VendorCard.NewPurchaseInvoice.Invoke();
-
-        // [THEN] A Purchase invoice card is opened with "Create Incoming Document from Attachment" action enabled and "View Incoming Document" action disabled
-        Assert.IsTrue(PurchaseInvoice.IncomingDocEmailAttachment.Enabled(), PurchaseInvoiceIncomingEmailAttachEnabledMsg);
-        Assert.IsFalse(PurchaseInvoice.IncomingDocCard.Enabled(), PurchaseInvoiceViewIncomingDocDisabledMsg);
-
-        // [WHEN] SendToIncomingDocuments action is invoked.
-        OfficeOCRIncomingDocuments.Trap();
-        PurchaseInvoice.IncomingDocEmailAttachment.Invoke();
-        OfficeOCRIncomingDocuments.OK().Invoke();
-
-        // [THEN] "View Incoming Document" action in the Purchase Invoice page is enabled
-        if PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoice."No.".Value()) then begin
-            PurchaseInvoice.Close();
-            PurchaseInvoice.Trap();
-            PAGE.Run(PAGE::"Purchase Invoice", PurchaseHeader);
-        end;
-        Assert.IsTrue(PurchaseInvoice.IncomingDocCard.Enabled(), PurchaseInvoiceViewIncomingDocEnabledMsg);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure SendIncomingDocApprovalRequest()
     var
         OfficeAddinContext: Record "Office Add-in Context";
@@ -428,67 +368,6 @@ codeunit 139058 "Office OCR Test"
 
         // [THEN] SendToOCR action in the addin is not visible.
         Assert.IsFalse(VendorCard.SendToOCR.Visible(), SendToOCRActionOfficeMobileVisibleMsg);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [HandlerFunctions('MsgHandler')]
-    procedure CreateFromAttachmentOnPurchaseInvoiceWithLinesInOutlookApp()
-    var
-        OfficeAddinContext: Record "Office Add-in Context";
-        Vendor: Record Vendor;
-        ExchangeObject: Record "Exchange Object";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        VendorCard: TestPage "Vendor Card";
-        OfficeOCRIncomingDocuments: TestPage "Office OCR Incoming Documents";
-        PurchaseInvoice: TestPage "Purchase Invoice";
-        ContactNo: Code[20];
-        NewBusRelCode: Code[10];
-        VendorNo: Code[20];
-        TestEmail: Text[80];
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO] Stan is able to send from am attachment in an outlook email to Incoming Document (when record has lines)
-        Initialize(OfficeHostType.OutlookItemRead);
-
-        // [GIVEN] A Vendor in a system with or without OCR set up enabled and an email with attachments exists
-        TestEmail := RandomEmail();
-        VendorNo := CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode, true);
-        Vendor.SetRange("No.", VendorNo);
-        Vendor.Get(VendorNo);
-        OfficeAddinContext.SetRange(Email, TestEmail);
-
-        // [WHEN] The vendor card is opened up in Office Addin.
-        VendorCard.Trap();
-        LibraryOfficeHostProvider.CreateEmailAttachments('application/pdf', 1,
-          ExchangeObject.InitiatedAction::InitiateSendToIncomingDocuments, GetRecRefFromVendorNo(VendorNo));
-        RunMailEngine(OfficeAddinContext, OfficeHostType.OutlookItemRead);
-
-        // [THEN] A vendor card is opened
-        // [WHEN] A New Purchase Invoice is created from the vendor card
-        PurchaseInvoice.Trap();
-        VendorCard.NewPurchaseInvoice.Invoke();
-
-        // [THEN] A Purchase invoice card is opened with "Create Incoming Document from Attachment" action enabled and "View Incoming Document" action disabled
-        Assert.IsTrue(PurchaseInvoice.IncomingDocEmailAttachment.Enabled(), PurchaseInvoiceIncomingEmailAttachEnabledMsg);
-
-        // [WHEN] A Purchase invoice card is opened an lines are added
-        if PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoice."No.".Value()) then
-            LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
-
-        // [WHEN] SendToIncomingDocuments action is invoked.
-        OfficeOCRIncomingDocuments.Trap();
-        PurchaseInvoice.IncomingDocEmailAttachment.Invoke();
-        OfficeOCRIncomingDocuments.OK().Invoke();
-
-        // [THEN] "View Incoming Document" action in the Purchase Invoice page is enabled
-        if PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoice."No.".Value()) then begin
-            PurchaseInvoice.Close();
-            PurchaseInvoice.Trap();
-            PAGE.Run(PAGE::"Purchase Invoice", PurchaseHeader);
-        end;
-        Assert.IsTrue(PurchaseInvoice.IncomingDocCard.Enabled(), PurchaseInvoiceViewIncomingDocEnabledMsg);
     end;
 
     [Test]

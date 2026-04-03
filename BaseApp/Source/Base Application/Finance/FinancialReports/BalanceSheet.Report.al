@@ -9,6 +9,15 @@ using Microsoft.Foundation.Period;
 using Microsoft.Foundation.Reporting;
 using System.Utilities;
 
+/// <summary>
+/// Generates standard balance sheet report using predefined account schedule templates.
+/// Produces formatted financial statement showing assets, liabilities, and equity positions.
+/// </summary>
+/// <remarks>
+/// Template-driven balance sheet report using standard account schedule configuration.
+/// Processes general ledger balances through account schedule engine for standardized
+/// financial statement presentation. Supports period-based analysis and drill-down capabilities.
+/// </remarks>
 report 28024 "Balance Sheet"
 {
     DefaultLayout = RDLC;

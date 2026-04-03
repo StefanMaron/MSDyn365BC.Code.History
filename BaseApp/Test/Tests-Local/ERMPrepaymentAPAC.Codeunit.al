@@ -144,7 +144,8 @@ codeunit 141057 "ERM Prepayment APAC"
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, LibraryRandom.RandDec(10, 2));  // Random for Quantity.
         CreatePurchaseLine(
           PurchaseLine2, PurchaseHeader, PurchaseLine2.Type::"G/L Account", GLAccountNo, -LibraryRandom.RandDec(10, 2));  // Random for Quantity.
-
+        PurchaseLine2.Validate("Qty. to Receive", 0);
+        PurchaseLine2.Modify(true);
         // Exercise.
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // True for receive and invoice.
 

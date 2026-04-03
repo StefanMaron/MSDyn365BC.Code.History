@@ -86,9 +86,10 @@ page 28165 "GST Sales Entries"
                 }
                 field(GSTPercentage; GSTPercentage)
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Basic, Suite;
                     Caption = 'GST %';
-                    DecimalPlaces = 2 : 5;
+                    DecimalPlaces = 2 : 2;
                     ToolTip = 'Specifies the relevant GST rate for the particular combination of GST business posting group and GST product posting group.';
                 }
                 field("GST Entry Type"; Rec."GST Entry Type")
@@ -109,6 +110,8 @@ page 28165 "GST Sales Entries"
                 }
                 field(GSTTotalAmount; GSTTotalAmount)
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = Basic, Suite;
                     Caption = 'Total Sale';
                     ToolTip = 'Specifies the sum of the values of GST Base and Amount fields in the GST Sales Entry line.';

@@ -8,6 +8,15 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Foundation.AuditCodes;
 
+/// <summary>
+/// Generates comprehensive reports for G/L account currency revaluation analysis.
+/// Provides detailed breakdown of currency adjustments and their impact on financial statements.
+/// </summary>
+/// <remarks>
+/// Processes G/L entries and currency exchange rates to calculate revaluation effects.
+/// Supports filtering by account, currency, and date ranges. Output includes both
+/// summary and detailed views of currency gains/losses for reporting and audit purposes.
+/// </remarks>
 report 597 "G/L Currency Revaluation"
 {
     ApplicationArea = Basic, Suite;

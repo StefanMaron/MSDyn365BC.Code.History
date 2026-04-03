@@ -1,3 +1,12 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.eServices.EDocument.DemoData;
+
+using Microsoft.DemoTool;
+
+
 #pragma warning disable AA0247
 codeunit 5373 "E-Document Contoso Module" implements "Contoso Demo Data Module"
 {
@@ -40,6 +49,6 @@ codeunit 5373 "E-Document Contoso Module" implements "Contoso Demo Data Module"
 
     procedure CreateHistoricalData()
     begin
-
+        Codeunit.Run(Codeunit::"Create E-Doc. Sample Invoices");
     end;
 }

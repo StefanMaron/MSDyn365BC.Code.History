@@ -183,6 +183,10 @@ page 1 "Company Information"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies your company''s web site.';
                 }
+                field(DefaultLanguage; Rec."Default Language code")
+                {
+                    ApplicationArea = Basic, Suite;
+                }
             }
             group(Payments)
             {

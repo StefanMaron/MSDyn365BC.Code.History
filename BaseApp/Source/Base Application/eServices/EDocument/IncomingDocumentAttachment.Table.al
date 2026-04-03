@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -79,6 +79,7 @@ table 133 "Incoming Document Attachment"
         field(8; Content; BLOB)
         {
             Caption = 'Content';
+            ToolTip = 'Specifies the content of the attachment.';
             SubType = Bitmap;
         }
         field(9; "Document No."; Code[20])
@@ -189,17 +190,18 @@ table 133 "Incoming Document Attachment"
     trigger OnDelete()
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        DeleteOtherAttachmentsFirstErr: Label 'You must delete all other attachments before you can delete attachment marked as %1.', Comment = '%1 - Field Caption';
     begin
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Incoming Document Entry No.");
         IncomingDocumentAttachment.SetFilter("Line No.", '<>%1', "Line No.");
 
         if Default then
             if not IncomingDocumentAttachment.IsEmpty() then
-                Error(DefaultAttachErr);
+                Error(DeleteOtherAttachmentsFirstErr, Rec.FieldCaption(Default));
 
         if "Main Attachment" then
             if not IncomingDocumentAttachment.IsEmpty() then
-                Error(MainAttachErr);
+                Error(DeleteOtherAttachmentsFirstErr, Rec.FieldCaption("Main Attachment"));
     end;
 
     trigger OnInsert()
@@ -223,8 +225,6 @@ table 133 "Incoming Document Attachment"
 
     var
         DeleteQst: Label 'Do you want to delete the attachment?';
-        DefaultAttachErr: Label 'There can only be one default attachment.';
-        MainAttachErr: Label 'There can only be one main attachment.';
         MustBePdfOrPictureErr: Label 'Only files of type %1 and %2 can be used for OCR.', Comment = '%1 and %2 are file types: PDF and Picture';
         NotifIncDocCompletedMsg: Label 'The action to create an incoming document from file has completed.';
 
@@ -372,12 +372,13 @@ table 133 "Incoming Document Attachment"
     procedure DeleteAttachment()
     var
         IncomingDocument: Record "Incoming Document";
+        CannotDeleteDefaultAttachmentErr: Label 'You cannot delete the default attachment.';
     begin
         TestField("Incoming Document Entry No.");
         TestField("Line No.");
 
         if Default then
-            Error(DefaultAttachErr);
+            Error(CannotDeleteDefaultAttachmentErr);
 
         IncomingDocument.Get("Incoming Document Entry No.");
         IncomingDocument.TestField(Posted, false);
@@ -388,16 +389,18 @@ table 133 "Incoming Document Attachment"
     local procedure CheckDefault()
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        OnlyOneDefaultAttachmentAllowedErr: Label 'There can only be one default attachment.';
+        MustHaveOneDefaultAttachmentErr: Label 'First attachment must be marked as default.';
     begin
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Incoming Document Entry No.");
         IncomingDocumentAttachment.SetFilter("Line No.", '<>%1', "Line No.");
         IncomingDocumentAttachment.SetRange(Default, true);
         if IncomingDocumentAttachment.IsEmpty() then begin
             if not Default then
-                Error(DefaultAttachErr);
+                Error(MustHaveOneDefaultAttachmentErr);
         end else
             if Default then
-                Error(DefaultAttachErr);
+                Error(OnlyOneDefaultAttachmentAllowedErr);
     end;
 
     local procedure ClearDefaultAttachmentsFromIncomingDocument()
@@ -570,18 +573,17 @@ table 133 "Incoming Document Attachment"
     local procedure CheckMainAttachment()
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
-        MoreThanOneMainAttachmentExist: Boolean;
-        NoMainAttachmentExist: Boolean;
+        OnlyOneMainAttachmentAllowedErr: Label 'There can only be one Main Attachment.';
+        MustHaveOneMainAttachmentErr: Label 'First attachment must be marked as Main Attachment.';
     begin
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Incoming Document Entry No.");
         IncomingDocumentAttachment.SetFilter("Line No.", '<>%1', "Line No.");
         IncomingDocumentAttachment.SetRange("Main Attachment", true);
 
-        MoreThanOneMainAttachmentExist := "Main Attachment" and (not IncomingDocumentAttachment.IsEmpty);
-        NoMainAttachmentExist := (not "Main Attachment") and IncomingDocumentAttachment.IsEmpty();
-
-        if MoreThanOneMainAttachmentExist or NoMainAttachmentExist then
-            Error(MainAttachErr);
+        if "Main Attachment" and not IncomingDocumentAttachment.IsEmpty() then
+            Error(OnlyOneMainAttachmentAllowedErr);
+        if not "Main Attachment" and IncomingDocumentAttachment.IsEmpty() then
+            Error(MustHaveOneMainAttachmentErr);
     end;
 
     local procedure SetFirstAttachmentAsDefault()

@@ -4,15 +4,17 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Integration.Graph;
 
+using Microsoft.API.Upgrade;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Integration.Entity;
 using Microsoft.Sales.Document;
 using Microsoft.Utilities;
 using System.Reflection;
-using Microsoft.API.Upgrade;
 
 codeunit 5506 "Graph Mgt - Sales Quote Buffer"
 {
+    Permissions =
+        tabledata "Sales Quote Entity Buffer" = rimd;
 
     trigger OnRun()
     begin

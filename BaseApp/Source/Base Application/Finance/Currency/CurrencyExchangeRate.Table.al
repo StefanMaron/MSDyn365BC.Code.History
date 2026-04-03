@@ -38,6 +38,7 @@ table 330 "Currency Exchange Rate"
             Caption = 'Exchange Rate Amount';
             DecimalPlaces = 1 : 6;
             MinValue = 0;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             begin
@@ -50,6 +51,7 @@ table 330 "Currency Exchange Rate"
             Caption = 'Adjustment Exch. Rate Amount';
             DecimalPlaces = 1 : 6;
             MinValue = 0;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             begin
@@ -74,6 +76,7 @@ table 330 "Currency Exchange Rate"
             Caption = 'Relational Exch. Rate Amount';
             DecimalPlaces = 1 : 6;
             MinValue = 0;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             begin
@@ -90,6 +93,7 @@ table 330 "Currency Exchange Rate"
             Caption = 'Relational Adjmt Exch Rate Amt';
             DecimalPlaces = 1 : 6;
             MinValue = 0;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             begin
@@ -98,6 +102,7 @@ table 330 "Currency Exchange Rate"
         }
         field(28041; "Relational Sett. Rate Amount"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Relational Sett. Rate Amount';
             DecimalPlaces = 1 : 6;
             MinValue = 0;
@@ -109,6 +114,7 @@ table 330 "Currency Exchange Rate"
         }
         field(28140; "Settlement Rate Amount"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Settlement Rate Amount';
             DecimalPlaces = 1 : 6;
             MinValue = 0;
@@ -736,4 +742,3 @@ table 330 "Currency Exchange Rate"
     begin
     end;
 }
-

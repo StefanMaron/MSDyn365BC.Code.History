@@ -66,27 +66,61 @@ table 6241 "Sust. Excise Taxes Trans. Log"
             Caption = 'Document No.';
             NotBlank = true;
         }
+#if not CLEANSCHEMA29
         field(16; "Account No."; Code[20])
         {
             Caption = 'Account No.';
             TableRelation = "Sustainability Account" where("Account Type" = const(Posting), Blocked = const(false));
+            ObsoleteReason = 'This field is no longer required and will be removed in a future release.';
+#if not CLEAN28
+            ObsoleteState = Pending;
+            ObsoleteTag = '28.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '29.0';
+#endif
         }
         field(17; "Account Name"; Text[100])
         {
             Caption = 'Account Name';
             DataClassification = CustomerContent;
+            ObsoleteReason = 'This field is no longer required and will be removed in a future release.';
+#if not CLEAN28
+            ObsoleteState = Pending;
+            ObsoleteTag = '28.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '29.0';
+#endif
         }
         field(18; "Account Category"; Code[20])
         {
             Caption = 'Account Category';
             Editable = false;
             TableRelation = "Sustain. Account Category";
+            ObsoleteReason = 'This field is no longer required and will be removed in a future release.';
+#if not CLEAN28
+            ObsoleteState = Pending;
+            ObsoleteTag = '28.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '29.0';
+#endif
         }
         field(19; "Account Subcategory"; Code[20])
         {
             Caption = 'Account Subcategory';
             TableRelation = "Sustain. Account Subcategory".Code where("Category Code" = field("Account Category"));
+            ObsoleteReason = 'This field is no longer required and will be removed in a future release.';
+#if not CLEAN28
+            ObsoleteState = Pending;
+            ObsoleteTag = '28.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '29.0';
+#endif
         }
+#endif
         field(20; Description; Text[100])
         {
             Caption = 'Description';
@@ -132,6 +166,7 @@ table 6241 "Sust. Excise Taxes Trans. Log"
         }
         field(29; "Source Qty."; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Source Qty.';
         }
         field(40; "Material Breakdown No."; Code[20])
@@ -144,6 +179,7 @@ table 6241 "Sust. Excise Taxes Trans. Log"
         }
         field(42; "Material Breakdown Weight"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Material Breakdown Weight';
         }
         field(43; "Material Breakdown UOM"; Code[10])
@@ -365,6 +401,8 @@ table 6241 "Sust. Excise Taxes Trans. Log"
         Rec."Dimension Set ID" := SustainabilityExciseJnlLine."Dimension Set ID";
         Rec."Calculated Date" := SustainabilityExciseJnlLine."Calculated Date";
         Rec."Calculated By" := SustainabilityExciseJnlLine."Calculated By";
+
+        OnAfterCopyFromSustainabilityExciseJnlLine(Rec, SustainabilityExciseJnlLine);
     end;
 
     local procedure ShowDimensions()
@@ -372,5 +410,11 @@ table 6241 "Sust. Excise Taxes Trans. Log"
         DimMgt: Codeunit DimensionManagement;
     begin
         DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo(EntryRecIDLbl, TableCaption(), "Entry No."));
+    end;
+
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFromSustainabilityExciseJnlLine(var SustExciseTaxesTransactionLog: Record "Sust. Excise Taxes Trans. Log"; SustainabilityExciseJnlLine: Record "Sust. Excise Jnl. Line")
+    begin
     end;
 }

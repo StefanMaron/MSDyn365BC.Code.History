@@ -4,18 +4,18 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Utilities;
 
+using Microsoft.Bank.ElectronicFundsTransfer;
+using Microsoft.Finance.Consolidation;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.WithholdingTax;
+using Microsoft.Foundation.Address;
 using Microsoft.HumanResources.Absence;
 using Microsoft.HumanResources.Employee;
 using Microsoft.HumanResources.Payables;
 using Microsoft.Sales.Archive;
 using System.Privacy;
-using Microsoft.Finance.Consolidation;
-using Microsoft.Bank.ElectronicFundsTransfer;
-using Microsoft.Foundation.Address;
-using Microsoft.Finance.WithholdingTax;
-using Microsoft.Finance.GeneralLedger.Journal;
-using Microsoft.Finance.VAT.Ledger;
 
 codeunit 1752 "Data Class. Eval. Data Country"
 {

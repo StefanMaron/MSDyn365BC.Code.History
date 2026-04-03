@@ -27,9 +27,13 @@ using Microsoft.Sales.Setup;
 using Microsoft.Utilities;
 using System.Email;
 using System.Globalization;
+using System.Reflection;
 using System.Text;
 using System.Utilities;
 
+/// <summary>
+/// Generates a sales order confirmation document to send to customers.
+/// </summary>
 report 1305 "Standard Sales - Order Conf."
 {
     Caption = 'Sales - Confirmation';
@@ -347,20 +351,6 @@ report 1305 "Standard Sales - Order Conf."
             column(VATRegistrationNo_Lbl; GetCustomerVATRegistrationNumberLbl())
             {
             }
-#if not CLEAN25
-            column(GlobalLocationNumber; '')
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Not in use anymore.';
-                ObsoleteTag = '25.0';
-            }
-            column(GlobalLocationNumber_Lbl; '')
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Not in use anymore.';
-                ObsoleteTag = '25.0';
-            }
-#endif
             column(SellToFaxNo; GetSellToCustomerFaxNo())
             {
             }
@@ -639,10 +629,14 @@ report 1305 "Standard Sales - Order Conf."
                 }
 
                 trigger OnAfterGetRecord()
+                var
+                    TypeHelper: Codeunit "Type Helper";
                 begin
                     if WorkDescriptionInstream.EOS then
                         CurrReport.Break();
-                    WorkDescriptionInstream.ReadText(WorkDescriptionLine);
+                    WorkDescriptionLine := TypeHelper.ReadAsTextWithSeparator(WorkDescriptionInstream, TypeHelper.LFSeparator());
+                    if WorkDescriptionLine = '' then
+                        CurrReport.Break();
                 end;
 
                 trigger OnPostDataItem()
@@ -1242,6 +1236,11 @@ report 1305 "Standard Sales - Order Conf."
         OnAfterDocumentCaption(Header, DocCaption);
     end;
 
+    /// <summary>
+    /// Initializes the request parameters for the sales order confirmation report.
+    /// </summary>
+    /// <param name="NewLogInteraction">Specifies whether to log interaction.</param>
+    /// <param name="DisplayAsmInfo">Specifies whether to display assembly information.</param>
     procedure InitializeRequest(NewLogInteraction: Boolean; DisplayAsmInfo: Boolean)
     begin
         LogInteraction := NewLogInteraction;
@@ -1332,4 +1331,3 @@ report 1305 "Standard Sales - Order Conf."
     begin
     end;
 }
-

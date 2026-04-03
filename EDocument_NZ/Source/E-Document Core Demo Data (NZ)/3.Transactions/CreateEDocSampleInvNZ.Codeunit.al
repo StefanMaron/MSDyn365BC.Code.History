@@ -1,20 +1,24 @@
+#if not CLEAN28
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.DemoData.Localization;
 
-using Microsoft.eServices.EDocument.Processing.Import.Purchase;
-using Microsoft.DemoData.Purchases;
-using Microsoft.Purchases.Document;
 using Microsoft.DemoData.Common;
 using Microsoft.DemoData.Finance;
+using Microsoft.DemoData.Purchases;
+using Microsoft.eServices.EDocument.Processing.Import.Purchase;
+using Microsoft.Purchases.Document;
 
 codeunit 17214 "Create E-Doc Sample Inv. NZ"
 {
     Access = Internal;
     InherentEntitlements = X;
     InherentPermissions = X;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Create E-Doc. Sample Invoices Codeunit';
+    ObsoleteTag = '28.0';
 
     var
         EDocSamplePurchaseInvoice: Codeunit "E-Doc Sample Purchase Invoice";
@@ -28,7 +32,6 @@ codeunit 17214 "Create E-Doc Sample Inv. NZ"
         YearlyLicenstCostLbl: Label 'Yearly license cost mapped to a G/L account';
         MonthlyLicenseCostLbl: Label 'Monthly license cost mapped to a G/L account';
     begin
-        EDocSamplePurchaseInvoice.SetMixLayoutsForPDFGeneration();
         EDocSamplePurchaseInvoice.AddInvoice(CreateVendor.DomesticFirstUp(), '108244', MonthlyLicenseCostLbl, 216);
         EDocSamplePurchaseInvoice.AddLine(
             Enum::"Purchase Line Type"::"G/L Account", '', CreateDemoEDocsNZ.ITServicesDecember(), 12, 200, '', CreateCommonUnitOfMeasure.Piece());
@@ -40,3 +43,4 @@ codeunit 17214 "Create E-Doc Sample Inv. NZ"
         EDocSamplePurchaseInvoice.Generate();
     end;
 }
+#endif

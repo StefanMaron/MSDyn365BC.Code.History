@@ -4,16 +4,18 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Integration.Graph;
 
+using Microsoft.API.Upgrade;
 using Microsoft.Integration.Entity;
 using Microsoft.Sales.Document;
 using Microsoft.Upgrade;
 using Microsoft.Utilities;
 using System.Reflection;
 using System.Upgrade;
-using Microsoft.API.Upgrade;
 
 codeunit 5496 "Graph Mgt - Sales Order Buffer"
 {
+    Permissions =
+        tabledata "Sales Order Entity Buffer" = rimd;
 
     trigger OnRun()
     begin

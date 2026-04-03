@@ -5,11 +5,11 @@
 namespace Microsoft.Inventory.Costing;
 
 using Microsoft.Inventory.Item;
-using Microsoft.Inventory.Reports;
-using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Journal;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Reports;
+using Microsoft.Manufacturing.Document;
 
 codeunit 99000776 "Mfg. InventoryAdjmtEntryOrder"
 {

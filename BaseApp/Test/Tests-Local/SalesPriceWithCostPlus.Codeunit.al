@@ -1,13 +1,9 @@
-#if not CLEAN25
 #pragma warning disable AS0072
 codeunit 141051 "Sales Price With Cost Plus"
 {
     Subtype = Test;
     TestPermissions = Disabled;
     EventSubscriberInstance = Manual;
-    ObsoleteReason = 'Not used.';
-    ObsoleteState = Pending;
-    ObsoleteTag = '23.0';
 
     trigger OnRun()
     begin
@@ -706,4 +702,3 @@ codeunit 141051 "Sales Price With Cost Plus"
         ModifiedLines.Set(Rec."Sales Code", ModifiedLines.Get(Rec."Sales Code") + 1);
     end;
 }
-#endif

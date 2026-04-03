@@ -14,13 +14,8 @@ table 6412 "FS Bookable Resource Booking"
     Description = 'Represents the line details of a resource booking.';
     DataClassification = SystemMetadata;
     ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-#if not CLEAN25
-    ObsoleteState = Pending;
-    ObsoleteTag = '25.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '28.0';
-#endif
 
     fields
     {
@@ -282,6 +277,7 @@ table 6412 "FS Bookable Resource Booking"
         }
         field(45; ExchangeRate; Decimal)
         {
+            AutoFormatType = 0;
             ExternalName = 'exchangerate';
             ExternalType = 'Decimal';
             ExternalAccess = Read;
@@ -367,6 +363,7 @@ table 6412 "FS Bookable Resource Booking"
         }
         field(63; effort; Decimal)
         {
+            AutoFormatType = 0;
             ExternalName = 'msdyn_effort';
             ExternalType = 'Decimal';
             Description = 'Capacity that needs to take from resource capacity';
@@ -400,6 +397,7 @@ table 6412 "FS Bookable Resource Booking"
         }
         field(67; Latitude; Decimal)
         {
+            AutoFormatType = 0;
             ExternalName = 'msdyn_latitude';
             ExternalType = 'Double';
             Description = '';
@@ -408,6 +406,7 @@ table 6412 "FS Bookable Resource Booking"
         }
         field(68; Longitude; Decimal)
         {
+            AutoFormatType = 0;
             ExternalName = 'msdyn_longitude';
             ExternalType = 'Double';
             Description = '';
@@ -416,6 +415,7 @@ table 6412 "FS Bookable Resource Booking"
         }
         field(69; MilesTraveled; Decimal)
         {
+            AutoFormatType = 0;
             ExternalName = 'msdyn_milestraveled';
             ExternalType = 'Double';
             Description = 'In this field you can enter the total miles the resource drove to the job site';
@@ -538,6 +538,7 @@ table 6412 "FS Bookable Resource Booking"
         }
         field(95; TotalCost; Decimal)
         {
+            AutoFormatType = 0;
             ExternalName = 'msdyn_totalcost';
             ExternalType = 'Money';
             Description = 'Shows the total cost for this booking.';
@@ -546,6 +547,7 @@ table 6412 "FS Bookable Resource Booking"
         }
         field(96; totalcost_Base; Decimal)
         {
+            AutoFormatType = 0;
             ExternalName = 'msdyn_totalcost_base';
             ExternalType = 'Money';
             ExternalAccess = Read;
@@ -642,5 +644,5 @@ table 6412 "FS Bookable Resource Booking"
         {
         }
     }
-} 
+}
 #endif

@@ -22,10 +22,6 @@ codeunit 1633 "Office Host Provider"
         [RunOnClient]
         OfficeHost: DotNet OfficeHost;
         IsHostInitialized: Boolean;
-        OutlookCategoryLbl: Label 'AL Outlook Add-In', Locked = true;
-        UsingEwsLbl: Label 'Using EWS', Locked = true;
-        UsingGraphLbl: Label 'Using Graph', Locked = true;
-        GraphIndicatorTxt: Label 'graph ', Locked = true;
 
     local procedure CanHandle(): Boolean
     var
@@ -152,30 +148,17 @@ codeunit 1633 "Office Host Provider"
     local procedure OnEmailHasAttachments(var Result: Boolean)
     var
         OutlookAddInServices: Codeunit "Outlook Add-In Services";
-        ExchangeWebServicesServer: Codeunit "Exchange Web Services Server";
-        CleanToken: Text;
     begin
         if not CanHandle() then
             exit;
-
-        if not (OfficeHost.CallbackToken in ['', ' ']) then
-            if (OfficeHost.CallbackToken.Contains(GraphIndicatorTxt)) then begin
-                CleanToken := OfficeHost.CallbackToken.Replace(GraphIndicatorTxt, '');
-                Session.LogMessage('0000QJR', UsingGraphLbl, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OutlookCategoryLbl);
-                Result := OutlookAddInServices.EmailHasAttachments(TempOfficeAddinContextInternal."Item ID", CleanToken);
-            end else begin
-                Session.LogMessage('0000QJS', UsingEwsLbl, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OutlookCategoryLbl);
-                ExchangeWebServicesServer.InitializeWithOAuthToken(OfficeHost.CallbackToken, ExchangeWebServicesServer.GetEndpoint());
-                Result := ExchangeWebServicesServer.EmailHasAttachments(TempOfficeAddinContextInternal."Item ID");
-            end;
+        if not (OfficeHost.CallbackToken in ['', ' ']) then 
+            Result := OutlookAddInServices.EmailHasAttachments(TempOfficeAddinContextInternal."Item ID", OfficeHost.CallbackToken);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Host Management", 'OnGetEmailAndAttachmentsForEntity', '', false, false)]
     local procedure OnGetEmailAndAttachmentsForEntity(var TempExchangeObject: Record "Exchange Object" temporary; "Action": Option InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow,InitiateSendToAttachments; RecRef: RecordRef)
     var
         OutlookAddInServices: Codeunit "Outlook Add-In Services";
-        ExchangeWebServicesServer: Codeunit "Exchange Web Services Server";
-        CleanToken: Text;
     begin
         if not CanHandle() then
             exit;
@@ -187,15 +170,7 @@ codeunit 1633 "Office Host Provider"
             TempExchangeObject.Copy(TempExchangeObjectInternal, true);
         end else
             if not (OfficeHost.CallbackToken in ['', ' ']) then begin
-                if (OfficeHost.CallbackToken.Contains(GraphIndicatorTxt)) then begin
-                    Session.LogMessage('0000QJT', UsingGraphLbl, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OutlookCategoryLbl);
-                    CleanToken := OfficeHost.CallbackToken.Replace(GraphIndicatorTxt, '');
-                    OutlookAddInServices.GetEmailAndAttachments(TempOfficeAddinContextInternal."Item ID", TempExchangeObject, Action, RecRef, CleanToken);
-                end else begin
-                    Session.LogMessage('0000QJU', UsingEwsLbl, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OutlookCategoryLbl);
-                    ExchangeWebServicesServer.InitializeWithOAuthToken(OfficeHost.CallbackToken(), ExchangeWebServicesServer.GetEndpoint());
-                    ExchangeWebServicesServer.GetEmailAndAttachments(TempOfficeAddinContextInternal."Item ID", TempExchangeObject, Action, RecRef);
-                end;
+                OutlookAddInServices.GetEmailAndAttachments(TempOfficeAddinContextInternal."Item ID", TempExchangeObject, Action, RecRef, OfficeHost.CallbackToken);
                 TempExchangeObjectInternal.Copy(TempExchangeObject, true);
             end;
     end;
@@ -204,21 +179,11 @@ codeunit 1633 "Office Host Provider"
     local procedure OnGetEmailBody(ItemID: Text[250]; var EmailBody: Text)
     var
         OutlookAddInServices: Codeunit "Outlook Add-In Services";
-        ExchangeWebServicesServer: Codeunit "Exchange Web Services Server";
-        CleanToken: Text;
     begin
         if not CanHandle() then
             exit;
 
         if not (OfficeHost.CallbackToken in ['', ' ']) then
-            if (OfficeHost.CallbackToken.Contains(GraphIndicatorTxt)) then begin
-                Session.LogMessage('0000QJV', UsingGraphLbl, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OutlookCategoryLbl);
-                CleanToken := OfficeHost.CallbackToken.Replace(GraphIndicatorTxt, '');
-                EmailBody := OutlookAddInServices.GetEmailBodyViaGraph(ItemID, CleanToken)
-            end else begin
-                Session.LogMessage('0000QJW', UsingEwsLbl, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OutlookCategoryLbl);
-                ExchangeWebServicesServer.InitializeWithOAuthToken(OfficeHost.CallbackToken, ExchangeWebServicesServer.GetEndpoint());
-                EmailBody := ExchangeWebServicesServer.GetEmailBody(ItemID);
-            end;
+            EmailBody := OutlookAddInServices.GetEmailBodyViaGraph(ItemID, OfficeHost.CallbackToken);
     end;
 }

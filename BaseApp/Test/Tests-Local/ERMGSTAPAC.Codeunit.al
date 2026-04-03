@@ -486,50 +486,6 @@ codeunit 141007 "ERM GST APAC"
 
     [Test]
     [Scope('OnPrem')]
-    procedure BASAdjustmentIsFalseForPurchaseVATGLEntry()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        DummyGLEntry: Record "G/L Entry";
-        VendorNo: Code[20];
-        PostedCrMemoNo: Code[20];
-        PostedInvoiceNo: Code[20];
-        PurchaseVATAccountNo: Code[20];
-    begin
-        // [FEATURE] [BAS Adjustment] [Purchase]
-        // [SCENARIO 381036] Purchase VAT Account GLEntry."BAS Adjustment" = FALSE after reverse Credit Memo
-        Initialize();
-        VendorNo := LibraryPurchase.CreateVendorNo();
-
-        // [GIVEN] Posted Purchase Invoice "PI" with GLAccount "GL"
-        PostedInvoiceNo := CreatePostGLPurchaseInvoice(VendorNo, LibraryERM.CreateGLAccountWithPurchSetup());
-        // [GIVEN] Purchase Credit Memo. Get posted Invoice lines to reverse.
-        CreatePurchaseCreditMemoForPostedInvoice(PurchaseHeader, VendorNo, PostedInvoiceNo);
-        FindGLPurchaseLine(PurchaseLine, PurchaseHeader);
-        PurchaseVATAccountNo := GetPurchaseVATAccountNo(PurchaseLine);
-        // [GIVEN] Update Purchase Credit Memo "Adjustment Applies-to" = "PI". PurchaseHeader."BAS Adjustment" is automatically set to TRUE.
-        UpdatePurchaseHeaderAdjAppliesTo(PurchaseHeader, PostedInvoiceNo);
-
-        // [WHEN] Post Purchase Credit Memo
-        PostedCrMemoNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-
-        // [THEN] There are 3 posted GLEntries related to the Credit Memo:
-        DummyGLEntry.SetRange("Document Type", DummyGLEntry."Document Type"::"Credit Memo");
-        DummyGLEntry.SetRange("Document No.", PostedCrMemoNo);
-        Assert.RecordCount(DummyGLEntry, 3);
-        // [THEN] "G/L Account No." = 5610 (<Purchase VAT Account>), "BAS Adjustment" = FALSE
-        VerifyGLEntryBASAdjustment(
-          DummyGLEntry."Document Type"::"Credit Memo", PostedCrMemoNo, PurchaseVATAccountNo, false);
-        // [THEN] "G/L Account No." = 2310 (<Payables Account>), "BAS Adjustment" = TRUE
-        VerifyGLEntryBASAdjustment(
-          DummyGLEntry."Document Type"::"Credit Memo", PostedCrMemoNo, GetPayablesAccountNo(VendorNo), true);
-        // [THEN] "G/L Account No." = "GL", "BAS Adjustment" = TRUE
-        VerifyGLEntryBASAdjustment(
-          DummyGLEntry."Document Type"::"Credit Memo", PostedCrMemoNo, PurchaseLine."No.", true);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure PurchaseCrMemoApplyInvoiceWithUnrealizedGST()
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -1243,14 +1199,6 @@ codeunit 141007 "ERM GST APAC"
         exit(VATPostingSetup."Sales VAT Account");
     end;
 
-    local procedure GetPurchaseVATAccountNo(PurchaseLine: Record "Purchase Line"): Code[20]
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        VATPostingSetup.Get(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group");
-        exit(VATPostingSetup."Purchase VAT Account");
-    end;
-
     local procedure GetReceivablesAccountNo(CustomerNo: Code[20]): Code[20]
     var
         Customer: Record Customer;
@@ -1259,16 +1207,6 @@ codeunit 141007 "ERM GST APAC"
         Customer.Get(CustomerNo);
         CustomerPostingGroup.Get(Customer."Customer Posting Group");
         exit(CustomerPostingGroup."Receivables Account");
-    end;
-
-    local procedure GetPayablesAccountNo(VendorNo: Code[20]): Code[20]
-    var
-        Vendor: Record Vendor;
-        VendorPostingGroup: Record "Vendor Posting Group";
-    begin
-        Vendor.Get(VendorNo);
-        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
-        exit(VendorPostingGroup."Payables Account");
     end;
 
     local procedure UpdateGeneralLedgerSetup(UnrealizedVAT: Boolean; GSTReport: Boolean)
@@ -1318,12 +1256,6 @@ codeunit 141007 "ERM GST APAC"
         SalesHeader.Validate("Applies-to Doc. Type", SalesHeader."Applies-to Doc. Type"::Invoice);
         SalesHeader.Validate("Applies-to Doc. No.", AppliesToDocNo);
         SalesHeader.Modify(true);
-    end;
-
-    local procedure UpdatePurchaseHeaderAdjAppliesTo(var PurchaseHeader: Record "Purchase Header"; AdjustmentAppliesTo: Code[20])
-    begin
-        PurchaseHeader.Validate("Adjustment Applies-to", AdjustmentAppliesTo);
-        PurchaseHeader.Modify(true);
     end;
 
     local procedure UpdatePurchaseHeaderAppliesTo(var PurchaseHeader: Record "Purchase Header"; AppliesToDocNo: Code[20])

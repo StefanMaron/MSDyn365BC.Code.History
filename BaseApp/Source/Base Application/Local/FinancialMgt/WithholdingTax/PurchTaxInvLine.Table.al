@@ -1,11 +1,11 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.WithholdingTax;
 
-using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Calculation;
@@ -22,9 +22,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
@@ -104,6 +101,7 @@ table 28076 "Purch. Tax Inv. Line"
         }
         field(15; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
         }
@@ -117,16 +115,19 @@ table 28076 "Purch. Tax Inv. Line"
         field(23; "Unit Cost (LCY)"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost (LCY)';
         }
         field(25; "VAT %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'VAT %';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(27; "Line Discount %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Line Discount %';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
@@ -153,6 +154,7 @@ table 28076 "Purch. Tax Inv. Line"
         field(31; "Unit Price (LCY)"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Price (LCY)';
         }
         field(32; "Allow Invoice Disc."; Boolean)
@@ -162,21 +164,25 @@ table 28076 "Purch. Tax Inv. Line"
         }
         field(34; "Gross Weight"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Gross Weight';
             DecimalPlaces = 0 : 5;
         }
         field(35; "Net Weight"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Net Weight';
             DecimalPlaces = 0 : 5;
         }
         field(36; "Units per Parcel"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Units per Parcel';
             DecimalPlaces = 0 : 5;
         }
         field(37; "Unit Volume"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Unit Volume';
             DecimalPlaces = 0 : 5;
         }
@@ -203,6 +209,7 @@ table 28076 "Purch. Tax Inv. Line"
         }
         field(54; "Indirect Cost %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Indirect Cost %';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
@@ -346,8 +353,14 @@ table 28076 "Purch. Tax Inv. Line"
         field(5401; "Prod. Order No."; Code[20])
         {
             Caption = 'Prod. Order No.';
-            TableRelation = "Production Order"."No." where(Status = filter(Released | Finished));
-            ValidateTableRelation = false;
+            ObsoleteReason = 'Preparation for extraction Manufacturing app';
+#if not CLEAN28
+            ObsoleteState = Pending;
+            ObsoleteTag = '28.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '31.0';
+#endif
         }
         field(5402; "Variant Code"; Code[10])
         {
@@ -363,6 +376,7 @@ table 28076 "Purch. Tax Inv. Line"
         }
         field(5404; "Qty. per Unit of Measure"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. per Unit of Measure';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -376,6 +390,7 @@ table 28076 "Purch. Tax Inv. Line"
         }
         field(5415; "Quantity (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity (Base)';
             DecimalPlaces = 0 : 5;
         }
@@ -397,6 +412,7 @@ table 28076 "Purch. Tax Inv. Line"
         field(5603; "Salvage Value"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = GetCurrencyCode();
             Caption = 'Salvage Value';
         }
         field(5605; "Depr. until FA Posting Date"; Boolean)
@@ -474,13 +490,8 @@ table 28076 "Purch. Tax Inv. Line"
         {
             Caption = 'Product Group Code';
             ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-#if CLEAN25
             ObsoleteState = Removed;
             ObsoleteTag = '28.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '17.0';
-#endif
         }
 #endif
         field(6608; "Return Reason Code"; Code[10])
@@ -500,14 +511,20 @@ table 28076 "Purch. Tax Inv. Line"
         }
         field(28042; "WHT Absorb Base"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = GetCurrencyCode();
             Caption = 'WHT Absorb Base';
         }
         field(28070; "Paid Amount Incl. VAT"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = GetCurrencyCode();
             Caption = 'Paid Amount Incl. VAT';
         }
         field(28071; "Paid VAT"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = GetCurrencyCode();
             Caption = 'Paid VAT';
         }
         field(28073; "External Document No."; Code[35])
@@ -518,34 +535,76 @@ table 28076 "Purch. Tax Inv. Line"
         field(99000750; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';
-            TableRelation = "Routing Header";
+            ObsoleteReason = 'Preparation for extraction Manufacturing app';
+#if not CLEAN28
+            ObsoleteState = Pending;
+            ObsoleteTag = '28.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '31.0';
+#endif
         }
         field(99000751; "Operation No."; Code[10])
         {
             Caption = 'Operation No.';
-            TableRelation = "Prod. Order Routing Line"."Operation No." where(Status = filter(Released ..),
-                                                                              "Prod. Order No." = field("Prod. Order No."),
-                                                                              "Routing No." = field("Routing No."));
+            ObsoleteReason = 'Preparation for extraction Manufacturing app';
+#if not CLEAN28
+            ObsoleteState = Pending;
+            ObsoleteTag = '28.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '31.0';
+#endif
         }
         field(99000752; "Work Center No."; Code[20])
         {
             Caption = 'Work Center No.';
-            TableRelation = "Work Center";
+            ObsoleteReason = 'Preparation for extraction Manufacturing app';
+#if not CLEAN28
+            ObsoleteState = Pending;
+            ObsoleteTag = '28.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '31.0';
+#endif
         }
         field(99000754; "Prod. Order Line No."; Integer)
         {
             Caption = 'Prod. Order Line No.';
-            TableRelation = "Prod. Order Line"."Line No." where(Status = filter(Released ..),
-                                                                 "Prod. Order No." = field("Prod. Order No."));
+            ObsoleteReason = 'Preparation for extraction Manufacturing app';
+#if not CLEAN28
+            ObsoleteState = Pending;
+            ObsoleteTag = '28.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '31.0';
+#endif
         }
         field(99000755; "Overhead Rate"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Overhead Rate';
             DecimalPlaces = 0 : 5;
+            ObsoleteReason = 'Preparation for extraction Manufacturing app';
+#if not CLEAN28
+            ObsoleteState = Pending;
+            ObsoleteTag = '28.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '31.0';
+#endif
         }
         field(99000759; "Routing Reference No."; Integer)
         {
             Caption = 'Routing Reference No.';
+            ObsoleteReason = 'Preparation for extraction Manufacturing app';
+#if not CLEAN28
+            ObsoleteState = Pending;
+            ObsoleteTag = '28.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '31.0';
+#endif
         }
     }
 
@@ -580,9 +639,6 @@ table 28076 "Purch. Tax Inv. Line"
     var
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
-        if "Document No." = PurchInvHeader."No." then
-            exit(PurchInvHeader."Currency Code");
-
         if PurchInvHeader.Get("Document No.") then
             exit(PurchInvHeader."Currency Code");
 
@@ -680,4 +736,3 @@ table 28076 "Purch. Tax Inv. Line"
         TransferFields(PurchCrMemoLine);
     end;
 }
-

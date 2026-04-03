@@ -27,7 +27,7 @@ codeunit 137502 "SCM Dedicated Bins"
         CfmBinDedicated: Label 'The bin B1 is Dedicated.\Do you still want to use this bin?';
         VSTF190324Msg1: Label 'There is nothing to create.';
         MSG_INVT_PICK_CREATED: Label 'Number of Invt. Pick activities created: 1 out of a total of 1.';
-        LocationSetErr: Label 'The location code should already be set.';
+        LocationSetErr: Label 'Location code should have been set already';
 
     [Normal]
     local procedure Initialize()
@@ -1140,7 +1140,8 @@ codeunit 137502 "SCM Dedicated Bins"
         ProdOrderRtngLine.SetRange("Operation No.");
     end;
 
-    local procedure AssertBinCodesOnComponents(var ProdOrderComponent: Record "Prod. Order Component"; ItemNo: Code[20]; RoutingLinkCode: Code[10]; FlushingMethod: Enum "Flushing Method"; LocationCode: Code[10]; BinCode: Code[20])
+    local procedure AssertBinCodesOnComponents(var ProdOrderComponent: Record "Prod. Order Component"; ItemNo: Code[20]; RoutingLinkCode: Code[10]; FlushingMethod: Enum "Flushing Method"; LocationCode: Code[10];
+                                                                                                                                                                        BinCode: Code[20])
     begin
         ProdOrderComponent.SetRange("Item No.", ItemNo);
         ProdOrderComponent.SetRange("Routing Link Code", RoutingLinkCode);
