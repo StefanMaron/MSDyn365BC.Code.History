@@ -188,6 +188,8 @@ table 11000003 "Detail Line"
         }
         field(10; Amount; Decimal)
         {
+            AutoFormatExpression = "Currency Code (Entry)";
+            AutoFormatType = 1;
             Caption = 'Amount';
 
             trigger OnValidate()

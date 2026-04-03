@@ -374,6 +374,7 @@ page 11000000 "Telebank - Bank Overview"
                 RunObject = Report "Trial Balance by Period";
                 ToolTip = 'View the opening balance of the bank account, the movements in the selected period of month, quarter, or year, and the resulting closing balance.';
             }
+#if not CLEAN28
             action("Trial Balance")
             {
                 ApplicationArea = Basic, Suite;
@@ -383,7 +384,11 @@ page 11000000 "Telebank - Bank Overview"
                 //PromotedCategory = "Report";
                 RunObject = Report "Trial Balance";
                 ToolTip = 'View the opening balance of the bank account, the movements in the selected period of month, quarter, or year, and the resulting closing balance.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report is obsolete and will be removed in a future release.';
+                ObsoleteTag = '28.0';
             }
+#endif
         }
         area(Promoted)
         {

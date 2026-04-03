@@ -6,6 +6,9 @@ namespace Microsoft.Sales.History;
 
 using Microsoft.Utilities;
 
+/// <summary>
+/// Provides user confirmation dialog before canceling a posted sales credit memo.
+/// </summary>
 codeunit 1334 "Cancel PstdSalesCrM (Yes/No)"
 {
     Permissions = TableData "Sales Invoice Header" = rm,
@@ -26,6 +29,7 @@ codeunit 1334 "Cancel PstdSalesCrM (Yes/No)"
         SalesInvHeader: Record "Sales Invoice Header";
         CancelledDocument: Record "Cancelled Document";
         CancelPostedSalesCrMemo: Codeunit "Cancel Posted Sales Cr. Memo";
+        PageManagement: Codeunit "Page Management";
         IsHandled: Boolean;
     begin
         CancelPostedSalesCrMemo.TestCorrectCrMemoIsAllowed(SalesCrMemoHeader);
@@ -37,7 +41,7 @@ codeunit 1334 "Cancel PstdSalesCrM (Yes/No)"
                     IsHandled := false;
                     OnCancelInvoiceOnBeforePostedSalesInvoice(SalesInvHeader, IsHandled);
                     if not IsHandled then
-                        PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvHeader);
+                        PageManagement.PageRun(SalesInvHeader);
                     exit(true);
                 end;
 

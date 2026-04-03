@@ -1,5 +1,4 @@
-#if not CLEANSCHEMA28 
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -12,15 +11,6 @@ using Microsoft.Purchases.Vendor;
 table 7014 "Purchase Line Discount"
 {
     Caption = 'Purchase Line Discount';
-#if not CLEAN25
-    LookupPageID = "Purchase Line Discounts";
-    ObsoleteState = Pending;
-    ObsoleteTag = '16.0';
-#else
-    ObsoleteState = Removed;
-    ObsoleteTag = '28.0';
-#endif    
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price List Line';
     DataClassification = CustomerContent;
 
     fields
@@ -28,6 +18,7 @@ table 7014 "Purchase Line Discount"
         field(1; "Item No."; Code[20])
         {
             Caption = 'Item No.';
+            ToolTip = 'Specifies the number of the item that the purchase line discount applies to.';
             NotBlank = true;
             TableRelation = Item;
 
@@ -42,6 +33,7 @@ table 7014 "Purchase Line Discount"
         field(2; "Vendor No."; Code[20])
         {
             Caption = 'Vendor No.';
+            ToolTip = 'Specifies the number of the vendor who offers the line discount on the item.';
             NotBlank = true;
             TableRelation = Vendor;
 
@@ -54,11 +46,13 @@ table 7014 "Purchase Line Discount"
         field(3; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
+            ToolTip = 'Specifies the currency code of the purchase line discount price.';
             TableRelation = Currency;
         }
         field(4; "Starting Date"; Date)
         {
             Caption = 'Starting Date';
+            ToolTip = 'Specifies the date from which the purchase line discount is valid.';
 
             trigger OnValidate()
             begin
@@ -68,20 +62,25 @@ table 7014 "Purchase Line Discount"
         }
         field(5; "Line Discount %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Line Discount %';
+            ToolTip = 'Specifies the discount percentage that is granted for the item on the line.';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
             MinValue = 0;
         }
         field(11; "Minimum Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Minimum Quantity';
+            ToolTip = 'Specifies the minimum quantity of the item that you must buy from the vendor in order to receive the purchase line discount.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
         }
         field(15; "Ending Date"; Date)
         {
             Caption = 'Ending Date';
+            ToolTip = 'Specifies the date to which the purchase line discount is valid.';
 
             trigger OnValidate()
             begin
@@ -91,11 +90,13 @@ table 7014 "Purchase Line Discount"
         field(5400; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
+            ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
             TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
         }
         field(5700; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
+            ToolTip = 'Specifies the variant of the item on the line.';
             TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
         }
     }
@@ -135,6 +136,3 @@ table 7014 "Purchase Line Discount"
 #pragma warning restore AA0470
 #pragma warning restore AA0074
 }
-
- 
-#endif

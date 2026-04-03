@@ -33,7 +33,7 @@
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
         LibraryERM: Codeunit "Library - ERM";
-        LibraryCosting: Codeunit "Library - Costing";
+        LibraryPostInventoryToGL: Codeunit "Library - Post Inventory To GL";
         LibraryPlanning: Codeunit "Library - Planning";
         LibraryResource: Codeunit "Library - Resource";
         isInitialized: Boolean;
@@ -44,10 +44,8 @@
         UndoServiceShipmentQst: Label 'Do you want to undo the selected shipment line(s)?';
         RecordMustBeDeletedTxt: Label 'Order must be deleted.';
         ExpectedReceiptDateErr: Label 'The change leads to a date conflict with existing reservations.';
-#if not CLEAN25
         NegativeValueErr: Label 'The value must be greater than or equal to 0.';
         StartingDateErr: Label 'Starting Date cannot be after Ending Date';
-#endif
         QuantityToInvoiceDoesNotMatchErr: Label 'The quantity to invoice does not match the quantity defined in item tracking.';
         ReturnOrderPostedMsg: Label 'All the documents were posted.';
         RecordCountErr: Label 'No of record must be same.';
@@ -59,6 +57,12 @@
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
         MissingMandatoryLocationTxt: Label 'Location Code must have a value in Requisition Line';
         CannotReserveFromSpecialOrderErr: Label 'You cannot reserve from this item ledger entry because the associated special sales order %1 has not been posted yet.', Comment = '%1: Sales Order No.';
+        CannotInsertSalesLineWithoutHeaderErr: Label 'You cannot insert a sales line without a sales header.';
+        CannotInsertPurchLineWithoutHeaderErr: Label 'You cannot insert a purchase line without a purchase header.';
+        ValueMustBeEqualErr: Label '%1 value must be equal to %2 in %3', Comment = '%1 = Field Name, %2= Expected Value, %3 = Table Name';
+        CannotCreatePurchaseOrderWithoutVendorErr: Label 'You cannot create purchase orders without specifying a vendor for all lines.';
+        CannotCreatePurchaseOrderIsAlreadyWithSalesOrderErr: Label '%1 on sales order %2 is already associated with purchase order %3.', Comment = '%1 = number of item, %2 = number of document, %3 = number of purchase order';
+        NoSalesLineToRetrieveErr: Label 'There are no sales lines to retrieve.';
 
     [Test]
     [Scope('OnPrem')]
@@ -408,7 +412,6 @@
         Assert.ExpectedError(ExpectedReceiptDateErr);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure PurchasePriceNegativeQuantityError()
@@ -602,7 +605,6 @@
         // Verify: Verify error message.
         Assert.ExpectedError(StartingDateErr);
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -923,7 +925,7 @@
 
         // Exercise.
         LibraryVariableStorage.Enqueue(ValueEntriesWerePostedTxt);
-        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
+        LibraryPostInventoryToGL.PostInvtCostToGL(false, WorkDate(), '');
 
         // Verify: Item Ledger entries and Value entries.
         VerifyQuantityOnItemLedgerEntry(PostedDocumentNo, LineNo, Item."No.", Quantity);
@@ -3326,6 +3328,1059 @@
         ValueEntry.TestField(Type, ValueEntry.Type::" ");
     end;
 
+    [Test]
+    procedure InsertingSalesLineBeforeSalesHeader()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 593432] It is possible to insert Sales Line before Sales Header if SalesHeader variable is initialized in the Sales Line table.
+        Initialize();
+
+        // Sales Header is initialized but not inserted.
+        SalesHeader.Init();
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
+        SalesHeader."No." := LibraryUtility.GenerateGUID();
+
+        // Initialize Sales Line with the Sales Header passed as parameter.
+        SalesLine.Init();
+        SalesLine.SetSalesHeader(SalesHeader);
+        SalesLine."Document Type" := SalesHeader."Document Type";
+        SalesLine."Document No." := SalesHeader."No.";
+        SalesLine."Line No." := LibraryUtility.GetNewRecNo(SalesLine, SalesLine.FieldNo("Line No."));
+
+        // The Sales Line can be inserted.
+        SalesLine.Insert(true);
+
+        // Initialize another Sales Line, do not invoke SetSalesHeader.
+        Clear(SalesLine);
+        SalesLine.Init();
+        SalesLine."Document Type" := SalesHeader."Document Type";
+        SalesLine."Document No." := SalesHeader."No.";
+        SalesLine."Line No." := LibraryUtility.GetNewRecNo(SalesLine, SalesLine.FieldNo("Line No."));
+
+        // The Sales Line cannot be inserted, because Sales Header is not inserted yet.
+        Commit();
+        asserterror SalesLine.Insert(true);
+
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(CannotInsertSalesLineWithoutHeaderErr);
+
+        // After inserting the Sales Header, the Sales Line can be inserted.
+        SalesHeader.Insert();
+        SalesLine.Insert(true);
+    end;
+
+    [Test]
+    procedure InsertingPurchaseLineBeforePurchaseHeader()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 593432] It is possible to insert Purchase Line before Purchase Header if PurchaseHeader variable is initialized in the Purchase Line table.
+        Initialize();
+
+        // Purchase Header is initialized but not inserted.
+        PurchaseHeader.Init();
+        PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
+        PurchaseHeader."No." := LibraryUtility.GenerateGUID();
+
+        // Initialize Purchase Line with the Purchase Header passed as parameter.
+        PurchaseLine.Init();
+        PurchaseLine.SetPurchHeader(PurchaseHeader);
+        PurchaseLine."Document Type" := PurchaseHeader."Document Type";
+        PurchaseLine."Document No." := PurchaseHeader."No.";
+        PurchaseLine."Line No." := LibraryUtility.GetNewRecNo(PurchaseLine, PurchaseLine.FieldNo("Line No."));
+
+        // The Purchase Line can be inserted.
+        PurchaseLine.Insert(true);
+
+        // Initialize another Purchase Line, do not invoke SetPurchHeader.
+        Clear(PurchaseLine);
+        PurchaseLine.Init();
+        PurchaseLine."Document Type" := PurchaseHeader."Document Type";
+        PurchaseLine."Document No." := PurchaseHeader."No.";
+        PurchaseLine."Line No." := LibraryUtility.GetNewRecNo(PurchaseLine, PurchaseLine.FieldNo("Line No."));
+
+        // The Purchase Line cannot be inserted, because Purchase Header is not inserted yet.
+        Commit();
+        asserterror PurchaseLine.Insert(true);
+
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(CannotInsertPurchLineWithoutHeaderErr);
+
+        // After inserting the Purchase Header, the Purchase Line can be inserted.
+        PurchaseHeader.Insert();
+        PurchaseLine.Insert(true);
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandlerSetVendorsOnLine')]
+    procedure PurchaseOrderMustBeCreatedFromDropShipmentSalesOrder()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesOrder: TestPage "Sales Order";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [SCENARIO 386698] Verify that purchase order is created from sales order when "Create Purchase Order" action is invoked.
+        Initialize();
+
+        // [GIVEN] Create Item and Vendor.
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Enqueue "Vendor No.".
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+
+        // [GIVEN] Update Purchasing Code on Item.
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(true, false));
+
+        // [GIVEN] Create Sales Order with drop shipment.
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), '');
+
+        // [GIVEN] Open Sales Order page.
+        PurchaseOrder.Trap();
+        SalesOrder.OpenEdit();
+        SalesOrder.GoToRecord(SalesHeader);
+
+        // [WHEN] Create Purchase Order from Sales Order.
+        SalesOrder.CreatePurchaseOrder.Invoke();
+
+        // [THEN] Verify that Purchase Order is created.
+        PurchaseOrder."Sell-to Customer No.".AssertEquals(SalesHeader."Sell-to Customer No.");
+
+        // [WHEN] Find the Purchase Order created from Sales Order.
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.SetRange("No.", PurchaseOrder."No.".Value);
+        PurchaseHeader.FindFirst();
+
+        // [THEN] Verify that Purchase Line is created.
+        FindPurchaseLine(PurchaseLine, PurchaseHeader);
+        VerifyPurchaseLinesCreatedFromSalesLines(PurchaseHeader."No.", SalesLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler')]
+    procedure PurchaseOrderMustBeCreatedFromDropShipmentSalesOrderWithMultipleLines()
+    var
+        Item: array[2] of Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesOrder: TestPage "Sales Order";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [SCENARIO 386698] Verify that purchase order is created from drop shipment sales order when "Create Purchase Order" action is invoked with muliple lines.
+        Initialize();
+
+        // [GIVEN] Create Item.
+        CreateItemWithVendorNo(Item[1]);
+
+        // [GIVEN] Create another item with the same Vendor No.
+        CreateItemWithVendorNo(Item[2]);
+        Item[2].Validate("Vendor No.", Item[1]."Vendor No.");
+        Item[2].Modify(true);
+
+        // [GIVEN] Sales Order with drop shipment.
+        CreateSalesOrderWithDropShipment(SalesHeader, SalesLine, LibrarySales.CreateCustomerNo(), Item[1]."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Create another sales line with the another item.
+        CreateSalesLine(SalesHeader, SalesLine, SalesLine.Type, Item[2]."No.", LibraryRandom.RandInt(10), '');
+        SalesLine.Validate("Purchasing Code", CreatePurchasingCode(true, false));  // Drop Shipment as TRUE.
+        SalesLine.Modify(true);
+
+        // [GIVEN] Find Sales Line for Sales Header.
+        FindSalesLine(SalesLine, SalesHeader);
+
+        // [GIVEN] Open Sales Order page.
+        PurchaseOrder.Trap();
+        SalesOrder.OpenEdit();
+        SalesOrder.GoToRecord(SalesHeader);
+
+        // [WHEN] Create Purchase Order from Sales Order.
+        SalesOrder.CreatePurchaseOrder.Invoke();
+
+        // [THEN] Verify that Purchase Order is created.
+        PurchaseOrder."Sell-to Customer No.".AssertEquals(SalesHeader."Sell-to Customer No.");
+
+        // [WHEN] Find the Purchase Order created from Sales Order.
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.SetRange("No.", PurchaseOrder."No.".Value);
+        PurchaseHeader.FindFirst();
+
+        // [THEN] Verify that Purchase Line is created.
+        FindPurchaseLine(PurchaseLine, PurchaseHeader);
+        VerifyPurchaseLinesCreatedFromSalesLines(PurchaseHeader."No.", SalesLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler')]
+    procedure MultiplePurchaseOrderMustBeCreatedFromDropShipmentSalesOrderWithMultipleLinesForDifferentVendor()
+    var
+        Item: array[2] of Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        PurchaseInvoiceHeader: Record "Purch. Inv. Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesOrder: TestPage "Sales Order";
+        PurchaseOrderList: TestPage "Purchase Order List";
+    begin
+        // [SCENARIO 386698] Verify that purchase order is created from drop shipment sales order when "Create Purchase Order" action is invoked with muliple lines and different vendor.
+        Initialize();
+
+        // [GIVEN] Create Item.
+        CreateItemWithVendorNo(Item[1]);
+
+        // [GIVEN] Create another item with the different Vendor No.
+        CreateItemWithVendorNo(Item[2]);
+
+        // [GIVEN] Sales Order with drop shipment.
+        CreateSalesOrderWithDropShipment(SalesHeader, SalesLine, LibrarySales.CreateCustomerNo(), Item[1]."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Create another sales line with the another item.
+        CreateSalesLine(SalesHeader, SalesLine, SalesLine.Type, Item[2]."No.", LibraryRandom.RandInt(10), '');
+        SalesLine.Validate("Purchasing Code", CreatePurchasingCode(true, false));  // Drop Shipment as TRUE.
+        SalesLine.Modify(true);
+
+        // [GIVEN] Find Sales Line for Sales Header.
+        FindSalesLine(SalesLine, SalesHeader);
+
+        // [GIVEN] Open Sales Order page.
+        PurchaseOrderList.Trap();
+        SalesOrder.OpenEdit();
+        SalesOrder.GoToRecord(SalesHeader);
+
+        // [WHEN] Create Purchase Order from Sales Order.
+        SalesOrder.CreatePurchaseOrder.Invoke();
+
+        // [THEN] Find the Purchase Order created from sales order.
+        FindPurchaseHeader(PurchaseHeader[1], Item[1]."Vendor No.");
+        FindPurchaseHeader(PurchaseHeader[2], Item[2]."Vendor No.");
+
+        // [THEN] Verify that Purchase Line is created.
+        VerifyPurchaseLinesCreatedFromSalesLines(PurchaseOrderList.Filter.GetFilter("No."), SalesLine);
+
+        // [GIVEN] Update "Vendor Invoice No." on a first Purchase Order.
+        PurchaseHeader[1].Validate("Your Reference", LibraryUtility.GenerateGUID());
+        PurchaseHeader[1].Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader[1].Modify(true);
+
+        // [GIVEN] Update "Vendor Invoice No." on a second Purchase Order.
+        PurchaseHeader[2].Validate("Your Reference", LibraryUtility.GenerateGUID());
+        PurchaseHeader[2].Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader[2].Modify(true);
+
+        // [GIVEN] Post Sales Document with shipment and invoice.
+        PostSalesDocument(SalesHeader."Document Type", SalesHeader."No.", true, true);
+
+        // [WHEN] Post Purchase Document with invoice.
+        PostPurchaseDocument(PurchaseHeader[1]."Document Type", PurchaseHeader[1]."No.", false, true);
+        PostPurchaseDocument(PurchaseHeader[2]."Document Type", PurchaseHeader[2]."No.", false, true);
+
+        // [THEN] Verify that the Posted Purchase Invoice and Posted Sales Invoice has been created.
+        PurchaseInvoiceHeader.SetRange("Order No.", PurchaseHeader[1]."No.");
+        Assert.RecordIsNotEmpty(PurchaseInvoiceHeader);
+
+        PurchaseInvoiceHeader.SetRange("Order No.", PurchaseHeader[2]."No.");
+        Assert.RecordIsNotEmpty(PurchaseInvoiceHeader);
+
+        SalesInvoiceHeader.SetRange("Order No.", SalesHeader."No.");
+        Assert.RecordIsNotEmpty(SalesInvoiceHeader);
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandlerNew,MessageHandler')]
+    procedure PurchaseOrderMustNotBeCreatedFromDropShipmentSalesOrderMoreThanOnce()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [SCENARIO 386698] Verify that purchase order is not created from drop shipment sales order more than once.
+        Initialize();
+
+        // [GIVEN] Create Item and Vendor.
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Update Purchasing Code on Item.
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(true, false));
+
+        // [GIVEN] Create Sales Order with drop shipment.
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), '');
+
+        // [GIVEN] Enqueue "Vendor No." and "Quantity".
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        LibraryVariableStorage.Enqueue(SalesLine.Quantity);
+
+        // [GIVEN] Open Sales Order page.
+        PurchaseOrder.Trap();
+        SalesOrder.OpenEdit();
+        SalesOrder.GoToRecord(SalesHeader);
+
+        // [WHEN] Create Purchase Order from Sales Order.
+        SalesOrder.CreatePurchaseOrder.Invoke();
+
+        // [THEN] Verify that Purchase Order is created.
+        PurchaseOrder."Sell-to Customer No.".AssertEquals(SalesHeader."Sell-to Customer No.");
+
+        // [GIVEN] Enqueue "Vendor No.", "Quantity" and expected messages.
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        LibraryVariableStorage.Enqueue(SalesLine.Quantity);
+        LibraryVariableStorage.Enqueue(StrSubstNo(CannotCreatePurchaseOrderIsAlreadyWithSalesOrderErr, SalesLine."No.", SalesLine."Document No.", SalesLine."Purchase Order No."));
+
+        // [WHEN] Create Purchase Order from Sales Order more than once.
+        FindSalesLine(SalesLine, SalesHeader);
+        asserterror SalesOrder.CreatePurchaseOrder.Invoke();
+
+        // [THEN] Verify that purchase order is not created from drop shipment sales order more than once through Handler.
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandlerSetVendorsOnLine')]
+    procedure PurchaseInvoiceMustBePostedWithDropShipmentWitPostingOfSalesInvoice()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseInvoiceHeader: Record "Purch. Inv. Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesOrder: TestPage "Sales Order";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [SCENARIO 386698] Verify that purchase order is created from drop shipment sales order when "Create Purchase Order" action is invoked and purchase invoice is posted with posting of sales invoice.
+        Initialize();
+
+        // [GIVEN] Create Item and Vendor.
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Enqueue "Vendor No".
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+
+        // [GIVEN] Update Purchasing Code on Item.
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(true, false));
+
+        // [GIVEN] Create Sales Order with drop shipment.
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), '');
+
+        // [GIVEN] Open Sales Order page.
+        PurchaseOrder.Trap();
+        SalesOrder.OpenEdit();
+        SalesOrder.GoToRecord(SalesHeader);
+
+        // [WHEN] Create Purchase Order from Sales Order.
+        SalesOrder.CreatePurchaseOrder.Invoke();
+
+        // [THEN] Verify that Purchase Order is created.
+        PurchaseOrder."Sell-to Customer No.".AssertEquals(SalesHeader."Sell-to Customer No.");
+
+        // [GIVEN] Find the Purchase Order created from Sales Order.
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.SetRange("No.", PurchaseOrder."No.".Value);
+        PurchaseHeader.FindFirst();
+
+        // [GIVEN] Update "Vendor Invoice No." on Purchase Header.
+        PurchaseHeader.Validate("Your Reference", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Post Sales Document with shipment and invoice.
+        PostSalesDocument(SalesHeader."Document Type", SalesHeader."No.", true, true);
+
+        // [WHEN] Post Purchase Document with invoice.
+        PostPurchaseDocument(PurchaseHeader."Document Type", PurchaseHeader."No.", false, true);
+
+        // [THEN] Verify that the Posted Purchase Invoice and Posted Sales Invoice has been created.
+        PurchaseInvoiceHeader.SetRange("Order No.", PurchaseHeader."No.");
+        Assert.RecordIsNotEmpty(PurchaseInvoiceHeader);
+
+        SalesInvoiceHeader.SetRange("Order No.", SalesHeader."No.");
+        Assert.RecordIsNotEmpty(SalesInvoiceHeader);
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandlerSetVendorsOnLine,MessageHandler')]
+    procedure PurchaseOrderMustNotBeCreatedFromDropShipmentSalesOrderSubformWhenVendorIsNotSelected()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [SCENARIO 386698] Verify that purchase order is not created from drop shipment sales order When Vendor is not selected.
+        Initialize();
+
+        // [GIVEN] Create Item and Vendor.
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Enqueue "Vendor No.".
+        LibraryVariableStorage.Enqueue('');
+        LibraryVariableStorage.Enqueue(CannotCreatePurchaseOrderWithoutVendorErr);
+
+        // [GIVEN] Update Purchasing Code on Item.
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(true, false));
+
+        // [GIVEN] Create Sales Order with drop shipment.
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), '');
+
+        // [GIVEN] Open Sales Order page.
+        SalesOrder.OpenEdit();
+        SalesOrder.GoToRecord(SalesHeader);
+
+        // [WHEN] Create Purchase Order from Sales Order.
+        SalesOrder.CreatePurchaseOrder.Invoke();
+
+        // [THEN] Verify that Purchase Order is not created.
+        PurchaseHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        Assert.RecordIsEmpty(PurchaseHeader);
+    end;
+
+    [Test]
+    procedure PurchaseOrderMustBeCreatedFromDropShipmentPlanningWorksheet()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 386698] Verify that purchase order is created from planning worksheet.
+        Initialize();
+
+        // [GIVEN] Create Item.
+        CreateItemWithVendorNo(Item);
+
+        // [GIVEN] Update Purchasing Code on Item.
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(true, false));
+
+        // [GIVEN] Create Sales Order with drop shipment.
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), '');
+
+        // [WHEN] Create Requisition Line and Carry out action message.
+        GetSalesOrderForDropShipmentOnRequisitionWkshtAndCarryOutActionMsg(SalesLine);
+
+        // [THEN] Find the Purchase Order created from planning worksheet.
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        PurchaseHeader.FindFirst();
+
+        // [THEN] Verify that Purchase Line is created.
+        FindPurchaseLine(PurchaseLine, PurchaseHeader);
+        VerifyPurchaseLinesCreatedFromSalesLines(PurchaseHeader."No.", SalesLine);
+    end;
+
+    [Test]
+    procedure PurchaseOrderMustBeCreatedFromDropShipmentPlanningWorksheetWithMultipleLines()
+    var
+        Item: array[2] of Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchasingCode: Code[20];
+    begin
+        // [SCENARIO 386698] Verify that purchase order is created from drop shipment planning worksheet when "Get Sales Orders" action is invoked with muliple lines.
+        Initialize();
+
+        // [GIVEN] Create Item.
+        CreateItemWithVendorNo(Item[1]);
+
+        // [GIVEN] Create another item with the same Vendor No.
+        CreateItemWithVendorNo(Item[2]);
+        Item[2].Validate("Vendor No.", Item[1]."Vendor No.");
+        Item[2].Modify(true);
+
+        // [GIVEN] Sales Order with drop shipment.
+        CreateSalesOrderWithDropShipment(SalesHeader, SalesLine, LibrarySales.CreateCustomerNo(), Item[1]."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Save Purchasing Code of first line.
+        PurchasingCode := SalesLine."Purchasing Code";
+
+        // [GIVEN] Create another sales line with the another item.
+        CreateSalesLine(SalesHeader, SalesLine, SalesLine.Type, Item[2]."No.", LibraryRandom.RandInt(10), '');
+        SalesLine.Validate("Purchasing Code", PurchasingCode);  // Drop Shipment as TRUE.
+        SalesLine.Modify(true);
+
+        // [GIVEN] Find Sales Line for Sales Header.
+        FindSalesLine(SalesLine, SalesHeader);
+
+        // [WHEN] Create Requisition Line and Carry out action message.
+        GetSalesOrderForDropShipmentOnRequisitionWkshtAndCarryOutActionMsg(SalesLine);
+
+        // [THEN] Find the Purchase Order created from planning worksheet.
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        PurchaseHeader.FindFirst();
+
+        // [THEN] Verify that Purchase Line is created.
+        FindPurchaseLine(PurchaseLine, PurchaseHeader);
+        VerifyPurchaseLinesCreatedFromSalesLines(PurchaseHeader."No.", SalesLine);
+    end;
+
+    [Test]
+    procedure MultiplePurchaseOrderMustBeCreatedFromDropShipmentPlanningWorksheetWithMultipleLinesForDifferentVendor()
+    var
+        Item: array[2] of Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        PurchaseInvoiceHeader: Record "Purch. Inv. Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        PurchasingCode: Code[20];
+    begin
+        // [SCENARIO 386698] Verify that purchase order is created from drop shipment planning worksheet when "Get Sales Orders" action is invoked with muliple lines and different vendor.
+        Initialize();
+
+        // [GIVEN] Create Item.
+        CreateItemWithVendorNo(Item[1]);
+
+        // [GIVEN] Create another item with the different Vendor No.
+        CreateItemWithVendorNo(Item[2]);
+
+        // [GIVEN] Sales Order with drop shipment.
+        CreateSalesOrderWithDropShipment(SalesHeader, SalesLine, LibrarySales.CreateCustomerNo(), Item[1]."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Save Purchasing Code of first line.
+        PurchasingCode := SalesLine."Purchasing Code";
+
+        // [GIVEN] Create another sales line with the another item.
+        CreateSalesLine(SalesHeader, SalesLine, SalesLine.Type, Item[2]."No.", LibraryRandom.RandInt(10), '');
+        SalesLine.Validate("Purchasing Code", PurchasingCode);  // Drop Shipment as TRUE.
+        SalesLine.Modify(true);
+
+        // [GIVEN] Find Sales Line for Sales Header.
+        FindSalesLine(SalesLine, SalesHeader);
+
+        // [WHEN] Create Requisition Line and Carry out action message.
+        GetSalesOrderForDropShipmentOnRequisitionWkshtAndCarryOutActionMsg(SalesLine);
+
+        // [THEN] Find the Purchase Order created from planning worksheet.
+        FindPurchaseHeader(PurchaseHeader[1], Item[1]."Vendor No.");
+        FindPurchaseHeader(PurchaseHeader[2], Item[2]."Vendor No.");
+
+        // [THEN] Verify that Purchase Line is created.
+        VerifyPurchaseLinesCreatedFromSalesLines(PurchaseHeader[1]."No." + '|' + PurchaseHeader[2]."No.", SalesLine);
+
+        // [GIVEN] Update "Vendor Invoice No." on a first Purchase Order.
+        PurchaseHeader[1].Validate("Your Reference", LibraryUtility.GenerateGUID());
+        PurchaseHeader[1].Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader[1].Modify(true);
+
+        // [GIVEN] Update "Vendor Invoice No." on a second Purchase Order.
+        PurchaseHeader[2].Validate("Your Reference", LibraryUtility.GenerateGUID());
+        PurchaseHeader[2].Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader[2].Modify(true);
+
+        // [GIVEN] Post Sales Document with shipment and invoice.
+        PostSalesDocument(SalesHeader."Document Type", SalesHeader."No.", true, true);
+
+        // [WHEN] Post Purchase Document with invoice.
+        PostPurchaseDocument(PurchaseHeader[1]."Document Type", PurchaseHeader[1]."No.", false, true);
+        PostPurchaseDocument(PurchaseHeader[2]."Document Type", PurchaseHeader[2]."No.", false, true);
+
+        // [THEN] Verify that the Posted Purchase Invoice and Posted Sales Invoice has been created.
+        PurchaseInvoiceHeader.SetRange("Order No.", PurchaseHeader[1]."No.");
+        Assert.RecordIsNotEmpty(PurchaseInvoiceHeader);
+
+        PurchaseInvoiceHeader.SetRange("Order No.", PurchaseHeader[2]."No.");
+        Assert.RecordIsNotEmpty(PurchaseInvoiceHeader);
+
+        SalesInvoiceHeader.SetRange("Order No.", SalesHeader."No.");
+        Assert.RecordIsNotEmpty(SalesInvoiceHeader);
+    end;
+
+    [Test]
+    procedure PurchaseOrderMustNotBeCreatedFromDropShipmentPlanningWorksheetMoreThanOnce()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 386698] Verify that purchase order is not created from drop shipment planning worksheet more than once.
+        Initialize();
+
+        // [GIVEN] Create Item.
+        CreateItemWithVendorNo(Item);
+
+        // [GIVEN] Update Purchasing Code on Item.
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(true, false));
+
+        // [GIVEN] Create Sales Order with drop shipment.
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), '');
+
+        // [WHEN] Create Requisition Line and Carry out action message.
+        GetSalesOrderForDropShipmentOnRequisitionWkshtAndCarryOutActionMsg(SalesLine);
+
+        // [THEN] Find the Purchase Order created from planning worksheet.
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        PurchaseHeader.FindFirst();
+
+        // [THEN] Verify that Purchase Line is created.
+        FindPurchaseLine(PurchaseLine, PurchaseHeader);
+        VerifyPurchaseLinesCreatedFromSalesLines(PurchaseHeader."No.", SalesLine);
+
+        // [WHEN] Create Requisition Line and Carry out action message.
+        FindSalesLine(SalesLine, SalesHeader);
+        asserterror GetSalesOrderForDropShipmentOnRequisitionWkshtAndCarryOutActionMsg(SalesLine);
+
+        // [THEN] Verify that purchase order is not created from drop shipment planning worksheet more than once.
+        Assert.ExpectedError(NoSalesLineToRetrieveErr);
+    end;
+
+    [Test]
+    procedure PurchaseInvoiceMustBePostedWithDropShipmentPlanningWorksheetWitPostingOfSalesInvoice()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseInvoiceHeader: Record "Purch. Inv. Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        // [SCENARIO 386698] Verify that purchase order is created from drop shipment planning worksheet when "Get Sales Order" action is invoked and purchase invoice is posted with posting of sales invoice.
+        Initialize();
+
+        // [GIVEN] Create Item.
+        CreateItemWithVendorNo(Item);
+
+        // [GIVEN] Update Purchasing Code on Item.
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(true, false));
+
+        // [GIVEN] Create Sales Order with drop shipment.
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), '');
+
+        // [WHEN] Create Requisition Line and Carry out action message.
+        GetSalesOrderForDropShipmentOnRequisitionWkshtAndCarryOutActionMsg(SalesLine);
+
+        // [THEN] Find the Purchase Order created from planning worksheet.
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        PurchaseHeader.FindFirst();
+
+        // [GIVEN] Update "Vendor Invoice No." on Purchase Header.
+        PurchaseHeader.Validate("Your Reference", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Post Sales Document with shipment and invoice.
+        PostSalesDocument(SalesHeader."Document Type", SalesHeader."No.", true, true);
+
+        // [WHEN] Post Purchase Document with invoice.
+        PostPurchaseDocument(PurchaseHeader."Document Type", PurchaseHeader."No.", false, true);
+
+        // [THEN] Verify that the Posted Purchase Invoice and Posted Sales Invoice has been created.
+        PurchaseInvoiceHeader.SetRange("Order No.", PurchaseHeader."No.");
+        Assert.RecordIsNotEmpty(PurchaseInvoiceHeader);
+
+        SalesInvoiceHeader.SetRange("Order No.", SalesHeader."No.");
+        Assert.RecordIsNotEmpty(SalesInvoiceHeader);
+    end;
+
+    [Test]
+    procedure PurchaseOrderMustNotBeCreatedFromDropShipmentPlanningWorkseetWhenVendorIsNotSelected()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [SCENARIO 386698] Verify that purchase order is not created from drop shipment planning worksheet When Vendor is not selected.
+        Initialize();
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Update Purchasing Code on Item.
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(true, false));
+
+        // [GIVEN] Create Sales Order with drop shipment.
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), '');
+
+        // [WHEN] Create Requisition Line and Carry out action message.
+        asserterror GetSalesOrderForDropShipmentOnRequisitionWkshtAndCarryOutActionMsg(SalesLine);
+
+        // [THEN] Verify that Purchase Order is not created.
+        PurchaseHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        Assert.RecordIsEmpty(PurchaseHeader);
+        Assert.ExpectedTestFieldError(RequisitionLine.FieldCaption("Vendor No."), '');
+    end;
+
+    [Test]
+    [HandlerFunctions('MakeSupplyOrdersPageHandler')]
+    procedure PurchaseOrderMustBeCreatedFromDropShipmentOrderPlanningWorksheet()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [SCENARIO 386698] Verify that purchase order is created from order planning worksheet.
+        Initialize();
+
+        // [GIVEN] Create Item.
+        CreateItemWithVendorNo(Item);
+
+        // [GIVEN] Update Purchasing Code on Item.
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(true, false));
+
+        // [GIVEN] Create Sales Order with drop shipment.
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), '');
+
+        // [GIVEN] CalculatePlan on Order Planning.
+        LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
+
+        // [WHEN]] Run Make order from Order Planning Worksheet.
+        MakeSupplyOrdersActiveOrder(SalesHeader."No.");
+
+        // [THEN] Find the Purchase Order created from order planning worksheet.
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        PurchaseHeader.FindFirst();
+
+        // [THEN] Verify that Purchase Line is created.
+        FindPurchaseLine(PurchaseLine, PurchaseHeader);
+        VerifyPurchaseLinesCreatedFromSalesLines(PurchaseHeader."No.", SalesLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('MakeSupplyOrdersPageHandler')]
+    procedure PurchaseOrderMustBeCreatedFromDropShipmentOrderPlanningWorksheetWithMultipleLines()
+    var
+        Item: array[2] of Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        RequisitionLine: Record "Requisition Line";
+        PurchasingCode: Code[20];
+    begin
+        // [SCENARIO 386698] Verify that purchase order is created from drop shipment order planning worksheet when "Calculate Plan" action is invoked with multiple lines.
+        Initialize();
+
+        // [GIVEN] Create Item.
+        CreateItemWithVendorNo(Item[1]);
+
+        // [GIVEN] Create another item with the same Vendor No.
+        CreateItemWithVendorNo(Item[2]);
+        Item[2].Validate("Vendor No.", Item[1]."Vendor No.");
+        Item[2].Modify(true);
+
+        // [GIVEN] Sales Order with drop shipment.
+        CreateSalesOrderWithDropShipment(SalesHeader, SalesLine, LibrarySales.CreateCustomerNo(), Item[1]."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Save Purchasing Code of first line.
+        PurchasingCode := SalesLine."Purchasing Code";
+
+        // [GIVEN] Create another sales line with the another item.
+        CreateSalesLine(SalesHeader, SalesLine, SalesLine.Type, Item[2]."No.", LibraryRandom.RandInt(10), '');
+        SalesLine.Validate("Purchasing Code", PurchasingCode);  // Drop Shipment as TRUE.
+        SalesLine.Modify(true);
+
+        // [GIVEN] Find Sales Line for Sales Header.
+        FindSalesLine(SalesLine, SalesHeader);
+
+        // [GIVEN] CalculatePlan on OrderPlanning.
+        LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
+
+        // [WHEN]] Run Make order from Order Planning Worksheet.
+        MakeSupplyOrdersActiveOrder(SalesHeader."No.");
+
+        // [THEN] Find the Purchase Order created from order planning worksheet.
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        PurchaseHeader.FindFirst();
+
+        // [THEN] Verify that Purchase Line is created.
+        FindPurchaseLine(PurchaseLine, PurchaseHeader);
+        VerifyPurchaseLinesCreatedFromSalesLines(PurchaseHeader."No.", SalesLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('MakeSupplyOrdersPageHandler')]
+    procedure MultiplePurchaseOrderMustBeCreatedFromDropShipmentOrderPlanningWorksheetWithMultipleLinesForDifferentVendor()
+    var
+        Item: array[2] of Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        PurchaseInvoiceHeader: Record "Purch. Inv. Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        PurchasingCode: Code[20];
+    begin
+        // [SCENARIO 386698] Verify that purchase order is created from drop shipment order planning worksheet when "Calculate Plan" action is invoked with multiple lines and different vendor.
+        Initialize();
+
+        // [GIVEN] Create Item.
+        CreateItemWithVendorNo(Item[1]);
+
+        // [GIVEN] Create another item with the different Vendor No.
+        CreateItemWithVendorNo(Item[2]);
+
+        // [GIVEN] Sales Order with drop shipment.
+        CreateSalesOrderWithDropShipment(SalesHeader, SalesLine, LibrarySales.CreateCustomerNo(), Item[1]."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Save Purchasing Code of first line.
+        PurchasingCode := SalesLine."Purchasing Code";
+
+        // [GIVEN] Create another sales line with the another item.
+        CreateSalesLine(SalesHeader, SalesLine, SalesLine.Type, Item[2]."No.", LibraryRandom.RandInt(10), '');
+        SalesLine.Validate("Purchasing Code", PurchasingCode);  // Drop Shipment as TRUE.
+        SalesLine.Modify(true);
+
+        // [GIVEN] Find Sales Line for Sales Header.
+        FindSalesLine(SalesLine, SalesHeader);
+
+        // [GIVEN] CalculatePlan on OrderPlanning.
+        LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
+
+        // [WHEN]] Run Make order from Order Planning Worksheet.
+        MakeSupplyOrdersActiveOrder(SalesHeader."No.");
+
+        // [THEN] Find the Purchase Order created from order planning worksheet.
+        FindPurchaseHeader(PurchaseHeader[1], Item[1]."Vendor No.");
+        FindPurchaseHeader(PurchaseHeader[2], Item[2]."Vendor No.");
+
+        // [THEN] Verify that Purchase Line is created.
+        VerifyPurchaseLinesCreatedFromSalesLines(PurchaseHeader[1]."No." + '|' + PurchaseHeader[2]."No.", SalesLine);
+
+        // [GIVEN] Update "Vendor Invoice No." on a first Purchase Order.
+        PurchaseHeader[1].Validate("Your Reference", LibraryUtility.GenerateGUID());
+        PurchaseHeader[1].Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader[1].Modify(true);
+
+        // [GIVEN] Update "Vendor Invoice No." on a second Purchase Order.
+        PurchaseHeader[2].Validate("Your Reference", LibraryUtility.GenerateGUID());
+        PurchaseHeader[2].Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader[2].Modify(true);
+
+        // [GIVEN] Post Sales Document with shipment and invoice.
+        PostSalesDocument(SalesHeader."Document Type", SalesHeader."No.", true, true);
+
+        // [WHEN] Post Purchase Document with invoice.
+        PostPurchaseDocument(PurchaseHeader[1]."Document Type", PurchaseHeader[1]."No.", false, true);
+        PostPurchaseDocument(PurchaseHeader[2]."Document Type", PurchaseHeader[2]."No.", false, true);
+
+        // [THEN] Verify that the Posted Purchase Invoice and Posted Sales Invoice has been created.
+        PurchaseInvoiceHeader.SetRange("Order No.", PurchaseHeader[1]."No.");
+        Assert.RecordIsNotEmpty(PurchaseInvoiceHeader);
+
+        PurchaseInvoiceHeader.SetRange("Order No.", PurchaseHeader[2]."No.");
+        Assert.RecordIsNotEmpty(PurchaseInvoiceHeader);
+
+        SalesInvoiceHeader.SetRange("Order No.", SalesHeader."No.");
+        Assert.RecordIsNotEmpty(SalesInvoiceHeader);
+    end;
+
+    [Test]
+    [HandlerFunctions('MakeSupplyOrdersPageHandler')]
+    procedure PurchaseOrderMustNotBeCreatedFromDropShipmentOrderPlanningWorksheetMoreThanOnce()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [SCENARIO 386698] Verify that purchase order is not created from drop shipment order planning worksheet more than once.
+        Initialize();
+
+        // [GIVEN] Create Item.
+        CreateItemWithVendorNo(Item);
+
+        // [GIVEN] Update Purchasing Code on Item.
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(true, false));
+
+        // [GIVEN] Create Sales Order with drop shipment.
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), '');
+
+        // [GIVEN] CalculatePlan on OrderPlanning.
+        LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
+
+        // [WHEN]] Run Make order from Order Planning Worksheet.
+        MakeSupplyOrdersActiveOrder(SalesHeader."No.");
+
+        // [THEN] Find the Purchase Order created from order planning worksheet.
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        PurchaseHeader.FindFirst();
+
+        // [THEN] Verify that Purchase Line is created.
+        FindPurchaseLine(PurchaseLine, PurchaseHeader);
+        VerifyPurchaseLinesCreatedFromSalesLines(PurchaseHeader."No.", SalesLine);
+
+        // [WHEN] CalculatePlan on OrderPlanning.
+        LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
+
+        // [THEN] Verify that purchase order is not created from drop shipment order planning worksheet more than once.
+        RequisitionLine.SetRange("Demand Order No.", SalesHeader."No.");
+        Assert.RecordIsEmpty(RequisitionLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('MakeSupplyOrdersPageHandler')]
+    procedure PurchaseInvoiceMustBePostedWithDropShipmentOrderPlanningWorksheetWitPostingOfSalesInvoice()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        RequisitionLine: Record "Requisition Line";
+        PurchaseInvoiceHeader: Record "Purch. Inv. Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        // [SCENARIO 386698] Verify that purchase order is created from drop shipment order planning worksheet when "Calculate Plan" action is invoked and purchase invoice is posted with posting of sales invoice.
+        Initialize();
+
+        // [GIVEN] Create Item.
+        CreateItemWithVendorNo(Item);
+
+        // [GIVEN] Update Purchasing Code on Item.
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(true, false));
+
+        // [GIVEN] Create Sales Order with drop shipment.
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), '');
+
+        // [GIVEN] CalculatePlan on OrderPlanning.
+        LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
+
+        // [WHEN]] Run Make order from Order Planning Worksheet.
+        MakeSupplyOrdersActiveOrder(SalesHeader."No.");
+
+        // [THEN] Find the Purchase Order created from planning worksheet.
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        PurchaseHeader.FindFirst();
+
+        // [GIVEN] Update "Vendor Invoice No." on Purchase Header.
+        PurchaseHeader.Validate("Your Reference", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Post Sales Document with shipment and invoice.
+        PostSalesDocument(SalesHeader."Document Type", SalesHeader."No.", true, true);
+
+        // [WHEN] Post Purchase Document with invoice.
+        PostPurchaseDocument(PurchaseHeader."Document Type", PurchaseHeader."No.", false, true);
+
+        // [THEN] Verify that the Posted Purchase Invoice and Posted Sales Invoice has been created.
+        PurchaseInvoiceHeader.SetRange("Order No.", PurchaseHeader."No.");
+        Assert.RecordIsNotEmpty(PurchaseInvoiceHeader);
+
+        SalesInvoiceHeader.SetRange("Order No.", SalesHeader."No.");
+        Assert.RecordIsNotEmpty(SalesInvoiceHeader);
+    end;
+
+    [Test]
+    [HandlerFunctions('MakeSupplyOrdersPageHandler')]
+    procedure PurchaseOrderMustNotBeCreatedFromDropShipmentOrderPlanningWorkseetWhenVendorIsNotSelected()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [SCENARIO 386698] Verify that purchase order is not created from drop shipment order planning worksheet When Vendor is not selected.
+        Initialize();
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Update Purchasing Code on Item.
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(true, false));
+
+        // [GIVEN] Create Sales Order with drop shipment.
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), '');
+
+        // [GIVEN] CalculatePlan on OrderPlanning.
+        LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
+
+        // [WHEN]] Run Make order from Order Planning Worksheet.
+        asserterror MakeSupplyOrdersActiveOrder(SalesHeader."No.");
+
+        // [THEN] Verify that Purchase Order is not created.
+        PurchaseHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        Assert.RecordIsEmpty(PurchaseHeader);
+        Assert.ExpectedTestFieldError(RequisitionLine.FieldCaption("Supply From"), '');
+    end;
+
+    [Test]
+    [HandlerFunctions('CheckQuantityInPurchOrderFromSalesOrderModalPageHandler')]
+    procedure QtyToPurchaseMustBeZeroWhenPurchaseOrderIsCreatedFromSalesOrder()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [SCENARIO 614891] Verify that Qty. to Purchase is zero when purchase order is created from sales order.
+        Initialize();
+
+        // [GIVEN] Create Item and Vendor.
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Update Purchasing Code on Item.
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(true, false));
+
+        // [GIVEN] Create Sales Order with drop shipment.
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), '');
+
+        // [GIVEN] Enqueue "Vendor No." and "Quantity".
+        LibraryVariableStorage.Enqueue(SalesLine.Quantity);
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        LibraryVariableStorage.Enqueue(SalesLine.Quantity);
+
+        // [GIVEN] Open Sales Order page.
+        PurchaseOrder.Trap();
+        SalesOrder.OpenEdit();
+        SalesOrder.GoToRecord(SalesHeader);
+
+        // [WHEN] Create Purchase Order from Sales Order.
+        SalesOrder.CreatePurchaseOrder.Invoke();
+
+        // [THEN] Verify that Purchase Order is created.
+        PurchaseOrder."Sell-to Customer No.".AssertEquals(SalesHeader."Sell-to Customer No.");
+
+        // [GIVEN] Enqueue "Vendor No.", "Quantity" and expected messages.
+        LibraryVariableStorage.Enqueue(0);
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        LibraryVariableStorage.Enqueue(SalesLine.Quantity);
+        LibraryVariableStorage.Enqueue(StrSubstNo(CannotCreatePurchaseOrderIsAlreadyWithSalesOrderErr, SalesLine."No.", SalesLine."Document No.", SalesLine."Purchase Order No."));
+
+        // [WHEN] Create Purchase Order from Sales Order more than once.
+        FindSalesLine(SalesLine, SalesHeader);
+        asserterror SalesOrder.CreatePurchaseOrder.Invoke();
+
+        // [THEN] Verify that purchase order is not created from drop shipment sales order more than once through Handler.
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Orders VI");
@@ -3994,7 +5049,6 @@
         SalesLine.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure CreateVendorAndOpenPurchaseLineDiscountsPageFromVendorCard(var PurchaseLineDiscounts: TestPage "Purchase Line Discounts")
     var
         Vendor: Record Vendor;
@@ -4017,7 +5071,6 @@
         OpenVendorCard(VendorCard, Vendor."No.");
         VendorCard.Prices.Invoke();  // Open Purchase Price Page from Vendor Card.
     end;
-#endif
 
     local procedure CreateVendorWithInvoiceDiscount(var Vendor: Record Vendor; InvoiceDiscPct: Decimal)
     var
@@ -4321,13 +5374,12 @@
         SalesOrder.FILTER.SetFilter("No.", SalesHeaderNo);
     end;
 
-#if not CLEAN25
     local procedure OpenVendorCard(var VendorCard: TestPage "Vendor Card"; VendorNo: Code[20])
     begin
         VendorCard.OpenEdit();  // Open Vendor Card.
         VendorCard.FILTER.SetFilter("No.", VendorNo);
     end;
-#endif
+
     local procedure PostCreditMemoAgainstPurchaseReturnOrderUsingPayToVendorDifferentFromPurchaseOrder(ReturnOrder: Boolean; CreditMemo: Boolean)
     var
         GLEntry: Record "G/L Entry";
@@ -5018,6 +6070,97 @@
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalLine."Journal Batch Name");
     end;
 
+    local procedure PostPurchaseDocument(DocumentType: Enum "Purchase Document Type"; No: Code[20]; Receive: Boolean; Invoice: Boolean)
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        PurchaseHeader.Get(DocumentType, No);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, Receive, Invoice);
+    end;
+
+    local procedure PostSalesDocument(DocumentType: Enum "Sales Document Type"; No: Code[20]; Ship: Boolean; Invoice: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        SalesHeader.Get(DocumentType, No);
+        LibrarySales.PostSalesDocument(SalesHeader, Ship, Invoice);
+    end;
+
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    begin
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindSet();
+    end;
+
+    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
+    begin
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindSet();
+    end;
+
+    local procedure FindPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; BuyfromVendorNo: Code[20])
+    begin
+        PurchaseHeader.SetRange("Buy-from Vendor No.", BuyfromVendorNo);
+        PurchaseHeader.FindFirst();
+    end;
+
+    local procedure MakeSupplyOrdersActiveOrder(DemandOrderNo: Code[20])
+    var
+        ManufacturingUserTemplate: Record "Manufacturing User Template";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        RequisitionLine.SetRange("Demand Order No.", DemandOrderNo);
+        RequisitionLine.FindFirst();
+        MakeSupplyOrders(
+          RequisitionLine, ManufacturingUserTemplate."Make Orders"::"The Active Order",
+          ManufacturingUserTemplate."Create Production Order"::" ");
+    end;
+
+    local procedure MakeSupplyOrders(var RequisitionLine: Record "Requisition Line"; MakeOrders: Option; CreateProductionOrder: Enum "Planning Create Prod. Order")
+    var
+        ManufacturingUserTemplate: Record "Manufacturing User Template";
+    begin
+        GetManufacturingUserTemplate(ManufacturingUserTemplate, MakeOrders, CreateProductionOrder);
+        LibraryPlanning.MakeSupplyOrders(ManufacturingUserTemplate, RequisitionLine);
+    end;
+
+    local procedure GetManufacturingUserTemplate(var ManufacturingUserTemplate: Record "Manufacturing User Template"; MakeOrder: Option; CreateProductionOrder: Enum "Planning Create Prod. Order")
+    begin
+        if not ManufacturingUserTemplate.Get(UserId) then
+            LibraryPlanning.CreateManufUserTemplate(
+              ManufacturingUserTemplate, CopyStr(UserId, 1, 50), MakeOrder, ManufacturingUserTemplate."Create Purchase Order"::"Make Purch. Orders",
+              CreateProductionOrder, ManufacturingUserTemplate."Create Transfer Order"::"Make Trans. Orders");
+    end;
+
+    local procedure VerifyPurchaseLinesCreatedFromSalesLines(DocNo: Text; var SalesLine: Record "Sales Line")
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetFilter("Document No.", DocNo);
+
+        SalesLine.SetRange("Document Type", SalesLine."Document Type");
+        SalesLine.SetRange("Document No.", SalesLine."Document No.");
+
+        Assert.AreEqual(SalesLine.Count, PurchaseLine.Count, RecordCountErr);
+
+        PurchaseLine.FindSet();
+        SalesLine.FindSet();
+        repeat
+            Assert.AreEqual(
+                PurchaseLine."No.",
+                SalesLine."No.",
+                StrSubstNo(ValueMustBeEqualErr, PurchaseLine.FieldCaption("No."), SalesLine."No.", PurchaseLine.TableCaption()));
+            Assert.AreEqual(
+                PurchaseLine.Quantity,
+                SalesLine.Quantity,
+                StrSubstNo(ValueMustBeEqualErr, PurchaseLine.FieldCaption(Quantity), SalesLine.Quantity, PurchaseLine.TableCaption()));
+            SalesLine.Next();
+        until PurchaseLine.Next() = 0;
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -5168,6 +6311,46 @@
     procedure SalesListModalPageHandler(var SalesList: TestPage "Sales List")
     begin
         SalesList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure PurchOrderFromSalesOrderModalPageHandlerSetVendorsOnLine(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
+    begin
+        PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
+        PurchOrderFromSalesOrder.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure PurchOrderFromSalesOrderModalPageHandlerNew(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
+    begin
+        PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
+        PurchOrderFromSalesOrder.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal());
+        PurchOrderFromSalesOrder.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure CheckQuantityInPurchOrderFromSalesOrderModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
+    var
+        ExpectedQuantity: Decimal;
+    begin
+        ExpectedQuantity := LibraryVariableStorage.DequeueDecimal();
+
+        PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
+        PurchOrderFromSalesOrder.Quantity.AssertEquals(ExpectedQuantity);
+        PurchOrderFromSalesOrder.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal());
+        PurchOrderFromSalesOrder.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure PurchOrderFromSalesOrderModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
+    begin
+        PurchOrderFromSalesOrder.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure MakeSupplyOrdersPageHandler(var MakeSupplyOrdersPage: Page "Make Supply Orders"; var Response: Action)
+    begin
+        Response := Action::LookupOK;
     end;
 
     [RequestPageHandler]

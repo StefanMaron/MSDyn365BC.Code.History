@@ -5,8 +5,8 @@
 namespace Microsoft.Bank.Payment;
 
 using Microsoft.Bank.BankAccount;
-using Microsoft.CRM.Team;
 using Microsoft.Bank.DirectDebit;
+using Microsoft.CRM.Team;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Journal;
@@ -285,11 +285,11 @@ table 11000000 "Proposal Line"
             begin
                 TrMode.Get("Account Type", "Transaction Mode");
                 TrMode.TestField("Identification No. Series");
-                    "Identification No. Series" := TrMode."Identification No. Series";
-                    if Identification = '' then
-                        Identification := NoSeries.GetNextNo("Identification No. Series", "Transaction Date")
-                    else
-                        NoSeries.TestManual("Identification No. Series");
+                "Identification No. Series" := TrMode."Identification No. Series";
+                if Identification = '' then
+                    Identification := NoSeries.GetNextNo("Identification No. Series", "Transaction Date")
+                else
+                    NoSeries.TestManual("Identification No. Series");
             end;
         }
         field(16; "Bank Account No."; Text[30])
@@ -336,8 +336,8 @@ table 11000000 "Proposal Line"
 
                 if Identification = '' then begin
                     TrMode.TestField("Identification No. Series");
-                        "Identification No. Series" := TrMode."Identification No. Series";
-                        Identification := NoSeries.GetNextNo("Identification No. Series", "Transaction Date");
+                    "Identification No. Series" := TrMode."Identification No. Series";
+                    Identification := NoSeries.GetNextNo("Identification No. Series", "Transaction Date");
                 end;
             end;
         }
@@ -556,6 +556,8 @@ table 11000000 "Proposal Line"
         }
         field(11401; "Foreign Amount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Foreign Currency";
             Caption = 'Foreign Amount';
         }
         field(11402; "Shortcut Dimension 1 Code"; Code[20])

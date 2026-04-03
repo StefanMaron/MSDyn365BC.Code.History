@@ -19,7 +19,7 @@ codeunit 144029 "UT PAG REQDESCR"
 
     var
         Assert: Codeunit Assert;
-        LibraryUtility: Codeunit "Library - Utility";
+        LibraryUtilityOnPrem: Codeunit "Library - Utility OnPrem";
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -32,7 +32,7 @@ codeunit 144029 "UT PAG REQDESCR"
         // Purpose of the test is to validate that Control Omit Default Descr. in Jnl exist on GL Account Card Page.
 
         // Setup and Exercise: Find Control Omit Default Descr. in Jnl on GL Account Card Page.
-        ControlExist := LibraryUtility.FindControl(17, GLAccount.FieldNo("Omit Default Descr. in Jnl."));  // 17 used for GL Account Card Page Id.
+        ControlExist := LibraryUtilityOnPrem.FindControl(17, GLAccount.FieldNo("Omit Default Descr. in Jnl."));  // 17 used for GL Account Card Page Id.
 
         // Verify: Verify that control Omit Default Descr. in Jnl exist on GL Account Card Page.
         Assert.AreEqual(true, ControlExist, 'Control must exist');

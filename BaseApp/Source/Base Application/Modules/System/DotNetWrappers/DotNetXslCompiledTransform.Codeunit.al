@@ -4,6 +4,8 @@ using System;
 
 codeunit 3038 DotNet_XslCompiledTransform
 {
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     trigger OnRun()
     begin

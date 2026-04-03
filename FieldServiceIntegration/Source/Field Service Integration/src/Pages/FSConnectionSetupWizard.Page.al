@@ -4,13 +4,13 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Integration.DynamicsFieldService;
 
+using Microsoft.Integration.D365Sales;
 using Microsoft.Integration.Dataverse;
 using System.Environment;
 using System.Environment.Configuration;
+using System.Globalization;
 using System.Telemetry;
 using System.Utilities;
-using Microsoft.Integration.D365Sales;
-using System.Globalization;
 
 #pragma warning disable AS0130
 #pragma warning disable PTE0025
@@ -409,6 +409,7 @@ page 6613 "FS Connection Setup Wizard"
         CRMConnectionSetup: Record "CRM Connection Setup";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         FSIntegrationMgt: Codeunit "FS Integration Mgt.";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         FSConnectionSetup.EnsureCDSConnectionIsEnabled();
         FSConnectionSetup.EnsureCRMConnectionIsEnabled();
@@ -421,6 +422,7 @@ page 6613 "FS Connection Setup Wizard"
         if FSConnectionSetup.Get() then begin
             Rec."Proxy Version" := FSConnectionSetup."Proxy Version";
             Rec."Authentication Type" := FSConnectionSetup."Authentication Type";
+            CRMIntegrationManagement.CheckCRMConnectionURL(FSConnectionSetup."Server Address");
             Rec."Server Address" := FSConnectionSetup."Server Address";
             Rec."User Name" := FSConnectionSetup."User Name";
             Rec."User Password Key" := FSConnectionSetup."User Password Key";
@@ -621,6 +623,7 @@ page 6613 "FS Connection Setup Wizard"
         FSConnectionSetup: Record "FS Connection Setup";
         FSIntegrationMgt: Codeunit "FS Integration Mgt.";
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         AdminEmail: Text;
         AdminPassword: SecretText;
         AccessToken: SecretText;
@@ -628,6 +631,7 @@ page 6613 "FS Connection Setup Wizard"
         ImportSolutionFailed: Boolean;
     begin
         if ImportSolution and ImportFSSolutionEnabled then begin
+            CRMIntegrationManagement.CheckCRMConnectionURL(Rec."Server Address");
             case Rec."Authentication Type" of
                 Rec."Authentication Type"::Office365:
                     CDSIntegrationImpl.GetAccessToken(Rec."Server Address", true, AccessToken);

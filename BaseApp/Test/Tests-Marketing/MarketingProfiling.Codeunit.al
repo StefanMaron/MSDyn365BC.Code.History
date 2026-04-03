@@ -11,6 +11,7 @@ codeunit 136206 "Marketing Profiling"
     var
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryUtilityOnPrem: Codeunit "Library - Utility OnPrem";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -253,7 +254,7 @@ codeunit 136206 "Marketing Profiling"
         QuestionnaireTest.SaveAsExcel(FilePath);
 
         // 3. Verify: Verify that saved file has some data.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
+        LibraryUtilityOnPrem.CheckFileNotEmpty(FilePath);
     end;
 
     [Test]
@@ -302,7 +303,7 @@ codeunit 136206 "Marketing Profiling"
         QuestionnaireHandouts.SaveAsExcel(FilePath);
 
         // 3. Verify: Verify that saved file has some data.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
+        LibraryUtilityOnPrem.CheckFileNotEmpty(FilePath);
     end;
 
     [Test]

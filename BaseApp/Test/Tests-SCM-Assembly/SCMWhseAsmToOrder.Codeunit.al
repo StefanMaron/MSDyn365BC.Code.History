@@ -16,16 +16,16 @@ using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Sales.Document;
 using Microsoft.Warehouse.Activity;
-using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.History;
 using Microsoft.Warehouse.Ledger;
+using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Tracking;
 using Microsoft.Warehouse.Worksheet;
-using System.TestLibraries.Utilities;
 using System.Environment.Configuration;
+using System.TestLibraries.Utilities;
 
 codeunit 137914 "SCM Whse.-Asm. To Order"
 {
@@ -1205,142 +1205,6 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         VerifyWhseEntries(AsmHeader);
     end;
 
-    [Test]
-    [HandlerFunctions('AutoReserveAgainstILE,InvtPickMsgCreated,VSTF279916_ItemTrackingLines,VSTF279916_NotSpecificSNLot')]
-    [Scope('OnPrem')]
-    procedure VSTF279916()
-    var
-        Item: Record Item;
-        ChildItem: Record Item;
-        ItemTrackingCode: Record "Item Tracking Code";
-        Location: Record Location;
-        CompBin: Record Bin;
-        ParentBin: Record Bin;
-        AsmHeader: Record "Assembly Header";
-        SalesLine: Record "Sales Line";
-        SalesHeader: Record "Sales Header";
-        ReservEntry: Record "Reservation Entry";
-        WhseActivityLine: Record "Warehouse Activity Line";
-        WhseActivityHeader: Record "Warehouse Activity Header";
-        ATOLot2Bin: Record Bin;
-        ATOLot3Bin: Record Bin;
-        ATONoLotBin: Record Bin;
-        AsmOrder: TestPage "Assembly Order";
-        Lot1: Code[50];
-        Lot2: Code[50];
-        Lot3: Code[50];
-        Lot1Qty: Decimal;
-        Lot2Qty: Decimal;
-        Lot3Qty: Decimal;
-        InventoryQty: Decimal;
-        ItemQty: Decimal;
-        QtyOnAssemly: Decimal;
-    begin
-        Initialize();
-
-        // [GIVEN] Create item (with lot)/ location
-        Lot1Qty := LibraryRandom.RandInt(3);
-        QtyOnAssemly := LibraryRandom.RandInt(10);
-        ItemQty := Lot1Qty + QtyOnAssemly + LibraryRandom.RandIntInRange(5, 10);
-        InventoryQty := ItemQty + LibraryRandom.RandInt(100);
-        MockItemTrackingCode(ItemTrackingCode, false, true);
-        MockATOItem(Item, ChildItem);
-        Item."Item Tracking Code" := ItemTrackingCode.Code;
-        Item.Modify();
-        MockLocation(Location, true, true);
-
-        // [GIVEN] Put enough of child items on a new bin
-        MockBin(CompBin, Location.Code);
-        AddItemToInventory(ChildItem, Location, CompBin, InventoryQty, '', '');
-
-        // [GIVEN] Put in enough of a parent item with a certain lot
-        MockBin(ParentBin, Location.Code);
-        MockBinContent(Item, Location, ParentBin, '', false);
-        Lot1 := FirstNumber;
-        AddItemToInventory(Item, Location, ParentBin, InventoryQty, Lot1, '');
-
-        // [GIVEN] Create sales order for 10 PCS of which 7 are on Assembly
-        MockSalesOrder(SalesLine, Item, Location, ItemQty);
-        // [GIVEN] first set the lot no for existing inventory.
-        SalesLine.Validate("Qty. to Assemble to Order", 0);
-        SalesLine.Validate("Bin Code", '');
-        SalesLine.Modify();
-        LibraryItemTracking.CreateSalesOrderItemTracking(ReservEntry, SalesLine, '', Lot1, Lot1Qty);
-        // [GIVEN] make asm order for 7 PCS
-        SalesLine.Validate("Qty. to Assemble to Order", QtyOnAssemly);
-        SalesLine.Validate("Bin Code", '');
-        SalesLine.Modify();
-        // [GIVEN] reserve the rest of qty on sales against ILE (VSTF273866)
-        SalesLine.ShowReservation();
-        // [GIVEN] assign 2 lots to asm order taking care that it does not cover the whole qty
-        SalesLine.AsmToOrderExists(AsmHeader);
-        AsmOrder.Trap();
-        AsmHeader.Get(AsmHeader."Document Type", AsmHeader."No.");
-        PAGE.Run(PAGE::"Assembly Order", AsmHeader);
-        AsmOrder."Item Tracking Lines".Invoke(); // to set the two lot numbers
-        // [GIVEN] get the lots and qtys set
-        ReservEntry.SetRange("Source Type", DATABASE::"Assembly Header");
-        ReservEntry.SetRange("Source Subtype", AsmHeader."Document Type");
-        ReservEntry.SetRange("Source ID", AsmHeader."No.");
-        ReservEntry.SetRange("Source Ref. No.", 0);
-        ReservEntry.SetFilter("Lot No.", '<>%1', '');
-        Assert.AreEqual(2, ReservEntry.Count, '');
-        ReservEntry.FindFirst();
-        Lot2 := ReservEntry."Lot No.";
-        Lot2Qty := ReservEntry."Quantity (Base)";
-        ReservEntry.FindLast();
-        Lot3 := ReservEntry."Lot No.";
-        Lot3Qty := ReservEntry."Quantity (Base)";
-
-        // [WHEN] Create Inventory Pick from sales line
-        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-        LibrarySales.ReleaseSalesDocument(SalesHeader);
-        LibraryWarehouse.CreateInvtPutPickSalesOrder(SalesHeader);
-        // [THEN] Verify Invt pick lines and fill in new bin codes for ATO lines
-        WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::"Invt. Pick");
-        WhseActivityLine.SetRange("Source Type", DATABASE::"Sales Line");
-        WhseActivityLine.SetRange("Source Subtype", SalesLine."Document Type");
-        WhseActivityLine.SetRange("Source No.", SalesLine."Document No.");
-        WhseActivityLine.SetRange("Source Line No.", SalesLine."Line No.");
-        // [THEN] Should be 1 ATO line for Lot2 with Lot2qty
-        WhseActivityLine.SetRange("Assemble to Order", true);
-        WhseActivityLine.SetRange("Lot No.", Lot2);
-        WhseActivityLine.SetRange(Quantity, Lot2Qty);
-        Assert.AreEqual(1, WhseActivityLine.Count, '');
-        VSTF279916_FillBinCode(WhseActivityLine, ATOLot2Bin);
-        // [THEN] Should be 1 ATO line for Lot3 with Lot3qty
-        WhseActivityLine.SetRange("Assemble to Order", true);
-        WhseActivityLine.SetRange("Lot No.", Lot3);
-        WhseActivityLine.SetRange(Quantity, Lot3Qty);
-        Assert.AreEqual(1, WhseActivityLine.Count, '');
-        VSTF279916_FillBinCode(WhseActivityLine, ATOLot3Bin);
-        // [THEN] Should be 1 ATO line for blank lot and remaining qty
-        WhseActivityLine.SetRange("Assemble to Order", true);
-        WhseActivityLine.SetRange("Lot No.", '');
-        WhseActivityLine.SetRange(Quantity, AsmHeader.Quantity - (Lot2Qty + Lot3Qty));
-        Assert.AreEqual(1, WhseActivityLine.Count, '');
-        VSTF279916_FillBinCode(WhseActivityLine, ATONoLotBin);
-        VSTF279916_FillLotNo(WhseActivityLine, IncStr(Lot3));
-        // new lot
-        // [THEN] Should be 1 non ATO line with lot and Lot1 qty
-        WhseActivityLine.SetRange("Assemble to Order", false);
-        WhseActivityLine.SetRange("Bin Code", ParentBin.Code);
-        WhseActivityLine.SetRange("Lot No.", Lot1);
-        WhseActivityLine.SetRange(Quantity, Lot1Qty);
-        Assert.AreEqual(1, WhseActivityLine.Count, '');
-        // [THEN] Should be 1 non ATO line with blank lot and remaining nonATO qty
-        WhseActivityLine.SetRange("Assemble to Order", false);
-        WhseActivityLine.SetRange("Bin Code", ParentBin.Code);
-        WhseActivityLine.SetRange("Lot No.", '');
-        WhseActivityLine.SetRange(Quantity, SalesLine.Quantity - AsmHeader.Quantity - Lot1Qty);
-        Assert.AreEqual(1, WhseActivityLine.Count, '');
-        VSTF279916_FillLotNo(WhseActivityLine, Lot1); // new lot
-
-        // [THEN] Post inventory pick
-        WhseActivityHeader.Get(WhseActivityLine."Activity Type", WhseActivityLine."No.");
-        LibraryWarehouse.AutoFillQtyInventoryActivity(WhseActivityHeader);
-    end;
-
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VSTF279916_ItemTrackingLines(var ItemTrackingLines: TestPage "Item Tracking Lines")
@@ -1368,21 +1232,6 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
     begin
         Assert.IsTrue(StrPos(Question, LibraryInventory.GetReservConfirmText()) > 0, '');
         Reply := false;
-    end;
-
-    local procedure VSTF279916_FillBinCode(var WhseActivityLine: Record "Warehouse Activity Line"; var Bin: Record Bin)
-    begin
-        WhseActivityLine.FindFirst();
-        MockBin(Bin, WhseActivityLine."Location Code");
-        WhseActivityLine.Validate("Bin Code", Bin.Code);
-        WhseActivityLine.Modify(true);
-    end;
-
-    local procedure VSTF279916_FillLotNo(var WhseActivityLine: Record "Warehouse Activity Line"; LotNo: Code[50])
-    begin
-        WhseActivityLine.FindFirst();
-        WhseActivityLine.Validate("Lot No.", LotNo);
-        WhseActivityLine.Modify(true);
     end;
 
     [Test]

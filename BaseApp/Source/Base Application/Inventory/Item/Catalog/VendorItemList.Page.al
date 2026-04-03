@@ -1,12 +1,10 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Item.Catalog;
 
-#if not CLEAN25
 using Microsoft.Purchases.Pricing;
-#endif
 
 page 298 "Vendor Item List"
 {
@@ -25,29 +23,24 @@ page 298 "Vendor Item List"
                 field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the vendor who offers the alternate direct unit cost.';
                     Visible = false;
                 }
                 field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the number of the item that the alternate direct unit cost is valid for.';
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
                 field("Vendor Item No."; Rec."Vendor Item No.")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the number that the vendor uses for this item.';
                 }
                 field("Lead Time Calculation"; Rec."Lead Time Calculation")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies a date formula for the amount of time it takes to replenish the item.';
                 }
             }
         }
@@ -74,7 +67,6 @@ page 298 "Vendor Item List"
             {
                 Caption = 'Vendor Item';
                 Image = Item;
-#if not CLEAN25
                 action("Purch. Prices")
                 {
                     ApplicationArea = Suite;
@@ -85,9 +77,6 @@ page 298 "Vendor Item List"
                                   "Vendor No." = field("Vendor No.");
                     RunPageView = sorting("Item No.", "Vendor No.");
                     ToolTip = 'Define purchase price agreements with vendors for specific items.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '19.0';
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                 }
                 action("Purch. Line Discounts")
                 {
@@ -98,11 +87,7 @@ page 298 "Vendor Item List"
                     RunPageLink = "Item No." = field("Item No."),
                                   "Vendor No." = field("Vendor No.");
                     ToolTip = 'Define purchase line discounts with vendors. For example, you may get for a line discount if you buy items from a vendor in large quantities.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '19.0';
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                 }
-#endif
             }
         }
     }

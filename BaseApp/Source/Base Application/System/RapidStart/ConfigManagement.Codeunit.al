@@ -1,9 +1,7 @@
 #pragma warning disable AS0018
 namespace System.IO;
 
-#if not CLEAN25
 using Microsoft.Purchases.Pricing;
-#endif
 using Microsoft.Sales.Pricing;
 using System.Environment;
 using System.Reflection;
@@ -541,12 +539,10 @@ codeunit 8616 "Config. Management"
                 exit(Page::Microsoft.Purchases.History."Posted Purchase Invoices");
             Database::Microsoft.Purchases.History."Purch. Cr. Memo Hdr.":
                 exit(Page::Microsoft.Purchases.History."Posted Purchase Credit Memos");
-#if not CLEAN25
             Database::"Sales Price":
                 exit(Page::"Sales Prices");
             Database::"Purchase Price":
                 exit(Page::"Purchase Prices");
-#endif
             Database::Microsoft.Pricing.PriceList."Price List Line":
                 exit(Page::Microsoft.Pricing.PriceList."Price List Line Review");
             Database::Microsoft.Finance.VAT.Ledger."VAT Entry":

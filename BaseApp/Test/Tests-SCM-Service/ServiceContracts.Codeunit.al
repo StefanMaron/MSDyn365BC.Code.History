@@ -4,14 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Test;
 
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.CRM.Contact;
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.VAT.Setup;
-using Microsoft.CRM.BusinessRelation;
-using Microsoft.CRM.Contact;
 using Microsoft.Inventory.Item;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Sales.Customer;
@@ -48,6 +48,7 @@ codeunit 136102 "Service Contracts"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryService: Codeunit "Library - Service";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryUtilityOnPrem: Codeunit "Library - Utility OnPrem";
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -736,7 +737,7 @@ codeunit 136102 "Service Contracts"
         ServiceContractQuoteDetail.SaveAsExcel(FilePath);
 
         // 3. Verify: Verify that Saved file have some data.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
+        LibraryUtilityOnPrem.CheckFileNotEmpty(FilePath);
     end;
 
     [Test]
@@ -773,7 +774,7 @@ codeunit 136102 "Service Contracts"
         ServiceContractDetailRep.SaveAsExcel(FilePath);
 
         // 3. Verify: Verify that Saved file have some data.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
+        LibraryUtilityOnPrem.CheckFileNotEmpty(FilePath);
     end;
 
     [Test]
@@ -803,7 +804,7 @@ codeunit 136102 "Service Contracts"
         ServiceContractCustomerRep.SaveAsExcel(FilePath);
 
         // 3. Verify: Verify that Saved file have some data.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
+        LibraryUtilityOnPrem.CheckFileNotEmpty(FilePath);
     end;
 
     [Test]

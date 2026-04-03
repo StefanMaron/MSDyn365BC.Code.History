@@ -5,12 +5,22 @@
 namespace Microsoft.Finance.FinancialReports;
 
 using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Period;
-using System.Environment.Configuration;
 using System.Environment;
+using System.Environment.Configuration;
 using System.IO;
 using System.Telemetry;
 
+/// <summary>
+/// Central management codeunit for financial report operations including configuration package import/export,
+/// report printing, date formula calculations, and user notification handling.
+/// </summary>
+/// <remarks>
+/// Provides core functionality for financial report lifecycle management, XML exchange operations,
+/// date filter calculations for account schedule lines, and integration with configuration packages
+/// for template distribution and customization scenarios.
+/// </remarks>
 codeunit 18 "Financial Report Mgt."
 {
 
@@ -28,12 +38,14 @@ codeunit 18 "Financial Report Mgt."
         DontShowAgainMsg: Label 'Don''t show again';
         TelemetryEventTxt: Label 'Financial Report Definition %1: %2', Comment = '%1 = event type, %2 = report', Locked = true;
         OpenFinancialReportsLbl: Label 'Open Financial Reports';
-        OpenRowDefinitionsLbl: Label 'Open Row Definitions';
+        OpenWhereUsedLbl: Label 'Open Where-Used';
         NotifyUpdateFinancialReportNameTxt: Label 'Notify about updating financial reports.';
         NotifyUpdateFinancialReportDescTxt: Label 'Notify that financial reports should be updated after someone creates or changes a G/L account.';
         UpdateFinancialReportMsg: Label 'You have created one or more G/L accounts and might need to update your financial reports. We recommend that you review your financial reports by choosing the Open Financial Reports action.';
         UpdateFinancialReportNotificationIdTok: Label 'cc02b894-bef8-4945-8042-f177422f8906', Locked = true;
-        UpdateRowDefinitionMsg: Label 'You have changed one or more G/L accounts and might need to update your financial report row definitions. We recommend that you review your row definitions by choosing the Open Row Definitions action.';
+        UpdateRowDefinitionMsg: Label 'You have changed one or more G/L accounts and might need to update your financial report row definitions. We recommend that you review your row definitions by choosing the Open Where-Used action.';
+        UpdateRowDefGLAccNoKeyTok: Label 'GLAccountNo', Locked = true;
+        StatusBlockedErr: Label 'The current %1 has a blocked status of %2.', Comment = '%1 = type, %2 = status';
 
     internal procedure LaunchEditRowsWarningNotification()
     var
@@ -77,6 +89,15 @@ codeunit 18 "Financial Report Mgt."
             MyNotifications.InsertDefault(RowsNotificationIdTok, RowsEditWarningNotificationMsg, '', false);
     end;
 
+    /// <summary>
+    /// Exports a financial report configuration as an XML package for distribution and deployment.
+    /// Creates a configuration package containing the financial report and its row/column definitions.
+    /// </summary>
+    /// <param name="FinancialReport">Financial report record to export</param>
+    /// <remarks>
+    /// Generates a complete export package including account schedule names, lines, and column layouts.
+    /// Enables template distribution and environment-to-environment migration of financial report definitions.
+    /// </remarks>
     procedure XMLExchangeExport(FinancialReport: Record "Financial Report")
     var
         ConfigPackage: Record "Config. Package";
@@ -121,6 +142,15 @@ codeunit 18 "Financial Report Mgt."
         end;
     end;
 
+    /// <summary>
+    /// Imports a financial report configuration from an XML package file selected by the user.
+    /// Processes the imported configuration package and applies it to create the financial report.
+    /// </summary>
+    /// <param name="FinancialReport">Target financial report record for import context</param>
+    /// <remarks>
+    /// Provides complete import functionality including validation, dependency resolution,
+    /// and error handling for configuration package deployment scenarios.
+    /// </remarks>
     procedure XMLExchangeImport(FinancialReport: Record "Financial Report")
     var
         ConfigXMLExchange: Codeunit "Config. XML Exchange";
@@ -133,6 +163,15 @@ codeunit 18 "Financial Report Mgt."
         end;
     end;
 
+    /// <summary>
+    /// Applies a configuration package to create or update financial report definitions.
+    /// Processes package tables and validates data before applying changes to the database.
+    /// </summary>
+    /// <param name="PackageCode">Configuration package code to apply</param>
+    /// <remarks>
+    /// Handles package validation, dependency resolution, and error reporting during
+    /// financial report template deployment from configuration packages.
+    /// </remarks>
     procedure ApplyPackage(PackageCode: Code[20])
     var
         ConfigPackage: Record "Config. Package";
@@ -321,6 +360,15 @@ codeunit 18 "Financial Report Mgt."
         end;
     end;
 
+    /// <summary>
+    /// Prints a financial report using the Account Schedule report with the specified financial report configuration.
+    /// Provides extensibility through OnBeforePrint integration event for custom print handling.
+    /// </summary>
+    /// <param name="FinancialReport">Financial report record to print</param>
+    /// <remarks>
+    /// Integrates with standard Account Schedule report engine for consistent financial report output.
+    /// Supports custom printing scenarios through event subscription patterns.
+    /// </remarks>
     procedure Print(FinancialReport: Record "Financial Report")
     var
         AccountSchedule: Report "Account Schedule";
@@ -335,6 +383,13 @@ codeunit 18 "Financial Report Mgt."
         AccountSchedule.Run();
     end;
 
+    /// <summary>
+    /// Provides lookup functionality for financial report names with user selection dialog.
+    /// Returns the selected financial report name through the EntrdSchedName parameter.
+    /// </summary>
+    /// <param name="FinancialReportName">Current financial report name for initial selection</param>
+    /// <param name="EntrdSchedName">Returns the selected financial report name</param>
+    /// <returns>True if user confirmed selection, false if cancelled</returns>
     procedure LookupName(FinancialReportName: Code[10]; var EntrdSchedName: Text[10]): Boolean
     var
         FinancialReport: Record "Financial Report";
@@ -348,6 +403,14 @@ codeunit 18 "Financial Report Mgt."
         exit(true);
     end;
 
+    /// <summary>
+    /// Initializes financial reports by creating financial report records from existing account schedule names.
+    /// Migrates legacy account schedule configurations to the new financial reports framework.
+    /// </summary>
+    /// <remarks>
+    /// Runs only when no financial reports exist, ensuring backward compatibility during system upgrades.
+    /// Creates default financial reports for each account schedule name to maintain existing functionality.
+    /// </remarks>
     procedure Initialize()
     var
         FinancialReport: Record "Financial Report";
@@ -394,6 +457,11 @@ codeunit 18 "Financial Report Mgt."
         NotificationLifecycleMgt.SendNotification(UpdateFinancialReportNotification, GLAccount.RecordId);
     end;
 
+    /// <summary>
+    /// Opens the Financial Reports page in response to a user notification action.
+    /// Provides direct navigation to financial reports management from notification messages.
+    /// </summary>
+    /// <param name="UpdateFinancialReportNotification">Notification context triggering the action</param>
     procedure OpenFinancialReports(UpdateFinancialReportNotification: Notification)
     begin
         Page.Run(Page::"Financial Reports");
@@ -401,6 +469,7 @@ codeunit 18 "Financial Report Mgt."
 
     internal procedure NotifyUpdateRowDefinition(var GLAccount: Record "G/L Account")
     var
+        AccScheduleLine: Record "Acc. Schedule Line";
         MyNotification: Record "My Notifications";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         UpdateRowDefinitionNotification: Notification;
@@ -412,20 +481,94 @@ codeunit 18 "Financial Report Mgt."
         if not MyNotification.IsEnabled(GetUpdateFinancialReportNotificationId()) then
             exit;
 
+        FilterAccScheduleLineByGLAccount(AccScheduleLine, GLAccount."No.");
+        if AccScheduleLine.IsEmpty() then
+            exit;
+
         UpdateRowDefinitionNotification.Id := GetUpdateFinancialReportNotificationId();
         UpdateRowDefinitionNotification.Message := UpdateRowDefinitionMsg;
         UpdateRowDefinitionNotification.AddAction(
-            OpenRowDefinitionsLbl, Codeunit::"Financial Report Mgt.", 'OpenRowDefinitions');
+            OpenWhereUsedLbl, Codeunit::"Financial Report Mgt.", 'OpenWhereUsed');
         UpdateRowDefinitionNotification.AddAction(
             DontShowAgainMsg, Codeunit::"Financial Report Mgt.", 'HideUpdateFinancialReportNotification');
+        UpdateRowDefinitionNotification.SetData(UpdateRowDefGLAccNoKeyTok, GLAccount."No.");
         NotificationLifecycleMgt.SendNotification(UpdateRowDefinitionNotification, GLAccount.RecordId);
     end;
 
+#if not CLEAN28
+    [Obsolete('This function has been replaced by OpenWhereUsed and will be removed in a future release.', '28.0')]
     procedure OpenRowDefinitions(UpdateFinancialReportNotification: Notification)
     begin
         Page.Run(Page::"Account Schedule Names");
     end;
+#endif
 
+    procedure OpenWhereUsed(UpdateFinancialReportNotification: Notification)
+    var
+        GLAccount: Record "G/L Account";
+        TempGLAccWhereUsed: Record "G/L Account Where-Used" temporary;
+        GLAccNo: Text;
+    begin
+        if not UpdateFinancialReportNotification.HasData(UpdateRowDefGLAccNoKeyTok) then
+            exit;
+        GLAccNo := UpdateFinancialReportNotification.GetData(UpdateRowDefGLAccNoKeyTok);
+        if GLAccNo = '' then
+            exit;
+        if FindGLAccountWhereUsedInAccScheduleLine(CopyStr(GLAccNo, 1, MaxStrLen(GLAccount."No.")), TempGLAccWhereUsed) then
+            Page.RunModal(0, TempGLAccWhereUsed);
+    end;
+
+    procedure FindGLAccountWhereUsedInAccScheduleLine(GLAccNo: Code[20]; var TempGLAccWhereUsed: Record "G/L Account Where-Used" temporary): Boolean
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+    begin
+        FilterAccScheduleLineByGLAccount(AccScheduleLine, GLAccNo);
+        if AccScheduleLine.FindSet() then begin
+            TempGLAccWhereUsed."Table ID" := Database::"Acc. Schedule Line";
+            TempGLAccWhereUsed."Table Name" := CopyStr(AccScheduleLine.TableCaption(), 1, MaxStrLen(TempGLAccWhereUsed."Table Name"));
+            TempGLAccWhereUsed."Field Name" := CopyStr(AccScheduleLine.FieldCaption(Totaling), 1, MaxStrLen(TempGLAccWhereUsed."Field Name"));
+            repeat
+                TempGLAccWhereUsed."Key 1" := AccScheduleLine."Schedule Name";
+                TempGLAccWhereUsed."Key 2" := Format(AccScheduleLine."Line No.");
+                TempGLAccWhereUsed.Line := CopyStr(
+                    StrSubstNo('%1=%2, %3=%4',
+                        AccScheduleLine.FieldCaption("Schedule Name"), AccScheduleLine."Schedule Name",
+                        AccScheduleLine.FieldCaption("Row No."), AccScheduleLine."Row No."),
+                    1, MaxStrLen(TempGLAccWhereUsed.Line));
+                TempGLAccWhereUsed."Entry No." += 1;
+                TempGLAccWhereUsed.Insert();
+            until AccScheduleLine.Next() = 0;
+            exit(true);
+        end;
+    end;
+
+    local procedure FilterAccScheduleLineByGLAccount(var AccScheduleLine: Record "Acc. Schedule Line"; GLAccNo: Code[20])
+    begin
+        AccScheduleLine.SetFilter("Totaling Type", '%1|%2', AccScheduleLine."Totaling Type"::"Posting Accounts", AccScheduleLine."Totaling Type"::"Total Accounts");
+        AccScheduleLine.SetRange(Totaling, GLAccNo);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. G/L Acc. Where-Used", OnShowExtensionPage, '', false, false)]
+    local procedure OnShowExtensionPage(GLAccountWhereUsed: Record "G/L Account Where-Used")
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AccountSchedule: Page "Account Schedule";
+    begin
+        if GLAccountWhereUsed."Table ID" = Database::"Acc. Schedule Line" then begin
+            AccScheduleLine."Schedule Name" := CopyStr(GLAccountWhereUsed."Key 1", 1, MaxStrLen(AccScheduleLine."Schedule Name"));
+            if Evaluate(AccScheduleLine."Line No.", GLAccountWhereUsed."Key 2") then;
+            AccScheduleLine.Find();
+            AccountSchedule.SetAccSchedName(AccScheduleLine."Schedule Name");
+            AccountSchedule.SetRecord(AccScheduleLine);
+            AccountSchedule.Run();
+        end;
+    end;
+
+    /// <summary>
+    /// Disables the financial report update notification permanently for the current user.
+    /// Prevents future notifications about financial report configuration updates.
+    /// </summary>
+    /// <param name="UpdateFinancialReportNotification">Notification to disable</param>
     procedure HideUpdateFinancialReportNotification(UpdateFinancialReportNotification: Notification)
     var
         MyNotifications: Record "My Notifications";
@@ -448,11 +591,61 @@ codeunit 18 "Financial Report Mgt."
         FeatureTelemetry.LogUsage('0000ONR', 'Financial Report', StrSubstNo(TelemetryEventTxt, Action, Name), TelemetryDimensions);
     end;
 
+    /// <summary>
+    /// Returns the unique identifier for financial report update notifications.
+    /// Provides consistent notification ID for user preference management and notification control.
+    /// </summary>
+    /// <returns>GUID identifier for financial report update notifications</returns>
     procedure GetUpdateFinancialReportNotificationId(): Guid
     begin
         exit(UpdateFinancialReportNotificationIdTok);
     end;
 
+    procedure SetAccScheduleFilter(FinancialReport: Record "Financial Report"; var AccountSchedule: Report "Account Schedule")
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+    begin
+        CalcAccScheduleLineDateFilter(FinancialReport, AccScheduleLine);
+        AccountSchedule.SetFinancialReportName(FinancialReport.Name);
+        AccountSchedule.SetFilters(
+            AccScheduleLine.GetFilter("Date Filter"),
+            FinancialReport.GLBudgetFilter,
+            FinancialReport.CostBudgetFilter,
+            '',
+            FinancialReport.Dim1Filter,
+            FinancialReport.Dim2Filter,
+            FinancialReport.Dim3Filter,
+            FinancialReport.Dim4Filter,
+            FinancialReport.CashFlowFilter,
+            FinancialReport.GetEffectiveNegativeAmountFormat());
+    end;
+
+    procedure SetAccScheduleLineFilter(FinancialReport: Record "Financial Report"; var AccScheduleLine: Record "Acc. Schedule Line")
+    begin
+        AccScheduleLine.SetRange("Schedule Name", FinancialReport."Financial Report Row Group");
+        AccScheduleLine.SetFilter("Date Filter", FinancialReport.DateFilter);
+        AccScheduleLine.SetFilter("G/L Budget Filter", FinancialReport.GLBudgetFilter);
+        AccScheduleLine.SetFilter("Cost Budget Filter", FinancialReport.CostBudgetFilter);
+        AccScheduleLine.SetFilter("Business Unit Filter", '');
+        AccScheduleLine.SetFilter("Dimension 1 Filter", FinancialReport.Dim1Filter);
+        AccScheduleLine.SetFilter("Dimension 2 Filter", FinancialReport.Dim2Filter);
+        AccScheduleLine.SetFilter("Dimension 3 Filter", FinancialReport.Dim3Filter);
+        AccScheduleLine.SetFilter("Dimension 4 Filter", FinancialReport.Dim4Filter);
+        AccScheduleLine.SetFilter("Cash Flow Forecast Filter", FinancialReport.CashFlowFilter);
+        if FinancialReport.CostCenterFilter <> '' then
+            AccScheduleLine.SetFilter("Cost Center Filter", FinancialReport.CostCenterFilter);
+    end;
+
+    /// <summary>
+    /// Calculates and applies date filters to account schedule lines based on financial report date configuration.
+    /// Supports both explicit start/end date formulas and period formula expressions for flexible date range handling.
+    /// </summary>
+    /// <param name="FinancialReport">Financial report containing date filter configuration</param>
+    /// <param name="AccScheduleLine">Account schedule line record to apply date filters to</param>
+    /// <remarks>
+    /// Prioritizes start/end date formulas over period formulas. Handles period formula parsing
+    /// with localization support and fallback to standard date filter processing.
+    /// </remarks>
     procedure CalcAccScheduleLineDateFilter(FinancialReport: Record "Financial Report"; var AccScheduleLine: Record "Acc. Schedule Line")
     var
         AccSchedManagement: Codeunit AccSchedManagement;
@@ -484,7 +677,7 @@ codeunit 18 "Financial Report Mgt."
             if TrySetAccScheduleLineDateFilter(FinancialReport.DateFilter, AccScheduleLine) then
                 exit;
 
-        AccSchedManagement.FindPeriod(AccScheduleLine, '', FinancialReport.PeriodType);
+        AccSchedManagement.FindPeriod(AccScheduleLine, '', FinancialReport.GetEffectivePeriodType());
     end;
 
     [TryFunction]
@@ -493,6 +686,14 @@ codeunit 18 "Financial Report Mgt."
         AccScheduleLine.SetFilter("Date Filter", DateFilter);
     end;
 
+    /// <summary>
+    /// Sets date filters on account schedule lines using explicit start and end date formulas.
+    /// Calculates the date range relative to work date and applies it as a date filter.
+    /// </summary>
+    /// <param name="AccScheduleLine">Account schedule line record to filter</param>
+    /// <param name="StartDateFormula">Start date formula relative to work date</param>
+    /// <param name="EndDateFormula">End date formula relative to work date</param>
+    /// <returns>True if date filter was applied, false if both formulas are empty</returns>
     procedure SetAccScheduleLineStartEndDateFormula(var AccScheduleLine: Record "Acc. Schedule Line"; StartDateFormula: DateFormula; EndDateFormula: DateFormula): Boolean
     var
         EndDate: Date;
@@ -507,6 +708,14 @@ codeunit 18 "Financial Report Mgt."
         exit(true);
     end;
 
+    /// <summary>
+    /// Sets date filters on account schedule lines using period formula expressions with localization support.
+    /// Parses period formulas and applies calculated date ranges to account schedule line filtering.
+    /// </summary>
+    /// <param name="AccScheduleLine">Account schedule line record to filter</param>
+    /// <param name="PeriodFormula">Period formula expression to parse and apply</param>
+    /// <param name="LanguageId">Language identifier for localized period formula parsing</param>
+    /// <returns>True if period formula was successfully parsed and applied, false otherwise</returns>
     procedure SetAccScheduleLinePeriodFormula(var AccScheduleLine: Record "Acc. Schedule Line"; PeriodFormula: Code[20]; LanguageId: Integer): Boolean
     var
         PeriodFormulaParser: Codeunit "Period Formula Parser";
@@ -527,6 +736,41 @@ codeunit 18 "Financial Report Mgt."
         end;
     end;
 
+    procedure GetDefaultStatus(): Code[10]
+    var
+        GLSetup: Record "General Ledger Setup";
+    begin
+        GLSetup.Get();
+        if GLSetup.DefaultFinancialReportStatus <> '' then
+            exit(GLSetup.DefaultFinancialReportStatus);
+    end;
+
+    procedure CheckStatus(Type: Text; StatusCode: Code[10])
+    var
+        FinancialReportStatus: Record "Financial Report Status";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        StatusBlockedNotify: Notification;
+    begin
+        if StatusCode = '' then
+            exit;
+        if not FinancialReportStatus.Get(StatusCode) then
+            exit;
+        if not FinancialReportStatus.Blocked then
+            exit;
+        if FinancialReportStatus.WritePermission() then begin
+            StatusBlockedNotify.Message := StrSubstNo(StatusBlockedErr, Type, FinancialReportStatus.Code);
+            NotificationLifecycleMgt.RecallNotificationsForRecord(FinancialReportStatus.RecordId, false);
+            NotificationLifecycleMgt.SendNotification(StatusBlockedNotify, FinancialReportStatus.RecordId);
+        end else
+            Error(StatusBlockedErr, Type, FinancialReportStatus.Code);
+    end;
+
+    /// <summary>
+    /// Integration event raised before printing a financial report.
+    /// Enables custom print processing and allows bypassing standard print functionality.
+    /// </summary>
+    /// <param name="FinancialReport">Financial report being printed</param>
+    /// <param name="IsHandled">Set to true to skip standard print processing</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrint(var FinancialReport: Record "Financial Report"; var IsHandled: Boolean)
     begin

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -20,7 +20,6 @@ page 5990 Troubleshooting
                 field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
 
                     trigger OnAssistEdit()
                     begin
@@ -31,7 +30,6 @@ page 5990 Troubleshooting
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies a description of the troubleshooting issue.';
                 }
             }
             part(Control7; "Troubleshooting Subform")
@@ -92,19 +90,9 @@ page 5990 Troubleshooting
         TblshtgSetup: Record "Troubleshooting Setup";
         PageCaptionPrefix: Text;
 
-#if not CLEAN25
-    [Obsolete('Replaced with SetPageCaptionPrefix to remove length limitation.', '25.0')]
-    procedure SetCaption(CaptionCode2: Code[20]; CaptionDescription2: Text[30])
-    begin
-        PageCaptionPrefix := '';
-        if CaptionCode2 <> '' then
-            PageCaptionPrefix := CaptionCode2 + ' ' + CaptionDescription2;
-    end;
-#endif
 
     procedure SetPageCaptionPrefix(PageCaptionPrefixToSet: Text)
     begin
         PageCaptionPrefix := PageCaptionPrefixToSet;
     end;
 }
-

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -36,128 +36,95 @@ page 9321 "Service Contracts"
                 field("Contract No."; Rec."Contract No.")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies the number of the service contract or service contract quote.';
                 }
                 field(Status; Rec.Status)
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies the status of the service contract or contract quote.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies a description of the service contract.';
                 }
                 field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies the number of the customer who owns the service items in the service contract/contract quote.';
                 }
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies the name of the customer in the service contract.';
                     Visible = false;
                 }
                 field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
                 field("Bill-to Name"; Rec."Bill-to Name")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
                 field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
                 }
                 field("Ship-to Name"; Rec."Ship-to Name")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     Visible = false;
                 }
                 field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies the starting date of the service contract.';
                 }
                 field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies the date when the service contract expires.';
                 }
                 field("Change Status"; Rec."Change Status")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies if a service contract or contract quote is locked or open for changes.';
                     Visible = false;
                 }
                 field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                     Visible = false;
                 }
                 field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies the currency used to calculate the amounts in the documents related to this contract.';
                     Visible = false;
                 }
                 field("First Service Date"; Rec."First Service Date")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies the date of the first expected service for the service items in the contract.';
                     Visible = false;
                 }
                 field("Service Order Type"; Rec."Service Order Type")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies the service order type assigned to service orders linked to this contract.';
                     Visible = false;
                 }
                 field("Invoice Period"; Rec."Invoice Period")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies the invoice period for the service contract.';
                     Visible = false;
                 }
                 field("Next Price Update Date"; Rec."Next Price Update Date")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies the next date you want contract prices to be updated.';
                     Visible = false;
                 }
                 field("Last Price Update Date"; Rec."Last Price Update Date")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies the date you last updated the contract prices.';
                     Visible = false;
                 }
             }
         }
         area(factboxes)
         {
-#if not CLEAN25
-            part("Attached Documents"; "Document Attachment Factbox")
-            {
-                ObsoleteTag = '25.0';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
-                ApplicationArea = Service;
-                Caption = 'Attachments';
-                Visible = false;
-                SubPageLink = "Table ID" = const(Database::"Service Contract Header"),
-                              "Document Type" = const("Service Contract"),
-                              "No." = field("Contract No.");
-            }
-#endif
             part("Attached Documents List"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = Service;
@@ -600,4 +567,3 @@ page 9321 "Service Contracts"
         Rec.SetSecurityFilterOnRespCenter();
     end;
 }
-

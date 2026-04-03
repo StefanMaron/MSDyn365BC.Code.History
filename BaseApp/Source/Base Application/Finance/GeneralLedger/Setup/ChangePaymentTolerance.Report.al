@@ -11,6 +11,10 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
 using System.Utilities;
 
+/// <summary>
+/// Updates payment tolerance percentage and maximum amount on currencies and G/L setup,
+/// and propagates changes to open customer and vendor ledger entries.
+/// </summary>
 report 34 "Change Payment Tolerance"
 {
     Caption = 'Change Payment Tolerance';
@@ -100,6 +104,7 @@ report 34 "Change Payment Tolerance"
                     field(PaymentTolerancePct; PaymentTolerancePct)
                     {
                         ApplicationArea = Basic, Suite;
+                        AutoFormatType = 0;
                         Caption = 'Payment Tolerance %';
                         DecimalPlaces = 0 : 5;
                         Enabled = true;
@@ -108,6 +113,8 @@ report 34 "Change Payment Tolerance"
                     field("Max. Pmt. Tolerance Amount"; MaxPmtToleranceAmount)
                     {
                         ApplicationArea = Basic, Suite;
+                        AutoFormatType = 1;
+                        AutoFormatExpression = '';
                         Caption = 'Max. Pmt. Tolerance Amount';
                         DecimalPlaces = 0 : 5;
                         Enabled = true;
@@ -373,6 +380,10 @@ report 34 "Change Payment Tolerance"
         until Vendor.Next() = 0;
     end;
 
+    /// <summary>
+    /// Sets the Currency context used by the request page and processing logic.
+    /// </summary>
+    /// <param name="NewCurrency">Currency record providing code and rounding settings</param>
     procedure SetCurrency(NewCurrency: Record Currency)
     begin
         PageSetCurrency(NewCurrency);
@@ -397,6 +408,13 @@ report 34 "Change Payment Tolerance"
         end;
     end;
 
+    /// <summary>
+    /// Initializes the report request parameters for programmatic execution.
+    /// </summary>
+    /// <param name="AllCurrenciesFrom">Whether to process all currencies or specific currency</param>
+    /// <param name="CurrencyCodeFrom">Specific currency code to process if not all currencies</param>
+    /// <param name="PaymentTolerancePctFrom">Payment tolerance percentage to apply</param>
+    /// <param name="MaxPmtToleranceAmountFrom">Maximum payment tolerance amount to apply</param>
     procedure InitializeRequest(AllCurrenciesFrom: Boolean; CurrencyCodeFrom: Code[10]; PaymentTolerancePctFrom: Decimal; MaxPmtToleranceAmountFrom: Decimal)
     begin
         AllCurrencies := AllCurrenciesFrom;
@@ -405,11 +423,19 @@ report 34 "Change Payment Tolerance"
         MaxPmtToleranceAmount := MaxPmtToleranceAmountFrom;
     end;
 
+    /// <summary>
+    /// Integration event raised before modifying a Customer Ledger Entry during tolerance update.
+    /// </summary>
+    /// <param name="CustLedgerEntry">Customer ledger entry to modify</param>
     [IntegrationEvent(false, false)]
     local procedure OnChangeCustLedgEntriesOnBeforeModifyCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before modifying a Vendor Ledger Entry during tolerance update.
+    /// </summary>
+    /// <param name="VendorLedgerEntry">Vendor ledger entry to modify</param>
     [IntegrationEvent(false, false)]
     local procedure OnChangeVendLedgEntryOnBeforeModifyVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin

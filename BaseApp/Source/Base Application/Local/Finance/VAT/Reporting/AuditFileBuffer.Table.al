@@ -64,13 +64,8 @@ table 11404 "Audit File Buffer"
             Caption = 'AccountID';
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Replaced with Account ID';
-#if CLEAN25
             ObsoleteState = Removed;
             ObsoleteTag = '28.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '17.0';
-#endif
         }
 #endif
 #if not CLEANSCHEMA28
@@ -79,13 +74,8 @@ table 11404 "Audit File Buffer"
             Caption = 'CustSupID';
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Replaced with Source ID';
-#if CLEAN25
             ObsoleteState = Removed;
             ObsoleteTag = '28.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '17.0';
-#endif
         }
 #endif
 #if not CLEANSCHEMA28
@@ -94,13 +84,8 @@ table 11404 "Audit File Buffer"
             Caption = 'DocumentID';
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Replaced with Document ID';
-#if CLEAN25
             ObsoleteState = Removed;
             ObsoleteTag = '28.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '17.0';
-#endif
         }
 #endif
         field(60; EffectiveDate; Date)
@@ -115,11 +100,15 @@ table 11404 "Audit File Buffer"
         }
         field(70; DebitAmount; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'DebitAmount';
             DataClassification = SystemMetadata;
         }
         field(75; CreditAmount; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'CreditAmount';
             DataClassification = SystemMetadata;
         }
@@ -140,6 +129,7 @@ table 11404 "Audit File Buffer"
         }
         field(81; "VAT %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'VAT %';
             DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
@@ -149,6 +139,7 @@ table 11404 "Audit File Buffer"
         field(82; VATAmount; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'VATAmount';
             DataClassification = SystemMetadata;
         }
@@ -178,4 +169,3 @@ table 11404 "Audit File Buffer"
     {
     }
 }
-

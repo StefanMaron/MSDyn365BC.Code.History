@@ -1,4 +1,4 @@
-namespace Microsoft.Utilities;
+﻿namespace Microsoft.Utilities;
 
 page 823 "Name/Value Lookup"
 {
@@ -17,13 +17,11 @@ page 823 "Name/Value Lookup"
                 ShowCaption = false;
                 field(Name; Rec.Name)
                 {
-                    ApplicationArea = Invoicing, Basic, Suite;
-                    ToolTip = 'Specifies the name.';
+                    ApplicationArea = Basic, Suite;
                 }
                 field(Value; Rec.Value)
                 {
-                    ApplicationArea = Invoicing, Basic, Suite;
-                    ToolTip = 'Specifies the value.';
+                    ApplicationArea = Basic, Suite;
                 }
             }
         }
@@ -50,4 +48,3 @@ page 823 "Name/Value Lookup"
         Rec.Insert();
     end;
 }
-

@@ -1,5 +1,6 @@
 namespace System.Security.AccessControl;
 
+using Microsoft;
 using Microsoft.Assembly.Setup;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -8,8 +9,8 @@ using Microsoft.Bank.Ledger;
 using Microsoft.Bank.Payment;
 using Microsoft.Bank.PositivePay;
 using Microsoft.Bank.Reconciliation;
-using Microsoft.Bank.Statement;
 using Microsoft.Bank.Setup;
+using Microsoft.Bank.Statement;
 using Microsoft.CashFlow.Setup;
 using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Campaign;
@@ -34,8 +35,8 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.FinancialReports;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Budget;
-using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Calculation;
@@ -56,12 +57,12 @@ using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Foundation.Period;
 using Microsoft.Foundation.Shipping;
 using Microsoft.Foundation.Task;
-using Microsoft.HumanResources.Payables;
 using Microsoft.HumanResources.Employee;
+using Microsoft.HumanResources.Payables;
 using Microsoft.HumanResources.Setup;
-using Microsoft.Integration.Entity;
-using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.D365Sales;
+using Microsoft.Integration.Dataverse;
+using Microsoft.Integration.Entity;
 using Microsoft.Integration.SyncEngine;
 using Microsoft.Intercompany.Setup;
 using Microsoft.Inventory.Analysis;
@@ -86,20 +87,18 @@ using Microsoft.Inventory.Reconciliation;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Projects.Resources.Journal;
-#if not CLEAN25
-using Microsoft.Projects.Resources.Pricing;
-#endif
-using Microsoft.Projects.Resources.Resource;
-using Microsoft.Projects.Resources.Setup;
-using Microsoft.Projects.TimeSheet;
-using Microsoft.Projects.Project.WIP;
-using Microsoft.Projects.Project.Setup;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
+using Microsoft.Projects.Project.Setup;
+using Microsoft.Projects.Project.WIP;
+using Microsoft.Projects.Resources.Journal;
+using Microsoft.Projects.Resources.Pricing;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Projects.Resources.Setup;
+using Microsoft.Projects.TimeSheet;
 using Microsoft.Purchases.Archive;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
@@ -108,33 +107,31 @@ using Microsoft.Purchases.Setup;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Archive;
 using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
-using Microsoft.Sales.Setup;
-using Microsoft.Sales.Document;
 using Microsoft.Sales.Pricing;
-using Microsoft.Sales.Reminder;
 using Microsoft.Sales.Receivables;
+using Microsoft.Sales.Reminder;
+using Microsoft.Sales.Setup;
+using Microsoft.Utilities;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Activity.History;
 using Microsoft.Warehouse.Comment;
+using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.History;
 using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Request;
-using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Worksheet;
-using Microsoft.Utilities;
-using Microsoft;
-
 using System.Apps;
 using System.Automation;
 using System.Azure.Identity;
 using System.Diagnostics;
 using System.Environment.Configuration;
-using System.IO;
 using System.Integration;
+using System.IO;
 using System.Privacy;
 using System.Security.User;
 using System.Threading;
@@ -157,6 +154,7 @@ permissionset 191 "D365 SETUP"
     Permissions = tabledata "Data Sensitivity" = RIMD,
                   tabledata "NAV App Installed App" = Rimd,
                   tabledata "Object Options" = IMD,
+                  tabledata "ABC Analysis Setup" = RIMD,
                   tabledata "Acc. Sched. Cell Value" = D,
                   tabledata "Acc. Sched. KPI Web Srv. Line" = RIMD,
                   tabledata "Acc. Sched. KPI Web Srv. Setup" = RIMD,
@@ -168,8 +166,14 @@ permissionset 191 "D365 SETUP"
                   tabledata "Allocation Account" = RIMD,
                   tabledata "Allocation Line" = RIMD,
                   tabledata "Financial Report" = RIMD,
+                  tabledata "Financial Report Export Log" = RIMD,
+                  tabledata "Financial Report Recipient" = RIMD,
+                  tabledata "Financial Report Schedule" = RIMD,
                   tabledata "Financial Report User Filters" = RIMD,
                   tabledata "Fin. Report Excel Template" = RIMD,
+                  tabledata "Financial Report Category" = RIMD,
+                  tabledata "Financial Report Audit Log" = i,
+                  tabledata "Financial Report Status" = RIMD,
                   tabledata "Accounting Period" = IMD,
                   tabledata "Action Message Entry" = D,
                   tabledata Activity = D,
@@ -303,6 +307,7 @@ permissionset 191 "D365 SETUP"
                   tabledata "Deferral Header Archive" = D,
                   tabledata "Deferral Line Archive" = D,
                   tabledata "Delivery Sorter" = D,
+                  tabledata "Detailed Matched Order Line" = RmD,
                   tabledata Dimension = RIMD,
                   tabledata "Dimension Value" = RIMD,
                   tabledata "Direct Debit Collection" = D,
@@ -392,6 +397,7 @@ permissionset 191 "D365 SETUP"
                   tabledata "Man. Int. Field Mapping" = RIMD,
                   tabledata Manufacturer = RIMD,
                   tabledata "Marketing Setup" = RImD,
+                  tabledata "Matched Order Line" = RmD,
                   tabledata "Memoized Result" = D,
                   tabledata "No. Series" = RIMD,
                   tabledata "No. Series Line" = RIMD,
@@ -434,6 +440,7 @@ permissionset 191 "D365 SETUP"
                   tabledata "Post Code" = RIMD,
                   tabledata "Post Value Entry to G/L" = d,
                   tabledata "Postcode Service Config" = RIMD,
+                  tabledata "Posted Matched Order Line" = Rd,
                   tabledata "Posted Payment Recon. Hdr" = D,
                   tabledata "Posted Payment Recon. Line" = D,
                   tabledata "Posted Whse. Receipt Header" = D,
@@ -495,10 +502,8 @@ permissionset 191 "D365 SETUP"
                   tabledata "Requisition Wksh. Name" = RIMD,
                   tabledata "Res. Journal Line" = D,
                   tabledata "Reservation Entry" = RimD,
-#if not CLEAN25
                   tabledata "Resource Cost" = D,
                   tabledata "Resource Price" = D,
-#endif
                   tabledata "Resource Unit of Measure" = D,
                   tabledata "Resources Setup" = RimD,
                   tabledata "Responsibility Center" = RIMD,
@@ -519,14 +524,10 @@ permissionset 191 "D365 SETUP"
                   tabledata "Sales Invoice Line" = Rd,
                   tabledata "Sales Line" = RmD,
                   tabledata "Sales Line Archive" = RmD,
-#if not CLEAN25
                   tabledata "Sales Line Discount" = IM,
-#endif
                   tabledata "Sales Planning Line" = d,
                   tabledata "Sales Prepayment %" = RIMD,
-#if not CLEAN25
                   tabledata "Sales Price Worksheet" = RIMD,
-#endif
                   tabledata "Sales Shipment Header" = RD,
                   tabledata "Sales Shipment Line" = d,
                   tabledata "Salesperson/Purchaser" = RIMD,

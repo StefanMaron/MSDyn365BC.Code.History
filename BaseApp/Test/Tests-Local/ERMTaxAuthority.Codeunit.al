@@ -12,7 +12,7 @@ codeunit 144005 "ERM Tax Authority"
     //  7. Verify Tax Registration No. in generated Audit file when VAT Registration No. is blank on Company Information.
     //  8. Verify description in generated Audit file when Audit file contains closing G/L entries.
     //  9. Verify the Audit file can be overwritten.
-    // 
+    //
     // Covers Test Cases for WI - 342836
     // ------------------------------------------------------------------------------------------------------
     // Test Function Name                          TFS ID
@@ -20,7 +20,7 @@ codeunit 144005 "ERM Tax Authority"
     // TaxAuthorityAuditGLEnries                   151278, 151279, 151280, 151285, 151286, 151392, 151393
     // AuditTotalGLEntryAmount                     151281
     // AuditReversalEntry                          151282
-    // 
+    //
     // Covers Test Cases for WI - 342837
     // ----------------------------------------------------------------------------------------------------------------
     // Test Function Name                                                             TFS ID
@@ -86,6 +86,7 @@ codeunit 144005 "ERM Tax Authority"
         SourceCode: Record "Source Code";
         VATPostingSetup: Record "VAT Posting Setup";
         TaxAuthorityAuditFile: Report "Tax Authority - Audit File";
+        Amount: Decimal;
         FileName: Text;
         LedgerAccXPath: Text;
         JournalXPath: Text;
@@ -146,9 +147,11 @@ codeunit 144005 "ERM Tax Authority"
         LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(TrLineXPath + 'effDate', Format(GLEntry."Posting Date", 0, DateFormatTxt), 0);
         LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(TrLineXPath + 'effDate', Format(GLEntry2."Posting Date", 0, DateFormatTxt), 3);
         LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(TrLineXPath + 'desc', GLEntry.Description, 0);
-        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(TrLineXPath + 'amnt', Format(GLEntry."Debit Amount", 0, 9), 0);  // 3 trLine per transaction
+        Amount := GLEntry."Debit Amount";
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(TrLineXPath + 'amnt', Format(Amount, 0, 9), 0);  // 3 trLine per transaction
         LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(TrLineXPath + 'amntTp', 'D', 0);
-        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(TrLineXPath + 'amnt', Format(GLEntry2."Credit Amount", 0, 9), 3);  // 3 trLine per transaction
+        Amount := GLEntry2."Credit Amount";
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(TrLineXPath + 'amnt', Format(Amount, 0, 9), 3);  // 3 trLine per transaction
         LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(TrLineXPath + 'amntTp', 'C', 3);
         LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(TrLineXPath + 'costID', GLEntry."Global Dimension 1 Code", 0);
         LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(TrLineXPath + 'prodID', GLEntry."Global Dimension 2 Code", 0);
@@ -1145,4 +1148,3 @@ codeunit 144005 "ERM Tax Authority"
         TaxAuthorityAuditFile.OK().Invoke();
     end;
 }
-

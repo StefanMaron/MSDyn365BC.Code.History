@@ -48,10 +48,8 @@
     local procedure Initialize()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-#if not CLEAN25
         PurchasePrice: Record "Purchase Price";
         SalesPrice: Record "Sales Price";
-#endif
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Job Consumption Basic");
@@ -62,11 +60,9 @@
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Job Consumption Basic");
 
-#if not CLEAN25
         // Removing special prices
         PurchasePrice.DeleteAll(true);
         SalesPrice.DeleteAll(true);
-#endif
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Check Doc. Total Amounts", false);
         PurchasesPayablesSetup.Modify(true);

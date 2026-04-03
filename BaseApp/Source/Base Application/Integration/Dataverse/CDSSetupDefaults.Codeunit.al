@@ -127,6 +127,8 @@ codeunit 7204 "CDS Setup Defaults"
           IntegrationFieldMapping.Direction::FromIntegrationTable,
           '', true, false);
 
+        OnAfterResetSalesPeopleSystemUserMapping(IntegrationTableMappingName);
+
         if not IsTeamOwnershipModel then
             RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, ShouldRecreateJobQueueEntry, 1440);
     end;
@@ -1454,6 +1456,11 @@ codeunit 7204 "CDS Setup Defaults"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterResetConfiguration(CDSConnectionSetup: Record "CDS Connection Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterResetSalesPeopleSystemUserMapping(IntegrationTableMappingName: Code[20])
     begin
     end;
 

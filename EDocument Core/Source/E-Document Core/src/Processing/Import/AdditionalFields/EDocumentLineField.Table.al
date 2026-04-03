@@ -4,10 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument.Processing.Import;
 
+using Microsoft.eServices.EDocument;
+using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 using Microsoft.Purchases.History;
 using System.Reflection;
-using Microsoft.eServices.EDocument.Processing.Import.Purchase;
-using Microsoft.eServices.EDocument;
 
 table 6110 "E-Document Line - Field"
 {
@@ -49,6 +49,7 @@ table 6110 "E-Document Line - Field"
             Caption = 'Custom Decimal Value';
             ToolTip = 'Specifies the custom decimal value.';
             DataClassification = CustomerContent;
+            AutoFormatType = 0;
         }
         field(6; "Date Value"; Date)
         {

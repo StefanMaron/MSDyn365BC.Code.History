@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -27,15 +27,15 @@ table 5095 "Duplicate Search String Setup"
                 "Field Name" := Field.FieldName;
             end;
         }
-        field(2; "Part of Field"; Option)
+        field(2; "Part of Field"; Enum "Duplicate Search String Part")
         {
             Caption = 'Part of Field';
-            OptionCaption = 'First,Last';
-            OptionMembers = First,Last;
+            ToolTip = 'Specifies the part of the field to use to generate the search string. There are two options: First and Last.';
         }
         field(3; Length; Integer)
         {
             Caption = 'Length';
+            ToolTip = 'Specifies how many characters the search string will contain. You can enter a number from 2 to 10. The program automatically enters 5 as a default value.';
             InitValue = 5;
             MaxValue = 10;
             MinValue = 2;
@@ -43,6 +43,7 @@ table 5095 "Duplicate Search String Setup"
         field(4; "Field Name"; Text[30])
         {
             Caption = 'Field Name';
+            ToolTip = 'Specifies the field to use to generate the search string.';
         }
     }
 

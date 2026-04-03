@@ -1,13 +1,13 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Availability;
 
 using Microsoft.Foundation.Enums;
-using Microsoft.Purchases.Document;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
+using Microsoft.Purchases.Document;
 
 page 515 "Item Avail. by Location Lines"
 {
@@ -39,11 +39,11 @@ page 515 "Item Avail. by Location Lines"
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = Location;
-                    ToolTip = 'Specifies the name or address of the location.';
                 }
                 field(GrossRequirement; GrossRequirement)
                 {
                     ApplicationArea = Basic, Suite;
+                    AutoFormatType = 0;
                     Caption = 'Gross Requirement';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the sum of the total demand for the item. The gross requirement consists of independent demand (which include sales orders, service orders, transfer orders, and demand forecasts) and dependent demand, which include production order components for planned, firm planned, and released production orders and requisition and planning worksheets lines.';
@@ -56,6 +56,7 @@ page 515 "Item Avail. by Location Lines"
                 field(ScheduledRcpt; ScheduledRcpt)
                 {
                     ApplicationArea = Basic, Suite;
+                    AutoFormatType = 0;
                     Caption = 'Scheduled Receipt';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the sum of items from replenishment orders. This includes firm planned and released production orders, purchase orders, and transfer orders.';
@@ -68,6 +69,7 @@ page 515 "Item Avail. by Location Lines"
                 field(PlannedOrderRcpt; PlannedOrderRcpt)
                 {
                     ApplicationArea = Basic, Suite;
+                    AutoFormatType = 0;
                     Caption = 'Planned Receipt';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the quantity on planned production orders plus planning worksheet lines plus requisition worksheet lines.';
@@ -94,6 +96,7 @@ page 515 "Item Avail. by Location Lines"
                 field(ProjAvailableBalance; ProjAvailableBalance)
                 {
                     ApplicationArea = Location;
+                    AutoFormatType = 0;
                     Caption = 'Projected Available Balance';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the item''s availability. This quantity includes all known supply and demand but does not include anticipated demand from demand forecasts or blanket sales orders or suggested supplies from planning or requisition worksheets.';
@@ -248,6 +251,7 @@ page 515 "Item Avail. by Location Lines"
                 field(ExpectedInventory; ExpectedInventory)
                 {
                     ApplicationArea = Basic, Suite;
+                    AutoFormatType = 0;
                     Caption = 'Expected Inventory';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies how many units of the assembly component are expected to be available for the current assembly order on the due date.';
@@ -256,6 +260,7 @@ page 515 "Item Avail. by Location Lines"
                 field(QtyAvailable; QtyAvailable)
                 {
                     ApplicationArea = Basic, Suite;
+                    AutoFormatType = 0;
                     Caption = 'Available Inventory';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the quantity of the item that is currently in inventory and not reserved for other demand.';
@@ -264,6 +269,7 @@ page 515 "Item Avail. by Location Lines"
                 field(PlannedOrderReleases; PlannedOrderReleases)
                 {
                     ApplicationArea = Basic, Suite;
+                    AutoFormatType = 0;
                     Caption = 'Planned Order Releases';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the sum of items from replenishment order proposals, which include planned production orders and planning or requisition worksheets lines, that are calculated according to the starting date in the planning worksheet and production order or the order date in the requisition worksheet. This sum is not included in the projected available inventory. However, it indicates which quantities should be converted from planned to scheduled receipts.';

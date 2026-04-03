@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -19,12 +19,14 @@ table 175 "Standard Vendor Purchase Code"
         field(1; "Vendor No."; Code[20])
         {
             Caption = 'Vendor No.';
+            ToolTip = 'Specifies the number of the vendor to which the standard purchase code is assigned.';
             NotBlank = true;
             TableRelation = Vendor;
         }
         field(2; "Code"; Code[10])
         {
             Caption = 'Code';
+            ToolTip = 'Specifies a standard purchase code from the Standard Purchase Code table.';
             NotBlank = true;
             TableRelation = "Standard Purchase Code";
 
@@ -42,6 +44,7 @@ table 175 "Standard Vendor Purchase Code"
         field(3; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the standard purchase code.';
         }
         field(13; "Currency Code"; Code[10])
         {
@@ -52,6 +55,7 @@ table 175 "Standard Vendor Purchase Code"
         field(15; "Insert Rec. Lines On Quotes"; Option)
         {
             Caption = 'Insert Rec. Lines On Quotes';
+            ToolTip = 'Specifies how you want to use standard purchase codes on purchase quotes.';
             DataClassification = SystemMetadata;
             OptionCaption = 'Manual,Automatic,Always Ask';
             OptionMembers = Manual,Automatic,"Always Ask";
@@ -59,6 +63,7 @@ table 175 "Standard Vendor Purchase Code"
         field(16; "Insert Rec. Lines On Orders"; Option)
         {
             Caption = 'Insert Rec. Lines On Orders';
+            ToolTip = 'Specifies how you want to use standard purchase codes on purchase orders.';
             DataClassification = SystemMetadata;
             OptionCaption = 'Manual,Automatic,Always Ask';
             OptionMembers = Manual,Automatic,"Always Ask";
@@ -66,6 +71,7 @@ table 175 "Standard Vendor Purchase Code"
         field(17; "Insert Rec. Lines On Invoices"; Option)
         {
             Caption = 'Insert Rec. Lines On Invoices';
+            ToolTip = 'Specifies how you want to use standard purchase codes on purchase invoices.';
             DataClassification = SystemMetadata;
             OptionCaption = 'Manual,Automatic,Always Ask';
             OptionMembers = Manual,Automatic,"Always Ask";
@@ -73,6 +79,7 @@ table 175 "Standard Vendor Purchase Code"
         field(18; "Insert Rec. Lines On Cr. Memos"; Option)
         {
             Caption = 'Insert Rec. Lines On Cr. Memos';
+            ToolTip = 'Specifies how you want to use standard purchase codes on purchase credit memos.';
             DataClassification = SystemMetadata;
             OptionCaption = 'Manual,Automatic,Always Ask';
             OptionMembers = Manual,Automatic,"Always Ask";

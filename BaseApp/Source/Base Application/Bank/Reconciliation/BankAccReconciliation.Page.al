@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -9,6 +9,18 @@ using Microsoft.Bank.Ledger;
 using Microsoft.Foundation.Reporting;
 using System.Telemetry;
 
+/// <summary>
+/// Main page for bank account reconciliation processes, enabling users to match bank statement entries
+/// with ledger entries. Provides tools for automatic and manual matching, statement import, and
+/// reconciliation posting. Supports both bank reconciliation and payment application workflows with
+/// integrated match confidence scoring and difference resolution capabilities.
+/// </summary>
+/// <remarks>
+/// Key functionality includes statement line import from external files, automatic matching algorithms
+/// with configurable rules, manual entry matching with tolerance handling, difference transfer to accounts,
+/// and comprehensive reporting. The page supports multiple bank account currencies and provides
+/// detailed match analysis with review workflows for uncertain matches.
+/// </remarks>
 page 379 "Bank Acc. Reconciliation"
 {
     Caption = 'Bank Acc. Reconciliation';
@@ -29,7 +41,6 @@ page 379 "Bank Acc. Reconciliation"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Bank Account No.';
-                    ToolTip = 'Specifies the number of the bank account that you want to reconcile with the bank''s statement.';
                     Editable = BankAccountNoIsEditable;
 
                     trigger OnValidate()
@@ -51,13 +62,11 @@ page 379 "Bank Acc. Reconciliation"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statement No.';
-                    ToolTip = 'Specifies the number of the bank account statement.';
                 }
                 field(StatementDate; Rec."Statement Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statement Date';
-                    ToolTip = 'Specifies the date on the bank account statement.';
                     trigger OnValidate()
                     begin
                         CurrPage.ApplyBankLedgerEntries.Page.SetBankRecDateFilter(Rec.MatchCandidateFilterDate());
@@ -67,13 +76,11 @@ page 379 "Bank Acc. Reconciliation"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Balance Last Statement';
-                    ToolTip = 'Specifies the ending balance shown on the last bank statement, which was used in the last posted bank reconciliation for this bank account.';
                 }
                 field(StatementEndingBalance; Rec."Statement Ending Balance")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statement Ending Balance';
-                    ToolTip = 'Specifies the ending balance shown on the bank''s statement that you want to reconcile with the bank account.';
                 }
             }
             group(Control8)

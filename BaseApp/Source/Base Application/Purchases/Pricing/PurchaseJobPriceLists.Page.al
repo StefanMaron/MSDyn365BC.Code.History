@@ -4,9 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Pricing;
 
-#if not CLEAN25
 using Microsoft.Pricing.Calculation;
-#endif
 using Microsoft.Pricing.PriceList;
 using Microsoft.Pricing.Source;
 
@@ -128,14 +126,13 @@ page 7020 "Purchase Job Price Lists"
             }
         }
     }
-#if not CLEAN25
     trigger OnInit()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
     begin
         FeaturePriceCalculation.FailIfFeatureDisabled();
     end;
-#endif
+
     trigger OnAfterGetRecord()
     begin
         CurrRec := Rec;

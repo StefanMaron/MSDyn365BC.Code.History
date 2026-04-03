@@ -10,8 +10,8 @@ using Microsoft.Service.Document;
 using Microsoft.Service.History;
 using Microsoft.Service.Item;
 using Microsoft.Service.Setup;
-using System.Upgrade;
 using System.Environment;
+using System.Upgrade;
 
 codeunit 104059 "Serv. Upgrade BaseApp"
 {
@@ -240,7 +240,7 @@ codeunit 104059 "Serv. Upgrade BaseApp"
 
     // Upgrade definitions
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerCompanyUpgradeTags', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerCompanyUpgradeTags', '', true, false)]
     local procedure RegisterPerCompanyTags(var PerCompanyUpgradeTags: List of [Code[250]])
     begin
         PerCompanyUpgradeTags.Add(GetVATDateFieldServiceUpgrade());
@@ -249,7 +249,7 @@ codeunit 104059 "Serv. Upgrade BaseApp"
         PerCompanyUpgradeTags.Add(GetEnableDeleteFiledContractsWithRelatedMainContractUpgradeTag());
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::Microsoft.Foundation.Company."Company-Initialize", 'OnCompanyInitialize', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::Microsoft.Foundation.Company."Company-Initialize", 'OnCompanyInitialize', '', true, false)]
     local procedure SetDefaultsOnCompanyInitialize()
     begin
         if not UpgradeTag.HasUpgradeTag(GetEnableDeleteFiledContractsWithRelatedMainContractUpgradeTag()) then

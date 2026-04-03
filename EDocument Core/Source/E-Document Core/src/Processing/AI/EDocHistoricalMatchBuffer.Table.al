@@ -4,10 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument.Processing.AI;
 
-using Microsoft.Purchases.Document;
 using Microsoft.Finance.Deferral;
-using Microsoft.Foundation.UOM;
 using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.UOM;
+using Microsoft.Purchases.Document;
 table 6129 "EDoc Historical Match Buffer"
 {
     Access = Internal;
@@ -64,6 +64,8 @@ table 6129 "EDoc Historical Match Buffer"
             DecimalPlaces = 0 : 2;
             MinValue = 0;
             MaxValue = 1;
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
         }
         field(50; "Is E-Document History"; Boolean)
         {
@@ -74,6 +76,8 @@ table 6129 "EDoc Historical Match Buffer"
         {
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
         }
         field(52; "Unit of Measure"; Code[10])
         {

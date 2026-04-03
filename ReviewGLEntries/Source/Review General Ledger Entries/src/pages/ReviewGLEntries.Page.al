@@ -1,9 +1,9 @@
 namespace Microsoft.Finance.GeneralLedger.Review;
 
+using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using System.Telemetry;
 using System.Utilities;
-using Microsoft.Finance.GeneralLedger.Account;
 
 page 22207 "Review G/L Entries"
 {
@@ -67,6 +67,13 @@ page 22207 "Review G/L Entries"
                     Editable = false;
                     ToolTip = 'Specifies the account no. that will be applied.';
                 }
+                field("Rec Review Policy"; Rec."Review Policy")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Visible = false;
+                    ToolTip = 'Specifies the review policy for the G/L Account.';
+                }
                 field(Reviewer; Rec."Reviewed By")
                 {
                     ApplicationArea = Basic, Suite;
@@ -103,6 +110,8 @@ page 22207 "Review G/L Entries"
                 }
                 field(RemainingAmount; RemainingAmount)
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = Basic, Suite;
                     Caption = 'Remaining Amount';
                     Editable = false;
@@ -148,6 +157,7 @@ page 22207 "Review G/L Entries"
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Debit (LCY)';
                     Editable = false;
                     ToolTip = 'Specifies the accumulated debit amount of all the lines applied to this line.';
@@ -156,6 +166,7 @@ page 22207 "Review G/L Entries"
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Credit (LCY)';
                     Editable = false;
                     ToolTip = 'Specifies the accumulated credit amount of all the lines applied to this line.';
@@ -164,6 +175,7 @@ page 22207 "Review G/L Entries"
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Balance';
                     Editable = false;
                     ToolTip = 'Specifies the accumulated balance of all the lines applied to this line.';
