@@ -18,5 +18,14 @@
     "allowDebugging": true,
     "allowDownloadingSource": true,
     "includeSourceInSymbolFile": true
-  }
+  },
+  "idRanges": [
+    {
+      "from": 130630,
+      "to": 130630
+    }
+  ],
+  "features": [
+    "TranslationFile"
+  ]
 }

@@ -4,16 +4,16 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.DemoData.Localization;
 
-using Microsoft.DemoData.Finance;
-using Microsoft.DemoData.Inventory;
 using Microsoft.DemoData.Bank;
+using Microsoft.DemoData.CRM;
+using Microsoft.DemoData.Finance;
+using Microsoft.DemoData.FixedAsset;
+using Microsoft.DemoData.Foundation;
+using Microsoft.DemoData.HR;
+using Microsoft.DemoData.Inventory;
+using Microsoft.DemoData.Job;
 using Microsoft.DemoData.Purchases;
 using Microsoft.DemoData.Sales;
-using Microsoft.DemoData.HR;
-using Microsoft.DemoData.Foundation;
-using Microsoft.DemoData.FixedAsset;
-using Microsoft.DemoData.Job;
-using Microsoft.DemoData.CRM;
 using Microsoft.DemoTool;
 
 codeunit 17131 "AU Contoso Localization"
@@ -67,17 +67,10 @@ codeunit 17131 "AU Contoso Localization"
     end;
 
     local procedure InventoryModule(ContosoDemoDataLevel: Enum "Contoso Demo Data Level")
-    var
-        CreateAUInvPostingSetup: Codeunit "Create AU Inv Posting Setup";
     begin
         case ContosoDemoDataLevel of
             Enum::"Contoso Demo Data Level"::"Setup Data":
-                begin
-                    Codeunit.Run(Codeunit::"Create AU Inv Posting Group");
-                    Codeunit.Run(Codeunit::"Create AU Inv Posting Setup");
-                end;
-            Enum::"Contoso Demo Data Level"::"Master Data":
-                CreateAUInvPostingSetup.UpdateInventoryPosting();
+                Codeunit.Run(Codeunit::"Create AU Inv Posting Group");
         end;
     end;
 
@@ -178,7 +171,6 @@ codeunit 17131 "AU Contoso Localization"
     local procedure OnBeforeGeneratingDemoData(ContosoDemoDataLevel: Enum "Contoso Demo Data Level"; Module: Enum "Contoso Demo Data Module")
     var
         FinanceModuleSetup: Record "Finance Module Setup";
-        CreateAUInvPostingSetup: Codeunit "Create AU Inv Posting Setup";
         CreateAUBankAccPostingGrp: Codeunit "Create AU Bank Acc Posting Grp";
         CreateAUPaymentMethod: Codeunit "Create AU Payment Method";
         CreateAUBankAccount: Codeunit "Create AU Bank Account";
@@ -223,8 +215,8 @@ codeunit 17131 "AU Contoso Localization"
             Enum::"Contoso Demo Data Module"::Inventory:
                 begin
                     BindSubscription(CreateAULocation);
-                    BindSubscription(CreateAUInvPostingSetup);
-                    BindSubscription(CreateAUItem);
+                    if ContosoDemoDataLevel = Enum::"Contoso Demo Data Level"::"Master Data" then
+                        BindSubscription(CreateAUItem);
                 end;
             Enum::"Contoso Demo Data Module"::Bank:
                 begin
@@ -257,7 +249,6 @@ codeunit 17131 "AU Contoso Localization"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Contoso Demo Tool", 'OnAfterGeneratingDemoData', '', false, false)]
     local procedure OnAfterGeneratingDemoData(ContosoDemoDataLevel: Enum "Contoso Demo Data Level"; Module: Enum "Contoso Demo Data Module")
     var
-        CreateAUInvPostingSetup: Codeunit "Create AU Inv Posting Setup";
         CreateAUBankAccPostingGrp: Codeunit "Create AU Bank Acc Posting Grp";
         CreateAUPaymentMethod: Codeunit "Create AU Payment Method";
         CreateAUBankAccount: Codeunit "Create AU Bank Account";
@@ -296,8 +287,8 @@ codeunit 17131 "AU Contoso Localization"
                 end;
             Enum::"Contoso Demo Data Module"::Inventory:
                 begin
-                    UnbindSubscription(CreateAUInvPostingSetup);
-                    UnbindSubscription(CreateAUItem);
+                    if ContosoDemoDataLevel = Enum::"Contoso Demo Data Level"::"Master Data" then
+                        UnbindSubscription(CreateAUItem);
                     UnbindSubscription(CreateAULocation);
                 end;
             Enum::"Contoso Demo Data Module"::Purchase:

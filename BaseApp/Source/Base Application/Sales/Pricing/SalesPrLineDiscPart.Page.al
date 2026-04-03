@@ -1,5 +1,4 @@
-#if not CLEAN25
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -8,6 +7,9 @@ namespace Microsoft.Sales.Pricing;
 using Microsoft.Inventory.Item;
 using Microsoft.Sales.Customer;
 
+/// <summary>
+/// Displays sales prices and line discounts as a factbox part for items or customers.
+/// </summary>
 page 1347 "Sales Pr. & Line Disc. Part"
 {
     Caption = 'Sales Prices';
@@ -15,9 +17,6 @@ page 1347 "Sales Pr. & Line Disc. Part"
     PageType = ListPart;
     SourceTable = "Sales Price and Line Disc Buff";
     SourceTableTemporary = true;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-    ObsoleteTag = '16.0';
 
     layout
     {
@@ -28,80 +27,66 @@ page 1347 "Sales Pr. & Line Disc. Part"
                 field("Line Type"; Rec."Line Type")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the line is for a sales price or a sales line discount.';
                 }
                 field("Sales Type"; Rec."Sales Type")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the sales type of the price or discount. The sales type defines whether the sales price or discount is for an individual customer, a customer discount group, or for all customers.';
                 }
                 field("Sales Code"; Rec."Sales Code")
                 {
                     ApplicationArea = All;
                     Enabled = SalesCodeIsVisible;
-                    ToolTip = 'Specifies the sales code of the price or discount. The sales code depends on the value in the Sales Type field. The code can represent an individual customer, a customer discount group, or for all customers.';
                     Visible = SalesCodeIsVisible;
                 }
                 field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the discount is valid for an item or for an item discount group.';
                 }
                 field("Code"; Rec.Code)
                 {
                     ApplicationArea = All;
                     Enabled = CodeIsVisible;
-                    ToolTip = 'Specifies a code for the sales line price or discount.';
                     Visible = CodeIsVisible;
                 }
                 field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
                 field("Minimum Quantity"; Rec."Minimum Quantity")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the quantity that must be entered on the sales document to warrant the sales price or discount.';
                 }
                 field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = Rec."Line Type" = 1;
-                    ToolTip = 'Specifies the discount percentage that is granted for the item on the line.';
                 }
                 field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = Rec."Line Type" = 2;
-                    ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
                 }
                 field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the date from which the sales line discount is valid.';
                 }
                 field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the date to which the sales line discount is valid.';
                 }
                 field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the currency that must be used on the sales document line to warrant the sales price or discount.';
                     Visible = false;
                 }
                 field("Price Includes VAT"; Rec."Price Includes VAT")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the price that is granted includes VAT.';
                     Visible = false;
                 }
                 field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if an invoice discount will be calculated when the sales price is offered.';
                     Visible = false;
                 }
                 field("VAT Bus. Posting Gr. (Price)"; Rec."VAT Bus. Posting Gr. (Price)")
@@ -113,13 +98,11 @@ page 1347 "Sales Pr. & Line Disc. Part"
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the variant that must be used on the sales document line to warrant the sales price or discount.';
                     Visible = false;
                 }
                 field("Allow Line Disc."; Rec."Allow Line Disc.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if line discounts are allowed.';
                     Visible = false;
                 }
             }
@@ -303,6 +286,10 @@ page 1347 "Sales Pr. & Line Disc. Part"
         SalesPriceIsEnabled: Boolean;
         MaxRowsLoadedMsg: Label 'Showing the first %1 prices and discounts. To view all prices and discounts, choose Refresh Data.', Comment = '%1=a number, e.g. 50';
 
+    /// <summary>
+    /// Initializes the page layout based on whether it is displayed for an item or a customer.
+    /// </summary>
+    /// <param name="ForItem">True if the page is being displayed for an item, false for a customer.</param>
     procedure InitPage(ForItem: Boolean)
     begin
         if ForItem then begin
@@ -314,6 +301,10 @@ page 1347 "Sales Pr. & Line Disc. Part"
         end;
     end;
 
+    /// <summary>
+    /// Loads price and line discount data for the specified item.
+    /// </summary>
+    /// <param name="Item">The item record to load prices and discounts for.</param>
     procedure LoadItem(Item: Record Item)
     begin
         Clear(Rec);
@@ -324,6 +315,10 @@ page 1347 "Sales Pr. & Line Disc. Part"
         Rec.LoadDataForItem(Item);
     end;
 
+    /// <summary>
+    /// Loads price and line discount data for the specified customer.
+    /// </summary>
+    /// <param name="Customer">The customer record to load prices and discounts for.</param>
     procedure LoadCustomer(var Customer: Record Customer)
     var
         MaxNoOfLinesToLoad: Integer;
@@ -344,11 +339,19 @@ page 1347 "Sales Pr. & Line Disc. Part"
         end;
     end;
 
+    /// <summary>
+    /// Gets the item number that was loaded for this page.
+    /// </summary>
+    /// <returns>The loaded item number.</returns>
     procedure GetLoadedItemNo(): Code[20]
     begin
         exit(loadedItemNo)
     end;
 
+    /// <summary>
+    /// Sets the loaded customer number and clears existing data if it differs from the current value.
+    /// </summary>
+    /// <param name="NewCustomerNo">The new customer number to set.</param>
     procedure SetLoadedCustno(NewCustomerNo: Code[20]);
     begin
         if loadedCustNo = NewCustomerNo then
@@ -359,6 +362,10 @@ page 1347 "Sales Pr. & Line Disc. Part"
         CurrPage.Update(false);
     end;
 
+    /// <summary>
+    /// Gets the customer number that was loaded for this page.
+    /// </summary>
+    /// <returns>The loaded customer number.</returns>
     procedure GetLoadedCustNo(): Code[20]
     begin
         exit(loadedCustNo)
@@ -374,6 +381,10 @@ page 1347 "Sales Pr. & Line Disc. Part"
         exit(loadedPriceGroup)
     end;
 
+    /// <summary>
+    /// Updates the price includes VAT flag and recalculates prices for the loaded item.
+    /// </summary>
+    /// <param name="IncludesVat">True if prices should include VAT, otherwise false.</param>
     procedure RunUpdatePriceIncludesVatAndPrices(IncludesVat: Boolean)
     var
         Item: Record Item;
@@ -382,4 +393,3 @@ page 1347 "Sales Pr. & Line Disc. Part"
         Rec.UpdatePriceIncludesVatAndPrices(Item, IncludesVat);
     end;
 }
-#endif

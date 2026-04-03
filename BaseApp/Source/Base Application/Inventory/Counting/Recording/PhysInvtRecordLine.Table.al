@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -9,10 +9,10 @@ using Microsoft.HumanResources.Employee;
 using Microsoft.Inventory.Counting.Document;
 using Microsoft.Inventory.Counting.Tracking;
 using Microsoft.Inventory.Item;
-using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Tracking;
 using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Structure;
 using System.Security.AccessControl;
@@ -29,23 +29,27 @@ table 5878 "Phys. Invt. Record Line"
         field(1; "Order No."; Code[20])
         {
             Caption = 'Order No.';
+            ToolTip = 'Specifies the order number.';
             DataClassification = SystemMetadata;
             TableRelation = "Phys. Invt. Record Header";
         }
         field(2; "Recording No."; Integer)
         {
             Caption = 'Recording No.';
+            ToolTip = 'Specifies a number that is assigned to the physical inventory recording.';
             DataClassification = SystemMetadata;
             TableRelation = "Phys. Invt. Record Header"."Recording No." where("Order No." = field("Order No."));
         }
         field(3; "Line No."; Integer)
         {
             Caption = 'Line No.';
+            ToolTip = 'Specifies the number of the line.';
             DataClassification = SystemMetadata;
         }
         field(16; "Order Line No."; Integer)
         {
             Caption = 'Order Line No.';
+            ToolTip = 'Specifies the Line No. of the linked physical inventory order line.';
             DataClassification = SystemMetadata;
             Editable = false;
             TableRelation = "Phys. Invt. Order Line"."Line No." where("Document No." = field("Order No."));
@@ -59,6 +63,7 @@ table 5878 "Phys. Invt. Record Line"
         field(20; "Item No."; Code[20])
         {
             Caption = 'Item No.';
+            ToolTip = 'Specifies the number of the item that was counted when taking the physical inventory.';
             DataClassification = SystemMetadata;
             TableRelation = Item;
 
@@ -113,6 +118,7 @@ table 5878 "Phys. Invt. Record Line"
         field(21; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
+            ToolTip = 'Specifies the variant of the item on the line.';
             DataClassification = SystemMetadata;
             TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
 
@@ -145,6 +151,7 @@ table 5878 "Phys. Invt. Record Line"
         field(22; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
+            ToolTip = 'Specifies the code of the location where the item was counted during taking the physical inventory.';
             DataClassification = SystemMetadata;
             TableRelation = Location;
 
@@ -156,6 +163,7 @@ table 5878 "Phys. Invt. Record Line"
         field(23; "Bin Code"; Code[20])
         {
             Caption = 'Bin Code';
+            ToolTip = 'Specifies the code of the bin where the item was counted while performing the physical inventory.';
             DataClassification = SystemMetadata;
             TableRelation = Bin.Code where("Location Code" = field("Location Code"));
 
@@ -179,20 +187,24 @@ table 5878 "Phys. Invt. Record Line"
         field(30; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies the description of the item.';
             DataClassification = SystemMetadata;
         }
         field(31; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
+            ToolTip = 'Specifies the additional description of the item.';
             DataClassification = SystemMetadata;
         }
         field(32; "Unit of Measure"; Text[50])
         {
             Caption = 'Unit of Measure';
+            ToolTip = 'Specifies the unit of measure used for the item, for example bottle or piece.';
             DataClassification = SystemMetadata;
         }
         field(33; "Qty. Rounding Precision"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Rounding Precision';
             DataClassification = SystemMetadata;
             InitValue = 0;
@@ -203,6 +215,7 @@ table 5878 "Phys. Invt. Record Line"
         }
         field(34; "Qty. Rounding Precision (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Rounding Precision (Base)';
             DataClassification = SystemMetadata;
             InitValue = 0;
@@ -214,6 +227,7 @@ table 5878 "Phys. Invt. Record Line"
         field(40; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
+            ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
             DataClassification = SystemMetadata;
             TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
 
@@ -229,7 +243,9 @@ table 5878 "Phys. Invt. Record Line"
         }
         field(41; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
+            ToolTip = 'Specifies the quantity of the item of the physical inventory recording line.';
             DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
 
@@ -260,6 +276,7 @@ table 5878 "Phys. Invt. Record Line"
         }
         field(42; "Quantity (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity (Base)';
             DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
@@ -272,6 +289,7 @@ table 5878 "Phys. Invt. Record Line"
         }
         field(43; "Qty. per Unit of Measure"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. per Unit of Measure';
             DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
@@ -281,11 +299,13 @@ table 5878 "Phys. Invt. Record Line"
         field(45; Recorded; Boolean)
         {
             Caption = 'Recorded';
+            ToolTip = 'Specifies if a value was entered in Quantity of the physical inventory recording line.';
             DataClassification = SystemMetadata;
         }
         field(53; "Use Item Tracking"; Boolean)
         {
             Caption = 'Use Item Tracking';
+            ToolTip = 'Specifies if it is necessary to record the item using serial, lot or package numbers.';
             DataClassification = SystemMetadata;
             Editable = false;
         }
@@ -297,16 +317,19 @@ table 5878 "Phys. Invt. Record Line"
         field(100; "Date Recorded"; Date)
         {
             Caption = 'Date Recorded';
+            ToolTip = 'Specifies the date when the physical inventory was taken.';
             DataClassification = SystemMetadata;
         }
         field(101; "Time Recorded"; Time)
         {
             Caption = 'Time Recorded';
+            ToolTip = 'Specifies the time when the physical inventory was taken.';
             DataClassification = SystemMetadata;
         }
         field(102; "Person Recorded"; Code[20])
         {
             Caption = 'Person Recorded';
+            ToolTip = 'Specifies the code of the person who performed the physical inventory.';
             DataClassification = SystemMetadata;
             TableRelation = Employee;
             ValidateTableRelation = false;
@@ -320,6 +343,7 @@ table 5878 "Phys. Invt. Record Line"
         field(130; "Serial No."; Code[50])
         {
             Caption = 'Serial No.';
+            ToolTip = 'Specifies the serial number of the entered item.';
             DataClassification = SystemMetadata;
 
             trigger OnLookup()
@@ -343,6 +367,7 @@ table 5878 "Phys. Invt. Record Line"
         field(131; "Lot No."; Code[50])
         {
             Caption = 'Lot No.';
+            ToolTip = 'Specifies the lot number of the entered item.';
             DataClassification = SystemMetadata;
 
             trigger OnLookup()
@@ -353,6 +378,7 @@ table 5878 "Phys. Invt. Record Line"
         field(132; "Package No."; Code[50])
         {
             Caption = 'Package No.';
+            ToolTip = 'Specifies the package number of the entered item.';
             DataClassification = SystemMetadata;
 
             trigger OnLookup()
@@ -365,6 +391,7 @@ table 5878 "Phys. Invt. Record Line"
             AccessByPermission = TableData "Item Reference" = R;
             DataClassification = SystemMetadata;
             Caption = 'Item Reference No.';
+            ToolTip = 'Specifies a reference to the item number as defined by the item''s barcode.';
 
             trigger OnLookup()
             begin

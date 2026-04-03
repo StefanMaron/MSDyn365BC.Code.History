@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -19,6 +19,7 @@ using Microsoft.Sales.Document;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Reminder;
+using Microsoft.Utilities;
 using System.Globalization;
 using System.Integration;
 using System.Security.AccessControl;
@@ -38,34 +39,41 @@ table 5065 "Interaction Log Entry"
         field(1; "Entry No."; Integer)
         {
             Caption = 'Entry No.';
+            ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
         }
         field(2; "Contact No."; Code[20])
         {
             Caption = 'Contact No.';
+            ToolTip = 'Specifies the number of the contact involved in this interaction. This field is not editable.';
             TableRelation = Contact;
         }
         field(3; "Contact Company No."; Code[20])
         {
             Caption = 'Contact Company No.';
+            ToolTip = 'Specifies the number of the contact company.';
             TableRelation = Contact where(Type = const(Company));
         }
         field(4; Date; Date)
         {
             Caption = 'Date';
+            ToolTip = 'Specifies the date that you have entered in the Date field in the Create Interaction wizard or the Segment window when you created the interaction. The field is not editable.';
         }
         field(5; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies the description of the interaction.';
         }
         field(6; "Information Flow"; Option)
         {
             Caption = 'Information Flow';
+            ToolTip = 'Specifies the direction of information flow recorded by the interaction. There are two options: Outbound (the information was received by your contact) and Inbound (the information was received by your company).';
             OptionCaption = ' ,Outbound,Inbound';
             OptionMembers = " ",Outbound,Inbound;
         }
         field(7; "Initiated By"; Option)
         {
             Caption = 'Initiated By';
+            ToolTip = 'Specifies who initiated the interaction. There are two options: Us (the interaction was initiated by your company) and Them (the interaction was initiated by your contact).';
             OptionCaption = ' ,Us,Them';
             OptionMembers = " ",Us,Them;
         }
@@ -91,75 +99,91 @@ table 5065 "Interaction Log Entry"
         field(11; "User ID"; Code[50])
         {
             Caption = 'User ID';
+            ToolTip = 'Specifies the ID of the user who logged this entry. This field is not editable.';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
         }
         field(12; "Interaction Group Code"; Code[10])
         {
             Caption = 'Interaction Group Code';
+            ToolTip = 'Specifies the code of the interaction group used to create this interaction. This field is not editable.';
             TableRelation = "Interaction Group";
         }
         field(13; "Interaction Template Code"; Code[10])
         {
             Caption = 'Interaction Template Code';
+            ToolTip = 'Specifies the code for the interaction template used to create the interaction. This field is not editable.';
             TableRelation = "Interaction Template";
         }
         field(14; "Campaign No."; Code[20])
         {
             Caption = 'Campaign No.';
+            ToolTip = 'Specifies the number of the campaign (if any) to which the interaction is linked. This field is not editable.';
             TableRelation = Campaign;
         }
         field(15; "Campaign Entry No."; Integer)
         {
             Caption = 'Campaign Entry No.';
+            ToolTip = 'Specifies the number of the campaign entry to which the interaction log entry is linked.';
             TableRelation = "Campaign Entry" where("Campaign No." = field("Campaign No."));
         }
         field(16; "Campaign Response"; Boolean)
         {
             Caption = 'Campaign Response';
+            ToolTip = 'Specifies whether the interaction records a response to a campaign.';
         }
         field(17; "Campaign Target"; Boolean)
         {
             Caption = 'Campaign Target';
+            ToolTip = 'Specifies whether the interaction is applied to contacts that are part of the campaign target. This field is not editable.';
         }
         field(18; "Segment No."; Code[20])
         {
             Caption = 'Segment No.';
+            ToolTip = 'Specifies the number of the segment. This field is valid only for interactions created for segments, and is not editable.';
         }
         field(19; Evaluation; Enum "Interaction Evaluation")
         {
             Caption = 'Evaluation';
+            ToolTip = 'Specifies the evaluation of the interaction. There are five options: Very Positive, Positive, Neutral, Negative, and Very Negative.';
             Editable = false;
         }
         field(20; "Time of Interaction"; Time)
         {
             Caption = 'Time of Interaction';
+            ToolTip = 'Specifies the time when the interaction was created. This field is not editable.';
         }
         field(21; "Attempt Failed"; Boolean)
         {
             Caption = 'Attempt Failed';
+            ToolTip = 'Specifies whether the interaction records an failed attempt to reach the contact. This field is not editable.';
         }
         field(23; "To-do No."; Code[20])
         {
             Caption = 'Task No.';
+            ToolTip = 'Specifies the number of the task if the interaction has been created to complete a task. This field is not editable.';
             TableRelation = "To-do";
         }
         field(24; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
+            ToolTip = 'Specifies the code for the salesperson who carried out the interaction. This field is not editable.';
             TableRelation = "Salesperson/Purchaser";
         }
         field(25; "Delivery Status"; Enum "Interaction Delivery Status")
         {
             Caption = 'Delivery Status';
+            ToolTip = 'Specifies the status of the delivery of the attachment. There are three options:';
         }
         field(26; Canceled; Boolean)
         {
             Caption = 'Canceled';
+            ToolTip = 'Specifies whether the interaction has been canceled. The field is not editable.';
         }
         field(27; "Correspondence Type"; Enum "Correspondence Type")
         {
             Caption = 'Correspondence Type';
+            ToolTip = 'Specifies the type of correspondence of the attachment in the interaction template. This field is not editable.';
         }
         field(28; "Contact Alt. Address Code"; Code[10])
         {
@@ -174,10 +198,12 @@ table 5065 "Interaction Log Entry"
         field(30; "Document Type"; Enum "Interaction Log Entry Document Type")
         {
             Caption = 'Document Type';
+            ToolTip = 'Specifies the type of document if there is one that the interaction log entry records. You cannot change the contents of this field.';
         }
         field(31; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+            ToolTip = 'Specifies the number of the document (if any) that the interaction log entry records.';
         }
         field(32; "Version No."; Integer)
         {
@@ -190,6 +216,7 @@ table 5065 "Interaction Log Entry"
         field(34; "Contact Via"; Text[80])
         {
             Caption = 'Contact Via';
+            ToolTip = 'Specifies the telephone number that you used when calling the contact.';
         }
         field(35; "Send Word Docs. as Attmt."; Boolean)
         {
@@ -198,6 +225,7 @@ table 5065 "Interaction Log Entry"
         field(36; "Interaction Language Code"; Code[10])
         {
             Caption = 'Interaction Language Code';
+            ToolTip = 'Specifies the language code for the interaction for the interaction log. The code is copied from the language code of the interaction template, if one is specified.';
             TableRelation = Language;
         }
         field(37; "E-Mail Logged"; Boolean)
@@ -207,11 +235,13 @@ table 5065 "Interaction Log Entry"
         field(38; Subject; Text[100])
         {
             Caption = 'Subject';
+            ToolTip = 'Specifies the subject text that will be used for this interaction.';
         }
         field(39; "Contact Name"; Text[100])
         {
             CalcFormula = lookup(Contact.Name where("No." = field("Contact No.")));
             Caption = 'Contact Name';
+            ToolTip = 'Specifies the name of the contact for which an interaction has been logged.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -219,6 +249,7 @@ table 5065 "Interaction Log Entry"
         {
             CalcFormula = lookup(Contact.Name where("No." = field("Contact Company No."), Type = const(Company)));
             Caption = 'Contact Company Name';
+            ToolTip = 'Specifies the name of the contact company for which an interaction has been logged.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -226,12 +257,14 @@ table 5065 "Interaction Log Entry"
         {
             CalcFormula = exist("Inter. Log Entry Comment Line" where("Entry No." = field("Entry No.")));
             Caption = 'Comment';
+            ToolTip = 'Specifies that a comment exists for this interaction log entry.';
             Editable = false;
             FieldClass = FlowField;
         }
         field(44; "Opportunity No."; Code[20])
         {
             Caption = 'Opportunity No.';
+            ToolTip = 'Specifies the number of the opportunity to which the interaction is linked.';
             TableRelation = Opportunity;
         }
         field(45; Postponed; Boolean)
@@ -624,6 +657,7 @@ table 5065 "Interaction Log Entry"
         IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
         ReturnReceiptHeader: Record "Return Receipt Header";
         ReturnShipmentHeader: Record "Return Shipment Header";
+        PageManagement: Codeunit "Page Management";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -643,7 +677,7 @@ table 5065 "Interaction Log Entry"
                     Page.Run(Page::"Sales Quote Archive", SalesHeaderArchive);
                 end else begin
                     SalesHeader.Get(SalesHeader."Document Type"::Quote, "Document No.");
-                    Page.Run(Page::"Sales Quote", SalesHeader);
+                    PageManagement.PageRun(SalesHeader);
                 end;
             "Document Type"::"Sales Blnkt. Ord":
                 if "Version No." <> 0 then begin
@@ -655,7 +689,7 @@ table 5065 "Interaction Log Entry"
                     Page.Run(Page::"Blanket Sales Order Archive", SalesHeaderArchive);
                 end else begin
                     SalesHeader.Get(SalesHeader."Document Type"::"Blanket Order", "Document No.");
-                    Page.Run(Page::"Blanket Sales Order", SalesHeader);
+                    PageManagement.PageRun(SalesHeader);
                 end;
             "Document Type"::"Sales Ord. Cnfrmn.":
                 if "Version No." <> 0 then begin
@@ -668,27 +702,27 @@ table 5065 "Interaction Log Entry"
                     Page.Run(Page::"Sales Order Archive", SalesHeaderArchive);
                 end else begin
                     SalesHeader.Get(SalesHeader."Document Type"::Order, "Document No.");
-                    Page.Run(Page::"Sales Order", SalesHeader);
+                    PageManagement.PageRun(SalesHeader);
                 end;
             "Document Type"::"Sales Draft Invoice":
                 begin
                     SalesHeader.Get(SalesHeader."Document Type"::Invoice, "Document No.");
-                    Page.Run(Page::"Sales Invoice", SalesHeader);
+                    PageManagement.PageRun(SalesHeader);
                 end;
             "Document Type"::"Sales Inv.":
                 begin
                     SalesInvHeader.Get("Document No.");
-                    Page.Run(Page::"Posted Sales Invoice", SalesInvHeader);
+                    PageManagement.PageRun(SalesInvHeader);
                 end;
             "Document Type"::"Sales Shpt. Note":
                 begin
                     SalesShptHeader.Get("Document No.");
-                    Page.Run(Page::"Posted Sales Shipment", SalesShptHeader);
+                    PageManagement.PageRun(SalesShptHeader);
                 end;
             "Document Type"::"Sales Cr. Memo":
                 begin
                     SalesCrMemoHeader.Get("Document No.");
-                    Page.Run(Page::"Posted Sales Credit Memo", SalesCrMemoHeader);
+                    PageManagement.PageRun(SalesCrMemoHeader);
                 end;
             "Document Type"::"Sales Stmnt.":
                 Error(CantViewStatementsErr);
@@ -708,7 +742,7 @@ table 5065 "Interaction Log Entry"
                     Page.Run(Page::"Purchase Quote Archive", PurchHeaderArchive);
                 end else begin
                     PurchHeader.Get(PurchHeader."Document Type"::Quote, "Document No.");
-                    Page.Run(Page::"Purchase Quote", PurchHeader);
+                    PageManagement.PageRun(PurchHeader);
                 end;
             "Document Type"::"Purch. Blnkt. Ord.":
                 if "Version No." <> 0 then begin
@@ -721,7 +755,7 @@ table 5065 "Interaction Log Entry"
                     Page.Run(Page::"Blanket Purchase Order Archive", PurchHeaderArchive);
                 end else begin
                     PurchHeader.Get(PurchHeader."Document Type"::"Blanket Order", "Document No.");
-                    Page.Run(Page::"Blanket Purchase Order", PurchHeader);
+                    PageManagement.PageRun(PurchHeader);
                 end;
             "Document Type"::"Purch. Ord.":
                 if "Version No." <> 0 then begin
@@ -734,31 +768,34 @@ table 5065 "Interaction Log Entry"
                     Page.Run(Page::"Purchase Order Archive", PurchHeaderArchive);
                 end else begin
                     PurchHeader.Get(PurchHeader."Document Type"::Order, "Document No.");
-                    Page.Run(Page::"Purchase Order", PurchHeader);
+                    PageManagement.PageRun(PurchHeader);
                 end;
             "Document Type"::"Purch. Inv.":
                 begin
                     PurchInvHeader.Get("Document No.");
-                    Page.Run(Page::"Posted Purchase Invoice", PurchInvHeader);
+                    PageManagement.PageRun(PurchInvHeader);
                 end;
             "Document Type"::"Purch. Rcpt.":
                 begin
                     PurchRcptHeader.Get("Document No.");
-                    Page.Run(Page::"Posted Purchase Receipt", PurchRcptHeader);
+                    PageManagement.PageRun(PurchRcptHeader);
                 end;
             "Document Type"::"Purch. Cr. Memo":
                 begin
                     PurchCrMemoHeader.Get("Document No.");
-                    Page.Run(Page::"Posted Purchase Credit Memo", PurchCrMemoHeader);
+                    PageManagement.PageRun(PurchCrMemoHeader);
                 end;
             "Document Type"::"Cover Sheet":
                 Error(CantShowCoverSheetsErr);
             "Document Type"::"Sales Return Order":
                 if SalesHeader.Get(SalesHeader."Document Type"::"Return Order", "Document No.") then
-                    Page.Run(Page::"Sales Return Order", SalesHeader)
+                    PageManagement.PageRun(SalesHeader)
                 else begin
                     ReturnRcptHeader.SetRange("Return Order No.", "Document No.");
-                    Page.Run(Page::"Posted Return Receipt", ReturnRcptHeader);
+                    if ReturnRcptHeader.Count() = 1 then
+                        PageManagement.PageRun(ReturnRcptHeader)
+                    else
+                        PageManagement.PageRunList(ReturnRcptHeader);
                 end;
             "Document Type"::"Sales Finance Charge Memo":
                 begin
@@ -768,19 +805,22 @@ table 5065 "Interaction Log Entry"
             "Document Type"::"Sales Return Receipt":
                 begin
                     ReturnReceiptHeader.Get("Document No.");
-                    Page.Run(Page::"Posted Return Receipt", ReturnReceiptHeader);
+                    PageManagement.PageRun(ReturnReceiptHeader);
                 end;
             "Document Type"::"Purch. Return Shipment":
                 begin
                     ReturnShipmentHeader.Get("Document No.");
-                    Page.Run(Page::"Posted Return Shipment", ReturnShipmentHeader);
+                    PageManagement.PageRun(ReturnShipmentHeader);
                 end;
             "Document Type"::"Purch. Return Ord. Cnfrmn.":
                 if PurchHeader.Get(PurchHeader."Document Type"::"Return Order", "Document No.") then
-                    Page.Run(Page::"Purchase Return Order", PurchHeader)
+                    PageManagement.PageRun(PurchHeader)
                 else begin
                     ReturnShipmentHeader.SetRange("Return Order No.", "Document No.");
-                    Page.Run(Page::"Posted Return Shipment", ReturnShipmentHeader);
+                    if ReturnShipmentHeader.Count() = 1 then
+                        PageManagement.PageRun(ReturnShipmentHeader)
+                    else
+                        PageManagement.PageRunList(ReturnShipmentHeader);
                 end;
         end;
 

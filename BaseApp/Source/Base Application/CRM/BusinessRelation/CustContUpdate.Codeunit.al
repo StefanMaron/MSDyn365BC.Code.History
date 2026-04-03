@@ -78,12 +78,11 @@ codeunit 5056 "CustCont-Update"
             Contact.Modify(true);
 
             if (Cust."Contact Type" = Cust."Contact Type"::Person) and
-                          (Cust."Primary Contact No." = Contact."No.")
-                       then begin
+               (Cust."Primary Contact No." = Contact."No.")
+            then begin
                 Cust.Validate(Contact, Contact.Name);
                 Cust.Modify();
             end;
-
             Cust.Get(Cust."No.");
         end;
 

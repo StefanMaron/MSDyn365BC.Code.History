@@ -4,8 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.GeneralLedger.Journal;
 
-using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Sales.Customer;
 using System.Text;
 
@@ -163,6 +163,8 @@ page 28090 "Post Dated Checks"
                 }
                 field(CustomerBalance; CustomerBalance)
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = Basic, Suite;
                     Caption = 'Balance (LCY)';
                     Editable = false;
@@ -177,6 +179,8 @@ page 28090 "Post Dated Checks"
                 }
                 field(LineAmount; LineAmount)
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = Basic, Suite;
                     Caption = 'Amount';
                     Editable = false;

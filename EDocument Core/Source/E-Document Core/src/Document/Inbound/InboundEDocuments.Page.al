@@ -10,6 +10,7 @@ using Microsoft.Foundation.Attachment;
 using Microsoft.Purchases.Vendor;
 using System.Agents;
 using System.Agents.TaskPane;
+using System.Environment;
 
 page 6105 "Inbound E-Documents"
 {
@@ -234,7 +235,7 @@ page 6105 "Inbound E-Documents"
                 end;
             }
 #if not CLEAN27
-#pragma warning disable AA0194
+#pragma warning disable AA0194, AL0432
             action(ViewMailMessage)
             {
                 ApplicationArea = Basic, Suite;
@@ -420,7 +421,9 @@ page 6105 "Inbound E-Documents"
         HasPdf := false;
         if EDocDataStorage.Get(Rec."Unstructured Data Entry No.") then
             HasPdf := EDocDataStorage."File Format" = Enum::"E-Doc. File Format"::PDF;
+#if not CLEAN27
         SetEmailActionsVisibility();
+#endif
     end;
 
     local procedure PopulateDocumentNameTxt()
@@ -442,22 +445,19 @@ page 6105 "Inbound E-Documents"
     end;
 
     local procedure PopulateTaskInfo()
+    var
+        EnvironmentInformation: Codeunit "Environment Information";
     begin
+        Clear(AgentTask);
+        AgentTaskStatus := '';
+        if not EnvironmentInformation.IsSaaSInfrastructure() then
+            exit;
+        if not AgentTask.ReadPermission() then
+            exit;
         AgentTask.SetRange("Company Name", CompanyName());
         AgentTask.SetRange("External ID", Format(Rec."Entry No"));
-        if not AgentTask.FindFirst() then
-            Clear(AgentTask);
-        AgentTaskStatus := '';
-        if AgentTask.ID <> 0 then
+        if AgentTask.FindFirst() and (AgentTask.ID <> 0) then
             AgentTaskStatus := Format(AgentTask.Status);
-    end;
-
-    trigger OnOpenPage()
-    var
-        EDocumentsSetup: Record "E-Documents Setup";
-    begin
-        if not EDocumentsSetup.IsNewEDocumentExperienceActive() then
-            Error('');
     end;
 
     #region File Upload Actions
@@ -564,10 +564,12 @@ page 6105 "Inbound E-Documents"
             DocumentTypeStyleTxt := 'Ambiguous';
     end;
 
+#if not CLEAN27
     local procedure SetEmailActionsVisibility()
     begin
         EmailVisibilityFlag := Rec.GetEDocumentService()."Service Integration V2".AsInteger() = 6383; // Outlook Integration
     end;
+#endif
 
     var
         EDocDataStorage: Record "E-Doc. Data Storage";
@@ -576,5 +578,7 @@ page 6105 "Inbound E-Documents"
         EDocumentHelper: Codeunit "E-Document Helper";
         RecordLinkTxt, DocumentNameTxt, DocumentTypeStyleTxt, ConfirmedVendorTxt, AgentTaskStatus : Text;
         HasPdf: Boolean;
+#if not CLEAN27
         EmailVisibilityFlag: Boolean;
+#endif
 }

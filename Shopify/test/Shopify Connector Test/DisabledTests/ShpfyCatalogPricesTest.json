@@ -1,12 +1,12 @@
 [
     {
-        "bug": "596209",
+        "bug": "621557",
         "codeunitId": 139646,
         "CodeunitName": "Shpfy Catalog Prices Test",
         "Method": "UnitTestCalcCatalogPrice"
     },
     {
-        "bug": "596209",
+        "bug": "621557",
         "codeunitId": 139646,
         "CodeunitName": "Shpfy Catalog Prices Test",
         "Method": "UnitTestCalcMarketCatalogPrice"

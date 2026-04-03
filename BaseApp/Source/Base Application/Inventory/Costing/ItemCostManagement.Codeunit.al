@@ -10,14 +10,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Setup;
-#if not CLEAN25
-using Microsoft.Pricing.Calculation;
-#endif
-using Microsoft.Pricing.PriceList;
-#if not CLEAN25
-using Microsoft.Sales.Pricing;
-#endif
-using Microsoft.Sales.Setup;
 
 codeunit 5804 ItemCostManagement
 {
@@ -100,8 +92,8 @@ codeunit 5804 ItemCostManagement
 
     procedure UpdateCostPlusPrices(ItemNo: Code[20])
     var
-        PriceListLine: Record "Price List Line";
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        PriceListLine: Record Microsoft.Pricing.PriceList."Price List Line";
+        SalesReceivablesSetup: Record Microsoft.Sales.Setup."Sales & Receivables Setup";
         xUnitPrice: Decimal;
         IsHandled: Boolean;
     begin
@@ -112,12 +104,11 @@ codeunit 5804 ItemCostManagement
             exit;
         end;
 
-#if not CLEAN25
         if UpdateOldCostPlusPrices(ItemNo) then begin
             ItemUnitCostUpdated := false;
             exit;
         end;
-#endif
+
         PriceListLine.Reset();
         SalesReceivablesSetup.Get();
         if SalesReceivablesSetup."Allow Editing Active Price" then
@@ -138,12 +129,10 @@ codeunit 5804 ItemCostManagement
         ItemUnitCostUpdated := false;
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '21.0')]
     local procedure UpdateOldCostPlusPrices(ItemNo: Code[20]): Boolean;
     var
-        SalesPrice: Record "Sales Price";
-        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        SalesPrice: Record Microsoft.Sales.Pricing."Sales Price";
+        PriceCalculationMgt: Codeunit Microsoft.Pricing.Calculation."Price Calculation Mgt.";
         xUnitPrice: Decimal;
     begin
         if PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then
@@ -162,7 +151,6 @@ codeunit 5804 ItemCostManagement
             until SalesPrice.Next() = 0;
         exit(true);
     end;
-#endif
 
     local procedure CalcUnitCostFromAverageCost(var Item: Record Item)
     var

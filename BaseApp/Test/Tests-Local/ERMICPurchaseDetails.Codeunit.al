@@ -14,7 +14,6 @@ codeunit 141083 "ERM IC Purchase Details"
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
@@ -361,19 +360,6 @@ codeunit 141083 "ERM IC Purchase Details"
             CreditAmount += GLEntry."Credit Amount";
         until GLEntry.Next() = 0;
         Assert.AreNearlyEqual(CreditAmount, Amount, LibraryERM.GetAmountRoundingPrecision(), UnexpectedErr);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure AgedAccountsPayableRequestPageHandler(var AgedAccountsPayable: TestRequestPage "Aged Accounts Payable")
-    var
-        VendorNo: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(VendorNo);
-        AgedAccountsPayable.AgedAsOf.SetValue(WorkDate());
-        AgedAccountsPayable.PeriodLength.SetValue('<1M>');  // 1M for monthly bucket.
-        AgedAccountsPayable.Vendor.SetFilter("No.", VendorNo);
-        AgedAccountsPayable.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

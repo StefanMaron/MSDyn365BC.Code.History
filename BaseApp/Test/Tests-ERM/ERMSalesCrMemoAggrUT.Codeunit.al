@@ -2163,4 +2163,5 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
     begin
         LibraryVariableStorage.Enqueue(SalesStatistics.VATAmount.AsDecimal());
     end;
+
 }

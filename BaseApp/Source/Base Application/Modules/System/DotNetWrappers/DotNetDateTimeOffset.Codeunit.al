@@ -4,6 +4,8 @@ using System;
 
 codeunit 3006 DotNet_DateTimeOffset
 {
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     trigger OnRun()
     begin

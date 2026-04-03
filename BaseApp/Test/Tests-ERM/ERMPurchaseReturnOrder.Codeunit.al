@@ -12,19 +12,18 @@ codeunit 134329 "ERM Purchase Return Order"
     var
         LibraryERM: Codeunit "Library - ERM";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
-        LibraryUtility: Codeunit "Library - Utility";
+        LibraryUtilityOnPrem: Codeunit "Library - Utility OnPrem";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
-#endif
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryUtility: Codeunit "Library - Utility";
         VATAmountError: Label 'VAT %1 must be %2 in %3.';
         LineAmountError: Label 'Total Amount must be equal to %1 in %2.';
         AmountError: Label '%1 must be equal to %2 in %3.';
@@ -132,7 +131,7 @@ codeunit 134329 "ERM Purchase Return Order"
         PurchaseDocumentTest.SaveAsExcel(FilePath);
 
         // Verify: Verify that saved files have some data.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
+        LibraryUtilityOnPrem.CheckFileNotEmpty(FilePath);
     end;
 
     [Test]
@@ -185,7 +184,7 @@ codeunit 134329 "ERM Purchase Return Order"
         PurchaseCreditMemo.SaveAsExcel(FilePath);
 
         // Verify: Verify that saved files have some data.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
+        LibraryUtilityOnPrem.CheckFileNotEmpty(FilePath);
     end;
 
     [Test]
@@ -316,7 +315,6 @@ codeunit 134329 "ERM Purchase Return Order"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeaderRet, true, true);
     end;
 
-#if not CLEAN25
     [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
@@ -351,7 +349,7 @@ codeunit 134329 "ERM Purchase Return Order"
         VerifyLineDiscountAmount(
           PurchaseHeader."No.", (PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost") * PurchaseLineDiscount."Line Discount %" / 100);
     end;
-#endif
+
     [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
@@ -1834,7 +1832,6 @@ codeunit 134329 "ERM Purchase Return Order"
         ModifyPurchaseLine(PurchaseLine, PurchaseHeader);
     end;
 
-#if not CLEAN25
     local procedure SetupLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount")
     var
         Item: Record Item;
@@ -1847,7 +1844,6 @@ codeunit 134329 "ERM Purchase Return Order"
         PurchaseLineDiscount.Validate("Line Discount %", LibraryRandom.RandInt(10));
         PurchaseLineDiscount.Modify(true);
     end;
-#endif
 
     local procedure UpdatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; VendorCrMemoNo: Code[35])
     begin
@@ -2026,7 +2022,7 @@ codeunit 134329 "ERM Purchase Return Order"
           -CostAmount, TotalCostAmount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(FieldError, ValueEntry.FieldCaption("Cost Amount (Actual)"), TotalCostAmount, ValueEntry.TableCaption()));
     end;
-#if not CLEAN25
+
     local procedure VerifyLineDiscountAmount(ReturnOrderNo: Code[20]; LineDiscountAmount: Decimal)
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
@@ -2041,7 +2037,7 @@ codeunit 134329 "ERM Purchase Return Order"
         Assert.AreNearlyEqual(LineDiscountAmount, PurchCrMemoLine."Line Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(FieldError, PurchCrMemoLine.FieldCaption("Line Discount Amount"), LineDiscountAmount, PurchCrMemoLine.TableCaption()));
     end;
-#endif
+
     local procedure VerifyInvoiceDiscountAmount(ReturnOrderNo: Code[20]; InvoiceDiscountAmount: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";

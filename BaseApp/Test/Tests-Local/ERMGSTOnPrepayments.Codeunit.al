@@ -694,49 +694,6 @@ codeunit 141026 "ERM GST On Prepayments"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PurchaseOrderUpdatedAfterPostPrepaymentInvoice()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        GeneralPostingSetup: Record "General Posting Setup";
-        GenJournalLine: Record "Gen. Journal Line";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        PurchaseLine2: Record "Purchase Line";
-        PurchaseInvoiceNo: Code[20];
-    begin
-        // [SCENARIO] GL Entries in case of Purchase order updated after post Prepayment Invoice with another Purchase Line.
-
-        // [GIVEN] Create Purchase Order, Post Prepayment Invoice, add Purchase Line, Post Payment General with Prepayment Amount and Application with Prepayment Invoice.
-        Initialize();
-        GeneralLedgerSetup.Get();
-        CreateGeneralPostingSetup(GeneralPostingSetup);
-        CreatePurchaseOrder(
-          PurchaseHeader, CreateVendor(GeneralPostingSetup."Gen. Bus. Posting Group", 0), PurchaseLine.Type::Item, CreateItem(
-            GeneralPostingSetup."Gen. Prod. Posting Group"), LibraryRandom.RandDec(10, 2));  // Using 0 and Random for Prepayment %.
-        FindPurchaseLine(PurchaseLine, PurchaseHeader."No.");
-        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
-        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
-        CreatePurchaseLine(
-          PurchaseLine2, PurchaseHeader, PurchaseLine2.Type::"G/L Account", CreateGLAccount(
-            GeneralPostingSetup."Gen. Prod. Posting Group"), 0);  // Using 0  for Prepayment %.
-        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
-        PurchaseInvoiceNo := PostPaymentJournalForPurchasePrepaymentAndInvoice(GenJournalLine, PurchaseHeader, PurchaseLine);
-
-        // Exercise.
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-
-        // [THEN] Verify GL Entries Credit Amount total with Purchase Amount Including VAT, GST Amount and Prepayment Amount total.
-        VerifyCreditAmountOnGLEntry(
-          PurchaseInvoiceNo, (PurchaseLine."Amount Including VAT" + PurchaseLine2."Amount Including VAT") -
-          (PurchaseLine."Prepayment Amount" + PurchaseLine2."Prepayment Amount") +
-          PurchaseLine."Prepayment Amount" + PurchaseLine2."Prepayment Amount");
-
-        // Tear Down.
-        UpdateGeneralLedgerSetup(GeneralLedgerSetup."Full GST on Prepayment", GeneralLedgerSetup."Adjust for Payment Disc.");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure PurchasePrepaymentInvoiceStatistics()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";

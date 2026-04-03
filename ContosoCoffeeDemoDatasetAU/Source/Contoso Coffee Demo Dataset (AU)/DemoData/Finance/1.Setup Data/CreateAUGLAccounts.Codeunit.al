@@ -5,16 +5,16 @@
 
 namespace Microsoft.DemoData.Finance;
 
-using Microsoft.Inventory.Setup;
-using Microsoft.Finance.GeneralLedger.Account;
-using Microsoft.Foundation.Enums;
 using Microsoft.DemoData.Common;
-using Microsoft.DemoData.Service;
-using Microsoft.DemoData.Manufacturing;
 using Microsoft.DemoData.FixedAsset;
 using Microsoft.DemoData.HumanResources;
 using Microsoft.DemoData.Jobs;
+using Microsoft.DemoData.Manufacturing;
+using Microsoft.DemoData.Service;
 using Microsoft.DemoTool.Helpers;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Foundation.Enums;
+using Microsoft.Inventory.Setup;
 
 codeunit 17107 "Create AU GL Accounts"
 {
@@ -415,11 +415,6 @@ codeunit 17107 "Create AU GL Accounts"
         ContosoGLAccount.AddAccountForLocalization(PurchaseVarianceCapName(), '5479');
         ContosoGLAccount.AddAccountForLocalization(TotalCostOfCapacitiesName(), '5480');
         ContosoGLAccount.AddAccountForLocalization(VarianceName(), '5490');
-        ContosoGLAccount.AddAccountForLocalization(MaterialVarianceName(), '5695');
-        ContosoGLAccount.AddAccountForLocalization(CapacityVarianceName(), '5700');
-        ContosoGLAccount.AddAccountForLocalization(SubcontractedVarianceName(), '5710');
-        ContosoGLAccount.AddAccountForLocalization(CapOverheadVarianceName(), '5720');
-        ContosoGLAccount.AddAccountForLocalization(MfgOverheadVarianceName(), '5730');
         ContosoGLAccount.AddAccountForLocalization(TotalVarianceName(), '5731');
         ContosoGLAccount.AddAccountForLocalization(FreightExpensesRawMatName(), '6255');
         ContosoGLAccount.AddAccountForLocalization(AnnualLeaveExpensesName(), '6560');
@@ -595,11 +590,6 @@ codeunit 17107 "Create AU GL Accounts"
         ContosoGLAccount.InsertGLAccount(PurchaseVarianceCap(), PurchaseVarianceCapName(), Enum::"G/L Account Income/Balance"::"Income Statement", Enum::"G/L Account Category"::"Cost of Goods Sold", Enum::"G/L Account Type"::Posting, '', '', 0, '', Enum::"General Posting Type"::" ", '', '', true, false, false);
         ContosoGLAccount.InsertGLAccount(TotalCostOfCapacities(), TotalCostOfCapacitiesName(), Enum::"G/L Account Income/Balance"::"Income Statement", Enum::"G/L Account Category"::"Cost of Goods Sold", Enum::"G/L Account Type"::"End-Total", '', '', 0, CostOfCapacitiesBeginTotal() + '..' + TotalCostOfCapacities(), Enum::"General Posting Type"::" ", '', '', false, false, false);
         ContosoGLAccount.InsertGLAccount(Variance(), VarianceName(), Enum::"G/L Account Income/Balance"::"Income Statement", Enum::"G/L Account Category"::"Cost of Goods Sold", Enum::"G/L Account Type"::"Begin-Total", '', '', 0, '', Enum::"General Posting Type"::" ", '', '', false, false, false);
-        ContosoGLAccount.InsertGLAccount(MaterialVariance(), MaterialVarianceName(), Enum::"G/L Account Income/Balance"::"Income Statement", Enum::"G/L Account Category"::"Cost of Goods Sold", Enum::"G/L Account Type"::Posting, '', '', 0, '', Enum::"General Posting Type"::" ", '', '', true, false, false);
-        ContosoGLAccount.InsertGLAccount(CapacityVariance(), CapacityVarianceName(), Enum::"G/L Account Income/Balance"::"Income Statement", Enum::"G/L Account Category"::"Cost of Goods Sold", Enum::"G/L Account Type"::Posting, '', '', 0, '', Enum::"General Posting Type"::" ", '', '', true, false, false);
-        ContosoGLAccount.InsertGLAccount(SubcontractedVariance(), SubcontractedVarianceName(), Enum::"G/L Account Income/Balance"::"Income Statement", Enum::"G/L Account Category"::"Cost of Goods Sold", Enum::"G/L Account Type"::Posting, '', '', 0, '', Enum::"General Posting Type"::" ", '', '', true, false, false);
-        ContosoGLAccount.InsertGLAccount(CapOverheadVariance(), CapOverheadVarianceName(), Enum::"G/L Account Income/Balance"::"Income Statement", Enum::"G/L Account Category"::"Cost of Goods Sold", Enum::"G/L Account Type"::Posting, '', '', 0, '', Enum::"General Posting Type"::" ", '', '', true, false, false);
-        ContosoGLAccount.InsertGLAccount(MfgOverheadVariance(), MfgOverheadVarianceName(), Enum::"G/L Account Income/Balance"::"Income Statement", Enum::"G/L Account Category"::"Cost of Goods Sold", Enum::"G/L Account Type"::Posting, '', '', 0, '', Enum::"General Posting Type"::" ", '', '', true, false, false);
         ContosoGLAccount.InsertGLAccount(TotalVariance(), TotalVarianceName(), Enum::"G/L Account Income/Balance"::"Income Statement", Enum::"G/L Account Category"::"Cost of Goods Sold", Enum::"G/L Account Type"::"End-Total", '', '', 0, Variance() + '..' + TotalVariance(), Enum::"General Posting Type"::" ", '', '', false, false, false);
         ContosoGLAccount.InsertGLAccount(FreightExpensesRawMat(), FreightExpensesRawMatName(), Enum::"G/L Account Income/Balance"::"Income Statement", Enum::"G/L Account Category"::Expense, Enum::"G/L Account Type"::Posting, '', CreatePostingGroups.ZeroPostingGroup(), 0, '', Enum::"General Posting Type"::Purchase, '', '', true, false, false);
         ContosoGLAccount.InsertGLAccount(AnnualLeaveExpenses(), AnnualLeaveExpensesName(), Enum::"G/L Account Income/Balance"::"Income Statement", Enum::"G/L Account Category"::Expense, Enum::"G/L Account Type"::Posting, '', '', 0, '', Enum::"General Posting Type"::" ", '', '', true, false, false);
@@ -1595,55 +1585,67 @@ codeunit 17107 "Create AU GL Accounts"
         exit(VarianceTok);
     end;
 
+#if not CLEAN28
+    [Obsolete('Unused function.', '28.0')]
     procedure MaterialVariance(): Code[20]
     begin
         exit(ContosoGLAccount.GetAccountNo(MaterialVarianceName()));
     end;
 
+    [Obsolete('Unused function.', '28.0')]
     procedure MaterialVarianceName(): Text[100]
     begin
         exit(MaterialVarianceTok);
     end;
 
+    [Obsolete('Unused function.', '28.0')]
     procedure CapacityVariance(): Code[20]
     begin
         exit(ContosoGLAccount.GetAccountNo(CapacityVarianceName()));
     end;
 
+    [Obsolete('Unused function.', '28.0')]
     procedure CapacityVarianceName(): Text[100]
     begin
         exit(CapacityVarianceTok);
     end;
 
+    [Obsolete('Unused function.', '28.0')]
     procedure SubcontractedVariance(): Code[20]
     begin
         exit(ContosoGLAccount.GetAccountNo(SubcontractedVarianceName()));
     end;
 
+    [Obsolete('Unused function.', '28.0')]
     procedure SubcontractedVarianceName(): Text[100]
     begin
         exit(SubcontractedVarianceTok);
     end;
 
+    [Obsolete('Unused function.', '28.0')]
     procedure CapOverheadVariance(): Code[20]
     begin
         exit(ContosoGLAccount.GetAccountNo(CapOverheadVarianceName()));
     end;
 
+    [Obsolete('Unused function.', '28.0')]
     procedure CapOverheadVarianceName(): Text[100]
     begin
         exit(CapOverheadVarianceTok);
     end;
 
+    [Obsolete('Unused function.', '28.0')]
     procedure MfgOverheadVariance(): Code[20]
     begin
         exit(ContosoGLAccount.GetAccountNo(MfgOverheadVarianceName()));
     end;
 
+    [Obsolete('Unused function.', '28.0')]
     procedure MfgOverheadVarianceName(): Text[100]
     begin
         exit(MfgOverheadVarianceTok);
     end;
+#endif
 
     procedure TotalVariance(): Code[20]
     begin
@@ -1869,11 +1871,13 @@ codeunit 17107 "Create AU GL Accounts"
         PurchaseVarianceCapTok: Label 'Purchase Variance, Cap.', MaxLength = 100;
         TotalCostOfCapacitiesTok: Label 'Total Cost of Capacities', MaxLength = 100;
         VarianceTok: Label 'Variance', MaxLength = 100;
+#if not CLEAN28
         MaterialVarianceTok: Label 'Material Variance', MaxLength = 100;
         CapacityVarianceTok: Label 'Capacity Variance', MaxLength = 100;
         SubcontractedVarianceTok: Label 'Subcontracted Variance', MaxLength = 100;
         CapOverheadVarianceTok: Label 'Cap. Overhead Variance', MaxLength = 100;
         MfgOverheadVarianceTok: Label 'Mfg. Overhead Variance', MaxLength = 100;
+#endif
         TotalVarianceTok: Label 'Total Variance', MaxLength = 100;
         FreightExpensesRawMatTok: Label 'Freight Expenses, Raw Mat.', MaxLength = 100;
         FreightExpensesRawMatCOGSTok: Label 'Freight Expenses, Raw Mat. COGS', MaxLength = 100;

@@ -14,13 +14,8 @@ table 6206 "FS Resource Pay Type"
     Description = 'Pay Types of resources hourly rate to calculate the resource cost';
     DataClassification = SystemMetadata;
     ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-#if not CLEAN25
-    ObsoleteState = Pending;
-    ObsoleteTag = '25.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '28.0';
-#endif
 
     fields
     {
@@ -244,6 +239,7 @@ table 6206 "FS Resource Pay Type"
         }
         field(35; msdyn_HourlyMarkup; Decimal)
         {
+            AutoFormatType = 0;
             ExternalName = 'msdyn_hourlymarkup';
             ExternalType = 'Double';
             Description = 'Enter the markup percentage on the resource hourly cost. Use a value greater than 100% to mark it up and a value less than 100% to mark it down.';
@@ -267,5 +263,5 @@ table 6206 "FS Resource Pay Type"
         {
         }
     }
-} 
+}
 #endif

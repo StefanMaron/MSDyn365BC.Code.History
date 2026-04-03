@@ -55,8 +55,8 @@ using Microsoft.FixedAssets.Maintenance;
 using Microsoft.FixedAssets.Reports;
 using Microsoft.FixedAssets.Setup;
 using Microsoft.Foundation.AuditCodes;
-using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.Navigate;
+using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Foundation.Period;
 using Microsoft.HumanResources.Payables;
@@ -88,10 +88,10 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
-using Microsoft.Sales.Reports;
-using Microsoft.Sales.Setup;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Reminder;
+using Microsoft.Sales.Reports;
+using Microsoft.Sales.Setup;
 using Microsoft.Utilities;
 using System.Diagnostics;
 
@@ -523,12 +523,18 @@ page 8901 "Finance Manager Role Center"
                             RunObject = report "Account Schedule";
                             Tooltip = 'Run the Account Schedule report.';
                         }
+#if not CLEAN28
                         action("Trial Balance")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'Trial Balance';
+                            Caption = 'Trial Balance (Obsolete)';
                             RunObject = report "Trial Balance";
+                            Tooltip = 'Run the Trial Balance report.';
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This report has been replaced by the report Trial Balance (Excel). This report will be removed in a future release.';
+                            ObsoleteTag = '28.0';
                         }
+#endif
                         action("G/L Trial Balance")
                         {
                             ApplicationArea = Basic, Suite;
@@ -541,13 +547,18 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'G/L Detail Trial Balance';
                             RunObject = Report "G/L Detail Trial Balance";
                         }
+#if not CLEAN28
                         action("Trial Balance/Budget")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'Trial Balance/Budget';
+                            Caption = 'Trial Balance/Budget (Obsolete)';
                             RunObject = report "Trial Balance/Budget";
                             Tooltip = 'Run the Trial Balance/Budget report.';
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This report has been replaced by the report Trial Balance/Budget (Excel). This report will be removed in a future release.';
+                            ObsoleteTag = '28.0';
                         }
+#endif
                         action("Trial Balance/Previous Year")
                         {
                             ApplicationArea = Basic, Suite;
@@ -797,7 +808,7 @@ page 8901 "Finance Manager Role Center"
                 }
                 action("Payment Registration")
                 {
-                    ApplicationArea =;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Payment Registration';
                     RunObject = page "Payment Registration";
                 }
@@ -1257,7 +1268,7 @@ page 8901 "Finance Manager Role Center"
                 }
                 action("Direct Debit Collections")
                 {
-                    ApplicationArea =;
+                    ApplicationArea = Suite;
                     Caption = 'Direct Debit Collections';
                     RunObject = page "Direct Debit Collections";
                     Tooltip = 'Open the Direct Debit Collections page.';
@@ -1462,13 +1473,18 @@ page 8901 "Finance Manager Role Center"
                         RunObject = report "Customer - Detail Trial Bal.";
                         Tooltip = 'Run the Customer - Detail Trial Bal. report.';
                     }
+#if not CLEAN28
                     action("Customer - List")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Customer - List';
                         RunObject = report "Customer - List";
                         Tooltip = 'Run the Customer - List report.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report is obsolete and will be removed in a future version.';
+                        ObsoleteTag = '28.0';
                     }
+#endif
                     action("Customer - Summary Aging")
                     {
                         ApplicationArea = Basic, Suite;
@@ -1504,26 +1520,36 @@ page 8901 "Finance Manager Role Center"
                         RunObject = report "Customer - Labels";
                         Tooltip = 'Run the Customer Labels report.';
                     }
+#if not CLEAN28
                     action("Customer - Top 10 List")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Customer Top 10 List';
+                        Caption = 'Customer Top 10 List (Obsolete)';
                         RunObject = report "Customer - Top 10 List";
                         Tooltip = 'Run the Customer Top 10 List report.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report has been replaced by the report Customer - Top List (Excel). This report will be removed in a future release.';
+                        ObsoleteTag = '28.0';
                     }
+#endif
                     action("AU/NZ Statement")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'AU/NZ Statement';
                         RunObject = Report "AU/NZ Statement";
                     }
+#if not CLEAN28
                     action("Sales Statistics")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Sales Statistics';
                         RunObject = report "Sales Statistics";
                         Tooltip = 'Run the Sales Statistics report.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report is obsolete and will be removed in a future version.';
+                        ObsoleteTag = '28.0';
                     }
+#endif
                     action("Customer/Item Sales")
                     {
                         ApplicationArea = Basic, Suite;
@@ -1545,20 +1571,30 @@ page 8901 "Finance Manager Role Center"
                         RunObject = report "Salesperson - Commission";
                         Tooltip = 'Run the Salesperson Commission report.';
                     }
+#if not CLEAN28
                     action("Customer - Sales List")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Customer - Sales List';
                         RunObject = report "Customer - Sales List";
                         Tooltip = 'Run the Customer - Sales List report.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report is obsolete and will be removed in a future version.';
+                        ObsoleteTag = '28.0';
                     }
+#endif
+#if not CLEAN28
                     action("Aged Accounts Receivable")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Aged Accounts Receivable';
+                        Caption = 'Aged Accounts Receivable (Obsolete)';
                         RunObject = report "Aged Accounts Receivable";
                         Tooltip = 'Run the Aged Accounts Receivable report.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report has been replaced by the report Aged Accounts Receivable (Excel). This report will be removed in a future release.';
+                        ObsoleteTag = '28.0';
                     }
+#endif
                     action("Aged Acc. Rec. (BackDating)")
                     {
                         ApplicationArea = Basic, Suite;
@@ -1687,46 +1723,159 @@ page 8901 "Finance Manager Role Center"
                 }
                 group("Group40")
                 {
-                    Caption = 'Posted Documents';
-                    action("Posted Credit Memos1")
+                    Caption = 'Reports';
+#if not CLEAN28
+                    action("Aged Accounts Payable")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Posted Purchase Credit Memos';
-                        RunObject = page "Posted Purchase Credit Memos";
-                        Tooltip = 'Open the Posted Purchase Credit Memos page.';
+                        Caption = 'Aged Accounts Payable (Obsolete)';
+                        RunObject = report "Aged Accounts Payable";
+                        Tooltip = 'Run the Aged Accounts Payable report.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report has been replaced by the report Aged Accounts Payable (Excel). This report will be removed in a future release.';
+                        ObsoleteTag = '28.0';
                     }
-                    action("Posted Purchase Invoices")
+#endif
+                    action("Aged Acc. Pay. (BackDating)")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Posted Purchase Invoices';
-                        RunObject = page "Posted Purchase Invoices";
-                        Tooltip = 'Open the Posted Purchase Invoices page.';
+                        Caption = 'Aged Acc. Pay. (BackDating)';
+                        RunObject = Report "Aged Acc. Pay. (BackDating)";
                     }
-                    action("Posted Purchase Receipts")
+#if not CLEAN28
+                    action("Payments on Hold")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Payments on Hold (Obsolete)';
+                        RunObject = report "Payments on Hold";
+                        Tooltip = 'Run the Payments on Hold report.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report is obsolete and will be removed in a future release. See the documentation for alternative options.';
+                        ObsoleteTag = '28.0';
+                    }
+#endif
+                    action("Purchase Statistics")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Purchase Statistics';
+                        RunObject = report "Purchase Statistics";
+                        Tooltip = 'Run the Purchase Statistics report.';
+                    }
+                    action("Vendor Item Catalog")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Vendor Item Catalog';
+                        RunObject = report "Vendor Item Catalog";
+                        Tooltip = 'Run the Vendor Item Catalog report.';
+                    }
+                    action("Vendor Register")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Vendor Register';
+                        RunObject = report "Vendor Register";
+                        Tooltip = 'Run the Vendor Register report.';
+                    }
+                    action("Vendor - Balance to Date")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Vendor - Balance to Date';
+                        RunObject = report "Vendor - Balance to Date";
+                        Tooltip = 'Run the Vendor - Balance to Date report.';
+                    }
+                    action("Vendor - Detail Trial Balance")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Vendor - Detail Trial Balance';
+                        RunObject = report "Vendor - Detail Trial Balance";
+                        Tooltip = 'Run the Vendor - Detail Trial Balance report.';
+                    }
+                    action("Vendor - Labels")
                     {
                         ApplicationArea = Suite;
-                        Caption = 'Posted Purchase Receipts';
-                        RunObject = page "Posted Purchase Receipts";
-                        Tooltip = 'Open the Posted Purchase Receipts page.';
+                        Caption = 'Vendor - Labels';
+                        RunObject = report "Vendor - Labels";
+                        Tooltip = 'Run the Vendor - Labels report.';
                     }
-                    action("Posted Return Shipments")
-                    {
-                        ApplicationArea = PurchReturnOrder;
-                        Caption = 'Posted Purchase Return Shipments';
-                        RunObject = page "Posted Return Shipments";
-                        Tooltip = 'Open the Posted Purchase Return Shipments page.';
-                    }
-                    action("Posted Purchase Tax Invoice")
+#if not CLEAN28
+                    action("Vendor - List")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Posted Purchase Tax Invoice';
-                        RunObject = page "Posted Purchase Tax Invoice";
+                        Caption = 'Vendor - List (Obsolete)';
+                        RunObject = report "Vendor - List";
+                        Tooltip = 'Run the Vendor - List report.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report is obsolete and will be removed in a future release. See the documentation for alternative options.';
+                        ObsoleteTag = '28.0';
                     }
-                    action("Posted Purch. Tax  Credit Memo")
+#endif
+                    action("Vendor - Order Detail")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Posted Purch. Tax  Credit Memo';
-                        RunObject = page "Posted Purch. Tax  Credit Memo";
+                        Caption = 'Vendor - Order Detail';
+                        RunObject = report "Vendor - Order Detail";
+                        Tooltip = 'Run the Vendor - Order Detail report.';
+                    }
+                    action("Vendor - Order Summary")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Vendor - Order Summary';
+                        RunObject = report "Vendor - Order Summary";
+                        Tooltip = 'Run the Vendor - Order Summary report.';
+                    }
+                    action("Vendor - Purchase List")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Vendor - Purchase List';
+                        RunObject = report "Vendor - Purchase List";
+                        Tooltip = 'Run the Vendor - Purchase List report.';
+                    }
+#if not CLEAN28
+                    action("Vendor - Summary Aging")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Vendor - Summary Aging (Obsolete)';
+                        RunObject = report "Vendor - Summary Aging";
+                        Tooltip = 'Run the Vendor - Summary Aging report.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report is obsolete and will be removed in a future release. See the documentation for alternative options.';
+                        ObsoleteTag = '28.0';
+                    }
+                    action("Vendor - Top 10 List")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Vendor - Top 10 List (Obsolete)';
+                        RunObject = report "Vendor - Top 10 List";
+                        Tooltip = 'Run the Vendor - Top 10 List report.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report has been replaced by the report Vendor - Top List (Excel). This report will be removed in a future release.';
+                        ObsoleteTag = '28.0';
+                    }
+#endif
+                    action("Vendor - Trial Balance")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Vendor - Trial Balance';
+                        RunObject = report "Vendor - Trial Balance";
+                        Tooltip = 'Run the Vendor - Trial Balance report.';
+                    }
+                    action("Vendor/Item Purchases")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Vendor/Item Purchases';
+                        RunObject = report "Vendor/Item Purchases";
+                        Tooltip = 'Run the Vendor/Item Purchases report.';
+                    }
+                    action("VAT Report - Vendor1")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'VAT Report - Vendor';
+                        RunObject = Report "VAT Report - Vendor";
+                    }
+                    action("WHT Certificate - Other Copy1")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'WHT Certificate - Other Copy';
+                        RunObject = Report "WHT Certificate - Other Copy";
                     }
                 }
                 group("Group41")
@@ -1782,135 +1931,46 @@ page 8901 "Finance Manager Role Center"
                 }
                 group("Group42")
                 {
-                    Caption = 'Reports';
-                    action("Aged Accounts Payable")
+                    Caption = 'Posted Documents';
+                    action("Posted Credit Memos1")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Aged Accounts Payable';
-                        RunObject = report "Aged Accounts Payable";
+                        Caption = 'Posted Purchase Credit Memos';
+                        RunObject = page "Posted Purchase Credit Memos";
+                        Tooltip = 'Open the Posted Purchase Credit Memos page.';
                     }
-                    action("Aged Acc. Pay. (BackDating)")
+                    action("Posted Purchase Invoices")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Aged Acc. Pay. (BackDating)';
-                        RunObject = Report "Aged Acc. Pay. (BackDating)";
+                        Caption = 'Posted Purchase Invoices';
+                        RunObject = page "Posted Purchase Invoices";
+                        Tooltip = 'Open the Posted Purchase Invoices page.';
                     }
-                    action("Payments on Hold")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Payments on Hold';
-                        RunObject = report "Payments on Hold";
-                        Tooltip = 'Run the Payments on Hold report.';
-                    }
-                    action("Purchase Statistics")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Purchase Statistics';
-                        RunObject = report "Purchase Statistics";
-                        Tooltip = 'Run the Purchase Statistics report.';
-                    }
-                    action("Vendor Item Catalog")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Vendor Item Catalog';
-                        RunObject = report "Vendor Item Catalog";
-                        Tooltip = 'Run the Vendor Item Catalog report.';
-                    }
-                    action("Vendor Register")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Vendor Register';
-                        RunObject = report "Vendor Register";
-                        Tooltip = 'Run the Vendor Register report.';
-                    }
-                    action("Vendor - Balance to Date")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Vendor - Balance to Date';
-                        RunObject = report "Vendor - Balance to Date";
-                        Tooltip = 'Run the Vendor - Balance to Date report.';
-                    }
-                    action("Vendor - Detail Trial Balance")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Vendor - Detail Trial Balance';
-                        RunObject = report "Vendor - Detail Trial Balance";
-                        Tooltip = 'Run the Vendor - Detail Trial Balance report.';
-                    }
-                    action("Vendor - Labels")
+                    action("Posted Purchase Receipts")
                     {
                         ApplicationArea = Suite;
-                        Caption = 'Vendor - Labels';
-                        RunObject = report "Vendor - Labels";
-                        Tooltip = 'Run the Vendor - Labels report.';
+                        Caption = 'Posted Purchase Receipts';
+                        RunObject = page "Posted Purchase Receipts";
+                        Tooltip = 'Open the Posted Purchase Receipts page.';
                     }
-                    action("Vendor - List")
+                    action("Posted Return Shipments")
+                    {
+                        ApplicationArea = PurchReturnOrder;
+                        Caption = 'Posted Purchase Return Shipments';
+                        RunObject = page "Posted Return Shipments";
+                        Tooltip = 'Open the Posted Purchase Return Shipments page.';
+                    }
+                    action("Posted Purchase Tax Invoice")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Vendor - List';
-                        RunObject = report "Vendor - List";
-                        Tooltip = 'Run the Vendor - List report.';
+                        Caption = 'Posted Purchase Tax Invoice';
+                        RunObject = page "Posted Purchase Tax Invoice";
                     }
-                    action("Vendor - Order Detail")
+                    action("Posted Purch. Tax  Credit Memo")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Vendor - Order Detail';
-                        RunObject = report "Vendor - Order Detail";
-                        Tooltip = 'Run the Vendor - Order Detail report.';
-                    }
-                    action("Vendor - Order Summary")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Vendor - Order Summary';
-                        RunObject = report "Vendor - Order Summary";
-                        Tooltip = 'Run the Vendor - Order Summary report.';
-                    }
-                    action("Vendor - Purchase List")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Vendor - Purchase List';
-                        RunObject = report "Vendor - Purchase List";
-                        Tooltip = 'Run the Vendor - Purchase List report.';
-                    }
-                    action("Vendor - Summary Aging")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Vendor - Summary Aging';
-                        RunObject = report "Vendor - Summary Aging";
-                        Tooltip = 'Run the Vendor - Summary Aging report.';
-                    }
-                    action("Vendor - Top 10 List")
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'Vendor - Top 10 List';
-                        RunObject = report "Vendor - Top 10 List";
-                        Tooltip = 'Run the Vendor - Top 10 List report.';
-                    }
-                    action("Vendor - Trial Balance")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Vendor - Trial Balance';
-                        RunObject = report "Vendor - Trial Balance";
-                        Tooltip = 'Run the Vendor - Trial Balance report.';
-                    }
-                    action("Vendor/Item Purchases")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Vendor/Item Purchases';
-                        RunObject = report "Vendor/Item Purchases";
-                        Tooltip = 'Run the Vendor/Item Purchases report.';
-                    }
-                    action("VAT Report - Vendor1")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'VAT Report - Vendor';
-                        RunObject = Report "VAT Report - Vendor";
-                    }
-                    action("WHT Certificate - Other Copy1")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'WHT Certificate - Other Copy';
-                        RunObject = Report "WHT Certificate - Other Copy";
+                        Caption = 'Posted Purch. Tax  Credit Memo';
+                        RunObject = page "Posted Purch. Tax  Credit Memo";
                     }
                 }
                 group("Group43")
@@ -2044,13 +2104,18 @@ page 8901 "Finance Manager Role Center"
                             RunObject = report "Fixed Asset - Acquisition List";
                             Tooltip = 'Run the FA Acquisition List report.';
                         }
+#if not CLEAN28
                         action("Analysis1")
                         {
                             ApplicationArea = FixedAssets;
-                            Caption = 'FA Analysis';
+                            Caption = 'FA Analysis (Obsolete)';
                             RunObject = report "Fixed Asset - Analysis";
                             Tooltip = 'Run the FA Analysis report.';
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This report has been replaced by the report Fixed Asset Analysis (Excel). This report will be removed in a future release.';
+                            ObsoleteTag = '28.0';
                         }
+#endif
                         action("Book Value 01")
                         {
                             ApplicationArea = FixedAssets;
@@ -2065,13 +2130,18 @@ page 8901 "Finance Manager Role Center"
                             RunObject = report "Fixed Asset - Book Value 02";
                             Tooltip = 'Run the FA Book Value 02 report.';
                         }
+#if not CLEAN28
                         action("Details")
                         {
                             ApplicationArea = FixedAssets;
-                            Caption = 'FA Details';
+                            Caption = 'FA Details (Obsolete)';
                             RunObject = report "Fixed Asset - Details";
                             Tooltip = 'Run the FA Details report.';
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This report has been replaced by the report Fixed Asset Details (Excel). This report will be removed in a future release.';
+                            ObsoleteTag = '28.0';
                         }
+#endif
                         action("G/L Analysis")
                         {
                             ApplicationArea = FixedAssets;
@@ -2086,13 +2156,18 @@ page 8901 "Finance Manager Role Center"
                             RunObject = report "Fixed Asset - List";
                             Tooltip = 'Run the FA List report.';
                         }
+#if not CLEAN28
                         action("Projected Value")
                         {
                             ApplicationArea = FixedAssets;
-                            Caption = 'FA Projected Value';
+                            Caption = 'FA Projected Value (Obsolete)';
                             RunObject = report "Fixed Asset - Projected Value";
                             Tooltip = 'Run the FA Projected Value report.';
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This report has been replaced by the report Fixed Asset Projected Value (Excel). This report will be removed in a future release.';
+                            ObsoleteTag = '28.0';
                         }
+#endif
                     }
                     group("Group48")
                     {

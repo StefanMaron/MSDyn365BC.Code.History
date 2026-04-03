@@ -307,6 +307,8 @@ codeunit 144003 "BAS Calculation"
     var
         VATPostingSetup: Record "VAT Posting Setup";
         BASCalculationSheet: Record "BAS Calculation Sheet";
+        ICSetup: Record "IC Setup";
+        ICPartner: Record "IC Partner";
         PostedBalance: Decimal;
     begin
         // [FEATURE] [GST] [Post] [Report]  [Intercompany]
@@ -327,8 +329,15 @@ codeunit 144003 "BAS Calculation"
           VATPostingSetup."VAT Bus. Posting Group",
           VATPostingSetup."VAT Prod. Posting Group");
 
+        // [GIVEN] IC Partner, "Inbox Type"::"File Location"
+        CreateFileLocationICSetup(ICSetup);
+        LibraryERM.CreateICPartner(ICPartner);
+        ICPartner.Validate("Inbox Type", ICPartner."Inbox Type"::"File Location");
+        ICPartner.Validate("Inbox Details", ICSetup."IC Inbox Details");
+        ICPartner.Modify(true);
+
         // [WHEN] Run "Calculate GST Settlement" with "Post", "Intercompany" and "IC Partner" options
-        PostedBalance := RunCalculateGSTSettlement(BASCalculationSheet, true, true, CreateICPartnerCode());
+        PostedBalance := RunCalculateGSTSettlement(BASCalculationSheet, true, true, ICPartner.Code);
 
         // [THEN] Posted entries are balanced
         VerifyVATEntryByVATPostingSetup(PostedBalance, VATPostingSetup);
@@ -544,17 +553,6 @@ codeunit 144003 "BAS Calculation"
         ICGLAccount."No." := GLAccount."No.";
         ICGLAccount."Map-to G/L Acc. No." := GLAccount."No.";
         ICGLAccount.Insert();
-    end;
-
-    local procedure CreateICPartnerCode(): Code[20]
-    var
-        ICPartner: Record "IC Partner";
-    begin
-        ICPartner.Init();
-        ICPartner.Code := LibraryUtility.GenerateRandomCode20(ICPartner.FieldNo(Code), DATABASE::"IC Partner");
-        ICPartner.Insert();
-
-        exit(ICPartner.Code);
     end;
 
     local procedure FindNextGLEntryNo(): Integer
@@ -877,6 +875,36 @@ codeunit 144003 "BAS Calculation"
         VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         VATEntry.CalcSums(Amount);
         Assert.AreEqual(VATEntry.Amount, ExpectedAmount, IncorrectAccBalanceErr);
+    end;
+
+    local procedure CreateFileLocationICSetup(var ICSetup: Record "IC Setup")
+    var
+        FileManagement: Codeunit "File Management";
+        FileName: Text;
+    begin
+        FileName := FileManagement.ServerTempFileName('');
+        CreateICSetup(ICSetup);
+        ICSetup.Validate("Auto. Send Transactions", true);
+        ICSetup.Validate("IC Inbox Type", ICSetup."IC Inbox Type"::"File Location");
+        ICSetup.Validate("IC Inbox Details", FileManagement.GetDirectoryName(FileName));
+        ICSetup.Modify(true);
+    end;
+
+    local procedure CreateICSetup(var ICSetup: Record "IC Setup")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Intercompany);
+        GenJournalTemplate.Modify();
+
+        ICSetup.Get();
+        ICSetup.Validate("IC Partner Code", 'abc');
+        ICSetup.Validate("Default IC Gen. Jnl. Template", GenJournalTemplate.Name);
+        ICSetup.Validate("Default IC Gen. Jnl. Batch", GenJournalBatch.Name);
+        ICSetup.Modify();
     end;
 
     [RequestPageHandler]

@@ -1,37 +1,35 @@
 namespace System.Security.AccessControl;
 
-using Microsoft.Inventory.BOM;
-using Microsoft.Foundation.Comment;
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Comment;
+using Microsoft.Foundation.ExtendedText;
+using Microsoft.Foundation.UOM;
+using Microsoft.HumanResources.Employee;
+using Microsoft.Intercompany.GLAccount;
+using Microsoft.Inventory.BOM;
+using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
-using Microsoft.HumanResources.Employee;
-using Microsoft.Foundation.ExtendedText;
-using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Intercompany.GLAccount;
-using Microsoft.Foundation.Address;
-using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
-using Microsoft.Purchases.Document;
-using Microsoft.Projects.Resources.Resource;
-using Microsoft.Projects.Resources.Journal;
-using Microsoft.Projects.Resources.Ledger;
-#if not CLEAN25
-using Microsoft.Projects.Resources.Pricing;
-#endif
-using Microsoft.Sales.History;
-using Microsoft.Sales.Document;
-using Microsoft.Finance.SalesTax;
-using Microsoft.Purchases.Vendor;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Project.Planning;
+using Microsoft.Projects.Resources.Journal;
+using Microsoft.Projects.Resources.Ledger;
+using Microsoft.Projects.Resources.Pricing;
+using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.TimeSheet;
-using Microsoft.Foundation.UOM;
-using Microsoft.Finance.VAT.Setup;
-using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
 
 permissionset 6427 "Resources - Edit"
 {
@@ -68,13 +66,9 @@ permissionset 6427 "Resources - Edit"
                   tabledata "Res. Journal Line" = Rm,
                   tabledata "Res. Ledger Entry" = Rm,
                   tabledata Resource = RIMD,
-#if not CLEAN25
                   tabledata "Resource Cost" = RIMD,
-#endif
                   tabledata "Resource Group" = RIMD,
-#if not CLEAN25
                   tabledata "Resource Price" = RIMD,
-#endif
                   tabledata "Resource Unit of Measure" = RID,
                   tabledata "Return Receipt Line" = r,
                   tabledata "Sales Cr.Memo Line" = r,

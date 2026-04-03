@@ -15,6 +15,7 @@ using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Foundation.Reporting;
@@ -27,7 +28,6 @@ using Microsoft.Purchases.History;
 using Microsoft.Purchases.Setup;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
-using Microsoft.Foundation.Navigate;
 using System.Globalization;
 
 table 28077 "Purch. Tax Cr. Memo Hdr."
@@ -135,6 +135,7 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
         }
         field(25; "Payment Discount %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Payment Discount %';
             DecimalPlaces = 0 : 5;
         }
@@ -178,6 +179,7 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
         }
         field(33; "Currency Factor"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Currency Factor';
             DecimalPlaces = 0 : 15;
             MinValue = 0;
@@ -446,6 +448,7 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
         }
         field(119; "VAT Base Discount %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'VAT Base Discount %';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
@@ -483,6 +486,8 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
         }
         field(28041; "Rem. WHT Prepaid Amount (LCY)"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("WHT Entry"."Remaining Unrealized Amount" where("Document Type" = const("Credit Memo"),
                                                                                "Document No." = field("No.")));
             Caption = 'Rem. WHT Prepaid Amount (LCY)';
@@ -490,6 +495,8 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
         }
         field(28042; "Paid WHT Prepaid Amount (LCY)"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("WHT Entry".Amount where("Document Type" = const(Refund),
                                                         "Document No." = field("No.")));
             Caption = 'Paid WHT Prepaid Amount (LCY)';
@@ -497,6 +504,8 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
         }
         field(28043; "Total WHT Prepaid Amount (LCY)"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("WHT Entry"."Unrealized Amount" where("Document Type" = const("Credit Memo"),
                                                                      "Document No." = field("No.")));
             Caption = 'Total WHT Prepaid Amount (LCY)';
@@ -571,16 +580,16 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
         if "No." = '' then begin
             if TaxInvoiceManagement.CheckTaxableNoSeries("Buy-from Vendor No.", 0) then begin
                 PurchSetup.TestField("Posted Non Tax Credit Memo Nos");
-                    "No. Series" := PurchSetup."Posted Non Tax Credit Memo Nos";
-                    if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                        "No. Series" := xRec."No. Series";
-                    "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-            end else
-                TestNoSeries();
-            "No. Series" := GetNoSeriesCode();
+                "No. Series" := PurchSetup."Posted Non Tax Credit Memo Nos";
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
                 "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+            end else
+                TestNoSeries();
+            "No. Series" := GetNoSeriesCode();
+            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                "No. Series" := xRec."No. Series";
+            "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
         end;
     end;
 

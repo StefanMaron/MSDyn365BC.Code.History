@@ -4,15 +4,15 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Projects.Project.Journal;
 
+using Microsoft.EServices.EDocument;
+using Microsoft.Finance.AllocationAccount;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Reporting;
-using Microsoft.EServices.EDocument;
 using Microsoft.Utilities;
-using Microsoft.Finance.AllocationAccount;
 using System.Environment;
 using System.Environment.Configuration;
 using System.Integration;
@@ -620,6 +620,7 @@ page 1020 "Job G/L Journal"
                         {
                             ApplicationArea = All;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Balance';
                             Editable = false;
                             ToolTip = 'Specifies the balance that has accumulated in the journal on the line that you selected.';
@@ -633,6 +634,7 @@ page 1020 "Job G/L Journal"
                         {
                             ApplicationArea = All;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Total Balance';
                             Editable = false;
                             ToolTip = 'Specifies the total balance in the journal.';

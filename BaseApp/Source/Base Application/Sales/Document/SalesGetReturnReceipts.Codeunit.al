@@ -4,9 +4,13 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Document;
 
+using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.UOM;
 using Microsoft.Sales.History;
 
+/// <summary>
+/// Retrieves return receipt lines to create credit memo lines for invoicing returned goods.
+/// </summary>
 codeunit 6638 "Sales-Get Return Receipts"
 {
     TableNo = "Sales Line";
@@ -40,6 +44,7 @@ codeunit 6638 "Sales-Get Return Receipts"
         ReturnRcptLine: Record "Return Receipt Line";
         UOMMgt: Codeunit "Unit of Measure Management";
         GetReturnRcptLines: Page "Get Return Receipt Lines";
+        LineListHasAttachments: Dictionary of [Code[20], Boolean];
 
 #pragma warning disable AA0074
 #pragma warning disable AA0470
@@ -47,11 +52,16 @@ codeunit 6638 "Sales-Get Return Receipts"
 #pragma warning restore AA0470
 #pragma warning restore AA0074
 
+    /// <summary>
+    /// Creates credit memo lines from return receipt lines.
+    /// </summary>
+    /// <param name="ReturnRcptLine2">The return receipt lines to create credit memo lines from.</param>
     procedure CreateInvLines(var ReturnRcptLine2: Record "Return Receipt Line")
     var
         DifferentCurrencies: Boolean;
         ShouldInsertReturnRcptLine: Boolean;
         IsHandled: Boolean;
+        OrderNoList: List of [Code[20]];
     begin
         ReturnRcptLine2.SetFilter("Return Qty. Rcd. Not Invd.", '<>0');
         OnCreateInvLinesOnAfterReturnRcptLine2SetFilters(ReturnRcptLine2, SalesHeader);
@@ -87,11 +97,16 @@ codeunit 6638 "Sales-Get Return Receipts"
                     ReturnRcptLine := ReturnRcptLine2;
                     CheckReturnReceiptLineVATBusPostingGroup(ReturnRcptLine2, SalesHeader);
                     ReturnRcptLine.InsertInvLineFromRetRcptLine(SalesLine);
+                    CopyDocumentAttachments(ReturnRcptLine2, SalesLine);
                     if ReturnRcptLine2.Type = ReturnRcptLine2.Type::"Charge (Item)" then
                         GetItemChargeAssgnt(ReturnRcptLine2, SalesLine."Qty. to Invoice");
                 end;
                 OnCreateInvLinesOnAfterReturnRcptLoop(ShouldInsertReturnRcptLine, ReturnRcptHeader, ReturnRcptLine2, SalesHeader, SalesLine);
+                if ReturnRcptLine2."Return Order No." <> '' then
+                    if not OrderNoList.Contains(ReturnRcptLine2."Return Order No.") then
+                        OrderNoList.Add(ReturnRcptLine2."Return Order No.");
             until ReturnRcptLine2.Next() = 0;
+            CopyDocumentAttachments(OrderNoList, SalesHeader);
         end;
 
         OnAfterCreateInvLines(SalesHeader);
@@ -109,6 +124,10 @@ codeunit 6638 "Sales-Get Return Receipts"
         ReturnReceiptLine.TestField("VAT Bus. Posting Group", SalesHeader."VAT Bus. Posting Group");
     end;
 
+    /// <summary>
+    /// Sets the sales header for which to get return receipts.
+    /// </summary>
+    /// <param name="SalesHeader2">The sales credit memo header.</param>
     procedure SetSalesHeader(var SalesHeader2: Record "Sales Header")
     var
         IsHandled: Boolean;
@@ -147,6 +166,11 @@ codeunit 6638 "Sales-Get Return Receipts"
         ReturnReceiptHeader.TestField("Bill-to Customer No.", ReturnReceiptLine."Bill-to Customer No.");
     end;
 
+    /// <summary>
+    /// Gets item charge assignments from the return receipt line.
+    /// </summary>
+    /// <param name="ReturnRcptLine">The return receipt line with item charges.</param>
+    /// <param name="QtyToInv">The quantity to invoice.</param>
     procedure GetItemChargeAssgnt(var ReturnRcptLine: Record "Return Receipt Line"; QtyToInv: Decimal)
     var
         SalesOrderLine: Record "Sales Line";
@@ -237,6 +261,11 @@ codeunit 6638 "Sales-Get Return Receipts"
             until ItemChargeAssgntSales.Next() = 0;
     end;
 
+    /// <summary>
+    /// Gets posted sales credit memos related to a return order.
+    /// </summary>
+    /// <param name="TempSalesCrMemoHeader">Returns the temporary table with related credit memo headers.</param>
+    /// <param name="ReturnOrderNo">The return order number to find credit memos for.</param>
     procedure GetSalesRetOrderCrMemos(var TempSalesCrMemoHeader: Record "Sales Cr.Memo Header" temporary; ReturnOrderNo: Code[20])
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
@@ -254,6 +283,58 @@ codeunit 6638 "Sales-Get Return Receipts"
             TempSalesCrMemoHeader := SalesCrMemoHeader;
             TempSalesCrMemoHeader.Insert();
         end;
+    end;
+
+    local procedure AnyLineHasAttachments(DocNo: Code[20]): boolean
+    begin
+        if not LineListHasAttachments.ContainsKey(DocNo) then
+            LineListHasAttachments.Add(DocNo, EntityHasAttachments(DocNo, Database::"Sales Line"));
+        exit(LineListHasAttachments.Get(DocNo));
+    end;
+
+    local procedure EntityHasAttachments(DocNo: Code[20]; TableNo: Integer): boolean
+    var
+        DocumentAttachment: Record "Document Attachment";
+    begin
+        DocumentAttachment.ReadIsolation := IsolationLevel::ReadUncommitted;
+        DocumentAttachment.SetRange("Table ID", TableNo);
+        DocumentAttachment.SetRange("Document Type", DocumentAttachment."Document Type"::"Return Order");
+        DocumentAttachment.SetRange("No.", DocNo);
+        exit(not DocumentAttachment.IsEmpty());
+    end;
+
+    local procedure CopyDocumentAttachments(var ReturnRcptLine2: Record "Return Receipt Line"; var SalesLine2: Record "Sales Line")
+    var
+        OrderSalesLine: Record "Sales Line";
+        DocumentAttachmentMgmt: Codeunit "Document Attachment Mgmt";
+    begin
+        if (ReturnRcptLine2."Return Order No." = '') or (ReturnRcptLine2."Return Order Line No." = 0) then
+            exit;
+        if not AnyLineHasAttachments(ReturnRcptLine2."Return Order No.") then
+            exit;
+        OrderSalesLine.ReadIsolation := IsolationLevel::ReadCommitted;
+        OrderSalesLine.SetLoadFields("Document Type", "Document No.", "Line No.");
+        if OrderSalesLine.Get(OrderSalesLine."Document Type"::"Return Order", ReturnRcptLine2."Return Order No.", ReturnRcptLine2."Return Order Line No.") then
+            DocumentAttachmentMgmt.CopyAttachments(OrderSalesLine, SalesLine2);
+    end;
+
+    local procedure CopyDocumentAttachments(OrderNoList: List of [Code[20]]; var SalesHeader2: Record "Sales Header")
+    var
+        OrderSalesHeader: Record "Sales Header";
+        DocumentAttachmentMgmt: Codeunit "Document Attachment Mgmt";
+        OrderNo: Code[20];
+    begin
+        OrderSalesHeader.ReadIsolation := IsolationLevel::ReadCommitted;
+        OrderSalesHeader.SetLoadFields("Document Type", "No.");
+        foreach OrderNo in OrderNoList do
+            if OrderHasAttachments(OrderNo) then
+                if OrderSalesHeader.Get(OrderSalesHeader."Document Type"::"Return Order", OrderNo) then
+                    DocumentAttachmentMgmt.CopyAttachments(OrderSalesHeader, SalesHeader2);
+    end;
+
+    local procedure OrderHasAttachments(DocNo: Code[20]): boolean
+    begin
+        exit(EntityHasAttachments(DocNo, Database::"Sales Header"));
     end;
 
     [IntegrationEvent(false, false)]

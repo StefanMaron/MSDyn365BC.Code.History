@@ -1231,6 +1231,7 @@ codeunit 139020 "Test Job Queue SNAP"
     begin
         // [SCENARIO 208294] "Job Queue Dispatcher" calculates next starting time for recurrent job queue entry once when "No. of Minutes between Runs" = 0
         BindSubscription(LibraryJobQueue);
+        JobQueueEntry.DeleteAll();
 
         // [GIVEN] Job Queue Entry "J" where "No. of Minutes between Runs" = 0, "Recurrent Job" = TRUE
         // [GIVNE] "J"."Starting Time" = 11:00 and "J"."Ending Time" = 11:00 (equal times)
@@ -1255,7 +1256,6 @@ codeunit 139020 "Test Job Queue SNAP"
 
         // [GIVEN] "J"."Earliest Start Date/Time" = "23/02/2017 11:00" (day incremented once)
         LibraryJobQueue.GetCollectedJobQueueEntries(TempJobQueueEntry);
-        VerifyJobQueueEntryWithStatusExists(TempJobQueueEntry, JobQueueEntry.Status::"In Process");
         JobQueueEntry.TestField("Earliest Start Date/Time", CreateDateTime(StartDate + 1, JobQueueEntry."Starting Time"));
 
         UnbindSubscription(LibraryJobQueue);

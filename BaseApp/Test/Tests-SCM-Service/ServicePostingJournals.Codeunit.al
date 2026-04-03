@@ -4,9 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Test;
 
-#if not CLEAN25
 using Microsoft.Finance.Currency;
-#endif
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.VAT.Ledger;
@@ -14,20 +12,14 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
-#if not CLEAN25
-using Microsoft.Pricing.PriceList;
-#endif
 using Microsoft.Inventory.Setup;
+using Microsoft.Pricing.PriceList;
 using Microsoft.Projects.Project.Job;
-#if not CLEAN25
 using Microsoft.Projects.Project.Ledger;
-#endif
-using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.Resources.Ledger;
+using Microsoft.Projects.Resources.Resource;
 using Microsoft.Sales.Customer;
-#if not CLEAN25
 using Microsoft.Sales.Pricing;
-#endif
 using Microsoft.Sales.Receivables;
 using Microsoft.Service.Document;
 using Microsoft.Service.History;
@@ -55,9 +47,7 @@ codeunit 136125 "Service Posting Journals"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
         LibrarySales: Codeunit "Library - Sales";
-#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
-#endif
         IsInitialized: Boolean;
         ExpectedConfirm: Label 'The Credit Memo doesn''t have a Corrected Invoice No. Do you want to continue?';
         NumberOfServiceLedgerEntriesErr: Label 'Number of Service Ledger Entries is incorrect';
@@ -310,7 +300,6 @@ codeunit 136125 "Service Posting Journals"
         UpdateAutomaticCostPosting(OldAutomaticCostPosting);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure ServiceOrderWithJob_Customer_PriceInclVAT()
@@ -375,7 +364,7 @@ codeunit 136125 "Service Posting Journals"
 
         VerifyPricesOnJobLedgerEntry(Item, ExpectedUnitPrice, ExpectedTotalPrice);
     end;
-#endif
+
     local procedure CopyServiceLines(var FromServiceLine: Record "Service Line"; var ToTempServiceLine: Record "Service Line" temporary)
     begin
         if FromServiceLine.FindSet() then
@@ -799,7 +788,6 @@ codeunit 136125 "Service Posting Journals"
         Assert.AreEqual(Count, ServiceLedgerEntry.Count, NumberOfServiceLedgerEntriesErr);
     end;
 
-#if not CLEAN25
     local procedure VerifyPricesOnJobLedgerEntry(Item: Record Item; ExpectedUnitPrice: Decimal; ExpectedTotalPrice: Decimal)
     var
         JobLedgerEntry: Record "Job Ledger Entry";
@@ -811,7 +799,7 @@ codeunit 136125 "Service Posting Journals"
         JobLedgerEntry.TestField("Unit Price (LCY)", ExpectedUnitPrice);
         JobLedgerEntry.TestField("Total Price (LCY)", ExpectedTotalPrice);
     end;
-#endif
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure InvoiceESConfirmHandler(Question: Text[1024]; var Reply: Boolean)

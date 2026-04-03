@@ -1,9 +1,9 @@
 namespace Microsoft.SubscriptionBilling;
 
-using Microsoft.Sales.Document;
-using Microsoft.Purchases.Document;
-using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Purchases.Document;
+using Microsoft.Sales.Document;
 using System.Security.User;
 using System.Utilities;
 
@@ -339,6 +339,7 @@ codeunit 8062 "Billing Proposal"
         if not BillingLine.Insert(false) then
             BillingLine.Modify(false);
 
+        UpdateUsageDataBillingLineNoWhenBillingProposalIsCreated(BillingLine, ServiceCommitment);
         OnBeforeUpdateNextBillingDateInUpdateBillingLine(ServiceCommitment);
         ServiceCommitment.UpdateNextBillingDate(BillingLine."Billing to");
         ServiceCommitment.Modify(false);
@@ -389,11 +390,17 @@ codeunit 8062 "Billing Proposal"
         UsageDataBilling.FindLast();
         if UsageDataBilling.Rebilling or (UsageDataBilling."Usage Base Pricing" = Enum::"Usage Based Pricing"::"Usage Quantity") then
             BillingLine."Service Object Quantity" := UsageDataBilling.Quantity;
-        BillingLine."Unit Price" := BillingLine.Amount / BillingLine."Service Object Quantity";
+        if BillingLine."Service Object Quantity" <> 0 then
+            BillingLine."Unit Price" := BillingLine.Amount / BillingLine."Service Object Quantity"
+        else
+            BillingLine."Unit Price" := UsageDataBilling."Unit Price";
         BillingLine."Discount %" := ServiceCommitment."Discount %";
         // Apply discount from Subscription Line
         BillingLine.Amount := BaseAmount * (1 - ServiceCommitment."Discount %" / 100);
-        BillingLine."Unit Cost" := UsageDataBilling."Cost Amount" / UsageDataBilling.Quantity;
+        if UsageDataBilling.Quantity <> 0 then
+            BillingLine."Unit Cost" := UsageDataBilling."Cost Amount" / UsageDataBilling.Quantity
+        else
+            BillingLine."Unit Cost" := UsageDataBilling."Unit Cost";
         Currency.Initialize(ServiceCommitment."Currency Code");
         Currency.TestField("Unit-Amount Rounding Precision");
         BillingLine."Unit Cost (LCY)" := Round(CurrExchRate.ExchangeAmtFCYToLCY(ServiceCommitment."Currency Factor Date", ServiceCommitment."Currency Code", BillingLine."Unit Cost", ServiceCommitment."Currency Factor"), Currency."Unit-Amount Rounding Precision");
@@ -420,15 +427,9 @@ codeunit 8062 "Billing Proposal"
         BillingLine."Unit Cost" := Round(BillingLine."Unit Cost", Currency."Unit-Amount Rounding Precision");
         BillingLine."Unit Cost (LCY)" := Round(BillingLine."Unit Cost (LCY)", GLSetup."Unit-Amount Rounding Precision");
 
-        BillingLine.Amount := CalculateBillingLineServiceAmount(BillingLine);
-        BillingLine.Amount := Round(BillingLine.Amount, Currency."Amount Rounding Precision");
+        BillingLine.Amount := Round(BillingLine."Unit Price" * BillingLine."Service Object Quantity" * (1 - BillingLine."Discount %" / 100), Currency."Amount Rounding Precision");
     end;
 
-    internal procedure CalculateBillingLineServiceAmount(var BillingLine: Record "Billing Line") ServiceAmount: Decimal
-    begin
-        BillingLine.TestField("Service Object Quantity");
-        ServiceAmount := BillingLine."Unit Price" * BillingLine."Service Object Quantity" * (1 - BillingLine."Discount %" / 100);
-    end;
 
     local procedure UpdateBillingLineFromServiceCommitment(var BillingLine: Record "Billing Line"; ServiceCommitment: Record "Subscription Line")
     var
@@ -465,6 +466,18 @@ codeunit 8062 "Billing Proposal"
         ServiceObject.Get(ServiceCommitment."Subscription Header No.");
         BillingLine."Service Object Quantity" := BillingLine.GetSign() * ServiceObject.Quantity;
         OnAfterUpdateBillingLineFromSubscriptionLine(BillingLine, ServiceCommitment);
+    end;
+
+    local procedure UpdateUsageDataBillingLineNoWhenBillingProposalIsCreated(BillingLine: Record "Billing Line"; SubscriptionLine: Record "Subscription Line")
+    var
+        UsageDataBilling: Record "Usage Data Billing";
+    begin
+        if not SubscriptionLine.IsUsageBasedBillingValid() then
+            exit;
+
+        // Find all usage data billing records that overlap with the billing line period
+        SubscriptionLine.SetUsageDataBillingFilters(UsageDataBilling, BillingLine."Billing from", BillingLine."Billing to");
+        UsageDataBilling.ModifyAll("Billing Line Entry No.", BillingLine."Entry No.", false);
     end;
 
     local procedure CalculateBillingPeriod(ServiceCommitment: Record "Subscription Line"; BillingDate: Date; BillToDate: Date; var BillingPeriodStart: Date; var BillingPeriodEnd: Date)

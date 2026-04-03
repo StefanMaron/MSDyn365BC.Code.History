@@ -4,8 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.Address;
 
-using Microsoft.Service.Document;
 using Microsoft.Service.Contract;
+using Microsoft.Service.Document;
 using Microsoft.Service.History;
 
 codeunit 28042 "Service Format Address APAC"

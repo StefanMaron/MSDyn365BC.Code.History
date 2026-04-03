@@ -7,8 +7,8 @@ namespace Microsoft.Bank.Reconciliation;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.ReceivablesPayables;
-using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Customer;
+using Microsoft.Sales.Receivables;
 using System.Utilities;
 
 report 17116 "Aged Acc. Rec. (BackDating)"

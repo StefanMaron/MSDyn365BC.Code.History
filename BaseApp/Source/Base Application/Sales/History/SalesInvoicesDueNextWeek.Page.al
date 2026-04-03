@@ -4,6 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.History;
 
+/// <summary>
+/// Displays posted sales invoices with due dates in the upcoming week for payment tracking.
+/// </summary>
 page 1163 "Sales Invoices Due Next Week"
 {
     Caption = 'Sales Invoices Due Next Week';
@@ -41,7 +44,6 @@ page 1163 "Sales Invoices Due Next Week"
                 field("Remaining Amount"; Rec."Remaining Amount")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the amount that remains to be paid on the sales invoices that are due next week.';
 
                     trigger OnDrillDown()
                     var

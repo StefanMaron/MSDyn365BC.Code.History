@@ -66,7 +66,6 @@ codeunit 6129 "E-Doc. Deferral Matching" implements "AOAI Function", IEDocAISyst
                 EDocActivityLogBuilder
                     .Init(Database::"E-Document Purchase Line", Rec.FieldNo("[BC] Deferral Code"), Rec.SystemId)
                     .SetExplanation(Reasoning)
-                    .SetConfidence('Medium') // Medium confidence for validated deferral code
                     .SetType(Enum::"Activity Log Type"::"AI")
                     .SetReferenceSource(Page::"Deferral Template Card", RecordRef)
                     .SetReferenceTitle(StrSubstNo(ActivityLogTitleTxt, Rec."[BC] Deferral Code"))

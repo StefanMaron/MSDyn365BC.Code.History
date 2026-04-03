@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -12,6 +12,9 @@ using Microsoft.Foundation.ExtendedText;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Sales.Customer;
 
+/// <summary>
+/// Stores the assignment of standard sales codes to specific customers for recurring transactions.
+/// </summary>
 table 172 "Standard Customer Sales Code"
 {
     Caption = 'Standard Customer Sales Code';
@@ -19,15 +22,23 @@ table 172 "Standard Customer Sales Code"
 
     fields
     {
+        /// <summary>
+        /// Specifies the customer number to which the standard sales code is assigned.
+        /// </summary>
         field(1; "Customer No."; Code[20])
         {
             Caption = 'Customer No.';
+            ToolTip = 'Specifies the customer number of the customer to which the standard sales code is assigned.';
             NotBlank = true;
             TableRelation = Customer;
         }
+        /// <summary>
+        /// Specifies the standard sales code assigned to this customer.
+        /// </summary>
         field(2; "Code"; Code[10])
         {
             Caption = 'Code';
+            ToolTip = 'Specifies a standard sales code from the Standard Sales Code table.';
             NotBlank = true;
             TableRelation = "Standard Sales Code";
 
@@ -42,69 +53,116 @@ table 172 "Standard Customer Sales Code"
                 "Currency Code" := StdSalesCode."Currency Code";
             end;
         }
+        /// <summary>
+        /// Contains a description of the standard customer sales code.
+        /// </summary>
         field(3; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the standard sales code.';
         }
+        /// <summary>
+        /// Specifies the date from which the standard sales code is valid for this customer.
+        /// </summary>
         field(4; "Valid From Date"; Date)
         {
             Caption = 'Valid From Date';
+            ToolTip = 'Specifies the first day when the Create Recurring Sales Inv. batch job can be used to create sales invoices.';
         }
+        /// <summary>
+        /// Specifies the date until which the standard sales code is valid for this customer.
+        /// </summary>
         field(5; "Valid To date"; Date)
         {
             Caption = 'Valid To date';
+            ToolTip = 'Specifies the last day when the Create Recurring Sales Inv. batch job can be used to create sales invoices.';
         }
+        /// <summary>
+        /// Specifies the payment method code to use when creating documents with this standard sales code.
+        /// </summary>
         field(6; "Payment Method Code"; Code[10])
         {
             Caption = 'Payment Method Code';
+            ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
             TableRelation = "Payment Method";
         }
+        /// <summary>
+        /// Specifies the payment terms code to use when creating documents with this standard sales code.
+        /// </summary>
         field(7; "Payment Terms Code"; Code[10])
         {
             Caption = 'Payment Terms Code';
+            ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
             TableRelation = "Payment Terms";
         }
+        /// <summary>
+        /// Specifies the direct debit mandate to use for payment collection with this standard sales code.
+        /// </summary>
         field(8; "Direct Debit Mandate ID"; Code[35])
         {
             Caption = 'Direct Debit Mandate ID';
+            ToolTip = 'Specifies the ID of the direct-debit mandate that this standard customer sales code uses to create sales invoices for direct debit collection.';
             TableRelation = "SEPA Direct Debit Mandate" where("Customer No." = field("Customer No."),
                                                                Blocked = const(false),
                                                                Closed = const(false));
         }
+        /// <summary>
+        /// Indicates whether the standard customer sales code is blocked from use.
+        /// </summary>
         field(9; Blocked; Boolean)
         {
             Caption = 'Blocked';
+            ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
         }
+        /// <summary>
+        /// Specifies the currency code for the standard sales code.
+        /// </summary>
         field(13; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             Editable = false;
             TableRelation = Currency;
         }
+        /// <summary>
+        /// Specifies how recurring sales lines are inserted on sales quotes for this customer.
+        /// </summary>
         field(15; "Insert Rec. Lines On Quotes"; Option)
         {
             Caption = 'Insert Rec. Lines On Quotes';
+            ToolTip = 'Specifies how you want to use standard sales codes on sales quotes.';
             DataClassification = SystemMetadata;
             OptionCaption = 'Manual,Automatic,Always Ask';
             OptionMembers = Manual,Automatic,"Always Ask";
         }
+        /// <summary>
+        /// Specifies how recurring sales lines are inserted on sales orders for this customer.
+        /// </summary>
         field(16; "Insert Rec. Lines On Orders"; Option)
         {
             Caption = 'Insert Rec. Lines On Orders';
+            ToolTip = 'Specifies how you want to use standard sales codes on sales orders.';
             DataClassification = SystemMetadata;
             OptionCaption = 'Manual,Automatic,Always Ask';
             OptionMembers = Manual,Automatic,"Always Ask";
         }
+        /// <summary>
+        /// Specifies how recurring sales lines are inserted on sales invoices for this customer.
+        /// </summary>
         field(17; "Insert Rec. Lines On Invoices"; Option)
         {
             Caption = 'Insert Rec. Lines On Invoices';
+            ToolTip = 'Specifies how you want to use standard sales codes on sales invoices.';
             DataClassification = SystemMetadata;
             OptionCaption = 'Manual,Automatic,Always Ask';
             OptionMembers = Manual,Automatic,"Always Ask";
         }
+        /// <summary>
+        /// Specifies how recurring sales lines are inserted on sales credit memos for this customer.
+        /// </summary>
         field(18; "Insert Rec. Lines On Cr. Memos"; Option)
         {
             Caption = 'Insert Rec. Lines On Cr. Memos';
+            ToolTip = 'Specifies how you want to use standard sales codes on sales credit memos.';
             DataClassification = SystemMetadata;
             OptionCaption = 'Manual,Automatic,Always Ask';
             OptionMembers = Manual,Automatic,"Always Ask";
@@ -134,6 +192,11 @@ table 172 "Standard Customer Sales Code"
     var
         RenameErr: Label 'You cannot rename the line.';
 
+    /// <summary>
+    /// Creates a sales invoice using the standard sales code for the customer.
+    /// </summary>
+    /// <param name="OrderDate">The order date for the invoice.</param>
+    /// <param name="PostingDate">The posting date for the invoice.</param>
     procedure CreateSalesInvoice(OrderDate: Date; PostingDate: Date)
     var
         SalesHeader: Record "Sales Header";
@@ -167,6 +230,10 @@ table 172 "Standard Customer Sales Code"
         OnAfterCreateSalesInvoice(SalesHeader, Rec);
     end;
 
+    /// <summary>
+    /// Opens a page to select standard customer sales codes and inserts the selected lines into the sales header.
+    /// </summary>
+    /// <param name="SalesHeader">The sales header to insert lines into.</param>
     procedure InsertSalesLines(var SalesHeader: Record "Sales Header")
     var
         StdCustSalesCode: Record "Standard Customer Sales Code";
@@ -192,6 +259,11 @@ table 172 "Standard Customer Sales Code"
         end;
     end;
 
+    /// <summary>
+    /// Applies the standard sales code lines to the sales document.
+    /// </summary>
+    /// <param name="SalesHeader">The sales header to apply lines to.</param>
+    /// <param name="StdCustSalesCode">The standard customer sales code containing the lines to apply.</param>
     procedure ApplyStdCodesToSalesLines(var SalesHeader: Record "Sales Header"; StdCustSalesCode: Record "Standard Customer Sales Code")
     var
         Currency: Record Currency;
@@ -299,6 +371,10 @@ table 172 "Standard Customer Sales Code"
         OnAfterCombineDimensions(SalesLine, StdSalesLine);
     end;
 
+    /// <summary>
+    /// Inserts extended text for a sales line if applicable.
+    /// </summary>
+    /// <param name="SalesLine">The sales line to check and insert extended text for.</param>
     procedure InsertExtendedText(SalesLine: Record "Sales Line")
     var
         TransferExtendedText: Codeunit "Transfer Extended Text";
@@ -309,6 +385,11 @@ table 172 "Standard Customer Sales Code"
             TransferExtendedText.InsertSalesExtText(SalesLine);
     end;
 
+    /// <summary>
+    /// Inserts extended text for a sales line using the sales header context.
+    /// </summary>
+    /// <param name="SalesLine">The sales line to check and insert extended text for.</param>
+    /// <param name="SalesHeader">The sales header providing context for the extended text.</param>
     procedure InsertExtendedText(SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     var
         TransferExtendedText: Codeunit "Transfer Extended Text";
@@ -317,6 +398,11 @@ table 172 "Standard Customer Sales Code"
             TransferExtendedText.InsertSalesExtText(SalesLine);
     end;
 
+    /// <summary>
+    /// Gets the next available line number for a sales document.
+    /// </summary>
+    /// <param name="SalesLine">The sales line used to determine the document type and number.</param>
+    /// <returns>Returns the next line number (10000 increments).</returns>
     procedure GetNextLineNo(SalesLine: Record "Sales Line"): Integer
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type");
@@ -327,6 +413,10 @@ table 172 "Standard Customer Sales Code"
         exit(10000);
     end;
 
+    /// <summary>
+    /// Sets filters on the record to find standard sales codes that should be automatically or always-ask inserted.
+    /// </summary>
+    /// <param name="SalesHeader">The sales header used to determine document type and customer filters.</param>
     procedure SetFilterByAutomaticAndAlwaysAskCodes(SalesHeader: Record "Sales Header")
     begin
         SetRange("Customer No.", SalesHeader."Sell-to Customer No.");
@@ -344,6 +434,11 @@ table 172 "Standard Customer Sales Code"
         OnAfterSetFilterByAutomaticAndAlwaysAskCodes(Rec, SalesHeader);
     end;
 
+    /// <summary>
+    /// Checks if recurring lines should be automatically inserted for the document type.
+    /// </summary>
+    /// <param name="SalesHeader">The sales header to check the document type for.</param>
+    /// <returns>Returns true if the document type is set to automatic insertion.</returns>
     procedure IsInsertRecurringLinesOnDocumentAutomatic(SalesHeader: Record "Sales Header"): Boolean
     begin
         case SalesHeader."Document Type" of
@@ -360,6 +455,11 @@ table 172 "Standard Customer Sales Code"
         end;
     end;
 
+    /// <summary>
+    /// Checks if recurring lines should be auto-inserted (automatic or always-ask) for the document type.
+    /// </summary>
+    /// <param name="SalesHeader">The sales header to check the document type for.</param>
+    /// <returns>Returns true if the document type is not set to manual insertion.</returns>
     procedure ShouldAutoInsertRecurringLinesOnDocument(SalesHeader: Record "Sales Header"): Boolean
     begin
         case SalesHeader."Document Type" of

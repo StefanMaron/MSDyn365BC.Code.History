@@ -11,6 +11,7 @@ codeunit 137035 "SCM PS Bugs-I"
     var
         LibraryRandom: Codeunit "Library - Random";
         LibraryCosting: Codeunit "Library - Costing";
+        LibraryPostInventoryToGL: Codeunit "Library - Post Inventory To GL";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryPlanning: Codeunit "Library - Planning";
         LibrarySales: Codeunit "Library - Sales";
@@ -45,8 +46,8 @@ codeunit 137035 "SCM PS Bugs-I"
         QuantityErr: Label 'Quantity update should be possible in %1.', Comment = '%1= Table Name.';
         DueDateErr: Label 'Planned production order due date not match with planning worksheet due date';
         SKUInventoryErr: Label 'Expected inventory to be blank for non-inventory item';
-        MainItemErr: Label 'New planning worksheet line is not created for main item';
-        CompoItemErr: Label 'New planning worksheet line is not created for component item';
+        MainItemErr: Label 'New planning worksheet line not created for main item';
+        CompoItemErr: Label 'New planning worksheet line not created for component item';
 
     [Test]
     [Scope('OnPrem')]
@@ -210,7 +211,7 @@ codeunit 137035 "SCM PS Bugs-I"
 
         // Exercise : Run Adjust cost batch Job.
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
+        LibraryPostInventoryToGL.PostInvtCostToGL(false, WorkDate(), '');
 
         // Verify : WIP Account.
         VerifyTotalWIPAccountAmount(Item."No.", ProdOrderNo);

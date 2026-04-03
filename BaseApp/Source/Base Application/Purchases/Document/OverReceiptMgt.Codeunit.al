@@ -9,9 +9,9 @@ using Microsoft.Inventory.Item;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Document;
-using System.Utilities;
 using Microsoft.Warehouse.Request;
 using System.Environment.Configuration;
+using System.Utilities;
 
 codeunit 8510 "Over-Receipt Mgt."
 {
@@ -165,7 +165,6 @@ codeunit 8510 "Over-Receipt Mgt."
 
     procedure GetDefaultOverReceiptCode(PurchaseLine: Record "Purchase Line") DefaultOverReceiptCode: Code[20]
     var
-        PurchaseHeader: Record "Purchase Header";
         Item: Record Item;
         Vendor: Record Vendor;
         OverReceiptCode: Record "Over-Receipt Code";
@@ -183,8 +182,7 @@ codeunit 8510 "Over-Receipt Mgt."
             exit;
         end;
 
-        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-        Vendor.Get(PurchaseHeader."Buy-from Vendor No.");
+        Vendor.Get(PurchaseLine.GetPurchHeader()."Buy-from Vendor No.");
         if Vendor."Over-Receipt Code" <> '' then begin
             DefaultOverReceiptCode := Vendor."Over-Receipt Code";
             exit;

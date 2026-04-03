@@ -84,6 +84,13 @@ page 1328 "Purch. Order From Sales Order"
                             VendorName := Rec."Supply From";
                     end;
                 }
+                field("Drop Shipment"; Rec."Drop Shipment")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Drop Shipment';
+                    Style = Strong;
+                    ToolTip = 'Specifies if demand is for drop shipment or not.';
+                }
                 field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Suite;

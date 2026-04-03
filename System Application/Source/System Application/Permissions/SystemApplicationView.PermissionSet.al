@@ -4,11 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Security.AccessControl;
+
 using System.Apps;
 using System.Azure.Identity;
 using System.DataAdministration;
 using System.Environment.Configuration;
+#if not CLEAN28
 using System.Feedback;
+#endif
 using System.Globalization;
 using System.Integration;
 using System.Privacy;
@@ -34,7 +37,9 @@ permissionset 75 "System Application - View"
                              "Feature Key - View",
                              "Language - View",
                              "Retention Policy - View",
+#if not CLEAN28
                              "Satisfaction Survey - View",
+#endif
                              "Media - View",
                              "Priv. Notice - View",
                              "Record Link Management - View",

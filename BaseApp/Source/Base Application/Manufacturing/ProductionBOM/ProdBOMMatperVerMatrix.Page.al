@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -29,22 +29,25 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the item included in one ore more of the production BOM versions.';
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies a description of the entry.';
+                }
+                field("Description 2"; Rec."Description 2")
+                {
+                    ApplicationArea = Manufacturing;
+                    Visible = false;
                 }
                 field(Field1; MATRIX_CellData[1])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[1];
                     DecimalPlaces = 0 : 5;
@@ -53,6 +56,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field2; MATRIX_CellData[2])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[2];
                     DecimalPlaces = 0 : 5;
@@ -61,6 +65,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field3; MATRIX_CellData[3])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[3];
                     DecimalPlaces = 0 : 5;
@@ -69,6 +74,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field4; MATRIX_CellData[4])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[4];
                     DecimalPlaces = 0 : 5;
@@ -77,6 +83,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field5; MATRIX_CellData[5])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[5];
                     DecimalPlaces = 0 : 5;
@@ -85,6 +92,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field6; MATRIX_CellData[6])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[6];
                     DecimalPlaces = 0 : 5;
@@ -93,6 +101,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field7; MATRIX_CellData[7])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[7];
                     DecimalPlaces = 0 : 5;
@@ -101,6 +110,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field8; MATRIX_CellData[8])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[8];
                     DecimalPlaces = 0 : 5;
@@ -109,6 +119,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field9; MATRIX_CellData[9])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[9];
                     DecimalPlaces = 0 : 5;
@@ -117,6 +128,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field10; MATRIX_CellData[10])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[10];
                     DecimalPlaces = 0 : 5;
@@ -125,6 +137,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field11; MATRIX_CellData[11])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[11];
                     DecimalPlaces = 0 : 5;
@@ -133,6 +146,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field12; MATRIX_CellData[12])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[12];
                     DecimalPlaces = 0 : 5;
@@ -141,6 +155,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field13; MATRIX_CellData[13])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[13];
                     DecimalPlaces = 0 : 5;
@@ -149,6 +164,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field14; MATRIX_CellData[14])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[14];
                     DecimalPlaces = 0 : 5;
@@ -157,6 +173,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field15; MATRIX_CellData[15])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[15];
                     DecimalPlaces = 0 : 5;
@@ -165,6 +182,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field16; MATRIX_CellData[16])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[16];
                     DecimalPlaces = 0 : 5;
@@ -173,6 +191,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field17; MATRIX_CellData[17])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[17];
                     DecimalPlaces = 0 : 5;
@@ -181,6 +200,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field18; MATRIX_CellData[18])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[18];
                     DecimalPlaces = 0 : 5;
@@ -189,6 +209,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field19; MATRIX_CellData[19])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[19];
                     DecimalPlaces = 0 : 5;
@@ -197,6 +218,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field20; MATRIX_CellData[20])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[20];
                     DecimalPlaces = 0 : 5;
@@ -205,6 +227,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field21; MATRIX_CellData[21])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[21];
                     DecimalPlaces = 0 : 5;
@@ -213,6 +236,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field22; MATRIX_CellData[22])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[22];
                     DecimalPlaces = 0 : 5;
@@ -221,6 +245,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field23; MATRIX_CellData[23])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[23];
                     DecimalPlaces = 0 : 5;
@@ -229,6 +254,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field24; MATRIX_CellData[24])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[24];
                     DecimalPlaces = 0 : 5;
@@ -237,6 +263,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field25; MATRIX_CellData[25])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[25];
                     DecimalPlaces = 0 : 5;
@@ -245,6 +272,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field26; MATRIX_CellData[26])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[26];
                     DecimalPlaces = 0 : 5;
@@ -253,6 +281,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field27; MATRIX_CellData[27])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[27];
                     DecimalPlaces = 0 : 5;
@@ -261,6 +290,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field28; MATRIX_CellData[28])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[28];
                     DecimalPlaces = 0 : 5;
@@ -269,6 +299,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field29; MATRIX_CellData[29])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[29];
                     DecimalPlaces = 0 : 5;
@@ -277,6 +308,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field30; MATRIX_CellData[30])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[30];
                     DecimalPlaces = 0 : 5;
@@ -285,6 +317,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field31; MATRIX_CellData[31])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[31];
                     DecimalPlaces = 0 : 5;
@@ -293,6 +326,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                 field(Field32; MATRIX_CellData[32])
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[32];
                     DecimalPlaces = 0 : 5;

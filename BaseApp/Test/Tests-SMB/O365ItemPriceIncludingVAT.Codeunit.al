@@ -239,7 +239,6 @@ codeunit 138014 "O365 Item Price Including VAT"
         Assert.AreEqual(BusPostingGroupValCPG, CustomerPriceGroup."VAT Bus. Posting Gr. (Price)", 'Wrong "VAT Bus. Posting Gr. (Price)"');
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure TestForAllCustomersValidateItemNo()
@@ -348,7 +347,6 @@ codeunit 138014 "O365 Item Price Including VAT"
         Assert.AreEqual(Item."Sales Unit of Measure", SalesLineDiscount."Unit of Measure Code", 'Wrong Unit of Measure.');
         SalesLineDiscount.TestField("Variant Code", '');
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -518,7 +516,6 @@ codeunit 138014 "O365 Item Price Including VAT"
         Assert.ExpectedTestFieldError(SalesReceivablesSetup.FieldCaption("VAT Bus. Posting Gr. (Price)"), '');
     end;
 
-#if not CLEAN25
     local procedure CreateItem(var Item: Record Item; UOMCode: Code[10]; AllowInvDisc: Boolean; PriceInclVAT: Boolean; VATBusPostGrpPrice: Code[10])
     begin
         LibrarySmallBusiness.CreateItem(Item);
@@ -528,7 +525,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         Item."VAT Bus. Posting Gr. (Price)" := VATBusPostGrpPrice;
         Item.Modify();
     end;
-#endif
+
     local procedure CreateDefaultVATPostingSetup(VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20])
     var
         VATPostingSetup: Record "VAT Posting Setup";

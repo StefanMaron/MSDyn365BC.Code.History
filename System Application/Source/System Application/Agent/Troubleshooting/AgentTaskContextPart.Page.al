@@ -8,7 +8,9 @@ namespace System.Agents.Troubleshooting;
 using System.Agents;
 using System.Agents.TaskPane;
 
+#pragma warning disable AS0007 // Aligning namespaces.
 page 4343 "Agent Task Context Part"
+#pragma warning restore AS0007
 {
     ApplicationArea = All;
     Caption = 'Context';
@@ -39,6 +41,7 @@ page 4343 "Agent Task Context Part"
                 Caption = 'Task ID';
                 ToolTip = 'Specifies the ID of the task that was executed.';
                 Editable = false;
+                ExtendedDatatype = Task;
 
                 trigger OnDrillDown()
                 var

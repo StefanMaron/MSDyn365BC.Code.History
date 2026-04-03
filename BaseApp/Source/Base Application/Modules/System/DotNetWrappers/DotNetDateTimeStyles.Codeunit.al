@@ -4,6 +4,8 @@ using System;
 
 codeunit 3004 DotNet_DateTimeStyles
 {
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     trigger OnRun()
     begin

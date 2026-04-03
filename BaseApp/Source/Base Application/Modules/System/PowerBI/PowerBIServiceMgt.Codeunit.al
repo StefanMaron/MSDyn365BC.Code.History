@@ -295,14 +295,12 @@ codeunit 6301 "Power BI Service Mgt."
         PowerBIManagement.SetToken(AccessToken);
     end;
 
-    [Scope('OnPrem')]
     procedure LogVisualLoaded(CorrelationId: Text; EmbedType: Enum "Power BI Element Type")
     begin
         Session.LogMessage('0000KAF', StrSubstNo(EmbedCorrelationTelemetryTxt, EmbedType, CorrelationId),
             Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GetPowerBiTelemetryCategory());
     end;
 
-    [Scope('OnPrem')]
     procedure LogEmbedError(ErrorCategory: Text)
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
