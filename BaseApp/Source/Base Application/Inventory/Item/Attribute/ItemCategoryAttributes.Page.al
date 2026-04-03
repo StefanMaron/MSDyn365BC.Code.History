@@ -32,7 +32,6 @@ page 5734 "Item Category Attributes"
                     Caption = 'Attribute';
                     StyleExpr = StyleTxt;
                     TableRelation = "Item Attribute".Name where(Blocked = const(false));
-                    ToolTip = 'Specifies the item attribute.';
 
                     trigger OnValidate()
                     begin
@@ -46,7 +45,6 @@ page 5734 "Item Category Attributes"
                     StyleExpr = StyleTxt;
                     TableRelation = if ("Attribute Type" = const(Option)) "Item Attribute Value".Value where("Attribute ID" = field("Attribute ID"),
                                                                                                             Blocked = const(false));
-                    ToolTip = 'Specifies the value of the item attribute.';
 
                     trigger OnValidate()
                     begin
@@ -58,7 +56,6 @@ page 5734 "Item Category Attributes"
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
-                    ToolTip = 'Specifies the name of the item or resource''s unit of measure, such as piece or hour.';
                 }
                 field("Inherited-From Key Value"; Rec."Inherited-From Key Value")
                 {
@@ -66,7 +63,6 @@ page 5734 "Item Category Attributes"
                     Caption = 'Inherited From';
                     Editable = false;
                     StyleExpr = StyleTxt;
-                    ToolTip = 'Specifies the parent item category that the item attributes are inherited from.';
                 }
             }
         }

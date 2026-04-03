@@ -1328,15 +1328,6 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.Environment.Configuration)(LookupHint=Report Checklist Test Report - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2212788945 - Method 2109004690 - NamedType 388449254" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[custom={"profileName":"%1"}]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - profile name]D;]A;(Namespace=System.Test.Feedback)(LookupHint=Codeunit Satisfaction Survey Tests - Method TestCustomDimensions - NamedType CustomDimensionsLbl)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1483780530 - NamedType 122615366" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Translations cannot be added or retrieved for temporary records.]]></Val>

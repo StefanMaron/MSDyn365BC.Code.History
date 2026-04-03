@@ -11,6 +11,7 @@ codeunit 137306 "SCM Costing Reports"
     var
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryCosting: Codeunit "Library - Costing";
+        LibraryPostInventoryToGL: Codeunit "Library - Post Inventory To GL";
         LibraryRandom: Codeunit "Library - Random";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
@@ -433,7 +434,7 @@ codeunit 137306 "SCM Costing Reports"
 
     local procedure PostInventoryCostGL(ItemNo: Code[20]; PostingDate: Date)
     begin
-        LibraryCosting.PostInvtCostToGL(false, PostingDate, ItemNo);
+        LibraryPostInventoryToGL.PostInvtCostToGL(false, PostingDate, ItemNo);
     end;
 
     local procedure CreateAndPostChargeItemPO(var PurchaseHeader: Record "Purchase Header"; PurchaseOdrerNo: Code[20]; ItemNo: Code[20]; DocumentDate: Date; ItemChargeUnitCost: Decimal) PostedPurchInvoiceNo: Code[20]

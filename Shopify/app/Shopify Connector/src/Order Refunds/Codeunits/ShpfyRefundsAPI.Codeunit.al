@@ -11,7 +11,7 @@ codeunit 30228 "Shpfy Refunds API"
         CommunicationMgt: Codeunit "Shpfy Communication Mgt.";
         JsonHelper: Codeunit "Shpfy Json Helper";
         RefundEnumConvertor: Codeunit "Shpfy Refund Enum Convertor";
-        RefundCantCreateCreditMemoErr: Label 'The refund imported from Shopify can''t be used to create a credit memo. Only refunds for paid items can be used to create credit memos.';
+        RefundCantCreateCreditMemoErr: Label 'This refund cannot be used to create a credit memo because it has already been considered during order import and reduced the quantity and amounts of the order. Only refunds with a non-zero refunded amount and related to real item returns can be used to create credit memos.';
 
     internal procedure GetRefunds(JRefunds: JsonArray)
     var
@@ -45,6 +45,7 @@ codeunit 30228 "Shpfy Refunds API"
     local procedure GetRefundHeader(RefundId: BigInteger; UpdatedAt: DateTime; var RefundHeader: Record "Shpfy Refund Header")
     var
         DataCapture: Record "Shpfy Data Capture";
+        ImportOrder: Codeunit "Shpfy Import Order";
         RefundHeaderRecordRef: RecordRef;
         IsNew: Boolean;
         Parameters: Dictionary of [Text, Text];
@@ -72,10 +73,15 @@ codeunit 30228 "Shpfy Refunds API"
         RefundHeaderRecordRef.GetTable(RefundHeader);
         JsonHelper.GetValueIntoField(JRefund, 'updatedAt', RefundHeaderRecordRef, RefundHeader.FieldNo("Updated At"));
         JsonHelper.GetValueIntoField(JRefund, 'totalRefundedSet.shopMoney.amount', RefundHeaderRecordRef, RefundHeader.FieldNo("Total Refunded Amount"));
+        JsonHelper.GetValueIntoField(JRefund, 'totalRefundedSet.shopMoney.currencyCode', RefundHeaderRecordRef, RefundHeader.FieldNo("Currency Code"));
         JsonHelper.GetValueIntoField(JRefund, 'totalRefundedSet.presentmentMoney.amount', RefundHeaderRecordRef, RefundHeader.FieldNo("Pres. Tot. Refunded Amount"));
-        RefundHeaderRecordRef.Modify();
+        JsonHelper.GetValueIntoField(JRefund, 'totalRefundedSet.presentmentMoney.currencyCode', RefundHeaderRecordRef, RefundHeader.FieldNo("Presentment Currency Code"));
+        RefundHeaderRecordRef.Modify(false);
         RefundHeaderRecordRef.SetTable(RefundHeader);
         RefundHeaderRecordRef.Close();
+        RefundHeader."Currency Code" := ImportOrder.TranslateCurrencyCode(RefundHeader."Currency Code");
+        RefundHeader."Presentment Currency Code" := ImportOrder.TranslateCurrencyCode(RefundHeader."Presentment Currency Code");
+        RefundHeader.Modify();
         DataCapture.Add(Database::"Shpfy Refund Header", RefundHeader.SystemId, JResponse);
         UpdateTransactions(JRefund, RefundHeader);
     end;

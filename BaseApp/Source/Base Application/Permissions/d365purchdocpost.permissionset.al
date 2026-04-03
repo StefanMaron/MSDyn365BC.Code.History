@@ -1,35 +1,36 @@
 namespace System.Security.AccessControl;
 
 using Microsoft.Bank.BankAccount;
-using Microsoft.Bank.Ledger;
 using Microsoft.Bank.Check;
-using Microsoft.HumanResources.Payables;
-using Microsoft.Purchases.Payables;
-using Microsoft.Pricing.Calculation;
-using Microsoft.Pricing.PriceList;
-using Microsoft.FixedAssets.Setup;
+using Microsoft.Bank.Ledger;
+using Microsoft.CRM.Interaction;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Ledger;
-using Microsoft.CRM.Interaction;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Finance.VAT.Registration;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.FixedAssets.Setup;
+using Microsoft.Foundation.BatchProcessing;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.HumanResources.Payables;
+using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
-using Microsoft.Foundation.NoSeries;
-using Microsoft.Inventory.Costing;
+using Microsoft.Inventory.Tracking;
 using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
 using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
-using Microsoft.Purchases.History;
-using Microsoft.Purchases.Pricing;
-using Microsoft.Inventory.Tracking;
-using Microsoft.Sales.History;
-using System.Environment.Configuration;
-using Microsoft.Warehouse.Request;
-using Microsoft.Foundation.BatchProcessing;
-using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Projects.Project.Setup;
-using Microsoft.Finance.VAT.Registration;
-using Microsoft.Finance.VAT.Setup;
-using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Payables;
+using Microsoft.Purchases.Pricing;
+using Microsoft.Sales.History;
+using Microsoft.Warehouse.Request;
+using System.Environment.Configuration;
 
 permissionset 2909 "D365 PURCH DOC, POST"
 {
@@ -65,6 +66,7 @@ permissionset 2909 "D365 PURCH DOC, POST"
                   tabledata "Jobs Setup" = R,
                   tabledata "No. Series Line" = RIMD,
                   tabledata "Post Value Entry to G/L" = I,
+                  tabledata "Posted Matched Order Line" = Rimd,
                   tabledata "Price Asset" = RIMD,
                   tabledata "Price Calculation Buffer" = RIMD,
                   tabledata "Price Calculation Setup" = RIMD,
@@ -80,10 +82,8 @@ permissionset 2909 "D365 PURCH DOC, POST"
                   tabledata "Purch. Rcpt. Header" = imD,
                   tabledata "Purch. Rcpt. Line" = imd,
                   tabledata "Purchase Discount Access" = RIMD,
-#if not CLEAN25
                   tabledata "Purchase Line Discount" = RIMD,
                   tabledata "Purchase Price" = RIMD,
-#endif
                   tabledata "Purchase Price Access" = RIMD,
                   tabledata "Reservation Entry" = I,
                   tabledata "Return Shipment Header" = im,
@@ -93,6 +93,7 @@ permissionset 2909 "D365 PURCH DOC, POST"
                   tabledata "Sent Notification Entry" = RIMD,
                   tabledata "VAT Entry" = Rimd,
                   tabledata "VAT Registration No. Format" = R,
+                  tabledata "VAT Return Period" = R,
                   tabledata "VAT Setup" = R,
                   tabledata "VAT Posting Parameters" = R,
                   tabledata "Vendor Ledger Entry" = iMd,

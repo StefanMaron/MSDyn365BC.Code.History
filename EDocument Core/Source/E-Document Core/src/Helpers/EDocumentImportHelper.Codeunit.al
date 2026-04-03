@@ -8,21 +8,21 @@ using Microsoft.Bank.Reconciliation;
 #if not CLEAN26
 using Microsoft.eServices.EDocument.Processing.Import;
 #endif
+using Microsoft.eServices.EDocument.Service.Participant;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
-using System.Reflection;
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
-using Microsoft.eServices.EDocument.Service.Participant;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Setup;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Utilities;
 using System.IO;
+using System.Reflection;
 
 codeunit 6109 "E-Document Import Helper"
 {
@@ -136,6 +136,9 @@ codeunit 6109 "E-Document Import Helper"
 
         GTIN := NoFieldRef.Value;
         if GTIN = '' then
+            exit(false);
+
+        if StrLen(GTIN) > MaxStrLen(Item.GTIN) then
             exit(false);
 
         Item.SetRange(GTIN, GTIN);
@@ -352,7 +355,9 @@ codeunit 6109 "E-Document Import Helper"
     var
         PurchaseHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
+#pragma warning disable AL0432 
         TempVATAmountLine: Record "VAT Amount Line" temporary;
+#pragma warning restore AL0432
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         InvoiceDiscountAmount: Decimal;
         InvDiscBaseAmount: Decimal;
@@ -621,6 +626,9 @@ codeunit 6109 "E-Document Import Helper"
     begin
         if not Vendor.Get(VendorNo) then
             EDocErrorHelper.LogSimpleErrorMessage(EDocument, StrSubstNo(VendorNotFoundErr, EDocument."Bill-to/Pay-to Name"));
+
+        if Vendor."Self-Billing Agreement" then
+            LogErrorIfVendorIsSelfBilling(EDocument, Vendor);
     end;
 
     /// <summary>
@@ -642,6 +650,12 @@ codeunit 6109 "E-Document Import Helper"
         ServiceParticipant.SetRange(Service);
         if ServiceParticipant.FindFirst() then
             exit(ServiceParticipant.Participant);
+    end;
+
+    procedure LogErrorIfVendorIsSelfBilling(var EDocument: Record "E-Document"; Vendor: Record Vendor)
+    begin
+        if (EDocument."Direction" = Enum::"E-Document Direction"::"Incoming") then
+            EDocErrorHelper.LogSimpleErrorMessage(EDocument, StrSubstNo(SelfBillingVendorErr, Vendor."No."));
     end;
 
 #if not CLEAN26
@@ -1032,5 +1046,6 @@ codeunit 6109 "E-Document Import Helper"
         UnableToApplyDiscountErr: Label 'The invoice discount of %1 cannot be applied. Invoice discount must be allowed on at least one invoice line and invoice total must not be 0.', Comment = '%1 - a decimal number';
         TotalsMismatchErr: Label 'The total amount %1 on the created document is different than the total amount %2 in the electronic document.', Comment = '%1 total amount, %2 expected total amount';
         VendorNotFoundErr: Label 'Cannot find vendor ''%1'' based on the vendor''s name, address or VAT registration number on the electronic document. Make sure that a card for the vendor exists with the corresponding name, address or VAT Registration No.', Comment = '%1 Vendor name (e.g. London Postmaster)';
+        SelfBillingVendorErr: Label 'Inbound E-Document blocked for vendor %1 due to Self-Billing Agreement. Supplier-issued invoices cannot be processed for this vendor.', Comment = '%1 Vendor name (e.g. London Postmaster)';
         NotSpecifiedUnitOfMeasureTxt: Label '<NONE>';
 }

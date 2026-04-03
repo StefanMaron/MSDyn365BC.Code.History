@@ -4,8 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Reporting;
 
-using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Foundation.Address;
 

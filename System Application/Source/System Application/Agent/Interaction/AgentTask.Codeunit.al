@@ -7,9 +7,7 @@ namespace System.Agents;
 
 using System.Environment;
 
-#pragma warning disable AS0130, PTE0025 // The object conflicts with a platform codeunit which will be renamed.
 codeunit 4303 "Agent Task"
-#pragma warning restore AS0130, PTE0025
 {
     InherentEntitlements = X;
     InherentPermissions = X;
@@ -136,6 +134,18 @@ codeunit 4303 "Agent Task"
     begin
         FeatureAccessManagement.AgentTaskManagementPreviewEnabled(true);
         exit(AgentTaskImpl.IsTaskStopped(AgentTask));
+    end;
+
+    /// <summary>
+    /// Gets the total Copilot credits consumed by the agent task.
+    /// </summary>
+    /// <param name="AgentTaskID">The ID of the agent task to get consumed credits for.</param>
+    /// <returns>The total Copilot credits consumed by the agent task.</returns>
+    procedure GetCopilotCreditsConsumed(AgentTaskID: BigInteger): Decimal
+    var
+        AgentTaskImpl: Codeunit "Agent Task Impl.";
+    begin
+        exit(AgentTaskImpl.GetCopilotCreditsConsumed(AgentTaskID));
     end;
 
     var

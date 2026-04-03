@@ -12,9 +12,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
     var
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-#if not CLEAN25
         LibraryCosting: Codeunit "Library - Costing";
-#endif
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemReference: Codeunit "Library - Item Reference";
@@ -27,11 +25,9 @@ codeunit 137296 "SCM Inventory Misc. IV"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
-#if not CLEAN25
         LibraryJob: Codeunit "Library - Job";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
-#endif
         isInitialized: Boolean;
         AmountError: Label 'Amount must be equal.';
         ItemVariantError: Label 'You cannot delete item variant %1 because there is at least one %2 that includes this Variant Code.';
@@ -334,7 +330,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
     [Test]
     [Scope('OnPrem')]
-    procedure DoNotUpdatePhysInvCountingPeriodOnPhysInventoryOutsideThePeriod()
+    procedure DoNotUpdatePhysInvCountingPeriodOnPhysInventoryOutsideThePeriodMonthlyCounting()
     var
         Item: Record Item;
         PhysInvtCountManagement: Codeunit "Phys. Invt. Count.-Management";
@@ -343,18 +339,47 @@ codeunit 137296 "SCM Inventory Misc. IV"
         CountFrequency: Integer;
     begin
         // [FEATURE] [Physical Inventory] [UT]
-        // [SCENARIO 379410] Next Counting Start and End Dates are not updated when Phys. Inventory is posted one day before the starting date of the Counting Period.
+        // [SCENARIO 379410] Next Counting Start and End Dates are not updated when Phys. Inventory is posted one day before the starting date of the Counting Period with monthly counting.
         Initialize();
 
-        // [GIVEN] Item with a Phys. Inventory Counting Period.
-        CountFrequency := LibraryRandom.RandInt(100);
+        // [GIVEN] Item with a Phys. Inventory Counting Period, monthly counting frequency.
+        CountFrequency := 12;
         UpdatePhysInvCountingPeriodOnItem(Item, CountFrequency);
         NextCountingStartDate := Item."Next Counting Start Date";
         NextCountingEndDate := Item."Next Counting End Date";
 
         // [WHEN] Call "Phys. Invt. Count Management".CalcPeriod function with a Phys. Inventory posting date parameter a day before the period start.
         PhysInvtCountManagement.CalcPeriod(
-          NextCountingStartDate - 1, Item."Next Counting Start Date", Item."Next Counting End Date", CountFrequency);
+            NextCountingStartDate - 1, Item."Next Counting Start Date", Item."Next Counting End Date", CountFrequency);
+
+        // [THEN] Next Counting Start and End Dates are not updated.
+        Item.TestField("Next Counting Start Date", NextCountingStartDate);
+        Item.TestField("Next Counting End Date", NextCountingEndDate);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DoNotUpdatePhysInvCountingPeriodOnPhysInventoryOutsideThePeriodBiweeklyCounting()
+    var
+        Item: Record Item;
+        PhysInvtCountManagement: Codeunit "Phys. Invt. Count.-Management";
+        NextCountingStartDate: Date;
+        NextCountingEndDate: Date;
+        CountFrequency: Integer;
+    begin
+        // [FEATURE] [Physical Inventory] [UT]
+        // [SCENARIO 379410] Next Counting Start and End Dates are not updated when Phys. Inventory is posted one day before the starting date of the Counting Period with biweekly counting.
+        Initialize();
+
+        // [GIVEN] Item with a Phys. Inventory Counting Period, biweekly counting frequency.
+        CountFrequency := 24;
+        UpdatePhysInvCountingPeriodOnItem(Item, CountFrequency);
+        NextCountingStartDate := Item."Next Counting Start Date";
+        NextCountingEndDate := Item."Next Counting End Date";
+
+        // [WHEN] Call "Phys. Invt. Count Management".CalcPeriod function with a Phys. Inventory posting date parameter a day before the period start.
+        PhysInvtCountManagement.CalcPeriod(
+            NextCountingStartDate - 1, Item."Next Counting Start Date", Item."Next Counting End Date", CountFrequency);
 
         // [THEN] Next Counting Start and End Dates are not updated.
         Item.TestField("Next Counting Start Date", NextCountingStartDate);
@@ -508,7 +533,6 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Assert.AreEqual(20200214D, NextCountingEndDate, WrongNextCountingEndDateErr);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure DirectUnitCostOnPurchLineFromPurchPrice()
@@ -858,7 +882,6 @@ codeunit 137296 "SCM Inventory Misc. IV"
         // [THEN] Verify Line Discount on Posted Purchase Invoice after posting Purchase Invoice using Copy Document.
         VerifyPstdPurchaseInvoice(DocumentNo, Item."Last Direct Cost", LineDiscountPct);
     end;
-#endif
 
     [Test]
     [HandlerFunctions('MessageHandler,ConfirmHandler')]
@@ -1590,7 +1613,6 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Item.TestField("Trans. Ord. Receipt (Qty.)", 0);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseVariantZeroLineDiscount()
@@ -1712,7 +1734,6 @@ codeunit 137296 "SCM Inventory Misc. IV"
         // [THEN] "L"."Line Discount %" = 0
         JobJournalLine.TestField("Line Discount %", 0);
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1953,7 +1974,6 @@ codeunit 137296 "SCM Inventory Misc. IV"
         InventoryQuantity := TransferQuantity + LibraryRandom.RandIntInRange(10, 100);
     end;
 
-#if not CLEAN25
     local procedure CreatePurchaseOrderLineWithItemVariant(var PurchaseLine: Record "Purchase Line"; ItemVariant: Record "Item Variant"; VendorNo: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
@@ -2044,7 +2064,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         RequisitionLine.Modify(true);
         LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
     end;
-#endif
+
     local procedure AcceptOrderPromising(var RequisitionLine: Record "Requisition Line"; var OrderPromisingLine: Record "Order Promising Line"; var SalesHeader: Record "Sales Header")
     var
         AvailabilityMgt: Codeunit AvailabilityManagement;
@@ -2063,7 +2083,6 @@ codeunit 137296 "SCM Inventory Misc. IV"
         exit(PostPurchaseDocument(PurchaseLine, Invoice));
     end;
 
-#if not CLEAN25
     local procedure CalculateRegPlanAndCarryOutActionMsg(ItemNo: Code[20])
     var
         RequisitionLine: Record "Requisition Line";
@@ -2079,7 +2098,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         AcceptAndCarryOutActionMessage(ItemNo);
     end;
-#endif
+
     local procedure CreateAndModifyItem(VendorNo: Code[20]; FlushingMethod: Enum "Flushing Method"; ReplenishmentSystem: Enum "Replenishment System"): Code[20]
     var
         Item: Record Item;
@@ -2093,7 +2112,6 @@ codeunit 137296 "SCM Inventory Misc. IV"
         exit(Item."No.");
     end;
 
-#if not CLEAN25
     local procedure CreateAndModifyVendor(CurrencyCode: Code[10]): Code[20]
     var
         Vendor: Record Vendor;
@@ -2103,7 +2121,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
-#endif
+
     local procedure CreateAndCertifyProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; BaseUnitOfMeasure: Code[10]; No: Code[20]; RoutingLinkCode: Code[10])
     var
         ProductionBOMLine: Record "Production BOM Line";
@@ -2124,7 +2142,6 @@ codeunit 137296 "SCM Inventory Misc. IV"
         AvailabilityMgt.CalcCapableToPromise(OrderPromisingLine, SalesHeader."No.");
     end;
 
-#if not CLEAN25
     local procedure CreateCurrency(): Code[10]
     var
         Currency: Record Currency;
@@ -2133,7 +2150,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
         exit(Currency.Code);
     end;
-#endif
+
     local procedure CreateCustomer(): Code[20]
     var
         Customer: Record Customer;
@@ -2287,7 +2304,6 @@ codeunit 137296 "SCM Inventory Misc. IV"
         GeneralPostingSetup.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; LocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
@@ -2324,7 +2340,6 @@ codeunit 137296 "SCM Inventory Misc. IV"
         PurchasePrice.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));  // take random for Direct Unit Cost.
         PurchasePrice.Modify(true);
     end;
-#endif
 
     local procedure CreateRoutingSetup(WorkCenterNo: Code[20]; RoutingLinkCode: Code[10]): Code[20]
     var
@@ -2525,14 +2540,13 @@ codeunit 137296 "SCM Inventory Misc. IV"
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
-#if not CLEAN25
     local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceNo: Code[20])
     begin
         WarehouseReceiptLine.SetRange("Source Document", WarehouseReceiptLine."Source Document"::"Purchase Order");
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
         WarehouseReceiptLine.FindFirst();
     end;
-#endif
+
     local procedure SetupForPostOutputJournal(var ProductionOrder: Record "Production Order"; ItemNo: Code[20])
     var
         Item: Record Item;
@@ -2582,14 +2596,12 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Item.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure UpdateLineDiscOnPurchLineDisc(PurchaseLineDiscount: Record "Purchase Line Discount"): Decimal
     begin
         PurchaseLineDiscount.Validate("Line Discount %", PurchaseLineDiscount."Line Discount %" + LibraryRandom.RandDec(10, 2));  // Take random to update Line Discount Pct.
         PurchaseLineDiscount.Modify(true);
         exit(PurchaseLineDiscount."Line Discount %");
     end;
-#endif
 
     local procedure UpdatePhysInvCountingPeriodOnItem(var Item: Record Item; CountFrequency: Integer)
     begin
@@ -2598,7 +2610,6 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Item.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure UpdatePurchLineQtyForPartialPost(var PurchaseLine: Record "Purchase Line")
     begin
         PurchaseLine.Validate("Qty. to Receive", PurchaseLine."Qty. to Receive" / 2);
@@ -2612,7 +2623,6 @@ codeunit 137296 "SCM Inventory Misc. IV"
         PurchasePrice.Modify(true);
         exit(PurchasePrice."Direct Unit Cost");
     end;
-#endif
 
     local procedure UpdateInventory(ItemNo: Code[20]; LocationCode: Code[10]; Quantuty: Decimal)
     var
@@ -2661,7 +2671,6 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Assert.AreNearlyEqual(Amount, ActualAmount, LibraryERM.GetAmountRoundingPrecision(), AmountError);
     end;
 
-#if not CLEAN25
     local procedure VerifyPstdPurchaseInvoice(DocumentNo: Code[20]; DirectUnitCost: Decimal; LineDiscountPct: Decimal)
     var
         PurchInvLine: Record "Purch. Inv. Line";
@@ -2672,7 +2681,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         PurchInvLine.TestField("Direct Unit Cost", DirectUnitCost);
         PurchInvLine.TestField("Line Discount %", LineDiscountPct);
     end;
-#endif
+
     local procedure VerifyValueEntry(ItemLedgerEntryType: Enum "Item Ledger Entry Type"; DocumentNo: Code[20]; ItemNo: Code[20])
     var
         ValueEntry: Record "Value Entry";

@@ -8,6 +8,7 @@ using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Consolidation;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Setup;
+using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Item;
@@ -15,7 +16,6 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using System.Reflection;
 using System.Utilities;
-using Microsoft.Foundation.AuditCodes;
 
 report 11514 "G/L Setup Information"
 {

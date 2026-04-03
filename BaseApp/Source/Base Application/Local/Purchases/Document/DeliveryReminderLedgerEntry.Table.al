@@ -4,8 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Document;
 
-using Microsoft.Purchases.Vendor;
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.Purchases.Vendor;
 using Microsoft.Utilities;
 
 table 5005274 "Delivery Reminder Ledger Entry"
@@ -55,16 +55,19 @@ table 5005274 "Delivery Reminder Ledger Entry"
         }
         field(15; "Reorder Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Reorder Quantity';
             DecimalPlaces = 0 : 5;
         }
         field(16; "Remaining Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Remaining Quantity';
             DecimalPlaces = 0 : 5;
         }
         field(17; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
         }

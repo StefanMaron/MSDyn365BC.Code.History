@@ -7,12 +7,12 @@ namespace Microsoft.Inventory.Counting;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.HumanResources.Employee;
 using Microsoft.Inventory.Location;
 using Microsoft.Sales.History;
 using Microsoft.Warehouse.Structure;
-using Microsoft.Foundation.AuditCodes;
 
 table 5005350 "Phys. Inventory Order Header"
 {

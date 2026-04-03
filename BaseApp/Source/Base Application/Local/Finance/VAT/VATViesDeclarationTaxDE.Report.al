@@ -5,10 +5,10 @@
 namespace Microsoft.Finance.VAT.Reporting;
 
 using Microsoft.Finance.VAT.Ledger;
-using System.Utilities;
-using Microsoft.Foundation.Company;
 using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Company;
 using Microsoft.Sales.Customer;
+using System.Utilities;
 
 report 11007 "VAT-Vies Declaration Tax - DE"
 {

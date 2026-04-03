@@ -4,16 +4,18 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Upgrade;
 
-using Microsoft.Assembly.Document;
 using Microsoft.API.Upgrade;
+using Microsoft.Assembly.Document;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Check;
+using Microsoft.Bank.DirectDebit;
+using Microsoft.Bank.Payment;
+using Microsoft.Bank.Reconciliation;
+using Microsoft.Bank.Setup;
 using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Opportunity;
 using Microsoft.CRM.Team;
-using Microsoft.Bank.BankAccount;
-using Microsoft.Bank.Check;
-using Microsoft.Bank.Payment;
-using Microsoft.Bank.Reconciliation;
 using Microsoft.EServices.OnlineMap;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -23,6 +25,8 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Setup;
+using Microsoft.FixedAssets.FixedAsset;
+using Microsoft.FixedAssets.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Company;
@@ -31,15 +35,15 @@ using Microsoft.Foundation.Reporting;
 using Microsoft.Foundation.Task;
 using Microsoft.Foundation.UOM;
 using Microsoft.HumanResources.Employee;
-using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.D365Sales;
+using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.Entity;
 using Microsoft.Integration.Graph;
 using Microsoft.Integration.SyncEngine;
 using Microsoft.Intercompany.Inbox;
 using Microsoft.Intercompany.Journal;
 using Microsoft.Intercompany.Outbox;
-using Microsoft.Sales.Reminder;
+using Microsoft.Inventory.Analysis;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
@@ -54,16 +58,18 @@ using Microsoft.Projects.Project.Setup;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
-using Microsoft.Purchases.Vendor;
 using Microsoft.Purchases.Setup;
+using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
+using Microsoft.Sales.Reminder;
 using Microsoft.Sales.Setup;
+using Microsoft.Service.History;
+using Microsoft.Utilities;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Structure;
-using Microsoft.Utilities;
 using System.Automation;
 using System.Environment;
 using System.Environment.Configuration;
@@ -79,17 +85,14 @@ using System.Telemetry;
 using System.Threading;
 using System.Upgrade;
 using System.Utilities;
-using Microsoft.FixedAssets.FixedAsset;
-using Microsoft.FixedAssets.Setup;
-using Microsoft.Bank.Setup;
-using Microsoft.Bank.DirectDebit;
 
 codeunit 104000 "Upgrade - BaseApp"
 {
     Subtype = Upgrade;
     Permissions =
         TableData "User Group Plan" = rimd,
-        TableData "Cust. Ledger Entry" = rm;
+        TableData "Cust. Ledger Entry" = rm,
+        Tabledata "ABC Analysis Setup" = ri;
 
     var
         HybridDeployment: Codeunit "Hybrid Deployment";
@@ -112,6 +115,9 @@ codeunit 104000 "Upgrade - BaseApp"
         ProductionOrderLbl: Label 'PRODUCTION', Locked = true;
         ProductionOrderTxt: Label 'Production Order', Locked = true;
         JobConsumpWhseHandlingUnexpectedValueLbl: Label 'UpgradeJobConsumpWhseHandlingForDirectedPutAwayAndPickLocation skipped. %1 set to different value than %2 for at least one record in table %3 with %4 enabled.', Comment = '%1 = "Job Consump. Whse. Handling" field caption, %2 = "Job Consump. Whse. Handling" expected value, %3 = "Location" table caption, %4 = "Directed Put-away and Pick" field caption', Locked = true;
+        PurchRcptLineFieldsAlreadyPopulatedLbl: Label 'UpgradePurchRcptLineFields skipped. Purch. Rcpt. Line records already have values populated.', Locked = true;
+        SalesShptLineFieldsAlreadyPopulatedLbl: Label 'UpgradeSalesShptLineFields skipped. Sales Shipment Line records already have values populated.', Locked = true;
+        ServiceShptLineFieldsAlreadyPopulatedLbl: Label 'UpgradeServiceShptLineFields skipped. Service Shipment Line records already have values populated.', Locked = true;
         SEPACAMTMappingBankAccRecLineLbl: Label 'SEPA CAMT to Bank Acc. Reconciliation Line', Comment = 'SEPA CAMT is ISO standard name, should not be translated. Bank Acc. Reconciliation Line is the name of table 274 - use its translated caption here.', MaxLength = 250;
         SEPACAMTMappingGenJnlLineLbl: Label 'SEPA CAMT to Gen. Journal Line', Comment = 'SEPA CAMT is ISO standard name, should not be translated. Gen. Journal Line is the name of table 81 - use its translated caption here.', MaxLength = 250;
         DataExchangeDefinitionsFolderLbl: Label 'DataExchangeDefinitions', Locked = true;
@@ -141,6 +147,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeSharePointConnection();
         CreateDefaultAADApplication();
         CreatePowerPagesAAdApplications();
+        CreateExpenseAgentAADApplications();
         UpgradePowerBIOptin();
     end;
 
@@ -226,6 +233,11 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeIntegrationTableMappingTemplates();
         UpgradeICOutboxTransactionSourceType();
         UpgradeICTransactionSourceType();
+        UpgradeABCAnalysisSetup();
+        UpgradePurchRcptLineFields();
+        UpgradeSalesShptLineFields();
+        UpgradeServiceShptLineFields();
+        UpgradeFinancialReportAuditLogAddRetentionPolicy();
     end;
 
     local procedure ClearTemporaryTables()
@@ -3504,6 +3516,18 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultPowerPagesAADApplicationsTag());
     end;
 
+    local procedure CreateExpenseAgentAADApplications()
+    var
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        AADApplicationSetup: Codeunit "AAD Application Setup";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCreateExpenseAgentAADApplicationsTag()) then
+            exit;
+        AADApplicationSetup.CreateExpenseAgentAADApplications();
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCreateExpenseAgentAADApplicationsTag());
+    end;
+
     local procedure CheckLedgerEntriesMoveFromRecordIDToSystemId()
     var
         CheckLedgerEntry: Record "Check Ledger Entry";
@@ -3783,9 +3807,125 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetICTransactionSourceTypeUpgradeTag());
     end;
 
+    local procedure UpgradePurchRcptLineFields()
+    var
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        PurchRcptLineDataTransfer: DataTransfer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPurchRcptLineFieldsUpgradeTag()) then
+            exit;
+
+        PurchRcptLine.FilterGroup(-1);
+        PurchRcptLine.SetFilter("Your Reference", '<>%1', '');
+        PurchRcptLine.SetFilter("Vendor Shipment No.", '<>%1', '');
+        PurchRcptLine.SetFilter("Vendor Order No.", '<>%1', '');
+        PurchRcptLine.FilterGroup(0);
+        if not PurchRcptLine.IsEmpty() then begin
+            Session.LogMessage('0000RIS', PurchRcptLineFieldsAlreadyPopulatedLbl, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'AL SaaS Upgrade');
+            exit;
+        end;
+
+        PurchRcptLineDataTransfer.SetTables(Database::"Purch. Rcpt. Header", Database::"Purch. Rcpt. Line");
+        PurchRcptLineDataTransfer.AddJoin(PurchRcptHeader.FieldNo("No."), PurchRcptLine.FieldNo("Document No."));
+        PurchRcptLineDataTransfer.AddFieldValue(PurchRcptHeader.FieldNo("Vendor Order No."), PurchRcptLine.FieldNo("Vendor Order No."));
+        PurchRcptLineDataTransfer.AddFieldValue(PurchRcptHeader.FieldNo("Vendor Shipment No."), PurchRcptLine.FieldNo("Vendor Shipment No."));
+        PurchRcptLineDataTransfer.AddFieldValue(PurchRcptHeader.FieldNo("Your Reference"), PurchRcptLine.FieldNo("Your Reference"));
+        PurchRcptLineDataTransfer.UpdateAuditFields := false;
+        PurchRcptLineDataTransfer.CopyFields();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPurchRcptLineFieldsUpgradeTag());
+    end;
+
+    local procedure UpgradeSalesShptLineFields()
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        SalesShptLineDataTransfer: DataTransfer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesShptLineFieldsUpgradeTag()) then
+            exit;
+
+        SalesShipmentLine.FilterGroup(-1);
+        SalesShipmentLine.SetFilter("Your Reference", '<>%1', '');
+        SalesShipmentLine.SetFilter("External Document No.", '<>%1', '');
+        SalesShipmentLine.FilterGroup(0);
+        if not SalesShipmentLine.IsEmpty() then begin
+            Session.LogMessage('0000RIT', SalesShptLineFieldsAlreadyPopulatedLbl, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'AL SaaS Upgrade');
+            exit;
+        end;
+
+        SalesShptLineDataTransfer.SetTables(Database::"Sales Shipment Header", Database::"Sales Shipment Line");
+        SalesShptLineDataTransfer.AddJoin(SalesShipmentHeader.FieldNo("No."), SalesShipmentLine.FieldNo("Document No."));
+        SalesShptLineDataTransfer.AddFieldValue(SalesShipmentHeader.FieldNo("External Document No."), SalesShipmentLine.FieldNo("External Document No."));
+        SalesShptLineDataTransfer.AddFieldValue(SalesShipmentHeader.FieldNo("Your Reference"), SalesShipmentLine.FieldNo("Your Reference"));
+        SalesShptLineDataTransfer.UpdateAuditFields := false;
+        SalesShptLineDataTransfer.CopyFields();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesShptLineFieldsUpgradeTag());
+    end;
+
+    local procedure UpgradeServiceShptLineFields()
+    var
+        ServiceShipmentHeader: Record "Service Shipment Header";
+        ServiceShipmentLine: Record "Service Shipment Line";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        ServiceShptLineDataTransfer: DataTransfer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetServiceShptLineFieldsUpgradeTag()) then
+            exit;
+
+        ServiceShipmentLine.FilterGroup(-1);
+        ServiceShipmentLine.SetFilter("Your Reference", '<>%1', '');
+        ServiceShipmentLine.SetFilter("External Document No.", '<>%1', '');
+        ServiceShipmentLine.FilterGroup(0);
+        if not ServiceShipmentLine.IsEmpty() then begin
+            Session.LogMessage('0000RIU', ServiceShptLineFieldsAlreadyPopulatedLbl, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'AL SaaS Upgrade');
+            exit;
+        end;
+
+        ServiceShptLineDataTransfer.SetTables(Database::"Service Shipment Header", Database::"Service Shipment Line");
+        ServiceShptLineDataTransfer.AddJoin(ServiceShipmentHeader.FieldNo("No."), ServiceShipmentLine.FieldNo("Document No."));
+        ServiceShptLineDataTransfer.AddFieldValue(ServiceShipmentHeader.FieldNo("External Document No."), ServiceShipmentLine.FieldNo("External Document No."));
+        ServiceShptLineDataTransfer.AddFieldValue(ServiceShipmentHeader.FieldNo("Your Reference"), ServiceShipmentLine.FieldNo("Your Reference"));
+        ServiceShptLineDataTransfer.UpdateAuditFields := false;
+        ServiceShptLineDataTransfer.CopyFields();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetServiceShptLineFieldsUpgradeTag());
+    end;
+
     local procedure SEPACAMT05300108(): Code[20]
     begin
         exit('SEPA CAMT 053-08');
     end;
 
+    local procedure UpgradeABCAnalysisSetup()
+    var
+        ABCAnalysisSetup: Record "ABC Analysis Setup";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetInitializeABCAnalysisSetupUpgradeTag()) then
+            exit;
+
+        if not ABCAnalysisSetup.Get() then begin
+            ABCAnalysisSetup.Init();
+            ABCAnalysisSetup.InitializeValues();
+            ABCAnalysisSetup.Insert();
+        end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetInitializeABCAnalysisSetupUpgradeTag());
+    end;
+
+    local procedure UpgradeFinancialReportAuditLogAddRetentionPolicy()
+    var
+        FinancialReportAutiting: Codeunit "Financial Report Auditing";
+    begin
+        FinancialReportAutiting.AddRetentionPolicy();
+    end;
 }

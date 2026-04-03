@@ -1,4 +1,3 @@
-#if not CLEAN25
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -7,13 +6,13 @@ namespace Microsoft.Sales.Pricing;
 
 using System.Utilities;
 
+/// <summary>
+/// Applies price changes from the Sales Price Worksheet to the actual Sales Price table.
+/// </summary>
 report 7053 "Implement Price Change"
 {
     Caption = 'Implement Price Change';
     ProcessingOnly = true;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-    ObsoleteTag = '16.0';
 
     dataset
     {
@@ -110,14 +109,22 @@ report 7053 "Implement Price Change"
 #pragma warning restore AA0470
 #pragma warning restore AA0074
 
+    /// <summary>
+    /// Initializes the request parameters for the report.
+    /// </summary>
+    /// <param name="NewDeleteWhstLine">Specifies whether to delete worksheet lines after implementing price changes.</param>
     procedure InitializeRequest(NewDeleteWhstLine: Boolean)
     begin
         DeleteWhstLine := NewDeleteWhstLine;
     end;
 
+    /// <summary>
+    /// Raises an event after copying data from the sales price worksheet to the sales price record.
+    /// </summary>
+    /// <param name="SalesPrice">The sales price record being populated.</param>
+    /// <param name="SalesPriceWorksheet">The source sales price worksheet record.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyToSalesPrice(var SalesPrice: Record "Sales Price"; SalesPriceWorksheet: Record "Sales Price Worksheet")
     begin
     end;
 }
-#endif

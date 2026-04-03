@@ -484,24 +484,35 @@ page 8905 "Purchasing Manager Role Center"
                             Caption = 'Vendor - Detail Trial Balance';
                             RunObject = report "Vendor - Detail Trial Balance";
                         }
+#if not CLEAN28
                         action("Vendor - Top 10 List")
                         {
                             ApplicationArea = Suite;
-                            Caption = 'Vendor - Top 10 List';
+                            Caption = 'Vendor - Top 10 List (Obsolete)';
                             RunObject = report "Vendor - Top 10 List";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This report has been replaced by the report Vendor - Top List (Excel). This report will be removed in a future release.';
+                            ObsoleteTag = '28.0';
                         }
                         action("Vendor - List")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'Vendor - List';
+                            Caption = 'Vendor - List (Obsolete)';
                             RunObject = report "Vendor - List";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This report is obsolete and will be removed in a future release. See the documentation for alternative options.';
+                            ObsoleteTag = '28.0';
                         }
                         action("Vendor - Summary Aging")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'Vendor - Summary Aging';
+                            Caption = 'Vendor - Summary Aging (Obsolete)';
                             RunObject = report "Vendor - Summary Aging";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This report is obsolete and will be removed in a future release. See the documentation for alternative options.';
+                            ObsoleteTag = '28.0';
                         }
+#endif
                         action("Vendor Detailed Aging")
                         {
                             ApplicationArea = Basic, Suite;
@@ -530,11 +541,23 @@ page 8905 "Purchasing Manager Role Center"
                             Caption = 'Inventory - Vendor Purchases';
                             RunObject = report "Inventory - Vendor Purchases";
                         }
+#if not CLEAN28
                         action("Inventory - Availability Plan")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'Inventory - Availability Plan';
+                            Caption = 'Inventory - Availability Plan (Obsolete)';
                             RunObject = report "Inventory - Availability Plan";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This report has been replaced by the report Inventory - Availability Plan (Excel). This report will be removed in a future release.';
+                            ObsoleteTag = '28.0';
+                        }
+#endif
+                        action("Inventory - Availability Plan Excel")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Inventory - Availability Plan (Excel)';
+                            RunObject = report "Inv. Availability Plan";
+                            ToolTip = 'View a list of the quantity of each item in customer, purchase, and transfer orders and the quantity available in inventory. The list is divided into columns that cover six periods with starting and ending dates as well as the periods before and after those periods. The list is useful when you are planning your inventory purchases.';
                         }
                         action("Inventory Purchase Orders1")
                         {
@@ -633,12 +656,17 @@ page 8905 "Purchasing Manager Role Center"
                         Caption = 'Inventory - List';
                         RunObject = report "Inventory - List";
                     }
+#if not CLEAN28
                     action("Item Age Composition - Qty.")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Item Age Composition - Qty.';
+                        Caption = 'Item Age Composition - Qty. (Obsolete)';
                         RunObject = report "Item Age Composition - Qty.";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report has been deprecated and will be removed in a future release.';
+                        ObsoleteTag = '28.0';
                     }
+#endif
                     action("Inventory - Cost Variance1")
                     {
                         ApplicationArea = Basic, Suite;
@@ -752,18 +780,6 @@ page 8905 "Purchasing Manager Role Center"
                     Caption = 'Report Selections Purchase';
                     RunObject = page "Report Selection - Purchase";
                 }
-#if not CLEAN25
-                action("Report Selection - Comf. Purch")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Report Selection - Comf. Purch';
-                    RunObject = page "Report Selection - Comf. Purch";
-                    Visible = false;
-                    ObsoleteReason = 'Replaced by action Report Selection Purchase';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-                }
-#endif
                 action("Req. Worksheet")
                 {
                     ApplicationArea = Planning;

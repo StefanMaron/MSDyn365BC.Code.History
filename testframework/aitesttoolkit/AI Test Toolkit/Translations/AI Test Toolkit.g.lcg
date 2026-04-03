@@ -5,6 +5,267 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Page 3812009960 - NamedType 868563014" ItemType=";PageExtension - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[An agent with the name %1 was not found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - The name of the agent.]D;]A;(ObjectTarget=PageExtension 1256354187)(Namespace=System.TestLibraries.Agents)(LookupHint=PageExtension Agent Test Suite - NamedType AgentWithNameNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3812009960 - Control 3055657091 - Property 1295455071" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the agent to be used by the tests. You can use this field to test different configurations without changing the code. If you manually configure the agent and set it on the suite, this instance will be used in the eval runs. If you leave it blank, the system will automatically create an agent for each run.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 3812009960)(Namespace=System.TestLibraries.Agents)(LookupHint=PageExtension Agent Test Suite - Control TestSuiteAgent - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3812009960 - Control 3055657091 - Property 2879900210" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Agent]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 3812009960)(Namespace=System.TestLibraries.Agents)(LookupHint=PageExtension Agent Test Suite - Control TestSuiteAgent - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3812009960 - Control 4078951737 - Property 1295455071" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the number of Agent Tasks related to the current version.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 3812009960)(Namespace=System.TestLibraries.Agents)(LookupHint=PageExtension Agent Test Suite - Control Agent Task Count - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3812009960 - Control 4078951737 - Property 2879900210" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Agent tasks]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 3812009960)(Namespace=System.TestLibraries.Agents)(LookupHint=PageExtension Agent Test Suite - Control Agent Task Count - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3812009960 - Control 1143730296 - Property 1295455071" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the total Copilot Credits consumed by the Agent Tasks in the current version.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 3812009960)(Namespace=System.TestLibraries.Agents)(LookupHint=PageExtension Agent Test Suite - Control Copilot Credits - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3812009960 - Control 1143730296 - Property 2879900210" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Copilot credits]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 3812009960)(Namespace=System.TestLibraries.Agents)(LookupHint=PageExtension Agent Test Suite - Control Copilot Credits - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3797975140 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[AI Agent Task Log]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table Agent Task Log - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3797975140 - Field 4099540891 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the Agent Task ID.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table Agent Task Log - Field Agent Task ID - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3797975140 - Field 4099540891 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Agent Task ID]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table Agent Task Log - Field Agent Task ID - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3797975140 - Field 883711285 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the Log Entry No..]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table Agent Task Log - Field Entry No. - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3797975140 - Field 883711285 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Entry No.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table Agent Task Log - Field Entry No. - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3797975140 - Field 3108107879 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the operation.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table Agent Task Log - Field Operation - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3797975140 - Field 3108107879 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Operation]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table Agent Task Log - Field Operation - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3797975140 - Field 3711156646 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the name of the procedure being executed.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table Agent Task Log - Field Procedure Name - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3797975140 - Field 3711156646 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Procedure Name]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table Agent Task Log - Field Procedure Name - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3797975140 - Field 513339096 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the status of the iteration.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table Agent Task Log - Field Status - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3797975140 - Field 513339096 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Status]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table Agent Task Log - Field Status - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3797975140 - Field 513339096 - Property 62802879" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Success,Error]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table Agent Task Log - Field Status - Property OptionCaption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3797975140 - Field 2801749846 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the Tag that we entered in the AI Eval Suite.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table Agent Task Log - Field Tag - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3797975140 - Field 2801749846 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Tag]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table Agent Task Log - Field Tag - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3797975140 - Field 140134549 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the AIT Log Entry ID that this agent task is associated with.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table Agent Task Log - Field Test Log Entry ID - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3797975140 - Field 140134549 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Log Entry ID]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table Agent Task Log - Field Test Log Entry ID - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3797975140 - Field 3714053412 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the Test Method Line No.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table Agent Task Log - Field Test Method Line No. - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3797975140 - Field 3714053412 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Line No.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table Agent Task Log - Field Test Method Line No. - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3797975140 - Field 1161711431 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the Eval Suite Code.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table Agent Task Log - Field Test Suite Code - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3797975140 - Field 1161711431 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Eval Suite Code]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table Agent Task Log - Field Test Suite Code - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3797975140 - Field 237762718 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the Version No. of the eval run.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table Agent Task Log - Field Version - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3797975140 - Field 237762718 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Version]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table Agent Task Log - Field Version - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Table 1325063250 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[AIT Column Mapping]]></Val>
@@ -52,7 +313,7 @@
   </Item>
   <Item ItemId=";Table 1325063250 - Field 1101906057 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the line number of the test method.]]></Val>
+      <Val><![CDATA[Specifies the line number of the eval method.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -61,7 +322,7 @@
   </Item>
   <Item ItemId=";Table 1325063250 - Field 1101906057 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test Method Line]]></Val>
+      <Val><![CDATA[Eval Method Line]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -70,7 +331,7 @@
   </Item>
   <Item ItemId=";Table 1325063250 - Field 1161711431 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the code of the test suite.]]></Val>
+      <Val><![CDATA[Specifies the code of the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -79,7 +340,7 @@
   </Item>
   <Item ItemId=";Table 1325063250 - Field 1161711431 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test Suite Code]]></Val>
+      <Val><![CDATA[Eval Suite Code]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -97,7 +358,7 @@
   </Item>
   <Item ItemId=";Table 466569649 - Field 4055377093 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the evaluator to use in the test suite.]]></Val>
+      <Val><![CDATA[Specifies the evaluator to use in the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -133,7 +394,7 @@
   </Item>
   <Item ItemId=";Table 466569649 - Field 1101906057 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the line number of the test method.]]></Val>
+      <Val><![CDATA[Specifies the line number of the eval method.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -142,7 +403,7 @@
   </Item>
   <Item ItemId=";Table 466569649 - Field 1101906057 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test Method Line]]></Val>
+      <Val><![CDATA[Eval Method Line]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -151,7 +412,7 @@
   </Item>
   <Item ItemId=";Table 466569649 - Field 1161711431 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the code of the test suite.]]></Val>
+      <Val><![CDATA[Specifies the code of the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -160,7 +421,7 @@
   </Item>
   <Item ItemId=";Table 466569649 - Field 1161711431 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test Suite Code]]></Val>
+      <Val><![CDATA[Eval Suite Code]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -169,7 +430,7 @@
   </Item>
   <Item ItemId=";Table 3546231616 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AI Log Entry]]></Val>
+      <Val><![CDATA[AI Eval Log Entry]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -178,7 +439,7 @@
   </Item>
   <Item ItemId=";Table 3546231616 - Field 893385458 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the test codeunit id.]]></Val>
+      <Val><![CDATA[Specifies the eval codeunit id.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -196,7 +457,7 @@
   </Item>
   <Item ItemId=";Table 3546231616 - Field 2967582120 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the test codeunit name.]]></Val>
+      <Val><![CDATA[Specifies the eval codeunit name.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -349,7 +610,7 @@
   </Item>
   <Item ItemId=";Table 3546231616 - Field 2827763166 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the original message of the test if any event subscribers modifies the message of the test]]></Val>
+      <Val><![CDATA[Specifies the original message of the eval if any event subscribers modifies the message of the eval]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -385,7 +646,7 @@
   </Item>
   <Item ItemId=";Table 3546231616 - Field 1870863607 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the original status of the test if any event subscribers modifies the status of the test]]></Val>
+      <Val><![CDATA[Specifies the original status of the eval if any event subscribers modifies the status of the eval]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -502,7 +763,7 @@
   </Item>
   <Item ItemId=";Table 3546231616 - Field 2801749846 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the Tag that we entered in the AI Test Suite.]]></Val>
+      <Val><![CDATA[Specifies the Tag that we entered in the AI Eval Suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -556,7 +817,7 @@
   </Item>
   <Item ItemId=";Table 3546231616 - Field 2632799558 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the dataset that is used by the test.]]></Val>
+      <Val><![CDATA[Specifies the dataset that is used by the eval.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -574,7 +835,7 @@
   </Item>
   <Item ItemId=";Table 3546231616 - Field 444861382 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the accuracy of the test line. The accuracy is calculated as the percentage of turns that passed or can be set manually in the test.]]></Val>
+      <Val><![CDATA[Specifies the accuracy of the eval line. The accuracy is calculated as the percentage of turns that passed or can be set manually in the eval.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -583,7 +844,7 @@
   </Item>
   <Item ItemId=";Table 3546231616 - Field 444861382 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test Method Line Accuracy]]></Val>
+      <Val><![CDATA[Eval Method Line Accuracy]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -610,7 +871,7 @@
   </Item>
   <Item ItemId=";Table 3546231616 - Field 1161711431 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the Test Suite Code.]]></Val>
+      <Val><![CDATA[Specifies the Eval Suite Code.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -619,7 +880,7 @@
   </Item>
   <Item ItemId=";Table 3546231616 - Field 1161711431 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test Suite Code]]></Val>
+      <Val><![CDATA[Eval Suite Code]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -628,7 +889,7 @@
   </Item>
   <Item ItemId=";Table 3546231616 - Field 2041992620 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the aggregated number of tokens consumed by the test. This is applicable only when using Microsoft AI Module.]]></Val>
+      <Val><![CDATA[Specifies the aggregated number of tokens consumed by the eval. This is applicable only when using Microsoft AI Module. Tokens consumed by agent sessions are not included in this number.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -646,7 +907,7 @@
   </Item>
   <Item ItemId=";Table 3546231616 - Field 237762718 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the Version No. of the test run.]]></Val>
+      <Val><![CDATA[Specifies the Version No. of the eval run.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -664,7 +925,7 @@
   </Item>
   <Item ItemId=";Table 2280826089 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AI Run History]]></Val>
+      <Val><![CDATA[AI Eval Run History]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -727,7 +988,7 @@
   </Item>
   <Item ItemId=";Table 2280826089 - Field 2426551468 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests executed for the test suite.]]></Val>
+      <Val><![CDATA[Specifies the number of evals executed for the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -736,7 +997,7 @@
   </Item>
   <Item ItemId=";Table 2280826089 - Field 2426551468 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Tests Executed]]></Val>
+      <Val><![CDATA[No. of Evals Executed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -745,7 +1006,7 @@
   </Item>
   <Item ItemId=";Table 2280826089 - Field 1800796768 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests executed for the test suite.]]></Val>
+      <Val><![CDATA[Specifies the number of evals executed for the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -754,7 +1015,7 @@
   </Item>
   <Item ItemId=";Table 2280826089 - Field 1800796768 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Tests Executed]]></Val>
+      <Val><![CDATA[No. of Evals Executed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -763,7 +1024,7 @@
   </Item>
   <Item ItemId=";Table 2280826089 - Field 1692330285 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests passed for the test suite.]]></Val>
+      <Val><![CDATA[Specifies the number of evals passed for the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -772,7 +1033,7 @@
   </Item>
   <Item ItemId=";Table 2280826089 - Field 1692330285 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Tests Passed]]></Val>
+      <Val><![CDATA[No. of Evals Passed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -781,7 +1042,7 @@
   </Item>
   <Item ItemId=";Table 2280826089 - Field 867889081 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests passed for the test suite.]]></Val>
+      <Val><![CDATA[Specifies the number of evals passed for the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -790,7 +1051,7 @@
   </Item>
   <Item ItemId=";Table 2280826089 - Field 867889081 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Tests Passed]]></Val>
+      <Val><![CDATA[No. of Evals Passed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -799,7 +1060,7 @@
   </Item>
   <Item ItemId=";Table 2280826089 - Field 2801749846 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the tag for the test suite.]]></Val>
+      <Val><![CDATA[Specifies the tag for the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -817,7 +1078,7 @@
   </Item>
   <Item ItemId=";Table 2280826089 - Field 1161711431 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the Code for the test suite.]]></Val>
+      <Val><![CDATA[Specifies the Code for the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -835,7 +1096,7 @@
   </Item>
   <Item ItemId=";Table 2280826089 - Field 2041992620 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the aggregated number of tokens consumed by the test in the current version. This is applicable only when using Microsoft AI Module.]]></Val>
+      <Val><![CDATA[Specifies the aggregated number of tokens consumed by the eval in the current version. This is applicable only when using Microsoft AI Module. Tokens consumed by agent sessions are not included in this number.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -853,7 +1114,7 @@
   </Item>
   <Item ItemId=";Table 2280826089 - Field 546339680 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the aggregated number of tokens consumed by the test in the current version. This is applicable only when using Microsoft AI Module.]]></Val>
+      <Val><![CDATA[Specifies the aggregated number of tokens consumed by the eval in the current version. This is applicable only when using Microsoft AI Module. Tokens consumed by agent sessions are not included in this number.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -871,7 +1132,7 @@
   </Item>
   <Item ItemId=";Table 2280826089 - Field 433940389 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the time taken for executing the tests in the test suite.]]></Val>
+      <Val><![CDATA[Specifies the time taken for executing the evals in the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -889,7 +1150,7 @@
   </Item>
   <Item ItemId=";Table 2280826089 - Field 3777850705 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the time taken for executing the tests in the test suite.]]></Val>
+      <Val><![CDATA[Specifies the time taken for executing the evals in the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -907,7 +1168,7 @@
   </Item>
   <Item ItemId=";Table 2280826089 - Field 237762718 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the version for the test suite.]]></Val>
+      <Val><![CDATA[Specifies the version for the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -925,7 +1186,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AI Test Method Line]]></Val>
+      <Val><![CDATA[AI Eval Method Line]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -934,7 +1195,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - NamedType 2843255911" ItemType=";Table - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Codeunit %1 can not be used for testing.]]></Val>
+      <Val><![CDATA[Codeunit %1 can not be used for evaluation.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -961,7 +1222,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 893385458 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the codeunit id to run for the test line.]]></Val>
+      <Val><![CDATA[Specifies the codeunit id to run for the eval line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -979,7 +1240,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 2967582120 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the name of the codeunit for the test line.]]></Val>
+      <Val><![CDATA[Specifies the name of the codeunit for the eval line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -997,7 +1258,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 3461834954 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the description for the test line.]]></Val>
+      <Val><![CDATA[Specifies the description for the eval line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1033,7 +1294,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 3320823955 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the line number for the test line.]]></Val>
+      <Val><![CDATA[Specifies the line number for the eval line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1051,7 +1312,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 1586149972 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of operations executed including "Run Procedure" operation for the test line.]]></Val>
+      <Val><![CDATA[Specifies the number of operations executed including "Run Procedure" operation for the eval line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1069,7 +1330,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 579000468 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of operations executed including "Run Procedure" operation for the base version of the test line.]]></Val>
+      <Val><![CDATA[Specifies the number of operations executed including "Run Procedure" operation for the base version of the eval line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1087,7 +1348,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 2426551468 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests executed for the test line.]]></Val>
+      <Val><![CDATA[Specifies the number of evals executed for the eval line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1096,7 +1357,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 2426551468 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Tests Executed]]></Val>
+      <Val><![CDATA[No. of Evals Executed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1105,7 +1366,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 758719836 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests executed for the base version of the test line.]]></Val>
+      <Val><![CDATA[Specifies the number of evals executed for the base version of the eval line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1114,7 +1375,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 758719836 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Tests Executed - Base]]></Val>
+      <Val><![CDATA[No. of Evals Executed - Base]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1123,7 +1384,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 1692330285 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests passed for the test line.]]></Val>
+      <Val><![CDATA[Specifies the number of evals passed for the eval line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1132,7 +1393,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 1692330285 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Tests Passed]]></Val>
+      <Val><![CDATA[No. of Evals Passed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1141,7 +1402,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 4166520997 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests passed for the base version of the test line.]]></Val>
+      <Val><![CDATA[Specifies the number of evals passed for the base version of the eval line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1150,7 +1411,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 4166520997 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Tests Passed - Base]]></Val>
+      <Val><![CDATA[No. of Evals Passed - Base]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1159,7 +1420,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 3375576348 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the total number of turns for the test line.]]></Val>
+      <Val><![CDATA[Specifies the total number of turns for the eval line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1177,7 +1438,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 928058116 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the total number of passed turns for the test line.]]></Val>
+      <Val><![CDATA[Specifies the total number of passed turns for the eval line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1195,7 +1456,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 513339096 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the status for the test line.]]></Val>
+      <Val><![CDATA[Specifies the status for the eval line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1213,7 +1474,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 444861382 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the average accuracy of the test line. The accuracy is calculated as the percentage of turns that passed or can be set manually by the test.]]></Val>
+      <Val><![CDATA[Specifies the average accuracy of the eval line. The accuracy is calculated as the percentage of turns that passed or can be set manually by the eval.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1231,7 +1492,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 1161711431 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the Test Suite Code for the test line.]]></Val>
+      <Val><![CDATA[Specifies the Eval Suite Code for the eval line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1240,7 +1501,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 1161711431 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test Suite Code]]></Val>
+      <Val><![CDATA[Eval Suite Code]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1249,7 +1510,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 2041992620 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tokens consumed by the test in the current version. This is applicable only when using Microsoft AI Module.]]></Val>
+      <Val><![CDATA[Specifies the number of tokens consumed by the eval in the current version. This is applicable only when using Microsoft AI Module. Tokens consumed by agent sessions are not included in this number.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1267,7 +1528,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 2354943580 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tokens consumed by the test in the base version. This is applicable only when using Microsoft AI Module.]]></Val>
+      <Val><![CDATA[Specifies the number of tokens consumed by the eval in the base version. This is applicable only when using Microsoft AI Module. Tokens consumed by agent sessions are not included in this number.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1285,7 +1546,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 433940389 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the time taken to execute the test line.]]></Val>
+      <Val><![CDATA[Specifies the time taken to execute the eval line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1303,7 +1564,7 @@
   </Item>
   <Item ItemId=";Table 1363750237 - Field 634611205 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the time taken to execute the base version of the test line.]]></Val>
+      <Val><![CDATA[Specifies the time taken to execute the base version of the eval line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1330,7 +1591,7 @@
   </Item>
   <Item ItemId=";Table 3812009960 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AI Test Suite]]></Val>
+      <Val><![CDATA[AI Eval Suite]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1348,7 +1609,7 @@
   </Item>
   <Item ItemId=";Table 3812009960 - Field 2990466407 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the average accuracy of the test suite. The accuracy is calculated as the percentage of turns that passed or can be set manually by the test.]]></Val>
+      <Val><![CDATA[Specifies the average accuracy of the eval suite. The accuracy is calculated as the percentage of turns that passed or can be set manually by the eval.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1375,7 +1636,7 @@
   </Item>
   <Item ItemId=";Table 3812009960 - Field 3004954119 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the Code for the test suite.]]></Val>
+      <Val><![CDATA[Specifies the Code for the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1391,9 +1652,27 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - Field Code - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Table 3812009960 - Field 3058546390 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the capability that the eval suite evaluates.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - Field Copilot Capability - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3812009960 - Field 3058546390 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Capability]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - Field Copilot Capability - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Table 3812009960 - Field 3461834954 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the description for the test suite.]]></Val>
+      <Val><![CDATA[Specifies the description for the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1411,7 +1690,7 @@
   </Item>
   <Item ItemId=";Table 3812009960 - Field 1240570181 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the end time of the test suite execution.]]></Val>
+      <Val><![CDATA[Specifies the end time of the eval suite execution.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1429,7 +1708,7 @@
   </Item>
   <Item ItemId=";Table 3812009960 - Field 4038833013 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the application id from which the test suite was created.]]></Val>
+      <Val><![CDATA[Specifies the application id from which the eval suite was created.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1447,7 +1726,7 @@
   </Item>
   <Item ItemId=";Table 3812009960 - Field 1054702095 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the MD5 hash of the XML file from which the test suite was imported.]]></Val>
+      <Val><![CDATA[Specifies the MD5 hash of the XML file from which the eval suite was imported.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1465,7 +1744,7 @@
   </Item>
   <Item ItemId=";Table 3812009960 - Field 3904546728 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the dataset to be used by the test suite.]]></Val>
+      <Val><![CDATA[Specifies the dataset to be used by the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1483,7 +1762,7 @@
   </Item>
   <Item ItemId=";Table 3812009960 - Field 1586149972 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of operations executed including "Run Procedure" operation for the test suite.]]></Val>
+      <Val><![CDATA[Specifies the number of operations executed including "Run Procedure" operation for the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1501,7 +1780,7 @@
   </Item>
   <Item ItemId=";Table 3812009960 - Field 2426551468 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests executed for the test suite.]]></Val>
+      <Val><![CDATA[Specifies the number of evals executed for the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1510,7 +1789,7 @@
   </Item>
   <Item ItemId=";Table 3812009960 - Field 2426551468 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Tests Executed]]></Val>
+      <Val><![CDATA[No. of Evals Executed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1519,7 +1798,7 @@
   </Item>
   <Item ItemId=";Table 3812009960 - Field 1692330285 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests passed for the test suite.]]></Val>
+      <Val><![CDATA[Specifies the number of evals passed for the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1528,7 +1807,7 @@
   </Item>
   <Item ItemId=";Table 3812009960 - Field 1692330285 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Tests Passed]]></Val>
+      <Val><![CDATA[No. of Evals Passed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1537,7 +1816,7 @@
   </Item>
   <Item ItemId=";Table 3812009960 - Field 1272713864 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests running in the test suite.]]></Val>
+      <Val><![CDATA[Specifies the number of evals running in the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1546,7 +1825,7 @@
   </Item>
   <Item ItemId=";Table 3812009960 - Field 1272713864 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of tests running]]></Val>
+      <Val><![CDATA[No. of evals running]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1555,7 +1834,7 @@
   </Item>
   <Item ItemId=";Table 3812009960 - Field 2411408189 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of evaluators to use in the test suite.]]></Val>
+      <Val><![CDATA[Specifies the number of evaluators to use in the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1573,7 +1852,7 @@
   </Item>
   <Item ItemId=";Table 3812009960 - Field 728776358 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of evaluators to use in the test suite.]]></Val>
+      <Val><![CDATA[Specifies the number of evaluators to use in the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1589,6 +1868,60 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - Field Number of Evaluators - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Table 3812009960 - Field 1521334855 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies how frequently the eval suite should be run.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - Field Run Frequency - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3812009960 - Field 1521334855 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Run Frequency]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - Field Run Frequency - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3812009960 - Field 2476796474 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the language in which the eval suite should be run.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - Field Run Language ID - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3812009960 - Field 2476796474 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Language ID]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - Field Run Language ID - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3812009960 - Field 3027486592 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Language Name]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - Field Run Language Name - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3812009960 - Field 3683459035 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Language Tag]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - Field Run Language Tag - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Table 3812009960 - Field 623112344 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unique RunID]]></Val>
@@ -1600,7 +1933,7 @@
   </Item>
   <Item ItemId=";Table 3812009960 - Field 4244803688 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies when the test suite was started.]]></Val>
+      <Val><![CDATA[Specifies when the eval suite was started.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1618,7 +1951,7 @@
   </Item>
   <Item ItemId=";Table 3812009960 - Field 513339096 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the status of the test suite.]]></Val>
+      <Val><![CDATA[Specifies the status of the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1636,7 +1969,7 @@
   </Item>
   <Item ItemId=";Table 3812009960 - Field 2801749846 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the tag for a test run. The Tag will be transferred to the log entries and enables easier comparison between the tests.]]></Val>
+      <Val><![CDATA[Specifies the tag for an eval run. The Tag will be transferred to the log entries and enables easier comparison between the evals.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1661,9 +1994,27 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - Field Test Runner Id - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Table 3812009960 - Field 3495532634 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the type of AI eval (Copilot, Agent, or MCP).]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - Field Test Type - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3812009960 - Field 3495532634 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Eval Type]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - Field Test Type - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Table 3812009960 - Field 2041992620 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the aggregated number of tokens consumed by the test in the current version. This is applicable only when using Microsoft AI Module.]]></Val>
+      <Val><![CDATA[Specifies the aggregated number of tokens consumed by the eval in the current version. This is applicable only when using Microsoft AI Module. Tokens consumed by agent sessions are not included in this number.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1681,7 +2032,7 @@
   </Item>
   <Item ItemId=";Table 3812009960 - Field 433940389 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the time taken for executing the tests in the test suite.]]></Val>
+      <Val><![CDATA[Specifies the time taken for executing the evals in the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1697,9 +2048,27 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - Field Total Duration (ms) - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Table 3812009960 - Field 4137353997 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies whether this eval suite is used for validation purposes.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - Field Validation - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3812009960 - Field 4137353997 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Validation]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - Field Validation - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Table 3812009960 - Field 237762718 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the version of the current test run. It is used for comparing the results of the current test run with the results of the previous test run. The version will be stored in the Log entries.]]></Val>
+      <Val><![CDATA[Specifies the version of the current eval run. It is used for comparing the results of the current eval run with the results of the previous eval run. The version will be stored in the Log entries.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1713,6 +2082,123 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite - Field Version - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3425709442 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[AI Eval Suite Language]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite Language - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3425709442 - Field 450009889 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the Windows Language ID for the eval suite language.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite Language - Field Language ID - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3425709442 - Field 450009889 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Language ID]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite Language - Field Language ID - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3425709442 - Field 696461927 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the name of the language.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite Language - Field Language Name - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3425709442 - Field 696461927 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Language Name]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite Language - Field Language Name - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3425709442 - Field 1895089100 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the language tag for the language.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite Language - Field Language Tag - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3425709442 - Field 1895089100 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Language Tag]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite Language - Field Language Tag - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3425709442 - Field 1521334855 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies how frequently the eval suite should be run for this language.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite Language - Field Run Frequency - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3425709442 - Field 1521334855 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Run Frequency]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite Language - Field Run Frequency - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3425709442 - Field 1161711431 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Eval Suite Code]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite Language - Field Test Suite Code - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3425709442 - Field 4137353997 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies whether this language version is used for validation purposes.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite Language - Field Validation - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3425709442 - Field 4137353997 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Validation]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Table AIT Test Suite Language - Field Validation - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4259975722 - NamedType 1055185233" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Agent %1 set on suite %2 is not active.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Agent ID, %2 = Suite Code]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit Agent Test Context Impl. - NamedType AgentIsNotActiveErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4125825345 - Method 2699952398 - NamedType 127765445" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1744,11 +2230,11 @@
   </Item>
   <Item ItemId=";Codeunit 4125825345 - Method 3366867490 - NamedType 770058613" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[by the app id: %1]]></Val>
+      <Val><![CDATA[previously by the app id: %1 and now with %2]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = app id]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT AL Test Suite Mgt - Method ImportTestInputs - NamedType SourceOfTheDatasetIsAppIdLbl)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = previous app id, %2 = current app id]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT AL Test Suite Mgt - Method ImportTestInputs - NamedType SourceOfTheDatasetIsAppIdLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2238100111 - NamedType 3415193895" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1771,16 +2257,43 @@
   </Item>
   <Item ItemId=";Codeunit 4049213933 - NamedType 3244887762" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[A query-and-response pair cannot be used in multi-turn tests. Use AddMessage instead.]]></Val>
+      <Val><![CDATA[A query-and-response pair cannot be used in multi-turn evals. Use AddMessage instead.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Context Impl. - NamedType OnlySingleTurnErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3425709442 - Method 340927650 - NamedType 1158233154" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No language version found for dataset %1 with language %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Dataset Code, %2 = Language Name]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Language - Method GetLanguageDataset - NamedType LanguageVersionNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3425709442 - Method 309042899 - NamedType 2945922260" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[None]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Language - Method GetLanguageDisplayName - NamedType NoneLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3425709442 - Method 2063638300 - NamedType 611240008" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Language with tag %1 not found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - language tag.]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Language - Method GetLanguageIDByTag - NamedType LanguageNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3825618008 - NamedType 4114217984" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is already a test run in progress. You need to wait for it to finish or cancel it before starting a new test run.]]></Val>
+      <Val><![CDATA[There is already an eval run in progress. You need to wait for it to finish or cancel it before starting a new eval run.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1798,47 +2311,38 @@
   </Item>
   <Item ItemId=";Codeunit 3825618008 - NamedType 578148280" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Download Test Summary]]></Val>
+      <Val><![CDATA[Download Eval Summary]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Mgt. - NamedType DownloadResultsLbl)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3825618008 - NamedType 763274072" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Please provide a dataset for the AI Test Suite %1.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 is the AI Test Suite code]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Mgt. - NamedType EmptyDatasetSuiteErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3825618008 - NamedType 1240188354" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Cannot download test summary as there is no log entries within the filter.]]></Val>
+      <Val><![CDATA[Cannot download eval summary as there is no log entries within the filter.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Mgt. - NamedType EmptyLogEntriesErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3825618008 - NamedType 1436636105" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3825618008 - NamedType 260115238" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The dataset %1 specified for AI Test Line %2 does not exist.]]></Val>
+      <Val><![CDATA[The dataset %1 specified for AI Eval line %2 does not have inputs for language %3.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 is the Dataset name, %2 is AI Test Line No.]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Mgt. - NamedType NoDatasetInLineErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 is the Dataset name, %2 is the AI Eval Line No., %3 is the Language ID]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Mgt. - NamedType LanguageMismatchInLineErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3825618008 - NamedType 2589853177" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3825618008 - NamedType 1436636105" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The dataset %1 specified for AI Test Suite %2 does not exist.]]></Val>
+      <Val><![CDATA[The dataset %1 specified for AI Eval Line %2 does not exist.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 is the Dataset name, %2 is the AI Test Suite code]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Mgt. - NamedType NoDatasetInSuiteErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 is the Dataset name, %2 is AI Eval Line No.]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Mgt. - NamedType NoDatasetInLineErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3825618008 - NamedType 2541681893" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1852,25 +2356,16 @@
   </Item>
   <Item ItemId=";Codeunit 3825618008 - NamedType 3168960332" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The dataset %1 specified for AI Test line %2 has no input lines.]]></Val>
+      <Val><![CDATA[The dataset %1 specified for AI Eval line %2 has no input lines.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 is the Dataset name, %2 is the AI Test Line No.]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Mgt. - NamedType NoInputsInLineErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3825618008 - NamedType 967745700" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The dataset %1 specified for AI Test Suite %2 has no input lines.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 is the Dataset name, %2 is the AI Test Suite code.]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Mgt. - NamedType NoInputsInSuiteErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 is the Dataset name, %2 is the AI Eval Line No.]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Mgt. - NamedType NoInputsInLineErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3825618008 - NamedType 335618750" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is nothing to run. Please add test lines to the test suite.]]></Val>
+      <Val><![CDATA[There is nothing to run. Please add eval lines to the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1888,20 +2383,20 @@
   </Item>
   <Item ItemId=";Codeunit 3825618008 - NamedType 4174856067" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The test suite %1 does not contain the test line %2. Run the suite again.]]></Val>
+      <Val><![CDATA[The eval suite %1 does not contain the eval line %2. Run the suite again.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = test suite code, %2 = line number]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Mgt. - NamedType TestMethodLineNotFoundErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = eval suite code, %2 = line number]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Mgt. - NamedType TestMethodLineNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3825618008 - NamedType 1747594689" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The test suite %1 has been changed since test line %2 was run. Run the suite again.]]></Val>
+      <Val><![CDATA[The eval suite %1 has been changed since eval line %2 was run. Run the suite again.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = test suite code, %2 = line number]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Mgt. - NamedType TestSuiteChangedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = eval suite code, %2 = line number]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Codeunit AIT Test Suite Mgt. - NamedType TestSuiteChangedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3825618008 - NamedType 3339386448" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1987,7 +2482,7 @@
   </Item>
   <Item ItemId=";Page 1779140895 - Control 1101906057 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the line number of the test method.]]></Val>
+      <Val><![CDATA[Specifies the line number of the eval method.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1996,7 +2491,7 @@
   </Item>
   <Item ItemId=";Page 1779140895 - Control 1101906057 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test Method Line]]></Val>
+      <Val><![CDATA[Eval Method Line]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2005,7 +2500,7 @@
   </Item>
   <Item ItemId=";Page 1779140895 - Control 1161711431 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the code of the test suite.]]></Val>
+      <Val><![CDATA[Specifies the code of the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2014,7 +2509,7 @@
   </Item>
   <Item ItemId=";Page 1779140895 - Control 1161711431 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test Suite Code]]></Val>
+      <Val><![CDATA[Eval Suite Code]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2023,7 +2518,7 @@
   </Item>
   <Item ItemId=";Page 3542303411 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AI Test Command Line Runner]]></Val>
+      <Val><![CDATA[AI Eval Command Line Runner]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2032,25 +2527,25 @@
   </Item>
   <Item ItemId=";Page 3542303411 - NamedType 1650316077" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The specified Test Suite with code %1 cannot be found.]]></Val>
+      <Val><![CDATA[The specified Eval Suite with code %1 cannot be found.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Test Suite id.]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT CommandLine Card - NamedType CannotFindAITSuiteErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Eval Suite id.]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT CommandLine Card - NamedType CannotFindAITSuiteErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3542303411 - Method 3507762254 - NamedType 225390333" ItemType=";Page - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test Suite with code %1 not found.]]></Val>
+      <Val><![CDATA[Eval Suite with code %1 not found.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Test Suite id.]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT CommandLine Card - Method StartAITSuite - NamedType TestSuiteCodeNotFoundErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Eval Suite id.]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT CommandLine Card - Method StartAITSuite - NamedType TestSuiteCodeNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3542303411 - Method 3061011758 - NamedType 832864275" ItemType=";Page - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test Suite Code is required to run the suite.]]></Val>
+      <Val><![CDATA[Eval Suite Code is required to run the suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2068,7 +2563,7 @@
   </Item>
   <Item ItemId=";Page 3542303411 - Control 3904546728 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the input dataset to import for running the test suite.]]></Val>
+      <Val><![CDATA[Specifies the input dataset to import for running the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2095,7 +2590,7 @@
   </Item>
   <Item ItemId=";Page 3542303411 - Control 1498311807 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the input dataset filename to import for running the test suite.]]></Val>
+      <Val><![CDATA[Specifies the input dataset filename to import for running the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2131,16 +2626,34 @@
   </Item>
   <Item ItemId=";Page 3542303411 - Control 890003353 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test Suite Code]]></Val>
+      <Val><![CDATA[Eval Suite Code]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT CommandLine Card - Control AIT Suite Code - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Page 3542303411 - Control 1895089100 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the language to run.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT CommandLine Card - Control Language Tag - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3542303411 - Control 1895089100 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Language]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT CommandLine Card - Control Language Tag - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Page 3542303411 - Control 268179435 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the line number to filter the test method lines.]]></Val>
+      <Val><![CDATA[Specifies the line number to filter the eval method lines.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2158,7 +2671,7 @@
   </Item>
   <Item ItemId=";Page 3542303411 - Control 1878909008 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of test suite lines in the test suite that are yet to be run.]]></Val>
+      <Val><![CDATA[Specifies the number of eval suite lines in the eval suite that are yet to be run.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2167,7 +2680,7 @@
   </Item>
   <Item ItemId=";Page 3542303411 - Control 1878909008 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Pending Tests]]></Val>
+      <Val><![CDATA[No. of Pending Evals]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2221,7 +2734,7 @@
   </Item>
   <Item ItemId=";Page 3542303411 - Control 2301147933 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test Method Lines]]></Val>
+      <Val><![CDATA[Eval Method Lines]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2230,7 +2743,7 @@
   </Item>
   <Item ItemId=";Page 3542303411 - Control 3742967028 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of failed tests for the test line.]]></Val>
+      <Val><![CDATA[Specifies the number of failed evals for the eval line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2239,7 +2752,7 @@
   </Item>
   <Item ItemId=";Page 3542303411 - Control 3742967028 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Tests Failed]]></Val>
+      <Val><![CDATA[No. of Evals Failed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2248,7 +2761,7 @@
   </Item>
   <Item ItemId=";Page 3542303411 - Action 799291268 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Opens the AI Test Suite page.]]></Val>
+      <Val><![CDATA[Opens the AI Eval Suite page.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2257,7 +2770,7 @@
   </Item>
   <Item ItemId=";Page 3542303411 - Action 799291268 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AI Test Suite]]></Val>
+      <Val><![CDATA[AI Eval Suite]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2266,7 +2779,7 @@
   </Item>
   <Item ItemId=";Page 3542303411 - Action 2726000903 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Resets the test method lines status to run them again. This action ignores the line number filter and resets all the test lines in the suite.]]></Val>
+      <Val><![CDATA[Resets the eval method lines status to run them again. This action ignores the line number filter and resets all the eval lines in the suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2275,7 +2788,7 @@
   </Item>
   <Item ItemId=";Page 3542303411 - Action 2726000903 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Reset Test Suite]]></Val>
+      <Val><![CDATA[Reset Eval Suite]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2284,7 +2797,7 @@
   </Item>
   <Item ItemId=";Page 3542303411 - Action 2740126548 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Starts running the next test from the Test Method Lines for the given suite.]]></Val>
+      <Val><![CDATA[Starts running the next eval from the Eval Method Lines for the given suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2293,7 +2806,7 @@
   </Item>
   <Item ItemId=";Page 3542303411 - Action 2740126548 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Run Next Test]]></Val>
+      <Val><![CDATA[Run Next Eval]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2302,7 +2815,7 @@
   </Item>
   <Item ItemId=";Page 3542303411 - Action 571246385 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Starts running the AI test suite. This action ignores the line number filter and runs all the test lines in the suite.]]></Val>
+      <Val><![CDATA[Starts running the AI eval suite. This action ignores the line number filter and runs all the eval lines in the suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2338,7 +2851,7 @@
   </Item>
   <Item ItemId=";Page 1789737512 - Control 4055377093 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the evaluator to use in the test suite.]]></Val>
+      <Val><![CDATA[Specifies the evaluator to use in the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2374,7 +2887,7 @@
   </Item>
   <Item ItemId=";Page 1789737512 - Control 1101906057 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the line number of the test method.]]></Val>
+      <Val><![CDATA[Specifies the line number of the eval method.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2383,7 +2896,7 @@
   </Item>
   <Item ItemId=";Page 1789737512 - Control 1101906057 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test Method Line]]></Val>
+      <Val><![CDATA[Eval Method Line]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2392,7 +2905,7 @@
   </Item>
   <Item ItemId=";Page 1789737512 - Control 1161711431 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the code of the test suite.]]></Val>
+      <Val><![CDATA[Specifies the code of the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2401,7 +2914,7 @@
   </Item>
   <Item ItemId=";Page 1789737512 - Control 1161711431 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test Suite Code]]></Val>
+      <Val><![CDATA[Eval Suite Code]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2410,7 +2923,7 @@
   </Item>
   <Item ItemId=";Page 2545575774 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AI Log Entries]]></Val>
+      <Val><![CDATA[AI Eval Log Entries]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2419,7 +2932,7 @@
   </Item>
   <Item ItemId=";Page 2545575774 - NamedType 2930824504" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Show data input]]></Val>
+      <Val><![CDATA[Show eval input]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2437,7 +2950,7 @@
   </Item>
   <Item ItemId=";Page 2545575774 - Control 3837516702 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the end time of the test.]]></Val>
+      <Val><![CDATA[Specifies the end time of the eval.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2473,7 +2986,7 @@
   </Item>
   <Item ItemId=";Page 2545575774 - Control 1303940957 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the test input of the test.]]></Val>
+      <Val><![CDATA[Specifies the test input of the eval.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2500,7 +3013,7 @@
   </Item>
   <Item ItemId=";Page 2545575774 - Control 3080618677 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the error message from the test.]]></Val>
+      <Val><![CDATA[Specifies the error message from the eval.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2527,7 +3040,7 @@
   </Item>
   <Item ItemId=";Page 2545575774 - Control 3334173670 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the test output of the test.]]></Val>
+      <Val><![CDATA[Specifies the eval output of the eval.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2536,7 +3049,7 @@
   </Item>
   <Item ItemId=";Page 2545575774 - Control 3334173670 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test Output]]></Val>
+      <Val><![CDATA[Eval Output]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2545,7 +3058,7 @@
   </Item>
   <Item ItemId=";Page 2545575774 - Control 530928583 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the start time of the test.]]></Val>
+      <Val><![CDATA[Specifies the start time of the eval.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2563,7 +3076,7 @@
   </Item>
   <Item ItemId=";Page 2545575774 - Control 3792383931 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the duration of the iteration.]]></Val>
+      <Val><![CDATA[Specifies the duration of the eval.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2635,7 +3148,7 @@
   </Item>
   <Item ItemId=";Page 2545575774 - Action 1913276151 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Download the test output.]]></Val>
+      <Val><![CDATA[Download the eval output.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2644,7 +3157,7 @@
   </Item>
   <Item ItemId=";Page 2545575774 - Action 1913276151 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Download Test Output]]></Val>
+      <Val><![CDATA[Download Eval Output]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2653,7 +3166,7 @@
   </Item>
   <Item ItemId=";Page 2545575774 - Action 171938570 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Downloads a summary of the test results.]]></Val>
+      <Val><![CDATA[Downloads a summary of the eval results.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2662,7 +3175,7 @@
   </Item>
   <Item ItemId=";Page 2545575774 - Action 171938570 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Download Test Summary]]></Val>
+      <Val><![CDATA[Download Eval Summary]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2689,7 +3202,7 @@
   </Item>
   <Item ItemId=";Page 2545575774 - Action 333410028 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Rerun the test for the selected line.]]></Val>
+      <Val><![CDATA[Rerun the eval for the selected line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2698,7 +3211,7 @@
   </Item>
   <Item ItemId=";Page 2545575774 - Action 333410028 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Rerun test]]></Val>
+      <Val><![CDATA[Rerun eval]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2743,7 +3256,7 @@
   </Item>
   <Item ItemId=";Page 2545575774 - Action 2316262341 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[View Test Data.]]></Val>
+      <Val><![CDATA[View Eval Data.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2752,7 +3265,7 @@
   </Item>
   <Item ItemId=";Page 2545575774 - Action 2316262341 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[View Test Data]]></Val>
+      <Val><![CDATA[View Eval Data]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2795,6 +3308,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Log Entry API - Property EntitySetCaption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Page 2739397112 - Control 2319842414 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Agent tasks]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Log Entry API - Control agentTaskIDs - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Page 2739397112 - Control 1010080291 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Test Suite Code]]></Val>
@@ -2820,6 +3342,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Log Entry API - Control codeunitName - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2739397112 - Control 3002276816 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Copilot credits]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Log Entry API - Control copilotCredits - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2739397112 - Control 2570578246 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -3004,7 +3535,7 @@
   </Item>
   <Item ItemId=";Page 2280826089 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AI Test Suite Run History]]></Val>
+      <Val><![CDATA[AI Eval Suite Run History]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3040,7 +3571,7 @@
   </Item>
   <Item ItemId=";Page 2280826089 - Control 1161711431 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the code of the test suite to view results for.]]></Val>
+      <Val><![CDATA[Specifies the code of the eval suite to view results for.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3049,7 +3580,7 @@
   </Item>
   <Item ItemId=";Page 2280826089 - Control 1161711431 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test Suite Code]]></Val>
+      <Val><![CDATA[Eval Suite Code]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3112,7 +3643,7 @@
   </Item>
   <Item ItemId=";Page 2280826089 - Control 1056030270 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies Total Duration of the tests for the base version.]]></Val>
+      <Val><![CDATA[Specifies Total Duration of the evals for the base version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3130,7 +3661,7 @@
   </Item>
   <Item ItemId=";Page 2280826089 - Control 630586518 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies Total Duration of the tests for the base version.]]></Val>
+      <Val><![CDATA[Specifies Total Duration of the evals for the base version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3148,7 +3679,7 @@
   </Item>
   <Item ItemId=";Page 2280826089 - Control 862464025 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests for the tag.]]></Val>
+      <Val><![CDATA[Specifies the number of evals for the tag.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3157,7 +3688,7 @@
   </Item>
   <Item ItemId=";Page 2280826089 - Control 862464025 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Tests]]></Val>
+      <Val><![CDATA[No. of Evals]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3166,7 +3697,7 @@
   </Item>
   <Item ItemId=";Page 2280826089 - Control 1931960145 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests in the version.]]></Val>
+      <Val><![CDATA[Specifies the number of evals in the version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3175,7 +3706,7 @@
   </Item>
   <Item ItemId=";Page 2280826089 - Control 1931960145 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Tests]]></Val>
+      <Val><![CDATA[No. of Evals]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3184,7 +3715,7 @@
   </Item>
   <Item ItemId=";Page 2280826089 - Control 1024532392 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests that failed for the tag.]]></Val>
+      <Val><![CDATA[Specifies the number of evals that failed for the tag.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3193,7 +3724,7 @@
   </Item>
   <Item ItemId=";Page 2280826089 - Control 1024532392 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Tests Failed]]></Val>
+      <Val><![CDATA[No. of Evals Failed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3202,7 +3733,7 @@
   </Item>
   <Item ItemId=";Page 2280826089 - Control 1518380832 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests that failed in the version.]]></Val>
+      <Val><![CDATA[Specifies the number of evals that failed in the version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3211,7 +3742,7 @@
   </Item>
   <Item ItemId=";Page 2280826089 - Control 1518380832 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Tests Failed]]></Val>
+      <Val><![CDATA[No. of Evals Failed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3220,7 +3751,7 @@
   </Item>
   <Item ItemId=";Page 2280826089 - Control 867889081 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests passed for the tag.]]></Val>
+      <Val><![CDATA[Specifies the number of evals passed for the tag.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3229,7 +3760,7 @@
   </Item>
   <Item ItemId=";Page 2280826089 - Control 867889081 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Tests Passed]]></Val>
+      <Val><![CDATA[No. of Evals Passed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3238,7 +3769,7 @@
   </Item>
   <Item ItemId=";Page 2280826089 - Control 42180337 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests passed in the version.]]></Val>
+      <Val><![CDATA[Specifies the number of evals passed in the version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3247,7 +3778,7 @@
   </Item>
   <Item ItemId=";Page 2280826089 - Control 42180337 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Tests Passed]]></Val>
+      <Val><![CDATA[No. of Evals Passed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3274,7 +3805,7 @@
   </Item>
   <Item ItemId=";Page 2280826089 - Control 408744344 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the aggregated number of tokens consumed by the test in the current version. This is applicable only when using Microsoft AI Module.]]></Val>
+      <Val><![CDATA[Specifies the aggregated number of tokens consumed by the eval in the current version. This is applicable only when using Microsoft AI Module. Tokens consumed by agent sessions are not included in this number.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3292,7 +3823,7 @@
   </Item>
   <Item ItemId=";Page 2280826089 - Control 1535521168 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the aggregated number of tokens consumed by the test in the current version. This is applicable only when using Microsoft AI Module.]]></Val>
+      <Val><![CDATA[Specifies the aggregated number of tokens consumed by the eval in the current version. This is applicable only when using Microsoft AI Module. Tokens consumed by agent sessions are not included in this number.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3328,7 +3859,7 @@
   </Item>
   <Item ItemId=";Page 2280826089 - Control 1755780730 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test Line Filter]]></Val>
+      <Val><![CDATA[Eval Line Filter]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3346,7 +3877,7 @@
   </Item>
   <Item ItemId=";Page 2280826089 - Control 3320823955 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test Line]]></Val>
+      <Val><![CDATA[Eval Line]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3355,7 +3886,7 @@
   </Item>
   <Item ItemId=";Page 4293261014 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AI Test Data]]></Val>
+      <Val><![CDATA[AI Eval Data]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3364,7 +3895,7 @@
   </Item>
   <Item ItemId=";Page 3269245903 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AI Test Data]]></Val>
+      <Val><![CDATA[AI Eval Data]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3445,7 +3976,7 @@
   </Item>
   <Item ItemId=";Page 1055193460 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Tests]]></Val>
+      <Val><![CDATA[Evals]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3463,7 +3994,7 @@
   </Item>
   <Item ItemId=";Page 1055193460 - Control 3862275434 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies average time taken to execute the test line.]]></Val>
+      <Val><![CDATA[Specifies average time taken to execute the eval line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3481,7 +4012,7 @@
   </Item>
   <Item ItemId=";Page 1055193460 - Control 2886385741 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies average time taken to execute the base version of the test line.]]></Val>
+      <Val><![CDATA[Specifies average time taken to execute the base version of the eval line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3499,7 +4030,7 @@
   </Item>
   <Item ItemId=";Page 1055193460 - Control 839849947 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies difference in average test execution time compared to the base version.]]></Val>
+      <Val><![CDATA[Specifies difference in average eval execution time compared to the base version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3535,7 +4066,7 @@
   </Item>
   <Item ItemId=";Page 1055193460 - Control 3742967028 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of failed tests for the test line.]]></Val>
+      <Val><![CDATA[Specifies the number of failed evals for the eval line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3544,7 +4075,7 @@
   </Item>
   <Item ItemId=";Page 1055193460 - Control 3742967028 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Tests Failed]]></Val>
+      <Val><![CDATA[No. of Evals Failed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3553,7 +4084,7 @@
   </Item>
   <Item ItemId=";Page 1055193460 - Control 3134964020 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of failed tests for the base version of the test line.]]></Val>
+      <Val><![CDATA[Specifies the number of failed evals for the base version of the eval line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3562,7 +4093,7 @@
   </Item>
   <Item ItemId=";Page 1055193460 - Control 3134964020 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Tests Failed - Base]]></Val>
+      <Val><![CDATA[No. of Evals Failed - Base]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3571,7 +4102,7 @@
   </Item>
   <Item ItemId=";Page 1055193460 - Control 1257762605 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of failed turns of the test line.]]></Val>
+      <Val><![CDATA[Specifies the number of failed turns of the eval line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3643,7 +4174,7 @@
   </Item>
   <Item ItemId=";Page 1055193460 - Action 502929849 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Starts running the AI Test Line.]]></Val>
+      <Val><![CDATA[Starts running the AI Eval Line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3652,7 +4183,7 @@
   </Item>
   <Item ItemId=";Page 1055193460 - Action 502929849 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Run Test]]></Val>
+      <Val><![CDATA[Run Eval]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3814,7 +4345,7 @@
   </Item>
   <Item ItemId=";Page 781235729 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AI Test Method Lines Compare]]></Val>
+      <Val><![CDATA[AI Eval Method Lines Compare]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3841,7 +4372,7 @@
   </Item>
   <Item ItemId=";Page 781235729 - Control 3078320533 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies Total Duration of the tests for the base version.]]></Val>
+      <Val><![CDATA[Specifies Total Duration of the evals for the base version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3859,7 +4390,7 @@
   </Item>
   <Item ItemId=";Page 781235729 - Control 758719836 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests in this Line for the base version.]]></Val>
+      <Val><![CDATA[Specifies the number of evals in this Line for the base version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3868,7 +4399,7 @@
   </Item>
   <Item ItemId=";Page 781235729 - Control 3134964020 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests that failed in the base version.]]></Val>
+      <Val><![CDATA[Specifies the number of evals that failed in the base version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3877,7 +4408,7 @@
   </Item>
   <Item ItemId=";Page 781235729 - Control 3134964020 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Tests Failed - Base]]></Val>
+      <Val><![CDATA[No. of Evals Failed - Base]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3895,7 +4426,7 @@
   </Item>
   <Item ItemId=";Page 781235729 - Control 1637095154 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies Total Duration of the tests for this version.]]></Val>
+      <Val><![CDATA[Specifies Total Duration of the evals for this version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3904,7 +4435,7 @@
   </Item>
   <Item ItemId=";Page 781235729 - Control 3742967028 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests that failed in the current version.]]></Val>
+      <Val><![CDATA[Specifies the number of evals that failed in the current version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3913,7 +4444,7 @@
   </Item>
   <Item ItemId=";Page 781235729 - Control 3742967028 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Number of Tests Failed]]></Val>
+      <Val><![CDATA[Number of Evals Failed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3922,7 +4453,7 @@
   </Item>
   <Item ItemId=";Page 781235729 - Control 435171351 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests in this Line]]></Val>
+      <Val><![CDATA[Specifies the number of evals in this Line]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3931,7 +4462,7 @@
   </Item>
   <Item ItemId=";Page 781235729 - Control 435171351 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Number of Tests]]></Val>
+      <Val><![CDATA[Number of Evals]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3940,7 +4471,7 @@
   </Item>
   <Item ItemId=";Page 781235729 - Control 2511978514 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests that failed in the version.]]></Val>
+      <Val><![CDATA[Specifies the number of evals that failed in the version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3949,7 +4480,7 @@
   </Item>
   <Item ItemId=";Page 781235729 - Control 2511978514 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Number of Tests Failed]]></Val>
+      <Val><![CDATA[Number of Evals Failed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3958,7 +4489,7 @@
   </Item>
   <Item ItemId=";Page 781235729 - Control 3390215047 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests passed in the version.]]></Val>
+      <Val><![CDATA[Specifies the number of evals passed in the version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3967,7 +4498,7 @@
   </Item>
   <Item ItemId=";Page 781235729 - Control 3390215047 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Number of Tests Passed]]></Val>
+      <Val><![CDATA[Number of Evals Passed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3976,7 +4507,7 @@
   </Item>
   <Item ItemId=";Page 781235729 - Control 3642950356 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the aggregated number of tokens consumed by the test. This is applicable only when using Microsoft AI Module.]]></Val>
+      <Val><![CDATA[Specifies the aggregated number of tokens consumed by the eval. This is applicable only when using Microsoft AI Module. Tokens consumed by agent sessions are not included in this number.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3994,7 +4525,7 @@
   </Item>
   <Item ItemId=";Page 781235729 - Control 3196485928 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies Total Duration of the test for given version.]]></Val>
+      <Val><![CDATA[Specifies Total Duration of the eval for given version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4057,7 +4588,7 @@
   </Item>
   <Item ItemId=";Page 131212350 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test Method Lines]]></Val>
+      <Val><![CDATA[Eval Method Lines]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4066,7 +4597,7 @@
   </Item>
   <Item ItemId=";Page 3812009960 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AI Test Suite]]></Val>
+      <Val><![CDATA[AI Eval Suite]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4084,7 +4615,7 @@
   </Item>
   <Item ItemId=";Page 3812009960 - NamedType 650077689" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AI Test]]></Val>
+      <Val><![CDATA[AI Eval]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4093,7 +4624,7 @@
   </Item>
   <Item ItemId=";Page 3812009960 - Control 2445482498 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AI Test Suite]]></Val>
+      <Val><![CDATA[AI Eval Suite]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4154,6 +4685,33 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite - Control Evaluators - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Page 3812009960 - Control 1895089100 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the language to use when running the eval suite. Available languages are based on languages of input datasets.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite - Control Language Tag - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3812009960 - Control 1895089100 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Language]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite - Control Language Tag - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3812009960 - Control 1521334855 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies how frequently the eval suite should be run.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite - Control Run Frequency - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Page 3812009960 - Control 3498551853 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Suite Status]]></Val>
@@ -4165,7 +4723,7 @@
   </Item>
   <Item ItemId=";Page 3812009960 - Control 4018684269 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the Test Runner to be used by the tests.]]></Val>
+      <Val><![CDATA[Specifies the Test Runner to be used by the evals.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4192,7 +4750,7 @@
   </Item>
   <Item ItemId=";Page 3812009960 - Control 3560102679 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the average time taken by the tests in the test suite.]]></Val>
+      <Val><![CDATA[Specifies the average time taken by the evals in the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4210,7 +4768,7 @@
   </Item>
   <Item ItemId=";Page 3812009960 - Control 846493901 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the average number of tokens consumed by the tests in the last run.]]></Val>
+      <Val><![CDATA[Specifies the average number of tokens consumed by the evals in the last run. Tokens consumed by agent sessions are not included in this number.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4228,7 +4786,7 @@
   </Item>
   <Item ItemId=";Page 3812009960 - Control 3742967028 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests failed for the test suite.]]></Val>
+      <Val><![CDATA[Specifies the number of evals failed for the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4237,7 +4795,7 @@
   </Item>
   <Item ItemId=";Page 3812009960 - Control 3742967028 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Tests Failed]]></Val>
+      <Val><![CDATA[No. of Evals Failed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4246,7 +4804,7 @@
   </Item>
   <Item ItemId=";Page 3812009960 - Control 502811504 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the time taken for executing the tests in the test suite.]]></Val>
+      <Val><![CDATA[Specifies the time taken for executing the evals in the eval suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4278,6 +4836,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite - Action Datasets - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3812009960 - Action 1750020835 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Configure the languages for the eval suite.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite - Action Languages - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3812009960 - Action 1750020835 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Configure languages]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite - Action Languages - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3812009960 - Action 2316947810 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -4318,7 +4894,7 @@
   </Item>
   <Item ItemId=";Page 3812009960 - Action 171938570 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Downloads a summary of the test results.]]></Val>
+      <Val><![CDATA[Downloads a summary of the eval results.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4327,7 +4903,7 @@
   </Item>
   <Item ItemId=";Page 3812009960 - Action 171938570 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Download Test Summary]]></Val>
+      <Val><![CDATA[Download Eval Summary]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4336,7 +4912,7 @@
   </Item>
   <Item ItemId=";Page 3812009960 - Action 1194047236 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Exports the AI Test Suite configuration.]]></Val>
+      <Val><![CDATA[Exports the AI Eval Suite configuration.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4390,7 +4966,7 @@
   </Item>
   <Item ItemId=";Page 3812009960 - Action 620325036 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Starts running the AI Test Suite.]]></Val>
+      <Val><![CDATA[Starts running the AI Eval Suite.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4408,7 +4984,7 @@
   </Item>
   <Item ItemId=";Page 3812009960 - Action 4148811896 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Starts running the AI Test Suite, the specified number of times.]]></Val>
+      <Val><![CDATA[Starts running the AI Eval Suite, the specified number of times.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4435,7 +5011,7 @@
   </Item>
   <Item ItemId=";Page 2705049997 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AI Test Suite Compare]]></Val>
+      <Val><![CDATA[AI Eval Suite Compare]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4462,7 +5038,7 @@
   </Item>
   <Item ItemId=";Page 2705049997 - Control 3078320533 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies Total Duration of the tests for the version.]]></Val>
+      <Val><![CDATA[Specifies Total Duration of the evals for the version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4480,7 +5056,7 @@
   </Item>
   <Item ItemId=";Page 2705049997 - Control 1061672517 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests in this Line for the base version.]]></Val>
+      <Val><![CDATA[Specifies the number of evals in this Line for the base version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4489,7 +5065,7 @@
   </Item>
   <Item ItemId=";Page 2705049997 - Control 3134964020 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests that failed in the base Version.]]></Val>
+      <Val><![CDATA[Specifies the number of evals that failed in the base Version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4498,7 +5074,7 @@
   </Item>
   <Item ItemId=";Page 2705049997 - Control 3134964020 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Number of Tests Failed - Base]]></Val>
+      <Val><![CDATA[Number of Evals Failed - Base]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4507,7 +5083,7 @@
   </Item>
   <Item ItemId=";Page 2705049997 - Control 4166520997 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests passed in the base Version.]]></Val>
+      <Val><![CDATA[Specifies the number of evals passed in the base Version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4525,7 +5101,7 @@
   </Item>
   <Item ItemId=";Page 2705049997 - Control 1637095154 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies Total Duration of the tests for this version.]]></Val>
+      <Val><![CDATA[Specifies Total Duration of the evals for this version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4534,7 +5110,7 @@
   </Item>
   <Item ItemId=";Page 2705049997 - Control 2759637069 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests in this line.]]></Val>
+      <Val><![CDATA[Specifies the number of evals in this line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4543,7 +5119,7 @@
   </Item>
   <Item ItemId=";Page 2705049997 - Control 3742967028 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests that failed in the current version.]]></Val>
+      <Val><![CDATA[Specifies the number of evals that failed in the current version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4552,7 +5128,7 @@
   </Item>
   <Item ItemId=";Page 2705049997 - Control 3742967028 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Number of Tests Failed]]></Val>
+      <Val><![CDATA[Number of Evals Failed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4561,7 +5137,7 @@
   </Item>
   <Item ItemId=";Page 2705049997 - Control 1692330285 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests passed in the current version.]]></Val>
+      <Val><![CDATA[Specifies the number of evals passed in the current version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4570,7 +5146,7 @@
   </Item>
   <Item ItemId=";Page 2705049997 - Control 435171351 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests in this Line]]></Val>
+      <Val><![CDATA[Specifies the number of evals in this Line]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4579,7 +5155,7 @@
   </Item>
   <Item ItemId=";Page 2705049997 - Control 435171351 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Number of Tests]]></Val>
+      <Val><![CDATA[Number of Evals]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4588,7 +5164,7 @@
   </Item>
   <Item ItemId=";Page 2705049997 - Control 2511978514 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests that failed in the version.]]></Val>
+      <Val><![CDATA[Specifies the number of evals that failed in the version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4597,7 +5173,7 @@
   </Item>
   <Item ItemId=";Page 2705049997 - Control 2511978514 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Number of Tests Failed]]></Val>
+      <Val><![CDATA[Number of Evals Failed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4606,7 +5182,7 @@
   </Item>
   <Item ItemId=";Page 2705049997 - Control 3390215047 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the number of tests passed in the version.]]></Val>
+      <Val><![CDATA[Specifies the number of evals passed in the version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4615,7 +5191,7 @@
   </Item>
   <Item ItemId=";Page 2705049997 - Control 3390215047 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Number of Tests Passed]]></Val>
+      <Val><![CDATA[Number of Evals Passed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4624,7 +5200,7 @@
   </Item>
   <Item ItemId=";Page 2705049997 - Control 3642950356 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the aggregated number of tokens consumed by the test. This is applicable only when using Microsoft AI Module.]]></Val>
+      <Val><![CDATA[Specifies the aggregated number of tokens consumed by the eval. This is applicable only when using Microsoft AI Module. Tokens consumed by agent sessions are not included in this number.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4642,7 +5218,7 @@
   </Item>
   <Item ItemId=";Page 2705049997 - Control 3196485928 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies Total Duration of the tests for the version.]]></Val>
+      <Val><![CDATA[Specifies Total Duration of the evals for the version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4703,9 +5279,99 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite Compare - Control Version - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Page 1285163512 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Languages]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite Language Lookup - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1285163512 - Control 450009889 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the Windows Language ID.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite Language Lookup - Control Language ID - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1285163512 - Control 696461927 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the language name.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite Language Lookup - Control Language Name - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1285163512 - Control 696461927 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Language]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite Language Lookup - Control Language Name - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1285163512 - Control 1895089100 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the language tag.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite Language Lookup - Control Language Tag - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 193286686 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Languages]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite Languages Part - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 193286686 - Control 450009889 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the Windows Language ID.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite Languages Part - Control Language ID - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 193286686 - Control 696461927 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the language name.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite Languages Part - Control Language Name - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 193286686 - Control 1895089100 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the language tag.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite Languages Part - Control Language Tag - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 193286686 - Control 1521334855 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies how frequently the eval suite should be run for this language.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite Languages Part - Control Run Frequency - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Page 2144688602 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AI Test Suites]]></Val>
+      <Val><![CDATA[AI Eval Suites]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4714,11 +5380,38 @@
   </Item>
   <Item ItemId=";Page 2144688602 - Property 3863440606" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AIT, AI Test Tool, Test Tool, AI Test Suite, Test Suite, Copilot, Copilot Test]]></Val>
+      <Val><![CDATA[AIT, AI Eval Tool, Eval Tool, AI Eval Suite, Eval Suite, Copilot, Copilot Eval, AI Test Tool, Test Tool, AI Test Suite, Test Suite, Copilot Test]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite List - Property AdditionalSearchTerms)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2144688602 - NamedType 3505134221" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unspecified]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite List - NamedType UnspecifiedLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2144688602 - Control 3058546390 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the capability that the eval suite evaluates.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite List - Control Copilot Capability - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2144688602 - Control 3058546390 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Capability]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Page AIT Test Suite List - Control Copilot Capability - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2144688602 - Action 2534094195 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -4750,7 +5443,7 @@
   </Item>
   <Item ItemId=";Page 2144688602 - Action 1194047236 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Exports the AI Test Suite configuration.]]></Val>
+      <Val><![CDATA[Exports the AI Eval Suite configuration.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4768,7 +5461,7 @@
   </Item>
   <Item ItemId=";Page 2144688602 - Action 2739349083 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Import the AI Test Suite configuration.]]></Val>
+      <Val><![CDATA[Import the AI Eval Suite configuration]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4795,7 +5488,7 @@
   </Item>
   <Item ItemId=";Report 361540914 - Property 2879900210" ItemType=";Report - Report" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AI Test Summary]]></Val>
+      <Val><![CDATA[AI Eval Summary]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4804,7 +5497,7 @@
   </Item>
   <Item ItemId=";Report 361540914 - ReportDataItem 2672556262 - Property 1806354803" ItemType=";Report - ReportDataItem" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AI Test Log Entries]]></Val>
+      <Val><![CDATA[AI Eval Log Entries]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4820,22 +5513,247 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=XmlPort AIT Test Suite Import/Export - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";XmlPort 3065248582 - XmlPortNode 3004954119 - Method 3093245866 - NamedType 3193960831" ItemType=";XmlPort - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The test suite %1 is already imported with a different XML by the same app. Please delete the test suite and import again.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Test Suite Code]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=XmlPort AIT Test Suite Import/Export - XmlPortNode Code - Method OnAfterAssignField - NamedType SameSuiteDifferentXMLErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";XmlPort 3065248582 - XmlPortNode 3004954119 - Method 3093245866 - NamedType 1512260591" ItemType=";XmlPort - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The test suite %1 is already imported by a different app. Please rename the test suite and import again.]]></Val>
+      <Val><![CDATA[The eval suite %1 is already imported by a different app. Please rename the eval suite and import again.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Test Suite Code]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=XmlPort AIT Test Suite Import/Export - XmlPortNode Code - Method OnAfterAssignField - NamedType SameSuiteDifferentAppErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Eval Suite Code]D;]A;(Namespace=System.TestTools.AITestToolkit)(LookupHint=XmlPort AIT Test Suite Import/Export - XmlPortNode Code - Method OnAfterAssignField - NamedType SameSuiteDifferentAppErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2545575774 - Control 2861770502 - Property 1295455071" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the comma-separated list of Agent Task IDs related to this log entry.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 2545575774)(Namespace=System.TestTools.AITestToolkit)(LookupHint=PageExtension Agent Log Entries - Control Agent Task IDs - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2545575774 - Control 2861770502 - Property 2879900210" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Agent tasks]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 2545575774)(Namespace=System.TestTools.AITestToolkit)(LookupHint=PageExtension Agent Log Entries - Control Agent Task IDs - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2545575774 - Control 1143730296 - Property 1295455071" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the total Copilot Credits consumed by the Agent Tasks for this log entry.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 2545575774)(Namespace=System.TestTools.AITestToolkit)(LookupHint=PageExtension Agent Log Entries - Control Copilot Credits - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2545575774 - Control 1143730296 - Property 2879900210" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Copilot credits]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 2545575774)(Namespace=System.TestTools.AITestToolkit)(LookupHint=PageExtension Agent Log Entries - Control Copilot Credits - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2280826089 - Control 497684901 - Property 1295455071" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the number of Agent Tasks related to the current version.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 2280826089)(Namespace=System.TestTools.AITestToolkit)(LookupHint=PageExtension Agent Run History - Control Agent Task Count - By Version - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2280826089 - Control 497684901 - Property 2879900210" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Agent tasks]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 2280826089)(Namespace=System.TestTools.AITestToolkit)(LookupHint=PageExtension Agent Run History - Control Agent Task Count - By Version - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2280826089 - Control 1639628284 - Property 1295455071" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the total Copilot Credits consumed by the Agent Tasks in the current version.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 2280826089)(Namespace=System.TestTools.AITestToolkit)(LookupHint=PageExtension Agent Run History - Control Copilot Credits - By Version - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2280826089 - Control 1639628284 - Property 2879900210" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Copilot credits]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 2280826089)(Namespace=System.TestTools.AITestToolkit)(LookupHint=PageExtension Agent Run History - Control Copilot Credits - By Version - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2280826089 - Control 152449069 - Property 1295455071" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the number of Agent Tasks related to the tag.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 2280826089)(Namespace=System.TestTools.AITestToolkit)(LookupHint=PageExtension Agent Run History - Control Agent Task Count - By Tag - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2280826089 - Control 152449069 - Property 2879900210" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Agent tasks]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 2280826089)(Namespace=System.TestTools.AITestToolkit)(LookupHint=PageExtension Agent Run History - Control Agent Task Count - By Tag - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2280826089 - Control 2521135508 - Property 1295455071" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the total Copilot Credits consumed by the Agent Tasks for the tag.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 2280826089)(Namespace=System.TestTools.AITestToolkit)(LookupHint=PageExtension Agent Run History - Control Copilot Credits - By Tag - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2280826089 - Control 2521135508 - Property 2879900210" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Copilot credits]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 2280826089)(Namespace=System.TestTools.AITestToolkit)(LookupHint=PageExtension Agent Run History - Control Copilot Credits - By Tag - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1055193460 - Control 4078951737 - Property 1295455071" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the number of Agent Tasks related to this eval line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1055193460)(Namespace=System.TestTools.AITestToolkit)(LookupHint=PageExtension Agent Test Method Lines - Control Agent Task Count - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1055193460 - Control 4078951737 - Property 2879900210" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Agent tasks]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1055193460)(Namespace=System.TestTools.AITestToolkit)(LookupHint=PageExtension Agent Test Method Lines - Control Agent Task Count - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1055193460 - Control 1143730296 - Property 1295455071" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the total Copilot Credits consumed by the Agent Tasks for this eval line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1055193460)(Namespace=System.TestTools.AITestToolkit)(LookupHint=PageExtension Agent Test Method Lines - Control Copilot Credits - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1055193460 - Control 1143730296 - Property 2879900210" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Copilot credits]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1055193460)(Namespace=System.TestTools.AITestToolkit)(LookupHint=PageExtension Agent Test Method Lines - Control Copilot Credits - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 2280826089 - Field 2861770502 - Property 1295455071" ItemType=";TableExtension - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the comma-separated list of Agent Task IDs related to the current version.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 2280826089)(Namespace=System.TestTools.AITestToolkit)(LookupHint=TableExtension Agent Run History - Field Agent Task IDs - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 2280826089 - Field 2861770502 - Property 2879900210" ItemType=";TableExtension - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Agent tasks]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 2280826089)(Namespace=System.TestTools.AITestToolkit)(LookupHint=TableExtension Agent Run History - Field Agent Task IDs - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 2280826089 - Field 2946310698 - Property 1295455071" ItemType=";TableExtension - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the comma-separated list of Agent Task IDs related to the tag.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 2280826089)(Namespace=System.TestTools.AITestToolkit)(LookupHint=TableExtension Agent Run History - Field Agent Task IDs - By Tag - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 2280826089 - Field 2946310698 - Property 2879900210" ItemType=";TableExtension - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Agent tasks]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 2280826089)(Namespace=System.TestTools.AITestToolkit)(LookupHint=TableExtension Agent Run History - Field Agent Task IDs - By Tag - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 2280826089 - Field 1143730296 - Property 1295455071" ItemType=";TableExtension - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the total Copilot Credits consumed by the Agent Tasks in the current version.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 2280826089)(Namespace=System.TestTools.AITestToolkit)(LookupHint=TableExtension Agent Run History - Field Copilot Credits - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 2280826089 - Field 1143730296 - Property 2879900210" ItemType=";TableExtension - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Copilot credits]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 2280826089)(Namespace=System.TestTools.AITestToolkit)(LookupHint=TableExtension Agent Run History - Field Copilot Credits - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 2280826089 - Field 2521135508 - Property 1295455071" ItemType=";TableExtension - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the total Copilot Credits consumed by the Agent Tasks for the tag.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 2280826089)(Namespace=System.TestTools.AITestToolkit)(LookupHint=TableExtension Agent Run History - Field Copilot Credits - By Tag - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 2280826089 - Field 2521135508 - Property 2879900210" ItemType=";TableExtension - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Copilot credits]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 2280826089)(Namespace=System.TestTools.AITestToolkit)(LookupHint=TableExtension Agent Run History - Field Copilot Credits - By Tag - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3812009960 - Field 409624101 - Property 1295455071" ItemType=";TableExtension - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the agent to be used by the test suite.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 3812009960)(Namespace=System.TestTools.AITestToolkit)(LookupHint=TableExtension Agent Test Suite - Field Agent User Security ID - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3812009960 - Field 409624101 - Property 2879900210" ItemType=";TableExtension - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Agent User Security ID]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 3812009960)(Namespace=System.TestTools.AITestToolkit)(LookupHint=TableExtension Agent Test Suite - Field Agent User Security ID - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Enum 2239044410 - EnumValue 4069904181 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
@@ -4872,6 +5790,33 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Enum AIT Line Status - EnumValue Starting - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Enum 3597585723 - EnumValue 38359347 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Daily]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Enum AIT Run Frequency - EnumValue Daily - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Enum 3597585723 - EnumValue 1508634494 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Manual]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Enum AIT Run Frequency - EnumValue Manual - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Enum 3597585723 - EnumValue 1966338867 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Weekly]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Enum AIT Run Frequency - EnumValue Weekly - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Enum 1117109592 - EnumValue 2801749846 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
@@ -5018,9 +5963,36 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Enum AIT Test Suite Status - EnumValue Running - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Enum 4209289678 - EnumValue 972110707 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Agent]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Enum AIT Test Type - EnumValue Agent - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Enum 4209289678 - EnumValue 1408386902 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Copilot]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Enum AIT Test Type - EnumValue Copilot - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Enum 4209289678 - EnumValue 2771823370 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[MCP]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.AITestToolkit)(LookupHint=Enum AIT Test Type - EnumValue MCP - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";PermissionSet 1221179756 - Property 2879900210" ItemType=";PermissionSet - PermissionSet" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Business Central AI Test Toolkit]]></Val>
+      <Val><![CDATA[Business Central AI Eval Toolkit]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

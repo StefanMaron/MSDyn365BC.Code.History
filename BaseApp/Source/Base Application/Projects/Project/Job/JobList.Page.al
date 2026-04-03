@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -15,9 +15,7 @@ using Microsoft.Pricing.Source;
 using Microsoft.Projects.Project.Analysis;
 using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Project.Planning;
-#if not CLEAN25
 using Microsoft.Projects.Project.Pricing;
-#endif
 using Microsoft.Projects.Project.Reports;
 using Microsoft.Projects.Project.WIP;
 using Microsoft.Purchases.Pricing;
@@ -53,22 +51,18 @@ page 89 "Job List"
                 field("No."; Rec."No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies a short description of the project.';
                 }
                 field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the customer who pays for the project.';
                 }
                 field(Status; Rec.Status)
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies a status for the current project. You can change the status for the project as it progresses. Final calculations can be made on completed projects.';
                 }
                 field("Person Responsible"; Rec."Person Responsible")
                 {
@@ -79,7 +73,6 @@ page 89 "Job List"
                 field("Next Invoice Date"; Rec."Next Invoice Date")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the next invoice date for the project.';
                     Visible = false;
                 }
                 field("Job Posting Group"; Rec."Job Posting Group")
@@ -91,11 +84,11 @@ page 89 "Job List"
                 field("Search Description"; Rec."Search Description")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the additional name for the project. The field is used for searching purposes.';
                 }
                 field("% of Overdue Planning Lines"; Rec.PercentOverdue())
                 {
                     ApplicationArea = Jobs;
+                    AutoFormatType = 0;
                     Caption = '% of Overdue Planning Lines';
                     Editable = false;
                     ToolTip = 'Specifies the percent of planning lines that are overdue for this project.';
@@ -104,6 +97,7 @@ page 89 "Job List"
                 field("% Completed"; Rec.PercentCompleted())
                 {
                     ApplicationArea = Jobs;
+                    AutoFormatType = 0;
                     Caption = '% Completed';
                     Editable = false;
                     ToolTip = 'Specifies the completion percentage for this project.';
@@ -112,6 +106,7 @@ page 89 "Job List"
                 field("% Invoiced"; Rec.PercentInvoiced())
                 {
                     ApplicationArea = Jobs;
+                    AutoFormatType = 0;
                     Caption = '% Invoiced';
                     Editable = false;
                     ToolTip = 'Specifies the invoiced percentage for this project.';
@@ -126,19 +121,16 @@ page 89 "Job List"
                 field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                     Visible = false;
                 }
                 field("Your Reference"; Rec."Your Reference")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the customer''s reference. The content will be printed on sales documents.';
                     Visible = false;
                 }
                 field("Completely Picked"; Rec."Completely Picked")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies whether all items on the project planning lines have been completely picked.';
                     Visible = false;
                 }
             }
@@ -173,19 +165,6 @@ page 89 "Job List"
                 Caption = 'Project Details';
                 SubPageLink = "No." = field("No.");
             }
-#if not CLEAN25
-            part("Attached Documents"; "Document Attachment Factbox")
-            {
-                ObsoleteTag = '25.0';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
-                ApplicationArea = All;
-                Visible = false;
-                Caption = 'Attachments';
-                SubPageLink = "Table ID" = const(Database::Job),
-                              "No." = field("No.");
-            }
-#endif
             part("Attached Documents List"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = All;
@@ -343,15 +322,11 @@ page 89 "Job List"
                     ToolTip = 'View the Project WIP Cockpit.';
                 }
             }
-#if not CLEAN25
             group("&Prices")
             {
                 Caption = '&Prices';
                 Image = Price;
                 Visible = not ExtendedPriceEnabled;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                ObsoleteTag = '17.0';
                 action("&Resource")
                 {
                     ApplicationArea = Jobs;
@@ -361,9 +336,6 @@ page 89 "Job List"
                     RunObject = Page "Job Resource Prices";
                     RunPageLink = "Job No." = field("No.");
                     ToolTip = 'View this project''s resource prices.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
                 action("&Item")
                 {
@@ -374,9 +346,6 @@ page 89 "Job List"
                     RunObject = Page "Job Item Prices";
                     RunPageLink = "Job No." = field("No.");
                     ToolTip = 'View this project''s item prices.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
                 action("&G/L Account")
                 {
@@ -387,12 +356,8 @@ page 89 "Job List"
                     RunObject = Page "Job G/L Account Prices";
                     RunPageLink = "Job No." = field("No.");
                     ToolTip = 'View this project''s G/L account prices.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
             }
-#endif
             group(Prices)
             {
                 Caption = '&Prices';
@@ -451,7 +416,6 @@ page 89 "Job List"
                         PriceUXManagement.ShowPriceListLines(PriceSource, Enum::"Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN25
                 action(SalesPriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -459,9 +423,6 @@ page 89 "Job List"
                     Image = LineDiscount;
                     Visible = false;
                     ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action SalesPriceLists shows all sales price lists with prices and discounts';
-                    ObsoleteTag = '18.0';
 
                     trigger OnAction()
                     var
@@ -472,7 +433,6 @@ page 89 "Job List"
                         PriceUXManagement.ShowPriceLists(Rec, PriceType::Sale, AmountType::Discount);
                     end;
                 }
-#endif
                 action(PurchasePriceLists)
                 {
                     ApplicationArea = Basic, Suite;
@@ -526,7 +486,6 @@ page 89 "Job List"
                         PriceUXManagement.ShowPriceListLines(PriceSource, Enum::"Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN25
                 action(PurchasePriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -534,9 +493,6 @@ page 89 "Job List"
                     Image = LineDiscount;
                     Visible = false;
                     ToolTip = 'View or set up different discounts for products that you buy from the vendor. An product discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action PurchasePriceLists shows all purchase price lists with prices and discounts';
-                    ObsoleteTag = '18.0';
 
                     trigger OnAction()
                     var
@@ -547,7 +503,6 @@ page 89 "Job List"
                         PriceUXManagement.ShowPriceLists(Rec, PriceType::Purchase, AmountType::Discount);
                     end;
                 }
-#endif
             }
             group("Plan&ning")
             {
@@ -921,30 +876,15 @@ page 89 "Job List"
             {
                 Caption = 'Prices & Discounts', Comment = 'Generated from the PromotedActionCategories property index 5.';
 
-#if not CLEAN25
                 actionref("&Resource_Promoted"; "&Resource")
                 {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
-#endif
-#if not CLEAN25
                 actionref("&Item_Promoted"; "&Item")
                 {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
-#endif
-#if not CLEAN25
                 actionref("&G/L Account_Promoted"; "&G/L Account")
                 {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
-#endif
             }
             group(Category_WIP)
             {
@@ -988,22 +928,12 @@ page 89 "Job List"
                 actionref(PurchDiscountLines_Promoted; PurchDiscountLines)
                 {
                 }
-#if not CLEAN25
                 actionref(SalesPriceListsDiscounts_Promoted; SalesPriceListsDiscounts)
                 {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action SalesPriceLists shows all sales price lists with prices and discounts';
-                    ObsoleteTag = '18.0';
                 }
-#endif
-#if not CLEAN25
                 actionref(PurchasePriceListsDiscounts_Promoted; PurchasePriceListsDiscounts)
                 {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action PurchasePriceLists shows all purchase price lists with prices and discounts';
-                    ObsoleteTag = '18.0';
                 }
-#endif
             }
             group(Category_Report)
             {
@@ -1096,4 +1026,3 @@ page 89 "Job List"
         Page.Run(Page::"Warehouse Activity Lines", TempWarehouseActivityLine);
     end;
 }
-

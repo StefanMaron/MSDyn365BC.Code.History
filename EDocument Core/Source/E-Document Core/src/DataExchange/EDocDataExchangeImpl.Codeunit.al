@@ -5,16 +5,16 @@
 namespace Microsoft.eServices.EDocument.IO.Peppol;
 
 using Microsoft.eServices.EDocument;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Company;
+using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Peppol;
 using Microsoft.Service.History;
-using System.Text;
-using Microsoft.Foundation.Attachment;
-using Microsoft.Purchases.Document;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using System.Utilities;
 
 codeunit 6152 "E-Doc. Data Exchange Impl." implements "E-Document"
@@ -484,8 +484,7 @@ codeunit 6152 "E-Doc. Data Exchange Impl." implements "E-Document"
                         begin
                             // Read data as Base 64 value, and convert it.
                             IntermediateDataImport.CalcFields("Value BLOB");
-                            IntermediateDataImport."Value BLOB".CreateInStream(InStream);
-                            InStream.ReadText(Base64Data);
+                            Base64Data := IntermediateDataImport.GetValue();
                             TempBlob.CreateOutStream(OutStream);
                             Base64Convert.FromBase64(Base64Data, OutStream);
                         end;

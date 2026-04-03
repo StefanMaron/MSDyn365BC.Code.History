@@ -4,6 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.AllocationAccount;
 
+/// <summary>
+/// Preview interface for allocation line calculations showing detailed distribution results.
+/// Provides read-only view of how allocation amounts will be distributed across destination accounts.
+/// </summary>
 page 2674 "Allocation Account Preview"
 {
     PageType = Worksheet;
@@ -21,6 +25,8 @@ page 2674 "Allocation Account Preview"
                 field(AmountToAllocate; AmountToAllocate)
                 {
                     Caption = 'Amount to Allocate';
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     ApplicationArea = All;
                     ToolTip = 'Specifies the amount to be allocated to the Destination Account.';
                     trigger OnValidate()

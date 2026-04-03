@@ -4,8 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.DemoData.Finance;
 
-using Microsoft.Finance.Deferral;
 using Microsoft.DemoTool.Helpers;
+using Microsoft.Finance.Deferral;
 
 codeunit 5389 "Create Deferral Template"
 {

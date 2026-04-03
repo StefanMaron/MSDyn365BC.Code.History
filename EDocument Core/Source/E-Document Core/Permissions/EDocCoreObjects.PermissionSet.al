@@ -4,19 +4,19 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument;
 
+using Microsoft.eServices.EDocument.Format;
+using Microsoft.eServices.EDocument.Integration;
+using Microsoft.eServices.EDocument.Integration.Action;
+using Microsoft.eServices.EDocument.Integration.Receive;
+using Microsoft.eServices.EDocument.Integration.Send;
 using Microsoft.eServices.EDocument.IO;
 using Microsoft.eServices.EDocument.IO.Peppol;
 using Microsoft.EServices.EDocument.OrderMatch;
 using Microsoft.EServices.EDocument.OrderMatch.Copilot;
-using Microsoft.eServices.EDocument.Service.Participant;
 using Microsoft.eServices.EDocument.Processing.Import;
 using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 using Microsoft.eServices.EDocument.Service;
-using Microsoft.eServices.EDocument.Integration.Receive;
-using Microsoft.eServices.EDocument.Integration.Action;
-using Microsoft.eServices.EDocument.Format;
-using Microsoft.eServices.EDocument.Integration.Send;
-using Microsoft.eServices.EDocument.Integration;
+using Microsoft.eServices.EDocument.Service.Participant;
 
 permissionset 6100 "E-Doc. Core - Objects"
 {
@@ -43,11 +43,10 @@ permissionset 6100 "E-Doc. Core - Objects"
         table "E-Document Line Mapping" = X,
         table "E-Document Purchase Header" = X,
         table "E-Document Purchase Line" = X,
-        table "E-Documents Setup" = X,
         table "E-Document Line - Field" = X,
         table "ED Purchase Line Field Setup" = X,
         table "E-Doc Sample Purch. Inv File" = X,
-#if not CLEAN27
+#if not CLEAN28
 #pragma warning disable AL0432
         table "EDoc Historical Matching Setup" = X,
 #pragma warning restore AL0432

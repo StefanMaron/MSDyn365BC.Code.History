@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -41,6 +41,7 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Pricing.Calculation;
+using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Archive;
 using Microsoft.Purchases.Comment;
@@ -62,7 +63,6 @@ using System.Reflection;
 using System.Security.User;
 using System.Threading;
 using System.Utilities;
-using Microsoft.Projects.Project.Job;
 
 table 38 "Purchase Header"
 {
@@ -135,6 +135,7 @@ table 38 "Purchase Header"
                 "Registration No." := CopyStr(Vend."Registration Number", 1, MaxStrLen("Registration No."));
                 Validate("Lead Time Calculation", Vend."Lead Time Calculation");
                 "Shipment Method Code" := Vend."Shipment Method Code";
+                "Self-Billing Invoice" := Vend."Self-Billing Agreement" and Rec."Document Type" in [Rec."Document Type"::Order, Rec."Document Type"::Invoice];
 
                 IsHandled := false;
                 OnValidateBuyFromVendorNoOnBeforeAssignResponsibilityCenter(Rec, xRec, CurrFieldNo, IsHandled);
@@ -341,6 +342,7 @@ table 38 "Purchase Header"
         field(7; "Pay-to Address"; Text[100])
         {
             Caption = 'Pay-to Address';
+            ToolTip = 'Specifies the address of the vendor sending the invoice.';
 
             trigger OnValidate()
             begin
@@ -350,6 +352,7 @@ table 38 "Purchase Header"
         field(8; "Pay-to Address 2"; Text[50])
         {
             Caption = 'Pay-to Address 2';
+            ToolTip = 'Specifies additional address information.';
 
             trigger OnValidate()
             begin
@@ -359,6 +362,7 @@ table 38 "Purchase Header"
         field(9; "Pay-to City"; Text[30])
         {
             Caption = 'Pay-to City';
+            ToolTip = 'Specifies the city of the vendor on the purchase document.';
             TableRelation = if ("Pay-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Pay-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Pay-to Country/Region Code"));
@@ -466,18 +470,22 @@ table 38 "Purchase Header"
         field(14; "Ship-to Name 2"; Text[50])
         {
             Caption = 'Ship-to Name 2';
+            ToolTip = 'Specifies an additional part of the name of the customer that items on the purchase order were shipped to, as a drop shipment.';
         }
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
+            ToolTip = 'Specifies the address that you want the items in the purchase order to be shipped to.';
         }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
+            ToolTip = 'Specifies additional address information.';
         }
         field(17; "Ship-to City"; Text[30])
         {
             Caption = 'Ship-to City';
+            ToolTip = 'Specifies the city of the vendor on the purchase document.';
             TableRelation = if ("Ship-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Ship-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Ship-to Country/Region Code"));
@@ -508,6 +516,7 @@ table 38 "Purchase Header"
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'Order Date';
+            ToolTip = 'Specifies the date when the order was created.';
 
             trigger OnValidate()
             var
@@ -590,6 +599,7 @@ table 38 "Purchase Header"
         field(21; "Expected Receipt Date"; Date)
         {
             Caption = 'Expected Receipt Date';
+            ToolTip = 'Specifies the date you expect the items to be available in your warehouse. If you leave the field blank, it will be calculated as follows: Planned Receipt Date + Safety Lead Time + Inbound Warehouse Handling Time = Expected Receipt Date.';
 
             trigger OnValidate()
             var
@@ -662,6 +672,7 @@ table 38 "Purchase Header"
         }
         field(25; "Payment Discount %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Payment Discount %';
             ToolTip = 'Specifies the payment discount percent granted if payment is made on or before the date in the Pmt. Discount Date field.';
             DecimalPlaces = 0 : 5;
@@ -690,6 +701,7 @@ table 38 "Purchase Header"
         field(26; "Pmt. Discount Date"; Date)
         {
             Caption = 'Pmt. Discount Date';
+            ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
         }
         field(27; "Shipment Method Code"; Code[10])
         {
@@ -764,6 +776,7 @@ table 38 "Purchase Header"
         field(31; "Vendor Posting Group"; Code[20])
         {
             Caption = 'Vendor Posting Group';
+            ToolTip = 'Specifies the vendor''s market type to link business transactions to.';
             TableRelation = "Vendor Posting Group";
 
             trigger OnValidate()
@@ -813,6 +826,7 @@ table 38 "Purchase Header"
         }
         field(33; "Currency Factor"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Currency Factor';
             DecimalPlaces = 0 : 15;
             Editable = false;
@@ -829,6 +843,7 @@ table 38 "Purchase Header"
         field(35; "Prices Including VAT"; Boolean)
         {
             Caption = 'Prices Including VAT';
+            ToolTip = 'Specifies if the Unit Price and Line Amount fields on document lines should be shown with or without VAT.';
 
             trigger OnValidate()
             var
@@ -923,6 +938,7 @@ table 38 "Purchase Header"
         field(41; "Language Code"; Code[10])
         {
             Caption = 'Language Code';
+            ToolTip = 'Specifies the language to be used on printouts for this document.';
             TableRelation = Language;
 
             trigger OnValidate()
@@ -933,6 +949,7 @@ table 38 "Purchase Header"
         field(42; "Format Region"; Text[80])
         {
             Caption = 'Format Region';
+            ToolTip = 'Specifies the format to be used on printouts for this document.';
             TableRelation = "Language Selection"."Language Tag";
         }
         field(43; "Purchaser Code"; Code[20])
@@ -979,14 +996,17 @@ table 38 "Purchase Header"
         field(51; "On Hold"; Code[3])
         {
             Caption = 'On Hold';
+            ToolTip = 'Specifies that the related entry represents an unpaid invoice for which either a payment suggestion, a reminder, or a finance charge memo exists.';
         }
         field(52; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
+            ToolTip = 'Specifies the type of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
         }
         field(53; "Applies-to Doc. No."; Code[20])
         {
             Caption = 'Applies-to Doc. No.';
+            ToolTip = 'Specifies the number of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
 
             trigger OnLookup()
             var
@@ -1158,6 +1178,7 @@ table 38 "Purchase Header"
         field(67; "Vendor Shipment No."; Code[35])
         {
             Caption = 'Vendor Shipment No.';
+            ToolTip = 'Specifies the vendor''s shipment number.';
 
             trigger OnValidate()
             var
@@ -1172,6 +1193,7 @@ table 38 "Purchase Header"
         field(68; "Vendor Invoice No."; Code[35])
         {
             Caption = 'Vendor Invoice No.';
+            ToolTip = 'Specifies the document number of the original document you received from the vendor. You can require the document number for posting, or let it be optional. By default, it''s required, so that this document references the original. Making document numbers optional removes a step from the posting process. For example, if you attach the original invoice as a PDF, you might not need to enter the document number. To specify whether document numbers are required, in the Purchases & Payables Setup window, select or clear the Ext. Doc. No. Mandatory field.';
 
             trigger OnValidate()
             var
@@ -1193,6 +1215,7 @@ table 38 "Purchase Header"
         field(69; "Vendor Cr. Memo No."; Code[35])
         {
             Caption = 'Vendor Cr. Memo No.';
+            ToolTip = 'Specifies the document number of the original document you received from the vendor. You can require the document number for posting, or let it be optional. By default, it''s required, so that this document references the original. Making document numbers optional removes a step from the posting process. For example, if you attach the original invoice as a PDF, you might not need to enter the document number. To specify whether document numbers are required, in the Purchases & Payables Setup window, select or clear the Ext. Doc. No. Mandatory field.';
 
             trigger OnValidate()
             var
@@ -1218,6 +1241,7 @@ table 38 "Purchase Header"
         field(72; "Sell-to Customer No."; Code[20])
         {
             Caption = 'Sell-to Customer No.';
+            ToolTip = 'Specifies the number of the customer that the items are shipped to directly from your vendor, as a drop shipment.';
             TableRelation = Customer;
 
             trigger OnValidate()
@@ -1253,6 +1277,7 @@ table 38 "Purchase Header"
         field(73; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
+            ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the document.';
             TableRelation = "Reason Code";
         }
         field(74; "Gen. Bus. Posting Group"; Code[20])
@@ -1277,6 +1302,7 @@ table 38 "Purchase Header"
         field(76; "Transaction Type"; Code[10])
         {
             Caption = 'Transaction Type';
+            ToolTip = 'Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.';
             TableRelation = "Transaction Type";
 
             trigger OnValidate()
@@ -1287,6 +1313,7 @@ table 38 "Purchase Header"
         field(77; "Transport Method"; Code[10])
         {
             Caption = 'Transport Method';
+            ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
             TableRelation = "Transport Method";
 
             trigger OnValidate()
@@ -1341,6 +1368,7 @@ table 38 "Purchase Header"
         field(81; "Buy-from Address"; Text[100])
         {
             Caption = 'Buy-from Address';
+            ToolTip = 'Specifies the address of the vendor who ships the items.';
 
             trigger OnValidate()
             begin
@@ -1351,6 +1379,7 @@ table 38 "Purchase Header"
         field(82; "Buy-from Address 2"; Text[50])
         {
             Caption = 'Buy-from Address 2';
+            ToolTip = 'Specifies additional address information.';
 
             trigger OnValidate()
             begin
@@ -1361,6 +1390,7 @@ table 38 "Purchase Header"
         field(83; "Buy-from City"; Text[30])
         {
             Caption = 'Buy-from City';
+            ToolTip = 'Specifies the city of the vendor on the purchase document.';
             TableRelation = if ("Buy-from Country/Region Code" = const('')) "Post Code".City
             else
             if ("Buy-from Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Buy-from Country/Region Code"));
@@ -1435,6 +1465,7 @@ table 38 "Purchase Header"
         {
             CaptionClass = '5,6,' + "Pay-to Country/Region Code";
             Caption = 'Pay-to County';
+            ToolTip = 'Specifies the state, province or county of the address.';
 
             trigger OnValidate()
             begin
@@ -1490,6 +1521,7 @@ table 38 "Purchase Header"
         {
             CaptionClass = '5,5,' + "Buy-from Country/Region Code";
             Caption = 'Buy-from County';
+            ToolTip = 'Specifies the state, province or county of the address.';
 
             trigger OnValidate()
             begin
@@ -1549,6 +1581,7 @@ table 38 "Purchase Header"
         {
             CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
+            ToolTip = 'Specifies the state, province or county of the address.';
         }
         field(93; "Ship-to Country/Region Code"; Code[10])
         {
@@ -1603,6 +1636,7 @@ table 38 "Purchase Header"
         field(97; "Entry Point"; Code[10])
         {
             Caption = 'Entry Point';
+            ToolTip = 'Specifies the code of the port of entry where the items pass into your country/region, for reporting to Intrastat.';
             TableRelation = "Entry/Exit Point";
 
             trigger OnValidate()
@@ -1613,6 +1647,7 @@ table 38 "Purchase Header"
         field(98; Correction; Boolean)
         {
             Caption = 'Correction';
+            ToolTip = 'Specifies the entry as a corrective entry. You can use the field if you need to post a corrective entry to a vendor account. If you place a check mark in this field when posting a corrective entry, the system will post a negative debit instead of a credit or a negative credit instead of a debit. Correction flag does not affect how inventory reconciled with general ledger.';
         }
         field(99; "Document Date"; Date)
         {
@@ -1635,6 +1670,7 @@ table 38 "Purchase Header"
         field(101; "Area"; Code[10])
         {
             Caption = 'Area';
+            ToolTip = 'Specifies the destination country or region for the purpose of Intrastat reporting.';
             TableRelation = Area;
 
             trigger OnValidate()
@@ -1645,6 +1681,7 @@ table 38 "Purchase Header"
         field(102; "Transaction Specification"; Code[10])
         {
             Caption = 'Transaction Specification';
+            ToolTip = 'Specifies a specification of the document''s transaction, for the purpose of reporting to INTRASTAT.';
             TableRelation = "Transaction Specification";
 
             trigger OnValidate()
@@ -1744,6 +1781,7 @@ table 38 "Purchase Header"
         field(114; "Tax Area Code"; Code[20])
         {
             Caption = 'Tax Area Code';
+            ToolTip = 'Specifies the tax area code used for this purchase to calculate and post sales tax.';
             TableRelation = "Tax Area";
 
             trigger OnValidate()
@@ -1755,6 +1793,7 @@ table 38 "Purchase Header"
         field(115; "Tax Liable"; Boolean)
         {
             Caption = 'Tax Liable';
+            ToolTip = 'Specifies if this vendor charges you sales tax for purchases.';
 
             trigger OnValidate()
             begin
@@ -1765,6 +1804,7 @@ table 38 "Purchase Header"
         field(116; "VAT Bus. Posting Group"; Code[20])
         {
             Caption = 'VAT Bus. Posting Group';
+            ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
             TableRelation = "VAT Business Posting Group";
 
             trigger OnValidate()
@@ -1779,6 +1819,7 @@ table 38 "Purchase Header"
         field(118; "Applies-to ID"; Code[50])
         {
             Caption = 'Applies-to ID';
+            ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
 
             trigger OnValidate()
             var
@@ -1800,6 +1841,7 @@ table 38 "Purchase Header"
         }
         field(119; "VAT Base Discount %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'VAT Base Discount %';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
@@ -1854,6 +1896,7 @@ table 38 "Purchase Header"
         }
         field(122; "Invoice Discount Value"; Decimal)
         {
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Invoice Discount Value';
             Editable = false;
@@ -1928,7 +1971,9 @@ table 38 "Purchase Header"
         }
         field(134; "Prepayment %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Prepayment %';
+            ToolTip = 'Specifies the prepayment percentage to use to calculate the prepayment for purchase.';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
             MinValue = 0;
@@ -1983,11 +2028,13 @@ table 38 "Purchase Header"
         field(136; "Compress Prepayment"; Boolean)
         {
             Caption = 'Compress Prepayment';
+            ToolTip = 'Specifies that prepayments on the purchase order are combined if they have the same general ledger account for prepayments or the same dimensions.';
             InitValue = true;
         }
         field(137; "Prepayment Due Date"; Date)
         {
             Caption = 'Prepayment Due Date';
+            ToolTip = 'Specifies when the prepayment invoice for this purchase order is due.';
         }
         field(138; "Prepmt. Cr. Memo No. Series"; Code[20])
         {
@@ -2035,10 +2082,12 @@ table 38 "Purchase Header"
         field(142; "Prepmt. Pmt. Discount Date"; Date)
         {
             Caption = 'Prepmt. Pmt. Discount Date';
+            ToolTip = 'Specifies the last date the vendor can pay the prepayment invoice and still receive a payment discount on the prepayment amount.';
         }
         field(143; "Prepmt. Payment Terms Code"; Code[10])
         {
             Caption = 'Prepmt. Payment Terms Code';
+            ToolTip = 'Specifies the code that represents the payment terms for prepayment invoices related to the purchase document.';
             TableRelation = "Payment Terms";
 
             trigger OnValidate()
@@ -2081,7 +2130,9 @@ table 38 "Purchase Header"
         }
         field(144; "Prepmt. Payment Discount %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Prepmt. Payment Discount %';
+            ToolTip = 'Specifies the payment discount percent granted on the prepayment if the vendor pays on or before the date entered in the Prepmt. Pmt. Discount Date field.';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
             MinValue = 0;
@@ -2108,6 +2159,7 @@ table 38 "Purchase Header"
         field(151; "Quote No."; Code[20])
         {
             Caption = 'Quote No.';
+            ToolTip = 'Specifies the quote number for the purchase order.';
             Editable = false;
         }
         field(160; "Job Queue Status"; Enum "Document Job Queue Status")
@@ -2133,6 +2185,7 @@ table 38 "Purchase Header"
         field(165; "Incoming Document Entry No."; Integer)
         {
             Caption = 'Incoming Document Entry No.';
+            ToolTip = 'Specifies the number of the incoming document that this purchase document is created for.';
             TableRelation = "Incoming Document";
 
             trigger OnValidate()
@@ -2150,18 +2203,22 @@ table 38 "Purchase Header"
         field(170; "Creditor No."; Code[20])
         {
             Caption = 'Creditor No.';
+            ToolTip = 'Specifies the number of the vendor.';
         }
         field(171; "Payment Reference"; Code[50])
         {
             Caption = 'Payment Reference';
+            ToolTip = 'Specifies the payment of the purchase invoice.';
         }
         field(175; "Invoice Received Date"; Date)
         {
+            ToolTip = 'Specifies the date when the related document was received.';
 
         }
         field(178; "Journal Templ. Name"; Code[10])
         {
             Caption = 'Journal Template Name';
+            ToolTip = 'Specifies the name of the journal template in which the purchase header is to be posted.';
             TableRelation = "Gen. Journal Template" where(Type = filter(Purchases));
 
             trigger OnValidate()
@@ -2174,6 +2231,7 @@ table 38 "Purchase Header"
         field(179; "VAT Reporting Date"; Date)
         {
             Caption = 'VAT Date';
+            ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
             Editable = false;
 
             trigger OnValidate()
@@ -2182,13 +2240,19 @@ table 38 "Purchase Header"
                     InitVATDate();
             end;
         }
+        field(180; "Self-Billing Invoice"; Boolean)
+        {
+            Caption = 'Self-Billing Invoice';
+        }
         field(210; "Ship-to Phone No."; Text[30])
         {
             Caption = 'Ship-to Phone No.';
+            ToolTip = 'Specifies the telephone number of the company''s shipping address.';
             ExtendedDatatype = PhoneNo;
         }
         field(300; "A. Rcd. Not Inv. Ex. VAT (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             CalcFormula = sum("Purchase Line"."A. Rcd. Not Inv. Ex. VAT (LCY)" where("Document Type" = field("Document Type"),
                                                                                       "Document No." = field("No.")));
             Caption = 'Amount Received Not Invoiced (LCY)';
@@ -2198,6 +2262,7 @@ table 38 "Purchase Header"
         }
         field(301; "Amt. Rcd. Not Invoiced (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             CalcFormula = sum("Purchase Line"."Amt. Rcd. Not Invoiced (LCY)" where("Document Type" = field("Document Type"),
                                                                                     "Document No." = field("No.")));
             Caption = 'Amount Received Not Invoiced (LCY) Incl. VAT';
@@ -2224,10 +2289,12 @@ table 38 "Purchase Header"
         field(1000; "Remit-to Code"; Code[20])
         {
             Caption = 'Remit-to Code';
+            ToolTip = 'Specifies the code for the vendor''s remit address for this invoice.';
             TableRelation = "Remit Address".Code where("Vendor No." = field("Buy-from Vendor No."));
         }
         field(1305; "Invoice Discount Amount"; Decimal)
         {
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             CalcFormula = sum("Purchase Line"."Inv. Discount Amount" where("Document No." = field("No."),
                                                                             "Document Type" = field("Document Type")));
@@ -2241,6 +2308,7 @@ table 38 "Purchase Header"
                                                                              "No." = field("No."),
                                                                              "Doc. No. Occurrence" = field("Doc. No. Occurrence")));
             Caption = 'No. of Archived Versions';
+            ToolTip = 'Specifies the number of archived versions for this document.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -2251,6 +2319,7 @@ table 38 "Purchase Header"
         field(5050; "Campaign No."; Code[20])
         {
             Caption = 'Campaign No.';
+            ToolTip = 'Specifies the campaign number the document is linked to.';
             TableRelation = Campaign;
 
             trigger OnValidate()
@@ -2262,6 +2331,7 @@ table 38 "Purchase Header"
         field(5052; "Buy-from Contact No."; Code[20])
         {
             Caption = 'Buy-from Contact No.';
+            ToolTip = 'Specifies the number of your contact at the vendor.';
             TableRelation = Contact;
 
             trigger OnLookup()
@@ -2295,11 +2365,14 @@ table 38 "Purchase Header"
 
                 if ("Buy-from Contact No." <> xRec."Buy-from Contact No.") then
                     UpdateBuyFromVend("Buy-from Contact No.");
+
+                UpdateBuyFromVendorTemplateCode();
             end;
         }
         field(5053; "Pay-to Contact No."; Code[20])
         {
             Caption = 'Pay-to Contact No.';
+            ToolTip = 'Specifies the number of the contact who sends the invoice.';
             TableRelation = Contact;
 
             trigger OnLookup()
@@ -2359,9 +2432,93 @@ table 38 "Purchase Header"
                 UpdatePayToVend("Pay-to Contact No.");
             end;
         }
+        field(5056; "Buy-from Vendor Templ. Code"; Code[20])
+        {
+            Caption = 'Buy-from Vendor Template Code';
+            ToolTip = 'Specifies the code for the template to create a new vendors';
+            TableRelation = "Vendor Templ.";
+
+            trigger OnValidate()
+            var
+                BuyFromVendorTemplate: Record "Vendor Templ.";
+            begin
+                EnsureDocumentTypeIsQuote();
+                TestStatusOpen();
+
+                if not InsertMode and
+                   ("Buy-from Vendor Templ. Code" <> xRec."Buy-from Vendor Templ. Code") and
+                   (xRec."Buy-from Vendor Templ. Code" <> '')
+                then begin
+                    if GetHideValidationDialog() or not GuiAllowed() then
+                        Confirmed := true
+                    else
+                        Confirmed := Confirm(ConfirmChangeQst, false, FieldCaption("Buy-from Vendor Templ. Code"));
+
+                    if Confirmed then begin
+                        if InitFromTemplate("Buy-from Vendor Templ. Code", FieldCaption("Buy-from Vendor Templ. Code")) then
+                            exit
+                    end else begin
+                        "Buy-from Vendor Templ. Code" := xRec."Buy-from Vendor Templ. Code";
+                        exit;
+                    end;
+                end;
+
+                if BuyFromVendorTemplate.Get("Buy-from Vendor Templ. Code") then
+                    CopyFromNewBuyFromVendorTemplate(BuyFromVendorTemplate);
+
+                if not InsertMode and
+                   ((xRec."Buy-from Vendor Templ. Code" <> "Buy-from Vendor Templ. Code") or
+                    (xRec."Currency Code" <> "Currency Code"))
+                then
+                    RecreatePurchLines(CopyStr(FieldCaption("Buy-from Vendor Templ. Code"), 1, 100));
+            end;
+        }
+        field(5057; "Pay-to Vendor Templ. Code"; Code[20])
+        {
+            Caption = 'Pay-to Vendor Template Code';
+            TableRelation = "Vendor Templ.";
+
+            trigger OnValidate()
+            var
+                PayToVendorTemplate: Record "Vendor Templ.";
+            begin
+                TestField("Document Type", "Document Type"::Quote);
+                TestStatusOpen();
+
+                if not InsertMode and
+                   ("Pay-to Vendor Templ. Code" <> xRec."Pay-to Vendor Templ. Code") and
+                   (xRec."Pay-to Vendor Templ. Code" <> '')
+                then begin
+                    if GetHideValidationDialog() or not GuiAllowed then
+                        Confirmed := true
+                    else
+                        Confirmed := Confirm(ConfirmChangeQst, false, FieldCaption("Pay-to Vendor Templ. Code"));
+
+                    if Confirmed then begin
+                        if InitFromTemplate("Pay-to Vendor Templ. Code", FieldCaption("Pay-to Vendor Templ. Code")) then
+                            exit;
+                    end else begin
+                        "Pay-to Vendor Templ. Code" := xRec."Pay-to Vendor Templ. Code";
+                        exit;
+                    end;
+                end;
+
+                if PayToVendorTemplate.Get("Pay-to Vendor Templ. Code") then
+                    InitFromPayToVendorTemplate(PayToVendorTemplate);
+
+                CreateDimFromDefaultDim(Rec.FieldNo("Pay-to Vendor Templ. Code"));
+
+                if not InsertMode and
+                   (xRec."Buy-from Vendor Templ. Code" = "Buy-from Vendor Templ. Code") and
+                   (xRec."Pay-to Vendor Templ. Code" <> "Pay-to Vendor Templ. Code")
+                then
+                    RecreatePurchLines(CopyStr(FieldCaption("Pay-to Vendor Templ. Code"), 1, 100));
+            end;
+        }
         field(5700; "Responsibility Center"; Code[10])
         {
             Caption = 'Responsibility Center';
+            ToolTip = 'Specifies the code of the responsibility center, such as a distribution hub, that is associated with the involved user, company, customer, or vendor.';
             TableRelation = "Responsibility Center";
 
             trigger OnValidate()
@@ -2403,6 +2560,7 @@ table 38 "Purchase Header"
                                                                            Type = filter(<> " "),
                                                                            "Location Code" = field("Location Filter")));
             Caption = 'Completely Received';
+            ToolTip = 'Specifies if all the items on the order have been shipped or, in the case of inbound items, completely received.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -2455,6 +2613,7 @@ table 38 "Purchase Header"
         field(5791; "Promised Receipt Date"; Date)
         {
             Caption = 'Promised Receipt Date';
+            ToolTip = 'Specifies the date that the vendor has promised to deliver the order.';
 
             trigger OnValidate()
             var
@@ -2474,6 +2633,7 @@ table 38 "Purchase Header"
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'Lead Time Calculation';
+            ToolTip = 'Specifies a date formula for the amount of time it takes to replenish the item.';
 
             trigger OnValidate()
             begin
@@ -2487,6 +2647,7 @@ table 38 "Purchase Header"
         {
             AccessByPermission = TableData Location = R;
             Caption = 'Inbound Whse. Handling Time';
+            ToolTip = 'Specifies the time it takes to make items part of available inventory, after the items have been posted as received.';
 
             trigger OnValidate()
             begin
@@ -2556,6 +2717,21 @@ table 38 "Purchase Header"
             Caption = 'Last Return Shipment No.';
             Editable = false;
             TableRelation = "Return Shipment Header";
+        }
+        field(5850; "Receipt on Invoice"; Boolean)
+        {
+            Caption = 'Receipt on Invoice';
+            ToolTip = 'Specifies whether the receipt is posted with the invoice.';
+
+            trigger OnValidate()
+            var
+                MatchedOrderLineMgmt: Codeunit "Matched Order Line Mgmt.";
+            begin
+                if "Receipt on Invoice" then
+                    MatchedOrderLineMgmt.CheckReceiptOnInvoiceAllowed(Rec);
+
+                MatchedOrderLineMgmt.RefreshMatchedOrderLineReceipt(Rec);
+            end;
         }
         field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
         {
@@ -2688,6 +2864,9 @@ table 38 "Purchase Header"
         key(Key9; "Assigned User ID")
         {
         }
+        key(Key10; "Document Type", "Buy-from Contact No.")
+        {
+        }
     }
 
     fieldgroups
@@ -2758,6 +2937,9 @@ table 38 "Purchase Header"
         Insertmode := true;
 
         SetBuyFromVendorFromFilter();
+
+        if GetFilterContNo() <> '' then
+            Validate("Buy-from Contact No.", GetFilterContNo());
 
         if "Purchaser Code" = '' then
             SetDefaultPurchaser();
@@ -2833,6 +3015,7 @@ table 38 "Purchase Header"
         UpdateLinesOrderDateAutomaticallyQst: Label 'Do you want to update the order date for existing lines?';
         DifferentDatesQst: Label 'Posting Date %1 is different from Work Date %2.\\Do you want to continue?', Comment = '%1 - Posting Date, %2 - work date';
         DifferentDatesErr: Label 'Posting Date %1 is different from Work Date %2.\\Batch posting cannot be used.', Comment = '%1 - Posting Date, %2 - work date';
+        PurchLineMatchedToOrderLineErr: Label 'You cannot change the field because line %1 is matched to order line.', Comment = '%1 - Line No.';
         GLSetup: Record "General Ledger Setup";
         GLAcc: Record "G/L Account";
         xPurchLine: Record "Purchase Line";
@@ -2888,7 +3071,6 @@ table 38 "Purchase Header"
 #pragma warning restore AA0470
 #pragma warning restore AA0074
         ReplaceDocumentDate: Boolean;
-        UpdateDocumentDate: Boolean;
 #pragma warning disable AA0470
         PrepaymentInvoicesNotPaidErr: Label 'You cannot post the document of type %1 with the number %2 before all related prepayment invoices are posted.', Comment = 'You cannot post the document of type Order with the number 1001 before all related prepayment invoices are posted.';
 #pragma warning restore AA0470
@@ -2925,6 +3107,8 @@ table 38 "Purchase Header"
         WarnZeroQuantityPostingTxt: Label 'Warn before posting Purchase lines with 0 quantity';
         WarnZeroQuantityPostingDescriptionTxt: Label 'Warn before posting lines on Purchase documents where quantity is 0.';
         WarnDocAmountVatTxt: Label '%1 must not be more than %2.', comment = '%1 - Doc. Amount VAT; %2 - DocAmountVAT';
+        CreateVendorQst: Label 'You cannot Release Quote or Make Order unless you specify a vendor on the quote.\\Do you want to create vendor(s) now?';
+        SelectVendorTemplateQst: Label 'Do you want to select the vendor template?';
         CalledFromWhseDoc: Boolean;
 #if not CLEAN26
         SkipStatsPrep: Boolean;
@@ -2940,6 +3124,7 @@ table 38 "Purchase Header"
         SkipBuyFromContact: Boolean;
         SkipPayToContact: Boolean;
         SkipTaxCalculation: Boolean;
+        UpdateDocumentDate: Boolean;
 
     /// <summary>
     /// Initializes a new purchase header with a new document number from the number series.
@@ -4395,6 +4580,14 @@ table 38 "Purchase Header"
         PurchLine.SetRange("Quantity Received");
         if not PayTo then
             PurchLine.SetRange("Buy-from Vendor No.");
+
+        // Check if there are matched order lines and use testfield to raise error
+        if "Document Type" = "Document Type"::Invoice then begin
+            PurchLine.SetFilter("Matched Order Lines", '>0');
+            if PurchLine.FindFirst() then
+                Error(PurchLineMatchedToOrderLineErr, PurchLine."Line No.");
+            PurchLine.SetRange("Matched Order Lines");
+        end;
     end;
 
     local procedure CheckPrepmtInfo(var PurchLine: Record "Purchase Line")
@@ -4547,7 +4740,10 @@ table 38 "Purchase Header"
         ContBusinessRelation: Record "Contact Business Relation";
         Vend: Record Vendor;
         Cont: Record Contact;
+        SearchContact: Record Contact;
+        VendorTempl: Record "Vendor Templ.";
         ShouldUpdateFromContact: Boolean;
+        ContactBusinessRelationFound: Boolean;
     begin
         ShouldUpdateFromContact := Cont.Get(ContactNo);
         OnUpdateBuyFromVendOnAfterGetContact(Rec, Cont, ShouldUpdateFromContact);
@@ -4565,7 +4761,13 @@ table 38 "Purchase Header"
             exit;
         end;
 
-        if ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Vendor, Cont."Company No.") then begin
+        if Cont.Type = Cont.Type::Person then
+            ContactBusinessRelationFound := ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Vendor, Cont."No.");
+
+        if not ContactBusinessRelationFound then
+            ContactBusinessRelationFound := ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Vendor, Cont."Company No.");
+
+        if ContactBusinessRelationFound then begin
             if ("Buy-from Vendor No." <> '') and
                ("Buy-from Vendor No." <> ContBusinessRelation."No.")
             then
@@ -4575,10 +4777,42 @@ table 38 "Purchase Header"
                 Validate("Buy-from Vendor No.", ContBusinessRelation."No.");
                 SkipBuyFromContact := false;
             end;
-        end else
-            ContactIsNotRelatedToVendorError(Cont, ContactNo);
+        end else begin
+            if "Document Type" = "Document Type"::Quote then begin
+                if not GetContactAsCompany(Cont, SearchContact) then
+                    SearchContact := Cont;
 
+                "Buy-from Vendor Name" := SearchContact."Company Name";
+                "Buy-from Vendor Name 2" := SearchContact."Name 2";
+                SetShipToAddress(
+                  SearchContact."Company Name", SearchContact."Name 2", SearchContact.Address, SearchContact."Address 2",
+                  SearchContact.City, SearchContact."Post Code", SearchContact.County, SearchContact."Country/Region Code");
+                "Ship-to Phone No." := SearchContact."Phone No.";
+                if ("Buy-from Vendor Templ. Code" = '') and (not VendorTempl.IsEmpty) then
+                    Validate("Buy-from Vendor Templ. Code", Cont.FindNewVendorTemplate());
+            end else
+                ContactIsNotRelatedToVendorError(Cont, ContactNo);
+
+            "Buy-from Contact" := Cont.Name;
+        end;
         OnCheckBuyFromContactOnAfterFindByContact(Rec, ContBusinessRelation, Cont);
+
+        UpdateBuyFromVendContact(Vend, Cont);
+
+        if "Document Type" = "Document Type"::Quote then begin
+            if Vend.Get("Buy-from Vendor No.") or Vend.Get(ContBusinessRelation."No.") then begin
+                if Vend."Copy Buy-from Add. to Qte From" = Vend."Copy Buy-from Add. to Qte From"::Company then
+                    GetContactAsCompany(Cont, Cont);
+            end else
+                GetContactAsCompany(Cont, Cont);
+
+            "Buy-from Address" := Cont.Address;
+            "Buy-from Address 2" := Cont."Address 2";
+            "Buy-from City" := Cont.City;
+            "Buy-from Post Code" := Cont."Post Code";
+            "Buy-from County" := Cont.County;
+            "Buy-from Country/Region Code" := Cont."Country/Region Code";
+        end;
 
         if ("Buy-from Vendor No." = "Pay-to Vendor No.") or
            ("Pay-to Vendor No." = '')
@@ -4593,7 +4827,10 @@ table 38 "Purchase Header"
         ContBusinessRelation: Record "Contact Business Relation";
         Vend: Record Vendor;
         Cont: Record Contact;
+        SearchContact: Record Contact;
+        VendorTempl: Record "Vendor Templ.";
         ShouldUpdateFromContact: Boolean;
+        ContactBusinessRelationFound: Boolean;
     begin
         ShouldUpdateFromContact := Cont.Get(ContactNo);
         OnUpdatePayToVendOnAfterGetContact(Rec, Cont, ShouldUpdateFromContact);
@@ -4612,7 +4849,13 @@ table 38 "Purchase Header"
         end;
 
         OnUpdatePayToVendOnBeforeFindByContact(Rec, Vend, Cont);
-        if ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Vendor, Cont."Company No.") then begin
+        if Cont.Type = Cont.Type::Person then
+            ContactBusinessRelationFound := ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Vendor, Cont."No.");
+
+        if not ContactBusinessRelationFound then
+            ContactBusinessRelationFound := ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Vendor, Cont."Company No.");
+
+        if ContactBusinessRelationFound then begin
             if "Pay-to Vendor No." = '' then begin
                 SkipPayToContact := true;
                 Validate("Pay-to Vendor No.", ContBusinessRelation."No.");
@@ -4621,7 +4864,28 @@ table 38 "Purchase Header"
                 if "Pay-to Vendor No." <> ContBusinessRelation."No." then
                     Error(Text037, Cont."No.", Cont.Name, "Pay-to Vendor No.");
         end else
-            ContactIsNotRelatedToVendorError(Cont, ContactNo);
+            if "Document Type" = "Document Type"::Quote then begin
+                if not GetContactAsCompany(Cont, SearchContact) then
+                    SearchContact := Cont;
+
+                "Pay-to Name" := SearchContact."Company Name";
+                "Pay-to Name 2" := SearchContact."Name 2";
+                "Pay-to Address" := SearchContact.Address;
+                "Pay-to Address 2" := SearchContact."Address 2";
+                "Pay-to City" := SearchContact.City;
+                "Pay-to Post Code" := SearchContact."Post Code";
+                "Pay-to County" := SearchContact.County;
+                "Pay-to Country/Region Code" := SearchContact."Country/Region Code";
+                "VAT Registration No." := SearchContact."VAT Registration No.";
+                Validate("Currency Code", SearchContact."Currency Code");
+                "Language Code" := SearchContact."Language Code";
+                "Format Region" := SearchContact."Format Region";
+
+                if ("Pay-to Vendor Templ. Code" = '') and (not VendorTempl.IsEmpty) then
+                    Validate("Pay-to Vendor Templ. Code", Cont.FindNewVendorTemplate());
+            end else
+                ContactIsNotRelatedToVendorError(Cont, ContactNo);
+
         OnAfterUpdatePayToVend(Rec, Cont);
     end;
 
@@ -5811,6 +6075,7 @@ table 38 "Purchase Header"
     local procedure CopyBuyFromVendorAddressFieldsFromVendor(var BuyFromVendor: Record Vendor; ForceCopy: Boolean)
     begin
         if BuyFromVendorIsReplaced() or ShouldCopyAddressFromBuyFromVendor(BuyFromVendor) or ForceCopy then begin
+            "Buy-from Vendor Templ. Code" := '';
             "Buy-from Address" := BuyFromVendor.Address;
             "Buy-from Address 2" := BuyFromVendor."Address 2";
             "Buy-from City" := BuyFromVendor.City;
@@ -5838,6 +6103,7 @@ table 38 "Purchase Header"
     local procedure CopyPayToVendorAddressFieldsFromVendor(var PayToVendor: Record Vendor; ForceCopy: Boolean)
     begin
         if PayToVendorIsReplaced() or ShouldCopyAddressFromPayToVendor(PayToVendor) or ForceCopy then begin
+            "Pay-to Vendor Templ. Code" := '';
             "Pay-to Address" := PayToVendor.Address;
             "Pay-to Address 2" := PayToVendor."Address 2";
             "Pay-to City" := PayToVendor.City;
@@ -7329,6 +7595,7 @@ table 38 "Purchase Header"
     local procedure TestPurchLineFieldsBeforeRecreate()
     var
         SalesHeader: Record "Sales Header";
+        MatchedOrderLineMgmt: Codeunit "Matched Order Line Mgmt.";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -7342,6 +7609,8 @@ table 38 "Purchase Header"
         PurchLine.CalcFields("Reserved Qty. (Base)");
         PurchLine.TestField("Reserved Qty. (Base)", 0);
         PurchLine.TestField("Receipt No.", '');
+        MatchedOrderLineMgmt.IsLineMatched(PurchLine, true);
+
         PurchLine.TestField("Return Shipment No.", '');
         PurchLine.TestField("Blanket Order No.", '');
         IsHandled := false;
@@ -7477,6 +7746,7 @@ table 38 "Purchase Header"
         DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Purchaser Code", FieldNo = Rec.FieldNo("Purchaser Code"));
         DimMgt.AddDimSource(DefaultDimSource, Database::Campaign, Rec."Campaign No.", FieldNo = Rec.FieldNo("Campaign No."));
         DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", Rec."Responsibility Center", FieldNo = Rec.FieldNo("Responsibility Center"));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Vendor Templ.", Rec."Pay-to Vendor Templ. Code", FieldNo = Rec.FieldNo("Pay-to Vendor Templ. Code"));
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"));
 
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
@@ -7498,7 +7768,10 @@ table 38 "Purchase Header"
     /// <returns>True if purchase lines are editable, otherwise false.</returns>
     procedure PurchaseLinesEditable() IsEditable: Boolean;
     begin
-        IsEditable := Rec."Buy-from Vendor No." <> '';
+        if "Document Type" = "Document Type"::Quote then
+            IsEditable := (Rec."Buy-from Vendor No." <> '') or (Rec."Buy-from Vendor Templ. Code" <> '') or (Rec."Buy-from Contact No." <> '') or (Rec.GetFilter("Buy-from Contact No.") <> '')
+        else
+            IsEditable := Rec."Buy-from Vendor No." <> '';
 
         OnAfterPurchaseLinesEditable(Rec, IsEditable);
     end;
@@ -7618,6 +7891,178 @@ table 38 "Purchase Header"
             exit;
 
         CorrectPostedPurchInvoice.UpdatePurchaseOrderLineIfExist(PurchaseCrMemoHeader."No.");
+    end;
+
+    /// <summary>
+    /// Retrieves the company contact associated with the provided contact.
+    /// </summary>
+    /// <param name="Contact">The contact record to get the associated company contact for.</param>
+    /// <param name="SearchContact">Return value: associated company contact.</param>
+    /// <returns>True if company contact was found, otherwise false.</returns>
+    protected procedure GetContactAsCompany(Contact: Record Contact; var SearchContact: Record Contact): Boolean;
+    begin
+        if Contact."Company No." <> '' then
+            exit(SearchContact.Get(Contact."Company No."));
+    end;
+
+    /// <summary>
+    /// Checks if buy-from and pay-to vendor numbers are filled. If not, it creates vendors based on the associated
+    /// contact and vendor template, and assigns the new vendor number to the document.
+    /// </summary>
+    /// <remarks>
+    /// The transaction is committed after each vendor record is created.
+    /// Procedure are used in release purchase quote or make order from quote processes.
+    /// </remarks>
+    /// <param name="Prompt">If set to true, a confirmation dialog to create a vendor will be shown, otherwise not.</param>
+    /// <returns>True if buy-from and pay-to vendor numbers are filled, otherwise false.</returns>
+    internal procedure CheckVendorCreated(Prompt: Boolean): Boolean
+    var
+        Cont: Record Contact;
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        if ("Pay-to Vendor No." <> '') and ("Buy-from Vendor No." <> '') then
+            exit(true);
+
+        if Prompt then
+            if not ConfirmManagement.GetResponseOrDefault(CreateVendorQst, true) then
+                exit(false);
+
+        if "Buy-from Vendor No." = '' then begin
+            TestField("Buy-from Contact No.");
+            TestField("Buy-from Vendor Templ. Code");
+            GetContact(Cont, "Buy-from Contact No.");
+
+            CreateVendorFromBuyFromVendorTemplate(Cont);
+            Commit();
+            Get("Document Type"::Quote, "No.");
+        end;
+
+        if "Pay-to Vendor No." = '' then begin
+            TestField("Pay-to Contact No.");
+            TestField("Pay-to Vendor Templ. Code");
+            GetContact(Cont, "Pay-to Contact No.");
+
+            CreateVendorFromPayToVendorTemplate(Cont);
+            Commit();
+            Get("Document Type"::Quote, "No.");
+        end;
+
+        exit(("Pay-to Vendor No." <> '') and ("Buy-from Vendor No." <> ''));
+    end;
+
+    /// <summary>
+    /// Opens a page for selecting a vendor template to use for creating a new vendor.
+    /// </summary>
+    /// <remarks>
+    /// If Buy-from contact has no business relations a confirmation for template selection is raised.
+    /// If the user confirms, it commits any changes
+    /// and returns the code of the new vendor template selected by the user.
+    /// </remarks>
+    /// <returns>Vendor template code.</returns>
+    internal procedure SelectPurchaseHeaderNewVendorTemplate(): Code[20]
+    var
+        Contact: Record Contact;
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        Contact.Get("Buy-from Contact No.");
+        if (Contact.Type = Contact.Type::Person) and (Contact."Company No." <> '') then
+            Contact.Get(Contact."Company No.");
+
+        if not Contact.ContactToVendBusinessRelationExist() then
+            if ConfirmManagement.GetResponse(SelectVendorTemplateQst, false) then begin
+                Commit();
+
+                exit(Contact.LookupNewVendorTemplate());
+            end;
+    end;
+
+    local procedure CreateVendorFromBuyFromVendorTemplate(Contact: Record Contact)
+    begin
+        Contact.CreateVendorFromTemplate("Buy-from Vendor Templ. Code");
+    end;
+
+    local procedure CreateVendorFromPayToVendorTemplate(Contact: Record Contact)
+    begin
+        Contact.CreateVendorFromTemplate("Pay-to Vendor Templ. Code");
+    end;
+
+    local procedure UpdateBuyFromVendContact(Vendor: Record Vendor; Contact: Record Contact)
+    begin
+        if (Contact.Type = Contact.Type::Company) and Vendor.Get("Buy-from Vendor No.") then
+            "Buy-from Contact" := Vendor.Contact
+        else
+            if Contact.Type = Contact.Type::Company then
+                "Buy-from Contact" := ''
+            else
+                "Buy-from Contact" := Contact.Name;
+    end;
+
+    local procedure InitFromTemplate(TemplateCode: Code[20]; TemplateCaption: Text): Boolean
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.Reset();
+        PurchaseLine.SetRange("Document Type", "Document Type");
+        PurchaseLine.SetRange("Document No.", "No.");
+        if TemplateCode = '' then begin
+            if not PurchaseLine.IsEmpty() then
+                Error(Text005, TemplateCaption);
+
+            Init();
+            GetPurchSetup();
+            "No. Series" := xRec."No. Series";
+            InitRecord();
+            InitNoSeries();
+
+            exit(true);
+        end;
+    end;
+
+    local procedure CopyFromNewBuyFromVendorTemplate(BuyFromVendorTemplate: Record "Vendor Templ.")
+    begin
+        if not ApplicationAreaMgmt.IsSalesTaxEnabled() then
+            BuyFromVendorTemplate.TestField("Gen. Bus. Posting Group");
+
+        "Gen. Bus. Posting Group" := BuyFromVendorTemplate."Gen. Bus. Posting Group";
+        "VAT Bus. Posting Group" := BuyFromVendorTemplate."VAT Bus. Posting Group";
+        if "Pay-to Vendor No." = '' then
+            Validate("Pay-to Vendor Templ. Code", "Buy-from Vendor Templ. Code");
+    end;
+
+    local procedure InitFromPayToVendorTemplate(PayToVendorTemplate: Record "Vendor Templ.")
+    begin
+        PayToVendorTemplate.TestField("Vendor Posting Group");
+        "Vendor Posting Group" := PayToVendorTemplate."Vendor Posting Group";
+        "Invoice Disc. Code" := PayToVendorTemplate."Invoice Disc. Code";
+        Validate("Payment Terms Code", PayToVendorTemplate."Payment Terms Code");
+        Validate("Payment Method Code", PayToVendorTemplate."Payment Method Code");
+        "Prices Including VAT" := PayToVendorTemplate."Prices Including VAT";
+        "Shipment Method Code" := PayToVendorTemplate."Shipment Method Code";
+    end;
+
+    local procedure GetContact(var Contact: Record Contact; ContactNo: Code[20])
+    begin
+        Contact.Get(ContactNo);
+        if (Contact.Type = Contact.Type::Person) and (Contact."Company No." <> '') then
+            Contact.Get(Contact."Company No.");
+    end;
+
+    local procedure EnsureDocumentTypeIsQuote()
+    begin
+        Rec.TestField("Document Type", "Document Type"::Quote);
+    end;
+
+    local procedure UpdateBuyFromVendorTemplateCode()
+    begin
+        if ("Document Type" = "Document Type"::Quote) and ("Buy-from Vendor No." = '') and ("Buy-from Vendor Templ. Code" = '') and (GetFilterContNo() = '') then
+            Validate("Buy-from Vendor Templ. Code", SelectPurchaseHeaderNewVendorTemplate());
+    end;
+
+    local procedure GetFilterContNo(): Code[20]
+    begin
+        if GetFilter("Buy-from Contact No.") <> '' then
+            if GetRangeMin("Buy-from Contact No.") = GetRangeMax("Buy-from Contact No.") then
+                exit(GetRangeMax("Buy-from Contact No."));
     end;
 
     [IntegrationEvent(false, false)]

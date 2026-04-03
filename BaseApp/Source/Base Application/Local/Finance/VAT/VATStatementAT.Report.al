@@ -9,8 +9,8 @@ using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Foundation.Company;
 using System.Globalization;
 using System.IO;
-using System.Utilities;
 using System.Telemetry;
+using System.Utilities;
 
 report 11110 "VAT Statement AT"
 {

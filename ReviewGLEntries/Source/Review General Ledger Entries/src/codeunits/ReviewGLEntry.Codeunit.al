@@ -10,7 +10,9 @@ codeunit 22200 "Review G/L Entry" implements "G/L Entry Reviewer"
     Permissions = TableData "G/L Entry" = rm,
                   TableData "G/L Entry Review Setup" = ri,
 #if not CLEAN27
+#pragma warning disable AL0432
                   TableData "G/L Entry Review Entry" = rid,
+#pragma warning restore AL0432
 #endif
                   TableData "G/L Entry Review Log" = rid;
 
@@ -24,12 +26,15 @@ codeunit 22200 "Review G/L Entry" implements "G/L Entry Reviewer"
     var
         GLEntryReviewLog: Record "G/L Entry Review Log";
 #if not CLEAN27
+#pragma warning disable AL0432
         GLEntryReviewEntry: Record "G/L Entry Review Entry";
+#pragma warning restore AL0432
 #endif
         FeatureTelemetry: Codeunit "Feature Telemetry";
         UserName: Code[50];
         Identifier: Integer;
     begin
+        VerifyThatAllEntriesHaveSamePolicy(GLEntry);
         ValidateEntries(GLEntry);
         Identifier := GetNextIdentifier();
         UserName := CopyStr(Database.UserId(), 1, MaxStrLen(UserName));
@@ -44,13 +49,16 @@ codeunit 22200 "Review G/L Entry" implements "G/L Entry Reviewer"
             else
                 GLEntryReviewLog."Reviewed Amount" := GLEntry."Amount to Review";
             GLEntryReviewLog."G/L Account No." := GLEntry."G/L Account No.";
+            GLEntryReviewLog."Reviewed At" := CurrentDateTime();
             GLEntryReviewLog.Insert(true);
 
             GLEntry."Amount to Review" := 0;
             GLEntry.Modify(true);
         until GLEntry.Next() = 0;
 #if not CLEAN27
+#pragma warning disable AL0432
         OnAfterReviewEntries(GLEntry, GLEntryReviewEntry);
+#pragma warning restore AL0432
 #endif
 
         OnAfterReviewEntriesLog(GLEntry, GLEntryReviewLog);
@@ -88,6 +96,25 @@ codeunit 22200 "Review G/L Entry" implements "G/L Entry Reviewer"
                 ErrorMsg := StrSubstNo(BalanceNotMatchingMsg, GLAccount."No.", GLAccount.Name);
                 Error(ErrorMsg);
             end;
+    end;
+
+    local procedure VerifyThatAllEntriesHaveSamePolicy(var GLEntry: Record "G/L Entry")
+    var
+        GLAccount: Record "G/L Account";
+        ReviewPolicyType: Enum "Review Policy Type";
+        NoMatchingPolicyErr: Label 'All entries must have the same review policy.';
+    begin
+        GLEntry.SetLoadFields("G/L Account No.");
+        if GLEntry.FindSet() then begin
+            GLAccount.Get(GLEntry."G/L Account No.");
+            ReviewPolicyType := GLAccount."Review Policy";
+            repeat
+                GLAccount.Get(GLEntry."G/L Account No.");
+                if GLAccount."Review Policy" <> ReviewPolicyType then
+                    Error(NoMatchingPolicyErr);
+            until GLEntry.Next() = 0;
+        end;
+
     end;
 
     local procedure CreditDebitSumsToZero(var GLEntry: Record "G/L Entry"): Boolean
@@ -132,11 +159,13 @@ codeunit 22200 "Review G/L Entry" implements "G/L Entry Reviewer"
     end;
 
 #if not CLEAN27
+#pragma warning disable AL0432
     [Obsolete('Use the event OnAfterReviewEntriesLog instead.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterReviewEntries(var GLEntry: Record "G/L Entry"; var GLEntryReviewEntry: Record "G/L Entry Review Entry")
     begin
     end;
+#pragma warning restore AL0432
 #endif
 
     [IntegrationEvent(false, false)]

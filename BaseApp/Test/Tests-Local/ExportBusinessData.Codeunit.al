@@ -3392,16 +3392,16 @@ codeunit 142006 "Export Business Data"
     local procedure UpdateValuesInCompanyInformation(var CompanyInformation: Record "Company Information")
     begin
         CompanyInformation.Get();
-        CompanyInformation.Name := GenerateRandomCode(50);
+        CompanyInformation.Name := GenerateRandomCode(100);
         CompanyInformation."Name 2" := GenerateRandomCode(50);
-        CompanyInformation.Address := GenerateRandomCode(50);
+        CompanyInformation.Address := GenerateRandomCode(100);
         CompanyInformation."Address 2" := GenerateRandomCode(50);
-        CompanyInformation."Bank Name" := GenerateRandomCode(50);
-        CompanyInformation."Ship-to Name" := GenerateRandomCode(50);
+        CompanyInformation."Bank Name" := GenerateRandomCode(100);
+        CompanyInformation."Ship-to Name" := GenerateRandomCode(100);
         CompanyInformation."Ship-to Name 2" := GenerateRandomCode(50);
-        CompanyInformation."Ship-to Address" := GenerateRandomCode(50);
+        CompanyInformation."Ship-to Address" := GenerateRandomCode(100);
         CompanyInformation."Ship-to Address 2" := GenerateRandomCode(50);
-        CompanyInformation."Ship-to Contact" := GenerateRandomCode(50);
+        CompanyInformation."Ship-to Contact" := GenerateRandomCode(100);
         CompanyInformation."Custom System Indicator Text" := GenerateRandomCode(240);
         CompanyInformation."Tax Office Name" := GenerateRandomCode(50);
         CompanyInformation."Tax Office Name 2" := GenerateRandomCode(50);

@@ -1,9 +1,9 @@
 namespace Microsoft.Finance.ExcelReports;
 
-using Microsoft.Finance.GeneralLedger.Account;
-using Microsoft.Finance.Dimension;
-using Microsoft.Finance.Consolidation;
 using Microsoft.ExcelReports;
+using Microsoft.Finance.Consolidation;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
 
 report 4410 "EXR Consolidated Trial Balance"
 {
@@ -145,7 +145,7 @@ report 4410 "EXR Consolidated Trial Balance"
         ExcelReportsTelemetry.LogReportUsage(Report::"EXR Consolidated Trial Balance");
         GLAccounts.SetRange("Date Filter", StartingDate, EndingDate);
 
-        TrialBalance.ConfigureTrialBalance(true, true);
+        TrialBalance.ConfigureTrialBalance(true, false);
         TrialBalance.InsertTrialBalanceReportData(GLAccounts, Dimension1, Dimension2, TrialBalanceData);
     end;
 

@@ -2065,7 +2065,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
     var
         AmountToApply: Decimal;
     begin
-        AmountToApply := LibraryRandom.RandDecInRange(100, 200, 2);
+        AmountToApply := LibraryRandom.RandDecInRange(1, 50, 2);
         ApplyVendorEntries."Amount to Apply".SetValue := AmountToApply;
         ApplyVendorEntries."Amount to Apply".AssertEquals(AmountToApply);
 

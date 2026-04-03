@@ -1,13 +1,20 @@
+#if not CLEAN28
 namespace Microsoft.Sales.Customer;
 
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 
+/// <summary>
+/// Retrieves sales amounts that have been shipped but not yet invoiced in local currency.
+/// </summary>
 query 115 "Sales Shipped Not Invoiced LCY"
 {
     Caption = 'Sales Shipped Not Invoiced (LCY)';
     QueryType = Normal;
     DataAccessIntent = ReadOnly;
+    ObsoleteReason = 'Not used, as Customer.GetShippedFromOrderLCYAmountLCY() procedure is no longer used in GetTotalAmountLCYCommon procedure.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '28.0';
 
     elements
     {
@@ -29,3 +36,4 @@ query 115 "Sales Shipped Not Invoiced LCY"
         }
     }
 }
+#endif

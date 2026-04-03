@@ -1,16 +1,16 @@
 namespace System.Security.AccessControl;
 
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Foundation.Reporting;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Purchases.Comment;
 using Microsoft.Purchases.History;
-using Microsoft.Finance.SalesTax;
 using System.Security.User;
-using Microsoft.Foundation.Reporting;
-using Microsoft.Finance.VAT.Setup;
-using Microsoft.Finance.VAT.RateChange;
-using Microsoft.Finance.VAT.Reporting;
 
 permissionset 5951 "Payables Documents - View"
 {
@@ -18,9 +18,12 @@ permissionset 5951 "Payables Documents - View"
     Assignable = false;
     Caption = 'Read posted receipts etc.';
 
-    Permissions = tabledata "General Posting Setup" = r,
+    Permissions = tabledata "Detailed Matched Order Line" = R,
+                  tabledata "General Posting Setup" = r,
                   tabledata "Item Reference" = R,
                   tabledata "Item Tracking Code" = R,
+                  tabledata "Matched Order Line" = R,
+                  tabledata "Posted Matched Order Line" = R,
                   tabledata "Purch. Comment Line" = RIMD,
                   tabledata "Purch. Cr. Memo Hdr." = Rm,
                   tabledata "Purch. Cr. Memo Line" = R,

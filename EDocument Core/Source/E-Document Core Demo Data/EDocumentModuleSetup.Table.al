@@ -1,4 +1,13 @@
-#pragma warning disable AA0247
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.eServices.EDocument.DemoData;
+
+using Microsoft.DemoData.Purchases;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Purchases.Vendor;
+
 table 5375 "E-Document Module Setup"
 {
     DataClassification = CustomerContent;
@@ -29,6 +38,16 @@ table 5375 "E-Document Module Setup"
         {
             Caption = 'Vendor 3 No.';
             TableRelation = Vendor;
+        }
+        field(5; "Recurring Expense G/L Acc. No"; Code[20])
+        {
+            Caption = 'Recurring Expense G/L Acc. No.';
+            TableRelation = "G/L Account";
+        }
+        field(6; "Delivery Expense G/L Acc. No"; Code[20])
+        {
+            Caption = 'Delivery Expense G/L Acc. No.';
+            TableRelation = "G/L Account";
         }
     }
 

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -259,17 +259,6 @@ page 8903 "Manufacturing Manager RC"
                         Caption = 'Assembly Orders';
                         RunObject = page "Assembly Orders";
                     }
-#if not CLEAN25
-                    action("Orders2")
-                    {
-                        ApplicationArea = Service;
-                        Caption = 'Service Orders';
-                        RunObject = page Microsoft.Service.Document."Service Orders";
-                        ObsoleteReason = 'Moving Service Management to separate extension';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '25.0';
-                    }
-#endif
                 }
                 group("Group9")
                 {
@@ -591,12 +580,6 @@ page 8903 "Manufacturing Manager RC"
                         Caption = 'Production Order Statistics';
                         RunObject = report "Production Order Statistics";
                     }
-                    action("Inventory Value (Help Report)")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Inventory Value (Help Report)';
-                        RunObject = Report "Inventory Value (Help Report)";
-                    }
 #if not CLEAN27
                     action("Prod. Order - Precalc. Time1")
                     {
@@ -698,14 +681,12 @@ page 8903 "Manufacturing Manager RC"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'This group will be removed in a future release.';
                 ObsoleteTag = '27.0';
-
                 group("Group19")
                 {
                     Caption = 'Reports';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'This group will be removed in a future release.';
                     ObsoleteTag = '27.0';
-
                     action("BOM Cost Share Distribution")
                     {
                         ApplicationArea = Manufacturing;

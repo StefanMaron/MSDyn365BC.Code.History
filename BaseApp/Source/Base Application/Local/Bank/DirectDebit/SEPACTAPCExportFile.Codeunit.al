@@ -1,16 +1,16 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.DirectDebit;
 
-using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
-using System.Utilities;
-using System.IO;
-using System.Xml;
+using Microsoft.Finance.GeneralLedger.Journal;
 using System;
+using System.IO;
+using System.Utilities;
+using System.Xml;
 
 codeunit 11100 "SEPA CT APC-Export File"
 {
@@ -66,30 +66,6 @@ codeunit 11100 "SEPA CT APC-Export File"
         XMLDoc.Save(OutStr);
     end;
 
-#if not CLEAN25
-    [Scope('OnPrem')]
-    [Obsolete('Replaced by same procedure with an extra parameter for XMLPortID', '25.0')]
-    procedure PostProcessXMLDocument(var TempBlob: Codeunit "Temp Blob")
-    var
-        XMLDOMManagement: Codeunit "XML DOM Management";
-        XMLDoc: DotNet XmlDocument;
-        XMLNsMgr: DotNet XmlNamespaceManager;
-        InStr: InStream;
-        OutStr: OutStream;
-    begin
-        TempBlob.CreateInStream(InStr);
-
-        XMLDOMManagement.LoadXMLDocumentFromInStream(InStr, XMLDoc);
-        XMLNsMgr := XMLNsMgr.XmlNamespaceManager(XMLDoc.NameTable);
-        XMLNsMgr.AddNamespace('ns', 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03');
-
-        ApplyApcRequirements(XMLDoc, XMLNsMgr);
-
-        Clear(TempBlob);
-        TempBlob.CreateOutStream(OutStr);
-        XMLDoc.Save(OutStr);
-    end;
-#endif
     local procedure ApplyApcRequirements(var XMLDoc: DotNet XmlDocument; XMLNsMgr: DotNet XmlNamespaceManager)
     var
         NodeList: DotNet XmlNodeList;
@@ -107,4 +83,3 @@ codeunit 11100 "SEPA CT APC-Export File"
             XMLNode.ParentNode.RemoveChild(XMLNode);
     end;
 }
-

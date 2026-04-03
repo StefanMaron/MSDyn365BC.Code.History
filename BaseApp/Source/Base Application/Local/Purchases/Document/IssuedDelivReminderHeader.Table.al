@@ -6,10 +6,10 @@ namespace Microsoft.Purchases.Document;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Foundation.Address;
+using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Purchases.Vendor;
 using System.Globalization;
-using Microsoft.Foundation.AuditCodes;
 
 table 5005272 "Issued Deliv. Reminder Header"
 {

@@ -7,6 +7,16 @@ namespace Microsoft.Finance.Currency;
 using Microsoft.Purchases.Payables;
 using Microsoft.Sales.Receivables;
 
+/// <summary>
+/// Reserved codeunit for implementing country-specific exchange rate adjustment logic.
+/// Provides a placeholder for localization-specific event subscribers and customizations
+/// related to exchange rate adjustment processing.
+/// </summary>
+/// <remarks>
+/// Intended for use by localization partners to implement region-specific requirements
+/// for exchange rate adjustments without modifying core adjustment procedures.
+/// Event subscribers can be added to handle local compliance and calculation rules.
+/// </remarks>
 codeunit 597 "Exch. Rate Adjmt. Subscribers"
 {
 

@@ -5,11 +5,11 @@
 namespace Microsoft.Finance.VAT.Reporting;
 
 using Microsoft.Finance.VAT.Ledger;
-using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.Company;
+using Microsoft.Foundation.NoSeries;
 using Microsoft.Sales.Customer;
-using System.Utilities;
 using System.IO;
+using System.Utilities;
 
 report 11108 "VAT - VIES Declaration XML"
 {

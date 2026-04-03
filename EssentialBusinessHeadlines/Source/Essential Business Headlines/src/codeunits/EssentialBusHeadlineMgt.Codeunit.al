@@ -5,16 +5,16 @@
 
 namespace System.Visualization;
 
-using Microsoft.Sales.Document;
-using Microsoft.Sales.Receivables;
-using Microsoft.Sales.History;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Inventory.Item;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Sales.Customer;
-using Microsoft.Finance.Currency;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Receivables;
 using System.Reflection;
-using Microsoft.Finance.GeneralLedger.Setup;
 
 codeunit 1437 "Essential Bus. Headline Mgt."
 {
@@ -677,7 +677,7 @@ codeunit 1437 "Essential Bus. Headline Mgt."
     var
         EssentialBusinessHeadline: Record "Ess. Business Headline Per Usr";
     begin
-        if EssentialBusinessHeadline.Get(HeadlineName) then begin
+        if EssentialBusinessHeadline.Get(HeadlineName, UserSecurityId()) then begin
             EssentialBusinessHeadline.Validate("Headline Visible", false);
             EssentialBusinessHeadline.Modify();
         end;
@@ -721,7 +721,7 @@ codeunit 1437 "Essential Bus. Headline Mgt."
         EssentialBusinessHeadline.GetOrCreateHeadline(EssentialBusinessHeadline."Headline Name"::OpenVATReturn);
         VATReportSetup.Get();
         VATReturnPeriod.SetFilter("Due Date", '>=%1&<=%2', WorkDate(), CalcDate(VATReportSetup."Period Reminder Calculation", WorkDate()));
-        if VATReportSetup.IsPeriodReminderCalculation() AND
+        if VATReportSetup.IsPeriodReminderCalculation() and
            FindOpenVATReturnPeriod(VATReturnPeriod)
         then begin
             HeadlineText :=

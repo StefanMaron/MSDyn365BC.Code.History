@@ -4,12 +4,13 @@ using Microsoft.Bank.BankAccount;
 using Microsoft.CRM.Team;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Calculation;
-using Microsoft.Finance.VAT.Setup;
 using Microsoft.Finance.VAT.RateChange;
 using Microsoft.Finance.VAT.Reporting;
-using Microsoft.Finance.SalesTax;
-
+using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Comment;
@@ -19,6 +20,8 @@ using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Foundation.Shipping;
 using Microsoft.Foundation.UOM;
+using Microsoft.HumanResources.Employee;
+using Microsoft.HumanResources.Payables;
 using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Intrastat;
 using Microsoft.Inventory.Item;
@@ -28,26 +31,22 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
-using Microsoft.Projects.Project.Job;
-using Microsoft.Projects.Project.Planning;
-using Microsoft.Purchases.Vendor;
-using Microsoft.Purchases.Payables;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
-using Microsoft.HumanResources.Payables;
-using Microsoft.HumanResources.Employee;
-using Microsoft.Inventory.Tracking;
-using Microsoft.Finance.GeneralLedger.Account;
-using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Purchases.Document;
-using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
-using Microsoft.Purchases.Comment;
-using Microsoft.Purchases.History;
-using Microsoft.Purchases.Pricing;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Archive;
+using Microsoft.Purchases.Comment;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Payables;
+using Microsoft.Purchases.Pricing;
 using Microsoft.Purchases.Remittance;
+using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Warehouse.Structure;
@@ -71,6 +70,7 @@ permissionset 7946 "Payables Documents - Edit"
                   tabledata "Customer Bank Account" = R,
                   tabledata "Default Dimension" = R,
                   tabledata "Default Dimension Priority" = R,
+                  tabledata "Detailed Matched Order Line" = RMID,
                   tabledata "Detailed Vendor Ledg. Entry" = R,
                   tabledata "Dtld. Price Calculation Setup" = R,
                   tabledata "Duplicate Price Line" = R,
@@ -105,12 +105,14 @@ permissionset 7946 "Payables Documents - Edit"
                   tabledata "Job Task" = R,
                   tabledata Location = R,
                   tabledata "Lot No. Information" = RIMD,
+                  tabledata "Matched Order Line" = RMID,
                   tabledata "My Vendor" = Rimd,
                   tabledata "Order Address" = R,
                   tabledata "Package No. Information" = RIMD,
                   tabledata "Payment Method" = R,
                   tabledata "Payment Terms" = R,
                   tabledata "Planning Component" = Rm,
+                  tabledata "Posted Matched Order Line" = R,
                   tabledata "Price Asset" = R,
                   tabledata "Price Calculation Buffer" = R,
                   tabledata "Price Calculation Setup" = R,
@@ -129,10 +131,8 @@ permissionset 7946 "Payables Documents - Edit"
                   tabledata "Purchase Header Archive" = RIMD,
                   tabledata "Purchase Line" = RIMD,
                   tabledata "Purchase Line Archive" = RIMD,
-#if not CLEAN25
                   tabledata "Purchase Line Discount" = R,
                   tabledata "Purchase Price" = R,
-#endif
                   tabledata "Purchase Price Access" = R,
                   tabledata "Reason Code" = R,
                   tabledata "Remit Address" = R,

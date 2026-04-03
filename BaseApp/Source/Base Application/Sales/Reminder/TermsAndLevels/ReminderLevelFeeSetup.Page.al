@@ -1,9 +1,12 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Reminder;
 
+/// <summary>
+/// Configures interest calculation and additional fee settings for a reminder level.
+/// </summary>
 page 1895 "Reminder Level Fee Setup"
 {
     Caption = 'Reminder Level Fee Setup';
@@ -25,7 +28,6 @@ page 1895 "Reminder Level Fee Setup"
             {
                 Caption = 'Additional Fee Calculation Type';
                 ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies how the additional fee is calculated. Fixed: The Additional Fee values on the line on the Reminder Levels page are used. Dynamics Single: The per-line values on the Additional Fee Setup page are used. Accumulated Dynamic: The values on the Additional Fee Setup page are used.';
             }
             group(FixedFees)
             {
