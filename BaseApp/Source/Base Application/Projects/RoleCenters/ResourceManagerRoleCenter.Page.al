@@ -6,27 +6,15 @@ namespace Microsoft.Projects.RoleCenters;
 
 using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.UOM;
-#if CLEAN25
-using Microsoft.Pricing.Reports;
-using Microsoft.Pricing.Worksheet;
-#endif
 using Microsoft.Projects.Resources.Analysis;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Ledger;
+using Microsoft.Projects.Resources.Reports;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.Resources.Setup;
 using Microsoft.Projects.TimeSheet;
-#if CLEAN25
-using Microsoft.Purchases.Pricing;
-#endif
-#if not CLEAN25
 using Microsoft.RoleCenters;
-#endif
-#if CLEAN25
-using Microsoft.Sales.Pricing;
-#endif
 using Microsoft.Utilities;
-using Microsoft.Projects.Resources.Reports;
 
 page 8906 "Resource Manager Role Center"
 {
@@ -51,7 +39,6 @@ page 8906 "Resource Manager Role Center"
                     Caption = 'Resource Groups';
                     RunObject = page "Resource Groups";
                 }
-#if not CLEAN25
                 action("Resource Price Changes")
                 {
                     ApplicationArea = Jobs;
@@ -59,20 +46,7 @@ page 8906 "Resource Manager Role Center"
                     Image = ResourcePrice;
                     RunPageView = where("Object Type" = const(Page), "Object ID" = const(493)); // "Resource Price Changes";
                     RunObject = Page "Role Center Page Dispatcher";
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
-#else
-                action("Pri&ce Worksheet")
-                {
-                    ApplicationArea = Jobs;
-                    Caption = 'Price Worksheet';
-                    Image = ResourcePrice;
-                    RunObject = Page "Price Worksheet";
-                    ToolTip = 'Opens the page where you can add new price lines manually or copy them from the existing price lists or suggest new lines based on data in the product cards.';
-                }
-#endif
                 action("Adjust Resource Costs/Prices")
                 {
                     ApplicationArea = Basic, Suite;
@@ -175,25 +149,13 @@ page 8906 "Resource Manager Role Center"
                         Caption = 'Resource List';
                         RunObject = Report "Resource List";
                     }
-#if not CLEAN25
                     action("Resource - Price List")
                     {
                         ApplicationArea = Jobs;
                         Caption = 'Resource - Price List';
                         RunPageView = where("Object Type" = const(Report), "Object ID" = const(1115)); // "Resource - Price List";
                         RunObject = Page "Role Center Page Dispatcher";
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                        ObsoleteTag = '17.0';
                     }
-#else
-                    action("Resource - Price List")
-                    {
-                        ApplicationArea = Jobs;
-                        Caption = 'Resource - Price List';
-                        RunObject = report "Res. Price List";
-                    }
-#endif
                 }
                 group("Group5")
                 {
@@ -217,16 +179,12 @@ page 8906 "Resource Manager Role Center"
                         Caption = 'Units of Measure';
                         RunObject = page "Units of Measure";
                     }
-#if not CLEAN25
                     action("Costs")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Resource Costs';
                         RunPageView = where("Object Type" = const(Page), "Object ID" = const(203)); // "Resource Costs";
                         RunObject = Page "Role Center Page Dispatcher";
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                        ObsoleteTag = '17.0';
                     }
                     action("Prices")
                     {
@@ -235,28 +193,7 @@ page 8906 "Resource Manager Role Center"
                         AccessByPermission = TableData "Resource" = R;
                         RunPageView = where("Object Type" = const(Page), "Object ID" = const(204)); // "Resource Prices";
                         RunObject = Page "Role Center Page Dispatcher";
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                        ObsoleteTag = '17.0';
                     }
-#else
-                    action(PurchPriceLists)
-                    {
-                        ApplicationArea = Jobs;
-                        Caption = 'Purchase Prices';
-                        Image = ResourceCosts;
-                        RunObject = Page "Purchase Job Price Lists";
-                        ToolTip = 'View or change detailed information about costs for the resource.';
-                    }
-                    action(SalesPriceLists)
-                    {
-                        ApplicationArea = Jobs;
-                        Caption = 'Sales Prices';
-                        Image = ResourcePrice;
-                        RunObject = Page "Sales Job Price Lists";
-                        ToolTip = 'View or edit prices for the resource.';
-                    }
-#endif
                     action("Rounding Methods")
                     {
                         ApplicationArea = Basic, Suite;

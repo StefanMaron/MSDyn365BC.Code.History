@@ -97,11 +97,9 @@ codeunit 130514 "Price Calculation - Test" implements "Price Calculation"
         TempPriceCalculationSetup.Default := true;
         TempPriceCalculationSetup.Insert(true);
 
-#if not CLEAN25
         TempPriceCalculationSetup.Validate(Implementation, TempPriceCalculationSetup.Implementation::"Business Central (Version 15.0)");
         TempPriceCalculationSetup.Default := false;
         TempPriceCalculationSetup.Insert(true);
-#endif
 
         // Purchase 
         TempPriceCalculationSetup.Type := TempPriceCalculationSetup.Type::Purchase;
@@ -128,15 +126,11 @@ codeunit 130514 "Price Calculation - Test" implements "Price Calculation"
         TempPriceCalculationSetup.Default := false;
         TempPriceCalculationSetup.Insert(true);
 
-#if not CLEAN25
         TempPriceCalculationSetup.Validate(Implementation, TempPriceCalculationSetup.Implementation::"Business Central (Version 16.0)");
         TempPriceCalculationSetup.Default := false;
         TempPriceCalculationSetup.Insert(true);
 
         TempPriceCalculationSetup.Validate(Implementation, TempPriceCalculationSetup.Implementation::"Business Central (Version 15.0)");
-#else
-        TempPriceCalculationSetup.Validate(Implementation, TempPriceCalculationSetup.Implementation::"Business Central (Version 16.0)");
-#endif
         TempPriceCalculationSetup.Default := true;
         TempPriceCalculationSetup.Insert(true);
 

@@ -1,3 +1,4 @@
+#if not CLEAN28
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -8,10 +9,19 @@ using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Company;
+using Microsoft.Utilities;
 using System.IO;
 using System.Utilities;
-using Microsoft.Utilities;
 
+/// <summary>
+/// Generates standard trial balance report displaying account balances and period movements.
+/// Shows opening balances, period debits/credits, and closing balances for comprehensive G/L account analysis.
+/// </summary>
+/// <remarks>
+/// Data source: G/L Account table with balance calculations and period filtering capabilities.
+/// Used for financial statement preparation, account reconciliation, and period-end procedures.
+/// Supports filtering by account types, date ranges, and global dimensions for customized trial balance reporting.
+/// </remarks>
 report 10022 "Trial Balance"
 {
     // This report is copied from 10011 GL - Fin Stm. Even though it does not and
@@ -25,6 +35,9 @@ report 10022 "Trial Balance"
     Caption = 'Trial Balance';
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This report has been replaced by the report Trial Balance (Excel). This report will be removed in a future release.';
+    ObsoleteTag = '28.0';
 
     dataset
     {
@@ -312,8 +325,8 @@ report 10022 "Trial Balance"
     requestpage
     {
         SaveValues = true;
-        AboutTitle = 'About Trial Balance';
-        AboutText = 'View a snapshot of your chart of accounts with a balance at date and net change in the specified period.';
+        AboutTitle = 'About Trial Balance (Obsolete)';
+        AboutText = 'View a snapshot of your chart of accounts with a balance at date and net change in the specified period.** This report is obsolete and will be removed in a future release.** Please refer to the report documentation for alternative ways to retrieve this information.';
 
         layout
         {
@@ -855,3 +868,4 @@ report 10022 "Trial Balance"
     end;
 }
 
+#endif

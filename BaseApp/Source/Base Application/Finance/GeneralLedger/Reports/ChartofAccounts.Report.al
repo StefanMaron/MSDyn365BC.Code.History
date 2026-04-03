@@ -8,6 +8,15 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Foundation.Company;
 using System.Utilities;
 
+/// <summary>
+/// Generates comprehensive chart of accounts report displaying account structure and balances.
+/// Provides hierarchical view of G/L accounts with account types, names, and current balance information.
+/// </summary>
+/// <remarks>
+/// Data source: G/L Account table with sorting by account number and account type filtering.
+/// Output format: RDLC layout supporting account hierarchy display with indentation and balance calculations.
+/// Includes options for filtering by account number ranges and account types for customized reporting.
+/// </remarks>
 report 10002 "Chart of Accounts"
 {
     DefaultLayout = RDLC;

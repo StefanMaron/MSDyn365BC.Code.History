@@ -333,8 +333,8 @@ codeunit 135001 "Page Management Tests"
         // [WHEN] The GetPageID function is called for sales header with filter applied on "Document Type" = Order
         PageID := PageManagement.GetPageID(SalesHeader);
 
-        // [THEN] "Sales Order List" page id is returned
-        Assert.AreEqual(Page::"Sales Order List", PageID, '');
+        // [THEN] "Sales Order" page id is returned
+        Assert.AreEqual(Page::"Sales Order", PageID, '');
     end;
 
     [Test]
@@ -469,8 +469,8 @@ codeunit 135001 "Page Management Tests"
         // [WHEN] The GetPageID function is called for Purchase header with filter applied on "Document Type" = Order
         PageID := PageManagement.GetPageID(PurchaseHeader);
 
-        // [THEN] "Purchase Order List" page id is returned
-        Assert.AreEqual(Page::"Purchase Order List", PageID, '');
+        // [THEN] "Purchase Order" page id is returned
+        Assert.AreEqual(Page::"Purchase Order", PageID, '');
     end;
 
     [Test]

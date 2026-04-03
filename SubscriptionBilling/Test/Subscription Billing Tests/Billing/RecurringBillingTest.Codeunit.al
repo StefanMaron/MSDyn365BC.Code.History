@@ -9,8 +9,8 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
-using System.Utilities;
 using System.TestLibraries.Utilities;
+using System.Utilities;
 
 #pragma warning disable AA0210
 codeunit 139688 "Recurring Billing Test"
@@ -69,7 +69,6 @@ codeunit 139688 "Recurring Billing Test"
         RecurringBillingPage: TestPage "Recurring Billing";
         IsPartnerVendor: Boolean;
         PostDocuments: Boolean;
-        DocumentNoShouldBeEmptyErr: Label 'Document No. should be empty for the first contract';
 
     #region Tests
 
@@ -584,21 +583,6 @@ codeunit 139688 "Recurring Billing Test"
                 BillingLineArchive.TestField("Document No.", PostedDocumentNo);
             until BillingLineArchive.Next() = 0;
         until VendorContractLine.Next() = 0;
-    end;
-
-    [Test]
-    procedure CheckBillingLineServiceAmountCalculation()
-    var
-        ExpectedServiceAmount: Decimal;
-    begin
-        // [SCENARIO] Unit testing the function CalculateBillingLineServiceAmount from Codeunit BillingProposal
-        Initialize();
-
-        // [GIVEN] BillingLine has values
-        MockBillingLineForPartnerNoWithUnitPriceAndDiscountAndServiceObjectQuantity(LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(50, 2), LibraryRandom.RandDec(10, 2));
-        ExpectedServiceAmount := BillingLine."Unit Price" * BillingLine."Service Object Quantity" * (1 - BillingLine."Discount %" / 100);
-
-        Assert.AreEqual(ExpectedServiceAmount, BillingProposal.CalculateBillingLineServiceAmount(BillingLine), 'Service Amount has not been calculated correctly on a Billing Line.');
     end;
 
     [Test]
@@ -1474,29 +1458,42 @@ codeunit 139688 "Recurring Billing Test"
     end;
 
     [Test]
-    [HandlerFunctions('CreateBillingDocsCustomerPageHandlerwithoutPost,ExchangeRateSelectionModalPageHandler,MessageHandler,BillingTemplateModalPageHandler')]
-    procedure CreateCustomerDocumentForSelectedContract()
+    procedure TestBillingProposalWithZeroQuantity()
+    var
+        ExpectedNextBillingDate: Date;
     begin
-        // [SCENARIO] otherwise, all billing lines will not be included in the document which will lead to wrong invoices and corrupted billing lines
+        // [SCENARIO] Billing proposal creates billing lines with quantity 0 and amount 0 when subscription quantity is 0
         Initialize();
 
-        // [GIVEN] Create Recurring Billing Page setup for Customer
-        RecurringBillingPageSetupForCustomer();
+        // [GIVEN] Create customer contract with subscription and set quantity to 0
+        CreateCustomerContract('<1M>', '<12M>');
+        ServiceObject.SetHideValidationDialog(true);
+        ServiceObject.Validate(Quantity, 0);
+        ServiceObject.Modify(true);
 
-        // [WHEN] Filter billing lines to exclude the last line and create/post documents
-        RecurringBillingPage.OpenEdit();
-        RecurringBillingPage.BillingTemplateField.Lookup();
-        PostDocuments := true;
-        RecurringBillingPage.CreateBillingProposalAction.Invoke();
-        RecurringBillingPage.Filter.SetFilter("Subscription Contract No.", CustomerContract2."No.");
-        RecurringBillingPage.CreateDocuments.Invoke();
-        Commit();
+        // [GIVEN] Read the subscription line to be able to refresh it after billing proposal is created
+        ServiceCommitment.SetRange("Subscription Header No.", ServiceObject."No.");
+        ServiceCommitment.SetRange(Partner, "Service Partner"::Customer);
+        ServiceCommitment.FindFirst();
 
-        // [THEN] Only billing lines for the selected contract should be Created document.
-        BillingLine.Reset();
-        BillingLine.SetRange("Subscription Contract No.", CustomerContract."No.");
-        BillingLine.FindLast();
-        Assert.AreEqual('', BillingLine."Document No.", DocumentNoShouldBeEmptyErr);
+        // [WHEN] Create billing proposal
+        CreateRecurringBillingTemplateSetupForCustomerContract('<2M-CM>', '<8M+CM>', CustomerContract.GetView());
+        ContractTestLibrary.CreateBillingProposal(BillingTemplate, Enum::"Service Partner"::Customer);
+
+        // [THEN] Billing lines are created with quantity 0 and amount 0
+        BillingLine.SetRange("Billing Template Code", BillingTemplate.Code);
+        BillingLine.SetRange("Subscription Header No.", ServiceObject."No.");
+        Assert.RecordIsNotEmpty(BillingLine);
+        BillingLine.FindSet();
+        repeat
+            Assert.AreEqual(0, BillingLine."Service Object Quantity", 'Billing Line quantity should be 0.');
+            Assert.AreEqual(0, BillingLine.Amount, 'Billing Line amount should be 0 when quantity is 0.');
+        until BillingLine.Next() = 0;
+
+        // [THEN] Next Billing Date on the subscription line is set to the day after the last billing line's Billing To date
+        ExpectedNextBillingDate := CalcDate('<1D>', BillingLine."Billing to");
+        ServiceCommitment.Get(ServiceCommitment."Entry No.");
+        Assert.AreEqual(ExpectedNextBillingDate, ServiceCommitment."Next Billing Date", 'Next Billing Date should be the day after the last Billing To date.');
     end;
 
     #endregion Tests
@@ -1787,14 +1784,6 @@ codeunit 139688 "Recurring Billing Test"
         BillingLine.Insert(false);
     end;
 
-    local procedure MockBillingLineForPartnerNoWithUnitPriceAndDiscountAndServiceObjectQuantity(NewUnitPrice: Decimal; NewDiscountPercentage: Decimal; NewServiceObjQuantity: Decimal)
-    begin
-        BillingLine.InitNewBillingLine();
-        BillingLine."Unit Price" := NewUnitPrice;
-        BillingLine."Discount %" := NewDiscountPercentage;
-        BillingLine."Service Object Quantity" := NewServiceObjQuantity;
-        BillingLine.Insert(false);
-    end;
 
     local procedure RecurringBillingPageSetupForCustomer()
     begin
@@ -1885,12 +1874,6 @@ codeunit 139688 "Recurring Billing Test"
     procedure ExchangeRateSelectionModalPageHandler(var ExchangeRateSelectionPage: TestPage "Exchange Rate Selection")
     begin
         ExchangeRateSelectionPage.OK().Invoke();
-    end;
-
-    [ModalPageHandler]
-    procedure CreateBillingDocsCustomerPageHandlerwithoutPost(var CreateBillingDocsCustomerPage: TestPage "Create Customer Billing Docs")
-    begin
-        CreateBillingDocsCustomerPage.OK().Invoke();
     end;
 
     [MessageHandler]

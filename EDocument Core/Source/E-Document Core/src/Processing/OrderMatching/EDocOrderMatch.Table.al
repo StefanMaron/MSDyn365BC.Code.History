@@ -1,8 +1,8 @@
 namespace Microsoft.eServices.EDocument.OrderMatch;
 
-using Microsoft.Purchases.Document;
 using Microsoft.eServices.EDocument;
 using Microsoft.eServices.EDocument.OrderMatch.Copilot;
+using Microsoft.Purchases.Document;
 
 table 6164 "E-Doc. Order Match"
 {
@@ -49,14 +49,17 @@ table 6164 "E-Doc. Order Match"
         field(6; "E-Document Direct Unit Cost"; Decimal)
         {
             Caption = 'E-Document Unit Cost';
+            AutoFormatType = 0;
         }
         field(7; "PO Direct Unit Cost"; Decimal)
         {
             Caption = 'Purchase Order Unit Cost';
+            AutoFormatType = 0;
         }
         field(8; "Line Discount %"; Decimal)
         {
             Caption = 'Discount %';
+            AutoFormatType = 0;
         }
         field(9; "Unit of Measure Code"; Code[20])
         {
@@ -77,6 +80,7 @@ table 6164 "E-Doc. Order Match"
         field(13; "Precise Quantity"; Decimal)
         {
             Caption = 'Quantity';
+            AutoFormatType = 0;
         }
         field(14; "Learn Matching Rule"; Boolean)
         {

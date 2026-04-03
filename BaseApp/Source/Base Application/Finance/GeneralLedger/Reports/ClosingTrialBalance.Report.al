@@ -11,6 +11,15 @@ using Microsoft.Foundation.Company;
 using Microsoft.Foundation.Period;
 using System.Utilities;
 
+/// <summary>
+/// Generates closing trial balance for fiscal year-end procedures and audit requirements.
+/// Displays account balances as of fiscal year end with options for additional currency amounts and closing period analysis.
+/// </summary>
+/// <remarks>
+/// Data source: G/L Account table with fiscal year-end date filtering and balance calculations.
+/// Supports additional currency display option and comprehensive dimension filtering.
+/// Used primarily for year-end closing procedures, audit trail documentation, and regulatory reporting requirements.
+/// </remarks>
 report 10003 "Closing Trial Balance"
 {
     DefaultLayout = RDLC;

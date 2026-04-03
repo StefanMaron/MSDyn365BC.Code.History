@@ -6,6 +6,7 @@ namespace Microsoft.Bank.Payment;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.ElectronicFundsTransfer;
+using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
@@ -13,7 +14,6 @@ using Microsoft.Foundation.Reporting;
 using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Remittance;
 using Microsoft.Purchases.Vendor;
-using Microsoft.Finance.Currency;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
 using System.Telemetry;

@@ -8,6 +8,7 @@ using Microsoft.Bank.BankAccount;
 using Microsoft.EServices.OnlineMap;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Registration;
 using Microsoft.FixedAssets.Setup;
 using Microsoft.Foundation.Address;
@@ -27,7 +28,6 @@ using System.Globalization;
 using System.Security.AccessControl;
 using System.Security.User;
 using System.Telemetry;
-using Microsoft.Finance.SalesTax;
 
 page 1 "Company Information"
 {
@@ -183,6 +183,10 @@ page 1 "Company Information"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies your company''s web site.';
+                }
+                field(DefaultLanguage; Rec."Default Language code")
+                {
+                    ApplicationArea = Basic, Suite;
                 }
             }
             group(Payments)

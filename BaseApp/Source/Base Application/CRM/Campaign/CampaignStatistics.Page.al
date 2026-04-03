@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -22,16 +22,15 @@ page 5088 "Campaign Statistics"
                 field("Target Contacts Contacted"; Rec."Target Contacts Contacted")
                 {
                     ApplicationArea = RelationshipMgmt;
-                    ToolTip = 'Specifies the number of target contacts that you have contacted with this campaign. The field is not editable.';
                 }
                 field("Contacts Responded"; Rec."Contacts Responded")
                 {
                     ApplicationArea = RelationshipMgmt;
-                    ToolTip = 'Specifies the number of contacts who have responded to the campaign. This field is not editable.';
                 }
                 field(ResponseRate; ResponseRate)
                 {
                     ApplicationArea = RelationshipMgmt;
+                    AutoFormatType = 0;
                     Caption = 'Response Rate %';
                     DecimalPlaces = 1 : 1;
                     ToolTip = 'Specifies how many participated in the campaign, represented as a percentage of the number of target contacts contacted.';
@@ -45,6 +44,7 @@ page 5088 "Campaign Statistics"
                 {
                     ApplicationArea = RelationshipMgmt;
                     AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Avg. Cost per Response';
                     ToolTip = 'Specifies the cost of the campaign per response.';
                 }
@@ -57,6 +57,7 @@ page 5088 "Campaign Statistics"
                 field(AvgDurationPerResp; AvgDurationPerResp)
                 {
                     ApplicationArea = RelationshipMgmt;
+                    AutoFormatType = 0;
                     Caption = 'Avg. Duration per Response';
                     DecimalPlaces = 0 : 0;
                     ToolTip = 'Specifies how long the campaign took per response.';
@@ -68,7 +69,6 @@ page 5088 "Campaign Statistics"
                 field("No. of Opportunities"; Rec."No. of Opportunities")
                 {
                     ApplicationArea = RelationshipMgmt;
-                    ToolTip = 'Specifies the number of opportunities created as part of this campaign. This field is not editable.';
                 }
                 field("Estimated Value (LCY)"; Rec."Estimated Value (LCY)")
                 {

@@ -129,15 +129,6 @@ pageextension 10013 "Posted Service Credit Memos NA" extends "Posted Service Cre
                 }
             }
         }
-#if not CLEAN25
-        modify(Statistics)
-        {
-            trigger OnBeforeAction()
-            begin
-                OnBeforeCalculateSalesTaxStatistics(Rec);
-            end;
-        }
-#endif
         addafter(ServiceStatistics)
         {
             action(ServiceStats)
@@ -177,11 +168,4 @@ pageextension 10013 "Posted Service Credit Memos NA" extends "Posted Service Cre
     protected var
         SalesTaxStatisticsVisible: Boolean;
 
-#if not CLEAN25
-    [Obsolete('Moved to procedure OpenStatistics in table ServiceCrMemoHeader', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateSalesTaxStatistics(var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
-    begin
-    end;
-#endif
 }

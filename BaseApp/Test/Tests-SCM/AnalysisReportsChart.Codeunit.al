@@ -17,9 +17,7 @@ codeunit 137409 "Analysis Reports Chart"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
-#if not CLEAN25
         LibrarySales: Codeunit "Library - Sales";
-#endif
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -518,7 +516,6 @@ codeunit 137409 "Analysis Reports Chart"
         ItemLedgerEntries.Quantity.AssertEquals(ItemLedgerEntry.Quantity);
     end;
 
-#if not CLEAN25
     [Test]
     [HandlerFunctions('GetSalesPriceHandler')]
     [Scope('OnPrem')]
@@ -542,7 +539,6 @@ codeunit 137409 "Analysis Reports Chart"
         LibraryVariableStorage.Enqueue(SalesPrice."Unit Price");
         CalcAnalysisReportCellValue(AnalysisLine, AnalysisColumn, true);
     end;
-#endif
 
     [Test]
     [HandlerFunctions('GetPriceLineHandler')]
@@ -1018,11 +1014,7 @@ codeunit 137409 "Analysis Reports Chart"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Analysis Reports Chart");
-#if not CLEAN25
         LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 15.0)");
-#else
-        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
-#endif
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
@@ -1711,14 +1703,12 @@ codeunit 137409 "Analysis Reports Chart"
               DrillDownAnalysisLine.GetFilter("Date Filter")), 1, 250));
     end;
 
-#if not CLEAN25
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetSalesPriceHandler(var GetSalesPrice: TestPage "Get Sales Price")
     begin
         GetSalesPrice."Unit Price".AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
-#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]

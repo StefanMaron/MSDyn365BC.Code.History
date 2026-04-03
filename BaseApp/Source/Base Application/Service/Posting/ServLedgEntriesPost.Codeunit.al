@@ -955,11 +955,9 @@ codeunit 5912 "ServLedgEntries-Post"
     var
         TempVATAmountLineRemainder: Record "VAT Amount Line" temporary;
         ServAmtsMgt: Codeunit "Serv-Amounts Mgt.";
-        TempServiceLineForSalesTax: Record "Service Line";
     begin
         TempVATAmountLineRemainder.DeleteAll();
-        ServAmtsMgt.DivideAmount(2, Qty, PassedServHeader, PassedTempServLine, PassedVATAmountLine, TempVATAmountLineRemainder,
-                                 TempServiceLineForSalesTax);
+        ServAmtsMgt.DivideAmount(2, Qty, PassedServHeader, PassedTempServLine, PassedVATAmountLine, TempVATAmountLineRemainder);
     end;
 
     local procedure GetOrderNoFromShipment(ShipmentNo: Code[20]): Code[20]

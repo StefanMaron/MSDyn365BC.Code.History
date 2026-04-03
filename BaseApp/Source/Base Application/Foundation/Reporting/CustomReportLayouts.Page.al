@@ -1,3 +1,4 @@
+#if not CLEAN28
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -5,12 +6,12 @@
 namespace Microsoft.Foundation.Reporting;
 
 using Microsoft.EServices.EDocument;
+using System.Environment.Configuration;
 using System.Integration;
 using System.IO;
 using System.Reflection;
 using System.Security.User;
 using System.Utilities;
-using System.Environment.Configuration;
 
 page 9650 "Custom Report Layouts"
 {
@@ -23,6 +24,9 @@ page 9650 "Custom Report Layouts"
     UsageCategory = Administration;
     AboutTitle = 'About Custom Report Layouts';
     AboutText = '**This page has been deprecated and will be removed in a later release**. Please migrate your layouts to the new system page _Report Layouts_ using the _Migrate to System Layouts_ action.';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by system page "Report Layouts". This page will be removed in a future version.';
+    ObsoleteTag = '28.0';
 
     layout
     {
@@ -417,4 +421,4 @@ page 9650 "Custom Report Layouts"
         exit(PageName);
     end;
 }
-
+#endif

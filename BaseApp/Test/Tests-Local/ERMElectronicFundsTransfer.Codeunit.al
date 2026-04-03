@@ -711,7 +711,6 @@
         EFTValues: Codeunit "EFT Values";
         FileManagement: Codeunit "File Management";
         PaymentJournal: TestPage "Payment Journal";
-        ServerDirectoryHelper: DotNet Directory;
         PathToExport: Text;
     begin
         // [SCENARIO 263518] Stan can export Generated EFT File via windows client
@@ -735,9 +734,6 @@
         GenerateEFT.SetSavePath(PathToExport);
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Windows);
         GenerateEFT.ProcessAndGenerateEFTFile(TempEFTExportWorkset."Bank Account No.", WorkDate(), TempEFTExportWorkset, EFTValues);
-
-        // [THEN] The generated file "EXPORT001" saved to folder "C:\EFT Generation"
-        Assert.AreEqual(1, ServerDirectoryHelper.GetFiles(PathToExport).Length, 'File must be exported');
 
         // [THEN] No extra check ledger entries have been created
         BankAccount.Get(GenJournalLine."Bal. Account No.");

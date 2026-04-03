@@ -12,6 +12,7 @@ codeunit 136600 "ERM RS Questionnaire"
     var
         LibraryRapidStart: Codeunit "Library - Rapid Start";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryUtilityOnPrem: Codeunit "Library - Utility OnPrem";
         LibraryERM: Codeunit "Library - ERM";
         Assert: Codeunit Assert;
         FileMgt: Codeunit "File Management";
@@ -106,7 +107,7 @@ codeunit 136600 "ERM RS Questionnaire"
         QuestionnaireManagement.ExportQuestionnaireAsXML(FilePath, ConfigQuestionnaire);
 
         // [THEN] Check the Questionnaire Setup is exported to XML.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
+        LibraryUtilityOnPrem.CheckFileNotEmpty(FilePath);
 
         Erase(FilePath);
     end;

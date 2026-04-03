@@ -8,6 +8,7 @@
         <ConnectString />
       </ConnectionProperties>
       <rd:SecurityType>None</rd:SecurityType>
+      <rd:DataSourceID>508df420-2ae4-42a3-8974-41030e38701f</rd:DataSourceID>
     </DataSource>
   </DataSources>
   <ReportSections>
@@ -3122,6 +3123,15 @@
                         <GroupExpressions>
                           <GroupExpression>=Fields!Salesperson_Purchaser_Code.Value</GroupExpression>
                         </GroupExpressions>
+                        <Filters>
+                          <Filter>
+                            <FilterExpression>=iif(Fields!Salesperson_Purchaser_Code.Value = "", false, true)</FilterExpression>
+                            <Operator>Equal</Operator>
+                            <FilterValues>
+                              <FilterValue DataType="Boolean">true</FilterValue>
+                            </FilterValues>
+                          </Filter>
+                        </Filters>
                       </Group>
                       <SortExpressions>
                         <SortExpression>
@@ -3149,8 +3159,6 @@
               </TablixMembers>
             </TablixRowHierarchy>
             <DataSetName>DataSet_Result</DataSetName>
-            <Top>0cm</Top>
-            <Left>0cm</Left>
             <Height>4.48027cm</Height>
             <Width>510.00002pt</Width>
             <Style />
@@ -3386,7 +3394,6 @@
               </Paragraphs>
               <rd:DefaultName>Textbox3</rd:DefaultName>
               <Top>0.70556cm</Top>
-              <Left>0cm</Left>
               <Height>10pt</Height>
               <Width>10.46157cm</Width>
               <ZIndex>7</ZIndex>
@@ -3417,7 +3424,6 @@
               </Paragraphs>
               <rd:DefaultName>Textbox4</rd:DefaultName>
               <Top>2.22251cm</Top>
-              <Left>0cm</Left>
               <Height>25pt</Height>
               <Width>10.46157cm</Width>
               <ZIndex>8</ZIndex>
@@ -3447,7 +3453,6 @@
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox41</rd:DefaultName>
-              <Top>0cm</Top>
               <Left>11.28566cm</Left>
               <Height>2pt</Height>
               <Width>6.67778cm</Width>
@@ -3486,6 +3491,42 @@
         </Values>
       </DefaultValue>
       <Prompt>ReportLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SalespersonSalesStatsPrint">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>SalespersonSalesStatsPrint</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>SalespersonSalesStatsPrint</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SalespersonSalesStatsAnalysis">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>SalespersonSalesStatsAnalysis</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>SalespersonSalesStatsAnalysis</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DataRetrieved">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DataRetrieved</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DataRetrieved</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="PeriodCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>PeriodCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>PeriodCaption</Prompt>
     </ReportParameter>
     <ReportParameter Name="PageLabel">
       <DataType>String</DataType>
@@ -3595,11 +3636,83 @@
       </DefaultValue>
       <Prompt>CodeLabel</Prompt>
     </ReportParameter>
+    <ReportParameter Name="AboutTheReportLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>AboutTheReportLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>AboutTheReportLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="EnvironmentLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>EnvironmentLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>EnvironmentLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CompanyLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CompanyLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CompanyLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="UserLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>UserLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>UserLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RunOnLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>RunOnLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>RunOnLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ReportNameLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ReportNameLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ReportNameLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DocumentationLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DocumentationLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DocumentationLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Salesperson_Purchaser_CodeCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Salesperson_Purchaser_CodeCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Salesperson_Purchaser_CodeCaption</Prompt>
+    </ReportParameter>
   </ReportParameters>
   <ReportParametersLayout>
     <GridLayoutDefinition>
       <NumberOfColumns>1</NumberOfColumns>
-      <NumberOfRows>13</NumberOfRows>
+      <NumberOfRows>25</NumberOfRows>
       <CellDefinitions>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
@@ -3609,62 +3722,122 @@
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>1</RowIndex>
-          <ParameterName>PageLabel</ParameterName>
+          <ParameterName>SalespersonSalesStatsPrint</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>2</RowIndex>
-          <ParameterName>AmountsInLCYLabel</ParameterName>
+          <ParameterName>SalespersonSalesStatsAnalysis</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>3</RowIndex>
-          <ParameterName>ProfitPctLabel</ParameterName>
+          <ParameterName>DataRetrieved</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>4</RowIndex>
-          <ParameterName>InvDiscAmountLabel</ParameterName>
+          <ParameterName>PeriodCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>5</RowIndex>
-          <ParameterName>PmtDiscGivenLabel</ParameterName>
+          <ParameterName>PageLabel</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>6</RowIndex>
-          <ParameterName>PmtToleranceLabel</ParameterName>
+          <ParameterName>AmountsInLCYLabel</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>7</RowIndex>
-          <ParameterName>AdjProfitPctLabel</ParameterName>
+          <ParameterName>ProfitPctLabel</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>8</RowIndex>
-          <ParameterName>AdjProfitLCYLabel</ParameterName>
+          <ParameterName>InvDiscAmountLabel</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>9</RowIndex>
-          <ParameterName>TotalLabel</ParameterName>
+          <ParameterName>PmtDiscGivenLabel</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>10</RowIndex>
-          <ParameterName>SalesLCYLabel</ParameterName>
+          <ParameterName>PmtToleranceLabel</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>11</RowIndex>
-          <ParameterName>ProfitLCYLabel</ParameterName>
+          <ParameterName>AdjProfitPctLabel</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>12</RowIndex>
+          <ParameterName>AdjProfitLCYLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>13</RowIndex>
+          <ParameterName>TotalLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>14</RowIndex>
+          <ParameterName>SalesLCYLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>15</RowIndex>
+          <ParameterName>ProfitLCYLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>16</RowIndex>
           <ParameterName>CodeLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>17</RowIndex>
+          <ParameterName>AboutTheReportLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>18</RowIndex>
+          <ParameterName>EnvironmentLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>19</RowIndex>
+          <ParameterName>CompanyLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>20</RowIndex>
+          <ParameterName>UserLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>21</RowIndex>
+          <ParameterName>RunOnLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>22</RowIndex>
+          <ParameterName>ReportNameLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>23</RowIndex>
+          <ParameterName>DocumentationLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>24</RowIndex>
+          <ParameterName>Salesperson_Purchaser_CodeCaption</ParameterName>
         </CellDefinition>
       </CellDefinitions>
     </GridLayoutDefinition>
@@ -3717,26 +3890,18 @@ End Function</Code>
   <Language>=User!Language</Language>
   <ConsumeContainerWhitespace>true</ConsumeContainerWhitespace>
   <rd:ReportUnitType>Cm</rd:ReportUnitType>
+  <rd:ReportID>9583e88f-b63c-45cd-8e6e-5e19c99db3a3</rd:ReportID>
   <DataSets>
     <DataSet Name="DataSet_Result">
       <Fields>
         <Field Name="STRSUBSTNO_Text000_PeriodText_">
           <DataField>STRSUBSTNO_Text000_PeriodText_</DataField>
         </Field>
-        <Field Name="COMPANYNAME">
-          <DataField>COMPANYNAME</DataField>
-        </Field>
         <Field Name="Salesperson_Purchaser__TABLECAPTION__________SalespersonFilter">
           <DataField>Salesperson_Purchaser__TABLECAPTION__________SalespersonFilter</DataField>
         </Field>
-        <Field Name="SalespersonFilter">
-          <DataField>SalespersonFilter</DataField>
-        </Field>
         <Field Name="Cust__Ledger_Entry__TABLECAPTION__________CustLedgEntryFilter">
           <DataField>Cust__Ledger_Entry__TABLECAPTION__________CustLedgEntryFilter</DataField>
-        </Field>
-        <Field Name="CustLedgEntryFilter">
-          <DataField>CustLedgEntryFilter</DataField>
         </Field>
         <Field Name="Cust__Ledger_Entry___Sales__LCY__">
           <DataField>Cust__Ledger_Entry___Sales__LCY__</DataField>
@@ -3749,6 +3914,12 @@ End Function</Code>
         </Field>
         <Field Name="Cust__Ledger_Entry___Profit__LCY__Format">
           <DataField>Cust__Ledger_Entry___Profit__LCY__Format</DataField>
+        </Field>
+        <Field Name="ProfitPercent">
+          <DataField>ProfitPercent</DataField>
+        </Field>
+        <Field Name="ProfitPercentFormat">
+          <DataField>ProfitPercentFormat</DataField>
         </Field>
         <Field Name="Cust__Ledger_Entry___Inv__Discount__LCY__">
           <DataField>Cust__Ledger_Entry___Inv__Discount__LCY__</DataField>
@@ -3774,8 +3945,71 @@ End Function</Code>
         <Field Name="AdjProfitFormat">
           <DataField>AdjProfitFormat</DataField>
         </Field>
+        <Field Name="AdjProfitPercent">
+          <DataField>AdjProfitPercent</DataField>
+        </Field>
+        <Field Name="AdjProfitPercentFormat">
+          <DataField>AdjProfitPercentFormat</DataField>
+        </Field>
         <Field Name="Salesperson_Purchaser_Code">
           <DataField>Salesperson_Purchaser_Code</DataField>
+        </Field>
+        <Field Name="COMPANYNAME">
+          <DataField>COMPANYNAME</DataField>
+        </Field>
+        <Field Name="SalespersonFilter">
+          <DataField>SalespersonFilter</DataField>
+        </Field>
+        <Field Name="CustLedgEntryFilter">
+          <DataField>CustLedgEntryFilter</DataField>
+        </Field>
+        <Field Name="Totals_Sales">
+          <DataField>Totals_Sales</DataField>
+        </Field>
+        <Field Name="Totals_SalesFormat">
+          <DataField>Totals_SalesFormat</DataField>
+        </Field>
+        <Field Name="Totals_Profit">
+          <DataField>Totals_Profit</DataField>
+        </Field>
+        <Field Name="Totals_ProfitFormat">
+          <DataField>Totals_ProfitFormat</DataField>
+        </Field>
+        <Field Name="Totals_AdjProfit">
+          <DataField>Totals_AdjProfit</DataField>
+        </Field>
+        <Field Name="Totals_AdjProfitFormat">
+          <DataField>Totals_AdjProfitFormat</DataField>
+        </Field>
+        <Field Name="Totals_ProfitPct">
+          <DataField>Totals_ProfitPct</DataField>
+        </Field>
+        <Field Name="Totals_ProfitPctFormat">
+          <DataField>Totals_ProfitPctFormat</DataField>
+        </Field>
+        <Field Name="Totals_AdjProfitPct">
+          <DataField>Totals_AdjProfitPct</DataField>
+        </Field>
+        <Field Name="Totals_AdjProfitPctFormat">
+          <DataField>Totals_AdjProfitPctFormat</DataField>
+        </Field>
+        <Field Name="Totals_InvDiscAmount">
+          <DataField>Totals_InvDiscAmount</DataField>
+        </Field>
+        <Field Name="Totals_InvDiscAmountFormat">
+          <DataField>Totals_InvDiscAmountFormat</DataField>
+        </Field>
+        <Field Name="Totals_PmtDiscGiven">
+          <DataField>Totals_PmtDiscGiven</DataField>
+        </Field>
+        <Field Name="Totals_PmtDiscGivenFormat">
+          <DataField>Totals_PmtDiscGivenFormat</DataField>
+        </Field>
+        <Field Name="Totals_PmtTolerance">
+          <DataField>Totals_PmtTolerance</DataField>
+        </Field>
+        <Field Name="Totals_PmtToleranceFormat">
+          <DataField>Totals_PmtToleranceFormat</DataField>
         </Field>
       </Fields>
       <Query>

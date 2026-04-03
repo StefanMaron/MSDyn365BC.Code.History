@@ -36,6 +36,7 @@ page 6532 "Continuous Item Tracking"
                 field("Available Qty."; AvailableQty)
                 {
                     Caption = 'Available Qty.';
+                    AutoFormatType = 0;
                     DecimalPlaces = 0 : 5;
                     Visible = true;
                     Editable = false;

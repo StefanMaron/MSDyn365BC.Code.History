@@ -4,8 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Location;
 
-using Microsoft.Finance.SalesTax;
 using Microsoft.eServices.EDocument;
+using Microsoft.Finance.SalesTax;
 using System.Security.Encryption;
 
 tableextension 10015 "Location NA" extends Location

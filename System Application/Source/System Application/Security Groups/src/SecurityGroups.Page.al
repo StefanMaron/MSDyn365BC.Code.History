@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Security.AccessControl;
+
 using System.Agents;
 using System.Security.User;
 using System.Telemetry;

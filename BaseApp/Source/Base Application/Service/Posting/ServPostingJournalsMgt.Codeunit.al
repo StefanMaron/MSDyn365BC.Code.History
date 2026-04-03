@@ -6,11 +6,8 @@ namespace Microsoft.Service.Posting;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
-using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Posting;
-using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.ReceivablesPayables;
-using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Inventory.Item;
@@ -361,6 +358,11 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         InvoicePostingInterface.PostLines(ServiceHeader, GenJnlPostLine, Window, TotalAmount);
     end;
 
+    procedure PostSalesTaxLines(var ServHeader: Record "Service Header"; var TotalServiceLineLCY: Record "Service Line"; InvoicePostingParameters: Record "Invoice Posting Parameters")
+    begin
+        OnPostSalesTaxLines(ServHeader, TotalServiceLineLCY, InvoicePostingParameters, GenJnlPostLine, Invoice);
+    end;
+
     procedure PostLedgerEntry(ServiceHeader: Record "Service Header"; var InvoicePostingInterface: Interface "Invoice Posting")
     begin
         InvoicePostingInterface.PostLedgerEntry(ServiceHeader, GenJnlPostLine);
@@ -652,129 +654,6 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     end;
 #endif
 
-    internal procedure PostSalesTaxToGL(var TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary; var TotalServiceLineLCY: Record "Service Line"; GenJnlLineDocType: Enum "Gen. Journal Document Type"; GenJnlLineDocNo: Code[20]; GenJnlLineExtDocNo: Code[35]; SalesTaxCountry: Option US,CA,,,,,,,,,,,,NoTax)
-    var
-        TaxJurisdiction: Record "Tax Jurisdiction";
-        GenJnlLine: Record "Gen. Journal Line";
-        GLSetup: Record "General Ledger Setup";
-        TaxLineCount: Integer;
-        RemSalesTaxAmt: Decimal;
-        RemSalesTaxSrcAmt: Decimal;
-        UseDate: Date;
-    begin
-        TaxLineCount := 0;
-        RemSalesTaxAmt := 0;
-        RemSalesTaxSrcAmt := 0;
-        GLSetup.Get();
-
-        if ServiceHeader."Currency Code" <> '' then
-            TotalServiceLineLCY."Amount Including VAT" := TotalServiceLineLCY.Amount;
-        if TempSalesTaxAmtLine.Find('-') then
-            repeat
-                TaxLineCount := TaxLineCount + 1;
-                if ((TempSalesTaxAmtLine."Tax Base Amount" <> 0) and
-                    (TempSalesTaxAmtLine."Tax Type" = TempSalesTaxAmtLine."Tax Type"::"Sales and Use Tax")) or
-                   ((TempSalesTaxAmtLine.Quantity <> 0) and
-                    (TempSalesTaxAmtLine."Tax Type" = TempSalesTaxAmtLine."Tax Type"::"Excise Tax"))
-                then begin
-                    GenJnlLine.Init();
-                    GenJnlLine."Posting Date" := ServiceHeader."Posting Date";
-                    GenJnlLine."Document Date" := ServiceHeader."Document Date";
-                    GenJnlLine."VAT Reporting Date" := ServiceHeader."VAT Reporting Date";
-                    GenJnlLine.Description := ServiceHeader."Posting Description";
-                    GenJnlLine."Reason Code" := ServiceHeader."Reason Code";
-                    GenJnlLine."Document Type" := GenJnlLineDocType;
-                    GenJnlLine."Document No." := GenJnlLineDocNo;
-                    GenJnlLine."External Document No." := GenJnlLineExtDocNo;
-                    GenJnlLine."System-Created Entry" := true;
-                    GenJnlLine.Amount := 0;
-                    GenJnlLine."Source Currency Code" := ServiceHeader."Currency Code";
-                    GenJnlLine."Source Currency Amount" := 0;
-                    GenJnlLine.Correction := ServiceHeader.Correction;
-                    GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Sale;
-                    GenJnlLine."Tax Area Code" := TempSalesTaxAmtLine."Tax Area Code";
-                    GenJnlLine."Tax Type" := TempSalesTaxAmtLine."Tax Type";
-                    GenJnlLine."Tax Exemption No." := ServiceHeader."Tax Exemption No.";
-                    GenJnlLine."Tax Group Code" := TempSalesTaxAmtLine."Tax Group Code";
-                    GenJnlLine."Tax Liable" := TempSalesTaxAmtLine."Tax Liable";
-                    GenJnlLine.Quantity := TempSalesTaxAmtLine.Quantity;
-                    GenJnlLine."VAT Calculation Type" := GenJnlLine."VAT Calculation Type"::"Sales Tax";
-                    GenJnlLine."VAT Posting" := GenJnlLine."VAT Posting"::"Manual VAT Entry";
-                    GenJnlLine."Shortcut Dimension 1 Code" := ServiceHeader."Shortcut Dimension 1 Code";
-                    GenJnlLine."Shortcut Dimension 2 Code" := ServiceHeader."Shortcut Dimension 2 Code";
-                    GenJnlLine."Dimension Set ID" := ServiceHeader."Dimension Set ID";
-                    GenJnlLine."Source Code" := SrcCode;
-                    GenJnlLine."EU 3-Party Trade" := ServiceHeader."EU 3-Party Trade";
-                    GenJnlLine."Bill-to/Pay-to No." := ServiceHeader."Bill-to Customer No.";
-                    GenJnlLine."Source Type" := GenJnlLine."Source Type"::Customer;
-                    GenJnlLine."Source No." := ServiceHeader."Bill-to Customer No.";
-                    GenJnlLine."Posting No. Series" := ServiceHeader."Posting No. Series";
-                    GenJnlLine."STE Transaction ID" := ServiceHeader."STE Transaction ID";
-                    GenJnlLine."Source Curr. VAT Base Amount" := TempSalesTaxAmtLine."Tax Base Amount";
-                    GenJnlLine."VAT Base Amount (LCY)" :=
-                      Round(TempSalesTaxAmtLine."Tax Base Amount");
-                    GenJnlLine."VAT Base Amount" := GenJnlLine."VAT Base Amount (LCY)";
-
-                    if TaxJurisdiction.Code <> TempSalesTaxAmtLine."Tax Jurisdiction Code" then begin
-                        TaxJurisdiction.Get(TempSalesTaxAmtLine."Tax Jurisdiction Code");
-                        if SalesTaxCountry = SalesTaxCountry::CA then begin
-                            RemSalesTaxAmt := 0;
-                            RemSalesTaxSrcAmt := 0;
-                        end;
-                    end;
-                    if ServiceHeader."Currency Code" <> '' then
-                        if (ServiceHeader."Document Type" in [ServiceHeader."Document Type"::Quote]) and
-                           (ServiceHeader."Posting Date" = 0D)
-                        then
-                            UseDate := WorkDate()
-                        else
-                            UseDate := ServiceHeader."Posting Date";
-                    if TaxJurisdiction."Unrealized VAT Type" > 0 then begin
-                        TaxJurisdiction.TestField("Unreal. Tax Acc. (Sales)");
-                        GenJnlLine."Account No." := TaxJurisdiction."Unreal. Tax Acc. (Sales)";
-                    end else begin
-                        TaxJurisdiction.TestField("Tax Account (Sales)");
-                        GenJnlLine."Account No." := TaxJurisdiction."Tax Account (Sales)";
-                    end;
-                    GenJnlLine."Tax Jurisdiction Code" := TempSalesTaxAmtLine."Tax Jurisdiction Code";
-                    if TempSalesTaxAmtLine."Tax Amount" <> 0 then begin
-                        RemSalesTaxSrcAmt := RemSalesTaxSrcAmt +
-                          CurrExchRate.ExchangeAmtLCYToFCY(
-                            UseDate, ServiceHeader."Currency Code", TempSalesTaxAmtLine."Tax Amount", ServiceHeader."Currency Factor");
-                        GenJnlLine."Source Curr. VAT Amount" := Round(RemSalesTaxSrcAmt, Currency."Amount Rounding Precision");
-                        RemSalesTaxSrcAmt := RemSalesTaxSrcAmt - GenJnlLine."Source Curr. VAT Amount";
-                        RemSalesTaxAmt := RemSalesTaxAmt + TempSalesTaxAmtLine."Tax Amount";
-                        GenJnlLine."VAT Amount (LCY)" := Round(RemSalesTaxAmt, GLSetup."Amount Rounding Precision");
-                        RemSalesTaxAmt := RemSalesTaxAmt - GenJnlLine."VAT Amount (LCY)";
-                        GenJnlLine."VAT Amount" := GenJnlLine."VAT Amount (LCY)";
-                    end;
-                    GenJnlLine."VAT Difference" := TempSalesTaxAmtLine."Tax Difference";
-
-                    if not
-                      (ServiceHeader."Document Type" in
-                        [ServiceHeader."Document Type"::"Credit Memo"])
-                    then begin
-                        GenJnlLine."Source Curr. VAT Base Amount" := -GenJnlLine."Source Curr. VAT Base Amount";
-                        GenJnlLine."VAT Base Amount (LCY)" := -GenJnlLine."VAT Base Amount (LCY)";
-                        GenJnlLine."VAT Base Amount" := -GenJnlLine."VAT Base Amount";
-                        GenJnlLine."Source Curr. VAT Amount" := -GenJnlLine."Source Curr. VAT Amount";
-                        GenJnlLine."VAT Amount (LCY)" := -GenJnlLine."VAT Amount (LCY)";
-                        GenJnlLine."VAT Amount" := -GenJnlLine."VAT Amount";
-                        GenJnlLine.Quantity := -GenJnlLine.Quantity;
-                        GenJnlLine."VAT Difference" := -GenJnlLine."VAT Difference";
-                    end;
-
-                    if ServiceHeader."Currency Code" <> '' then
-                        TotalServiceLineLCY."Amount Including VAT" :=
-                          TotalServiceLineLCY."Amount Including VAT" + GenJnlLine."VAT Amount (LCY)";
-
-                    OnPostSalesTaxToGLOnBeforeGenJnlPostLineRunWithCheck(GenJnlLine, ServiceHeader, TempSalesTaxAmtLine);
-                    GenJnlPostLine.RunWithCheck(GenJnlLine);
-                end;
-            until TempSalesTaxAmtLine.Next() = 0;
-    end;
-
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferValuesToJobJnlLine(var JobJournalLine: Record "Job Journal Line"; ServiceLine: Record "Service Line")
     begin
@@ -816,11 +695,18 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     begin
     end;
 
+#if not CLEAN28
+    internal procedure RunOnPostSalesTaxToGLOnBeforeGenJnlPostLineRunWithCheck(var GenJnlLine: Record Microsoft.Finance.GeneralLedger.Journal."Gen. Journal Line"; ServiceHeader2: Record "Service Header"; var TempSalesTaxAmtLine: Record Microsoft.Finance.SalesTax."Sales Tax Amount Line" temporary)
+    begin
+        OnPostSalesTaxToGLOnBeforeGenJnlPostLineRunWithCheck(GenJnlLine, ServiceHeader2, TempSalesTaxAmtLine);
+    end;
 
+    [Obsolete('Moved to codeunit ServDocumentsMgtNA', '28.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnPostSalesTaxToGLOnBeforeGenJnlPostLineRunWithCheck(var GenJnlLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header"; var TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary)
+    local procedure OnPostSalesTaxToGLOnBeforeGenJnlPostLineRunWithCheck(var GenJnlLine: Record Microsoft.Finance.GeneralLedger.Journal."Gen. Journal Line"; ServiceHeader: Record "Service Header"; var TempSalesTaxAmtLine: Record Microsoft.Finance.SalesTax."Sales Tax Amount Line" temporary)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostItemJnlLine(ServiceHeader: Record "Service Header"; var ItemJournalLine: Record "Item Journal Line"; var TempHandlingTrackingSpecification: Record "Tracking Specification")
@@ -839,6 +725,11 @@ codeunit 5987 "Serv-Posting Journals Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostResJnlLineConsume(var ServiceLine: Record "Service Line"; var ServiceShipmentHeader: Record "Service Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnPostSalesTaxLines(var ServHeader: Record "Service Header"; var TotalServiceLineLCY: Record "Service Line"; InvoicePostingParameters: Record "Invoice Posting Parameters"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; Invoice: Boolean)
     begin
     end;
 }

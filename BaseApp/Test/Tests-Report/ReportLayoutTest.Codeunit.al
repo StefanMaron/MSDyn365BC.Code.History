@@ -1,4 +1,4 @@
-﻿codeunit 134600 "Report Layout Test"
+codeunit 134600 "Report Layout Test"
 {
     // SaveAsPDF is not tested for Word scenarios as it currently requires Windows client and an installed Word.
 
@@ -29,7 +29,9 @@
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Usage: Option "Order Confirmation","Work Order","Pick Instruction";
         IsInitialized: Boolean;
+#if not CLEAN28
         LayoutCodeShouldNotChangedErr: Label 'Layout code should not change.';
+#endif
 
     local procedure Initialize()
     begin
@@ -131,49 +133,9 @@
     begin
         Initialize();
         // Verify
-#if not CLEAN25
-        Assert.IsFalse(ReportLayoutSelection.IsProcessingOnly(REPORT::"Detail Trial Balance"), '');
-        Assert.IsTrue(ReportLayoutSelection.IsProcessingOnly(REPORT::"Copy Sales Document"), '');
-#endif
         Assert.IsFalse(ReportLayoutSelection.HasWordLayout(REPORT::"Detail Trial Balance"), '');
     end;
 
-#if not CLEAN25
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('HasCustomLayout is moved to codeunit Report Management Helper', '25.0')]
-    procedure TestReportLayoutSelectionHasCustomLayout()
-    var
-        ReportLayoutSelection: Record "Report Layout Selection";
-        CustomReportLayout: Record "Custom Report Layout";
-    begin
-        // Init
-        Initialize();
-        CustomReportLayout.Init();
-        CustomReportLayout."Report ID" := DetailTrialBalanceReportID();
-        CustomReportLayout.Type := CustomReportLayout.Type::RDLC;
-        CustomReportLayout.Code := '';
-        CustomReportLayout.Insert(true);
-
-        if ReportLayoutSelection.Get(DetailTrialBalanceReportID(), CompanyName) then
-            ReportLayoutSelection.Delete();
-        ReportLayoutSelection.Init();
-        ReportLayoutSelection."Report ID" := DetailTrialBalanceReportID();
-        ReportLayoutSelection.Validate("Custom Report Layout Code", CustomReportLayout.Code);
-        ReportLayoutSelection.Insert(true);
-
-        // Verify
-        Assert.AreEqual(1, ReportLayoutSelection.HasCustomLayout(DetailTrialBalanceReportID()), 'Expected a custom RDLC');
-
-        // Variations
-        CustomReportLayout.Type := CustomReportLayout.Type::Word;
-        CustomReportLayout.Modify();
-        Assert.AreEqual(2, ReportLayoutSelection.HasCustomLayout(DetailTrialBalanceReportID()), 'Expected a custom Word');
-        CustomReportLayout.Delete();
-        Assert.AreEqual(0, ReportLayoutSelection.HasCustomLayout(DetailTrialBalanceReportID()), 'Expected default (no layout found)');
-        Assert.AreEqual(0, ReportLayoutSelection.HasCustomLayout(99999), 'Expected default (no such report)');
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -218,6 +180,7 @@
         Assert.IsFalse(CustomReportLayout.ValidateLayout(false, false), '');
     end;
 
+#if not CLEAN28
     [Test]
     [HandlerFunctions('Report134600HandlerCancel')]
     [Scope('OnPrem')]
@@ -242,6 +205,7 @@
 
         CustomReportLayout.Delete();
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -413,6 +377,7 @@
         DesignTimeReportSelection.SetSelectedLayout('');
     end;
 
+#if not CLEAN28
     [Test]
     [HandlerFunctions('ReportLookupHandler')]
     [Scope('OnPrem')]
@@ -434,6 +399,7 @@
         // Verify
         Assert.AreNotEqual(0, CustomReportLayout.Count, '');
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -951,6 +917,7 @@
         Assert.ExpectedMessage(Format(SalesHeader.RecordId()), LibraryVariableStorage.DequeueText()); // message from MessageHandler
     end;
 
+#if not CLEAN28
     [Test]
     [HandlerFunctions('CustomReportLayoutsHandlerCancel')]
     [Scope('OnPrem')]
@@ -991,6 +958,7 @@
         ReportLayoutSelection.Get(CheckStubReportID(), CompanyName);
         Assert.AreEqual(LayoutCode, ReportLayoutSelection."Custom Report Layout Code", LayoutCodeShouldNotChangedErr);
     end;
+#endif
 
     local procedure InitCustomReportLayout(var CustomReportLayout: Record "Custom Report Layout"; LayoutType: Enum "Custom Report Layout Type"; WithCompanyName: Boolean)
     var
@@ -1153,12 +1121,14 @@
         ScheduleaReport.Cancel().Invoke();
     end;
 
+#if not CLEAN28
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CustomReportLayoutsHandlerCancel(var CustomReportLayouts: TestPage "Custom Report Layouts")
     begin
         CustomReportLayouts.Cancel().Invoke();
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
@@ -1356,10 +1326,12 @@
         exit(REPORT::"Detail Trial Balance");
     end;
 
+#if not CLEAN28
     local procedure CheckStubReportID(): Integer
     begin
         exit(Report::"Check (Stub/Check/Stub)");
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]

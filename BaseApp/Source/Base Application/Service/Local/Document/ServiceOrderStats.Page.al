@@ -104,6 +104,7 @@ page 10052 "Service Order Stats."
                 {
                     ApplicationArea = Service;
                     AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Profit ($)';
                     Editable = false;
                     ToolTip = 'Specifies the profit, expressed as an amount.  ';
@@ -111,6 +112,7 @@ page 10052 "Service Order Stats."
                 field("ProfitPct[1]"; ProfitPct[1])
                 {
                     ApplicationArea = Service;
+                    AutoFormatType = 0;
                     Caption = 'Original Profit %';
                     DecimalPlaces = 1 : 1;
                     Editable = false;
@@ -163,6 +165,8 @@ page 10052 "Service Order Stats."
                 field(BreakdownAmt; BreakdownAmt[1, 1])
                 {
                     ApplicationArea = Service;
+                    AutoFormatType = 1;
+                    AutoFormatExpression = Rec."Currency Code";
                     BlankZero = true;
                     CaptionClass = Format(BreakdownLabel[1, 1]);
                     Caption = 'BreakdownAmt';
@@ -171,6 +175,8 @@ page 10052 "Service Order Stats."
                 field(BreakdownAmt2; BreakdownAmt[1, 2])
                 {
                     ApplicationArea = Service;
+                    AutoFormatType = 1;
+                    AutoFormatExpression = Rec."Currency Code";
                     BlankZero = true;
                     CaptionClass = Format(BreakdownLabel[1, 2]);
                     Caption = 'BreakdownAmt';
@@ -179,6 +185,8 @@ page 10052 "Service Order Stats."
                 field(BreakdownAmt3; BreakdownAmt[1, 3])
                 {
                     ApplicationArea = Service;
+                    AutoFormatType = 1;
+                    AutoFormatExpression = Rec."Currency Code";
                     BlankZero = true;
                     CaptionClass = Format(BreakdownLabel[1, 3]);
                     Caption = 'BreakdownAmt';
@@ -187,6 +195,8 @@ page 10052 "Service Order Stats."
                 field(BreakdownAmt4; BreakdownAmt[1, 4])
                 {
                     ApplicationArea = Service;
+                    AutoFormatType = 1;
+                    AutoFormatExpression = Rec."Currency Code";
                     BlankZero = true;
                     CaptionClass = Format(BreakdownLabel[1, 4]);
                     Caption = 'BreakdownAmt';
@@ -297,6 +307,7 @@ page 10052 "Service Order Stats."
                 {
                     ApplicationArea = Service;
                     AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Original Profit (LCY)';
                     Editable = false;
                     ToolTip = 'Specifies the profit, expressed as an amount in local currency, that was associated with the service order, when it was originally posted.';
@@ -305,6 +316,7 @@ page 10052 "Service Order Stats."
                 {
                     ApplicationArea = Service;
                     AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Adjusted Profit (LCY)';
                     Editable = false;
                     ToolTip = 'Specifies the adjusted profit of the service order, in local currency.';
@@ -312,6 +324,7 @@ page 10052 "Service Order Stats."
                 field("ProfitPct[2]"; ProfitPct[2])
                 {
                     ApplicationArea = Service;
+                    AutoFormatType = 0;
                     Caption = 'Original Profit %';
                     DecimalPlaces = 1 : 1;
                     Editable = false;
@@ -320,6 +333,7 @@ page 10052 "Service Order Stats."
                 field("AdjProfitPct[2]"; AdjProfitPct[2])
                 {
                     ApplicationArea = Service;
+                    AutoFormatType = 0;
                     Caption = 'Adjusted Profit %';
                     DecimalPlaces = 1 : 1;
                     Editable = false;
@@ -337,6 +351,7 @@ page 10052 "Service Order Stats."
                 {
                     ApplicationArea = Service;
                     AutoFormatType = 1;
+                    AutoFormatExpression = Rec."Currency Code";
                     Caption = 'Adjusted Cost (LCY)';
                     Editable = false;
                     ToolTip = 'Specifies the adjusted cost of the service order, in local currency.';
@@ -345,6 +360,7 @@ page 10052 "Service Order Stats."
                 {
                     ApplicationArea = Service;
                     AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Cost Adjmt. Amount (LCY)';
                     Editable = false;
                     ToolTip = 'Specifies the cost adjustment amount, in local currency.';
@@ -362,6 +378,7 @@ page 10052 "Service Order Stats."
                 field("TotalServLine[2].Quantity + TotalServLine[4].Quantity"; TotalServLine[2].Quantity + TotalServLine[4].Quantity)
                 {
                     ApplicationArea = Service;
+                    AutoFormatType = 0;
                     Caption = 'Quantity';
                     DecimalPlaces = 0 : 5;
                     Editable = false;
@@ -434,6 +451,7 @@ page 10052 "Service Order Stats."
                 {
                     ApplicationArea = Service;
                     AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Original Profit (LCY)';
                     Editable = false;
                     ToolTip = 'Specifies the profit, expressed as an amount in local currency, which was associated with the service order, when it was originally posted.';
@@ -447,6 +465,7 @@ page 10052 "Service Order Stats."
                 {
                     ApplicationArea = Service;
                     AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Profit (LCY)';
                     Editable = false;
                     ToolTip = 'Specifies the profit in LCY.';
@@ -455,6 +474,7 @@ page 10052 "Service Order Stats."
                 {
                     ApplicationArea = Service;
                     AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Adjusted Profit (LCY)';
                     Editable = false;
                     ToolTip = 'Specifies the adjusted profit of the service order, in local currency.';
@@ -463,6 +483,7 @@ page 10052 "Service Order Stats."
                 {
                     ApplicationArea = Service;
                     AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Profit (LCY)';
                     Editable = false;
                     ToolTip = 'Specifies the profit in LCY.';
@@ -470,6 +491,7 @@ page 10052 "Service Order Stats."
                 field("ProfitPct[4]"; ProfitPct[4])
                 {
                     ApplicationArea = Service;
+                    AutoFormatType = 0;
                     Caption = 'Original Profit %';
                     DecimalPlaces = 1 : 1;
                     Editable = false;
@@ -478,6 +500,7 @@ page 10052 "Service Order Stats."
                 field(DetailsTotal; GetDetailsTotal())
                 {
                     ApplicationArea = Service;
+                    AutoFormatType = 0;
                     Caption = 'Profit %';
                     DecimalPlaces = 1 : 1;
                     Editable = false;
@@ -486,6 +509,7 @@ page 10052 "Service Order Stats."
                 field("AdjProfitPct[4]"; AdjProfitPct[4])
                 {
                     ApplicationArea = Service;
+                    AutoFormatType = 0;
                     Caption = 'Adjusted Profit %';
                     DecimalPlaces = 1 : 1;
                     Editable = false;
@@ -494,6 +518,7 @@ page 10052 "Service Order Stats."
                 field(AdjDetailsTotal; GetAdjDetailsTotal())
                 {
                     ApplicationArea = Service;
+                    AutoFormatType = 0;
                     Caption = 'Profit %';
                     DecimalPlaces = 1 : 1;
                     Editable = false;
@@ -511,6 +536,7 @@ page 10052 "Service Order Stats."
                 {
                     ApplicationArea = Service;
                     AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Cost (LCY)';
                     Editable = false;
                     ToolTip = 'Specifies the cost of the service order, in local currency.';
@@ -519,6 +545,7 @@ page 10052 "Service Order Stats."
                 {
                     ApplicationArea = Service;
                     AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Adjusted Cost (LCY)';
                     Editable = false;
                     ToolTip = 'Specifies the adjusted cost of the service order, in local currency.';
@@ -527,6 +554,7 @@ page 10052 "Service Order Stats."
                 {
                     ApplicationArea = Service;
                     AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Cost (LCY)';
                     Editable = false;
                     ToolTip = 'Specifies the cost of the service order, in local currency.';
@@ -535,6 +563,7 @@ page 10052 "Service Order Stats."
                 {
                     ApplicationArea = Service;
                     AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Adjustment Cost (LCY)';
                     Editable = false;
                     ToolTip = 'Specifies the adjusted cost of the service order, in local currency.';
@@ -548,6 +577,7 @@ page 10052 "Service Order Stats."
                 {
                     ApplicationArea = Service;
                     AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Cost (LCY)';
                     Editable = false;
                     ToolTip = 'Specifies the cost of the service order, in local currency.';
@@ -618,6 +648,7 @@ page 10052 "Service Order Stats."
                 {
                     ApplicationArea = Service;
                     AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Profit ($)';
                     Editable = false;
                     ToolTip = 'Specifies the profit, expressed as an amount.  ';
@@ -625,6 +656,7 @@ page 10052 "Service Order Stats."
                 field("ProfitPct[3]"; ProfitPct[3])
                 {
                     ApplicationArea = Service;
+                    AutoFormatType = 0;
                     Caption = 'Profit %';
                     DecimalPlaces = 1 : 1;
                     Editable = false;
@@ -677,6 +709,8 @@ page 10052 "Service Order Stats."
                 field(BreakdownAmt5; BreakdownAmt[3, 1])
                 {
                     ApplicationArea = Service;
+                    AutoFormatType = 1;
+                    AutoFormatExpression = Rec."Currency Code";
                     BlankZero = true;
                     CaptionClass = Format(BreakdownLabel[3, 1]);
                     Caption = 'BreakdownAmt';
@@ -685,6 +719,8 @@ page 10052 "Service Order Stats."
                 field(BreakdownAmt6; BreakdownAmt[3, 2])
                 {
                     ApplicationArea = Service;
+                    AutoFormatType = 1;
+                    AutoFormatExpression = Rec."Currency Code";
                     BlankZero = true;
                     CaptionClass = Format(BreakdownLabel[3, 2]);
                     Caption = 'BreakdownAmt';
@@ -693,6 +729,8 @@ page 10052 "Service Order Stats."
                 field(BreakdownAmt7; BreakdownAmt[3, 3])
                 {
                     ApplicationArea = Service;
+                    AutoFormatType = 1;
+                    AutoFormatExpression = Rec."Currency Code";
                     BlankZero = true;
                     CaptionClass = Format(BreakdownLabel[3, 3]);
                     Caption = 'BreakdownAmt';
@@ -701,6 +739,8 @@ page 10052 "Service Order Stats."
                 field(BreakdownAmt8; BreakdownAmt[3, 4])
                 {
                     ApplicationArea = Service;
+                    AutoFormatType = 1;
+                    AutoFormatExpression = Rec."Currency Code";
                     BlankZero = true;
                     CaptionClass = Format(BreakdownLabel[3, 4]);
                     Caption = 'BreakdownAmt';
@@ -742,6 +782,7 @@ page 10052 "Service Order Stats."
                 field(CreditLimitLCYExpendedPct; CreditLimitLCYExpendedPct)
                 {
                     ApplicationArea = Service;
+                    AutoFormatType = 0;
                     Caption = 'Expended % of Credit Limit ($)';
                     ExtendedDatatype = Ratio;
                     ToolTip = 'Specifies the Expended Percentage of Credit Limit ($).';
@@ -782,13 +823,13 @@ page 10052 "Service Order Stats."
             TempServLine.DeleteAll();
             Clear(TempServLine);
             ServAmtsMgt.GetServiceLines(Rec, TempServLine, i - 1);
-            SalesTaxCalculate.StartSalesTaxCalculation();
+            ServSalesTaxCalculate.StartSalesTaxCalculation();
             if not TaxArea."Use External Tax Engine" then begin
                 TempServLine.SetFilter(Type, '>0');
                 TempServLine.SetFilter(Quantity, '<>0');
                 if TempServLine.Find('-') then
                     repeat
-                        SalesTaxCalculate.AddServiceLine(TempServLine);
+                        ServSalesTaxCalculate.AddServiceLine(TempServLine);
                     until TempServLine.Next() = 0;
             end;
             OnAfterCalculateSalesTax(SalesTaxCalculationOverridden, Rec, TempServLine, i, TempSalesTaxLine1,
@@ -799,19 +840,19 @@ page 10052 "Service Order Stats."
                         begin
                             TempSalesTaxLine1.DeleteAll();
                             TaxCalculation();
-                            SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxLine1);
+                            ServSalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxLine1);
                         end;
                     2:
                         begin
                             TempSalesTaxLine2.DeleteAll();
                             TaxCalculation();
-                            SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxLine2);
+                            ServSalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxLine2);
                         end;
                     3:
                         begin
                             TempSalesTaxLine3.DeleteAll();
                             TaxCalculation();
-                            SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxLine3);
+                            ServSalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxLine3);
                         end;
                 end;
 
@@ -819,7 +860,7 @@ page 10052 "Service Order Stats."
               Rec, TempServLine, i - 1, TotalServLine[i], TotalServLineLCY[i],
               VATAmount[i], VATAmountText[i], ProfitLCY[i], ProfitPct[i], TotalAdjCostLCY[i]);
             // IF Status = Status::Open THEN
-            SalesTaxCalculate.DistTaxOverServLines(TempServLine);
+            ServSalesTaxCalculate.DistTaxOverServLines(TempServLine);
             // SalesPost.SumSalesLinesTemp(
             // Rec,TempSalesLine,i - 1,TotalServLine[i],TotalServLineLCY[i],
             // VATAmount[i],VATAmountText[i],ProfitLCY[i],ProfitPct[i],TotalAdjCostLCY[i]);
@@ -834,7 +875,7 @@ page 10052 "Service Order Stats."
             VATAmount[i] := 0;
 
             if not SalesTaxCalculationOverridden then
-                SalesTaxCalculate.GetSummarizedSalesTaxTable(TempSalesTaxAmtLine);
+                ServSalesTaxCalculate.GetSummarizedSalesTaxTable(TempSalesTaxAmtLine);
 
             BrkIdx := 0;
             PrevPrintOrder := 0;
@@ -928,7 +969,7 @@ page 10052 "Service Order Stats."
         ServAmtsMgt: Codeunit "Serv-Amounts Mgt.";
         SalesTaxDifference: Record "Sales Tax Amount Difference";
         TaxArea: Record "Tax Area";
-        SalesTaxCalculate: Codeunit "Sales Tax Calculate";
+        ServSalesTaxCalculate: Codeunit "Serv. Sales Tax Calculate";
         TotalAmount1: array[7] of Decimal;
         TotalAmount2: array[7] of Decimal;
         VATAmount: array[7] of Decimal;
@@ -1143,22 +1184,22 @@ page 10052 "Service Order Stats."
         ServLine.FindFirst();
 
         if TempSalesTaxLine1.GetAnyLineModified() then begin
-            SalesTaxCalculate.StartSalesTaxCalculation();
-            SalesTaxCalculate.PutSalesTaxAmountLineTable(
+            ServSalesTaxCalculate.StartSalesTaxCalculation();
+            ServSalesTaxCalculate.PutSalesTaxAmountLineTable(
               TempSalesTaxLine1,
               SalesTaxDifference."Document Product Area"::Service.AsInteger(),
               Rec."Document Type".AsInteger(), Rec."No.");
-            SalesTaxCalculate.DistTaxOverServLines(ServLine);
-            SalesTaxCalculate.SaveTaxDifferences();
+            ServSalesTaxCalculate.DistTaxOverServLines(ServLine);
+            ServSalesTaxCalculate.SaveTaxDifferences();
         end;
         if TempSalesTaxLine2.GetAnyLineModified() then begin
-            SalesTaxCalculate.StartSalesTaxCalculation();
-            SalesTaxCalculate.PutSalesTaxAmountLineTable(
+            ServSalesTaxCalculate.StartSalesTaxCalculation();
+            ServSalesTaxCalculate.PutSalesTaxAmountLineTable(
               TempSalesTaxLine2,
               SalesTaxDifference."Document Product Area"::Service.AsInteger(),
               Rec."Document Type".AsInteger(), Rec."No.");
-            SalesTaxCalculate.DistTaxOverServLines(ServLine);
-            SalesTaxCalculate.SaveTaxDifferences();
+            ServSalesTaxCalculate.DistTaxOverServLines(ServLine);
+            ServSalesTaxCalculate.SaveTaxDifferences();
         end;
 
         PrevNo := '';
@@ -1255,9 +1296,9 @@ page 10052 "Service Order Stats."
     local procedure TaxCalculation()
     begin
         if TaxArea."Use External Tax Engine" then
-            SalesTaxCalculate.CallExternalTaxEngineForServ(Rec, true)
+            ServSalesTaxCalculate.CallExternalTaxEngineForServ(Rec, true)
         else
-            SalesTaxCalculate.EndSalesTaxCalculation(Rec."Posting Date");
+            ServSalesTaxCalculate.EndSalesTaxCalculation(Rec."Posting Date");
     end;
 
     [IntegrationEvent(false, false)]

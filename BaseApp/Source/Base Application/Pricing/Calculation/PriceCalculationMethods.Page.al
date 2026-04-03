@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -27,7 +27,6 @@ page 7025 "Price Calculation Methods"
                 field(Method; Rec.Method)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'The name of the price calculation method.';
                     trigger OnDrillDown()
                     var
                         PriceCalculationMethodCard: Page "Price Calculation Method Card";
@@ -52,14 +51,10 @@ page 7025 "Price Calculation Methods"
     trigger OnOpenPage()
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-#if not CLEAN25
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
-#endif
         PriceUXManagement: Codeunit "Price UX Management";
     begin
-#if not CLEAN25
         FeaturePriceCalculation.FailIfFeatureDisabled();
-#endif
         if PriceCalculationMgt.RefreshSetup() then
             Commit();
         PriceUXManagement.GetSupportedMethods(Rec, ImplementationsPerMethod);

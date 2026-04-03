@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ page 10351 "BC O365 Tax Settings List"
                 ShowCaption = false;
                 field(TaxAreaDescription; TaxAreaDescription)
                 {
-                    ApplicationArea = Invoicing, Basic, Suite;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Tax rate';
                     Editable = false;
                     ToolTip = 'Specifies the tax rate used to calculate tax on what you buy or sell.';
@@ -42,7 +42,7 @@ page 10351 "BC O365 Tax Settings List"
         {
             action(_NEW_TEMP_)
             {
-                ApplicationArea = Invoicing, Basic, Suite;
+                ApplicationArea = Basic, Suite;
                 Caption = 'New';
                 Image = New;
                 ToolTip = 'Create a new tax rate.';
@@ -59,7 +59,7 @@ page 10351 "BC O365 Tax Settings List"
             }
             action(Edit)
             {
-                ApplicationArea = Invoicing, Basic, Suite;
+                ApplicationArea = Basic, Suite;
                 Caption = 'Edit';
                 Image = Edit;
                 Scope = Repeater;

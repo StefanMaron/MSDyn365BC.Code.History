@@ -40,6 +40,7 @@ using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Reports;
 using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Structure;
+using System.Automation;
 using System.Security.User;
 using System.Utilities;
 
@@ -55,15 +56,18 @@ table 83 "Item Journal Line"
         field(1; "Journal Template Name"; Code[10])
         {
             Caption = 'Journal Template Name';
+            ToolTip = 'Specifies the name of the journal template, the basis of the journal batch, that the entries were posted from.';
             TableRelation = "Item Journal Template";
         }
         field(2; "Line No."; Integer)
         {
             Caption = 'Line No.';
+            ToolTip = 'Specifies the number of the journal line.';
         }
         field(3; "Item No."; Code[20])
         {
             Caption = 'Item No.';
+            ToolTip = 'Specifies the number of the item on the journal line.';
             TableRelation = Item;
 
             trigger OnValidate()
@@ -197,6 +201,7 @@ table 83 "Item Journal Line"
         field(4; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
+            ToolTip = 'Specifies the posting date for the entry.';
 
             trigger OnValidate()
             var
@@ -210,6 +215,7 @@ table 83 "Item Journal Line"
         field(5; "Entry Type"; Enum "Item Ledger Entry Type")
         {
             Caption = 'Entry Type';
+            ToolTip = 'Specifies the type of transaction that will be posted from the item journal line.';
 
             trigger OnValidate()
             begin
@@ -273,14 +279,17 @@ table 83 "Item Journal Line"
         field(7; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+            ToolTip = 'Specifies a document number for the journal line.';
         }
         field(8; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the item on the journal line.';
         }
         field(9; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
+            ToolTip = 'Specifies the code for the inventory location where the item on the journal line will be registered.';
             TableRelation = Location;
 
             trigger OnValidate()
@@ -347,7 +356,9 @@ table 83 "Item Journal Line"
         }
         field(13; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
+            ToolTip = 'Specifies the number of units of the item to be included on the journal line.';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -404,6 +415,7 @@ table 83 "Item Journal Line"
         }
         field(15; "Invoiced Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Invoiced Quantity';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -411,7 +423,9 @@ table 83 "Item Journal Line"
         field(16; "Unit Amount"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Amount';
+            ToolTip = 'Specifies the price of one unit of the item on the journal line.';
 
             trigger OnValidate()
             begin
@@ -470,7 +484,9 @@ table 83 "Item Journal Line"
         field(17; "Unit Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost';
+            ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
 
             trigger OnValidate()
             begin
@@ -518,7 +534,9 @@ table 83 "Item Journal Line"
         field(18; Amount; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount';
+            ToolTip = 'Specifies the line''s net amount.';
 
             trigger OnValidate()
             var
@@ -539,12 +557,15 @@ table 83 "Item Journal Line"
         field(22; "Discount Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Discount Amount';
+            ToolTip = 'Specifies the discount amount of this entry on the line.';
             Editable = false;
         }
         field(23; "Salespers./Purch. Code"; Code[20])
         {
             Caption = 'Salespers./Purch. Code';
+            ToolTip = 'Specifies the code for the salesperson or purchaser who is linked to the sale or purchase on the journal line.';
             TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
@@ -562,6 +583,7 @@ table 83 "Item Journal Line"
         field(29; "Applies-to Entry"; Integer)
         {
             Caption = 'Applies-to Entry';
+            ToolTip = 'Specifies if the quantity on the journal line must be applied to an already-posted entry. In that case, enter the entry number that the quantity will be applied to.';
 
             trigger OnLookup()
             begin
@@ -643,6 +665,7 @@ table 83 "Item Journal Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
                                                           Blocked = const(false));
 
@@ -655,6 +678,7 @@ table 83 "Item Journal Line"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
                                                           Blocked = const(false));
             trigger OnValidate()
@@ -664,7 +688,9 @@ table 83 "Item Journal Line"
         }
         field(37; "Indirect Cost %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Indirect Cost %';
+            ToolTip = 'Specifies the percentage of the item''s last purchase cost that includes indirect costs, such as freight that is associated with the purchase of the item.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 
@@ -704,23 +730,27 @@ table 83 "Item Journal Line"
         field(41; "Journal Batch Name"; Code[10])
         {
             Caption = 'Journal Batch Name';
+            ToolTip = 'Specifies the name of the journal batch, a personalized journal layout, that the entries were posted from.';
             TableRelation = "Item Journal Batch".Name where("Journal Template Name" = field("Journal Template Name"));
         }
         field(42; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
+            ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
             TableRelation = "Reason Code";
         }
         field(43; "Recurring Method"; Option)
         {
             BlankZero = true;
             Caption = 'Recurring Method';
+            ToolTip = 'Specifies a recurring method, if you have indicated that the journal is recurring.';
             OptionCaption = ',Fixed,Variable';
             OptionMembers = ,"Fixed",Variable;
         }
         field(44; "Expiration Date"; Date)
         {
             Caption = 'Expiration Date';
+            ToolTip = 'Specifies the last date on which the recurring journal will be posted, if you have indicated that the journal is recurring.';
 
             trigger OnValidate()
             begin
@@ -730,6 +760,7 @@ table 83 "Item Journal Line"
         field(45; "Recurring Frequency"; DateFormula)
         {
             Caption = 'Recurring Frequency';
+            ToolTip = 'Specifies a recurring frequency if it is indicated that the journal is recurring.';
         }
         field(46; "Drop Shipment"; Boolean)
         {
@@ -740,21 +771,25 @@ table 83 "Item Journal Line"
         field(47; "Transaction Type"; Code[10])
         {
             Caption = 'Transaction Type';
+            ToolTip = 'Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.';
             TableRelation = "Transaction Type";
         }
         field(48; "Transport Method"; Code[10])
         {
             Caption = 'Transport Method';
+            ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
             TableRelation = "Transport Method";
         }
         field(49; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';
+            ToolTip = 'Specifies the country/region of the address.';
             TableRelation = "Country/Region";
         }
         field(50; "New Location Code"; Code[10])
         {
             Caption = 'New Location Code';
+            ToolTip = 'Specifies the new location to link to the items on this journal line.';
             TableRelation = Location;
 
             trigger OnValidate()
@@ -785,6 +820,7 @@ table 83 "Item Journal Line"
         {
             CaptionClass = '1,2,1,' + Text007;
             Caption = 'New Shortcut Dimension 1 Code';
+            ToolTip = 'Specifies the new dimension value code that the item journal line will be linked to.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
                                                           Blocked = const(false));
 
@@ -798,6 +834,7 @@ table 83 "Item Journal Line"
         {
             CaptionClass = '1,2,2,' + Text007;
             Caption = 'New Shortcut Dimension 2 Code';
+            ToolTip = 'Specifies the new dimension value code that the item journal line will be linked to.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
                                                           Blocked = const(false));
 
@@ -809,6 +846,7 @@ table 83 "Item Journal Line"
         }
         field(53; "Qty. (Calculated)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. (Calculated)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -820,6 +858,7 @@ table 83 "Item Journal Line"
         }
         field(54; "Qty. (Phys. Inventory)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. (Phys. Inventory)';
             DecimalPlaces = 0 : 5;
 
@@ -866,11 +905,13 @@ table 83 "Item Journal Line"
         field(57; "Gen. Bus. Posting Group"; Code[20])
         {
             Caption = 'Gen. Bus. Posting Group';
+            ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
             TableRelation = "Gen. Business Posting Group";
         }
         field(58; "Gen. Prod. Posting Group"; Code[20])
         {
             Caption = 'Gen. Prod. Posting Group';
+            ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
             TableRelation = "Gen. Product Posting Group";
         }
         field(59; "Entry/Exit Point"; Code[10])
@@ -881,10 +922,12 @@ table 83 "Item Journal Line"
         field(60; "Document Date"; Date)
         {
             Caption = 'Document Date';
+            ToolTip = 'Specifies the date when the related document was created.';
         }
         field(62; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+            ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
         }
         field(63; "Area"; Code[10])
         {
@@ -903,6 +946,7 @@ table 83 "Item Journal Line"
         }
         field(68; "Reserved Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             CalcFormula = sum("Reservation Entry".Quantity where("Source ID" = field("Journal Template Name"),
                                                                   "Source Ref. No." = field("Line No."),
@@ -960,6 +1004,7 @@ table 83 "Item Journal Line"
         field(91; "Order No."; Code[20])
         {
             Caption = 'Order No.';
+            ToolTip = 'Specifies the number of the order that created the entry.';
 
             trigger OnValidate()
             begin
@@ -974,6 +1019,7 @@ table 83 "Item Journal Line"
         field(92; "Order Line No."; Integer)
         {
             Caption = 'Order Line No.';
+            ToolTip = 'Specifies the line number of the order that created the entry.';
 
             trigger OnValidate()
             begin
@@ -983,6 +1029,7 @@ table 83 "Item Journal Line"
         }
         field(101; "Applies-to Rem. Quantity"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Applies-to Remaining Quantity';
             Editable = false;
             FieldClass = FlowField;
@@ -1040,6 +1087,7 @@ table 83 "Item Journal Line"
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
+            ToolTip = 'Specifies the variant of the item on the line.';
             TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
 
             trigger OnValidate()
@@ -1082,6 +1130,7 @@ table 83 "Item Journal Line"
         field(5403; "Bin Code"; Code[20])
         {
             Caption = 'Bin Code';
+            ToolTip = 'Specifies the bin where the items are picked or put away.';
             TableRelation = if ("Entry Type" = filter(Purchase | "Positive Adjmt." | Output),
                                 Quantity = filter(>= 0)) Bin.Code where("Location Code" = field("Location Code"),
                                                                       "Item Filter" = field("Item No."),
@@ -1137,6 +1186,7 @@ table 83 "Item Journal Line"
         }
         field(5404; "Qty. per Unit of Measure"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. per Unit of Measure';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1145,6 +1195,7 @@ table 83 "Item Journal Line"
         field(5406; "New Bin Code"; Code[20])
         {
             Caption = 'New Bin Code';
+            ToolTip = 'Specifies the new bin code to link to the items on this journal line.';
             TableRelation = Bin.Code where("Location Code" = field("New Location Code"),
                                             "Item Filter" = field("Item No."),
                                             "Variant Filter" = field("Variant Code"));
@@ -1176,6 +1227,7 @@ table 83 "Item Journal Line"
         field(5407; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
+            ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
             TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
 
             trigger OnValidate()
@@ -1235,6 +1287,7 @@ table 83 "Item Journal Line"
         }
         field(5410; "Qty. Rounding Precision"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Rounding Precision';
             InitValue = 0;
             DecimalPlaces = 0 : 5;
@@ -1244,6 +1297,7 @@ table 83 "Item Journal Line"
         }
         field(5411; "Qty. Rounding Precision (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Rounding Precision (Base)';
             InitValue = 0;
             DecimalPlaces = 0 : 5;
@@ -1253,6 +1307,7 @@ table 83 "Item Journal Line"
         }
         field(5413; "Quantity (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity (Base)';
             DecimalPlaces = 0 : 5;
 
@@ -1271,12 +1326,14 @@ table 83 "Item Journal Line"
         }
         field(5415; "Invoiced Qty. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Invoiced Qty. (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(5468; "Reserved Qty. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             CalcFormula = sum("Reservation Entry"."Quantity (Base)" where("Source ID" = field("Journal Template Name"),
                                                                            "Source Ref. No." = field("Line No."),
@@ -1300,6 +1357,7 @@ table 83 "Item Journal Line"
         field(5561; "Flushing Method"; Enum Microsoft.Manufacturing.Setup."Flushing Method")
         {
             Caption = 'Flushing Method';
+            ToolTip = 'Specifies how consumption of the item (component) is calculated and handled in production processes. Manual: Enter and post consumption in the consumption journal manually. Forward: Automatically posts consumption according to the production order component lines when the first operation starts. Backward: Automatically calculates and posts consumption according to the production order component lines when the production order is finished. Pick + Forward / Pick + Backward: Variations with warehousing.';
             Editable = false;
         }
         field(5562; "Changed by User"; Boolean)
@@ -1342,6 +1400,7 @@ table 83 "Item Journal Line"
         {
             AccessByPermission = TableData "Item Reference" = R;
             Caption = 'Item Reference No.';
+            ToolTip = 'Specifies a reference to the item number as defined by the item''s barcode.';
             ExtendedDatatype = Barcode;
 
             trigger OnLookup()
@@ -1390,6 +1449,7 @@ table 83 "Item Journal Line"
         field(5802; "Inventory Value (Calculated)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Inventory Value (Calculated)';
             Editable = false;
 
@@ -1403,6 +1463,7 @@ table 83 "Item Journal Line"
         field(5803; "Inventory Value (Revalued)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Inventory Value (Revalued)';
             MinValue = 0;
 
@@ -1442,6 +1503,7 @@ table 83 "Item Journal Line"
         field(5807; "Applies-from Entry"; Integer)
         {
             Caption = 'Applies-from Entry';
+            ToolTip = 'Specifies the number of the outbound item ledger entry, whose cost is forwarded to the inbound item ledger entry.';
             MinValue = 0;
 
             trigger OnLookup()
@@ -1481,6 +1543,7 @@ table 83 "Item Journal Line"
         field(5809; "Unit Cost (Calculated)"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost (Calculated)';
             Editable = false;
 
@@ -1492,6 +1555,7 @@ table 83 "Item Journal Line"
         field(5810; "Unit Cost (Revalued)"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost (Revalued)';
             MinValue = 0;
 
@@ -1509,6 +1573,7 @@ table 83 "Item Journal Line"
         field(5811; "Applied Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Applied Amount';
             Editable = false;
         }
@@ -1551,6 +1616,7 @@ table 83 "Item Journal Line"
         field(5830; Type; Enum Microsoft.Manufacturing.Capacity."Capacity Type Journal")
         {
             Caption = 'Type';
+            ToolTip = 'Specifies the journal type, which is either Work Center or Machine Center.';
             InitValue = " ";
 
             trigger OnValidate()
@@ -1562,6 +1628,7 @@ table 83 "Item Journal Line"
         field(5831; "No."; Code[20])
         {
             Caption = 'No.';
+            ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
             TableRelation = if (Type = const(Resource)) Resource;
 
             trigger OnValidate()
@@ -1591,6 +1658,7 @@ table 83 "Item Journal Line"
         field(5858; "Cap. Unit of Measure Code"; Code[10])
         {
             Caption = 'Cap. Unit of Measure Code';
+            ToolTip = 'Specifies the unit of measure code for the capacity usage.';
             TableRelation = if (Type = const(Resource)) "Resource Unit of Measure".Code where("Resource No." = field("No."))
             else
             Microsoft.Manufacturing.Capacity."Capacity Unit of Measure";
@@ -1613,6 +1681,7 @@ table 83 "Item Journal Line"
         }
         field(5859; "Qty. per Cap. Unit of Measure"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. per Cap. Unit of Measure';
             DecimalPlaces = 0 : 5;
         }
@@ -1628,6 +1697,7 @@ table 83 "Item Journal Line"
         field(6500; "Serial No."; Code[50])
         {
             Caption = 'Serial No.';
+            ToolTip = 'Specifies the serial number of the item.';
 
             trigger OnValidate()
             begin
@@ -1637,6 +1707,7 @@ table 83 "Item Journal Line"
         field(6501; "Lot No."; Code[50])
         {
             Caption = 'Lot No.';
+            ToolTip = 'Specifies the lot number of the item.';
 
             trigger OnValidate()
             begin
@@ -1646,6 +1717,7 @@ table 83 "Item Journal Line"
         field(6502; "Warranty Date"; Date)
         {
             Caption = 'Warranty Date';
+            ToolTip = 'Specifies the warranty expiration date of the item.';
 
             trigger OnValidate()
             begin
@@ -1674,6 +1746,7 @@ table 83 "Item Journal Line"
         field(6515; "Package No."; Code[50])
         {
             Caption = 'Package No.';
+            ToolTip = 'Specifies the package number of the item.';
             CaptionClass = '6,1';
 
             trigger OnValidate()
@@ -1695,6 +1768,7 @@ table 83 "Item Journal Line"
         field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
         {
             Caption = 'Price Calculation Method';
+            ToolTip = 'Specifies the method that will be used for price calculation in the journal line.';
         }
         field(7315; "Warehouse Adjustment"; Boolean)
         {
@@ -1720,6 +1794,7 @@ table 83 "Item Journal Line"
         }
         field(99000755; "Overhead Rate"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Overhead Rate';
             DecimalPlaces = 0 : 5;
 
@@ -1737,61 +1812,73 @@ table 83 "Item Journal Line"
         field(99000756; "Single-Level Material Cost"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Single-Level Material Cost';
         }
         field(99000757; "Single-Level Capacity Cost"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Single-Level Capacity Cost';
         }
         field(99000758; "Single-Level Subcontrd. Cost"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Single-Level Subcontrd. Cost';
         }
         field(99000759; "Single-Level Cap. Ovhd Cost"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Single-Level Cap. Ovhd Cost';
         }
         field(99000760; "Single-Level Mfg. Ovhd Cost"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Single-Level Mfg. Ovhd Cost';
         }
         field(99000761; "Rolled-up Material Cost"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Rolled-up Material Cost';
         }
         field(99000762; "Rolled-up Capacity Cost"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Rolled-up Capacity Cost';
         }
         field(99000763; "Rolled-up Subcontracted Cost"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Rolled-up Subcontracted Cost';
         }
         field(99000764; "Rolled-up Mfg. Ovhd Cost"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Rolled-up Mfg. Ovhd Cost';
         }
         field(99000765; "Rolled-up Cap. Overhead Cost"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Rolled-up Cap. Overhead Cost';
         }
         field(99000766; "Single-Lvl Mat. Non-Invt. Cost"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Single-Level Material Non-Inventory Cost';
         }
         field(99000767; "Rolled-up Mat. Non-Invt. Cost"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Rolled-up Material Non-Inventory Cost';
         }
     }
@@ -1831,7 +1918,12 @@ table 83 "Item Journal Line"
     }
 
     trigger OnDelete()
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
     begin
+        if ItemJournalBatch.Get(Rec."Journal Template Name", Rec."Journal Batch Name") then
+            ApprovalsMgmt.PreventDeletingRecordWithOpenApprovalEntry(ItemJournalBatch);
+
         ItemJnlLineReserve.DeleteLine(Rec);
 
         CalcFields("Reserved Qty. (Base)");
@@ -1847,6 +1939,8 @@ table 83 "Item Journal Line"
         if Rec."Posting No. Series" = '' then
             Rec."Posting No. Series" := ItemJnlTemplate."Posting No. Series";
 
+        ApprovalsMgmt.PreventInsertRecIfOpenApprovalEntryExist(ItemJnlBatch);
+
         Rec.ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
         Rec.ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
         Rec.ValidateNewShortcutDimCode(1, "New Shortcut Dimension 1 Code");
@@ -1857,6 +1951,7 @@ table 83 "Item Journal Line"
 
     trigger OnModify()
     begin
+        PreventModifyRecIfOpenApprovalEntryExist();
         OnBeforeVerifyReservedQty(Rec, xRec, 0);
         ItemJnlLineReserve.VerifyChange(Rec, xRec);
         CheckPlanningAssignment();
@@ -1889,6 +1984,7 @@ table 83 "Item Journal Line"
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
         WMSManagement: Codeunit "WMS Management";
         ItemReferenceManagement: Codeunit "Item Reference Management";
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         GLSetupRead: Boolean;
 #pragma warning disable AA0074
         Text007: Label 'New ';
@@ -1911,6 +2007,7 @@ table 83 "Item Journal Line"
         RenumberDocNoQst: Label 'If you have many documents it can take time to sort them, and %1 might perform slowly during the process. In those cases we suggest that you sort them during non-working hours. Do you want to continue?', Comment = '%1= Business Central';
         IncorrectQtyForSNErr: Label 'Quantity must be -1, 0 or 1 when Serial No. is stated.';
         ItemTrackingExistsErr: Label 'You cannot change %1 because item tracking already exists for this journal line.', Comment = '%1 - Serial, Lot or Package No.';
+        RestrictBatchUsageDetailsTxt: Label 'The restriction was imposed because the journal batch requires approval.';
 
     protected var
         ItemJnlLine: Record "Item Journal Line";
@@ -2729,65 +2826,10 @@ table 83 "Item Journal Line"
         OnAfterCopyItemJnlLineFromPurchLine(Rec, PurchLine);
     end;
 
-#if not CLEAN25
-    [Obsolete('Moved to table Service Header', '25.0')]
-    /// <summary>
-    /// Copies fields from the provided service header record to the current item journal line.
-    /// </summary>
-    /// <param name="ServiceHeader">Service header to copy from.</param>
-    procedure CopyFromServHeader(ServiceHeader: Record Microsoft.Service.Document."Service Header")
-    begin
-        ServiceHeader.CopyToItemJnlLine(Rec);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Moved to table Service Line', '25.0')]
-    /// <summary>
-    /// Copies fields from the provided service line record to the current item journal line.
-    /// </summary>
-    /// <param name="ServiceLine">Service line to copy from.</param>
-    procedure CopyFromServLine(ServiceLine: Record Microsoft.Service.Document."Service Line")
-    begin
-        ServiceLine.CopyToItemJnlLine(Rec);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Moved to table Service Shipment Header', '25.0')]
-    /// <summary>
-    /// Copies fields from the provided service shipment header record to the current item journal line.
-    /// </summary>
-    /// <param name="ServShptHeader">Service shipment header to copy from.</param>
-    procedure CopyFromServShptHeader(ServShptHeader: Record Microsoft.Service.History."Service Shipment Header")
-    begin
-        ServShptHeader.CopyToItemJnlLine(Rec);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Moved to table Service Shipment Line', '25.0')]
-    /// <summary>
-    /// Copies fields from the provided service shipment line record to the current item journal line.
-    /// </summary>
-    /// <param name="ServShptLine">Service shipment line to copy from.</param>
-    procedure CopyFromServShptLine(ServShptLine: Record Microsoft.Service.History."Service Shipment Line")
-    begin
-        ServShptLine.CopyToItemJnlLine(Rec);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Moved to table Service Shipment Line', '25.0')]
-    /// <summary>
-    /// Copies fields from the provided service shipment line record to the current item journal line.
-    /// </summary>
-    /// <param name="ServShptLine">Service shipment line to copy from.</param>
-    procedure CopyFromServShptLineUndo(ServShptLine: Record Microsoft.Service.History."Service Shipment Line")
-    begin
-        ServShptLine.CopyToItemJnlLineUndo(Rec);
-    end;
-#endif
 
     /// <summary>
     /// Copies fields from the provided job journal line record to the current item journal line.
@@ -2917,7 +2959,7 @@ table 83 "Item Journal Line"
         ValueEntry.Reset();
         ValueEntry.SetCurrentKey("Item Ledger Entry No.");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
-        if CostCalcMgt.CanIncNonInvCostIntoProductionItem() then begin
+        if CostCalcMgt.CanIncNonInvCostIntoProductionItem() or Item.IsNonInventoriableType() then begin
             ValueEntry.CalcSums("Cost Amount (Expected)", "Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)");
             UnitCost2 := (ValueEntry."Cost Amount (Expected)" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Non-Invtbl.)") / ItemLedgEntry.Quantity
         end else begin
@@ -3069,6 +3111,32 @@ table 83 "Item Journal Line"
             SourceCodeSetup.Get();
             exit("Source Code" = SourceCodeSetup.Sales);
         end;
+    end;
+
+    internal procedure IsSourceProductionJournal() Result: Boolean
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        if not (Rec."Entry Type" in [Rec."Entry Type"::Consumption, Rec."Entry Type"::Output]) then
+            exit;
+
+        SourceCodeSetup.SetLoadFields("Production Journal");
+        SourceCodeSetup.Get();
+
+        exit("Source Code" = SourceCodeSetup."Production Journal");
+    end;
+
+    internal procedure IsSourceCapacityJournal() Result: Boolean
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        if not (Rec."Entry Type" = Rec."Entry Type"::Output) then
+            exit;
+
+        SourceCodeSetup.SetLoadFields("Capacity Journal");
+        SourceCodeSetup.Get();
+
+        exit("Source Code" = SourceCodeSetup."Capacity Journal");
     end;
 
     /// <summary>
@@ -3900,6 +3968,9 @@ table 83 "Item Journal Line"
                 ItemJnlLine3.Get(ItemJnlLine2."Journal Template Name", ItemJnlLine2."Journal Batch Name", ItemJnlLine2."Line No.");
                 ItemJnlLine3."Document No." := DocNo;
                 ItemJnlLine3.Modify();
+
+                RestrictItemJournalBatch(ItemJnlLine3);
+
                 First := false;
                 LastItemJnlLine := ItemJnlLine2;
             until ItemJnlLine2.Next() = 0;
@@ -4077,6 +4148,27 @@ table 83 "Item Journal Line"
             Error(IncorrectQtyForSNErr);
     end;
 
+    local procedure PreventModifyRecIfOpenApprovalEntryExist()
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        if ItemJournalBatch.Get("Journal Template Name", "Journal Batch Name") then
+            ApprovalsMgmt.PreventModifyRecIfOpenApprovalEntryExist(ItemJournalBatch);
+    end;
+
+    local procedure RestrictItemJournalBatch(var ItemJournalLine: Record "Item Journal Line")
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        RecordRestrictionMgt: Codeunit "Record Restriction Mgt.";
+    begin
+        if ItemJournalLine.IsTemporary then
+            exit;
+
+        if ItemJournalBatch.Get(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name") then
+            if ApprovalsMgmt.IsItemJournalBatchApprovalsWorkflowEnabled(ItemJournalBatch) then
+                RecordRestrictionMgt.RestrictRecordUsage(ItemJournalBatch, RestrictBatchUsageDetailsTxt);
+    end;
+
     /// <summary>
     /// Gets the date required for item journal line calculations.
     /// </summary>
@@ -4215,71 +4307,6 @@ table 83 "Item Journal Line"
     local procedure OnAfterCopyItemJnlLineFromPurchLine(var ItemJnlLine: Record "Item Journal Line"; PurchLine: Record "Purchase Line")
     begin
     end;
-
-#if not CLEAN25
-    internal procedure RunOnAfterCopyItemJnlLineFromServHeader(var ItemJnlLine: Record "Item Journal Line"; ServHeader: Record Microsoft.Service.Document."Service Header")
-    begin
-        OnAfterCopyItemJnlLineFromServHeader(ItemJnlLine, ServHeader);
-    end;
-
-    [Obsolete('Replaced by event OnAfterCopyToItemJnlLine in table Service Header', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyItemJnlLineFromServHeader(var ItemJnlLine: Record "Item Journal Line"; ServHeader: Record Microsoft.Service.Document."Service Header")
-    begin
-    end;
-#endif
-
-#if not CLEAN25
-    internal procedure RunOnAfterCopyItemJnlLineFromServLine(var ItemJnlLine: Record "Item Journal Line"; ServLine: Record Microsoft.Service.Document."Service Line")
-    begin
-        OnAfterCopyItemJnlLineFromServLine(ItemJnlLine, ServLine);
-    end;
-
-    [Obsolete('Replaced by event OnAfterCopyToItemJnlLine in table Service Line', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyItemJnlLineFromServLine(var ItemJnlLine: Record "Item Journal Line"; ServLine: Record Microsoft.Service.Document."Service Line")
-    begin
-    end;
-#endif
-
-#if not CLEAN25
-    internal procedure RunOnAfterCopyItemJnlLineFromServShptHeader(var ItemJnlLine: Record "Item Journal Line"; ServShptHeader: Record Microsoft.Service.History."Service Shipment Header")
-    begin
-        OnAfterCopyItemJnlLineFromServShptHeader(ItemJnlLine, ServShptHeader);
-    end;
-
-    [Obsolete('Replaced by event OnAfterCopyToItemJnlLine in table Service Shipment Header', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyItemJnlLineFromServShptHeader(var ItemJnlLine: Record "Item Journal Line"; ServShptHeader: Record Microsoft.Service.History."Service Shipment Header")
-    begin
-    end;
-#endif
-
-#if not CLEAN25
-    internal procedure RunOnAfterCopyItemJnlLineFromServShptLine(var ItemJnlLine: Record "Item Journal Line"; ServShptLine: Record Microsoft.Service.History."Service Shipment Line")
-    begin
-        OnAfterCopyItemJnlLineFromServShptLine(ItemJnlLine, ServShptLine);
-    end;
-
-    [Obsolete('Replaced by event OnAfterCopyToItemJnlLine in table Service Shipment Line', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyItemJnlLineFromServShptLine(var ItemJnlLine: Record "Item Journal Line"; ServShptLine: Record Microsoft.Service.History."Service Shipment Line")
-    begin
-    end;
-#endif
-
-#if not CLEAN25
-    internal procedure RunOnAfterCopyItemJnlLineFromServShptLineUndo(var ItemJnlLine: Record "Item Journal Line"; ServShptLine: Record Microsoft.Service.History."Service Shipment Line")
-    begin
-        OnAfterCopyItemJnlLineFromServShptLineUndo(ItemJnlLine, ServShptLine);
-    end;
-
-    [Obsolete('Replaced by event OnAfterCopyToItemJnlLineUndo in table Service Shipment Line', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyItemJnlLineFromServShptLineUndo(var ItemJnlLine: Record "Item Journal Line"; ServShptLine: Record Microsoft.Service.History."Service Shipment Line")
-    begin
-    end;
-#endif
 
     /// <summary>
     /// Event triggered after copying data from the "Job Journal Line" to the current record.
@@ -5027,18 +5054,6 @@ table 83 "Item Journal Line"
     begin
     end;
 
-#if not CLEAN25
-    internal procedure RunOnBeforeCopyItemJnlLineFromServLine(var ItemJournalLine: Record "Item Journal Line"; ServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
-    begin
-        OnBeforeCopyItemJnlLineFromServLine(ItemJournalLine, ServiceLine, IsHandled);
-    end;
-
-    [Obsolete('Replaced by event OnBeforeCopyToItemJnlLine in table Service Line', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCopyItemJnlLineFromServLine(var ItemJournalLine: Record "Item Journal Line"; ServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckItemTracking(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
@@ -5271,20 +5286,19 @@ table 83 "Item Journal Line"
     local procedure OnAfterValidateNewShortcutDimCode(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; FieldNumber: Integer; var NewShortcutDimCode: Code[20])
     begin
     end;
-    
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeOpenItemTrackingLines(var ItemJournalLine: Record "Item Journal Line"; IsReclass: Boolean)
-    begin
-    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateDimOnTransferOtherTableId(var ItemJournalLine: Record "Item Journal Line"; TableId: Integer)
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnCreateNewDimOnBeforeUpdateGlobalDimFromDimSetID(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenItemTrackingLines(var ItemJournalLine: Record "Item Journal Line"; IsReclass: Boolean)
     begin
     end;
 

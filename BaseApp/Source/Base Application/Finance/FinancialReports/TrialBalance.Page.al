@@ -7,6 +7,15 @@ namespace Microsoft.Finance.FinancialReports;
 using Microsoft.Foundation.Period;
 using System.Environment;
 
+/// <summary>
+/// Provides interactive trial balance interface with period-based analysis and drill-down capabilities.
+/// Displays general ledger account balances with period-over-period comparison and trend analysis.
+/// </summary>
+/// <remarks>
+/// Card part page designed for embedding in trial balance analysis forms. Supports configurable
+/// period types, interactive drilling into account details, and balance verification workflows.
+/// Integrates with general ledger posting for real-time balance updates and reconciliation.
+/// </remarks>
 page 1393 "Trial Balance"
 {
     Caption = 'Trial Balance';
@@ -115,6 +124,8 @@ page 1393 "Trial Balance"
                     field(CurrentPeriodValues1; Values[1, 1])
                     {
                         ApplicationArea = Basic, Suite;
+                        AutoFormatType = 2;
+                        AutoFormatExpression = '';
                         BlankZero = true;
                         CaptionClass = GetCaptionForDrillDownTooltip(Descriptions[1], PeriodCaptionTxt[1]);
                         ShowCaption = false;
@@ -127,6 +138,8 @@ page 1393 "Trial Balance"
                     field(CurrentPeriodValues2; Values[2, 1])
                     {
                         ApplicationArea = Basic, Suite;
+                        AutoFormatType = 2;
+                        AutoFormatExpression = '';
                         BlankZero = true;
                         CaptionClass = GetCaptionForDrillDownTooltip(Descriptions[2], PeriodCaptionTxt[1]);
                         ShowCaption = false;
@@ -139,6 +152,8 @@ page 1393 "Trial Balance"
                     field(CurrentPeriodValues3; Values[3, 1])
                     {
                         ApplicationArea = Basic, Suite;
+                        AutoFormatType = 2;
+                        AutoFormatExpression = '';
                         BlankZero = true;
                         CaptionClass = GetCaptionForDrillDownTooltip(Descriptions[3], PeriodCaptionTxt[1]);
                         ShowCaption = false;
@@ -151,6 +166,8 @@ page 1393 "Trial Balance"
                     field(CurrentPeriodValues4; Values[4, 1])
                     {
                         ApplicationArea = Basic, Suite;
+                        AutoFormatType = 2;
+                        AutoFormatExpression = '';
                         BlankZero = true;
                         CaptionClass = GetCaptionForDrillDownTooltip(Descriptions[4], PeriodCaptionTxt[1]);
                         ShowCaption = false;
@@ -164,6 +181,8 @@ page 1393 "Trial Balance"
                     field(CurrentPeriodValues5; Values[5, 1])
                     {
                         ApplicationArea = Basic, Suite;
+                        AutoFormatType = 2;
+                        AutoFormatExpression = '';
                         BlankZero = true;
                         CaptionClass = GetCaptionForDrillDownTooltip(Descriptions[5], PeriodCaptionTxt[1]);
                         ShowCaption = false;
@@ -176,6 +195,8 @@ page 1393 "Trial Balance"
                     field(CurrentPeriodValues6; Values[6, 1])
                     {
                         ApplicationArea = Basic, Suite;
+                        AutoFormatType = 2;
+                        AutoFormatExpression = '';
                         BlankZero = true;
                         CaptionClass = GetCaptionForDrillDownTooltip(Descriptions[6], PeriodCaptionTxt[1]);
                         ShowCaption = false;
@@ -188,6 +209,8 @@ page 1393 "Trial Balance"
                     field(CurrentPeriodValues7; Values[7, 1])
                     {
                         ApplicationArea = Basic, Suite;
+                        AutoFormatType = 2;
+                        AutoFormatExpression = '';
                         BlankZero = true;
                         CaptionClass = GetCaptionForDrillDownTooltip(Descriptions[7], PeriodCaptionTxt[1]);
                         ShowCaption = false;
@@ -201,6 +224,8 @@ page 1393 "Trial Balance"
                     field(CurrentPeriodValues8; Values[8, 1])
                     {
                         ApplicationArea = Basic, Suite;
+                        AutoFormatType = 2;
+                        AutoFormatExpression = '';
                         BlankZero = true;
                         CaptionClass = GetCaptionForDrillDownTooltip(Descriptions[8], PeriodCaptionTxt[1]);
                         ShowCaption = false;
@@ -213,6 +238,8 @@ page 1393 "Trial Balance"
                     field(CurrentPeriodValues9; Values[9, 1])
                     {
                         ApplicationArea = Basic, Suite;
+                        AutoFormatType = 2;
+                        AutoFormatExpression = '';
                         BlankZero = true;
                         CaptionClass = GetCaptionForDrillDownTooltip(Descriptions[9], PeriodCaptionTxt[1]);
                         ShowCaption = false;
@@ -238,6 +265,8 @@ page 1393 "Trial Balance"
                     field(CurrentPeriodMinusOneValues1; Values[1, 2])
                     {
                         ApplicationArea = All;
+                        AutoFormatType = 2;
+                        AutoFormatExpression = '';
                         BlankZero = true;
                         CaptionClass = GetCaptionForDrillDownTooltip(Descriptions[1], PeriodCaptionTxt[2]);
                         ShowCaption = false;
@@ -250,6 +279,8 @@ page 1393 "Trial Balance"
                     field(CurrentPeriodMinusOneValues2; Values[2, 2])
                     {
                         ApplicationArea = All;
+                        AutoFormatType = 2;
+                        AutoFormatExpression = '';
                         BlankZero = true;
                         CaptionClass = GetCaptionForDrillDownTooltip(Descriptions[2], PeriodCaptionTxt[2]);
                         ShowCaption = false;
@@ -262,6 +293,8 @@ page 1393 "Trial Balance"
                     field(CurrentPeriodMinusOneValues3; Values[3, 2])
                     {
                         ApplicationArea = All;
+                        AutoFormatType = 2;
+                        AutoFormatExpression = '';
                         BlankZero = true;
                         CaptionClass = GetCaptionForDrillDownTooltip(Descriptions[3], PeriodCaptionTxt[2]);
                         ShowCaption = false;
@@ -274,6 +307,8 @@ page 1393 "Trial Balance"
                     field(CurrentPeriodMinusOneValues4; Values[4, 2])
                     {
                         ApplicationArea = All;
+                        AutoFormatType = 2;
+                        AutoFormatExpression = '';
                         BlankZero = true;
                         CaptionClass = GetCaptionForDrillDownTooltip(Descriptions[4], PeriodCaptionTxt[2]);
                         ShowCaption = false;
@@ -287,6 +322,8 @@ page 1393 "Trial Balance"
                     field(CurrentPeriodMinusOneValues5; Values[5, 2])
                     {
                         ApplicationArea = All;
+                        AutoFormatType = 2;
+                        AutoFormatExpression = '';
                         BlankZero = true;
                         CaptionClass = GetCaptionForDrillDownTooltip(Descriptions[5], PeriodCaptionTxt[2]);
                         ShowCaption = false;
@@ -299,6 +336,8 @@ page 1393 "Trial Balance"
                     field(CurrentPeriodMinusOneValues6; Values[6, 2])
                     {
                         ApplicationArea = All;
+                        AutoFormatType = 2;
+                        AutoFormatExpression = '';
                         BlankZero = true;
                         CaptionClass = GetCaptionForDrillDownTooltip(Descriptions[6], PeriodCaptionTxt[2]);
                         ShowCaption = false;
@@ -311,6 +350,8 @@ page 1393 "Trial Balance"
                     field(CurrentPeriodMinusOneValues7; Values[7, 2])
                     {
                         ApplicationArea = All;
+                        AutoFormatType = 2;
+                        AutoFormatExpression = '';
                         BlankZero = true;
                         CaptionClass = GetCaptionForDrillDownTooltip(Descriptions[7], PeriodCaptionTxt[2]);
                         ShowCaption = false;
@@ -324,6 +365,8 @@ page 1393 "Trial Balance"
                     field(CurrentPeriodMinusOneValues8; Values[8, 2])
                     {
                         ApplicationArea = All;
+                        AutoFormatType = 2;
+                        AutoFormatExpression = '';
                         BlankZero = true;
                         CaptionClass = GetCaptionForDrillDownTooltip(Descriptions[8], PeriodCaptionTxt[2]);
                         ShowCaption = false;
@@ -336,6 +379,8 @@ page 1393 "Trial Balance"
                     field(CurrentPeriodMinusOneValues9; Values[9, 2])
                     {
                         ApplicationArea = All;
+                        AutoFormatType = 2;
+                        AutoFormatExpression = '';
                         BlankZero = true;
                         CaptionClass = GetCaptionForDrillDownTooltip(Descriptions[9], PeriodCaptionTxt[2]);
                         ShowCaption = false;

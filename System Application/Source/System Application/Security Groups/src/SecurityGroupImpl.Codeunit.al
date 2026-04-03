@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Security.AccessControl;
+
 using System;
 using System.Azure.Identity;
 using System.Telemetry;

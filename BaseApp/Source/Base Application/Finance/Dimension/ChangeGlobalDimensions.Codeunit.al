@@ -5,7 +5,9 @@
 namespace Microsoft.Finance.Dimension;
 
 using Microsoft.Assembly.History;
+using Microsoft.Bank.Deposit;
 using Microsoft.Bank.Ledger;
+using Microsoft.Bank.Reconciliation;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Ledger;
@@ -32,9 +34,16 @@ using System.Automation;
 using System.Environment;
 using System.Reflection;
 using System.Utilities;
-using Microsoft.Bank.Reconciliation;
-using Microsoft.Bank.Deposit;
 
+/// <summary>
+/// Manages the process of changing global dimension assignments across all business data and ledger entries.
+/// Provides comprehensive dimension restructuring with batch processing, parallel execution, and extensive validation.
+/// </summary>
+/// <remarks>
+/// Supports sequential and parallel processing modes for large-scale dimension changes.
+/// Includes table dependency analysis, session management, and rollback capabilities for dimension restructuring operations.
+/// Integrates with Change Global Dim. Header and Log Entry tables for process tracking and error handling.
+/// </remarks>
 codeunit 483 "Change Global Dimensions"
 {
     Permissions = TableData "G/L Entry" = rm,
@@ -71,7 +80,7 @@ codeunit 483 "Change Global Dimensions"
                   TableData "Job WIP G/L Entry" = rm,
                   TableData "Employee Ledger Entry" = rm,
                   TableData "Detailed Employee Ledger Entry" = rm,
-#if not CLEAN26
+#if not CLEAN28
                   TableData Microsoft.Manufacturing.Document."Production Order" = rm,
                   TableData Microsoft.Manufacturing.Document."Prod. Order Line" = rm,
                   TableData Microsoft.Manufacturing.Document."Prod. Order Component" = rm,
@@ -93,7 +102,7 @@ codeunit 483 "Change Global Dimensions"
                   TableData "Ins. Coverage Ledger Entry" = rm,
                   TableData "Value Entry" = rm,
                   TableData Microsoft.Manufacturing.Capacity."Capacity Ledger Entry" = rm,
-#if not CLEAN25
+#if not CLEAN28
                   TableData Microsoft.Service.Document."Service Header" = rm,
                   TableData Microsoft.Service.Document."Service Item Line" = rm,
                   TableData Microsoft.Service.Document."Service Line" = rm,
@@ -153,6 +162,10 @@ codeunit 483 "Change Global Dimensions"
         SessionListActionTxt: Label 'Session List';
         SessionUpdateRequiredMsg: Label 'All records were successfully updated. To apply the updates, close the General Ledger Setup page.';
 
+    /// <summary>
+    /// Resets the global dimension change state if all dimension change operations have been completed.
+    /// Verifies completion status and initiates state reset automatically when all tables are processed.
+    /// </summary>
     procedure ResetIfAllCompleted()
     begin
         ChangeGlobalDimLogMgt.FillBuffer();
@@ -166,6 +179,10 @@ codeunit 483 "Change Global Dimensions"
         exit(100);
     end;
 
+    /// <summary>
+    /// Prepares the global dimension change operation by initializing tables and validating configuration.
+    /// Sets up the dimension change environment with table analysis and dependency mapping.
+    /// </summary>
     procedure Prepare()
     begin
         ChangeGlobalDimHeader.Get();
@@ -207,6 +224,10 @@ codeunit 483 "Change Global Dimensions"
         ResetIfAllCompleted();
     end;
 
+    /// <summary>
+    /// Removes the global dimension change header and all associated log entries.
+    /// Cleans up dimension change configuration data after completion or cancellation.
+    /// </summary>
     procedure RemoveHeader()
     var
         ChangeGlobalDimHeader: Record "Change Global Dim. Header";
@@ -216,6 +237,10 @@ codeunit 483 "Change Global Dimensions"
             ChangeGlobalDimHeader.DeleteAll();
     end;
 
+    /// <summary>
+    /// Resets the global dimension change state by clearing all log entries and cached data.
+    /// Initializes the system for a new dimension change operation or after completion.
+    /// </summary>
     procedure ResetState()
     var
         ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry";
@@ -226,6 +251,11 @@ codeunit 483 "Change Global Dimensions"
         RefreshHeader();
     end;
 
+    /// <summary>
+    /// Reruns failed dimension change operations for specified log entries.
+    /// Reprocesses table updates that encountered errors during the initial dimension change operation.
+    /// </summary>
+    /// <param name="ChangeGlobalDimLogEntry">Log entry record to reprocess for dimension changes</param>
     procedure Rerun(var ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry")
     begin
         ChangeGlobalDimLogEntry.LockTable();
@@ -242,6 +272,10 @@ codeunit 483 "Change Global Dimensions"
         Completed := ChangeDimsOnTable(ChangeGlobalDimLogEntry);
     end;
 
+    /// <summary>
+    /// Initiates the global dimension change process using the configured processing mode.
+    /// Starts dimension change operations with either parallel or sequential processing based on configuration.
+    /// </summary>
     procedure Start()
     begin
         ChangeGlobalDimHeader.Get();
@@ -254,6 +288,10 @@ codeunit 483 "Change Global Dimensions"
         end;
     end;
 
+    /// <summary>
+    /// Initiates global dimension change processing in sequential mode with progress tracking.
+    /// Executes dimension changes table by table without parallel processing for controlled execution.
+    /// </summary>
     procedure StartSequential()
     begin
         ChangeGlobalDimHeader.Get();
@@ -291,6 +329,10 @@ codeunit 483 "Change Global Dimensions"
             until ChangeGlobalDimLogEntry.Next() = 0;
     end;
 
+    /// <summary>
+    /// Fills the internal buffer with dimension change log entries for processing coordination.
+    /// Populates buffer data structures used for progress tracking and parallel processing management.
+    /// </summary>
     procedure FillBuffer()
     begin
         ChangeGlobalDimLogMgt.FillBuffer();
@@ -330,6 +372,12 @@ codeunit 483 "Change Global Dimensions"
         end;
     end;
 
+    /// <summary>
+    /// Finds tables available for scheduling in parallel processing mode.
+    /// Identifies root tables with records requiring dimension updates for job queue scheduling.
+    /// </summary>
+    /// <param name="ChangeGlobalDimLogEntry">Record to populate with tables available for scheduling</param>
+    /// <returns>True if tables are found for scheduling, false otherwise</returns>
     procedure FindTablesForScheduling(var ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"): Boolean
     begin
         ChangeGlobalDimLogEntry.SetRange("Parent Table ID", 0);
@@ -433,6 +481,13 @@ codeunit 483 "Change Global Dimensions"
         RecRef.Close();
     end;
 
+    /// <summary>
+    /// Retrieves the record number for a dependent table at the specified index.
+    /// Returns the record number from the internal tracking collection for dependency management.
+    /// </summary>
+    /// <param name="TableId">Table identifier for the dependent table</param>
+    /// <param name="Index">Index position in the dependent record list</param>
+    /// <returns>Record number at the specified index position</returns>
     local procedure GetDependentRecNo(TableId: Integer; Index: Integer) RecNo: Integer;
     var
         RecNoList: List of [Integer];
@@ -613,11 +668,22 @@ codeunit 483 "Change Global Dimensions"
         exit(ActiveSession.IsEmpty);
     end;
 
+    /// <summary>
+    /// Determines if dimension code configuration is enabled for modification.
+    /// Checks buffer state to allow dimension code changes when no operations are in progress.
+    /// </summary>
+    /// <returns>True if dimension codes can be modified, false if operations are in progress</returns>
     procedure IsDimCodeEnabled(): Boolean
     begin
         exit(ChangeGlobalDimLogMgt.IsBufferClear());
     end;
 
+    /// <summary>
+    /// Determines if the preparation phase can be initiated for dimension changes.
+    /// Validates configuration and system state to enable dimension change preparation.
+    /// </summary>
+    /// <param name="ChangeGlobalDimHeader">Header record containing dimension change configuration</param>
+    /// <returns>True if preparation can proceed, false if prerequisites are not met</returns>
     procedure IsPrepareEnabled(var ChangeGlobalDimHeader: Record "Change Global Dim. Header"): Boolean
     begin
         exit(
@@ -625,6 +691,11 @@ codeunit 483 "Change Global Dimensions"
               ChangeGlobalDimLogMgt.IsBufferClear());
     end;
 
+    /// <summary>
+    /// Determines if the dimension change process can be started.
+    /// Validates that preparation is complete and no processing is currently active.
+    /// </summary>
+    /// <returns>True if dimension change can be started, false if prerequisites are not met</returns>
     procedure IsStartEnabled(): Boolean
     begin
         if ChangeGlobalDimLogMgt.IsBufferClear() then
@@ -632,6 +703,10 @@ codeunit 483 "Change Global Dimensions"
         exit(not ChangeGlobalDimLogMgt.IsStarted());
     end;
 
+    /// <summary>
+    /// Refreshes the global dimension change header with current status and progress information.
+    /// Updates header record with latest processing state and statistical data.
+    /// </summary>
     procedure RefreshHeader()
     begin
         if ChangeGlobalDimHeader.Get() then begin
@@ -643,6 +718,11 @@ codeunit 483 "Change Global Dimensions"
         end
     end;
 
+    /// <summary>
+    /// Configures parallel processing mode for global dimension changes.
+    /// Enables or disables parallel execution based on system capacity and processing requirements.
+    /// </summary>
+    /// <param name="NewParallelProcessing">True to enable parallel processing, false for sequential processing</param>
     procedure SetParallelProcessing(NewParallelProcessing: Boolean)
     begin
         ChangeGlobalDimHeader.Get();
@@ -650,6 +730,11 @@ codeunit 483 "Change Global Dimensions"
         ChangeGlobalDimHeader.Modify();
     end;
 
+    /// <summary>
+    /// Initializes the table list for dimension change operations with dependency analysis.
+    /// Builds comprehensive list of tables requiring dimension updates with parent-child relationships.
+    /// </summary>
+    /// <returns>True if table list initialization succeeded, false if no tables require processing</returns>
     procedure InitTableList(): Boolean
     var
         ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry";
@@ -764,6 +849,11 @@ codeunit 483 "Change Global Dimensions"
         end;
     end;
 
+    /// <summary>
+    /// Gets the unique identifier for close sessions notification management.
+    /// Returns consistent notification ID for session closure messaging during dimension changes.
+    /// </summary>
+    /// <param name="Id">Notification identifier for close sessions notification</param>
     procedure GetCloseSessionsNotificationID() Id: Guid
     begin
         Evaluate(Id, CloseSessionNotificationTok);
@@ -791,21 +881,43 @@ codeunit 483 "Change Global Dimensions"
         Session.LogMessage('00001ZE', TraceTagMessage, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TagCategoryTxt);
     end;
 
+    /// <summary>
+    /// Displays the active sessions list for review during dimension change operations.
+    /// Shows current active sessions that may interfere with dimension change processing.
+    /// </summary>
+    /// <param name="BlockNotification">Notification object triggering the session display</param>
     procedure ShowActiveSessions(BlockNotification: Notification)
     begin
         PAGE.Run(PAGE::"Concurrent Session List");
     end;
 
+    /// <summary>
+    /// Integration event raised after building the object list for dimension change operations.
+    /// Enables customization of table list used for dimension processing.
+    /// </summary>
+    /// <param name="TempAllObjWithCaption">Temporary record containing objects for dimension processing</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetObjectNoList(var TempAllObjWithCaption: Record AllObjWithCaption temporary)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised when counting active sessions during dimension change operations.
+    /// Enables custom logic for determining if only current session is active.
+    /// </summary>
+    /// <param name="IsCurrSessionActiveOnly">Set to true if only current session should be considered active</param>
     [IntegrationEvent(false, false)]
     local procedure OnCountingActiveSessions(var IsCurrSessionActiveOnly: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before scheduling task for parallel dimension change processing.
+    /// Enables custom control over task scheduling and task identification.
+    /// </summary>
+    /// <param name="TableNo">Table number for which task is being scheduled</param>
+    /// <param name="DoNotScheduleTask">Set to true to prevent scheduling of this task</param>
+    /// <param name="TaskID">Task identifier for the scheduled dimension change operation</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeScheduleTask(TableNo: Integer; var DoNotScheduleTask: Boolean; var TaskID: Guid)
     begin
@@ -836,21 +948,47 @@ codeunit 483 "Change Global Dimensions"
         end;
     end;
 
+    /// <summary>
+    /// Integration event raised before testing direct modify permission on table records.
+    /// Enables custom permission checking logic for dimension change operations.
+    /// </summary>
+    /// <param name="RecRef">Record reference for permission testing</param>
+    /// <param name="IsHandled">Set to true to bypass standard permission checking</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestDirectModifyPermission(var RecRef: RecordRef; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised when changing dependent records during dimension update operations.
+    /// Enables custom processing of dependent table records during dimension changes.
+    /// </summary>
+    /// <param name="ChangeGlobalDimLogEntry">Log entry containing dimension change context</param>
+    /// <param name="RecRef">Record reference for dependent record processing</param>
+    /// <param name="IsHandled">Set to true to bypass standard dependent record processing</param>
     [IntegrationEvent(false, false)]
     local procedure OnChangeDependentRecords(ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; var RecRef: RecordRef; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised when changing dimensions on individual records.
+    /// Enables custom dimension update logic for specific record types during dimension changes.
+    /// </summary>
+    /// <param name="ChangeGlobalDimLogEntry">Log entry containing dimension change context</param>
+    /// <param name="RecRef">Record reference for dimension updates</param>
+    /// <param name="IsHandled">Set to true to bypass standard dimension change processing</param>
+    /// <param name="Success">Set to indicate success or failure of custom dimension processing</param>
     [IntegrationEvent(false, false)]
     local procedure OnChangeDimsOnRecord(ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; var RecRef: RecordRef; var IsHandled: Boolean; var Success: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after filling table data for dimension change operations.
+    /// Enables post-processing of table data after initial dimension change setup.
+    /// </summary>
+    /// <param name="ChangeGlobalDimLogEntry">Log entry record after table data initialization</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillTableData(var ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry")
     begin
@@ -871,4 +1009,3 @@ codeunit 483 "Change Global Dimensions"
     begin
     end;
 }
-

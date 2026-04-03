@@ -2,7 +2,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-#if not CLEAN25
 namespace Microsoft.Sales.Pricing;
 
 using Microsoft.Foundation.Company;
@@ -15,9 +14,6 @@ report 10159 "Sales Promotion"
     RDLCLayout = './Local/Sales/Pricing/SalesPromotion.rdlc';
     Caption = 'Sales Promotion';
     UsageCategory = ReportsAndAnalysis;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by the Sales Promotion V16.';
-    ObsoleteTag = '19.0';
 
     dataset
     {
@@ -190,4 +186,3 @@ report 10159 "Sales Promotion"
         Item__Unit_Price_CaptionLbl: Label 'List Price';
         Sales_Price__Unit_Price_CaptionLbl: Label 'Sale Price';
 }
-#endif

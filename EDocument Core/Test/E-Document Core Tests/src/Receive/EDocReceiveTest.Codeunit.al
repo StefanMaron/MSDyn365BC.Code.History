@@ -1,3 +1,29 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.eServices.EDocument.Test;
+
+using Microsoft.eServices.EDocument;
+using Microsoft.eServices.EDocument.Integration;
+using Microsoft.eServices.EDocument.IO.Peppol;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Attachment;
+using Microsoft.Foundation.Enums;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Setup;
+using Microsoft.Purchases.Vendor;
+using System.Environment;
+using System.IO;
+using System.Reflection;
+using System.TestLibraries.Utilities;
+using System.Utilities;
+
 codeunit 139628 "E-Doc. Receive Test"
 {
     Subtype = Test;
@@ -29,6 +55,11 @@ codeunit 139628 "E-Doc. Receive Test"
         NullGuid: Guid;
         GetBasicInfoErr: Label 'Test Get Basic Info From Received Document Error.', Locked = true;
         GetCompleteInfoErr: Label 'Test Get Complete Info From Received Document Error.', Locked = true;
+        IncorrectValueErr: Label 'Incorrect number of E-Document returned.';
+        SelfBillingVendorErr: Label 'Inbound E-Document blocked for vendor %1 due to Self-Billing Agreement. Supplier-issued invoices cannot be processed for this vendor.', Comment = '%1 Vendor name (e.g. London Postmaster)';
+        VATRegistrationLbl: Label 'GB123456789';
+        ImportDataExchDefLbl: Label 'EDOCPEPPOLINVIMP';
+        EndpointPathLbl: label '/Invoice/cac:AccountingSupplierParty/cac:Party/cbc:EndpointID';
 
     [Test]
     procedure ReceiveSinglePurchaseInvoice()
@@ -113,6 +144,8 @@ codeunit 139628 "E-Doc. Receive Test"
     procedure ReceiveSinglePurchaseInvoice_PEPPOL_WithAttachment()
     var
         EDocService: Record "E-Document Service";
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
         Item: Record Item;
         ItemReference: Record "Item Reference";
         DocumentAttachment: Record "Document Attachment";
@@ -134,6 +167,12 @@ codeunit 139628 "E-Doc. Receive Test"
         LibraryPurchase.CreateVendorWithVATRegNo(Vendor);
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, Enum::"Tax Calculation Type"::"Normal VAT", 1);
 
+        UnitOfMeasure.Code := 'PCS';
+        UnitOfMeasure.Description := 'Test';
+        UnitOfMeasure."International Standard Code" := 'PCS';
+        if not UnitOfMeasure.Insert() then
+            UnitOfMeasure.Get('PCS');
+
         // Setup correct vendor VAT and Item Ref to process document
         Vendor."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         Vendor."VAT Registration No." := 'GB123456789';
@@ -141,17 +180,29 @@ codeunit 139628 "E-Doc. Receive Test"
         Vendor."Country/Region Code" := CountryRegion.Code;
         Vendor.Modify();
         Item.FindFirst();
+        Item."Base Unit of Measure" := UnitOfMeasure.Code;
+        Item."Purch. Unit of Measure" := UnitOfMeasure.Code;
         Item."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         Item.Modify();
+
+        ItemUnitOfMeasure."Item No." := Item."No.";
+        ItemUnitOfMeasure.Code := UnitOfMeasure.Code;
+        ItemUnitOfMeasure."Qty. per Unit of Measure" := 1;
+        if ItemUnitOfMeasure.Insert() then;
+
         ItemReference.DeleteAll();
+        ItemReference."Reference Type" := ItemReference."Reference Type"::Vendor;
+        ItemReference."Reference Type No." := Vendor."No.";
         ItemReference."Item No." := Item."No.";
-        ItemReference."Reference No." := '1000';
+        ItemReference."Reference No." := '1000'; // FROM XML
         ItemReference.Insert();
 
         TempXMLBuffer.LoadFromText(EDocReceiveFiles.GetDocument1());
         TempXMLBuffer.Reset();
         TempXMLBuffer.SetRange(Type, TempXMLBuffer.Type::Element);
+#pragma warning disable AA0210
         TempXMLBuffer.SetRange(Path, '/Invoice/cac:AccountingSupplierParty/cac:Party/cbc:EndpointID');
+#pragma warning restore AA0210
         TempXMLBuffer.FindFirst();
         TempXMLBuffer.Value := Vendor."VAT Registration No.";
         TempXMLBuffer.Modify();
@@ -172,7 +223,7 @@ codeunit 139628 "E-Doc. Receive Test"
         EDocService."Document Format" := "E-Document Format"::"PEPPOL BIS 3.0";
         EDocService."Lookup Account Mapping" := false;
         EDocService."Lookup Item GTIN" := false;
-        EDocService."Lookup Item Reference" := false;
+        EDocService."Lookup Item Reference" := true;
         EDocService."Resolve Unit Of Measure" := false;
         EDocService."Validate Line Discount" := false;
         EDocService."Verify Totals" := false;
@@ -212,6 +263,9 @@ codeunit 139628 "E-Doc. Receive Test"
     var
         EDocService: Record "E-Document Service";
         Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
         ItemReference: Record "Item Reference";
         DocumentAttachment: Record "Document Attachment";
         EDocServiceDataExchDef: Record "E-Doc. Service Data Exch. Def.";
@@ -229,22 +283,43 @@ codeunit 139628 "E-Doc. Receive Test"
 
         // [GIVEN] e-Document service to receive one single purchase invoice
         LibraryEDoc.CreateTestReceiveServiceForEDoc(EDocService, Enum::"Service Integration"::"Mock");
-        LibraryPurchase.CreateVendorWithVATRegNo(Vendor);
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, Enum::"Tax Calculation Type"::"Normal VAT", 1);
+        Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        Item.Get(LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
 
         // Setup correct vendor VAT and Item Ref to process document
         Vendor."VAT Registration No." := 'GB123456789';
         Vendor."Receive E-Document To" := Enum::"E-Document Type"::"Purchase Invoice";
+        Vendor."Country/Region Code" := CountryRegion.Code;
         Vendor.Modify();
-        Item.FindFirst();
+
+        UnitOfMeasure.Code := 'PCS';
+        UnitOfMeasure.Description := 'Test';
+        UnitOfMeasure."International Standard Code" := 'PCS';
+        if not UnitOfMeasure.Insert() then
+            UnitOfMeasure.Get('PCS');
+
+        ItemUnitOfMeasure."Item No." := Item."No.";
+        ItemUnitOfMeasure.Code := UnitOfMeasure.Code;
+        ItemUnitOfMeasure."Qty. per Unit of Measure" := 1;
+        if ItemUnitOfMeasure.Insert() then;
+
+        // Setup correct vendor VAT and Item Ref to process document
         ItemReference.DeleteAll();
         ItemReference."Item No." := Item."No.";
+        ItemReference."Reference Type" := ItemReference."Reference Type"::Vendor;
+        ItemReference."Reference Type No." := Vendor."No.";
         ItemReference."Reference No." := '1000';
         ItemReference.Insert();
+
+        Item."Base Unit of Measure" := UnitOfMeasure.Code;
+        Item."Purch. Unit of Measure" := UnitOfMeasure.Code;
+        Item.Modify();
 
         EDocService."Document Format" := "E-Document Format"::"Data Exchange";
         EDocService."Lookup Account Mapping" := false;
         EDocService."Lookup Item GTIN" := false;
-        EDocService."Lookup Item Reference" := false;
+        EDocService."Lookup Item Reference" := true;
         EDocService."Resolve Unit Of Measure" := false;
         EDocService."Validate Line Discount" := false;
         EDocService."Verify Totals" := false;
@@ -260,7 +335,9 @@ codeunit 139628 "E-Doc. Receive Test"
         TempXMLBuffer.LoadFromText(EDocReceiveFiles.GetDocument1());
         TempXMLBuffer.Reset();
         TempXMLBuffer.SetRange(Type, TempXMLBuffer.Type::Element);
+#pragma warning disable AA0210
         TempXMLBuffer.SetRange(Path, '/Invoice/cac:AccountingSupplierParty/cac:Party/cbc:EndpointID');
+#pragma warning restore AA0210
         TempXMLBuffer.FindFirst();
         TempXMLBuffer.Value := Vendor."VAT Registration No.";
         TempXMLBuffer.Modify();
@@ -315,6 +392,8 @@ codeunit 139628 "E-Doc. Receive Test"
         EDocService: Record "E-Document Service";
         EDocument: Record "E-Document";
         Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
         ItemReference: Record "Item Reference";
         DocumentAttachment: Record "Document Attachment";
         TempXMLBuffer: Record "XML Buffer" temporary;
@@ -332,27 +411,45 @@ codeunit 139628 "E-Doc. Receive Test"
 
         // [GIVEN] e-Document service to receive one single purchase invoice
         LibraryEDoc.CreateTestReceiveServiceForEDoc(EDocService, Enum::"Service Integration"::"Mock");
-        LibraryPurchase.CreateVendorWithVATRegNo(Vendor);
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, Enum::"Tax Calculation Type"::"Normal VAT", 1);
+        Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        Item.Get(LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
+
+        UnitOfMeasure.Code := 'PCS';
+        UnitOfMeasure.Description := 'Test';
+        UnitOfMeasure."International Standard Code" := 'PCS';
+        if not UnitOfMeasure.Insert() then
+            UnitOfMeasure.Get('PCS');
+
+        ItemUnitOfMeasure."Item No." := Item."No.";
+        ItemUnitOfMeasure.Code := UnitOfMeasure.Code;
+        ItemUnitOfMeasure."Qty. per Unit of Measure" := 1;
+        if ItemUnitOfMeasure.Insert() then;
 
         // Setup correct vendor VAT and Item Ref to process document
-        Vendor."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+        ItemReference.DeleteAll();
+        ItemReference."Item No." := Item."No.";
+        ItemReference."Reference Type" := ItemReference."Reference Type"::Vendor;
+        ItemReference."Reference Type No." := Vendor."No.";
+        ItemReference."Reference No." := '1000';
+        ItemReference.Insert();
+
+        Item."Base Unit of Measure" := UnitOfMeasure.Code;
+        Item."Purch. Unit of Measure" := UnitOfMeasure.Code;
+        Item.Modify();
+
+        // Setup correct vendor VAT and Item Ref to process document
         Vendor."VAT Registration No." := 'GB123456789';
         Vendor."Receive E-Document To" := Enum::"E-Document Type"::"Purchase Order";
         Vendor."Country/Region Code" := CountryRegion.Code;
         Vendor.Modify();
-        Item.FindFirst();
-        Item."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
-        Item.Modify();
-        ItemReference.DeleteAll();
-        ItemReference."Item No." := Item."No.";
-        ItemReference."Reference No." := '1000';
-        ItemReference.Insert();
 
         TempXMLBuffer.LoadFromText(EDocReceiveFiles.GetDocument1());
         TempXMLBuffer.Reset();
         TempXMLBuffer.SetRange(Type, TempXMLBuffer.Type::Element);
+#pragma warning disable AA0210
         TempXMLBuffer.SetRange(Path, '/Invoice/cac:AccountingSupplierParty/cac:Party/cbc:EndpointID');
+#pragma warning restore AA0210
         TempXMLBuffer.FindFirst();
         TempXMLBuffer.Value := Vendor."VAT Registration No.";
         TempXMLBuffer.Modify();
@@ -1419,7 +1516,9 @@ codeunit 139628 "E-Doc. Receive Test"
     end;
 
     [StrMenuHandler]
+#pragma warning disable AA0150
     procedure MenuHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+#pragma warning restore AA0150
     begin
     end;
 
@@ -1529,14 +1628,18 @@ codeunit 139628 "E-Doc. Receive Test"
         TempXMLBuffer.LoadFromText(EDocReceiveFiles.GetDocument1());
         TempXMLBuffer.Reset();
         TempXMLBuffer.SetRange(Type, TempXMLBuffer.Type::Element);
+#pragma warning disable AA0210
         TempXMLBuffer.SetRange(Path, '/Invoice/cac:AccountingSupplierParty/cac:Party/cbc:EndpointID');
+#pragma warning restore AA0210
         TempXMLBuffer.FindFirst();
         TempXMLBuffer.Value := DocumentVendor."VAT Registration No.";
         TempXMLBuffer.Modify();
 
+#pragma warning disable AA0210
         TempXMLBuffer.SetRange(Path, '/Invoice/cbc:ID');
+#pragma warning restore AA0210
         TempXMLBuffer.FindFirst();
-        TempXMLBuffer.Value := LibraryRandom.RandText(20);
+        TempXMLBuffer.Value := CopyStr(LibraryRandom.RandText(20), 1, 20);
 
         TempXMLBuffer.Reset();
         TempXMLBuffer.FindFirst();
@@ -1692,13 +1795,17 @@ codeunit 139628 "E-Doc. Receive Test"
         Item.Modify();
         ItemReference.DeleteAll();
         ItemReference."Item No." := Item."No.";
-        ItemReference."Reference No." := '1000';
+        ItemReference."Reference No." := '1000'; // FROM XML
+        ItemReference."Reference Type" := ItemReference."Reference Type"::Vendor;
+        ItemReference."Reference Type No." := Vendor."No.";
         ItemReference.Insert();
 
         TempXMLBuffer.LoadFromText(EDocReceiveFiles.GetDocument1());
         TempXMLBuffer.Reset();
         TempXMLBuffer.SetRange(Type, TempXMLBuffer.Type::Element);
+#pragma warning disable AA0210
         TempXMLBuffer.SetRange(Path, '/Invoice/cac:AccountingSupplierParty/cac:Party/cbc:EndpointID');
+#pragma warning restore AA0210
         TempXMLBuffer.FindFirst();
         TempXMLBuffer.Value := Vendor."VAT Registration No.";
         TempXMLBuffer.Modify();
@@ -1719,7 +1826,7 @@ codeunit 139628 "E-Doc. Receive Test"
         EDocService."Document Format" := "E-Document Format"::"PEPPOL BIS 3.0";
         EDocService."Lookup Account Mapping" := false;
         EDocService."Lookup Item GTIN" := false;
-        EDocService."Lookup Item Reference" := false;
+        EDocService."Lookup Item Reference" := true;
         EDocService."Resolve Unit Of Measure" := false;
         EDocService."Validate Line Discount" := false;
         EDocService."Verify Totals" := false;
@@ -1760,6 +1867,9 @@ codeunit 139628 "E-Doc. Receive Test"
         EDocService: Record "E-Document Service";
         Item: Record Item;
         ItemReference: Record "Item Reference";
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        VATPostingSetup: Record "VAT Posting Setup";
         DocumentAttachment: Record "Document Attachment";
         EDocServiceDataExchDef: Record "E-Doc. Service Data Exch. Def.";
         TempXMLBuffer: Record "XML Buffer" temporary;
@@ -1776,22 +1886,43 @@ codeunit 139628 "E-Doc. Receive Test"
 
         // [GIVEN] e-Document service to receive one single purchase invoice
         LibraryEDoc.CreateTestReceiveServiceForEDoc(EDocService, Enum::"E-Document Integration"::Mock);
-        LibraryPurchase.CreateVendorWithVATRegNo(Vendor);
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, Enum::"Tax Calculation Type"::"Normal VAT", 1);
+        Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        Item.Get(LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
 
         // Setup correct vendor VAT and Item Ref to process document
         Vendor."VAT Registration No." := 'GB123456789';
         Vendor."Receive E-Document To" := Enum::"E-Document Type"::"Purchase Invoice";
+        Vendor."Country/Region Code" := CountryRegion.Code;
         Vendor.Modify();
-        Item.FindFirst();
+
+        UnitOfMeasure.Code := 'PCS';
+        UnitOfMeasure.Description := 'Test';
+        UnitOfMeasure."International Standard Code" := 'PCS';
+        if not UnitOfMeasure.Insert() then
+            UnitOfMeasure.Get('PCS');
+
+        ItemUnitOfMeasure."Item No." := Item."No.";
+        ItemUnitOfMeasure.Code := UnitOfMeasure.Code;
+        ItemUnitOfMeasure."Qty. per Unit of Measure" := 1;
+        if ItemUnitOfMeasure.Insert() then;
+
+        // Setup correct vendor VAT and Item Ref to process document
         ItemReference.DeleteAll();
         ItemReference."Item No." := Item."No.";
+        ItemReference."Reference Type" := ItemReference."Reference Type"::Vendor;
+        ItemReference."Reference Type No." := Vendor."No.";
         ItemReference."Reference No." := '1000';
         ItemReference.Insert();
+
+        Item."Base Unit of Measure" := UnitOfMeasure.Code;
+        Item."Purch. Unit of Measure" := UnitOfMeasure.Code;
+        Item.Modify();
 
         EDocService."Document Format" := "E-Document Format"::"Data Exchange";
         EDocService."Lookup Account Mapping" := false;
         EDocService."Lookup Item GTIN" := false;
-        EDocService."Lookup Item Reference" := false;
+        EDocService."Lookup Item Reference" := true;
         EDocService."Resolve Unit Of Measure" := false;
         EDocService."Validate Line Discount" := false;
         EDocService."Verify Totals" := false;
@@ -1807,7 +1938,9 @@ codeunit 139628 "E-Doc. Receive Test"
         TempXMLBuffer.LoadFromText(EDocReceiveFiles.GetDocument1());
         TempXMLBuffer.Reset();
         TempXMLBuffer.SetRange(Type, TempXMLBuffer.Type::Element);
+#pragma warning disable AA0210
         TempXMLBuffer.SetRange(Path, '/Invoice/cac:AccountingSupplierParty/cac:Party/cbc:EndpointID');
+#pragma warning restore AA0210
         TempXMLBuffer.FindFirst();
         TempXMLBuffer.Value := Vendor."VAT Registration No.";
         TempXMLBuffer.Modify();
@@ -1863,6 +1996,8 @@ codeunit 139628 "E-Doc. Receive Test"
         EDocument: Record "E-Document";
         Item: Record Item;
         ItemReference: Record "Item Reference";
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
         DocumentAttachment: Record "Document Attachment";
         TempXMLBuffer: Record "XML Buffer" temporary;
         VATPostingSetup: Record "VAT Posting Setup";
@@ -1879,27 +2014,45 @@ codeunit 139628 "E-Doc. Receive Test"
 
         // [GIVEN] e-Document service to receive one single purchase invoice
         LibraryEDoc.CreateTestReceiveServiceForEDoc(EDocService, Enum::"E-Document Integration"::Mock);
-        LibraryPurchase.CreateVendorWithVATRegNo(Vendor);
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, Enum::"Tax Calculation Type"::"Normal VAT", 1);
+        Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        Item.Get(LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
 
         // Setup correct vendor VAT and Item Ref to process document
-        Vendor."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         Vendor."VAT Registration No." := 'GB123456789';
         Vendor."Receive E-Document To" := Enum::"E-Document Type"::"Purchase Order";
         Vendor."Country/Region Code" := CountryRegion.Code;
         Vendor.Modify();
-        Item.FindFirst();
-        Item."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
-        Item.Modify();
+
+        UnitOfMeasure.Code := 'PCS';
+        UnitOfMeasure.Description := 'Test';
+        UnitOfMeasure."International Standard Code" := 'PCS';
+        if not UnitOfMeasure.Insert() then
+            UnitOfMeasure.Get('PCS');
+
+        ItemUnitOfMeasure."Item No." := Item."No.";
+        ItemUnitOfMeasure.Code := UnitOfMeasure.Code;
+        ItemUnitOfMeasure."Qty. per Unit of Measure" := 1;
+        if ItemUnitOfMeasure.Insert() then;
+
+        // Setup correct vendor VAT and Item Ref to process document
         ItemReference.DeleteAll();
         ItemReference."Item No." := Item."No.";
+        ItemReference."Reference Type" := ItemReference."Reference Type"::Vendor;
+        ItemReference."Reference Type No." := Vendor."No.";
         ItemReference."Reference No." := '1000';
         ItemReference.Insert();
+
+        Item."Base Unit of Measure" := UnitOfMeasure.Code;
+        Item."Purch. Unit of Measure" := UnitOfMeasure.Code;
+        Item.Modify();
 
         TempXMLBuffer.LoadFromText(EDocReceiveFiles.GetDocument1());
         TempXMLBuffer.Reset();
         TempXMLBuffer.SetRange(Type, TempXMLBuffer.Type::Element);
+#pragma warning disable AA0210
         TempXMLBuffer.SetRange(Path, '/Invoice/cac:AccountingSupplierParty/cac:Party/cbc:EndpointID');
+#pragma warning restore AA0210
         TempXMLBuffer.FindFirst();
         TempXMLBuffer.Value := Vendor."VAT Registration No.";
         TempXMLBuffer.Modify();
@@ -1920,7 +2073,7 @@ codeunit 139628 "E-Doc. Receive Test"
         EDocService."Document Format" := "E-Document Format"::"PEPPOL BIS 3.0";
         EDocService."Lookup Account Mapping" := false;
         EDocService."Lookup Item GTIN" := false;
-        EDocService."Lookup Item Reference" := false;
+        EDocService."Lookup Item Reference" := true;
         EDocService."Resolve Unit Of Measure" := false;
         EDocService."Validate Line Discount" := false;
         EDocService."Verify Totals" := false;
@@ -2895,4 +3048,94 @@ codeunit 139628 "E-Doc. Receive Test"
     end;
 #pragma warning restore AL0432
 #endif
+
+    [Test]
+    procedure PurchaseOrderMustNotBeCreatedForSelfBillingInvoice()
+    var
+        EDocService: Record "E-Document Service";
+        VATPostingSetup: Record "VAT Posting Setup";
+        EDocServiceDataExchDef: Record "E-Doc. Service Data Exch. Def.";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        TempBlob: Codeunit "Temp Blob";
+        EDocImport: Codeunit "E-Doc. Import";
+        EDocServicesPage: TestPage "E-Document Services";
+        EDocumentPage: TestPage "E-Document";
+        Document: Text;
+        XMLInstream: InStream;
+    begin
+        // [SCENARIO 580348] Verify that purchase order is not created for self-billing invoice.
+        Initialize();
+        BindSubscription(EDocImplState);
+
+        // [GIVEN] Create E-Document Service.
+        LibraryEDoc.CreateTestReceiveServiceForEDoc(EDocService, Enum::"Service Integration"::"Mock");
+
+        // [GIVEN] Reset E-Document Service formats.
+        EDocServicesPage.OpenView();
+        EDocServicesPage.Filter.SetFilter(Code, EDocService.Code);
+        EDocServicesPage.ResetFormats.Invoke();
+
+        // [GIVEN] Create vendor with VAT Business Posting Group.
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, Enum::"Tax Calculation Type"::"Normal VAT", 1);
+        Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+
+        // [GIVEN] Update vendor to be self-billing.
+        Vendor."VAT Registration No." := VATRegistrationLbl;
+        Vendor."Receive E-Document To" := Enum::"E-Document Type"::"Purchase Invoice";
+        Vendor."Country/Region Code" := CountryRegion.Code;
+        Vendor."Self-Billing Agreement" := true;
+        Vendor.Modify();
+
+        // [GIVEN] Create E-Document Service Data Exchange Definition.
+        EDocService."Document Format" := "E-Document Format"::"Data Exchange";
+        EDocService."Lookup Account Mapping" := false;
+        EDocService."Lookup Item GTIN" := false;
+        EDocService."Lookup Item Reference" := true;
+        EDocService."Resolve Unit Of Measure" := false;
+        EDocService."Validate Line Discount" := false;
+        EDocService."Verify Totals" := false;
+        EDocService."Use Batch Processing" := false;
+        EDocService."Validate Receiving Company" := false;
+        EDocService.Modify();
+
+        // [GIVEN] Create E-Document Service Data Exchange Definition.
+        EDocServiceDataExchDef."E-Document Format Code" := EDocService.Code;
+        EDocServiceDataExchDef."Document Type" := EDocServiceDataExchDef."Document Type"::"Purchase Invoice";
+        EDocServiceDataExchDef."Impt. Data Exchange Def. Code" := ImportDataExchDefLbl;
+        if not EDocServiceDataExchDef.Insert() then
+            EDocServiceDataExchDef.Modify();
+
+        // [GIVEN] Modify XML to have vendor VAT number as EndpointID.
+        TempXMLBuffer.LoadFromText(EDocReceiveFiles.GetDocument1());
+        TempXMLBuffer.Reset();
+        TempXMLBuffer.SetRange(Type, TempXMLBuffer.Type::Element);
+#pragma warning disable AA0210
+        TempXMLBuffer.SetRange(Path, EndpointPathLbl);
+#pragma warning restore AA0210
+        TempXMLBuffer.FindFirst();
+        TempXMLBuffer.Value := Vendor."VAT Registration No.";
+        TempXMLBuffer.Modify();
+
+        TempXMLBuffer.Reset();
+        TempXMLBuffer.FindFirst();
+        TempXMLBuffer.Save(TempBlob);
+
+        TempBlob.CreateInStream(XMLInstream, TextEncoding::UTF8);
+        XMLInstream.Read(Document);
+
+        // [GIVEN] Set document in variable storage.
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(Document);
+        LibraryVariableStorage.Enqueue(1);
+        EDocImplState.SetVariableStorage(LibraryVariableStorage);
+
+        // [WHEN] Receiving the document.
+        EDocImport.ReceiveAndProcessAutomatically(EDocService);
+
+        // [THEN] Verify that no purchase order is created.
+        EDocumentPage.OpenView();
+        EDocumentPage.Last();
+        Assert.AreEqual(Format(Enum::"E-Document Service Status"::"Imported Document Processing Error"), EDocumentPage.InboundEDocFactbox.Status.Value(), IncorrectValueErr);
+        EDocumentPage.ErrorMessagesPart.Description.AssertEquals(StrSubstNo(SelfBillingVendorErr, Vendor."No."));
+    end;
 }

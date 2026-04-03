@@ -38,18 +38,15 @@ page 193 "Incoming Doc. Attach. FactBox"
                 field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the type of the attached file.';
                     Visible = false;
                 }
                 field("File Extension"; Rec."File Extension")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the file extension of the attached file.';
                 }
                 field("Created Date-Time"; Rec."Created Date-Time")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies when the incoming document line was created.';
                     Visible = false;
                 }
             }
@@ -88,24 +85,6 @@ page 193 "Incoming Doc. Attach. FactBox"
                     UploadMultipleAttachments(files);
                 end;
             }
-#if not CLEAN25
-            action(ImportNew)
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Action ImportNew is replaced by action UploadMainAttachment and UploadSupportingAttachments.';
-                ObsoleteTag = '25.0';
-                ApplicationArea = Basic, Suite;
-                Caption = 'Attach File';
-                Image = Attach;
-                ToolTip = 'Attach a file to the incoming document record.';
-                Visible = false;
-
-                trigger OnAction()
-                begin
-                    UploadSingleAttachment();
-                end;
-            }
-#endif
             action(IncomingDoc)
             {
                 ApplicationArea = Basic, Suite;

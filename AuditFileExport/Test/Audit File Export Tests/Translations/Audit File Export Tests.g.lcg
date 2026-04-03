@@ -11,7 +11,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Audit File Export Test Helper - NamedType DefaultLbl)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.Finance.AuditFileExport)(LookupHint=Codeunit Audit File Export Test Helper - NamedType DefaultLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 743631377 - NamedType 458071301" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -20,7 +20,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - 1 or 2 or 3]D;]A;(LookupHint=Codeunit Audit File Export Test Helper - NamedType StandardAccNoTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - 1 or 2 or 3]D;]A;(Namespace=Microsoft.Test.Finance.AuditFileExport)(LookupHint=Codeunit Audit File Export Test Helper - NamedType StandardAccNoTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 76686307 - NamedType 841626667" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -29,7 +29,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Data Handling Test - NamedType GLEntriesTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.Finance.AuditFileExport)(LookupHint=Codeunit Data Handling Test - NamedType GLEntriesTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 76686307 - NamedType 895813024" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -38,7 +38,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Data Handling Test - NamedType MasterDataTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.Finance.AuditFileExport)(LookupHint=Codeunit Data Handling Test - NamedType MasterDataTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 76686307 - NamedType 1359106642" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -47,7 +47,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Data Handling Test - NamedType SourceDocsTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.Finance.AuditFileExport)(LookupHint=Codeunit Data Handling Test - NamedType SourceDocsTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";EnumExtension 3573492998 - EnumValue 1139653482 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
@@ -56,7 +56,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 1217862704)(LookupHint=EnumExtension Audit File Export Format Test - EnumValue TEST - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 1217862704)(Namespace=Microsoft.Test.Finance.AuditFileExport)(LookupHint=EnumExtension Audit File Export Format Test - EnumValue TEST - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";EnumExtension 428469576 - EnumValue 1715497560 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
@@ -65,7 +65,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 2341503086)(LookupHint=EnumExtension Standard Account Type Test - EnumValue Standard Account Test - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 2341503086)(Namespace=Microsoft.Test.Finance.AuditFileExport)(LookupHint=EnumExtension Standard Account Type Test - EnumValue Standard Account Test - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

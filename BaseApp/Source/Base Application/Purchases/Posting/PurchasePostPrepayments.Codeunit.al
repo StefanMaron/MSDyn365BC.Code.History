@@ -28,8 +28,8 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Setup;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Utilities;
-using System.Utilities;
 using System.Telemetry;
+using System.Utilities;
 
 codeunit 444 "Purchase-Post Prepayments"
 {
@@ -65,9 +65,6 @@ codeunit 444 "Purchase-Post Prepayments"
         SuppressCommit: Boolean;
         PrepmtDocumentType: Option ,,Invoice,"Credit Memo";
         PreviewMode: Boolean;
-#if not CLEAN25
-        TotalAmount1099: Decimal;
-#endif
 
 #pragma warning disable AA0074
 #pragma warning disable AA0470
@@ -315,7 +312,7 @@ codeunit 444 "Purchase-Post Prepayments"
         SetStatusPendingPrepayment(PurchHeader);
         PurchHeader.Modify();
 
-        OnCodeOnAfterUpdateHeaderAndLines(PurchHeader, PurchInvHeader, PurchCrMemoHeader, GenJnlPostLine, PreviewMode);
+        OnCodeOnAfterUpdateHeaderAndLines(PurchHeader, PurchInvHeader, PurchCrMemoHeader, GenJnlPostLine, DocumentType, PreviewMode);
 
         PurchHeader2 := PurchHeader;
 
@@ -1098,15 +1095,6 @@ codeunit 444 "Purchase-Post Prepayments"
         PrepmtInvLineBuf."VAT Base Before Pmt. Disc." := PurchLine."Prepayment Amount";
         PrepmtInvLineBuf."Orig. Pmt. Disc. Possible" := PurchLine."Prepmt. Pmt. Discount Amount";
 
-#if not CLEAN25
-        if PurchLine."IRS 1099 Liable" then
-            if PurchHeader."Document Type" in [PurchHeader."Document Type"::"Return Order",
-                                               PurchHeader."Document Type"::"Credit Memo"]
-            then
-                TotalAmount1099 := TotalAmount1099 - PurchLine."Prepmt. Amt. Incl. VAT"
-            else
-                TotalAmount1099 := TotalAmount1099 + PurchLine."Prepmt. Amt. Incl. VAT";
-#endif
         PrepmtInvLineBuf."Location Code" := PurchLine."Location Code";
 
         OnAfterFillInvLineBuffer(PrepmtInvLineBuf, PurchLine, SuppressCommit, PurchHeader);
@@ -1370,12 +1358,6 @@ codeunit 444 "Purchase-Post Prepayments"
         if GLSetup."Journal Templ. Name Mandatory" then
             GenJnlLine."Journal Template Name" := GenJournalTemplate.Name;
 
-#if not CLEAN25
-        if GenJnlLine."IRS 1099 Code" <> '' then begin
-            GenJnlLine."IRS 1099 Code" := GenJnlLine."IRS 1099 Code";
-            GenJnlLine."IRS 1099 Amount" := -Round(TotalAmount1099);
-        end;
-#endif
         OnBeforePostVendorEntry(GenJnlLine, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, SuppressCommit, PurchHeader, DocumentType);
         GenJnlPostLine.RunWithCheck(GenJnlLine);
         OnAfterPostVendorEntry(GenJnlLine, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, SuppressCommit);
@@ -2044,7 +2026,7 @@ codeunit 444 "Purchase-Post Prepayments"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCodeOnAfterUpdateHeaderAndLines(var PurchaseHeader: Record "Purchase Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PreviewMode: Boolean)
+    local procedure OnCodeOnAfterUpdateHeaderAndLines(var PurchaseHeader: Record "Purchase Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";DocumentType: Option Invoice,"Credit Memo"; PreviewMode: Boolean)
     begin
     end;
 

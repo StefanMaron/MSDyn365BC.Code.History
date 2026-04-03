@@ -138,15 +138,6 @@ pageextension 10015 "Posted Service Invoices NA" extends "Posted Service Invoice
             }
         }
 
-#if not CLEAN25
-        modify(Statistics)
-        {
-            trigger OnBeforeAction()
-            begin
-                OnBeforeCalculateSalesTaxStatistics(Rec);
-            end;
-        }
-#endif
         addafter(ServiceStatistics)
         {
             action(ServiceStats)
@@ -186,11 +177,4 @@ pageextension 10015 "Posted Service Invoices NA" extends "Posted Service Invoice
     protected var
         SalesTaxStatisticsVisible: Boolean;
 
-#if not CLEAN25
-    [Obsolete('Moved to procedure OpenStatistics in table ServiceInvoiceHeader', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateSalesTaxStatistics(var ServiceInvoiceHeader: Record "Service Invoice Header")
-    begin
-    end;
-#endif
 }

@@ -11,6 +11,15 @@ using Microsoft.Foundation.Company;
 using Microsoft.Foundation.Enums;
 using System.Utilities;
 
+/// <summary>
+/// Generates consolidated trial balance report with four-column layout for comprehensive financial analysis.
+/// Provides enhanced trial balance view with multiple period comparisons and detailed account breakdowns.
+/// </summary>
+/// <remarks>
+/// Extended trial balance report with four-column format for period-over-period analysis across consolidated entities.
+/// Supports advanced filtering by consolidation dates, amount types, and currency conversion options.
+/// Integrates with consolidated G/L entries for multi-company financial reporting and analysis.
+/// </remarks>
 report 10008 "Consolidated Trial Balance (4)"
 {
     DefaultLayout = RDLC;

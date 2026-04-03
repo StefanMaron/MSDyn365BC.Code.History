@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -31,15 +31,18 @@ table 336 "Tracking Specification"
         field(2; "Item No."; Code[20])
         {
             Caption = 'Item No.';
+            ToolTip = 'Specifies the number of the item associated with the entry.';
             TableRelation = Item;
         }
         field(3; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
+            ToolTip = 'Specifies the location code for the entry.';
             TableRelation = Location;
         }
         field(4; "Quantity (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity (Base)';
             DecimalPlaces = 0 : 5;
 
@@ -68,6 +71,7 @@ table 336 "Tracking Specification"
         field(7; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies the description of the entry.';
         }
         field(8; "Creation Date"; Date)
         {
@@ -109,9 +113,14 @@ table 336 "Tracking Specification"
             Caption = 'Transfer Item Entry No.';
             TableRelation = "Item Ledger Entry";
         }
+        field(18; "Receipt/Shipment No."; Code[20])
+        {
+            Caption = 'Receipt/Shipment No.';
+        }
         field(24; "Serial No."; Code[50])
         {
             Caption = 'Serial No.';
+            ToolTip = 'Specifies the serial number associated with the entry.';
 
             trigger OnValidate()
             begin
@@ -132,6 +141,7 @@ table 336 "Tracking Specification"
         }
         field(29; "Qty. per Unit of Measure"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. per Unit of Measure';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -139,6 +149,7 @@ table 336 "Tracking Specification"
         }
         field(31; "Qty. Rounding Precision (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Rounding Precision (Base)';
             InitValue = 0;
             DecimalPlaces = 0 : 5;
@@ -149,6 +160,7 @@ table 336 "Tracking Specification"
         field(38; "Appl.-to Item Entry"; Integer)
         {
             Caption = 'Appl.-to Item Entry';
+            ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied to.';
 
             trigger OnLookup()
             var
@@ -188,10 +200,12 @@ table 336 "Tracking Specification"
         field(40; "Warranty Date"; Date)
         {
             Caption = 'Warranty Date';
+            ToolTip = 'Specifies that a warranty date must be entered manually.';
         }
         field(41; "Expiration Date"; Date)
         {
             Caption = 'Expiration Date';
+            ToolTip = 'Specifies the expiration date, if any, of the item carrying the item tracking number.';
 
             trigger OnValidate()
             var
@@ -214,6 +228,7 @@ table 336 "Tracking Specification"
         }
         field(50; "Qty. to Handle (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. to Handle (Base)';
             DecimalPlaces = 0 : 5;
 
@@ -237,6 +252,7 @@ table 336 "Tracking Specification"
         }
         field(51; "Qty. to Invoice (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. to Invoice (Base)';
             DecimalPlaces = 0 : 5;
 
@@ -258,23 +274,27 @@ table 336 "Tracking Specification"
         }
         field(52; "Quantity Handled (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity Handled (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(53; "Quantity Invoiced (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity Invoiced (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
         field(60; "Qty. to Handle"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. to Handle';
             DecimalPlaces = 0 : 5;
         }
         field(61; "Qty. to Invoice"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. to Invoice';
             DecimalPlaces = 0 : 5;
         }
@@ -294,32 +314,38 @@ table 336 "Tracking Specification"
         }
         field(72; "Buffer Value1"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Buffer Value1';
             Editable = false;
         }
         field(73; "Buffer Value2"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Buffer Value2';
             Editable = false;
         }
         field(74; "Buffer Value3"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Buffer Value3';
             Editable = false;
         }
         field(75; "Buffer Value4"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Buffer Value4';
             Editable = false;
         }
         field(76; "Buffer Value5"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Buffer Value5';
             Editable = false;
         }
         field(80; "New Serial No."; Code[50])
         {
             Caption = 'New Serial No.';
+            ToolTip = 'Specifies a new serial number that will take the place of the serial number in the Serial No. field.';
 
             trigger OnValidate()
             begin
@@ -330,6 +356,7 @@ table 336 "Tracking Specification"
         field(81; "New Lot No."; Code[50])
         {
             Caption = 'New Lot No.';
+            ToolTip = 'Specifies a new lot number that will take the place of the lot number in the Lot No. field.';
 
             trigger OnValidate()
             begin
@@ -343,6 +370,7 @@ table 336 "Tracking Specification"
         field(5400; "Lot No."; Code[50])
         {
             Caption = 'Lot No.';
+            ToolTip = 'Specifies the lot number of the item being handled for the associated document line.';
 
             trigger OnValidate()
             begin
@@ -359,6 +387,7 @@ table 336 "Tracking Specification"
         field(5401; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
+            ToolTip = 'Specifies the variant of the item on the line.';
             TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
         }
         field(5402; "Bin Code"; Code[20])
@@ -369,6 +398,7 @@ table 336 "Tracking Specification"
         field(5811; "Appl.-from Item Entry"; Integer)
         {
             Caption = 'Appl.-from Item Entry';
+            ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied from.';
             MinValue = 0;
 
             trigger OnLookup()
@@ -418,6 +448,7 @@ table 336 "Tracking Specification"
         field(6505; "New Expiration Date"; Date)
         {
             Caption = 'New Expiration Date';
+            ToolTip = 'Specifies a new expiration date.';
 
             trigger OnValidate()
             begin
@@ -427,6 +458,7 @@ table 336 "Tracking Specification"
         field(6515; "Package No."; Code[50])
         {
             Caption = 'Package No.';
+            ToolTip = 'Specifies the package number of the item being handled for the associated document line.';
             CaptionClass = '6,1';
 
             trigger OnValidate()
@@ -444,6 +476,7 @@ table 336 "Tracking Specification"
         field(6516; "New Package No."; Code[50])
         {
             Caption = 'New Package No.';
+            ToolTip = 'Specifies a new package number that will take the place of the package number in the Package No. field.';
             CaptionClass = '6,2';
 
             trigger OnValidate()
@@ -457,6 +490,7 @@ table 336 "Tracking Specification"
         }
         field(7300; "Quantity actual Handled (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity actual Handled (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -561,145 +595,19 @@ table 336 "Tracking Specification"
         OnAfterInitQtyToInvoice(Rec);
     end;
 
-#if not CLEAN25
-    [Obsolete('Procedure moved to codeunit Assembly Header-Reserve', '25.0')]
-    procedure InitFromAsmHeader(var AsmHeader: Record Microsoft.Assembly.Document."Assembly Header")
-    var
-        AssemblyHeaderReserve: Codeunit Microsoft.Assembly.Document."Assembly Header-Reserve";
-    begin
-        AssemblyHeaderReserve.InitFromAsmHeader(Rec, AsmHeader);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Procedure moved to codeunit Assembly Line-Reserve', '25.0')]
-    procedure InitFromAsmLine(var AsmLine: Record Microsoft.Assembly.Document."Assembly Line")
-    var
-        AssemblyLineReserve: Codeunit Microsoft.Assembly.Document."Assembly Line-Reserve";
-    begin
-        AssemblyLineReserve.InitFromAsmLine(Rec, AsmLine);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Procedure moved to codeunit Item Jnl. Line-Reserve', '25.0')]
-    procedure InitFromItemJnlLine(ItemJnlLine: Record "Item Journal Line")
-    var
-        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
-    begin
-        ItemJnlLineReserve.InitFromItemJnlLine(Rec, ItemJnlLine);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Procedure moved to codeunit Invt. Doc. Line-Reserve', '25.0')]
-    procedure InitFromInvtDocLine(var InvtDocLine: Record Microsoft.Inventory.Document."Invt. Document Line")
-    var
-        InvtDocLineReserve: Codeunit Microsoft.Inventory.Document."Invt. Doc. Line-Reserve";
-    begin
-        InvtDocLineReserve.InitFromInvtDocLine(Rec, InvtDocLine);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Procedure moved to codeunit Job Jnl. Line-Reserve', '25.0')]
-    procedure InitFromJobJnlLine(var JobJnlLine: Record Microsoft.Projects.Project.Journal."Job Journal Line")
-    var
-        JobJnlLineReserve: Codeunit Microsoft.Projects.Project.Journal."Job Jnl. Line-Reserve";
-    begin
-        JobJnlLineReserve.InitFromJobJnlLine(Rec, JobJnlLine);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Procedure moved to codeunit Job Planning Line-Reserve', '25.0')]
-    procedure InitFromJobPlanningLine(var JobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line")
-    var
-        JobPlanningLineReserve: Codeunit Microsoft.Projects.Project.Planning."Job Planning Line-Reserve";
-    begin
-        JobPlanningLineReserve.InitFromJobPlanningLine(Rec, JobPlanningLine);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Procedure moved to codeunit Purch. Line-Reserve', '25.0')]
-    procedure InitFromPurchLine(PurchLine: Record "Purchase Line")
-    var
-        PurchLineReserve: Codeunit "Purch. Line-Reserve";
-    begin
-        PurchLineReserve.InitFromPurchLine(Rec, PurchLine);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Procedure moved to codeunit Prod. Order Line-Reserve', '25.0')]
-    procedure InitFromProdOrderLine(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
-    var
-        ProdOrderLineReserve: Codeunit Microsoft.Manufacturing.Document."Prod. Order Line-Reserve";
-    begin
-        ProdOrderLineReserve.InitFromProdOrderLine(Rec, ProdOrderLine);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Procedure moved to codeunit Prod. Order Comp.-Reserve', '25.0')]
-    procedure InitFromProdOrderComp(var ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component")
-    var
-        ProdOrderCompReserve: Codeunit Microsoft.Manufacturing.Document."Prod. Order Comp.-Reserve";
-    begin
-        ProdOrderCompReserve.InitFromProdOrderComp(Rec, ProdOrderComp);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Procedure moved to codeunit Plng. Component-Reserve', '25.0')]
-    procedure InitFromProdPlanningComp(var PlanningComponent: Record Microsoft.Inventory.Planning."Planning Component")
-    var
-        PlngComponentReserve: Codeunit Microsoft.Inventory.Planning."Plng. Component-Reserve";
-    begin
-        PlngComponentReserve.InitFromProdPlanningComp(Rec, PlanningComponent);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Procedure moved to codeunit Req. Line-Reserve', '25.0')]
-    procedure InitFromReqLine(ReqLine: Record Microsoft.Inventory.Requisition."Requisition Line")
-    var
-        ReqLineReserve: Codeunit Microsoft.Inventory.Requisition."Req. Line-Reserve";
-    begin
-        ReqLineReserve.InitFromReqLine(Rec, ReqLine);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Procedure moved to codeunit Sales Line-Reserve', '25.0')]
-    procedure InitFromSalesLine(SalesLine: Record "Sales Line")
-    var
-        SalesLineReserve: Codeunit "Sales Line-Reserve";
-    begin
-        SalesLineReserve.InitFromSalesLine(Rec, SalesLine);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Procedure moved to codeunit Service Line-Reserve', '25.0')]
-    procedure InitFromServLine(var ServiceLine: Record Microsoft.Service.Document."Service Line"; Consume: Boolean)
-    var
-        ServiceLineReserve: Codeunit Microsoft.Service.Document."Service Line-Reserve";
-    begin
-        ServiceLineReserve.InitFromServLine(Rec, ServiceLine, Consume);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Procedure moved to codeunit Transfer Line-Reserve', '25.0')]
-    procedure InitFromTransLine(var TransLine: Record Microsoft.Inventory.Transfer."Transfer Line"; var AvalabilityDate: Date; Direction: Enum Microsoft.Foundation.Enums."Transfer Direction")
-    var
-        TransferLineReserve: Codeunit Microsoft.Inventory.Transfer."Transfer Line-Reserve";
-    begin
-        TransferLineReserve.InitFromTransLine(Rec, TransLine, AvalabilityDate, Direction);
-    end;
-#endif
 
     local procedure CheckApplyFromItemEntrySourceType()
     var
@@ -1439,174 +1347,18 @@ table 336 "Tracking Specification"
     begin
     end;
 
-#if not CLEAN25
-    internal procedure RunOnAfterInitFromAsmHeader(var TrackingSpecification: Record "Tracking Specification"; AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header")
-    begin
-        OnAfterInitFromAsmHeader(TrackingSpecification, AssemblyHeader);
-    end;
 
-    [Obsolete('Replaced same event in codeunit AssemblyHeaderReserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromAsmHeader(var TrackingSpecification: Record "Tracking Specification"; AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header")
-    begin
-    end;
-#endif
 
-#if not CLEAN25
-    internal procedure RunOnAfterInitFromAsmLine(var TrackingSpecification: Record "Tracking Specification"; AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line")
-    begin
-        OnAfterInitFromAsmLine(TrackingSpecification, AssemblyLine);
-    end;
 
-    [Obsolete('Replaced same event in codeunit AssemblyLineReserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromAsmLine(var TrackingSpecification: Record "Tracking Specification"; AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line")
-    begin
-    end;
-#endif
 
-#if not CLEAN25
-    internal procedure RunOnAfterInitFromItemJnlLine(var TrackingSpecification: Record "Tracking Specification"; ItemJournalLine: Record "Item Journal Line")
-    begin
-        OnAfterInitFromItemJnlLine(TrackingSpecification, ItemJournalLine);
-    end;
 
-    [Obsolete('Replaced same event in codeunit ItemJnlLineReserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromItemJnlLine(var TrackingSpecification: Record "Tracking Specification"; ItemJournalLine: Record "Item Journal Line")
-    begin
-    end;
-#endif
 
-#if not CLEAN25
-    internal procedure RunOnAfterInitFromJobJnlLine(var TrackingSpecification: Record "Tracking Specification"; JobJournalLine: Record Microsoft.Projects.Project.Journal."Job Journal Line")
-    begin
-        OnAfterInitFromJobJnlLine(TrackingSpecification, JobJournalLine);
-    end;
 
-    [Obsolete('Replaced same event in codeunit JobJnlLineReserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromJobJnlLine(var TrackingSpecification: Record "Tracking Specification"; JobJournalLine: Record Microsoft.Projects.Project.Journal."Job Journal Line")
-    begin
-    end;
-#endif
 
-#if not CLEAN25
-    internal procedure RunOnAfterInitFromJobPlanningLine(var TrackingSpecification: Record "Tracking Specification"; JobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line")
-    begin
-        OnAfterInitFromJobPlanningLine(TrackingSpecification, JobPlanningLine);
-    end;
 
-    [Obsolete('Replaced same event in codeunit JobPlanningLineReserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromJobPlanningLine(var TrackingSpecification: Record "Tracking Specification"; JobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line")
-    begin
-    end;
-#endif
 
-#if not CLEAN25
-    internal procedure RunOnAfterInitFromPurchLine(var TrackingSpecification: Record "Tracking Specification"; PurchaseLine: Record "Purchase Line")
-    begin
-        OnAfterInitFromPurchLine(TrackingSpecification, PurchaseLine);
-    end;
 
-    [Obsolete('Replaced same event in codeunit PurchLineReserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromPurchLine(var TrackingSpecification: Record "Tracking Specification"; PurchaseLine: Record "Purchase Line")
-    begin
-    end;
-#endif
 
-#if not CLEAN25
-    internal procedure RunOnAfterInitFromProdOrderLine(var TrackingSpecification: Record "Tracking Specification"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
-    begin
-        OnAfterInitFromProdOrderLine(TrackingSpecification, ProdOrderLine);
-    end;
-
-    [Obsolete('Replaced same event in codeunit ProdOrderLineReserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromProdOrderLine(var TrackingSpecification: Record "Tracking Specification"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
-    begin
-    end;
-#endif
-
-#if not CLEAN25
-    internal procedure RunOnAfterInitFromProdOrderComp(var TrackingSpecification: Record "Tracking Specification"; ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component")
-    begin
-        OnAfterInitFromProdOrderComp(TrackingSpecification, ProdOrderComponent);
-    end;
-
-    [Obsolete('Replaced same event in codeunit ProdOrderCompReserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromProdOrderComp(var TrackingSpecification: Record "Tracking Specification"; ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component")
-    begin
-    end;
-#endif
-
-#if not CLEAN25
-    internal procedure RunOnAfterInitFromProdPlanningComp(var TrackingSpecification: Record "Tracking Specification"; PlanningComponent: Record Microsoft.Inventory.Planning."Planning Component")
-    begin
-        OnAfterInitFromProdPlanningComp(TrackingSpecification, PlanningComponent);
-    end;
-
-    [Obsolete('Replaced same event in codeunit PlngComponentReserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromProdPlanningComp(var TrackingSpecification: Record "Tracking Specification"; PlanningComponent: Record Microsoft.Inventory.Planning."Planning Component")
-    begin
-    end;
-#endif
-
-#if not CLEAN25
-    internal procedure RunOnAfterInitFromReqLine(var TrackingSpecification: Record "Tracking Specification"; RequisitionLine: Record Microsoft.Inventory.Requisition."Requisition Line")
-    begin
-        OnAfterInitFromReqLine(TrackingSpecification, RequisitionLine);
-    end;
-
-    [Obsolete('Replaced same event in codeunit ReqLineReserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromReqLine(var TrackingSpecification: Record "Tracking Specification"; RequisitionLine: Record Microsoft.Inventory.Requisition."Requisition Line")
-    begin
-    end;
-#endif
-
-#if not CLEAN25
-    internal procedure RunOnAfterInitFromSalesLine(var TrackingSpecification: Record "Tracking Specification"; SalesLine: Record "Sales Line")
-    begin
-        OnAfterInitFromSalesLine(TrackingSpecification, SalesLine);
-    end;
-
-    [Obsolete('Event moved to codeunit Sales Line-Reserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromSalesLine(var TrackingSpecification: Record "Tracking Specification"; SalesLine: Record "Sales Line")
-    begin
-    end;
-#endif
-
-#if not CLEAN25
-    internal procedure RunOnAfterInitFromServLine(var TrackingSpecification: Record "Tracking Specification"; ServiceLine: Record Microsoft.Service.Document."Service Line")
-    begin
-        OnAfterInitFromServLine(TrackingSpecification, ServiceLine);
-    end;
-
-    [Obsolete('Event moved to codeunit Service Line-Reserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromServLine(var TrackingSpecification: Record "Tracking Specification"; ServiceLine: Record Microsoft.Service.Document."Service Line")
-    begin
-    end;
-#endif
-
-#if not CLEAN25
-    internal procedure RunOnAfterInitFromTransLine(var TrackingSpecification: Record "Tracking Specification"; TransferLine: Record Microsoft.Inventory.Transfer."Transfer Line"; Direction: Enum Microsoft.Foundation.Enums."Transfer Direction")
-    begin
-        OnAfterInitFromTransLine(TrackingSpecification, TransferLine, Direction);
-    end;
-
-    [Obsolete('Event moved to codeunit Transfer Line-Reserve', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromTransLine(var TrackingSpecification: Record "Tracking Specification"; TransferLine: Record Microsoft.Inventory.Transfer."Transfer Line"; Direction: Enum Microsoft.Foundation.Enums."Transfer Direction")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitQtyToInvoice(var TrackingSpecification: Record "Tracking Specification")
@@ -1873,4 +1625,3 @@ table 336 "Tracking Specification"
     begin
     end;
 }
-

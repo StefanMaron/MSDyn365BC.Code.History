@@ -28,9 +28,7 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
         HideProgressWindow: Boolean;
         PreviewMode: Boolean;
         SuppressCommit: Boolean;
-        SalesTaxCalculationOverridden: Boolean;
         IncorrectInterfaceErr: Label 'This implementation designed to post Service Header table only.';
-        GenProdPostingGroupErr: Label 'You must enter a value in %1 for %2 %3 if you want to post discounts for that line.', Comment = '%1 = field name of Gen. Prod. Posting Group, %2 = field name of Line No., %3 = value of Line No.';
 
     procedure Check(TableID: Integer)
     begin
@@ -94,8 +92,7 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
         if IsHandled then
             exit;
 
-        GLSetup.Get();
-        if GLSetup."VAT in Use" then
+        if GLSetup.UseVat() then
             if (ServiceLine."Gen. Bus. Posting Group" <> GenPostingSetup."Gen. Bus. Posting Group") or
                (ServiceLine."Gen. Prod. Posting Group" <> GenPostingSetup."Gen. Prod. Posting Group")
             then begin
@@ -103,46 +100,9 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
                 GenPostingSetup.TestField(Blocked, false);
                 ServicePostInvoiceEvents.RunOnPrepareLineAfterGetGenPostingSetup(GenPostingSetup, ServiceHeader, ServiceLine, ServiceLineACY);
             end;
-
-        SalesSetup.Get();
-        if not GLSetup."VAT in Use" then
-            if (ServiceLine.Type.AsInteger() >= ServiceLine.Type::Item.AsInteger()) and
-               ((ServiceLine."Qty. to Invoice" <> 0) or (ServiceLine."Qty. to Ship" <> 0))
-            then
-                if ServiceLine.Type = ServiceLine.Type::"G/L Account" then
-                    if (((SalesSetup."Discount Posting" = SalesSetup."Discount Posting"::"Invoice Discounts") and
-                         (ServiceLine."Inv. Discount Amount" <> 0)) or
-                        ((SalesSetup."Discount Posting" = SalesSetup."Discount Posting"::"Line Discounts") and
-                         (ServiceLine."Line Discount Amount" <> 0)) or
-                        ((SalesSetup."Discount Posting" = SalesSetup."Discount Posting"::"All Discounts") and
-                         ((ServiceLine."Inv. Discount Amount" <> 0) or (ServiceLine."Line Discount Amount" <> 0))))
-                    then begin
-                        if not GenPostingSetup.Get(ServiceLine."Gen. Bus. Posting Group", ServiceLine."Gen. Prod. Posting Group") then
-                            if ServiceLine."Gen. Prod. Posting Group" = '' then
-                                Error(GenProdPostingGroupErr,
-                                  ServiceLine.FieldCaption("Gen. Prod. Posting Group"),
-                                  ServiceLine.FieldCaption("Line No."),
-                                  ServiceLine."Line No.")
-                            else
-                                GenPostingSetup.Get(ServiceLine."Gen. Bus. Posting Group", ServiceLine."Gen. Prod. Posting Group");
-                    end else
-                        Clear(GenPostingSetup)
-                else
-                    if (ServiceLine."Gen. Bus. Posting Group" <> GenPostingSetup."Gen. Bus. Posting Group") or
-                       (ServiceLine."Gen. Prod. Posting Group" <> GenPostingSetup."Gen. Prod. Posting Group")
-                    then
-                        GenPostingSetup.Get(ServiceLine."Gen. Bus. Posting Group", ServiceLine."Gen. Prod. Posting Group");
+        ServicePostInvoiceEvents.RunOnPrepareLineOnAfterGetGenPostingSetup(ServiceLine, ServiceLineACY, GenPostingSetup);
 
         PrepareInvoicePostingBuffer(ServiceLine, InvoicePostingBuffer);
-
-        if not SalesTaxCalculationOverridden then begin
-            TotalVAT := ServiceLine."Amount Including VAT" - ServiceLine.Amount;
-            TotalVATACY := ServiceLineACY."Amount Including VAT" - ServiceLineACY.Amount;
-            TotalAmount := ServiceLine.Amount;
-            TotalAmountACY := ServiceLineACY.Amount;
-            TotalVATBase := ServiceLine."VAT Base Amount";
-            TotalVATBaseACY := ServiceLineACY."VAT Base Amount";
-        end;
 
         TotalVAT := ServiceLine."Amount Including VAT" - ServiceLine.Amount;
         TotalVATACY := ServiceLineACY."Amount Including VAT" - ServiceLineACY.Amount;
@@ -151,6 +111,7 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
         TotalVATBase := ServiceLine."VAT Base Amount";
         TotalVATBaseACY := ServiceLineACY."VAT Base Amount";
 
+        SalesSetup.Get();
         if SalesSetup."Discount Posting" in
            [SalesSetup."Discount Posting"::"Invoice Discounts", SalesSetup."Discount Posting"::"All Discounts"]
         then begin
@@ -294,9 +255,6 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
 
         UpdateEntryDescriptionFromServiceLine(ServiceLine, InvoicePostingBuffer);
 
-#if not CLEAN25
-        InvoicePostingBuffer.RunOnAfterPrepareService(ServiceLine, InvoicePostingBuffer);
-#endif
         ServicePostInvoiceEvents.RunOnAfterPrepareInvoicePostingBuffer(ServiceLine, InvoicePostingBuffer);
     end;
 

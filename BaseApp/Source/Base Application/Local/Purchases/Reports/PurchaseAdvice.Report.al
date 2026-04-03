@@ -266,14 +266,13 @@ report 10155 "Purchase Advice"
                     end else
                         AverageDailyUsage := 0;
                     Item2.SetRange("Date Filter");
-                    CalcFields(Inventory, "Qty. on Sales Order", "Qty. on Purch. Order",
-                      "Qty. on Service Order", "Qty. on Component Lines", Description);
+                    CalcFields(Inventory, "Qty. on Sales Order", "Qty. on Purch. Order", Description);
                     if (Inventory - "Qty. on Sales Order") > 0 then
                         BackOrderQuantity := 0
                     else
                         BackOrderQuantity := Abs(Inventory - "Qty. on Sales Order");
                     QtyAvailable := Inventory - "Qty. on Sales Order" + "Qty. on Purch. Order" -
-                      "Qty. on Component Lines" - "Qty. on Service Order";
+                      Item2.CalcQtyOnComponentLines() - Item2.CalcQtyOnServiceOrder();
                     ReorderAmount1 := CalculateReorderSKU(QtyAvailable);
 
                     // Calculate the expected daily usage of the product during the lead time so
@@ -315,14 +314,13 @@ report 10155 "Purchase Advice"
                     end else
                         AverageDailyUsage := 0;
                     SetRange("Date Filter");
-                    CalcFields(Inventory, "Qty. on Sales Order", "Qty. on Purch. Order",
-                      "Qty. on Service Order", "Qty. on Component Lines");
+                    CalcFields(Inventory, "Qty. on Sales Order", "Qty. on Purch. Order");
                     if (Inventory - "Qty. on Sales Order") > 0 then
                         BackOrderQuantity := 0
                     else
                         BackOrderQuantity := Abs(Inventory - "Qty. on Sales Order");
                     QtyAvailable := Inventory - "Qty. on Sales Order" + "Qty. on Purch. Order" -
-                      "Qty. on Component Lines" - "Qty. on Service Order";
+                      CalcQtyOnComponentLines() - CalcQtyOnServiceOrder();
                     ReorderAmount1 := CalculateReorder(QtyAvailable);
 
                     // Calculate the expected daily usage of the product during the lead time so

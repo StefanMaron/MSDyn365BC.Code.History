@@ -1,9 +1,9 @@
 namespace System.Security.AccessControl;
 
-using Microsoft.Finance.FinancialReports;
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Consolidation;
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.FinancialReports;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Budget;
 
@@ -17,8 +17,14 @@ permissionset 3632 "Account Schedules - Edit"
                   tabledata "Acc. Schedule Line" = RIMD,
                   tabledata "Acc. Schedule Name" = RIMD,
                   tabledata "Financial Report" = RIMD,
+                  tabledata "Financial Report Export Log" = RIMD,
+                  tabledata "Financial Report Recipient" = RIMD,
+                  tabledata "Financial Report Schedule" = RIMD,
                   tabledata "Financial Report User Filters" = RIMD,
                   tabledata "Fin. Report Excel Template" = RIMD,
+                  tabledata "Financial Report Category" = RIMD,
+                  tabledata "Financial Report Audit Log" = Ri,
+                  tabledata "Financial Report Status" = RIMD,
                   tabledata "Account Schedules Chart Setup" = RIMD,
                   tabledata "Analysis View" = R,
                   tabledata "Analysis View Budget Entry" = R,

@@ -1,21 +1,22 @@
 namespace System.Security.AccessControl;
 
-using Microsoft.Bank.Ledger;
 using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Ledger;
 using Microsoft.Finance.Currency;
-using Microsoft.Sales.Receivables;
-using Microsoft.HumanResources.Payables;
-using Microsoft.Purchases.Payables;
 using Microsoft.Finance.GeneralLedger.Account;
-using Microsoft.Inventory.Ledger;
 using Microsoft.Finance.GeneralLedger.Ledger;
-using System.Environment.Configuration;
-using Microsoft.Warehouse.Ledger;
-using Microsoft.Inventory.Costing;
-using Microsoft.Foundation.BatchProcessing;
-using Microsoft.Sales.Pricing;
 using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Foundation.BatchProcessing;
+using Microsoft.HumanResources.Payables;
+using Microsoft.Inventory.Costing;
+using Microsoft.Inventory.Ledger;
 using Microsoft.Projects.Project.Ledger;
+using Microsoft.Purchases.Payables;
+using Microsoft.Sales.Pricing;
+using Microsoft.Sales.Receivables;
+using Microsoft.Warehouse.Ledger;
+using System.Environment.Configuration;
 
 permissionset 681 "D365 JOURNALS, POST"
 {
@@ -47,6 +48,7 @@ permissionset 681 "D365 JOURNALS, POST"
                   tabledata "Notification Entry" = RIMD,
                   tabledata "Sent Notification Entry" = RIMD,
                   tabledata "VAT Entry" = Rimd,
+                  tabledata "VAT Return Period" = R,
                   tabledata "Vendor Ledger Entry" = imd,
                   tabledata "Warehouse Register" = r;
 }

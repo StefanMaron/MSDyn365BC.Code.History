@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Email;
+
 using System.Environment;
 using System.Integration.Word;
 using System.IO;
