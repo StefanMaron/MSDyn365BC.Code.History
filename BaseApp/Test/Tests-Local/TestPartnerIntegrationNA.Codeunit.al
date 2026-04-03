@@ -1641,8 +1641,17 @@
         InsertDataTypeBuffer(OnFillInvPostingBufferServAmtsMgtTxt);
     end;
 
+#if not CLEAN28
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Serv-Documents Mgt.", 'OnBeforeCalculateSalesTax', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxServDocumentsMgt(var SalesTaxCalculationOverridden: Boolean; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var TempSalesTaxAmountLine: Record "Sales Tax Amount Line" temporary)
+    begin
+        InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
+        SalesTaxCalculationOverridden := true;
+    end;
+#endif
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Serv-Documents Mgt. NA", 'OnBeforeCalculateSalesTax', '', false, false)]
+    local procedure OnBeforeCalculateSalesTaxServDocumentsMgtNA(var SalesTaxCalculationOverridden: Boolean; var ServiceHeader: Record "Service Header"; var TempServiceLine: Record "Service Line" temporary; var TempSalesTaxAmountLine: Record "Sales Tax Amount Line" temporary)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
         SalesTaxCalculationOverridden := true;
@@ -1678,20 +1687,44 @@
         InsertDataTypeBuffer(OnAfterCalculateSalesTaxStatisticsTxt);
     end;
 
+#if not CLEAN28
     [EventSubscriber(ObjectType::Report, Report::"Service Quote", 'OnAfterCalculateSalesTax', '', false, false)]
     local procedure OnAfterCalculateSalesTaxServiceQuoteReport(var ServiceHeaderParm: Record "Service Header"; var ServiceLine: Record "Service Line"; var SalesTaxAmountLineParm: Record "Sales Tax Amount Line")
     begin
         InsertDataTypeBuffer(OnAfterCalculateSalesTaxStatisticsTxt);
     end;
+#endif
 
+    [EventSubscriber(ObjectType::Report, Report::"Service Quote-Sales Tax", 'OnAfterCalculateSalesTax', '', false, false)]
+    local procedure OnAfterCalculateSalesTaxServiceQuoteSalesTaxReport(var ServiceHeaderParm: Record "Service Header"; var ServiceLine: Record "Service Line"; var SalesTaxAmountLineParm: Record "Sales Tax Amount Line")
+    begin
+        InsertDataTypeBuffer(OnAfterCalculateSalesTaxStatisticsTxt);
+    end;
+
+#if not CLEAN28
     [EventSubscriber(ObjectType::Report, Report::"Service Document - Test", 'OnBeforeCalculateSalesTax', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxServiceDocumentTestReport(var ServiceHeader: Record "Service Header"; var SalesTaxAmountLine: Record "Sales Tax Amount Line"; var SalesTaxCalculationOverridden: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
+#endif
 
+    [EventSubscriber(ObjectType::Report, Report::"Service Document - Test NA", 'OnBeforeCalculateSalesTax', '', false, false)]
+    local procedure OnBeforeCalculateSalesTaxServiceDocumentTestNAReport(var ServiceHeader: Record "Service Header"; var SalesTaxAmountLine: Record "Sales Tax Amount Line"; var SalesTaxCalculationOverridden: Boolean)
+    begin
+        InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
+    end;
+
+#if not CLEAN28
     [EventSubscriber(ObjectType::Report, Report::"Service Order", 'OnAfterCalculateSalesTax', '', false, false)]
     local procedure OnAfterCalculateSalesTaxServiceOrderReport(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var SalesTaxAmountLine: Record "Sales Tax Amount Line")
+    begin
+        InsertDataTypeBuffer(OnAfterCalculateSalesTaxStatisticsTxt);
+    end;
+#endif
+
+    [EventSubscriber(ObjectType::Report, Report::"Service Order-Sales Tax", 'OnAfterCalculateSalesTax', '', false, false)]
+    local procedure OnAfterCalculateSalesTaxServiceOrderSalesTaxReport(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var SalesTaxAmountLine: Record "Sales Tax Amount Line")
     begin
         InsertDataTypeBuffer(OnAfterCalculateSalesTaxStatisticsTxt);
     end;

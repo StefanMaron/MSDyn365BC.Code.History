@@ -13,7 +13,7 @@ codeunit 99000779 "Manufacturing Setup Notif."
         PlanningFieldsNotificationNameTxt: Label 'Planning fields setup';
         PlanningFieldsNotificationDescriptionTxt: Label 'Show warning to enter planning parameters in Inventory Setup page.';
         NotificationActionDisableTxt: Label 'Don''t show me again';
-        NotificationActionOpenPageTxt: Label 'Do it now';
+        NotificationActionOpenPageTxt: Label 'Open Inventory Setup';
         NotificationMessageMsg: Label 'Use Inventory Setup page to update Planning fields.';
 
     procedure ShowPlanningFieldsMoveNotification()

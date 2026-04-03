@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -31,30 +31,27 @@ page 2900 "Demand Forecast Variant Matrix"
                 {
                     ApplicationArea = Planning;
                     Editable = false;
-                    ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Planning;
                     Editable = false;
-                    ToolTip = 'Specifies a description of the item.';
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     Editable = false;
-                    ToolTip = 'Specifies a variant code of the item.';
                     Visible = ShowVariants;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Planning;
                     Editable = false;
-                    ToolTip = 'Specifies a location code of the item.';
                     Visible = ShowLocations;
                 }
                 field(Field1; MATRIX_CellData[1])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[1];
@@ -74,6 +71,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field2; MATRIX_CellData[2])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[2];
@@ -93,6 +91,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field3; MATRIX_CellData[3])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[3];
@@ -112,6 +111,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field4; MATRIX_CellData[4])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[4];
@@ -131,6 +131,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field5; MATRIX_CellData[5])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[5];
@@ -150,6 +151,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field6; MATRIX_CellData[6])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[6];
@@ -169,6 +171,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field7; MATRIX_CellData[7])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[7];
@@ -188,6 +191,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field8; MATRIX_CellData[8])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[8];
@@ -207,6 +211,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field9; MATRIX_CellData[9])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[9];
@@ -226,6 +231,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field10; MATRIX_CellData[10])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[10];
@@ -245,6 +251,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field11; MATRIX_CellData[11])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[11];
@@ -264,6 +271,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field12; MATRIX_CellData[12])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[12];
@@ -283,6 +291,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field13; MATRIX_CellData[13])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[13];
@@ -302,6 +311,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field14; MATRIX_CellData[14])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[14];
@@ -321,6 +331,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field15; MATRIX_CellData[15])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[15];
@@ -340,6 +351,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field16; MATRIX_CellData[16])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[16];
@@ -359,6 +371,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field17; MATRIX_CellData[17])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[17];
@@ -378,6 +391,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field18; MATRIX_CellData[18])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[18];
@@ -397,6 +411,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field19; MATRIX_CellData[19])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[19];
@@ -416,6 +431,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field20; MATRIX_CellData[20])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[20];
@@ -435,6 +451,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field21; MATRIX_CellData[21])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[21];
@@ -454,6 +471,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field22; MATRIX_CellData[22])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[22];
@@ -473,6 +491,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field23; MATRIX_CellData[23])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[23];
@@ -492,6 +511,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field24; MATRIX_CellData[24])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[24];
@@ -511,6 +531,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field25; MATRIX_CellData[25])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[25];
@@ -530,6 +551,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field26; MATRIX_CellData[26])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[26];
@@ -549,6 +571,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field27; MATRIX_CellData[27])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[27];
@@ -568,6 +591,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field28; MATRIX_CellData[28])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[28];
@@ -587,6 +611,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field29; MATRIX_CellData[29])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[29];
@@ -606,6 +631,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field30; MATRIX_CellData[30])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[30];
@@ -625,6 +651,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field31; MATRIX_CellData[31])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[31];
@@ -644,6 +671,7 @@ page 2900 "Demand Forecast Variant Matrix"
                 }
                 field(Field32; MATRIX_CellData[32])
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Planning;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[32];

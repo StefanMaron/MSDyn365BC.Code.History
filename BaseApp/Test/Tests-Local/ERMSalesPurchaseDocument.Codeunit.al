@@ -680,7 +680,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
           GeneralPostingSetup."Sales Credit Memo Account", SalesLine."Line Amount", 0);  // Additional-Currency Amount as 0;
         VerifyAmountOnGLEntry(
           GLEntry."Document Type"::"Credit Memo", DocumentNo, FindCustomerPostingGroup(
-            SalesLine."Sell-to Customer No."), -SalesLine."Line Amount", 0);  // Additional-Currency Amount as 0;
+            SalesLine."Sell-to Customer No."), -(SalesLine."Line Amount" + Amount), 0);  // Additional-Currency Amount as 0;
         VerifyVATEntry(DocumentNo, SalesLine."Line Amount", Amount);
     end;
 

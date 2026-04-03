@@ -1951,4 +1951,5 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
           "No.", '<>%1&<>%2&<>%3&<>%4&<>%5', DummySalesLine.FieldNo("Currency Code"), DummySalesLine.FieldNo("Qty. to Invoice"),
           DummySalesLine.FieldNo("Qty. to Ship"), DummySalesLine.FieldNo("Quantity Shipped"), DummySalesLine.FieldNo("Quantity Invoiced"));
     end;
+
 }

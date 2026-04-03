@@ -9,6 +9,9 @@ using Microsoft.Pricing.PriceList;
 using Microsoft.Pricing.Source;
 using System.Text;
 
+/// <summary>
+/// Displays and manages customer discount groups used to assign shared discount rules to multiple customers.
+/// </summary>
 page 512 "Customer Disc. Groups"
 {
     ApplicationArea = Basic, Suite;
@@ -28,12 +31,10 @@ page 512 "Customer Disc. Groups"
                 field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a code for the customer discount group.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a description for the customer discount group.';
                 }
             }
         }
@@ -60,7 +61,6 @@ page 512 "Customer Disc. Groups"
             {
                 Caption = 'Cust. &Disc. Groups';
                 Image = Group;
-#if not CLEAN25
                 action(SalesLineDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -68,9 +68,6 @@ page 512 "Customer Disc. Groups"
                     Image = SalesLineDisc;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View the sales line discounts that are available. These discount agreements can be for individual customers, for a group of customers, for all customers or for a campaign.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     var
@@ -82,7 +79,6 @@ page 512 "Customer Disc. Groups"
                         Page.Run(Page::"Sales Line Discounts", SalesLineDiscount);
                     end;
                 }
-#endif
                 action(PriceLists)
                 {
                     AccessByPermission = TableData "Sales Discount Access" = R;
@@ -128,14 +124,9 @@ page 512 "Customer Disc. Groups"
             group(Category_Category4)
             {
                 Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 3.';
-#if not CLEAN25
                 actionref(SalesLineDiscounts_Promoted; SalesLineDiscounts)
                 {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
-#endif
                 actionref(PriceLists_Promoted; PriceLists)
                 {
                 }
@@ -154,6 +145,10 @@ page 512 "Customer Disc. Groups"
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         ExtendedPriceEnabled: Boolean;
 
+    /// <summary>
+    /// Gets a filter string for the selected customer discount groups on the page.
+    /// </summary>
+    /// <returns>A filter string representing the selected customer discount groups.</returns>
     procedure GetSelectionFilter(): Text
     var
         CustDiscGr: Record "Customer Discount Group";

@@ -6,8 +6,8 @@
 namespace Microsoft.ExcelReports;
 
 using Microsoft.Finance.ExcelReports;
-using Microsoft.Sales.ExcelReports;
 using Microsoft.Purchases.ExcelReports;
+using Microsoft.Sales.ExcelReports;
 
 permissionset 4401 "Excel Reports - Objects"
 {
@@ -28,6 +28,8 @@ permissionset 4401 "Excel Reports - Objects"
                   report "EXR Vendor Top List" = X,
                   codeunit "EXT Top Cust. Caption Handler" = X,
                   codeunit "EXT Top Vendor Caption Handler" = X,
+                  query "EXR Trial Balance BU" = X,
+                  query "EXR Trial Balance Budget" = X,
                   query "EXR Top Customer Balance" = X,
                   query "EXR Top Customer Sales" = X,
                   query "EXR Top Vendor Balance" = X,

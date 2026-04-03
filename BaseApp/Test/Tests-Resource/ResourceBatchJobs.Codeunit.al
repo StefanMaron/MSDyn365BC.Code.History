@@ -43,7 +43,6 @@ codeunit 136402 "Resource Batch Jobs"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Resource Batch Jobs");
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SuggestPriceChangeResource()
@@ -125,7 +124,6 @@ codeunit 136402 "Resource Batch Jobs"
         // 3. Verify: Verify Unit Price on Resource Price.
         VerifyResourcePrice(Resource."No.", UnitPrice * UnitPriceFactor);
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -252,7 +250,6 @@ codeunit 136402 "Resource Batch Jobs"
             Resource2.TestField("Unit Price", Round(Resource."Unit Price" * UnitPriceFactor, Precision));
     end;
 
-#if not CLEAN25
     local procedure CreateResourcePrice(ResourceNo: Code[20]): Decimal
     var
         ResourcePrice: Record "Resource Price";
@@ -262,7 +259,6 @@ codeunit 136402 "Resource Batch Jobs"
         ResourcePrice.Modify(true);
         exit(ResourcePrice."Unit Price");
     end;
-#endif
 
     local procedure CreateAndPostResourceJournalLine(ResourceNo: Code[20]): Code[20]
     var
@@ -320,7 +316,6 @@ codeunit 136402 "Resource Batch Jobs"
         DeleteEmptyResRegisters.Run();
     end;
 
-#if not CLEAN25
     local procedure RunSuggestResPriceChgPrice("Code": Code[20]; UnitPriceFactor: Decimal)
     var
         ResourcePrice: Record "Resource Price";
@@ -334,7 +329,6 @@ codeunit 136402 "Resource Batch Jobs"
         SuggestResPriceChgPrice.UseRequestPage(false);
         SuggestResPriceChgPrice.Run();
     end;
-#endif
 
     local procedure VerifyResourceLedgerEntry(ResourceNo: Code[20])
     var
@@ -347,7 +341,6 @@ codeunit 136402 "Resource Batch Jobs"
         ResLedgerEntry.FindFirst();
     end;
 
-#if not CLEAN25
     local procedure VerifyResourcePrice("Code": Code[20]; UnitPrice: Decimal)
     var
         ResourcePrice: Record "Resource Price";
@@ -368,7 +361,6 @@ codeunit 136402 "Resource Batch Jobs"
         ResourcePriceChange.TestField("Current Unit Price", CurrentUnitPrice);
         ResourcePriceChange.TestField("New Unit Price", NewUnitPrice);
     end;
-#endif
 
     [ConfirmHandler]
     [Scope('OnPrem')]

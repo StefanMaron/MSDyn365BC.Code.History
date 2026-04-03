@@ -4,31 +4,28 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.Reporting;
 
+using Microsoft.Finance.SalesTax;
+using Microsoft.Sales.Setup;
 using Microsoft.Service.Contract;
 using Microsoft.Service.Document;
 using Microsoft.Service.History;
 using Microsoft.Service.Reports;
-using Microsoft.Sales.Setup;
-using Microsoft.Finance.SalesTax;
 
 codeunit 6461 "Serv. Document Print"
 {
     var
-#if not CLEAN25
-        DocumentPrint: Codeunit "Document-Print";
-#endif
 
         MissingReportSelectionErr: Label 'Report Selections is missing for %1 %2.', Comment = '%1 - Contract Type, %2 - Contract No.';
         MissingReportSelection2Err: Label '%1 for %2 is missing in Report Selections.', Comment = '%1 - Document Type, %2 - Service Header';
 
-    [EventSubscriber(ObjectType::Table, Database::"Report Selections", 'OnAfterIsCustomerAccount', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Report Selections", 'OnAfterIsCustomerAccount', '', true, false)]
     local procedure OnAfterIsCustomerAccount(DocumentTableId: Integer; var IsCustomer: Boolean);
     begin
         if DocumentTableId = Database::"Service Invoice Header" then
             IsCustomer := true;
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Report Selections", 'OnSendEmailDirectlyOnAfterSetFieldName', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Report Selections", 'OnSendEmailDirectlyOnAfterSetFieldName', '', true, false)]
     local procedure OnSendEmailDirectlyOnAfterSetFieldName(DocumentTableId: Integer; var FieldName: Text);
     begin
         if DocumentTableId = Database::"Service Invoice Header" then
@@ -46,9 +43,6 @@ codeunit 6461 "Serv. Document Print"
         ServiceHeader.SetRange("No.", ServiceHeader."No.");
         CalcServDisc(ServiceHeader);
         OnBeforePrintServiceHeader(ServiceHeader, ReportUsage.AsInteger(), IsPrinted);
-#if not CLEAN25
-        DocumentPrint.RunOnBeforePrintServiceHeader(ServiceHeader, ReportUsage.AsInteger(), IsPrinted);
-#endif
         if IsPrinted then
             exit;
 
@@ -90,9 +84,6 @@ codeunit 6461 "Serv. Document Print"
 
         ServiceContractHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         OnBeforePrintServiceContract(ServiceContractHeader, ReportUsage.AsInteger(), IsPrinted);
-#if not CLEAN25
-        DocumentPrint.RunOnBeforePrintServiceContract(ServiceContractHeader, ReportUsage.AsInteger(), IsPrinted);
-#endif
         if IsPrinted then
             exit;
 
@@ -112,9 +103,6 @@ codeunit 6461 "Serv. Document Print"
     begin
         IsHandled := false;
         OnBeforeCalcServDisc(ServHeader, IsHandled);
-#if not CLEAN25
-        DocumentPrint.RunOnBeforeCalcServDisc(ServHeader, IsHandled);
-#endif
         if IsHandled then
             exit;
 
@@ -144,9 +132,6 @@ codeunit 6461 "Serv. Document Print"
             else begin
                 IsHandled := false;
                 OnGetServContractTypeUsageElseCase(ServiceContractHeader, TypeUsage, IsHandled);
-#if not CLEAN25
-                DocumentPrint.RunOnGetServContractTypeUsageElseCase(ServiceContractHeader, TypeUsage, IsHandled);
-#endif
                 if IsHandled then
                     exit("Report Selection Usage".FromInteger(TypeUsage));
                 Error('');
@@ -172,9 +157,6 @@ codeunit 6461 "Serv. Document Print"
             else begin
                 IsHandled := false;
                 OnGetServHeaderDocTypeUsageElseCase(ServiceHeader, TypeUsage, IsHandled);
-#if not CLEAN25
-                DocumentPrint.RunOnGetServHeaderDocTypeUsageElseCase(ServiceHeader, TypeUsage, IsHandled);
-#endif
                 if IsHandled then
                     exit("Report Selection Usage".FromInteger(TypeUsage));
                 Error('');
@@ -259,7 +241,7 @@ codeunit 6461 "Serv. Document Print"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Report Selection Mgt.", 'OnInitReportUsage', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Report Selection Mgt.", 'OnInitReportUsage', '', true, false)]
     local procedure InitReportSelection(ReportUsage: Integer)
     begin
         case "Report Selection Usage".FromInteger(ReportUsage) of

@@ -5,15 +5,15 @@
 
 namespace Microsoft.DemoData.Localization;
 
-using Microsoft.DemoTool;
 using Microsoft.DemoData.Bank;
+using Microsoft.DemoData.Finance;
+using Microsoft.DemoData.FixedAsset;
+using Microsoft.DemoData.Foundation;
+using Microsoft.DemoData.HumanResources;
 using Microsoft.DemoData.Inventory;
 using Microsoft.DemoData.Purchases;
 using Microsoft.DemoData.Sales;
-using Microsoft.DemoData.HumanResources;
-using Microsoft.DemoData.FixedAsset;
-using Microsoft.DemoData.Foundation;
-using Microsoft.DemoData.Finance;
+using Microsoft.DemoTool;
 
 codeunit 11465 "US Contoso Localization"
 {
@@ -70,9 +70,6 @@ codeunit 11465 "US Contoso Localization"
                     Codeunit.Run(Codeunit::"Create Currency US");
                     Codeunit.Run(Codeunit::"Create Tax Group US");
                     Codeunit.Run(Codeunit::"Create Tax Setup US");
-#if not CLEAN27
-                    Codeunit.Run(Codeunit::"Create IRS 1099 Form-Box US");
-#endif
                 end;
             Enum::"Contoso Demo Data Level"::"Master Data":
                 begin
@@ -205,7 +202,8 @@ codeunit 11465 "US Contoso Localization"
             Enum::"Contoso Demo Data Module"::Inventory:
                 begin
                     BindSubscription(CreateItemJournalTemplateUS);
-                    BindSubscription(CreateItemUS);
+                    if ContosoDemoDataLevel = Enum::"Contoso Demo Data Level"::"Master Data" then
+                        BindSubscription(CreateItemUS);
                     BindSubscription(CreateItemChargeUS);
                     BindSubscription(CreateLocationUS);
                 end;
@@ -291,7 +289,8 @@ codeunit 11465 "US Contoso Localization"
             Enum::"Contoso Demo Data Module"::Inventory:
                 begin
                     UnbindSubscription(CreateItemJournalTemplateUS);
-                    UnbindSubscription(CreateItemUS);
+                    if ContosoDemoDataLevel = Enum::"Contoso Demo Data Level"::"Master Data" then
+                        UnbindSubscription(CreateItemUS);
                     UnbindSubscription(CreateItemChargeUS);
                     UnbindSubscription(CreateLocationUS);
                 end;

@@ -1632,7 +1632,6 @@ report 10411 "Check (Stub/Check/Stub)"
         CurrencyCode2 := CustLedgEntry2."Currency Code";
         CustLedgEntry2.CalcFields("Remaining Amount");
 
-        // When using Applies-to ID, use "Amount to Apply" instead of "Remaining Amount"
         if (ApplyMethod = ApplyMethod::OneLineID) and (CustLedgEntry2."Amount to Apply" <> 0) then
             AmountToUse := CustLedgEntry2."Amount to Apply"
         else

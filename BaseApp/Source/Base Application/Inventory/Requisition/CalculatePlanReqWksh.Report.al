@@ -6,8 +6,8 @@ namespace Microsoft.Inventory.Requisition;
 
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
-using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Planning;
+using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Purchases.Vendor;
@@ -36,8 +36,6 @@ report 699 "Calculate Plan - Req. Wksh."
                 if SkipPlanningForItemOnReqWksh(Item) then
                     CurrReport.Skip();
 
-                PlanningAssignment.SetRange("Item No.", "No.");
-
                 ReqLine.LockTable();
                 ActionMessageEntry.LockTable();
 
@@ -62,13 +60,11 @@ report 699 "Calculate Plan - Req. Wksh."
 
                 SetParamAndCalculatePlanFromWorksheet();
 
-                if PlanningAssignment.Find('-') then
-                    repeat
-                        if PlanningAssignment."Latest Date" <= ToDate then begin
-                            PlanningAssignment.Inactive := true;
-                            PlanningAssignment.Modify();
-                        end;
-                    until PlanningAssignment.Next() = 0;
+                PlanningAssignment.SetRange("Item No.", "No.");
+                PlanningAssignment.SetFilter("Latest Date", '..%1', ToDate);
+                if not PlanningAssignment.IsEmpty() then
+                    PlanningAssignment.ModifyAll(Inactive, true);
+                PlanningAssignment.SetRange("Latest Date");
 
                 OnItemOnAfterGetRecordOnBeforeCommit(ReqLine, Item, CurrTemplateName, CurrWorksheetName, FromDate);
                 Commit();

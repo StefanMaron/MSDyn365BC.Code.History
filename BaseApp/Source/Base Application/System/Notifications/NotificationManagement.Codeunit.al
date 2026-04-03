@@ -110,6 +110,7 @@ codeunit 1510 "Notification Management"
         NotificationSetup.Init();
         NotificationSetup.Validate("Notification Type", NotificationType);
         NotificationSetup.Validate("Notification Method", NotificationSetup."Notification Method"::Email);
+        OnBeforeInsertNotificationSetup(NotificationSetup, NotificationType);
         NotificationSetup.Insert(true);
     end;
 
@@ -290,6 +291,11 @@ codeunit 1510 "Notification Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateOverdueNotificationsOnBeforeCreateNotificationEntry(UserSetup: Record "User Setup"; ApprovalEntry: Record "Approval Entry"; var OverdueApprovalEntry: Record "Overdue Approval Entry"; WorkflowStepArgument: Record "Workflow Step Argument"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertNotificationSetup(var NotificationSetup: Record "Notification Setup"; NotificationType: Enum "Notification Entry Type")
     begin
     end;
 }

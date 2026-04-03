@@ -298,7 +298,6 @@ codeunit 139164 "Library - CRM Integration"
         CustomerPriceGroup.Find();
     end;
 
-#if not CLEAN25
     [Scope('OnPrem')]
     procedure CreateCoupledSalesPriceAndPricelistLine(CustomerPriceGroup: Record "Customer Price Group"; var SalesPrice: Record "Sales Price"; var CRMProductpricelevel: Record "CRM Productpricelevel")
     var
@@ -318,7 +317,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMIntegrationRecord.CoupleRecordIdToCRMID(SalesPrice.RecordId, CRMProductpricelevel.ProductPriceLevelId);
         SalesPrice.Find();
     end;
-#endif
+
     [Scope('OnPrem')]
     procedure CreateCoupledPriceListHeaderAndPricelevel(var PriceListHeader: Record "Price List Header"; var CRMPricelevel: Record "CRM Pricelevel")
     var

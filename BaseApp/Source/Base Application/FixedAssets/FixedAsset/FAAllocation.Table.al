@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -33,6 +33,7 @@ table 5615 "FA Allocation"
         field(4; "Account No."; Code[20])
         {
             Caption = 'Account No.';
+            ToolTip = 'Specifies the account number to allocate to for the fixed asset allocation type on this line.';
             TableRelation = "G/L Account";
 
             trigger OnValidate()
@@ -78,7 +79,9 @@ table 5615 "FA Allocation"
         }
         field(7; "Allocation %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Allocation %';
+            ToolTip = 'Specifies the percentage to use when allocating the amount for the allocation type.';
             DecimalPlaces = 1 : 1;
             MaxValue = 100;
             MinValue = 0;
@@ -91,6 +94,7 @@ table 5615 "FA Allocation"
         {
             CalcFormula = lookup("G/L Account".Name where("No." = field("Account No.")));
             Caption = 'Account Name';
+            ToolTip = 'Specifies the name of the account on this allocation line.';
             Editable = false;
             FieldClass = FlowField;
         }

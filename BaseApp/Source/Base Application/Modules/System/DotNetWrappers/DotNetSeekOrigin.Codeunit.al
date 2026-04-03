@@ -4,6 +4,8 @@ using System;
 
 codeunit 3039 DotNet_SeekOrigin
 {
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     trigger OnRun()
     begin

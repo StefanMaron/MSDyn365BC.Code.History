@@ -5,7 +5,9 @@
 namespace Microsoft.Service.Document;
 
 using Microsoft.Finance.Dimension;
+#if not CLEAN28
 using Microsoft.Finance.SalesTax;
+#endif
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
 using Microsoft.Inventory.Location;
@@ -539,24 +541,30 @@ report 5900 "Service Order"
                         }
 
                         trigger OnAfterGetRecord()
+#if not CLEAN28
                         var
                             ExchangeFactor: Decimal;
-                            SalesTaxCalculate: Codeunit "Sales Tax Calculate";
+                            ServSalesTaxCalculate: Codeunit "Serv. Sales Tax Calculate";
                             TempSalesTaxAmountLine: Record "Sales Tax Amount Line" temporary;
+#endif
                         begin
                             if ShowQty = ShowQty::Quantity then begin
                                 Qty := Quantity;
                                 Amt := "Line Amount";
+#if not CLEAN28
                                 if "Service Header"."Currency Factor" = 0 then
                                     ExchangeFactor := 1
                                 else
                                     ExchangeFactor := "Service Header"."Currency Factor";
-                                SalesTaxCalculate.StartSalesTaxCalculation();
-                                SalesTaxCalculate.AddServiceLine("Service Line");
-                                SalesTaxCalculate.EndSalesTaxCalculation("Posting Date");
-                                SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxAmountLine);
+                                ServSalesTaxCalculate.StartSalesTaxCalculation();
+                                ServSalesTaxCalculate.AddServiceLine("Service Line");
+                                ServSalesTaxCalculate.EndSalesTaxCalculation("Posting Date");
+                                ServSalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxAmountLine);
                                 OnAfterCalculateSalesTax("Service Header", "Service Line", TempSalesTaxAmountLine);
                                 GrossAmt := Amt + TempSalesTaxAmountLine.GetTotalTaxAmountFCY();
+#else
+                                GrossAmt := "Amount Including VAT";
+#endif
                             end else begin
                                 if "Quantity Invoiced" = 0 then
                                     CurrReport.Skip();
@@ -724,6 +732,7 @@ report 5900 "Service Order"
         CompanyInfo.Get();
         ServiceSetup.Get();
 
+#if not CLEAN28
         case ServiceSetup."Logo Position on Documents" of
             ServiceSetup."Logo Position on Documents"::"No Logo":
                 ;
@@ -740,9 +749,15 @@ report 5900 "Service Order"
                     CompanyInfo2.CalcFields(Picture);
                 end;
         end;
+#else
+        FormatDocument.SetLogoPosition(ServiceSetup."Logo Position on Documents", CompanyInfo1, CompanyInfo2, CompanyInfo3);
+#endif
     end;
 
     var
+#if CLEAN28
+        CompanyInfo3: Record "Company Information";
+#endif
         ServiceSetup: Record "Service Mgt. Setup";
         RespCenter: Record "Responsibility Center";
         DimSetEntry1: Record "Dimension Set Entry";
@@ -826,9 +841,12 @@ report 5900 "Service Order"
             ServiceFormatAddress.ServiceOrderShipto(ShipToAddr, ServiceHeader);
     end;
 
+#if not CLEAN28
+    [Obsolete('Replaced by report Service Order NA', '28.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateSalesTax(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var SalesTaxAmountLine: Record "Sales Tax Amount Line")
     begin
     end;
+#endif
 }
 

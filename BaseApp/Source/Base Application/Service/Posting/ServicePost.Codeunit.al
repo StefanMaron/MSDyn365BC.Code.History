@@ -4,13 +4,11 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Posting;
 
-using Microsoft.eServices.EDocument;
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Preview;
 using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Finance.SalesTax;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Inventory.Analysis;
@@ -62,7 +60,6 @@ codeunit 5980 "Service-Post"
         ServDocumentsMgt: Codeunit "Serv-Documents Mgt.";
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         WhsePostShpt: Codeunit "Whse.-Post Shipment";
-        SalesTaxCalculate: Codeunit "Sales Tax Calculate";
         Window: Dialog;
         PostingDate: Date;
         OrderArchived: Boolean;
@@ -104,7 +101,6 @@ codeunit 5980 "Service-Post"
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
         WhseServiceRelease: Codeunit "Whse.-Service Release";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
-        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
         ServiceDocumentArchiveMgmt: Codeunit "Service Document Archive Mgmt.";
         ServDocNo: Code[20];
         ServDocType: Integer;
@@ -133,12 +129,14 @@ codeunit 5980 "Service-Post"
                 Window.Update(1, StrSubstNo('%1 %2', ServiceHeader."Document Type", ServiceHeader."No."));
             end;
 
-            GLSetup.Get();
-            if GLSetup."PAC Environment" <> GLSetup."PAC Environment"::Disabled then
-                ServiceHeader.TestField(ServiceHeader."Payment Method Code");
-
-            if ServDocumentsMgt.SetNoSeries(ServiceHeader) then
+            if ServDocumentsMgt.SetNoSeries(ServiceHeader, PreviewMode) then begin
                 ServiceHeader.Modify();
+                if not SuppressCommit and not PreviewMode then
+                    Commit();
+            end;
+
+            if PreviewMode then
+                ServiceHeader.Consistent(false); // Safety net to prevent commits
 
             ServDocumentsMgt.CalcInvDiscount();
             ServiceHeader.Find();
@@ -213,21 +211,14 @@ codeunit 5980 "Service-Post"
             if WhseShip then
                 WhseServiceRelease.Release(ServiceHeader);
 
-            EInvoiceMgt.InsertServiceInvoiceCFDIRelations(ServiceHeader, ServInvoiceNo);
-            EInvoiceMgt.InsertServiceCreditMemoCFDIRelations(ServiceHeader, ServCrMemoNo);
-
             if not SuppressCommit then
                 Commit();
 
-            OnAfterPostServiceDoc(ServiceHeader, ServShipmentNo, ServInvoiceNo, ServCrMemoNo, ServDocumentsMgt, SuppressCommit, PassedShip, PassedConsume, PassedInvoice, WhseShip);
+            OnAfterPostServiceDoc(ServiceHeader, ServShipmentNo, ServInvoiceNo, ServCrMemoNo, ServDocumentsMgt, SuppressCommit, PassedShip, PassedConsume, PassedInvoice, WhseShip, Invoice);
 
             if GuiAllowed() then
                 Window.Close();
-            if Invoice and ServDocumentsMgt.GetUseExternalTaxEngine() then
-                if ServiceHeader."Document Type" in [ServiceHeader."Document Type"::Order, ServiceHeader."Document Type"::Invoice] then
-                    SalesTaxCalculate.FinalizeExternalTaxCalcForDoc(DATABASE::"Service Invoice Header", ServiceHeader."Last Posting No.")
-                else
-                    SalesTaxCalculate.FinalizeExternalTaxCalcForDoc(DATABASE::"Service Cr.Memo Header", ServiceHeader."Last Posting No.");
+
             UpdateAnalysisView.UpdateAll(0, true);
             UpdateItemAnalysisView.UpdateAll(0, true);
 
@@ -672,7 +663,7 @@ codeunit 5980 "Service-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostServiceDoc(var ServiceHeader: Record "Service Header"; ServShipmentNo: Code[20]; ServInvoiceNo: Code[20]; ServCrMemoNo: Code[20]; var ServDocumentsMgt: Codeunit "Serv-Documents Mgt."; CommitIsSuppressed: Boolean; PassedShip: Boolean; PassedConsume: Boolean; PassedInvoice: Boolean; WhseShip: Boolean)
+    local procedure OnAfterPostServiceDoc(var ServiceHeader: Record "Service Header"; ServShipmentNo: Code[20]; ServInvoiceNo: Code[20]; ServCrMemoNo: Code[20]; var ServDocumentsMgt: Codeunit "Serv-Documents Mgt."; CommitIsSuppressed: Boolean; PassedShip: Boolean; PassedConsume: Boolean; PassedInvoice: Boolean; WhseShip: Boolean; Invoice: Boolean)
     begin
     end;
 

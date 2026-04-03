@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -19,6 +19,16 @@ using Microsoft.Foundation.Comment;
 using Microsoft.Foundation.ExtendedText;
 using Microsoft.Purchases.Reports;
 
+/// <summary>
+/// Primary interface for managing the complete chart of accounts structure with hierarchical display and account operations.
+/// Provides comprehensive account management including creation, modification, analysis, and reporting functionality.
+/// </summary>
+/// <remarks>
+/// Key functionality: Account overview, balance inquiries, account setup, dimensional analysis, reporting navigation.
+/// User workflow: Central hub for all general ledger account operations and financial structure management.
+/// Extensible via page extensions for additional columns, actions, and account-specific functionality.
+/// Supports indented display for account hierarchies and integrated financial reporting access.
+/// </remarks>
 page 16 "Chart of Accounts"
 {
     ApplicationArea = Basic, Suite;
@@ -217,17 +227,11 @@ page 16 "Chart of Accounts"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how amounts in foreign currencies should be posted to this account.';
-#if not CLEAN25
-                    Visible = SourceCurrencyVisible;
-#endif
                 }
                 field("Source Currency Code"; Rec."Source Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the allowed source currency code if Source Currency Posting value is Same Currency.';
-#if not CLEAN25
-                    Visible = SourceCurrencyVisible;
-#endif
                 }
                 field("Source Currency Balance"; Rec."Source Currency Balance")
                 {
@@ -290,9 +294,6 @@ page 16 "Chart of Accounts"
                               "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
                               "Global Dimension 2 Filter" = field("Global Dimension 2 Filter"),
                               "Date Filter" = field("Date Filter");
-#if not CLEAN25
-                Visible = SourceCurrencyVisible;
-#endif
             }
             systempart(Control1900383207; Links)
             {
@@ -530,9 +531,6 @@ page 16 "Chart of Accounts"
                     Image = CurrencyExchangeRates;
                     RunObject = Report "G/L Currency Revaluation";
                     ToolTip = 'Create general journal lines with currency revaluation for G/L accounts with posting in source currency.';
-#if not CLEAN25
-                    Visible = SourceCurrencyVisible;
-#endif
                 }
                 action("Close Income Statement")
                 {
@@ -611,16 +609,21 @@ page 16 "Chart of Accounts"
                 RunObject = Report "Trial Balance Detail/Summary";
                 ToolTip = 'View general ledger account balances and activities for all the selected accounts, one transaction per line. You can include general ledger accounts which have a balance and including the closing entries within the period.';
             }
+#if not CLEAN28
             action("Trial Balance")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Trial Balance';
+                Caption = 'Trial Balance (Obsolete)';
                 Image = "Report";
                 RunObject = Report "Trial Balance";
                 ToolTip = 'View the chart of accounts that have balances and net changes.';
                 AboutTitle = 'Get the financial overview';
                 AboutText = 'With the **Trial Balance** reports you get the balance sheet, income statement, or the full trial balance.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report has been replaced by the report Trial Balance (Excel). This report will be removed in a future release.';
+                ObsoleteTag = '28.0';
             }
+#endif
             action("Trial Balance, Spread Periods")
             {
                 ApplicationArea = Basic, Suite;
@@ -791,9 +794,14 @@ page 16 "Chart of Accounts"
                 actionref("Trial Balance Detail/Summary_Promoted"; "Trial Balance Detail/Summary")
                 {
                 }
+#if not CLEAN28
                 actionref("Trial Balance_Promoted"; "Trial Balance")
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This report has been replaced by the report Trial Balance (Excel). This report will be removed in a future release.';
+                    ObsoleteTag = '28.0';
                 }
+#endif
                 actionref("Consol. Trial Balance_Promoted"; "Consol. Trial Balance")
                 {
                 }
@@ -853,28 +861,13 @@ page 16 "Chart of Accounts"
         NameIndent: Integer;
         AmountVisible: Boolean;
         DebitCreditVisible: Boolean;
-#if not CLEAN25
-        SourceCurrencyVisible: Boolean;
-#endif
 
     local procedure SetControlVisibility()
     var
         GLSetup: Record "General Ledger Setup";
-#if not CLEAN25
-        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
-        ClientTypeManagement: Codeunit System.Environment."Client Type Management";
-#endif
     begin
         GLSetup.Get();
         AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
-#if not CLEAN25
-        if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::SOAP, CLIENTTYPE::OData, CLIENTTYPE::ODataV4, ClientType::Api]
-        then
-            SourceCurrencyVisible := false
-        else
-            SourceCurrencyVisible := FeatureKeyManagement.IsGLCurrencyRevaluationEnabled();
-#endif
     end;
 }
-

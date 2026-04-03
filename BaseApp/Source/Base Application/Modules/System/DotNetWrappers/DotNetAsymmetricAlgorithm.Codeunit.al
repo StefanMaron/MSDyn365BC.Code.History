@@ -4,6 +4,9 @@ using System;
 
 codeunit 3058 DotNet_AsymmetricAlgorithm
 {
+    InherentEntitlements = X;
+    InherentPermissions = X;
+
     trigger OnRun()
     begin
     end;

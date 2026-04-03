@@ -1,12 +1,7 @@
-#if not CLEAN25
-#pragma warning disable AS0072
 codeunit 134167 "Copy Price Data Test"
 {
     Subtype = Test;
     TestPermissions = Disabled;
-    ObsoleteReason = 'Not Used.';
-    ObsoleteState = Pending;
-    ObsoleteTag = '23.0';
 
     trigger OnRun()
     begin
@@ -2246,4 +2241,3 @@ codeunit 134167 "Copy Price Data Test"
         LibraryVariableStorage.Enqueue(DataUpgradeOverview."No. of Records".AsInteger());
     end;
 }
-#endif

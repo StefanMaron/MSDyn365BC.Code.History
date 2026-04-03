@@ -10,11 +10,6 @@ codeunit 144007 "UT PAG Address"
 
     var
         LibraryUTUtility: Codeunit "Library UT Utility";
-#if not CLEAN25
-        LibraryApplicationArea: Codeunit "Library - Application Area";
-        LibraryUtility: Codeunit "Library - Utility";
-        Assert: Codeunit Assert;
-#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -39,32 +34,6 @@ codeunit 144007 "UT PAG Address"
         ServiceItemCard.Close();
     end;
 
-#if not CLEAN25
-    [Test]
-    [Scope('OnPrem')]
-    procedure VerifyFieldsAreVisibleOnVendorLedgerEntry()
-    var
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
-        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
-    begin
-        // [FEATURE] [Vendor Ledger Entry] [UT] [UI]
-        // [SCENARIO 256652] Vendor Ledger Entry "IRS 1099" fields are editable and visible.
-        LibraryApplicationArea.EnableFoundationSetup();
-
-        VendorLedgerEntry."Entry No." :=
-          LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
-        VendorLedgerEntry.Insert();
-
-        VendorLedgerEntries.OpenEdit();
-        VendorLedgerEntries.GotoRecord(VendorLedgerEntry);
-
-        Assert.IsTrue(VendorLedgerEntries."IRS 1099 Code".Visible(), '"IRS 1099 Code" must be visible');
-        Assert.IsTrue(VendorLedgerEntries."IRS 1099 Code".Editable(), '"IRS 1099 Code" must be editable');
-        Assert.IsTrue(VendorLedgerEntries."IRS 1099 Amount".Visible(), '"IRS 199 Amount" must be visible');
-        Assert.IsTrue(VendorLedgerEntries."IRS 1099 Amount".Editable(), '"IRS 199 Amount" must be editable');
-        VendorLedgerEntries.Close();
-    end;
-#endif
 
     local procedure CreateCustomer(): Code[20]
     var
@@ -83,4 +52,3 @@ codeunit 144007 "UT PAG Address"
         ServiceItem.Insert();
     end;
 }
-

@@ -8,8 +8,6 @@ using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
 
 table 10012 "Sales Tax Amount Difference"
 {
@@ -35,27 +33,15 @@ table 10012 "Sales Tax Amount Difference"
             TableRelation = if ("Document Product Area" = const(Sales)) "Sales Header"."No." where("Document Type" = field("Document Type"))
             else
             if ("Document Product Area" = const(Purchase)) "Purchase Header"."No." where("Document Type" = field("Document Type"))
-            else
-            if ("Document Product Area" = const(Service)) "Service Header"."No." where("Document Type" = field("Document Type"))
 #pragma warning restore AL0603
             else
-            if ("Document Type" = const(Invoice),
-                                     "Document Product Area" = const("Posted Sale")) "Sales Invoice Header"
+            if ("Document Type" = const(Invoice), "Document Product Area" = const("Posted Sale")) "Sales Invoice Header"
             else
-            if ("Document Type" = const("Credit Memo"),
-                                              "Document Product Area" = const("Posted Sale")) "Sales Cr.Memo Header"
+            if ("Document Type" = const("Credit Memo"), "Document Product Area" = const("Posted Sale")) "Sales Cr.Memo Header"
             else
-            if ("Document Type" = const(Invoice),
-                                                       "Document Product Area" = const("Posted Purchase")) "Purch. Inv. Header"
+            if ("Document Type" = const(Invoice), "Document Product Area" = const("Posted Purchase")) "Purch. Inv. Header"
             else
-            if ("Document Type" = const("Credit Memo"),
-                                                                "Document Product Area" = const("Posted Purchase")) "Purch. Cr. Memo Hdr."
-            else
-            if ("Document Type" = const(Invoice),
-                                                                         "Document Product Area" = const("Posted Service")) "Service Invoice Header"
-            else
-            if ("Document Type" = const("Credit Memo"),
-                                                                                  "Document Product Area" = const("Posted Service")) "Service Cr.Memo Header";
+            if ("Document Type" = const("Credit Memo"), "Document Product Area" = const("Posted Purchase")) "Purch. Cr. Memo Hdr.";
         }
         field(5; "Tax Area Code"; Code[20])
         {
@@ -74,6 +60,7 @@ table 10012 "Sales Tax Amount Difference"
         }
         field(8; "Tax %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Tax %';
         }
         field(9; "Expense/Capitalize"; Boolean)
@@ -92,7 +79,7 @@ table 10012 "Sales Tax Amount Difference"
         }
         field(15; "Tax Difference"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 0;
             Caption = 'Tax Difference';
             Editable = false;
         }

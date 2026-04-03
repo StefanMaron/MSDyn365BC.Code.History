@@ -1,23 +1,21 @@
 namespace System.Security.AccessControl;
 
-using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Foundation.Comment;
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Comment;
+using Microsoft.Foundation.Period;
+using Microsoft.Foundation.UOM;
+using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
-using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
-using Microsoft.Projects.Resources.Journal;
-using Microsoft.Projects.Resources.Resource;
-#if not CLEAN25
-using Microsoft.Projects.Resources.Pricing;
-#endif
-using Microsoft.Foundation.Period;
 using Microsoft.Projects.Project.Job;
-using Microsoft.Foundation.AuditCodes;
+using Microsoft.Projects.Resources.Journal;
+using Microsoft.Projects.Resources.Pricing;
+using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.TimeSheet;
-using Microsoft.Foundation.UOM;
 using Microsoft.Utilities;
 
 permissionset 386 "Resources Journals - Edit"
@@ -48,13 +46,9 @@ permissionset 386 "Resources Journals - Edit"
                   tabledata "Res. Journal Line" = RIMD,
                   tabledata "Res. Journal Template" = RI,
                   tabledata Resource = R,
-#if not CLEAN25
                   tabledata "Resource Cost" = R,
-#endif
                   tabledata "Resource Group" = R,
-#if not CLEAN25
                   tabledata "Resource Price" = R,
-#endif
                   tabledata "Resource Unit of Measure" = R,
                   tabledata "Source Code Setup" = R,
                   tabledata "Time Sheet Chart Setup" = R,

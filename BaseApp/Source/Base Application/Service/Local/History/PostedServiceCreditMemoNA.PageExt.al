@@ -213,15 +213,6 @@ pageextension 10012 "Posted Service Credit Memo NA" extends "Posted Service Cred
                 }
             }
         }
-#if not CLEAN25
-        modify(Statistics)
-        {
-            trigger OnBeforeAction()
-            begin
-                OnBeforeCalculateSalesTaxStatistics(Rec);
-            end;
-        }
-#endif
         addafter(ServiceStatistics)
         {
             action(ServiceStats)
@@ -283,11 +274,4 @@ pageextension 10012 "Posted Service Credit Memo NA" extends "Posted Service Cred
         DocumentRecRef.GetTable(Rec);
         EInvoiceMgt.GetSATCertificateInfoForDocument(DocumentRecRef, SATCertificateCode, SATCertificateName, SATCertificateSource);
     end;
-#if not CLEAN25
-    [Obsolete('Moved to procedure OpenStatistics in table ServiceCrMemoHeader', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateSalesTaxStatistics(var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
-    begin
-    end;
-#endif
 }

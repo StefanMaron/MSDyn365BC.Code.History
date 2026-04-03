@@ -169,7 +169,7 @@
   </Item>
   <Item ItemId=";Codeunit 3810257405 - NamedType 408930143" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[(500) Server Error.]]></Val>
+      <Val><![CDATA[(500) Internal Server Error.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

@@ -6,19 +6,19 @@ namespace Microsoft.Service.Test;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CRM.Team;
+using Microsoft.Finance.SalesTax;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Reporting;
-using Microsoft.Finance.SalesTax;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
+using Microsoft.Sales.Customer;
 using Microsoft.Service.Contract;
 using Microsoft.Service.Document;
 using Microsoft.Service.History;
 using Microsoft.Service.Item;
-using Microsoft.Sales.Customer;
 using System.Environment.Configuration;
-using System.Utilities;
 using System.TestLibraries.Utilities;
+using System.Utilities;
 
 codeunit 136150 "Service Pages"
 {

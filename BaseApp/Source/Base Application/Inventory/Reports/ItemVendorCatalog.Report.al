@@ -11,6 +11,7 @@ using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Purchases.Vendor;
 
+// NA local report with same name as in W1
 report 10164 "Item/Vendor Catalog"
 {
     DefaultLayout = RDLC;
@@ -319,4 +320,3 @@ report 10164 "Item/Vendor Catalog"
           "Item Vendor".FieldCaption("Vendor No."));
     end;
 }
-

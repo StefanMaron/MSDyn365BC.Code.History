@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -196,6 +196,7 @@ table 5342 "CRM Contact"
         field(23; FullName; Text[160])
         {
             Caption = 'Full Name';
+            ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
             Description = 'Combines and shows the contact''s first and last names so that the full name can be displayed in views and reports.';
             ExternalAccess = Read;
             ExternalName = 'fullname';
@@ -272,6 +273,7 @@ table 5342 "CRM Contact"
         }
         field(33; AnnualIncome; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Annual Income';
             Description = 'Type the contact''s annual income for use in profiling and financial analysis.';
             ExternalName = 'annualincome';
@@ -302,6 +304,7 @@ table 5342 "CRM Contact"
         field(36; WebSiteUrl; Text[200])
         {
             Caption = 'Website';
+            ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
             Description = 'Type the contact''s professional or personal website or blog URL.';
             ExtendedDatatype = URL;
             ExternalName = 'websiteurl';
@@ -329,6 +332,7 @@ table 5342 "CRM Contact"
         field(39; EMailAddress1; Text[100])
         {
             Caption = 'Email';
+            ToolTip = 'Specifies the email address.';
             Description = 'Type the primary email address for the contact.';
             ExtendedDatatype = EMail;
             ExternalName = 'emailaddress1';
@@ -451,6 +455,7 @@ table 5342 "CRM Contact"
         }
         field(55; CreditLimit; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Credit Limit';
             Description = 'Type the credit limit of the contact for reference when you address invoice and accounting issues with the customer.';
             ExternalName = 'creditlimit';
@@ -524,6 +529,7 @@ table 5342 "CRM Contact"
         field(64; MobilePhone; Text[50])
         {
             Caption = 'Mobile Phone';
+            ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
             Description = 'Type the mobile phone number for the contact.';
             ExternalName = 'mobilephone';
             ExternalType = 'String';
@@ -531,6 +537,7 @@ table 5342 "CRM Contact"
         field(65; Pager; Text[50])
         {
             Caption = 'Pager';
+            ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
             Description = 'Type the pager number for the contact.';
             ExternalName = 'pager';
             ExternalType = 'String';
@@ -538,6 +545,7 @@ table 5342 "CRM Contact"
         field(66; Telephone1; Text[50])
         {
             Caption = 'Business Phone';
+            ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
             Description = 'Type the main phone number for this contact.';
             ExternalName = 'telephone1';
             ExternalType = 'String';
@@ -559,12 +567,14 @@ table 5342 "CRM Contact"
         field(69; Fax; Text[50])
         {
             Caption = 'Fax';
+            ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
             Description = 'Type the fax number for the contact.';
             ExternalName = 'fax';
             ExternalType = 'String';
         }
         field(70; Aging30; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Aging 30';
             Description = 'For system use only.';
             ExternalAccess = Read;
@@ -585,6 +595,7 @@ table 5342 "CRM Contact"
         }
         field(72; Aging60; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Aging 60';
             Description = 'For system use only.';
             ExternalAccess = Read;
@@ -604,6 +615,7 @@ table 5342 "CRM Contact"
         }
         field(74; Aging90; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Aging 90';
             Description = 'For system use only.';
             ExternalAccess = Read;
@@ -681,6 +693,7 @@ table 5342 "CRM Contact"
         field(83; Address1_Line1; Text[250])
         {
             Caption = 'Address 1: Street 1';
+            ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
             Description = 'Type the first line of the primary address.';
             ExternalName = 'address1_line1';
             ExternalType = 'String';
@@ -688,6 +701,7 @@ table 5342 "CRM Contact"
         field(84; Address1_Line2; Text[250])
         {
             Caption = 'Address 1: Street 2';
+            ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
             Description = 'Type the second line of the primary address.';
             ExternalName = 'address1_line2';
             ExternalType = 'String';
@@ -702,6 +716,7 @@ table 5342 "CRM Contact"
         field(86; Address1_City; Text[80])
         {
             Caption = 'Address 1: City';
+            ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
             Description = 'Type the city for the primary address.';
             ExternalName = 'address1_city';
             ExternalType = 'String';
@@ -723,6 +738,7 @@ table 5342 "CRM Contact"
         field(89; Address1_Country; Text[80])
         {
             Caption = 'Address 1: Country/Region';
+            ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
             Description = 'Type the country or region for the primary address.';
             ExternalName = 'address1_country';
             ExternalType = 'String';
@@ -737,6 +753,7 @@ table 5342 "CRM Contact"
         field(91; Address1_PostalCode; Text[20])
         {
             Caption = 'Address 1: ZIP/Postal Code';
+            ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
             Description = 'Type the ZIP Code or postal code for the primary address.';
             ExternalName = 'address1_postalcode';
             ExternalType = 'String';
@@ -759,6 +776,7 @@ table 5342 "CRM Contact"
         }
         field(95; Address1_Latitude; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Address 1: Latitude';
             Description = 'Type the latitude value for the primary address for use in mapping and other applications.';
             ExternalName = 'address1_latitude';
@@ -773,6 +791,7 @@ table 5342 "CRM Contact"
         }
         field(97; Address1_Longitude; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Address 1: Longitude';
             Description = 'Type the longitude value for the primary address for use in mapping and other applications.';
             ExternalName = 'address1_longitude';
@@ -923,6 +942,7 @@ table 5342 "CRM Contact"
         }
         field(118; Address2_Latitude; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Address 2: Latitude';
             Description = 'Type the latitude value for the secondary address for use in mapping and other applications.';
             ExternalName = 'address2_latitude';
@@ -937,6 +957,7 @@ table 5342 "CRM Contact"
         }
         field(120; Address2_Longitude; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Address 2: Longitude';
             Description = 'Type the longitude value for the secondary address for use in mapping and other applications.';
             ExternalName = 'address2_longitude';
@@ -1133,6 +1154,7 @@ table 5342 "CRM Contact"
         }
         field(143; ExchangeRate; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Exchange Rate';
             Description = 'Shows the conversion rate of the record''s currency. The exchange rate is used to convert all money fields in the record from the local currency to the system''s default currency.';
             ExternalAccess = Read;
@@ -1165,6 +1187,7 @@ table 5342 "CRM Contact"
         }
         field(147; AnnualIncome_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Annual Income (Base)';
             Description = 'Shows the Annual Income field converted to the system''s default base currency. The calculations use the exchange rate specified in the Currencies area.';
             ExternalAccess = Read;
@@ -1173,6 +1196,7 @@ table 5342 "CRM Contact"
         }
         field(148; CreditLimit_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Credit Limit (Base)';
             Description = 'Shows the Credit Limit field converted to the system''s default base currency for reporting purposes. The calculations use the exchange rate specified in the Currencies area.';
             ExternalAccess = Read;
@@ -1181,6 +1205,7 @@ table 5342 "CRM Contact"
         }
         field(149; Aging60_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Aging 60 (Base)';
             Description = 'Shows the Aging 60 field converted to the system''s default base currency. The calculations use the exchange rate specified in the Currencies area.';
             ExternalAccess = Read;
@@ -1189,6 +1214,7 @@ table 5342 "CRM Contact"
         }
         field(150; Aging90_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Aging 90 (Base)';
             Description = 'Shows the Aging 90 field converted to the system''s default base currency. The calculations use the exchange rate specified in the Currencies area.';
             ExternalAccess = Read;
@@ -1197,6 +1223,7 @@ table 5342 "CRM Contact"
         }
         field(151; Aging30_Base; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Aging 30 (Base)';
             Description = 'Shows the Aging 30 field converted to the system''s default base currency. The calculations use the exchange rate specified in the Currencies area.';
             ExternalAccess = Read;
@@ -1424,6 +1451,7 @@ table 5342 "CRM Contact"
         }
         field(180; Address3_Latitude; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Address 3: Latitude';
             Description = 'Type the latitude value for the third address for use in mapping and other applications.';
             ExternalName = 'address3_latitude';
@@ -1431,6 +1459,7 @@ table 5342 "CRM Contact"
         }
         field(181; Address3_Longitude; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Address 3: Longitude';
             Description = 'Type the longitude value for the third address for use in mapping and other applications.';
             ExternalName = 'address3_longitude';

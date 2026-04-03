@@ -1,3 +1,4 @@
+#if not CLEAN28
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -15,8 +16,11 @@ report 322 "Aged Accounts Payable"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './Purchases/Reports/AgedAccountsPayable.rdlc';
-    Caption = 'Aged Accounts Payable';
+    Caption = 'Aged Accounts Payable (Obsolete)';
     DataAccessIntent = ReadOnly;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This report has been replaced by the report Aged Accounts Payable (Excel). This report will be removed in a future release.';
+    ObsoleteTag = '28.0';
 
     dataset
     {
@@ -218,7 +222,6 @@ report 322 "Aged Accounts Payable"
                         SetRange("Posting Date", 0D, EndingDate);
                         SetRange("Date Filter", 0D, EndingDate);
                     end;
-
                     CopyDimFiltersFromVendor(OpenVendorLedgEntry);
                     Vendor.CopyFilter("Currency Filter", "Currency Code");
                 end;
@@ -562,8 +565,8 @@ report 322 "Aged Accounts Payable"
     requestpage
     {
         SaveValues = true;
-        AboutTitle = 'About Aged Accounts Payable';
-        AboutText = 'Analyze vendor balances at the end of each period by calculating outstanding invoice, credit memo, and payment totals in three periods of equal length. Monitor unpaid invoices, and prioritize payments for overdue accounts. ';
+        AboutTitle = 'About Aged Accounts Payable (Obsolete)';
+        AboutText = 'Analyze vendor balances at the end of each period by calculating outstanding invoice, credit memo, and payment totals in three periods of equal length. Monitor unpaid invoices, and prioritize payments for overdue accounts.** This report is obsolete and will be removed in a future release.** Please refer to the report documentation for alternative ways to retrieve this information.';
 
         layout
         {
@@ -870,3 +873,4 @@ report 322 "Aged Accounts Payable"
     end;
 }
 
+#endif

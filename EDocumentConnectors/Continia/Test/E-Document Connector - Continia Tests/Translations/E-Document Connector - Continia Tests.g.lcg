@@ -77,6 +77,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.EServices.EDocumentConnector.Continia)(LookupHint=Codeunit Continia Doc. Integr. Tests - NamedType IncorrectValueErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3327463173 - Method 4268477247 - NamedType 2719999317" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No mock response found for request: %1 %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Method, %2 = Request Path]D;]A;(Namespace=Microsoft.EServices.EDocumentConnector.Continia)(LookupHint=Codeunit Continia Mock Http Handler - Method GetResponse - NamedType NoMockResponseFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 843468273 - NamedType 2996603465" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong value]]></Val>

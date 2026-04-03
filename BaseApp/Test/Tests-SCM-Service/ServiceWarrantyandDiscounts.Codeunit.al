@@ -10,13 +10,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Projects.Resources.Ledger;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Sales.Customer;
-#if not CLEAN25
 using Microsoft.Sales.Pricing;
-#else
-using Microsoft.Pricing.Asset;
-using Microsoft.Pricing.PriceList;
-using Microsoft.Pricing.Source;
-#endif
 using Microsoft.Sales.Receivables;
 using Microsoft.Service.Contract;
 using Microsoft.Service.Document;
@@ -675,7 +669,6 @@ codeunit 136120 "Service Warranty and Discounts"
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
     end;
 
-#if not CLEAN25
     local procedure UpdateItemDiscount(var Item: Record Item; CustomerNo: Code[20]; LineDiscountPercentage: Decimal)
     var
         SalesLineDiscount: Record "Sales Line Discount";
@@ -687,22 +680,6 @@ codeunit 136120 "Service Warranty and Discounts"
         SalesLineDiscount.Validate("Line Discount %", LineDiscountPercentage);
         SalesLineDiscount.Modify(true);
     end;
-#else
-    local procedure UpdateItemDiscount(var Item: Record Item; CustomerNo: Code[20]; LineDiscountPercentage: Decimal)
-    var
-        PriceListLine: Record "Price List Line";
-        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
-    begin
-        LibraryPriceCalculation.CreateSalesDiscountLine(
-            PriceListLine, '', "Price Source Type"::Customer, CustomerNo, "Price Asset Type"::Item, Item."No.");
-        PriceListLine.Validate("Starting Date", WorkDate());
-        PriceListLine.Validate("Unit of Measure Code", Item."Base Unit of Measure");
-        PriceListLine.Validate("Minimum Quantity", LibraryRandom.RandInt(10));
-        PriceListLine.Validate("Line Discount %", LineDiscountPercentage);
-        PriceListLine.Validate(Status, "Price Status"::Active);
-        PriceListLine.Modify(true);
-    end;
-#endif
 
     local procedure UpdateManualLineDiscount(OrderNo: Code[20]; LineDiscountPercentage: Decimal)
     var

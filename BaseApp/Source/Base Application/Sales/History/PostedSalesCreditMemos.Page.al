@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -13,7 +13,11 @@ using Microsoft.Sales.Comment;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Reports;
+using Microsoft.Utilities;
 
+/// <summary>
+/// Lists all posted sales credit memos for viewing, printing, and navigation.
+/// </summary>
 page 144 "Posted Sales Credit Memos"
 {
     ApplicationArea = Basic, Suite;
@@ -49,22 +53,18 @@ page 144 "Posted Sales Credit Memos"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Customer Name';
-                    ToolTip = 'Specifies the name of the customer that you shipped the items on the credit memo to.';
                 }
                 field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the currency code of the credit memo.';
                 }
                 field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the date on which the shipment is due for payment.';
                 }
                 field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the total of the amounts on all the credit memo lines, in the currency of the credit memo. The amount does not include VAT.';
 
                     trigger OnDrillDown()
                     begin
@@ -74,7 +74,6 @@ page 144 "Posted Sales Credit Memos"
                 field("Amount Including VAT"; Rec."Amount Including VAT")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the total of the amounts, including VAT, on all the lines on the document.';
 
                     trigger OnDrillDown()
                     begin
@@ -84,12 +83,10 @@ page 144 "Posted Sales Credit Memos"
                 field("Remaining Amount"; Rec."Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the amount that remains to be paid for the posted sales invoice.';
                 }
                 field(Paid; Rec.Paid)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the posted sales invoice that relates to this sales credit memo is paid.';
                 }
                 field(Cancelled; Rec.Cancelled)
                 {
@@ -97,7 +94,6 @@ page 144 "Posted Sales Credit Memos"
                     HideValue = not Rec.Cancelled;
                     Style = Unfavorable;
                     StyleExpr = Rec.Cancelled;
-                    ToolTip = 'Specifies if the posted sales invoice that relates to this sales credit memo has been either corrected or canceled.';
 
                     trigger OnDrillDown()
                     begin
@@ -110,7 +106,6 @@ page 144 "Posted Sales Credit Memos"
                     HideValue = not Rec.Corrective;
                     Style = Unfavorable;
                     StyleExpr = Rec.Corrective;
-                    ToolTip = 'Specifies if the posted sales invoice has been either corrected or canceled by this sales credit memo.';
 
                     trigger OnDrillDown()
                     begin
@@ -120,7 +115,6 @@ page 144 "Posted Sales Credit Memos"
                 field("Sell-to Post Code"; Rec."Sell-to Post Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the postal code of the customer''s main address.';
                     Visible = false;
                 }
                 field("Sell-to Country/Region Code"; Rec."Sell-to Country/Region Code")
@@ -132,7 +126,6 @@ page 144 "Posted Sales Credit Memos"
                 field("Sell-to Contact"; Rec."Sell-to Contact")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the contact person at the customer''s main address.';
                     Visible = false;
                 }
                 field("Bill-to Customer No."; Rec."Bill-to Customer No.")
@@ -143,13 +136,11 @@ page 144 "Posted Sales Credit Memos"
                 field("Bill-to Name"; Rec."Bill-to Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
                 field("Bill-to Post Code"; Rec."Bill-to Post Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the postal code of the customer''s billing address.';
                     Visible = false;
                 }
                 field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
@@ -167,19 +158,16 @@ page 144 "Posted Sales Credit Memos"
                 field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
                     Visible = false;
                 }
                 field("Ship-to Name"; Rec."Ship-to Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     Visible = false;
                 }
                 field("Ship-to Post Code"; Rec."Ship-to Post Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
                     Visible = false;
                 }
                 field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
@@ -197,31 +185,26 @@ page 144 "Posted Sales Credit Memos"
                 field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the date when the credit memo was posted.';
                     Visible = false;
                 }
                 field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies which salesperson is associated with the credit memo.';
                     Visible = false;
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
                 field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
-                    ToolTip = 'Specifies the location where the credit memo was registered.';
                 }
                 field("Electronic Document Status"; Rec."Electronic Document Status")
                 {
@@ -259,7 +242,6 @@ page 144 "Posted Sales Credit Memos"
                 field("No. Printed"; Rec."No. Printed")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies how many times the document has been printed.';
                 }
                 field("Document Date"; Rec."Document Date")
                 {
@@ -270,14 +252,12 @@ page 144 "Posted Sales Credit Memos"
                 field("Applies-to Doc. Type"; Rec."Applies-to Doc. Type")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the type of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
                     Visible = false;
                 }
                 field("Document Exchange Status"; Rec."Document Exchange Status")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = DocExchStatusStyle;
-                    ToolTip = 'Specifies the status of the document if you are using a document exchange service to send it as an electronic document. The status values are reported by the document exchange service.';
                     Visible = DocExchStatusVisible;
 
                     trigger OnDrillDown()
@@ -291,18 +271,6 @@ page 144 "Posted Sales Credit Memos"
         }
         area(factboxes)
         {
-#if not CLEAN25
-            part("Attached Documents"; "Document Attachment Factbox")
-            {
-                ObsoleteTag = '25.0';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
-                ApplicationArea = All;
-                Visible = false;
-                Caption = 'Attachments';
-                SubPageLink = "Table ID" = const(Database::"Sales Cr.Memo Header"), "No." = field("No.");
-            }
-#endif
             part("Attached Documents List"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = All;
@@ -438,8 +406,10 @@ page 144 "Posted Sales Credit Memos"
                     ToolTip = 'Open the posted sales credit memo.';
 
                     trigger OnAction()
+                    var
+                        PageManagement: Codeunit "Page Management";
                     begin
-                        PAGE.Run(PAGE::"Posted Sales Credit Memo", Rec)
+                        PageManagement.PageRun(Rec);
                     end;
                 }
 #if not CLEAN27
@@ -843,10 +813,11 @@ page 144 "Posted Sales Credit Memos"
     local procedure DoDrillDown()
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        PageManagement: Codeunit "Page Management";
     begin
         SalesCrMemoHeader.Copy(Rec);
         SalesCrMemoHeader.SetRange("No.");
-        PAGE.Run(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
+        PageManagement.PageRun(SalesCrMemoHeader);
     end;
 
     var

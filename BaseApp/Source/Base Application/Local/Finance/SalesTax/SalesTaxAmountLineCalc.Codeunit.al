@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN28
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -10,6 +11,9 @@ using Microsoft.Service.History;
 
 codeunit 10148 "Sales Tax Amount Line Calc"
 {
+    ObsoleteReason = 'Use procedute CalcTaxAmountLine in codeunit SalesTaxCalculate instead.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '28.0';
 
     trigger OnRun()
     begin
@@ -271,4 +275,4 @@ codeunit 10148 "Sales Tax Amount Line Calc"
         SalesTaxAmountLine."Tax Base Amount" := SalesTaxAmountLine."Tax Base Amount FCY" / ExchangeFactor;
     end;
 }
-
+#endif

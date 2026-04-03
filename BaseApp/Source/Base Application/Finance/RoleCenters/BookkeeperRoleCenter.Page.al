@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -11,6 +11,8 @@ using Microsoft.Bank.Reconciliation;
 using Microsoft.Bank.Reports;
 using Microsoft.Bank.Statement;
 using Microsoft.EServices.EDocument;
+using Microsoft.Finance.Analysis;
+using Microsoft.Finance.Consolidation;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.FinancialReports;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -21,27 +23,25 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.VAT.Setup;
+using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.Period;
+using Microsoft.Foundation.Task;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Reports;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
+using Microsoft.Purchases.Reports;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Reminder;
-using Microsoft.Sales.Setup;
-using Microsoft.Foundation.Navigate;
-using System.Automation;
-using Microsoft.Foundation.Task;
-using System.Threading;
-using Microsoft.Finance.Consolidation;
-using Microsoft.Finance.Analysis;
 using Microsoft.Sales.Reports;
-using Microsoft.Purchases.Reports;
+using Microsoft.Sales.Setup;
+using System.Automation;
+using System.Threading;
 
 page 9004 "Bookkeeper Role Center"
 {
@@ -114,14 +114,19 @@ page 9004 "Bookkeeper Role Center"
             {
                 Caption = '&Trial Balance';
                 Image = Balance;
+#if not CLEAN28
                 action("Trial Balance")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Trial Balance';
+                    Caption = 'Trial Balance (Obsolete)';
                     Image = "Report";
                     RunObject = Report "Trial Balance";
                     ToolTip = 'View, print, or send a report that shows the balances for the general ledger accounts, including the debits and credits. You can use this report to ensure accurate accounting practices.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This report has been replaced by the report Trial Balance (Excel). This report will be removed in a future release.';
+                    ObsoleteTag = '28.0';
                 }
+#endif
                 action("Bank &Detail Trial Balance")
                 {
                     ApplicationArea = Basic, Suite;
@@ -130,14 +135,19 @@ page 9004 "Bookkeeper Role Center"
                     RunObject = Report "Bank Acc. - Detail Trial Bal.";
                     ToolTip = 'View transactions for all bank accounts with subtotals per account. Each account shows the opening balance on the first line, the list of transactions for the account and a closing balance on the last line.';
                 }
+#if not CLEAN28
                 action("T&rial Balance/Budget")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'T&rial Balance/Budget';
+                    Caption = 'T&rial Balance/Budget (Obsolete)';
                     Image = "Report";
                     RunObject = Report "Trial Balance/Budget";
                     ToolTip = 'View a trial balance in comparison to a budget. You can choose to see a trial balance for selected dimensions. You can use the report at the close of an accounting period or fiscal year.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This report has been replaced by the report Trial Balance/Budget (Excel). This report will be removed in a future release.';
+                    ObsoleteTag = '28.0';
                 }
+#endif
                 action("Trial Balance by &Period")
                 {
                     ApplicationArea = Basic, Suite;
@@ -232,22 +242,30 @@ page 9004 "Bookkeeper Role Center"
             separator(Action49)
             {
             }
+#if not CLEAN28
             action("Aged Accounts Receivable")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Aged Accounts Receivable';
+                Caption = 'Aged Accounts Receivable (Obsolete)';
                 Image = "Report";
                 RunObject = Report "Aged Accounts Receivable NA";
                 ToolTip = 'View overdue customer payments.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report has been replaced by the report Aged Accounts Receivable (Excel). This report will be removed in a future release.';
+                ObsoleteTag = '28.0';
             }
             action("Aged Accou&nts Payable")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Aged Accou&nts Payable';
+                Caption = 'Aged Accou&nts Payable (Obsolete)';
                 Image = "Report";
                 RunObject = Report "Aged Accounts Payable NA";
                 ToolTip = 'View an overview of when your payables to vendors are due or overdue (divided into four periods). You must specify the date you want aging calculated from and the length of the period that each column will contain data for.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report has been replaced by the report Aged Accounts Payable (Excel). This report will be removed in a future release.';
+                ObsoleteTag = '28.0';
             }
+#endif
             action("Projected Cash Receipts")
             {
                 Caption = 'Projected Cash Receipts';
@@ -623,19 +641,6 @@ page 9004 "Bookkeeper Role Center"
                     RunObject = Page "No. Series";
                     ToolTip = 'View or edit the number series that are used to organize transactions';
                 }
-#if not CLEAN25
-                action("IRS 1099 Form-Box")
-                {
-                    Caption = 'IRS 1099 Form-Box';
-                    Image = "1099Form";
-                    RunObject = Page "IRS 1099 Form-Box";
-                    ToolTip = 'Set up 1099 tax forms to use on vendor cards, track posted amounts, and print or export 1099 information. After you have set up a 1099 code, you can enter it as a default 1099 form for a vendor.';
-                    ObsoleteReason = 'Moved to IRS Forms App.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-                    Visible = false;
-                }
-#endif
                 action("GIFI Codes")
                 {
                     Caption = 'GIFI Codes';

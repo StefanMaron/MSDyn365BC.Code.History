@@ -10,7 +10,7 @@ codeunit 10152 "Serv.EInv.Cancel Request Batch"
 {
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"E-Invoice Cancel Request Batch", 'OnAfterCancelRequsetStatusBatch', '', true, true)]
-    local procedure OnAfterCancelRequsetStatusBatch()
+    local procedure OnAfterCancelRequestStatusBatch()
     begin
         ProcessResponsePostedServiceInvoices();
         ProcessResponsePostedServiceCrMemos();

@@ -171,7 +171,7 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
         CreateInvoiceWithLinesAndCustomerDiscount(SalesHeader, NumberOfLines, DiscPct);
         SalesCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, SalesHeader);
 
-        VerifyCustomerDiscountPercentage(SalesHeader, 0);
+        VerifyCustomerDiscountPercentageFromAmount(SalesHeader, InvoiceDiscountAmount / NumberOfLines);
     end;
 
     [Test]
@@ -514,6 +514,18 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
         SalesLine.FindFirst();
         Assert.AreEqual(
           CustDiscPct, SalesCalcDiscByType.GetCustInvoiceDiscountPct(SalesLine),
+          'CustomerDiscountPercentage was not set to expected value');
+    end;
+
+    local procedure VerifyCustomerDiscountPercentageFromAmount(SalesHeader: Record "Sales Header"; InvoiceDiscAmount: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.FindFirst();
+        Assert.AreEqual(
+          Round((InvoiceDiscAmount / (SalesLine.Amount + InvoiceDiscAmount) * 100), 0.01), SalesCalcDiscByType.GetCustInvoiceDiscountPct(SalesLine),
           'CustomerDiscountPercentage was not set to expected value');
     end;
 

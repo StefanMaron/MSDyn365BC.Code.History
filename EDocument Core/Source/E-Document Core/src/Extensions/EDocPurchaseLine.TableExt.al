@@ -1,7 +1,6 @@
 #pragma warning disable AA0247
 tableextension 6168 "E-Doc. Purchase Line" extends "Purchase Line"
 {
-
     fields
     {
         modify("Amount Including VAT")
@@ -13,6 +12,8 @@ tableextension 6168 "E-Doc. Purchase Line" extends "Purchase Line"
         }
         field(6101; "Amount Incl. VAT To Inv."; Decimal)
         {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Amount Incl. VAT To Inv.';
             Editable = false;
             DataClassification = CustomerContent;

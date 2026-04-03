@@ -11,6 +11,15 @@ using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.Period;
 using System.Utilities;
 
+/// <summary>
+/// Generates budget analysis report with period-by-period budget breakdowns and variance analysis.
+/// Displays budgeted amounts across multiple periods with configurable rounding and period length options.
+/// </summary>
+/// <remarks>
+/// Data sources: G/L Account table with Budget Filter integration for budget vs. actual comparison.
+/// Supports period length configuration, thousands display option, and comprehensive dimension filtering.
+/// Output format: RDLC layout with columnar period display and variance calculation capabilities.
+/// </remarks>
 report 10001 Budget
 {
     DefaultLayout = RDLC;
@@ -457,16 +466,31 @@ report 10001 Budget
     protected var
         GLFilter: Text;
 
+    /// <summary>
+    /// Sets the rounding factor for amount display formatting in the budget report.
+    /// Controls precision level for budget amounts (ones, thousands, millions).
+    /// </summary>
+    /// <param name="NewRoundingFactor">Analysis rounding factor enum value for amount formatting</param>
     procedure SetRoundingFactor(NewRoundingFactor: Enum "Analysis Rounding Factor")
     begin
         RndFactor := NewRoundingFactor;
     end;
 
+    /// <summary>
+    /// Retrieves the configured period length formula for the budget report.
+    /// Returns the DateFormula used to calculate period intervals for budget analysis.
+    /// </summary>
+    /// <returns>DateFormula representing the period length (e.g., 1M for monthly, 1Q for quarterly)</returns>
     procedure GetPeriodLength(): DateFormula
     begin
         exit(PeriodLength);
     end;
 
+    /// <summary>
+    /// Retrieves the starting date configured for the budget report period analysis.
+    /// Returns the first period's starting date used in budget calculations.
+    /// </summary>
+    /// <returns>Starting date for the first budget period</returns>
     procedure GetPeriodStartDate(): Date
     begin
         exit(PeriodStartingDate[1]);

@@ -13,8 +13,8 @@ using Microsoft.Sales.Document;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Worksheet;
-using System.Text;
 using System.Reflection;
+using System.Text;
 
 codeunit 5752 "Get Source Doc. Outbound"
 {
@@ -187,25 +187,7 @@ codeunit 5752 "Get Source Doc. Outbound"
         exit(CreateWhseShipmentHeaderFromWhseRequest(WarehouseRequest));
     end;
 
-#if not CLEAN25
-    [Obsolete('Moved to codeunit ServGetSourceDocOutbound', '25.0')]
-    procedure CreateFromServiceOrder(ServiceHeader: Record Microsoft.Service.Document."Service Header")
-    var
-        ServGetSourceDocOutbound: Codeunit "Serv. Get Source Doc. Outbound";
-    begin
-        ServGetSourceDocOutbound.CreateFromServiceOrder(ServiceHeader);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Moved to codeunit ServGetSourceDocOutbound', '25.0')]
-    procedure CreateFromServiceOrderHideDialog(ServiceHeader: Record Microsoft.Service.Document."Service Header"): Boolean
-    var
-        ServGetSourceDocOutbound: Codeunit "Serv. Get Source Doc. Outbound";
-    begin
-        exit(ServGetSourceDocOutbound.CreateFromServiceOrderHideDialog(ServiceHeader));
-    end;
-#endif
 
     procedure GetSingleWhsePickDoc(CurrentWhseWkshTemplate: Code[10]; CurrentWhseWkshName: Code[10]; LocationCode: Code[10])
     var
@@ -644,18 +626,6 @@ codeunit 5752 "Get Source Doc. Outbound"
     begin
     end;
 
-#if not CLEAN25
-    internal procedure RunOnAfterFindWarehouseRequestForServiceOrder(var WarehouseRequest: Record "Warehouse Request"; ServiceHeader: Record Microsoft.Service.Document."Service Header")
-    begin
-        OnAfterFindWarehouseRequestForServiceOrder(WarehouseRequest, ServiceHeader);
-    end;
-
-    [Obsolete('Moved to codeunit ServGetSourceDocOutbound', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterFindWarehouseRequestForServiceOrder(var WarehouseRequest: Record "Warehouse Request"; ServiceHeader: Record Microsoft.Service.Document."Service Header")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetOutboundDocs(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
@@ -702,18 +672,6 @@ codeunit 5752 "Get Source Doc. Outbound"
     begin
     end;
 
-#if not CLEAN25
-    internal procedure RunOnBeforeCreateFromServiceOrder(var ServiceHeader: Record Microsoft.Service.Document."Service Header")
-    begin
-        OnBeforeCreateFromServiceOrder(ServiceHeader);
-    end;
-
-    [Obsolete('Moved to codeunit ServGetSourceDocOutbound', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateFromServiceOrder(var ServiceHeader: Record Microsoft.Service.Document."Service Header")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateWhseShipmentHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; var Rusult: Boolean; var IsHandled: Boolean; var GetSourceDocuments: Report "Get Source Documents")
@@ -790,18 +748,6 @@ codeunit 5752 "Get Source Doc. Outbound"
     begin
     end;
 
-#if not CLEAN25
-    internal procedure RunOnFindWarehouseRequestForServiceOrderOnAfterSetWhseRqstFilters(var WarehouseRequest: Record "Warehouse Request"; var ServiceHeader: Record Microsoft.Service.Document."Service Header")
-    begin
-        OnFindWarehouseRequestForServiceOrderOnAfterSetWhseRqstFilters(WarehouseRequest, ServiceHeader);
-    end;
-
-    [Obsolete('Moved to codeunit ServGetSourceDocOutbound', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnFindWarehouseRequestForServiceOrderOnAfterSetWhseRqstFilters(var WarehouseRequest: Record "Warehouse Request"; var ServiceHeader: Record Microsoft.Service.Document."Service Header")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnGetSingleWhsePickDocOnWhsePickRqstSetFilters(var WhsePickRequest: Record "Whse. Pick Request"; CurrentWhseWkshTemplate: Code[10]; CurrentWhseWkshName: Code[10]; LocationCode: Code[10])
@@ -828,4 +774,3 @@ codeunit 5752 "Get Source Doc. Outbound"
     begin
     end;
 }
-
