@@ -1,9 +1,12 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Document;
 
+/// <summary>
+/// Displays a list of documents related to a return order for traceability.
+/// </summary>
 page 6670 "Returns-Related Documents"
 {
     Caption = 'Returns-Related Documents';
@@ -21,12 +24,10 @@ page 6670 "Returns-Related Documents"
                 field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the type of the related document.';
                 }
                 field("No."; Rec."No.")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
             }
         }

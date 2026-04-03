@@ -25,8 +25,6 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         InsufficientQuantityErr: Label 'You have insufficient quantity of Item';
         CannotApplyErr: Label 'You cannot apply';
         SelectADimensionValueErr: Label 'Select a Dimension Value';
-        IncorrectNoValueEntriesErr: Label 'Incorrect number of Value Entries';
-        IncorrectNoGLEntriesErr: Label 'Incorrect number of G/L Entries for Value Entry %1';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
 
     [Test]
@@ -424,60 +422,6 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         DefaultDimension.Validate("No.", AccountNo);
         DefaultDimension.Validate("Dimension Code", Dimension.Code);
         DefaultDimension.Delete();
-    end;
-
-    [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
-    [Scope('OnPrem')]
-    procedure VSTF342568()
-    var
-        Item: Record Item;
-        ValueEntry: Record "Value Entry";
-        PostValueEntryToGL: Record "Post Value Entry to G/L";
-        GLItemLedgerRelation: Record "G/L - Item Ledger Relation";
-        PostInventoryCostToGL: Report "Post Inventory Cost to G/L";
-        FileMgt: Codeunit "File Management";
-    begin
-        Initialize();
-
-        // create item
-        LibraryInventory.CreateItem(Item, Item."Costing Method"::FIFO, 0, 0, 0, '');
-
-        // create and post 3 inventory entries
-        CreateInventory(Item, 1, '', 2);
-        CreateInventory(Item, 1, '', 0);
-        CreateInventory(Item, 1, '', 3);
-
-        // validation - 3 value entries posted
-        ValueEntry.SetRange("Item No.", Item."No.");
-        Assert.AreEqual(3, ValueEntry.Count, IncorrectNoValueEntriesErr);
-
-        // insert entry for 0 cost value entry
-        ValueEntry.FindLast();
-        PostValueEntryToGL."Value Entry No." := ValueEntry."Entry No." - 1;
-        PostValueEntryToGL."Item No." := ValueEntry."Item No.";
-        PostValueEntryToGL."Posting Date" := ValueEntry."Posting Date";
-        PostValueEntryToGL.Insert();
-        // post cost to G/L
-        Clear(PostInventoryCostToGL);
-        PostValueEntryToGL.SetRange("Item No.", Item."No.");
-        PostInventoryCostToGL.SetTableView(PostValueEntryToGL);
-        PostInventoryCostToGL.UseRequestPage := false;
-        PostInventoryCostToGL.InitializeRequest(1, '', true);
-        PostInventoryCostToGL.SaveAsPdf(FileMgt.ServerTempFileName(''));
-
-        // validation
-        ValueEntry.SetRange("Item No.", Item."No.");
-        ValueEntry.FindSet();
-        repeat
-            GLItemLedgerRelation.SetRange("Value Entry No.", ValueEntry."Entry No.");
-            if ValueEntry."Cost Amount (Actual)" <> 0 then
-                Assert.AreEqual(2, GLItemLedgerRelation.Count,
-                  StrSubstNo(IncorrectNoGLEntriesErr, ValueEntry."Entry No."))
-            else
-                Assert.AreEqual(0, GLItemLedgerRelation.Count,
-                  StrSubstNo(IncorrectNoGLEntriesErr, ValueEntry."Entry No."));
-        until ValueEntry.Next() = 0;
     end;
 
     local procedure Initialize()

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -29,9 +29,7 @@ using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Projects.Project.Setup;
 using Microsoft.Projects.Resources.Ledger;
-#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
-#endif
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.TimeSheet;
 using Microsoft.Sales.Customer;
@@ -60,6 +58,7 @@ table 210 "Job Journal Line"
         field(3; "Job No."; Code[20])
         {
             Caption = 'Project No.';
+            ToolTip = 'Specifies the number of the project.';
             TableRelation = Job;
 
             trigger OnValidate()
@@ -102,6 +101,7 @@ table 210 "Job Journal Line"
         field(4; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
+            ToolTip = 'Specifies the posting date you want to assign to each journal line. For more information, see Entering Dates and Times.';
 
             trigger OnValidate()
             var
@@ -123,10 +123,12 @@ table 210 "Job Journal Line"
         field(5; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+            ToolTip = 'Specifies a document number for the journal line.';
         }
         field(6; Type; Enum "Job Journal Line Type")
         {
             Caption = 'Type';
+            ToolTip = 'Specifies an account type for project usage to be posted in the project journal. You can choose from the following options:';
 
             trigger OnValidate()
             begin
@@ -138,6 +140,7 @@ table 210 "Job Journal Line"
         field(8; "No."; Code[20])
         {
             Caption = 'No.';
+            ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
             TableRelation = if (Type = const(Resource)) Resource
             else
             if (Type = const(Item)) Item where(Blocked = const(false))
@@ -195,10 +198,13 @@ table 210 "Job Journal Line"
         field(9; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies the name of the resource, item, or general ledger account to which this entry applies. You can change the description.';
         }
         field(10; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
+            ToolTip = 'Specifies the number of units of the project journal''s No. field, that is, either the resource, item, or G/L account number, that applies. If you later change the value in the No. field, the quantity does not change on the journal line.';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -230,12 +236,14 @@ table 210 "Job Journal Line"
         field(12; "Direct Unit Cost (LCY)"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Direct Unit Cost (LCY)';
             MinValue = 0;
         }
         field(13; "Unit Cost (LCY)"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost (LCY)';
             Editable = false;
             MinValue = 0;
@@ -258,12 +266,14 @@ table 210 "Job Journal Line"
         field(14; "Total Cost (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Total Cost (LCY)';
             Editable = false;
         }
         field(15; "Unit Price (LCY)"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Price (LCY)';
             Editable = false;
 
@@ -277,6 +287,7 @@ table 210 "Job Journal Line"
         field(16; "Total Price (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Total Price (LCY)';
             Editable = false;
         }
@@ -294,6 +305,7 @@ table 210 "Job Journal Line"
         field(18; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
+            ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
             TableRelation = if (Type = const(Item)) "Item Unit of Measure".Code where("Item No." = field("No."))
             else
             if (Type = const(Resource)) "Resource Unit of Measure".Code where("Resource No." = field("No."))
@@ -352,6 +364,7 @@ table 210 "Job Journal Line"
         }
         field(19; "Qty. Rounding Precision"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Rounding Precision';
             InitValue = 0;
             DecimalPlaces = 0 : 5;
@@ -361,6 +374,7 @@ table 210 "Job Journal Line"
         }
         field(20; "Qty. Rounding Precision (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. Rounding Precision (Base)';
             InitValue = 0;
             DecimalPlaces = 0 : 5;
@@ -371,6 +385,7 @@ table 210 "Job Journal Line"
         field(21; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
+            ToolTip = 'Specifies a location code for an item.';
             TableRelation = Location where("Use As In-Transit" = const(false));
 
             trigger OnValidate()
@@ -410,6 +425,7 @@ table 210 "Job Journal Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
                                                           Blocked = const(false));
 
@@ -422,6 +438,7 @@ table 210 "Job Journal Line"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
                                                           Blocked = const(false));
 
@@ -433,6 +450,7 @@ table 210 "Job Journal Line"
         field(33; "Work Type Code"; Code[10])
         {
             Caption = 'Work Type Code';
+            ToolTip = 'Specifies which work type the resource applies to. Prices are updated based on this entry.';
             TableRelation = "Work Type";
 
             trigger OnValidate()
@@ -446,6 +464,8 @@ table 210 "Job Journal Line"
                     exit;
 
                 TestField(Type, Type::Resource);
+                if not IsLineDiscountHandled then
+                    Validate("Line Discount %", 0);
                 if ("Work Type Code" = '') and (xRec."Work Type Code" <> '') then begin
                     Res.Get("No.");
                     "Unit of Measure Code" := Res."Base Unit of Measure";
@@ -463,8 +483,6 @@ table 210 "Job Journal Line"
                     end;
                 OnBeforeValidateWorkTypeCodeQty(Rec, xRec, Res, WorkType);
                 Validate(Quantity);
-                if not IsLineDiscountHandled then
-                    Validate("Line Discount %", 0);
             end;
         }
         field(34; "Customer Price Group"; Code[10])
@@ -482,6 +500,7 @@ table 210 "Job Journal Line"
         {
             AccessByPermission = TableData Item = R;
             Caption = 'Applies-to Entry';
+            ToolTip = 'Specifies if the quantity on the journal line must be applied to an already-posted entry. In that case, enter the entry number that the quantity will be applied to.';
 
             trigger OnLookup()
             begin
@@ -541,40 +560,48 @@ table 210 "Job Journal Line"
         {
             BlankZero = true;
             Caption = 'Recurring Method';
+            ToolTip = 'Specifies the recurring method. The recurring method determines what happens to the quantity on the journal line after posting. For example, if you use the same quantity each time you post the line, you can reuse the same quantity after posting.';
             OptionCaption = ',Fixed,Variable';
             OptionMembers = ,"Fixed",Variable;
         }
         field(76; "Expiration Date"; Date)
         {
             Caption = 'Expiration Date';
+            ToolTip = 'Specifies the last date on which the recurring journal will be posted if you have indicated in the Recurring field of the project journal template that the journal should be a recurring journal.';
         }
         field(77; "Recurring Frequency"; DateFormula)
         {
             Caption = 'Recurring Frequency';
+            ToolTip = 'Specifies a recurring frequency if you have indicated in the Recurring field in the project journal template that the journal is a recurring journal.';
         }
         field(79; "Gen. Bus. Posting Group"; Code[20])
         {
             Caption = 'Gen. Bus. Posting Group';
+            ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
             TableRelation = "Gen. Business Posting Group";
         }
         field(80; "Gen. Prod. Posting Group"; Code[20])
         {
             Caption = 'Gen. Prod. Posting Group';
+            ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
             TableRelation = "Gen. Product Posting Group";
         }
         field(81; "Transaction Type"; Code[10])
         {
             Caption = 'Transaction Type';
+            ToolTip = 'Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.';
             TableRelation = "Transaction Type";
         }
         field(82; "Transport Method"; Code[10])
         {
             Caption = 'Transport Method';
+            ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
             TableRelation = "Transport Method";
         }
         field(83; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';
+            ToolTip = 'Specifies the country/region of the address.';
             TableRelation = "Country/Region";
         }
         field(86; "Entry/Exit Point"; Code[10])
@@ -585,10 +612,12 @@ table 210 "Job Journal Line"
         field(87; "Document Date"; Date)
         {
             Caption = 'Document Date';
+            ToolTip = 'Specifies the date when the related document was created.';
         }
         field(88; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+            ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
         }
         field(89; "Area"; Code[10])
         {
@@ -624,18 +653,21 @@ table 210 "Job Journal Line"
         field(94; "Source Currency Total Cost"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = "Currency Code";
             Caption = 'Source Currency Total Cost';
             Editable = false;
         }
         field(95; "Source Currency Total Price"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = "Currency Code";
             Caption = 'Source Currency Total Price';
             Editable = false;
         }
         field(96; "Source Currency Line Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = "Currency Code";
             Caption = 'Source Currency Line Amount';
             Editable = false;
         }
@@ -665,22 +697,26 @@ table 210 "Job Journal Line"
         field(950; "Time Sheet No."; Code[20])
         {
             Caption = 'Time Sheet No.';
+            ToolTip = 'Specifies the number of a time sheet. A number is assigned to each time sheet when it is created. You cannot edit the number.';
             TableRelation = "Time Sheet Header";
         }
         field(951; "Time Sheet Line No."; Integer)
         {
             Caption = 'Time Sheet Line No.';
+            ToolTip = 'Specifies the line number for a time sheet.';
             TableRelation = "Time Sheet Line"."Line No." where("Time Sheet No." = field("Time Sheet No."));
         }
         field(952; "Time Sheet Date"; Date)
         {
             Caption = 'Time Sheet Date';
+            ToolTip = 'Specifies the date that a time sheet is created.';
             TableRelation = "Time Sheet Detail".Date where("Time Sheet No." = field("Time Sheet No."),
                                                             "Time Sheet Line No." = field("Time Sheet Line No."));
         }
         field(1000; "Job Task No."; Code[20])
         {
             Caption = 'Project Task No.';
+            ToolTip = 'Specifies the number of the related project task.';
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
 
             trigger OnValidate()
@@ -710,6 +746,7 @@ table 210 "Job Journal Line"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Total Cost';
+            ToolTip = 'Specifies the total cost for the journal line. The total cost is calculated based on the project currency, which comes from the Currency Code field on the Project card.';
             Editable = false;
         }
         field(1002; "Unit Price"; Decimal)
@@ -717,6 +754,7 @@ table 210 "Job Journal Line"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 2;
             Caption = 'Unit Price';
+            ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
             MinValue = 0;
 
             trigger OnValidate()
@@ -727,6 +765,7 @@ table 210 "Job Journal Line"
         field(1003; "Line Type"; Enum "Job Line Type")
         {
             Caption = 'Line Type';
+            ToolTip = 'Specifies the type of planning line to create when a project ledger entry is posted. If the field is empty, no planning lines are created.';
 
             trigger OnValidate()
             begin
@@ -737,6 +776,7 @@ table 210 "Job Journal Line"
         field(1004; "Applies-from Entry"; Integer)
         {
             Caption = 'Applies-from Entry';
+            ToolTip = 'Specifies the number of the item ledger entry that the journal line costs have been applied from. This should be done when you reverse the usage of an item in a project and you want to return the item to inventory at the same cost as before it was used in the project.';
             MinValue = 0;
 
             trigger OnLookup()
@@ -769,7 +809,9 @@ table 210 "Job Journal Line"
         }
         field(1006; "Line Discount %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Line Discount %';
+            ToolTip = 'Specifies the discount percentage that is granted for the item on the line.';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
             MinValue = 0;
@@ -784,6 +826,7 @@ table 210 "Job Journal Line"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Line Discount Amount';
+            ToolTip = 'Specifies the discount amount that is granted for the item on the line.';
 
             trigger OnValidate()
             begin
@@ -793,6 +836,7 @@ table 210 "Job Journal Line"
         field(1008; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
+            ToolTip = 'Specifies the project''s currency code that listed in the Currency Code field in the Project Card. You can only create a Project Journal using this currency code.';
             Editable = false;
             TableRelation = Currency;
 
@@ -806,6 +850,7 @@ table 210 "Job Journal Line"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Line Amount';
+            ToolTip = 'Specifies the amount that will be posted to the project ledger.';
 
             trigger OnValidate()
             begin
@@ -814,6 +859,7 @@ table 210 "Job Journal Line"
         }
         field(1010; "Currency Factor"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Currency Factor';
             DecimalPlaces = 0 : 15;
             Editable = false;
@@ -831,6 +877,7 @@ table 210 "Job Journal Line"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 2;
             Caption = 'Unit Cost';
+            ToolTip = 'Specifies the unit cost for the selected type and number on the journal line. The unit cost is in the project currency, derived from the Currency Code field on the project card.';
 
             trigger OnValidate()
             begin
@@ -840,6 +887,7 @@ table 210 "Job Journal Line"
         field(1012; "Line Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Line Amount (LCY)';
             Editable = false;
 
@@ -853,6 +901,7 @@ table 210 "Job Journal Line"
         field(1013; "Line Discount Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Line Discount Amount (LCY)';
             Editable = false;
 
@@ -868,16 +917,19 @@ table 210 "Job Journal Line"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Total Price';
+            ToolTip = 'Specifies the total price in the project currency on the journal line.';
             Editable = false;
         }
         field(1015; "Cost Factor"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Cost Factor';
             Editable = false;
         }
         field(1016; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
+            ToolTip = 'Specifies information in addition to the description.';
         }
         field(1017; "Ledger Entry Type"; Enum "Job Ledger Entry Type")
         {
@@ -897,6 +949,7 @@ table 210 "Job Journal Line"
         {
             BlankZero = true;
             Caption = 'Project Planning Line No.';
+            ToolTip = 'Specifies the project planning line number that the usage should be linked to when the project journal is posted. You can only link to project planning lines that have the Apply Usage Link option enabled.';
 
             trigger OnLookup()
             var
@@ -954,7 +1007,9 @@ table 210 "Job Journal Line"
         }
         field(1030; "Remaining Qty."; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Remaining Qty.';
+            ToolTip = 'Specifies the quantity of the resource or item that remains to complete a project. The remaining quantity is calculated as the difference between Quantity and Qty. Posted. You can modify this field to indicate the quantity you want to remain on the project planning line after you post usage.';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -982,6 +1037,7 @@ table 210 "Job Journal Line"
         }
         field(1031; "Remaining Qty. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Remaining Qty. (Base)';
 
             trigger OnValidate()
@@ -991,12 +1047,14 @@ table 210 "Job Journal Line"
         }
         field(1081; "Qty. to Transfer to Invoice"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. to Transfer to Invoice';
             DecimalPlaces = 0 : 5;
         }
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
+            ToolTip = 'Specifies the variant of the item on the line.';
             TableRelation = if (Type = const(Item)) "Item Variant".Code where("Item No." = field("No."), Blocked = const(false));
 
             trigger OnValidate()
@@ -1036,6 +1094,7 @@ table 210 "Job Journal Line"
         {
             AccessByPermission = TableData "Warehouse Source Filter" = R;
             Caption = 'Bin Code';
+            ToolTip = 'Specifies the bin where the items are picked or put away.';
 
             trigger OnLookup()
             begin
@@ -1060,6 +1119,7 @@ table 210 "Job Journal Line"
         }
         field(5404; "Qty. per Unit of Measure"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Qty. per Unit of Measure';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1067,6 +1127,7 @@ table 210 "Job Journal Line"
         }
         field(5410; "Quantity (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity (Base)';
             DecimalPlaces = 0 : 5;
 
@@ -1077,6 +1138,7 @@ table 210 "Job Journal Line"
         }
         field(5468; "Reserved Qty. (Base)"; Decimal)
         {
+            AutoFormatType = 0;
             AccessByPermission = TableData Item = R;
             CalcFormula = sum("Reservation Entry"."Quantity (Base)" where("Source ID" = field("Journal Template Name"),
                                                                            "Source Ref. No." = field("Line No."),
@@ -1106,10 +1168,12 @@ table 210 "Job Journal Line"
         field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
         {
             Caption = 'Price Calculation Method';
+            ToolTip = 'Specifies the method that will be used for price calculation in the item journal line.';
         }
         field(7001; "Cost Calculation Method"; Enum "Price Calculation Method")
         {
             Caption = 'Cost Calculation Method';
+            ToolTip = 'Specifies the method that will be used for cost calculation in the item journal line.';
         }
     }
 
@@ -1886,18 +1950,12 @@ table 210 "Job Journal Line"
     end;
 
     local procedure IsQuantityChangedForPrice(): Boolean;
-#if not CLEAN25
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-#endif
     begin
         if Quantity = xRec.Quantity then
             exit(false);
-#if not CLEAN25
         exit(PriceCalculationMgt.IsExtendedPriceCalculationEnabled());
-#else
-        exit(true);
-#endif
     end;
 
     procedure UpdateTotalCost()
@@ -1963,13 +2021,10 @@ table 210 "Job Journal Line"
         end;
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     procedure AfterResourceFindCost(var ResourceCost: Record "Resource Cost")
     begin
         OnAfterResourceFindCost(Rec, ResourceCost);
     end;
-#endif
 
     procedure ApplyPrice(PriceType: enum "Price Type"; CalledByFieldNo: Integer)
     var
@@ -2490,13 +2545,10 @@ table 210 "Job Journal Line"
     begin
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterResourceFindCost(var JobJournalLine: Record "Job Journal Line"; var ResourceCost: Record "Resource Cost")
     begin
     end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetUpNewLine(var JobJournalLine: Record "Job Journal Line"; LastJobJournalLine: Record "Job Journal Line"; JobJournalTemplate: Record "Job Journal Template"; JobJournalBatch: Record "Job Journal Batch")

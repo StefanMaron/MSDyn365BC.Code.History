@@ -12,7 +12,6 @@ using Microsoft.Sustainability.Ledger;
 using Microsoft.Utilities;
 using System.Telemetry;
 using System.Threading;
-using System.Utilities;
 
 table 6217 "Sustainability Setup"
 {
@@ -42,6 +41,7 @@ table 6217 "Sustainability Setup"
         }
         field(4; "Reporting UOM Factor"; Decimal)
         {
+            AutoFormatType = 0;
             InitValue = 1;
             Caption = 'Reporting UOM Factor';
             DecimalPlaces = 0 : 10;
@@ -57,6 +57,7 @@ table 6217 "Sustainability Setup"
         }
         field(6; "Emission Rounding Precision"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Emission Rounding Precision';
             DecimalPlaces = 0 : 10;
             InitValue = 0.01;
@@ -126,6 +127,9 @@ table 6217 "Sustainability Setup"
             begin
                 if Rec."Use Emissions In Purch. Doc." then
                     FeatureTelemetry.LogUptake('0000PGZ', SustainabilityLbl, Enum::"Feature Uptake Status"::"Set up");
+
+                if not Rec."Use Emissions In Purch. Doc." then
+                    Rec.TestField("Use Formulas In Purch. Docs", false);
             end;
         }
         field(17; "Waste Unit of Measure Code"; Code[10])
@@ -169,10 +173,6 @@ table 6217 "Sustainability Setup"
 
             trigger OnValidate()
             begin
-                if Rec."Enable Value Chain Tracking" then
-                    if not ConfirmManagement.GetResponseOrDefault(ConfirmEnableValueChainTrackingQst, false) then
-                        Error('');
-
                 EnableEmissionsWhenValueChainTrackingIsEnabled();
             end;
         }
@@ -188,6 +188,7 @@ table 6217 "Sustainability Setup"
         }
         field(28; "Energy Reporting UOM Factor"; Decimal)
         {
+            AutoFormatType = 0;
             InitValue = 1;
             Caption = 'Energy Reporting UOM Factor';
             DecimalPlaces = 0 : 10;
@@ -237,6 +238,20 @@ table 6217 "Sustainability Setup"
                     UpdateSustJobQueueEntriesStatus();
             end;
         }
+        field(41; "Use Formulas In Purch. Docs"; Boolean)
+        {
+            Caption = 'Use Formulas in Purchase Documents';
+
+            trigger OnValidate()
+            begin
+                if Rec."Use Formulas In Purch. Docs" then
+                    Rec.TestField("Use Emissions In Purch. Doc.", true);
+            end;
+        }
+        field(50; "Fixed Asset Emissions"; Boolean)
+        {
+            Caption = 'Fixed Asset Emissions';
+        }
     }
 
     keys
@@ -250,11 +265,9 @@ table 6217 "Sustainability Setup"
     var
         GLSetup: Record "General Ledger Setup";
         SustainabilitySetup: Record "Sustainability Setup";
-        ConfirmManagement: Codeunit "Confirm Management";
         SustainabilitySetupRetrieved: Boolean;
         RecordHasBeenRead: Boolean;
         AutoFormatExprLbl: Label '<Precision,%1><Standard Format,0>', Locked = true;
-        ConfirmEnableValueChainTrackingQst: Label 'Value Chain Tracking feature is currently in preview. We strongly recommend that you first enable and test this feature on a sandbox environment that has a copy of production data before doing this on a production environment.\\Are you sure you want to enable this feature?';
         EmissionUOMCannotBeChangedErr: Label 'The value for %1 cannot be modified because there are existing sustainability ledger entries that use the unit of measure %2.', Comment = '%1 = Field Caption, %2 = Unit of Measure Code', Locked = true;
 
     procedure GetRecordOnce()
@@ -282,6 +295,7 @@ table 6217 "Sustainability Setup"
         Rec.Validate("Use Emissions In Purch. Doc.", true);
         Rec.Validate("Item Emissions", true);
         Rec.Validate("Resource Emissions", true);
+        Rec.Validate("Fixed Asset Emissions", true);
         Rec.Validate("Work/Machine Center Emissions", true);
     end;
 

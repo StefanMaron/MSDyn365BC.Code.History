@@ -1,40 +1,42 @@
 namespace Microsoft.Test.Sustainability;
 
-using System.TestLibraries.Utilities;
-using Microsoft.Sustainability.Certificate;
-using Microsoft.Inventory.Item;
-using Microsoft.Foundation.UOM;
-using Microsoft.Purchases.Vendor;
-using Microsoft.Purchases.Document;
-using Microsoft.Sustainability.Account;
-using Microsoft.Sustainability.Ledger;
-using Microsoft.Foundation.NoSeries;
-using Microsoft.Purchases.Setup;
+using Microsoft.Assembly.Document;
+using Microsoft.Assembly.History;
+using Microsoft.Assembly.Setup;
 using Microsoft.Finance.GeneralLedger.Account;
-using Microsoft.Sustainability.Setup;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.BOM;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.Journal;
+using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.WorkCenter;
-using Microsoft.Projects.Resources.Resource;
-using Microsoft.Manufacturing.MachineCenter;
-using Microsoft.Assembly.Document;
-using Microsoft.Assembly.History;
-using Microsoft.Sales.Document;
-using Microsoft.Sales.History;
-using Microsoft.Inventory.Location;
-using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Journal;
-using Microsoft.Manufacturing.Capacity;
-using Microsoft.Inventory.Journal;
-using Microsoft.Foundation.AuditCodes;
-using Microsoft.Purchases.History;
-using Microsoft.Inventory.BOM;
-using Microsoft.Assembly.Setup;
-using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Project.Planning;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Setup;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+using Microsoft.Service.Document;
+using Microsoft.Service.History;
+using Microsoft.Sustainability.Account;
+using Microsoft.Sustainability.Certificate;
+using Microsoft.Sustainability.Ledger;
+using Microsoft.Sustainability.Setup;
+using System.TestLibraries.Utilities;
 
 codeunit 148187 "Sust. Certificate Test"
 {
@@ -5170,7 +5172,6 @@ codeunit 148187 "Sust. Certificate Test"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
     procedure VerifyEmissionFieldsMustBeEnabledWhenEnableValueChainTrackingIsEnabled()
     var
         SustainabilitySetup: Record "Sustainability Setup";
@@ -6527,6 +6528,731 @@ codeunit 148187 "Sust. Certificate Test"
             SustainabilitySetupPage."Emission Unit of Measure Code".Editable(),
             StrSubstNo(FieldShouldNotBeEditableErr, SustainabilitySetup.FieldCaption("Emission Unit of Measure Code"), SustainabilitySetupPage.Caption()));
         SustainabilitySetupPage.Close();
+    end;
+
+    [Test]
+    procedure TestSustFormulaFieldsAreVisibleOnPurchaseInvoiceWhenUseFormulasInPurchDocsIsEnabled()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        CategoryCode: Code[20];
+        SubcategoryCode: Code[20];
+        AccountCode: Code[20];
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [SCENARIO 580123] Verify Sustainability Formula Fields are visible when "Use Formulas In Purch. Docs" is enabled in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Enable "Use Formulas In Purch. Docs" in Sustainability Setup.
+        LibrarySustainability.EnableFormulaInPurchDocsInSustainabilitySetup();
+
+        // [GIVEN] Create a Sustainability Account.
+        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Create Purchase Invoice.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Create Purchase Invoice with one line.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, "Purchase Line Type"::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Sust. Account No.", AccountCode);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Open Purchase Invoice Line.
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.GotoRecord(PurchaseHeader);
+        PurchaseInvoice.PurchLines.GotoRecord(PurchaseLine);
+
+        // [THEN] Verify Sustainability Formula Fields are visible on Purchase Invoice Line.
+        Assert.IsTrue(PurchaseInvoice.PurchLines."Fuel/Electricity".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PurchaseInvoice.PurchLines."Fuel/Electricity".Caption(), PurchaseInvoice.PurchLines.Caption()));
+        Assert.IsTrue(PurchaseInvoice.PurchLines."Distance".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PurchaseInvoice.PurchLines."Distance".Caption(), PurchaseInvoice.PurchLines.Caption()));
+        Assert.IsTrue(PurchaseInvoice.PurchLines."Custom Amount".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PurchaseInvoice.PurchLines."Custom amount".Caption(), PurchaseInvoice.PurchLines.Caption()));
+        Assert.IsTrue(PurchaseInvoice.PurchLines."Installation Multiplier".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PurchaseInvoice.PurchLines."Installation multiplier".Caption(), PurchaseInvoice.PurchLines.Caption()));
+        Assert.IsTrue(PurchaseInvoice.PurchLines."Time Factor".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PurchaseInvoice.PurchLines."Time Factor".Caption(), PurchaseInvoice.PurchLines.Caption()));
+    end;
+
+    [Test]
+    procedure TestSustFormulaFieldsAreVisibleOnPurchaseOrderWhenUseFormulasInPurchDocsIsEnabled()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        CategoryCode: Code[20];
+        SubcategoryCode: Code[20];
+        AccountCode: Code[20];
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [SCENARIO 580123] Verify Sustainability Formula Fields are visible when "Use Formulas In Purch. Docs" is enabled in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Enable "Use Formulas In Purch. Docs" in Sustainability Setup.
+        LibrarySustainability.EnableFormulaInPurchDocsInSustainabilitySetup();
+
+        // [GIVEN] Create a Sustainability Account.
+        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Create Purchase Order.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Create Purchase Order with one line.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, "Purchase Line Type"::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Sust. Account No.", AccountCode);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Open Purchase Order line.
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.GotoRecord(PurchaseHeader);
+        PurchaseOrder.PurchLines.GotoRecord(PurchaseLine);
+
+        // [THEN] Verify Sustainability Formula Fields are visible on Purchase Order Line.
+        Assert.IsTrue(PurchaseOrder.PurchLines."Fuel/Electricity".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PurchaseOrder.PurchLines."Fuel/Electricity".Caption(), PurchaseOrder.PurchLines.Caption()));
+        Assert.IsTrue(PurchaseOrder.PurchLines."Distance".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PurchaseOrder.PurchLines."Distance".Caption(), PurchaseOrder.PurchLines.Caption()));
+        Assert.IsTrue(PurchaseOrder.PurchLines."Custom Amount".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PurchaseOrder.PurchLines."Custom amount".Caption(), PurchaseOrder.PurchLines.Caption()));
+        Assert.IsTrue(PurchaseOrder.PurchLines."Installation Multiplier".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PurchaseOrder.PurchLines."Installation multiplier".Caption(), PurchaseOrder.PurchLines.Caption()));
+        Assert.IsTrue(PurchaseOrder.PurchLines."Time Factor".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PurchaseOrder.PurchLines."Time Factor".Caption(), PurchaseOrder.PurchLines.Caption()));
+    end;
+
+    [Test]
+    procedure TestSustFormulaFieldsAreVisibleOnPurchaseCrMemoWhenUseFormulasInPurchDocsIsEnabled()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        CategoryCode: Code[20];
+        SubcategoryCode: Code[20];
+        AccountCode: Code[20];
+        PurchaseCreditMemo: TestPage "Purchase Credit Memo";
+    begin
+        // [SCENARIO 580123] Verify Sustainability Formula Fields are visible when "Use Formulas In Purch. Docs" is enabled in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Enable "Use Formulas In Purch. Docs" in Sustainability Setup.
+        LibrarySustainability.EnableFormulaInPurchDocsInSustainabilitySetup();
+
+        // [GIVEN] Create a Sustainability Account.
+        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Create Purchase Credit Memo.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::"Credit Memo", LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Create Purchase Credit Memo with one line.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, "Purchase Line Type"::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Sust. Account No.", AccountCode);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Open Purchase Credit Memo Line.
+        PurchaseCreditMemo.OpenEdit();
+        PurchaseCreditMemo.GotoRecord(PurchaseHeader);
+        PurchaseCreditMemo.PurchLines.GotoRecord(PurchaseLine);
+
+        // [THEN] Verify Sustainability Formula Fields are visible on Purchase Credit Memo Line.
+        Assert.IsTrue(PurchaseCreditMemo.PurchLines."Fuel/Electricity".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PurchaseCreditMemo.PurchLines."Fuel/Electricity".Caption(), PurchaseCreditMemo.PurchLines.Caption()));
+        Assert.IsTrue(PurchaseCreditMemo.PurchLines."Distance".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PurchaseCreditMemo.PurchLines."Distance".Caption(), PurchaseCreditMemo.PurchLines.Caption()));
+        Assert.IsTrue(PurchaseCreditMemo.PurchLines."Custom Amount".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PurchaseCreditMemo.PurchLines."Custom amount".Caption(), PurchaseCreditMemo.PurchLines.Caption()));
+        Assert.IsTrue(PurchaseCreditMemo.PurchLines."Installation Multiplier".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PurchaseCreditMemo.PurchLines."Installation multiplier".Caption(), PurchaseCreditMemo.PurchLines.Caption()));
+        Assert.IsTrue(PurchaseCreditMemo.PurchLines."Time Factor".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PurchaseCreditMemo.PurchLines."Time Factor".Caption(), PurchaseCreditMemo.PurchLines.Caption()));
+    end;
+
+    [Test]
+    procedure TestSustFormulaFieldsAreVisibleOnPurchaseReturnOrderWhenUseFormulasInPurchDocsIsEnabled()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        CategoryCode: Code[20];
+        SubcategoryCode: Code[20];
+        AccountCode: Code[20];
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+    begin
+        // [SCENARIO 580123] Verify Sustainability Formula Fields are visible when "Use Formulas In Purch. Docs" is enabled in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Enable "Use Formulas In Purch. Docs" in Sustainability Setup.
+        LibrarySustainability.EnableFormulaInPurchDocsInSustainabilitySetup();
+
+        // [GIVEN] Create a Sustainability Account.
+        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Create Purchase Return Order.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::"Return Order", LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Create Purchase Return Order with one line.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, "Purchase Line Type"::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Sust. Account No.", AccountCode);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Open Purchase Return Order Line.
+        PurchaseReturnOrder.OpenEdit();
+        PurchaseReturnOrder.GotoRecord(PurchaseHeader);
+        PurchaseReturnOrder.PurchLines.GotoRecord(PurchaseLine);
+
+        // [THEN] Verify Sustainability Formula Fields are visible on Purchase Return Order Line.
+        Assert.IsTrue(PurchaseReturnOrder.PurchLines."Fuel/Electricity".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PurchaseReturnOrder.PurchLines."Fuel/Electricity".Caption(), PurchaseReturnOrder.PurchLines.Caption()));
+        Assert.IsTrue(PurchaseReturnOrder.PurchLines."Distance".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PurchaseReturnOrder.PurchLines."Distance".Caption(), PurchaseReturnOrder.PurchLines.Caption()));
+        Assert.IsTrue(PurchaseReturnOrder.PurchLines."Custom Amount".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PurchaseReturnOrder.PurchLines."Custom amount".Caption(), PurchaseReturnOrder.PurchLines.Caption()));
+        Assert.IsTrue(PurchaseReturnOrder.PurchLines."Installation Multiplier".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PurchaseReturnOrder.PurchLines."Installation multiplier".Caption(), PurchaseReturnOrder.PurchLines.Caption()));
+        Assert.IsTrue(PurchaseReturnOrder.PurchLines."Time Factor".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PurchaseReturnOrder.PurchLines."Time Factor".Caption(), PurchaseReturnOrder.PurchLines.Caption()));
+    end;
+
+    [Test]
+    procedure TestSustFormulaFieldsAreVisibleOnPostedPurchaseInvoiceWhenUseFormulasInPurchDocsIsEnabled()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseInvHeader: Record "Purch. Inv. Header";
+        PurchaseLine: Record "Purchase Line";
+        CategoryCode: Code[20];
+        SubcategoryCode: Code[20];
+        AccountCode: Code[20];
+        PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
+    begin
+        // [SCENARIO 580123] Verify Sustainability Formula Fields are visible when "Use Formulas In Purch. Docs" is enabled in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Enable "Use Formulas In Purch. Docs" in Sustainability Setup.
+        LibrarySustainability.EnableFormulaInPurchDocsInSustainabilitySetup();
+
+        // [GIVEN] Create a Sustainability Account.
+        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Create Purchase Order.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Create Purchase Order with one line.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, "Purchase Line Type"::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+
+        // [GIVEN] Post the Purchase Order.
+        PurchaseInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        // [WHEN] Open Posted Purchase Invoice line.
+        PostedPurchaseInvoice.OpenEdit();
+        PostedPurchaseInvoice.GotoRecord(PurchaseInvHeader);
+
+        // [THEN] Verify Sustainability Formula Fields are visible on Posted Purchase Invoice line.
+        Assert.IsTrue(PostedPurchaseInvoice.PurchInvLines."Fuel/Electricity".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PostedPurchaseInvoice.PurchInvLines."Fuel/Electricity".Caption(), PostedPurchaseInvoice.PurchInvLines.Caption()));
+        Assert.IsTrue(PostedPurchaseInvoice.PurchInvLines."Distance".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PostedPurchaseInvoice.PurchInvLines."Distance".Caption(), PostedPurchaseInvoice.PurchInvLines.Caption()));
+        Assert.IsTrue(PostedPurchaseInvoice.PurchInvLines."Custom Amount".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PostedPurchaseInvoice.PurchInvLines."Custom amount".Caption(), PostedPurchaseInvoice.PurchInvLines.Caption()));
+        Assert.IsTrue(PostedPurchaseInvoice.PurchInvLines."Installation Multiplier".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PostedPurchaseInvoice.PurchInvLines."Installation multiplier".Caption(), PostedPurchaseInvoice.PurchInvLines.Caption()));
+        Assert.IsTrue(PostedPurchaseInvoice.PurchInvLines."Time Factor".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PostedPurchaseInvoice.PurchInvLines."Time Factor".Caption(), PostedPurchaseInvoice.PurchInvLines.Caption()));
+    end;
+
+    [Test]
+    procedure TestSustFormulaFieldsAreVisibleOnPostedPurchaseCrMemoWhenUseFormulasInPurchDocsIsEnabled()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
+        PurchaseLine: Record "Purchase Line";
+        CategoryCode: Code[20];
+        SubcategoryCode: Code[20];
+        AccountCode: Code[20];
+        PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo";
+    begin
+        // [SCENARIO 580123] Verify Sustainability Formula Fields are visible when "Use Formulas In Purch. Docs" is enabled in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Enable "Use Formulas In Purch. Docs" in Sustainability Setup.
+        LibrarySustainability.EnableFormulaInPurchDocsInSustainabilitySetup();
+
+        // [GIVEN] Create a Sustainability Account.
+        CreateSustainabilityAccount(AccountCode, CategoryCode, SubcategoryCode, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Create Purchase Credit Memo.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::"Credit Memo", LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Create Purchase Credit Memo with one line.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, "Purchase Line Type"::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+
+        // [GIVEN] Post the Purchase Cr Memo.
+        PurchaseCrMemoHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        // [WHEN] Open Posted Purchase Credit Memo Line.
+        PostedPurchaseCreditMemo.OpenEdit();
+        PostedPurchaseCreditMemo.GotoRecord(PurchaseCrMemoHeader);
+
+        // [THEN] Verify Sustainability Formula Fields are visible on Posted Purchase Credit Memo Line.
+        Assert.IsTrue(PostedPurchaseCreditMemo.PurchCrMemoLines."Fuel/Electricity".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PostedPurchaseCreditMemo.PurchCrMemoLines."Fuel/Electricity".Caption(), PostedPurchaseCreditMemo.PurchCrMemoLines.Caption()));
+        Assert.IsTrue(PostedPurchaseCreditMemo.PurchCrMemoLines."Distance".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PostedPurchaseCreditMemo.PurchCrMemoLines."Distance".Caption(), PostedPurchaseCreditMemo.PurchCrMemoLines.Caption()));
+        Assert.IsTrue(PostedPurchaseCreditMemo.PurchCrMemoLines."Custom amount".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PostedPurchaseCreditMemo.PurchCrMemoLines."Custom amount".Caption(), PostedPurchaseCreditMemo.PurchCrMemoLines.Caption()));
+        Assert.IsTrue(PostedPurchaseCreditMemo.PurchCrMemoLines."Installation Multiplier".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PostedPurchaseCreditMemo.PurchCrMemoLines."Installation multiplier".Caption(), PostedPurchaseCreditMemo.PurchCrMemoLines.Caption()));
+        Assert.IsTrue(PostedPurchaseCreditMemo.PurchCrMemoLines."Time Factor".Visible(), StrSubstNo(FieldShouldBeVisibleErr, PostedPurchaseCreditMemo.PurchCrMemoLines."Time Factor".Caption(), PostedPurchaseCreditMemo.PurchCrMemoLines.Caption()));
+    end;
+
+    [Test]
+    procedure TestSystemMustThrowAnErrorWhenEnablingUseFormulasInPurchDocsWhenUseEmissionsInPurchDocIsDisabledInSustSetup()
+    var
+        SustainabilitySetup: Record "Sustainability Setup";
+    begin
+        // [SCENARIO 580123] Verify that the system must throw an error when enabling 'Use Formulas In Purch. Docs'.
+        // when 'Use Emissions In Purch. Doc.' is disabled in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Use Emissions In Purch. Doc." and "Use Formulas In Purch. Docs" to false in Sustainability Setup.
+        SustainabilitySetup.Get();
+        SustainabilitySetup.Validate("Use Formulas In Purch. Docs", false);
+        SustainabilitySetup.Validate("Use Emissions In Purch. Doc.", false);
+        SustainabilitySetup.Modify(true);
+
+        // [GIVEN] Save a transaction.
+        Commit();
+
+        // [WHEN] Update "Use Formulas In Purch. Docs" to true in Sustainability Setup.
+        asserterror SustainabilitySetup.Validate("Use Formulas In Purch. Docs", true);
+
+        // [THEN] Verify that the system must throw an error when enabling "Use Formulas In Purch. Docs".
+        Assert.ExpectedTestFieldError(SustainabilitySetup.FieldCaption("Use Emissions In Purch. Doc."), Format(true));
+
+        // [GIVEN] Enable "Use Formulas In Purch. Docs" in Sustainability Setup.
+        LibrarySustainability.EnableFormulaInPurchDocsInSustainabilitySetup();
+
+        // [WHEN] Update "Use Formulas In Purch. Docs" to false in Sustainability Setup.
+        SustainabilitySetup.Get();
+        asserterror SustainabilitySetup.Validate("Use Emissions In Purch. Doc.", false);
+
+        // [THEN] Verify that the system must throw an error when "Use Formulas In Purch. Docs" is set to false in Sustainability Setup.
+        Assert.ExpectedTestFieldError(SustainabilitySetup.FieldCaption("Use Formulas In Purch. Docs"), Format(false));
+    end;
+
+    [Test]
+    procedure VerifySustFieldsAreVisibleOnPostedServCrMemoSubformIsEnableValueChainTrackingIsTrue()
+    var
+        PostedServiceCrMemoLines: TestPage "Posted Service Cr. Memo Lines";
+    begin
+        // [SCENARIO 580158] Verify Sustainability Fields are Visible on "Posted Service Cr. Memo Lines"
+        // if Enable Value Chain Tracking is true in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
+        // [WHEN] Open "Posted Service Cr. Memo Lines".
+        PostedServiceCrMemoLines.OpenEdit();
+
+        // [THEN] "Sust. Account No.","Total CO2e" is Visible on "Posted Service Cr. Memo Lines".
+        Assert.IsTrue(
+            PostedServiceCrMemoLines."Total CO2e".Visible(),
+            StrSubstNo(
+                FieldShouldBeVisibleErr,
+                PostedServiceCrMemoLines."Total CO2e".Caption(),
+                PostedServiceCrMemoLines.Caption()));
+
+        Assert.IsTrue(
+            PostedServiceCrMemoLines."Sust. Account No.".Visible(),
+            StrSubstNo(
+                FieldShouldBeVisibleErr,
+                PostedServiceCrMemoLines."Sust. Account No.".Caption(),
+                PostedServiceCrMemoLines.Caption()));
+    end;
+
+    [Test]
+    procedure VerifySustFieldsAreNotVisibleOnPostedServCrMemoSubformIsEnableValueChainTrackingIsFalse()
+    var
+        PostedServiceCrMemoLines: TestPage "Posted Service Cr. Memo Lines";
+    begin
+        // [SCENARIO 580158] Verify Sustainability Fields are not Visible on "Posted Service Cr. Memo Lines"
+        // if Enable Value Chain Tracking is false in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
+        // [WHEN] Open "Posted Service Cr. Memo Lines".
+        PostedServiceCrMemoLines.OpenEdit();
+
+        // [THEN] "Sust. Account No.","Total CO2e" are not Visible on "Posted Service Cr. Memo Lines".
+        Assert.IsTrue(
+            PostedServiceCrMemoLines."Total CO2e".Visible(),
+            StrSubstNo(
+                FieldShouldNotBeVisibleErr,
+                PostedServiceCrMemoLines."Total CO2e".Caption(),
+                PostedServiceCrMemoLines.Caption()));
+
+        Assert.IsTrue(
+            PostedServiceCrMemoLines."Sust. Account No.".Visible(),
+            StrSubstNo(
+                FieldShouldNotBeVisibleErr,
+                PostedServiceCrMemoLines."Sust. Account No.".Caption(),
+                PostedServiceCrMemoLines.Caption()));
+    end;
+
+    [Test]
+    procedure VerifySustFieldsAreVisibleOnPostedServInvoiceSubformIsEnableValueChainTrackingIsTrue()
+    var
+        PostedServiceInvoiceSubform: TestPage "Posted Service Invoice Subform";
+    begin
+        // [SCENARIO 580158] Verify Sustainability Fields are Visible on "Posted Service Invoice Subform"
+        // if Enable Value Chain Tracking is true in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
+        // [WHEN] Open "Posted Service Invoice Subform".
+        PostedServiceInvoiceSubform.OpenEdit();
+
+        // [THEN] "Sust. Account No.","Total CO2e" is Visible on "Posted Service Invoice Subform".
+        Assert.IsTrue(
+            PostedServiceInvoiceSubform."Total CO2e".Visible(),
+            StrSubstNo(
+                FieldShouldBeVisibleErr,
+                PostedServiceInvoiceSubform."Total CO2e".Caption(),
+                PostedServiceInvoiceSubform.Caption()));
+
+        Assert.IsTrue(
+            PostedServiceInvoiceSubform."Sust. Account No.".Visible(),
+            StrSubstNo(
+                FieldShouldBeVisibleErr,
+                PostedServiceInvoiceSubform."Sust. Account No.".Caption(),
+                PostedServiceInvoiceSubform.Caption()));
+    end;
+
+    [Test]
+    procedure VerifySustFieldsAreNotVisibleOnPostedServInvoiceSubformIsEnableValueChainTrackingIsFalse()
+    var
+        PostedServiceInvoiceSubform: TestPage "Posted Service Invoice Subform";
+    begin
+        // [SCENARIO 580158] Verify Sustainability Fields are not Visible on "Posted Service Invoice Subform"
+        // if Enable Value Chain Tracking is false in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
+        // [WHEN] Open "Posted Service Invoice Subform".
+        PostedServiceInvoiceSubform.OpenEdit();
+
+        // [THEN] "Sust. Account No.","Total CO2e" are not Visible on "Posted Service Invoice Subform".
+        Assert.IsTrue(
+            PostedServiceInvoiceSubform."Total CO2e".Visible(),
+            StrSubstNo(
+                FieldShouldNotBeVisibleErr,
+                PostedServiceInvoiceSubform."Total CO2e".Caption(),
+                PostedServiceInvoiceSubform.Caption()));
+
+        Assert.IsTrue(
+            PostedServiceInvoiceSubform."Sust. Account No.".Visible(),
+            StrSubstNo(
+                FieldShouldNotBeVisibleErr,
+                PostedServiceInvoiceSubform."Sust. Account No.".Caption(),
+                PostedServiceInvoiceSubform.Caption()));
+    end;
+
+    [Test]
+    procedure VerifySustFieldsAreVisibleOnServiceInvoiceSubformIsEnableValueChainTrackingIsTrue()
+    var
+        ServiceInvoiceSubform: TestPage "Service Invoice Subform";
+    begin
+        // [SCENARIO 580158] Verify Sustainability Fields are Visible on "Service Invoice Subform"
+        // if Enable Value Chain Tracking is true in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
+        // [WHEN] Open "Service Invoice Subform".
+        ServiceInvoiceSubform.OpenEdit();
+
+        // [THEN] "Sust. Account No.","Total CO2e" is Visible on "Service Invoice Subform".
+        Assert.IsTrue(
+            ServiceInvoiceSubform."Total CO2e".Visible(),
+            StrSubstNo(FieldShouldBeVisibleErr, ServiceInvoiceSubform."Total CO2e".Caption(), ServiceInvoiceSubform.Caption()));
+        Assert.IsTrue(
+            ServiceInvoiceSubform."Sust. Account No.".Visible(),
+            StrSubstNo(FieldShouldBeVisibleErr, ServiceInvoiceSubform."Sust. Account No.".Caption(), ServiceInvoiceSubform.Caption()));
+    end;
+
+    [Test]
+    procedure VerifySustFieldsAreNotVisibleOnServiceInvoiceSubformIsEnableValueChainTrackingIsFalse()
+    var
+        ServiceInvoiceSubform: TestPage "Service Invoice Subform";
+    begin
+        // [SCENARIO 580158] Verify Sustainability Fields are not Visible on "Service Invoice Subform"
+        // if Enable Value Chain Tracking is false in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(false);
+
+        // [WHEN] Open "Service Invoice Subform".
+        ServiceInvoiceSubform.OpenEdit();
+
+        // [THEN] "Sust. Account No.","Total CO2e" are not Visible on "Service Invoice Subform".
+        Assert.IsFalse(
+            ServiceInvoiceSubform."Total CO2e".Visible(),
+            StrSubstNo(FieldShouldNotBeVisibleErr, ServiceInvoiceSubform."Total CO2e".Caption(), ServiceInvoiceSubform.Caption()));
+        Assert.IsFalse(
+            ServiceInvoiceSubform."Sust. Account No.".Visible(),
+            StrSubstNo(FieldShouldNotBeVisibleErr, ServiceInvoiceSubform."Sust. Account No.".Caption(), ServiceInvoiceSubform.Caption()));
+    end;
+
+    [Test]
+    procedure VerifySustFieldsAreVisibleOnServiceCrMemoSubformIsEnableValueChainTrackingIsTrue()
+    var
+        ServiceCrMemoSubform: TestPage "Service Credit Memo Subform";
+    begin
+        // [SCENARIO 580158] Verify Sustainability Fields are Visible on "Service Cr. Memo Subform"
+        // if Enable Value Chain Tracking is true in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
+        // [WHEN] Open "Service Cr. Memo Subform".
+        ServiceCrMemoSubform.OpenEdit();
+
+        // [THEN] "Sust. Account No.","Total CO2e" is Visible on "Service Cr. Memo Subform".
+        Assert.IsTrue(
+            ServiceCrMemoSubform."Total CO2e".Visible(),
+            StrSubstNo(FieldShouldBeVisibleErr, ServiceCrMemoSubform."Total CO2e".Caption(), ServiceCrMemoSubform.Caption()));
+        Assert.IsTrue(
+            ServiceCrMemoSubform."Sust. Account No.".Visible(),
+            StrSubstNo(FieldShouldBeVisibleErr, ServiceCrMemoSubform."Sust. Account No.".Caption(), ServiceCrMemoSubform.Caption()));
+    end;
+
+    [Test]
+    procedure VerifySustFieldsAreNotVisibleOnServiceCrMemoSubformIsEnableValueChainTrackingIsFalse()
+    var
+        ServiceCrMemoSubform: TestPage "Service Credit Memo Subform";
+    begin
+        // [SCENARIO 580158] Verify Sustainability Fields are not Visible on "Service Cr. Memo Subform"
+        // if Enable Value Chain Tracking is false in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(false);
+
+        // [WHEN] Open "Service Cr. Memo Subform".
+        ServiceCrMemoSubform.OpenEdit();
+
+        // [THEN] "Sust. Account No.","Total CO2e" are not Visible on "Service Cr. Memo Subform".
+        Assert.IsFalse(
+            ServiceCrMemoSubform."Total CO2e".Visible(),
+            StrSubstNo(FieldShouldNotBeVisibleErr, ServiceCrMemoSubform."Total CO2e".Caption(), ServiceCrMemoSubform.Caption()));
+        Assert.IsFalse(
+            ServiceCrMemoSubform."Sust. Account No.".Visible(),
+            StrSubstNo(FieldShouldNotBeVisibleErr, ServiceCrMemoSubform."Sust. Account No.".Caption(), ServiceCrMemoSubform.Caption()));
+    end;
+
+    [Test]
+    procedure VerifySustFieldsAreVisibleOnServiceLinesIsEnableValueChainTrackingIsTrue()
+    var
+        ServiceLines: TestPage "Service Lines";
+    begin
+        // [SCENARIO 580158] Verify Sustainability Fields are Visible on "Service Lines"
+        // if Enable Value Chain Tracking is true in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
+        // [WHEN] Open "Service Lines".
+        ServiceLines.OpenEdit();
+
+        // [THEN] "Sust. Account No.","Total CO2e" is Visible on "Service Lines".
+        Assert.IsTrue(
+            ServiceLines."Total CO2e".Visible(),
+            StrSubstNo(FieldShouldBeVisibleErr, ServiceLines."Total CO2e".Caption(), ServiceLines.Caption()));
+        Assert.IsTrue(
+            ServiceLines."Sust. Account No.".Visible(),
+            StrSubstNo(FieldShouldBeVisibleErr, ServiceLines."Sust. Account No.".Caption(), ServiceLines.Caption()));
+    end;
+
+    [Test]
+    procedure VerifySustFieldsAreNotVisibleOnServiceLinesIsEnableValueChainTrackingIsFalse()
+    var
+        ServiceLines: TestPage "Service Lines";
+    begin
+        // [SCENARIO 580158] Verify Sustainability Fields are not Visible on "Service Lines"
+        // if Enable Value Chain Tracking is false in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(false);
+
+        // [WHEN] Open "Service Lines".
+        ServiceLines.OpenEdit();
+
+        // [THEN] "Sust. Account No.","Total CO2e" are not Visible on "Service Lines".
+        Assert.IsFalse(
+            ServiceLines."Total CO2e".Visible(),
+            StrSubstNo(FieldShouldNotBeVisibleErr, ServiceLines."Total CO2e".Caption(), ServiceLines.Caption()));
+        Assert.IsFalse(
+            ServiceLines."Sust. Account No.".Visible(),
+            StrSubstNo(FieldShouldNotBeVisibleErr, ServiceLines."Sust. Account No.".Caption(), ServiceLines.Caption()));
+    end;
+
+    [Test]
+    procedure VerifySustFieldsAreVisibleOnServiceQuoteLinesIsEnableValueChainTrackingIsTrue()
+    var
+        ServiceQuoteLines: TestPage "Service Quote Lines";
+    begin
+        // [SCENARIO 580158] Verify Sustainability Fields are Visible on "Service Quote Lines"
+        // if Enable Value Chain Tracking is true in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
+        // [WHEN] Open "Service Quote Lines".
+        ServiceQuoteLines.OpenEdit();
+
+        // [THEN] "Sust. Account No.","Total CO2e" is Visible on "Service Quote Lines".
+        Assert.IsTrue(
+            ServiceQuoteLines."Total CO2e".Visible(),
+            StrSubstNo(FieldShouldBeVisibleErr, ServiceQuoteLines."Total CO2e".Caption(), ServiceQuoteLines.Caption()));
+        Assert.IsTrue(
+            ServiceQuoteLines."Sust. Account No.".Visible(),
+            StrSubstNo(FieldShouldBeVisibleErr, ServiceQuoteLines."Sust. Account No.".Caption(), ServiceQuoteLines.Caption()));
+    end;
+
+    [Test]
+    procedure VerifySustFieldsAreNotVisibleOnServiceQuoteLinesIsEnableValueChainTrackingIsFalse()
+    var
+        ServiceQuoteLines: TestPage "Service Quote Lines";
+    begin
+        // [SCENARIO 580158] Verify Sustainability Fields are not Visible on "Service Quote Lines"
+        // if Enable Value Chain Tracking is false in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(false);
+
+        // [WHEN] Open "Service Quote Lines".
+        ServiceQuoteLines.OpenEdit();
+
+        // [THEN] "Sust. Account No.","Total CO2e" are not Visible on "Service Quote Lines".
+        Assert.IsFalse(
+            ServiceQuoteLines."Total CO2e".Visible(),
+            StrSubstNo(FieldShouldNotBeVisibleErr, ServiceQuoteLines."Total CO2e".Caption(), ServiceQuoteLines.Caption()));
+        Assert.IsFalse(
+            ServiceQuoteLines."Sust. Account No.".Visible(),
+            StrSubstNo(FieldShouldNotBeVisibleErr, ServiceQuoteLines."Sust. Account No.".Caption(), ServiceQuoteLines.Caption()));
+    end;
+
+    [Test]
+    procedure VerifySustFieldsAreVisibleOnPostedServiceCrMemoSubformIsEnableValueChainTrackingIsTrue()
+    var
+        PostedServiceCrMemoSubform: TestPage "Posted Serv. Cr. Memo Subform";
+    begin
+        // [SCENARIO 580158] Verify Sustainability Fields are Visible on "Posted Service Cr. Memo Subform"
+        // if Enable Value Chain Tracking is true in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
+        // [WHEN] Open "Posted Serv. Cr. Memo Subform".
+        PostedServiceCrMemoSubform.OpenEdit();
+
+        // [THEN] "Sust. Account No.","Total CO2e" is Visible on "Posted Serv. Cr. Memo Subform".
+        Assert.IsTrue(
+            PostedServiceCrMemoSubform."Total CO2e".Visible(),
+            StrSubstNo(FieldShouldBeVisibleErr, PostedServiceCrMemoSubform."Total CO2e".Caption(), PostedServiceCrMemoSubform.Caption()));
+        Assert.IsTrue(
+            PostedServiceCrMemoSubform."Sust. Account No.".Visible(),
+            StrSubstNo(FieldShouldBeVisibleErr, PostedServiceCrMemoSubform."Sust. Account No.".Caption(), PostedServiceCrMemoSubform.Caption()));
+    end;
+
+    [Test]
+    procedure VerifySustFieldsAreNotVisibleOnPostedServiceCrMemoSubformIsEnableValueChainTrackingIsFalse()
+    var
+        PostedServiceCrMemoSubform: TestPage "Posted Serv. Cr. Memo Subform";
+    begin
+        // [SCENARIO 580158] Verify Sustainability Fields are not Visible on "Posted Service Cr. Memo Subform"
+        // if Enable Value Chain Tracking is false in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(false);
+
+        // [WHEN] Open "Posted Serv. Cr. Memo Subform".
+        PostedServiceCrMemoSubform.OpenEdit();
+
+        // [THEN] "Sust. Account No.","Total CO2e" are not Visible on "Posted Serv. Cr. Memo Subform".
+        Assert.IsFalse(
+            PostedServiceCrMemoSubform."Total CO2e".Visible(),
+            StrSubstNo(FieldShouldNotBeVisibleErr, PostedServiceCrMemoSubform."Total CO2e".Caption(), PostedServiceCrMemoSubform.Caption()));
+        Assert.IsFalse(
+            PostedServiceCrMemoSubform."Sust. Account No.".Visible(),
+            StrSubstNo(FieldShouldNotBeVisibleErr, PostedServiceCrMemoSubform."Sust. Account No.".Caption(), PostedServiceCrMemoSubform.Caption()));
+    end;
+
+    [Test]
+    procedure VerifySustFieldsAreVisibleOnPostedServiceShptSubformIsEnableValueChainTrackingIsTrue()
+    var
+        PostedServiceShipmentSubform: TestPage "Posted Service Shpt. Subform";
+    begin
+        // [SCENARIO 580158] Verify Sustainability Fields are Visible on "Posted Service Shpt. Subform"
+        // if Enable Value Chain Tracking is true in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
+        // [WHEN] Open "Posted Service Shpt. Subform".
+        PostedServiceShipmentSubform.OpenEdit();
+
+        // [THEN] "Total CO2e" is Visible on "Posted Service Shpt. Subform".
+        Assert.IsTrue(
+            PostedServiceShipmentSubform."Total CO2e".Visible(),
+            StrSubstNo(FieldShouldBeVisibleErr, PostedServiceShipmentSubform."Total CO2e".Caption(), PostedServiceShipmentSubform.Caption()));
+    end;
+
+    [Test]
+    procedure VerifySustFieldsAreNotVisibleOnPostedServiceShptSubformIsEnableValueChainTrackingIsFalse()
+    var
+        PostedServiceShipmentSubform: TestPage "Posted Service Shpt. Subform";
+    begin
+        // [SCENARIO 580158] Verify Sustainability Fields are not Visible on "Posted Service Shpt. Subform"
+        // if Enable Value Chain Tracking is false in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(false);
+
+        // [WHEN] Open "Posted Service Shpt. Subform".
+        PostedServiceShipmentSubform.OpenEdit();
+
+        // [THEN] "Total CO2e" are not Visible on "Posted Service Shpt. Subform".
+        Assert.IsFalse(
+            PostedServiceShipmentSubform."Total CO2e".Visible(),
+            StrSubstNo(FieldShouldNotBeVisibleErr, PostedServiceShipmentSubform."Total CO2e".Caption(), PostedServiceShipmentSubform.Caption()));
+    end;
+
+    [Test]
+    procedure VerifySustFieldsAreVisibleOnServiceOrderSubformIsEnableValueChainTrackingIsTrue()
+    var
+        ServiceOrderSubform: TestPage "Service Order Subform";
+    begin
+        // [SCENARIO 580158] Verify Sustainability Fields are Visible on "Service Order Subform"
+        // if Enable Value Chain Tracking is true in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
+        // [WHEN] Open "Service Order Subform".
+        ServiceOrderSubform.OpenEdit();
+
+        // [THEN] "Total CO2e" is Visible on "Service Order Subform".
+        Assert.IsTrue(
+            ServiceOrderSubform."Total CO2e".Visible(),
+            StrSubstNo(FieldShouldBeVisibleErr, ServiceOrderSubform."Total CO2e".Caption(), ServiceOrderSubform.Caption()));
+    end;
+
+    [Test]
+    procedure VerifySustFieldsAreNotVisibleOnServiceOrderSubformIsEnableValueChainTrackingIsFalse()
+    var
+        ServiceOrderSubform: TestPage "Service Order Subform";
+    begin
+        // [SCENARIO 580158] Verify Sustainability Fields are not Visible on "Service Order Subform"
+        // if Enable Value Chain Tracking is false in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(false);
+
+        // [WHEN] Open "Service Order Subform".
+        ServiceOrderSubform.OpenEdit();
+
+        // [THEN] "Total CO2e" are not Visible on "Service Order Subform".
+        Assert.IsFalse(
+            ServiceOrderSubform."Total CO2e".Visible(),
+            StrSubstNo(FieldShouldNotBeVisibleErr, ServiceOrderSubform."Total CO2e".Caption(), ServiceOrderSubform.Caption()));
     end;
 
     local procedure CreateSustainabilityAccount(var AccountCode: Code[20]; var CategoryCode: Code[20]; var SubcategoryCode: Code[20]; i: Integer): Record "Sustainability Account"

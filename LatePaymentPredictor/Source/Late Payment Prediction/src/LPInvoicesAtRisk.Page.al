@@ -1,8 +1,8 @@
 namespace Microsoft.Finance.RoleCenters;
 
-using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.History;
+using Microsoft.Sales.Receivables;
 
 page 1954 "LP - Invoices at Risk"
 {
@@ -64,6 +64,7 @@ page 1954 "LP - Invoices at Risk"
                 }
                 field("Prediction Confidence %"; Rec."Prediction Confidence %")
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = All;
                     ToolTip = 'Specifies the confidence level of the payment prediction.';
                 }

@@ -1,7 +1,13 @@
-#pragma warning disable AA0247
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Document;
+
+using Microsoft.eServices.EDocument;
+
 tableextension 6169 "E-Doc. Purchase Header" extends "Purchase Header"
 {
-
     fields
     {
         field(6100; "E-Document Link"; Guid)
@@ -16,6 +22,8 @@ tableextension 6169 "E-Doc. Purchase Header" extends "Purchase Header"
             Caption = 'Amount Incl. VAT To Inv.';
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
         }
     }
     keys

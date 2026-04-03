@@ -4,6 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Document;
 
+/// <summary>
+/// Displays and manages a standard sales code with its associated lines.
+/// </summary>
 page 170 "Standard Sales Code Card"
 {
     Caption = 'Standard Sales Lines Card';
@@ -20,17 +23,14 @@ page 170 "Standard Sales Code Card"
                 field("Code"; Rec.Code)
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies a code which identifies this standard sales code.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies a description of the standard sales code.';
                 }
                 field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the currency code for the amounts on the standard sales lines.';
                 }
             }
             part(StdSalesLines; "Standard Sales Code Subform")

@@ -5,8 +5,8 @@
 namespace Microsoft.EServices.EDocument;
 
 using Microsoft.Bank.BankAccount;
-using Microsoft.CRM.Team;
 using Microsoft.CRM.Campaign;
+using Microsoft.CRM.Team;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;

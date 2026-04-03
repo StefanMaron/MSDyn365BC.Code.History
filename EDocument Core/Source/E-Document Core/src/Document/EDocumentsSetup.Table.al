@@ -1,11 +1,13 @@
+#if not CLEANSCHEMA31
+#pragma warning disable AS0105
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument;
 
-using System.Environment;
 using System.Azure.Identity;
+using System.Environment;
 
 table 6107 "E-Documents Setup"
 {
@@ -13,6 +15,9 @@ table 6107 "E-Documents Setup"
     InherentEntitlements = RIX;
     InherentPermissions = RX;
     ReplicateData = false;
+    ObsoleteReason = 'This table is obsolete and should not be used.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '28.0';
 
     fields
     {
@@ -106,3 +111,5 @@ table 6107 "E-Documents Setup"
     end;
 
 }
+#pragma warning restore AS0105
+#endif

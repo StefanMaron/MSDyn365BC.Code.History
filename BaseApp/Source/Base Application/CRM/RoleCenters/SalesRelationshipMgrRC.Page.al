@@ -13,12 +13,10 @@ using Microsoft.CRM.Segment;
 using Microsoft.CRM.Team;
 using Microsoft.EServices.EDocument;
 using Microsoft.Foundation.Navigate;
+using Microsoft.Foundation.Task;
 using Microsoft.Integration.D365Sales;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Attribute;
-#if CLEAN25
-using Microsoft.Pricing.Worksheet;
-#endif
 using Microsoft.Purchases.Vendor;
 using Microsoft.RoleCenters;
 using Microsoft.Sales.Analysis;
@@ -33,7 +31,6 @@ using Microsoft.Sales.Reports;
 using System.Automation;
 using System.Email;
 using System.Integration.PowerBI;
-using Microsoft.Foundation.Task;
 using System.Threading;
 using System.Visualization;
 
@@ -118,17 +115,23 @@ page 9026 "Sales & Relationship Mgr. RC"
                 RunObject = Report "Customer - Order Summary";
                 ToolTip = 'View the quantity not yet shipped for each customer in three periods of 30 days each, starting from a selected date. There are also columns with orders to be shipped before and after the three periods and a column with the total order detail for each customer. The report can be used to analyze a company''s expected sales volume.';
             }
+#if not CLEAN28
             action("Customer - &Top 10 List")
             {
                 ApplicationArea = RelationshipMgmt;
-                Caption = 'Customer - &Top 10 List';
+                Caption = 'Customer - &Top 10 List (Obsolete)';
                 Image = "Report";
                 RunObject = Report "Customer - Top 10 List";
                 ToolTip = 'View which customers purchase the most or owe the most in a selected period. Only customers that have either purchases during the period or a balance at the end of the period will be included.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report has been replaced by the report Customer - Top List (Excel). This report will be removed in a future release.';
+                ObsoleteTag = '28.0';
             }
+#endif
             separator(Action17)
             {
             }
+#if not CLEAN28
             action("S&ales Statistics")
             {
                 ApplicationArea = RelationshipMgmt;
@@ -136,7 +139,11 @@ page 9026 "Sales & Relationship Mgr. RC"
                 Image = "Report";
                 RunObject = Report "Sales Statistics";
                 ToolTip = 'View detailed information about sales to your customers.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report is obsolete and will be removed in a future version.';
+                ObsoleteTag = '28.0';
             }
+#endif
             action("Salesperson - Sales &Statistics")
             {
                 ApplicationArea = Suite, RelationshipMgmt;
@@ -638,7 +645,6 @@ page 9026 "Sales & Relationship Mgr. RC"
             group("Sales Prices")
             {
                 Caption = 'Sales Prices';
-#if not CLEAN25
                 action("Sales Price &Worksheet")
                 {
                     AccessByPermission = TableData "Sales Price Worksheet" = IMD;
@@ -648,9 +654,6 @@ page 9026 "Sales & Relationship Mgr. RC"
                     RunPageView = where("Object Type" = const(Page), "Object ID" = const(7023)); // "Sales Price Worksheet";
                     RunObject = Page "Role Center Page Dispatcher";
                     ToolTip = 'Manage sales prices for individual customers, for a group of customers, for all customers, or for a campaign.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '19.0';
                 }
                 action("Sales &Prices")
                 {
@@ -661,9 +664,6 @@ page 9026 "Sales & Relationship Mgr. RC"
                     RunPageView = where("Object Type" = const(Page), "Object ID" = const(7002)); // "Sales Prices";
                     RunObject = Page "Role Center Page Dispatcher";
                     ToolTip = 'Define how to set up sales price agreements. These sales prices can be for individual customers, for a group of customers, for all customers, or for a campaign.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '19.0';
                 }
                 action("Sales Line &Discounts")
                 {
@@ -674,28 +674,7 @@ page 9026 "Sales & Relationship Mgr. RC"
                     RunPageView = where("Object Type" = const(Page), "Object ID" = const(7004)); // "Sales Line Discounts";
                     RunObject = Page "Role Center Page Dispatcher";
                     ToolTip = 'View or edit sales line discounts that you grant when certain conditions are met, such as customer, quantity, or ending date. The discount agreements can be for individual customers, for a group of customers, for all customers or for a campaign.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '19.0';
                 }
-#else
-                action("Sales Price &Worksheet")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Sales Price &Worksheet';
-                    Image = PriceWorksheet;
-                    RunObject = Page "Price Worksheet";
-                    ToolTip = 'Manage sales prices for individual customers, for a group of customers, for all customers, or for a campaign.';
-                }
-                action("Price Lists")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = '&Prices';
-                    Image = SalesPrices;
-                    RunObject = Page "Sales Price Lists";
-                    ToolTip = 'View or set up sales price lists for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
-                }
-#endif
             }
             separator(History)
             {

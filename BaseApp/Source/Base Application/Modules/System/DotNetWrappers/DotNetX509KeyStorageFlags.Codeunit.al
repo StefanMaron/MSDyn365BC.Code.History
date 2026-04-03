@@ -4,6 +4,8 @@ using System;
 
 codeunit 3041 DotNet_X509KeyStorageFlags
 {
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     trigger OnRun()
     begin

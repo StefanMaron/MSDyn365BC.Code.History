@@ -4,9 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Posting;
 
+using Microsoft.EServices.EDocument;
 using Microsoft.Service.Document;
 using Microsoft.Service.History;
-using Microsoft.EServices.EDocument;
 
 codeunit 5982 "Service-Post+Print"
 {

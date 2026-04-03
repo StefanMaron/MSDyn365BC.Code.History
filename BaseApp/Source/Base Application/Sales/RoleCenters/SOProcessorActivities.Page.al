@@ -11,9 +11,14 @@ using Microsoft.Sales.Document;
 using System;
 using System.Environment;
 using System.Environment.Configuration;
+#if not CLEAN28
 using System.Feedback;
+#endif
 using System.Visualization;
 
+/// <summary>
+/// Displays sales order activity cues and key metrics for the Sales Order Processor Role Center.
+/// </summary>
 page 9060 "SO Processor Activities"
 {
     Caption = 'Activities';
@@ -115,6 +120,7 @@ page 9060 "SO Processor Activities"
                 }
                 field("Average Days Delayed"; AverageDaysDelayed)
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Basic, Suite;
                     Caption = 'Average Days Delayed';
                     DecimalPlaces = 0 : 1;
@@ -184,22 +190,16 @@ page 9060 "SO Processor Activities"
                     Visible = ShowDocumentsPendingDodExchService;
                 }
             }
+#if not CLEAN28
             usercontrol(SATAsyncLoader; SatisfactionSurveyAsync)
             {
                 ApplicationArea = Basic, Suite;
-                trigger ResponseReceived(Status: Integer; Response: Text)
-                var
-                    SatisfactionSurveyMgt: Codeunit "Satisfaction Survey Mgt.";
-                begin
-                    SatisfactionSurveyMgt.TryShowSurvey(Status, Response);
-                end;
-
-                trigger ControlAddInReady();
-                begin
-                    IsAddInReady := true;
-                    CheckIfSurveyEnabled();
-                end;
+                Visible = false;
+                ObsoleteReason = 'The Satisfaction Survey feature will be removed in a future release.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '28.0';
             }
+#endif
         }
     }
 
@@ -325,35 +325,18 @@ page 9060 "SO Processor Activities"
         CalcTaskId: Integer;
         SalesOrdersReservedFromStock: Integer;
         ShowDocumentsPendingDodExchService: Boolean;
-        IsAddInReady: Boolean;
-        IsPageReady: Boolean;
         AverageDaysDelayedStyle: Text;
         ReadyToShipStyle: Text;
         PartiallyShippedStyle: Text;
         DelayedOrdersStyle: Text;
 
-    trigger PageNotifier::PageReady()
-    begin
-        IsPageReady := true;
-        CheckIfSurveyEnabled();
-    end;
-
-    local procedure CheckIfSurveyEnabled()
-    var
-        SatisfactionSurveyMgt: Codeunit "Satisfaction Survey Mgt.";
-        CheckUrl: Text;
-    begin
-        if not IsAddInReady then
-            exit;
-        if not IsPageReady then
-            exit;
-        if not SatisfactionSurveyMgt.DeactivateSurvey() then
-            exit;
-        if not SatisfactionSurveyMgt.TryGetCheckUrl(CheckUrl) then
-            exit;
-        CurrPage.SATAsyncLoader.SendRequest(CheckUrl, SatisfactionSurveyMgt.GetRequestTimeoutAsync());
-    end;
-
+    /// <summary>
+    /// Raised before processing the results of a completed page background task.
+    /// </summary>
+    /// <param name="TaskId">The ID of the completed background task.</param>
+    /// <param name="CalcTaskId">The calculation task ID for comparison.</param>
+    /// <param name="Results">The results dictionary from the background task.</param>
+    /// <param name="IsHandled">Set to true to prevent default result processing.</param>
     [IntegrationEvent(true, false)]
     procedure OnBeforeOnPageBackgroundTaskCompleted(TaskId: Integer; CalcTaskId: Integer; var Results: Dictionary of [Text, Text]; var IsHandled: Boolean)
     begin

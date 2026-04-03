@@ -1,7 +1,7 @@
 namespace Microsoft.Sustainability.Calculation;
 
-using Microsoft.Sustainability.Account;
 using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Sustainability.Account;
 
 page 6224 "Collect Amount from G/L Entry"
 {
@@ -68,6 +68,8 @@ page 6224 "Collect Amount from G/L Entry"
                 ShowCaption = false;
                 field(TotalAmount; SustainabilityCalcMgt.GetCollectableGLAmount(Rec, FromDate, ToDate))
                 {
+                    AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Total Amount';
                     Editable = false;
                     DrillDown = true;

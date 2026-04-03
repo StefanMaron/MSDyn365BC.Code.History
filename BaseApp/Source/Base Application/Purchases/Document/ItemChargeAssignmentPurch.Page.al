@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -33,19 +33,16 @@ page 5805 "Item Charge Assignment (Purch)"
                 {
                     ApplicationArea = ItemCharges;
                     Editable = false;
-                    ToolTip = 'Specifies the type of the document that this document or journal line will be applied to when you post, for example to register payment.';
                 }
                 field("Applies-to Doc. No."; Rec."Applies-to Doc. No.")
                 {
                     ApplicationArea = ItemCharges;
                     Editable = false;
-                    ToolTip = 'Specifies the number of the document that this document or journal line will be applied to when you post, for example to register payment.';
                 }
                 field("Applies-to Doc. Line No."; Rec."Applies-to Doc. Line No.")
                 {
                     ApplicationArea = ItemCharges;
                     Editable = false;
-                    ToolTip = 'Specifies the number of the line on the document that this document or journal line will be applied to when you post, for example to register payment.';
                 }
                 field("Item No."; Rec."Item No.")
                 {
@@ -53,19 +50,16 @@ page 5805 "Item Charge Assignment (Purch)"
                     Editable = false;
                     StyleExpr = Rec."Qty. to Handle" <> Rec."Qty. to Assign";
                     Style = Unfavorable;
-                    ToolTip = 'Specifies the item number on the document line that this item charge is assigned to.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = ItemCharges;
                     StyleExpr = Rec."Qty. to Handle" <> Rec."Qty. to Assign";
                     Style = Unfavorable;
-                    ToolTip = 'Specifies a description of the item on the document line that this item charge is assigned to.';
                 }
                 field("Qty. to Assign"; Rec."Qty. to Assign")
                 {
                     ApplicationArea = ItemCharges;
-                    ToolTip = 'Specifies how many units of the item charge will be assigned to the document line. If the document has more than one line of type Item, then this quantity reflects the distribution that you selected when you chose the Suggest Item Charge Assignment action.';
 
                     trigger OnValidate()
                     begin
@@ -78,7 +72,6 @@ page 5805 "Item Charge Assignment (Purch)"
                 field("Qty. to Handle"; Rec."Qty. to Handle")
                 {
                     ApplicationArea = ItemCharges;
-                    ToolTip = 'Specifies how many items the item charge will be assigned to on the line. It can be either equal to Qty. to Assign or to zero. If it is zero, the item charge will not be assigned to the line.';
                     trigger OnValidate()
                     begin
                         if PurchLine2.Quantity * Rec."Qty. to Handle" < 0 then
@@ -90,23 +83,21 @@ page 5805 "Item Charge Assignment (Purch)"
                 field("Qty. Assigned"; Rec."Qty. Assigned")
                 {
                     ApplicationArea = ItemCharges;
-                    ToolTip = 'Specifies the number of units of the item charge will be assigned to the document line.';
                 }
                 field("Amount to Assign"; Rec."Amount to Assign")
                 {
                     ApplicationArea = ItemCharges;
                     Editable = false;
-                    ToolTip = 'Specifies the value of the item charge that is going to be assigned to the document line.';
                 }
                 field("Amount to Handle"; Rec."Amount to Handle")
                 {
                     ApplicationArea = ItemCharges;
                     Editable = false;
-                    ToolTip = 'Specifies the value of the item charge that will be actually assigned to the document line.';
                 }
                 field("<Gross Weight>"; GrossWeight)
                 {
                     ApplicationArea = ItemCharges;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     Caption = 'Gross Weight';
                     DecimalPlaces = 0 : 4;
@@ -116,6 +107,7 @@ page 5805 "Item Charge Assignment (Purch)"
                 field("<Unit Volume>"; UnitVolume)
                 {
                     ApplicationArea = ItemCharges;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     Caption = 'Unit Volume';
                     DecimalPlaces = 0 : 4;
@@ -125,6 +117,7 @@ page 5805 "Item Charge Assignment (Purch)"
                 field(QtyToReceiveBase; QtyToReceiveBase)
                 {
                     ApplicationArea = ItemCharges;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     Caption = 'Qty. to Receive (Base)';
                     DecimalPlaces = 0 : 5;
@@ -134,6 +127,7 @@ page 5805 "Item Charge Assignment (Purch)"
                 field(QtyReceivedBase; QtyReceivedBase)
                 {
                     ApplicationArea = ItemCharges;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     Caption = 'Qty. Received (Base)';
                     DecimalPlaces = 0 : 5;
@@ -143,6 +137,7 @@ page 5805 "Item Charge Assignment (Purch)"
                 field(QtyToShipBase; QtyToShipBase)
                 {
                     ApplicationArea = ItemCharges;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     Caption = 'Qty. to Ship (Base)';
                     DecimalPlaces = 0 : 5;
@@ -152,6 +147,7 @@ page 5805 "Item Charge Assignment (Purch)"
                 field(QtyShippedBase; QtyShippedBase)
                 {
                     ApplicationArea = ItemCharges;
+                    AutoFormatType = 0;
                     BlankZero = true;
                     Caption = 'Qty. Shipped (Base)';
                     DecimalPlaces = 0 : 5;
@@ -171,6 +167,7 @@ page 5805 "Item Charge Assignment (Purch)"
                         field(AssignableQty; AssignableQty)
                         {
                             ApplicationArea = ItemCharges;
+                            AutoFormatType = 0;
                             Caption = 'Total (Qty.)';
                             DecimalPlaces = 0 : 5;
                             Editable = false;
@@ -179,6 +176,8 @@ page 5805 "Item Charge Assignment (Purch)"
                         field(AssgntAmount; AssgntAmount)
                         {
                             ApplicationArea = ItemCharges;
+                            AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Total (Amount)';
                             DecimalPlaces = 2 : 5;
                             Editable = false;
@@ -191,6 +190,7 @@ page 5805 "Item Charge Assignment (Purch)"
                         field(TotalQtyToAssign; TotalQtyToAssign)
                         {
                             ApplicationArea = ItemCharges;
+                            AutoFormatType = 0;
                             Caption = 'Qty. to Assign';
                             DecimalPlaces = 0 : 5;
                             Editable = false;
@@ -199,6 +199,8 @@ page 5805 "Item Charge Assignment (Purch)"
                         field(TotalAmountToAssign; TotalAmountToAssign)
                         {
                             ApplicationArea = ItemCharges;
+                            AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Amount to Assign';
                             DecimalPlaces = 2 : 5;
                             Editable = false;
@@ -211,6 +213,7 @@ page 5805 "Item Charge Assignment (Purch)"
                         field(RemQtyToAssign; RemQtyToAssign)
                         {
                             ApplicationArea = ItemCharges;
+                            AutoFormatType = 0;
                             Caption = 'Rem. Qty. to Assign';
                             DecimalPlaces = 0 : 5;
                             Editable = false;
@@ -221,6 +224,8 @@ page 5805 "Item Charge Assignment (Purch)"
                         field(RemAmountToAssign; RemAmountToAssign)
                         {
                             ApplicationArea = ItemCharges;
+                            AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Rem. Amount to Assign';
                             DecimalPlaces = 2 : 5;
                             Editable = false;
@@ -235,6 +240,7 @@ page 5805 "Item Charge Assignment (Purch)"
                         field(TotalQtyToHandle; TotalQtyToHandle)
                         {
                             ApplicationArea = ItemCharges;
+                            AutoFormatType = 0;
                             Caption = 'Qty. to Handle';
                             DecimalPlaces = 0 : 5;
                             Editable = false;
@@ -243,6 +249,7 @@ page 5805 "Item Charge Assignment (Purch)"
                         field(TotalAmountToHandle; TotalAmountToHandle)
                         {
                             ApplicationArea = ItemCharges;
+                            AutoFormatType = 0;
                             Caption = 'Amount to Handle';
                             DecimalPlaces = 2 : 5;
                             Editable = false;
@@ -255,6 +262,7 @@ page 5805 "Item Charge Assignment (Purch)"
                         field(RemQtyToHandle; RemQtyToHandle)
                         {
                             ApplicationArea = ItemCharges;
+                            AutoFormatType = 0;
                             Caption = 'Rem. Qty. to Handle';
                             DecimalPlaces = 0 : 5;
                             Editable = false;
@@ -265,6 +273,7 @@ page 5805 "Item Charge Assignment (Purch)"
                         field(RemAmountToHandle; RemAmountToHandle)
                         {
                             ApplicationArea = ItemCharges;
+                            AutoFormatType = 0;
                             Caption = 'Rem. Amount to Handle';
                             DecimalPlaces = 2 : 5;
                             Editable = false;

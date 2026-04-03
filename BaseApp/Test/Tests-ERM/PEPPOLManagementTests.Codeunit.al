@@ -1483,7 +1483,7 @@
           TaxTotalTaxSchemeID);
 
         // Verify
-        Assert.AreEqual(Format(TempVATAmtLine."VAT Base", 0, 9), TaxableAmount, 'TaxableAmount has unexpected value.');
+        Assert.AreEqual(Format(TempVATAmtLine."VAT Base" - TempVATAmtLine."Pmt. Discount Amount", 0, 9), TaxableAmount, 'TaxableAmount has unexpected value.');
         Assert.AreEqual(LibraryERM.GetLCYCode(), TaxAmountCurrencyID, 'TaxAmountCurrencyID has unexpected value.');
         Assert.AreEqual(Format(TempVATAmtLine."VAT Amount", 0, 9), SubtotalTaxAmount, 'SubtotalTaxAmount has unexpected value.');
         Assert.AreEqual(LibraryERM.GetLCYCode(), TaxSubtotalCurrencyID, 'TaxSubtotalCurrencyID has unexpected value.');
@@ -3879,6 +3879,7 @@
         InvoiceLineExtensionAmount: Text;
         LineExtensionAmountCurrencyID: Text;
         InvoiceLineAccountingCost: Text;
+        SalesInvoiceLineLineAmount: Decimal;
     begin
         SalesInvoiceHeader.Get(PostedInvoiceNo);
         SalesHeader.TransferFields(SalesInvoiceHeader);
@@ -3899,9 +3900,8 @@
         Assert.AreEqual(Format(SalesInvoiceLine.Quantity, 0, 9), InvoicedQuantity, '');
         Assert.AreEqual(UnitOfMeasure."International Standard Code", unitCode, '');
         Assert.AreEqual('UNECERec20', unitCodeListID, '');
-        Assert.AreEqual(
-          Format(SalesInvoiceLine."VAT Base Amount" + SalesInvoiceLine."Inv. Discount Amount", 0, 9),
-          InvoiceLineExtensionAmount, '');
+        SalesInvoiceLineLineAmount := SalesInvoiceLine."Line Amount";
+        Assert.AreEqual(Format(SalesInvoiceLineLineAmount, 0, 9), InvoiceLineExtensionAmount, '');
         Assert.AreEqual(SalesHeader."Currency Code", LineExtensionAmountCurrencyID, '');
         Assert.AreEqual('', InvoiceLineAccountingCost, '');
     end;

@@ -2,9 +2,9 @@ namespace Microsoft.Inventory.InventoryForecast;
 
 using System.AI;
 using System.Environment;
+using System.Privacy;
 using System.Security.Encryption;
 using System.Security.User;
-using System.Privacy;
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -64,6 +64,7 @@ table 1853 "MS - Sales Forecast Setup"
         }
         field(9; "Variance %"; Decimal)
         {
+            AutoFormatType = 0;
             InitValue = 35;
             MaxValue = 100;
             MinValue = 1;
@@ -87,11 +88,13 @@ table 1853 "MS - Sales Forecast Setup"
         }
         field(13; Limit; Decimal)
         {
+            AutoFormatType = 0;
             Editable = false;
             DataClassification = CustomerContent;
         }
         field(14; "Processing Time"; Decimal)
         {
+            AutoFormatType = 0;
             Editable = false;
             DataClassification = CustomerContent;
         }

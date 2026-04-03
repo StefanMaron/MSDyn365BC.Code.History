@@ -7,6 +7,9 @@ namespace Microsoft.Sales.Setup;
 using Microsoft.Foundation.Reporting;
 using System.Reflection;
 
+/// <summary>
+/// Configures default report selections for sales document types. Allows users to specify which reports to use for printing, emailing, and other output operations.
+/// </summary>
 page 306 "Report Selection - Sales"
 {
     ApplicationArea = Basic, Suite;
@@ -108,13 +111,17 @@ page 306 "Report Selection - Sales"
                     ApplicationArea = Basic, Suite;
                     Visible = false;
 
+#if not CLEAN28
                     trigger OnDrillDown()
                     var
                         CustomReportLayout: Record "Custom Report Layout";
                     begin
+#pragma warning disable AL0432
                         if CustomReportLayout.LookupLayoutOK(Rec."Report ID") then
+#pragma warning restore AL0432
                             Rec.Validate("Email Body Layout Code", CustomReportLayout.Code);
                     end;
+#endif
                 }
             }
         }

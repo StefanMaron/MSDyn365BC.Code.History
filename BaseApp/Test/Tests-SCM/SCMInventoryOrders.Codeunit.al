@@ -23,9 +23,7 @@ codeunit 137400 "SCM Inventory - Orders"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
-#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
-#endif
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryTemplates: Codeunit "Library - Templates";
@@ -1119,7 +1117,6 @@ codeunit 137400 "SCM Inventory - Orders"
         VerifyPostedReturnReceipt(SalesLine);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SalesUnitPriceFromItemUnitPrice()
@@ -1225,46 +1222,6 @@ codeunit 137400 "SCM Inventory - Orders"
     end;
 
     [Test]
-    [HandlerFunctions('GetPriceLineHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure SalesUnitPriceFromCustomerPriceLineGroup()
-    var
-        CustomerPriceGroup: Record "Customer Price Group";
-        Item: Record Item;
-        Customer: Record Customer;
-        SalesPrice: Record "Sales Price";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        PriceListLine: Record "Price List Line";
-    begin
-        // Test and verify Sales Unit Price update from Customer Price Group.
-        Initialize();
-        LibraryPriceCalculation.EnableExtendedPriceCalculation();
-        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
-
-        // Setup: Create Item and Customer with Customer Price Group. Create and release Sales Order. Reopen Sales Order and update Order Date.
-        PriceListLine.DeleteAll();
-        CreateItem(Item);
-        LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
-        CreateCustomer(Customer, false, CustomerPriceGroup.Code);
-        CreateSalesPrice(
-          SalesPrice, Item, "Sales Price Type"::"Customer Price Group", Customer."Customer Price Group", Item."Base Unit of Measure",
-          0, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
-        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
-
-        // Use random Starting Date.
-        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Customer."No.", Item."No.", LibraryRandom.RandDec(100, 2));  // Use random Quantity.
-        LibrarySales.ReopenSalesDocument(SalesHeader);
-        UpdateOrderDateOnSalesOrder(SalesHeader, SalesPrice."Starting Date");
-
-        // Exercise: Get Sales Price.
-        GetSalesPrice(SalesHeader."No.");
-
-        // Verify: Verify Unit Price on Sales Line.
-        VerifyUnitPriceOnSalesLine(SalesLine, SalesPrice."Unit Price");
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure SalesUnitPriceWithDifferentUnitOfMeasureCode()
     var
@@ -1300,7 +1257,6 @@ codeunit 137400 "SCM Inventory - Orders"
         // Verify: Verify Unit Price on Sales Line.
         VerifyUnitPriceOnSalesLine(SalesLine, SalesPrice2."Unit Price");
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -2487,7 +2443,6 @@ codeunit 137400 "SCM Inventory - Orders"
         Assert.ExpectedError(QtyToInvoiceMustHaveValueErr);
     end;
 
-#if not CLEAN25
     [Test]
     [HandlerFunctions('GetLastUnitPriceHandler')]
     [Scope('OnPrem')]
@@ -2557,7 +2512,6 @@ codeunit 137400 "SCM Inventory - Orders"
                 NewSalesPrice."Unit Price",
                 SalesLine.TableCaption()));
     end;
-#endif
 
     [Test]
     [HandlerFunctions('GetShipmentLinesPageHandler')]
@@ -2726,6 +2680,7 @@ codeunit 137400 "SCM Inventory - Orders"
         LibrarySales.ReopenSalesDocument(SalesHeader);
 
         // [WHEN] Delete the first sales line.
+        SalesLine[1].Find();
         SalesLine[1].Delete(true);
 
         // [VERIFY] Verify that it is possible to delete the first sales line.
@@ -2789,6 +2744,7 @@ codeunit 137400 "SCM Inventory - Orders"
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
 
         // [WHEN] Delete the first Purchase line.
+        PurchaseLine[1].Find();
         PurchaseLine[1].Delete(true);
 
         // [VERIFY] Verify that it is possible to delete the first purchase line.
@@ -2971,6 +2927,46 @@ codeunit 137400 "SCM Inventory - Orders"
         Assert.ExpectedError(StrSubstNo(DropShipmentDocumentExistsErr, PurchaseHeader."No."));
     end;
 
+    [Test]
+    [HandlerFunctions('GetPriceLineHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesUnitPriceFromCustomerPriceLineGroup()
+    var
+        CustomerPriceGroup: Record "Customer Price Group";
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesPrice: Record "Sales Price";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
+    begin
+        // Test and verify Sales Unit Price update from Customer Price Group.
+        Initialize();
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        // Setup: Create Item and Customer with Customer Price Group. Create and release Sales Order. Reopen Sales Order and update Order Date.
+        PriceListLine.DeleteAll();
+        CreateItem(Item);
+        LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
+        CreateCustomer(Customer, false, CustomerPriceGroup.Code);
+        CreateSalesPrice(
+          SalesPrice, Item, "Sales Price Type"::"Customer Price Group", Customer."Customer Price Group", Item."Base Unit of Measure",
+          0, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
+
+        // Use random Starting Date.
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Customer."No.", Item."No.", LibraryRandom.RandDec(100, 2));  // Use random Quantity.
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+        UpdateOrderDateOnSalesOrder(SalesHeader, SalesPrice."Starting Date");
+
+        // Exercise: Get Sales Price.
+        GetSalesPrice(SalesHeader."No.");
+
+        // Verify: Verify Unit Price on Sales Line.
+        VerifyUnitPriceOnSalesLine(SalesLine, SalesPrice."Unit Price");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3123,13 +3119,12 @@ codeunit 137400 "SCM Inventory - Orders"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, false));  // Post the Sales Order as Ship.
     end;
 
-#if not CLEAN25
     local procedure CreateAndReleaseSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     begin
         CreateSalesOrder(SalesHeader, SalesLine, CustomerNo, ItemNo, Quantity);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
-#endif
+
     local procedure CreateCustomer(var Customer: Record Customer; CombineShipments: Boolean; CustomerPriceGroupCode: Code[10])
     begin
         LibrarySales.CreateCustomer(Customer);
@@ -3366,7 +3361,6 @@ codeunit 137400 "SCM Inventory - Orders"
         SalesLine.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure CreateSalesPrice(var SalesPrice: Record "Sales Price"; Item: Record Item; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal; StartingDate: Date)
     begin
         // Create Sales Price with random Unit Price.
@@ -3374,7 +3368,6 @@ codeunit 137400 "SCM Inventory - Orders"
         SalesPrice.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesPrice.Modify(true);
     end;
-#endif
 
     local procedure CreateSalesReturnOrder(var SalesLine: Record "Sales Line")
     var
@@ -3588,7 +3581,6 @@ codeunit 137400 "SCM Inventory - Orders"
         LibrarySales.GetShipmentLines(SalesLine);
     end;
 
-#if not CLEAN25
     local procedure GetSalesPrice(No: Code[20])
     var
         SalesOrder: TestPage "Sales Order";
@@ -3597,7 +3589,6 @@ codeunit 137400 "SCM Inventory - Orders"
         SalesOrder.FILTER.SetFilter("No.", No);
         SalesOrder.SalesLines.GetPrice.Invoke();
     end;
-#endif
 
     local procedure InvokeShowMatrixOnSalesAnalysisByDimensions(AnalysisViewListSales: TestPage "Analysis View List Sales"; ItemNo: Code[20])
     var
@@ -3816,13 +3807,12 @@ codeunit 137400 "SCM Inventory - Orders"
         InventorySetup.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure UpdateOrderDateOnSalesOrder(SalesHeader: Record "Sales Header"; OrderDate: Date)
     begin
         SalesHeader.Validate("Order Date", OrderDate);
         SalesHeader.Modify(true);
     end;
-#endif
+
     local procedure UpdatePostedShipment(var ShippingAgentServices: Record "Shipping Agent Services"; DocumentNo: Code[20])
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
@@ -4114,13 +4104,12 @@ codeunit 137400 "SCM Inventory - Orders"
         Assert.RecordIsNotEmpty(SalesHeader);
     end;
 
-#if not CLEAN25
     local procedure VerifyUnitPriceOnSalesLine(SalesLine: Record "Sales Line"; UnitPrice: Decimal)
     begin
         SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         SalesLine.TestField("Unit Price", UnitPrice);
     end;
-#endif
+
     local procedure VerifyValueEntryForItemCharge(ItemNo: Code[20]; ItemChargeNo: Code[20]; Qty: Decimal; UnitPrice: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
@@ -4143,7 +4132,6 @@ codeunit 137400 "SCM Inventory - Orders"
         PurchaseLine.TestField("Qty. to Invoice", PurchaseLine."Quantity Received");
     end;
 
-#if not CLEAN25
     local procedure SortUnitPriceInSalesOrderLineAndGetUpdatedUnitPrice(SalesHeader: Record "Sales Header"): Decimal
     var
         SalesOrder: TestPage "Sales Order";
@@ -4156,7 +4144,6 @@ codeunit 137400 "SCM Inventory - Orders"
 
         exit(SalesOrder.SalesLines."Unit Price".AsDecimal());
     end;
-#endif
 
     local procedure LinkDocDateToPostingDateSalesSetup(EnableLinkDocDate: Boolean)
     var
@@ -4296,14 +4283,12 @@ codeunit 137400 "SCM Inventory - Orders"
         SalesList.OK().Invoke();
     end;
 
-#if not CLEAN25
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetSalesPriceHandler(var GetSalesPrice: TestPage "Get Sales Price") // V15
     begin
         GetSalesPrice.OK().Invoke();
     end;
-#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]
@@ -4392,7 +4377,6 @@ codeunit 137400 "SCM Inventory - Orders"
         SelectItemTemplList.OK().Invoke();
     end;
 
-#if not CLEAN25
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetLastUnitPriceHandler(var GetSalesPrice: TestPage "Get Sales Price")
@@ -4400,7 +4384,6 @@ codeunit 137400 "SCM Inventory - Orders"
         GetSalesPrice.Last();
         GetSalesPrice.OK().Invoke();
     end;
-#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]

@@ -13,13 +13,13 @@ using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.FixedAssets.Ledger;
+using Microsoft.Foundation.Company;
 using Microsoft.Foundation.Enums;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Projects.Project.Journal;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Vendor;
-using Microsoft.Foundation.Company;
-using Microsoft.Projects.Project.Journal;
-using Microsoft.Projects.Project.Job;
 
 /// <summary>
 /// Defines the implementation of Non-Deductible VAT

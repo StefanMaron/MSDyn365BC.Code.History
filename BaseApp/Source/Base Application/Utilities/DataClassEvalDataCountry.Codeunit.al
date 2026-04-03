@@ -4,18 +4,18 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Utilities;
 
+using Microsoft.Bank.DirectDebit;
+using Microsoft.Bank.Payment;
+using Microsoft.EServices.EDocument;
 using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.VAT.Setup;
 using Microsoft.HumanResources.Absence;
 using Microsoft.HumanResources.Employee;
 using Microsoft.HumanResources.Payables;
-using Microsoft.Sales.Archive;
-using System.Privacy;
-using Microsoft.Finance.VAT.Setup;
-using Microsoft.EServices.EDocument;
-using Microsoft.Bank.DirectDebit;
 using Microsoft.Purchases.Payables;
+using Microsoft.Sales.Archive;
 using Microsoft.Sales.Document;
-using Microsoft.Bank.Payment;
+using System.Privacy;
 
 codeunit 1752 "Data Class. Eval. Data Country"
 {

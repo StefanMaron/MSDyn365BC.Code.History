@@ -15,9 +15,9 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
+using Microsoft.Utilities;
 using System.Reflection;
 using System.Utilities;
-using Microsoft.Utilities;
 
 /// <summary>
 /// Populates the payment export data buffer with information from general journal lines

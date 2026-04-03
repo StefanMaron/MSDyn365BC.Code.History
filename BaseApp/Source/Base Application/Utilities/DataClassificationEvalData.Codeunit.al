@@ -35,8 +35,8 @@ using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Consolidation;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Deferral;
-using Microsoft.Finance.Dimension.Correction;
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.Dimension.Correction;
 using Microsoft.Finance.FinancialReports;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Budget;
@@ -44,8 +44,8 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Reversal;
 using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.Payroll;
+using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.RoleCenters;
 using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Calculation;
@@ -97,13 +97,15 @@ using Microsoft.Intercompany.Inbox;
 using Microsoft.Intercompany.Outbox;
 using Microsoft.Intercompany.Partner;
 using Microsoft.Intercompany.Setup;
+using Microsoft.Inventory.Analysis;
+using Microsoft.Inventory.Tracking;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
-using Microsoft.Purchases.Vendor;
 using Microsoft.Purchases.Analysis;
+using Microsoft.Purchases.Vendor;
 using Microsoft.RoleCenters;
 using System.Agents;
 using System.AI;
@@ -113,15 +115,16 @@ using System.Azure.Identity;
 using System.DataAdministration;
 using System.Device;
 using System.Diagnostics;
-using System.Reflection;
 using System.EMail;
 using System.Environment;
 using System.Environment.Configuration;
+using System.Globalization;
 using System.Integration;
 using System.Integration.PowerBI;
 using System.IO;
+using System.PerformanceProfile;
 using System.Privacy;
-using System.Globalization;
+using System.Reflection;
 using System.Security;
 using System.Security.AccessControl;
 using System.Security.Authentication;
@@ -132,10 +135,9 @@ using System.TestTools.TestRunner;
 using System.Text;
 using System.Threading;
 using System.Tooling;
-using System.Visualization;
 using System.Utilities;
+using System.Visualization;
 using System.Xml;
-using System.PerformanceProfile;
 
 codeunit 1751 "Data Classification Eval. Data"
 {
@@ -161,7 +163,7 @@ codeunit 1751 "Data Classification Eval. Data"
 
         if Field.FindSet() then
             repeat
-                DataSensitivity."Company Name" := CompanyName;
+                DataSensitivity."Company Name" := CopyStr(CompanyName, 1, MaxStrLen(DataSensitivity."Company Name"));
                 DataSensitivity."Table No" := Field.TableNo;
                 DataSensitivity."Field No" := Field."No.";
                 DataSensitivity."Data Sensitivity" := DataSensitivity."Data Sensitivity"::Unclassified;
@@ -388,11 +390,21 @@ codeunit 1751 "Data Classification Eval. Data"
     local procedure ClassifyFinancialReports()
     var
         FinancialReportUserFilters: Record "Financial Report User Filters";
+        FinancialReportAuditLog: Record "Financial Report Audit Log";
     begin
         SetTableFieldsToNormal(Database::"Financial Report");
+        SetTableFieldsToNormal(Database::"Financial Report Schedule");
+        SetTableFieldsToNormal(Database::"Financial Report Export Log");
+        SetTableFieldsToNormal(Database::"Financial Report Recipient");
         SetTableFieldsToNormal(Database::"Financial Report User Filters");
         SetTableFieldsToNormal(Database::"Fin. Report Excel Template");
+        SetTableFieldsToNormal(Database::"Dimension Perspective Name");
+        SetTableFieldsToNormal(Database::"Dimension Perspective Line");
+        SetTableFieldsToNormal(Database::"Financial Report Category");
+        SetTableFieldsToNormal(Database::"Financial Report Audit Log");
+        SetTableFieldsToNormal(Database::"Financial Report Status");
         SetFieldToPersonal(Database::"Financial Report User Filters", FinancialReportUserFilters.FieldNo("User ID"));
+        SetFieldToPersonal(Database::"Financial Report Audit Log", FinancialReportAuditLog.FieldNo("User"));
     end;
 
     local procedure ClassifyTablesToNormalPart1()
@@ -985,6 +997,10 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(Database::"Buffer IC InOut Jnl. Line Dim.");
         SetTableFieldsToNormal(Database::"IC Incoming Notification");
         SetTableFieldsToNormal(Database::"IC Outgoing Notification");
+        SetTableFieldsToNormal(Database::"Item Statistics Cache");
+        SetTableFieldsToNormal(Database::"Matched Order Line");
+        SetTableFieldsToNormal(Database::"Detailed Matched Order Line");
+        SetTableFieldsToNormal(Database::"Posted Matched Order Line");
     end;
 
     procedure SetTableFieldsToNormal(TableNo: Integer)
@@ -3910,9 +3926,9 @@ codeunit 1751 "Data Classification Eval. Data"
 
     local procedure ClasifyScheduledPerformanceProfiling()
     var
-        TableNo: Integer;
         PerformanceProfileScheduler: Record "Performance Profile Scheduler";
         PerformanceProfiles: Record "Performance Profiles";
+        TableNo: Integer;
     begin
         TableNo := DATABASE::"Performance Profile Scheduler";
         SetTableFieldsToNormal(TableNo);

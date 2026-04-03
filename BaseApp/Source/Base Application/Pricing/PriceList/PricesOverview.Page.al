@@ -8,15 +8,13 @@ using Microsoft.CRM.Campaign;
 using Microsoft.CRM.Contact;
 using Microsoft.Finance.Currency;
 using Microsoft.Pricing.Asset;
-#if not CLEAN25
 using Microsoft.Pricing.Calculation;
-#endif
 using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Pricing;
-using System.Text;
 using System.Globalization;
+using System.Text;
 
 page 7024 "Prices Overview"
 {
@@ -232,7 +230,6 @@ page 7024 "Prices Overview"
                     Editable = false;
                     Style = Attention;
                     StyleExpr = LineToVerify;
-                    ToolTip = 'Specifies the unique identifier of the price list.';
 
                     trigger OnDrillDown()
                     begin
@@ -245,14 +242,12 @@ page 7024 "Prices Overview"
                     Editable = false;
                     Style = Attention;
                     StyleExpr = LineToVerify;
-                    ToolTip = 'Specifies whether the price list line is in Draft status and can be edited, Inactive and cannot be edited or used, or Active and used for price calculations.';
                 }
                 field("Price Type"; Rec."Price Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Visible = PriceTypeVisible;
                     Editable = AllowUpdatingDefaults;
-                    ToolTip = 'Specifies the price type: sale or purchase price.';
                 }
                 field("Source Type"; Rec."Source Type")
                 {
@@ -303,7 +298,6 @@ page 7024 "Prices Overview"
                     Editable = AssetTypeEditable;
                     Style = Attention;
                     StyleExpr = LineToVerify;
-                    ToolTip = 'Specifies the type of the product.';
                 }
                 field("Asset No."; Rec."Asset No.")
                 {
@@ -344,7 +338,6 @@ page 7024 "Prices Overview"
                     ApplicationArea = Jobs;
                     Visible = ResourceAssetVisible;
                     Editable = WorkTypeCodeEditable;
-                    ToolTip = 'Specifies the work type code for the resource.';
                 }
                 field("Currency Code"; Rec."Currency Code")
                 {
@@ -370,14 +363,12 @@ page 7024 "Prices Overview"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = PriceLineEditable;
-                    ToolTip = 'Specifies the minimum quantity of the product.';
                 }
                 field("Amount Type"; Rec."Amount Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Visible = AmountTypeIsVisible;
                     Editable = AmountTypeIsEditable;
-                    ToolTip = 'Specifies whether the price list line defines prices, discounts, or both.';
                 }
                 field("Unit Price"; Rec."Unit Price")
                 {
@@ -386,7 +377,6 @@ page 7024 "Prices Overview"
                     Editable = UnitPriceEditable;
                     Style = Attention;
                     StyleExpr = LineToVerify and SalesPriceLine and PriceEditable;
-                    ToolTip = 'Specifies the unit price of the product.';
                 }
                 field("Cost Factor"; Rec."Cost Factor")
                 {
@@ -395,7 +385,6 @@ page 7024 "Prices Overview"
                     Editable = UnitPriceEditable;
                     Style = Attention;
                     StyleExpr = LineToVerify and SalesPriceLine and PriceEditable;
-                    ToolTip = 'Specifies the unit cost factor for project-related prices, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
                 }
                 field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
@@ -404,7 +393,6 @@ page 7024 "Prices Overview"
                     Editable = UnitPriceEditable;
                     Style = Attention;
                     StyleExpr = LineToVerify and PurchPriceLine and PriceEditable;
-                    ToolTip = 'Specifies the direct unit cost of the product.';
                 }
                 field("Unit Cost"; Rec."Unit Cost")
                 {
@@ -413,7 +401,6 @@ page 7024 "Prices Overview"
                     Editable = UnitPriceEditable;
                     Style = Attention;
                     StyleExpr = LineToVerify and PurchPriceLine and PriceEditable;
-                    ToolTip = 'Specifies the unit cost of the resource.';
                 }
                 field("Line Discount %"; Rec."Line Discount %")
                 {
@@ -422,33 +409,28 @@ page 7024 "Prices Overview"
                     Editable = LineDiscPctEditable;
                     Style = Attention;
                     StyleExpr = LineToVerify and DiscountEditable;
-                    ToolTip = 'Specifies the line discount percentage for the product.';
                 }
                 field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = DateEditable;
-                    ToolTip = 'Specifies the date from which the price is valid.';
                 }
                 field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = DateEditable;
-                    ToolTip = 'Specifies the last date that the price is valid.';
                 }
                 field("Allow Line Disc."; Rec."Allow Line Disc.")
                 {
                     ApplicationArea = Basic, Suite;
                     Visible = AllowDiscVisible;
                     Editable = PriceLineEditable;
-                    ToolTip = 'Specifies if a line discount will be calculated when the price is offered.';
                 }
                 field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     ApplicationArea = Basic, Suite;
                     Visible = AllowDiscVisible;
                     Editable = PriceLineEditable;
-                    ToolTip = 'Specifies if an invoice discount will be calculated when the price is offered.';
                 }
                 field("VAT Bus. Posting Gr. (Price)"; Rec."VAT Bus. Posting Gr. (Price)")
                 {
@@ -562,14 +544,13 @@ page 7024 "Prices Overview"
         }
     }
 
-#if not CLEAN25
     trigger OnInit()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
     begin
         FeaturePriceCalculation.FailIfFeatureDisabled();
     end;
-#endif
+
     trigger OnAfterGetCurrRecord()
     begin
         SetEditableFields();

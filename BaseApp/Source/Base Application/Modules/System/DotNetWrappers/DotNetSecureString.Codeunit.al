@@ -4,6 +4,9 @@ using System;
 
 codeunit 3044 DotNet_SecureString
 {
+    InherentEntitlements = X;
+    InherentPermissions = X;
+
     var
         DotNetSecureString: DotNet SecureString;
         String: Text;

@@ -5,10 +5,10 @@
 namespace Microsoft.Purchases.History;
 
 using Microsoft.Foundation.UOM;
-using Microsoft.Inventory.Journal;
-using Microsoft.Manufacturing.Capacity;
-using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Manufacturing.Capacity;
 
 codeunit 99000784 "Mfg. Undo Purch. Rcpt. Line"
 {

@@ -1,11 +1,11 @@
 namespace Microsoft.SubscriptionBilling;
 
-using Microsoft.Foundation.AuditCodes;
-using Microsoft.Sales.Setup;
-using Microsoft.Purchases.Setup;
-using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Posting;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Purchases.Setup;
+using Microsoft.Sales.Setup;
 
 report 8051 "Contract Deferrals Release"
 {
@@ -13,9 +13,13 @@ report 8051 "Contract Deferrals Release"
     Caption = 'Subscription Contract Deferrals Release';
     UsageCategory = Tasks;
     ProcessingOnly = true;
+    AdditionalSearchTerms = 'Release Deferrals, Contract Deferrals, Release Revenue, Release Cost, Deferral Posting, Contract Release';
 
     requestpage
     {
+        AboutTitle = 'About Subscription Contract Deferrals Release';
+        AboutText = 'Release deferred cost and revenue from contracts based on a chosen time period.';
+
         layout
         {
             area(Content)

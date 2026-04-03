@@ -1,3 +1,4 @@
+#if not CLEAN27
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -198,6 +199,7 @@ report 99000783 "Work Center Load"
                     }
                     field(MinCapEfficToPrint; MinCapEfficToPrint)
                     {
+                        AutoFormatType = 0;
                         ApplicationArea = Manufacturing;
                         Caption = 'Load bigger than (pct.)';
                         DecimalPlaces = 0 : 5;
@@ -269,4 +271,4 @@ report 99000783 "Work Center Load"
         MinCapEfficToPrint := NewMinCapEfficToPrint;
     end;
 }
-
+#endif

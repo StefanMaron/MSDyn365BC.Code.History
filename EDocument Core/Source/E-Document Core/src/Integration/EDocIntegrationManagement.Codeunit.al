@@ -4,12 +4,12 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument;
 
-using System.Telemetry;
-using System.Utilities;
+using Microsoft.eServices.EDocument.Integration.Action;
+using Microsoft.eServices.EDocument.Integration.Interfaces;
 using Microsoft.eServices.EDocument.Integration.Receive;
 using Microsoft.eServices.EDocument.Integration.Send;
-using Microsoft.eServices.EDocument.Integration.Interfaces;
-using Microsoft.eServices.EDocument.Integration.Action;
+using System.Telemetry;
+using System.Utilities;
 
 codeunit 6134 "E-Doc. Integration Management"
 {
@@ -53,9 +53,11 @@ codeunit 6134 "E-Doc. Integration Management"
     begin
         Success := false;
 #if not CLEAN26
+#pragma warning disable AL0432 
         if (EDocumentService."Service Integration" = EDocumentService."Service Integration"::"No Integration") and
         (EDocumentService."Service Integration V2" = EDocumentService."Service Integration V2"::"No Integration") then
             exit(false);
+#pragma warning restore AL0432 
 #else
          if (EDocumentService."Service Integration V2" = EDocumentService."Service Integration V2"::"No Integration") then
             exit(false);
@@ -92,11 +94,12 @@ codeunit 6134 "E-Doc. Integration Management"
     #region Receive
 
 #if not CLEAN26
+#pragma warning disable AL0432 
     internal procedure ReceiveDocument(EDocService: Record "E-Document Service"; EDocIntegration: Interface "E-Document Integration"): Boolean
     var
         EDocument, EDocument2 : Record "E-Document";
         EDocLog: Record "E-Document Log";
-        EDocumentLog: Codeunit "E-Document Log";
+        LocalEDocumentLog: Codeunit "E-Document Log";
         TempBlob: Codeunit "Temp Blob";
         EDocImport: Codeunit "E-Doc. Import";
         EDocErrorHelper: Codeunit "E-Document Error Helper";
@@ -135,14 +138,14 @@ codeunit 6134 "E-Doc. Integration Management"
                 EDocument.Insert();
 
                 if I = 1 then begin
-                    EDocLog := EDocumentLog.InsertLog(EDocument, EDocService, TempBlob, EDocumentServiceStatus);
+                    EDocLog := LocalEDocumentLog.InsertLog(EDocument, EDocService, TempBlob, EDocumentServiceStatus);
                     EDocBatchDataStorageEntryNo := EDocLog."E-Doc. Data Storage Entry No.";
                 end else begin
-                    EDocLog := EDocumentLog.InsertLog(EDocument, EDocService, EDocumentServiceStatus);
-                    EDocumentLog.ModifyDataStorageEntryNo(EDocLog, EDocBatchDataStorageEntryNo);
+                    EDocLog := LocalEDocumentLog.InsertLog(EDocument, EDocService, EDocumentServiceStatus);
+                    LocalEDocumentLog.ModifyDataStorageEntryNo(EDocLog, EDocBatchDataStorageEntryNo);
                 end;
 
-                EDocumentLog.InsertIntegrationLog(EDocument, EDocService, HttpRequest, HttpResponse);
+                LocalEDocumentLog.InsertIntegrationLog(EDocument, EDocService, HttpRequest, HttpResponse);
                 EDocumentProcessing.InsertServiceStatus(EDocument, EDocService, EDocumentServiceStatus);
                 EDocumentProcessing.ModifyEDocumentStatus(EDocument);
 
@@ -153,8 +156,8 @@ codeunit 6134 "E-Doc. Integration Management"
                 EDocImport.V1_ProcessImportedDocument(EDocument, EDocService, TempBlob, EDocService."Create Journal Lines", EDocService.IsAutomaticProcessingEnabled());
 
             if EDocErrorHelper.HasErrors(EDocument) then begin
-                EDocumentLog.SetFields(EDocument, EDocService);
-                EDocumentLog.InsertLog("E-Document Service Status"::"Imported Document Processing Error");
+                LocalEDocumentLog.SetFields(EDocument, EDocService);
+                LocalEDocumentLog.InsertLog("E-Document Service Status"::"Imported Document Processing Error");
                 EDocument2 := EDocument;
                 HasErrors := true;
             end;
@@ -162,6 +165,7 @@ codeunit 6134 "E-Doc. Integration Management"
 
         exit(not HasErrors);
     end;
+#pragma warning restore AL0432 
 #endif
 
     procedure ReceiveDocuments(var EDocumentService: Record "E-Document Service"; ReceiveContext: Codeunit ReceiveContext)
@@ -289,7 +293,9 @@ codeunit 6134 "E-Doc. Integration Management"
 #if not CLEAN26
     var
         EDocumentServiceStatus: Record "E-Document Service Status";
+#pragma warning disable AL0432 
         EDocIntegration: Interface "E-Document Integration";
+#pragma warning restore AL0432
         EDocServiceStatus: Enum "E-Document Service Status";
         HttpResponse: HttpResponseMessage;
         HttpRequest: HttpRequestMessage;
@@ -297,9 +303,11 @@ codeunit 6134 "E-Doc. Integration Management"
 #endif
     begin
 #if not CLEAN26
+#pragma warning disable AL0432
         if (EDocumentService."Service Integration" = EDocumentService."Service Integration"::"No Integration") and
         (EDocumentService."Service Integration V2" = EDocumentService."Service Integration V2"::"No Integration") then
             exit;
+#pragma warning restore AL0432
 #endif
 
         if EDocumentService."Service Integration V2" <> EDocumentService."Service Integration V2"::"No Integration" then begin
@@ -308,6 +316,7 @@ codeunit 6134 "E-Doc. Integration Management"
         end;
 
 #if not CLEAN26
+#pragma warning disable AL0432 
         EDocServiceStatus := Enum::"E-Document Service Status"::Rejected;
         EDocumentServiceStatus.Get(EDocument."Entry No", EDocumentService.Code);
         EDocIntegration := EDocumentService."Service Integration";
@@ -328,6 +337,7 @@ codeunit 6134 "E-Doc. Integration Management"
             AddLogAndUpdateEDocument(EDocument, EDocumentService, EDocServiceStatus);
             EDocumentLog.InsertIntegrationLog(EDocument, EDocumentService, HttpRequest, HttpResponse);
         end;
+#pragma warning restore AL0432 
 #endif
     end;
 
@@ -335,7 +345,9 @@ codeunit 6134 "E-Doc. Integration Management"
 #if not CLEAN26
     var
         EDocumentServiceStatus: Record "E-Document Service Status";
+#pragma warning disable AL0432 
         EDocIntegration: Interface "E-Document Integration";
+#pragma warning restore AL0432 
         EDocServiceStatus: Enum "E-Document Service Status";
         HttpResponse: HttpResponseMessage;
         HttpRequest: HttpRequestMessage;
@@ -343,9 +355,11 @@ codeunit 6134 "E-Doc. Integration Management"
 #endif
     begin
 #if not CLEAN26
+#pragma warning disable AL0432
         if (EDocumentService."Service Integration" = EDocumentService."Service Integration"::"No Integration") and
         (EDocumentService."Service Integration V2" = EDocumentService."Service Integration V2"::"No Integration") then
             exit;
+#pragma warning restore AL0432
 #endif
 
         if EDocumentService."Service Integration V2" <> EDocumentService."Service Integration V2"::"No Integration" then begin
@@ -354,6 +368,7 @@ codeunit 6134 "E-Doc. Integration Management"
         end;
 
 #if not CLEAN26
+#pragma warning disable AL0432 
         EDocumentServiceStatus.Get(EDocument."Entry No", EDocumentService.Code);
         EDocIntegration := EDocumentService."Service Integration";
 
@@ -373,6 +388,7 @@ codeunit 6134 "E-Doc. Integration Management"
             AddLogAndUpdateEDocument(EDocument, EDocumentService, EDocServiceStatus);
             EDocumentLog.InsertIntegrationLog(EDocument, EDocumentService, HttpRequest, HttpResponse);
         end;
+#pragma warning restore AL0432
 #endif
     end;
 
@@ -562,9 +578,11 @@ codeunit 6134 "E-Doc. Integration Management"
         if IsHandled then
             exit(IsInStateToSend);
 #if not CLEAN26
+#pragma warning disable AL0432 
         if (EDocumentService."Service Integration" = EDocumentService."Service Integration"::"No Integration") and
         (EDocumentService."Service Integration V2" = EDocumentService."Service Integration V2"::"No Integration") then
             exit(false);
+#pragma warning restore AL0432
 #else
          if (EDocumentService."Service Integration V2" = EDocumentService."Service Integration V2"::"No Integration") then
             exit(false);

@@ -1451,7 +1451,7 @@
         OutStream: OutStream;
     begin
         // [FEATURE] [Invoice] [Document Attachment]
-        // 
+        //
         Initialize();
 
         // [GIVEN] Posted Sales Invoice
@@ -1469,7 +1469,7 @@
         SalesInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice());
 
-        // [THEN] 
+        // [THEN]
         LibraryXMLRead.Initialize(XMLFilePath);
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:AdditionalDocumentReference', 'cbc:ID', SalesInvoiceHeader."No.");
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:Attachment', 'cbc:EmbeddedDocumentBinaryObject', Base64Convert.ToBase64('Test'));
@@ -2077,4 +2077,3 @@
         SalesLine.Modify(true);
     end;
 }
-

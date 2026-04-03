@@ -29,9 +29,7 @@
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         ArchiveManagement: Codeunit ArchiveManagement;
-#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
-#endif
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryTemplates: Codeunit "Library - Templates";
         LibraryDimension: Codeunit "Library - Dimension";
@@ -378,7 +376,6 @@
         VerifyValueEntries(SalesHeader."No.", SalesHeader.Amount);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountOnCreditMemo()
@@ -433,7 +430,6 @@
           SumLineDiscountAmount(TempSalesLine, SalesHeader."No."), -TotalLineDiscountInGLEntry(TempSalesLine, SalesCrMemoHeader."No."),
           StrSubstNo(DiscountError, TempSalesLine.FieldCaption("Line Discount Amount")));
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -4873,6 +4869,67 @@
     end;
 
     [Test]
+    procedure ReservationQuantityReflectsWrongQuantityOnTheSaleOrderLineWithAlternateUOM()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        UnitOfMeasure: array[2] of Record "Unit of Measure";
+        ItemUnitOfMeasure: array[2] of Record "Item Unit of Measure";
+        ReservationEntry: Record "Reservation Entry";
+        SalesLine: Record "Sales Line";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO 581623] Incorrect reservation quantity reflects 1.00001 quantity on the Sales order line with alternate UOM even though Base Unit of Measure reflects rounding to 1
+
+        Initialize();
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Reserve, Item.Reserve::Always);
+        Item.Modify();
+
+        // [GIVEN] Create Unit Of Measure Code 1.
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[1]);
+
+        // [GIVEN] Create Item Unit Of Measure 1.
+        LibraryInventory.CreateItemUnitOfMeasure(
+            ItemUnitOfMeasure[1],
+            Item."No.",
+            UnitOfMeasure[1].Code,
+            72);
+
+        // [GIVEN] Create and Post Item Joutnal Line.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 4);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 19);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 49);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        //[GIVEN] Create Sales Order
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer());
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item,
+          Item."No.", 1);
+        SalesLine.Validate(Reserve, SalesLine.Reserve::Always);
+        SalesLine.modify();
+        AutoReserveSalesLine(SalesLine);
+        SalesLine.CalcFields("Reserved Quantity");
+
+        //[WHEN] Update Unit Of Measure Code on Sales Line
+        SalesLine.Validate("Unit of Measure Code", UnitOfMeasure[1].Code);
+        SalesLine.modify();
+        AutoReserveSalesLine(SalesLine);
+
+        //[THEN] Check Reserve Quantity must be equal to sales line quantity
+        ReservationEntry.SetLoadFields("Source Type", "Source Subtype", "Source ID", "Source Ref. No.", Quantity);
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
+        ReservationEntry.SetRange("Source ID", SalesLine."Document No.");
+        ReservationEntry.SetRange("Source Ref. No.", SalesLine."Line No.");
+        ReservationEntry.SetRange("Source Subtype", 1);
+        ReservationEntry.CalcSums(Quantity);
+        Assert.AreEqual(SalesLine.Quantity, Abs(ReservationEntry.Quantity), '');
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmDueDateBeforeWorkDate,MessageHandlerValidateMessage')]
     [Scope('OnPrem')]
     procedure CheckQuantityBaseMustNotBe0InBinContentErrorShouldNotAppearWhenPostInventoryPick()
@@ -4945,7 +5002,7 @@
         AssemblyHeader.Modify(true);
 
         // [GIVEN] Create an Assembly Line for an Item
-        CreateAssemblyLine(AssemblyHeader, AssemblyLine, Enum::"BOM Component Type"::Item, ItemComponent."No.", 1, ItemComponent."Base Unit of Measure");
+        CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine, Enum::"BOM Component Type"::Item, ItemComponent."No.", 1, ItemComponent."Base Unit of Measure");
         SerialNo := 'TEST';
         EnqueueValuesForItemTrackingLines(SerialNo, 1);
 
@@ -4960,68 +5017,6 @@
 
         // [THEN] Check that the Inventory Pick is created and Post successfully
         CreateInventoryPickOnSalesLine(SalesLine, Bin.Code);
-    end;
-
-    [Test]
-    procedure ReservationQuantityReflectsWrongQuantityOnTheSaleOrderLineWithAlternateUOM()
-    var
-        Item: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        UnitOfMeasure: array[2] of Record "Unit of Measure";
-        ItemUnitOfMeasure: array[2] of Record "Item Unit of Measure";
-        ReservationEntry: Record "Reservation Entry";
-        SalesLine: Record "Sales Line";
-        SalesHeader: Record "Sales Header";
-    begin
-        // [SCENARIO 581623] Incorrect reservation quantity reflects 1.00001 quantity on the Sales order line with alternate UOM even though Base Unit of Measure reflects rounding to 1
-
-        Initialize();
-
-        // [GIVEN] Create Item.
-        LibraryInventory.CreateItem(Item);
-        Item.Validate(Reserve, Item.Reserve::Always);
-        Item.Modify();
-
-        // [GIVEN] Create Unit Of Measure Code 1.
-        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[1]);
-
-        // [GIVEN] Create Item Unit Of Measure 1. // Used 72 Base UOM.
-        LibraryInventory.CreateItemUnitOfMeasure(
-            ItemUnitOfMeasure[1],
-            Item."No.",
-            UnitOfMeasure[1].Code,
-            72);
-
-        // [GIVEN] Create and Post Item Journal Line.
-        // Used 72 Base UOM for split it into 3 lines with 4, 19, 49 quantities.
-        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 4);
-        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 19);
-        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 49);
-        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
-
-        //[GIVEN] Create Sales Order
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer());
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item,
-          Item."No.", 1);
-        SalesLine.Validate(Reserve, SalesLine.Reserve::Always);
-        SalesLine.modify();
-        AutoReserveSalesLine(SalesLine);
-        SalesLine.CalcFields("Reserved Quantity");
-
-        //[WHEN] Update Unit Of Measure Code on Sales Line
-        SalesLine.Validate("Unit of Measure Code", UnitOfMeasure[1].Code);
-        SalesLine.modify();
-        AutoReserveSalesLine(SalesLine);
-
-        //[THEN] Check Reserve Quantity must be equal to sales line quantity
-        ReservationEntry.SetLoadFields("Source Type", "Source Subtype", "Source ID", "Source Ref. No.", Quantity);
-        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
-        ReservationEntry.SetRange("Source ID", SalesLine."Document No.");
-        ReservationEntry.SetRange("Source Ref. No.", SalesLine."Line No.");
-        ReservationEntry.SetRange("Source Subtype", 1);
-        ReservationEntry.CalcSums(Quantity);
-        Assert.AreEqual(SalesLine.Quantity, Abs(ReservationEntry.Quantity), '');
     end;
 
     [Test]
@@ -5795,7 +5790,6 @@
         SalesLine.TestField(Type, SalesLine.Type::" ");
     end;
 
-#if not CLEAN25
     local procedure SalesLinesWithLineDiscount(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; SalesLineDiscount: Record "Sales Line Discount")
     var
         Counter: Integer;
@@ -5806,7 +5800,7 @@
               SalesLine, SalesHeader, SalesLine.Type::Item, SalesLineDiscount.Code,
               SalesLineDiscount."Minimum Quantity" + LibraryRandom.RandDec(10, 2));
     end;
-#endif
+
     local procedure CreateSalesLinesFromDocument(var SalesLine: Record "Sales Line"; SalesLine2: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
         SalesLine.FindSet();
@@ -5826,7 +5820,6 @@
         AnalysisReportSale.EditAnalysisReport.Invoke();
     end;
 
-#if not CLEAN25
     local procedure SumLineDiscountAmount(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]) LineDiscountAmount: Decimal
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -5835,7 +5828,7 @@
             LineDiscountAmount += SalesLine."Line Discount Amount";
         until SalesLine.Next() = 0;
     end;
-#endif
+
     local procedure SumInvoiceDiscountAmount(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]) InvoiceDiscountAmount: Decimal
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -5853,7 +5846,6 @@
         CustInvoiceDisc.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure SetupLineDiscount(var SalesLineDiscount: Record "Sales Line Discount")
     var
         Item: Record Item;
@@ -5881,7 +5873,7 @@
         GLEntry.SetRange("G/L Account No.", GeneralPostingSetup."Sales Line Disc. Account");
         exit(TotalAmountInGLEntry(GLEntry));
     end;
-#endif
+
     local procedure TotalInvoiceDiscountInGLEntry(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]): Decimal
     var
         GLEntry: Record "G/L Entry";
@@ -6574,7 +6566,6 @@
           StrSubstNo(FieldError, CustLedgerEntry.FieldCaption("Amount (LCY)"), Amount, CustLedgerEntry.TableCaption()));
     end;
 
-#if not CLEAN25
     local procedure VerifyLineDiscountOnCreditMemo(SalesLine: Record "Sales Line")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -6589,7 +6580,7 @@
               StrSubstNo(FieldError, SalesLine.FieldCaption("Line Discount Amount"), LineDiscountAmount, SalesLine.TableCaption()));
         until SalesLine.Next() = 0;
     end;
-#endif
+
     local procedure VerifyInvoiceDiscount(SalesLine: Record "Sales Line"; CustInvoiceDisc: Record "Cust. Invoice Disc.")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -6954,7 +6945,7 @@
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateAssemblyLine(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; Type: Enum "BOM Component Type"; No: Code[20]; Quantity: Decimal; UoM: Code[10])
+    local procedure CreateAssemblyOrderLine(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; Type: Enum "BOM Component Type"; No: Code[20]; Quantity: Decimal; UoM: Code[10])
     var
         RecRef: RecordRef;
     begin
@@ -7005,15 +6996,6 @@
         end
         else
             LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, NewDefaultLocation.Code, true);
-    end;
-
-    local procedure AutoReserveSalesLine(SalesLine: Record "Sales Line")
-    var
-        ReservMgt: Codeunit "Reservation Management";
-        FullAutoReservation: Boolean;
-    begin
-        ReservMgt.SetReservSource(SalesLine);
-        ReservMgt.AutoReserve(FullAutoReservation, '', SalesLine."Shipment Date", SalesLine.Quantity, SalesLine."Quantity (Base)");
     end;
 
     [ConfirmHandler]
@@ -7153,6 +7135,15 @@
         AnalysisColumn.SetRange("Analysis Column Template", AnalysisColumnTemplateName);
         AnalysisColumn.FindFirst();
         LibraryVariableStorage.Enqueue(AnalysisColumn."Column Header");
+    end;
+
+    local procedure AutoReserveSalesLine(SalesLine: Record "Sales Line")
+    var
+        ReservMgt: Codeunit "Reservation Management";
+        FullAutoReservation: Boolean;
+    begin
+        ReservMgt.SetReservSource(SalesLine);
+        ReservMgt.AutoReserve(FullAutoReservation, '', SalesLine."Shipment Date", SalesLine.Quantity, SalesLine."Quantity (Base)");
     end;
 
     [PageHandler]

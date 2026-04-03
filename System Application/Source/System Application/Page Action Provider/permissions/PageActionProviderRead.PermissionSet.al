@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Integration;
+
 using System.Environment.Configuration;
 using System.Reflection;
 

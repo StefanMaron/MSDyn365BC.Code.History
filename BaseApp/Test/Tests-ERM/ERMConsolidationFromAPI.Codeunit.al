@@ -21,12 +21,14 @@ codeunit 134105 "ERM Consolidation from API"
         ConsolidationProcess: Record "Consolidation Process";
         BusinessUnit: Record "Business Unit";
         BusUnitConsolidationData: Record "Bus. Unit Consolidation Data";
+        SettledVATPeriod: Record "Settled VAT Period";
         ERMConsolidationFromAPI: Codeunit "ERM Consolidation from API";
         ImportConsolidationFromAPI: Codeunit "Import Consolidation from API";
         Consolidate: Codeunit Consolidate;
     begin
         // [SCENARIO] A consolidation company with a business unit B01 imports from API it's data. It should be properly consolidated by aggregating each account to an entry.
         Initialize();
+        SettledVATPeriod.ModifyAll(Closed, false);
         // [GIVEN] The consolidation company has the same GL Accounts as the business unit
         InsertMockGLAccounts();
         // [GIVEN] Business unit with three entries: 2 for a credit account and 1 for a debit account (balancing out).
