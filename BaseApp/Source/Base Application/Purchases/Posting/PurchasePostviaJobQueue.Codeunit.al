@@ -48,6 +48,7 @@ codeunit 98 "Purchase Post via Job Queue"
             BatchProcessingMgt.ResetBatchID();
         BatchProcessingMgt.DeleteBatchProcessingSessionMapForRecordId(PurchHeader.RecordId);
         SetJobQueueStatus(PurchHeader, PurchHeader."Job Queue Status"::" ", Rec);
+        LockTimeout(SavedLockTimeout);
     end;
 
     var

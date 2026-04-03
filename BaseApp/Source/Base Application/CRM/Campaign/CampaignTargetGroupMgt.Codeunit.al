@@ -8,14 +8,10 @@ using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Interaction;
 using Microsoft.CRM.Segment;
-#if not CLEAN25
 using Microsoft.Pricing.Calculation;
-#endif
 using Microsoft.Pricing.PriceList;
 using Microsoft.Sales.Customer;
-#if not CLEAN25
 using Microsoft.Sales.Pricing;
-#endif
 using System.Utilities;
 
 codeunit 7030 "Campaign Target Group Mgt"
@@ -266,21 +262,15 @@ codeunit 7030 "Campaign Target Group Mgt"
     local procedure NoPriceDiscForCampaign(CampaignNo: Code[20]): Boolean
     var
         PriceListLine: Record "Price List Line";
-#if not CLEAN25
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-#endif
     begin
-#if not CLEAN25
         if not PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then
             exit(NoPriceDiscV15ForCampaign(CampaignNo));
-#endif
         PriceListLine.SetRange("Source Type", PriceListLine."Source Type"::Campaign);
         PriceListLine.SetRange("Source No.", CampaignNo);
         exit(PriceListLine.IsEmpty());
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by NoPriceDiscForCampaign', '17.0')]
     local procedure NoPriceDiscV15ForCampaign(CampaignNo: Code[20]): Boolean;
     var
         SalesPrice: Record "Sales Price";
@@ -294,7 +284,6 @@ codeunit 7030 "Campaign Target Group Mgt"
         SalesLineDisc.SetRange("Sales Code", CampaignNo);
         exit(SalesPrice.IsEmpty() and SalesLineDisc.IsEmpty());
     end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAddSegLineToTargetGroup(var CampaignTargetGr: Record "Campaign Target Group"; var SegLine: Record "Segment Line")

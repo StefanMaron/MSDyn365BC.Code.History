@@ -1,10 +1,12 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Item;
 
+using Microsoft.Inventory.Item.Attribute;
 using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Inventory.Item.Picture;
 
 page 5405 "Item Variant Card"
 {
@@ -24,23 +26,25 @@ page 5405 "Item Variant Card"
                 field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the number of the item card from which you opened the Item Variant Translations window.';
                     Visible = false;
                 }
                 field("Code"; Rec.Code)
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies a code to identify the variant.';
+
+                    trigger OnValidate()
+                    begin
+                        if (xRec.Code = '') and (Rec.Code <> '') then
+                            CurrPage.Update(true);
+                    end;
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies text that describes the item variant.';
                 }
                 field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the item variant in more detail than the Description field.';
                     Visible = false;
                 }
                 group(BlockedGroup)
@@ -49,28 +53,35 @@ page 5405 "Item Variant Card"
                     field(Blocked; Rec.Blocked)
                     {
                         ApplicationArea = Planning;
-                        ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example an item variant that is placed in quarantine.';
                     }
                     field("Sales Blocked"; Rec."Sales Blocked")
                     {
                         ApplicationArea = Planning;
-                        ToolTip = 'Specifies that the item variant cannot be entered on sales documents, except return orders and credit memos, and journals.';
                     }
                     field("Service Blocked"; Rec."Service Blocked")
                     {
                         ApplicationArea = Service;
-                        ToolTip = 'Specifies that the item variant cannot be entered on service items, service contracts and service documents, except credit memos.';
                     }
                     field("Purchasing Blocked"; Rec."Purchasing Blocked")
                     {
                         ApplicationArea = Planning;
-                        ToolTip = 'Specifies that the item variant cannot be entered on purchase documents, except return orders and credit memos, and journals.';
                     }
                 }
             }
         }
         area(factboxes)
         {
+            part(ItemVariantPicture; "Item Variant Picture")
+            {
+                ApplicationArea = All;
+                Caption = 'Picture';
+                SubPageLink = "Item No." = field("Item No."),
+                              Code = field(Code);
+            }
+            part(ItemAttributesFactbox; "Item Attributes Factbox")
+            {
+                ApplicationArea = Basic, Suite;
+            }
             systempart(LinksPart; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -96,6 +107,9 @@ page 5405 "Item Variant Card"
                 {
                 }
                 actionref(Translation_Promoted; Translations)
+                {
+                }
+                actionref(Attributes_Promoted; Attributes)
                 {
                 }
             }
@@ -125,8 +139,27 @@ page 5405 "Item Variant Card"
                     RunPageLink = "Item No." = field("Item No."), "Variant Code" = field(Code);
                     ToolTip = 'Set up a customer''s or vendor''s own identification of the selected item variant.';
                 }
+                action(Attributes)
+                {
+                    AccessByPermission = TableData "Item Attribute" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Attributes';
+                    Image = Category;
+                    ToolTip = 'View or edit the item''s variant attributes, such as color, size, or other characteristics that help to describe the item variant.';
+
+                    trigger OnAction()
+                    begin
+                        Page.RunModal(Page::"Item Variant Attribute Editor", Rec);
+                        CurrPage.SaveRecord();
+                        CurrPage.ItemAttributesFactbox.Page.LoadItemVariantAttributesData(Rec."Item No.", Rec.Code);
+                    end;
+                }
             }
         }
     }
-}
 
+    trigger OnAfterGetCurrRecord()
+    begin
+        CurrPage.ItemAttributesFactBox.Page.LoadItemVariantAttributesData(Rec."Item No.", Rec.Code);
+    end;
+}

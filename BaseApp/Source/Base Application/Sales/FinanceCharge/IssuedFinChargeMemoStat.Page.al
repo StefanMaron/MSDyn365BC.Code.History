@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -8,6 +8,9 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Sales.Customer;
 
+/// <summary>
+/// Displays statistical information for posted finance charge memos including interest amounts, VAT, and customer credit status.
+/// </summary>
 page 453 "Issued Fin. Charge Memo Stat."
 {
     Caption = 'Issued Fin. Charge Memo Stat.';
@@ -26,6 +29,8 @@ page 453 "Issued Fin. Charge Memo Stat."
                 field(Interest; Interest)
                 {
                     ApplicationArea = Basic, Suite;
+                    AutoFormatExpression = Rec."Currency Code";
+                    AutoFormatType = 1;
                     Caption = 'Interest Amount';
                     DrillDown = false;
                     ToolTip = 'Specifies the interest amount that has been calculated on the finance charge memo that has been issued.';
@@ -34,11 +39,12 @@ page 453 "Issued Fin. Charge Memo Stat."
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
-                    ToolTip = 'Specifies the total of the additional fee amounts on the finance charge memo lines.';
                 }
                 field(VatAmount; VatAmount)
                 {
                     ApplicationArea = Basic, Suite;
+                    AutoFormatExpression = Rec."Currency Code";
+                    AutoFormatType = 1;
                     Caption = 'VAT Amount';
                     DrillDown = false;
                     ToolTip = 'Specifies the VAT amount that has been calculated on the finance charge memo that has been issued.';
@@ -70,12 +76,14 @@ page 453 "Issued Fin. Charge Memo Stat."
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
+                    AutoFormatExpression = '';
                     Caption = 'Credit Limit (LCY)';
                     ToolTip = 'Specifies the credit limit in local currency for the customer''s account. The value 0 represents unlimited credit.';
                 }
                 field(CreditLimitLCYExpendedPct; CreditLimitLCYExpendedPct)
                 {
                     ApplicationArea = Basic, Suite;
+                    AutoFormatType = 0;
                     Caption = 'Expended % of Credit Limit (LCY)';
                     ExtendedDatatype = Ratio;
                     ToolTip = 'Specifies the expended percentage of the credit limit in (LCY).';

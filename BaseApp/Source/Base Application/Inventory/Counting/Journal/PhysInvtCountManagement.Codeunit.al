@@ -331,7 +331,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
                         (NextCountingEndDate + 1) .. DMY2Date(31, 12, 9998):
                             begin
                                 StartDate := NextCountingEndDate + 1;
-                                while StartDate < LastCountDate do
+                                while StartDate <= LastCountDate do
                                     StartDate := StartDate + Days;
                             end;
                     end

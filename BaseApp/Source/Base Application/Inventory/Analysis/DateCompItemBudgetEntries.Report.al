@@ -515,7 +515,7 @@ report 7139 "Date Comp. Item Budget Entries"
         UseDataArchive := DataArchiveProviderExists;
     end;
 
-    internal procedure SetSkipAnalysisViewUpdateCheck();
+    procedure SetSkipAnalysisViewUpdateCheck();
     begin
         SkipAnalysisViewUpdateCheck := true;
     end;

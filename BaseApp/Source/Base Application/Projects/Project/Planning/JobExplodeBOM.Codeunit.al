@@ -4,14 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Projects.Project.Planning;
 
-using Microsoft.Inventory.BOM;
+using Microsoft.Assembly.Document;
+using Microsoft.Foundation.ExtendedText;
 using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Tracking;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Resource;
-using Microsoft.Assembly.Document;
-using Microsoft.Inventory.Tracking;
-using Microsoft.Foundation.ExtendedText;
 
 codeunit 1019 "Job-Explode BOM"
 {

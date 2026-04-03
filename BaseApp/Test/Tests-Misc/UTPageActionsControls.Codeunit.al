@@ -22,7 +22,6 @@ codeunit 134341 "UT Page Actions & Controls"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryJob: Codeunit "Library - Job";
         AmountRoundingValidationErr: Label 'Validation error for Field: %1,  Message = ''You cannot change the contents of the %2 field because there are posted ledger entries.';
-        TypeSaaSValidationErr: Label 'error for Field: TypeSaaS,  Message = ''Your entry of ''0'' is not an acceptable value for ''Type''.';
         LibraryMarketing: Codeunit "Library - Marketing";
         TaskNoErr: Label 'Wrong number of Tasks was created.';
         CountOrdersNotInvoicedErr: Label 'Wrong result of PurchaseCue.CountOrders("Not Invoiced") ';
@@ -1872,35 +1871,6 @@ codeunit 134341 "UT Page Actions & Controls"
 
     [Test]
     [Scope('OnPrem')]
-    procedure CreateTaskSaaS()
-    var
-        ToDo: Record "To-do";
-        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
-        CreateTask: TestPage "Create Task";
-    begin
-        // [FEATURE] [Marketing] [To-do]
-        // [SCEANRIO 258975] Cassies can't set "Meeting" in field "Type" at Create Task page. "Location" field is not visible
-        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-
-        MockTodo(ToDo);
-
-        CreateTask.OpenEdit();
-        CreateTask.FILTER.SetFilter("No.", ToDo."No.");
-        Assert.IsTrue(CreateTask.TypeSaaS.Visible(), '');
-        Assert.IsFalse(CreateTask.TypeOnPrem.Visible(), '');
-        Assert.IsFalse(CreateTask.Location.Visible(), '');
-        Assert.AreEqual('Type', CreateTask.TypeSaaS.Caption, '');
-
-        CreateTask.TypeSaaS.SetValue(ToDo.Type::" ");
-        asserterror CreateTask.TypeSaaS.SetValue(ToDo.Type::Meeting);
-        Assert.ExpectedError(TypeSaaSValidationErr);
-
-        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-        ToDo.Delete(false)
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure CreateTaskOnPrem()
     var
         ToDo: Record "To-do";
@@ -2137,7 +2107,6 @@ codeunit 134341 "UT Page Actions & Controls"
         PurchaseOrderListTestPage."No.".AssertEquals(PurchaseHeader."No.");
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     [HandlerFunctions('VerifyMinimumQuantityInSalesPriceAndLineDiscountsPageHandler')]
@@ -2167,7 +2136,6 @@ codeunit 134341 "UT Page Actions & Controls"
 
         LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -4357,10 +4325,7 @@ codeunit 134341 "UT Page Actions & Controls"
         MockThreeRecordsAndOpenSecondOnFilteredPage(ItemLedgerEntry, PAGE::"Item Ledger Entries");
     end;
 
-#if not CLEAN25
-#pragma warning disable AS0072
     [Test]
-    [Obsolete('Not used.', '23.0')]
     [HandlerFunctions('SetSpecialPricesEnabledSalesPriceAndLineDiscountsModalPageHandler')]
     procedure SetSpecialPricesIsEnabledWhenSalesLineDiscountLineIsSelected()
     var
@@ -4386,7 +4351,6 @@ codeunit 134341 "UT Page Actions & Controls"
     end;
 
     [Test]
-    [Obsolete('Not used.', '23.0')]
     [HandlerFunctions('SetSpecialPricesEnabledSalesPriceAndLineDiscountsModalPageHandler')]
     procedure SetSpecialPricesIsEnabledWhenSalesPriceLineIsSelected()
     var
@@ -4410,8 +4374,6 @@ codeunit 134341 "UT Page Actions & Controls"
         Assert.IsTrue(SetSpecialPricesEnabled, 'Set Special Prices action is not enabled');
         LibraryVariableStorage.AssertEmpty();
     end;
-#pragma warning restore AS0072
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -4868,7 +4830,6 @@ codeunit 134341 "UT Page Actions & Controls"
         VATEntry.Insert();
     end;
 
-#if not CLEAN25
     local procedure CreateItemWithSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount")
     begin
         SalesLineDiscount.Init();
@@ -4897,7 +4858,6 @@ codeunit 134341 "UT Page Actions & Controls"
         SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandDecInRange(2, 7, 2));
         SalesLineDiscount.Modify(true);
     end;
-#endif
 
     local procedure CreateGLAccountInventoryPostingSetup(var GLAccount: Record "G/L Account")
     var
@@ -5593,7 +5553,6 @@ codeunit 134341 "UT Page Actions & Controls"
         TimeZones.OK().Invoke();
     end;
 
-#if not CLEAN25
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VerifyMinimumQuantityInSalesPriceAndLineDiscountsPageHandler(var SalesPrLineDisc: TestPage "Sales Price and Line Discounts")
@@ -5614,7 +5573,6 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         LibraryVariableStorage.Enqueue(SalesPrLineDisc."Set Special Prices".Enabled());
     end;
-#endif
 
     [MessageHandler]
     [Scope('OnPrem')]

@@ -5,6 +5,8 @@ using System.Utilities;
 
 codeunit 3007 DotNet_String
 {
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     trigger OnRun()
     begin

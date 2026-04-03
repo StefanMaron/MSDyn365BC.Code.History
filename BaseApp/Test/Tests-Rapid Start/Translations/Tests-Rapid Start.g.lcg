@@ -275,6 +275,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Fld. Validate and Apply - NamedType InvalidDataExpected)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 212164422 - NamedType 997761737" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Item unit of measure weight is incorrect]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Fld. Validate and Apply - NamedType ItemUOMWeightErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 212164422 - NamedType 3123707721" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be empty.]]></Val>

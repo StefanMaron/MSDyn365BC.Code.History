@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -20,12 +20,15 @@ table 5643 "Depreciation Table Line"
         field(2; "Period No."; Integer)
         {
             Caption = 'Period No.';
+            ToolTip = 'Specifies the number of the depreciation period that this line applies to.';
             MinValue = 1;
             NotBlank = true;
         }
         field(3; "Period Depreciation %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Period Depreciation %';
+            ToolTip = 'Specifies the depreciation percentage to apply to the period for this line.';
             DecimalPlaces = 2 : 8;
             MinValue = 0;
 
@@ -39,7 +42,9 @@ table 5643 "Depreciation Table Line"
         }
         field(4; "No. of Units in Period"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'No. of Units in Period';
+            ToolTip = 'Specifies the units produced by the asset this depreciation table applies to, during the period when this line applies.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 

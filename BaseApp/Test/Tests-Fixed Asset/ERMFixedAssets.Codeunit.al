@@ -55,6 +55,7 @@ codeunit 134451 "ERM Fixed Assets"
         AcquireNotificationMsg: Label 'You are ready to acquire the fixed asset.';
         DepreciationBookCodeMustMatchErr: Label 'Depreciation Book Code must match.';
         FixedAssetCountError: Label 'New fixed assets were not created.';
+        DimValueError: Label 'Dimension values are not equal on the copied Fixed Asset.';
         NoSeriesNotConsumedErr: Label 'Number series should not be consumed during preview posting';
         PurchaseInvoicePostedLbl: Label 'Purchase Invoice was posted successfully.';
 
@@ -197,9 +198,6 @@ codeunit 134451 "ERM Fixed Assets"
         CreatePurchLine(PurchLine2, PurchHeader, FixedAsset."No.", DepreciationBook2.Code);
 
         // 2.Exercise: Post Purchase Invoice.
-        LibraryLowerPermissions.SetPurchDocsPost();
-        LibraryLowerPermissions.AddJournalsPost();
-        LibraryLowerPermissions.AddO365FAEdit();
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
 
         // 3.Verify: Verify FA Ledger Entry.
@@ -3593,6 +3591,45 @@ codeunit 134451 "ERM Fixed Assets"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure CreateMultipleFACardsWithDimensions()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        FixedAsset: Record "Fixed Asset";
+        FixedAsset2: Record "Fixed Asset";
+        DefaultDimension: Record "Default Dimension";
+        DefaultDimension2: Record "Default Dimension";
+    begin
+        // [SCENARIO] Test Copy of dimensions on FA when No. of Fixed Asset Cards is greater than 1.
+        Initialize();
+
+        // [GIVEN] Create Purchase Line
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor());
+
+        // [GIVEN] Create Purchase Line with default dimensions
+        CreatePurchLineWithDefaultDimensions(PurchaseLine, PurchaseHeader, GetDefaultDepreciationBook(), CreateFAPostingGroup(), 2);
+
+        // [WHEN] Post Purchase Header
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        //CreatePostPurchInvoice(PurchaseLine, LibraryRandom.RandInt(5) + 1); // Quantity should be greater than 1.
+
+        // [THEN] Count dimension on initial Fixed Asset
+        FixedAsset.Get(PurchaseLine."No.");
+        DefaultDimension.SetRange("Table ID", DATABASE::"Fixed Asset");
+        DefaultDimension.SetRange("No.", FixedAsset."No.");
+
+        // [THEN] Count dimension on copied Fixed Asset
+        FixedAsset2.SetRange(Description, FixedAsset."No.");
+        FixedAsset2.FindFirst();
+        DefaultDimension2.SetRange("Table ID", DATABASE::"Fixed Asset");
+        DefaultDimension2.SetRange("No.", FixedAsset2."No.");
+
+        // [VERIFY] Verify that dimensions are created
+        Assert.AreEqual(DefaultDimension.Count, DefaultDimension2.Count, DimValueError);
+    end;
+
+    [Test]
     [HandlerFunctions('GLPostingPreviewPageHandler')]
     procedure PreviewPostingDoesNotConsumeNumberSeries()
     var
@@ -4702,11 +4739,40 @@ codeunit 134451 "ERM Fixed Assets"
         exit(FixedAsset."No.");
     end;
 
+    local procedure CreatePurchLineWithDefaultDimensions(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; DepreciationBook: Code[10]; FAPostingGroup: Code[20]; NoOfFACards: Integer): Code[20]
+    var
+        FixedAsset: Record "Fixed Asset";
+    begin
+        CreateFAWithDefaultDimensions(FixedAsset, DepreciationBook, FAPostingGroup);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Fixed Asset", FixedAsset."No.", 1);
+        UpdatePurchaseLine(PurchaseLine, DepreciationBook, NoOfFACards);
+        exit(FixedAsset."No.");
+    end;
+
     local procedure CreateFA(var FixedAsset: Record "Fixed Asset"; DepreciationBook: Code[10]; FAPostingGroup: Code[20])
+    var
+        DimValue: Record "Dimension Value";
     begin
         Clear(FixedAsset);
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         CreateFADepreciationBook(FixedAsset."No.", DepreciationBook, FAPostingGroup);
+
+        LibraryDimension.CreateDimensionValue(DimValue, LibraryERM.GetGlobalDimensionCode(1));
+        FixedAsset.Validate("Global Dimension 1 Code", DimValue.Code);
+        LibraryDimension.CreateDimensionValue(DimValue, LibraryERM.GetGlobalDimensionCode(2));
+        FixedAsset.Validate("Global Dimension 2 Code", DimValue.Code);
+    end;
+
+    local procedure CreateFAWithDefaultDimensions(var FixedAsset: Record "Fixed Asset"; DepreciationBook: Code[10]; FAPostingGroup: Code[20])
+    var
+        DimValue: Record "Dimension Value";
+    begin
+        CreateFA(FixedAsset, DepreciationBook, FAPostingGroup);
+
+        LibraryDimension.CreateDimensionValue(DimValue, LibraryERM.GetGlobalDimensionCode(1));
+        FixedAsset.Validate("Global Dimension 1 Code", DimValue.Code);
+        LibraryDimension.CreateDimensionValue(DimValue, LibraryERM.GetGlobalDimensionCode(2));
+        FixedAsset.Validate("Global Dimension 2 Code", DimValue.Code);
     end;
 
     local procedure UpdatePurchaseLine(var PurchaseLine: Record "Purchase Line"; DepreciationBook: Code[10]; NoOfFixedAssetCards: Integer)

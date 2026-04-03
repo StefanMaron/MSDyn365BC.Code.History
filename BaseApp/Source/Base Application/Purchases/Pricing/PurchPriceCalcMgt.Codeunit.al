@@ -1,5 +1,4 @@
-#if not CLEAN25
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -24,9 +23,6 @@ using Microsoft.Sales.Document;
 
 codeunit 7010 "Purch. Price Calc. Mgt."
 {
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-    ObsoleteTag = '16.0';
 
     trigger OnRun()
     begin
@@ -70,7 +66,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
             exit;
 
         SetCurrency(PurchHeader."Currency Code", PurchHeader."Currency Factor", PurchHeaderExchDate(PurchHeader));
-        SetVAT(PurchHeader."Prices Including VAT", PurchLine."VAT %", PurchLine."VAT Bus. Posting Group");
+        SetVAT(PurchHeader."Prices Including VAT", PurchLine.GetVATPct(), PurchLine."VAT Bus. Posting Group");
         SetUoM(Abs(PurchLine.Quantity), PurchLine."Qty. per Unit of Measure");
         SetLineDisc(PurchLine."Line Discount %");
 
@@ -82,8 +78,9 @@ codeunit 7010 "Purch. Price Calc. Mgt."
             PurchLine.Type::Item:
                 begin
                     Item.Get(PurchLine."No.");
-                    if not Vend.Get(PurchHeader."Pay-to Vendor No.") then
-                        Vend.Get(PurchLine."Pay-to Vendor No.");
+                    if (PurchHeader."Pay-to Vendor No." <> '') or (PurchHeader."Document Type" <> PurchHeader."Document Type"::Quote) then
+                        if not Vend.Get(PurchHeader."Pay-to Vendor No.") then
+                            Vend.Get(PurchLine."Pay-to Vendor No.");
                     PriceInSKU := SKU.Get(PurchLine."Location Code", PurchLine."No.", PurchLine."Variant Code");
                     PurchLinePriceExists(PurchHeader, PurchLine, false);
                     CalcBestDirectUnitCost(TempPurchPrice);
@@ -887,15 +884,15 @@ codeunit 7010 "Purch. Price Calc. Mgt."
         SalesLine.Validate("Unit Cost (LCY)", ResCost."Unit Cost" * SalesLine."Qty. per Unit of Measure");
     end;
 
+#if not CLEAN28
+    [Obsolete('Moved to codeunit ServPriceCalcMgt', '28.0')]
     procedure FindResUnitCost(var ServiceLine: Record Microsoft.Service.Document."Service Line")
+    var
+        ServPriceCalcMgt: Codeunit Microsoft.Sales.Pricing."Serv. Price Calc. Mgt.";
     begin
-        ResCost.Init();
-        ResCost.Code := ServiceLine."No.";
-        ResCost."Work Type Code" := ServiceLine."Work Type Code";
-        CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
-        ServiceLine.AfterResourseFindCost(ResCost);
-        ServiceLine.Validate("Unit Cost (LCY)", ResCost."Unit Cost" * ServiceLine."Qty. per Unit of Measure");
+        ServPriceCalcMgt.FindResUnitCost(ServiceLine);
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcBestDirectUnitCostFound(var PurchPrice: Record "Purchase Price"; var BestPurchPriceFound: Boolean; var IsHandled: Boolean)
@@ -1167,4 +1164,3 @@ codeunit 7010 "Purch. Price Calc. Mgt."
     begin
     end;
 }
-#endif

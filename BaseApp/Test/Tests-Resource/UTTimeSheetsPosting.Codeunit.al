@@ -15,14 +15,10 @@ codeunit 136502 "UT Time Sheets Posting"
         LibraryTimeSheet: Codeunit "Library - Time Sheet";
         LibraryJob: Codeunit "Library - Job";
         LibraryERM: Codeunit "Library - ERM";
-#if not CLEAN25
         LibraryRandom: Codeunit "Library - Random";
-#endif
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
-#endif
         Text020: Label 'There is no Time Sheet';
         Text021: Label 'Unexpected time sheet searching error.';
         Text023: Label 'Quantity cannot be';
@@ -481,7 +477,6 @@ codeunit 136502 "UT Time Sheets Posting"
         CheckTimeSheetPostingEntry(TimeSheetLine, PostedAssemblyLine."Document No.", PostedAssemblyLine.Quantity);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SuggestJobJournalLineTSLineDiscountPct()
@@ -522,7 +517,6 @@ codeunit 136502 "UT Time Sheets Posting"
         JobJnlLine.FindFirst();
         JobJnlLine.TestField("Line Discount %", JobResourcePrice."Line Discount %");
     end;
-#endif
 
     [Test]
     [HandlerFunctions('TimesheetLinesPageHandler')]
@@ -580,7 +574,6 @@ codeunit 136502 "UT Time Sheets Posting"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UT Time Sheets Posting");
     end;
 
-#if not CLEAN25
     local procedure CreateJobResourcePriceWithLineDiscountPct(var JobResourcePrice: Record "Job Resource Price"; JobNo: Code[20]; JobTaskNo: Code[20]; Type: Option; "Code": Code[20])
     begin
         LibraryJob.CreateJobResourcePrice(
@@ -589,7 +582,6 @@ codeunit 136502 "UT Time Sheets Posting"
         JobResourcePrice.Validate("Line Discount %", LibraryRandom.RandInt(10));
         JobResourcePrice.Modify(true);
     end;
-#endif
 
     [Normal]
     local procedure FindResourceJournalBatch(var ResJournalBatch: Record "Res. Journal Batch")

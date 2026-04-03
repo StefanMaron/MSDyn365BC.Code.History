@@ -99,6 +99,7 @@ table 1705 "Posted Deferral Line"
         /// </summary>
         field(10; "Amount (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Amount (LCY)';
         }
@@ -163,4 +164,3 @@ table 1705 "Posted Deferral Line"
     begin
     end;
 }
-

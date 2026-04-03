@@ -1,13 +1,8 @@
-#if not CLEAN27
 codeunit 138020 "O365 Customer Prices"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
-    ObsoleteReason = 'No longer used';
-    ObsoleteState = Pending;
-    ObsoleteTag = '27.0';
 
-#if not CLEAN25
     trigger OnRun()
     begin
         // [FEATURE] [Sales Price and Line Discount] [SMB] [Sales]
@@ -2098,6 +2093,4 @@ codeunit 138020 "O365 Customer Prices"
         LibraryVariableStorage.Enqueue(SalesPrices.SalesCodeFilterCtrl.Value());
         SalesPrices.Close();
     end;
-#endif
 }
-#endif

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -29,14 +29,16 @@ table 983 "Document Search Result"
         field(2; "Doc. No."; Code[20])
         {
             Caption = 'Doc. No.';
+            ToolTip = 'Specifies information about a non-posted document that is found using the Document Search window during manual payment processing.';
         }
         /// <summary>
         /// Amount associated with the document.
         /// </summary>
         field(3; Amount; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 0;
             Caption = 'Amount';
+            ToolTip = 'Specifies information about a non-posted document that is found using the Document Search window during manual payment processing.';
         }
         /// <summary>
         /// Table ID of the source table containing the document.
@@ -51,6 +53,7 @@ table 983 "Document Search Result"
         field(5; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies information about a non-posted document that is found using the Document Search window during manual payment processing.';
         }
     }
 

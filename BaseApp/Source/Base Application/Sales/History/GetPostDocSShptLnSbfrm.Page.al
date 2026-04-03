@@ -6,7 +6,11 @@ namespace Microsoft.Sales.History;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Utilities;
 
+/// <summary>
+/// Displays posted sales shipment lines as a subform for line selection during document retrieval.
+/// </summary>
 page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
 {
     Caption = 'Lines';
@@ -33,46 +37,38 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
                 field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                 }
                 field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
                 field("Sell-to Customer No."; Rec."Sell-to Customer No.")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the number of the customer.';
                     Visible = false;
                 }
                 field(Type; Rec.Type)
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the line type.';
                 }
                 field("No."; Rec."No.")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
                 field("Item Reference No."; Rec."Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
-                    ToolTip = 'Specifies the referenced item number.';
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
                 field(Nonstock; Rec.Nonstock)
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies that the item on the sales line is a catalog item, which means it is not normally kept in inventory.';
                     Visible = false;
                 }
                 field(Description; Rec.Description)
@@ -84,13 +80,11 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
                 {
                     ApplicationArea = SalesReturnOrder;
                     Importance = Additional;
-                    ToolTip = 'Specifies information in addition to the description.';
                     Visible = false;
                 }
                 field("Return Reason Code"; Rec."Return Reason Code")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the code explaining why the item was returned.';
                     Visible = false;
                 }
                 field("Location Code"; Rec."Location Code")
@@ -102,25 +96,21 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
                 field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the bin where the items are picked or put away.';
                     Visible = false;
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
                 field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
                 field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
                 field(Quantity; Rec.Quantity)
                 {
@@ -130,11 +120,11 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
                 field("Qty. Shipped Not Invoiced"; Rec."Qty. Shipped Not Invoiced")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the quantity of the shipped item that has been posted as shipped but that has not yet been posted as invoiced.';
                 }
                 field(QtyNotReturned; QtyNotReturned)
                 {
                     ApplicationArea = SalesReturnOrder;
+                    AutoFormatType = 0;
                     Caption = 'Qty. Not Returned';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the quantity from the posted document line that has been shipped to the customer and not returned by the customer.';
@@ -142,6 +132,7 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
                 field(QtyReturned; GetQtyReturned())
                 {
                     ApplicationArea = SalesReturnOrder;
+                    AutoFormatType = 0;
                     Caption = 'Qty. Returned';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the quantity that was returned.';
@@ -149,7 +140,6 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
                 field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the name of the item or resource''s unit of measure, such as piece or hour.';
                     Visible = false;
                 }
                 field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
@@ -162,6 +152,7 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
                 {
                     ApplicationArea = SalesReturnOrder;
                     AutoFormatType = 2;
+                    AutoFormatExpression = '';
                     Caption = 'Reverse Unit Cost (LCY)';
                     ToolTip = 'Specifies the unit cost that will appear on the new document lines.';
                     Visible = false;
@@ -169,31 +160,26 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
                 field("Blanket Order No."; Rec."Blanket Order No.")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the number of the blanket order that the record originates from.';
                     Visible = false;
                 }
                 field("Blanket Order Line No."; Rec."Blanket Order Line No.")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the number of the blanket order line that the record originates from.';
                     Visible = false;
                 }
                 field("Appl.-from Item Entry"; Rec."Appl.-from Item Entry")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied from.';
                     Visible = false;
                 }
                 field("Appl.-to Item Entry"; Rec."Appl.-to Item Entry")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied to.';
                 }
             }
         }
@@ -387,6 +373,12 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
         exit(0);
     end;
 
+    /// <summary>
+    /// Initializes the subform with filter and visibility settings.
+    /// </summary>
+    /// <param name="NewRevQtyFilter">Specifies whether to filter for reversible quantities.</param>
+    /// <param name="NewFillExactCostReverse">Specifies whether to fill exact cost reverse.</param>
+    /// <param name="NewVisible">Specifies whether the subform is visible.</param>
     procedure Initialize(NewRevQtyFilter: Boolean; NewFillExactCostReverse: Boolean; NewVisible: Boolean)
     begin
         RevQtyFilter := NewRevQtyFilter;
@@ -399,6 +391,10 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
         end;
     end;
 
+    /// <summary>
+    /// Gets the currently selected shipment line with selection filter applied.
+    /// </summary>
+    /// <param name="FromSalesShptLine">Returns the selected sales shipment line.</param>
     procedure GetSelectedLine(var FromSalesShptLine: Record "Sales Shipment Line")
     begin
         FromSalesShptLine.Copy(Rec);
@@ -408,10 +404,11 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
     local procedure ShowPostedShipment()
     var
         SalesShptHeader: Record "Sales Shipment Header";
+        PageManagement: Codeunit "Page Management";
     begin
         if not SalesShptHeader.Get(Rec."Document No.") then
             exit;
-        PAGE.Run(PAGE::"Posted Sales Shipment", SalesShptHeader);
+        PageManagement.PageRun(SalesShptHeader);
     end;
 
     local procedure ShowShptItemTrackingLines()

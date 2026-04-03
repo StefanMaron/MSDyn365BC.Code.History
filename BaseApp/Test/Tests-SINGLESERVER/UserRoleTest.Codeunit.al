@@ -62,27 +62,6 @@
     [HandlerFunctions('ConfirmHandlerNo')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure AddUserWithBlankNameTest()
-    var
-        UserCardPage: TestPage "User Card";
-        RandomUserName: Code[50];
-    begin
-        // Test function property TransactionModel = AutoRollback
-        // Bug Sicily 6812
-        Initialize();
-        RandomUserName := SelectRandomADUser();
-        AddUserHelper(RandomUserName);
-        TestValidateUserHelper(RandomUserName);
-        UserCardPage.OpenNew();
-        UserCardPage."User Name".SetValue('');
-        Assert.AreEqual('', UserCardPage."User Name".Value, '');
-        UserCardPage.Close();
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandlerNo')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
     procedure AddUserWithLicenseTypeTest()
     begin
         // Test function property TransactionModel = AutoRollback
@@ -394,7 +373,7 @@
     procedure CopyPermissionSetTest()
     var
         TenantPermissionSet: Record "Tenant Permission Set";
-        OrgPermission: Record "Permission";
+        OrgPermission: Record "Expanded Permission";
         NewTenantPermission: Record "Tenant Permission";
         ZeroGUID: Guid;
         RoleId: Code[20];
@@ -409,6 +388,7 @@
 
         PermissionSetsPage.OpenEdit();
         PermissionSetsPage.Filter.SetFilter(Type, 'System');
+        PermissionSetsPage.Filter.SetFilter("App ID", '63ca2fa4-4f03-4f2b-a480-172fef340d3f');
         // Copy first Permission Set to 'NEWROLE'
         PermissionSetsPage.First();
         RoleId := PermissionSetsPage.PermissionSet.Value();

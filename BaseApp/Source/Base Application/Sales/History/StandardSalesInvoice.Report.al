@@ -35,6 +35,9 @@ using System.Reflection;
 using System.Text;
 using System.Utilities;
 
+/// <summary>
+/// Generates a standard format printable document for posted sales invoices with amounts, VAT, and payment details.
+/// </summary>
 report 1306 "Standard Sales - Invoice"
 {
     Caption = 'Sales - Invoice';
@@ -771,6 +774,8 @@ report 1306 "Standard Sales - Invoice"
                     if WorkDescriptionInstream.EOS then
                         CurrReport.Break();
                     WorkDescriptionLine := TypeHelper.ReadAsTextWithSeparator(WorkDescriptionInstream, TypeHelper.LFSeparator());
+                    if WorkDescriptionLine = '' then
+                        CurrReport.Break();
                 end;
 
                 trigger OnPostDataItem()
@@ -1542,6 +1547,11 @@ report 1306 "Standard Sales - Invoice"
         exit(SalesInvoiceLbl);
     end;
 
+    /// <summary>
+    /// Initializes the report request options for the standard sales invoice report.
+    /// </summary>
+    /// <param name="NewLogInteraction">Specifies whether to log the interaction.</param>
+    /// <param name="DisplayAsmInfo">Specifies whether to display assembly information.</param>
     procedure InitializeRequest(NewLogInteraction: Boolean; DisplayAsmInfo: Boolean)
     begin
         LogInteraction := NewLogInteraction;

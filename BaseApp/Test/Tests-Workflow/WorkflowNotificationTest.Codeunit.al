@@ -14,6 +14,7 @@ codeunit 134301 "Workflow Notification Test"
         Assert: Codeunit Assert;
         EmailWasNotSentErr: Label 'The email was not sent.';
         LibraryWorkflow: Codeunit "Library - Workflow";
+        LibraryEmail: Codeunit "Library - Email";
         InvalidUriErr: Label 'The URI is not valid.';
         UserEmailAddressTxt: Label 'test@contoso.com';
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -2192,7 +2193,7 @@ codeunit 134301 "Workflow Notification Test"
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
-        LibraryWorkflow.SetUpEmailAccount();
+        LibraryEmail.SetUpEmailAccount();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
         if not UserSetup.Get(UserId) then begin
             UserSetup."User ID" := UserId;

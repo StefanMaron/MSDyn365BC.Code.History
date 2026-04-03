@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -34,17 +34,16 @@ page 99000892 "Work Center Group Load Lines"
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Period Start';
-                    ToolTip = 'Specifies the starting date of the period that you want to view, for an overview of availability at the current work center group.';
                 }
                 field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Period Name';
-                    ToolTip = 'Specifies the name of the period shown in the line.';
                 }
                 field(Capacity; Rec.Capacity)
                 {
                     ApplicationArea = Manufacturing;
+                    AutoFormatType = 0;
                     Caption = 'Capacity';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the amount of work that can be done in a specified time period at this work center group. ';
@@ -63,6 +62,7 @@ page 99000892 "Work Center Group Load Lines"
                 field("WorkCenterGroup.""Prod. Order Need (Qty.)"""; Rec."Allocated Qty.")
 #pragma warning restore AA0100
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Manufacturing;
                     Caption = 'Allocated Qty.';
                     DecimalPlaces = 0 : 5;
@@ -81,6 +81,7 @@ page 99000892 "Work Center Group Load Lines"
                 }
                 field(CapacityAvailable; Rec."Availability After Orders")
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Manufacturing;
                     Caption = 'Availability After Orders';
                     DecimalPlaces = 0 : 5;
@@ -88,6 +89,7 @@ page 99000892 "Work Center Group Load Lines"
                 }
                 field(CapacityEfficiency; Rec.Load)
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Manufacturing;
                     Caption = 'Load';
                     DecimalPlaces = 0 : 5;

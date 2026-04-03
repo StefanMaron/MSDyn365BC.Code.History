@@ -193,6 +193,106 @@ codeunit 1590 "Microsoft User Feedback"
 #pragma warning restore AS0022
 
     /// <summary>
+    /// Sets a custom question to be included in the feedback prompt.
+    /// </summary>
+    /// <param name="Question">The text of the custom question.</param>
+    /// <param name="QuestionDisplay">The display text of the custom question.</param>
+    /// <returns>The current instance of the "Microsoft User Feedback Impl" codeunit.</returns>
+#pragma warning disable AS0022
+    [Scope('OnPrem')]
+    procedure WithCustomQuestion(Question: Text; QuestionDisplay: Text): Codeunit "Microsoft User Feedback"
+    begin
+        this.FeedbackImpl := this.FeedbackImpl.WithCustomQuestion(Question, QuestionDisplay);
+        exit(this);
+    end;
+#pragma warning restore AS0022
+
+    /// <summary>
+    /// Sets the type of the custom question to be included in the feedback prompt.
+    /// </summary>
+    /// <param name="QuestionType">The type of the custom question.</param>
+    /// <returns>The current instance of the "Microsoft User Feedback Impl" codeunit.</returns>
+#pragma warning disable AS0022
+    [Scope('OnPrem')]
+    procedure WithCustomQuestionType(QuestionType: Enum FeedbackQuestionType): Codeunit "Microsoft User Feedback"
+    begin
+        this.FeedbackImpl := this.FeedbackImpl.WithCustomQuestionType(QuestionType);
+        exit(this);
+    end;
+#pragma warning restore AS0022
+
+    /// <summary>
+    /// Sets the required behavior for the custom question to be included in the feedback prompt.
+    /// </summary>
+    /// <param name="RequiredBehavior">The behaviour.</param>
+    /// <param name="Enabled">If true, enables the specified required behavior; if false, disables it.</param>
+    /// <returns>The current instance of the "Microsoft User Feedback Impl" codeunit.</returns>
+#pragma warning disable AS0022
+    [Scope('OnPrem')]
+    procedure WithCustomQuestionRequiredBehavior(RequiredBehavior: Enum FeedbackRequiredBehavior; Enabled: Boolean): Codeunit "Microsoft User Feedback"
+    begin
+        this.FeedbackImpl := this.FeedbackImpl.WithCustomQuestionRequiredBehavior(RequiredBehavior, Enabled);
+        exit(this);
+    end;
+#pragma warning restore AS0022
+
+    /// <summary>
+    /// Sets the required behavior for the custom question to be included in the feedback prompt.
+    /// </summary>
+    /// <param name="RequiredBehavior">A dictionary defining the required behavior for the custom question.</param>
+    /// <returns>The current instance of the "Microsoft User Feedback Impl" codeunit.</returns>
+#pragma warning disable AS0022
+    [Scope('OnPrem')]
+    procedure WithCustomQuestionRequiredBehavior(RequiredBehavior: Dictionary of [Enum FeedbackRequiredBehavior, Text]): Codeunit "Microsoft User Feedback"
+    begin
+        this.FeedbackImpl := this.FeedbackImpl.WithCustomQuestionRequiredBehavior(RequiredBehavior);
+        exit(this);
+    end;
+#pragma warning restore AS0022
+
+    /// <summary>
+    /// Adds an answer option for the custom question to be included in the feedback prompt.
+    /// </summary>
+    /// <param name="AnswerOption">The answer option.</param>
+    /// <param name="AnswerDisplayText">The display text for the answer option.</param>
+    /// <returns>The current instance of the "Microsoft User Feedback Impl" codeunit.</returns>
+#pragma warning disable AS0022
+    [Scope('OnPrem')]
+    procedure WithCustomQuestionAnswerOption(AnswerOption: Text; AnswerDisplayText: Text): Codeunit "Microsoft User Feedback"
+    begin
+        this.FeedbackImpl := this.FeedbackImpl.WithCustomQuestionAnswerOption(AnswerOption, AnswerDisplayText);
+        exit(this);
+    end;
+#pragma warning restore AS0022
+
+    /// <summary>
+    /// Sets the answer options for the custom question to be included in the feedback prompt.
+    /// </summary>
+    /// <param name="AnswerOptions">A dictionary defining the answer options for the custom question.</param>
+    /// <returns>The current instance of the "Microsoft User Feedback Impl" codeunit.</returns>
+#pragma warning disable AS0022
+    [Scope('OnPrem')]
+    procedure WithCustomQuestionAnswerOptions(AnswerOptions: Dictionary of [Text, Text]): Codeunit "Microsoft User Feedback"
+    begin
+        this.FeedbackImpl := this.FeedbackImpl.WithCustomQuestionAnswerOptions(AnswerOptions);
+        exit(this);
+    end;
+#pragma warning restore AS0022
+
+    /// <summary>
+    /// Clears any previously set custom question.
+    /// </summary>
+    /// <returns>The current instance of the "Microsoft User Feedback" codeunit.</returns>
+#pragma warning disable AS0022
+    [Scope('OnPrem')]
+    procedure ClearCustomQuestion(): Codeunit "Microsoft User Feedback"
+    begin
+        this.FeedbackImpl := this.FeedbackImpl.ClearCustomQuestion();
+        exit(this);
+    end;
+#pragma warning restore AS0022
+
+    /// <summary>
     /// Starts or stops a survey timer activity. This is used to start a timer to count up user usage
     /// times, which can then trigger a survey prompt after a certain threshold is reached.
     /// </summary>

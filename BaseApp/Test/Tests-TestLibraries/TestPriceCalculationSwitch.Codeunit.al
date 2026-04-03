@@ -26,13 +26,11 @@ codeunit 132462 "Test Price Calculation Switch"
         DisabledBestPrice := true;
     end;
 
-#if not CLEAN25
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Price Calculation - V15", 'OnIsDisabled', '', false, false)]
     local procedure DisablePriceCalcNative(var Disabled: Boolean)
     begin
         Disabled := DisabledNative;
     end;
-#endif
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Price Calculation - V16", 'OnIsDisabled', '', false, false)]
     local procedure DisablePriceCalcBestPrice(var Disabled: Boolean)

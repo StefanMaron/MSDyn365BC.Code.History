@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -20,6 +20,20 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
 
+/// <summary>
+/// Temporary table for managing payment application proposals during bank reconciliation processes.
+/// This table stores potential matches between bank statement lines and ledger entries, allowing
+/// users to review, modify, and approve automatic payment applications before final posting.
+/// Provides comprehensive proposal details including amounts, currencies, match quality, and
+/// supporting documentation for informed decision-making.
+/// </summary>
+/// <remarks>
+/// Key functionality includes proposal validation, amount calculations with currency handling,
+/// applied amount tracking, difference management, and integration with multiple ledger entry types
+/// (customer, vendor, employee, bank account). Supports both automatic proposal generation and
+/// manual proposal creation workflows with comprehensive audit trails and approval mechanisms.
+/// Used extensively in payment reconciliation journals for proposal review and application processing.
+/// </remarks>
 table 1293 "Payment Application Proposal"
 {
     Caption = 'Payment Application Proposal';
@@ -27,37 +41,63 @@ table 1293 "Payment Application Proposal"
 
     fields
     {
+        /// <summary>
+        /// Bank account number for the payment application proposal.
+        /// Identifies the bank account where the payment was received or will be processed.
+        /// </summary>
         field(1; "Bank Account No."; Code[20])
         {
             Caption = 'Bank Account No.';
             TableRelation = "Bank Account";
         }
+        /// <summary>
+        /// Statement number from the bank reconciliation being processed.
+        /// Links the proposal to the specific bank statement import or reconciliation session.
+        /// </summary>
         field(2; "Statement No."; Code[20])
         {
             Caption = 'Statement No.';
             TableRelation = "Bank Acc. Reconciliation"."Statement No." where("Bank Account No." = field("Bank Account No."),
                                                                               "Statement Type" = field("Statement Type"));
         }
+        /// <summary>
+        /// Line number within the bank statement being processed.
+        /// Identifies the specific transaction line for payment application.
+        /// </summary>
         field(3; "Statement Line No."; Integer)
         {
             Caption = 'Statement Line No.';
         }
+        /// <summary>
+        /// Type of statement being processed for payment application.
+        /// Determines whether this is a bank reconciliation or payment application workflow.
+        /// </summary>
         field(20; "Statement Type"; Enum "Bank Acc. Rec. Stmt. Type")
         {
             Caption = 'Statement Type';
         }
+        /// <summary>
+        /// Type of account that the payment should be applied to.
+        /// Determines the target ledger entry table for payment application.
+        /// </summary>
         field(21; "Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
+            ToolTip = 'Specifies the type of account that the payment application will be posted to when you post the payment reconciliation journal.';
 
             trigger OnValidate()
             begin
                 VerifyLineIsNotApplied();
             end;
         }
+        /// <summary>
+        /// Account number for the payment application target.
+        /// Identifies the specific customer, vendor, or other account for payment application.
+        /// </summary>
         field(22; "Account No."; Code[20])
         {
             Caption = 'Account No.';
+            ToolTip = 'Specifies the account number the payment application will be posted to when you post the payment reconciliation journal.';
             TableRelation = if ("Account Type" = const("G/L Account")) "G/L Account" where("Account Type" = const(Posting),
                                                                                           Blocked = const(false))
             else
@@ -76,9 +116,14 @@ table 1293 "Payment Application Proposal"
                 VerifyLineIsNotApplied();
             end;
         }
+        /// <summary>
+        /// Entry number of the ledger entry to apply the payment to.
+        /// Links the payment to a specific open customer, vendor, or other ledger entry.
+        /// </summary>
         field(23; "Applies-to Entry No."; Integer)
         {
             Caption = 'Applies-to Entry No.';
+            ToolTip = 'Specifies the number of the customer or vendor ledger entry that the payment will be applied to when you post the payment reconciliation journal line.';
             TableRelation = if ("Account Type" = const("G/L Account")) "G/L Entry"
             else
             if ("Account Type" = const(Customer)) "Cust. Ledger Entry" where(Open = const(true))
@@ -87,6 +132,10 @@ table 1293 "Payment Application Proposal"
             else
             if ("Account Type" = const("Bank Account")) "Bank Account Ledger Entry" where(Open = const(true));
         }
+        /// <summary>
+        /// Amount to apply from the payment to the target ledger entry.
+        /// Can be partial amount allowing for split applications across multiple entries.
+        /// </summary>
         field(24; "Applied Amount"; Decimal)
         {
             Caption = 'Applied Amount';
@@ -101,9 +150,14 @@ table 1293 "Payment Application Proposal"
                     UpdateAppliedAmt();
             end;
         }
+        /// <summary>
+        /// Indicates whether the payment application proposal has been applied.
+        /// Controls the application state and enables unapplication functionality.
+        /// </summary>
         field(25; Applied; Boolean)
         {
             Caption = 'Applied';
+            ToolTip = 'Specifies that the payment specified on the header of the Payment Application window is applied to the open entry.';
 
             trigger OnValidate()
             var
@@ -128,65 +182,118 @@ table 1293 "Payment Application Proposal"
                 end;
             end;
         }
+        /// <summary>
+        /// Payment discount amount applied during the payment application.
+        /// Reduces the payment amount when early payment discounts are taken.
+        /// </summary>
         field(29; "Applied Pmt. Discount"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
             Caption = 'Applied Pmt. Discount';
             AutoFormatType = 1;
         }
+        /// <summary>
+        /// Quality score for the automatic matching proposal.
+        /// Higher values indicate better matching confidence based on matching criteria.
+        /// </summary>
         field(30; Quality; Integer)
         {
             Caption = 'Quality';
         }
+        /// <summary>
+        /// Original posting date of the target ledger entry.
+        /// Used for matching and validation during payment application processing.
+        /// </summary>
         field(31; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
+            ToolTip = 'Specifies the posting date of the open entry.';
         }
+        /// <summary>
+        /// Document type of the target ledger entry.
+        /// Determines application behavior and business logic for different transaction types.
+        /// </summary>
         field(32; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
+            ToolTip = 'Specifies the type of document that is related to the open entry.';
         }
+        /// <summary>
+        /// Document number of the target ledger entry.
+        /// Used for reference matching and identification during payment application.
+        /// </summary>
         field(33; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+            ToolTip = 'Specifies the number of the document that is related to the open entry.';
         }
+        /// <summary>
+        /// Description from the target ledger entry.
+        /// Provides context and identification information for payment application.
+        /// </summary>
         field(34; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies the description of the open entry.';
         }
+        /// <summary>
+        /// Currency code for the payment application proposal.
+        /// Must match the currency of both payment and target ledger entry.
+        /// </summary>
         field(35; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
+            ToolTip = 'Specifies the currency code of the open entry.';
             Editable = false;
             TableRelation = Currency;
         }
+        /// <summary>
+        /// Due date of the target ledger entry.
+        /// Used for payment discount calculations and aging analysis.
+        /// </summary>
         field(36; "Due Date"; Date)
         {
             Caption = 'Due Date';
+            ToolTip = 'Specifies the due date of the open entry.';
             Editable = false;
         }
+        /// <summary>
+        /// External document number from the target ledger entry.
+        /// Used for matching with external references in payment data.
+        /// </summary>
         field(37; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+            ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
         }
+        /// <summary>
+        /// Confidence level for the automatic matching proposal.
+        /// Indicates the system's confidence in the accuracy of the proposed application.
+        /// </summary>
         field(50; "Match Confidence"; Enum "Bank Rec. Match Confidence")
         {
             Caption = 'Match Confidence';
+            ToolTip = 'Specifies the quality of the match between the payment and the open entry for payment application purposes.';
             Editable = false;
             InitValue = "None";
         }
         field(51; "Pmt. Disc. Due Date"; Date)
         {
             Caption = 'Pmt. Disc. Due Date';
+            ToolTip = 'Specifies the date on which the remaining amount on the open entry must be paid to grant a discount.';
 
             trigger OnValidate()
             begin
                 ChangeDiscountAmounts();
             end;
         }
+        /// <summary>
+        /// Specifies the remaining payment discount amount that can still be utilized.
+        /// </summary>
         field(52; "Remaining Pmt. Disc. Possible"; Decimal)
         {
             Caption = 'Remaining Pmt. Disc. Possible';
+            ToolTip = 'Specifies how much discount you can grant for the payment if you apply it to the open entry.';
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
 
@@ -195,18 +302,26 @@ table 1293 "Payment Application Proposal"
                 ChangeDiscountAmounts();
             end;
         }
+        /// <summary>
+        /// Specifies the payment discount tolerance date for the payment application.
+        /// </summary>
         field(53; "Pmt. Disc. Tolerance Date"; Date)
         {
             Caption = 'Pmt. Disc. Tolerance Date';
+            ToolTip = 'Specifies the latest date the amount in the entry must be paid in order for payment discount tolerance to be granted.';
 
             trigger OnValidate()
             begin
                 ChangeDiscountAmounts();
             end;
         }
+        /// <summary>
+        /// Specifies the applied amount including any payment discount applied.
+        /// </summary>
         field(60; "Applied Amt. Incl. Discount"; Decimal)
         {
             Caption = 'Applied Amt. Incl. Discount';
+            ToolTip = 'Specifies the payment amount, excluding the value in the Applied Pmt. Discount field, that is applied to the open entry.';
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
 
@@ -218,31 +333,48 @@ table 1293 "Payment Application Proposal"
                     Validate("Applied Amount", "Applied Amt. Incl. Discount");
             end;
         }
+        /// <summary>
+        /// Specifies the remaining amount after application of this payment proposal.
+        /// </summary>
         field(61; "Remaining Amount"; Decimal)
         {
             Caption = 'Remaining Amount';
+            ToolTip = 'Specifies the amount that remains to be paid for the open entry.';
             Editable = false;
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
         }
+        /// <summary>
+        /// Specifies the remaining amount including any available payment discount.
+        /// </summary>
         field(62; "Remaining Amt. Incl. Discount"; Decimal)
         {
             Caption = 'Remaining Amt. Incl. Discount';
+            ToolTip = 'Specifies the amount that remains to be paid for the open entry, minus any granted payment discount.';
             Editable = false;
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
         }
+        /// <summary>
+        /// Specifies the type of ledger entry being applied to in this payment proposal.
+        /// </summary>
         field(63; Type; Option)
         {
             Caption = 'Type';
             OptionCaption = 'Bank Account Ledger Entry,Check Ledger Entry';
             OptionMembers = "Bank Account Ledger Entry","Check Ledger Entry";
         }
+        /// <summary>
+        /// Specifies the sorting order for displaying payment application proposals.
+        /// </summary>
         field(100; "Sorting Order"; Integer)
         {
             Caption = 'Sorting Order';
             Editable = false;
         }
+        /// <summary>
+        /// Specifies the difference between the statement amount and the remaining amount after application.
+        /// </summary>
         field(101; "Stmt To Rem. Amount Difference"; Decimal)
         {
             Caption = 'Stmt To Rem. Amount Difference';

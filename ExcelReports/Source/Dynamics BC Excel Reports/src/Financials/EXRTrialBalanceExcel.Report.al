@@ -5,10 +5,10 @@
 
 namespace Microsoft.Finance.ExcelReports;
 
-using Microsoft.Finance.GeneralLedger.Account;
-using Microsoft.Finance.Dimension;
-using Microsoft.Foundation.Company;
 using Microsoft.ExcelReports;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Foundation.Company;
 
 report 4405 "EXR Trial Balance Excel"
 {
@@ -149,7 +149,7 @@ report 4405 "EXR Trial Balance Excel"
         TrialBalanceData.SecurityFiltering(SecurityFilter::Filtered);
         CompanyInformation.Get();
         ExcelReportsTelemetry.LogReportUsage(Report::"EXR Trial Balance Excel");
-        TrialBalance.ConfigureTrialBalance(true, false);
+        TrialBalance.ConfigureTrialBalance(false, false);
         TrialBalance.InsertTrialBalanceReportData(GLAccounts, Dimension1, Dimension2, TrialBalanceData);
     end;
 

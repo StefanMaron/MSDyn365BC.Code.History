@@ -17,6 +17,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        APIMockEvents: Codeunit "API Mock Events";
         IncorrectNumberOfTablesErr: Label 'Incorrect number of tables in package.';
         CannotUseDimensionsAsColumnsErr: Label 'You cannot use the Dimensions as Columns function for table %1.';
         DimensionExpectedErr: Label 'The setup of Dimensions as Columns was canceled.';
@@ -246,7 +247,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM RS Dimensions as Columns");
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryRapidStart.SetAPIServicesEnabled(false);
+        APIMockEvents.SetAPIServicesEnabled(false);
 
         IsInitialized := true;
 
